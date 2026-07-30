@@ -129,6 +129,12 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dc8/interfacekrylov_1_1ksp__t__free.html">krylov::ksp_t_free</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for deallocating a Krylov method.  <a href="../../d6/dc8/interfacekrylov_1_1ksp__t__free.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d54/interfacekrylov_1_1krylov__allocate.html">krylov::krylov_allocate</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory for Krylov solvers. Both creates and initializes the object.  <a href="../../d0/d54/interfacekrylov_1_1krylov__allocate.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/dbc/structkrylov_1_1krylov__allocator__entry.html">krylov::krylov_allocator_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in user modules to add an allocator for custom types.  <a href="../../d2/dbc/structkrylov_1_1krylov__allocator__entry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Modules</h2></td></tr>
@@ -139,7 +145,7 @@ Modules</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a81737524a147e005b37c62f781570b13" id="r_a81737524a147e005b37c62f781570b13"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a81737524a147e005b37c62f781570b13">krylov::krylov_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, max_iter, rel_tol, abs_tol, m, monitor)</td></tr>
-<tr class="memdesc:a81737524a147e005b37c62f781570b13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory for Krylov solvers. Both creates and initializes the object.  <br /></td></tr>
+<tr class="memdesc:a81737524a147e005b37c62f781570b13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for the base type.  <br /></td></tr>
 <tr class="separator:a81737524a147e005b37c62f781570b13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b461bf26ab4402b452e62fd907103a7" id="r_a6b461bf26ab4402b452e62fd907103a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a6b461bf26ab4402b452e62fd907103a7">krylov::krylov_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a6b461bf26ab4402b452e62fd907103a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a Krylov solver.  <br /></td></tr>
@@ -177,6 +183,12 @@ Variables</h2></td></tr>
 <tr class="memitem:a2232d050e8220dd0e352118faceb029a" id="r_a2232d050e8220dd0e352118faceb029a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a2232d050e8220dd0e352118faceb029a">krylov::ksp_rel_tol</a> = 1d-9</td></tr>
 <tr class="memdesc:a2232d050e8220dd0e352118faceb029a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relative tolerance.  <br /></td></tr>
 <tr class="separator:a2232d050e8220dd0e352118faceb029a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d097979c2ab9fc9a409d2367b9224f2" id="r_a1d097979c2ab9fc9a409d2367b9224f2"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d2/dbc/structkrylov_1_1krylov__allocator__entry.html">krylov_allocator_entry</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a1d097979c2ab9fc9a409d2367b9224f2">krylov::krylov_registry</a></td></tr>
+<tr class="memdesc:a1d097979c2ab9fc9a409d2367b9224f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry of allocators for user-defined Krylov solver types.  <br /></td></tr>
+<tr class="separator:a1d097979c2ab9fc9a409d2367b9224f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14d5241787be131f9f7c8603cf371916" id="r_a14d5241787be131f9f7c8603cf371916"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a14d5241787be131f9f7c8603cf371916">krylov::krylov_registry_size</a> = 0</td></tr>
+<tr class="memdesc:a14d5241787be131f9f7c8603cf371916"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of the <code>krylov_registry</code>.  <br /></td></tr>
+<tr class="separator:a14d5241787be131f9f7c8603cf371916"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -184,7 +196,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../d9/da5/krylov_8f90.html">krylov.f90</a></li>
-    <li class="footer">Generated on Wed Jul 29 2026 04:36:57 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jul 30 2026 04:33:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

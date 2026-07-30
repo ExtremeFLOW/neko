@@ -617,6 +617,8 @@ var hierarchy =
     [ "json_utils::json_get_or_lookup_or_default", "d3/da9/interfacejson__utils_1_1json__get__or__lookup__or__default.html", null ],
     [ "ale_routines_device::kinematics_params_t", "d8/d38/structale__routines__device_1_1kinematics__params__t.html", null ],
     [ "kinematics_params_t", "df/dc7/structkinematics__params__t.html", null ],
+    [ "krylov::krylov_allocate", "d0/d54/interfacekrylov_1_1krylov__allocate.html", null ],
+    [ "krylov::krylov_allocator_entry", "d2/dbc/structkrylov_1_1krylov__allocator__entry.html", null ],
     [ "krylov::ksp_init_intrf", "d0/db4/interfacekrylov_1_1ksp__init__intrf.html", null ],
     [ "krylov::ksp_method", "d2/d6e/interfacekrylov_1_1ksp__method.html", null ],
     [ "krylov::ksp_method_coupled", "d1/d3d/interfacekrylov_1_1ksp__method__coupled.html", null ],
@@ -903,6 +905,8 @@ var hierarchy =
       [ "sphere_point_zone::sphere_point_zone_t", "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html", null ]
     ] ],
     [ "point_zone::point_zone_wrapper_t", "dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html", null ],
+    [ "precon::precon_allocate", "d2/d3a/interfaceprecon_1_1precon__allocate.html", null ],
+    [ "precon::precon_allocator_entry", "dd/d81/structprecon_1_1precon__allocator__entry.html", null ],
     [ "projection::projection_t", "d5/dcf/structprojection_1_1projection__t.html", null ],
     [ "projection_vel::projection_vel_t", "d8/dfd/structprojection__vel_1_1projection__vel__t.html", null ],
     [ "pnpn_residual::prs_res", "dc/d18/interfacepnpn__residual_1_1prs__res.html", null ],

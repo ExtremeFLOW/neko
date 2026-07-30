@@ -146,7 +146,7 @@ $(document).ready(function(){initNavTree('d8/d2b/precon__fctry_8f90_source.html'
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/da7/namespacedevice__jacobi.html">device_jacobi</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d8/dca/structdevice__jacobi_1_1device__jacobi__t.html">device_jacobi_t</a></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/dd1/namespacehsmg.html">hsmg</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../dd/d81/structhsmg_1_1hsmg__t.html">hsmg_t</a></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d1/d38/namespacephmg.html">phmg</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d8/d4e/structphmg_1_1phmg__t.html">phmg_t</a></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">neko_type_error</a></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">neko_type_error</a>, <a class="code hl_function" href="../../d6/d84/namespaceutils.html#a131a6b98b16e65151cc8b92283a40337">neko_type_registration_error</a></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/d77/namespaceneko__config.html">neko_config</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a>, <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#a13c7db96ad80fa8aa04f81574ebd39db">neko_bcknd_sx</a></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
@@ -159,61 +159,102 @@ $(document).ready(function(){initNavTree('d8/d2b/precon__fctry_8f90_source.html'
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keyword">contains</span></div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  <span class="keyword">module</span> subroutine precon_factory(pc, type_name)</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  <span class="keyword">module</span> subroutine precon_allocator(pc, type_name)</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">class</span>(pc_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: pc</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: type_name</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(pc)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>       <span class="keyword">call </span>precon_destroy(pc)</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>       <span class="keyword">deallocate</span>(pc)</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">select case</span> (trim(type_name))</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;jacobi&#39;</span>)</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>       <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#a13c7db96ad80fa8aa04f81574ebd39db">neko_bcknd_sx</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>          <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d4/d41/structsx__jacobi_1_1sx__jacobi__t.html">sx_jacobi_t</a>::pc)</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>          <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d8/dca/structdevice__jacobi_1_1device__jacobi__t.html">device_jacobi_t</a>::pc)</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>       <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>          <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../da/d72/structjacobi_1_1jacobi__t.html">jacobi_t</a>::pc)</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;hsmg&#39;</span>)</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../dd/d81/structhsmg_1_1hsmg__t.html">hsmg_t</a>::pc)</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;phmg&#39;</span>)</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d8/d4e/structphmg_1_1phmg__t.html">phmg_t</a>::pc)</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <span class="keywordflow">case</span>(<span class="stringliteral">&#39;ident&#39;</span>)</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>       <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>          <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../dd/ddc/structdevice__identity_1_1device__ident__t.html">device_ident_t</a>::pc)</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>       <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>          <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d7/d69/structidentity_1_1ident__t.html">ident_t</a>::pc)</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="keywordflow">    case default</span></div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">neko_type_error</a>(<span class="stringliteral">&quot;preconditioner&quot;</span>, type_name, pc_known_types)</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="keywordflow">    end select</span></div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>  <span class="keyword">end subroutine </span>precon_factory</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>  <span class="keyword">module</span> subroutine precon_destroy(pc)</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordtype">class</span>(pc_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: pc</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(pc)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>       <span class="keywordflow">select type</span> (pcp =&gt; pc)</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span><span class="keywordflow">       type is</span> (<a class="code hl_struct" href="../../da/d72/structjacobi_1_1jacobi__t.html">jacobi_t</a>)</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>          <span class="keyword">call </span>pcp%free()</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="keywordflow">       type is</span> (<a class="code hl_struct" href="../../d4/d41/structsx__jacobi_1_1sx__jacobi__t.html">sx_jacobi_t</a>)</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>          <span class="keyword">call </span>pcp%free()</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="keywordflow">       type is</span> (<a class="code hl_struct" href="../../d8/dca/structdevice__jacobi_1_1device__jacobi__t.html">device_jacobi_t</a>)</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>          <span class="keyword">call </span>pcp%free()</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="keywordflow">       type is</span> (<a class="code hl_struct" href="../../dd/d81/structhsmg_1_1hsmg__t.html">hsmg_t</a>)</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>          <span class="keyword">call </span>pcp%free()</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="keywordflow">       type is</span> (<a class="code hl_struct" href="../../d8/d4e/structphmg_1_1phmg__t.html">phmg_t</a>)</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(pc)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>       <span class="keyword">call </span>precon_destroy(pc)</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>       <span class="keyword">deallocate</span>(pc)</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordflow">select case</span> (trim(type_name))</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;jacobi&#39;</span>)</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>       <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#a13c7db96ad80fa8aa04f81574ebd39db">neko_bcknd_sx</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>          <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d4/d41/structsx__jacobi_1_1sx__jacobi__t.html">sx_jacobi_t</a>::pc)</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>          <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d8/dca/structdevice__jacobi_1_1device__jacobi__t.html">device_jacobi_t</a>::pc)</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>       <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>          <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../da/d72/structjacobi_1_1jacobi__t.html">jacobi_t</a>::pc)</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;hsmg&#39;</span>)</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../dd/d81/structhsmg_1_1hsmg__t.html">hsmg_t</a>::pc)</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;phmg&#39;</span>)</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d8/d4e/structphmg_1_1phmg__t.html">phmg_t</a>::pc)</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="keywordflow">case</span>(<span class="stringliteral">&#39;ident&#39;</span>)</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>       <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>          <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../dd/ddc/structdevice__identity_1_1device__ident__t.html">device_ident_t</a>::pc)</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>       <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>          <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d7/d69/structidentity_1_1ident__t.html">ident_t</a>::pc)</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span><span class="keywordflow">    case default</span></div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>       <span class="keywordflow">do</span> i = 1, precon_registry_size</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>          <span class="keywordflow">if</span> (trim(type_name) .eq. trim(precon_registry(i)%type_name)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>             <span class="keyword">call </span>precon_registry(i)%allocator(pc)</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>             <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">neko_type_error</a>(<span class="stringliteral">&quot;preconditioner&quot;</span>, type_name, pc_known_types)</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="keywordflow">    end select</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>  <span class="keyword">end subroutine </span>precon_allocator</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>  <span class="keyword">module</span> subroutine precon_destroy(pc)</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordtype">class</span>(pc_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: pc</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(pc)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>       <span class="keywordflow">select type</span> (pcp =&gt; pc)</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="keywordflow">       type is</span> (<a class="code hl_struct" href="../../da/d72/structjacobi_1_1jacobi__t.html">jacobi_t</a>)</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>          <span class="keyword">call </span>pcp%free()</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="keywordflow">       end select</span></div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>  <span class="keyword">end subroutine </span>precon_destroy</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span> </div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="keyword">end </span>submodule precon_fctry</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="keywordflow">       type is</span> (<a class="code hl_struct" href="../../d4/d41/structsx__jacobi_1_1sx__jacobi__t.html">sx_jacobi_t</a>)</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>          <span class="keyword">call </span>pcp%free()</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="keywordflow">       type is</span> (<a class="code hl_struct" href="../../d8/dca/structdevice__jacobi_1_1device__jacobi__t.html">device_jacobi_t</a>)</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>          <span class="keyword">call </span>pcp%free()</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="keywordflow">       type is</span> (<a class="code hl_struct" href="../../dd/d81/structhsmg_1_1hsmg__t.html">hsmg_t</a>)</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>          <span class="keyword">call </span>pcp%free()</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="keywordflow">       type is</span> (<a class="code hl_struct" href="../../d8/d4e/structphmg_1_1phmg__t.html">phmg_t</a>)</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>          <span class="keyword">call </span>pcp%free()</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span><span class="keywordflow">       end select</span></div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>  <span class="keyword">end subroutine </span>precon_destroy</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  <span class="keyword">module</span> subroutine register_precon(type_name, allocator)</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: type_name</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keywordtype">procedure</span>(precon_allocate), <span class="keywordtype">pointer</span>, <span class="keywordtype">intent(in)</span> :: allocator</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <span class="keywordtype">type</span>(precon_allocator_entry), <span class="keywordtype">allocatable</span> :: temp(:)</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span> </div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(pc_known_types)</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>       <span class="keywordflow">if</span> (trim(type_name) .eq. trim(pc_known_types(i))) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#a131a6b98b16e65151cc8b92283a40337">neko_type_registration_error</a>(<span class="stringliteral">&quot;preconditioner&quot;</span>, type_name, &amp;</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>               .true.)</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span> </div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    <span class="keywordflow">do</span> i = 1, precon_registry_size</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>       <span class="keywordflow">if</span> (trim(type_name) .eq. trim(precon_registry(i)%type_name)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#a131a6b98b16e65151cc8b92283a40337">neko_type_registration_error</a>(<span class="stringliteral">&quot;preconditioner&quot;</span>, type_name, &amp;</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>               .false.)</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span> </div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    <span class="keywordflow">if</span> (precon_registry_size .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>       <span class="keyword">allocate</span>(precon_registry(1))</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>       <span class="keyword">allocate</span>(temp(precon_registry_size + 1))</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>       temp(1:precon_registry_size) = precon_registry</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>       <span class="keyword">call </span>move_alloc(temp, precon_registry)</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span> </div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    precon_registry_size = precon_registry_size + 1</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    precon_registry(precon_registry_size)%type_name = type_name</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    precon_registry(precon_registry_size)%allocator =&gt; allocator</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>  <span class="keyword">end subroutine </span>register_precon</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span><span class="keyword">end </span>submodule precon_fctry</div>
 <div class="ttc" id="anamespacedevice__identity_html"><div class="ttname"><a href="../../d0/d69/namespacedevice__identity.html">device_identity</a></div><div class="ttdoc">Identity Krylov preconditioner for accelerators.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d4a/pc__identity__device_8f90_source.html#l00034">pc_identity_device.f90:34</a></div></div>
 <div class="ttc" id="anamespacedevice__jacobi_html"><div class="ttname"><a href="../../d2/da7/namespacedevice__jacobi.html">device_jacobi</a></div><div class="ttdoc">Jacobi preconditioner accelerator backend.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dd3/pc__jacobi__device_8F90_source.html#l00034">pc_jacobi_device.F90:34</a></div></div>
 <div class="ttc" id="anamespacehsmg_html"><div class="ttname"><a href="../../dd/dd1/namespacehsmg.html">hsmg</a></div><div class="ttdoc">Krylov preconditioner.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d84/pc__hsmg_8f90_source.html#l00061">pc_hsmg.f90:61</a></div></div>
@@ -226,6 +267,7 @@ $(document).ready(function(){initNavTree('d8/d2b/precon__fctry_8f90_source.html'
 <div class="ttc" id="anamespaceprecon_html"><div class="ttname"><a href="../../d0/dbb/namespaceprecon.html">precon</a></div><div class="ttdoc">Krylov preconditioner.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/de5/precon_8f90_source.html#l00034">precon.f90:34</a></div></div>
 <div class="ttc" id="anamespacesx__jacobi_html"><div class="ttname"><a href="../../dd/d6e/namespacesx__jacobi.html">sx_jacobi</a></div><div class="ttdoc">Jacobi preconditioner SX-Aurora backend.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d7e/pc__jacobi__sx_8f90_source.html#l00034">pc_jacobi_sx.f90:34</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
+<div class="ttc" id="anamespaceutils_html_a131a6b98b16e65151cc8b92283a40337"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a131a6b98b16e65151cc8b92283a40337">utils::neko_type_registration_error</a></div><div class="ttdeci">subroutine, public neko_type_registration_error(base_type, wrong_type, known)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00379">utils.f90:380</a></div></div>
 <div class="ttc" id="anamespaceutils_html_ac2aece3826d2efe73113379fc55ae05b"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">utils::neko_type_error</a></div><div class="ttdeci">subroutine, public neko_type_error(base_type, wrong_type, known_types)</div><div class="ttdoc">Reports an error allocating a type for a particular base pointer class.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00364">utils.f90:365</a></div></div>
 <div class="ttc" id="astructdevice__identity_1_1device__ident__t_html"><div class="ttname"><a href="../../dd/ddc/structdevice__identity_1_1device__ident__t.html">device_identity::device_ident_t</a></div><div class="ttdoc">Defines a canonical Krylov preconditioner for accelerators.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d4a/pc__identity__device_8f90_source.html#l00044">pc_identity_device.f90:44</a></div></div>
 <div class="ttc" id="astructdevice__jacobi_1_1device__jacobi__t_html"><div class="ttname"><a href="../../d8/dca/structdevice__jacobi_1_1device__jacobi__t.html">device_jacobi::device_jacobi_t</a></div><div class="ttdoc">Defines a jacobi preconditioner.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dd3/pc__jacobi__device_8F90_source.html#l00049">pc_jacobi_device.F90:49</a></div></div>
@@ -240,7 +282,7 @@ $(document).ready(function(){initNavTree('d8/d2b/precon__fctry_8f90_source.html'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../d8/d2b/precon__fctry_8f90.html">precon_fctry.f90</a></li>
-    <li class="footer">Generated on Wed Jul 29 2026 04:36:56 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jul 30 2026 04:33:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

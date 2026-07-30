@@ -175,19 +175,51 @@ $(document).ready(function(){initNavTree('d4/de5/precon_8f90_source.html','../..
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  <span class="keyword">interface</span></div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>     <span class="keyword">module</span> subroutine precon_factory(pc, type_name)</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>       <span class="keywordtype">class</span>(pc_t),  <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: pc</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>     <span class="keyword">module</span> subroutine precon_allocator(pc, type_name)</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>       <span class="keywordtype">class</span>(pc_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: pc</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>       <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: type_name</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>     <span class="keyword">end subroutine </span>precon_factory</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>     <span class="keyword">end subroutine </span>precon_allocator</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>     <span class="keyword">module</span> subroutine precon_destroy(pc)</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>       <span class="keywordtype">class</span>(pc_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: pc</div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>     <span class="keyword">end subroutine </span>precon_destroy</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>  <span class="keyword">end interface</span></div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>  <span class="keywordtype">public</span> :: precon_factory, precon_destroy</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>  </div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/dbb/namespaceprecon.html">precon</a></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>  <span class="comment">!</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>  <span class="comment">! Machinery for injecting user-defined types</span></div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>  <span class="comment">!</span></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>  abstract <span class="keyword">interface</span></div>
+<div class="foldopen" id="foldopen00089" data-start="" data-end="">
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno"><a class="line" href="../../d2/d3a/interfaceprecon_1_1precon__allocate.html#a210da681f02097774c569d8bd9187d7a">   89</a></span>     <span class="keyword">subroutine </span>precon_allocate(obj)</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>       <span class="keywordtype">import </span>pc_t</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>       <span class="keywordtype">class</span>(pc_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: obj</div>
+</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>     <span class="keyword">end subroutine </span>precon_allocate</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>     <span class="keyword">module</span> subroutine register_precon(type_name, allocator)</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>       <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: type_name</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>       <span class="keywordtype">procedure</span>(precon_allocate), <span class="keywordtype">pointer</span>, <span class="keywordtype">intent(in)</span> :: allocator</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>     <span class="keyword">end subroutine </span>register_precon</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
+<div class="foldopen" id="foldopen00104" data-start="" data-end="">
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno"><a class="line" href="../../dd/d81/structprecon_1_1precon__allocator__entry.html">  104</a></span>  <span class="keyword">type</span> precon_allocator_entry</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno"><a class="line" href="../../dd/d81/structprecon_1_1precon__allocator__entry.html#af8c5627db342460c0bf409a4f83c2359">  105</a></span>     <span class="keywordtype">character(len=20)</span> :: type_name</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno"><a class="line" href="../../dd/d81/structprecon_1_1precon__allocator__entry.html#a2cc9ed60f16fc494f38c453e0d16952a">  106</a></span>     <span class="keywordtype">procedure</span>(precon_allocate), <span class="keywordtype">pointer</span>, <span class="keywordtype">nopass</span> :: allocator</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  <span class="keyword">end type </span>precon_allocator_entry</div>
+</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno"><a class="line" href="../../d0/dbb/namespaceprecon.html#a22422a5635b043ace82c1775f5bc5fc7">  110</a></span>  <span class="keywordtype">type</span>(precon_allocator_entry), <span class="keywordtype">allocatable</span> :: precon_registry(:)</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno"><a class="line" href="../../d0/dbb/namespaceprecon.html#a70cd10a4fd472cbfc7a74e9ffb860015">  113</a></span>  <span class="keywordtype">integer</span> :: precon_registry_size = 0</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>  <span class="keywordtype">public</span> :: precon_allocator, precon_destroy, register_precon, precon_allocate</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/dbb/namespaceprecon.html">precon</a></div>
 <div class="ttc" id="acuda_2spalding__kernel_8h_html_a54a3eb1a5c6e2b00e208c5c32948b133"><div class="ttname"><a href="../../d1/dca/cuda_2spalding__kernel_8h.html#a54a3eb1a5c6e2b00e208c5c32948b133">solve</a></div><div class="ttdeci">__device__ T solve(const T u, const T y, const T guess, const T nu, const T kappa, const T B)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/dca/cuda_2spalding__kernel_8h_source.html#l00126">spalding_kernel.h:126</a></div></div>
 <div class="ttc" id="ainterfaceprecon_1_1pc__solve_html"><div class="ttname"><a href="../../df/db4/interfaceprecon_1_1pc__solve.html">precon::pc_solve</a></div><div class="ttdoc">Abstract interface for solving .</div><div class="ttdef"><b>Definition</b> <a href="../../d4/de5/precon_8f90_source.html#l00051">precon.f90:51</a></div></div>
 <div class="ttc" id="ainterfaceprecon_1_1pc__update_html"><div class="ttname"><a href="../../d0/d0b/interfaceprecon_1_1pc__update.html">precon::pc_update</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/de5/precon_8f90_source.html#l00060">precon.f90:60</a></div></div>
@@ -201,7 +233,7 @@ $(document).ready(function(){initNavTree('d4/de5/precon_8f90_source.html','../..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../d4/de5/precon_8f90.html">precon.f90</a></li>
-    <li class="footer">Generated on Wed Jul 29 2026 04:36:56 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jul 30 2026 04:33:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

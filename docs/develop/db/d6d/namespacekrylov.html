@@ -111,6 +111,12 @@ $(document).ready(function(){initNavTree('db/d6d/namespacekrylov.html','../../')
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d54/interfacekrylov_1_1krylov__allocate.html">krylov_allocate</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory for Krylov solvers. Both creates and initializes the object.  <a href="../../d0/d54/interfacekrylov_1_1krylov__allocate.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/dbc/structkrylov_1_1krylov__allocator__entry.html">krylov_allocator_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in user modules to add an allocator for custom types.  <a href="../../d2/dbc/structkrylov_1_1krylov__allocator__entry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/db4/interfacekrylov_1_1ksp__init__intrf.html">ksp_init_intrf</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for a Krylov method's constructor.  <a href="../../d0/db4/interfacekrylov_1_1ksp__init__intrf.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -133,7 +139,7 @@ Data Types</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a81737524a147e005b37c62f781570b13" id="r_a81737524a147e005b37c62f781570b13"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a81737524a147e005b37c62f781570b13">krylov_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, max_iter, rel_tol, abs_tol, m, monitor)</td></tr>
-<tr class="memdesc:a81737524a147e005b37c62f781570b13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory for Krylov solvers. Both creates and initializes the object.  <br /></td></tr>
+<tr class="memdesc:a81737524a147e005b37c62f781570b13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for the base type.  <br /></td></tr>
 <tr class="separator:a81737524a147e005b37c62f781570b13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b461bf26ab4402b452e62fd907103a7" id="r_a6b461bf26ab4402b452e62fd907103a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a6b461bf26ab4402b452e62fd907103a7">krylov_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a6b461bf26ab4402b452e62fd907103a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a Krylov solver.  <br /></td></tr>
@@ -171,6 +177,12 @@ Variables</h2></td></tr>
 <tr class="memitem:a2232d050e8220dd0e352118faceb029a" id="r_a2232d050e8220dd0e352118faceb029a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a2232d050e8220dd0e352118faceb029a">ksp_rel_tol</a> = 1d-9</td></tr>
 <tr class="memdesc:a2232d050e8220dd0e352118faceb029a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relative tolerance.  <br /></td></tr>
 <tr class="separator:a2232d050e8220dd0e352118faceb029a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d097979c2ab9fc9a409d2367b9224f2" id="r_a1d097979c2ab9fc9a409d2367b9224f2"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d2/dbc/structkrylov_1_1krylov__allocator__entry.html">krylov_allocator_entry</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a1d097979c2ab9fc9a409d2367b9224f2">krylov_registry</a></td></tr>
+<tr class="memdesc:a1d097979c2ab9fc9a409d2367b9224f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry of allocators for user-defined Krylov solver types.  <br /></td></tr>
+<tr class="separator:a1d097979c2ab9fc9a409d2367b9224f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14d5241787be131f9f7c8603cf371916" id="r_a14d5241787be131f9f7c8603cf371916"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a14d5241787be131f9f7c8603cf371916">krylov_registry_size</a> = 0</td></tr>
+<tr class="memdesc:a14d5241787be131f9f7c8603cf371916"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of the <code>krylov_registry</code>.  <br /></td></tr>
+<tr class="separator:a14d5241787be131f9f7c8603cf371916"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a6b461bf26ab4402b452e62fd907103a7" name="a6b461bf26ab4402b452e62fd907103a7"></a>
@@ -198,7 +210,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000019">Todo:</a></b></dt><dd>add calls to destroy precon. if necessary </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00288">288</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00333">333</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -261,13 +273,6 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">object</td><td>The object to be allocated. </td></tr>
-    <tr><td class="paramname">n</td><td>Size of the vectors the solver operates on. </td></tr>
-    <tr><td class="paramname">type_name</td><td>The name of the solver type. </td></tr>
-    <tr><td class="paramname">max_iter</td><td>The maximum number of iterations </td></tr>
-    <tr><td class="paramname">abstol</td><td>The absolute tolerance, optional. </td></tr>
-    <tr><td class="paramname">M</td><td>The preconditioner, optional. </td></tr>
-    <tr><td class="paramname">monitor</td><td>Enable/disable monitoring, optional. Constructor for the base type. </td></tr>
     <tr><td class="paramname">max_iter</td><td>Maximum number of iterations. </td></tr>
     <tr><td class="paramname">rel_tol</td><td>Relative tolarance for converence. </td></tr>
     <tr><td class="paramname">rel_tol</td><td>Absolute tolarance for converence. </td></tr>
@@ -276,7 +281,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00242">242</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00287">287</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -328,7 +333,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00366">366</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00411">411</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -372,7 +377,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00345">345</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00390">390</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -400,7 +405,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00379">379</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00424">424</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -438,7 +443,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00391">391</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00436">436</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -476,7 +481,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00315">315</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00360">360</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -504,7 +509,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00333">333</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00378">378</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -548,11 +553,51 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00297">297</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00342">342</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="a1d097979c2ab9fc9a409d2367b9224f2" name="a1d097979c2ab9fc9a409d2367b9224f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d097979c2ab9fc9a409d2367b9224f2">&#9670;&#160;</a></span>krylov_registry</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(<a class="el" href="../../d2/dbc/structkrylov_1_1krylov__allocator__entry.html">krylov_allocator_entry</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a> krylov::krylov_registry</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00273">273</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+
+</div>
+</div>
+<a id="a14d5241787be131f9f7c8603cf371916" name="a14d5241787be131f9f7c8603cf371916"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a14d5241787be131f9f7c8603cf371916">&#9670;&#160;</a></span>krylov_registry_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> krylov::krylov_registry_size = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00276">276</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+
+</div>
+</div>
 <a id="a24e2167e9e8017246e51a908433f0138" name="a24e2167e9e8017246e51a908433f0138"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a24e2167e9e8017246e51a908433f0138">&#9670;&#160;</a></span>ksp_abs_tol</h2>
 
@@ -607,7 +652,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/d6d/namespacekrylov.html">krylov</a></li>
-    <li class="footer">Generated on Wed Jul 29 2026 04:36:59 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jul 30 2026 04:33:13 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

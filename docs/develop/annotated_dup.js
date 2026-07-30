@@ -962,6 +962,8 @@ var annotated_dup =
       [ "json_get_or_lookup_or_default", "d3/da9/interfacejson__utils_1_1json__get__or__lookup__or__default.html", "d3/da9/interfacejson__utils_1_1json__get__or__lookup__or__default" ]
     ] ],
     [ "krylov", "db/d6d/namespacekrylov.html", [
+      [ "krylov_allocate", "d0/d54/interfacekrylov_1_1krylov__allocate.html", "d0/d54/interfacekrylov_1_1krylov__allocate" ],
+      [ "krylov_allocator_entry", "d2/dbc/structkrylov_1_1krylov__allocator__entry.html", "d2/dbc/structkrylov_1_1krylov__allocator__entry" ],
       [ "ksp_init_intrf", "d0/db4/interfacekrylov_1_1ksp__init__intrf.html", "d0/db4/interfacekrylov_1_1ksp__init__intrf" ],
       [ "ksp_method", "d2/d6e/interfacekrylov_1_1ksp__method.html", "d2/d6e/interfacekrylov_1_1ksp__method" ],
       [ "ksp_method_coupled", "d1/d3d/interfacekrylov_1_1ksp__method__coupled.html", "d1/d3d/interfacekrylov_1_1ksp__method__coupled" ],
@@ -1397,7 +1399,9 @@ var annotated_dup =
     [ "precon", "d0/dbb/namespaceprecon.html", [
       [ "pc_solve", "df/db4/interfaceprecon_1_1pc__solve.html", "df/db4/interfaceprecon_1_1pc__solve" ],
       [ "pc_t", "d7/d3a/structprecon_1_1pc__t.html", "d7/d3a/structprecon_1_1pc__t" ],
-      [ "pc_update", "d0/d0b/interfaceprecon_1_1pc__update.html", "d0/d0b/interfaceprecon_1_1pc__update" ]
+      [ "pc_update", "d0/d0b/interfaceprecon_1_1pc__update.html", "d0/d0b/interfaceprecon_1_1pc__update" ],
+      [ "precon_allocate", "d2/d3a/interfaceprecon_1_1precon__allocate.html", "d2/d3a/interfaceprecon_1_1precon__allocate" ],
+      [ "precon_allocator_entry", "dd/d81/structprecon_1_1precon__allocator__entry.html", "dd/d81/structprecon_1_1precon__allocator__entry" ]
     ] ],
     [ "probes", "d2/d4d/namespaceprobes.html", [
       [ "probes_t", "d7/dd3/structprobes_1_1probes__t.html", "d7/dd3/structprobes_1_1probes__t" ]

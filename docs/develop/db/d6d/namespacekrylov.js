@@ -1,5 +1,7 @@
 var namespacekrylov =
 [
+    [ "krylov_allocate", "d0/d54/interfacekrylov_1_1krylov__allocate.html", "d0/d54/interfacekrylov_1_1krylov__allocate" ],
+    [ "krylov_allocator_entry", "d2/dbc/structkrylov_1_1krylov__allocator__entry.html", "d2/dbc/structkrylov_1_1krylov__allocator__entry" ],
     [ "ksp_init_intrf", "d0/db4/interfacekrylov_1_1ksp__init__intrf.html", "d0/db4/interfacekrylov_1_1ksp__init__intrf" ],
     [ "ksp_method", "d2/d6e/interfacekrylov_1_1ksp__method.html", "d2/d6e/interfacekrylov_1_1ksp__method" ],
     [ "ksp_method_coupled", "d1/d3d/interfacekrylov_1_1ksp__method__coupled.html", "d1/d3d/interfacekrylov_1_1ksp__method__coupled" ],
@@ -15,6 +17,8 @@ var namespacekrylov =
     [ "krylov_monitor_start", "db/d6d/namespacekrylov.html#a8a82dd279027bbcebbd171f5e12a7dde", null ],
     [ "krylov_monitor_stop", "db/d6d/namespacekrylov.html#ad95685a54cfd736ec0a6df621828473a", null ],
     [ "krylov_set_pc", "db/d6d/namespacekrylov.html#ac5a8f2ac89857847a881345112a30ad4", null ],
+    [ "krylov_registry", "db/d6d/namespacekrylov.html#a1d097979c2ab9fc9a409d2367b9224f2", null ],
+    [ "krylov_registry_size", "db/d6d/namespacekrylov.html#a14d5241787be131f9f7c8603cf371916", null ],
     [ "ksp_abs_tol", "db/d6d/namespacekrylov.html#a24e2167e9e8017246e51a908433f0138", null ],
     [ "ksp_max_iter", "db/d6d/namespacekrylov.html#a6c54e214c5bf4ff86e242ae694736ba1", null ],
     [ "ksp_rel_tol", "db/d6d/namespacekrylov.html#a2232d050e8220dd0e352118faceb029a", null ]

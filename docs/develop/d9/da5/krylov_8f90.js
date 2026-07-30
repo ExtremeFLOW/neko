@@ -6,6 +6,8 @@ var krylov_8f90 =
     [ "krylov::ksp_method", "d2/d6e/interfacekrylov_1_1ksp__method.html", "d2/d6e/interfacekrylov_1_1ksp__method" ],
     [ "krylov::ksp_method_coupled", "d1/d3d/interfacekrylov_1_1ksp__method__coupled.html", "d1/d3d/interfacekrylov_1_1ksp__method__coupled" ],
     [ "krylov::ksp_t_free", "d6/dc8/interfacekrylov_1_1ksp__t__free.html", "d6/dc8/interfacekrylov_1_1ksp__t__free" ],
+    [ "krylov::krylov_allocate", "d0/d54/interfacekrylov_1_1krylov__allocate.html", "d0/d54/interfacekrylov_1_1krylov__allocate" ],
+    [ "krylov::krylov_allocator_entry", "d2/dbc/structkrylov_1_1krylov__allocator__entry.html", "d2/dbc/structkrylov_1_1krylov__allocator__entry" ],
     [ "krylov_free", "d9/da5/krylov_8f90.html#a6b461bf26ab4402b452e62fd907103a7", null ],
     [ "krylov_init", "d9/da5/krylov_8f90.html#a81737524a147e005b37c62f781570b13", null ],
     [ "krylov_is_converged", "d9/da5/krylov_8f90.html#aa52e7eab11cd80356e58370c868b59ba", null ],
@@ -15,6 +17,8 @@ var krylov_8f90 =
     [ "krylov_monitor_start", "d9/da5/krylov_8f90.html#a8a82dd279027bbcebbd171f5e12a7dde", null ],
     [ "krylov_monitor_stop", "d9/da5/krylov_8f90.html#ad95685a54cfd736ec0a6df621828473a", null ],
     [ "krylov_set_pc", "d9/da5/krylov_8f90.html#ac5a8f2ac89857847a881345112a30ad4", null ],
+    [ "krylov_registry", "d9/da5/krylov_8f90.html#a1d097979c2ab9fc9a409d2367b9224f2", null ],
+    [ "krylov_registry_size", "d9/da5/krylov_8f90.html#a14d5241787be131f9f7c8603cf371916", null ],
     [ "ksp_abs_tol", "d9/da5/krylov_8f90.html#a24e2167e9e8017246e51a908433f0138", null ],
     [ "ksp_max_iter", "d9/da5/krylov_8f90.html#a6c54e214c5bf4ff86e242ae694736ba1", null ],
     [ "ksp_rel_tol", "d9/da5/krylov_8f90.html#a2232d050e8220dd0e352118faceb029a", null ]
