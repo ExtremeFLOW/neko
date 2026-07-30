@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Added integration test for ALE (test_ale).
 - *BREAKING* Renamed the allocation-only `precon_factory` API to
   `precon_allocator`. Added runtime registration of user-defined
   preconditioner and Krylov solver types.
