@@ -78,12 +78,10 @@
                             "value": [ 3.0, 2.0, 0.0 ]
                         },
                         "stiff_geom": {
-                            "type": "cylinder",
-                            "decay_profile": "gaussian",
-                            "center": [ 0.0, 0.0, 0.0 ],
-                            "radius": 2.0,
-                            "gain": 9.0,
-                            "cutoff_coef": 1.0
+                            "type": "cheap_dist",
+                            "decay_profile": "tanh",
+                            "stiff_dist": 3.0,
+                            "gain": 20.0
                         }
                     }
                 ]

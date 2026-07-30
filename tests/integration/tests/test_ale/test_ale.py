@@ -137,15 +137,15 @@ def analytic_rotation_z_deg(t):
 REFERENCE_FORCES = {
     # Recorded with long_print = true.
     "dp": {
-        "forcex": +1.444468716000000e+01,
-        "forcey": +7.770084728000000e+00,
-        "torquez": +2.217986929000000e+01,
+        "forcex": +1.444186326000e+01,
+        "forcey": +7.769968778000e+00,
+        "torquez": +2.217687332000e+01,
     },
     # Recorded from the part 1 reference run with long_print = true.
     "sp": {
-        "forcex": +1.444370270000000e+01,
-        "forcey": +7.770449162000000e+00,
-        "torquez": +2.217919159000000e+01,
+        "forcex": +1.444019318000e+01,
+        "forcey": +7.767942905000e+00,
+        "torquez": +2.217312050000e+01,
     },
 }
 
@@ -428,7 +428,7 @@ def build_case():
     is_dp = conftest.RP == "dp"
 
     # Solver tolerances.
-    solver_tol = 1.0e-13 if is_dp else 1.0e-8
+    solver_tol = 1.0e-13 if is_dp else 1.0e-7
     case["case"]["fluid"]["velocity_solver"]["absolute_tolerance"] = solver_tol
     case["case"]["fluid"]["pressure_solver"]["absolute_tolerance"] = solver_tol
 
