@@ -2,6 +2,12 @@
 
 ## Develop
 
+- Added mathematical expressions as case file values, available as the
+  `expression` initial condition for the fluid and the scalar, and as the
+  `expression_velocity`, `expression_pressure` and `expression_dirichlet`
+  boundary conditions. Expressions can use `x`, `y`, `z`, `t`, `dt`, `pi`,
+  elementary functions, and any scalar declared under `case.constants`, so
+  simple spatially varying conditions no longer require a user file.
 - *BREAKING* Renamed the allocation-only `precon_factory` API to
   `precon_allocator`. Added runtime registration of user-defined
   preconditioner and Krylov solver types.
