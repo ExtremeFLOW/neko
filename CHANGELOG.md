@@ -2,6 +2,10 @@
 
 ## Develop
 
+- Fixed stale accumulator in the SX gather-scatter backend (min/max/mul).
+- *BREAKING* Renamed the allocation-only `precon_factory` API to
+  `precon_allocator`. Added runtime registration of user-defined
+  preconditioner and Krylov solver types.
 - Added opt-in zero-copy unified memory mapping for the HIP backend on AMD
   MI300A APUs: with `NEKO_HIP_ZEROCOPY=1` (and `HSA_XNACK=1`), mapped arrays
   alias their host allocation instead of being replicated on the device,
