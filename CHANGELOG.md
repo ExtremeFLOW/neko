@@ -3,6 +3,7 @@
 ## Develop
 
 - Added `boundary_data_t`, `wall_shear_stress_simcomp`, and `boundary_data_writer_simcomp`.
+- Fixed stale accumulator in the SX gather-scatter backend (min/max/mul).
 - *BREAKING* Renamed the allocation-only `precon_factory` API to
   `precon_allocator`. Added runtime registration of user-defined
   preconditioner and Krylov solver types.
