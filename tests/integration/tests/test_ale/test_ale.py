@@ -432,9 +432,6 @@ def build_case():
     case["case"]["fluid"]["velocity_solver"]["absolute_tolerance"] = solver_tol
     case["case"]["fluid"]["pressure_solver"]["absolute_tolerance"] = solver_tol
 
-    # Always use the long print format. It costs nothing and keeps the parsed
-    # precision independent of the build, which the comparison tolerances
-    # assume.
     for comp in case["case"].get("simulation_components", []):
         if comp.get("type") == "force_torque":
             comp["long_print"] = True
