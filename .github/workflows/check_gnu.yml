@@ -117,6 +117,14 @@ jobs:
         with:
           fetch-depth: 1
 
+      # Refresh the apt package lists. The runner images ship with stale lists
+      # and cache-apt-pkgs-action never refreshes them, so a package that has
+      # been superseded in the pool (e.g. the nvidia-graphics-drivers-535
+      # point release pulled in by nvidia-cuda-toolkit) fails with a 404.
+      - name: Setup - Refresh package lists
+        if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
+        run: sudo apt-get update
+
       # Setup compiler and other system dependencies
       - name: Setup - System dependencies (Cache)
         if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
