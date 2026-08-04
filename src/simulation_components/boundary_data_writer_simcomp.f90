@@ -47,6 +47,7 @@ module boundary_data_writer_simcomp
   use vector, only : vector_t
   use device, only : DEVICE_TO_HOST
   use math, only : copy
+  use tensor, only : trsp
   use matrix, only : matrix_t
   use boundary_data, only : boundary_data_t
   use file, only : file_t
@@ -86,8 +87,10 @@ module boundary_data_writer_simcomp
      integer :: n_global = 0
      !> Number of data columns, excluding time.
      integer :: n_cols = 0
-     !> Local sample buffer.
+     !> Local sample buffer (point, column).
      real(kind=rp), allocatable :: local_buffer(:,:)
+     !> Column-blocked transpose of `local_buffer`.
+     real(kind=rp), allocatable :: local_buffer_t(:,:)
      !> Global sample buffer on rank zero.
      real(kind=rp), allocatable :: global_buffer(:,:)
      !> Receive counts for the gather onto rank zero.
@@ -389,8 +392,12 @@ contains
        this%col_names(col) = trim(fields(i))
     end do
 
-    allocate(this%local_buffer(max(1, this%n_cols), max(1, this%n_local)))
+    allocate(this%local_buffer(this%n_local, this%n_cols))
     this%local_buffer = 0.0_rp
+
+    ! For CSV.
+    allocate(this%local_buffer_t(this%n_cols, this%n_local))
+    this%local_buffer_t = 0.0_rp
 
     ! Offsets for the gather onto rank zero.
     allocate(this%recvcounts(pe_size))
@@ -580,6 +587,7 @@ contains
     if (allocated(this%zone_indices)) deallocate(this%zone_indices)
     if (allocated(this%col_names)) deallocate(this%col_names)
     if (allocated(this%local_buffer)) deallocate(this%local_buffer)
+    if (allocated(this%local_buffer_t)) deallocate(this%local_buffer_t)
     if (allocated(this%global_buffer)) deallocate(this%global_buffer)
     if (allocated(this%recvcounts)) deallocate(this%recvcounts)
     if (allocated(this%displs)) deallocate(this%displs)
@@ -600,7 +608,6 @@ contains
     class(boundary_data_writer_t), intent(inout) :: this
     type(field_t), intent(in) :: f
     integer, intent(in) :: col
-    integer :: i
 
     if (this%n_local .le. 0) return
 
@@ -610,9 +617,7 @@ contains
        call this%work%copy_from(DEVICE_TO_HOST, .true.)
     end if
 
-    do i = 1, this%n_local
-       this%local_buffer(col, i) = this%work%x(i)
-    end do
+    call copy(this%local_buffer(:, col), this%work%x, this%n_local)
 
   end subroutine boundary_data_writer_gather_column
 
@@ -648,26 +653,24 @@ contains
     ! Fill the local buffer
     col = 0
     if (this%geometry_in_data) then
-       do i = 1, this%n_local
-          this%local_buffer(col + 1, i) = this%bdata%x%x(i)
-          this%local_buffer(col + 2, i) = this%bdata%y%x(i)
-          this%local_buffer(col + 3, i) = this%bdata%z%x(i)
-       end do
+       call copy(this%local_buffer(:, col + 1), this%bdata%x%x, this%n_local)
+       call copy(this%local_buffer(:, col + 2), this%bdata%y%x, this%n_local)
+       call copy(this%local_buffer(:, col + 3), this%bdata%z%x, this%n_local)
        col = col + 3
 
        if (this%output_normals) then
-          do i = 1, this%n_local
-             this%local_buffer(col + 1, i) = this%bdata%n_x%x(i)
-             this%local_buffer(col + 2, i) = this%bdata%n_y%x(i)
-             this%local_buffer(col + 3, i) = this%bdata%n_z%x(i)
-          end do
+          call copy(this%local_buffer(:, col + 1), this%bdata%n_x%x, &
+               this%n_local)
+          call copy(this%local_buffer(:, col + 2), this%bdata%n_y%x, &
+               this%n_local)
+          call copy(this%local_buffer(:, col + 3), this%bdata%n_z%x, &
+               this%n_local)
           col = col + 3
        end if
 
        if (this%output_area) then
-          do i = 1, this%n_local
-             this%local_buffer(col + 1, i) = this%bdata%area%x(i)
-          end do
+          call copy(this%local_buffer(:, col + 1), this%bdata%area%x, &
+               this%n_local)
           col = col + 1
        end if
     end if
@@ -700,7 +703,7 @@ contains
        call ft%write_attribute("NSteps", out_int)
 
        do i = 1, this%n_cols
-          call copy(this%vec_out%x, this%local_buffer(i, :), &
+          call copy(this%vec_out%x, this%local_buffer(:, i), &
                this%vec_out%size())
           this%vec_out%name = trim(this%col_names(i))
           call ft%write_dataset(this%vec_out)
@@ -727,7 +730,9 @@ contains
     class(boundary_data_writer_t), intent(inout) :: this
     integer :: ierr
 
-    call MPI_Gatherv(this%local_buffer, this%n_local * this%n_cols, &
+    call trsp(this%local_buffer_t, this%n_cols, this%local_buffer, this%n_local)
+
+    call MPI_Gatherv(this%local_buffer_t, this%n_local * this%n_cols, &
          MPI_REAL_PRECISION, this%global_buffer, this%recvcounts_c, &
          this%displs_c, MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
 
@@ -771,7 +776,7 @@ contains
     integer, allocatable :: counts(:), disp(:)
     integer :: i, k, ierr
 
-    allocate(sendbuf(n_geom, max(1, this%n_local)))
+    allocate(sendbuf(n_geom, this%n_local))
     sendbuf = 0.0_rp
 
     do i = 1, this%n_local
@@ -789,7 +794,7 @@ contains
     end do
 
     if (pe_rank .eq. 0) then
-       allocate(recvbuf(n_geom, max(1, this%n_global)))
+       allocate(recvbuf(n_geom, this%n_global))
     else
        allocate(recvbuf(n_geom, 1))
     end if
