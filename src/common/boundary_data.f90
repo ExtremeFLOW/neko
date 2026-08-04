@@ -83,17 +83,19 @@ module boundary_data
      !> Re-gather the geometry factors at the boundary points.
      procedure, pass(this) :: update_geometry => &
           boundary_data_update_geometry
-     !> Sample a quantity at the boundary points.
-     generic :: get => get_vector_by_name, get_vector_by_field, &
-          get_field_by_name
+     !> Sample a quantity into a boundary vector.
+     generic :: get => get_vector_by_name, get_vector_by_field
      procedure, private, pass(this) :: get_vector_by_name => &
           boundary_data_get_vector_by_name
      procedure, private, pass(this) :: get_vector_by_field => &
           boundary_data_get_vector_by_field
-     procedure, private, pass(this) :: get_field_by_name => &
-          boundary_data_get_field_by_name
      !> Scatter boundary values back into a full field.
-     procedure, pass(this) :: scatter => boundary_data_scatter
+     generic :: scatter => scatter_to_field_by_vector, &
+          scatter_to_field_by_name
+     procedure, private, pass(this) :: scatter_to_field_by_vector => &
+          boundary_data_scatter_to_field_by_vector
+     procedure, private, pass(this) :: scatter_to_field_by_name => &
+          boundary_data_scatter_to_field_by_name
      !> Whether a name refers to a geometry attribute.
      procedure, nopass :: is_geometry => boundary_data_is_geometry
      !> Surface integral of a quantity over the zones.
@@ -361,44 +363,12 @@ contains
 
   end subroutine boundary_data_get_vector_by_field
 
-  !> Sample a named quantity into a full field.
-  !! @param name The requested quantity.
-  !! @param f The destination field.
-  !! @param clear If true, zero the whole field before writing the
-  !! boundary points; defaults to false.
-  subroutine boundary_data_get_field_by_name(this, name, f, clear)
-    class(boundary_data_t), intent(inout) :: this
-    character(len=*), intent(in) :: name
-    type(field_t), intent(inout) :: f
-    logical, intent(in), optional :: clear
-    logical :: clear_
-    integer :: n
-
-    if (.not. associated(f%dof, this%coef%dof)) then
-       call neko_error("boundary_data: the destination field '" // &
-            trim(f%name) // "' is on a different dofmap than the boundary " // &
-            "mask")
-    end if
-
-    clear_ = .false.
-    if (present(clear)) clear_ = clear
-
-    n = this%coef%dof%size()
-
-    if (clear_) call field_rzero(f)
-
-    call this%get(trim(name), this%work)
-    call vector_masked_scatter_copy_0(f%x, this%work, this%bc%msk, n, &
-         this%n_local)
-
-  end subroutine boundary_data_get_field_by_name
-
-  !> Scatter boundary point values back into a full field (inverse of `get`).
+  !> Scatter a boundary vector back into a full field.
   !! @param v The boundary point values.
   !! @param f The destination field.
   !! @param clear If true, zero the whole field before writing the
   !! boundary points; defaults to false.
-  subroutine boundary_data_scatter(this, v, f, clear)
+  subroutine boundary_data_scatter_to_field_by_vector(this, v, f, clear)
     class(boundary_data_t), intent(inout) :: this
     type(vector_t), intent(in) :: v
     type(field_t), intent(inout) :: f
@@ -420,7 +390,27 @@ contains
 
     call vector_masked_scatter_copy_0(f%x, v, this%bc%msk, n, this%n_local)
 
-  end subroutine boundary_data_scatter
+  end subroutine boundary_data_scatter_to_field_by_vector
+
+  !> Scatter a named boundary quantity into a full field.
+  !! @param name The requested quantity.
+  !! @param f The destination field.
+  !! @param clear If true, zero the whole field before writing the
+  !! boundary points; defaults to false.
+  subroutine boundary_data_scatter_to_field_by_name(this, name, f, clear)
+    class(boundary_data_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
+    type(field_t), intent(inout) :: f
+    logical, intent(in), optional :: clear
+    logical :: clear_
+
+    clear_ = .false.
+    if (present(clear)) clear_ = clear
+
+    call this%get(trim(name), this%work)
+    call this%scatter_to_field_by_vector(this%work, f, clear_)
+
+  end subroutine boundary_data_scatter_to_field_by_name
 
   !> Keep only the wall tangential part of a vector at the boundary points,
   !! in place. Each component is overwritten with `v - (v . n) n`.
