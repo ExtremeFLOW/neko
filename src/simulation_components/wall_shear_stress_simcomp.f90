@@ -571,7 +571,7 @@ contains
 
     ! Re-gather the boundary geometry only when the mesh has moved.
     if (this%mesh_has_changed) then
-       call this%bdata%update_geometry(to_host = .false.)
+       call this%bdata%update_geometry()
     end if
 
     ! Strain rate over the whole field, then gather it at the mask.
@@ -586,14 +586,14 @@ contains
          this%w, this%coef)
 
     if (n_pts .gt. 0) then
-       call this%bdata%get(this%mu, this%mu_msk, to_host = .false.)
-       call this%bdata%get(this%p, this%p_msk, to_host = .false.)
-       call this%bdata%get(s11, this%s11, to_host = .false.)
-       call this%bdata%get(s22, this%s22, to_host = .false.)
-       call this%bdata%get(s33, this%s33, to_host = .false.)
-       call this%bdata%get(s12, this%s12, to_host = .false.)
-       call this%bdata%get(s13, this%s13, to_host = .false.)
-       call this%bdata%get(s23, this%s23, to_host = .false.)
+       call this%bdata%get(this%mu, this%mu_msk)
+       call this%bdata%get(this%p, this%p_msk)
+       call this%bdata%get(s11, this%s11)
+       call this%bdata%get(s22, this%s22)
+       call this%bdata%get(s33, this%s33)
+       call this%bdata%get(s12, this%s12)
+       call this%bdata%get(s13, this%s13)
+       call this%bdata%get(s23, this%s23)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_calc_force_array(this%pt1%x_d, this%pt2%x_d, &

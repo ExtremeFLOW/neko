@@ -44,7 +44,6 @@ module boundary_data
        vector_masked_scatter_copy_0, vector_face_masked_gather_copy_0, &
        vector_glsc2, vector_glsc3, vector_glsum, &
        vector_vdot3, vector_subcol3, vector_col3, vector_cmult, vector_copy
-  use device, only : DEVICE_TO_HOST
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_error
   use comm, only : NEKO_COMM
@@ -212,7 +211,7 @@ contains
     call this%work%init(this%n_local)
 
     ! Populate the geometry once at construction.
-    call this%update_geometry(to_host = .true.)
+    call this%update_geometry()
 
   end subroutine boundary_data_init
 
@@ -240,15 +239,9 @@ contains
   end subroutine boundary_data_free
 
   !> Re-gather the coordinates, normals and surface weights.
-  !! @param to_host Whether to copy the gathered geometry to the host.
-  subroutine boundary_data_update_geometry(this, to_host)
+  subroutine boundary_data_update_geometry(this)
     class(boundary_data_t), intent(inout) :: this
-    logical, intent(in), optional :: to_host
-    logical :: copy_to_host
     integer :: n
-
-    copy_to_host = .false.
-    if (present(to_host)) copy_to_host = to_host
 
     if (this%n_local .le. 0) return
 
@@ -281,16 +274,6 @@ contains
        call vector_cmult(this%n_z, -1.0_rp)
     end if
 
-    if (copy_to_host) then
-       call this%x%copy_from(DEVICE_TO_HOST, .false.)
-       call this%y%copy_from(DEVICE_TO_HOST, .false.)
-       call this%z%copy_from(DEVICE_TO_HOST, .false.)
-       call this%n_x%copy_from(DEVICE_TO_HOST, .false.)
-       call this%n_y%copy_from(DEVICE_TO_HOST, .false.)
-       call this%n_z%copy_from(DEVICE_TO_HOST, .false.)
-       call this%area%copy_from(DEVICE_TO_HOST, .true.)
-    end if
-
   end subroutine boundary_data_update_geometry
 
 
@@ -314,13 +297,10 @@ contains
   !! `n_x`, `n_y`, `n_z`, `area`, or the name of a field in the registry.
   !! @param name The requested quantity.
   !! @param v The vector to fill.
-  !! @param to_host Whether to copy `v` to the host.
-  subroutine boundary_data_get_vector_by_name(this, name, v, to_host)
+  subroutine boundary_data_get_vector_by_name(this, name, v)
     class(boundary_data_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     type(vector_t), intent(inout) :: v
-    logical, intent(in), optional :: to_host
-    logical :: to_host_
     type(field_t), pointer :: f
 
     if (v%size() .ne. this%n_local) then
@@ -329,31 +309,21 @@ contains
     end if
     if (this%n_local .le. 0) return
 
-    to_host_ = .false.
-    if (present(to_host)) to_host_ = to_host
-
     select case (trim(name))
     case ("x")
        call vector_copy(v, this%x)
-       call boundary_data_sync_host(v, to_host_)
     case ("y")
        call vector_copy(v, this%y)
-       call boundary_data_sync_host(v, to_host_)
     case ("z")
        call vector_copy(v, this%z)
-       call boundary_data_sync_host(v, to_host_)
     case ("n_x")
        call vector_copy(v, this%n_x)
-       call boundary_data_sync_host(v, to_host_)
     case ("n_y")
        call vector_copy(v, this%n_y)
-       call boundary_data_sync_host(v, to_host_)
     case ("n_z")
        call vector_copy(v, this%n_z)
-       call boundary_data_sync_host(v, to_host_)
     case ("area")
        call vector_copy(v, this%area)
-       call boundary_data_sync_host(v, to_host_)
     case default
        if (.not. neko_registry%field_exists(trim(name))) then
           call neko_error("boundary_data: '" // trim(name) // &
@@ -361,38 +331,18 @@ contains
                "n_z, area) nor a field in the registry")
        end if
        f => neko_registry%get_field_by_name(trim(name))
-       call this%get_vector_by_field(f, v, to_host_)
+       call this%get_vector_by_field(f, v)
     end select
 
   end subroutine boundary_data_get_vector_by_name
 
-  !> Copy a vector to the host.
-  !! @param v The vector.
-  !! @param to_host Whether to copy to the host.
-  subroutine boundary_data_sync_host(v, to_host)
-    type(vector_t), intent(inout) :: v
-    logical, intent(in), optional :: to_host
-    logical :: copy_to_host
-
-    copy_to_host = .false.
-    if (present(to_host)) copy_to_host = to_host
-
-    if (copy_to_host) then
-       call v%copy_from(DEVICE_TO_HOST, .true.)
-    end if
-
-  end subroutine boundary_data_sync_host
-
   !> Sample a field at the boundary points into a vector.
   !! @param f The source field, which must live on the same dofmap.
   !! @param v The vector to fill.
-  !! @param to_host Whether to copy `v` to the host.
-  subroutine boundary_data_get_vector_by_field(this, f, v, to_host)
+  subroutine boundary_data_get_vector_by_field(this, f, v)
     class(boundary_data_t), intent(inout) :: this
     type(field_t), intent(in) :: f
     type(vector_t), intent(inout) :: v
-    logical, intent(in), optional :: to_host
-    logical :: to_host_
 
     if (.not. associated(f%dof, this%coef%dof)) then
        call neko_error("boundary_data: the field '" // trim(f%name) // &
@@ -406,13 +356,8 @@ contains
     end if
     if (this%n_local .le. 0) return
 
-    to_host_ = .false.
-    if (present(to_host)) to_host_ = to_host
-
     call vector_masked_gather_copy_0(v, f%x, this%bc%msk, &
          this%coef%dof%size(), this%n_local)
-
-    call boundary_data_sync_host(v, to_host_)
 
   end subroutine boundary_data_get_vector_by_field
 
@@ -442,7 +387,7 @@ contains
 
     if (clear_) call field_rzero(f)
 
-    call this%get(trim(name), this%work, to_host = .false.)
+    call this%get(trim(name), this%work)
     call vector_masked_scatter_copy_0(f%x, this%work, this%bc%msk, n, &
          this%n_local)
 
@@ -599,7 +544,7 @@ contains
     character(len=*), intent(in) :: name
     real(kind=rp) :: val
 
-    call this%get(trim(name), this%work, to_host = .false.)
+    call this%get(trim(name), this%work)
     val = vector_glsc2(this%work, this%area)
 
   end function boundary_data_integrate_by_name
@@ -611,7 +556,7 @@ contains
     type(field_t), intent(in) :: f
     real(kind=rp) :: val
 
-    call this%get(f, this%work, to_host = .false.)
+    call this%get(f, this%work)
     val = vector_glsc2(this%work, this%area)
 
   end function boundary_data_integrate_by_field
@@ -730,11 +675,11 @@ contains
     type(field_t), intent(in) :: u, v, w
     real(kind=rp) :: q
 
-    call this%get(u, this%work, to_host = .false.)
+    call this%get(u, this%work)
     q = vector_glsc3(this%work, this%n_x, this%area)
-    call this%get(v, this%work, to_host = .false.)
+    call this%get(v, this%work)
     q = q + vector_glsc3(this%work, this%n_y, this%area)
-    call this%get(w, this%work, to_host = .false.)
+    call this%get(w, this%work)
     q = q + vector_glsc3(this%work, this%n_z, this%area)
 
   end function boundary_data_flux_by_field
@@ -748,11 +693,11 @@ contains
     character(len=*), intent(in) :: u, v, w
     real(kind=rp) :: q
 
-    call this%get(trim(u), this%work, to_host = .false.)
+    call this%get(trim(u), this%work)
     q = vector_glsc3(this%work, this%n_x, this%area)
-    call this%get(trim(v), this%work, to_host = .false.)
+    call this%get(trim(v), this%work)
     q = q + vector_glsc3(this%work, this%n_y, this%area)
-    call this%get(trim(w), this%work, to_host = .false.)
+    call this%get(trim(w), this%work)
     q = q + vector_glsc3(this%work, this%n_z, this%area)
 
   end function boundary_data_flux_by_name
@@ -766,7 +711,7 @@ contains
     type(field_t), intent(in) :: f
     real(kind=rp) :: fn(3)
 
-    call this%get(f, this%work, to_host = .false.)
+    call this%get(f, this%work)
     fn(1) = vector_glsc3(this%work, this%n_x, this%area)
     fn(2) = vector_glsc3(this%work, this%n_y, this%area)
     fn(3) = vector_glsc3(this%work, this%n_z, this%area)
@@ -780,7 +725,7 @@ contains
     character(len=*), intent(in) :: name
     real(kind=rp) :: fn(3)
 
-    call this%get(trim(name), this%work, to_host = .false.)
+    call this%get(trim(name), this%work)
     fn(1) = vector_glsc3(this%work, this%n_x, this%area)
     fn(2) = vector_glsc3(this%work, this%n_y, this%area)
     fn(3) = vector_glsc3(this%work, this%n_z, this%area)

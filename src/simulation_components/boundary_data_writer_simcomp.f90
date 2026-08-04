@@ -32,6 +32,7 @@
 !
 !> Implements the `boundary_data_writer_t` type.
 module boundary_data_writer_simcomp
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
@@ -44,6 +45,8 @@ module boundary_data_writer_simcomp
   use registry, only : neko_registry
   use coefs, only : coef_t
   use vector, only : vector_t
+  use device, only : DEVICE_TO_HOST
+  use math, only : copy
   use matrix, only : matrix_t
   use boundary_data, only : boundary_data_t
   use file, only : file_t
@@ -337,7 +340,17 @@ contains
     this%n_local = this%bdata%n_local
     this%n_global = this%bdata%n_global
 
-    if (this%n_local .gt. 0) call this%work%init(this%n_local)
+    call this%work%init(this%n_local)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call this%bdata%x%copy_from(DEVICE_TO_HOST, .false.)
+       call this%bdata%y%copy_from(DEVICE_TO_HOST, .false.)
+       call this%bdata%z%copy_from(DEVICE_TO_HOST, .false.)
+       call this%bdata%n_x%copy_from(DEVICE_TO_HOST, .false.)
+       call this%bdata%n_y%copy_from(DEVICE_TO_HOST, .false.)
+       call this%bdata%n_z%copy_from(DEVICE_TO_HOST, .false.)
+       call this%bdata%area%copy_from(DEVICE_TO_HOST, .true.)
+    end if
 
     ! Column layout
     n_geom = 0
@@ -591,7 +604,11 @@ contains
 
     if (this%n_local .le. 0) return
 
-    call this%bdata%get(f, this%work, to_host = .true.)
+    call this%bdata%get(f, this%work)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call this%work%copy_from(DEVICE_TO_HOST, .true.)
+    end if
 
     do i = 1, this%n_local
        this%local_buffer(col, i) = this%work%x(i)
@@ -615,7 +632,17 @@ contains
 
     ! Re-gather the boundary geometry only when the mesh has moved.
     if (this%mesh_has_changed) then
-       call this%bdata%update_geometry(to_host = .true.)
+       call this%bdata%update_geometry()
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call this%bdata%x%copy_from(DEVICE_TO_HOST, .false.)
+          call this%bdata%y%copy_from(DEVICE_TO_HOST, .false.)
+          call this%bdata%z%copy_from(DEVICE_TO_HOST, .false.)
+          call this%bdata%n_x%copy_from(DEVICE_TO_HOST, .false.)
+          call this%bdata%n_y%copy_from(DEVICE_TO_HOST, .false.)
+          call this%bdata%n_z%copy_from(DEVICE_TO_HOST, .false.)
+          call this%bdata%area%copy_from(DEVICE_TO_HOST, .true.)
+       end if
     end if
 
     ! Fill the local buffer
@@ -673,10 +700,8 @@ contains
        call ft%write_attribute("NSteps", out_int)
 
        do i = 1, this%n_cols
-          if (this%n_local .gt. 0) then
-             this%vec_out%x(1:this%n_local) = &
-                  this%local_buffer(i, 1:this%n_local)
-          end if
+          call copy(this%vec_out%x, this%local_buffer(i, :), &
+               this%vec_out%size())
           this%vec_out%name = trim(this%col_names(i))
           call ft%write_dataset(this%vec_out)
        end do
@@ -707,7 +732,6 @@ contains
          this%displs_c, MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
 
   end subroutine boundary_data_writer_gather_to_root
-
 
   !> Collect the reference geometry of the local points into a matrix.
   !! @param mat The matrix to fill.
