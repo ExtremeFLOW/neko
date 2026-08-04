@@ -114,6 +114,9 @@ module boundary_data_writer_simcomp
      logical :: output_normals = .false.
      !> Whether to output the surface quadrature weights (area).
      logical :: output_area = .false.
+     !> Append every sample into shared datasets (.true.), or write
+     !! each sample into its own `Step_N` subgroup (.false.)
+     logical :: append_out = .true.
    contains
      !> Constructors.
      procedure, pass(this) :: init => boundary_data_writer_init_from_json
@@ -149,6 +152,7 @@ contains
     real(kind=rp) :: start_time
     logical :: output_normals
     logical :: output_area
+    logical :: append_out
     logical :: user_set_compute
 
     call this%free()
@@ -172,12 +176,13 @@ contains
     call json_get(json, "output_filename", output_filename)
     call json_get_or_default(json, "output_normals", output_normals, .true.)
     call json_get_or_default(json, "output_area", output_area, .true.)
+    call json_get_or_default(json, "append_output", append_out, .true.)
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
 
     call json_get(json, "fields", fields)
 
     call this%init_common(name, case%fluid%c_Xh, zone_indices, fields, &
-         output_filename, output_normals, output_area, &
+         output_filename, output_normals, output_area, append_out, &
          start_time)
 
   end subroutine boundary_data_writer_init_from_json
@@ -195,11 +200,12 @@ contains
   !! @param output_filename The output file, either `.csv` or `.h5`.
   !! @param output_normals Whether to output the unit normals.
   !! @param output_area Whether to output the surface quadrature weights.
+  !! @param append_out Whether to append samples to shared datasets.
   !! @param start_time Time after which to start writing.
   subroutine boundary_data_writer_init_from_controllers(this, name, case, &
        order, preprocess_controller, compute_controller, output_controller, &
        coef, zone_indices, fields, output_filename, output_normals, &
-       output_area, start_time)
+       output_area, append_out, start_time)
     class(boundary_data_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -213,6 +219,7 @@ contains
     character(len=*), intent(in) :: output_filename
     logical, intent(in) :: output_normals
     logical, intent(in) :: output_area
+    logical, intent(in) :: append_out
     real(kind=rp), intent(in) :: start_time
 
     call this%free()
@@ -220,7 +227,7 @@ contains
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
     call this%init_common(name, coef, zone_indices, fields, &
-         output_filename, output_normals, output_area, start_time)
+         output_filename, output_normals, output_area, append_out, start_time)
 
   end subroutine boundary_data_writer_init_from_controllers
 
@@ -241,12 +248,13 @@ contains
   !! @param output_filename The output file, either `.csv` or `.h5`.
   !! @param output_normals Whether to output the unit normals.
   !! @param output_area Whether to output the surface quadrature weights.
+  !! @param append_out Whether to append samples to shared datasets.
   !! @param start_time Time after which to start writing.
   subroutine boundary_data_writer_init_from_controllers_properties(this, &
        name, case, order, preprocess_control, preprocess_value, &
        compute_control, compute_value, output_control, output_value, coef, &
        zone_indices, fields, output_filename, output_normals, output_area, &
-       start_time)
+       append_out, start_time)
     class(boundary_data_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -263,6 +271,7 @@ contains
     character(len=*), intent(in) :: output_filename
     logical, intent(in) :: output_normals
     logical, intent(in) :: output_area
+    logical, intent(in) :: append_out
     real(kind=rp), intent(in) :: start_time
 
     call this%free()
@@ -271,7 +280,7 @@ contains
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
     call this%init_common(name, coef, zone_indices, fields, &
-         output_filename, output_normals, output_area, start_time)
+         output_filename, output_normals, output_area, append_out, start_time)
 
   end subroutine boundary_data_writer_init_from_controllers_properties
 
@@ -283,9 +292,11 @@ contains
   !! @param output_filename The output file, either `.csv` or `.h5`.
   !! @param output_normals Whether to output the unit normals.
   !! @param output_area Whether to output the surface quadrature weights.
+  !! @param append_out Whether to append samples to shared datasets.
   !! @param start_time Time after which to start writing.
   subroutine boundary_data_writer_init_common(this, name, coef, zone_indices, &
-       fields, output_filename, output_normals, output_area, start_time)
+       fields, output_filename, output_normals, output_area, append_out, &
+       start_time)
     class(boundary_data_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     type(coef_t), intent(inout), target :: coef
@@ -294,6 +305,7 @@ contains
     character(len=*), intent(in) :: output_filename
     logical, intent(in) :: output_normals
     logical, intent(in) :: output_area
+    logical, intent(in) :: append_out
     real(kind=rp), intent(in) :: start_time
     character(len=LOG_SIZE) :: log_buf
     character(len=80) :: suffix
@@ -305,6 +317,7 @@ contains
     this%start_time = start_time
     this%output_normals = output_normals
     this%output_area = output_area
+    this%append_out = append_out
 
     ! Zones
     allocate(this%zone_indices(size(zone_indices)))
@@ -542,8 +555,7 @@ contains
     integer :: out_int
     logical :: attr_exist
 
-    ! Append successive samples into the same datasets.
-    call ft%set_overwrite(.false.)
+    call ft%set_overwrite(.not. this%append_out)
 
     call this%vec_out%init(max(0, this%n_local), "value")
 
@@ -627,6 +639,8 @@ contains
     class(boundary_data_writer_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     integer :: i, col, n_rows, out_int
+    character(len=80) :: group_name
+    real(kind=rp) :: time_
     type(vector_t) :: vec_time
 
     if (time%t .lt. this%start_time) then
@@ -696,11 +710,16 @@ contains
        end if
 
     class is (hdf5_file_t)
+       out_int = this%output_controller%nexecutions + 1
+
        call ft%open("w")
        call ft%set_active_group("boundary_data")
-
-       out_int = this%output_controller%nexecutions + 1
        call ft%write_attribute("NSteps", out_int)
+
+       if (.not. this%append_out) then
+          write(group_name, '(A,I0)') "boundary_data/Step_", out_int
+          call ft%set_active_group(trim(group_name))
+       end if
 
        do i = 1, this%n_cols
           call copy(this%vec_out%x, this%local_buffer(:, i), &
@@ -709,14 +728,21 @@ contains
           call ft%write_dataset(this%vec_out)
        end do
 
-       if (pe_rank .eq. 0) then
-          call vec_time%init(1, "time")
-          vec_time%x(1) = time%t
+       if (this%append_out) then
+          ! Time is a growing dataset alongside the samples.
+          if (pe_rank .eq. 0) then
+             call vec_time%init(1, "time")
+             vec_time%x(1) = time%t
+          else
+             call vec_time%init(0, "time")
+          end if
+          call ft%write_dataset(vec_time)
+          call vec_time%free()
        else
-          call vec_time%init(0, "time")
+          ! Time is an attribute on the Step_N subgroup.
+          time_ = time%t
+          call ft%write_attribute("time", time_)
        end if
-       call ft%write_dataset(vec_time)
-       call vec_time%free()
 
        call ft%close()
     end select

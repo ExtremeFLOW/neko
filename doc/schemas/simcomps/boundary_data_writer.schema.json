@@ -13,6 +13,7 @@
         },
         "output_normals": { "type": "boolean" },
         "output_area": { "type": "boolean" },
+        "append_output": { "type": "boolean" },
         "start_time": { "type": "number", "x-neko-real": true },
         "fields": { "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFields" }
       },

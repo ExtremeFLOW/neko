@@ -276,6 +276,7 @@ Mandatory fields for this simcomp are:
 Optional fields for this simcomp are:
 - `output_normals`: if `true`, include the unit normal components `n_x`, `n_y` and `n_z`. The normals point out of the wall into the fluid. Default `true`.
 - `output_area`: if `true`, include the surface quadrature weight `area`. Default `true`.
+- `append_output`: HDF5 only. Selects between appending samples into shared datasets and writing each sample into its own `Step_i` subgroup, exactly as for \ref simcomp_probes. Default `true`.
 - `start_time`: only write samples after this time. Default `0.0`.
 
 ~~~~~~~~~~~~~~~{.json}
