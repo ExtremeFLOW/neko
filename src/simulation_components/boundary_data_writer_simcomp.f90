@@ -100,12 +100,14 @@ module boundary_data_writer_simcomp
      type(file_t) :: fout
      !> Time after which to start writing.
      real(kind=rp) :: start_time = 0.0_rp
-     !> Whether ALE or not.
-     logical :: ale_enabled = .false.
+     !> Whether the mesh geometry changes during the run.
+     logical :: mesh_has_changed = .false.
      !> Whether the geometry is part of every sample.
      logical :: geometry_in_data = .false.
      !> Whether to output the unit normals.
      logical :: output_normals = .false.
+     !> Whether to output the surface quadrature weights (area).
+     logical :: output_area = .false.
    contains
      !> Constructors.
      procedure, pass(this) :: init => boundary_data_writer_init_from_json
@@ -140,6 +142,7 @@ contains
     integer, allocatable :: zone_indices(:)
     real(kind=rp) :: start_time
     logical :: output_normals
+    logical :: output_area
     logical :: user_set_compute
 
     call this%free()
@@ -162,16 +165,13 @@ contains
     call json_get(json, "zone_indices", zone_indices)
     call json_get(json, "output_filename", output_filename)
     call json_get_or_default(json, "output_normals", output_normals, .true.)
+    call json_get_or_default(json, "output_area", output_area, .true.)
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
 
-    if (json%valid_path("fields")) then
-       call json_get(json, "fields", fields)
-    else
-       allocate(fields(0))
-    end if
+    call json_get(json, "fields", fields)
 
     call this%init_common(name, case%fluid%c_Xh, zone_indices, fields, &
-         output_filename, output_normals, &
+         output_filename, output_normals, output_area, &
          start_time)
 
   end subroutine boundary_data_writer_init_from_json
@@ -188,10 +188,12 @@ contains
   !! @param fields Names of the registry fields to sample.
   !! @param output_filename The output file, either `.csv` or `.h5`.
   !! @param output_normals Whether to output the unit normals.
+  !! @param output_area Whether to output the surface quadrature weights.
   !! @param start_time Time after which to start writing.
   subroutine boundary_data_writer_init_from_controllers(this, name, case, &
        order, preprocess_controller, compute_controller, output_controller, &
-       coef, zone_indices, fields, output_filename, output_normals, start_time)
+       coef, zone_indices, fields, output_filename, output_normals, &
+       output_area, start_time)
     class(boundary_data_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -204,6 +206,7 @@ contains
     character(len=*), intent(in) :: fields(:)
     character(len=*), intent(in) :: output_filename
     logical, intent(in) :: output_normals
+    logical, intent(in) :: output_area
     real(kind=rp), intent(in) :: start_time
 
     call this%free()
@@ -211,7 +214,7 @@ contains
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
     call this%init_common(name, coef, zone_indices, fields, &
-         output_filename, output_normals, start_time)
+         output_filename, output_normals, output_area, start_time)
 
   end subroutine boundary_data_writer_init_from_controllers
 
@@ -231,11 +234,13 @@ contains
   !! @param fields Names of the registry fields to sample.
   !! @param output_filename The output file, either `.csv` or `.h5`.
   !! @param output_normals Whether to output the unit normals.
+  !! @param output_area Whether to output the surface quadrature weights.
   !! @param start_time Time after which to start writing.
   subroutine boundary_data_writer_init_from_controllers_properties(this, &
        name, case, order, preprocess_control, preprocess_value, &
        compute_control, compute_value, output_control, output_value, coef, &
-       zone_indices, fields, output_filename, output_normals, start_time)
+       zone_indices, fields, output_filename, output_normals, output_area, &
+       start_time)
     class(boundary_data_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -251,6 +256,7 @@ contains
     character(len=*), intent(in) :: fields(:)
     character(len=*), intent(in) :: output_filename
     logical, intent(in) :: output_normals
+    logical, intent(in) :: output_area
     real(kind=rp), intent(in) :: start_time
 
     call this%free()
@@ -259,7 +265,7 @@ contains
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
     call this%init_common(name, coef, zone_indices, fields, &
-         output_filename, output_normals, start_time)
+         output_filename, output_normals, output_area, start_time)
 
   end subroutine boundary_data_writer_init_from_controllers_properties
 
@@ -270,9 +276,10 @@ contains
   !! @param fields Names of the registry fields to sample.
   !! @param output_filename The output file, either `.csv` or `.h5`.
   !! @param output_normals Whether to output the unit normals.
+  !! @param output_area Whether to output the surface quadrature weights.
   !! @param start_time Time after which to start writing.
   subroutine boundary_data_writer_init_common(this, name, coef, zone_indices, &
-       fields, output_filename, output_normals, start_time)
+       fields, output_filename, output_normals, output_area, start_time)
     class(boundary_data_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     type(coef_t), intent(inout), target :: coef
@@ -280,21 +287,18 @@ contains
     character(len=*), intent(in) :: fields(:)
     character(len=*), intent(in) :: output_filename
     logical, intent(in) :: output_normals
+    logical, intent(in) :: output_area
     real(kind=rp), intent(in) :: start_time
     character(len=LOG_SIZE) :: log_buf
-    character(len=1024) :: header_line
-    character(len=NEKO_FNAME_LEN) :: mesh_filename
     character(len=80) :: suffix
-    type(matrix_t) :: mat_geom
-    type(file_t) :: fmesh
-    integer :: i, col, ierr, offset, suffix_pos, n_geom
-    integer :: out_int
-    logical :: attr_exist
+    integer :: i, col, ierr, offset, n_geom
+    logical :: ale_enabled
 
     this%name = name
     this%coef => coef
     this%start_time = start_time
     this%output_normals = output_normals
+    this%output_area = output_area
 
     ! Zones
     allocate(this%zone_indices(size(zone_indices)))
@@ -308,22 +312,26 @@ contains
 
     call this%fields%init(size(fields))
     do i = 1, size(fields)
-       if (.not. neko_registry%field_exists(trim(fields(i)))) then
-          call neko_error("boundary_data_writer: the field '" // &
-               trim(fields(i)) // "' is not in the registry")
-       end if
        this%fields%items(i)%ptr => &
             neko_registry%get_field_by_name(trim(fields(i)))
     end do
 
-    this%ale_enabled = .false.
+    ale_enabled = .false.
     if (associated(neko_ale)) then
-       if (neko_ale%active) this%ale_enabled = .true.
+       if (neko_ale%active) ale_enabled = .true.
     end if
 
-    this%geometry_in_data = this%ale_enabled
+    ! Whether the mesh geometry varies during the run.
+    this%mesh_has_changed = .false.
+    if (ale_enabled) then
+       this%mesh_has_changed = .true.
+    end if
 
-    ! `only_facets`
+    ! When the mesh moves the geometry accompanies every sample, so that
+    ! each output carries the coordinates it corresponds to.
+    this%geometry_in_data = this%mesh_has_changed
+
+    ! only_facets
     call this%bdata%init(this%coef, this%zone_indices)
 
     this%n_local = this%bdata%n_local
@@ -334,8 +342,9 @@ contains
     ! Column layout
     n_geom = 0
     if (this%geometry_in_data) then
-       n_geom = 4
-       if (this%output_normals) n_geom = 7
+       n_geom = 3
+       if (this%output_normals) n_geom = n_geom + 3
+       if (this%output_area) n_geom = n_geom + 1
     end if
 
     this%n_cols = n_geom + this%fields%size()
@@ -343,15 +352,24 @@ contains
     allocate(this%col_names(this%n_cols))
     col = 0
     if (this%geometry_in_data) then
-       col = col + 1; this%col_names(col) = "x"
-       col = col + 1; this%col_names(col) = "y"
-       col = col + 1; this%col_names(col) = "z"
+       col = col + 1
+       this%col_names(col) = "x"
+       col = col + 1
+       this%col_names(col) = "y"
+       col = col + 1
+       this%col_names(col) = "z"
        if (this%output_normals) then
-          col = col + 1; this%col_names(col) = "n_x"
-          col = col + 1; this%col_names(col) = "n_y"
-          col = col + 1; this%col_names(col) = "n_z"
+          col = col + 1
+          this%col_names(col) = "n_x"
+          col = col + 1
+          this%col_names(col) = "n_y"
+          col = col + 1
+          this%col_names(col) = "n_z"
        end if
-       col = col + 1; this%col_names(col) = "area"
+       if (this%output_area) then
+          col = col + 1
+          this%col_names(col) = "area"
+       end if
     end if
     do i = 1, this%fields%size()
        col = col + 1
@@ -400,80 +418,16 @@ contains
 
     call this%fout%init(this%case%output_directory // trim(output_filename))
 
-    n_geom = 4
-    if (this%output_normals) n_geom = 7
+    n_geom = 3
+    if (this%output_normals) n_geom = n_geom + 3
+    if (this%output_area) n_geom = n_geom + 1
 
     select type (ft => this%fout%file_type)
     type is (csv_file_t)
-       header_line = "time"
-       do i = 1, this%n_cols
-          header_line = trim(header_line) // "," // trim(this%col_names(i))
-       end do
-       call this%fout%set_header(trim(header_line))
-
-       if (pe_rank .eq. 0) then
-          call this%mat_out%init(this%n_global, this%n_cols)
-       else
-          call this%mat_out%init(1, 1)
-       end if
-
-       ! The geometry goes into a companion file. For a moving mesh the
-       ! geometry appears in every sample, but the initial
-       ! geometry is additionally written once as `_initial_mesh`.
-       call boundary_data_writer_gather_geometry(this, mat_geom, n_geom)
-
-       if (pe_rank .eq. 0) then
-          header_line = "x,y,z"
-          if (this%output_normals) header_line = &
-               trim(header_line) // ",n_x,n_y,n_z"
-          header_line = trim(header_line) // ",area"
-
-          mesh_filename = this%case%output_directory // &
-               trim(output_filename)
-          suffix_pos = filename_suffix_pos(mesh_filename)
-          if (this%geometry_in_data) then
-             mesh_filename = trim(mesh_filename(1:suffix_pos-1)) // &
-                  "_initial_mesh" // trim(mesh_filename(suffix_pos:))
-          else
-             mesh_filename = trim(mesh_filename(1:suffix_pos-1)) // "_mesh" // &
-                  trim(mesh_filename(suffix_pos:))
-          end if
-
-          call fmesh%init(trim(mesh_filename), &
-               header = trim(header_line), overwrite = .true.)
-          call fmesh%write(mat_geom)
-          call fmesh%free()
-       end if
-       call mat_geom%free()
-
+       call boundary_data_writer_setup_output_csv(this, output_filename, &
+            n_geom)
     class is (hdf5_file_t)
-       ! Append successive samples into the same datasets.
-       call ft%set_overwrite(.false.)
-
-       call this%vec_out%init(max(0, this%n_local), "value")
-
-       call ft%open("w")
-       call ft%set_active_group("boundary_data")
-
-       ! If the file already carries samples we are restarting into it, so the
-       ! geometry must not be appended a second time. Similar to probes.
-       call ft%read_attribute("NSteps", out_int, attr_exist)
-       if (attr_exist) then
-          this%output_controller%nexecutions = out_int
-       else
-          out_int = this%n_global
-          call ft%write_attribute("NPoints", out_int)
-          call boundary_data_writer_local_geometry(this, mat_geom, n_geom)
-          if (this%geometry_in_data) then
-             mat_geom%name = "initial_coordinates"
-          else
-             mat_geom%name = "coordinates"
-          end if
-          call ft%write_dataset(mat_geom)
-          call mat_geom%free()
-       end if
-       call ft%close()
-
+       call boundary_data_writer_setup_output_hdf5(this, ft, n_geom)
     class default
        call neko_error("boundary_data_writer: expected csv_file_t or " // &
             "hdf5_file_t")
@@ -494,11 +448,108 @@ contains
        write(log_buf, '(A,A)') "  ", trim(this%col_names(i))
        call neko_log%message(log_buf)
     end do
-    write(log_buf, '(A,L1)') "Moving mesh (ALE): ", this%ale_enabled
+    write(log_buf, '(A,L1)') "Moving mesh: ", this%mesh_has_changed
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
   end subroutine boundary_data_writer_init_common
+
+  !> Set up a CSV output.
+  !! @param output_filename The base output filename.
+  !! @param n_geom Number of geometry entries per point in the companion file.
+  subroutine boundary_data_writer_setup_output_csv(this, output_filename, &
+       n_geom)
+    class(boundary_data_writer_t), intent(inout) :: this
+    character(len=*), intent(in) :: output_filename
+    integer, intent(in) :: n_geom
+    character(len=1024) :: header_line
+    character(len=NEKO_FNAME_LEN) :: mesh_filename
+    type(matrix_t) :: mat_geom
+    type(file_t) :: fmesh
+    integer :: i, suffix_pos
+
+    header_line = "time"
+    do i = 1, this%n_cols
+       header_line = trim(header_line) // "," // trim(this%col_names(i))
+    end do
+    call this%fout%set_header(trim(header_line))
+
+    if (pe_rank .eq. 0) then
+       call this%mat_out%init(this%n_global, this%n_cols)
+    else
+       call this%mat_out%init(1, 1)
+    end if
+
+    ! The geometry goes into a companion file. For a moving mesh the
+    ! geometry appears in every sample, but the initial
+    ! geometry is additionally written once as `_initial_mesh`.
+    call boundary_data_writer_gather_geometry(this, mat_geom, n_geom)
+
+    if (pe_rank .eq. 0) then
+       header_line = "x,y,z"
+       if (this%output_normals) header_line = &
+            trim(header_line) // ",n_x,n_y,n_z"
+       if (this%output_area) header_line = trim(header_line) // ",area"
+
+       mesh_filename = this%case%output_directory // &
+            trim(output_filename)
+       suffix_pos = filename_suffix_pos(mesh_filename)
+       if (this%geometry_in_data) then
+          mesh_filename = trim(mesh_filename(1:suffix_pos-1)) // &
+               "_initial_mesh" // trim(mesh_filename(suffix_pos:))
+       else
+          mesh_filename = trim(mesh_filename(1:suffix_pos-1)) // "_mesh" // &
+               trim(mesh_filename(suffix_pos:))
+       end if
+
+       call fmesh%init(trim(mesh_filename), &
+            header = trim(header_line), overwrite = .true.)
+       call fmesh%write(mat_geom)
+       call fmesh%free()
+    end if
+    call mat_geom%free()
+
+  end subroutine boundary_data_writer_setup_output_csv
+
+  !> Set up an HDF5 output.
+  !! @param ft The HDF5 file handle.
+  !! @param n_geom Number of geometry entries per point.
+  subroutine boundary_data_writer_setup_output_hdf5(this, ft, n_geom)
+    class(boundary_data_writer_t), intent(inout) :: this
+    class(hdf5_file_t), intent(inout) :: ft
+    integer, intent(in) :: n_geom
+    type(matrix_t) :: mat_geom
+    integer :: out_int
+    logical :: attr_exist
+
+    ! Append successive samples into the same datasets.
+    call ft%set_overwrite(.false.)
+
+    call this%vec_out%init(max(0, this%n_local), "value")
+
+    call ft%open("w")
+    call ft%set_active_group("boundary_data")
+
+    ! If the file already carries samples we are restarting into it, so the
+    ! geometry must not be appended a second time. Similar to probes.
+    call ft%read_attribute("NSteps", out_int, attr_exist)
+    if (attr_exist) then
+       this%output_controller%nexecutions = out_int
+    else
+       out_int = this%n_global
+       call ft%write_attribute("NPoints", out_int)
+       call boundary_data_writer_local_geometry(this, mat_geom, n_geom)
+       if (this%geometry_in_data) then
+          mat_geom%name = "initial_coordinates"
+       else
+          mat_geom%name = "coordinates"
+       end if
+       call ft%write_dataset(mat_geom)
+       call mat_geom%free()
+    end if
+    call ft%close()
+
+  end subroutine boundary_data_writer_setup_output_hdf5
 
   !> Destructor.
   subroutine boundary_data_writer_free(this)
@@ -562,8 +613,10 @@ contains
     end if
     if (.not. this%output_controller%check(time)) return
 
-    ! A no-op on a static mesh.
-    call this%bdata%update_geometry(to_host = .true.)
+    ! Re-gather the boundary geometry only when the mesh has moved.
+    if (this%mesh_has_changed) then
+       call this%bdata%update_geometry(to_host = .true.)
+    end if
 
     ! Fill the local buffer
     col = 0
@@ -584,10 +637,12 @@ contains
           col = col + 3
        end if
 
-       do i = 1, this%n_local
-          this%local_buffer(col + 1, i) = this%bdata%area%x(i)
-       end do
-       col = col + 1
+       if (this%output_area) then
+          do i = 1, this%n_local
+             this%local_buffer(col + 1, i) = this%bdata%area%x(i)
+          end do
+          col = col + 1
+       end if
     end if
 
     do i = 1, this%fields%size()
@@ -676,7 +731,7 @@ contains
           mat%x(6, i) = this%bdata%n_z%x(i)
           k = 6
        end if
-       mat%x(k + 1, i) = this%bdata%area%x(i)
+       if (this%output_area) mat%x(k + 1, i) = this%bdata%area%x(i)
     end do
 
   end subroutine boundary_data_writer_local_geometry
@@ -706,7 +761,7 @@ contains
           sendbuf(6, i) = this%bdata%n_z%x(i)
           k = 6
        end if
-       sendbuf(k + 1, i) = this%bdata%area%x(i)
+       if (this%output_area) sendbuf(k + 1, i) = this%bdata%area%x(i)
     end do
 
     if (pe_rank .eq. 0) then

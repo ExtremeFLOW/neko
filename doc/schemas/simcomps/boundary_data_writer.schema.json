@@ -12,10 +12,11 @@
           "pattern": "\\.(csv|h5|hdf5)$"
         },
         "output_normals": { "type": "boolean" },
+        "output_area": { "type": "boolean" },
         "start_time": { "type": "number", "x-neko-real": true },
         "fields": { "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFields" }
       },
-      "required": ["type", "zone_indices", "output_filename"],
+      "required": ["type", "zone_indices", "output_filename", "fields"],
       "allOf": [
         { "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase" }
       ],

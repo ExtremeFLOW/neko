@@ -40,7 +40,6 @@ module wall_shear_stress_simcomp
   use time_state, only : time_state_t
   use case, only : case_t
   use field, only : field_t
-  use field_math, only : field_copy
   use registry, only : neko_registry
   use scratch_registry, only : neko_scratch_registry
   use coefs, only : coef_t
@@ -95,6 +94,8 @@ module wall_shear_stress_simcomp
      type(vector_t) :: s11, s22, s33, s12, s13, s23
      !> Viscous traction components at the masked points.
      type(vector_t) :: t1, t2, t3
+     !> Magnitude of the tangential traction at the masked points.
+     type(vector_t) :: t_mag
      !> Pressure traction.
      type(vector_t) :: pt1, pt2, pt3
      !> Which traction components are registered as fields.
@@ -102,8 +103,8 @@ module wall_shear_stress_simcomp
      logical :: want_y = .true.
      logical :: want_z = .true.
      logical :: want_mag = .true.
-     !> Whether ALE or not.
-     logical :: ale_enabled = .false.
+     !> Whether the mesh geometry changes during the run.
+     logical :: mesh_has_changed = .false.
      !> Base name of the registered fields.
      character(len=:), allocatable :: computed_field
    contains
@@ -167,7 +168,7 @@ contains
     ! Register the selected fields so they are available in the registry.
     do i = 1, size(fields)
        call neko_registry%add_field(case%fluid%c_Xh%dof, trim(fields(i)), &
-            ignore_existing = .true.)
+            ignore_existing = .false.)
     end do
 
     call this%init_common(name, computed_field, viscosity_field, &
@@ -322,7 +323,7 @@ contains
 
     do i = 1, size(fields)
        call neko_registry%add_field(coef%dof, trim(fields(i)), &
-            ignore_existing = .true.)
+            ignore_existing = .false.)
     end do
 
     call this%init_common(name, computed_field, viscosity_field, &
@@ -392,7 +393,7 @@ contains
 
     do i = 1, size(fields)
        call neko_registry%add_field(coef%dof, trim(fields(i)), &
-            ignore_existing = .true.)
+            ignore_existing = .false.)
     end do
 
     call this%init_common(name, computed_field, viscosity_field, &
@@ -418,6 +419,7 @@ contains
     type(coef_t), intent(inout), target :: coef
     character(len=LOG_SIZE) :: log_buf
     integer :: n_pts, glb_n_pts
+    logical :: ale_enabled
 
     this%name = name
     this%coef => coef
@@ -430,9 +432,15 @@ contains
     allocate(this%zone_indices(size(zone_indices)))
     this%zone_indices = zone_indices
 
-    this%ale_enabled = .false.
+    ale_enabled = .false.
     if (associated(neko_ale)) then
-       if (neko_ale%active) this%ale_enabled = .true.
+       if (neko_ale%active) ale_enabled = .true.
+    end if
+
+    ! Whether the mesh geometry varies during the run.
+    this%mesh_has_changed = .false.
+    if (ale_enabled) then
+       this%mesh_has_changed = .true.
     end if
 
     this%u => neko_registry%get_field_by_name("u")
@@ -455,7 +463,7 @@ contains
     if (want_mag) this%tau_mag => &
          neko_registry%get_field_by_name(trim(computed_field) // "_mag")
 
-    ! `only_facets = .true.`
+    ! only_facets = .true.
     ! The normals are requested in the `coef` convention, pointing out of the
     ! fluid domain, because that is what `calc_force_array` expects. The
     ! outward convention would flip the sign of the computed traction.
@@ -476,6 +484,7 @@ contains
        call this%t1%init(n_pts)
        call this%t2%init(n_pts)
        call this%t3%init(n_pts)
+       call this%t_mag%init(n_pts)
        call this%pt1%init(n_pts)
        call this%pt2%init(n_pts)
        call this%pt3%init(n_pts)
@@ -502,7 +511,7 @@ contains
     if (this%want_mag) log_buf = trim(log_buf) // " " // &
          trim(computed_field) // "_mag"
     call neko_log%message(log_buf)
-    write(log_buf, '(A,L1)') "Moving mesh (ALE): ", this%ale_enabled
+    write(log_buf, '(A,L1)') "Moving mesh: ", this%mesh_has_changed
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
@@ -525,6 +534,7 @@ contains
     call this%t1%free()
     call this%t2%free()
     call this%t3%free()
+    call this%t_mag%free()
     call this%pt1%free()
     call this%pt2%free()
     call this%pt3%free()
@@ -553,17 +563,16 @@ contains
     class(wall_shear_stress_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
-    type(field_t), pointer :: fx, fy, fz
     integer :: temp_indices(6)
-    integer :: work_indices(3)
-    integer :: n, n_pts
+    integer :: n_pts
     character(len=LOG_SIZE) :: log_buf
 
-    n = this%coef%dof%size()
     n_pts = this%bdata%n_local
 
-    ! A no-op on a static mesh, so no ALE test is needed here.
-    call this%bdata%update_geometry(to_host = .false.)
+    ! Re-gather the boundary geometry only when the mesh has moved.
+    if (this%mesh_has_changed) then
+       call this%bdata%update_geometry(to_host = .false.)
+    end if
 
     ! Strain rate over the whole field, then gather it at the mask.
     call neko_scratch_registry%request_field(s11, temp_indices(1), .false.)
@@ -607,38 +616,29 @@ contains
        ! Remove the wall-normal part, leaving the tangential traction.
        ! The projection is invariant to the sign of the normal.
        call this%bdata%tangential(this%t1, this%t2, this%t3)
+
+       ! Magnitude of the tangential traction.
+       if (this%want_mag) then
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_vdot3(this%t_mag%x_d, this%t1%x_d, this%t2%x_d, &
+                  this%t3%x_d, this%t1%x_d, this%t2%x_d, this%t3%x_d, n_pts)
+             call device_sqrt_inplace(this%t_mag%x_d, n_pts)
+          else
+             call vdot3(this%t_mag%x, this%t1%x, this%t2%x, this%t3%x, &
+                  this%t1%x, this%t2%x, this%t3%x, n_pts)
+             call sqrt_inplace(this%t_mag%x, n_pts)
+          end if
+       end if
     end if
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 
-
-    call neko_scratch_registry%request_field(fx, work_indices(1), .false.)
-    call neko_scratch_registry%request_field(fy, work_indices(2), .false.)
-    call neko_scratch_registry%request_field(fz, work_indices(3), .false.)
-
-    ! Scatter the vectors into fields.
-    call this%bdata%scatter(this%t1, fx)
-    call this%bdata%scatter(this%t2, fy)
-    call this%bdata%scatter(this%t3, fz)
-
-    ! Copy the work fields into the selected registered fields.
-    if (this%want_x) call field_copy(this%tau_x, fx)
-    if (this%want_y) call field_copy(this%tau_y, fy)
-    if (this%want_z) call field_copy(this%tau_z, fz)
-
-    ! The magnitude
-    if (this%want_mag) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_vdot3(this%tau_mag%x_d, fx%x_d, fy%x_d, fz%x_d, &
-               fx%x_d, fy%x_d, fz%x_d, n)
-          call device_sqrt_inplace(this%tau_mag%x_d, n)
-       else
-          call vdot3(this%tau_mag%x, fx%x, fy%x, fz%x, fx%x, fy%x, fz%x, n)
-          call sqrt_inplace(this%tau_mag%x, n)
-       end if
-    end if
-
-    call neko_scratch_registry%relinquish_field(work_indices)
+    ! Scatter the tangential traction and its magnitude into the
+    ! registered fields.
+    if (this%want_x) call this%bdata%scatter(this%t1, this%tau_x)
+    if (this%want_y) call this%bdata%scatter(this%t2, this%tau_y)
+    if (this%want_z) call this%bdata%scatter(this%t3, this%tau_z)
+    if (this%want_mag) call this%bdata%scatter(this%t_mag, this%tau_mag)
 
     write(log_buf, '(A,A,A,E15.7,A,*(I0,:,", "))') &
          "WSS: '", trim(this%name), "' computed at t = ", &

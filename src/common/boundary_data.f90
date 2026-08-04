@@ -46,7 +46,6 @@ module boundary_data
        vector_vdot3, vector_subcol3, vector_col3, vector_cmult, vector_copy
   use device, only : DEVICE_TO_HOST
   use neko_config, only : NEKO_BCKND_DEVICE
-  use ale_manager, only : neko_ale
   use utils, only : neko_error
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
@@ -77,15 +76,12 @@ module boundary_data
      !> Whether the stored normals point out of the wall into the fluid. When
      !! false they keep the `coef` convention, pointing out of the fluid.
      logical :: outward_normals = .true.
-     !> Whether ALE is enabled or not.
-     logical :: ale_enabled = .false.
    contains
      !> Constructor.
      procedure, pass(this) :: init => boundary_data_init
      !> Destructor.
      procedure, pass(this) :: free => boundary_data_free
-     !> Re-gather the geometry factors at the boundary points. A no-op on a
-     !! static mesh.
+     !> Re-gather the geometry factors at the boundary points.
      procedure, pass(this) :: update_geometry => &
           boundary_data_update_geometry
      !> Sample a quantity at the boundary points.
@@ -187,7 +183,7 @@ contains
     allocate(this%zone_indices(size(zone_indices)))
     this%zone_indices = zone_indices
 
-    ! `only_facets`
+    ! only_facets
     call this%bc%init_base(this%coef)
     this%bc%zone_indices = this%zone_indices
     do i = 1, size(this%zone_indices)
@@ -215,13 +211,8 @@ contains
     call this%area%init(this%n_local)
     call this%work%init(this%n_local)
 
-    this%ale_enabled = .false.
-    if (associated(neko_ale)) then
-       if (neko_ale%active) this%ale_enabled = .true.
-    end if
-
-    ! The first gather always runs.
-    call this%update_geometry(force = .true., to_host = .true.)
+    ! Populate the geometry once at construction.
+    call this%update_geometry(to_host = .true.)
 
   end subroutine boundary_data_init
 
@@ -244,27 +235,21 @@ contains
 
     this%n_local = 0
     this%n_global = 0
-    this%ale_enabled = .false.
     nullify(this%coef)
 
   end subroutine boundary_data_free
 
   !> Re-gather the coordinates, normals and surface weights.
-  !! @param force Gather even on a static mesh.
   !! @param to_host Whether to copy the gathered geometry to the host.
-  subroutine boundary_data_update_geometry(this, force, to_host)
+  subroutine boundary_data_update_geometry(this, to_host)
     class(boundary_data_t), intent(inout) :: this
-    logical, intent(in), optional :: force
     logical, intent(in), optional :: to_host
-    logical :: forced, copy_to_host
+    logical :: copy_to_host
     integer :: n
 
-    forced = .false.
-    if (present(force)) forced = force
     copy_to_host = .false.
     if (present(to_host)) copy_to_host = to_host
 
-    if (.not. (forced .or. this%ale_enabled)) return
     if (this%n_local .le. 0) return
 
     n = this%coef%dof%size()
@@ -296,7 +281,7 @@ contains
        call vector_cmult(this%n_z, -1.0_rp)
     end if
 
-    if ( (NEKO_BCKND_DEVICE .eq. 1) .and. copy_to_host) then
+    if (copy_to_host) then
        call this%x%copy_from(DEVICE_TO_HOST, .false.)
        call this%y%copy_from(DEVICE_TO_HOST, .false.)
        call this%z%copy_from(DEVICE_TO_HOST, .false.)
@@ -335,6 +320,7 @@ contains
     character(len=*), intent(in) :: name
     type(vector_t), intent(inout) :: v
     logical, intent(in), optional :: to_host
+    logical :: to_host_
     type(field_t), pointer :: f
 
     if (v%size() .ne. this%n_local) then
@@ -343,28 +329,31 @@ contains
     end if
     if (this%n_local .le. 0) return
 
+    to_host_ = .false.
+    if (present(to_host)) to_host_ = to_host
+
     select case (trim(name))
     case ("x")
        call vector_copy(v, this%x)
-       call boundary_data_sync_host(v, to_host)
+       call boundary_data_sync_host(v, to_host_)
     case ("y")
        call vector_copy(v, this%y)
-       call boundary_data_sync_host(v, to_host)
+       call boundary_data_sync_host(v, to_host_)
     case ("z")
        call vector_copy(v, this%z)
-       call boundary_data_sync_host(v, to_host)
+       call boundary_data_sync_host(v, to_host_)
     case ("n_x")
        call vector_copy(v, this%n_x)
-       call boundary_data_sync_host(v, to_host)
+       call boundary_data_sync_host(v, to_host_)
     case ("n_y")
        call vector_copy(v, this%n_y)
-       call boundary_data_sync_host(v, to_host)
+       call boundary_data_sync_host(v, to_host_)
     case ("n_z")
        call vector_copy(v, this%n_z)
-       call boundary_data_sync_host(v, to_host)
+       call boundary_data_sync_host(v, to_host_)
     case ("area")
        call vector_copy(v, this%area)
-       call boundary_data_sync_host(v, to_host)
+       call boundary_data_sync_host(v, to_host_)
     case default
        if (.not. neko_registry%field_exists(trim(name))) then
           call neko_error("boundary_data: '" // trim(name) // &
@@ -372,7 +361,7 @@ contains
                "n_z, area) nor a field in the registry")
        end if
        f => neko_registry%get_field_by_name(trim(name))
-       call this%get(f, v, to_host)
+       call this%get_vector_by_field(f, v, to_host_)
     end select
 
   end subroutine boundary_data_get_vector_by_name
@@ -388,7 +377,7 @@ contains
     copy_to_host = .false.
     if (present(to_host)) copy_to_host = to_host
 
-    if ( (NEKO_BCKND_DEVICE .eq. 1) .and. copy_to_host) then
+    if (copy_to_host) then
        call v%copy_from(DEVICE_TO_HOST, .true.)
     end if
 
@@ -403,7 +392,7 @@ contains
     type(field_t), intent(in) :: f
     type(vector_t), intent(inout) :: v
     logical, intent(in), optional :: to_host
-    logical :: copy_to_host
+    logical :: to_host_
 
     if (.not. associated(f%dof, this%coef%dof)) then
        call neko_error("boundary_data: the field '" // trim(f%name) // &
@@ -417,25 +406,27 @@ contains
     end if
     if (this%n_local .le. 0) return
 
+    to_host_ = .false.
+    if (present(to_host)) to_host_ = to_host
+
     call vector_masked_gather_copy_0(v, f%x, this%bc%msk, &
          this%coef%dof%size(), this%n_local)
 
-    copy_to_host = .false.
-    if (present(to_host)) copy_to_host = to_host
-
-    if ( (NEKO_BCKND_DEVICE .eq. 1) .and. copy_to_host) then
-       call v%copy_from(DEVICE_TO_HOST, .true.)
-    end if
+    call boundary_data_sync_host(v, to_host_)
 
   end subroutine boundary_data_get_vector_by_field
 
-  !> Sample a named quantity into a full field, zero away from the boundary.
+  !> Sample a named quantity into a full field.
   !! @param name The requested quantity.
   !! @param f The destination field.
-  subroutine boundary_data_get_field_by_name(this, name, f)
+  !! @param clear If true, zero the whole field before writing the
+  !! boundary points; defaults to false.
+  subroutine boundary_data_get_field_by_name(this, name, f, clear)
     class(boundary_data_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     type(field_t), intent(inout) :: f
+    logical, intent(in), optional :: clear
+    logical :: clear_
     integer :: n
 
     if (.not. associated(f%dof, this%coef%dof)) then
@@ -444,9 +435,12 @@ contains
             "mask")
     end if
 
+    clear_ = .false.
+    if (present(clear)) clear_ = clear
+
     n = this%coef%dof%size()
 
-    call field_rzero(f)
+    if (clear_) call field_rzero(f)
 
     call this%get(trim(name), this%work, to_host = .false.)
     call vector_masked_scatter_copy_0(f%x, this%work, this%bc%msk, n, &
@@ -457,10 +451,14 @@ contains
   !> Scatter boundary point values back into a full field (inverse of `get`).
   !! @param v The boundary point values.
   !! @param f The destination field.
-  subroutine boundary_data_scatter(this, v, f)
+  !! @param clear If true, zero the whole field before writing the
+  !! boundary points; defaults to false.
+  subroutine boundary_data_scatter(this, v, f, clear)
     class(boundary_data_t), intent(inout) :: this
     type(vector_t), intent(in) :: v
     type(field_t), intent(inout) :: f
+    logical, intent(in), optional :: clear
+    logical :: clear_
     integer :: n
 
     if (.not. associated(f%dof, this%coef%dof)) then
@@ -468,9 +466,12 @@ contains
             "different dofmap than the boundary mask")
     end if
 
+    clear_ = .false.
+    if (present(clear)) clear_ = clear
+
     n = this%coef%dof%size()
 
-    call field_rzero(f)
+    if (clear_) call field_rzero(f)
 
     call vector_masked_scatter_copy_0(f%x, v, this%bc%msk, n, this%n_local)
 

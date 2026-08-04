@@ -264,7 +264,7 @@ Optional fields for this simcomp are:
 ~~~~~~~~~~~~~~~
 
 ### boundary_data_writer {#simcomp_boundary_data_writer}
-Samples registered fields at the boundary points of one or more labelled zones and writes them to a CSV or HDF5 file. Unlike \ref simcomp_field_writer, which writes whole volume fields, this simcomp writes only the points on the selected zones, together with their coordinates, the surface quadrature weight `area` and, optionally, the unit normals. It works for both static and moving (ALE) simulations.
+Samples registered fields at the boundary points of one or more labelled zones and writes them to a CSV or HDF5 file. Unlike \ref simcomp_field_writer, which writes whole volume fields, this simcomp writes only the points on the selected zones, together with their coordinates and, optionally, the surface quadrature weight `area` and the unit normals. It works for both static and moving (e.g. ALE) simulations.
 
 The simcomp only samples fields that are already in the registry. To write a derived quantity, add the simcomp that produces it first and then list its registered field names here. For example, use \ref simcomp_gradient or \ref simcomp_derivative for spatial derivatives, or \ref simcomp_wall_shear_stress for the wall shear stress.
 
@@ -275,6 +275,7 @@ Mandatory fields for this simcomp are:
 
 Optional fields for this simcomp are:
 - `output_normals`: if `true`, include the unit normal components `n_x`, `n_y` and `n_z`. The normals point out of the wall into the fluid. Default `true`.
+- `output_area`: if `true`, include the surface quadrature weight `area`. Default `true`.
 - `start_time`: only write samples after this time. Default `0.0`.
 
 ~~~~~~~~~~~~~~~{.json}
@@ -285,6 +286,7 @@ Optional fields for this simcomp are:
   "fields": ["p", "u", "v", "w", "tau_mag"],
   "output_filename": "wall_data.csv",
   "output_normals": true,
+  "output_area": true,
   "output_control": "tsteps",
   "output_value": 50
 }
@@ -294,14 +296,14 @@ Optional fields for this simcomp are:
 
 #### Output files
 
-The geometry (coordinates, optional normals and `area`) is written differently for a static and a moving mesh, so that it is stored only where it is actually needed.
+The geometry (coordinates, plus the optional normals and `area`) is written differently for a static and a moving mesh, so that it is stored only where it is actually needed.
 
 On a **static mesh**, the geometry is constant and is written once to a companion file, while the main file holds only `time` and the sampled fields:
-- CSV: geometry in `<name>_mesh.csv` (columns `x, y, z`, then `n_x, n_y, n_z` if `output_normals`, then `area`); data in `<name>.csv` (columns `time` then the sampled fields).
+- CSV: geometry in `<name>_mesh.csv` (columns `x, y, z`, then `n_x, n_y, n_z` if `output_normals`, then `area` if `output_area`); data in `<name>.csv` (columns `time` then the sampled fields).
 - HDF5: geometry in the `coordinates` dataset; the samples are appended under the `boundary_data` group.
 
 On a **moving mesh (ALE)**, the geometry changes every step, so it is written inline as leading columns of every sample; in addition, the initial (undeformed) geometry is written once as a reference:
-- CSV: `<name>.csv` has columns `time, x, y, z, [n_x, n_y, n_z,] area`, then the sampled fields; the initial geometry is in `<name>_initial_mesh.csv`.
+- CSV: `<name>.csv` has columns `time, x, y, z, [n_x, n_y, n_z,] [area]`, then the sampled fields; the initial geometry is in `<name>_initial_mesh.csv`.
 - HDF5: the per-sample geometry is written with each sample under the `boundary_data` group, and the initial geometry is in the `initial_coordinates` dataset.
 
 @attention The `mesh` / `initial_mesh` CSV rows correspond one-to-one, in order, with the points of each time block of the data file.
@@ -699,7 +701,7 @@ Optional fields for this simcomp are:
 
 @note `<computed_field>_mag` is always the magnitude of the full traction vector, regardless of which components are registered.
 
-@attention When several zones are given to a single simcomp, they are computed into the same fields. To keep two walls apart, use one simcomp per wall with a different `computed_field` for each. Reusing the same `computed_field` in two simcomps is not supported, as each one zeroes the whole field before writing its own zone.
+@attention When several zones are given to a single simcomp, they are computed into the same fields. To keep two walls apart, use one simcomp per wall with a different `computed_field` for each.
 
 @note For ALE simulations the wall normals are re-gathered at every time step to account for the moving mesh. If the ALE module is not enabled, they are gathered once during initialization.
 
