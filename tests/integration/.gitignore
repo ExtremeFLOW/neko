@@ -7,3 +7,4 @@ logs/
 tests/**/*.case
 **/genmeshbox*
 **/*.csv
+!tests/test_scalar_restart/reference_*.csv
