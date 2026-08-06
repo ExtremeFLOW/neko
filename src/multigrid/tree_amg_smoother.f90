@@ -34,7 +34,8 @@
 module tree_amg_smoother
   use tree_amg, only : tamg_hierarchy_t
   use tree_amg_utils, only : tamg_sample_matrix_val
-  use num_types, only : rp
+  use num_types, only : rp, dp
+  use mpi_f08, only : MPI_Wtime
   use math, only : col2, add2, add2s2, glsc2, glsc3, sub2, cmult, &
        cmult2, copy, add3s2
   use device_math, only : device_glsc2, device_glsc3, device_rzero, &
@@ -77,10 +78,21 @@ module tree_amg_smoother
      type(c_ptr) :: w_d = C_NULL_PTR
      real(kind=rp), allocatable :: r(:)
      type(c_ptr) :: r_d = C_NULL_PTR
+     !> Saved power-method eigenvector, used to warm start re-estimations
+     !> after small operator changes (e.g. ALE mesh moves). Allocated lazily,
+     !> only when warm_start_eigs is enabled.
+     real(kind=rp), allocatable :: ev(:)
+     type(c_ptr) :: ev_d = C_NULL_PTR
      real(kind=rp) :: tha, dlt
      integer :: lvl
      integer :: n
      integer :: power_its = 250
+     !> Power iterations for warm-started re-estimations
+     integer :: power_its_refresh = 20
+     !> Warm start eigenvalue re-estimations from the saved eigenvector
+     logical :: warm_start_eigs = .false.
+     !> Whether a converged eigenvector estimate exists in ev
+     logical :: eigs_computed = .false.
      integer :: max_iter = 10
      logical :: recompute_eigs = .true.
    contains
@@ -143,6 +155,12 @@ contains
        end if
        deallocate(this%r)
     end if
+    if (allocated(this%ev)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%ev_d)) then
+          call device_unmap(this%ev, this%ev_d)
+       end if
+       deallocate(this%ev)
+    end if
   end subroutine amg_cheby_free
 
 
@@ -157,33 +175,49 @@ contains
     real(kind=rp), parameter :: boost = 1.1_rp
     real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
+    real(kind=dp) :: t_start, t_end
     integer, allocatable :: fixed_seed(:), saved_seed(:)
-    integer :: i, rnd_n
+    integer :: i, rnd_n, its
+    logical :: warm
+
+    t_start = MPI_Wtime()
+    warm = this%warm_start_eigs .and. this%eigs_computed .and. &
+         allocated(this%ev)
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
          msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
 
-      ! Save current random seed and set a fixed seed
-      call random_seed( size=rnd_n )
-      allocate(saved_seed(rnd_n))
-      allocate(fixed_seed(rnd_n))
-      fixed_seed = 3901
-      call random_seed( get=saved_seed )
-      call random_seed( put=fixed_seed )
+      if (warm) then
+         ! Re-estimation after a small operator change: start from the saved
+         ! eigenvector (already conforming; no gs/bc conditioning needed) and
+         ! run a reduced number of iterations.
+         its = this%power_its_refresh
+         call copy(d, this%ev, n)
+      else
+         its = this%power_its
 
-      do i = 1, n
-         call random_number(rn)
-         d(i) = rn + 10.0_rp
-      end do
+         ! Save current random seed and set a fixed seed
+         call random_seed( size=rnd_n )
+         allocate(saved_seed(rnd_n))
+         allocate(fixed_seed(rnd_n))
+         fixed_seed = 3901
+         call random_seed( get=saved_seed )
+         call random_seed( put=fixed_seed )
 
-      ! Restore saved random seed
-      call random_seed( put=saved_seed )
+         do i = 1, n
+            call random_number(rn)
+            d(i) = rn + 10.0_rp
+         end do
 
-      if (this%lvl .eq. 0) then
-         call gs_h%op(d, n, GS_OP_ADD)!TODO
-         call blst%apply(d, n)
+         ! Restore saved random seed
+         call random_seed( put=saved_seed )
+
+         if (this%lvl .eq. 0) then
+            call gs_h%op(d, n, GS_OP_ADD)!TODO
+            call blst%apply(d, n)
+         end if
       end if
       !Power method to get lamba max
-      do i = 1, this%power_its
+      do i = 1, its
          call amg%matvec(w, d, this%lvl)
 
          if (this%lvl .eq. 0) then
@@ -210,8 +244,18 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
+      ! Save the eigenvector for future warm-started re-estimations
+      if (this%warm_start_eigs) then
+         if (.not. allocated(this%ev)) then
+            allocate(this%ev(this%n))
+         end if
+         call copy(this%ev, d, n)
+      end if
+      this%eigs_computed = .true.
+
       this%recompute_eigs = .false.
-      call amg_cheby_monitor(this%lvl, lam)
+      t_end = MPI_Wtime()
+      call amg_cheby_monitor(this%lvl, lam, its, t_end - t_start)
     end associate
   end subroutine amg_cheby_power
 
@@ -305,33 +349,49 @@ contains
     real(kind=rp), parameter :: boost = 1.1_rp
     real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
+    real(kind=dp) :: t_start, t_end
     integer, allocatable :: fixed_seed(:), saved_seed(:)
-    integer :: i, rnd_n
+    integer :: i, rnd_n, its
+    logical :: warm
+
+    t_start = MPI_Wtime()
+    warm = this%warm_start_eigs .and. this%eigs_computed .and. &
+         c_associated(this%ev_d)
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
          msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
 
-      ! Save current random seed and set a fixed seed
-      call random_seed( size=rnd_n )
-      allocate(saved_seed(rnd_n))
-      allocate(fixed_seed(rnd_n))
-      fixed_seed = 3901
-      call random_seed( get=saved_seed )
-      call random_seed( put=fixed_seed )
+      if (warm) then
+         ! Re-estimation after a small operator change: start from the saved
+         ! eigenvector (already conforming; no gs/bc conditioning needed) and
+         ! run a reduced number of iterations.
+         its = this%power_its_refresh
+         call device_copy(this%d_d, this%ev_d, n)
+      else
+         its = this%power_its
 
-      do i = 1, n
-         call random_number(rn)
-         d(i) = rn + 10.0_rp
-      end do
-      call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
+         ! Save current random seed and set a fixed seed
+         call random_seed( size=rnd_n )
+         allocate(saved_seed(rnd_n))
+         allocate(fixed_seed(rnd_n))
+         fixed_seed = 3901
+         call random_seed( get=saved_seed )
+         call random_seed( put=fixed_seed )
 
-      ! Restore saved random seed
-      call random_seed( put=saved_seed )
+         do i = 1, n
+            call random_number(rn)
+            d(i) = rn + 10.0_rp
+         end do
+         call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
 
-      if (this%lvl .eq. 0) then
-         call gs_h%op(d, n, GS_OP_ADD)!TODO
-         call blst%apply(d, n)
+         ! Restore saved random seed
+         call random_seed( put=saved_seed )
+
+         if (this%lvl .eq. 0) then
+            call gs_h%op(d, n, GS_OP_ADD)!TODO
+            call blst%apply(d, n)
+         end if
       end if
-      do i = 1, this%power_its
+      do i = 1, its
          call amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)
 
          if (this%lvl .eq. 0) then
@@ -358,8 +418,19 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
+      ! Save the eigenvector for future warm-started re-estimations
+      if (this%warm_start_eigs) then
+         if (.not. c_associated(this%ev_d)) then
+            allocate(this%ev(this%n))
+            call device_map(this%ev, this%ev_d, this%n)
+         end if
+         call device_copy(this%ev_d, this%d_d, n)
+      end if
+      this%eigs_computed = .true.
+
       this%recompute_eigs = .false.
-      call amg_cheby_monitor(this%lvl, lam)
+      t_end = MPI_Wtime()
+      call amg_cheby_monitor(this%lvl, lam, its, t_end - t_start)
     end associate
   end subroutine amg_device_cheby_power
 
@@ -544,13 +615,15 @@ contains
     call neko_log%message(log_buf)
   end subroutine amg_smoo_monitor
 
-  subroutine amg_cheby_monitor(lvl, lam)
-    integer, intent(in) :: lvl
+  subroutine amg_cheby_monitor(lvl, lam, its, elapsed)
+    integer, intent(in) :: lvl, its
     real(kind=rp), intent(in) :: lam
+    real(kind=dp), intent(in) :: elapsed
     character(len=LOG_SIZE) :: log_buf
 
-    write(log_buf, '(A12,I2,A29,F12.3)') '-- AMG level', lvl, &
-         '-- Chebyshev approx. max eig', lam
+    write(log_buf, '(A12,I2,A16,F12.3,A2,I4,A7,ES10.3,A2)') &
+         '-- AMG level', lvl, '-- max eig', lam, ' (', its, ' its, ', &
+         elapsed, 's)'
     call neko_log%message(log_buf)
   end subroutine amg_cheby_monitor
 

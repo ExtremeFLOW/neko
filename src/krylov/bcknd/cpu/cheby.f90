@@ -35,7 +35,9 @@ module cheby
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
-  use num_types, only: rp
+  use num_types, only: rp, dp
+  use mpi_f08, only : MPI_Wtime
+  use logger, only : neko_log, LOG_SIZE
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
@@ -55,6 +57,14 @@ module cheby
      real(kind=rp), allocatable :: r(:)
      real(kind=rp) :: tha, dlt
      integer :: power_its = 150
+     !> Power iterations for warm-started re-estimations
+     integer :: power_its_refresh = 20
+     !> Warm start eigenvalue re-estimations from the saved eigenvector
+     logical :: warm_start_eigs = .false.
+     !> Whether a converged eigenvector estimate exists in ev
+     logical :: eigs_computed = .false.
+     !> Saved power-method eigenvector for warm-started re-estimations
+     real(kind=rp), allocatable :: ev(:)
      logical :: recompute_eigs = .true.
      logical :: zero_initial_guess = .false.
      type(schwarz_t), pointer :: schwarz => null() !< Schwarz decompostions
@@ -119,6 +129,9 @@ contains
     if (allocated(this%r)) then
        deallocate(this%r)
     end if
+    if (allocated(this%ev)) then
+       deallocate(this%ev)
+    end if
   end subroutine cheby_free
 
   subroutine cheby_power(this, Ax, x, n, coef, blst, gs_h)
@@ -133,31 +146,47 @@ contains
     real(kind=rp) :: boost = 1.1_rp
     real(kind=rp) :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
+    real(kind=dp) :: t_start, t_end
     integer, allocatable :: fixed_seed(:), saved_seed(:)
-    integer :: i, rnd_n
+    integer :: i, rnd_n, its
+    logical :: warm
+    character(len=LOG_SIZE) :: log_buf
+
+    t_start = MPI_Wtime()
+    warm = this%warm_start_eigs .and. this%eigs_computed .and. &
+         allocated(this%ev)
     associate(w => this%w, d => this%d, r => this%r)
 
-      ! Save current random seed and set a fixed seed
-      call random_seed( size=rnd_n )
-      allocate(saved_seed(rnd_n))
-      allocate(fixed_seed(rnd_n))
-      fixed_seed = 3901
-      call random_seed( get=saved_seed )
-      call random_seed( put=fixed_seed )
+      if (warm) then
+         ! Re-estimation after a small operator change: start from the saved
+         ! eigenvector (already conforming) and run fewer iterations.
+         its = this%power_its_refresh
+         call copy(d, this%ev, n)
+      else
+         its = this%power_its
 
-      do i = 1, n
-         call random_number(rn)
-         d(i) = rn + 10.0_rp
-      end do
+         ! Save current random seed and set a fixed seed
+         call random_seed( size=rnd_n )
+         allocate(saved_seed(rnd_n))
+         allocate(fixed_seed(rnd_n))
+         fixed_seed = 3901
+         call random_seed( get=saved_seed )
+         call random_seed( put=fixed_seed )
 
-      ! Restore saved random seed
-      call random_seed( put=saved_seed )
+         do i = 1, n
+            call random_number(rn)
+            d(i) = rn + 10.0_rp
+         end do
 
-      call gs_h%op(d, n, GS_OP_ADD)
-      call blst%apply(d, n)
+         ! Restore saved random seed
+         call random_seed( put=saved_seed )
+
+         call gs_h%op(d, n, GS_OP_ADD)
+         call blst%apply(d, n)
+      end if
 
       !Power method to get lamba max
-      do i = 1, this%power_its
+      do i = 1, its
          call ax%compute(w, d, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
          call blst%apply(w, n)
@@ -193,7 +222,21 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
+      ! Save the eigenvector for future warm-started re-estimations
+      if (this%warm_start_eigs) then
+         if (.not. allocated(this%ev)) then
+            allocate(this%ev(size(this%d)))
+         end if
+         call copy(this%ev, d, n)
+      end if
+      this%eigs_computed = .true.
+
       this%recompute_eigs = .false.
+      t_end = MPI_Wtime()
+      write(log_buf, '(A,F12.3,A2,I4,A7,ES10.3,A2)') &
+           'Cheby (phmg) max eig', lam, ' (', its, ' its, ', &
+           t_end - t_start, 's)'
+      call neko_log%message(log_buf)
     end associate
   end subroutine cheby_power
 

@@ -180,7 +180,12 @@ module coefs
      type(c_ptr) :: R11_d = C_NULL_PTR
      type(c_ptr) :: R12_d = C_NULL_PTR
 
-
+     !> Counter bumped every time the geometric metrics are recomputed
+     !> (e.g. after an ALE mesh move). Consumers that cache geometry-derived
+     !> data can compare against a stored copy to detect when a refresh is
+     !> needed. Static simulations never call recompute_metrics, so this stays
+     !> at its initial value.
+     integer :: metrics_version = 0
 
    contains
      procedure, private, pass(this) :: init_empty => coef_init_empty
@@ -1448,6 +1453,7 @@ contains
     if (this%cyclic) then
        call coef_generate_cyclic_bc(this)
     end if
+    this%metrics_version = this%metrics_version + 1
   end subroutine coef_recompute_metrics
 
 

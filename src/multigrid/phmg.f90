@@ -32,7 +32,8 @@
 !
 !> Hybrid ph-multigrid preconditioner
 module phmg
-  use num_types, only : rp
+  use num_types, only : rp, dp
+  use mpi_f08, only : MPI_Wtime
   use precon, only : pc_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use space, only : space_t, GLL
@@ -55,7 +56,8 @@ module phmg
   use json_module, only : json_file
   use json_utils, only : json_get_or_default, json_get
   use math, only : copy, col2, add2, add2s2, add2s1
-  use device, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue, &
+  use device, only : device_get_ptr, device_stream_wait_event, device_sync, &
+       glb_cmd_queue, &
        glb_cmd_event
   use device_math, only : device_rzero, device_copy, device_add2, &
        device_add2s2, device_invcol2, device_glsc2, device_col2, device_add2s1
@@ -97,7 +99,37 @@ module phmg
      type(phmg_hrchy_t) :: phmg_hrchy
      class(ax_t), allocatable :: ax
      type(interpolator_t), allocatable :: intrp(:)
+     !> Coordinate interpolators for the ALE refresh: crd_intrp(i) is built
+     !> with the coarse space FIRST (init(lvl(i)%Xh, lvl(0)%Xh)), so mapping
+     !> to its first space applies TRUE pointwise interpolation (Yh_to_Xh
+     !> untransposed) from the finest level directly to level i. The regular
+     !> intrp(:) cannot be used for coordinates: mapping to its second space
+     !> applies the transpose (the multigrid restriction adjoint), which is
+     !> correct for residuals but meaningless for coordinates.
+     type(interpolator_t), allocatable :: crd_intrp(:)
      type(mesh_t), pointer :: msh
+     !> Value of the fine-level coef metrics_version last seen by update().
+     !> Used to skip the coarse-geometry refresh when the mesh has not moved.
+     integer :: last_metrics_version = -1
+     !> When .false., update() is a no-op and the preconditioner behaves
+     !> exactly as the original code (coarse levels frozen at init geometry,
+     !> cached eigenvalues never refreshed). Default .false.; set .true. to
+     !> enable the ALE coarse-refresh. Intended for A/B comparison.
+     logical :: update_enabled = .false.
+     !> Whether geometry refreshes also invalidate the cached Chebyshev
+     !> eigenvalue estimates (the expensive part of the refresh).
+     logical :: refresh_eigs = .true.
+     !> Invalidate eigenvalues only every N-th geometry refresh. Geometry
+     !> itself is always refreshed on every mesh change; only the eigenvalue
+     !> re-estimation is skipped. Safe with GMRES: a slightly stale spectral
+     !> bound costs iterations, never correctness.
+     integer :: refresh_eigs_frequency = 1
+     !> Warm start eigenvalue re-estimations from the previous eigenvector
+     logical :: eigs_warm_start = .true.
+     !> Power iterations used for warm-started re-estimations
+     integer :: power_its_refresh = 20
+     !> Number of geometry refreshes performed so far
+     integer :: n_geom_refresh = 0
    contains
      procedure, pass(this) :: init => phmg_init
      procedure, pass(this) :: init_from_components => &
@@ -119,6 +151,7 @@ contains
     integer :: smoother_itrs
     character(len=:), allocatable :: cheby_acc
     integer, allocatable :: pcrs_sched(:)
+    logical :: update_enabled
 
     call json_get_or_default(phmg_params, 'smoother_iterations', &
          smoother_itrs, 3)
@@ -143,16 +176,32 @@ contains
        pcrs_sched(2) = 1
     end if
 
+    ! Whether update() refreshes coarse geometry / eigenvalues under ALE.
+    ! Default off (original frozen behavior); set .true. to enable the fix.
+    call json_get_or_default(phmg_params, 'update_enabled', &
+         update_enabled, .false.)
+
+    ! Eigenvalue-refresh policy (only relevant when update_enabled).
+    ! Geometry is always refreshed on every mesh change; these control the
+    ! expensive spectral re-estimation.
+    call json_get_or_default(phmg_params, 'refresh_eigs', &
+         this%refresh_eigs, .true.)
+    call json_get_or_default(phmg_params, 'refresh_eigs_frequency', &
+         this%refresh_eigs_frequency, 1)
+    call json_get_or_default(phmg_params, 'eigs_warm_start', &
+         this%eigs_warm_start, .true.)
+    call json_get_or_default(phmg_params, 'power_its_refresh', &
+         this%power_its_refresh, 20)
 
     call this%init_from_components(coef, bclst, smoother_itrs, &
          cheby_acc, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree,&
-         pcrs_sched)
+         pcrs_sched, update_enabled)
 
   end subroutine phmg_init
 
   subroutine phmg_init_from_components(this, coef, bclst, smoother_itrs, &
        cheby_acc, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree, &
-       pcrs_sched)
+       pcrs_sched, update_enabled)
     class(phmg_t), intent(inout), target :: this
     type(coef_t), intent(in), target :: coef
     type(bc_list_t), intent(inout), target :: bclst
@@ -161,6 +210,7 @@ contains
     integer, intent(in) :: crs_tamg_lvls, crs_tamg_itrs
     integer, intent(in) :: crs_tamg_cheby_degree
     integer, intent(in), allocatable :: pcrs_sched(:)
+    logical, intent(in), optional :: update_enabled
     integer :: lx_crs, lx_mid
     integer, allocatable :: lx_lvls(:)
     integer :: n, i, j, st
@@ -170,6 +220,12 @@ contains
     use_cheby = .true.
 
     this%msh => coef%msh
+
+    if (present(update_enabled)) then
+       this%update_enabled = update_enabled
+    else
+       this%update_enabled = .false.
+    end if
 
     this%nlvls = size(pcrs_sched) + 1
     allocate(lx_lvls(0:this%nlvls - 1))
@@ -291,11 +347,46 @@ contains
             this%phmg_hrchy%lvl(i)%Xh)
     end do
 
+    ! Coordinate interpolators for the ALE refresh (see phmg_t). Coarse space
+    ! first, finest space second, mirroring dofmap_init_and_map, so that
+    ! map(..., to_space = lvl(i)%Xh) evaluates the finest-level coordinate
+    ! polynomial at level i's GLL nodes (true interpolation, not the adjoint).
+    ! Each level maps directly from level 0 to avoid compounding
+    ! interpolation across levels.
+    if (this%update_enabled) then
+       allocate(this%crd_intrp(this%nlvls - 1))
+       do i = 1, this%nlvls - 1
+          call this%crd_intrp(i)%init(this%phmg_hrchy%lvl(i)%Xh, &
+               this%phmg_hrchy%lvl(0)%Xh)
+       end do
+    end if
+
     call this%amg_solver%init(this%ax, this%phmg_hrchy%lvl(this%nlvls -1)%Xh, &
          this%phmg_hrchy%lvl(this%nlvls -1)%coef, this%msh, &
          this%phmg_hrchy%lvl(this%nlvls-1)%gs_h, crs_tamg_lvls, &
          this%phmg_hrchy%lvl(this%nlvls -1)%bclst, &
          crs_tamg_itrs, crs_tamg_cheby_degree)
+
+    ! Coarse levels were just built from the initial geometry, so record the
+    ! fine-level metrics version. update() only refreshes when this changes.
+    this%last_metrics_version = this%phmg_hrchy%lvl(0)%coef%metrics_version
+
+    ! Push the eigenvalue re-estimation policy into every smoother. Only
+    ! relevant when the ALE refresh is enabled: without it, eigenvalues are
+    ! computed once and never invalidated, so warm starting never triggers.
+    if (this%update_enabled) then
+       do i = 0, this%nlvls - 1
+          this%phmg_hrchy%lvl(i)%cheby%warm_start_eigs = this%eigs_warm_start
+          this%phmg_hrchy%lvl(i)%cheby%power_its_refresh = &
+               this%power_its_refresh
+          this%phmg_hrchy%lvl(i)%cheby_device%warm_start_eigs = &
+               this%eigs_warm_start
+          this%phmg_hrchy%lvl(i)%cheby_device%power_its_refresh = &
+               this%power_its_refresh
+       end do
+       call this%amg_solver%set_eig_refresh(this%eigs_warm_start, &
+            this%power_its_refresh)
+    end if
 
   end subroutine phmg_init_from_components
 
@@ -310,6 +401,13 @@ contains
           call this%intrp(i)%free()
        end do
        deallocate(this%intrp)
+    end if
+
+    if (allocated(this%crd_intrp)) then
+       do i = 1, size(this%crd_intrp)
+          call this%crd_intrp(i)%free()
+       end do
+       deallocate(this%crd_intrp)
     end if
 
     if (allocated(this%ax)) then
@@ -414,8 +512,118 @@ contains
 
   end subroutine phmg_solve
 
+  !> Refresh the preconditioner after the (fine) operator has changed.
+  !!
+  !! Called before every pressure solve. For a static mesh this is a no-op:
+  !! the fine coef's metrics_version does not change, so we return immediately.
+  !!
+  !! After an ALE mesh move the driver calls coef%recompute_metrics() on the
+  !! fine level (bumping metrics_version) before this routine runs. We then:
+  !!   1. cascade the moved fine coordinates down to every coarse p-level,
+  !!   2. recompute each coarse level's geometric metrics from them,
+  !!   3. rebuild the Jacobi diagonals that the smoothers use,
+  !!   4. invalidate the cached Chebyshev eigenvalue estimates (p-levels and
+  !!      the tAMG coarse solver), so they are recomputed on this solve.
+  !!
+  !! Level 0 is skipped for geometry: its coef and dofmap are the caller's
+  !! live objects, already refreshed by the driver. Only its cached eigenvalue
+  !! estimate is stale, which step 4 handles.
   subroutine phmg_update(this)
     class(phmg_t), intent(inout) :: this
+    integer :: i, fine_version
+    real(kind=dp) :: t_start, t_geom, t_jac
+    logical :: do_eigs
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Opt-out: behave exactly as the original code (no coarse refresh, cached
+    ! eigenvalues left frozen). Used to compare against the un-refreshed path.
+    if (.not. this%update_enabled) return
+
+    fine_version = this%phmg_hrchy%lvl(0)%coef%metrics_version
+
+    ! Fast path: geometry unchanged since the last refresh (static mesh, or
+    ! repeated solves within a step). Nothing to do.
+    if (fine_version .eq. this%last_metrics_version) return
+
+    if (.not. allocated(this%crd_intrp)) then
+       call neko_error("PHMG: update requested but coordinate " // &
+            "interpolators were not initialized (update_enabled was " // &
+            "false at init).")
+    end if
+
+    t_start = MPI_Wtime()
+
+    associate (mg => this%phmg_hrchy%lvl, crd_intrp => this%crd_intrp, &
+         nelv => this%msh%nelv)
+
+      ! 1. + 2. Refresh owned coarse levels (1 .. nlvls-1).
+      do i = 1, this%nlvls - 1
+         ! Evaluate the finest-level (moved) coordinate field at level i's
+         ! GLL nodes. crd_intrp(i) has the coarse space first, so mapping to
+         ! lvl(i)%Xh uses the untransposed interpolation matrix -- TRUE
+         ! pointwise interpolation. (The regular intrp(:) must NOT be used
+         ! here: mapping to its coarse space applies the restriction adjoint
+         ! P^T, which produces meaningless "coordinates" and a corrupted
+         ! coarse operator.)
+         call crd_intrp(i)%map(mg(i)%dm_Xh%x, mg(0)%dm_Xh%x, nelv, mg(i)%Xh)
+         call crd_intrp(i)%map(mg(i)%dm_Xh%y, mg(0)%dm_Xh%y, nelv, mg(i)%Xh)
+         call crd_intrp(i)%map(mg(i)%dm_Xh%z, mg(0)%dm_Xh%z, nelv, mg(i)%Xh)
+
+         ! Rebuild G-tensors, jacobians, mass matrix etc. from the new coords.
+         call mg(i)%coef%recompute_metrics()
+      end do
+
+      if (NEKO_BCKND_DEVICE .eq. 1) call device_sync()
+      t_geom = MPI_Wtime()
+
+      ! 3. Rebuild the Jacobi diagonals used to accelerate the smoothers.
+      !    Level 0 included: its diagonal depends on geometry too, and its
+      !    coef (the live fine coef) was refreshed by the driver.
+      do i = 0, this%nlvls - 1
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            call mg(i)%device_jacobi%update()
+         else
+            call mg(i)%jacobi%update()
+         end if
+      end do
+
+      if (NEKO_BCKND_DEVICE .eq. 1) call device_sync()
+      t_jac = MPI_Wtime()
+
+      ! 4. Invalidate cached Chebyshev spectra so they are re-estimated on
+      !    this solve (each estimation logs its own cost). Gated on the
+      !    refresh policy: only every refresh_eigs_frequency-th geometry
+      !    refresh, and only if refresh_eigs is enabled at all. Geometry
+      !    above is refreshed unconditionally -- only the expensive spectral
+      !    re-estimation is skipped.
+      do_eigs = this%refresh_eigs .and. &
+           (mod(this%n_geom_refresh, max(this%refresh_eigs_frequency, 1)) &
+           .eq. 0)
+      if (do_eigs) then
+         do i = 0, this%nlvls - 1
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               mg(i)%cheby_device%recompute_eigs = .true.
+            else
+               mg(i)%cheby%recompute_eigs = .true.
+            end if
+         end do
+      end if
+
+    end associate
+
+    if (do_eigs) then
+       ! ... and the tAMG coarse solver's own Chebyshev smoothers.
+       call this%amg_solver%invalidate_eigs()
+    end if
+
+    this%n_geom_refresh = this%n_geom_refresh + 1
+    this%last_metrics_version = fine_version
+
+    write(log_buf, '(A,ES10.3,A,ES10.3,A,L1)') &
+         'PHMG ALE refresh: geom ', t_geom - t_start, &
+         ' s, jacobi ', t_jac - t_geom, ' s, eigs invalidated: ', do_eigs
+    call neko_log%message(log_buf)
+
   end subroutine phmg_update
 
 

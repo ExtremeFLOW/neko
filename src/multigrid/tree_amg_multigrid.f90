@@ -90,6 +90,8 @@ module tree_amg_multigrid
      procedure, pass(this) :: init => tamg_mg_init
      procedure, pass(this) :: solve => tamg_mg_solve
      procedure, pass(this) :: free => tamg_mg_free
+     procedure, pass(this) :: invalidate_eigs => tamg_mg_invalidate_eigs
+     procedure, pass(this) :: set_eig_refresh => tamg_mg_set_eig_refresh
      procedure, private, pass(this) :: mg_cycle => tamg_mg_cycle
      procedure, private, pass(this) :: mg_cycle_d => tamg_mg_cycle_d
   end type tamg_solver_t
@@ -259,6 +261,37 @@ contains
        end do
     end if
   end subroutine tamg_mg_free
+
+
+  !> Mark every level's Chebyshev smoother to recompute its eigenvalue
+  !! estimate on the next solve. Used when the operator changes underneath
+  !! the hierarchy (e.g. after an ALE mesh move), since the cached spectral
+  !! bounds (tha, dlt) would otherwise stay frozen at their initial values.
+  subroutine tamg_mg_invalidate_eigs(this)
+    class(tamg_solver_t), intent(inout) :: this
+    integer :: lvl
+    ! Only levels 0..nlvls-1 are initialized (see tamg_mg_init); the top
+    ! allocated slot smoo(nlvls) is vestigial and never used in the cycle.
+    do lvl = 0, this%amg%nlvls-1
+       this%smoo(lvl)%recompute_eigs = .true.
+    end do
+  end subroutine tamg_mg_invalidate_eigs
+
+
+  !> Configure how eigenvalue re-estimation behaves on every level's
+  !! Chebyshev smoother.
+  !! @param warm_start Warm start re-estimations from the saved eigenvector
+  !! @param power_its_refresh Power iterations for warm-started re-estimations
+  subroutine tamg_mg_set_eig_refresh(this, warm_start, power_its_refresh)
+    class(tamg_solver_t), intent(inout) :: this
+    logical, intent(in) :: warm_start
+    integer, intent(in) :: power_its_refresh
+    integer :: lvl
+    do lvl = 0, this%amg%nlvls-1
+       this%smoo(lvl)%warm_start_eigs = warm_start
+       this%smoo(lvl)%power_its_refresh = power_its_refresh
+    end do
+  end subroutine tamg_mg_set_eig_refresh
 
 
   !> Solver function for the TreeAMG solver object
