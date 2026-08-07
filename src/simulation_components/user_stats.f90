@@ -42,7 +42,7 @@ module user_stats
   use case, only : case_t
   use mean_field_output, only : mean_field_output_t
   use json_utils, only : json_get, json_get_or_default, &
-      json_get_or_lookup_or_default
+       json_get_or_lookup_or_default
   use mean_field, only : mean_field_t
   use coefs, only : coef_t
   use time_state, only : time_state_t
@@ -112,7 +112,7 @@ contains
     call json%info('fields', n_children = this%n_avg_fields)
     call json_get(json, 'fields', this%field_names)
     call json_get_or_lookup_or_default(json, 'start_time', this%start_time, &
-            0.0_dp)
+         0.0_dp)
     call json_get_or_default(json, 'avg_direction', avg_dir, 'none')
 
     if (json%valid_path('output_filename')) then
