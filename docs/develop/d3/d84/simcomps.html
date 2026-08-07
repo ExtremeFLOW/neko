@@ -110,7 +110,7 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 <li class="level3"><a href="#simcomp_divergence">divergence</a></li>
 </ul>
 </li>
-<li class="level2"><a href="#simcomp_gradient">grad</a></li>
+<li class="level2"><a href="#simcomp_gradient">gradient</a></li>
 <li class="level2"><a href="#simcomp_weak_gradient">weak_gradient</a></li>
 <li class="level2"><a href="#simcomp_lambda2">lambda2</a></li>
 <li class="level2"><a href="#simcomp_boundary_operation">boundary_operation</a></li>
@@ -148,7 +148,7 @@ List of simulation components</h1>
 <ul>
 <li>Differential operators<ul>
 <li>Computation of the curl of a vector field <a class="el" href="../../d3/d84/simcomps.html#simcomp_curl">curl</a></li>
-<li>Computation of the gradient of a scalar field <a class="el" href="../../d3/d84/simcomps.html#simcomp_gradient">grad</a></li>
+<li>Computation of the gradient of a scalar field <a class="el" href="../../d3/d84/simcomps.html#simcomp_gradient">gradient</a></li>
 <li>Computation of the weak gradient of a field <a class="el" href="../../d3/d84/simcomps.html#simcomp_weak_gradient">weak_gradient</a></li>
 <li>Computation of the derivative of a scalar field <a class="el" href="../../d3/d84/simcomps.html#simcomp_derivative">derivative</a></li>
 <li>Computation of the divergence of a vector field <a class="el" href="../../d3/d84/simcomps.html#simcomp_divergence">divergence</a></li>
@@ -180,14 +180,14 @@ Controlling execution and file output</h1>
 <div class="line">  &quot;type&quot;: &quot;curl&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;curl&quot;,</div>
 <div class="line">  &quot;fields&quot;: [&quot;u&quot;, &quot;v&quot;, &quot;w&quot;],</div>
-<div class="line">  &quot;computed_field&quot;: &quot;vorticity&quot;</div>
+<div class="line">  &quot;computed_field&quot;: &quot;vorticity&quot;,</div>
 <div class="line">  &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
 <div class="line">  &quot;compute_value&quot;: 50</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="autotoc_md191"></a>
 Differential operators</h2>
 <p>There is a set of simcomps that allow one to apply various differential operators on registered fields. They share common configuration traits. The field or fields that the operators is applied to us controlled, respectively, by the <code>field</code> or <code>feilds</code> keyword. The produced fields are also added to the registry, and each operator provides a default name. However, it can be overriden using the <code>computed_field</code> keyword. Operators that output a vector field will register three fields, adding <code>_x</code>, <code>_y</code>, and <code>_z</code> to the base of the name.</p>
-<p>All of these simcomps also support saving the result to <code>.fld</code> files. The <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a> simcomp is used for that under the hood, so the associated JSON keywords can be found in its documentation (<code>output_filename</code>, <code>precision</code>).</p>
+<p>All of these simcomps also support saving the result to <code>.fld</code> files. The <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a> simcomp is used for that under the hood, so the associated JSON keywords can be found in its documentation (<code>output_filename</code>, <code>output_precision</code>).</p>
 <h3><a class="anchor" id="simcomp_derivative"></a>
 derivative</h3>
 <p>Computes the derivative of field along a chosen direction (x, y, or z). The field to derivate is controlled by the <code>field</code> keyword and the direction by the <code>direction</code> keyword. The simcomp will, by default, register the computed derivative in the registry as <code>d[field]_d[direction]</code>, where the values in the brackets correspond to the choice of the user keywords.</p>
@@ -195,7 +195,7 @@ derivative</h3>
 <div class="line">  &quot;type&quot;: &quot;derivative&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;derivative&quot;,</div>
 <div class="line">  &quot;field&quot;: &quot;u&quot;,</div>
-<div class="line">  &quot;direction&quot;: &quot;y&quot;</div>
+<div class="line">  &quot;direction&quot;: &quot;y&quot;,</div>
 <div class="line">  &quot;computed_field&quot;: &quot;dudy&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><h3><a class="anchor" id="simcomp_curl"></a>
@@ -209,7 +209,7 @@ curl</h3>
 <div class="line">}</div>
 </div><!-- fragment --><h3><a class="anchor" id="simcomp_divergence"></a>
 divergence</h3>
-<p>Takes a list of three field names from the <code>fields</code> keyword, and computes the divergence. By default, registers the result in <code>div</code>.</p>
+<p>Takes a list of three field names from the <code>fields</code> keyword, and computes the divergence. By default, registers the result in <code>divergence</code>.</p>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;divergence&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;divergence&quot;,</div>
@@ -217,20 +217,20 @@ divergence</h3>
 <div class="line">  &quot;computed_field&quot;: &quot;continuity&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_gradient"></a>
-grad</h2>
-<p>Computes the gradient of a field. The field to derivate is controlled by the <code>field</code> keyword. The simcomp will, by default, register the computed components of the gradients in the registry as <code>grad_[field]_x</code>, <code>grad_[field]_y</code>, <code>grad_[field]_z</code> where the value in the brackets corresponds to the choice of the user keyword.</p>
+gradient</h2>
+<p>Computes the gradient of a field. The field to derivate is controlled by the <code>field</code> keyword. The simcomp will, by default, register the computed components of the gradients in the registry as <code>gradient_[field]_x</code>, <code>gradient_[field]_y</code>, <code>gradient_[field]_z</code> where the value in the brackets corresponds to the choice of the user keyword.</p>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;gradient&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;gradient&quot;,</div>
-<div class="line">  &quot;field&quot;: &quot;u&quot;,</div>
+<div class="line">  &quot;field&quot;: &quot;u&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_weak_gradient"></a>
 weak_gradient</h2>
-<p>Computes the weak gradient of a field. The weak gradient is value of the gradient multiplied by the local value of the mass matrix. This is how a gradient term appears in the weak formulation of the governing equations. The field to derivate is controlled by the <code>field</code> keyword. The simcomp will, by default, register the computed components of the gradients in the registry as <code>weak_grad_[field]_x</code>, <code>weak_grad_[field]_y</code>, <code>weak_grad_[field]_z</code> where the value in the brackets corresponds to the choice of the user keyword.</p>
+<p>Computes the weak gradient of a field. The weak gradient is value of the gradient multiplied by the local value of the mass matrix. This is how a gradient term appears in the weak formulation of the governing equations. The field to derivate is controlled by the <code>field</code> keyword. The simcomp will, by default, register the computed components of the gradients in the registry as <code>weak_gradient_[field]_x</code>, <code>weak_gradient_[field]_y</code>, <code>weak_gradient_[field]_z</code> where the value in the brackets corresponds to the choice of the user keyword.</p>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;weak_gradient&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;weak_gradient&quot;,</div>
-<div class="line">  &quot;field&quot;: &quot;u&quot;,</div>
+<div class="line">  &quot;field&quot;: &quot;u&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_lambda2"></a>
 lambda2</h2>
@@ -349,7 +349,7 @@ Example usage</h3>
 <div class="line">       &quot;type&quot;: &quot;file&quot;,</div>
 <div class="line">       &quot;file_name&quot;: &quot;points.csv&quot;</div>
 <div class="line">     }</div>
-<div class="line">   ],</div>
+<div class="line">   ]</div>
 <div class="line">}</div>
 </div><!-- fragment --><p> This probes the fields 'w', and 's' in the points described by points.csv and outputs into output.csv every 1 time units.</p>
 <p>The probed information will be saved in the output file in the following format:</p>
@@ -586,14 +586,14 @@ les_model</h2>
 </ul>
 <h2><a class="anchor" id="user_stats"></a>
 User statistics</h2>
-<p>Allows to compute the time-average of an arbitrary collection of fields form the field registry. Just like the <code><a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a></code> simcomp, it supports spatial averaging across homogeneous directions, both 1D and 2D. The fields to average are prescribed via the <code>fields</code> keyword, and the optional averaging direction(s) via the <code>avg_direction</code>, which can be <code>x</code>, <code>y</code>, <code>z</code>, <code>xy</code>, <code>xz</code> or <code>yz</code>. Averaging across two directions will lead to the average being saved as a .csv, whereas a 2D .fld file will be produced when averaging across only one axis. The filename is controlled by the <code>output_file</code> keyword and default to <code><a class="el" href="../../df/ded/namespaceuser__stats.html" title="Implements the user_stats_t type.">user_stats</a></code>. We encourage reading the [statistics guide](<a class="el" href="../../df/d8f/statistics-guide.html">Statistics guide</a>) for further details regarding how statistics are computed in Neko.</p>
+<p>Allows to compute the time-average of an arbitrary collection of fields form the field registry. Just like the <code><a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a></code> simcomp, it supports spatial averaging across homogeneous directions, both 1D and 2D. The fields to average are prescribed via the <code>fields</code> keyword, and the optional averaging direction(s) via the <code>avg_direction</code>, which can be <code>x</code>, <code>y</code>, <code>z</code>, <code>xy</code>, <code>xz</code> or <code>yz</code>. Averaging across two directions will lead to the average being saved as a .csv, whereas a 2D .fld file will be produced when averaging across only one axis. The filename is controlled by the <code>output_filename</code> keyword and default to <code><a class="el" href="../../df/ded/namespaceuser__stats.html" title="Implements the user_stats_t type.">user_stats</a></code>. We encourage reading the [statistics guide](<a class="el" href="../../df/d8f/statistics-guide.html">Statistics guide</a>) for further details regarding how statistics are computed in Neko.</p>
 <p>Keep in mind that simcomps execute before <code>usercompute</code>, so if you update some custom averaged field in that routine, it will not affect the average until the next time step. You can consider using <code>userpreprocess</code> instead, which runs at the beginning of the time step.</p>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;user_stats&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;user_stats&quot;,</div>
 <div class="line">  &quot;fields&quot;: [&quot;s&quot;],</div>
 <div class="line">  &quot;avg_direction&quot;: &quot;xz&quot;,</div>
-<div class="line">  &quot;output_file&quot;: &quot;s_average&quot;</div>
+<div class="line">  &quot;output_filename&quot;: &quot;s_average&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>The statistics fields created by this simcomp are accessible from the neko registry and retrievable under the following naming convention: <code>name_in_registry = name_of_simcomp + "/mean_" + name_of_field</code>. Unless specified, the name of the simcomp will default to <code><a class="el" href="../../df/ded/namespaceuser__stats.html" title="Implements the user_stats_t type.">user_stats</a></code>. For example, if <code>"fields": ["s", "my_field"]</code> and <code>"name": "my_stats"</code> then the fields <code>"my_stats/mean_s"</code> and <code>"my_stats/mean_my_field"</code> will be added to the registry.</p>
 <h2><a class="anchor" id="simcomp_spatial_average"></a>
@@ -624,7 +624,7 @@ Data streamer</h2>
 <dl class="section note"><dt>Note</dt><dd>This simcomp requires configuration of Neko with the ADIOS2 library (<code>--with-adios2=DIR</code>).</dd></dl>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;data_streamer&quot;,</div>
-<div class="line">  &quot;name&quot;: &quot;spectral_error&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;data_streamer&quot;,</div>
 <div class="line">  &quot;fields&quot;: [&quot;u&quot;, &quot;omega_z&quot;, &quot;fluid_stats/mean_u&quot;],</div>
 <div class="line">  &quot;stream_mesh&quot;: true,</div>
 <div class="line">  &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
@@ -632,7 +632,7 @@ Data streamer</h2>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_field_subsampler"></a>
 Field subsampler</h2>
-<p>Creates sub-sections of the domain from a <code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code> and/or at a lower <code>polynomial_order</code>. The fields are added to the registry under the name <code>name_of_simcomp + "/" + name_of_base_field</code>. For example, <code>field_subsampler_u</code>.</p>
+<p>Creates sub-sections of the domain from a <code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code> and/or at a lower <code>polynomial_order</code>. The fields are added to the registry under the name <code>name_of_simcomp + "/" + name_of_base_field</code>. For example, <code>field_subsampler/u</code>.</p>
 <p>The simcomp is controlled by the following keywords:</p><ul>
 <li><code>"source_fields"</code>: A list of names corresponding to the fields to subsample (must exist in the registry).</li>
 <li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code> (optional): The name of the point zone to use to mask the fields.</li>
@@ -655,7 +655,7 @@ Field subsampler</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Aug 6 2026 04:35:15 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Aug 7 2026 04:19:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
