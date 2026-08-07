@@ -51,9 +51,9 @@ contains
   subroutine startup(params)
     type(json_file), intent(inout) :: params
 
-    call params%get('case.fluid.Re', Re)
-    call params%get('case.fluid.gamma', gamma)
-    call params%get('case.fluid.Pr', Pr)
+    call json_get(params, 'case.fluid.Re', Re)
+    call json_get(params, 'case.fluid.gamma', gamma)
+    call json_get(params, 'case.fluid.Pr', Pr)
 
   end subroutine startup
 
@@ -104,7 +104,7 @@ contains
     integer :: i
 
     ! Only set material properties at the first time step
-    if (time%tstep .ne. 0) return 
+    if (time%tstep .ne. 0) return
 
     !! Either this or we can also just add mu and kappa to
     !! the json file under case.fluid
