@@ -44,7 +44,7 @@ module phmg
   use bc, only : bc_t
   use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
   use cheby, only : cheby_t
   use cheby_device, only : cheby_device_t
   use jacobi, only : jacobi_t
@@ -115,9 +115,6 @@ module phmg
      logical :: eigs_warm_start = .true.
      !> Power iterations used for warm-started re-estimations
      integer :: power_its_refresh = 20
-     !> How coarse coordinates are updated: .false. interpolates in place,
-     !> .true. rebuilds each coarse dofmap.
-     logical :: coord_rebuild = .false.
      !> Refreshes done so far, for refresh_eigs_frequency
      integer :: n_geom_refresh = 0
    contains
@@ -140,7 +137,6 @@ contains
     integer :: crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree
     integer :: smoother_itrs
     character(len=:), allocatable :: cheby_acc
-    character(len=:), allocatable :: coord_transfer
     integer, allocatable :: pcrs_sched(:)
     logical :: update_enabled
 
@@ -167,30 +163,18 @@ contains
        pcrs_sched(2) = 1
     end if
 
-    call json_get_or_default(phmg_params, 'update_enabled', &
+    call json_get_or_default(phmg_params, 'update.enabled', &
          update_enabled, .false.)
 
     ! Control the eigenvalue re-estimation; geometry always refreshes.
-    call json_get_or_default(phmg_params, 'refresh_eigs', &
+    call json_get_or_default(phmg_params, 'update.eigs.enabled', &
          this%refresh_eigs, .true.)
-    call json_get_or_default(phmg_params, 'refresh_eigs_frequency', &
+    call json_get_or_default(phmg_params, 'update.eigs.frequency', &
          this%refresh_eigs_frequency, 1)
-    call json_get_or_default(phmg_params, 'eigs_warm_start', &
+    call json_get_or_default(phmg_params, 'update.eigs.warm_start', &
          this%eigs_warm_start, .true.)
-    call json_get_or_default(phmg_params, 'power_its_refresh', &
+    call json_get_or_default(phmg_params, 'update.eigs.warm_start_iterations', &
          this%power_its_refresh, 20)
-
-    call json_get_or_default(phmg_params, 'coord_transfer', &
-         coord_transfer, 'interpolate')
-    if (trim(coord_transfer) .eq. 'interpolate') then
-       this%coord_rebuild = .false.
-    else if (trim(coord_transfer) .eq. 'rebuild_dofmap') then
-       this%coord_rebuild = .true.
-    else
-       call neko_error("PHMG: unknown coord_transfer '" // &
-            trim(coord_transfer) // &
-            "'; use 'interpolate' or 'rebuild_dofmap'.")
-    end if
 
     call this%init_from_components(coef, bclst, smoother_itrs, &
          cheby_acc, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree,&
@@ -347,7 +331,7 @@ contains
     end do
 
     ! Coarse space first. Each level maps from level 0.
-    if ( (this%update_enabled) .and. (.not. this%coord_rebuild) ) then
+    if (this%update_enabled) then
        allocate(this%crd_intrp(this%nlvls - 1))
        do i = 1, this%nlvls - 1
           call this%crd_intrp(i)%init(this%phmg_hrchy%lvl(i)%Xh, &
@@ -377,6 +361,12 @@ contains
        end do
        call this%amg_solver%set_eig_refresh(this%eigs_warm_start, &
             this%power_its_refresh)
+
+       if (trim(cheby_acc) .eq. "schwarz") then
+          call neko_warning("PHMG: the Schwarz smoother is not refreshed " // &
+               "when the mesh changes. Its local solves stay at the " // &
+               "initial geometry.")
+       end if
     end if
 
   end subroutine phmg_init_from_components
@@ -519,8 +509,7 @@ contains
     ! Mesh has not changed since the last refresh.
     if (fine_version .eq. this%last_metrics_version) return
 
-    if (.not. this%coord_rebuild .and. &
-         .not. allocated(this%crd_intrp)) then
+    if (.not. allocated(this%crd_intrp)) then
        call neko_error("PHMG: update requested but coordinate " // &
             "interpolators were not initialized.")
     end if
@@ -530,18 +519,13 @@ contains
     associate (mg => this%phmg_hrchy%lvl, nelv => this%msh%nelv)
 
       do i = 1, this%nlvls - 1
-         if (this%coord_rebuild) then
-            ! Rebuilds each coarse dofmap.
-            call mg(i)%dm_Xh%init(mg(0)%dm_Xh, mg(i)%Xh)
-         else
-            ! Sample the new fine coordinates at this level's nodes.
-            call this%crd_intrp(i)%map(mg(i)%dm_Xh%x, mg(0)%dm_Xh%x, &
-                 nelv, mg(i)%Xh)
-            call this%crd_intrp(i)%map(mg(i)%dm_Xh%y, mg(0)%dm_Xh%y, &
-                 nelv, mg(i)%Xh)
-            call this%crd_intrp(i)%map(mg(i)%dm_Xh%z, mg(0)%dm_Xh%z, &
-                 nelv, mg(i)%Xh)
-         end if
+         ! Sample the new fine coordinates at this level's nodes.
+         call this%crd_intrp(i)%map(mg(i)%dm_Xh%x, mg(0)%dm_Xh%x, &
+              nelv, mg(i)%Xh)
+         call this%crd_intrp(i)%map(mg(i)%dm_Xh%y, mg(0)%dm_Xh%y, &
+              nelv, mg(i)%Xh)
+         call this%crd_intrp(i)%map(mg(i)%dm_Xh%z, mg(0)%dm_Xh%z, &
+              nelv, mg(i)%Xh)
 
          call mg(i)%coef%recompute_metrics()
       end do
