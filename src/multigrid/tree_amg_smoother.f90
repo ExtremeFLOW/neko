@@ -78,20 +78,19 @@ module tree_amg_smoother
      type(c_ptr) :: w_d = C_NULL_PTR
      real(kind=rp), allocatable :: r(:)
      type(c_ptr) :: r_d = C_NULL_PTR
-     !> Saved power-method eigenvector, used to warm start re-estimations
-     !> after small operator changes (e.g. ALE mesh moves). Allocated lazily,
-     !> only when warm_start_eigs is enabled.
+     !> Saved eigenvector, to restart the power method after a small
+     !> operator change. Allocated only if warm_start_eigs.
      real(kind=rp), allocatable :: ev(:)
      type(c_ptr) :: ev_d = C_NULL_PTR
      real(kind=rp) :: tha, dlt
      integer :: lvl
      integer :: n
      integer :: power_its = 250
-     !> Power iterations for warm-started re-estimations
+     !> Iterations to use when restarting from ev
      integer :: power_its_refresh = 20
-     !> Warm start eigenvalue re-estimations from the saved eigenvector
+     !> Restart the power method from ev instead of a random vector
      logical :: warm_start_eigs = .false.
-     !> Whether a converged eigenvector estimate exists in ev
+     !> Whether ev holds a usable eigenvector yet
      logical :: eigs_computed = .false.
      integer :: max_iter = 10
      logical :: recompute_eigs = .true.
@@ -187,21 +186,18 @@ contains
          msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
 
       if (warm) then
-         ! Re-estimation after a small operator change: start from the saved
-         ! eigenvector (already conforming; no gs/bc conditioning needed) and
-         ! run a reduced number of iterations.
          its = this%power_its_refresh
          call copy(d, this%ev, n)
       else
          its = this%power_its
 
          ! Save current random seed and set a fixed seed
-         call random_seed( size=rnd_n )
+         call random_seed(size = rnd_n)
          allocate(saved_seed(rnd_n))
          allocate(fixed_seed(rnd_n))
          fixed_seed = 3901
-         call random_seed( get=saved_seed )
-         call random_seed( put=fixed_seed )
+         call random_seed(get = saved_seed)
+         call random_seed(put = fixed_seed)
 
          do i = 1, n
             call random_number(rn)
@@ -209,7 +205,7 @@ contains
          end do
 
          ! Restore saved random seed
-         call random_seed( put=saved_seed )
+         call random_seed(put = saved_seed)
 
          if (this%lvl .eq. 0) then
             call gs_h%op(d, n, GS_OP_ADD)!TODO
@@ -244,7 +240,6 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
-      ! Save the eigenvector for future warm-started re-estimations
       if (this%warm_start_eigs) then
          if (.not. allocated(this%ev)) then
             allocate(this%ev(this%n))
@@ -361,21 +356,18 @@ contains
          msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
 
       if (warm) then
-         ! Re-estimation after a small operator change: start from the saved
-         ! eigenvector (already conforming; no gs/bc conditioning needed) and
-         ! run a reduced number of iterations.
          its = this%power_its_refresh
          call device_copy(this%d_d, this%ev_d, n)
       else
          its = this%power_its
 
          ! Save current random seed and set a fixed seed
-         call random_seed( size=rnd_n )
+         call random_seed(size = rnd_n)
          allocate(saved_seed(rnd_n))
          allocate(fixed_seed(rnd_n))
          fixed_seed = 3901
-         call random_seed( get=saved_seed )
-         call random_seed( put=fixed_seed )
+         call random_seed(get = saved_seed)
+         call random_seed(put = fixed_seed)
 
          do i = 1, n
             call random_number(rn)
@@ -384,7 +376,7 @@ contains
          call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
 
          ! Restore saved random seed
-         call random_seed( put=saved_seed )
+         call random_seed(put = saved_seed)
 
          if (this%lvl .eq. 0) then
             call gs_h%op(d, n, GS_OP_ADD)!TODO
@@ -418,7 +410,6 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
-      ! Save the eigenvector for future warm-started re-estimations
       if (this%warm_start_eigs) then
          if (.not. c_associated(this%ev_d)) then
             allocate(this%ev(this%n))

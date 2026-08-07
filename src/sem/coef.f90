@@ -180,11 +180,7 @@ module coefs
      type(c_ptr) :: R11_d = C_NULL_PTR
      type(c_ptr) :: R12_d = C_NULL_PTR
 
-     !> Counter bumped every time the geometric metrics are recomputed
-     !> (e.g. after an ALE mesh move). Consumers that cache geometry-derived
-     !> data can compare against a stored copy to detect when a refresh is
-     !> needed. Static simulations never call recompute_metrics, so this stays
-     !> at its initial value.
+     !> Version of the current geometry. Incremented by recompute_metrics.
      integer :: metrics_version = 0
 
    contains

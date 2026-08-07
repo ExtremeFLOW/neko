@@ -57,13 +57,13 @@ module cheby
      real(kind=rp), allocatable :: r(:)
      real(kind=rp) :: tha, dlt
      integer :: power_its = 150
-     !> Power iterations for warm-started re-estimations
+     !> Iterations to use when restarting from ev
      integer :: power_its_refresh = 20
-     !> Warm start eigenvalue re-estimations from the saved eigenvector
+     !> Restart the power method from ev instead of a random vector
      logical :: warm_start_eigs = .false.
-     !> Whether a converged eigenvector estimate exists in ev
+     !> Whether ev holds a usable eigenvector yet
      logical :: eigs_computed = .false.
-     !> Saved power-method eigenvector for warm-started re-estimations
+     !> Saved eigenvector, for restarting after a small operator change
      real(kind=rp), allocatable :: ev(:)
      logical :: recompute_eigs = .true.
      logical :: zero_initial_guess = .false.
@@ -158,8 +158,6 @@ contains
     associate(w => this%w, d => this%d, r => this%r)
 
       if (warm) then
-         ! Re-estimation after a small operator change: start from the saved
-         ! eigenvector (already conforming) and run fewer iterations.
          its = this%power_its_refresh
          call copy(d, this%ev, n)
       else
@@ -222,7 +220,6 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
-      ! Save the eigenvector for future warm-started re-estimations
       if (this%warm_start_eigs) then
          if (.not. allocated(this%ev)) then
             allocate(this%ev(size(this%d)))

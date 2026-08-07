@@ -67,13 +67,13 @@ module cheby_device
      type(c_ptr) :: gs_event = C_NULL_PTR
      real(kind=rp) :: tha, dlt
      integer :: power_its = 150
-     !> Power iterations for warm-started re-estimations
+     !> Iterations to use when restarting from ev
      integer :: power_its_refresh = 20
-     !> Warm start eigenvalue re-estimations from the saved eigenvector
+     !> Restart the power method from ev instead of a random vector
      logical :: warm_start_eigs = .false.
-     !> Whether a converged eigenvector estimate exists in ev
+     !> Whether ev holds a usable eigenvector yet
      logical :: eigs_computed = .false.
-     !> Saved power-method eigenvector for warm-started re-estimations
+     !> Saved eigenvector, for restarting after a small operator change
      real(kind=rp), allocatable :: ev(:)
      type(c_ptr) :: ev_d = C_NULL_PTR
      logical :: recompute_eigs = .true.
@@ -306,8 +306,6 @@ contains
     associate(w => this%w, w_d => this%w_d, d => this%d, d_d => this%d_d)
 
       if (warm) then
-         ! Re-estimation after a small operator change: start from the saved
-         ! eigenvector (already conforming) and run fewer iterations.
          its = this%power_its_refresh
          call device_copy(d_d, this%ev_d, n)
       else
@@ -371,7 +369,6 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
-      ! Save the eigenvector for future warm-started re-estimations
       if (this%warm_start_eigs) then
          if (.not. c_associated(this%ev_d)) then
             allocate(this%ev(size(this%d)))

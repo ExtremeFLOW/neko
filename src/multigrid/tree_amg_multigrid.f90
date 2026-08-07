@@ -263,25 +263,20 @@ contains
   end subroutine tamg_mg_free
 
 
-  !> Mark every level's Chebyshev smoother to recompute its eigenvalue
-  !! estimate on the next solve. Used when the operator changes underneath
-  !! the hierarchy (e.g. after an ALE mesh move), since the cached spectral
-  !! bounds (tha, dlt) would otherwise stay frozen at their initial values.
+  !> Re-estimate every level's eigenvalues on the next solve. Needed when
+  !! the operator changes underneath the hierarchy.
   subroutine tamg_mg_invalidate_eigs(this)
     class(tamg_solver_t), intent(inout) :: this
     integer :: lvl
-    ! Only levels 0..nlvls-1 are initialized (see tamg_mg_init); the top
-    ! allocated slot smoo(nlvls) is vestigial and never used in the cycle.
     do lvl = 0, this%amg%nlvls-1
        this%smoo(lvl)%recompute_eigs = .true.
     end do
   end subroutine tamg_mg_invalidate_eigs
 
 
-  !> Configure how eigenvalue re-estimation behaves on every level's
-  !! Chebyshev smoother.
-  !! @param warm_start Warm start re-estimations from the saved eigenvector
-  !! @param power_its_refresh Power iterations for warm-started re-estimations
+  !> Set the eigenvalue re-estimation policy on every level.
+  !! @param warm_start Restart from the saved eigenvector
+  !! @param power_its_refresh Iterations to use when restarting
   subroutine tamg_mg_set_eig_refresh(this, warm_start, power_its_refresh)
     class(tamg_solver_t), intent(inout) :: this
     logical, intent(in) :: warm_start
