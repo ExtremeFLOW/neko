@@ -214,24 +214,9 @@ contains
        neko_ale => null()
        return
     else if (this%active) then
-       ! Under ALE the mesh will deform, so elements that start axis-aligned
-       ! can become sheared during the run. The deformed-element flags are set
-       ! once from the initial geometry (mesh_generate_flags) and are never
-       ! refreshed by the ALE mesh update, so force them all true here. This
-       ! keeps the Jacobi diagonal (pc_jacobi) including the G12/G13/G23
-       ! cross-terms, which are otherwise dropped for elements flagged regular.
-       !
-       ! Gated on the same phmg 'update_enabled' flag so that, when the phmg
-       ! ALE-refresh is disabled, the run reproduces the original behavior
-       ! exactly (stale flags included). Default off.
-       ! TODO: this coupling to a phmg-specific flag is temporary; once the
-       ! refresh is always-on, mark all elements deformed unconditionally.
-       call json_get_or_default(json, &
-            'case.fluid.pressure_solver.preconditioner.update_enabled', &
-            tmp_logical, .false.)
-       if (tmp_logical) then
-          call coef%msh%all_deformed()
-       end if
+       ! force all elements as deformed when mesh changes.
+       call coef%msh%all_deformed()
+
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if ((.not. (NEKO_BCKND_HIP .eq. 1)) .and. &
                (.not. (NEKO_BCKND_CUDA .eq. 1))) then
