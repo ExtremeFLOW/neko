@@ -10,7 +10,8 @@ module test_point_interpolation_parallel
   use space
   use point
   use datadist
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use device
   use neko_config
   implicit none
@@ -26,13 +27,11 @@ contains
 
   subroutine setUp(this)
     class(interpolation_test), intent(inout) :: this
-    integer :: ierr
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call comm_init_test(this%getMpiCommunicator())
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
-    call comm_init
   end subroutine setUp
 
   subroutine tearDown(this)
@@ -40,6 +39,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
+    call comm_free_test()
   end subroutine tearDown
 
   !> Creates 8 points for a cube with diagonal (1, 1) - (2, 2)
@@ -95,9 +95,6 @@ contains
     type(gs_t) :: gs
     type(space_t) :: Xh
 
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     dist = linear_dist_t(1, pe_rank, pe_size, NEKO_COMM)
 
     call create_points(p)
@@ -136,9 +133,6 @@ contains
 
     ! our element index (in this example we only use a 1-element mesh)
     integer :: e = 1
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     dist = linear_dist_t(1, pe_rank, pe_size, NEKO_COMM)
     call create_points(p)
@@ -200,9 +194,6 @@ contains
 
     ! our element index (in this example we only use a 1-element mesh)
     integer :: e = 1
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     dist = linear_dist_t(1, pe_rank, pe_size, NEKO_COMM)
     call create_points(p)

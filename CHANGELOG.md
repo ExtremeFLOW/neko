@@ -2,6 +2,75 @@
 
 ## Develop
 
+- Updated simulation_components documentation to mirror the latest codebase.
+- Fixed stale accumulator in the SX gather-scatter backend (min/max/mul).
+- *BREAKING* Renamed the allocation-only `precon_factory` API to
+  `precon_allocator`. Added runtime registration of user-defined
+  preconditioner and Krylov solver types.
+- Added opt-in zero-copy unified memory mapping for the HIP backend on AMD
+  MI300A APUs: with `NEKO_HIP_ZEROCOPY=1` (and `HSA_XNACK=1`), mapped arrays
+  alias their host allocation instead of being replicated on the device,
+  roughly halving the memory footprint of mapped data. Off by default
+  (currently slower per step than replicated buffers on MI300A); discrete GPUs
+  always use replicated buffers.
+- Added `only_facets = .true.` to `bc%finalize` in force_torque.
+- Removed the hardcoded `CUDA_ARCH="-arch sm_60"` fallback used for
+  `--enable-device-mpi` CUDA builds, which CUDA >= 13 toolkits can no longer
+  compile (Pascal support was dropped). `configure` now requires `CUDA_ARCH`
+  to be set explicitly for such builds and errors out otherwise, rather than
+  silently guessing an architecture that may not match the target GPU.
+- Add physical viscous and conductive flux support to the compressible solver.
+- Fixed stale facet-normals in fluid_pnpn pressure surface terms.
+  This was only affecting ALE simulations containing rotations.
+- *BREAKING* Changed the size of mesh velocity lag arrays in ALE to 2. 
+  Old ALE restart files (before this commit) should not be used anymore. 
+  Non-ALE restart files are totally unaffected.
+- Added CSV/HDF5 trajectory output options for the `lagrangian_particles`
+  simcomp, including `output_format`, `snapshots_per_file`, documentation, and
+  the `rebounding_particles` example.
+- Fixed NVSHMEM support for NVSHMEM 3.x, which no longer ships the combined
+  `libnvshmem`; `configure` now detects the split `libnvshmem_host` and
+  `libnvshmem_device` libraries (falling back to `-lnvshmem` for older
+  releases). The device link is now performed at build time via
+  `nvcc -dlink`, so final binaries link with the Fortran compiler as usual:
+  NVSHMEM builds no longer require a manual `nvcc` link or `-rdc=true` in
+  `CUDA_CFLAGS`, and no longer disable the `neko` binary, contrib tools,
+  or the unit tests.
+- Modified the additive reduction routines in `device_math` (`glsum`, `glsc2`,
+  `glsc3`, `glsubnorm`, and `glsc3_many`) to do reductions in extended
+  precision instead of `rp`. This improves numerical robustness when running
+  in single precision.
+- Fixed a linking failure with CUDA 13, which no longer implicitly links the
+  host C++ runtime (`undefined reference to __cxa_guard_acquire`); `configure`
+  now links `libstdc++` explicitly for CUDA >= 13, except with the Cray
+  compiler (CCE/PrgEnv-cray) which provides its own C++ runtime.
+- Added a native Tofu (uTofu) gather-scatter backend for Fugaku and other
+  Tofu-D systems (`NEKO_GS_COMM=UTOFU`, `--with-utofu`), using one-sided
+  RDMA puts with fused arrival signalling and thread-parallel injection;
+  tunable via the `NEKO_GS_UTOFU_*` environment variables.
+- Added a gather-scatter backend using MPI-3 neighbourhood collectives
+  (`NEKO_GS_COMM=NEIGHBOUR`), one `MPI_Ineighbor_alltoallv` per operation
+  instead of per-peer point-to-point messages.
+- Added a Coarray Fortran gather-scatter backend (`NEKO_GS_COMM=CAF`) using
+  one-sided coarray puts, with the signalling mechanism selectable at
+  runtime via `NEKO_GS_CAF_SIGNALING` (`sync`, `atomic`, or F2018 `event`).
+- Added an OpenSHMEM gather-scatter backend for CPU builds
+  (`NEKO_GS_COMM=SHMEM`, `--with-openshmem`) using put-with-signal, for
+  systems with a native OpenSHMEM such as Cray OpenSHMEMX.
+- Added a fused multi-component gather-scatter, `gs%op(u1, u2, u3, n, op)`,
+  exchanging three-component halos in one communication round instead of
+  three; used by curl, the fluid residuals, and the coupled Krylov solvers.
+- Changed the gather-scatter setup and the mesh's external point
+  connectivity to an owner-rendezvous scheme via a new crystal router,
+  enabling initialisation beyond ~100k MPI ranks.
+- Added OpenMP threading of the CPU backend's critical path (math and
+  solver kernels, Krylov solvers and preconditioners, boundary conditions,
+  dealiasing, and the host gather-scatter), making hybrid MPI+OpenMP a
+  supported execution mode on CPUs rather than accelerator-only.
+- Added HIP and CUDA support for ALE.
+- Added `spatial_average` simcomp for spatially averaging a list of registered
+  fields.
+- Changed the normal vectors argument type in `setup_normals` to `vector_t` and added copy to device in the routine.
 - Added new math operator for device. device_masked_copy_aligned, which performs
   a masked copy of data from one field to another, for a point zone mask.
 - Job control time limits can now be specified by a flexible string format, e.g.

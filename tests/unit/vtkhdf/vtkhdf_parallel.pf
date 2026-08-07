@@ -13,6 +13,7 @@ module vtkhdf_parallel
   use device, only : device_init, device_finalize
   use dofmap, only : dofmap_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use neko_config, only : NEKO_BCKND_DEVICE
   use hdf5, only : h5open_f, h5close_f, h5fopen_f, h5fclose_f, &
        h5gopen_f, h5gclose_f, h5aopen_f, h5aclose_f, h5aread_f, &
@@ -34,12 +35,8 @@ contains
 
   subroutine setUp(this)
     class(test_vtkhdf), intent(inout) :: this
-    integer :: ierr
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
+    call comm_init_test(this%getMpiCommunicator())
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
@@ -51,6 +48,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
+    call comm_free_test()
   end subroutine tearDown
 
   subroutine test_vtkhdf_gen_msh(msh)

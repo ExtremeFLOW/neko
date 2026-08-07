@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -110,6 +110,10 @@ module cuda_intf
        use, intrinsic :: iso_c_binding
        implicit none
      end function cudaDeviceReset
+
+     subroutine cuda_buffer_free_all() &
+          bind(c, name = 'cuda_buffer_free_all')
+     end subroutine cuda_buffer_free_all
 
      integer(c_int) function cudaGetDeviceProperties(prop, device) &
           bind(c, name = 'cudaGetDeviceProperties')
@@ -291,7 +295,10 @@ contains
   subroutine cuda_finalize(glb_cmd_queue, aux_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
-    integer(c_int) :: ierr
+    integer :: ierr
+
+    ! Release all device buffers held by the device layer
+    call cuda_buffer_free_all()
 
     if (cudaStreamDestroy(glb_cmd_queue) .ne. cudaSuccess) then
        call neko_error('Error destroying main stream')
@@ -301,9 +308,17 @@ contains
        call neko_error('Error destroying aux stream')
     end if
 
-    ! Best-effort context teardown to release runtime-owned allocations.
     ierr = cudaDeviceSynchronize()
+
+    ! Best-effort context teardown to release runtime-owned allocations.
+    ! Skipped in pFUnit-enabled builds: unit tests cycle device
+    ! init/finalize with MPI still up, and device-aware communication
+    ! backends (CUDA-aware MPI, NCCL, NVSHMEM) cache the primary
+    ! context from first use; destroying it here would leave them with
+    ! a dangling context
+#ifndef HAVE_PFUNIT
     ierr = cudaDeviceReset()
+#endif
   end subroutine cuda_finalize
 
   subroutine cuda_device_name(name)

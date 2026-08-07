@@ -41,7 +41,8 @@ module user_stats
   use field, only : field_t
   use case, only : case_t
   use mean_field_output, only : mean_field_output_t
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, &
+      json_get_or_lookup_or_default
   use mean_field, only : mean_field_t
   use coefs, only : coef_t
   use time_state, only : time_state_t
@@ -51,7 +52,8 @@ module user_stats
   implicit none
   private
 
-  !> A simulation component that computes the averages of fields in the registry.
+  !> A simulation component that computes the averages of fields in
+  !! the registry.
   type, public, extends(simulation_component_t) :: user_stats_t
 
      !> When to start averaging.
@@ -109,7 +111,8 @@ contains
     !> Get the number of stat fields and their names
     call json%info('fields', n_children = this%n_avg_fields)
     call json_get(json, 'fields', this%field_names)
-    call json_get_or_default(json, 'start_time', this%start_time, 0.0_dp)
+    call json_get_or_lookup_or_default(json, 'start_time', this%start_time, &
+            0.0_dp)
     call json_get_or_default(json, 'avg_direction', avg_dir, 'none')
 
     if (json%valid_path('output_filename')) then
@@ -248,8 +251,6 @@ contains
     type(coef_t), intent(inout) :: coef
     integer :: i
     type(field_t), pointer :: field_to_avg
-    character(len=NEKO_FNAME_LEN) :: stats_fname
-
     character(len=1024) :: unique_name
     unique_name = name // "/"
 
@@ -259,9 +260,7 @@ contains
 
     if (present(filename)) then
        this%default_fname = .false.
-       stats_fname = filename
     else
-       stats_fname = "user_stats0"
        this%default_fname = .true.
     end if
 
@@ -274,10 +273,14 @@ contains
     end do
 
     call this%output%init(this%mean_fields, this%n_avg_fields, &
-         this%start_time, coef, avg_dir, name = filename)
+         this%start_time, coef, avg_dir, name = filename, &
+         path = this%case%output_directory)
     call this%case%output_controller%add(this%output, &
          this%output_controller%control_value, &
          this%output_controller%control_mode)
+
+    nullify(field_to_avg)
+
   end subroutine user_stats_init_common
 
   !> Destructor.

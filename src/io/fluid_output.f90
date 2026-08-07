@@ -39,7 +39,7 @@ module fluid_output
   use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device
+  use device, only : device_memcpy, DEVICE_TO_HOST
   use output, only : output_t
   use scalars, only : scalars_t
   use registry, only : neko_registry
@@ -203,6 +203,18 @@ contains
        ft%skip_velocity = .false.
        ft%skip_temperature = .false.
        ft%write_mesh = this%always_write_mesh
+       if (ft%write_mesh) then
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             associate(mesh => this%fluid%items(2)%ptr%dof)
+               call device_memcpy(mesh%x, mesh%x_d, mesh%size(), &
+                    DEVICE_TO_HOST, sync = .false.)
+               call device_memcpy(mesh%y, mesh%y_d, mesh%size(), &
+                    DEVICE_TO_HOST, sync = .false.)
+               call device_memcpy(mesh%z, mesh%z_d, mesh%size(), &
+                    DEVICE_TO_HOST, sync = .true.)
+             end associate
+          end if
+       end if
        call ft%write(this%fluid, t)
     class default
        call ft%write(this%fluid, t)

@@ -139,6 +139,7 @@ contains
     do e = 1, coef%msh%nelv
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
+       !DIR$ IVDEP
        !GCC$ ivdep
        do i = 1, coef%Xh%lxyz
           ! G_ij = g^t g = g_mi g_mj
@@ -270,7 +271,7 @@ contains
           ! estimate turbulent viscosity
 
           nut%x(i,1,1,e) = (c*delta%x(i,1,1,e))**2 * Dsigma &
-               * coef%mult(i,1,1,1)
+               * coef%mult(i,1,1,e)
 
        end do
     end do

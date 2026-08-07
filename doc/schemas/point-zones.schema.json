@@ -21,13 +21,13 @@
               "const": "box"
             },
             "x_bounds": {
-              "$ref": "urn:neko:schema:common#/$defs/numberArray"
+              "$ref": "urn:neko:schema:common#/$defs/vector2OrRef"
             },
             "y_bounds": {
-              "$ref": "urn:neko:schema:common#/$defs/numberArray"
+              "$ref": "urn:neko:schema:common#/$defs/vector2OrRef"
             },
             "z_bounds": {
-              "$ref": "urn:neko:schema:common#/$defs/numberArray"
+              "$ref": "urn:neko:schema:common#/$defs/vector2OrRef"
             },
             "invert": {
               "type": "boolean"
@@ -54,7 +54,7 @@
               "const": "sphere"
             },
             "center": {
-              "$ref": "urn:neko:schema:common#/$defs/vector3"
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
             },
             "radius": {
               "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
@@ -85,13 +85,62 @@
               "const": "cylinder"
             },
             "start": {
-              "$ref": "urn:neko:schema:common#/$defs/vector3"
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
             },
             "end": {
-              "$ref": "urn:neko:schema:common#/$defs/vector3"
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
             },
             "radius": {
               "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "invert": {
+              "type": "boolean"
+            },
+            "full_elements": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "geometry",
+            "subsets",
+            "operator"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "geometry": {
+              "const": "combine"
+            },
+            "subsets": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/pointZone"
+                  },
+                  {
+                    "type": "object",
+                    "required": ["name"],
+                    "properties": {
+                      "name": {
+                        "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "operator": {
+              "type": "string",
+              "enum": ["OR", "AND", "XOR"]
             },
             "invert": {
               "type": "boolean"

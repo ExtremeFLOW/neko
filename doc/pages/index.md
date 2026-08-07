@@ -59,5 +59,6 @@ information that is not directly related to the usage of the code.
   - [Run-time selectable types](@ref rts_types) presents the standard
     programming pattern used to select object types at run time.
 - \subpage appendices
+  - [Environmental variable reference](@ref appendices_env-var)
   - [Governing Equations](@ref governing-equations) used in our solvers.
   - [Publications](@ref publications)

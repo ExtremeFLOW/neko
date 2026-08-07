@@ -19,6 +19,7 @@ documented and up to date.
 - 2d_cylinder, Running Neko with a 2D mesh (creates a 1 element thick mesh)
 - advecting_cone, Test case to check for dissipation and other numerical aspects
 - api, Demonstrations of using Neko APIs for other programming languages.
+- cns_2d_shock_tube, Reflected shock-boundary layer interaction in a 2D shock tube (compressible Navier-Stokes).
 - cyl_boundary_layer, Wall-mounted cylinder simulation with different boundary
   condition options
 - double_oscillating_cylinders, ALE simulation featuring multiple moving bodies,
@@ -43,6 +44,8 @@ documented and up to date.
 - rayleigh_benard, Rayleigh Benard convection (RBC) (temperature as additional
   scalar)
 - rayleigh_benard_cylinder, Cylindrical domain RBC
+- rebounding_particles, Inertial Lagrangian particles with nonlinear drag,
+  elastic wall rebounds, and CSV/HDF5 trajectory output.
 - recycling, Turbulent channel with recycling boundary conditions using global
   interpolation.
 - scalar_mms, method of manufactured solutions for the scalar verification

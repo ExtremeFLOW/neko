@@ -200,6 +200,8 @@ module global_interpolation
      procedure, pass(this) :: evaluate => global_interpolation_evaluate
      procedure, pass(this) :: evaluate_masked => &
           global_interpolation_evaluate_masked
+     procedure, pass(this) :: init_redist_comm => &
+          global_interpolation_init_redist_comm
 
      !> Generic constructor
      generic :: init => init_dof, init_xyz, init_json_xyz, init_json_dof
@@ -1236,6 +1238,45 @@ contains
     this%all_points_local = .true.
 
   end subroutine global_interpolation_find_and_redist
+
+  !> Build a communicator that redistributes point-wise payloads from the
+  !! original point ordering to the local owned-point ordering created by
+  !! find_points_and_redist.
+  subroutine global_interpolation_init_redist_comm(this, redist_comm)
+    class(global_interpolation_t), intent(inout) :: this
+    type(glb_intrp_comm_t), intent(inout) :: redist_comm
+    type(stack_i4_t) :: send_pe
+    type(stack_i4_t) :: recv_pe
+    integer, pointer :: point_ids(:) => null()
+    integer :: rank
+    integer :: i
+
+    call send_pe%init()
+    call recv_pe%init()
+    call redist_comm%init_dofs(this%pe_size)
+
+    do rank = 0, this%pe_size - 1
+       if (this%n_points_pe(rank) .gt. 0) then
+          call send_pe%push(rank)
+          point_ids => this%points_at_pe(rank)%array()
+          do i = 1, this%n_points_pe(rank)
+             call redist_comm%send_dof(rank)%push(point_ids(i))
+          end do
+       end if
+       if (this%n_points_pe_local(rank) .gt. 0) then
+          call recv_pe%push(rank)
+          do i = 1, this%n_points_pe_local(rank)
+             call redist_comm%recv_dof(rank)%push( &
+                  this%n_points_offset_pe_local(rank) + i)
+          end do
+       end if
+    end do
+
+    call redist_comm%init(send_pe, recv_pe, this%comm)
+    nullify(point_ids)
+    call send_pe%free()
+    call recv_pe%free()
+  end subroutine global_interpolation_init_redist_comm
 
   !> Evaluate the interpolated value in a masked field
   !! @param interp_values Array of values in the given points.

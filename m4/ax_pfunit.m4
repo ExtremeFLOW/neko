@@ -30,6 +30,7 @@ AC_DEFUN([AX_PFUNIT], [
  else
       AC_MSG_RESULT([yes])
       have_pfunit=yes
+      AC_DEFINE(HAVE_PFUNIT, 1, [Define if built with pFUnit unit tests.])
  fi
 
  AC_SUBST(PFUNIT_DIR)

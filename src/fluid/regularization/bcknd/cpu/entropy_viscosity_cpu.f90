@@ -64,6 +64,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
@@ -93,6 +94,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
@@ -121,6 +123,7 @@ contains
           do j = 1, lx
              !OCL NORECURRENCE, NOVREC, NOALIAS
              !DIR$ CONCURRENT
+             !DIR$ IVDEP
              !GCC$ ivdep
              !$omp simd reduction(max:max_visc_el)
              do i = 1, lx
@@ -133,6 +136,7 @@ contains
           do j = 1, lx
              !OCL NORECURRENCE, NOVREC, NOALIAS
              !DIR$ CONCURRENT
+             !DIR$ IVDEP
              !GCC$ ivdep
              !$omp simd
              do i = 1, lx
@@ -162,6 +166,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd private(low_order_visc)
     do i = 1, n
@@ -186,6 +191,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n

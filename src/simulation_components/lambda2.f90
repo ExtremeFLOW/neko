@@ -46,7 +46,6 @@ module lambda2
   use case, only : case_t
   use field_writer, only : field_writer_t
   use time_based_controller, only : time_based_controller_t
-  use device
   use utils, only : NEKO_VARNAME_LEN
   implicit none
   private

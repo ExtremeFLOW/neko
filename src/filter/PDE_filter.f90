@@ -41,7 +41,7 @@ module PDE_filter
   use coefs, only : coef_t
   use ax_product, only : ax_t, ax_helm_factory
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
-  use precon, only : pc_t, precon_factory, precon_destroy
+  use precon, only : pc_t, precon_allocator, precon_destroy
   use bc_list, only : bc_list_t
   use neumann, only : neumann_t
   use profiler, only : profiler_start_region, profiler_end_region
@@ -231,7 +231,8 @@ contains
 
     ! set up Helmholtz operators and RHS
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(this%coef%h1_d, (this%r / (2.0_rp * sqrt(3.0_rp)))**2, n)
+       call device_cfill(this%coef%h1_d, &
+            (this%r / (2.0_rp * sqrt(3.0_rp)))**2, n)
        call device_cfill(this%coef%h2_d, 1.0_rp, n)
     else
        ! h1 is already negative in its definition
@@ -303,7 +304,7 @@ contains
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
 
-    call precon_factory(pc, pctype)
+    call precon_allocator(pc, pctype)
 
     select type (pcp => pc)
     type is (jacobi_t)

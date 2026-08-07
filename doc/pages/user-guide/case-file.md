@@ -27,6 +27,11 @@ files against that schema.
 Since some shipped example files use `//` comments and trailing commas, the
 helper parses the input using a JSON5-compatible frontend before applying the
 schema.
+Neko distinguishes JSON integers such as `10` from JSON reals such as `10.0`,
+even though the JSON Schema specification considers both to be numbers and
+considers `10.0` to satisfy the `integer` type. The schemas mark real-only
+values with the Neko-specific `x-neko-real` annotation, and the validation
+helper enforces both that annotation and strict JSON integer encoding.
 
 ## High-level structure
 The current high-level structure of the case file is shown below.
@@ -67,9 +72,11 @@ The frequency is controlled by two parameters, ending with `_control` and
 The latter name is perhaps not ideal, but it is somewhat difficult to come up
 with a good one, suggestions are welcome.
 
-The `_value` parameter is a *real* number, that defines the output frequency,
-but the interpretation of that number depends on the choice of `_control`. The
-three following options are possible.
+The `_value` parameter defines the output frequency, but both its JSON type and
+interpretation depend on the choice of `_control`. Neko requires an integer
+literal for `tsteps` and `nsamples`, and a real literal for `simulationtime`.
+For example, use `10` for ten time steps but `10.0` for ten simulation-time
+units. The following options are possible.
 1. `simulationtime`, then `_value` is the time interval between the outputs.
 2. `tsteps`, then `_value` is the number of time steps between the outputs.
 3. `nsamples`, then `_value` is the total number of outputs that will be
@@ -88,7 +95,6 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `mesh_file`           | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
 | `output_boundary`     | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
 | `output_directory`    | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
-| `output_format`       | The file format of field data.                                                                        | `nek5000`, `adios2`, or `vtkhdf`                | `nek5000`     |
 | `output_precision`    | Whether to output snapshots in single or double precision                                             | `single` or `double`                            | `single`      |
 | `output_layout`       | Data layout for `adios2` files. (Choose `2` or `3` for ADIOS2 supported compressors BigWhoop or ZFP.) | Positive integer `1`, `2`, `3`                  | `1`           |
 | `load_balancing`      | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
@@ -209,13 +215,11 @@ smallest of `timestep` and the value calculated from the target CFL number.
 | `max_timestep`             | Maximum time-step size when variable time step is activated                                 | Positive reals                    | `huge`        |
 | `min_timestep`             | Minimum time-step size when variable time step is activated                                 | Non-negative reals                | `0.0`         |
 | `target_cfl`               | The desired CFL number                                                                      | Positive real                     | `0.4`         |
-| `max_update_frequency`     | The minimum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `0`           |
-| `min_update_frequency`     | The maximum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `huge`        |
-| `running_avg_coeff`        | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
+| `max_update_frequency`     | Minimum number of time steps between two time-step updates triggered by CFL deviation       | Non-negative integer              | `0`           |
+| `min_update_frequency`     | Maximum number of time steps before forcing a time-step update                              | Non-negative integer              | `huge`        |
 | `max_dt_increase_factor`   | The maximum scaling factor to increase time step                                            | Positive real greater than `1`    | `1.2`         |
 | `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                            | Positive real less than `1`       | `0.5`         |
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                   | Positive real less than `1`       | `0.2`         |
-| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `0`           |
 | `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
 
 ### Restarts and joblimit
@@ -311,15 +315,17 @@ by the user by setting `full_stress_formulation` to true.
 
 Neko supports compressible flow simulations via the compressible solver.
 To enable compressible flow, set `"scheme": "compressible"` in the fluid
-configuration. This solver integrates the compressible Euler equations (full
-Navier-Stokes will be enabled in upcoming updates) using a Runge-Kutta time
-integration scheme with artificial viscosity for stability.
+configuration. This solver integrates the compressible Navier-Stokes equations
+using a Runge-Kutta time integration scheme with artificial viscosity for
+stability.
 
-The compressible solver requires the following parameters:
+The compressible solver accepts the following parameters:
 
-| Name    | Description                           | Admissible values | Default value |
-| ------- | ------------------------------------- | ----------------- | ------------- |
-| `gamma` | Ratio of specific heats for ideal gas | Positive reals    | `1.4`         |
+| Name    | Description                                      | Admissible values | Default value |
+| ------- | ------------------------------------------------ | ----------------- | ------------- |
+| `gamma` | Ratio of specific heats for ideal gas            | Positive reals    | `1.4`         |
+| `mu`    | Constant physical dynamic viscosity              | Non-negative real | `0.0`         |
+| `kappa` | Constant physical thermal conductivity           | Non-negative real | `0.0`         |
 
 Additional numerics parameters specific to compressible flows:
 
@@ -331,6 +337,19 @@ Additional numerics parameters specific to compressible flows:
 The compressible solver uses variable time-stepping controlled by the CFL
 number. Set `variable_timestep` to `true` and specify `target_cfl` in the time
 control object.
+
+Constant physical viscosity and thermal conductivity can be specified as `mu`
+and `kappa` in the fluid section of the case file. Alternatively, they can be
+set via the `material_properties` user interface in the user file, which also
+allows spatially or temporally varying values. When a user material-properties
+routine is provided, it takes precedence over the constant JSON values.
+Stabilization uses the existing Laplacian artificial viscosity, computed as the
+minimum of entropy-based and low-order viscosities. When `fluid_mu` or
+`fluid_kappa` are nonzero, the solver also applies the compressible
+Navier-Stokes viscous stress flux and conductive energy flux. If neither
+property is provided, both default to zero and no physical viscous flux is added.
+See the user file documentation for details on implementing
+`material_properties`.
 
 Example configuration:
 ~~~~~~~~~~~~~~~{.json}
@@ -815,7 +834,7 @@ file documentation.
       - `tanh`, hyperbolic tangent approximation of Savaş (2012). In this case `delta` is the 99\% thickness.
 4. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
-   point zone is specified by the `name` keyword, and should be defined in the
+   point zone is specified by the `zone_name` keyword, and should be defined in the
    `case.point_zones` object. See more about [point zones](@ref point-zones).
 5. `field`, where the initial condition is retrieved from a field file.
    The following keywords can be used:
@@ -1353,7 +1372,7 @@ The parameters for the sponge source term are summarized in the table below:
 ### Arbitrary Lagrangian-Eulerian Framework {#case-file_fluid-ale}
 Neko supports the simulation of moving walls through the Arbitrary Lagrangian-Eulerian (ALE) framework. The current implementation allows for an arbitrary number of individually moving or deformable walls, collectively referred to as bodies.
 
-@note Currently, only the CPU backend of the ALE framework is supported. GPU acceleration for ALE computations will be available in future updates.
+@note Currently, the ALE framework supports CPU backend, as well as HIP and CUDA backends for GPU acceleration.
 
 The `"ale"` block in case file is part of the `"fluid"` object, and has the following high-level structure:
 
@@ -1438,6 +1457,7 @@ Within the `"solver"` block, the parameters of the linear solver used to solve t
 | `monitor`             | Monitor residuals in the linear solver                                    | `true` or `false`              | `false`       |
 | `output_base_shape`   | Enables output of the base shape field \f$ \phi \f$                       | `true` or `false`              | `true`        |
 | `output_stiffness`    | Enables output of the computed mesh stiffness field \f$ h(\mathbf{x}) \f$ | `true` or `false`              | `false`       |
+| `import_base_shape`   | Whether to import \f$ \phi \f$ fields from file                       | `true` or `false`                | `false`       |
 
 ##### Output Files and Diagnostics
 If the output flags are enabled, Neko will generate `.fld` files during the initialization phase. These files are highly useful for verifying that the mesh deformation fields and stiffness regions are configured correctly before running the simulation:
@@ -1446,11 +1466,12 @@ If the output flags are enabled, Neko will generate `.fld` files during the init
 * `phi_total0.f00000`: Generated if `"output_base_shape": true` **and** there is more than one body registered. Contains the sum of all base shapes (\f$ \phi_{total} = \sum \phi_i \f$).
 * `stiffness0.f00000`: Generated if `"output_stiffness": true`. Contains the global spatial mesh stiffness field \f$ h(\mathbf{x}) \f$.
 
-@attention Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \f$ \phi_{total} \f$ is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's `absolute_tolerance` is set appropriately.
+@note Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \f$ \phi_{total} \f$ is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's `absolute_tolerance` is set appropriately.
 
 
-@note It is also possible to provide a custom base shape \f$ \phi \f$ using a `user_ale_base_shapes` user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting `"output_base_shape": true` will still write your custom user shapes to `.fld` files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found [here](#user-file_ale-base-shapes).
+@attention It is also possible to provide a custom base shape \f$ \phi \f$ using a `user_ale_base_shapes` user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting `"output_base_shape": true` will still write your custom user shapes to `.fld` files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found [here](#user-file_ale-base-shapes).
 
+@note If the option `import_base_shape` is set to `true`, the Laplace solve will be skipped entirely, and the \f$ \phi \f$ fields are instead loaded from previously computed `.fld` files. When this feature is enabled, the file to be loaded for each body must be specified using the `base_shape_import_file` keyword within the `"bodies"` block.
 
 #### Mesh preview
 
@@ -1487,10 +1508,14 @@ Each individual body object accepts the following general keywords and base kine
 | `rotation`     | Sub-object defining the rotational kinematics applied to the body | JSON object                | -                  |
 | `pivot`        | Sub-object defining the center point for rotational kinematics    | JSON object                | -                  |
 | `stiff_geom`   | Sub-object defining the mesh stiffness region                     | JSON object                | -                  |
+| `base_shape_import_file` | Name of the \f$ \phi \f$ field file to import           | String ending with `f00000` | -                  |
 
-@attention The body_ID for ALE bodies is defined based on the order in which they are added to the `"bodies"` array, not based on their `"zone_indices"`.
+@note The body_ID for ALE bodies is defined based on the order in which they are added to the `"bodies"` array, not based on their `"zone_indices"`.
 
-@note If multiple moving `no_slip` zone IDs are assigned to `"zone_indices"` of a single ALE body, the code will treat all those boundaries as a unified rigid body.
+@attention If multiple moving `no_slip` zone IDs are assigned to `"zone_indices"` of a single ALE body, the code will treat all those boundaries as a unified rigid body.
+
+@note The `base_shape_import_file` keyword is only mandatory if the solver option `"ale.solver.import_base_shape"` is set to `true`. In this case, this keyword should be provided for **every** single registered body.
+
 
 ##### Oscillation
 
@@ -1681,9 +1706,14 @@ For a given coordinate \f$ \mathbf{x} = (x, y, z) \f$, the raw distance \f$ r \f
 
 #### Restarting ALE simulations
 
-Neko supports checkpointing and restarting for ALE simulations. No additional parameters need to be set apart from the usual configuration for saving `.chkp` files.
+Neko supports checkpointing and restarting for ALE simulations from `.chkp` files. No additional parameters need to be set apart from the usual configuration for saving these files.
 
-@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
+**Restart Capabilities:**
+* **Exact Restart:** Restarting from the same mesh and the same polynomial order is an exact restart.
+* **Different Polynomial Order:** Restarting from the same mesh but a different polynomial order is supported for ALE. In this case, the mass matrix at the time of the restart will be used for the lagged mass matrices required in `BDF2` and `BDF3` time integration schemes. It is the user's responsibility to decide whether the resulting initial transient error due to this is acceptable for a given case.
+* **Different Mesh:** Restarting from a different mesh is not yet supported for ALE simulations.
+
+@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used as `"restart_file"` to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to
@@ -1795,6 +1825,7 @@ concisely directly in the table.
 | `nut_field`                                        | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                                   | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                                     | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
+| `output_format`                                    | The file format of field data.                                                                     | `nek5000`, `adios2`, or `vtkhdf`                            | `nek5000`     |
 | `output_mesh_in_all_files`                         | Indicates if the mesh should be written in every output fld file.                                 | `true` or `false`                                           | `false`       |
 | `output_filename`                                  | The output filename.                                                                              | String                                                      | `field`       |
 | `output_subdivide`                                 | Whether to subdivide spectral elements into linear sub-cells for VTKHDF output.                   | `true` or `false`                                           | `false`       |
@@ -1931,7 +1962,7 @@ file documentation.
    keyword.
 3. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
-   point zone is specified by the `name` keyword, and should be defined in the
+   point zone is specified by the `zone_name` keyword, and should be defined in the
    `case.point_zones` object. See more about [point zones](@ref point-zones).
 4. `field`, where the initial condition is retrieved from a field file. Works
    in the same way as for the fluid. See the

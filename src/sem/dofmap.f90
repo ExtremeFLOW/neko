@@ -42,7 +42,8 @@ module dofmap
   use utils, only : neko_error, neko_warning
   use fast3d, only : fd_weights_full
   use tensor, only : tensr3, tnsr2d_el, trsp, addtnsr
-  use device
+  use device, only : device_map, device_memcpy, HOST_TO_DEVICE, device_unmap, &
+       DEVICE_TO_HOST
   use math, only : add3, copy, rone, rzero, masked_gather_copy
   use device_math, only : device_masked_gather_copy_aligned, device_copy
   use element, only : element_t

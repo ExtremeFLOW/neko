@@ -46,7 +46,8 @@ module elementwise_filter
   use matrix, only : matrix_t
   use mxm_wrapper, only : mxm
   use tensor, only : tnsr3d, trsp
-  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_map, device_unmap, device_memcpy, device_sync, &
+       HOST_TO_DEVICE
   use device_math, only : device_cfill
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
@@ -157,6 +158,9 @@ contains
        call device_map(this%fht, this%fht_d, this%nx * this%nx)
        call device_cfill(this%fh_d, 0.0_rp, this%nx * this%nx)
        call device_cfill(this%fht_d, 0.0_rp, this%nx * this%nx)
+       ! Order the async fills against the host-side build_1d; on
+       ! unified memory the device pointers may alias fh/fht
+       call device_sync()
     end if
 
     call this%build_1d()

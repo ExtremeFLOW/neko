@@ -133,8 +133,7 @@ contains
     this%name = name
     this%u => neko_registry%get_field_by_name(trim(field_name))
 
-    this%du => neko_registry%get_field_by_name(&
-         "d" // field_name // "_d" // direction)
+    this%du => neko_registry%get_field_by_name(trim(computed_field))
 
     if (direction .eq. "x") then
        this%dr => this%case%fluid%c_Xh%drdx

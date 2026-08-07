@@ -7,7 +7,7 @@
         "output_checkpoints": true,
         "checkpoint_control": "simulationtime",
         "checkpoint_value": 0.05,
-        "joblimit": "00:02:00",
+        "job_timelimit": "00:02:00",
         "time": {
             "end_time": 0.1,
             "timestep": 0.01

@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_math
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-  use num_types, only : rp, c_rp
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  use num_types, only : rp, xp, c_rp, c_xp
   use utils, only : neko_error
-  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_SUM, MPI_MIN, MPI_MAX, MPI_IN_PLACE, MPI_Allreduce
   use device, only : glb_cmd_queue
   ! ========================================================================== !
@@ -43,6 +43,7 @@ module device_math
   use hip_math
   use cuda_math
   use opencl_math
+  use metal_math
 
   implicit none
   private
@@ -67,7 +68,8 @@ module device_math
        device_invcol3, device_cdiv, device_cdiv2, device_glsubnorm, &
        device_pwmax2, device_pwmax3, device_cpwmax2, device_cpwmax3, &
        device_pwmin2, device_pwmin3, device_cpwmin2, device_cpwmin3, &
-       device_glmax, device_glmin, device_cwrap
+       device_glmax, device_glmin, device_cwrap, device_sqrt_inplace, &
+       device_power
 
 contains
 
@@ -92,6 +94,8 @@ contains
     call cuda_copy(a_d, b_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_copy(a_d, b_d, n, strm_)
+#elif HAVE_METAL
+    call metal_copy(a_d, b_d, n, strm_)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -119,6 +123,8 @@ contains
     call cuda_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm_)
 #elif HAVE_OPENCL
     call opencl_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm_)
+#elif HAVE_METAL
+    call metal_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm_)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -172,6 +178,8 @@ contains
     call cuda_masked_gather_copy(a_d, b_d, mask_d, n, n_mask, strm_)
 #elif HAVE_OPENCL
     call opencl_masked_gather_copy(a_d, b_d, mask_d, n, n_mask, strm_)
+#elif HAVE_METAL
+    call metal_masked_gather_copy(a_d, b_d, mask_d, n, n_mask, strm_)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -202,6 +210,9 @@ contains
 #elif HAVE_OPENCL
     call opencl_face_masked_gather_copy(a_d, b_d, mask_d, facet_d, n1, n2, &
          lx, ly, lz, n_mask, strm_)
+#elif HAVE_METAL
+    call metal_face_masked_gather_copy(a_d, b_d, mask_d, facet_d, n1, n2, &
+         lx, ly, lz, n_mask, strm_)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -209,7 +220,8 @@ contains
 
   !> Gather a masked vector \f$ a(i) = b(mask(i)) \f$.
   ! In this case, the mask comes from a mask_t type
-  subroutine device_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm)
+  subroutine device_masked_gather_copy_aligned(a_d, b_d, mask_d, n, &
+       n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask
     type(c_ptr), optional :: strm
@@ -229,6 +241,8 @@ contains
     call cuda_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
 #elif HAVE_OPENCL
     call opencl_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
+#elif HAVE_METAL
+    call metal_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -255,6 +269,8 @@ contains
     call cuda_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask, strm_)
 #elif HAVE_OPENCL
     call opencl_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask, strm_)
+#elif HAVE_METAL
+    call metal_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask, strm_)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -262,7 +278,8 @@ contains
 
   !> Scatter a masked vector \f$ a((mask(i)) = b(i) \f$.
   ! In this case, the mask comes from a mask_t type
-  subroutine device_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm)
+  subroutine device_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, &
+       n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask
     type(c_ptr), optional :: strm
@@ -282,6 +299,8 @@ contains
     call cuda_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
 #elif HAVE_OPENCL
     call opencl_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
+#elif HAVE_METAL
+    call metal_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -307,6 +326,8 @@ contains
     call cuda_masked_atomic_reduction(a_d, b_d, mask_d, n, n_mask, strm_)
 #elif HAVE_OPENCL
     call neko_error('No OpenCL bcknd, masked atomic reduction')
+#elif HAVE_METAL
+    call metal_masked_atomic_reduction(a_d, b_d, mask_d, n, n_mask, strm_)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -337,6 +358,8 @@ contains
     call cuda_cfill_mask(a_d, c, n, mask_d, n_mask, strm_)
 #elif HAVE_OPENCL
     call opencl_cfill_mask(a_d, c, n, mask_d, n_mask, strm_)
+#elif HAVE_METAL
+    call metal_cfill_mask(a_d, c, n, mask_d, n_mask, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -363,6 +386,8 @@ contains
     call cuda_rzero(a_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_rzero(a_d, n, strm_)
+#elif HAVE_METAL
+    call metal_rzero(a_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -384,7 +409,7 @@ contains
        strm_ = glb_cmd_queue
     end if
 
-#if HAVE_HIP || HAVE_CUDA || HAVE_OPENCL
+#if HAVE_HIP || HAVE_CUDA || HAVE_OPENCL || HAVE_METAL
     call device_cfill(a_d, one, n, strm_)
 #else
     call neko_error('No device backend configured')
@@ -413,6 +438,8 @@ contains
     call cuda_cmult(a_d, c, n, strm_)
 #elif HAVE_OPENCL
     call opencl_cmult(a_d, c, n, strm_)
+#elif HAVE_METAL
+    call metal_cmult(a_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -440,6 +467,8 @@ contains
     call cuda_cmult2(a_d, b_d, c, n, strm_)
 #elif HAVE_OPENCL
     call opencl_cmult2(a_d, b_d, c, n, strm_)
+#elif HAVE_METAL
+    call metal_cmult2(a_d, b_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -465,6 +494,8 @@ contains
     call cuda_cdiv(a_d, c, n, strm_)
 #elif HAVE_OPENCL
     call opencl_cdiv(a_d, c, n, strm_)
+#elif HAVE_METAL
+    call metal_cdiv(a_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -490,6 +521,8 @@ contains
     call cuda_cdiv2(a_d, b_d, c, n, strm_)
 #elif HAVE_OPENCL
     call opencl_cdiv2(a_d, b_d, c, n, strm_)
+#elif HAVE_METAL
+    call metal_cdiv2(a_d, b_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -517,6 +550,8 @@ contains
     call cuda_radd(a_d, c, n, strm_)
 #elif HAVE_OPENCL
     call opencl_radd(a_d, c, n, strm_)
+#elif HAVE_METAL
+    call metal_radd(a_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -545,6 +580,8 @@ contains
     call cuda_cadd2(a_d, b_d, c, n, strm_)
 #elif HAVE_OPENCL
     call opencl_cadd2(a_d, b_d, c, n, strm_)
+#elif HAVE_METAL
+    call metal_cadd2(a_d, b_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -572,10 +609,65 @@ contains
     call cuda_cwrap(a_d, min_val, max_val, n, strm_)
 #elif HAVE_OPENCL
     call opencl_cwrap(a_d, min_val, max_val, n, strm_)
+#elif HAVE_METAL
+    call metal_cwrap(a_d, min_val, max_val, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
   end subroutine device_cwrap
+
+  !> Sqrt a vector \f$ a = sqrt(a) \f$
+  subroutine device_sqrt_inplace(a_d, n, strm)
+    type(c_ptr) :: a_d
+    integer :: n
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_sqrt_inplace(a_d, n, strm_)
+#elif HAVE_CUDA
+    call cuda_sqrt_inplace(a_d, n, strm_)
+#elif HAVE_OPENCL
+    call opencl_sqrt_inplace(a_d, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_sqrt_inplace
+
+  !> Take the power of a vector \f$ a^p \f$
+  subroutine device_power(ap_d, a_d, p, n, strm)
+    type(c_ptr) :: ap_d, a_d
+    real(kind=rp), intent(in) :: p
+    integer :: n
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_power(ap_d, a_d, p, n, strm_)
+#elif HAVE_CUDA
+    call cuda_power(ap_d, a_d, p, n, strm_)
+#elif HAVE_OPENCL
+    call opencl_power(ap_d, a_d, p, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_power
 
   !> Set all elements to a constant c \f$ a = c \f$
   subroutine device_cfill(a_d, c, n, strm)
@@ -599,6 +691,8 @@ contains
     call cuda_cfill(a_d, c, n, strm_)
 #elif HAVE_OPENCL
     call opencl_cfill(a_d, c, n, strm_)
+#elif HAVE_METAL
+    call metal_cfill(a_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -625,6 +719,8 @@ contains
     call cuda_add2(a_d, b_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_add2(a_d, b_d, n, strm_)
+#elif HAVE_METAL
+    call metal_add2(a_d, b_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -650,6 +746,8 @@ contains
     call cuda_add4(a_d, b_d, c_d, d_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_add4(a_d, b_d, c_d, d_d, n, strm_)
+#elif HAVE_METAL
+    call metal_add4(a_d, b_d, c_d, d_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -676,6 +774,8 @@ contains
     call cuda_add2s1(a_d, b_d, c1, n, strm_)
 #elif HAVE_OPENCL
     call opencl_add2s1(a_d, b_d, c1, n, strm_)
+#elif HAVE_METAL
+    call metal_add2s1(a_d, b_d, c1, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -704,6 +804,8 @@ contains
     call cuda_add2s2(a_d, b_d, c1, n, strm_)
 #elif HAVE_OPENCL
     call opencl_add2s2(a_d, b_d, c1, n, strm_)
+#elif HAVE_METAL
+    call metal_add2s2(a_d, b_d, c1, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -731,6 +833,8 @@ contains
     call cuda_addsqr2s2(a_d, b_d, c1, n, strm_)
 #elif HAVE_OPENCL
     call opencl_addsqr2s2(a_d, b_d, c1, n, strm_)
+#elif HAVE_METAL
+    call metal_addsqr2s2(a_d, b_d, c1, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -757,6 +861,8 @@ contains
     call cuda_add3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_add3(a_d, b_d, c_d, n, strm_)
+#elif HAVE_METAL
+    call metal_add3(a_d, b_d, c_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -784,6 +890,8 @@ contains
     call cuda_add3s2(a_d, b_d, c_d, c1, c2, n, strm_)
 #elif HAVE_OPENCL
     call opencl_add3s2(a_d, b_d, c_d, c1, c2, n, strm_)
+#elif HAVE_METAL
+    call metal_add3s2(a_d, b_d, c_d, c1, c2, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -811,6 +919,8 @@ contains
     call cuda_add4s3(a_d, b_d, c_d, d_d, c1, c2, c3, n, strm_)
 #elif HAVE_OPENCL
     call opencl_add4s3(a_d, b_d, c_d, d_d, c1, c2, c3, n, strm_)
+#elif HAVE_METAL
+    call metal_add4s3(a_d, b_d, c_d, d_d, c1, c2, c3, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -838,6 +948,8 @@ contains
     call cuda_add5s4(a_d, b_d, c_d, d_d, e_d, c1, c2, c3, c4, n, strm_)
 #elif HAVE_OPENCL
     call opencl_add5s4(a_d, b_d, c_d, d_d, e_d, c1, c2, c3, c4, n, strm_)
+#elif HAVE_METAL
+    call metal_add5s4(a_d, b_d, c_d, d_d, e_d, c1, c2, c3, c4, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -864,6 +976,8 @@ contains
     call cuda_invcol1(a_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_invcol1(a_d, n, strm_)
+#elif HAVE_METAL
+    call metal_invcol1(a_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -890,6 +1004,8 @@ contains
     call cuda_invcol2(a_d, b_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_invcol2(a_d, b_d, n, strm_)
+#elif HAVE_METAL
+    call metal_invcol2(a_d, b_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -913,8 +1029,9 @@ contains
 #elif HAVE_CUDA
     call cuda_invcol3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_OPENCL
-    ! call opencl_invcol3(a_d, b_d, c_d, n)
-    call neko_error('opencl_invcol3 not implemented')
+    call opencl_invcol3(a_d, b_d, c_d, n, strm_)
+#elif HAVE_METAL
+    call metal_invcol3(a_d, b_d, c_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -940,6 +1057,8 @@ contains
     call cuda_col2(a_d, b_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_col2(a_d, b_d, n, strm_)
+#elif HAVE_METAL
+    call metal_col2(a_d, b_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -966,6 +1085,8 @@ contains
     call cuda_col3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_col3(a_d, b_d, c_d, n, strm_)
+#elif HAVE_METAL
+    call metal_col3(a_d, b_d, c_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -992,6 +1113,8 @@ contains
     call cuda_subcol3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_subcol3(a_d, b_d, c_d, n, strm_)
+#elif HAVE_METAL
+    call metal_subcol3(a_d, b_d, c_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1018,6 +1141,8 @@ contains
     call cuda_sub2(a_d, b_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_sub2(a_d, b_d, n, strm_)
+#elif HAVE_METAL
+    call metal_sub2(a_d, b_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1044,6 +1169,8 @@ contains
     call cuda_sub3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_sub3(a_d, b_d, c_d, n, strm_)
+#elif HAVE_METAL
+    call metal_sub3(a_d, b_d, c_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1070,6 +1197,8 @@ contains
     call cuda_addcol3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_addcol3(a_d, b_d, c_d, n, strm_)
+#elif HAVE_METAL
+    call metal_addcol3(a_d, b_d, c_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1096,6 +1225,8 @@ contains
     call cuda_addcol4(a_d, b_d, c_d, d_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_addcol4(a_d, b_d, c_d, d_d, n, strm_)
+#elif HAVE_METAL
+    call metal_addcol4(a_d, b_d, c_d, d_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1123,6 +1254,8 @@ contains
     call cuda_addcol3s2(a_d, b_d, c_d, s, n, strm_)
 #elif HAVE_OPENCL
     call opencl_addcol3s2(a_d, b_d, c_d, s, n, strm_)
+#elif HAVE_METAL
+    call metal_addcol3s2(a_d, b_d, c_d, s, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1150,6 +1283,8 @@ contains
     call cuda_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n, strm_)
+#elif HAVE_METAL
+    call metal_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1183,6 +1318,9 @@ contains
 #elif HAVE_OPENCL
     call opencl_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
          w1_d, w2_d, w3_d, n, strm_)
+#elif HAVE_METAL
+    call metal_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
+         w1_d, w2_d, w3_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1214,6 +1352,9 @@ contains
 #elif HAVE_OPENCL
     ! Same kernel as glsc3 (currently no device MPI for OpenCL)
     res = opencl_glsc3(u_d, v_d, w_d, n, strm_)
+#elif HAVE_METAL
+    ! Same kernel as glsc3 (currently no device MPI for OpenCL)
+    res = metal_glsc3(u_d, v_d, w_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1226,6 +1367,7 @@ contains
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
     real(kind=rp) :: res
+    real(kind=xp) :: res_xp
 
     if (present(strm)) then
        strm_ = strm
@@ -1233,29 +1375,34 @@ contains
        strm_ = glb_cmd_queue
     end if
 
-    res = 0.0_rp
+    res_xp = 0.0_xp
 #if HAVE_HIP
-    res = hip_glsc3(a_d, b_d, c_d, n, strm_)
+    res_xp = hip_glsc3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_CUDA
-    res = cuda_glsc3(a_d, b_d, c_d, n, strm_)
+    res_xp = cuda_glsc3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_OPENCL
-    res = opencl_glsc3(a_d, b_d, c_d, n, strm_)
+    res_xp = opencl_glsc3(a_d, b_d, c_d, n, strm_)
+#elif HAVE_METAL
+    res = metal_glsc3(a_d, b_d, c_d, n, strm_)
+    res_xp = real(res, kind=xp)
 #else
     call neko_error('No device backend configured')
 #endif
 
 #ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
-       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
-            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, res_xp, 1, &
+            MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
 #endif
+    res = real(res_xp, kind=rp)
   end function device_glsc3
 
   subroutine device_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm)
     type(c_ptr), value :: w_d, v_d_d, mult_d
     integer(c_int) :: j, n
     real(c_rp) :: h(j)
+    real(c_xp) :: h_xp(j)
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
     integer :: ierr
@@ -1267,21 +1414,28 @@ contains
     end if
 
 #if HAVE_HIP
-    call hip_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm_)
+    h_xp = 0.0_c_xp
+    call hip_glsc3_many(h_xp, w_d, v_d_d, mult_d, j, n, strm_)
 #elif HAVE_CUDA
-    call cuda_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm_)
+    h_xp = 0.0_c_xp
+    call cuda_glsc3_many(h_xp, w_d, v_d_d, mult_d, j, n, strm_)
 #elif HAVE_OPENCL
-    call opencl_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm_)
+    h_xp = 0.0_c_xp
+    call opencl_glsc3_many(h_xp, w_d, v_d_d, mult_d, j, n, strm_)
+#elif HAVE_METAL
+    call metal_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm_)
+    h_xp = real(h, kind=c_xp)
 #else
     call neko_error('No device backend configured')
 #endif
 
 #ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
-       call MPI_Allreduce(MPI_IN_PLACE, h, j, &
-            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, h_xp, j, &
+            MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
 #endif
+    h = real(h_xp, kind=c_rp)
   end subroutine device_glsc3_many
 
   subroutine device_add2s2_many(y_d, x_d_d, a_d, j, n, strm)
@@ -1304,6 +1458,8 @@ contains
     call cuda_add2s2_many(y_d, x_d_d, a_d, j, n, strm_)
 #elif HAVE_OPENCL
     call opencl_add2s2_many(y_d, x_d_d, a_d, j, n, strm_)
+#elif HAVE_METAL
+    call metal_add2s2_many(y_d, x_d_d, a_d, j, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1314,6 +1470,7 @@ contains
     type(c_ptr) :: a_d, b_d
     integer :: n, ierr
     real(kind=rp) :: res
+    real(kind=xp) :: res_xp
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
 
@@ -1323,23 +1480,27 @@ contains
        strm_ = glb_cmd_queue
     end if
 
-    res = 0.0_rp
+    res_xp = 0.0_xp
 #if HAVE_HIP
-    res = hip_glsc2(a_d, b_d, n, strm_)
+    res_xp = hip_glsc2(a_d, b_d, n, strm_)
 #elif HAVE_CUDA
-    res = cuda_glsc2(a_d, b_d, n, strm_)
+    res_xp = cuda_glsc2(a_d, b_d, n, strm_)
 #elif HAVE_OPENCL
-    res = opencl_glsc2(a_d, b_d, n, strm_)
+    res_xp = opencl_glsc2(a_d, b_d, n, strm_)
+#elif HAVE_METAL
+    res = metal_glsc2(a_d, b_d, n, strm_)
+    res_xp = real(res, kind=xp)
 #else
     call neko_error('No device backend configured')
 #endif
 
 #ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
-       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
-            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, res_xp, 1, &
+            MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
 #endif
+    res = real(res_xp, kind=rp)
   end function device_glsc2
 
   !> Returns the norm of the difference of two vectors
@@ -1349,6 +1510,7 @@ contains
     integer, intent(in) :: n
     integer :: ierr
     real(kind=rp) :: res
+    real(kind=xp) :: res_xp
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
 
@@ -1358,25 +1520,28 @@ contains
        strm_ = glb_cmd_queue
     end if
 
-    res = 0.0_rp
+    res_xp = 0.0_xp
 #if HAVE_HIP
-    res = hip_glsubnorm2(a_d, b_d, n, strm_)
+    res_xp = hip_glsubnorm2(a_d, b_d, n, strm_)
 #elif HAVE_CUDA
-    res = cuda_glsubnorm2(a_d, b_d, n, strm_)
+    res_xp = cuda_glsubnorm2(a_d, b_d, n, strm_)
 #elif HAVE_OPENCL
-    res = opencl_glsubnorm2(a_d, b_d, n, strm_)
+    res_xp = opencl_glsubnorm2(a_d, b_d, n, strm_)
+#elif HAVE_METAL
+    res = metal_glsubnorm2(a_d, b_d, n, strm_)
+    res_xp = real(res, kind=xp)
 #else
     call neko_error('No device backend configured')
 #endif
 
 #ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
-       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
-            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, res_xp, 1, &
+            MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
 #endif
 
-    res = sqrt(res)
+    res = real(sqrt(res_xp), kind=rp)
   end function device_glsubnorm
 
   !> Sum a vector of length n
@@ -1384,6 +1549,7 @@ contains
     type(c_ptr) :: a_d
     integer :: n, ierr
     real(kind=rp) :: res
+    real(kind=xp) :: res_xp
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
 
@@ -1393,23 +1559,27 @@ contains
        strm_ = glb_cmd_queue
     end if
 
-    res = 0.0_rp
+    res_xp = 0.0_xp
 #if HAVE_HIP
-    res = hip_glsum(a_d, n, strm_)
+    res_xp = hip_glsum(a_d, n, strm_)
 #elif HAVE_CUDA
-    res = cuda_glsum(a_d, n, strm_)
+    res_xp = cuda_glsum(a_d, n, strm_)
 #elif HAVE_OPENCL
-    res = opencl_glsum(a_d, n, strm_)
+    res_xp = opencl_glsum(a_d, n, strm_)
+#elif HAVE_METAL
+    res = metal_glsum(a_d, n, strm_)
+    res_xp = real(res, kind=xp)
 #else
     call neko_error('No device backend configured')
 #endif
 
 #ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
-       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
-            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, res_xp, 1, &
+            MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
 #endif
+    res = real(res_xp, kind=rp)
   end function device_glsum
 
   !>Max of a vector of length n
@@ -1438,6 +1608,8 @@ contains
     res = cuda_glmax(a_d, ninf, n, strm_)
 #elif HAVE_OPENCL
     res = opencl_glmax(a_d, n, strm_)
+#elif HAVE_METAL
+    res = metal_glmax(a_d, ninf, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1476,6 +1648,8 @@ contains
     res = cuda_glmin(a_d, pinf, n, strm_)
 #elif HAVE_OPENCL
     res = opencl_glmin(a_d, n, strm_)
+#elif HAVE_METAL
+    res = metal_glmin(a_d, pinf, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1508,6 +1682,8 @@ contains
     call cuda_absval(a_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_absval(a_d, n, strm_)
+#elif HAVE_METAL
+    call metal_absval(a_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1539,6 +1715,8 @@ contains
     call cuda_pwmax_vec2(a_d, b_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_pwmax_vec2(a_d, b_d, n, strm_)
+#elif HAVE_METAL
+    call metal_pwmax_vec2(a_d, b_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1566,6 +1744,8 @@ contains
     call cuda_pwmax_vec3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_pwmax_vec3(a_d, b_d, c_d, n, strm_)
+#elif HAVE_METAL
+    call metal_pwmax_vec3(a_d, b_d, c_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1595,6 +1775,8 @@ contains
     call cuda_pwmax_sca2(a_d, c, n, strm_)
 #elif HAVE_OPENCL
     call opencl_pwmax_sca2(a_d, c, n, strm_)
+#elif HAVE_METAL
+    call metal_pwmax_sca2(a_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1624,6 +1806,8 @@ contains
     call cuda_pwmax_sca3(a_d, b_d, c, n, strm_)
 #elif HAVE_OPENCL
     call opencl_pwmax_sca3(a_d, b_d, c, n, strm_)
+#elif HAVE_METAL
+    call metal_pwmax_sca3(a_d, b_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1655,6 +1839,8 @@ contains
     call cuda_pwmin_vec2(a_d, b_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_pwmin_vec2(a_d, b_d, n, strm_)
+#elif HAVE_METAL
+    call metal_pwmin_vec2(a_d, b_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1682,6 +1868,8 @@ contains
     call cuda_pwmin_vec3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_OPENCL
     call opencl_pwmin_vec3(a_d, b_d, c_d, n, strm_)
+#elif HAVE_METAL
+    call metal_pwmin_vec3(a_d, b_d, c_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1711,6 +1899,8 @@ contains
     call cuda_pwmin_sca2(a_d, c, n, strm_)
 #elif HAVE_OPENCL
     call opencl_pwmin_sca2(a_d, c, n, strm_)
+#elif HAVE_METAL
+    call metal_pwmin_sca2(a_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1740,6 +1930,8 @@ contains
     call cuda_pwmin_sca3(a_d, b_d, c, n, strm_)
 #elif HAVE_OPENCL
     call opencl_pwmin_sca3(a_d, b_d, c, n, strm_)
+#elif HAVE_METAL
+    call metal_pwmin_sca3(a_d, b_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1770,6 +1962,8 @@ contains
     call cuda_iadd(a_d, c, n, strm_)
 #elif HAVE_OPENCL
     call opencl_iadd(a_d, c, n, strm_)
+#elif HAVE_METAL
+    call metal_iadd(a_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif

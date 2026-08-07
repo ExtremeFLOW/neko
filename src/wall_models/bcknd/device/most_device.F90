@@ -13,7 +13,8 @@ module most_device
           ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
           n_x_d, n_y_d, n_z_d, h_d, &
           tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
-          kappa, mu_w_d, rho_w_d, g, Pr, z0, z0h_in, bc_type_int, bc_value, tstep, &
+          kappa, mu_w_d, rho_w_d, g, Pr, z0, z0h_in, bc_type_int, &
+          bc_value, tstep, &
           Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
           ts_diagn, q_diagn, h_x_idx, h_y_idx, h_z_idx) &
           bind(c, name = 'hip_most_compute')
@@ -40,7 +41,8 @@ module most_device
           ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
           n_x_d, n_y_d, n_z_d, h_d, &
           tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
-          kappa, mu_w_d, rho_w_d, g, Pr, z0, z0h_in, bc_type_int, bc_value, tstep, &
+          kappa, mu_w_d, rho_w_d, g, Pr, z0, z0h_in, bc_type_int, &
+          bc_value, tstep, &
           Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
           ts_diagn, q_diagn, h_x_idx, h_y_idx, h_z_idx) &
           bind(c, name = 'cuda_most_compute')
@@ -98,7 +100,8 @@ contains
     case ("dirichlet")
        bc_type_int = 1
     case default
-       call neko_error("Neumann/Dirichlet bc not specified correctly (most_device)")
+       call neko_error("Neumann/Dirichlet bc not specified correctly " // &
+            "(most_device)")
     end select
 
 #if HAVE_HIP

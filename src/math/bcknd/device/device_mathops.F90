@@ -193,6 +193,58 @@ module device_mathops
        integer(c_int) :: gdim, n
      end subroutine opencl_opadd2col
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_opchsign(a1_d, a2_d, a3_d, gdim, n) &
+          bind(c, name = 'metal_opchsign')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a1_d, a2_d, a3_d
+       integer(c_int) :: gdim, n
+     end subroutine metal_opchsign
+  end interface
+
+  interface
+     subroutine metal_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n) &
+          bind(c, name = 'metal_opcolv')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a1_d, a2_d, a3_d, c_d
+       integer(c_int) :: gdim, n
+     end subroutine metal_opcolv
+  end interface
+
+  interface
+     subroutine metal_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &
+          c_d, d, gdim, n) &
+          bind(c, name = 'metal_opcolv3c')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
+       real(c_rp) :: d
+       integer(c_int) :: gdim, n
+     end subroutine metal_opcolv3c
+  end interface
+
+  interface
+     subroutine metal_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &
+          c, gdim, n) &
+          bind(c, name = 'metal_opadd2cm')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d
+       real(c_rp) :: c
+       integer(c_int) :: gdim, n
+     end subroutine metal_opadd2cm
+  end interface
+
+  interface
+     subroutine metal_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &
+          c_d, gdim, n) &
+          bind(c, name = 'metal_opadd2col')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
+       integer(c_int) :: gdim, n
+     end subroutine metal_opadd2col
+  end interface
 #endif
 
   public :: device_opchsign, device_opcolv, device_opcolv3c, &
@@ -210,6 +262,8 @@ contains
     call cuda_opchsign(a1_d, a2_d, a3_d, gdim, n)
 #elif HAVE_OPENCL
     call opencl_opchsign(a1_d, a2_d, a3_d, gdim, n)
+#elif HAVE_METAL
+    call metal_opchsign(a1_d, a2_d, a3_d, gdim, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -225,6 +279,8 @@ contains
     call cuda_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n)
 #elif HAVE_OPENCL
     call opencl_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n)
+#elif HAVE_METAL
+    call metal_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -242,6 +298,8 @@ contains
     call cuda_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n)
 #elif HAVE_OPENCL
     call opencl_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n)
+#elif HAVE_METAL
+    call metal_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -258,6 +316,8 @@ contains
     call cuda_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n)
 #elif HAVE_OPENCL
     call opencl_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n)
+#elif HAVE_METAL
+    call metal_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -273,6 +333,8 @@ contains
     call cuda_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n)
 #elif HAVE_OPENCL
     call opencl_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n)
+#elif HAVE_METAL
+    call metal_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n)
 #else
     call neko_error('No device backend configured')
 #endif

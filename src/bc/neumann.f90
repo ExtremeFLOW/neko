@@ -330,6 +330,18 @@ contains
   !> Destructor
   subroutine neumann_free(this)
     class(neumann_t), target, intent(inout) :: this
+    integer :: i
+
+    if (allocated(this%flux)) then
+       do i = 1, size(this%flux)
+          call this%flux(i)%free()
+       end do
+       deallocate(this%flux)
+    end if
+
+    if (allocated(this%init_flux_)) then
+       deallocate(this%init_flux_)
+    end if
 
     call this%free_base()
 

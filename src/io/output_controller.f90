@@ -232,6 +232,7 @@ contains
     real(kind=dp) :: sample_start_time, sample_end_time
     real(kind=dp) :: sample_time
     character(len=LOG_SIZE) :: log_buf
+    character(len=1024) :: output_fname
     integer :: i, ierr
     logical :: force, write_output, write_output_test
 
@@ -273,8 +274,10 @@ contains
     type is (output_controller_t)
        do i = 1, this%n
           if (this%controllers(i)%check(time, force)) then
-             call neko_log%message('File name     : '// &
-                  trim(samp%output_list(i)%ptr%file_%file_type%get_fname()))
+             output_fname = &
+                  samp%output_list(i)%ptr%file_%file_type% &
+                  get_next_output_fname()
+             call neko_log%message('File name     : '//trim(output_fname))
 
              write(log_buf, '(A,I6)') 'Output number :', &
                   int(this%controllers(i)%nexecutions)

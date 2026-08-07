@@ -30,7 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements [cai_sagaut_model_ii_t](#cai_sagaut_model_ii::cai_sagaut_model_ii_t).
+!> Implements
+!! [cai_sagaut_model_ii_t](#cai_sagaut_model_ii::cai_sagaut_model_ii_t).
 module cai_sagaut_model_ii
   use field, only : field_t
   use num_types, only : rp
@@ -236,5 +237,8 @@ contains
             this%tau_y%x, this%tau_z%x, this%n_nodes, u%Xh%lx, u%msh%nelv, &
             this%kappa, this%B, this%p, this%s)
     end if
+
+    nullify(u, v, w)
+
   end subroutine cai_sagaut_model_ii_compute
 end module cai_sagaut_model_ii

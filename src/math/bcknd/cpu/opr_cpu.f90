@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -173,9 +173,7 @@ contains
 
     call opcolv(w1, w2, w3, c_Xh%B, gdim, n)
     if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 1, c_Xh)
-    call c_Xh%gs_h%op(w1, n, GS_OP_ADD)
-    call c_Xh%gs_h%op(w2, n, GS_OP_ADD)
-    call c_Xh%gs_h%op(w3, n, GS_OP_ADD)
+    call c_Xh%gs_h%op(w1, w2, w3, n, GS_OP_ADD)
     if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 0, c_Xh)
     call opcolv(w1, w2, w3, c_Xh%Binv, gdim, n)
 
@@ -264,6 +262,9 @@ contains
     real(kind=xp) :: a11, a22, a33, a12, a13, a23
     real(kind=xp) :: msk1, msk2, msk3
 
+    !$omp parallel do private(e, i, grad, eigen, B, C, D, q, r, theta, l2, &
+    !$omp& s11, s22, s33, s12, s13, s23, o12, o13, o23, &
+    !$omp& a11, a22, a33, a12, a13, a23, msk1, msk2, msk3)
     do e = 1, coef%msh%nelv
        call opr_cpu_opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &
             u(1,1,1,e), coef,e,e)
@@ -325,6 +326,7 @@ contains
           lambda2(i, 1, 1, e) = l2 / real(coef%B(i, 1, 1, e)**2, xp)
        end do
     end do
+    !$omp end parallel do
 
   end subroutine opr_cpu_lambda2
 

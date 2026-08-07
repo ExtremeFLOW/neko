@@ -114,7 +114,7 @@ def test_scalar_stats(launcher_script, request, log_file, tmp_path):
     #
 
 
-    csv = np.genfromtxt(join("tests", "test_scalar_stats", "scalar_stats0.csv"),
+    csv = np.genfromtxt(join("tests", "test_scalar_stats", "scalar_stats_s0.csv"),
                         delimiter=",")[12, 2:]
 
     quants = ["<s>", "<us>", "<vs>", "<ws>", "<s^2>"]
@@ -168,5 +168,3 @@ def test_scalar_stats(launcher_script, request, log_file, tmp_path):
 #            (val - correct[i]) / correct[i] < 1e-2
 #        ), f"Value for {key} is {val}, should be {correct[i]}, \
 #             error exceeded tolerance: {(val - correct[i]) / correct[i]}"
-
-

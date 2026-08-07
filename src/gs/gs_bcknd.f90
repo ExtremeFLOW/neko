@@ -45,6 +45,9 @@ module gs_bcknd
      type(c_ptr) :: gather_event = C_NULL_PTR
      type(c_ptr) :: scatter_event = C_NULL_PTR
      type(c_ptr) :: gs_stream = C_NULL_PTR
+     !> Shared points are handled on the host (device backends only; kept
+     !! in the base type so it can be set without a select type)
+     logical :: shared_on_host = .true.
    contains
      procedure(gs_backend_init), pass(this), deferred :: init
      procedure(gs_backend_free), pass(this), deferred :: free
