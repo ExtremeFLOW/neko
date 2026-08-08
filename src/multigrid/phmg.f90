@@ -109,7 +109,7 @@ module phmg
      !> Whether a refresh also re-estimates the Chebyshev eigenvalues.
      logical :: refresh_eigs = .true.
      !> Re-estimate eigenvalues only every N-th refresh.
-     integer :: refresh_eigs_frequency = 1
+     integer :: refresh_eigs_frequency = 20
      !> Restart eigenvalue estimation from the previous eigenvector.
      logical :: eigs_warm_start = .true.
      !> Power iterations used for warm-started re-estimations
@@ -171,7 +171,7 @@ contains
     call json_get_or_default(phmg_params, 'update.eigs.enabled', &
          this%refresh_eigs, .true.)
     call json_get_or_default(phmg_params, 'update.eigs.frequency', &
-         this%refresh_eigs_frequency, 1)
+         this%refresh_eigs_frequency, 20)
     call json_get_or_default(phmg_params, 'update.eigs.warm_start', &
          this%eigs_warm_start, .true.)
     call json_get_or_default(phmg_params, 'update.eigs.warm_start_iterations', &
