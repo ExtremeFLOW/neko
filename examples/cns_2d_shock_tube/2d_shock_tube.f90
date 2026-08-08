@@ -35,15 +35,27 @@ module user
   use neko
   implicit none
 
+  real(kind=rp) :: Re, gamma, Pr
+
 contains
 
   !> Register user callbacks for the shock-tube example.
   !! @param user User interface object.
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
+    user%startup => startup
     user%initial_conditions => initial_conditions
     user%material_properties => material_properties
   end subroutine user_setup
+
+  subroutine startup(params)
+    type(json_file), intent(inout) :: params
+
+    call json_get(params, 'case.fluid.Re', Re)
+    call json_get(params, 'case.fluid.gamma', gamma)
+    call json_get(params, 'case.fluid.Pr', Pr)
+
+  end subroutine startup
 
   !> Set the Riemann initial condition with the diaphragm at x = 0.5.
   !! @param scheme_name Name of the fluid scheme.
@@ -54,9 +66,7 @@ contains
 
     type(field_t), pointer :: rho, u, v, w, p
     integer :: i
-    real(kind=rp) :: x, gamma
-
-    gamma = 1.4_rp
+    real(kind=rp) :: x
 
     rho => fields%get_by_name("fluid_rho")
     u => fields%get_by_name("u")
@@ -92,25 +102,23 @@ contains
 
     type(field_t), pointer :: mu, kappa
     integer :: i
-    real(kind=rp) :: Re, Prandtl_number, gamma
+
+    ! Only set material properties at the first time step
+    if (time%tstep .ne. 0) return
 
     !! Either this or we can also just add mu and kappa to
     !! the json file under case.fluid
     !!     "mu": 0.001,
     !!     "kappa": 0.001917808219178082,
-
-    Re = 1000.0_rp
-    Prandtl_number = 0.73_rp
-    gamma = 1.4_rp
-
     if (scheme_name .eq. "fluid") then
        mu => properties%get_by_name("fluid_mu")
        kappa => properties%get_by_name("fluid_kappa")
 
-       do i = 1, mu%dof%size()
-          mu%x(i, 1, 1, 1) = 1.0_rp / Re
-          kappa%x(i, 1, 1, 1) = mu%x(i, 1, 1, 1) * gamma / Prandtl_number
-       end do
+       call field_cfill(mu, 1.0_rp / Re)
+
+       ! kappa = mu * gamma / Pr
+       call field_cmult2(kappa, mu, gamma / Pr)
+
     end if
   end subroutine material_properties
 
