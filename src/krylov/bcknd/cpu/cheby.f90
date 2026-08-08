@@ -164,12 +164,12 @@ contains
          its = this%power_its
 
          ! Save current random seed and set a fixed seed
-         call random_seed( size=rnd_n )
+         call random_seed(size = rnd_n)
          allocate(saved_seed(rnd_n))
          allocate(fixed_seed(rnd_n))
          fixed_seed = 3901
-         call random_seed( get=saved_seed )
-         call random_seed( put=fixed_seed )
+         call random_seed(get = saved_seed)
+         call random_seed(put = fixed_seed)
 
          do i = 1, n
             call random_number(rn)
@@ -177,13 +177,13 @@ contains
          end do
 
          ! Restore saved random seed
-         call random_seed( put=saved_seed )
+         call random_seed(put = saved_seed)
 
          call gs_h%op(d, n, GS_OP_ADD)
          call blst%apply(d, n)
       end if
 
-      !Power method to get lamba max
+      !Power method to get lambda max
       do i = 1, its
          call ax%compute(w, d, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
