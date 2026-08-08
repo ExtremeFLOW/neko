@@ -35,9 +35,8 @@ module cheby_device
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
-  use num_types, only : rp, c_rp, dp
-  use mpi_f08, only : MPI_Wtime
-  use logger, only : neko_log, LOG_SIZE
+  use num_types, only : rp, c_rp
+  use profiler, only : profiler_start_region, profiler_end_region
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
@@ -294,13 +293,11 @@ contains
     real(kind=rp) :: boost = 1.1_rp
     real(kind=rp) :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
-    real(kind=dp) :: t_start, t_end
     integer, allocatable :: fixed_seed(:), saved_seed(:)
     integer :: i, rnd_n, its
     logical :: warm
-    character(len=LOG_SIZE) :: log_buf
 
-    t_start = MPI_Wtime()
+    call profiler_start_region('cheby_power')
     warm = this%warm_start_eigs .and. this%eigs_computed .and. &
          c_associated(this%ev_d)
     associate(w => this%w, w_d => this%w_d, d => this%d, d_d => this%d_d)
@@ -379,12 +376,8 @@ contains
       this%eigs_computed = .true.
 
       this%recompute_eigs = .false.
-      t_end = MPI_Wtime()
-      write(log_buf, '(A,F12.3,A2,I4,A7,ES10.3,A2)') &
-           'Cheby (phmg) max eig', lam, ' (', its, ' its, ', &
-           t_end - t_start, 's)'
-      call neko_log%message(log_buf)
     end associate
+    call profiler_end_region('cheby_power')
   end subroutine cheby_device_power
 
   !> A chebyshev preconditioner

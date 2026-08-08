@@ -34,8 +34,7 @@
 module tree_amg_smoother
   use tree_amg, only : tamg_hierarchy_t
   use tree_amg_utils, only : tamg_sample_matrix_val
-  use num_types, only : rp, dp
-  use mpi_f08, only : MPI_Wtime
+  use num_types, only : rp
   use math, only : col2, add2, add2s2, glsc2, glsc3, sub2, cmult, &
        cmult2, copy, add3s2
   use device_math, only : device_glsc2, device_glsc3, device_rzero, &
@@ -45,6 +44,7 @@ module tree_amg_smoother
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
+  use profiler, only : profiler_start_region, profiler_end_region
   use device, only: device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   use device_tree_amg_smoother, only : amg_device_cheby_solve_part1, &
        amg_device_cheby_solve_part2
@@ -174,12 +174,11 @@ contains
     real(kind=rp), parameter :: boost = 1.1_rp
     real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
-    real(kind=dp) :: t_start, t_end
     integer, allocatable :: fixed_seed(:), saved_seed(:)
     integer :: i, rnd_n, its
     logical :: warm
 
-    t_start = MPI_Wtime()
+    call profiler_start_region('AMG_cheby_power')
     warm = this%warm_start_eigs .and. this%eigs_computed .and. &
          allocated(this%ev)
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
@@ -249,9 +248,9 @@ contains
       this%eigs_computed = .true.
 
       this%recompute_eigs = .false.
-      t_end = MPI_Wtime()
-      call amg_cheby_monitor(this%lvl, lam, its, t_end - t_start)
+      call amg_cheby_monitor(this%lvl, lam)
     end associate
+    call profiler_end_region('AMG_cheby_power')
   end subroutine amg_cheby_power
 
   !> Chebyshev smoother
@@ -344,12 +343,11 @@ contains
     real(kind=rp), parameter :: boost = 1.1_rp
     real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
-    real(kind=dp) :: t_start, t_end
     integer, allocatable :: fixed_seed(:), saved_seed(:)
     integer :: i, rnd_n, its
     logical :: warm
 
-    t_start = MPI_Wtime()
+    call profiler_start_region('AMG_cheby_power')
     warm = this%warm_start_eigs .and. this%eigs_computed .and. &
          c_associated(this%ev_d)
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
@@ -420,9 +418,9 @@ contains
       this%eigs_computed = .true.
 
       this%recompute_eigs = .false.
-      t_end = MPI_Wtime()
-      call amg_cheby_monitor(this%lvl, lam, its, t_end - t_start)
+      call amg_cheby_monitor(this%lvl, lam)
     end associate
+    call profiler_end_region('AMG_cheby_power')
   end subroutine amg_device_cheby_power
 
   !> Chebyshev smoother
@@ -606,15 +604,13 @@ contains
     call neko_log%message(log_buf)
   end subroutine amg_smoo_monitor
 
-  subroutine amg_cheby_monitor(lvl, lam, its, elapsed)
-    integer, intent(in) :: lvl, its
+  subroutine amg_cheby_monitor(lvl, lam)
+    integer, intent(in) :: lvl
     real(kind=rp), intent(in) :: lam
-    real(kind=dp), intent(in) :: elapsed
     character(len=LOG_SIZE) :: log_buf
 
-    write(log_buf, '(A12,I2,A16,F12.3,A2,I4,A7,ES10.3,A2)') &
-         '-- AMG level', lvl, '-- max eig', lam, ' (', its, ' its, ', &
-         elapsed, 's)'
+    write(log_buf, '(A12,I2,A29,F12.3)') '-- AMG level', lvl, &
+         '-- Chebyshev approx. max eig', lam
     call neko_log%message(log_buf)
   end subroutine amg_cheby_monitor
 
