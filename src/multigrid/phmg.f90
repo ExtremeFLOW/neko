@@ -32,8 +32,7 @@
 !
 !> Hybrid ph-multigrid preconditioner
 module phmg
-  use num_types, only : rp, dp
-  use mpi_f08, only : MPI_Wtime
+  use num_types, only : rp
   use precon, only : pc_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use space, only : space_t, GLL
@@ -57,7 +56,7 @@ module phmg
   use json_utils, only : json_get_or_default, json_get
   use math, only : copy, col2, add2, add2s2, add2s1
   use device, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue, &
-       glb_cmd_event, device_sync
+       glb_cmd_event
   use device_math, only : device_rzero, device_copy, device_add2, &
        device_add2s2, device_invcol2, device_glsc2, device_col2, device_add2s1
   use neko_config, only: NEKO_BCKND_DEVICE
@@ -116,7 +115,9 @@ module phmg
      !> Power iterations used for warm-started re-estimations
      integer :: power_its_refresh = 20
      !> Refreshes done so far, for refresh_eigs_frequency
-     integer :: n_geom_refresh = 0
+     integer :: n_refresh = 0
+     !> Which accelerator the Chebyshev smoother uses
+     character(len=:), allocatable :: cheby_acc
    contains
      procedure, pass(this) :: init => phmg_init
      procedure, pass(this) :: init_from_components => &
@@ -203,6 +204,7 @@ contains
     use_cheby = .true.
 
     this%msh => coef%msh
+    this%cheby_acc = trim(cheby_acc)
 
     if (present(update_enabled)) then
        this%update_enabled = update_enabled
@@ -493,14 +495,11 @@ contains
 
   end subroutine phmg_solve
 
-  !> Bring the coarse levels back in sync after the mesh has changed.
-  !! Leaves level 0 untouched.
+  !> Bring the preconditioner back in sync after the mesh has changed.
   subroutine phmg_update(this)
     class(phmg_t), intent(inout) :: this
-    integer :: i, fine_version
-    real(kind=dp) :: t_start, t_geom, t_jac
+    integer :: fine_version
     logical :: do_eigs
-    character(len=LOG_SIZE) :: log_buf
 
     if (.not. this%update_enabled) return
 
@@ -509,17 +508,36 @@ contains
     ! Mesh has not changed since the last refresh.
     if (fine_version .eq. this%last_metrics_version) return
 
+    call phmg_update_coarse_geometry(this)
+
+    call phmg_update_smoother_acc(this)
+
+    do_eigs = (this%refresh_eigs) .and. &
+         (this%refresh_eigs_frequency .gt. 0) .and. &
+         (mod(this%n_refresh, max(this%refresh_eigs_frequency, 1)) &
+         .eq. 0)
+    if (do_eigs) call phmg_update_smoother_eigs(this)
+
+    this%n_refresh = this%n_refresh + 1
+    this%last_metrics_version = fine_version
+
+  end subroutine phmg_update
+
+
+  !> Sample the new fine coordinates on the coarse levels and rebuild their
+  !! metrics. Level 0 shares the caller's dofmap and coef, so it is skipped.
+  subroutine phmg_update_coarse_geometry(this)
+    class(phmg_t), intent(inout) :: this
+    integer :: i
+
     if (.not. allocated(this%crd_intrp)) then
        call neko_error("PHMG: update requested but coordinate " // &
             "interpolators were not initialized.")
     end if
 
-    t_start = MPI_Wtime()
-
+    call profiler_start_region('PHMG_update_geometry')
     associate (mg => this%phmg_hrchy%lvl, nelv => this%msh%nelv)
-
       do i = 1, this%nlvls - 1
-         ! Sample the new fine coordinates at this level's nodes.
          call this%crd_intrp(i)%map(mg(i)%dm_Xh%x, mg(0)%dm_Xh%x, &
               nelv, mg(i)%Xh)
          call this%crd_intrp(i)%map(mg(i)%dm_Xh%y, mg(0)%dm_Xh%y, &
@@ -529,51 +547,59 @@ contains
 
          call mg(i)%coef%recompute_metrics()
       end do
+    end associate
+    call profiler_end_region('PHMG_update_geometry')
 
-      if (NEKO_BCKND_DEVICE .eq. 1) call device_sync()
-      t_geom = MPI_Wtime()
+  end subroutine phmg_update_coarse_geometry
 
-      ! Jacobi diagonals depend on geometry, level 0 included.
-      do i = 0, this%nlvls - 1
-         if (NEKO_BCKND_DEVICE .eq. 1) then
-            call mg(i)%device_jacobi%update()
-         else
-            call mg(i)%jacobi%update()
-         end if
-      end do
 
-      if (NEKO_BCKND_DEVICE .eq. 1) call device_sync()
-      t_jac = MPI_Wtime()
+  !> Rebuild the accelerator the Chebyshev smoother uses, which depends on
+  !! the geometry.
+  subroutine phmg_update_smoother_acc(this)
+    class(phmg_t), intent(inout) :: this
+    integer :: i
 
-      do_eigs = (this%refresh_eigs) .and. &
-           (this%refresh_eigs_frequency .gt. 0) .and. &
-           (mod(this%n_geom_refresh, max(this%refresh_eigs_frequency, 1)) &
-           .eq. 0)
-      if (do_eigs) then
+    call profiler_start_region('PHMG_update_smoother_acc')
+    associate (mg => this%phmg_hrchy%lvl)
+      select case (trim(this%cheby_acc))
+      case ("jacobi")
          do i = 0, this%nlvls - 1
             if (NEKO_BCKND_DEVICE .eq. 1) then
-               mg(i)%cheby_device%recompute_eigs = .true.
+               call mg(i)%device_jacobi%update()
             else
-               mg(i)%cheby%recompute_eigs = .true.
+               call mg(i)%jacobi%update()
             end if
          end do
-      end if
+      case ("schwarz")
+         ! Not refreshed. The local solves are built by the FDM from the
+         ! element coordinates, and fdm_t has no update path.
+      case default
+         ! No accelerator to refresh.
+      end select
+    end associate
+    call profiler_end_region('PHMG_update_smoother_acc')
 
+  end subroutine phmg_update_smoother_acc
+
+
+  !> Mark every smoother to re-estimate its eigenvalues on the next solve.
+  subroutine phmg_update_smoother_eigs(this)
+    class(phmg_t), intent(inout) :: this
+    integer :: i
+
+    associate (mg => this%phmg_hrchy%lvl)
+      do i = 0, this%nlvls - 1
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            mg(i)%cheby_device%recompute_eigs = .true.
+         else
+            mg(i)%cheby%recompute_eigs = .true.
+         end if
+      end do
     end associate
 
-    if (do_eigs) then
-       call this%amg_solver%invalidate_eigs()
-    end if
+    call this%amg_solver%invalidate_eigs()
 
-    this%n_geom_refresh = this%n_geom_refresh + 1
-    this%last_metrics_version = fine_version
-
-    write(log_buf, '(A,ES10.3,A,ES10.3,A,L1)') &
-         'PHMG mesh refresh: geom ', t_geom - t_start, &
-         ' s, jacobi ', t_jac - t_geom, ' s, eigs invalidated: ', do_eigs
-    call neko_log%message(log_buf)
-
-  end subroutine phmg_update
+  end subroutine phmg_update_smoother_eigs
 
 
   subroutine phmg_mg_cycle(this)
