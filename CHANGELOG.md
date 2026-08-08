@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Added `phmg_update` to propagate mesh change to coarse level grids.
 - Fixed stale accumulator in the SX gather-scatter backend (min/max/mul).
 - *BREAKING* Renamed the allocation-only `precon_factory` API to
   `precon_allocator`. Added runtime registration of user-defined
