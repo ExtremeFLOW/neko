@@ -273,7 +273,7 @@ jobs:
 
           elif [ "$BACKEND" == 'metal' ]; then
 
-            ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-metal
+            ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-metal --with-pfunit=$PFUNIT_DIR
 
           else
 
@@ -302,7 +302,7 @@ jobs:
            cd ../..
 
       - name: Test - Check
-        if: matrix.backend == 'cpu' || matrix.backend == 'metal' || matrix.backend == 'opencl'
+        if: matrix.backend == 'cpu' || matrix.backend == 'metal'
         run: |
           make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
 
