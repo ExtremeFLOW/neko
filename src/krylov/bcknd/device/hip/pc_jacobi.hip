@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,8 @@
 */
 
 #include <hip/hip_runtime.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <device/hip/check.h>
 #include <device/device_config.h>
 
@@ -103,12 +105,12 @@ __global__ void jacobi_kernel(T * __restrict__ du,
 }
 
 extern "C" {
-  void hip_jacobi_update(void *d, 
+  void hip_jacobi_update(void *d,
 			 void *dxt, void *dyt, void *dzt,
 			 void *G11, void *G22, void *G33,
 			 void *G12, void *G13, void *G23,
 			 int *nel, int *lxp) {
-    
+
     const int lx = *lxp;
     const int threads = 1024;
     const int blocks = ((*nel * lx*lx*lx) + threads - 1) / threads;
@@ -142,7 +144,10 @@ extern "C" {
     CASE(15);
     CASE(16);
     default:
-      fprintf(stderr, __FILE__ ": size not supported: %d\n", lx);
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", lx);
+        exit(1);
+      }
     }
 
     HIP_CHECK(hipGetLastError());
