@@ -222,7 +222,7 @@ jobs:
 
       - name: Dependencies - Get pFunit
         id: get-pfunit
-        if: matrix.backend == 'cpu'
+        if: matrix.backend == 'cpu' || matrix.backedn == 'metal'
         uses: ./.github/actions/setup_pfunit
         with:
           version: ${{ steps.setup-deps.outputs.pfunit-version }}
