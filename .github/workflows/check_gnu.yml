@@ -302,7 +302,7 @@ jobs:
            cd ../..
 
       - name: Test - Check
-        if: matrix.backend == 'cpu'
+        if: matrix.backend == 'cpu' || matrix.backend == 'metal'
         run: |
           make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
 
