@@ -404,6 +404,22 @@ __global__ void cfill_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for copy
+ */
+template< typename T >
+__global__ void copy_kernel(T * __restrict__ a,
+                            const T * __restrict__ b,
+                            const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = b[i];
+  }
+}
+
+/**
  * Device kernel for add2
  */
 template< typename T >

@@ -559,9 +559,10 @@ kernel void glsc3_kernel(device const float *a[[ buffer(0) ]],
                          uint tg_id [[ threadgroup_position_in_grid ]],
                          uint tg_size [[ threads_per_threadgroup ]],
                          uint simd_lane [[ thread_index_in_simdgroup ]],
-                         uint simd_id [[ simdgroup_index_in_threadgroup ]]) {
+                         uint simd_id [[ simdgroup_index_in_threadgroup ]],
+                         uint num_tg [[ threadgroups_per_grid ]]) {
     float sum = 0.0f;
-    for (uint i = gid; i < (uint)n; i += tg_size * ((uint)n + tg_size - 1) / tg_size) {
+    for (uint i = gid; i < (uint)n; i += tg_size * num_tg) {
         sum += a[i] * b[i] * c[i];
     }
 
@@ -619,9 +620,10 @@ kernel void glsc2_kernel(device const float *a[[ buffer(0) ]],
                          uint tg_id [[ threadgroup_position_in_grid ]],
                          uint tg_size [[ threads_per_threadgroup ]],
                          uint simd_lane [[ thread_index_in_simdgroup ]],
-                         uint simd_id [[ simdgroup_index_in_threadgroup ]]) {
+                         uint simd_id [[ simdgroup_index_in_threadgroup ]],
+                         uint num_tg [[ threadgroups_per_grid ]]) {
     float sum = 0.0f;
-    for (uint i = gid; i < (uint)n; i += tg_size * ((uint)n + tg_size - 1) / tg_size) {
+    for (uint i = gid; i < (uint)n; i += tg_size * num_tg) {
         sum += a[i] * b[i];
     }
 
@@ -648,9 +650,10 @@ kernel void glsubnorm2_kernel(device const float *a[[ buffer(0) ]],
                               uint tg_id [[ threadgroup_position_in_grid ]],
                               uint tg_size [[ threads_per_threadgroup ]],
                               uint simd_lane [[ thread_index_in_simdgroup ]],
-                              uint simd_id [[ simdgroup_index_in_threadgroup ]]) {
+                              uint simd_id [[ simdgroup_index_in_threadgroup ]],
+                              uint num_tg [[ threadgroups_per_grid ]]) {
     float sum = 0.0f;
-    for (uint i = gid; i < (uint)n; i += tg_size * ((uint)n + tg_size - 1) / tg_size) {
+    for (uint i = gid; i < (uint)n; i += tg_size * num_tg) {
         float d = a[i] - b[i];
         sum += d * d;
     }
@@ -677,9 +680,10 @@ kernel void glsum_kernel(device const float *a[[ buffer(0) ]],
                          uint tg_id [[ threadgroup_position_in_grid ]],
                          uint tg_size [[ threads_per_threadgroup ]],
                          uint simd_lane [[ thread_index_in_simdgroup ]],
-                         uint simd_id [[ simdgroup_index_in_threadgroup ]]) {
+                         uint simd_id [[ simdgroup_index_in_threadgroup ]],
+                         uint num_tg [[ threadgroups_per_grid ]]) {
     float sum = 0.0f;
-    for (uint i = gid; i < (uint)n; i += tg_size * ((uint)n + tg_size - 1) / tg_size) {
+    for (uint i = gid; i < (uint)n; i += tg_size * num_tg) {
         sum += a[i];
     }
 
@@ -705,9 +709,10 @@ kernel void glmax_kernel(device const float *a[[ buffer(0) ]],
                          uint tg_id [[ threadgroup_position_in_grid ]],
                          uint tg_size [[ threads_per_threadgroup ]],
                          uint simd_lane [[ thread_index_in_simdgroup ]],
-                         uint simd_id [[ simdgroup_index_in_threadgroup ]]) {
+                         uint simd_id [[ simdgroup_index_in_threadgroup ]],
+                         uint num_tg [[ threadgroups_per_grid ]]) {
     float val = -HUGE_VALF;
-    for (uint i = gid; i < (uint)n; i += tg_size * ((uint)n + tg_size - 1) / tg_size) {
+    for (uint i = gid; i < (uint)n; i += tg_size * num_tg) {
         val = max(val, a[i]);
     }
 
@@ -733,9 +738,10 @@ kernel void glmin_kernel(device const float *a[[ buffer(0) ]],
                          uint tg_id [[ threadgroup_position_in_grid ]],
                          uint tg_size [[ threads_per_threadgroup ]],
                          uint simd_lane [[ thread_index_in_simdgroup ]],
-                         uint simd_id [[ simdgroup_index_in_threadgroup ]]) {
+                         uint simd_id [[ simdgroup_index_in_threadgroup ]],
+                         uint num_tg [[ threadgroups_per_grid ]]) {
     float val = HUGE_VALF;
-    for (uint i = gid; i < (uint)n; i += tg_size * ((uint)n + tg_size - 1) / tg_size) {
+    for (uint i = gid; i < (uint)n; i += tg_size * num_tg) {
         val = min(val, a[i]);
     }
 
@@ -761,7 +767,12 @@ kernel void reduce_kernel(device float *buf[[ buffer(0) ]],
                           uint tg_size [[ threads_per_threadgroup ]],
                           uint simd_lane [[ thread_index_in_simdgroup ]],
                           uint simd_id [[ simdgroup_index_in_threadgroup ]]) {
-    float sum = (gid < (uint)n) ? buf[gid] : 0.0f;
+    /* Grid-stride: nblocks may exceed the single threadgroup's thread
+       count, and every partial sum must still be folded in. */
+    float sum = 0.0f;
+    for (uint i = gid; i < (uint)n; i += tg_size) {
+        sum += buf[i];
+    }
     sum = simd_sum(sum);
 
     threadgroup float shared[32];
@@ -783,7 +794,10 @@ kernel void reduce_max_kernel(device float *buf[[ buffer(0) ]],
                               uint tg_size [[ threads_per_threadgroup ]],
                               uint simd_lane [[ thread_index_in_simdgroup ]],
                               uint simd_id [[ simdgroup_index_in_threadgroup ]]) {
-    float val = (gid < (uint)n) ? buf[gid] : -HUGE_VALF;
+    float val = -HUGE_VALF;
+    for (uint i = gid; i < (uint)n; i += tg_size) {
+        val = max(val, buf[i]);
+    }
     val = simd_max(val);
 
     threadgroup float shared[32];
@@ -805,7 +819,10 @@ kernel void reduce_min_kernel(device float *buf[[ buffer(0) ]],
                               uint tg_size [[ threads_per_threadgroup ]],
                               uint simd_lane [[ thread_index_in_simdgroup ]],
                               uint simd_id [[ simdgroup_index_in_threadgroup ]]) {
-    float val = (gid < (uint)n) ? buf[gid] : HUGE_VALF;
+    float val = HUGE_VALF;
+    for (uint i = gid; i < (uint)n; i += tg_size) {
+        val = min(val, buf[i]);
+    }
     val = simd_min(val);
 
     threadgroup float shared[32];

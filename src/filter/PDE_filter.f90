@@ -41,7 +41,7 @@ module PDE_filter
   use coefs, only : coef_t
   use ax_product, only : ax_t, ax_helm_factory
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
-  use precon, only : pc_t, precon_factory, precon_destroy
+  use precon, only : pc_t, precon_allocator, precon_destroy
   use bc_list, only : bc_list_t
   use scalar_bc_resolver, only : scalar_bc_resolver_t
   use neumann, only : neumann_t
@@ -304,7 +304,7 @@ contains
     type(scalar_bc_resolver_t), target, intent(inout) :: bc_resolver
     character(len=*) :: pctype
 
-    call precon_factory(pc, pctype)
+    call precon_allocator(pc, pctype)
 
     select type (pcp => pc)
     type is (jacobi_t)

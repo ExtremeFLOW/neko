@@ -4,6 +4,19 @@
 
 - *BREAKING*, normal_outflow conditions now require specifying `value`, which
   is used to set the value of the tangential components of velocity.
+- Added integration test for ALE (test_ale).
+- Updated simulation_components documentation to mirror the latest codebase.
+- Fixed stale accumulator in the SX gather-scatter backend (min/max/mul).
+- *BREAKING* Renamed the allocation-only `precon_factory` API to
+  `precon_allocator`. Added runtime registration of user-defined
+  preconditioner and Krylov solver types.
+- Added opt-in zero-copy unified memory mapping for the HIP backend on AMD
+  MI300A APUs: with `NEKO_HIP_ZEROCOPY=1` (and `HSA_XNACK=1`), mapped arrays
+  alias their host allocation instead of being replicated on the device,
+  roughly halving the memory footprint of mapped data. Off by default
+  (currently slower per step than replicated buffers on MI300A); discrete GPUs
+  always use replicated buffers.
+- Added `only_facets = .true.` to `bc%finalize` in force_torque.
 - Removed the hardcoded `CUDA_ARCH="-arch sm_60"` fallback used for
   `--enable-device-mpi` CUDA builds, which CUDA >= 13 toolkits can no longer
   compile (Pascal support was dropped). `configure` now requires `CUDA_ARCH`

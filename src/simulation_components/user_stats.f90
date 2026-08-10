@@ -250,8 +250,6 @@ contains
     type(coef_t), intent(inout) :: coef
     integer :: i
     type(field_t), pointer :: field_to_avg
-    character(len=NEKO_FNAME_LEN) :: stats_fname
-
     character(len=1024) :: unique_name
     unique_name = name // "/"
 
@@ -261,9 +259,7 @@ contains
 
     if (present(filename)) then
        this%default_fname = .false.
-       stats_fname = filename
     else
-       stats_fname = "user_stats0"
        this%default_fname = .true.
     end if
 
@@ -276,7 +272,8 @@ contains
     end do
 
     call this%output%init(this%mean_fields, this%n_avg_fields, &
-         this%start_time, coef, avg_dir, name = filename)
+         this%start_time, coef, avg_dir, name = filename, &
+         path = this%case%output_directory)
     call this%case%output_controller%add(this%output, &
          this%output_controller%control_value, &
          this%output_controller%control_mode)
