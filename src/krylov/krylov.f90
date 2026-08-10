@@ -151,7 +151,7 @@ module krylov
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(in) :: f
        type(coef_t), intent(inout) :: coef
-       type(scalar_bc_resolver_t), intent(inout) :: bc_resolver
+       class(scalar_bc_resolver_t), intent(inout) :: bc_resolver
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t) :: ksp_results

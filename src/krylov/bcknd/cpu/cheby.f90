@@ -129,7 +129,7 @@ contains
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     type(coef_t), intent(inout) :: coef
-    type(scalar_bc_resolver_t), intent(inout) :: bc_resolver
+    class(scalar_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp) :: lam, b, a, rn
     real(kind=rp) :: boost = 1.1_rp
@@ -208,7 +208,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(scalar_bc_resolver_t), intent(inout) :: bc_resolver
+    class(scalar_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -291,7 +291,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(scalar_bc_resolver_t), intent(inout) :: bc_resolver
+    class(scalar_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
