@@ -35,15 +35,15 @@ module expression_dirichlet
   use num_types, only : rp
   use bc, only : bc_t
   use coefs, only : coef_t
-  use expression, only : expression_t
+  use expression, only : expression_t, expression_check_finite
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   use device_inhom_dirichlet, only : device_inhom_dirichlet_apply_scalar
   use json_module, only : json_file
   use json_utils, only : json_get
   use time_state, only : time_state_t
   use utils, only : neko_error
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -119,6 +119,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     character(len=*), intent(in) :: str
 
+    call this%free()
     call this%init_base(coef)
 
     if (len_trim(str) .eq. 0) then
@@ -137,12 +138,16 @@ contains
     call this%free_base()
     call this%expr%free()
 
-    if (allocated(this%g)) deallocate(this%g)
+    if (allocated(this%g)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%g, this%g_d)
+       end if
+       deallocate(this%g)
+    end if
+
     if (allocated(this%xm)) deallocate(this%xm)
     if (allocated(this%ym)) deallocate(this%ym)
     if (allocated(this%zm)) deallocate(this%zm)
-
-    if (c_associated(this%g_d)) call device_free(this%g_d)
 
   end subroutine expression_dirichlet_free
 
@@ -150,6 +155,7 @@ contains
   !! @details Tabulates the coordinates of the points of the mask, which is
   !! only known once the mask has been built, and evaluates the expression
   !! right away if it does not depend on time.
+  !! @param[in] only_facets Whether to only mark the facets of the mask.
   subroutine expression_dirichlet_finalize(this, only_facets)
     class(expression_dirichlet_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
@@ -177,6 +183,8 @@ contains
 
     if (.not. this%expr%time_dependent) then
        call this%expr%eval(this%g, m, this%xm, this%ym, this%zm)
+       call expression_check_finite(this%expr%src, this%g, m, &
+            "boundary condition")
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(this%g, this%g_d, m, HOST_TO_DEVICE, &
                sync = .true.)
@@ -207,6 +215,8 @@ contains
 
     m = this%msk(0)
     call this%expr%eval(this%g, m, this%xm, this%ym, this%zm, time%t, time%dt)
+    call expression_check_finite(this%expr%src, this%g, m, &
+         "boundary condition")
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        ! Synchronous on purpose: the host buffer is reused every timestep,
@@ -220,6 +230,10 @@ contains
   end subroutine expression_dirichlet_update
 
   !> Apply the condition to a scalar field.
+  !! @param[inout] x The field onto which to apply the values.
+  !! @param[in] n The size of `x`.
+  !! @param[in] time The current time state.
+  !! @param[in] strong Whether the condition is applied strongly.
   subroutine expression_dirichlet_apply_scalar(this, x, n, time, strong)
     class(expression_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -238,7 +252,13 @@ contains
     m = this%msk(0)
     if (.not. strong_ .or. m .eq. 0) return
 
+    ! The bc list applies the host conditions from inside an OpenMP parallel
+    ! region, and evaluating an expression mutates the shared evaluation stack
+    ! of `expr`, so only one thread may run the update. The implicit barrier of
+    ! `single` also makes `g` visible to every thread before the loop below.
+    !$omp single
     call this%update(time)
+    !$omp end single
 
     !$omp do
     do i = 1, m
@@ -249,6 +269,12 @@ contains
   end subroutine expression_dirichlet_apply_scalar
 
   !> (No-op) Apply vector.
+  !! @param[inout] x The x-component of the field.
+  !! @param[inout] y The y-component of the field.
+  !! @param[inout] z The z-component of the field.
+  !! @param[in] n The size of `x`, `y` and `z`.
+  !! @param[in] time The current time state.
+  !! @param[in] strong Whether the condition is applied strongly.
   subroutine expression_dirichlet_apply_vector(this, x, y, z, n, time, strong)
     class(expression_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -260,6 +286,10 @@ contains
   end subroutine expression_dirichlet_apply_vector
 
   !> Apply the condition to a scalar field (device version).
+  !! @param[inout] x_d Device pointer to the field.
+  !! @param[in] time The current time state.
+  !! @param[in] strong Whether the condition is applied strongly.
+  !! @param[inout] strm The device stream to issue the work on.
   subroutine expression_dirichlet_apply_scalar_dev(this, x_d, time, strong, &
        strm)
     class(expression_dirichlet_t), intent(inout), target :: this
@@ -286,6 +316,12 @@ contains
   end subroutine expression_dirichlet_apply_scalar_dev
 
   !> (No-op) Apply vector (device version).
+  !! @param[inout] x_d Device pointer to the x-component of the field.
+  !! @param[inout] y_d Device pointer to the y-component of the field.
+  !! @param[inout] z_d Device pointer to the z-component of the field.
+  !! @param[in] time The current time state.
+  !! @param[in] strong Whether the condition is applied strongly.
+  !! @param[inout] strm The device stream to issue the work on.
   subroutine expression_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, &
        time, strong, strm)
     class(expression_dirichlet_t), intent(inout), target :: this
@@ -317,6 +353,15 @@ contains
   !> Gather the coordinates of the masked points into contiguous arrays.
   !! @details Split out from `expression_mask_coords` so that the rank 4
   !! coordinate arrays of the dofmap are linearized by the call.
+  !! @param[in] msk The mask, where `msk(0)` is its length.
+  !! @param[in] m The number of masked points.
+  !! @param[in] x The x-coordinates of every point of the dofmap.
+  !! @param[in] y The y-coordinates of every point of the dofmap.
+  !! @param[in] z The z-coordinates of every point of the dofmap.
+  !! @param[in] n The number of points of the dofmap.
+  !! @param[inout] xm The x-coordinates of the masked points.
+  !! @param[inout] ym The y-coordinates of the masked points.
+  !! @param[inout] zm The z-coordinates of the masked points.
   subroutine gather_coords(msk, m, x, y, z, n, xm, ym, zm)
     integer, intent(in) :: m
     integer, intent(in) :: n

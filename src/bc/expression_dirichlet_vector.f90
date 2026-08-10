@@ -36,16 +36,16 @@ module expression_dirichlet_vector
   use num_types, only : rp
   use bc, only : bc_t
   use coefs, only : coef_t
-  use expression, only : expression_t, NEKO_EXPR_LEN
+  use expression, only : expression_t, expression_check_finite, NEKO_EXPR_LEN
   use expression_dirichlet, only : expression_mask_coords
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   use device_inhom_dirichlet, only : device_inhom_dirichlet_apply_vector
   use json_module, only : json_file
   use json_utils, only : json_get
   use time_state, only : time_state_t
   use utils, only : neko_error
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -129,6 +129,7 @@ contains
     character(len=*), intent(in) :: str_y
     character(len=*), intent(in) :: str_z
 
+    call this%free()
     call this%init_base(coef)
 
     if (len_trim(str_x) .eq. 0 .or. len_trim(str_y) .eq. 0 .or. &
@@ -154,22 +155,37 @@ contains
        call this%expr(i)%free()
     end do
 
-    if (allocated(this%gx)) deallocate(this%gx)
-    if (allocated(this%gy)) deallocate(this%gy)
-    if (allocated(this%gz)) deallocate(this%gz)
+    if (allocated(this%gx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%gx, this%gx_d)
+       end if
+       deallocate(this%gx)
+    end if
+
+    if (allocated(this%gy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%gy, this%gy_d)
+       end if
+       deallocate(this%gy)
+    end if
+
+    if (allocated(this%gz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%gz, this%gz_d)
+       end if
+       deallocate(this%gz)
+    end if
+
     if (allocated(this%xm)) deallocate(this%xm)
     if (allocated(this%ym)) deallocate(this%ym)
     if (allocated(this%zm)) deallocate(this%zm)
-
-    if (c_associated(this%gx_d)) call device_free(this%gx_d)
-    if (c_associated(this%gy_d)) call device_free(this%gy_d)
-    if (c_associated(this%gz_d)) call device_free(this%gz_d)
 
   end subroutine expression_dirichlet_vector_free
 
   !> Finalize.
   !! @details Tabulates the coordinates of the points of the mask and
   !! evaluates whichever of the three expressions do not depend on time.
+  !! @param[in] only_facets Whether to only mark the facets of the mask.
   subroutine expression_dirichlet_vector_finalize(this, only_facets)
     class(expression_dirichlet_vector_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
@@ -202,12 +218,18 @@ contains
 
     if (.not. this%expr(1)%time_dependent) then
        call this%expr(1)%eval(this%gx, m, this%xm, this%ym, this%zm)
+       call expression_check_finite(this%expr(1)%src, this%gx, m, &
+            "boundary condition")
     end if
     if (.not. this%expr(2)%time_dependent) then
        call this%expr(2)%eval(this%gy, m, this%xm, this%ym, this%zm)
+       call expression_check_finite(this%expr(2)%src, this%gy, m, &
+            "boundary condition")
     end if
     if (.not. this%expr(3)%time_dependent) then
        call this%expr(3)%eval(this%gz, m, this%xm, this%ym, this%zm)
+       call expression_check_finite(this%expr(3)%src, this%gz, m, &
+            "boundary condition")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -246,14 +268,20 @@ contains
     if (this%expr(1)%time_dependent) then
        call this%expr(1)%eval(this%gx, m, this%xm, this%ym, this%zm, &
             time%t, time%dt)
+       call expression_check_finite(this%expr(1)%src, this%gx, m, &
+            "boundary condition")
     end if
     if (this%expr(2)%time_dependent) then
        call this%expr(2)%eval(this%gy, m, this%xm, this%ym, this%zm, &
             time%t, time%dt)
+       call expression_check_finite(this%expr(2)%src, this%gy, m, &
+            "boundary condition")
     end if
     if (this%expr(3)%time_dependent) then
        call this%expr(3)%eval(this%gz, m, this%xm, this%ym, this%zm, &
             time%t, time%dt)
+       call expression_check_finite(this%expr(3)%src, this%gz, m, &
+            "boundary condition")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -273,6 +301,10 @@ contains
   end subroutine expression_dirichlet_vector_update
 
   !> (No-op) Apply scalar.
+  !! @param[inout] x The field onto which to apply the values.
+  !! @param[in] n The size of `x`.
+  !! @param[in] time The current time state.
+  !! @param[in] strong Whether the condition is applied strongly.
   subroutine expression_dirichlet_vector_apply_scalar(this, x, n, time, strong)
     class(expression_dirichlet_vector_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -282,6 +314,10 @@ contains
   end subroutine expression_dirichlet_vector_apply_scalar
 
   !> (No-op) Apply scalar (device version).
+  !! @param[inout] x_d Device pointer to the field.
+  !! @param[in] time The current time state.
+  !! @param[in] strong Whether the condition is applied strongly.
+  !! @param[inout] strm The device stream to issue the work on.
   subroutine expression_dirichlet_vector_apply_scalar_dev(this, x_d, time, &
        strong, strm)
     class(expression_dirichlet_vector_t), intent(inout), target :: this
@@ -292,6 +328,12 @@ contains
   end subroutine expression_dirichlet_vector_apply_scalar_dev
 
   !> Apply the condition to a vector field.
+  !! @param[inout] x The x-component of the field.
+  !! @param[inout] y The y-component of the field.
+  !! @param[inout] z The z-component of the field.
+  !! @param[in] n The size of `x`, `y` and `z`.
+  !! @param[in] time The current time state.
+  !! @param[in] strong Whether the condition is applied strongly.
   subroutine expression_dirichlet_vector_apply_vector(this, x, y, z, n, &
        time, strong)
     class(expression_dirichlet_vector_t), intent(inout) :: this
@@ -313,7 +355,14 @@ contains
     m = this%msk(0)
     if (.not. strong_ .or. m .eq. 0) return
 
+    ! The bc list applies the host conditions from inside an OpenMP parallel
+    ! region, and evaluating an expression mutates the shared evaluation stack
+    ! of `expr`, so only one thread may run the update. The implicit barrier of
+    ! `single` also makes the values visible to every thread before the loop
+    ! below.
+    !$omp single
     call this%update(time)
+    !$omp end single
 
     !$omp do
     do i = 1, m
@@ -327,6 +376,12 @@ contains
   end subroutine expression_dirichlet_vector_apply_vector
 
   !> Apply the condition to a vector field (device version).
+  !! @param[inout] x_d Device pointer to the x-component of the field.
+  !! @param[inout] y_d Device pointer to the y-component of the field.
+  !! @param[inout] z_d Device pointer to the z-component of the field.
+  !! @param[in] time The current time state.
+  !! @param[in] strong Whether the condition is applied strongly.
+  !! @param[inout] strm The device stream to issue the work on.
   subroutine expression_dirichlet_vector_apply_vector_dev(this, x_d, y_d, &
        z_d, time, strong, strm)
     class(expression_dirichlet_vector_t), intent(inout), target :: this

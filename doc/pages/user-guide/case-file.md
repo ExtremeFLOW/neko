@@ -239,8 +239,11 @@ follow Fortran, so `-x^2` is `-(x^2)` and `2^3^2` is `2^(3^2)`.
 
 Constants are read when the expression is compiled, at setup, and multiplication
 must always be written out, so `2*x` is valid whereas `2x` is not. An expression
-that refers to an unknown name, or that does not evaluate to a finite value
-everywhere, is reported as an error at setup rather than during the simulation.
+that refers to an unknown name is reported as an error at setup, rather than
+during the simulation. An expression that does not evaluate to a finite value
+everywhere, typically because of a division by zero or the square root of a
+negative number, is also reported as an error, at setup if it does not depend on
+time and otherwise every time it is evaluated.
 
 ### Time control
 The `time` object is used to define the time-stepping of the simulation,
@@ -581,9 +584,9 @@ A more detailed description of each boundary condition is provided below.
   ```
 
   The expressions are evaluated in the boundary points only. An expression
-  that does not use `t` is evaluated once, at setup, and then costs nothing
-  more than `velocity_value` at runtime; one that does use `t` is
-  re-evaluated once per timestep.
+  that uses neither `t` nor `dt` is evaluated once, at setup, and then costs
+  nothing more than `velocity_value` at runtime; one that uses either of them
+  is re-evaluated once per timestep.
 * `expression_pressure`. The same, for pressure, where `value` is a single
   string.
 
@@ -1913,7 +1916,7 @@ concisely directly in the table.
 | `inflow_condition.type`                            | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
 | `inflow_condition.value`                           | Value of the inflow velocity.                                                                     | Vector of 3 reals                                           | -             |
 | `initial_condition.type`                           | Initial condition type.                                                                           | `user`, `uniform`, `expression`, `blasius`, `field`         | -             |
-| `initial_condition.value`                          | Value of the velocity initial condition.                                                          | Vector of 3 reals                                           | -             |
+| `initial_condition.value`                          | Value of the velocity initial condition.                                                          | Vector of 3 reals, or of 3 strings if `"type" = "expression"` | -             |
 | `initial_condition.file_name`                      | If `"type" = "field"`, the path to the field file to read from.                                   | String ending with `.fld`, `.chkp`, `.nek5000` or `f*****`. | -             |
 | `initial_condition.sample_index`                   | If `"type" = "field"`, and file type is `fld` or `nek5000`, the index of the file to sampled.     | Positive integer.                                           | -1            |
 | `initial_condition.previous_mesh`                  | If `"type" = "field"`, and file type is `chkp`, the previous mesh from which to interpolate.      | String ending with `.nmsh`.                                 | -             |
@@ -2095,7 +2098,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `alphat.Pr_t`                  | Turbulent Prandtl number                                              | Positive real                               | -             |
 | `boundary_types`               | Boundary types/conditions labels.                                     | Array of strings                            | -             |
 | `initial_condition.type`       | Initial condition type.                                               | `user`, `uniform`, `expression`, `point_zone` | -           |
-| `initial_condition.value`      | Value of the velocity initial condition.                              | Real                                        | -             |
+| `initial_condition.value`      | Value of the scalar initial condition.                                | Real, or a string if `"type" = "expression"` | -             |
 | `source_terms`                 | Array of JSON objects, defining additional source terms.              | See list of source terms above              | -             |
 | `gradient_jump_penalty`        | Array of JSON objects, defining additional gradient jump penalty.     | See list of gradient jump penalty above     | -             |
 | `advection`                    | Whether to compute the advetion term.                                 | `true` or `false`                           | `true`        |

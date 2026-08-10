@@ -37,10 +37,10 @@
 !! the point coordinates and `t`, `dt` bound to the time state.
 !!
 !! Any identifier which is not a coordinate, a time variable or the constant
-!! `pi` is looked up in the `neko_const_registry` at compile time and folded
-!! into a literal. This is the same mechanism as the one used by
-!! `json_get_or_lookup`, so constants declared under `case.constants` in the
-!! case file can be used directly in the expressions.
+!! `pi` is looked up in the `neko_const_registry` when the expression is
+!! compiled, and folded into a literal. This is the same mechanism as the one
+!! used by `json_get_or_lookup`, so constants declared under `case.constants`
+!! in the case file can be used directly in the expressions.
 module expression
   use num_types, only : rp
   use utils, only : neko_error
@@ -49,7 +49,7 @@ module expression
   implicit none
   private
 
-  public :: expression_eval_static
+  public :: expression_eval_static, expression_check_finite
 
   !> Maximum length of an expression string read from the case file.
   integer, public, parameter :: NEKO_EXPR_LEN = 256
@@ -191,6 +191,10 @@ contains
   end subroutine expression_free
 
   !> Evaluate the expression in `n` points.
+  !! @details Not thread safe. The evaluation stack is a component of the
+  !! expression, so two concurrent calls on the same object corrupt each
+  !! other's intermediate values. A caller inside an OpenMP parallel region
+  !! must evaluate on one thread only.
   !! @param[inout] res The result, one value per point.
   !! @param[in] n The number of points.
   !! @param[in] x The x-coordinates of the points.
@@ -436,7 +440,6 @@ contains
     real(kind=rp), intent(in) :: z(n)
     character(len=*), intent(in) :: usage
     type(expression_t) :: e
-    integer :: i
 
     if (len_trim(str) .eq. 0) then
        call neko_error("The " // usage // " needs a non-empty expression")
@@ -452,6 +455,26 @@ contains
     call e%eval(res, n, x, y, z)
     call e%free()
 
+    call expression_check_finite(str, res, n, usage)
+
+  end subroutine expression_eval_static
+
+  !> Abort if an expression did not evaluate to a finite value everywhere.
+  !! @details Split out of `expression_eval_static` so that the boundary
+  !! conditions, which compile and evaluate their expressions themselves, can
+  !! apply the same check. A non-finite value typically means a division by
+  !! zero or the square root of a negative number somewhere.
+  !! @param[in] str The expression, used in the error message.
+  !! @param[in] res The values to check.
+  !! @param[in] n The number of values.
+  !! @param[in] usage What the expression configures, used in error messages.
+  subroutine expression_check_finite(str, res, n, usage)
+    character(len=*), intent(in) :: str
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) :: res(n)
+    character(len=*), intent(in) :: usage
+    integer :: i
+
     do i = 1, n
        if (.not. ieee_is_finite(res(i))) then
           call neko_error("The " // usage // " expression '" // trim(str) // &
@@ -459,13 +482,14 @@ contains
        end if
     end do
 
-  end subroutine expression_eval_static
+  end subroutine expression_check_finite
 
   !
   ! Tokenizer
   !
 
   !> Split the source string into a stream of tokens.
+  !! @param[inout] p The parser state, whose `src` holds the expression.
   subroutine expr_tokenize(p)
     type(parser_t), intent(inout) :: p
     integer :: i, j, k, n, ios
@@ -591,6 +615,9 @@ contains
   end subroutine expr_tokenize
 
   !> Append a token to the token stream.
+  !! @param[inout] p The parser state.
+  !! @param[in] kind The kind of the token, one of the `TK_` constants.
+  !! @param[in] pos Position of the token in the source string.
   subroutine push_token(p, kind, pos)
     type(parser_t), intent(inout) :: p
     integer, intent(in) :: kind
@@ -613,6 +640,7 @@ contains
   !
 
   !> Parse an additive expression.
+  !! @param[inout] p The parser state.
   recursive subroutine parse_expr(p)
     type(parser_t), intent(inout) :: p
 
@@ -634,6 +662,7 @@ contains
   end subroutine parse_expr
 
   !> Parse a multiplicative expression.
+  !! @param[inout] p The parser state.
   recursive subroutine parse_term(p)
     type(parser_t), intent(inout) :: p
 
@@ -656,6 +685,7 @@ contains
 
   !> Parse a possibly signed factor. Unary minus binds looser than `^`, so
   !! `-x^2` is `-(x^2)`, as in Fortran.
+  !! @param[inout] p The parser state.
   recursive subroutine parse_factor(p)
     type(parser_t), intent(inout) :: p
     integer :: before
@@ -681,6 +711,7 @@ contains
   end subroutine parse_factor
 
   !> Parse an exponentiation. Right associative, so `2^3^2` is `2^(3^2)`.
+  !! @param[inout] p The parser state.
   recursive subroutine parse_power(p)
     type(parser_t), intent(inout) :: p
     integer :: before
@@ -710,6 +741,7 @@ contains
   end subroutine parse_power
 
   !> Parse a literal, a symbol, a function call or a parenthesised expression.
+  !! @param[inout] p The parser state.
   recursive subroutine parse_primary(p)
     type(parser_t), intent(inout) :: p
     integer :: k, op, nargs
@@ -769,6 +801,8 @@ contains
   !! else. Everything that is left is looked up in the `neko_const_registry`
   !! and folded into a literal, so the value it had when the expression was
   !! compiled is the value that is used.
+  !! @param[inout] p The parser state.
+  !! @param[in] k Index of the identifier token to resolve.
   subroutine parse_symbol(p, k)
     type(parser_t), intent(inout) :: p
     integer, intent(in) :: k
@@ -810,6 +844,8 @@ contains
   end subroutine parse_symbol
 
   !> Look up the opcode of a function.
+  !! @param[in] name The name of the function.
+  !! @param[in] nargs The number of arguments it was called with.
   !! @return The opcode, -1 if the name is unknown and -2 if the name is known
   !! but the number of arguments is wrong.
   function func_op(name, nargs) result(op)
@@ -875,6 +911,9 @@ contains
   end function func_op
 
   !> Append an opcode, keeping track of how deep the evaluation stack gets.
+  !! @param[inout] p The parser state.
+  !! @param[in] op The opcode to append.
+  !! @param[in] val The literal operand, only meaningful for `OP_LIT`.
   subroutine emit(p, op, val)
     type(parser_t), intent(inout) :: p
     integer, intent(in) :: op
@@ -902,6 +941,9 @@ contains
   end subroutine emit
 
   !> Abort with a message pointing at the offending part of the expression.
+  !! @param[in] p The parser state.
+  !! @param[in] msg What is wrong with the expression.
+  !! @param[in] pos Position in the source string to point at.
   subroutine expr_error(p, msg, pos)
     type(parser_t), intent(in) :: p
     character(len=*), intent(in) :: msg
@@ -915,6 +957,7 @@ contains
   end subroutine expr_error
 
   !> True if `c` is a decimal digit.
+  !! @param[in] c The character to test.
   pure function is_digit(c) result(res)
     character(len=1), intent(in) :: c
     logical :: res
@@ -924,6 +967,7 @@ contains
   end function is_digit
 
   !> True if `c` is a letter.
+  !! @param[in] c The character to test.
   pure function is_alpha(c) result(res)
     character(len=1), intent(in) :: c
     logical :: res
