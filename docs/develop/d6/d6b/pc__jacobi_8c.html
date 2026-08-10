@@ -106,6 +106,7 @@ $(document).ready(function(){initNavTree('d6/d6b/pc__jacobi_8c.html','../../'); 
 <div class="contents">
 <div class="textblock"><code>#include &lt;CL/cl.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;stdlib.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d8/dc8/device__config_8h_source.html">device/device_config.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d4/d0f/jit_8h_source.html">device/opencl/jit.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d1/df7/prgm__lib_8h_source.html">device/opencl/prgm_lib.h</a>&gt;</code><br />
@@ -116,23 +117,25 @@ Include dependency graph for pc_jacobi.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d3/d26/pc__jacobi_8c__incl.png" border="0" usemap="#a_2home_2runner_2work_2neko_2neko_2src_2krylov_2bcknd_2device_2opencl_2pc__jacobi_8c" alt=""/></div>
 <map name="a_2home_2runner_2work_2neko_2neko_2src_2krylov_2bcknd_2device_2opencl_2pc__jacobi_8c" id="a_2home_2runner_2work_2neko_2neko_2src_2krylov_2bcknd_2device_2opencl_2pc__jacobi_8c">
-<area shape="rect" title=" " alt="" coords="294,5,486,60"/>
-<area shape="rect" title=" " alt="" coords="358,196,423,221"/>
-<area shape="poly" title=" " alt="" coords="294,37,184,43,129,50,79,60,40,75,15,93,9,104,9,116,13,130,24,146,46,162,78,175,165,192,262,201,344,204,344,210,262,206,165,197,76,180,43,167,20,150,9,133,3,117,4,103,11,90,37,70,78,55,128,44,184,37,294,31"/>
-<area shape="rect" title=" " alt="" coords="34,115,101,141"/>
-<area shape="poly" title=" " alt="" coords="294,59,206,82,114,111,107,113,106,108,112,105,205,77,293,54"/>
-<area shape="rect" href="../../d8/dc8/device__config_8h.html" title=" " alt="" coords="125,115,296,141"/>
-<area shape="poly" title=" " alt="" coords="341,62,245,112,243,107,339,58"/>
-<area shape="rect" href="../../d4/d0f/jit_8h.html" title=" " alt="" coords="320,115,461,141"/>
-<area shape="poly" title=" " alt="" coords="393,60,393,101,388,101,388,60"/>
-<area shape="rect" href="../../d1/df7/prgm__lib_8h.html" title=" " alt="" coords="486,108,636,148"/>
-<area shape="poly" title=" " alt="" coords="440,58,516,99,513,104,437,62"/>
-<area shape="rect" href="../../d0/d05/opencl_2check_8h.html" title=" " alt="" coords="660,115,827,141"/>
-<area shape="poly" title=" " alt="" coords="487,57,688,109,686,114,486,62"/>
-<area shape="rect" title=" " alt="" coords="851,115,986,141"/>
-<area shape="poly" title=" " alt="" coords="487,45,652,71,840,105,860,110,859,115,839,111,652,77,486,51"/>
-<area shape="poly" title=" " alt="" coords="393,141,393,182,388,182,388,141"/>
-<area shape="poly" title=" " alt="" coords="693,143,437,200,436,195,692,138"/>
+<area shape="rect" title=" " alt="" coords="300,5,492,60"/>
+<area shape="rect" title=" " alt="" coords="454,196,520,221"/>
+<area shape="poly" title=" " alt="" coords="300,37,188,43,132,50,81,60,40,74,15,93,9,104,9,116,14,130,25,146,45,157,85,166,201,183,441,202,441,207,200,188,84,172,43,162,21,150,9,133,3,117,4,103,11,90,38,70,79,55,131,44,188,37,300,31"/>
+<area shape="rect" title=" " alt="" coords="35,115,102,141"/>
+<area shape="poly" title=" " alt="" coords="301,58,210,82,115,111,108,113,106,108,113,105,208,77,299,53"/>
+<area shape="rect" title=" " alt="" coords="126,115,197,141"/>
+<area shape="poly" title=" " alt="" coords="331,63,204,113,202,108,329,58"/>
+<area shape="rect" href="../../d8/dc8/device__config_8h.html" title=" " alt="" coords="222,115,392,141"/>
+<area shape="poly" title=" " alt="" coords="373,62,330,107,326,103,369,58"/>
+<area shape="rect" href="../../d4/d0f/jit_8h.html" title=" " alt="" coords="416,115,558,141"/>
+<area shape="poly" title=" " alt="" coords="424,58,468,103,464,107,420,62"/>
+<area shape="rect" href="../../d1/df7/prgm__lib_8h.html" title=" " alt="" coords="582,108,733,148"/>
+<area shape="poly" title=" " alt="" coords="471,58,593,101,591,106,469,63"/>
+<area shape="rect" href="../../d0/d05/opencl_2check_8h.html" title=" " alt="" coords="757,115,924,141"/>
+<area shape="poly" title=" " alt="" coords="493,51,773,110,772,115,492,57"/>
+<area shape="rect" title=" " alt="" coords="948,115,1082,141"/>
+<area shape="poly" title=" " alt="" coords="493,42,698,67,937,105,958,110,957,115,936,111,697,73,492,47"/>
+<area shape="poly" title=" " alt="" coords="490,141,490,182,484,182,484,141"/>
+<area shape="poly" title=" " alt="" coords="790,143,534,200,533,195,788,138"/>
 </map>
 </div>
 </div>
@@ -306,7 +309,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Fortran wrapper for device pc jacobi </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d6b/pc__jacobi_8c_source.html#l00052">52</a> of file <a class="el" href="../../d6/d6b/pc__jacobi_8c_source.html">pc_jacobi.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d6b/pc__jacobi_8c_source.html#l00053">53</a> of file <a class="el" href="../../d6/d6b/pc__jacobi_8c_source.html">pc_jacobi.c</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -333,7 +336,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../dir_579bd9dcbaa72a162125f0b560cd82ab.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_5b344269ce3b5a4183603946c5547674.html">device</a></li><li class="navelem"><a class="el" href="../../dir_35efc43d0aa27c0c2adfddc1e607c25b.html">opencl</a></li><li class="navelem"><a class="el" href="../../d6/d6b/pc__jacobi_8c.html">pc_jacobi.c</a></li>
-    <li class="footer">Generated on Sun Aug 9 2026 04:01:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Aug 10 2026 04:08:57 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
