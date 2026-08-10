@@ -113,6 +113,7 @@ contains
     end if
 
     call this%init_from_components(coef, str(1), str(2), str(3))
+    if (allocated(str)) deallocate(str)
 
   end subroutine expression_dirichlet_vector_init
 

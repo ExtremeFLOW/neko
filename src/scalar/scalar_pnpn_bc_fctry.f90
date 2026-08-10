@@ -65,7 +65,7 @@ contains
     class(bc_t), pointer, intent(inout) :: object
     type(scalar_pnpn_t), intent(in) :: scheme
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
     integer :: i

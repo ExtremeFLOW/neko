@@ -2007,7 +2007,7 @@ user could set it up by the following manner to include an eddy diffusivity fiel
 The boundary conditions for the scalar are specified through the
 `boundary_conditions` keyword, which follows the same format as the fluid, for
 specifying the type of the condition and where it is applied.
-Five types of conditions are available for the scalar:
+The following types of conditions are available for the scalar:
 
 * `dirichlet`. Sets the value of the scalar, controlled by the `value` keyword.
   ```json

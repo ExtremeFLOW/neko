@@ -297,6 +297,11 @@ contains
        deallocate(this%zone_indices)
     end if
 
+    ! Back to the state of a freshly declared bc, so that a condition which is
+    ! reinitialised does not inherit an `updated` from its previous life and
+    ! skip its first update.
+    this%updated = .false.
+
   end subroutine bc_free_base
 
   !> Apply the boundary condition to a vector field. Dispatches to the CPU

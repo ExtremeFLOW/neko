@@ -106,6 +106,7 @@ contains
 
        call json_get(params, 'value', expr_str, filler = '')
        call set_flow_ic_expression(u, v, w, expr_str)
+       if (allocated(expr_str)) deallocate(expr_str)
 
        !
        ! Blasius boundary layer

@@ -148,7 +148,7 @@ module scalar_pnpn
        class(bc_t), pointer, intent(inout) :: object
        type(scalar_pnpn_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
-       type(coef_t), intent(in) :: coef
+       type(coef_t), target, intent(in) :: coef
        type(user_t), intent(in) :: user
      end subroutine bc_factory
   end interface
@@ -468,7 +468,7 @@ contains
   !> Initialize boundary conditions
   !! @param user The user object binding the user-defined routines.
   subroutine scalar_pnpn_setup_bcs_(this, user)
-    class(scalar_pnpn_t), intent(inout) :: this
+    class(scalar_pnpn_t), target, intent(inout) :: this
     type(user_t), target, intent(in) :: user
     integer :: i, j, n_bcs, zone_size, global_zone_size, ierr
     type(json_core) :: core

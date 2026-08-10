@@ -174,7 +174,28 @@ contains
 
     allocate(this%stk(EXPR_CHUNK, max(this%depth, 1)))
 
+    call parser_free(p)
+
   end subroutine expression_init
+
+  !> Release the memory held by the parser state.
+  !! @param[inout] p The parser state.
+  subroutine parser_free(p)
+    type(parser_t), intent(inout) :: p
+
+    if (allocated(p%tok)) deallocate(p%tok)
+    if (allocated(p%src)) deallocate(p%src)
+    if (allocated(p%op)) deallocate(p%op)
+    if (allocated(p%lit)) deallocate(p%lit)
+
+    p%n_tok = 0
+    p%cur = 1
+    p%n_op = 0
+    p%depth = 0
+    p%max_depth = 0
+    p%time_dependent = .false.
+
+  end subroutine parser_free
 
   !> Destructor.
   subroutine expression_free(this)
@@ -724,7 +745,10 @@ contains
        call parse_factor(p)
 
        if (p%n_op .eq. before + 1 .and. p%op(p%n_op) .eq. OP_LIT) then
-          if (abs(p%lit(p%n_op) - anint(p%lit(p%n_op))) .lt. 1.0e-6_rp .and. &
+          ! Tested exactly, and not within a tolerance: an exponent such as
+          ! `2.0000005` is not a whole number, and folding it would silently
+          ! turn an undefined negative base power into a finite value.
+          if (p%lit(p%n_op) .eq. anint(p%lit(p%n_op)) .and. &
                abs(p%lit(p%n_op)) .lt. 1.0e4_rp) then
              ! Whole exponent. Rewrite the literal push into a unary integer
              ! power, which unlike `**` with a real exponent is also defined
@@ -840,6 +864,8 @@ contains
                "case.constants", p%tok(k)%pos)
        end if
     end select
+
+    if (allocated(name)) deallocate(name)
 
   end subroutine parse_symbol
 

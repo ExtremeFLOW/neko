@@ -106,9 +106,9 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: str
 
-   call json_get(json, "value", str)
-   call this%init_from_components(coef, str)
-   if (allocated(str)) deallocate(str)
+    call json_get(json, "value", str)
+    call this%init_from_components(coef, str)
+    if (allocated(str)) deallocate(str)
 
   end subroutine expression_dirichlet_init
 
