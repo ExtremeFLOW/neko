@@ -104,8 +104,9 @@ contains
 
     else if (trim(type) .eq. 'expression') then
 
-       call json_get(params, 'value', read_str)
-       call set_scalar_ic_expression(s, read_str)
+      call json_get(params, 'value', read_str)
+      call set_scalar_ic_expression(s, read_str)
+      if (allocated(read_str)) deallocate(read_str)
 
     else if (trim(type) .eq. 'point_zone') then
 

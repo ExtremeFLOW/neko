@@ -1915,7 +1915,7 @@ concisely directly in the table.
 | `output_subdivide`                                 | Whether to subdivide spectral elements into linear sub-cells for VTKHDF output.                   | `true` or `false`                                           | `false`       |
 | `inflow_condition.type`                            | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
 | `inflow_condition.value`                           | Value of the inflow velocity.                                                                     | Vector of 3 reals                                           | -             |
-| `initial_condition.type`                           | Initial condition type.                                                                           | `user`, `uniform`, `expression`, `blasius`, `field`         | -             |
+| `initial_condition.type`                           | Initial condition type.                                                                           | `user`, `uniform`, `expression`, `blasius`, `point_zone`, `field` | -             |
 | `initial_condition.value`                          | Value of the velocity initial condition.                                                          | Vector of 3 reals, or of 3 strings if `"type" = "expression"` | -             |
 | `initial_condition.file_name`                      | If `"type" = "field"`, the path to the field file to read from.                                   | String ending with `.fld`, `.chkp`, `.nek5000` or `f*****`. | -             |
 | `initial_condition.sample_index`                   | If `"type" = "field"`, and file type is `fld` or `nek5000`, the index of the file to sampled.     | Positive integer.                                           | -1            |
@@ -2097,7 +2097,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `alphat.nut_field`             | Name of the turbulent kinematic viscosity field.                      | String                                      | Empty string  |
 | `alphat.Pr_t`                  | Turbulent Prandtl number                                              | Positive real                               | -             |
 | `boundary_types`               | Boundary types/conditions labels.                                     | Array of strings                            | -             |
-| `initial_condition.type`       | Initial condition type.                                               | `user`, `uniform`, `expression`, `point_zone` | -           |
+| `initial_condition.type`       | Initial condition type.                                               | `user`, `uniform`, `expression`, `point_zone`, `field` | -           |
 | `initial_condition.value`      | Value of the scalar initial condition.                                | Real, or a string if `"type" = "expression"` | -             |
 | `source_terms`                 | Array of JSON objects, defining additional source terms.              | See list of source terms above              | -             |
 | `gradient_jump_penalty`        | Array of JSON objects, defining additional gradient jump penalty.     | See list of gradient jump penalty above     | -             |

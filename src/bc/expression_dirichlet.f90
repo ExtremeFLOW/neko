@@ -106,8 +106,9 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: str
 
-    call json_get(json, "value", str)
-    call this%init_from_components(coef, str)
+   call json_get(json, "value", str)
+   call this%init_from_components(coef, str)
+   if (allocated(str)) deallocate(str)
 
   end subroutine expression_dirichlet_init
 
@@ -352,7 +353,7 @@ contains
 
   !> Gather the coordinates of the masked points into contiguous arrays.
   !! @details Split out from `expression_mask_coords` so that the rank 4
-  !! coordinate arrays of the dofmap are linearized by the call.
+  !! coordinate arrays of the dofmap are linearised by the call.
   !! @param[in] msk The mask, where `msk(0)` is its length.
   !! @param[in] m The number of masked points.
   !! @param[in] x The x-coordinates of every point of the dofmap.
