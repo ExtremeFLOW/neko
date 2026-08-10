@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -295,7 +295,7 @@ contains
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, i
     real(kind=rp) :: a, b, rtr, rnorm, norm_fac
-    real(kind=rp) :: rhok, rhokp1, sig1, tmp1, tmp2
+    real(kind=rp) :: rhok, rhokp1, sig1, tmp1, tmp2, inv_tha
 
     if (this%recompute_eigs) then
        call cheby_power(this, Ax, x, n, coef, blst, gs_h)
@@ -327,10 +327,17 @@ contains
          call this%M%solve(d, r, n)
       end if
 
-      do concurrent (i = 1:n)
-         d(i) = 1.0_rp/this%tha * d(i)
+      inv_tha = 1.0_rp / this%tha
+      !OCL NORECURRENCE, NOVREC, NOALIAS
+      !DIR$ CONCURRENT
+      !DIR$ IVDEP
+      !GCC$ ivdep
+      !$omp parallel do
+      do i = 1, n
+         d(i) = inv_tha * d(i)
          x%x(i,1,1,1) = x%x(i,1,1,1) + d(i)
       end do
+      !$omp end parallel do
 
       sig1 = this%tha / this%dlt
       rhok = 1.0_rp / sig1
@@ -352,10 +359,16 @@ contains
          else
             call this%M%solve(w, r, n)
          end if
-         do concurrent (i = 1:n)
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !DIR$ IVDEP
+         !GCC$ ivdep
+         !$omp parallel do
+         do i = 1, n
             d(i) = tmp1 * d(i) + tmp2 * w(i)
             x%x(i,1,1,1) = x%x(i,1,1,1) + d(i)
          end do
+         !$omp end parallel do
       end do
 
     end associate
