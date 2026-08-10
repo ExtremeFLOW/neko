@@ -3,6 +3,7 @@
 ## Develop
 
 - Added integration test for ALE (test_ale).
+- Updated simulation_components documentation to mirror the latest codebase.
 - Fixed stale accumulator in the SX gather-scatter backend (min/max/mul).
 - *BREAKING* Renamed the allocation-only `precon_factory` API to
   `precon_allocator`. Added runtime registration of user-defined
