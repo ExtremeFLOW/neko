@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
 #include <device/opencl/prgm_lib.h>
@@ -46,7 +47,7 @@
 
 #include "jacobi_kernel.cl.h"
 
-/** 
+/**
  * Fortran wrapper for device pc jacobi
  */
 void opencl_jacobi_update(void *d,
@@ -55,14 +56,14 @@ void opencl_jacobi_update(void *d,
 			  void *G12, void *G13, void *G23,
 			  int *nel, int *lx) {
   cl_int err;
-   
+
   if (jacobi_program == NULL)
     opencl_kernel_jit(jacobi_kernel, (cl_program *) &jacobi_program);
 
-  const int nb = (((*nel) * (*lx) * (*lx) * (*lx)) + 256 - 1) / 256; 
-  const size_t global_item_size = 256 * nb;				       
-  const size_t local_item_size = 256;				       
-    
+  const int nb = (((*nel) * (*lx) * (*lx) * (*lx)) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
 #define STR(X) #X
 #define CASE(LX)                                                               \
   case LX:                                                                     \
@@ -107,5 +108,10 @@ void opencl_jacobi_update(void *d,
     CASE(14);
     CASE(15);
     CASE(16);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+      exit(1);
+    }
   }
 }

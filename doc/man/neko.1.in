@@ -72,6 +72,20 @@ exec "$@"
 Launching more ranks per node than there are devices, without restricting the
 visible devices per rank, oversubscribes the GPUs and is generally not
 supported.
+.SS Zero\-copy mapping
+On hardware with unified physical memory \(em Apple silicon (Metal) and
+APUs such as the AMD Instinct MI300A with XNACK enabled (HIP) \(em mapped
+arrays can alias the host allocation instead of keeping a separate
+replicated device buffer, so host\-device transfers become no\-ops and the
+memory footprint of mapped data is roughly halved. See
+.B NEKO_METAL_ZEROCOPY
+and
+.B NEKO_HIP_ZEROCOPY
+below; it is enabled by default on Apple silicon and opt\-in on HIP.
+.PP
+Since host and device then operate on the same allocation, host code
+(e.g. user routines) must not write to a mapped array while device work
+touching it may still be in flight; synchronize first.
 .SH ARGUMENTS
 .TP
 .I case-file
@@ -157,6 +171,25 @@ routines.
 .TP
 .B NEKO_GLOBAL_INTERP_PE_FINDER
 Selects the rank search algorithm used by the global interpolation routines.
+.TP
+.B NEKO_HIP_ZEROCOPY
+When set to a non\-zero value, enables zero\-copy mapping of arrays in the
+HIP backend: host and device share a single allocation instead of keeping
+replicated copies, and host\-device transfers become no\-ops. This roughly
+halves the memory footprint of mapped data, but is currently slower per
+step than replicated buffers on MI300A, so it is an opt\-in capacity mode
+for running larger cases rather than a speedup. Zero\-copy is only used on
+an APU with unified physical memory and XNACK enabled
+.RB ( HSA_XNACK=1 );
+on a discrete GPU (e.g. MI250X, MI300X) a warning is printed and
+replicated buffers are used. Disabled by default.
+.TP
+.B NEKO_METAL_ZEROCOPY
+When set to
+.BR 0 ,
+disables zero\-copy mapping of arrays in the Metal backend. Enabled by
+default on Apple silicon; on discrete GPUs without unified memory
+replicated buffers are always used.
 .TP
 .B NEKO_MPI_THREAD_LEVEL
 Overrides the MPI (and SHMEM) thread support level requested at startup.

@@ -222,7 +222,7 @@ jobs:
 
       - name: Dependencies - Get pFunit
         id: get-pfunit
-        if: matrix.backend == 'cpu'
+        if: matrix.backend == 'cpu' || matrix.backend == 'metal'
         uses: ./.github/actions/setup_pfunit
         with:
           version: ${{ steps.setup-deps.outputs.pfunit-version }}
@@ -273,7 +273,7 @@ jobs:
 
           elif [ "$BACKEND" == 'metal' ]; then
 
-            ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-metal
+            ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-metal --with-pfunit=$PFUNIT_DIR
 
           else
 
@@ -302,7 +302,7 @@ jobs:
            cd ../..
 
       - name: Test - Check
-        if: matrix.backend == 'cpu'
+        if: matrix.backend == 'cpu' || matrix.backend == 'metal'
         run: |
           make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
 
