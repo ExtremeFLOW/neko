@@ -86,18 +86,6 @@ module wall_shear_stress_simcomp
      type(boundary_data_t) :: bdata
      !> Labelled zones to include.
      integer, allocatable :: zone_indices(:)
-     !> Masked dynamic viscosity.
-     type(vector_t) :: mu_msk
-     !> Masked pressure.
-     type(vector_t) :: p_msk
-     !> Masked strain rate components.
-     type(vector_t) :: s11, s22, s33, s12, s13, s23
-     !> Viscous traction components at the masked points.
-     type(vector_t) :: t1, t2, t3
-     !> Magnitude of the tangential traction at the masked points.
-     type(vector_t) :: t_mag
-     !> Pressure traction.
-     type(vector_t) :: pt1, pt2, pt3
      !> Which traction components are registered as fields.
      logical :: want_x = .true.
      logical :: want_y = .true.
@@ -136,10 +124,7 @@ contains
     character(len=:), allocatable :: name, computed_field, fluid_name
     character(len=:), allocatable :: viscosity_field
     integer, allocatable :: zone_indices(:)
-    character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
     character(len=NEKO_VARNAME_LEN), allocatable :: components(:)
-    logical :: want_x, want_y, want_z, want_mag
-    integer :: i
 
     call this%free()
 
@@ -150,30 +135,18 @@ contains
          trim(fluid_name) // "_mu_tot")
     call json_get(json, "zone_indices", zone_indices)
 
-    ! Parse the component selection. Default is all four.
+    ! Defaults to all four components.
     if (json%valid_path("components")) then
        call json_get(json, "components", components)
     else
        allocate(components(1))
        components(1) = "all"
     end if
-    call wall_shear_stress_parse_components(components, &
-         want_x, want_y, want_z, want_mag)
-
-    call wall_shear_stress_build_field_list(computed_field, want_x, want_y, &
-         want_z, want_mag, fields)
 
     call this%init_base(json, case)
 
-    ! Register the selected fields so they are available in the registry.
-    do i = 1, size(fields)
-       call neko_registry%add_field(case%fluid%c_Xh%dof, trim(fields(i)), &
-            ignore_existing = .false.)
-    end do
-
     call this%init_common(name, computed_field, viscosity_field, &
-         zone_indices, want_x, want_y, want_z, want_mag, &
-         case%fluid%c_Xh)
+         zone_indices, components, case%fluid%c_Xh)
 
   end subroutine wall_shear_stress_init_from_json
 
@@ -279,11 +252,11 @@ contains
   !! @param computed_field The base name of the registered fields.
   !! @param viscosity_field The name of the registered viscosity field.
   !! @param zone_indices Labelled zones to include.
+  !! @param components The components to register: "x", "y", "z", "mag", "all".
   !! @param coef The SEM coefficients.
   subroutine wall_shear_stress_init_from_controllers(this, name, case, order, &
        preprocess_controller, compute_controller, output_controller, &
-       computed_field, viscosity_field, zone_indices, coef, &
-       want_x, want_y, want_z, want_mag)
+       computed_field, viscosity_field, zone_indices, components, coef)
     class(wall_shear_stress_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -294,40 +267,16 @@ contains
     character(len=*), intent(in) :: computed_field
     character(len=*), intent(in) :: viscosity_field
     integer, intent(in) :: zone_indices(:)
+    character(len=*), intent(in) :: components(:)
     type(coef_t), intent(inout), target :: coef
-    logical, intent(in), optional :: want_x, want_y, want_z, want_mag
-    character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
-    logical :: wx, wy, wz, wm
-    integer :: i
 
     call this%free()
-
-    ! Default to all four components when not specified.
-    wx = .true.
-    wy = .true.
-    wz = .true.
-    wm = .true.
-    if (present(want_x)) wx = want_x
-    if (present(want_y)) wy = want_y
-    if (present(want_z)) wz = want_z
-    if (present(want_mag)) wm = want_mag
-    if (.not. (wx .or. wy .or. wz .or. wm)) then
-       call neko_error("wall_shear_stress: no components selected")
-    end if
-
-    call wall_shear_stress_build_field_list(computed_field, wx, wy, wz, wm, &
-         fields)
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
 
-    do i = 1, size(fields)
-       call neko_registry%add_field(coef%dof, trim(fields(i)), &
-            ignore_existing = .false.)
-    end do
-
     call this%init_common(name, computed_field, viscosity_field, &
-         zone_indices, wx, wy, wz, wm, coef)
+         zone_indices, components, coef)
 
   end subroutine wall_shear_stress_init_from_controllers
 
@@ -345,12 +294,12 @@ contains
   !! @param computed_field The base name of the registered fields.
   !! @param viscosity_field The name of the registered viscosity field.
   !! @param zone_indices Labelled zones to include.
+  !! @param components The components to register: "x", "y", "z", "mag", "all".
   !! @param coef The SEM coefficients.
   subroutine wall_shear_stress_init_from_controllers_properties(this, name, &
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value, computed_field, &
-       viscosity_field, zone_indices, coef, &
-       want_x, want_y, want_z, want_mag)
+       viscosity_field, zone_indices, components, coef)
     class(wall_shear_stress_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -364,40 +313,17 @@ contains
     character(len=*), intent(in) :: computed_field
     character(len=*), intent(in) :: viscosity_field
     integer, intent(in) :: zone_indices(:)
+    character(len=*), intent(in) :: components(:)
     type(coef_t), intent(inout), target :: coef
-    logical, intent(in), optional :: want_x, want_y, want_z, want_mag
-    character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
-    logical :: wx, wy, wz, wm
-    integer :: i
 
     call this%free()
-
-    wx = .true.
-    wy = .true.
-    wz = .true.
-    wm = .true.
-    if (present(want_x)) wx = want_x
-    if (present(want_y)) wy = want_y
-    if (present(want_z)) wz = want_z
-    if (present(want_mag)) wm = want_mag
-    if (.not. (wx .or. wy .or. wz .or. wm)) then
-       call neko_error("wall_shear_stress: no components selected")
-    end if
-
-    call wall_shear_stress_build_field_list(computed_field, wx, wy, wz, wm, &
-         fields)
 
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
 
-    do i = 1, size(fields)
-       call neko_registry%add_field(coef%dof, trim(fields(i)), &
-            ignore_existing = .false.)
-    end do
-
     call this%init_common(name, computed_field, viscosity_field, &
-         zone_indices, wx, wy, wz, wm, coef)
+         zone_indices, components, coef)
 
   end subroutine wall_shear_stress_init_from_controllers_properties
 
@@ -406,28 +332,37 @@ contains
   !! @param computed_field The base name of the registered fields.
   !! @param viscosity_field The name of the registered viscosity field.
   !! @param zone_indices Labelled zones to include.
+  !! @param components The components to register: "x", "y", "z", "mag", "all".
   !! @param coef The SEM coefficients.
   subroutine wall_shear_stress_init_common(this, name, computed_field, &
-       viscosity_field, zone_indices, want_x, want_y, &
-       want_z, want_mag, coef)
+       viscosity_field, zone_indices, components, coef)
     class(wall_shear_stress_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=*), intent(in) :: computed_field
     character(len=*), intent(in) :: viscosity_field
     integer, intent(in) :: zone_indices(:)
-    logical, intent(in) :: want_x, want_y, want_z, want_mag
+    character(len=*), intent(in) :: components(:)
     type(coef_t), intent(inout), target :: coef
+    character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
     character(len=LOG_SIZE) :: log_buf
-    integer :: n_pts, glb_n_pts
+    integer :: i, glb_n_pts
     logical :: ale_enabled
 
     this%name = name
     this%coef => coef
     this%computed_field = computed_field
-    this%want_x = want_x
-    this%want_y = want_y
-    this%want_z = want_z
-    this%want_mag = want_mag
+
+    call wall_shear_stress_parse_components(components, this%want_x, &
+         this%want_y, this%want_z, this%want_mag)
+
+    call wall_shear_stress_build_field_list(computed_field, this%want_x, &
+         this%want_y, this%want_z, this%want_mag, fields)
+
+    ! Register the selected fields so they are available in the registry.
+    do i = 1, size(fields)
+       call neko_registry%add_field(coef%dof, trim(fields(i)), &
+            ignore_existing = .false.)
+    end do
 
     allocate(this%zone_indices(size(zone_indices)))
     this%zone_indices = zone_indices
@@ -454,13 +389,13 @@ contains
     end if
     this%mu => neko_registry%get_field_by_name(trim(viscosity_field))
 
-    if (want_x) this%tau_x => &
+    if (this%want_x) this%tau_x => &
          neko_registry%get_field_by_name(trim(computed_field) // "_x")
-    if (want_y) this%tau_y => &
+    if (this%want_y) this%tau_y => &
          neko_registry%get_field_by_name(trim(computed_field) // "_y")
-    if (want_z) this%tau_z => &
+    if (this%want_z) this%tau_z => &
          neko_registry%get_field_by_name(trim(computed_field) // "_z")
-    if (want_mag) this%tau_mag => &
+    if (this%want_mag) this%tau_mag => &
          neko_registry%get_field_by_name(trim(computed_field) // "_mag")
 
     ! only_facets = .true.
@@ -469,26 +404,6 @@ contains
     ! outward convention would flip the sign of the computed traction.
     call this%bdata%init(this%coef, this%zone_indices, &
          outward_normals = .false.)
-
-    n_pts = this%bdata%n_local
-
-    if (n_pts .gt. 0) then
-       call this%mu_msk%init(n_pts)
-       call this%p_msk%init(n_pts)
-       call this%s11%init(n_pts)
-       call this%s22%init(n_pts)
-       call this%s33%init(n_pts)
-       call this%s12%init(n_pts)
-       call this%s13%init(n_pts)
-       call this%s23%init(n_pts)
-       call this%t1%init(n_pts)
-       call this%t2%init(n_pts)
-       call this%t3%init(n_pts)
-       call this%t_mag%init(n_pts)
-       call this%pt1%init(n_pts)
-       call this%pt2%init(n_pts)
-       call this%pt3%init(n_pts)
-    end if
 
     glb_n_pts = this%bdata%n_global
 
@@ -523,22 +438,6 @@ contains
 
     call this%bdata%free()
 
-    call this%mu_msk%free()
-    call this%p_msk%free()
-    call this%s11%free()
-    call this%s22%free()
-    call this%s33%free()
-    call this%s12%free()
-    call this%s13%free()
-    call this%s23%free()
-    call this%t1%free()
-    call this%t2%free()
-    call this%t3%free()
-    call this%t_mag%free()
-    call this%pt1%free()
-    call this%pt2%free()
-    call this%pt3%free()
-
     if (allocated(this%zone_indices)) deallocate(this%zone_indices)
     if (allocated(this%computed_field)) deallocate(this%computed_field)
 
@@ -563,7 +462,13 @@ contains
     class(wall_shear_stress_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
-    integer :: temp_indices(6)
+    type(vector_t), pointer :: mu_msk, p_msk
+    type(vector_t), pointer :: s11_msk, s22_msk, s33_msk
+    type(vector_t), pointer :: s12_msk, s13_msk, s23_msk
+    type(vector_t), pointer :: t1, t2, t3, t_mag
+    type(vector_t), pointer :: pt1, pt2, pt3
+    integer :: field_indices(6)
+    integer :: vector_indices(15)
     integer :: n_pts
     character(len=LOG_SIZE) :: log_buf
 
@@ -575,70 +480,104 @@ contains
     end if
 
     ! Strain rate over the whole field, then gather it at the mask.
-    call neko_scratch_registry%request_field(s11, temp_indices(1), .false.)
-    call neko_scratch_registry%request_field(s22, temp_indices(2), .false.)
-    call neko_scratch_registry%request_field(s33, temp_indices(3), .false.)
-    call neko_scratch_registry%request_field(s12, temp_indices(4), .false.)
-    call neko_scratch_registry%request_field(s13, temp_indices(5), .false.)
-    call neko_scratch_registry%request_field(s23, temp_indices(6), .false.)
+    call neko_scratch_registry%request_field(s11, field_indices(1), .false.)
+    call neko_scratch_registry%request_field(s22, field_indices(2), .false.)
+    call neko_scratch_registry%request_field(s33, field_indices(3), .false.)
+    call neko_scratch_registry%request_field(s12, field_indices(4), .false.)
+    call neko_scratch_registry%request_field(s13, field_indices(5), .false.)
+    call neko_scratch_registry%request_field(s23, field_indices(6), .false.)
 
     call strain_rate(s11, s22, s33, s12, s13, s23, this%u, this%v, &
          this%w, this%coef)
 
     if (n_pts .gt. 0) then
-       call this%bdata%get(this%mu, this%mu_msk)
-       call this%bdata%get(this%p, this%p_msk)
-       call this%bdata%get(s11, this%s11)
-       call this%bdata%get(s22, this%s22)
-       call this%bdata%get(s33, this%s33)
-       call this%bdata%get(s12, this%s12)
-       call this%bdata%get(s13, this%s13)
-       call this%bdata%get(s23, this%s23)
+
+       call neko_scratch_registry%request_vector(mu_msk, vector_indices(1), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(p_msk, vector_indices(2), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(s11_msk, vector_indices(3), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(s22_msk, vector_indices(4), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(s33_msk, vector_indices(5), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(s12_msk, vector_indices(6), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(s13_msk, vector_indices(7), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(s23_msk, vector_indices(8), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(t1, vector_indices(9), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(t2, vector_indices(10), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(t3, vector_indices(11), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(t_mag, vector_indices(12), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(pt1, vector_indices(13), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(pt2, vector_indices(14), &
+            n_pts, .false.)
+       call neko_scratch_registry%request_vector(pt3, vector_indices(15), &
+            n_pts, .false.)
+
+       call this%bdata%get(this%mu, mu_msk)
+       call this%bdata%get(this%p, p_msk)
+       call this%bdata%get(s11, s11_msk)
+       call this%bdata%get(s22, s22_msk)
+       call this%bdata%get(s33, s33_msk)
+       call this%bdata%get(s12, s12_msk)
+       call this%bdata%get(s13, s13_msk)
+       call this%bdata%get(s23, s23_msk)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_calc_force_array(this%pt1%x_d, this%pt2%x_d, &
-               this%pt3%x_d, this%t1%x_d, this%t2%x_d, this%t3%x_d, &
-               this%s11%x_d, this%s22%x_d, this%s33%x_d, &
-               this%s12%x_d, this%s13%x_d, this%s23%x_d, &
-               this%p_msk%x_d, this%bdata%n_x%x_d, &
+          call device_calc_force_array(pt1%x_d, pt2%x_d, pt3%x_d, &
+               t1%x_d, t2%x_d, t3%x_d, &
+               s11_msk%x_d, s22_msk%x_d, s33_msk%x_d, &
+               s12_msk%x_d, s13_msk%x_d, s23_msk%x_d, &
+               p_msk%x_d, this%bdata%n_x%x_d, &
                this%bdata%n_y%x_d, this%bdata%n_z%x_d, &
-               this%mu_msk%x_d, n_pts)
+               mu_msk%x_d, n_pts)
        else
-          call calc_force_array(this%pt1%x, this%pt2%x, this%pt3%x, &
-               this%t1%x, this%t2%x, this%t3%x, &
-               this%s11%x, this%s22%x, this%s33%x, &
-               this%s12%x, this%s13%x, this%s23%x, &
-               this%p_msk%x, this%bdata%n_x%x, &
+          call calc_force_array(pt1%x, pt2%x, pt3%x, &
+               t1%x, t2%x, t3%x, &
+               s11_msk%x, s22_msk%x, s33_msk%x, &
+               s12_msk%x, s13_msk%x, s23_msk%x, &
+               p_msk%x, this%bdata%n_x%x, &
                this%bdata%n_y%x, this%bdata%n_z%x, &
-               this%mu_msk%x, n_pts)
+               mu_msk%x, n_pts)
        end if
 
        ! Remove the wall-normal part, leaving the tangential traction.
        ! The projection is invariant to the sign of the normal.
-       call this%bdata%tangential(this%t1, this%t2, this%t3)
+       call this%bdata%tangential(t1, t2, t3)
 
        ! Magnitude of the tangential traction.
        if (this%want_mag) then
           if (NEKO_BCKND_DEVICE .eq. 1) then
-             call device_vdot3(this%t_mag%x_d, this%t1%x_d, this%t2%x_d, &
-                  this%t3%x_d, this%t1%x_d, this%t2%x_d, this%t3%x_d, n_pts)
-             call device_sqrt_inplace(this%t_mag%x_d, n_pts)
+             call device_vdot3(t_mag%x_d, t1%x_d, t2%x_d, t3%x_d, &
+                  t1%x_d, t2%x_d, t3%x_d, n_pts)
+             call device_sqrt_inplace(t_mag%x_d, n_pts)
           else
-             call vdot3(this%t_mag%x, this%t1%x, this%t2%x, this%t3%x, &
-                  this%t1%x, this%t2%x, this%t3%x, n_pts)
-             call sqrt_inplace(this%t_mag%x, n_pts)
+             call vdot3(t_mag%x, t1%x, t2%x, t3%x, &
+                  t1%x, t2%x, t3%x, n_pts)
+             call sqrt_inplace(t_mag%x, n_pts)
           end if
        end if
+
+       ! Scatter the tangential traction and its magnitude into the
+       ! registered fields.
+       if (this%want_x) call this%bdata%scatter(t1, this%tau_x)
+       if (this%want_y) call this%bdata%scatter(t2, this%tau_y)
+       if (this%want_z) call this%bdata%scatter(t3, this%tau_z)
+       if (this%want_mag) call this%bdata%scatter(t_mag, this%tau_mag)
+
+       call neko_scratch_registry%relinquish_vector(vector_indices)
     end if
 
-    call neko_scratch_registry%relinquish_field(temp_indices)
-
-    ! Scatter the tangential traction and its magnitude into the
-    ! registered fields.
-    if (this%want_x) call this%bdata%scatter(this%t1, this%tau_x)
-    if (this%want_y) call this%bdata%scatter(this%t2, this%tau_y)
-    if (this%want_z) call this%bdata%scatter(this%t3, this%tau_z)
-    if (this%want_mag) call this%bdata%scatter(this%t_mag, this%tau_mag)
+    call neko_scratch_registry%relinquish_field(field_indices)
 
     write(log_buf, '(A,A,A,E15.7,A,*(I0,:,", "))') &
          "WSS: '", trim(this%name), "' computed at t = ", &
