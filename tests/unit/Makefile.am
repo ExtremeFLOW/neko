@@ -37,6 +37,7 @@ SUBDIRS = tuple\
 	  time_based_controller\
 	  json_utils\
 	  utils\
+	  expression\
 	  point_interpolation\
 	  templates/parallel\
 	  bc_projector\
@@ -82,6 +83,7 @@ TESTS = device/device_test\
 	time_based_controller/time_based_controller_test\
 	json_utils/json_utils_test\
 	utils/read_duration_test\
+	expression/expression_test\
 	point_interpolation/point_interpolation_test\
 	templates/parallel/parallel_test\
 	bc_projector/bc_projector_test\
@@ -166,6 +168,7 @@ EXTRA_DIST = \
 	runge_kutta_scheme/test_runge_kutta_scheme.pf\
 	json_utils/test_json_utils.pf\
 	utils/test_read_duration.pf\
+	expression/test_expression.pf\
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
 	bc_projector/bc_projector_test\

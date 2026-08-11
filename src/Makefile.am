@@ -32,6 +32,7 @@ neko_fortran_SOURCES = \
 	common/json_utils.f90\
 	common/case_file_utils.f90\
 	common/mask.f90\
+	common/expression.f90\
 	common/system.f90\
 	common/runtime_statistics.f90\
 	common/user_access_singleton.f90\
@@ -208,6 +209,8 @@ neko_fortran_SOURCES = \
 	bc/field_dirichlet.f90\
 	bc/field_neumann.f90\
 	bc/field_dirichlet_vector.f90\
+	bc/expression_dirichlet.f90\
+	bc/expression_dirichlet_vector.f90\
 	bc/overset_interface.f90\
 	bc/overset_interface_vector.f90\
 	bc/facet_normal.f90\

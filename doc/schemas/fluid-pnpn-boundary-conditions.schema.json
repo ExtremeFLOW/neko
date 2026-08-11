@@ -177,6 +177,57 @@
           "type": "object",
           "required": [
             "type",
+            "zone_indices",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "const": "expression_velocity"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "value": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "const": "expression_pressure"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "value": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
             "zone_indices"
           ],
           "properties": {
