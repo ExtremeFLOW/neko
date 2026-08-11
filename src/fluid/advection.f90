@@ -101,14 +101,14 @@ module advection
        import :: coef_t
        import :: space_t
        import :: field_t
-       import :: rp
+       import :: dp
        class(advection_t), intent(inout) :: this
        type(space_t), intent(in) :: Xh
        type(coef_t), intent(in) :: coef
        type(field_t), intent(inout) :: vx, vy, vz
        type(field_t), intent(inout) :: fx, fy, fz
        integer, intent(in) :: n
-       real(kind=rp), intent(in), optional :: dt
+       real(kind=dp), intent(in), optional :: dt
      end subroutine compute_adv
   end interface
 
@@ -129,7 +129,7 @@ module advection
        import :: coef_t
        import :: space_t
        import :: field_t
-       import :: rp
+       import :: dp
        class(advection_t), intent(inout) :: this
        type(field_t), intent(inout) :: vx, vy, vz
        type(field_t), intent(inout) :: s
@@ -137,7 +137,7 @@ module advection
        type(space_t), intent(in) :: Xh
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: n
-       real(kind=rp), intent(in), optional :: dt
+       real(kind=dp), intent(in), optional :: dt
      end subroutine compute_scalar_adv
   end interface
 
@@ -163,7 +163,7 @@ module advection
        import :: coef_t
        import :: space_t
        import :: field_t
-       import :: rp
+       import :: dp
        class(advection_t), intent(inout) :: this
        type(field_t), intent(inout) :: vx, vy, vz
        type(field_t), intent(inout) :: wm_x, wm_y, wm_z
@@ -171,7 +171,7 @@ module advection
        type(space_t), intent(in) :: Xh
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: n
-       real(kind=rp), intent(in), optional :: dt
+       real(kind=dp), intent(in), optional :: dt
      end subroutine compute_ale_adv
   end interface
 

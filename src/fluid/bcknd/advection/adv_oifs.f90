@@ -421,8 +421,8 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
-    real(kind=rp), intent(in), optional :: dt
-    real(kind=rp) :: tau, tau1, th, dtau
+    real(kind=dp), intent(in), optional :: dt
+    real(kind=dp) :: tau, tau1, th, dtau
     integer :: i, ilag, itau, nel, n_GL
 
     nel = coef%msh%nelv
@@ -443,7 +443,7 @@ contains
 
       ! The explicit casting below is not technically needed but is here for
       ! clarity.
-      tau = real(ctlag(oifs_scheme%ndiff), kind=rp)
+      tau = real(ctlag(oifs_scheme%ndiff), kind=dp)
 
       call this%set_conv_velocity_fst(vx, vy, vz)
 
@@ -508,24 +508,15 @@ contains
          do itau = 1, ntaubd
             th = tau + dtau/2.
             tau1 = tau + dtau
-            call dtime%interpolate_scalar(tau, cr_k1, convr_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(tau, cs_k1, convs_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(tau, ct_k1, convt_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(th, cr_k23, convr_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(th, cs_k23, convs_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(th, ct_k23, convt_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, &
-                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(tau, cr_k1, convr_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau, cs_k1, convs_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau, ct_k1, convt_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(th, cr_k23, convr_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(th, cs_k23, convs_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(th, ct_k23, convt_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, ctlag, n_GL)
             call runge_kutta(fx, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
                  coef, coef_GL, GLL_to_GL, tau, dtau, &
                  n, nel, n_GL)
@@ -563,8 +554,9 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
-    real(kind=rp), intent(in), optional :: dt
-    real(kind=rp) :: tau, tau1, th, dtau
+    real(kind=dp), intent(in), optional :: dt
+
+    real(kind=dp) :: tau, tau1, th, dtau
     integer :: i, ilag, itau, nel, n_GL
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
@@ -584,7 +576,7 @@ contains
 
       ! The explicit casting below is not technically needed but is here for
       ! clarity.
-      tau = real(ctlag(oifs_scheme%ndiff), kind=rp)
+      tau = real(ctlag(oifs_scheme%ndiff), kind=dp)
 
       call this%set_conv_velocity_fst(vx, vy, vz)
 
@@ -622,24 +614,15 @@ contains
          do itau = 1, ntaubd
             th = tau + dtau/2.
             tau1 = tau + dtau
-            call dtime%interpolate_scalar(tau, cr_k1, convr_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(tau, cs_k1, convs_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(tau, ct_k1, convt_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(th, cr_k23, convr_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(th, cs_k23, convs_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(th, ct_k23, convt_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, &
-                 real(ctlag, kind=rp), n_GL)
-            call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, &
-                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(tau, cr_k1, convr_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau, cs_k1, convs_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau, ct_k1, convt_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(th, cr_k23, convr_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(th, cs_k23, convs_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(th, ct_k23, convt_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, ctlag, n_GL)
             call runge_kutta(fs, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
                  coef, coef_GL, GLL_to_GL, tau, dtau, &
                  n, nel, n_GL)
@@ -667,7 +650,7 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
-    real(kind=rp), intent(in), optional :: dt
+    real(kind=dp), intent(in), optional :: dt
     ! no-op
   end subroutine adv_oifs_compute_ale
 end module adv_oifs
