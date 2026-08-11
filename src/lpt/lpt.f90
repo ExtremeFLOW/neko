@@ -32,7 +32,7 @@
 !
 !> Implements `lpt_t`. (Lagrangian Particle Tracking)
 module lpt
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use json_module, only : json_file
   use registry, only : neko_registry
   use field, only : field_t
@@ -727,7 +727,8 @@ contains
     type(vector_t), intent(in) :: rhs_zlaglag
     integer, intent(in) :: n
     type(ab_time_scheme_t) :: ab_scheme
-    real(kind=rp) :: ab_coeffs(4), dt_history(10)
+    real(kind=rp) :: ab_coeffs(4)
+    real(kind=dp) :: dt_history(10)
     real(kind=rp) :: dtc
     integer :: i
     integer :: nadv
@@ -738,7 +739,7 @@ contains
     nadv = this%time_order
     nadv = min(nadv, this%history_len + 1)
 
-    dt_history = 0.0_rp
+    dt_history = 0.0_dp
     dt_history(1) = this%lpt_time%dt
     dt_history(2) = this%lpt_time%dtlag(1)
     dt_history(3) = this%lpt_time%dtlag(2)
