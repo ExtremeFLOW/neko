@@ -1,7 +1,7 @@
 #ifndef __MATH_MATH_KERNEL_H__
 #define __MATH_MATH_KERNEL_H__
 /*
- Copyright (c) 2021-2023, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -400,6 +400,22 @@ __global__ void cfill_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = c;
+  }
+}
+
+/**
+ * Device kernel for copy
+ */
+template< typename T >
+__global__ void copy_kernel(T * __restrict__ a,
+                            const T * __restrict__ b,
+                            const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = b[i];
   }
 }
 

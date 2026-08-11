@@ -353,6 +353,10 @@ module opencl_intf
        implicit none
        type(c_ptr), value :: cmd_queue
      end function clFinish
+
+     subroutine opencl_buffer_free_all() &
+          bind(c, name = 'opencl_buffer_free_all')
+     end subroutine opencl_buffer_free_all
   end interface
 
 contains
@@ -378,6 +382,8 @@ contains
     end if
 
     if (c_associated(glb_ctx)) then
+       ! Release all device buffers created against the old context
+       call opencl_buffer_free_all()
        if (clReleaseContext(glb_ctx) .ne. CL_SUCCESS) then
           call neko_error('Failed to release context')
        end if
@@ -420,6 +426,10 @@ contains
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
     type(c_ptr), intent(inout) :: prf_cmd_queue
+
+    ! Release all device buffers held by the device layer
+    ! (must precede the release of the context owning them)
+    call opencl_buffer_free_all()
 
     if (c_associated(glb_ctx)) then
        if (clReleaseContext(glb_ctx) .ne. CL_SUCCESS) then

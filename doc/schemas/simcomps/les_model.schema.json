@@ -24,7 +24,8 @@
                       "const": "smagorinsky"
                     },
                     "c_s": {
-                      "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                      "type": "number",
+                      "x-neko-real": true
                     }
                   },
                   "additionalProperties": true
@@ -60,10 +61,10 @@
                       "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
                     },
                     "Ri_c": {
-                      "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                      "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                     },
                     "reference_temperature": {
-                      "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                      "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                     },
                     "g": {
                       "$ref": "urn:neko:schema:simulation-components#/$defs/vector3OrRef"
@@ -100,7 +101,8 @@
                       "const": "sigma"
                     },
                     "c": {
-                      "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                      "type": "number",
+                      "x-neko-real": true
                     }
                   },
                   "additionalProperties": true
@@ -112,7 +114,8 @@
                       "const": "wale"
                     },
                     "c_w": {
-                      "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                      "type": "number",
+                      "x-neko-real": true
                     }
                   },
                   "additionalProperties": true
@@ -150,6 +153,9 @@
                     },
                     "TKE_source_field": {
                       "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+                    },
+                    "extrapolation": {
+                      "const": false
                     }
                   },
                   "additionalProperties": true

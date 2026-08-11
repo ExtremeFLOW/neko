@@ -63,18 +63,19 @@ module hsmg
   use num_types, only : rp
   use math, only : copy, col2, add2
   use utils, only : neko_error
-  use precon, only : pc_t, precon_factory, precon_destroy
+  use precon, only : pc_t, precon_allocator, precon_destroy
   use ax_product, only : ax_t, ax_helm_factory
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
-  use bc, only: bc_t
+  use bc, only : bc_t
   use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
   use schwarz, only : schwarz_t
   use jacobi, only : jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
-  use device
+  use device, only : device_map, device_event_create, device_unmap, &
+       device_event_destroy, device_get_ptr, device_event_sync
   use device_math, only : device_copy, device_col2, device_add2
   use profiler, only : profiler_start_region, profiler_end_region
   use space, only : space_t, GLL
@@ -343,7 +344,7 @@ contains
             this%grids(1)%bclst, crs_tamg_itrs, crs_tamg_cheby_degree)
     else
        ! Create a backend specific preconditioner
-       call precon_factory(this%pc_crs, crs_pc)
+       call precon_allocator(this%pc_crs, crs_pc)
 
        select type (pc => this%pc_crs)
        type is (jacobi_t)

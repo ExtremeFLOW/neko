@@ -35,7 +35,8 @@ module space
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use speclib, only : zwgll, zwgl, dgll, legendre_poly
-  use device
+  use device, only : device_map, device_memcpy, HOST_TO_DEVICE, device_sync, &
+       device_unmap
   use matrix, only : matrix_t
   use utils, only : neko_error
   use fast3d, only : setup_intp

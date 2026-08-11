@@ -13,10 +13,11 @@ module test_boundary_operation
   use time_state, only : time_state_t
   use num_types, only : rp
   use case, only : case_t
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use device, only : device_init, device_finalize, HOST_TO_DEVICE
   use neko_config, only : NEKO_BCKND_DEVICE
-  use neko_mpi_types, only : neko_mpi_types_init
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
   use registry, only : neko_registry
   use vector_math, only : vector_face_masked_gather_copy_0
   implicit none
@@ -35,11 +36,11 @@ contains
   subroutine setUp(this)
     class(test_boundary_operation_case), intent(inout) :: this
 
+    call comm_init_test(this%getMpiCommunicator())
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
 
-    call comm_init
     call neko_mpi_types_init()
   end subroutine setUp
 
@@ -49,6 +50,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
+    call neko_mpi_types_free()
+    call comm_free_test()
   end subroutine tearDown
 
   !> Verify the default logging and CSV flags on a fresh simcomp.

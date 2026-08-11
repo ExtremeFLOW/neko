@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.99.6])
+AC_INIT([neko],[1.99.7])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -8,6 +8,8 @@ AC_LANG([Fortran])
 AC_PROG_INSTALL
 AC_PROG_SED
 AC_PROG_MAKE_SET
+AC_PROG_CC
+AC_PROG_CXX
 AC_LANG_PUSH([C])
 LT_INIT([disable-shared])
 AC_LANG_POP([C])
@@ -33,10 +35,10 @@ AC_ARG_ENABLE(device-mpi,
           AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
           [enable_device_mpi=${enableval}], [enable_device_mpi=no])
 
-AC_ARG_ENABLE(openmp, AC_HELP_STRING([--enable-openmp], [Enable OpenMP]),
+AC_ARG_ENABLE(openmp, AS_HELP_STRING([--enable-openmp], [Enable OpenMP]),
               [enable_openmp=${enableval}], [enable_openmp=no])
 
-AC_ARG_ENABLE(python, AC_HELP_STRING([--enable-python],
+AC_ARG_ENABLE(python, AS_HELP_STRING([--enable-python],
               [Install Python modules, requires a Python interpreter]),
               [enable_python=${enableval}],[enable_python=no])
 
@@ -321,8 +323,11 @@ if (test "x${have_cuda}" = xyes ||
       if test "x${have_cuda}" = xyes; then
          CUDA_CFLAGS="$CUDA_CFLAGS -DHAVE_DEVICE_MPI=1"
 
-         # Make sure we have support for atomicAdd
-           AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])
+         # Device-aware MPI needs atomicAdd (>= sm_60), and picking the
+         # wrong architecture for the target GPU silently hurts performance
+         # rather than failing to build -- worse than a clear error.
+         AS_IF([test -z "$CUDA_ARCH"],
+               [AC_MSG_ERROR([CUDA_ARCH must be set explicitly to a value >= sm_60 for device-aware MPI])])
       fi
 
       if  test "x${have_hip}" = xyes; then
@@ -423,6 +428,7 @@ AC_CONFIG_FILES([Makefile\
         src/python/Makefile\
         tests/unit/Makefile\
         src/comm/comm.F90\
+        src/comm/pfunit_comm_utils.F90\
         src/config/neko_config.f90\
         src/config/num_types.f90\
         src/device/device_config.h\
@@ -475,6 +481,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/time_based_controller/Makefile\
         tests/unit/json_utils/Makefile\
         tests/unit/utils/Makefile\
+        tests/unit/expression/Makefile\
         tests/unit/point_interpolation/Makefile\
         tests/unit/templates/parallel/Makefile\
         tests/unit/boundary_operation/Makefile\

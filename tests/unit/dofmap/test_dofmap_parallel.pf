@@ -11,6 +11,7 @@ module test_dofmap_parallel
   use device
   use neko_config
   use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   implicit none
 
   @TestCase
@@ -24,6 +25,7 @@ contains
 
   subroutine setUp(this)
     class(test_dofmap), intent(inout) :: this
+    call comm_init_test(this%getMpiCommunicator())
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
@@ -34,6 +36,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
+    call comm_free_test()
   end subroutine tearDown
 
   @test(npes=[1])
@@ -46,11 +49,6 @@ contains
     type(point_t) :: p(12)
     integer :: ierr
     integer, parameter :: gdim = 3
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -112,11 +110,6 @@ contains
     integer :: ierr, i,j, lx, i2, j2
     integer, parameter :: gdim = 3
     lx = 5
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -185,11 +178,6 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
@@ -256,11 +244,6 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
@@ -325,11 +308,6 @@ contains
     integer :: ierr, i,j, lx, i2, j2
     integer, parameter :: gdim = 3
     lx = 5
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -396,11 +374,6 @@ contains
     integer :: ierr, i,j, lx, i2, j2
     integer, parameter :: gdim = 3
     lx = 5
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -469,11 +442,6 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
@@ -539,11 +507,6 @@ contains
     integer :: ierr, i,j, lx, i2,j2
     integer, parameter :: gdim = 3
     lx = 5
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)

@@ -1,0 +1,220 @@
+module test_expression
+  use pfunit
+  use num_types, only : rp
+  use math, only : NEKO_EPS
+  use expression, only : expression_t, expression_eval_static
+  use registry, only : neko_const_registry
+
+  implicit none
+
+contains
+
+  !> Compile @a str and evaluate it in a single point.
+  function eval1(str, x, y, z, t) result(res)
+    character(len=*), intent(in) :: str
+    real(kind=rp), intent(in) :: x, y, z
+    real(kind=rp), intent(in), optional :: t
+    real(kind=rp) :: res
+    type(expression_t) :: e
+    real(kind=rp) :: xa(1), ya(1), za(1), ra(1)
+
+    xa(1) = x
+    ya(1) = y
+    za(1) = z
+
+    call e%init(str)
+    if (present(t)) then
+       call e%eval(ra, 1, xa, ya, za, t)
+    else
+       call e%eval(ra, 1, xa, ya, za)
+    end if
+    call e%free()
+
+    res = ra(1)
+  end function eval1
+
+  @test
+  subroutine test_arithmetic()
+    real(kind=rp) :: zero
+
+    zero = 0.0_rp
+
+    @assertEqual(14.0_rp, eval1('2 + 3*4', zero, zero, zero), NEKO_EPS)
+    @assertEqual(20.0_rp, eval1('(2 + 3)*4', zero, zero, zero), NEKO_EPS)
+    @assertEqual(1.0_rp, eval1('7 - 3 - 3', zero, zero, zero), NEKO_EPS)
+    @assertEqual(2.0_rp, eval1('8/2/2', zero, zero, zero), NEKO_EPS)
+    @assertEqual(0.25_rp, eval1('1/4', zero, zero, zero), NEKO_EPS)
+  end subroutine test_arithmetic
+
+  @test
+  subroutine test_numeric_literals()
+    real(kind=rp) :: zero
+
+    zero = 0.0_rp
+
+    @assertEqual(1.5_rp, eval1('1.5', zero, zero, zero), NEKO_EPS)
+    @assertEqual(0.5_rp, eval1('.5', zero, zero, zero), NEKO_EPS)
+    @assertEqual(1500.0_rp, eval1('1.5e3', zero, zero, zero), NEKO_EPS)
+    @assertEqual(0.0015_rp, eval1('1.5e-3', zero, zero, zero), NEKO_EPS)
+    @assertEqual(0.0015_rp, eval1('1.5d-3', zero, zero, zero), NEKO_EPS)
+  end subroutine test_numeric_literals
+
+  !> Unary minus binds looser than `^`, and `^` is right associative, as in
+  !! Fortran.
+  @test
+  subroutine test_power()
+    real(kind=rp) :: zero
+
+    zero = 0.0_rp
+
+    @assertEqual(-4.0_rp, eval1('-2^2', zero, zero, zero), NEKO_EPS)
+    @assertEqual(4.0_rp, eval1('(-2)^2', zero, zero, zero), NEKO_EPS)
+    @assertEqual(512.0_rp, eval1('2^3^2', zero, zero, zero), NEKO_EPS)
+    @assertEqual(0.25_rp, eval1('2^-2', zero, zero, zero), NEKO_EPS)
+    @assertEqual(8.0_rp, eval1('2**3', zero, zero, zero), NEKO_EPS)
+  end subroutine test_power
+
+  !> A negative base raised to a whole power must stay well defined, which is
+  !! what the integer power folding in the parser is there for.
+  @test
+  subroutine test_negative_base_power()
+    real(kind=rp) :: zero
+
+    zero = 0.0_rp
+
+    @assertEqual(4.0_rp, eval1('y^2', zero, -2.0_rp, zero), NEKO_EPS)
+    @assertEqual(-8.0_rp, eval1('y^3', zero, -2.0_rp, zero), NEKO_EPS)
+    @assertEqual(0.25_rp, eval1('y^-2', zero, -2.0_rp, zero), NEKO_EPS)
+  end subroutine test_negative_base_power
+
+  @test
+  subroutine test_coordinates()
+    real(kind=rp) :: zero
+
+    zero = 0.0_rp
+
+    @assertEqual(11.0_rp, eval1('x*y + z', 2.0_rp, 4.0_rp, 3.0_rp), NEKO_EPS)
+    @assertEqual(1.5_rp, eval1('6*y*(1 - y)', zero, 0.5_rp, zero), NEKO_EPS)
+  end subroutine test_coordinates
+
+  @test
+  subroutine test_functions()
+    real(kind=rp) :: zero, one, quarter_pi
+
+    zero = 0.0_rp
+    one = 1.0_rp
+    quarter_pi = atan(1.0_rp)
+
+    @assertEqual(1.0_rp, eval1('sin(pi/2)', zero, zero, zero), 1e-6_rp)
+    @assertEqual(-1.0_rp, eval1('cos(pi)', zero, zero, zero), 1e-6_rp)
+    @assertEqual(1.0_rp, eval1('exp(0)', zero, zero, zero), NEKO_EPS)
+    @assertEqual(2.0_rp, eval1('sqrt(4)', zero, zero, zero), NEKO_EPS)
+    @assertEqual(3.0_rp, eval1('abs(-3)', zero, zero, zero), NEKO_EPS)
+    @assertEqual(2.0_rp, eval1('log10(100)', zero, zero, zero), 1e-6_rp)
+    @assertEqual(5.0_rp, eval1('max(x, 5)', 2.0_rp, zero, zero), NEKO_EPS)
+    @assertEqual(2.0_rp, eval1('min(x, 5)', 2.0_rp, zero, zero), NEKO_EPS)
+    @assertEqual(1.0_rp, eval1('mod(7, 3)', zero, zero, zero), NEKO_EPS)
+    @assertEqual(0.0_rp, eval1('step(x)', -1.0_rp, zero, zero), NEKO_EPS)
+    @assertEqual(1.0_rp, eval1('step(x)', one, zero, zero), NEKO_EPS)
+    @assertEqual(quarter_pi, eval1('atan2(1, 1)', zero, zero, zero), 1e-6_rp)
+    @assertEqual(0.0_rp, eval1('tanh(0)', zero, zero, zero), NEKO_EPS)
+  end subroutine test_functions
+
+  @test
+  subroutine test_whitespace_and_nesting()
+    real(kind=rp) :: zero, nested
+
+    zero = 0.0_rp
+    nested = eval1('sqrt(max(min(4, 9), 1))', zero, zero, zero)
+
+    @assertEqual(3.0_rp, eval1('  1  +  2  ', zero, zero, zero), NEKO_EPS)
+    @assertEqual(2.0_rp, nested, NEKO_EPS)
+  end subroutine test_whitespace_and_nesting
+
+  @test
+  subroutine test_time_dependence()
+    type(expression_t) :: e
+    real(kind=rp) :: zero
+
+    zero = 0.0_rp
+
+    call e%init('x + y')
+    @assertFalse(e%time_dependent)
+    call e%free()
+
+    call e%init('sin(2*pi*t)')
+    @assertTrue(e%time_dependent)
+    call e%free()
+
+    call e%init('x/dt')
+    @assertTrue(e%time_dependent)
+    call e%free()
+
+    @assertEqual(2.0_rp, eval1('2*t', zero, zero, zero, 1.0_rp), NEKO_EPS)
+  end subroutine test_time_dependence
+
+  !> Constants declared in the case file are folded into the expression when
+  !! it is compiled.
+  @test
+  subroutine test_registry_constants()
+    real(kind=rp) :: zero
+
+    zero = 0.0_rp
+
+    call neko_const_registry%init()
+    call neko_const_registry%add_real_scalar(2.5_rp, 'U_b')
+    call neko_const_registry%add_integer_scalar(3, 'n_wave')
+
+    @assertEqual(5.0_rp, eval1('U_b*x', 2.0_rp, zero, zero), NEKO_EPS)
+    @assertEqual(3.0_rp, eval1('n_wave', zero, zero, zero), NEKO_EPS)
+    @assertEqual(7.5_rp, eval1('U_b*n_wave', zero, zero, zero), NEKO_EPS)
+
+    call neko_const_registry%free()
+  end subroutine test_registry_constants
+
+  !> The convenience routine used by the initial conditions, which compiles and
+  !! evaluates in one go.
+  @test
+  subroutine test_eval_static()
+    integer, parameter :: n = 4
+    real(kind=rp) :: x(n), y(n), z(n), res(n)
+    integer :: i
+
+    do i = 1, n
+       x(i) = real(i, kind=rp)
+       y(i) = real(i, kind=rp) / 2.0_rp
+       z(i) = 0.0_rp
+    end do
+
+    call expression_eval_static('2*x + y', res, n, x, y, z, 'test')
+
+    do i = 1, n
+       @assertEqual(2.0_rp*x(i) + y(i), res(i), 1e-6_rp)
+    end do
+  end subroutine test_eval_static
+
+  !> The evaluator works through the points in chunks, so make sure that more
+  !! points than fit in one chunk give the same answer.
+  @test
+  subroutine test_many_points()
+    type(expression_t) :: e
+    integer, parameter :: n = 5000
+    real(kind=rp) :: x(n), y(n), z(n), res(n)
+    integer :: i
+
+    do i = 1, n
+       x(i) = real(i, kind=rp)
+       y(i) = real(2*i, kind=rp)
+       z(i) = real(-i, kind=rp)
+    end do
+
+    call e%init('x + y*z')
+    call e%eval(res, n, x, y, z)
+    call e%free()
+
+    do i = 1, n
+       @assertEqual(x(i) + y(i)*z(i), res(i), 1e-6_rp)
+    end do
+  end subroutine test_many_points
+
+end module test_expression

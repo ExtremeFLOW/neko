@@ -25,7 +25,7 @@
             "avg_direction": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/simcompAvgDirection"
             },
-            "output_file": {
+            "output_filename": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
             }
           },

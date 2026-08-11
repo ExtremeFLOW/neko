@@ -33,7 +33,7 @@
 */
 
 /**
- * Metal host-side dispatch for compressible flow operations.
+ * Metal host-side dispatch for compressible flow update operations.
  *
  * @note Apple GPUs do not support FP64. This backend operates in FP32.
  */
@@ -53,8 +53,10 @@ extern id<MTLLibrary> neko_metal_library(void);
 static id<MTLComputePipelineState> pso_update_uvw = nil;
 static id<MTLComputePipelineState> pso_update_mxyz_p_ruvw = nil;
 static id<MTLComputePipelineState> pso_update_e = nil;
-static id<MTLComputePipelineState> pso_compute_entropy = nil;
-static id<MTLComputePipelineState> pso_compute_max_wave_speed = nil;
+static id<MTLComputePipelineState> pso_update_temperature = nil;
+static id<MTLComputePipelineState> pso_ns_flux_prepare = nil;
+static id<MTLComputePipelineState> pso_ns_flux_finalize = nil;
+static id<MTLComputePipelineState> pso_ns_flux_temperature = nil;
 
 /**
  * Create a compute pipeline state for the named kernel.
@@ -195,23 +197,24 @@ void metal_update_e(void *E, void *p, void *ruvw, real gamma, int n) {
 }
 
 /**
- * Compute the entropy on the Metal GPU.
+ * Update the temperature T = p / (rho * (gamma - 1)) on the Metal GPU.
  */
-void metal_compute_entropy(void *S, void *p, void *rho, real gamma, int n) {
+void metal_update_temperature(void *T, void *p, void *rho,
+                              real gamma, int n) {
 
   if (n <= 0)
     return;
 
-  if (pso_compute_entropy == nil)
-    pso_compute_entropy =
-      get_compressible_ops_pipeline("compute_entropy_kernel");
+  if (pso_update_temperature == nil)
+    pso_update_temperature =
+      get_compressible_ops_pipeline("update_temperature_kernel");
 
   id<MTLCommandBuffer> cmdBuf;
   id<MTLComputeCommandEncoder> enc = compressible_ops_encoder(&cmdBuf);
 
-  [enc setComputePipelineState:pso_compute_entropy];
+  [enc setComputePipelineState:pso_update_temperature];
 
-  [enc setBuffer:(__bridge id<MTLBuffer>)S   offset:0 atIndex:0];
+  [enc setBuffer:(__bridge id<MTLBuffer>)T   offset:0 atIndex:0];
   [enc setBuffer:(__bridge id<MTLBuffer>)p   offset:0 atIndex:1];
   [enc setBuffer:(__bridge id<MTLBuffer>)rho offset:0 atIndex:2];
   [enc setBytes:&gamma length:sizeof(real) atIndex:3];
@@ -221,32 +224,110 @@ void metal_compute_entropy(void *S, void *p, void *rho, real gamma, int n) {
 }
 
 /**
- * Compute the maximum wave speed |u| + c on the Metal GPU.
+ * Prepare physical Navier-Stokes flux work arrays on the Metal GPU.
  */
-void metal_compute_max_wave_speed(void *max_wave_speed,
-                                  void *u, void *v, void *w,
-                                  real gamma, void *p, void *rho, int n) {
+void metal_ns_flux_prepare(void *div_flux, void *dissipation, void *h1,
+                           void *dudx, void *dudy, void *dudz,
+                           void *dvdx, void *dvdy, void *dvdz,
+                           void *dwdx, void *dwdy, void *dwdz,
+                           void *mu, int n) {
 
   if (n <= 0)
     return;
 
-  if (pso_compute_max_wave_speed == nil)
-    pso_compute_max_wave_speed =
-      get_compressible_ops_pipeline("compute_max_wave_speed_kernel");
+  if (pso_ns_flux_prepare == nil)
+    pso_ns_flux_prepare =
+      get_compressible_ops_pipeline("ns_flux_prepare_kernel");
 
   id<MTLCommandBuffer> cmdBuf;
   id<MTLComputeCommandEncoder> enc = compressible_ops_encoder(&cmdBuf);
 
-  [enc setComputePipelineState:pso_compute_max_wave_speed];
+  [enc setComputePipelineState:pso_ns_flux_prepare];
 
-  [enc setBuffer:(__bridge id<MTLBuffer>)max_wave_speed offset:0 atIndex:0];
-  [enc setBuffer:(__bridge id<MTLBuffer>)u   offset:0 atIndex:1];
-  [enc setBuffer:(__bridge id<MTLBuffer>)v   offset:0 atIndex:2];
-  [enc setBuffer:(__bridge id<MTLBuffer>)w   offset:0 atIndex:3];
-  [enc setBytes:&gamma length:sizeof(real) atIndex:4];
-  [enc setBuffer:(__bridge id<MTLBuffer>)p   offset:0 atIndex:5];
-  [enc setBuffer:(__bridge id<MTLBuffer>)rho offset:0 atIndex:6];
-  [enc setBytes:&n length:sizeof(int) atIndex:7];
+  [enc setBuffer:(__bridge id<MTLBuffer>)div_flux    offset:0 atIndex:0];
+  [enc setBuffer:(__bridge id<MTLBuffer>)dissipation offset:0 atIndex:1];
+  [enc setBuffer:(__bridge id<MTLBuffer>)h1          offset:0 atIndex:2];
+  [enc setBuffer:(__bridge id<MTLBuffer>)dudx offset:0 atIndex:3];
+  [enc setBuffer:(__bridge id<MTLBuffer>)dudy offset:0 atIndex:4];
+  [enc setBuffer:(__bridge id<MTLBuffer>)dudz offset:0 atIndex:5];
+  [enc setBuffer:(__bridge id<MTLBuffer>)dvdx offset:0 atIndex:6];
+  [enc setBuffer:(__bridge id<MTLBuffer>)dvdy offset:0 atIndex:7];
+  [enc setBuffer:(__bridge id<MTLBuffer>)dvdz offset:0 atIndex:8];
+  [enc setBuffer:(__bridge id<MTLBuffer>)dwdx offset:0 atIndex:9];
+  [enc setBuffer:(__bridge id<MTLBuffer>)dwdy offset:0 atIndex:10];
+  [enc setBuffer:(__bridge id<MTLBuffer>)dwdz offset:0 atIndex:11];
+  [enc setBuffer:(__bridge id<MTLBuffer>)mu   offset:0 atIndex:12];
+  [enc setBytes:&n length:sizeof(int) atIndex:13];
+
+  compressible_ops_dispatch(cmdBuf, enc, n);
+}
+
+/**
+ * Finish physical Navier-Stokes flux assembly on the Metal GPU.
+ */
+void metal_ns_flux_finalize(void *visc_m_x, void *visc_m_y, void *visc_m_z,
+                            void *visc_E, void *f_x, void *f_y, void *f_z,
+                            void *opgrad_x, void *opgrad_y, void *opgrad_z,
+                            void *u, void *v, void *w, void *B,
+                            void *dissipation, int n) {
+
+  if (n <= 0)
+    return;
+
+  if (pso_ns_flux_finalize == nil)
+    pso_ns_flux_finalize =
+      get_compressible_ops_pipeline("ns_flux_finalize_kernel");
+
+  id<MTLCommandBuffer> cmdBuf;
+  id<MTLComputeCommandEncoder> enc = compressible_ops_encoder(&cmdBuf);
+
+  [enc setComputePipelineState:pso_ns_flux_finalize];
+
+  [enc setBuffer:(__bridge id<MTLBuffer>)visc_m_x offset:0 atIndex:0];
+  [enc setBuffer:(__bridge id<MTLBuffer>)visc_m_y offset:0 atIndex:1];
+  [enc setBuffer:(__bridge id<MTLBuffer>)visc_m_z offset:0 atIndex:2];
+  [enc setBuffer:(__bridge id<MTLBuffer>)visc_E   offset:0 atIndex:3];
+  [enc setBuffer:(__bridge id<MTLBuffer>)f_x offset:0 atIndex:4];
+  [enc setBuffer:(__bridge id<MTLBuffer>)f_y offset:0 atIndex:5];
+  [enc setBuffer:(__bridge id<MTLBuffer>)f_z offset:0 atIndex:6];
+  [enc setBuffer:(__bridge id<MTLBuffer>)opgrad_x offset:0 atIndex:7];
+  [enc setBuffer:(__bridge id<MTLBuffer>)opgrad_y offset:0 atIndex:8];
+  [enc setBuffer:(__bridge id<MTLBuffer>)opgrad_z offset:0 atIndex:9];
+  [enc setBuffer:(__bridge id<MTLBuffer>)u offset:0 atIndex:10];
+  [enc setBuffer:(__bridge id<MTLBuffer>)v offset:0 atIndex:11];
+  [enc setBuffer:(__bridge id<MTLBuffer>)w offset:0 atIndex:12];
+  [enc setBuffer:(__bridge id<MTLBuffer>)B offset:0 atIndex:13];
+  [enc setBuffer:(__bridge id<MTLBuffer>)dissipation offset:0 atIndex:14];
+  [enc setBytes:&n length:sizeof(int) atIndex:15];
+
+  compressible_ops_dispatch(cmdBuf, enc, n);
+}
+
+/**
+ * Prepare temperature and conductivity for the energy flux on the Metal GPU.
+ */
+void metal_ns_flux_temperature(void *div_flux, void *h1, void *p, void *rho,
+                               void *kappa, real gamma, int n) {
+
+  if (n <= 0)
+    return;
+
+  if (pso_ns_flux_temperature == nil)
+    pso_ns_flux_temperature =
+      get_compressible_ops_pipeline("ns_flux_temperature_kernel");
+
+  id<MTLCommandBuffer> cmdBuf;
+  id<MTLComputeCommandEncoder> enc = compressible_ops_encoder(&cmdBuf);
+
+  [enc setComputePipelineState:pso_ns_flux_temperature];
+
+  [enc setBuffer:(__bridge id<MTLBuffer>)div_flux offset:0 atIndex:0];
+  [enc setBuffer:(__bridge id<MTLBuffer>)h1       offset:0 atIndex:1];
+  [enc setBuffer:(__bridge id<MTLBuffer>)p     offset:0 atIndex:2];
+  [enc setBuffer:(__bridge id<MTLBuffer>)rho   offset:0 atIndex:3];
+  [enc setBuffer:(__bridge id<MTLBuffer>)kappa offset:0 atIndex:4];
+  [enc setBytes:&gamma length:sizeof(real) atIndex:5];
+  [enc setBytes:&n length:sizeof(int) atIndex:6];
 
   compressible_ops_dispatch(cmdBuf, enc, n);
 }

@@ -36,6 +36,7 @@ device_config.h
 neko_config.f90
 num_types.f90
 comm.F90
+pfunit_comm_utils.F90
 missing
 test-driver
 Doxyfile
@@ -54,6 +55,7 @@ m4/ltversion.m4
 m4/lt~obsolete.m4
 ltmain.sh
 *.cl.h
+*.1
 
 # Ignore installation files
 lib/*
@@ -101,6 +103,9 @@ install
 
 # Codex
 .codex
+
+# Claude
+.claude
 
 # Directory to stash temporary files during development
 .temp

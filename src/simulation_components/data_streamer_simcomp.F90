@@ -46,7 +46,7 @@ module data_streamer_simcomp
   use logger, only : neko_log, NEKO_LOG_DEBUG
   use time_based_controller, only : time_based_controller_t
   use registry, only : neko_registry
-  use device
+  use device, only : DEVICE_TO_HOST
   use utils, only : NEKO_VARNAME_LEN, neko_error
   use, intrinsic :: iso_c_binding
   implicit none

@@ -1,5 +1,7 @@
+#ifndef __OPENCL_BUFFER_H
+#define __OPENCL_BUFFER_H
 /*
- Copyright (c) 2025, The Neko Authors
+ Copyright (c) 2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,32 +34,43 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include <cublas.h>
-#include <device/device_config.h>
-#include <device/cuda/check.h>
-#include <math/bcknd/device/cuda/mathops_kernel.h>
+#include <stddef.h>
 
-extern "C" {
+#ifdef __APPLE__
+#include <OpenCL/cl.h>
+#else
+#include <CL/cl.h>
+#endif
 
-void cuda_compute_entropy(void *S_d, 
-                          void *p_d, void *rho_d,
-                          real *gamma, 
-                          int *n) {
-  
-  const dim3 nthrds(1024, 1, 1);
-  const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
-  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-  
-  compute_entropy_kernel<real>
-    <<<nblcks, nthrds, 0, stream>>>((real *) S_d, 
-                                     (real *) p_d, (real *) rho_d, 
-                                     *gamma, *n);
-  CUDA_CHECK(cudaGetLastError());
-  
-}
+/**
+ * Device buffer: a lazily grown pair of a host buffer and a device
+ * buffer, owned by the device layer. A buffer is linked into a
+ * registry on its first reservation, and opencl_buffer_free_all()
+ * (called from opencl_finalize before the context is released)
+ * releases all registered buffers and resets them to an empty
+ * state, from which they grow again on demand after a subsequent
+ * device init
+ */
+struct opencl_buffer {
+  void *host;                 /**< Host buffer */
+  cl_mem dev;                 /**< Device buffer */
+  size_t size;                /**< Capacity in bytes */
+  int registered;             /**< Buffer linked into the registry */
+  struct opencl_buffer *next; /**< Registry link */
+};
+typedef struct opencl_buffer opencl_buffer_t;
 
-} 
+#define OPENCL_BUFFER_INIT {NULL, NULL, 0, 0, NULL}
+
+/**
+ * Ensure that a buffer holds at least @a size bytes on both the
+ * host and the device side, growing it if necessary
+ */
+void opencl_buffer_reserve(opencl_buffer_t *buf, size_t size);
+
+/**
+ * Free all registered buffers and reset them to an empty state
+ */
+void opencl_buffer_free_all(void);
+
+#endif /* __OPENCL_BUFFER_H */

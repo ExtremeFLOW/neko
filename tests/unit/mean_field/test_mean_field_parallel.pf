@@ -12,6 +12,7 @@ module test_mean_field_parallel
   use space
   use device
   use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use neko_config
   implicit none
 
@@ -26,6 +27,7 @@ contains
 
   subroutine setUp(this)
     class(test_mean_field), intent(inout) :: this
+    call comm_init_test(this%getMpiCommunicator())
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
@@ -36,6 +38,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
+    call comm_free_test()
   end subroutine tearDown
 
   subroutine test_mean_field_gen_msh(msh)
@@ -87,10 +90,6 @@ contains
     type(mean_field_t) :: mf
     integer :: ierr
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     call test_mean_field_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
 
@@ -113,8 +112,6 @@ contains
     type(field_t) :: f
     type(mean_field_t) :: mf, mf2
     integer :: ierr, i
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_mean_field_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)

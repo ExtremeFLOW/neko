@@ -27,6 +27,11 @@ files against that schema.
 Since some shipped example files use `//` comments and trailing commas, the
 helper parses the input using a JSON5-compatible frontend before applying the
 schema.
+Neko distinguishes JSON integers such as `10` from JSON reals such as `10.0`,
+even though the JSON Schema specification considers both to be numbers and
+considers `10.0` to satisfy the `integer` type. The schemas mark real-only
+values with the Neko-specific `x-neko-real` annotation, and the validation
+helper enforces both that annotation and strict JSON integer encoding.
 
 ## High-level structure
 The current high-level structure of the case file is shown below.
@@ -67,9 +72,11 @@ The frequency is controlled by two parameters, ending with `_control` and
 The latter name is perhaps not ideal, but it is somewhat difficult to come up
 with a good one, suggestions are welcome.
 
-The `_value` parameter is a *real* number, that defines the output frequency,
-but the interpretation of that number depends on the choice of `_control`. The
-three following options are possible.
+The `_value` parameter defines the output frequency, but both its JSON type and
+interpretation depend on the choice of `_control`. Neko requires an integer
+literal for `tsteps` and `nsamples`, and a real literal for `simulationtime`.
+For example, use `10` for ten time steps but `10.0` for ten simulation-time
+units. The following options are possible.
 1. `simulationtime`, then `_value` is the time interval between the outputs.
 2. `tsteps`, then `_value` is the number of time steps between the outputs.
 3. `nsamples`, then `_value` is the total number of outputs that will be
@@ -88,7 +95,6 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `mesh_file`           | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
 | `output_boundary`     | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
 | `output_directory`    | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
-| `output_format`       | The file format of field data.                                                                        | `nek5000`, `adios2`, or `vtkhdf`                | `nek5000`     |
 | `output_precision`    | Whether to output snapshots in single or double precision                                             | `single` or `double`                            | `single`      |
 | `output_layout`       | Data layout for `adios2` files. (Choose `2` or `3` for ADIOS2 supported compressors BigWhoop or ZFP.) | Positive integer `1`, `2`, `3`                  | `1`           |
 | `load_balancing`      | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
@@ -192,6 +198,52 @@ initial and boundary conditions.
 Under the hood, Neko stores the constants in an object called
 `neko_const_registry`, which is of the type `registry_t` (same as
 `neko_registry`). The object is accessible in the [user file](@ref user-file).
+
+### Expressions {#case-file_expressions}
+Some parameters accept a mathematical expression, written as a string, instead
+of a number. The expression is evaluated in every point where the parameter is
+needed, which makes it possible to prescribe a spatially varying profile
+without writing a [user file](@ref user-file).
+
+```json
+{
+  "constants":
+  [
+    { "name": "U_b", "value": 1.0 },
+    { "name": "H", "value": 2.0 }
+  ],
+  "fluid":
+  {
+    "initial_condition":
+    {
+      "type": "expression",
+      "value": ["6*U_b*y*(H - y)/H^2", "0", "0"]
+    }
+  }
+}
+```
+
+The following can be used in an expression.
+
+| Kind        | Available                                                                                                                     |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Coordinates | `x`, `y`, `z`                                                                                                                 |
+| Time        | `t`, `dt`, where the parameter is evaluated during the simulation                                                             |
+| Constants   | `pi`, and any scalar declared under `case.constants`                                                                          |
+| Operators   | `+`, `-`, `*`, `/`, `^` (also written `**`), parentheses                                                                      |
+| Functions   | `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `exp`, `log`, `log10`, `sqrt`, `abs`, `erf`, `erfc`, `step` |
+|             | `atan2(y, x)`, `min(a, b)`, `max(a, b)`, `mod(a, b)`                                                                          |
+
+`step(a)` is `0` for `a < 0` and `1` otherwise. Precedence and associativity
+follow Fortran, so `-x^2` is `-(x^2)` and `2^3^2` is `2^(3^2)`.
+
+Constants are read when the expression is compiled, at setup, and multiplication
+must always be written out, so `2*x` is valid whereas `2x` is not. An expression
+that refers to an unknown name is reported as an error at setup, rather than
+during the simulation. An expression that does not evaluate to a finite value
+everywhere, typically because of a division by zero or the square root of a
+negative number, is also reported as an error, at setup if it does not depend on
+time and otherwise every time it is evaluated.
 
 ### Time control
 The `time` object is used to define the time-stepping of the simulation,
@@ -518,6 +570,33 @@ A more detailed description of each boundary condition is provided below.
     "zone_indices": [1, 2]
   }
   ```
+* `expression_velocity`. A Dirichlet condition for velocity, where the `value`
+  keyword holds an array of three strings, one mathematical expression per
+  component. See [expressions](@ref case-file_expressions) for the syntax.
+  This covers inlet profiles and time varying inlets without a user file.
+
+  ```json
+  {
+    "type": "expression_velocity",
+    "value": ["6*U_b*y*(H - y)/H^2", "0", "0.05*sin(2*pi*f*t)"],
+    "zone_indices": [1]
+  }
+  ```
+
+  The expressions are evaluated in the boundary points only. An expression
+  that uses neither `t` nor `dt` is evaluated once, at setup, and then costs
+  nothing more than `velocity_value` at runtime; one that uses either of them
+  is re-evaluated once per timestep.
+* `expression_pressure`. The same, for pressure, where `value` is a single
+  string.
+
+  ```json
+  {
+    "type": "expression_pressure",
+    "value": "p_0*(1 - x/L)",
+    "zone_indices": [3]
+  }
+  ```
 * `no_slip`. A standard no-slip wall, which sets velocity to zero relative to the wall. For moving walls, setting the optional argument `"moving": true` is required. This also requires setting up the ALE module separately. further details can be found in [ALE user guide](#case-file_fluid-ale). For stationary walls, no additional keyword is needed.
   ```json
   {
@@ -814,7 +893,18 @@ The means of prescribing the values are controlled via the `type` keyword:
 file documentation.
 2. `uniform`, the value is a constant vector, looked up under the `value`
    keyword.
-3. `blasius`, a Blasius profile is prescribed. The boundary cannot be tilted
+3. `expression`, the `value` keyword holds an array of three strings, one
+   mathematical expression per velocity component. See
+   [expressions](@ref case-file_expressions) for the syntax. For example
+   ~~~~~~~~~~~~~~~{.json}
+   {
+     "type": "expression",
+     "value": ["6*U_b*y*(H - y)/H^2", "0", "0"]
+   }
+   ~~~~~~~~~~~~~~~
+   The expressions are evaluated in every GLL point of the mesh, so unlike
+   `uniform` they can describe an arbitrary profile without a user file.
+4. `blasius`, a Blasius profile is prescribed. The boundary cannot be tilted
   with respect to the coordinate axes.
    It requires the following parameters:
    1. `delta`, the thickness of the boundary layer.
@@ -826,11 +916,11 @@ file documentation.
       - `quartic`, quartic approximation.
       - `sin`, sine function approximation.
       - `tanh`, hyperbolic tangent approximation of Savaş (2012). In this case `delta` is the 99\% thickness.
-4. `point_zone`, the values are set to a constant base value, supplied under the
+5. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
-   point zone is specified by the `name` keyword, and should be defined in the
+   point zone is specified by the `zone_name` keyword, and should be defined in the
    `case.point_zones` object. See more about [point zones](@ref point-zones).
-5. `field`, where the initial condition is retrieved from a field file.
+6. `field`, where the initial condition is retrieved from a field file.
    The following keywords can be used:
    | Name                      | Description                                                                                        | Admissible values            | Default value  |
    | ------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | -------------- |
@@ -1819,13 +1909,14 @@ concisely directly in the table.
 | `nut_field`                                        | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                                   | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                                     | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
+| `output_format`                                    | The file format of field data.                                                                     | `nek5000`, `adios2`, or `vtkhdf`                            | `nek5000`     |
 | `output_mesh_in_all_files`                         | Indicates if the mesh should be written in every output fld file.                                 | `true` or `false`                                           | `false`       |
 | `output_filename`                                  | The output filename.                                                                              | String                                                      | `field`       |
 | `output_subdivide`                                 | Whether to subdivide spectral elements into linear sub-cells for VTKHDF output.                   | `true` or `false`                                           | `false`       |
 | `inflow_condition.type`                            | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
 | `inflow_condition.value`                           | Value of the inflow velocity.                                                                     | Vector of 3 reals                                           | -             |
-| `initial_condition.type`                           | Initial condition type.                                                                           | `user`, `uniform`, `blasius`, `field`                       | -             |
-| `initial_condition.value`                          | Value of the velocity initial condition.                                                          | Vector of 3 reals                                           | -             |
+| `initial_condition.type`                           | Initial condition type.                                                                           | `user`, `uniform`, `expression`, `blasius`, `point_zone`, `field` | -             |
+| `initial_condition.value`                          | Value of the velocity initial condition.                                                          | Vector of 3 reals, or of 3 strings if `"type" = "expression"` | -             |
 | `initial_condition.file_name`                      | If `"type" = "field"`, the path to the field file to read from.                                   | String ending with `.fld`, `.chkp`, `.nek5000` or `f*****`. | -             |
 | `initial_condition.sample_index`                   | If `"type" = "field"`, and file type is `fld` or `nek5000`, the index of the file to sampled.     | Positive integer.                                           | -1            |
 | `initial_condition.previous_mesh`                  | If `"type" = "field"`, and file type is `chkp`, the previous mesh from which to interpolate.      | String ending with `.nmsh`.                                 | -             |
@@ -1916,13 +2007,23 @@ user could set it up by the following manner to include an eddy diffusivity fiel
 The boundary conditions for the scalar are specified through the
 `boundary_conditions` keyword, which follows the same format as the fluid, for
 specifying the type of the condition and where it is applied.
-Four types of conditions are available for the scalar:
+The following types of conditions are available for the scalar:
 
 * `dirichlet`. Sets the value of the scalar, controlled by the `value` keyword.
   ```json
   {
     "type": "dirichlet",
     "value": 1,
+    "zone_indices": [1, 2]
+  }
+  ```
+* `expression_dirichlet`. Sets the value of the scalar from a mathematical
+  expression, given as a string under the `value` keyword. See
+  [expressions](@ref case-file_expressions) for the syntax.
+  ```json
+  {
+    "type": "expression_dirichlet",
+    "value": "T_wall + dT*tanh((x - x0)/L)",
     "zone_indices": [1, 2]
   }
   ```
@@ -1953,11 +2054,20 @@ The means of prescribing the values are controlled via the `type` keyword:
 file documentation.
 2. `uniform`, the value is a constant scalar, looked up under the `value`
    keyword.
-3. `point_zone`, the values are set to a constant base value, supplied under the
+3. `expression`, the `value` keyword holds a single string, a mathematical
+   expression prescribing the initial value. See
+   [expressions](@ref case-file_expressions) for the syntax. For example
+   ~~~~~~~~~~~~~~~{.json}
+   {
+     "type": "expression",
+     "value": "T_hot + dT*tanh((z - z0)/L)"
+   }
+   ~~~~~~~~~~~~~~~
+4. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
-   point zone is specified by the `name` keyword, and should be defined in the
+   point zone is specified by the `zone_name` keyword, and should be defined in the
    `case.point_zones` object. See more about [point zones](@ref point-zones).
-4. `field`, where the initial condition is retrieved from a field file. Works
+5. `field`, where the initial condition is retrieved from a field file. Works
    in the same way as for the fluid. See the
    [fluid section](@ref case-file_fluid-ic) for detailed explanations.
 
@@ -1987,8 +2097,8 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `alphat.nut_field`             | Name of the turbulent kinematic viscosity field.                      | String                                      | Empty string  |
 | `alphat.Pr_t`                  | Turbulent Prandtl number                                              | Positive real                               | -             |
 | `boundary_types`               | Boundary types/conditions labels.                                     | Array of strings                            | -             |
-| `initial_condition.type`       | Initial condition type.                                               | `user`, `uniform`, `point_zone`             | -             |
-| `initial_condition.value`      | Value of the velocity initial condition.                              | Real                                        | -             |
+| `initial_condition.type`       | Initial condition type.                                               | `user`, `uniform`, `expression`, `point_zone`, `field` | -           |
+| `initial_condition.value`      | Value of the scalar initial condition.                                | Real, or a string if `"type" = "expression"` | -             |
 | `source_terms`                 | Array of JSON objects, defining additional source terms.              | See list of source terms above              | -             |
 | `gradient_jump_penalty`        | Array of JSON objects, defining additional gradient jump penalty.     | See list of gradient jump penalty above     | -             |
 | `advection`                    | Whether to compute the advetion term.                                 | `true` or `false`                           | `true`        |

@@ -39,6 +39,11 @@
  * MTLResourceStorageModeShared so that a single MTLBuffer is
  * accessible from both sides.  The opaque c_ptr that Fortran stores
  * is the ARC-retained MTLBuffer pointer.
+ *
+ * Mapped host arrays (metal_map) exploit the unified memory fully:
+ * when the host allocation permits, the buffer is created with
+ * newBufferWithBytesNoCopy so that host and device share a single
+ * allocation and host-device copies degenerate to no-ops.
  */
 
 #ifdef __APPLE__
@@ -47,6 +52,9 @@
 #import <Foundation/Foundation.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <malloc/malloc.h>
+#include <mach/vm_page_size.h>
 
 /*
  *  Module-local Metal device and default command queue
@@ -173,6 +181,57 @@ int metal_alloc(void **ptr, size_t s)
 }
 
 /**
+ * Whether mapped buffers may alias host allocations (zero-copy).
+ *
+ * Requires a device with unified memory (Apple Silicon); discrete
+ * GPUs (AMD in Intel Macs) support Metal but not unified memory and
+ * always use replicated buffers.  Can be disabled with
+ * NEKO_METAL_ZEROCOPY=0.
+ */
+static int metal_zerocopy(void)
+{
+    static int zerocopy = -1;
+    if (zerocopy < 0) {
+        const char *env = getenv("NEKO_METAL_ZEROCOPY");
+        zerocopy = (env == NULL || atoi(env) != 0) &&
+            [_mtl_device hasUnifiedMemory];
+    }
+    return zerocopy;
+}
+
+/**
+ * Map \p s bytes of host memory at \p ptr_h to a Metal buffer.
+ *
+ * On unified memory (see metal_zerocopy), when the host allocation is
+ * page-aligned and its malloc block covers whole VM pages we wrap it
+ * in a no-copy shared buffer; host and device then operate on the
+ * same allocation and copies between them become no-ops.  Otherwise
+ * (small, stack or unaligned allocations, or a discrete GPU) we fall
+ * back to a separate buffer as in metal_alloc.
+ */
+int metal_map(void **ptr, void *ptr_h, size_t s)
+{
+    if (metal_zerocopy() && ptr_h != NULL) {
+        const size_t page = vm_page_size;
+        const size_t len = (s + page - 1) & ~(page - 1);
+        if (((uintptr_t) ptr_h & (page - 1)) == 0 &&
+            malloc_size(ptr_h) >= len) {
+            id<MTLBuffer> buf =
+                [_mtl_device newBufferWithBytesNoCopy:ptr_h
+                                length:len
+                                options:MTLResourceStorageModeShared
+                                deallocator:nil];
+            if (buf) {
+                *ptr = (__bridge_retained void *)buf;
+                return 0;
+            }
+        }
+    }
+
+    return metal_alloc(ptr, s);
+}
+
+/**
  * Free a previously allocated Metal buffer.
  * Returns 0 on success.
  */
@@ -196,14 +255,22 @@ int metal_free(void *ptr)
 /**
  * Copy \p s bytes from host memory \p src to Metal buffer \p dst_d.
  *
- * Because we use shared-mode buffers the copy is a plain memcpy.
- * A blit encoder could be used for managed-mode on discrete GPUs,
- * but Apple Silicon only has shared memory.
+ * Because we use shared-mode buffers the copy is a host-side copy.
+ * On unified memory the buffer may be a no-copy mapping of \p src
+ * (see metal_map): an exact alias makes the copy a no-op, and any
+ * other overlap requires memmove.  Otherwise buffers are separate
+ * allocations and a plain memcpy suffices.
  */
 int metal_memcpy_htod(void *dst_d, const void *src, size_t s)
 {
     id<MTLBuffer> buf = (__bridge id<MTLBuffer>)dst_d;
-    memcpy([buf contents], src, s);
+    void *contents = [buf contents];
+    if (metal_zerocopy()) {
+        if (contents != src)
+            memmove(contents, src, s);
+    } else {
+        memcpy(contents, src, s);
+    }
     return 0;
 }
 
@@ -213,7 +280,13 @@ int metal_memcpy_htod(void *dst_d, const void *src, size_t s)
 int metal_memcpy_dtoh(void *dst, void *src_d, size_t s)
 {
     id<MTLBuffer> buf = (__bridge id<MTLBuffer>)src_d;
-    memcpy(dst, [buf contents], s);
+    void *contents = [buf contents];
+    if (metal_zerocopy()) {
+        if (contents != dst)
+            memmove(dst, contents, s);
+    } else {
+        memcpy(dst, contents, s);
+    }
     return 0;
 }
 
@@ -224,7 +297,12 @@ int metal_memcpy_dtod(void *dst_d, void *src_d, size_t s)
 {
     id<MTLBuffer> dst_buf = (__bridge id<MTLBuffer>)dst_d;
     id<MTLBuffer> src_buf = (__bridge id<MTLBuffer>)src_d;
-    memcpy([dst_buf contents], [src_buf contents], s);
+    if (metal_zerocopy()) {
+        if ([dst_buf contents] != [src_buf contents])
+            memmove([dst_buf contents], [src_buf contents], s);
+    } else {
+        memcpy([dst_buf contents], [src_buf contents], s);
+    }
     return 0;
 }
 

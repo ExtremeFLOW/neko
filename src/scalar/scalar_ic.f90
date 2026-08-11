@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -59,6 +59,7 @@ module scalar_ic
   use space, only : space_t, GLL
   use field_list, only : field_list_t
   use import_field_utils, only : import_fields
+  use expression, only : expression_eval_static
   implicit none
   private
 
@@ -74,6 +75,7 @@ contains
   !! @details Set scalar initial condition using one of the builtin types
   !! currently supported:
   !! - uniform
+  !! - expression
   !! - point zone
   !! - field
   !! @param s Scalar field.
@@ -99,6 +101,12 @@ contains
 
        call json_get_or_lookup(params, 'value', ic_value)
        call set_scalar_ic_uniform(s, ic_value)
+
+    else if (trim(type) .eq. 'expression') then
+
+       call json_get(params, 'value', read_str)
+       call set_scalar_ic_expression(s, read_str)
+       if (allocated(read_str)) deallocate(read_str)
 
     else if (trim(type) .eq. 'point_zone') then
 
@@ -220,6 +228,26 @@ contains
     end if
 
   end subroutine set_scalar_ic_uniform
+
+  !> Expression initial condition
+  !! @details Set the scalar initial condition from a mathematical expression,
+  !! evaluated in every GLL point of the mesh with `x`, `y` and `z` bound to
+  !! the coordinates of the point. Constants declared under `case.constants` in
+  !! the case file can be referred to by name, see the `expression` module for
+  !! the full syntax.
+  !! @param s Scalar field.
+  !! @param expr The expression prescribing the initial value.
+  subroutine set_scalar_ic_expression(s, expr)
+    type(field_t), intent(inout) :: s
+    character(len=*), intent(in) :: expr
+
+    call neko_log%message("Type : expression")
+    call neko_log%message("Value: " // trim(expr))
+
+    call expression_eval_static(expr, s%x, s%dof%size(), &
+         s%dof%x, s%dof%y, s%dof%z, 'scalar initial condition')
+
+  end subroutine set_scalar_ic_expression
 
   !> Point zone initial condition
   !! @details Set scalar initial condition to a uniform value across a point

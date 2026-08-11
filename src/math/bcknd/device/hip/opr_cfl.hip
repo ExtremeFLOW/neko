@@ -36,6 +36,7 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
+#include <device/hip/buffer.h>
 #include "cfl_kernel.h"
 
 extern "C" {
@@ -49,10 +50,12 @@ extern "C" {
 #endif
 
   /**
-   * @todo Make sure that this gets deleted at some point...
+   * Device-only work buffer for the CFL reduction, owned by the
+   * device layer and released on device teardown
+   * (hip_buffer_free_all in hip_finalize)
    */
-  real *cfl_d = NULL;
-  
+  hip_buffer_t cfl_buf = HIP_BUFFER_INIT_DEV;
+
   /** 
    * Fortran wrapper for device hip CFL
    */
@@ -66,9 +69,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
   
-    if (cfl_d == NULL) {
-      HIP_CHECK(hipMalloc(&cfl_d, (*nel) * sizeof(real)));
-    }
+    hip_buffer_reserve(&cfl_buf, (*nel) * sizeof(real));
+    real *cfl_d = (real *) cfl_buf.dev;
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \

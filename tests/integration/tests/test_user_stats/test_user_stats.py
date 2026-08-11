@@ -1,6 +1,7 @@
 from os.path import join
 from testlib import get_neko, run_neko, configure_nprocs, get_makeneko, get_genmeshbox
 import subprocess
+import json
 import numpy as np
 
 
@@ -42,7 +43,15 @@ def test_user_stats(launcher_script, request, log_file, tmp_path):
 
     nprocs = configure_nprocs(max_nprocs)
 
-    case_file = join("tests", "test_user_stats", "test_user_stats.case")
+    case_template = join("tests", "test_user_stats", "test_user_stats.case")
+    with open(case_template, "r", encoding="utf-8") as handle:
+        case_data = json.load(handle)
+    case_data["case"]["output_directory"] = str(tmp_path)
+
+    case_file = tmp_path / "test_user_stats.case"
+    with open(case_file, "w", encoding="utf-8") as handle:
+        json.dump(case_data, handle, indent=2)
+        handle.write("\n")
 
     # Run Neko
     result = run_neko(launcher_script, nprocs, case_file, neko, log_file)
@@ -52,12 +61,16 @@ def test_user_stats(launcher_script, request, log_file, tmp_path):
         result.returncode == 0
     ), f"neko process failed with exit code {result.returncode}"
 
-    csv = np.genfromtxt("user_stats.csv", delimiter=",")
+    stats_file = tmp_path / "user_stats.csv"
+    assert stats_file.exists(), (
+        f"user_stats output was not written to {tmp_path}"
+    )
+
+    csv = np.genfromtxt(stats_file, delimiter=",")
     mean = np.mean(csv[12:25, 2])
     error = (mean - 0.5) / 0.5
 
     assert (
          error < 1e-4
     ), f"Error exceeded tolerance: {error}"
-
 

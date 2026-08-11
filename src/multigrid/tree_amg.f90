@@ -43,7 +43,7 @@ module tree_amg
   use ax_product, only: ax_t
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use device, only: device_map, device_unmap, &
+  use device, only: device_map, device_unmap, device_sync, &
        device_stream_wait_event, glb_cmd_queue, glb_cmd_event
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
@@ -204,6 +204,9 @@ contains
        call device_cfill(tamg_lvl%wrk_in_d, 0.0_rp, ndofs)
        call device_map(tamg_lvl%wrk_out, tamg_lvl%wrk_out_d, ndofs)
        call device_cfill(tamg_lvl%wrk_out_d, 0.0_rp, ndofs)
+       ! Order the async fills against host writes; on unified memory
+       ! the device pointers may alias the work arrays
+       call device_sync()
     end if
   end subroutine tamg_lvl_init
 
