@@ -102,7 +102,7 @@ def test_scalar_restart(launcher_script, request, tmp_path):
 
     part1_data = _load_log(part1_log, tmp_path / "part1.csv")
     part1_reference = np.genfromtxt(
-        test_dir / f"reference_part1_cpu_{RP}.csv", delimiter=",", names=True
+        test_dir / f"reference_part1_{BACKEND}_{RP}.csv", delimiter=",", names=True
     )
     _compare_with_reference(part1_data, part1_reference)
 
@@ -131,7 +131,7 @@ def test_scalar_restart(launcher_script, request, tmp_path):
 
     part2_data = _load_log(part2_log, tmp_path / "part2.csv")
     part2_reference = np.genfromtxt(
-        test_dir / f"reference_part2_cpu_{RP}.csv", delimiter=",", names=True
+        test_dir / f"reference_part2_{BACKEND}_{RP}.csv", delimiter=",", names=True
     )
     _compare_with_reference(part2_data, part2_reference)
 
