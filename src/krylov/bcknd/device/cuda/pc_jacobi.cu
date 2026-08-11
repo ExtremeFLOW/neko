@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <device/device_config.h>
 
 template< typename T, const int LX >
@@ -136,7 +137,10 @@ extern "C" {
     CASE(14);
     CASE(15);
     default:
-      fprintf(stderr, __FILE__ ": size not supported: %d\n", lx);
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", lx);
+        exit(1);
+      }
     }
 
     cudaError_t err = cudaGetLastError();

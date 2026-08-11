@@ -40,6 +40,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
@@ -117,6 +118,11 @@ void opencl_coef_generate_geo(void *G11, void *G12, void *G13,
     GEO_CASE(14);
     GEO_CASE(15);
     GEO_CASE(16);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+      exit(1);
+    }
   }
 }
 
@@ -191,6 +197,11 @@ void opencl_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz,
     DXYZDRST_CASE(14);
     DXYZDRST_CASE(15);
     DXYZDRST_CASE(16);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+      exit(1);
+    }
   }
 
   cl_kernel kernel = clCreateKernel(coef_program,
@@ -323,6 +334,11 @@ void opencl_coef_generate_area_and_normal(void *area,
     AREA_CASE(14);
     AREA_CASE(15);
     AREA_CASE(16);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+      exit(1);
+    }
   }
 }
 
