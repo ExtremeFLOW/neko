@@ -320,7 +320,7 @@ contains
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
       ! Compute artificial viscosity
-      call this%regularization%compute(time, time%tstep, real(time%dt, kind=rp))
+      call this%regularization%compute(time, time%tstep, time%dt)
 
       ! Refresh user-specified physical viscosity/conductivity before RHS.
       call this%update_material_properties(time)

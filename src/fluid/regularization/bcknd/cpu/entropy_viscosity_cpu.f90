@@ -32,7 +32,7 @@
 !
 !> CPU backend for entropy viscosity regularization
 module entropy_viscosity_cpu
-  use num_types, only : rp
+  use num_types, only : rp, dp
   implicit none
   private
 
@@ -59,7 +59,7 @@ contains
     real(kind=rp), dimension(n), intent(out) :: entropy_residual
     real(kind=rp), dimension(n), intent(in) :: S, S_lag1, S_lag2, S_lag3
     real(kind=rp), intent(in) :: bdf_coeffs(4)
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     integer :: i
 
     !OCL NORECURRENCE, NOVREC, NOALIAS

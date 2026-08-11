@@ -33,7 +33,7 @@
 !> Device backend for entropy viscosity regularization
 module entropy_viscosity_device
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-  use num_types, only : rp, c_rp
+  use num_types, only : rp, c_rp, dp, c_dp
   use utils, only : neko_error
   implicit none
   private
@@ -48,7 +48,8 @@ module entropy_viscosity_device
        import c_rp
        type(c_ptr), value :: entropy_residual_d
        type(c_ptr), value :: S_d, S_lag1_d, S_lag2_d, S_lag3_d
-       real(c_rp) :: bdf1, bdf2, bdf3, bdf4, dt
+       real(c_rp) :: bdf1, bdf2, bdf3, bdf4
+       real(c_dp) :: dt
        integer(c_int) :: n
      end subroutine hip_entropy_visc_compute_residual
   end interface
@@ -103,10 +104,11 @@ module entropy_viscosity_device
           bdf1, bdf2, bdf3, bdf4, dt, n) &
           bind(c, name = 'cuda_entropy_visc_compute_residual')
        use, intrinsic :: iso_c_binding
-       import c_rp
+       import c_rp, c_dp
        type(c_ptr), value :: entropy_residual_d
        type(c_ptr), value :: S_d, S_lag1_d, S_lag2_d, S_lag3_d
-       real(c_rp) :: bdf1, bdf2, bdf3, bdf4, dt
+       real(c_rp) :: bdf1, bdf2, bdf3, bdf4
+       real(c_dp) :: dt
        integer(c_int) :: n
      end subroutine cuda_entropy_visc_compute_residual
   end interface
@@ -161,10 +163,11 @@ module entropy_viscosity_device
           bdf1, bdf2, bdf3, bdf4, dt, n) &
           bind(c, name = 'opencl_entropy_visc_compute_residual')
        use, intrinsic :: iso_c_binding
-       import c_rp
+       import c_rp, c_dp
        type(c_ptr), value :: entropy_residual_d
        type(c_ptr), value :: S_d, S_lag1_d, S_lag2_d, S_lag3_d
-       real(c_rp), value :: bdf1, bdf2, bdf3, bdf4, dt
+       real(c_rp), value :: bdf1, bdf2, bdf3, bdf4
+       real(c_dp), value :: dt
        integer(c_int), value :: n
      end subroutine opencl_entropy_visc_compute_residual
   end interface
@@ -218,10 +221,11 @@ module entropy_viscosity_device
           bdf1, bdf2, bdf3, bdf4, dt, n) &
           bind(c, name = 'metal_entropy_visc_compute_residual')
        use, intrinsic :: iso_c_binding
-       import c_rp
+       import c_rp, c_dp
        type(c_ptr), value :: entropy_residual_d
        type(c_ptr), value :: S_d, S_lag1_d, S_lag2_d, S_lag3_d
-       real(c_rp), value :: bdf1, bdf2, bdf3, bdf4, dt
+       real(c_rp), value :: bdf1, bdf2, bdf3, bdf4
+       real(c_dp), value :: dt
        integer(c_int), value :: n
      end subroutine metal_entropy_visc_compute_residual
   end interface
@@ -284,7 +288,7 @@ contains
     type(c_ptr), intent(in) :: entropy_residual_d
     type(c_ptr), intent(in) :: S_d, S_lag1_d, S_lag2_d, S_lag3_d
     real(kind=rp), intent(in) :: bdf_coeffs(4)
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     integer, intent(in) :: n
 
 #ifdef HAVE_HIP

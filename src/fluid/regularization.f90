@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module regularization
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use json_module, only : json_file
   use field, only : field_t
   use coefs, only : coef_t
@@ -72,11 +72,11 @@ module regularization
 
   abstract interface
      subroutine reg_compute(this, time, tstep, dt)
-       import regularization_t, rp, time_state_t
+       import regularization_t, rp, dp, time_state_t
        class(regularization_t), intent(inout) :: this
        type(time_state_t), intent(in) :: time
        integer, intent(in) :: tstep
-       real(kind=rp), intent(in) :: dt
+       real(kind=dp), intent(in) :: dt
      end subroutine reg_compute
   end interface
 

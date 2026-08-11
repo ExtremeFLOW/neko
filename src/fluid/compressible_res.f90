@@ -35,7 +35,7 @@ module compressible_residual
   use ax_product, only : Ax_t
   use field, only : field_t
   use coefs, only : coef_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use bc_list, only : bc_list_t
   use time_state, only : time_state_t
@@ -58,7 +58,7 @@ module compressible_residual
        import Ax_t
        import gs_t
        import coef_t
-       import rp
+       import dp
        import runge_kutta_time_scheme_t
        import bc_list_t
        import time_state_t
@@ -70,7 +70,7 @@ module compressible_residual
        type(bc_list_t), intent(inout) :: bcs_vel
        type(time_state_t), intent(in) :: time
        class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
-       real(kind=rp), intent(in) :: dt
+       real(kind=dp), intent(in) :: dt
      end subroutine compressible_rhs
   end interface
 
