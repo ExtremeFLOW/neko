@@ -6,7 +6,7 @@ module scalar_residual_sx
   use coefs, only : coef_t
   use space, only : space_t
   use mesh, only : mesh_t
-  use num_types, only : rp    
+  use num_types, only : rp
   use math, only : copy
   use field, only : field_t
   use mesh, only : mesh_t
@@ -24,7 +24,7 @@ module scalar_residual_sx
 contains
 
   subroutine scalar_residual_sx_compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
-      lambda, rho_cp, bd, dt, n)
+       lambda, rho_cp, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh

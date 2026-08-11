@@ -102,7 +102,7 @@ contains
 
 
   subroutine scalar_residual_device_compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
-             lambda, rho_cp, bd, dt, n)
+       lambda, rho_cp, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
