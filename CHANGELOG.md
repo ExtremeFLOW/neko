@@ -3,6 +3,12 @@
 ## Develop
 
 - Added `boundary_data_t`, `wall_shear_stress_simcomp`, and `boundary_data_writer_simcomp`.
+- Added mathematical expressions as case file values, available as the
+  `expression` initial condition for the fluid and the scalar, and as the
+  `expression_velocity`, `expression_pressure` and `expression_dirichlet`
+  boundary conditions. Expressions can use `x`, `y`, `z`, `t`, `dt`, `pi`,
+  elementary functions, and any scalar declared under `case.constants`, so
+  simple spatially varying conditions no longer require a user file.
 - Added integration test for ALE (test_ale).
 - Updated simulation_components documentation to mirror the latest codebase.
 - Fixed stale accumulator in the SX gather-scatter backend (min/max/mul).

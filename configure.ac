@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.99.6])
+AC_INIT([neko],[1.99.7])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -481,6 +481,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/time_based_controller/Makefile\
         tests/unit/json_utils/Makefile\
         tests/unit/utils/Makefile\
+        tests/unit/expression/Makefile\
         tests/unit/point_interpolation/Makefile\
         tests/unit/templates/parallel/Makefile\
         tests/unit/boundary_operation/Makefile\
