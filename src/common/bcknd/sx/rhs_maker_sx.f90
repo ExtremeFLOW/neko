@@ -3,7 +3,7 @@ module rhs_maker_sx
        rhs_maker_oifs_t
   use field_series, only : field_series_t
   use field, only : field_t
-   use num_types, only : rp, dp
+  use num_types, only : rp, dp
   use scratch_registry, only : neko_scratch_registry
   implicit none
   private
@@ -141,8 +141,8 @@ contains
     type(field_series_t), intent(in) :: ulag, vlag, wlag
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n), Blag(n), Blaglag(n)
-   real(kind=dp), intent(in) :: dt
-   real(kind=rp), intent(in) :: rho, bd(4)
+    real(kind=dp), intent(in) :: dt
+    real(kind=rp), intent(in) :: rho, bd(4)
     type(field_t), pointer :: tb1, tb2, tb3
     type(field_t), pointer :: ta1, ta2, ta3
     integer :: temp_indices(6)
@@ -191,8 +191,8 @@ contains
     type(field_series_t), intent(in) :: s_lag
     real(kind=rp), intent(inout) :: fs(n)
     real(kind=rp), intent(in) :: B(n)
-   real(kind=dp), intent(in) :: dt
-   real(kind=rp), intent(in) :: rho, bd(4)
+    real(kind=dp), intent(in) :: dt
+    real(kind=rp), intent(in) :: rho, bd(4)
     integer :: i, ilag
     type(field_t), pointer :: temp1, temp2
     integer :: temp_indices(2)
@@ -223,8 +223,8 @@ contains
 
   subroutine rhs_maker_oifs_sx(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
        rho, dt, n)
-   real(kind=rp), intent(in) :: rho
-   real(kind=dp), intent(in) :: dt
+    real(kind=rp), intent(in) :: rho
+    real(kind=dp), intent(in) :: dt
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
     real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
@@ -239,8 +239,8 @@ contains
   end subroutine rhs_maker_oifs_sx
 
   subroutine scalar_rhs_maker_oifs_sx(phi_s, bf_s, rho, dt, n)
-   real(kind=rp), intent(in) :: rho
-   real(kind=dp), intent(in) :: dt
+    real(kind=rp), intent(in) :: rho
+    real(kind=dp), intent(in) :: dt
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: bf_s(n)
     real(kind=rp), intent(inout) :: phi_s(n)

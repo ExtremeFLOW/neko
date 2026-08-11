@@ -72,8 +72,8 @@ module ale_routines_device
 #ifdef HAVE_HIP
   interface
      subroutine add_kinematics_to_mesh_velocity_hip(wx, wy, wz, &
-         x_ref, y_ref, z_ref, phi, x, y, z, &
-         kin_params, n) bind(c, name="add_kinematics_to_mesh_velocity_hip")
+          x_ref, y_ref, z_ref, phi, x, y, z, &
+          kin_params, n) bind(c, name="add_kinematics_to_mesh_velocity_hip")
        use, intrinsic :: iso_c_binding
        import :: kinematics_params_t
        type(c_ptr), value :: wx, wy, wz, x_ref, y_ref, z_ref, phi, x, y, z
@@ -82,7 +82,7 @@ module ale_routines_device
      end subroutine add_kinematics_to_mesh_velocity_hip
 
      subroutine compute_cheap_dist_hip(d_d, x_d, y_d, z_d, lx, ly, lz, nel, &
-         local_iters, nchange_d) bind(c, name="compute_cheap_dist_hip")
+          local_iters, nchange_d) bind(c, name="compute_cheap_dist_hip")
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: d_d, x_d, y_d, z_d, nchange_d
        integer(c_int), value :: lx, ly, lz, nel, local_iters
@@ -91,8 +91,8 @@ module ale_routines_device
 #elif HAVE_CUDA
   interface
      subroutine add_kinematics_to_mesh_velocity_cuda(wx, wy, wz, &
-         x_ref, y_ref, z_ref, phi, x, y, z, &
-         kin_params, n) bind(c, name="add_kinematics_to_mesh_velocity_cuda")
+          x_ref, y_ref, z_ref, phi, x, y, z, &
+          kin_params, n) bind(c, name="add_kinematics_to_mesh_velocity_cuda")
        use, intrinsic :: iso_c_binding
        import :: kinematics_params_t
        type(c_ptr), value :: wx, wy, wz, x_ref, y_ref, z_ref, phi, x, y, z
@@ -101,7 +101,7 @@ module ale_routines_device
      end subroutine add_kinematics_to_mesh_velocity_cuda
 
      subroutine compute_cheap_dist_cuda(d_d, x_d, y_d, z_d, lx, ly, lz, nel, &
-         local_iters, nchange_d) bind(c, name="compute_cheap_dist_cuda")
+          local_iters, nchange_d) bind(c, name="compute_cheap_dist_cuda")
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: d_d, x_d, y_d, z_d, nchange_d
        integer(c_int), value :: lx, ly, lz, nel, local_iters
@@ -205,7 +205,7 @@ contains
 
   !> Add Kinematics to Mesh Velocity
   subroutine add_kinematics_to_mesh_velocity_device(wx, wy, wz, &
-        x_ref, y_ref, z_ref, phi, coef, kinematics, rot_mat, inital_pivot_loc)
+       x_ref, y_ref, z_ref, phi, coef, kinematics, rot_mat, inital_pivot_loc)
     type(field_t), intent(inout) :: wx, wy, wz
     type(field_t), intent(in) :: x_ref, y_ref, z_ref
     type(field_t), intent(in) :: phi
@@ -262,7 +262,7 @@ contains
 
   !> Update ALE Mesh
   subroutine update_ale_mesh_device(c_Xh, wm_x, wm_y, wm_z, wm_x_lag, &
-        wm_y_lag, wm_z_lag, time, nadv, scheme_type)
+       wm_y_lag, wm_z_lag, time, nadv, scheme_type)
 
     type(coef_t), intent(inout) :: c_Xh
     type(field_t), intent(in) :: wm_x, wm_y, wm_z

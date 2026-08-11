@@ -373,10 +373,10 @@ module rhs_maker_device
 
   interface
      subroutine rhs_maker_ext_metal(abx1_d, aby1_d, abz1_d, &
-                                     abx2_d, aby2_d, abz2_d, &
-                                     bfx_d, bfy_d, bfz_d, &
-                                     rho, ab1, ab2, ab3, n) &
-                                     bind(c, name = 'rhs_maker_ext_metal')
+          abx2_d, aby2_d, abz2_d, &
+          bfx_d, bfy_d, bfz_d, &
+          rho, ab1, ab2, ab3, n) &
+          bind(c, name = 'rhs_maker_ext_metal')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: abx1_d, aby1_d, abz1_d

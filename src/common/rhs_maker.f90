@@ -144,7 +144,7 @@ module rhs_maker
 
   abstract interface
      subroutine rhs_maker_oifs(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
-                               rho, dt, n)
+          rho, dt, n)
        import rp, dp
        real(kind=rp), intent(in) :: rho
        real(kind=dp), intent(in) :: dt
@@ -200,6 +200,6 @@ module rhs_maker
   end interface
 
   public :: rhs_maker_sumab_fctry, rhs_maker_ext_fctry, rhs_maker_bdf_fctry, &
-            rhs_maker_oifs_fctry
+       rhs_maker_oifs_fctry
 
 end module rhs_maker

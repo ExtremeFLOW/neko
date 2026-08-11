@@ -207,9 +207,9 @@ contains
     ddim = 1
 
     if (present(t)) then
-        call h5acreate_f(file_id, "Time", H5T_NATIVE_DOUBLE, filespace, attr_id, &
+       call h5acreate_f(file_id, "Time", H5T_NATIVE_DOUBLE, filespace, attr_id, &
             ierr, h5p_default_f, h5p_default_f)
-        call h5awrite_f(attr_id, H5T_NATIVE_DOUBLE, t, ddim, ierr)
+       call h5awrite_f(attr_id, H5T_NATIVE_DOUBLE, t, ddim, ierr)
        call h5aclose_f(attr_id, ierr)
     end if
 
@@ -260,21 +260,21 @@ contains
 
        call h5screate_simple_f(drank, ddim, filespace, ierr)
 
-        call h5dcreate_f(grp_id, 'tlag', H5T_NATIVE_DOUBLE, &
+       call h5dcreate_f(grp_id, 'tlag', H5T_NATIVE_DOUBLE, &
             filespace, dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-        call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, tlag, &
+       call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, tlag, &
             ddim, ierr, xfer_prp = plist_id)
        call h5dclose_f(dset_id, ierr)
 
-        call h5dcreate_f(grp_id, 'dtlag', H5T_NATIVE_DOUBLE, &
+       call h5dcreate_f(grp_id, 'dtlag', H5T_NATIVE_DOUBLE, &
             filespace, dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-        call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, dtlag, &
+       call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, dtlag, &
             ddim, ierr, xfer_prp = plist_id)
        call h5dclose_f(dset_id, ierr)
 
@@ -385,7 +385,7 @@ contains
 
     ddim = 1
     call h5aopen_name_f(file_id, 'Time', attr_id, ierr)
-   call h5aread_f(attr_id, H5T_NATIVE_DOUBLE, t, ddim, ierr)
+    call h5aread_f(attr_id, H5T_NATIVE_DOUBLE, t, ddim, ierr)
     call h5aclose_f(attr_id, ierr)
 
     select type (data)
@@ -425,7 +425,7 @@ contains
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-        call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, tlag, ddim, ierr, &
+       call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, tlag, ddim, ierr, &
             xfer_prp = plist_id)
        call h5dclose_f(dset_id, ierr)
        call h5sclose_f(filespace, ierr)
@@ -434,7 +434,7 @@ contains
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-        call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, dtlag, ddim, ierr, &
+       call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, dtlag, ddim, ierr, &
             xfer_prp = plist_id)
        call h5dclose_f(dset_id, ierr)
        call h5sclose_f(filespace, ierr)

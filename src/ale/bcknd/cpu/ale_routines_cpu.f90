@@ -32,7 +32,7 @@
 !
 ! Routines for expensive ALE calculations on CPU
 module ale_routines_cpu
-  use num_types, only : rp, dp 
+  use num_types, only : rp, dp
   use field, only : field_t
   use coefs, only : coef_t
   use math, only : cfill, glimax, rzero
@@ -296,11 +296,11 @@ contains
             v_tan_y = kinematics%vel_ang(3) * rx - kinematics%vel_ang(1) * rz
             v_tan_z = kinematics%vel_ang(1) * ry - kinematics%vel_ang(2) * rx
             wx%x(i, 1, 1, 1) = wx%x(i, 1, 1, 1) + &
-                  (kinematics%vel_trans(1) + v_tan_x) * phi%x(i, 1, 1, 1)
+                 (kinematics%vel_trans(1) + v_tan_x) * phi%x(i, 1, 1, 1)
             wy%x(i, 1, 1, 1) = wy%x(i, 1, 1, 1) + &
-                  (kinematics%vel_trans(2) + v_tan_y) * phi%x(i, 1, 1, 1)
+                 (kinematics%vel_trans(2) + v_tan_y) * phi%x(i, 1, 1, 1)
             wz%x(i, 1, 1, 1) = wz%x(i, 1, 1, 1) + &
-                  (kinematics%vel_trans(3) + v_tan_z) * phi%x(i, 1, 1, 1)
+                 (kinematics%vel_trans(3) + v_tan_z) * phi%x(i, 1, 1, 1)
          else
             ! For other points we do this to avoid the time-dependnent
             ! drift in some special cases, which happens due to the nature of

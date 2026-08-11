@@ -33,7 +33,7 @@
 !> Subroutines to add advection terms to the RHS of a transport equation.
 module adv_dealias
   use advection, only : advection_t
-   use num_types, only : rp, dp
+  use num_types, only : rp, dp
   use math, only : vdot3, sub2
   use space, only : space_t, GL
   use field, only : field_t
@@ -239,7 +239,7 @@ contains
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: fx, fy, fz
     integer, intent(in) :: n
-   real(kind=dp), intent(in), optional :: dt
+    real(kind=dp), intent(in), optional :: dt
 
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tx, ty, tz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tfx, tfy, tfz
@@ -362,7 +362,7 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
-   real(kind=dp), intent(in), optional :: dt
+    real(kind=dp), intent(in), optional :: dt
 
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: vx_GL, vy_GL, vz_GL, s_GL
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: dsdx, dsdy, dsdz
@@ -484,7 +484,7 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
-   real(kind=dp), intent(in), optional :: dt
+    real(kind=dp), intent(in), optional :: dt
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: vx_GL, vy_GL, vz_GL
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: wm_x_GL, wm_y_GL, wm_z_GL
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: flux_GL

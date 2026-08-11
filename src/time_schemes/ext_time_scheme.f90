@@ -59,7 +59,7 @@
 !
 !> Explicit extrapolation scheme for time integration.
 module ext_time_scheme
-  use num_types, only : rp, dp 
+  use num_types, only : rp, dp
   use time_scheme, only : time_scheme_t
   use math, only : rzero
   use utils, only : neko_error

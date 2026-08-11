@@ -136,7 +136,7 @@ contains
   end subroutine recompute_metrics_dummy_noop
 
   subroutine compute_ale_adv_dummy(this, vx, vy, vz, wm_x, wm_y, wm_z, &
-                                           fx, fy, fz, Xh, coef, n, dt)
+       fx, fy, fz, Xh, coef, n, dt)
     class(adv_dummy_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: wm_x, wm_y, wm_z
