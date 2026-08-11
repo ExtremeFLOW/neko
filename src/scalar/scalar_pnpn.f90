@@ -40,7 +40,7 @@ module scalar_pnpn
   use scalar_scheme, only : scalar_scheme_t
   use checkpoint, only : chkp_t
   use field, only : field_t
-  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use mesh, only : mesh_t
   use coefs, only : coef_t
   use device, only : HOST_TO_DEVICE, device_memcpy, glb_cmd_event, &
@@ -85,8 +85,8 @@ module scalar_pnpn
      !> Solution projection.
      type(projection_t) :: proj_s
 
-     !> Resolver for the scalar increment constraints.
-     type(scalar_bc_resolver_t) :: bc_resolver
+     !> Projector for the scalar increment constraints.
+     type(scalar_bc_projector_t) :: bc_projector
 
      !> Advection operator.
      class(advection_t), allocatable :: adv
@@ -218,7 +218,7 @@ contains
     do i = 1, this%bcs%size()
        if (this%bcs%bc_type(i) .eq. BC_DIRICHLET) then
           bc_i => this%bcs%get(i)
-          call this%bc_resolver%mark(bc_i)
+          call this%bc_projector%mark(bc_i)
        end if
     end do
 
@@ -283,7 +283,7 @@ contains
     !Deallocate scalar field
     call this%scheme_free()
 
-    call this%bc_resolver%free()
+    call this%bc_projector%free()
     call this%proj_s%free()
 
     call this%s_res%free()
@@ -402,7 +402,7 @@ contains
       call gs_Xh%op(s_res, GS_OP_ADD)
 
       ! Zero-out residual at Dirichlet nodes before solving.
-      call this%bc_resolver%apply(s_res%x, dm_Xh%size())
+      call this%bc_projector%apply(s_res%x, dm_Xh%size())
 
       call profiler_end_region(trim(this%name) // '_residual', 20)
 
@@ -411,11 +411,11 @@ contains
       call this%pc%update()
       call profiler_start_region(trim(this%name) // '_solve', 21)
       ksp_results = this%ksp%solve(Ax, ds, s_res%x, n, &
-           c_Xh, this%bc_resolver, gs_Xh)
+           c_Xh, this%bc_projector, gs_Xh)
       ksp_results%name = trim(this%name)
       call profiler_end_region(trim(this%name) // '_solve', 21)
 
-      call this%proj_s%post_solving(ds%x, Ax, c_Xh, this%bc_resolver, gs_Xh, &
+      call this%proj_s%post_solving(ds%x, Ax, c_Xh, this%bc_projector, gs_Xh, &
            n, tstep, dt_controller)
 
       ! Update the solution

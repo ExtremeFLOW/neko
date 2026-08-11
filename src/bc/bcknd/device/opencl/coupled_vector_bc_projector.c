@@ -43,9 +43,9 @@
 #include <device/opencl/prgm_lib.h>
 #include <device/opencl/check.h>
 
-#include "coupled_vector_bc_resolver_kernel.cl.h"
+#include "coupled_vector_bc_projector_kernel.cl.h"
 
-void opencl_coupled_vector_bc_resolver_apply(void *mixed_msk, void *x, void *y,
+void opencl_coupled_vector_bc_projector_apply(void *mixed_msk, void *x, void *y,
                                              void *z, void *constraint_n,
                                              void *constraint_t1,
                                              void *constraint_t2, void *n,
@@ -56,12 +56,12 @@ void opencl_coupled_vector_bc_resolver_apply(void *mixed_msk, void *x, void *y,
 
   cl_int err;
 
-  if (coupled_vector_bc_resolver_program == NULL)
-    opencl_kernel_jit(coupled_vector_bc_resolver_kernel,
-                      (cl_program *) &coupled_vector_bc_resolver_program);
+  if (coupled_vector_bc_projector_program == NULL)
+    opencl_kernel_jit(coupled_vector_bc_projector_kernel,
+                      (cl_program *) &coupled_vector_bc_projector_program);
 
-  cl_kernel kernel = clCreateKernel(coupled_vector_bc_resolver_program,
-                                    "coupled_vector_bc_resolver_apply_kernel",
+  cl_kernel kernel = clCreateKernel(coupled_vector_bc_projector_program,
+                                    "coupled_vector_bc_projector_apply_kernel",
                                     &err);
   CL_CHECK(err);
 

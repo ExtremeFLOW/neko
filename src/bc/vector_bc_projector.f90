@@ -30,11 +30,11 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements boundary condition resolvers for vector fields. Two types concrete
-!! types are provided: `segregated_vector_bc_resolver_t` for simple
-!! component-wise resolution, and `coupled_vector_bc_resolver_t` for resolving
+!> Implements boundary condition projectors for vector fields. Two types concrete
+!! types are provided: `segregated_vector_bc_projector_t` for simple
+!! component-wise resolution, and `coupled_vector_bc_projector_t` for resolving
 !! mixed boundary conditions.
-module vector_bc_resolver
+module vector_bc_projector
   use bc, only : bc_t, BC_DIRICHLET
   use bc_list, only : bc_list_t
   use mixed_bc, only : mixed_bc_t
@@ -57,82 +57,82 @@ module vector_bc_resolver
   use device, only : device_get_ptr, device_memcpy, device_map, device_unmap, &
        HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue
   use device_math, only : device_cfill_mask
-  use device_coupled_vector_bc_resolver, only : &
-       device_coupled_vector_bc_resolver_apply
-  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use device_coupled_vector_bc_projector, only : &
+       device_coupled_vector_bc_projector_apply
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use operators, only : rotate_cyc
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated
   implicit none
   private
 
-  public :: vector_bc_resolver_components
+  public :: vector_bc_projector_components
 
   !> Abstract type for resolving vector boundary conditions.
-  type, public, abstract :: vector_bc_resolver_t
+  type, public, abstract :: vector_bc_projector_t
    contains
      !> Constructor.
-     procedure(vector_bc_resolver_init_intrf), pass(this), deferred :: init
+     procedure(vector_bc_projector_init_intrf), pass(this), deferred :: init
      !> Destructor.
-     procedure(vector_bc_resolver_free_intrf), pass(this), deferred :: free
-     !> Finalize the vector boundary-condition resolver.
-     procedure(vector_bc_resolver_finalize_intrf), pass(this), deferred :: &
+     procedure(vector_bc_projector_free_intrf), pass(this), deferred :: free
+     !> Finalize the vector boundary-condition projector.
+     procedure(vector_bc_projector_finalize_intrf), pass(this), deferred :: &
           finalize
      !> Apply homogeneous resolved vector boundary constraints.
-     procedure(vector_bc_resolver_apply_intrf), pass(this), deferred :: apply
-     !> Mark a boundary condition in the vector boundary-condition resolver.
-     procedure(vector_bc_resolver_mark_bc_intrf), pass(this), deferred :: &
+     procedure(vector_bc_projector_apply_intrf), pass(this), deferred :: apply
+     !> Mark a boundary condition in the vector boundary-condition projector.
+     procedure(vector_bc_projector_mark_bc_intrf), pass(this), deferred :: &
           mark_bc
-     !> Mark a list of boundary conditions in the resolver.
-     procedure(vector_bc_resolver_mark_bc_list_intrf), pass(this), deferred :: &
+     !> Mark a list of boundary conditions in the projector.
+     procedure(vector_bc_projector_mark_bc_list_intrf), pass(this), deferred :: &
           mark_bc_list
      generic :: mark => mark_bc, mark_bc_list
-  end type vector_bc_resolver_t
+  end type vector_bc_projector_t
 
-  !> A resolver for vector fields that acts component-wise.
-  !! @details Stores one `scalar_bc_resolver_t` per global component and applies
+  !> A projector for vector fields that acts component-wise.
+  !! @details Stores one `scalar_bc_projector_t` per global component and applies
   !! vector boundary conditions independently to `x`, `y` and `z`. This is
   !! suitable only for fully component-wise constraints. Like the underlying
-  !! scalar resolvers, this does not perform any real global resolution, we just
+  !! scalar projectors, this does not perform any real global resolution, we just
   !! feed it the Dirichlet dofs component-wise. Therefore, `finalize` is no-op.
-  type, public, extends(vector_bc_resolver_t) :: segregated_vector_bc_resolver_t
-     !> Resolver for the x-component.
-     type(scalar_bc_resolver_t) :: x
-     !> Resolver for the y-component.
-     type(scalar_bc_resolver_t) :: y
-     !> Resolver for the z-component.
-     type(scalar_bc_resolver_t) :: z
+  type, public, extends(vector_bc_projector_t) :: segregated_vector_bc_projector_t
+     !> Projector for the x-component.
+     type(scalar_bc_projector_t) :: x
+     !> Projector for the y-component.
+     type(scalar_bc_projector_t) :: y
+     !> Projector for the z-component.
+     type(scalar_bc_projector_t) :: z
    contains
      !> Constructor, no-op.
-     procedure, pass(this) :: init => segregated_vector_bc_resolver_init
+     procedure, pass(this) :: init => segregated_vector_bc_projector_init
      !> Destructor.
-     procedure, pass(this) :: free => segregated_vector_bc_resolver_free
+     procedure, pass(this) :: free => segregated_vector_bc_projector_free
      !> No-op finalize routine.
-     procedure, pass(this) :: finalize => segregated_vector_bc_resolver_finalize
+     procedure, pass(this) :: finalize => segregated_vector_bc_projector_finalize
      !> Mark a boundary condition.
-     procedure, pass(this) :: mark_bc => segregated_vector_bc_resolver_mark_bc
+     procedure, pass(this) :: mark_bc => segregated_vector_bc_projector_mark_bc
      !> Mark a list of boundary conditions.
      procedure, pass(this) :: mark_bc_list => &
-          segregated_vector_bc_resolver_mark_bc_list
-     !> Zero-out constrained dofs using the underlying component resolvers.
-     procedure, pass(this) :: apply => segregated_vector_bc_resolver_apply
-  end type segregated_vector_bc_resolver_t
+          segregated_vector_bc_projector_mark_bc_list
+     !> Zero-out constrained dofs using the underlying component projectors.
+     procedure, pass(this) :: apply => segregated_vector_bc_projector_apply
+  end type segregated_vector_bc_projector_t
 
-  !> A coupled resolver for vector fields, suitable for mixed boundary
+  !> A coupled projector for vector fields, suitable for mixed boundary
   !! conditions.
-  !! @details This resolver first accumulates the marked vector boundary
+  !! @details This projector first accumulates the marked vector boundary
   !! conditions, then resolves them onto the global velocity dofs in
   !! `finalize()`. The resolved support is split into two disjoint parts:
   !! plain Dirichlet nodes, stored in `dirichlet_dof_mask`, and genuinely
-  !! mixed nodes, stored in `mixed_dof_mask`. For the mixed nodes, the resolver
+  !! mixed nodes, stored in `mixed_dof_mask`. For the mixed nodes, the projector
   !! also builds a local orthonormal basis `(n, t1, t2)` together with the
   !! resolved local constraint flags `constraint_n`, `constraint_t1`, and
   !! `constraint_t2`. The `apply()` routine then projects the vector field to
   !! this local basis, zeroes the constrained components, and reconstructs the
   !! Cartesian vector.
-  !! Additionally, the resolver propagates the mixed masks and basis data to
+  !! Additionally, the projector propagates the mixed masks and basis data to
   !! the boundary conditions of class `mixed_bc_t`, which is necessary for them
   !! to work correctly.
-  type, public, extends(vector_bc_resolver_t) :: coupled_vector_bc_resolver_t
+  type, public, extends(vector_bc_projector_t) :: coupled_vector_bc_projector_t
      !> DOFs that are fully constrained in Cartesian space.
      type(mask_t) :: dirichlet_dof_mask
      !> DOFs that require basis-aware mixed treatment.
@@ -178,63 +178,63 @@ module vector_bc_resolver
      type(c_ptr) :: constraint_t2_d = c_null_ptr
    contains
      !> Constructor.
-     procedure, pass(this) :: init => coupled_vector_bc_resolver_init
+     procedure, pass(this) :: init => coupled_vector_bc_projector_init
      !> Destructor.
-     procedure, pass(this) :: free => coupled_vector_bc_resolver_free
+     procedure, pass(this) :: free => coupled_vector_bc_projector_free
      !> Mark a boundary condition for later resolution.
-     procedure, pass(this) :: mark_bc => coupled_vector_bc_resolver_mark_bc
+     procedure, pass(this) :: mark_bc => coupled_vector_bc_projector_mark_bc
      !> Mark a list of boundary conditions for later resolution.
      procedure, pass(this) :: mark_bc_list => &
-          coupled_vector_bc_resolver_mark_bc_list
+          coupled_vector_bc_projector_mark_bc_list
      !> Resolve the queued boundary conditions into masks and basis data.
-     procedure, pass(this) :: finalize => coupled_vector_bc_resolver_finalize
+     procedure, pass(this) :: finalize => coupled_vector_bc_projector_finalize
      !> Apply the resolved homogeneous mixed constraints to a vector field.
-     procedure, pass(this) :: apply => coupled_vector_bc_resolver_apply
+     procedure, pass(this) :: apply => coupled_vector_bc_projector_apply
      !> Write diagnostic output for the resolved masks and basis.
      procedure, pass(this) :: debug_output => &
-          coupled_vector_bc_resolver_debug_output
+          coupled_vector_bc_projector_debug_output
      !> Write debug output of normal component on mixed BC nodes.
      procedure, pass(this) :: debug_output_normal_component => &
-          coupled_vector_bc_resolver_debug_output_normal_component
+          coupled_vector_bc_projector_debug_output_normal_component
      !> Clear the resolved mask-side state.
      procedure, pass(this), private :: clear_masks => &
-          coupled_vector_bc_resolver_clear_masks
+          coupled_vector_bc_projector_clear_masks
      !> Rebuild the Dirichlet and mixed-node masks from the queued BCs.
      procedure, pass(this), private :: rebuild_masks => &
-          coupled_vector_bc_resolver_rebuild_masks
+          coupled_vector_bc_projector_rebuild_masks
      !> Clear the resolved basis-side state.
      procedure, pass(this), private :: clear_basis => &
-          coupled_vector_bc_resolver_clear_basis
+          coupled_vector_bc_projector_clear_basis
      !> Rebuild the local basis on the resolved mixed-node support.
      procedure, pass(this), private :: rebuild_basis => &
-          coupled_vector_bc_resolver_rebuild_basis
-  end type coupled_vector_bc_resolver_t
+          coupled_vector_bc_projector_rebuild_basis
+  end type coupled_vector_bc_projector_t
 
   abstract interface
-     !> Free the vector boundary-condition resolver.
-     subroutine vector_bc_resolver_free_intrf(this)
-       import :: vector_bc_resolver_t
-       class(vector_bc_resolver_t), intent(inout) :: this
-     end subroutine vector_bc_resolver_free_intrf
+     !> Free the vector boundary-condition projector.
+     subroutine vector_bc_projector_free_intrf(this)
+       import :: vector_bc_projector_t
+       class(vector_bc_projector_t), intent(inout) :: this
+     end subroutine vector_bc_projector_free_intrf
   end interface
 
   abstract interface
-     !> Initialize the vector boundary-condition resolver.
+     !> Initialize the vector boundary-condition projector.
      !! @param[in] coef SEM coefficients defining the dof layout.
-     subroutine vector_bc_resolver_init_intrf(this, coef)
-       import :: vector_bc_resolver_t, coef_t
-       class(vector_bc_resolver_t), intent(inout) :: this
+     subroutine vector_bc_projector_init_intrf(this, coef)
+       import :: vector_bc_projector_t, coef_t
+       class(vector_bc_projector_t), intent(inout) :: this
        type(coef_t), target, intent(in) :: coef
-     end subroutine vector_bc_resolver_init_intrf
+     end subroutine vector_bc_projector_init_intrf
   end interface
 
   abstract interface
-     !> Finalize the vector boundary-condition resolver.
-     subroutine vector_bc_resolver_finalize_intrf(this, rebuild_mask)
-       import :: vector_bc_resolver_t
-       class(vector_bc_resolver_t), intent(inout) :: this
+     !> Finalize the vector boundary-condition projector.
+     subroutine vector_bc_projector_finalize_intrf(this, rebuild_mask)
+       import :: vector_bc_projector_t
+       class(vector_bc_projector_t), intent(inout) :: this
        logical, intent(in) :: rebuild_mask
-     end subroutine vector_bc_resolver_finalize_intrf
+     end subroutine vector_bc_projector_finalize_intrf
   end interface
 
   abstract interface
@@ -244,78 +244,78 @@ module vector_bc_resolver
      !! @param[inout] z z-component field values.
      !! @param[in] n Number of entries in each component array.
      !! @param[inout] strm Optional backend stream used on device backends.
-     subroutine vector_bc_resolver_apply_intrf(this, x, y, z, n, strm)
-       import :: vector_bc_resolver_t, rp, c_ptr
-       class(vector_bc_resolver_t), intent(in) :: this
+     subroutine vector_bc_projector_apply_intrf(this, x, y, z, n, strm)
+       import :: vector_bc_projector_t, rp, c_ptr
+       class(vector_bc_projector_t), intent(in) :: this
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: x(n)
        real(kind=rp), intent(inout) :: y(n)
        real(kind=rp), intent(inout) :: z(n)
        type(c_ptr), intent(inout), optional :: strm
-     end subroutine vector_bc_resolver_apply_intrf
+     end subroutine vector_bc_projector_apply_intrf
   end interface
 
   abstract interface
-     !> Mark a boundary condition in the vector boundary-condition resolver.
+     !> Mark a boundary condition in the vector boundary-condition projector.
      !! @param[inout] bc Boundary condition to register.
      !! @param[in] component Optional component selector, for the segregated
-     !! resolver.
-     subroutine vector_bc_resolver_mark_bc_intrf(this, bc, component)
-       import :: vector_bc_resolver_t, bc_t
-       class(vector_bc_resolver_t), intent(inout) :: this
+     !! projector.
+     subroutine vector_bc_projector_mark_bc_intrf(this, bc, component)
+       import :: vector_bc_projector_t, bc_t
+       class(vector_bc_projector_t), intent(inout) :: this
        class(bc_t), intent(inout), target :: bc
        character(len=1), optional, intent(in) :: component
-     end subroutine vector_bc_resolver_mark_bc_intrf
+     end subroutine vector_bc_projector_mark_bc_intrf
   end interface
 
   abstract interface
-     !> Mark a list of boundary conditions in the resolver.
+     !> Mark a list of boundary conditions in the projector.
      !! @param[in] bclst Boundary-condition list to register.
      !! @param[in] component Optional component selector for the segregated
-     !! resolver.
-     subroutine vector_bc_resolver_mark_bc_list_intrf(this, bclst, component)
-       import :: vector_bc_resolver_t, bc_list_t
-       class(vector_bc_resolver_t), intent(inout) :: this
+     !! projector.
+     subroutine vector_bc_projector_mark_bc_list_intrf(this, bclst, component)
+       import :: vector_bc_projector_t, bc_list_t
+       class(vector_bc_projector_t), intent(inout) :: this
        type(bc_list_t), intent(in) :: bclst
        character(len=1), optional, intent(in) :: component
-     end subroutine vector_bc_resolver_mark_bc_list_intrf
+     end subroutine vector_bc_projector_mark_bc_list_intrf
   end interface
 
 contains
 
   !> Destructor
-  subroutine segregated_vector_bc_resolver_free(this)
-    class(segregated_vector_bc_resolver_t), intent(inout) :: this
+  subroutine segregated_vector_bc_projector_free(this)
+    class(segregated_vector_bc_projector_t), intent(inout) :: this
     call this%x%free()
     call this%y%free()
     call this%z%free()
-  end subroutine segregated_vector_bc_resolver_free
+  end subroutine segregated_vector_bc_projector_free
 
   !> Constructor, no-op.
   !! @param[in] coef SEM coefficients defining the dof layout.
-  subroutine segregated_vector_bc_resolver_init(this, coef)
-    class(segregated_vector_bc_resolver_t), intent(inout) :: this
+  subroutine segregated_vector_bc_projector_init(this, coef)
+    class(segregated_vector_bc_projector_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
-  end subroutine segregated_vector_bc_resolver_init
+  end subroutine segregated_vector_bc_projector_init
 
-  !> Finalize the segregated vector boundary-condition resolver.
-  subroutine segregated_vector_bc_resolver_finalize(this, rebuild_mask)
-    class(segregated_vector_bc_resolver_t), intent(inout) :: this
+  !> Finalize the segregated vector boundary-condition projector.
+  subroutine segregated_vector_bc_projector_finalize(this, rebuild_mask)
+    class(segregated_vector_bc_projector_t), intent(inout) :: this
     logical, intent(in) :: rebuild_mask
-  end subroutine segregated_vector_bc_resolver_finalize
+  end subroutine segregated_vector_bc_projector_finalize
 
-  !> Mark a boundary condition in the segregated resolver.
+  !> Mark a boundary condition in the segregated projector.
   !! @details Fully constrained vector boundary conditions are either applied to
-  !! all three component resolvers or to one selected component.
+  !! all three component projectors or to one selected component.
   !! @param[inout] bc Boundary condition to register.
   !! @param[in] component Optional component selector.
-  subroutine segregated_vector_bc_resolver_mark_bc(this, bc, component)
-    class(segregated_vector_bc_resolver_t), intent(inout) :: this
+  subroutine segregated_vector_bc_projector_mark_bc(this, bc, component)
+    class(segregated_vector_bc_projector_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
     character(len=1), optional, intent(in) :: component
 
     if (bc%bc_type .ne. BC_DIRICHLET) then
-       call neko_error("Segregated vector BC resolver only accepts " // &
+       call neko_error("Segregated vector BC projector only accepts " // &
             "Dirichlet boundary conditions.")
     end if
 
@@ -333,16 +333,16 @@ contains
           call this%z%mark_bc(bc)
        case default
           call neko_error("Invalid component for segregated vector BC " // &
-               "resolver mark.")
+               "projector mark.")
        end select
     end if
-  end subroutine segregated_vector_bc_resolver_mark_bc
+  end subroutine segregated_vector_bc_projector_mark_bc
 
-  !> Mark a list of boundary conditions in the segregated resolver.
+  !> Mark a list of boundary conditions in the segregated projector.
   !! @param[in] bclst Boundary-condition list to register.
   !! @param[in] component Optional component selector.
-  subroutine segregated_vector_bc_resolver_mark_bc_list(this, bclst, component)
-    class(segregated_vector_bc_resolver_t), intent(inout) :: this
+  subroutine segregated_vector_bc_projector_mark_bc_list(this, bclst, component)
+    class(segregated_vector_bc_projector_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
     class(bc_t), pointer :: bc_i
     character(len=1), optional, intent(in) :: component
@@ -352,7 +352,7 @@ contains
        bc_i => bclst%get(i)
        call this%mark_bc(bc_i, component)
     end do
-  end subroutine segregated_vector_bc_resolver_mark_bc_list
+  end subroutine segregated_vector_bc_projector_mark_bc_list
 
   !> Apply the segregated vector boundary constraints.
   !! @param[inout] x x-component field values.
@@ -360,8 +360,8 @@ contains
   !! @param[inout] z z-component field values.
   !! @param[in] n Number of entries in each component array.
   !! @param[inout] strm Optional backend stream/queue used on device backends.
-  subroutine segregated_vector_bc_resolver_apply(this, x, y, z, n, strm)
-    class(segregated_vector_bc_resolver_t), intent(in) :: this
+  subroutine segregated_vector_bc_projector_apply(this, x, y, z, n, strm)
+    class(segregated_vector_bc_projector_t), intent(in) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: x(n)
     real(kind=rp), intent(inout) :: y(n)
@@ -371,39 +371,39 @@ contains
     call this%x%apply(x, n, strm = strm)
     call this%y%apply(y, n, strm = strm)
     call this%z%apply(z, n, strm = strm)
-  end subroutine segregated_vector_bc_resolver_apply
+  end subroutine segregated_vector_bc_projector_apply
 
-  !> Access the component scalar resolvers from a segregated vector resolver.
-  !! @param[inout] x Pointer to the x-component scalar resolver.
-  !! @param[inout] y Pointer to the y-component scalar resolver.
-  !! @param[inout] z Pointer to the z-component scalar resolver.
-  subroutine vector_bc_resolver_components(this, x, y, z)
-    class(vector_bc_resolver_t), target, intent(inout) :: this
-    type(scalar_bc_resolver_t), pointer, intent(inout) :: x
-    type(scalar_bc_resolver_t), pointer, intent(inout) :: y
-    type(scalar_bc_resolver_t), pointer, intent(inout) :: z
+  !> Access the component scalar projectors from a segregated vector projector.
+  !! @param[inout] x Pointer to the x-component scalar projector.
+  !! @param[inout] y Pointer to the y-component scalar projector.
+  !! @param[inout] z Pointer to the z-component scalar projector.
+  subroutine vector_bc_projector_components(this, x, y, z)
+    class(vector_bc_projector_t), target, intent(inout) :: this
+    type(scalar_bc_projector_t), pointer, intent(inout) :: x
+    type(scalar_bc_projector_t), pointer, intent(inout) :: y
+    type(scalar_bc_projector_t), pointer, intent(inout) :: z
 
     select type (this)
-    type is (segregated_vector_bc_resolver_t)
+    type is (segregated_vector_bc_projector_t)
        x => this%x
        y => this%y
        z => this%z
     class default
        call neko_error("Component access is only available for " // &
-            "segregated vector BC resolvers. You have likely forgotten to " // &
+            "segregated vector BC projectors. You have likely forgotten to " // &
             "select a coupled linear solver for velocity in the fluid " // &
             "configuration.")
     end select
-  end subroutine vector_bc_resolver_components
+  end subroutine vector_bc_projector_components
 
 
   !
-  ! Coupled resolver TBPs
+  ! Coupled projector TBPs
   !
 
   !> Destructor.
-  subroutine coupled_vector_bc_resolver_free(this)
-    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+  subroutine coupled_vector_bc_projector_free(this)
+    class(coupled_vector_bc_projector_t), intent(inout) :: this
 
     call this%bcs%free()
     if (allocated(this%node_rst)) deallocate(this%node_rst)
@@ -416,15 +416,15 @@ contains
     this%constraint_t2_d = c_null_ptr
     nullify(this%coef)
     nullify(this%dof)
-  end subroutine coupled_vector_bc_resolver_free
+  end subroutine coupled_vector_bc_projector_free
 
   !> Constructor.
   !! @param[in] coef SEM coefficients.
   !! @details This resets any previous resolved state, stores pointers to the
   !! coefficient and dofmap objects, and precomputes reference-element lookup
   !! tables used later to reconstruct mixed-node normals on edges and corners.
-  subroutine coupled_vector_bc_resolver_init(this, coef)
-    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+  subroutine coupled_vector_bc_projector_init(this, coef)
+    class(coupled_vector_bc_projector_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     integer :: lx, ly, lz
     integer :: mid_i, mid_j, mid_k
@@ -480,30 +480,30 @@ contains
     this%node_linear_idx(6) = linear_index(lx, 1, lz, 1, lx, ly, lz)
     this%node_linear_idx(7) = linear_index(1, ly, lz, 1, lx, ly, lz)
     this%node_linear_idx(8) = linear_index(lx, ly, lz, 1, lx, ly, lz)
-  end subroutine coupled_vector_bc_resolver_init
+  end subroutine coupled_vector_bc_projector_init
 
-  !> Register one vector boundary condition in the coupled resolver.
+  !> Register one vector boundary condition in the coupled projector.
   !! @param[inout] bc Boundary condition to queue for resolution.
   !! @param[in] component Ignored optional component selector, present only to
-  !! satisfy the abstract resolver interface shared with the segregated path.
-  subroutine coupled_vector_bc_resolver_mark_bc(this, bc, component)
-    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+  !! satisfy the abstract projector interface shared with the segregated path.
+  subroutine coupled_vector_bc_projector_mark_bc(this, bc, component)
+    class(coupled_vector_bc_projector_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
     character(len=1), optional, intent(in) :: component
 
     if (.not. associated(this%coef)) then
-       call neko_error("Coupled vector BC resolver must be initialized " // &
+       call neko_error("Coupled vector BC projector must be initialized " // &
             "before mark().")
     end if
 
     call this%bcs%append(bc)
-  end subroutine coupled_vector_bc_resolver_mark_bc
+  end subroutine coupled_vector_bc_projector_mark_bc
 
-  !> Register a list of vector boundary conditions in the coupled resolver.
+  !> Register a list of vector boundary conditions in the coupled projector.
   !! @param[in] bclst Boundary-condition list to queue.
   !! @param[in] component Ignored optional component selector.
-  subroutine coupled_vector_bc_resolver_mark_bc_list(this, bclst, component)
-    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+  subroutine coupled_vector_bc_projector_mark_bc_list(this, bclst, component)
+    class(coupled_vector_bc_projector_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
     character(len=1), optional, intent(in) :: component
     class(bc_t), pointer :: bc_i
@@ -513,14 +513,14 @@ contains
        bc_i => bclst%get(i)
        call this%mark_bc(bc_i, component)
     end do
-  end subroutine coupled_vector_bc_resolver_mark_bc_list
+  end subroutine coupled_vector_bc_projector_mark_bc_list
 
-  !> Clear the resolved mask-side state of the coupled resolver.
+  !> Clear the resolved mask-side state of the coupled projector.
   !! @details Releases the resolved Dirichlet and mixed masks, compact
   !! boundary-node caches, and the per-mixed-node constraint flags together
   !! with their device mirrors.
-  subroutine coupled_vector_bc_resolver_clear_masks(this)
-    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+  subroutine coupled_vector_bc_projector_clear_masks(this)
+    class(coupled_vector_bc_projector_t), intent(inout) :: this
 
     call this%dirichlet_dof_mask%free()
     call this%mixed_dof_mask%free()
@@ -552,22 +552,22 @@ contains
     this%constraint_n_d = c_null_ptr
     this%constraint_t1_d = c_null_ptr
     this%constraint_t2_d = c_null_ptr
-  end subroutine coupled_vector_bc_resolver_clear_masks
+  end subroutine coupled_vector_bc_projector_clear_masks
 
-  !> Clear the resolved basis-side state of the coupled resolver.
-  subroutine coupled_vector_bc_resolver_clear_basis(this)
-    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+  !> Clear the resolved basis-side state of the coupled projector.
+  subroutine coupled_vector_bc_projector_clear_basis(this)
+    class(coupled_vector_bc_projector_t), intent(inout) :: this
 
     call this%n%free()
     call this%t1%free()
     call this%t2%free()
-  end subroutine coupled_vector_bc_resolver_clear_basis
+  end subroutine coupled_vector_bc_projector_clear_basis
 
-  !> Finalize the coupled resolver by resolving the accumulated BC list.
+  !> Finalize the coupled projector by resolving the accumulated BC list.
   !! @details This routine builds the dof masks for Dirichlet and mixed nodes,
   !! and computes the local basis for the mixed ones.
-  subroutine coupled_vector_bc_resolver_finalize(this, rebuild_mask)
-    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+  subroutine coupled_vector_bc_projector_finalize(this, rebuild_mask)
+    class(coupled_vector_bc_projector_t), intent(inout) :: this
     logical, intent(in) :: rebuild_mask
     if (this%bcs%size() .eq. 0) return
 
@@ -576,7 +576,7 @@ contains
     end if
 
     call this%rebuild_basis()
-  end subroutine coupled_vector_bc_resolver_finalize
+  end subroutine coupled_vector_bc_projector_finalize
 
   !> Rebuild the resolved masks and local constraint flags.
   !! @details This routine reduces the queued boundary conditions to a nodal
@@ -584,8 +584,8 @@ contains
   !! computes BC-local resolved supports for `mixed_bc_t` instances, and fills
   !! the local constraint flags `constraint_n`, `constraint_t1`, and
   !! `constraint_t2` on the mixed-node mask.
-  subroutine coupled_vector_bc_resolver_rebuild_masks(this)
-    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+  subroutine coupled_vector_bc_projector_rebuild_masks(this)
+    class(coupled_vector_bc_projector_t), intent(inout) :: this
     type(field_t), pointer :: boundary_mask_field
     type(field_t), pointer :: node_type_field
     type(tuple_i4_t), pointer :: marked_faces(:)
@@ -618,7 +618,7 @@ contains
        bc => this%bcs%get(i)
 
        if (.not. allocated(bc%msk)) then
-          call neko_error("Attempting to finalize coupled resolver " // &
+          call neko_error("Attempting to finalize coupled projector " // &
                "unfinalized BC.")
        end if
 
@@ -844,7 +844,7 @@ contains
     if (allocated(dirichlet_mask_values)) deallocate(dirichlet_mask_values)
     if (allocated(mixed_mask_values)) deallocate(mixed_mask_values)
     call neko_scratch_registry%relinquish_field(scratch_idx)
-  end subroutine coupled_vector_bc_resolver_rebuild_masks
+  end subroutine coupled_vector_bc_projector_rebuild_masks
 
   !> Rebuild the local mixed-node basis.
   !! @details Using the resolved mixed-node mask and constraint metadata built
@@ -852,8 +852,8 @@ contains
   !! face, edge, and corner nodes and then builds an orthonormal local basis
   !! `(n, t1, t2)` for each mixed node. It then propagates the basis data to
   !! all marked mixed boundary conditions.
-  subroutine coupled_vector_bc_resolver_rebuild_basis(this)
-    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+  subroutine coupled_vector_bc_projector_rebuild_basis(this)
+    class(coupled_vector_bc_projector_t), intent(inout) :: this
     type(field_t), pointer :: normal_x_field
     type(field_t), pointer :: normal_y_field
     type(field_t), pointer :: normal_z_field
@@ -949,7 +949,7 @@ contains
     end do
 
     !write(*,*) "Seeded normals at directly marked mixed nodes in " // &
-    !     "coupled vector BC resolver."
+    !     "coupled vector BC projector."
 
     ! We now treat the special edges and conrners. Everything is done locally
     ! per element, using reference element address tables found in hex.f90
@@ -1068,7 +1068,7 @@ contains
        end do
 
        !write(*,*) "Finished reconstructing normals at mixed edges in " // &
-       !     "coupled vector BC resolver."
+       !     "coupled vector BC projector."
 
        ! Mixed corner node normals are rebuilt from the adjacent faces whose
        ! local face type matches the reduced nodal type at that node.
@@ -1205,7 +1205,7 @@ contains
 
     ! Transfer the final mixed-node basis into each mixed BC on its
     ! resolved support, so strong application on the physical field can use
-    ! BC-local data rather than the global resolver internals.
+    ! BC-local data rather than the global projector internals.
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)
 
@@ -1222,7 +1222,7 @@ contains
 
              if (p .eq. 0) then
                 call neko_error("Mixed BC resolved_msk entry missing from " // &
-                     "the coupled resolver mixed basis.")
+                     "the coupled projector mixed basis.")
              end if
 
              bc%n%x(:,j) = this%n%x(:,p)
@@ -1239,7 +1239,7 @@ contains
     end do
     call neko_scratch_registry%relinquish_field(scratch_idx)
     if (allocated(dof_to_mixed_idx)) deallocate(dof_to_mixed_idx)
-  end subroutine coupled_vector_bc_resolver_rebuild_basis
+  end subroutine coupled_vector_bc_projector_rebuild_basis
 
   !> Apply homogeneous boundary constraints in the local basis.
   !! @param[inout] x x-component field values.
@@ -1247,8 +1247,8 @@ contains
   !! @param[inout] z z-component field values.
   !! @param[in] n Number of entries in each component array.
   !! @param[inout] strm Optional backend stream/queue used on device backends.
-  subroutine coupled_vector_bc_resolver_apply(this, x, y, z, n, strm)
-    class(coupled_vector_bc_resolver_t), intent(in) :: this
+  subroutine coupled_vector_bc_projector_apply(this, x, y, z, n, strm)
+    class(coupled_vector_bc_projector_t), intent(in) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: x(n)
     real(kind=rp), intent(inout) :: y(n)
@@ -1299,7 +1299,7 @@ contains
           x_d = device_get_ptr(x)
           y_d = device_get_ptr(y)
           z_d = device_get_ptr(z)
-          call device_coupled_vector_bc_resolver_apply( &
+          call device_coupled_vector_bc_projector_apply( &
                this%mixed_dof_mask%get_d(), x_d, y_d, z_d, &
                this%constraint_n_d, this%constraint_t1_d, &
                this%constraint_t2_d, this%n%x_d, this%t1%x_d, &
@@ -1334,14 +1334,14 @@ contains
           end do
        end if
     end if
-  end subroutine coupled_vector_bc_resolver_apply
+  end subroutine coupled_vector_bc_projector_apply
 
-  !> Write fields showing the coupled resolver mask and basis.
+  !> Write fields showing the coupled projector mask and basis.
   !! @param[in] field_name Optional base name for the output file. The `.fld`
   !! suffix is appended automatically.
-  subroutine coupled_vector_bc_resolver_debug_output(this, field_name)
+  subroutine coupled_vector_bc_projector_debug_output(this, field_name)
     use device_math, only : device_cfill, device_cfill_mask
-    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+    class(coupled_vector_bc_projector_t), intent(inout) :: this
     character(len=*), intent(in), optional :: field_name
     type(field_t), pointer :: mask_field
     type(field_t), pointer :: nx_field, ny_field, nz_field
@@ -1355,7 +1355,7 @@ contains
     if (present(field_name)) then
        field_name_ = trim(field_name)
     else
-       field_name_ = 'bc_resolver'
+       field_name_ = 'bc_projector'
     end if
 
     call neko_scratch_registry%request_field(mask_field, scratch_idx(1), .true.)
@@ -1423,11 +1423,11 @@ contains
     call basis_fields%free()
 
     call neko_scratch_registry%relinquish_field(scratch_idx)
-  end subroutine coupled_vector_bc_resolver_debug_output
+  end subroutine coupled_vector_bc_projector_debug_output
 
   !> Write scalar fields with the normal component `u.n` on mixed BC nodes.
   !! @details The output is zero outside `mixed_dof_mask`. The normal vectors
-  !! come from (1) the resolved basis stored in this resolver and
+  !! come from (1) the resolved basis stored in this projector and
   !! (2) the normals stored in `coef_t`. No area scaling is applied.
   !! @param[in] x x-component of the vector field.
   !! @param[in] y y-component of the vector field.
@@ -1435,9 +1435,9 @@ contains
   !! @param[in] n Number of entries in x, y, z.
   !! @param[in] field_name Optional base name for the output file. The `.fld`
   !! suffix is appended automatically.
-  subroutine coupled_vector_bc_resolver_debug_output_normal_component( &
+  subroutine coupled_vector_bc_projector_debug_output_normal_component( &
        this, x, y, z, n, field_name)
-    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+    class(coupled_vector_bc_projector_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(in) :: x(n)
     real(kind=rp), intent(in) :: y(n)
@@ -1447,7 +1447,7 @@ contains
     type(field_t), pointer :: normal_component_coef_field
     type(field_list_t) :: output_fields
     type(fld_file_t) :: output_file
-    type(field_t), pointer :: resolver_nx_field, resolver_ny_field, resolver_nz_field
+    type(field_t), pointer :: projector_nx_field, projector_ny_field, projector_nz_field
     type(field_t), pointer :: coef_nx_field, coef_ny_field, coef_nz_field
     type(field_list_t) :: normals_fields
     type(fld_file_t) :: normals_file
@@ -1464,18 +1464,18 @@ contains
     if (present(field_name)) then
        field_name_ = trim(field_name)
     else
-       field_name_ = 'bc_resolver_normal_component'
+       field_name_ = 'bc_projector_normal_component'
     end if
 
     call neko_scratch_registry%request_field(normal_component_field, &
          scratch_idx(1), .true.)
     call neko_scratch_registry%request_field(normal_component_coef_field, &
          scratch_idx(2), .true.)
-    call neko_scratch_registry%request_field(resolver_nx_field, &
+    call neko_scratch_registry%request_field(projector_nx_field, &
          scratch_idx(3), .true.)
-    call neko_scratch_registry%request_field(resolver_ny_field, &
+    call neko_scratch_registry%request_field(projector_ny_field, &
          scratch_idx(4), .true.)
-    call neko_scratch_registry%request_field(resolver_nz_field, &
+    call neko_scratch_registry%request_field(projector_nz_field, &
          scratch_idx(5), .true.)
     call neko_scratch_registry%request_field(coef_nx_field, &
          scratch_idx(6), .true.)
@@ -1488,9 +1488,9 @@ contains
     mixed_mask_size = this%mixed_dof_mask%size()
     call rzero(normal_component_field%x, dof_size)
     call rzero(normal_component_coef_field%x, dof_size)
-    call rzero(resolver_nx_field%x, dof_size)
-    call rzero(resolver_ny_field%x, dof_size)
-    call rzero(resolver_nz_field%x, dof_size)
+    call rzero(projector_nx_field%x, dof_size)
+    call rzero(projector_ny_field%x, dof_size)
+    call rzero(projector_nz_field%x, dof_size)
     call rzero(coef_nx_field%x, dof_size)
     call rzero(coef_ny_field%x, dof_size)
     call rzero(coef_nz_field%x, dof_size)
@@ -1522,9 +1522,9 @@ contains
 
           j = mixed_lut(k)
           if (j .gt. 0) then
-             resolver_nx_field%x(k,1,1,1) = this%n%x(1,j)
-             resolver_ny_field%x(k,1,1,1) = this%n%x(2,j)
-             resolver_nz_field%x(k,1,1,1) = this%n%x(3,j)
+             projector_nx_field%x(k,1,1,1) = this%n%x(1,j)
+             projector_ny_field%x(k,1,1,1) = this%n%x(2,j)
+             projector_nz_field%x(k,1,1,1) = this%n%x(3,j)
              normal_component_field%x(k,1,1,1) = &
                   x(k) * this%n%x(1,j) + y(k) * this%n%x(2,j) + z(k) * this%n%x(3,j)
           end if
@@ -1541,10 +1541,10 @@ contains
     call output_fields%free()
 
     call normals_fields%init(3)
-    call normals_fields%assign(1, resolver_nx_field)
-    call normals_fields%assign(2, resolver_ny_field)
-    call normals_fields%assign(3, resolver_nz_field)
-    call normals_file%init(field_name_ // '_resolver_normals.fld')
+    call normals_fields%assign(1, projector_nx_field)
+    call normals_fields%assign(2, projector_ny_field)
+    call normals_fields%assign(3, projector_nz_field)
+    call normals_file%init(field_name_ // '_projector_normals.fld')
     call normals_file%write(normals_fields)
     call normals_fields%free()
 
@@ -1557,6 +1557,6 @@ contains
     call normals_fields%free()
 
     call neko_scratch_registry%relinquish_field(scratch_idx)
-  end subroutine coupled_vector_bc_resolver_debug_output_normal_component
+  end subroutine coupled_vector_bc_projector_debug_output_normal_component
 
-end module vector_bc_resolver
+end module vector_bc_projector

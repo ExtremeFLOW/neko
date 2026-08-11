@@ -39,7 +39,7 @@ SUBDIRS = tuple\
 	  utils\
 	  point_interpolation\
 	  templates/parallel\
-	  bc_resolver\
+	  bc_projector\
 	  boundary_operation\
 	  templates/serial
 
@@ -84,7 +84,7 @@ TESTS = device/device_test\
 	utils/read_duration_test\
 	point_interpolation/point_interpolation_test\
 	templates/parallel/parallel_test\
-	bc_resolver/bc_resolver_test\
+	bc_projector/bc_projector_test\
 	boundary_operation/boundary_operation_test\
 	templates/serial/serial_test
 
@@ -168,10 +168,10 @@ EXTRA_DIST = \
 	utils/test_read_duration.pf\
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
-	bc_resolver/bc_resolver_test\
+	bc_projector/bc_projector_test\
 	point_interpolation/point_interpolation_test\
-	bc_resolver/test_bc_resolver.pf\
-	bc_resolver/test_coupled_bc_resolver.pf\
+	bc_projector/test_bc_projector.pf\
+	bc_projector/test_coupled_bc_projector.pf\
 	boundary_operation/test_boundary_operation.pf\
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\

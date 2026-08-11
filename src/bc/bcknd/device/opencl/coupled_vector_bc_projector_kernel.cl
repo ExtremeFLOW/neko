@@ -32,10 +32,10 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_COUPLED_VECTOR_BC_RESOLVER_KERNEL__
-#define __BC_COUPLED_VECTOR_BC_RESOLVER_KERNEL__
+#ifndef __BC_COUPLED_VECTOR_BC_PROJECTOR_KERNEL__
+#define __BC_COUPLED_VECTOR_BC_PROJECTOR_KERNEL__
 
-__kernel void coupled_vector_bc_resolver_apply_kernel(
+__kernel void coupled_vector_bc_projector_apply_kernel(
     __global const int *mixed_msk,
     __global real *x,
     __global real *y,

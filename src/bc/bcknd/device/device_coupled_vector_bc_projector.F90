@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_coupled_vector_bc_resolver
+module device_coupled_vector_bc_projector
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
@@ -38,50 +38,50 @@ module device_coupled_vector_bc_resolver
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
+     subroutine hip_coupled_vector_bc_projector_apply(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
-          bind(c, name = 'hip_coupled_vector_bc_resolver_apply')
+          bind(c, name = 'hip_coupled_vector_bc_projector_apply')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        integer(c_int) :: m
        type(c_ptr), value :: mixed_msk, x, y, z
        type(c_ptr), value :: constraint_n, constraint_t1, constraint_t2
        type(c_ptr), value :: n, t1, t2, strm
-     end subroutine hip_coupled_vector_bc_resolver_apply
+     end subroutine hip_coupled_vector_bc_projector_apply
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
+     subroutine cuda_coupled_vector_bc_projector_apply(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
-          bind(c, name = 'cuda_coupled_vector_bc_resolver_apply')
+          bind(c, name = 'cuda_coupled_vector_bc_projector_apply')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        integer(c_int) :: m
        type(c_ptr), value :: mixed_msk, x, y, z
        type(c_ptr), value :: constraint_n, constraint_t1, constraint_t2
        type(c_ptr), value :: n, t1, t2, strm
-     end subroutine cuda_coupled_vector_bc_resolver_apply
+     end subroutine cuda_coupled_vector_bc_projector_apply
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
+     subroutine opencl_coupled_vector_bc_projector_apply(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
-          bind(c, name = 'opencl_coupled_vector_bc_resolver_apply')
+          bind(c, name = 'opencl_coupled_vector_bc_projector_apply')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        integer(c_int) :: m
        type(c_ptr), value :: mixed_msk, x, y, z
        type(c_ptr), value :: constraint_n, constraint_t1, constraint_t2
        type(c_ptr), value :: n, t1, t2, strm
-     end subroutine opencl_coupled_vector_bc_resolver_apply
+     end subroutine opencl_coupled_vector_bc_projector_apply
   end interface
 #endif
 
-  public :: device_coupled_vector_bc_resolver_apply
+  public :: device_coupled_vector_bc_projector_apply
 
 contains
 
-  subroutine device_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
+  subroutine device_coupled_vector_bc_projector_apply(mixed_msk, x, y, z, &
        constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm)
     integer, intent(in) :: m
     type(c_ptr), intent(in) :: mixed_msk, x, y, z
@@ -90,18 +90,18 @@ contains
     type(c_ptr), intent(in) :: strm
 
 #ifdef HAVE_HIP
-    call hip_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
+    call hip_coupled_vector_bc_projector_apply(mixed_msk, x, y, z, &
          constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm)
 #elif HAVE_CUDA
-    call cuda_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
+    call cuda_coupled_vector_bc_projector_apply(mixed_msk, x, y, z, &
          constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm)
 #elif HAVE_OPENCL
-    call opencl_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
+    call opencl_coupled_vector_bc_projector_apply(mixed_msk, x, y, z, &
          constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm)
 #else
     call neko_error('No device backend configured for coupled vector BC apply')
 #endif
 
-  end subroutine device_coupled_vector_bc_resolver_apply
+  end subroutine device_coupled_vector_bc_projector_apply
 
-end module device_coupled_vector_bc_resolver
+end module device_coupled_vector_bc_projector

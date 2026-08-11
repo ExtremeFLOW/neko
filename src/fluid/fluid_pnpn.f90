@@ -80,9 +80,9 @@ module fluid_pnpn
   use field_math, only : field_add2, field_copy
   use bc, only : bc_t, BC_DIRICHLET
   use mixed_bc, only : mixed_bc_t
-  use scalar_bc_resolver, only : scalar_bc_resolver_t
-  use vector_bc_resolver, only : vector_bc_resolver_t, &
-       segregated_vector_bc_resolver_t, coupled_vector_bc_resolver_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       segregated_vector_bc_projector_t, coupled_vector_bc_projector_t
   use file, only : file_t
   use operators, only : ortho, rotate_cyc
   use opr_device, only : device_ortho
@@ -139,10 +139,10 @@ module fluid_pnpn
      !> Surface term in pressure rhs. Masks symmetry bcs.
      type(facet_normal_t) :: bc_sym_surface
 
-     !> Boundary conditions resolver for velocity constraints.
-     class(vector_bc_resolver_t), allocatable :: bcs_vel_resolver
-     !> Boundary conditions resolver for pressure constraints.
-     type(scalar_bc_resolver_t) :: bcs_prs_resolver
+     !> Boundary conditions projector for velocity constraints.
+     class(vector_bc_projector_t), allocatable :: bcs_vel_projector
+     !> Boundary conditions projector for pressure constraints.
+     type(scalar_bc_projector_t) :: bcs_prs_projector
 
 
      ! Checker for wether we have a strong pressure bc. If not, the pressure
@@ -293,8 +293,8 @@ contains
        ! Setup backend dependent vel residual routines
        call pnpn_vel_res_stress_factory(this%vel_res)
 
-       ! Allocate coupled resolver for velocity boundary conditions
-       allocate(coupled_vector_bc_resolver_t :: this%bcs_vel_resolver)
+       ! Allocate coupled projector for velocity boundary conditions
+       allocate(coupled_vector_bc_projector_t :: this%bcs_vel_projector)
     else
        ! Setup backend dependent Ax routines
        call ax_helm_factory(this%Ax_vel, full_formulation = .false.)
@@ -305,12 +305,12 @@ contains
        ! Setup backend dependent vel residual routines
        call pnpn_vel_res_factory(this%vel_res)
 
-       ! Allocate segregated resolver for velocity boundary conditions
-       allocate(segregated_vector_bc_resolver_t :: this%bcs_vel_resolver)
+       ! Allocate segregated projector for velocity boundary conditions
+       allocate(segregated_vector_bc_projector_t :: this%bcs_vel_projector)
     end if
 
-    ! Initialize the velocity bc resolver
-    call this%bcs_vel_resolver%init(this%c_Xh)
+    ! Initialize the velocity bc projector
+    call this%bcs_vel_projector%init(this%c_Xh)
 
     if (params%valid_path('case.fluid.nut_field')) then
        if (.not. this%full_stress_formulation) then
@@ -573,11 +573,11 @@ contains
 
     call this%bc_prs_surface%free()
     call this%bc_sym_surface%free()
-    if (allocated(this%bcs_vel_resolver)) then
-       call this%bcs_vel_resolver%free()
-       deallocate(this%bcs_vel_resolver)
+    if (allocated(this%bcs_vel_projector)) then
+       call this%bcs_vel_projector%free()
+       deallocate(this%bcs_vel_projector)
     end if
-    call this%bcs_prs_resolver%free()
+    call this%bcs_prs_projector%free()
     call this%proj_prs%free()
     call this%proj_vel%free()
 
@@ -816,7 +816,7 @@ contains
          call device_event_sync(event)
 
          ! Set the residual to zero at strong pressure boundaries.
-         call this%bcs_prs_resolver%apply(p_res%x, p%dof%size())
+         call this%bcs_prs_projector%apply(p_res%x, p%dof%size())
 
 
          call profiler_end_region('Pressure_residual', 18)
@@ -826,7 +826,7 @@ contains
          if (iter .eq. 1) then
             call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, &
                  dt_controller, Ax = Ax_prs, gs_h = gs_Xh, &
-                 bclst = this%bcs_prs_resolver, string = 'Pressure')
+                 bclst = this%bcs_prs_projector, string = 'Pressure')
          end if
 
          call this%pc_prs%update()
@@ -836,7 +836,7 @@ contains
          ! Solve for the pressure increment.
          ksp_results(1) = &
               this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
-              this%bcs_prs_resolver, gs_Xh)
+              this%bcs_prs_projector, gs_Xh)
          ksp_results(1)%name = 'Pressure'
 
 
@@ -844,7 +844,7 @@ contains
 
          if (iter .eq. 1) then
             call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
-                 this%bcs_prs_resolver, gs_Xh, n, tstep, dt_controller)
+                 this%bcs_prs_projector, gs_Xh, n, tstep, dt_controller)
          end if
 
          ! Update the pressure with the increment. Demean if necessary.
@@ -872,7 +872,7 @@ contains
          call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 
          ! Set residual to zero at strong velocity boundaries.
-         call this%bcs_vel_resolver%apply(u_res%x, v_res%x, w_res%x, &
+         call this%bcs_vel_projector%apply(u_res%x, v_res%x, w_res%x, &
               dm_Xh%size())
 
 
@@ -888,7 +888,7 @@ contains
          call profiler_start_region("Velocity_solve", 4)
          ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
               u_res%x, v_res%x, w_res%x, n, c_Xh, &
-              this%bcs_vel_resolver, gs_Xh, &
+              this%bcs_vel_projector, gs_Xh, &
               this%ksp_vel%max_iter)
          call profiler_end_region("Velocity_solve", 4)
          if (this%full_stress_formulation) then
@@ -901,7 +901,7 @@ contains
 
          if (iter .eq. 1) then
             call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
-                 this%bcs_vel_resolver, gs_Xh, n, tstep, &
+                 this%bcs_vel_projector, gs_Xh, n, tstep, &
                  dt_controller)
          end if
 
@@ -922,7 +922,7 @@ contains
          ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
               c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu_tot, &
-              dt, time, this%bcs_prs_resolver, this%bcs_vel_resolver, &
+              dt, time, this%bcs_prs_projector, this%bcs_vel_projector, &
               Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)
@@ -1038,47 +1038,47 @@ contains
 
              select type (bc_i)
              type is (symmetry_aligned_t)
-                ! In this case we need to tell the segregated resolver where
+                ! In this case we need to tell the segregated projector where
                 ! we have the dirichlet dofs component-wise. This is stored
                 ! in the nested bcs. Of course, we rely on axis-alignment of
                 ! the geometry.
-                call this%bcs_vel_resolver%mark(bc_i%bc_x, component = 'x')
-                call this%bcs_vel_resolver%mark(bc_i%bc_y, component = 'y')
-                call this%bcs_vel_resolver%mark(bc_i%bc_z, component = 'z')
+                call this%bcs_vel_projector%mark(bc_i%bc_x, component = 'x')
+                call this%bcs_vel_projector%mark(bc_i%bc_y, component = 'y')
+                call this%bcs_vel_projector%mark(bc_i%bc_z, component = 'z')
                 call this%bcs_vel%append(bc_i)
                 call this%bc_sym_surface%mark_facets(bc_i%marked_facet)
              type is (symmetry_t)
-                ! In this case we add the bc itself to the resolver, which
+                ! In this case we add the bc itself to the projector, which
                 ! should be coupled.
                 if (.not. this%full_stress_formulation) then
                    call neko_error("The symmetry boundary condition " // &
                         "requires the full stress formulation to be enabled.")
                 end if
-                call this%bcs_vel_resolver%mark(bc_i)
+                call this%bcs_vel_projector%mark(bc_i)
                 call this%bcs_vel%append(bc_i)
                 call this%bc_sym_surface%mark_facets(bc_i%marked_facet)
              type is (non_normal_aligned_t)
                 ! The situation is the same as symmetry.
-                call this%bcs_vel_resolver%mark(bc_i%bc_x, component = 'x')
-                call this%bcs_vel_resolver%mark(bc_i%bc_y, component = 'y')
-                call this%bcs_vel_resolver%mark(bc_i%bc_z, component = 'z')
+                call this%bcs_vel_projector%mark(bc_i%bc_x, component = 'x')
+                call this%bcs_vel_projector%mark(bc_i%bc_y, component = 'y')
+                call this%bcs_vel_projector%mark(bc_i%bc_z, component = 'z')
                 call this%bcs_vel%append(bc_i)
              type is (non_normal_t)
-                call this%bcs_vel_resolver%mark(bc_i)
+                call this%bcs_vel_projector%mark(bc_i)
                 call this%bcs_vel%append(bc_i)
              type is (shear_stress_t)
                 if (.not. this%full_stress_formulation) then
                    call neko_error("The shear_stress boundary condition " // &
                         "requires the full stress formulation to be enabled.")
                 end if
-                call this%bcs_vel_resolver%mark(bc_i)
+                call this%bcs_vel_projector%mark(bc_i)
                 call this%bcs_vel%append(bc_i)
              type is (wall_model_bc_t)
                 if (.not. this%full_stress_formulation) then
                    call neko_error("The wall_model boundary condition " // &
                         "requires the full stress formulation to be enabled.")
                 end if
-                call this%bcs_vel_resolver%mark(bc_i)
+                call this%bcs_vel_projector%mark(bc_i)
                 call this%bcs_vel%append(bc_i)
              class default
 
@@ -1086,9 +1086,9 @@ contains
                 if (bc_i%bc_type .eq. BC_DIRICHLET) then
                    call this%bc_prs_surface%mark_labeled_zones( &
                         bc_i%zone_indices)
-                   call this%bcs_vel_resolver%mark(bc_i, component = 'x')
-                   call this%bcs_vel_resolver%mark(bc_i, component = 'y')
-                   call this%bcs_vel_resolver%mark(bc_i, component = 'z')
+                   call this%bcs_vel_projector%mark(bc_i, component = 'x')
+                   call this%bcs_vel_projector%mark(bc_i, component = 'y')
+                   call this%bcs_vel_projector%mark(bc_i, component = 'z')
                 end if
 
                 call this%bcs_vel%append(bc_i)
@@ -1128,9 +1128,9 @@ contains
           if (associated(bc_i)) then
              call this%bcs_prs%append(bc_i)
 
-             ! Mark strong pressure bcs in the resolver to force zero change.
+             ! Mark strong pressure bcs in the projector to force zero change.
              if (bc_i%bc_type .eq. BC_DIRICHLET) then
-                call this%bcs_prs_resolver%mark(bc_i)
+                call this%bcs_prs_projector%mark(bc_i)
              end if
 
           end if
@@ -1153,10 +1153,10 @@ contains
 
     call this%bc_prs_surface%finalize()
     call this%bc_sym_surface%finalize()
-    call this%bcs_vel_resolver%finalize(rebuild_mask = .true.)
+    call this%bcs_vel_projector%finalize(rebuild_mask = .true.)
 
     ! If we have no strong pressure bcs, we will demean the pressure
-    this%prs_dirichlet = this%bcs_prs_resolver%dof_mask%is_set()
+    this%prs_dirichlet = this%bcs_prs_projector%dof_mask%is_set()
     call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
 

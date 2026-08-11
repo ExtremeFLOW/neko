@@ -44,7 +44,7 @@ module symmetry
   private
 
   !> Symmetry boundary condition constraining the normal vector component.
-  !! @details This variant uses resolver-provided local basis vectors on the
+  !! @details This variant uses projector-provided local basis vectors on the
   !! resolved mixed support stored in `mixed_bc_t`. The normal component is
   !! removed while the tangential components are preserved.
   type, public, extends(mixed_bc_t) :: symmetry_t
@@ -115,7 +115,7 @@ contains
 
   !> Remove the normal component on the CPU.
   !! @details Uses the resolved mixed-node mask together with the local normal
-  !! vector provided by the coupled vector BC resolver.
+  !! vector provided by the coupled vector BC projector.
   !! @param x x-component of the field.
   !! @param y y-component of the field.
   !! @param z z-component of the field.
@@ -170,7 +170,7 @@ contains
 
   !> Remove the normal component on the device.
   !! @details Uses the resolved mixed-node mask together with the local basis
-  !! vectors provided by the coupled vector BC resolver.
+  !! vectors provided by the coupled vector BC projector.
   !! @param x_d Device pointer to the x-component.
   !! @param y_d Device pointer to the y-component.
   !! @param z_d Device pointer to the z-component.

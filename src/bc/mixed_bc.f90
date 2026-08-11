@@ -45,12 +45,12 @@ module mixed_bc
   implicit none
   private
 
-  !> Base type for mixed boundary conditions that need resolver-provided
+  !> Base type for mixed boundary conditions that need projector-provided
   !! local-basis data on the physical field.
   type, public, abstract, extends(bc_t) :: mixed_bc_t
      !> Resolved subset of local dofs where this mixed bc remains active after
      !! global boundary-condition resolution. Populated by a
-     !! `coupled_vector_bc_resolver_t`.
+     !! `coupled_vector_bc_projector_t`.
      !! Note that the resolved mask is only used for contraining vector
      !! components. For the Neumann contributions of the bc, facet_node_msk is
      !! used.

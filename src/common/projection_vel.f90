@@ -37,7 +37,7 @@ module projection_vel
   use math, only : add2, copy
   use coefs, only : coef_t
   use ax_product, only : ax_t
-  use vector_bc_resolver, only : vector_bc_resolver_t
+  use vector_bc_projector, only : vector_bc_projector_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_get_ptr
@@ -109,13 +109,13 @@ contains
   end subroutine projection_pre_solving_vel
 
   subroutine projection_post_solving_vel(this, x_u, x_v, x_w, Ax, coef, &
-       bc_resolver, &
+       bc_projector, &
        gs_h, n, tstep, dt_controller)
     class(projection_vel_t), intent(inout) :: this
     integer, intent(inout) :: n
     class(ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
-    class(vector_bc_resolver_t), intent(inout) :: bc_resolver
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: x_u, x_v, x_w
     integer, intent(in) :: tstep
@@ -126,19 +126,19 @@ contains
     if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
        if ((.not. dt_controller%is_variable_dt) .or. &
             (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
-          call this%project_back(x_u, x_v, x_w, Ax, coef, bc_resolver, gs_h, n)
+          call this%project_back(x_u, x_v, x_w, Ax, coef, bc_projector, gs_h, n)
        end if
     end if
 
   end subroutine projection_post_solving_vel
 
   subroutine bcknd_project_back_vel(this, x_u, x_v, x_w, &
-       Ax, coef, bc_resolver, gs_h, n)
+       Ax, coef, bc_projector, gs_h, n)
     class(projection_vel_t) :: this
     integer, intent(inout) :: n
     class(ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
-    class(vector_bc_resolver_t), intent(inout) :: bc_resolver
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: x_u, x_v, x_w
     type(c_ptr) :: x_u_d, x_v_d, x_w_d
@@ -223,7 +223,7 @@ contains
     call gs_h%gs_op_vector(this%proj_v%bb(1, this%proj_v%m), n, GS_OP_ADD)
     call gs_h%gs_op_vector(this%proj_w%bb(1, this%proj_w%m), n, GS_OP_ADD)
 
-    call bc_resolver%apply(this%proj_u%bb(1, this%proj_u%m), &
+    call bc_projector%apply(this%proj_u%bb(1, this%proj_u%m), &
          this%proj_v%bb(1, this%proj_v%m), this%proj_w%bb(1, this%proj_w%m), n)
 
     call proj_ortho(this%proj_u, coef, n)

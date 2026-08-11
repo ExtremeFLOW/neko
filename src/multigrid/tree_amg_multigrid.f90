@@ -53,7 +53,7 @@ module tree_amg_multigrid
   use mesh, only : mesh_t
   use space, only : space_t
   use ax_product, only : ax_t
-  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use tree_amg, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
   use tree_amg_aggregate, only : aggregate_finest_level, aggregate_greedy, &
@@ -103,9 +103,9 @@ contains
   !! @param msh Finest level mesh information
   !! @param gs_h Finest level gather scatter operator
   !! @param nlvls Number of levels for the TreeAMG hierarchy
-  !! @param bc_resolver Finest level BC resolver
+  !! @param bc_projector Finest level BC projector
   !! @param max_iter Number of AMG iterations
-  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls, bc_resolver, &
+  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls, bc_projector, &
        max_iter, cheby_degree)
     class(tamg_solver_t), intent(inout), target :: this
     class(ax_t), target, intent(in) :: ax
@@ -113,7 +113,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     type(mesh_t), target, intent(in) :: msh
     type(gs_t), target, intent(in) :: gs_h
-    type(scalar_bc_resolver_t), target, intent(in) :: bc_resolver
+    type(scalar_bc_projector_t), target, intent(in) :: bc_projector
     integer, intent(in) :: nlvls
     integer, intent(in) :: max_iter
     integer, intent(in) :: cheby_degree
@@ -130,7 +130,7 @@ contains
     call neko_log%message(log_buf)
 
     allocate( this%amg )
-    call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, bc_resolver)
+    call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, bc_projector)
 
     ! Aggregation
     use_greedy_agg = .true.

@@ -39,9 +39,9 @@ module cg_sx
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use scalar_bc_resolver, only : scalar_bc_resolver_t
-  use vector_bc_resolver, only : vector_bc_resolver_t, &
-       vector_bc_resolver_components
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       vector_bc_projector_components
   use math, only : glsc3, add2s1, abscmp
   implicit none
   private
@@ -129,7 +129,7 @@ contains
   end subroutine sx_cg_free
 
   !> Standard PCG solve
-  function sx_cg_solve(this, Ax, x, f, n, coef, bc_resolver, gs_h, niter) &
+  function sx_cg_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
        result(ksp_results)
     class(sx_cg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -137,7 +137,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    class(scalar_bc_resolver_t), intent(inout) :: bc_resolver
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -183,7 +183,7 @@ contains
 
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
        call gs_h%op(this%w, n, GS_OP_ADD)
-       call bc_resolver%apply(this%w, n)
+       call bc_projector%apply(this%w, n)
 
        pap = glsc3(this%w, coef%mult, this%p, n)
 
@@ -210,7 +210,7 @@ contains
 
   !> Standard PCG coupled solve
   function sx_cg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, bc_resolver, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(sx_cg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -221,13 +221,13 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    class(vector_bc_resolver_t), intent(inout) :: bc_resolver
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
-    type(scalar_bc_resolver_t), pointer :: bc_x, bc_y, bc_z
+    type(scalar_bc_projector_t), pointer :: bc_x, bc_y, bc_z
 
-    call vector_bc_resolver_components(bc_resolver, bc_x, bc_y, bc_z)
+    call vector_bc_projector_components(bc_projector, bc_x, bc_y, bc_z)
     ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_x, gs_h, niter)
     ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_y, gs_h, niter)
     ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_z, gs_h, niter)

@@ -42,7 +42,7 @@ module tree_amg
   use mesh, only : mesh_t
   use space, only : space_t
   use ax_product, only : ax_t
-  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use device, only: device_map, device_unmap, device_sync, &
        device_stream_wait_event, glb_cmd_queue, glb_cmd_event
@@ -97,7 +97,7 @@ module tree_amg
      type(space_t), pointer :: Xh
      type(coef_t), pointer :: coef
      type(gs_t), pointer :: gs_h
-     type(scalar_bc_resolver_t), pointer :: bc_resolver
+     type(scalar_bc_projector_t), pointer :: bc_projector
 
    contains
      procedure, pass(this) :: init => tamg_init
@@ -122,8 +122,8 @@ contains
   !! @param msh Finest level mesh information
   !! @param gs_h Finest level gather scatter operator
   !! @param nlvls Number of levels for the TreeAMG hierarchy
-  !! @param bc_resolver Finest level BC resolver
-  subroutine tamg_init(this, ax, Xh, coef, msh, gs_h, nlvls, bc_resolver)
+  !! @param bc_projector Finest level BC projector
+  subroutine tamg_init(this, ax, Xh, coef, msh, gs_h, nlvls, bc_projector)
     class(tamg_hierarchy_t), target, intent(inout) :: this
     class(ax_t), target, intent(in) :: ax
     type(space_t), target, intent(in) :: Xh
@@ -131,7 +131,7 @@ contains
     type(mesh_t), target, intent(in) :: msh
     type(gs_t), target, intent(in) :: gs_h
     integer, intent(in) :: nlvls
-    type(scalar_bc_resolver_t), target, intent(in) :: bc_resolver
+    type(scalar_bc_projector_t), target, intent(in) :: bc_projector
     integer :: i, n
 
     this%ax => ax
@@ -139,7 +139,7 @@ contains
     this%Xh => Xh
     this%coef => coef
     this%gs_h => gs_h
-    this%bc_resolver => bc_resolver
+    this%bc_projector => bc_projector
 
     if (nlvls .lt. 2) then
        call neko_error("Need to request at least two multigrid levels.")
@@ -176,7 +176,7 @@ contains
     nullify(this%Xh)
     nullify(this%coef)
     nullify(this%gs_h)
-    nullify(this%bc_resolver)
+    nullify(this%bc_projector)
   end subroutine tamg_free
 
   !> Initialization of a TreeAMG level
@@ -326,7 +326,7 @@ contains
 
        call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
        call this%gs_h%op(vec_out, n, GS_OP_ADD)
-       call this%bc_resolver%apply(vec_out, n)
+       call this%bc_projector%apply(vec_out, n)
 
        if (lvl_out .ne. 0) then
           call col2(vec_out, this%coef%mult, n)
@@ -388,7 +388,7 @@ contains
     if (lvl .eq. 0) then !> isleaf true
        call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
        call this%gs_h%op(vec_out, n, GS_OP_ADD)
-       call this%bc_resolver%apply(vec_out, n)
+       call this%bc_projector%apply(vec_out, n)
     else !> pass down through hierarchy
        associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
          !> Map input level to finest level
@@ -400,12 +400,12 @@ contains
          !> Average on overlapping dofs
          call this%gs_h%op(wrk_in, n, GS_OP_ADD)
          call col2( wrk_in, this%coef%mult, n)
-         call this%bc_resolver%apply(wrk_in, n)
+         call this%bc_projector%apply(wrk_in, n)
 
          !> Finest level matvec (Call local finite element assembly)
          call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
          call this%gs_h%op(wrk_out, n, GS_OP_ADD)
-         call this%bc_resolver%apply(wrk_out, n)
+         call this%bc_projector%apply(wrk_out, n)
 
          call col2(wrk_out, this%coef%mult, n)
 
@@ -473,7 +473,7 @@ contains
     if (lvl-1 .eq. 0) then
        call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, GS_OP_ADD)
        call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
-       call this%bc_resolver%apply(vec_out, this%lvl(lvl)%fine_lvl_dofs)
+       call this%bc_projector%apply(vec_out, this%lvl(lvl)%fine_lvl_dofs)
     end if
   end subroutine tamg_prolongation_operator
 
@@ -494,7 +494,7 @@ contains
        call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
        call this%gs_h%op(vec_out, n, GS_OP_ADD, glb_cmd_event)
        call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
-       call this%bc_resolver%apply(vec_out, n)
+       call this%bc_projector%apply(vec_out, n)
     else !> pass down through hierarchy
 
        associate(wrk_in_d => this%lvl(1)%wrk_in_d, &
@@ -506,14 +506,14 @@ contains
          call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD, glb_cmd_event)
          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
          call device_col2( wrk_in_d, this%coef%mult_d, n)
-         call this%bc_resolver%apply(this%lvl(1)%wrk_in, n)
+         call this%bc_projector%apply(this%lvl(1)%wrk_in, n)
 
          !> Finest level matvec (Call local finite element assembly)
          call this%ax%compute(this%lvl(1)%wrk_out, this%lvl(1)%wrk_in, &
               this%coef, this%msh, this%Xh)
          call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD, glb_cmd_event)
          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
-         call this%bc_resolver%apply(this%lvl(1)%wrk_out, n)
+         call this%bc_projector%apply(this%lvl(1)%wrk_out, n)
 
          call device_col2( wrk_out_d, this%coef%mult_d, n)
 
@@ -558,7 +558,7 @@ contains
        call this%gs_h%op(vec_out, m, GS_OP_ADD, glb_cmd_event)
        call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
        call device_col2( vec_out_d, this%coef%mult_d, m)
-       call this%bc_resolver%apply(vec_out, m)
+       call this%bc_projector%apply(vec_out, m)
     end if
   end subroutine tamg_device_prolongation_operator
 

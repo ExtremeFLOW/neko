@@ -40,8 +40,8 @@ module krylov
   use mesh, only : mesh_t
   use field, only : field_t
   use utils, only : neko_error, neko_warning
-  use scalar_bc_resolver, only : scalar_bc_resolver_t
-  use vector_bc_resolver, only : vector_bc_resolver_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t
   use identity, only : ident_t
   use device_identity, only : device_ident_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -130,13 +130,13 @@ module krylov
   !! @param f right hand side
   !! @param n integer, size of vectors
   !! @param coef Coefficients
-  !! @param bc_resolver boundary constraint resolver
+  !! @param bc_projector boundary constraint projector
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
-     function ksp_method(this, Ax, x, f, n, coef, bc_resolver, gs_h, niter) &
+     function ksp_method(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
           result(ksp_results)
-       import :: scalar_bc_resolver_t
+       import :: scalar_bc_projector_t
        import :: field_t
        import :: ksp_t
        import :: coef_t
@@ -151,7 +151,7 @@ module krylov
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(in) :: f
        type(coef_t), intent(inout) :: coef
-       class(scalar_bc_resolver_t), intent(inout) :: bc_resolver
+       class(scalar_bc_projector_t), intent(inout) :: bc_projector
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t) :: ksp_results
@@ -168,13 +168,13 @@ module krylov
   !! @param fz right hand side
   !! @param n integer, size of vectors
   !! @param coef Coefficients
-  !! @param bc_resolver boundary constraint resolver
+  !! @param bc_projector boundary constraint projector
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
      function ksp_method_coupled(this, Ax, x, y, z, fx, fy, fz, &
-          n, coef, bc_resolver, gs_h, niter) result(ksp_results)
-       import :: vector_bc_resolver_t
+          n, coef, bc_projector, gs_h, niter) result(ksp_results)
+       import :: vector_bc_projector_t
        import :: field_t
        import :: ksp_t
        import :: coef_t
@@ -193,7 +193,7 @@ module krylov
        real(kind=rp), dimension(n), intent(in) :: fy
        real(kind=rp), dimension(n), intent(in) :: fz
        type(coef_t), intent(inout) :: coef
-       class(vector_bc_resolver_t), intent(inout) :: bc_resolver
+       class(vector_bc_projector_t), intent(inout) :: bc_projector
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t), dimension(3) :: ksp_results

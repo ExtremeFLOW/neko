@@ -26,8 +26,8 @@ extern void *symmetry_program;
 /** Device mixed BC constraint kernels */
 extern void *constrain_mixed_bc_program;
 
-/** Device coupled vector BC resolver kernels */
-extern void *coupled_vector_bc_resolver_program;
+/** Device coupled vector BC projector kernels */
+extern void *coupled_vector_bc_projector_program;
 
 /** Device Facet normal kernels */
 extern void *facet_normal_program;

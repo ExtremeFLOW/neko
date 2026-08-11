@@ -29,8 +29,8 @@ module opencl_prgm_lib
   !> Device mixed BC constraint kernels
   type(c_ptr), public, bind(c) :: constrain_mixed_bc_program = C_NULL_PTR
 
-  !> Device coupled vector BC resolver kernels
-  type(c_ptr), public, bind(c) :: coupled_vector_bc_resolver_program = &
+  !> Device coupled vector BC projector kernels
+  type(c_ptr), public, bind(c) :: coupled_vector_bc_projector_program = &
        C_NULL_PTR
 
   !> Device Facet normal kernels
@@ -188,12 +188,12 @@ contains
        constrain_mixed_bc_program = C_NULL_PTR
     end if
 
-    if (c_associated(coupled_vector_bc_resolver_program)) then
-       if (clReleaseProgram(coupled_vector_bc_resolver_program) .ne. &
+    if (c_associated(coupled_vector_bc_projector_program)) then
+       if (clReleaseProgram(coupled_vector_bc_projector_program) .ne. &
             CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
-       coupled_vector_bc_resolver_program = C_NULL_PTR
+       coupled_vector_bc_projector_program = C_NULL_PTR
     end if
 
     if (c_associated(facet_normal_program)) then

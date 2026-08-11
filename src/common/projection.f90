@@ -65,7 +65,7 @@ module projection
   use math, only : rzero, glsc3, add2, add2s2, copy, cmult
   use coefs, only : coef_t
   use ax_product, only : ax_t
-  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BLK_SIZE, &
        NEKO_DEVICE_MPI, NEKO_BCKND_OPENCL
@@ -240,7 +240,7 @@ contains
     integer, intent(in) :: tstep
     class(coef_t), intent(inout) :: coef
     type(time_step_controller_t), intent(in) :: dt_controller
-    class(scalar_bc_resolver_t), optional, intent(inout) :: bclst
+    class(scalar_bc_projector_t), optional, intent(inout) :: bclst
     type(gs_t), optional, intent(inout) :: gs_h
     class(Ax_t), optional, intent(in) :: Ax
     character(len=*), optional :: string
@@ -284,7 +284,7 @@ contains
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
-    class(scalar_bc_resolver_t), intent(inout) :: bclst
+    class(scalar_bc_projector_t), intent(inout) :: bclst
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: x
     integer, intent(in) :: tstep
@@ -318,7 +318,7 @@ contains
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
-    class(scalar_bc_resolver_t), intent(inout) :: bclst
+    class(scalar_bc_projector_t), intent(inout) :: bclst
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: x
     type(c_ptr) :: x_d
@@ -361,7 +361,7 @@ contains
     class(ax_t), intent(in) :: Ax
     class(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs_h
-    type(scalar_bc_resolver_t), intent(inout) :: blst
+    type(scalar_bc_projector_t), intent(inout) :: blst
     integer, intent(in) :: n
 
     call profiler_start_region('Project reortho basis')
@@ -378,7 +378,7 @@ contains
     class(ax_t), intent(in) :: Ax
     class(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs_h
-    type(scalar_bc_resolver_t), intent(inout) :: blst
+    type(scalar_bc_projector_t), intent(inout) :: blst
     integer, intent(in) :: n
     character(len=1000) :: msg
 
@@ -427,7 +427,7 @@ contains
     class(ax_t), intent(in) :: Ax
     class(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs_h
-    type(scalar_bc_resolver_t), intent(inout) :: blst
+    type(scalar_bc_projector_t), intent(inout) :: blst
     integer, intent(in) :: n
     character(len=1000) :: msg
 

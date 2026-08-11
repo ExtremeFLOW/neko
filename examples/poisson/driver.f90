@@ -1,7 +1,7 @@
 program poisson
   use neko
   use ax_poisson
-  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use mpi_f08
   implicit none
 
@@ -13,7 +13,7 @@ program poisson
   type(gs_t) :: gs_h
   type(dirichlet_t) :: dir_bc
   type(bc_list_t) :: bclst
-  type(scalar_bc_resolver_t) :: bc_resolver
+  type(scalar_bc_projector_t) :: bc_projector
   type(field_t) :: x
   type(ax_poisson_t) :: ax
   type(coef_t) :: coef
@@ -65,7 +65,7 @@ program poisson
   call dir_bc%finalize()
   call bclst%init()
   call bclst%append(dir_bc)
-  call bc_resolver%mark(bclst)
+  call bc_projector%mark(bclst)
   call krylov_solver_factory(solver, n, 'cg', niter, abstol = tol)
 
   allocate(f(n))
@@ -74,13 +74,13 @@ program poisson
   call rzero(f,n)
   call set_f(f, coef%mult, dm, n, gs_h)
   call bclst%apply(f, n)
-  ksp_mon = solver%solve(ax, x, f, n, coef, bc_resolver, gs_h, niter)
+  ksp_mon = solver%solve(ax, x, f, n, coef, bc_projector, gs_h, niter)
   n_glb = Xh%lx * Xh%ly * Xh%lz * msh%glb_nelv
 
   call MPI_Barrier(NEKO_COMM, ierr)
 
   call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n_glb, ksp_mon)
-  ksp_mon = solver%solve(ax, x, f, n, coef, bc_resolver, gs_h, niter)
+  ksp_mon = solver%solve(ax, x, f, n, coef, bc_projector, gs_h, niter)
   call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb, ksp_mon)
 
   fname = 'out.fld'
@@ -88,7 +88,7 @@ program poisson
   call mf%write(x)
   deallocate(f)
   call solver%free()
-  call bc_resolver%free()
+  call bc_projector%free()
   call dir_bc%free()
   call bclst%free()
   call Xh%free()

@@ -32,51 +32,41 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_COUPLED_VECTOR_BC_RESOLVER_KERNEL__
-#define __BC_COUPLED_VECTOR_BC_RESOLVER_KERNEL__
+#include <hip/hip_runtime.h>
+#include <device/device_config.h>
+#include <device/hip/check.h>
 
-template< typename T >
-__global__ void coupled_vector_bc_resolver_apply_kernel(
-    const int * __restrict__ mixed_msk,
-    T * __restrict__ x,
-    T * __restrict__ y,
-    T * __restrict__ z,
-    const int * __restrict__ constraint_n,
-    const int * __restrict__ constraint_t1,
-    const int * __restrict__ constraint_t2,
-    const T * __restrict__ n,
-    const T * __restrict__ t1,
-    const T * __restrict__ t2,
-    const int m) {
+#include "coupled_vector_bc_projector_kernel.h"
 
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+extern "C" {
 
-  for (int i = idx; i < m; i += str) {
-    const int k = mixed_msk[i];
-    const int off = 3 * i;
+  void hip_coupled_vector_bc_projector_apply(void *mixed_msk, void *x, void *y,
+                                            void *z, void *constraint_n,
+                                            void *constraint_t1,
+                                            void *constraint_t2, void *n,
+                                            void *t1, void *t2, int *m,
+                                            hipStream_t strm) {
 
-    T u1 = x[k];
-    T u2 = y[k];
-    T u3 = z[k];
+    if (*m <= 0)
+      return;
 
-    T uloc_n = u1 * n[off] + u2 * n[off + 1] + u3 * n[off + 2];
-    T uloc_t1 = u1 * t1[off] + u2 * t1[off + 1] + u3 * t1[off + 2];
-    T uloc_t2 = u1 * t2[off] + u2 * t2[off + 1] + u3 * t2[off + 2];
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m) + 1024 - 1) / 1024, 1, 1);
 
-    if (constraint_n[i] != 0)
-      uloc_n = 0;
-    if (constraint_t1[i] != 0)
-      uloc_t1 = 0;
-    if (constraint_t2[i] != 0)
-      uloc_t2 = 0;
-
-    x[k] = uloc_n * n[off] + uloc_t1 * t1[off] + uloc_t2 * t2[off];
-    y[k] = uloc_n * n[off + 1] + uloc_t1 * t1[off + 1] +
-           uloc_t2 * t2[off + 1];
-    z[k] = uloc_n * n[off + 2] + uloc_t1 * t1[off + 2] +
-           uloc_t2 * t2[off + 2];
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(coupled_vector_bc_projector_apply_kernel<real>),
+                       nblcks, nthrds, 0, strm,
+                       (const int *) mixed_msk,
+                       (real *) x,
+                       (real *) y,
+                       (real *) z,
+                       (const int *) constraint_n,
+                       (const int *) constraint_t1,
+                       (const int *) constraint_t2,
+                       (const real *) n,
+                       (const real *) t1,
+                       (const real *) t2,
+                       *m);
+    HIP_CHECK(hipGetLastError());
   }
-}
 
-#endif
+}

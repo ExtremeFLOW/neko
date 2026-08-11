@@ -32,11 +32,11 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_HIP_COUPLED_VECTOR_BC_RESOLVER_KERNEL__
-#define __BC_HIP_COUPLED_VECTOR_BC_RESOLVER_KERNEL__
+#ifndef __BC_HIP_COUPLED_VECTOR_BC_PROJECTOR_KERNEL__
+#define __BC_HIP_COUPLED_VECTOR_BC_PROJECTOR_KERNEL__
 
 template< typename T >
-__global__ void coupled_vector_bc_resolver_apply_kernel(
+__global__ void coupled_vector_bc_projector_apply_kernel(
     const int * __restrict__ mixed_msk,
     T * __restrict__ x,
     T * __restrict__ y,

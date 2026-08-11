@@ -46,7 +46,7 @@ module non_normal
   private
 
   !> Mixed Dirichlet condition constraining the tangential vector components.
-  !! @details This variant uses resolver-provided local basis vectors on the
+  !! @details This variant uses projector-provided local basis vectors on the
   !! resolved mixed support stored in `mixed_bc_t`. The prescribed value is a
   !! single global vector whose tangential projection is enforced at every
   !! resolved mixed node.
@@ -190,7 +190,7 @@ contains
 
   !> Apply the tangential components of the prescribed vector on the device.
   !! @details Uses the resolved mixed-node mask together with the local basis
-  !! vectors provided by the coupled vector BC resolver.
+  !! vectors provided by the coupled vector BC projector.
   !! @param x_d Device pointer to the x-component.
   !! @param y_d Device pointer to the y-component.
   !! @param z_d Device pointer to the z-component.

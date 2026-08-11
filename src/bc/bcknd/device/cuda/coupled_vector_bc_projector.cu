@@ -32,20 +32,19 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <hip/hip_runtime.h>
 #include <device/device_config.h>
-#include <device/hip/check.h>
+#include <device/cuda/check.h>
 
-#include "coupled_vector_bc_resolver_kernel.h"
+#include "coupled_vector_bc_projector_kernel.h"
 
 extern "C" {
 
-  void hip_coupled_vector_bc_resolver_apply(void *mixed_msk, void *x, void *y,
-                                            void *z, void *constraint_n,
-                                            void *constraint_t1,
-                                            void *constraint_t2, void *n,
-                                            void *t1, void *t2, int *m,
-                                            hipStream_t strm) {
+  void cuda_coupled_vector_bc_projector_apply(void *mixed_msk, void *x, void *y,
+                                             void *z, void *constraint_n,
+                                             void *constraint_t1,
+                                             void *constraint_t2, void *n,
+                                             void *t1, void *t2, int *m,
+                                             cudaStream_t strm) {
 
     if (*m <= 0)
       return;
@@ -53,20 +52,19 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m) + 1024 - 1) / 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(coupled_vector_bc_resolver_apply_kernel<real>),
-                       nblcks, nthrds, 0, strm,
-                       (const int *) mixed_msk,
-                       (real *) x,
-                       (real *) y,
-                       (real *) z,
-                       (const int *) constraint_n,
-                       (const int *) constraint_t1,
-                       (const int *) constraint_t2,
-                       (const real *) n,
-                       (const real *) t1,
-                       (const real *) t2,
-                       *m);
-    HIP_CHECK(hipGetLastError());
+    coupled_vector_bc_projector_apply_kernel<real>
+      <<<nblcks, nthrds, 0, strm>>>((const int *) mixed_msk,
+                                    (real *) x,
+                                    (real *) y,
+                                    (real *) z,
+                                    (const int *) constraint_n,
+                                    (const int *) constraint_t1,
+                                    (const int *) constraint_t2,
+                                    (const real *) n,
+                                    (const real *) t1,
+                                    (const real *) t2,
+                                    *m);
+    CUDA_CHECK(cudaGetLastError());
   }
 
 }

@@ -14,7 +14,7 @@ test-suite.log
 !gather_scatter/gather_scatter_test
 !jobctrl/jobctrl_test
 !bc/bc_test
-!bc_resolver/bc_resolver_test
+!bc_projector/bc_projector_test
 !matrix/matrix_test
 !math/math_test
 !mean_field/mean_field_test
@@ -74,5 +74,5 @@ point_interpolation/point_interpolation_suite
 **/test_write_*.data/*.h5
 templates/parallel/parallel_suite
 templates/serial/serial_test
-bc_resolver/bc_resolver_suite
+bc_projector/bc_projector_suite
 boundary_operation/boundary_operation_suite

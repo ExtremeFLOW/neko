@@ -41,7 +41,7 @@ module tree_amg_smoother
        device_cmult2, device_sub2, device_add2, device_add3s2, &
        device_copy
   use krylov, only : ksp_monitor_t
-  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
   use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
@@ -160,7 +160,7 @@ contains
     integer, allocatable :: fixed_seed(:), saved_seed(:)
     integer :: i, rnd_n
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
-         msh => amg%msh, Xh => amg%Xh, bc_resolver => amg%bc_resolver)
+         msh => amg%msh, Xh => amg%Xh, bc_projector => amg%bc_projector)
 
       ! Save current random seed and set a fixed seed
       call random_seed(size = rnd_n)
@@ -180,7 +180,7 @@ contains
 
       if (this%lvl .eq. 0) then
          call gs_h%op(d, n, GS_OP_ADD)!TODO
-         call bc_resolver%apply(d, n)
+         call bc_projector%apply(d, n)
       end if
       !Power method to get lamba max
       do i = 1, this%power_its
@@ -245,7 +245,7 @@ contains
     max_iter = this%max_iter
 
     associate(w => this%w, r => this%r, d => this%d, &
-         bc_resolver => amg%bc_resolver)
+         bc_projector => amg%bc_projector)
       call copy(r, f, n)
       if (.not. zero_initial_guess) then
          call amg%matvec(w, x, this%lvl)
@@ -309,7 +309,7 @@ contains
     integer, allocatable :: fixed_seed(:), saved_seed(:)
     integer :: i, rnd_n
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
-         msh => amg%msh, Xh => amg%Xh, bc_resolver => amg%bc_resolver)
+         msh => amg%msh, Xh => amg%Xh, bc_projector => amg%bc_projector)
 
       ! Save current random seed and set a fixed seed
       call random_seed(size = rnd_n)
@@ -330,7 +330,7 @@ contains
 
       if (this%lvl .eq. 0) then
          call gs_h%op(d, n, GS_OP_ADD)!TODO
-         call bc_resolver%apply(d, n)
+         call bc_projector%apply(d, n)
       end if
       do i = 1, this%power_its
          call amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)

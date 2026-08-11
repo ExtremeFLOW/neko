@@ -193,8 +193,8 @@ neko_fortran_SOURCES = \
 	io/mean_field_output.f90\
 	common/profiler.F90\
 	common/craypat.F90\
-	bc/scalar_bc_resolver.f90\
-	bc/vector_bc_resolver.f90\
+	bc/scalar_bc_projector.f90\
+	bc/vector_bc_projector.f90\
 	bc/bc.f90\
 	bc/mixed_bc.f90\
 	bc/bc_list.f90\
@@ -360,7 +360,7 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_inhom_dirichlet.F90\
 	bc/bcknd/device/device_dong_outflow.F90\
 	bc/bcknd/device/device_constrain_mixed_bc.F90\
-	bc/bcknd/device/device_coupled_vector_bc_resolver.F90\
+	bc/bcknd/device/device_coupled_vector_bc_projector.F90\
 	scalar/bcknd/device/scalar_residual_device.F90\
 	scalar/scalar_scheme.f90\
 	scalar/scalar_scheme_fctry.f90\
@@ -535,7 +535,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/hip/zero_dirichlet.hip\
 	bc/bcknd/device/hip/symmetry_aligned.hip\
 	bc/bcknd/device/hip/constrain_mixed_bc.hip\
-	bc/bcknd/device/hip/coupled_vector_bc_resolver.hip\
+	bc/bcknd/device/hip/coupled_vector_bc_projector.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
 	bc/bcknd/device/hip/neumann.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
@@ -609,7 +609,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
 	bc/bcknd/device/cuda/dong_outflow.cu\
 	bc/bcknd/device/cuda/constrain_mixed_bc.cu\
-	bc/bcknd/device/cuda/coupled_vector_bc_resolver.cu\
+	bc/bcknd/device/cuda/coupled_vector_bc_projector.cu\
 	common/bcknd/device/cuda/rhs_maker.cu\
 	common/bcknd/device/cuda/projection.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
@@ -711,7 +711,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/opencl/zero_dirichlet.c\
 	bc/bcknd/device/opencl/symmetry_aligned.c\
 	bc/bcknd/device/opencl/constrain_mixed_bc.c\
-	bc/bcknd/device/opencl/coupled_vector_bc_resolver.c\
+	bc/bcknd/device/opencl/coupled_vector_bc_projector.c\
 	bc/bcknd/device/opencl/facet_normal.c\
 	bc/bcknd/device/opencl/neumann.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
@@ -995,7 +995,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
 	bc/bcknd/device/cuda/dong_outflow_kernel.h\
 	bc/bcknd/device/cuda/constrain_mixed_bc_kernel.h\
-	bc/bcknd/device/cuda/coupled_vector_bc_resolver_kernel.h\
+	bc/bcknd/device/cuda/coupled_vector_bc_projector_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	gs/bcknd/device/cuda/gs_nvshmem_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
@@ -1047,7 +1047,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/zero_dirichlet_kernel.h\
 	bc/bcknd/device/hip/symmetry_aligned_kernel.h\
 	bc/bcknd/device/hip/constrain_mixed_bc_kernel.h\
-	bc/bcknd/device/hip/coupled_vector_bc_resolver_kernel.h\
+	bc/bcknd/device/hip/coupled_vector_bc_projector_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
 	bc/bcknd/device/hip/neumann_kernel.h\
 	bc/bcknd/device/hip/bc_utils.h\
@@ -1110,7 +1110,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_aligned_kernel.cl\
 	bc/bcknd/device/opencl/constrain_mixed_bc_kernel.cl\
-	bc/bcknd/device/opencl/coupled_vector_bc_resolver_kernel.cl\
+	bc/bcknd/device/opencl/coupled_vector_bc_projector_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
 	bc/bcknd/device/opencl/neumann_kernel.cl\
 	bc/bcknd/device/opencl/bc_utils.h\

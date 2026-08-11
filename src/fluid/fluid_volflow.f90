@@ -78,8 +78,8 @@ module fluid_volflow
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_get_or_lookup
   use scratch_registry, only : neko_scratch_registry
-  use scalar_bc_resolver, only : scalar_bc_resolver_t
-  use vector_bc_resolver, only : vector_bc_resolver_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t
   use ax_product, only : ax_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
@@ -154,7 +154,7 @@ contains
   !! (Tombo splitting scheme).
   subroutine fluid_vol_flow_compute(this, u_res, v_res, w_res, p_res, &
        ext_bdf, gs_Xh, c_Xh, rho, mu, bd, dt, &
-       dp_resolver, vel_resolver, &
+       dp_projector, vel_projector, &
        Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
        vel_max_iter)
     class(fluid_volflow_t), intent(inout) :: this
@@ -162,8 +162,8 @@ contains
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(in) :: ext_bdf
-    type(scalar_bc_resolver_t), intent(inout) :: dp_resolver
-    class(vector_bc_resolver_t), intent(inout) :: vel_resolver
+    type(scalar_bc_projector_t), intent(inout) :: dp_projector
+    class(vector_bc_projector_t), intent(inout) :: vel_projector
     class(ax_t), intent(in) :: Ax_vel
     class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
@@ -231,10 +231,10 @@ contains
       end if
 
       call gs_Xh%op(p_res, GS_OP_ADD)
-      call dp_resolver%apply(p_res%x, n)
+      call dp_projector%apply(p_res%x, n)
       call pc_prs%update()
       ksp_results(1) = ksp_prs%solve(Ax_prs, p_vol, p_res%x, n, &
-           c_Xh, dp_resolver, gs_Xh, prs_max_iter)
+           c_Xh, dp_projector, gs_Xh, prs_max_iter)
 
       !   Compute velocity
 
@@ -251,7 +251,7 @@ contains
          call copy(ta2%x, c_Xh%B, n)
          call copy(ta3%x, c_Xh%B, n)
       end if
-      call vel_resolver%apply(ta1%x, ta2%x, ta3%x, n)
+      call vel_projector%apply(ta1%x, ta2%x, ta3%x, n)
 
       ! add forcing
 
@@ -286,14 +286,14 @@ contains
       call gs_Xh%op(u_res%x, v_res%x, w_res%x, n, GS_OP_ADD)
       call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 
-      call vel_resolver%apply(u_res%x, v_res%x, w_res%x, n)
+      call vel_projector%apply(u_res%x, v_res%x, w_res%x, n)
       call pc_vel%update()
 
       ksp_results(2:4) = ksp_vel%solve_coupled(Ax_vel, &
            u_vol, v_vol, w_vol, &
            u_res%x, v_res%x, w_res%x, &
            n, c_Xh, &
-           vel_resolver, &
+           vel_projector, &
            gs_Xh, vel_max_iter)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -340,7 +340,7 @@ contains
   !! pff 6/28/98
   subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, &
        c_Xh, gs_Xh, ext_bdf, rho, mu, dt, time, &
-       dp_resolver, vel_resolver, &
+       dp_projector, vel_projector, &
        Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
        vel_max_iter)
 
@@ -353,8 +353,8 @@ contains
     type(time_state_t), intent(in) :: time
     real(kind=rp), intent(in) :: rho, dt
     type(field_t) :: mu
-    type(scalar_bc_resolver_t), intent(inout) :: dp_resolver
-    class(vector_bc_resolver_t), intent(inout) :: vel_resolver
+    type(scalar_bc_projector_t), intent(inout) :: dp_projector
+    class(vector_bc_projector_t), intent(inout) :: vel_projector
     class(ax_t), intent(in) :: Ax_vel
     class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
@@ -392,7 +392,7 @@ contains
       if (ifcomp .gt. 0d0) then
          call this%compute(u_res, v_res, w_res, p_res, &
               ext_bdf, gs_Xh, c_Xh, rho, mu, ext_bdf%diffusion_coeffs%x(1), dt, &
-              dp_resolver, vel_resolver, &
+              dp_projector, vel_projector, &
               Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
               vel_max_iter)
       end if

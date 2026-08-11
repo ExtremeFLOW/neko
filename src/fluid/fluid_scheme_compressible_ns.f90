@@ -73,8 +73,8 @@ module fluid_scheme_compressible_ns
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use regularization, only : regularization_t, regularization_factory
-  use vector_bc_resolver, only : vector_bc_resolver_t, &
-       coupled_vector_bc_resolver_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       coupled_vector_bc_projector_t
   implicit none
   private
 
@@ -92,8 +92,8 @@ module fluid_scheme_compressible_ns
 
      class(regularization_t), allocatable :: regularization
 
-     !> Boundary conditions resolver for velocity constraints.
-     type(coupled_vector_bc_resolver_t):: bcs_vel_resolver
+     !> Boundary conditions projector for velocity constraints.
+     type(coupled_vector_bc_projector_t):: bcs_vel_projector
      !> List of boundary conditions for density.
      type(bc_list_t) :: bcs_density
 
@@ -228,9 +228,9 @@ contains
     call ax_helm_factory(this%Ax, full_formulation = .false.)
     call ax_helm_factory(this%Ax_stress, full_formulation = .true.)
 
-    ! Initialize the velocity BC resolver. The coupled resolver builds the
+    ! Initialize the velocity BC projector. The coupled projector builds the
     ! local bases required by non-axis aligned mixed velocity conditions.
-    call this%bcs_vel_resolver%init(this%c_Xh)
+    call this%bcs_vel_projector%init(this%c_Xh)
 
     ! Compute h
     call this%compute_h()
@@ -290,7 +290,7 @@ contains
        end if
     end do
     call this%bcs_density%free()
-    call this%bcs_vel_resolver%free()
+    call this%bcs_vel_projector%free()
 
   end subroutine fluid_scheme_compressible_ns_free
 
@@ -487,7 +487,7 @@ contains
 
           ! Add to appropriate lists
           if (associated(bc_i)) then
-             call this%bcs_vel_resolver%mark(bc_i)
+             call this%bcs_vel_projector%mark(bc_i)
              call this%bcs_vel%append(bc_i)
           end if
        end do
@@ -543,7 +543,7 @@ contains
 
     end if
 
-    call this%bcs_vel_resolver%finalize(rebuild_mask = .true.)
+    call this%bcs_vel_projector%finalize(rebuild_mask = .true.)
   end subroutine fluid_scheme_compressible_ns_setup_bcs
 
   !> Copied from les_model_compute_delta in les_model.f90

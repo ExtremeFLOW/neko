@@ -39,9 +39,9 @@ module fusedcg_cpld_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use scalar_bc_resolver, only : scalar_bc_resolver_t
-  use vector_bc_resolver, only : vector_bc_resolver_t, &
-       vector_bc_resolver_components
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       vector_bc_projector_components
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc2
   use device, only : device_map, device_alloc, device_memcpy, HOST_TO_DEVICE, &
@@ -534,7 +534,7 @@ contains
 
   !> Pipelined PCG solve coupled solve
   function fusedcg_cpld_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, bc_resolver, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(fusedcg_cpld_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -545,7 +545,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    class(vector_bc_resolver_t), intent(inout) :: bc_resolver
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -628,7 +628,7 @@ contains
          call rotate_cyc(w1_d, w2_d, w3_d, 1, coef)
          call gs_h%op(w1, w2, w3, n, GS_OP_ADD, this%gs_event1)
          call device_event_sync(this%gs_event1)
-         call bc_resolver%apply(w1, w2, w3, n)
+         call bc_projector%apply(w1, w2, w3, n)
          call rotate_cyc(w1_d, w2_d, w3_d, 0, coef)
 
 
@@ -665,7 +665,7 @@ contains
   end function fusedcg_cpld_device_solve_coupled
 
   !> Pipelined PCG solve
-  function fusedcg_cpld_device_solve(this, Ax, x, f, n, coef, bc_resolver, &
+  function fusedcg_cpld_device_solve(this, Ax, x, f, n, coef, bc_projector, &
        gs_h, niter) result(ksp_results)
     class(fusedcg_cpld_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -673,7 +673,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    class(scalar_bc_resolver_t), intent(inout) :: bc_resolver
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
