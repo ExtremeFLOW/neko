@@ -966,7 +966,7 @@ contains
     type(coef_t), intent(in) :: coef
     type(coef_t), intent(inout) :: coef_GL
     type(interpolator_t) :: GLL_to_GL
-    real(kind=rp), intent(inout) :: tau, dtau
+    real(kind=dp), intent(inout) :: tau, dtau
     integer, intent(in) :: n, nel, n_GL
     type(field_t), intent(inout) :: phi
     type(field_list_t) :: conv_k1, conv_k23, conv_k4
