@@ -718,7 +718,7 @@ contains
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          step_offset, step_count, ierr)
 
-    time_value(1) = real(t, kind=dp)
+    time_value(1) = t
     call h5dwrite_f(dset_id, H5T_NEKO_DOUBLE, time_value, step_count, ierr, &
          file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
 
