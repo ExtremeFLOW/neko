@@ -40,7 +40,7 @@ module compressible_res_cpu
   use ax_product, only : ax_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use operators, only : div, grad, opgrad, rotate_cyc
   use gs_ops, only : GS_OP_ADD
   use scratch_registry, only : neko_scratch_registry
@@ -98,7 +98,7 @@ contains
     type(bc_list_t), intent(inout) :: bcs_vel
     type(time_state_t), intent(in) :: time
     class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     integer :: n, s, i, j, l
     type(field_t), pointer :: k_rho_1, k_rho_2, k_rho_3, k_rho_4, &
          k_m_x_1, k_m_x_2, k_m_x_3, k_m_x_4, &
