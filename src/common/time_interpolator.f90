@@ -140,11 +140,6 @@ contains
     ! fields must stay zero
     real(kind=rp), dimension(0:2) :: wt
 
-    ! Cast variables to rp for below functions
-    real(kind=rp) :: t_rp, tlag_rp(0:this%order)
-    t_rp = real(t, kind=rp)
-    tlag_rp = real(tlag, kind=rp)
-
     if (this%order .gt. 3) then
        call neko_error("Time interpolation of required order &
        &is not implemented")
@@ -153,7 +148,8 @@ contains
     wt = 0.0_rp
 
     ! interpolation weights
-    call fd_weights_full(t_rp, tlag_rp, this%order - 1, 0, wt(0:this%order - 1))
+    call fd_weights_full(real(t, kind=rp), real(tlag, kind=rp), &
+         this%order - 1, 0, wt(0:this%order - 1))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add4s3(f_interpolated%x_d, f_n%f%x_d, f_n%lf(1)%x_d, &
