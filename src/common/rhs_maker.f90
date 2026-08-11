@@ -36,7 +36,7 @@
 !! and the BDF scheme applied to the time derivative.
 !! Inheritance is used to define implementation for different backends.
 module rhs_maker
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field_series, only : field_series_t
   use field, only : field_t
   implicit none
@@ -115,13 +115,14 @@ module rhs_maker
           u, v, w, B, Blag, Blaglag, rho, dt, bd, nbd, n)
        import field_series_t
        import field_t
-       import rp
+       import rp, dp
        integer, intent(in) :: n, nbd
        type(field_t), intent(in) :: u, v, w
        type(field_series_t), intent(in) :: ulag, vlag, wlag
        real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
        real(kind=rp), intent(in) :: B(n), Blag(n), Blaglag(n)
-       real(kind=rp), intent(in) :: dt, rho, bd(4)
+       real(kind=rp), intent(in) :: rho, bd(4)
+       real(kind=dp), intent(in) :: dt
      end subroutine rhs_maker_bdf
   end interface
 
@@ -130,21 +131,23 @@ module rhs_maker
           bd, nbd, n)
        import field_series_t
        import field_t
-       import rp
+       import rp, dp
        integer, intent(in) :: n, nbd
        type(field_t), intent(in) :: s
        type(field_series_t), intent(in) :: s_lag
        real(kind=rp), intent(inout) :: fs(n)
        real(kind=rp), intent(in) :: B(n)
-       real(kind=rp), intent(in) :: dt, rho, bd(4)
+       real(kind=rp), intent(in) :: rho, bd(4)
+       real(kind=dp), intent(in) :: dt
      end subroutine scalar_rhs_maker_bdf
   end interface
 
   abstract interface
      subroutine rhs_maker_oifs(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
                                rho, dt, n)
-       import rp
-       real(kind=rp), intent(in) :: rho, dt
+       import rp, dp
+       real(kind=rp), intent(in) :: rho
+       real(kind=dp), intent(in) :: dt
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
        real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
@@ -153,8 +156,9 @@ module rhs_maker
 
   abstract interface
      subroutine scalar_rhs_maker_oifs(phi_s, bf_s, rho, dt, n)
-       import rp
-       real(kind=rp), intent(in) :: rho, dt
+       import rp, dp
+       real(kind=rp), intent(in) :: rho
+       real(kind=dp), intent(in) :: dt
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: bf_s(n)
        real(kind=rp), intent(inout) :: phi_s(n)
