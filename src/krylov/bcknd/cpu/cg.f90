@@ -204,7 +204,7 @@ contains
          end do
          !$omp end parallel do
 
-         call Ax%compute (w, p(1, p_cur), coef, x%msh, x%Xh)
+         call Ax%compute(w, p(1, p_cur), coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
          call bc_projector%apply(w, n)
 
