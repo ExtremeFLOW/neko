@@ -146,7 +146,7 @@ contains
   subroutine time_scheme_controller_set_coeffs(this, dt)
     implicit none
     class(time_scheme_controller_t) :: this
-    real(kind=rp), intent(in), dimension(10) :: dt
+    real(kind=dp), intent(in), dimension(10) :: dt
     real(kind=rp), dimension(4) :: adv_coeffs_old
     real(kind=rp), dimension(4) :: diff_coeffs_old
 
