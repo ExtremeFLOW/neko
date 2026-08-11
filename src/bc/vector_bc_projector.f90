@@ -82,10 +82,17 @@ module vector_bc_projector
      !> Mark a boundary condition in the vector boundary-condition projector.
      procedure(vector_bc_projector_mark_bc_intrf), pass(this), deferred :: &
           mark_bc
+     !> Mark a boundary condition on one Cartesian component.
+     procedure, pass(this) :: mark_bc_component => &
+          vector_bc_projector_mark_bc_component
      !> Mark a list of boundary conditions in the projector.
      procedure(vector_bc_projector_mark_bc_list_intrf), pass(this), deferred :: &
           mark_bc_list
-     generic :: mark => mark_bc, mark_bc_list
+     !> Mark a list of boundary conditions on one Cartesian component.
+     procedure, pass(this) :: mark_bc_list_component => &
+          vector_bc_projector_mark_bc_list_component
+     generic :: mark => mark_bc, mark_bc_component, mark_bc_list, &
+          mark_bc_list_component
   end type vector_bc_projector_t
 
   !> A projector for vector fields that acts component-wise.
@@ -110,9 +117,15 @@ module vector_bc_projector
      procedure, pass(this) :: finalize => segregated_vector_bc_projector_finalize
      !> Mark a boundary condition.
      procedure, pass(this) :: mark_bc => segregated_vector_bc_projector_mark_bc
+     !> Mark a boundary condition on one Cartesian component.
+     procedure, pass(this) :: mark_bc_component => &
+          segregated_vector_bc_projector_mark_bc_component
      !> Mark a list of boundary conditions.
      procedure, pass(this) :: mark_bc_list => &
           segregated_vector_bc_projector_mark_bc_list
+     !> Mark a list of boundary conditions on one Cartesian component.
+     procedure, pass(this) :: mark_bc_list_component => &
+          segregated_vector_bc_projector_mark_bc_list_component
      !> Zero-out constrained dofs using the underlying component projectors.
      procedure, pass(this) :: apply => segregated_vector_bc_projector_apply
   end type segregated_vector_bc_projector_t
@@ -258,30 +271,46 @@ module vector_bc_projector
   abstract interface
      !> Mark a boundary condition in the vector boundary-condition projector.
      !! @param[inout] bc Boundary condition to register.
-     !! @param[in] component Optional component selector, for the segregated
-     !! projector.
-     subroutine vector_bc_projector_mark_bc_intrf(this, bc, component)
+     subroutine vector_bc_projector_mark_bc_intrf(this, bc)
        import :: vector_bc_projector_t, bc_t
        class(vector_bc_projector_t), intent(inout) :: this
        class(bc_t), intent(inout), target :: bc
-       character(len=1), optional, intent(in) :: component
      end subroutine vector_bc_projector_mark_bc_intrf
   end interface
 
   abstract interface
      !> Mark a list of boundary conditions in the projector.
      !! @param[in] bclst Boundary-condition list to register.
-     !! @param[in] component Optional component selector for the segregated
-     !! projector.
-     subroutine vector_bc_projector_mark_bc_list_intrf(this, bclst, component)
+     subroutine vector_bc_projector_mark_bc_list_intrf(this, bclst)
        import :: vector_bc_projector_t, bc_list_t
        class(vector_bc_projector_t), intent(inout) :: this
        type(bc_list_t), intent(in) :: bclst
-       character(len=1), optional, intent(in) :: component
      end subroutine vector_bc_projector_mark_bc_list_intrf
   end interface
 
 contains
+
+  !> Report unsupported component-specific marking.
+  subroutine vector_bc_projector_mark_bc_component(this, bc, &
+       component)
+    class(vector_bc_projector_t), intent(inout) :: this
+    class(bc_t), intent(inout), target :: bc
+    character(len=1), intent(in) :: component
+
+    call neko_error("Component-specific marking is only supported by " // &
+         "segregated vector BC projectors.")
+  end subroutine vector_bc_projector_mark_bc_component
+
+  !> Report unsupported component-specific list marking.
+  subroutine vector_bc_projector_mark_bc_list_component(this, &
+       bclst, component)
+    class(vector_bc_projector_t), intent(inout) :: this
+    type(bc_list_t), intent(in) :: bclst
+    character(len=1), intent(in) :: component
+
+    call neko_error("Component-specific marking is only supported by " // &
+         "segregated vector BC projectors.")
+  end subroutine vector_bc_projector_mark_bc_list_component
 
   !> Destructor
   subroutine segregated_vector_bc_projector_free(this)
@@ -305,54 +334,80 @@ contains
   end subroutine segregated_vector_bc_projector_finalize
 
   !> Mark a boundary condition in the segregated projector.
-  !! @details Fully constrained vector boundary conditions are either applied to
-  !! all three component projectors or to one selected component.
+  !! @details Fully constrained vector boundary conditions are applied to all
+  !! three component projectors.
   !! @param[inout] bc Boundary condition to register.
-  !! @param[in] component Optional component selector.
-  subroutine segregated_vector_bc_projector_mark_bc(this, bc, component)
+  subroutine segregated_vector_bc_projector_mark_bc(this, bc)
     class(segregated_vector_bc_projector_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
-    character(len=1), optional, intent(in) :: component
 
     if (bc%bc_type .ne. BC_DIRICHLET) then
        call neko_error("Segregated vector BC projector only accepts " // &
             "Dirichlet boundary conditions.")
     end if
 
-    if (.not. present(component)) then
-       call this%x%mark_bc(bc)
-       call this%y%mark_bc(bc)
-       call this%z%mark_bc(bc)
-    else
-       select case (component)
-       case ('x')
-          call this%x%mark_bc(bc)
-       case ('y')
-          call this%y%mark_bc(bc)
-       case ('z')
-          call this%z%mark_bc(bc)
-       case default
-          call neko_error("Invalid component for segregated vector BC " // &
-               "projector mark.")
-       end select
-    end if
+    call this%x%mark_bc(bc)
+    call this%y%mark_bc(bc)
+    call this%z%mark_bc(bc)
   end subroutine segregated_vector_bc_projector_mark_bc
+
+  !> Mark a boundary condition on one Cartesian component.
+  !! @param[inout] bc Boundary condition to register.
+  !! @param[in] component Component selector.
+  subroutine segregated_vector_bc_projector_mark_bc_component(this, bc, &
+       component)
+    class(segregated_vector_bc_projector_t), intent(inout) :: this
+    class(bc_t), intent(inout), target :: bc
+    character(len=1), intent(in) :: component
+
+    if (bc%bc_type .ne. BC_DIRICHLET) then
+       call neko_error("Segregated vector BC projector only accepts " // &
+            "Dirichlet boundary conditions.")
+    end if
+
+    select case (component)
+    case ('x')
+       call this%x%mark_bc(bc)
+    case ('y')
+       call this%y%mark_bc(bc)
+    case ('z')
+       call this%z%mark_bc(bc)
+    case default
+       call neko_error("Invalid component for segregated vector BC " // &
+            "projector mark.")
+    end select
+  end subroutine segregated_vector_bc_projector_mark_bc_component
 
   !> Mark a list of boundary conditions in the segregated projector.
   !! @param[in] bclst Boundary-condition list to register.
-  !! @param[in] component Optional component selector.
-  subroutine segregated_vector_bc_projector_mark_bc_list(this, bclst, component)
+  subroutine segregated_vector_bc_projector_mark_bc_list(this, bclst)
     class(segregated_vector_bc_projector_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
     class(bc_t), pointer :: bc_i
-    character(len=1), optional, intent(in) :: component
     integer :: i
 
     do i = 1, bclst%size()
        bc_i => bclst%get(i)
-       call this%mark_bc(bc_i, component)
+       call this%mark(bc_i)
     end do
   end subroutine segregated_vector_bc_projector_mark_bc_list
+
+  !> Mark a list of boundary conditions on one Cartesian component.
+  !! @param[in] bclst Boundary-condition list to register.
+  !! @param[in] component Component selector.
+  subroutine segregated_vector_bc_projector_mark_bc_list_component(this, &
+       bclst, component)
+    class(segregated_vector_bc_projector_t), intent(inout) :: this
+    type(bc_list_t), intent(in) :: bclst
+    character(len=1), intent(in) :: component
+    class(bc_t), pointer :: bc_i
+    integer :: i
+
+    do i = 1, bclst%size()
+       bc_i => bclst%get(i)
+       call this%mark(bc_i, component)
+    end do
+  end subroutine segregated_vector_bc_projector_mark_bc_list_component
 
   !> Apply the segregated vector boundary constraints.
   !! @param[inout] x x-component field values.
@@ -484,12 +539,9 @@ contains
 
   !> Register one vector boundary condition in the coupled projector.
   !! @param[inout] bc Boundary condition to queue for resolution.
-  !! @param[in] component Ignored optional component selector, present only to
-  !! satisfy the abstract projector interface shared with the segregated path.
-  subroutine coupled_vector_bc_projector_mark_bc(this, bc, component)
+  subroutine coupled_vector_bc_projector_mark_bc(this, bc)
     class(coupled_vector_bc_projector_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
-    character(len=1), optional, intent(in) :: component
 
     if (.not. associated(this%coef)) then
        call neko_error("Coupled vector BC projector must be initialized " // &
@@ -501,17 +553,15 @@ contains
 
   !> Register a list of vector boundary conditions in the coupled projector.
   !! @param[in] bclst Boundary-condition list to queue.
-  !! @param[in] component Ignored optional component selector.
-  subroutine coupled_vector_bc_projector_mark_bc_list(this, bclst, component)
+  subroutine coupled_vector_bc_projector_mark_bc_list(this, bclst)
     class(coupled_vector_bc_projector_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
-    character(len=1), optional, intent(in) :: component
     class(bc_t), pointer :: bc_i
     integer :: i
 
     do i = 1, bclst%size()
        bc_i => bclst%get(i)
-       call this%mark_bc(bc_i, component)
+       call this%mark(bc_i)
     end do
   end subroutine coupled_vector_bc_projector_mark_bc_list
 

@@ -14,8 +14,8 @@ module test_bc_projector
   use gather_scatter, only : gs_t
   use dirichlet, only : dirichlet_t
   use scalar_bc_projector, only : scalar_bc_projector_t
-  use vector_bc_projector, only : segregated_vector_bc_projector_t, &
-       vector_bc_projector_components
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       segregated_vector_bc_projector_t, vector_bc_projector_components
   implicit none
 
   real(kind=rp), parameter :: test_tol = 1000.0_rp * epsilon(1.0_rp)
@@ -115,9 +115,10 @@ contains
     call free_single_face_case(mesh, Xh, dof, gs, coef)
   end subroutine test_segregated_all_components
 
-  !> Verify that the segregated vector projector respects the optional component
-  !! selector. The Dirichlet face is marked for the y component only, so applying
-  !! the projector must zero y on the face and leave x and z unchanged.
+  !> Verify component-specific generic dispatch through the abstract projector.
+  !! The allocated segregated projector is accessed through its polymorphic
+  !! parent. Marking the y component must reach the segregated override, so
+  !! applying the projector zeros y on the face and leaves x and z unchanged.
   @test(npes=[1])
   subroutine test_segregated_one_component(this)
     class(test_bc_projector_case), intent(inout) :: this
@@ -127,7 +128,7 @@ contains
     type(gs_t) :: gs
     type(coef_t) :: coef
     type(dirichlet_t) :: bc
-    type(segregated_vector_bc_projector_t) :: projector
+    class(vector_bc_projector_t), allocatable :: projector
     real(kind=rp), allocatable :: x(:), y(:), z(:)
     integer :: face1_dofs(9), dof_size, i
 
@@ -136,6 +137,7 @@ contains
 
     call init_single_face_case(mesh, Xh, dof, gs, coef)
     call init_dirichlet_face(bc, coef, 1)
+    allocate(segregated_vector_bc_projector_t :: projector)
     call projector%init(coef)
     call projector%mark(bc, 'y')
 
@@ -160,6 +162,7 @@ contains
 
     deallocate(x, y, z)
     call projector%free()
+    deallocate(projector)
     call bc%free()
     call free_single_face_case(mesh, Xh, dof, gs, coef)
   end subroutine test_segregated_one_component

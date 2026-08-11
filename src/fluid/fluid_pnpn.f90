@@ -1086,9 +1086,13 @@ contains
                 if (bc_i%bc_type .eq. BC_DIRICHLET) then
                    call this%bc_prs_surface%mark_labeled_zones( &
                         bc_i%zone_indices)
-                   call this%bcs_vel_projector%mark(bc_i, component = 'x')
-                   call this%bcs_vel_projector%mark(bc_i, component = 'y')
-                   call this%bcs_vel_projector%mark(bc_i, component = 'z')
+                   if (this%full_stress_formulation) then
+                      call this%bcs_vel_projector%mark(bc_i)
+                   else
+                      call this%bcs_vel_projector%mark(bc_i, component = 'x')
+                      call this%bcs_vel_projector%mark(bc_i, component = 'y')
+                      call this%bcs_vel_projector%mark(bc_i, component = 'z')
+                   end if
                 end if
 
                 call this%bcs_vel%append(bc_i)
