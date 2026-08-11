@@ -94,7 +94,7 @@ vorticity fields will be added to the main `.fld` file.
   "type": "curl",
   "name": "curl",
   "fields": ["u", "v", "w"],
-  "computed_field": "vorticity"
+  "computed_field": "vorticity",
   "compute_control": "tsteps",
   "compute_value": 50
 }
@@ -114,7 +114,7 @@ name.
 All of these simcomps also support saving the result to `.fld` files. The \ref
 simcomp_field_writer simcomp is used for that under the hood, so the associated
 JSON keywords can be found in its documentation (`output_filename`,
-`precision`).
+`output_precision`).
 
 #### derivative {#simcomp_derivative}
 Computes the derivative of field along a chosen direction (x, y, or z). The
@@ -128,7 +128,7 @@ brackets correspond to the choice of the user keywords.
    "type": "derivative",
    "name": "derivative",
    "field": "u",
-   "direction": "y"
+   "direction": "y",
    "computed_field": "dudy"
  }
  ~~~~~~~~~~~~~~~
@@ -148,7 +148,7 @@ the curl.  By default, registers the result in `curl_x`, `curl_y` and `curl_z`.
 
 #### divergence {#simcomp_divergence}
 Takes a list of three field names from the `fields` keyword, and computes
-the divergence.  By default, registers the result in `div`.
+the divergence.  By default, registers the result in `divergence`.
 
  ~~~~~~~~~~~~~~~{.json}
  {
@@ -159,18 +159,18 @@ the divergence.  By default, registers the result in `div`.
  }
  ~~~~~~~~~~~~~~~
 
-### grad {#simcomp_gradient}
+### gradient {#simcomp_gradient}
 Computes the gradient of a field.
 The field to derivate is controlled by the `field` keyword. The simcomp will, by
 default, register the computed components of the gradients in the registry as
-`grad_[field]_x`, `grad_[field]_y`, `grad_[field]_z` where the
+`gradient_[field]_x`, `gradient_[field]_y`, `gradient_[field]_z` where the
 value in the brackets corresponds to the choice of the user keyword.
 
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "gradient",
    "name": "gradient",
-   "field": "u",
+   "field": "u"
  }
  ~~~~~~~~~~~~~~~
 
@@ -180,14 +180,14 @@ gradient multiplied by the local value of the mass matrix. This is how a
 gradient term appears in the weak formulation of the governing equations. The
 field to derivate is controlled by the `field` keyword. The simcomp will, by
 default, register the computed components of the gradients in the registry as
-`weak_grad_[field]_x`, `weak_grad_[field]_y`, `weak_grad_[field]_z` where the
+`weak_gradient_[field]_x`, `weak_gradient_[field]_y`, `weak_gradient_[field]_z` where the
 value in the brackets corresponds to the choice of the user keyword.
 
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "weak_gradient",
    "name": "weak_gradient",
-   "field": "u",
+   "field": "u"
  }
  ~~~~~~~~~~~~~~~
 
@@ -415,7 +415,7 @@ executed (same behavior as the statistics).
         "type": "file",
         "file_name": "points.csv"
       }
-    ],
+    ]
  }
  ~~~~~~~~~~~~~~~
 This probes the fields 'w', and 's' in the points described by points.csv and
@@ -812,7 +812,7 @@ keywords:
  direction(s) via the `avg_direction`, which can be `x`, `y`, `z`, `xy`, `xz` or
   `yz`. Averaging across two directions will lead to the average being saved as
   a .csv, whereas a 2D .fld file will be produced when averaging across only one
-  axis. The filename is controlled  by the `output_file` keyword and default to
+  axis. The filename is controlled  by the `output_filename` keyword and default to
   `user_stats`. We encourage reading the [statistics guide](@ref
   statistics-guide) for further details regarding how statistics are computed in
   Neko.
@@ -828,7 +828,7 @@ keywords:
    "name": "user_stats",
    "fields": ["s"],
    "avg_direction": "xz",
-   "output_file": "s_average"
+   "output_filename": "s_average"
  }
  ~~~~~~~~~~~~~~~
 
@@ -896,7 +896,7 @@ simcomp cam be coupled to Python scripts for in-situ data processing.
 ~~~~~~~~~~~~~~~{.json}
  {
    "type": "data_streamer",
-   "name": "spectral_error",
+   "name": "data_streamer",
    "fields": ["u", "omega_z", "fluid_stats/mean_u"],
    "stream_mesh": true,
    "compute_control": "tsteps",
@@ -909,7 +909,7 @@ simcomp cam be coupled to Python scripts for in-situ data processing.
 Creates sub-sections of the domain from a `point_zone` and/or at a lower
 `polynomial_order`. The fields are added to the registry under the name
 `name_of_simcomp + "/" + name_of_base_field`. For example,
-`field_subsampler_u`.
+`field_subsampler/u`.
 
 The simcomp is controlled by the following keywords:
 - `"source_fields"`: A list of names corresponding to the fields to subsample
