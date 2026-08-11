@@ -691,8 +691,8 @@ contains
 
     ! Set priority values (see the BC_* constants) for constraint assignment.
     ! Mimics the procedure in Nek5000 directly.
-    ! The values are chosen in a way that a min reduction applies the most
-    ! restrictive constraint.
+    ! The values are chosen so that a min reduction applies the
+    ! highest-priority constraint.
     ! 5 -> unconstrained
     ! 3 -> tangentially constrained
     ! 2 -> normally constrained
@@ -720,14 +720,15 @@ contains
        ! applied to elements that touch the boundary at this point.
        do j = 1, bc%facet_node_msk(0)
           m = bc%facet_node_msk(j)
-          ! The min here ensures that the most restricive constraint is kept
+          ! The min here ensures that the highest-priority constraint is kept
           ! within a single element.
           node_type_field%x(m,1,1,1) = min(bc_type, node_type_field%x(m,1,1,1))
        end do
     end do
 
     ! Propagate constraints to all local dofs via gather-scatter.
-    ! Ensures most restrictive constraint is kept across element boundaries.
+    ! Ensures the highest-priority constraint is kept across element
+    ! boundaries.
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call node_type_field%copy_from(HOST_TO_DEVICE, .true.)
     end if
@@ -963,7 +964,7 @@ contains
     ! this%face_type stores the face-based bc_type values, and this%node_type
     ! stores them node-wise, after propagation with min reduction.
     ! Note that the propagation means that some nodes may have a different,
-    ! more restrictive class than owning face!
+    ! higher-priority class than their owning face!
     ! The algorithm for constructing normals below will make use of both
     ! classifications when looking at edges and corners. We will really only
     ! care about types 2 and 3, i.e. mixed bcs. The key question will be
@@ -1018,12 +1019,12 @@ contains
     ! Mixed edge interiors are rebuilt from the normals of the adjacent
     ! faces whose local face type matches the reduced nodal type.
     ! This is the central point: if the adjacent face is a different type,
-    ! which by construction can only be a less restrictive type, then it
+    ! which by construction can only be a lower-priority type, then it
     ! should not contribute its normal.
     !
     ! Consider the following 2D example. In 2D an edge becomes a node in the
     ! corner of the element. Look at the node marked with X. After the nodal
-    ! type is propagated, it will have type 2---the most restrictive of the
+    ! type is propagated, it will have type 2---the highest-priority of the
     ! adjacent. So, only the face with type 2 in El 2 will contribute to the
     ! normal. This is a rather extreme example, but it illustrates well what
     ! can happen.

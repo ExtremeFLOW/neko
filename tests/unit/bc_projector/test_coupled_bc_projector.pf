@@ -707,10 +707,11 @@ contains
     @assertEqual(0, bc_projector%t2%size())
   end subroutine test_finalize_rebuild_false
 
-  !> Verify that shared-node gather-scatter resolution keeps the most
-  !! restrictive boundary type across adjacent elements. A symmetry face on
-  !! one element and a Dirichlet face on the neighboring element meet at shared
-  !! nodes; those shared dofs should become fully constrained rather than mixed.
+  !> Verify that shared-node gather-scatter resolution keeps the
+  !! highest-priority boundary type across adjacent elements. A symmetry face
+  !! on one element and a Dirichlet face on the neighboring element meet at
+  !! shared nodes; those shared dofs should become fully constrained rather
+  !! than mixed.
   @test(npes=[1])
   subroutine test_two_element_shared_face(this)
     class(test_coupled_bc_projector_case), intent(inout) :: this
