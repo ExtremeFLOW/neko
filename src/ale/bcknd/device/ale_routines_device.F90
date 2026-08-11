@@ -32,7 +32,7 @@
 !
 
 module ale_routines_device
-  use num_types, only : rp, c_rp
+  use num_types, only : rp, c_rp, dp
   use field, only : field_t
   use coefs, only : coef_t
   use field_series, only : field_series_t
@@ -272,7 +272,8 @@ contains
     integer, intent(in) :: nadv
     integer :: j, n
     character(len=*), intent(in) :: scheme_type
-    real(kind=rp) :: ab_coeffs(4), dt_history(10), factor
+    real(kind=rp) :: ab_coeffs(4), factor
+    real(kind=dp) :: dt_history(10)
 
     call rzero(ab_coeffs, 4)
     if (trim(scheme_type) .eq. 'ab') then

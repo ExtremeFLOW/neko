@@ -32,7 +32,7 @@
 !
 ! Routines for expensive ALE calculations on CPU
 module ale_routines_cpu
-  use num_types, only : rp
+  use num_types, only : rp, dp 
   use field, only : field_t
   use coefs, only : coef_t
   use math, only : cfill, glimax, rzero
@@ -353,7 +353,8 @@ contains
     integer, intent(in) :: nadv
     integer :: i, j, n
     character(len=*), intent(in) :: scheme_type
-    real(kind=rp) :: ab_coeffs(4), dt_history(10)
+    real(kind=rp) :: ab_coeffs(4)
+    real(kind=dp) :: dt_history(10)
 
     call rzero(ab_coeffs, 4)
     if (trim(scheme_type) .eq. 'ab') then
