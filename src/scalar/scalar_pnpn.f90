@@ -385,7 +385,7 @@ contains
               rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
          call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho%x(1,1,1,1), &
-              real(dt, kind=rp), n)
+              dt, n)
       else
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, f_Xh, &
@@ -400,7 +400,7 @@ contains
 
          ! Add the RHS contributions coming from the BDF scheme.
          call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho%x(1,1,1,1), &
-              real(dt, kind=rp), ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
+              dt, ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
       end if
 
       call slag%update()
