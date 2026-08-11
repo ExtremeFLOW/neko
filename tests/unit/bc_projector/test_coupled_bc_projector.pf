@@ -7,7 +7,7 @@ module test_coupled_bc_projector
   use neko_config, only : NEKO_BCKND_DEVICE
   use neko_mpi_types, only : neko_mpi_types_init
   use mesh_fixture, only : single_reference_element_mesh, &
-       two_adjacent_unit_hex_mesh
+       single_skewed_element_mesh, two_adjacent_unit_hex_mesh
   use mesh, only : mesh_t
   use space, only : space_t, GLL
   use coefs, only : coef_t
@@ -388,6 +388,83 @@ contains
     call bc_projector%free()
   end subroutine test_coupled_apply_symmetry
 
+  !> Verify that the near-z fallback still produces an orthonormal basis.
+  !! A slightly skewed top face has a normal with |n_z| > 0.999 and nonzero
+  !! n_x. Projecting a velocity onto its tangent plane must leave no normal
+  !! component.
+  @test(npes=[1])
+  subroutine test_coupled_apply_symmetry_near_z(this)
+    class(test_coupled_bc_projector_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_projector_t) :: bc_projector
+    real(kind=rp), allocatable :: x(:), y(:), z(:)
+    real(kind=rp) :: normal_component, n_dot_t1, n_dot_t2, t1_dot_t2
+    real(kind=rp) :: t1_norm, t2_norm
+    integer :: zone_idx, dof_size, projector_idx
+    integer, parameter :: top_center = 23
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_skewed_case(mesh, Xh, dof, gs, coef)
+
+    call bclst%init(6)
+    do zone_idx = 1, 5
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, &
+            zone_idx, real(zone_idx, rp))
+    end do
+    call append_symmetry_bc(bclst, symmetry_bcs(6), coef, 6)
+
+    call bc_projector%init(coef)
+    call bc_projector%mark(bclst)
+    call bc_projector%finalize(.true.)
+
+    projector_idx = find_mask_index(bc_projector%mixed_dof_mask, top_center)
+    @assertTrue(projector_idx > 0)
+    @assertTrue(abs(bc_projector%n%x(3, projector_idx)) > 0.999_rp)
+    @assertTrue(abs(bc_projector%n%x(1, projector_idx)) > 0.01_rp)
+    n_dot_t1 = dot_product(bc_projector%n%x(:, projector_idx), &
+         bc_projector%t1%x(:, projector_idx))
+    n_dot_t2 = dot_product(bc_projector%n%x(:, projector_idx), &
+         bc_projector%t2%x(:, projector_idx))
+    t1_dot_t2 = dot_product(bc_projector%t1%x(:, projector_idx), &
+         bc_projector%t2%x(:, projector_idx))
+    t1_norm = sqrt(sum(bc_projector%t1%x(:, projector_idx)**2))
+    t2_norm = sqrt(sum(bc_projector%t2%x(:, projector_idx)**2))
+    @assertEqual(0.0_rp, n_dot_t1, tolerance=test_tol)
+    @assertEqual(0.0_rp, n_dot_t2, tolerance=test_tol)
+    @assertEqual(0.0_rp, t1_dot_t2, tolerance=test_tol)
+    @assertEqual(1.0_rp, t1_norm, tolerance=test_tol)
+    @assertEqual(1.0_rp, t2_norm, tolerance=test_tol)
+
+    dof_size = dof%size()
+    allocate(x(dof_size), y(dof_size), z(dof_size))
+    x = 4.0_rp
+    y = 5.0_rp
+    z = 6.0_rp
+
+    call bc_projector%apply(x, y, z, dof_size)
+
+    normal_component = x(top_center) * &
+         bc_projector%n%x(1, projector_idx) + y(top_center) * &
+         bc_projector%n%x(2, projector_idx) + z(top_center) * &
+         bc_projector%n%x(3, projector_idx)
+    @assertEqual(0.0_rp, normal_component, tolerance=test_tol)
+
+    deallocate(x, y, z)
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_projector%free()
+  end subroutine test_coupled_apply_symmetry_near_z
+
   !> Verify the homogeneous apply path for a non-normal boundary condition.
   !! The coupled projector treats class-3 nodes by preserving the normal
   !! component and removing the two tangential components. With face 1 normal
@@ -690,6 +767,27 @@ contains
        call mesh%labeled_zones(zone_idx)%finalize()
     end do
   end subroutine init_reference_case
+
+  subroutine init_skewed_case(mesh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: mesh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+    integer :: zone_idx
+
+    call single_skewed_element_mesh(mesh)
+    call Xh%init(GLL, 3, 3, 3)
+    call dof%init(mesh, Xh)
+    call neko_scratch_registry%init(dof = dof)
+    call gs%init(dof)
+    call coef%init(gs)
+
+    do zone_idx = 1, 6
+       call mesh%mark_labeled_facet(zone_idx, 1, zone_idx)
+       call mesh%labeled_zones(zone_idx)%finalize()
+    end do
+  end subroutine init_skewed_case
 
   subroutine init_two_element_case(mesh, Xh, dof, gs, coef)
     type(mesh_t), intent(inout) :: mesh

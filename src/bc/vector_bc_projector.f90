@@ -1163,18 +1163,17 @@ contains
 
        this%n%x(:,i) = normal / len
 
-       ! This selects the first tangent direction.
-       ! Generally, we pick a perpendicular to the normal in the x-y plane,
-       ! but if the normal is almost aligned with z, that formula degenerates
-       ! to 0, so we just choose x as the first tangent direction.
+       ! Select the first tangent direction by crossing the normal with a
+       ! coordinate axis. Use y near the z-axis, where the usual z-axis
+       ! construction becomes ill-conditioned.
        if (abs(this%n%x(3,i)) .gt. 0.999_rp) then
-          this%t1%x(:,i) = [ 1.0_rp, 0.0_rp, 0.0_rp ]
+          t1_vec = [ this%n%x(3,i), 0.0_rp, -this%n%x(1,i) ]
        else
           t1_vec = [ -this%n%x(2,i), this%n%x(1,i), 0.0_rp ]
-          len = sqrt(sum(t1_vec**2))
-          if (len .gt. 0.0_rp) then
-             this%t1%x(:,i) = t1_vec / len
-          end if
+       end if
+       len = sqrt(sum(t1_vec**2))
+       if (len .gt. 0.0_rp) then
+          this%t1%x(:,i) = t1_vec / len
        end if
 
        ! Get t2 as a cross product of n and t1.

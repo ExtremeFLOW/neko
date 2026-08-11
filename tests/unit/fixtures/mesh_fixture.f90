@@ -6,6 +6,7 @@ module mesh_fixture
 
   public :: single_unit_hex_mesh
   public :: single_reference_element_mesh
+  public :: single_skewed_element_mesh
   public :: two_adjacent_unit_hex_mesh
   public :: three_hex_right_triangle_tip_mesh
 
@@ -78,6 +79,38 @@ contains
          p(5), p(6), p(7), p(8))
     call msh%generate_conn()
   end subroutine single_reference_element_mesh
+
+  subroutine single_skewed_element_mesh(msh)
+    type(mesh_t), intent(inout) :: msh
+    type(point_t) :: p(8)
+    real(kind=kind(1.0d0)), parameter :: tilt = 2.0d-2
+
+    ! Affine image of the reference hexahedron with z = t + tilt * r.
+    ! The t-normal therefore has a small x component while remaining close
+    ! enough to the z-axis to exercise the near-z tangent construction.
+
+    call p(1)%init(-1d0, -1d0, -1d0 - tilt)
+    call p(1)%set_id(1)
+    call p(2)%init(1d0, -1d0, -1d0 + tilt)
+    call p(2)%set_id(2)
+    call p(3)%init(-1d0, 1d0, -1d0 - tilt)
+    call p(3)%set_id(3)
+    call p(4)%init(1d0, 1d0, -1d0 + tilt)
+    call p(4)%set_id(4)
+    call p(5)%init(-1d0, -1d0, 1d0 - tilt)
+    call p(5)%set_id(5)
+    call p(6)%init(1d0, -1d0, 1d0 + tilt)
+    call p(6)%set_id(6)
+    call p(7)%init(-1d0, 1d0, 1d0 - tilt)
+    call p(7)%set_id(7)
+    call p(8)%init(1d0, 1d0, 1d0 + tilt)
+    call p(8)%set_id(8)
+
+    call msh%init(3, 1)
+    call msh%add_element(1, 1, p(1), p(2), p(3), p(4), &
+         p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
+  end subroutine single_skewed_element_mesh
 
   subroutine two_adjacent_unit_hex_mesh(msh)
     type(mesh_t), intent(inout) :: msh
