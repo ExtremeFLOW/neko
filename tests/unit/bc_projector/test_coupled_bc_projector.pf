@@ -529,6 +529,49 @@ contains
     call bc_projector%free()
   end subroutine test_coupled_apply_non_normal
 
+  !> Verify that a projector containing only Dirichlet conditions constructs
+  !! an allocated, empty mixed mask and empty basis matrices.
+  @test(npes=[1])
+  subroutine test_empty_mixed_mask(this)
+    class(test_coupled_bc_projector_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_projector_t) :: bc_projector
+    integer :: zone_idx
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_reference_case(mesh, Xh, dof, gs, coef)
+
+    call bclst%init(6)
+    do zone_idx = 1, 6
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, &
+            zone_idx, 0.0_rp)
+    end do
+
+    call bc_projector%init(coef)
+    call bc_projector%mark(bclst)
+    call bc_projector%finalize(.true.)
+
+    @assertEqual(26, bc_projector%dirichlet_dof_mask%size())
+    @assertEqual(0, bc_projector%mixed_dof_mask%size())
+    @assertEqual(0, bc_projector%n%size())
+    @assertEqual(0, bc_projector%t1%size())
+    @assertEqual(0, bc_projector%t2%size())
+
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_projector%free()
+  end subroutine test_empty_mixed_mask
+
   !> Verify that finalize propagates resolved masks and local basis vectors
   !! back into each mixed boundary condition. In this setup a class-2 symmetry
   !! face and a class-3 non-normal face meet on an edge, while the remaining
@@ -659,6 +702,9 @@ contains
     call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
     call free_reference_case(mesh, Xh, dof, gs, coef)
     call bc_projector%free()
+    @assertEqual(0, bc_projector%n%size())
+    @assertEqual(0, bc_projector%t1%size())
+    @assertEqual(0, bc_projector%t2%size())
   end subroutine test_finalize_rebuild_false
 
   !> Verify that shared-node gather-scatter resolution keeps the most

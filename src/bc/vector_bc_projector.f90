@@ -46,6 +46,7 @@ module vector_bc_projector
   use fld_file, only : fld_file_t
   use hex, only : edge_nodes, edge_faces, node_faces
   use htable, only : htable_i4_t
+  use logger, only : LOG_SIZE
   use matrix, only : matrix_t
   use scratch_registry, only : neko_scratch_registry
   use math, only : cfill_mask, masked_scatter_copy, rzero, cfill
@@ -466,6 +467,7 @@ contains
     if (allocated(this%node_linear_idx)) deallocate(this%node_linear_idx)
     if (allocated(this%face_type)) deallocate(this%face_type)
     call this%clear_masks()
+    call this%clear_basis()
     this%constraint_n_d = c_null_ptr
     this%constraint_t1_d = c_null_ptr
     this%constraint_t2_d = c_null_ptr
@@ -664,6 +666,10 @@ contains
     this%face_type = 5.0_rp
 
     ! Build a mask of all dofs on the boundary.
+    ! Scratch clearing follows the active backend, whereas the resolution
+    ! below is deliberately assembled on the host. Clear the host copy
+    ! explicitly before setting its marked entries.
+    call rzero(boundary_mask_field%x, dof_size)
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)
 
@@ -722,7 +728,13 @@ contains
 
     ! Propagate constraints to all local dofs via gather-scatter.
     ! Ensures most restrictive constraint is kept across element boundaries.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call node_type_field%copy_from(HOST_TO_DEVICE, .true.)
+    end if
     call this%coef%gs_h%op(node_type_field, GS_OP_MIN)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call node_type_field%copy_from(DEVICE_TO_HOST, .true.)
+    end if
 
     ! Build compact nodal type cache for all boundary dofs.
     ! First pass to count the size of the boundary dof set.
@@ -818,12 +830,8 @@ contains
     end do
     !$omp end parallel do
 
-    if (dirichlet_mask_size .gt. 0) then
-       allocate(dirichlet_mask_values(dirichlet_mask_size))
-    end if
-    if (mixed_mask_size .gt. 0) then
-       allocate(mixed_mask_values(mixed_mask_size))
-    end if
+    allocate(dirichlet_mask_values(dirichlet_mask_size))
+    allocate(mixed_mask_values(mixed_mask_size))
 
     ! We reuse the variables as counters in the loop below, which actually
     ! fills the masks, now that we know the size.
@@ -842,8 +850,8 @@ contains
        end if
     end do
 
-    ! Init the dof masks components.
-    ! We init even if the size can be zero. Should be OK.
+    ! Initialize both masks. The temporary arrays remain valid actual
+    ! arguments when their allocated extent is zero.
     call this%dirichlet_dof_mask%init(dirichlet_mask_values, &
          dirichlet_mask_size)
     call this%mixed_dof_mask%init(mixed_mask_values, mixed_mask_size)
@@ -891,8 +899,8 @@ contains
     end do
     !$omp end do
 
-    if (allocated(dirichlet_mask_values)) deallocate(dirichlet_mask_values)
-    if (allocated(mixed_mask_values)) deallocate(mixed_mask_values)
+    deallocate(dirichlet_mask_values)
+    deallocate(mixed_mask_values)
     call neko_scratch_registry%relinquish_field(scratch_idx)
   end subroutine coupled_vector_bc_projector_rebuild_masks
 
@@ -917,6 +925,8 @@ contains
     integer :: rst(3), rst1(3), rst2(3), step_rst(3)
     integer :: edge_len, edge_idx, node_idx
     real(kind=rp) :: normal(3), t1_vec(3), t2_vec(3), len, bc_type
+    real(kind=rp), parameter :: normal_tol = 100.0_rp * epsilon(1.0_rp)
+    character(len=LOG_SIZE) :: error_msg
 
     call this%clear_basis()
 
@@ -1179,6 +1189,12 @@ contains
     !
     ! This keeps MPI/shared-node averaging intact while preventing frame-mixing
     ! on cyclic couplings.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call normal_x_field%copy_from(HOST_TO_DEVICE, .false.)
+       call normal_y_field%copy_from(HOST_TO_DEVICE, .false.)
+       call normal_z_field%copy_from(HOST_TO_DEVICE, .true.)
+    end if
+
     if (this%coef%cyclic) then
        call rotate_cyc(normal_x_field%x, normal_y_field%x, normal_z_field%x, &
             1, this%coef)
@@ -1191,6 +1207,12 @@ contains
     if (this%coef%cyclic) then
        call rotate_cyc(normal_x_field%x, normal_y_field%x, normal_z_field%x, &
             0, this%coef)
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call normal_x_field%copy_from(DEVICE_TO_HOST, .false.)
+       call normal_y_field%copy_from(DEVICE_TO_HOST, .false.)
+       call normal_z_field%copy_from(DEVICE_TO_HOST, .true.)
     end if
 
     ! Normalize normals and build tangential directions for all mixed nodes.
@@ -1209,7 +1231,12 @@ contains
        normal(2) = normal_y_field%x(j,1,1,1)
        normal(3) = normal_z_field%x(j,1,1,1)
        len = sqrt(sum(normal**2))
-       if (len .le. 0.0_rp) cycle
+       if (len .le. normal_tol) then
+          write(error_msg, '(A,I0,A,ES13.6,A)') &
+               "Coupled vector BC projector could not construct a normal " // &
+               "at local DOF ", j, " (norm = ", len, ")."
+          call neko_error(error_msg)
+       end if
 
        this%n%x(:,i) = normal / len
 
