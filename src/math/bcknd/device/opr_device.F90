@@ -1017,6 +1017,7 @@ contains
     real(kind=dp) :: dt
     type(c_ptr), intent(in) :: u_d, v_d, w_d
     real(kind=dp) :: cfl
+    real(kind=rp) :: cfl_rp
 
 #ifdef HAVE_HIP
     cfl = hip_cfl(dt, u_d, v_d, w_d, &
@@ -1040,12 +1041,13 @@ contains
          Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
          coef%jacinv_d, nelv, Xh%lx)
 #elif HAVE_METAL
-    cfl = metal_cfl(dt, u_d, v_d, w_d, &
+    cfl_rp = metal_cfl(real(dt, kind=rp), u_d, v_d, w_d, &
          coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
          coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
          coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
          Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
          coef%jacinv_d, nelv, Xh%lx)
+    cfl = real(cfl_rp, kind=dp)
 #else
     cfl = 0.0_dp
     call neko_error('No device backend configured')

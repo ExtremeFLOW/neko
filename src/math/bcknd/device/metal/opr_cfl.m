@@ -76,7 +76,7 @@ get_cfl_pipeline(const char *name) {
 /**
  * Compute the maximum CFL number on the Metal GPU.
  */
-double metal_cfl(double *dt, void *u, void *v, void *w,
+real metal_cfl(real *dt, void *u, void *v, void *w,
                void *drdx, void *dsdx, void *dtdx,
                void *drdy, void *dsdy, void *dtdy,
                void *drdz, void *dsdz, void *dtdz,
@@ -96,7 +96,7 @@ double metal_cfl(double *dt, void *u, void *v, void *w,
 
   id<MTLDevice> device = neko_metal_device();
   id<MTLBuffer> cfl_d =
-    [device newBufferWithLength:((NSUInteger)(*nel) * sizeof(double))
+    [device newBufferWithLength:((NSUInteger)(*nel) * sizeof(real))
                         options:MTLResourceStorageModeShared];
 
   id<MTLCommandQueue> queue =
@@ -106,7 +106,7 @@ double metal_cfl(double *dt, void *u, void *v, void *w,
 
   [enc setComputePipelineState:pso_cfl[*lx]];
 
-  [enc setBytes:dt length:sizeof(double) atIndex:0];
+  [enc setBytes:dt length:sizeof(real) atIndex:0];
   [enc setBuffer:(__bridge id<MTLBuffer>)u      offset:0 atIndex:1];
   [enc setBuffer:(__bridge id<MTLBuffer>)v      offset:0 atIndex:2];
   [enc setBuffer:(__bridge id<MTLBuffer>)w      offset:0 atIndex:3];
@@ -134,10 +134,10 @@ double metal_cfl(double *dt, void *u, void *v, void *w,
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
 
-  const double *cfl = (const double *)[cfl_d contents];
-  double cfl_max = 0.0;
+  const real *cfl = (const real *)[cfl_d contents];
+  real cfl_max = 0.0f;
   for (int i = 0; i < (*nel); i++) {
-    cfl_max = fmax(cfl_max, cfl[i]);
+    cfl_max = fmaxf(cfl_max, cfl[i]);
   }
 
   return cfl_max;
