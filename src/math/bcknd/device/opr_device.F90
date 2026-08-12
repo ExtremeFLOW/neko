@@ -509,17 +509,17 @@ module opr_device
   end interface
 
   interface
-     real(c_dp) function metal_cfl(dt, u_d, v_d, w_d, &
+     real(c_rp) function metal_cfl(dt, u_d, v_d, w_d, &
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
           jacinv_d, nel, lx) &
           bind(c, name = 'metal_cfl')
        use, intrinsic :: iso_c_binding
-       import c_dp
+       import c_rp
        type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
        type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
        type(c_ptr), value :: dr_inv_d, ds_inv_d, dt_inv_d, jacinv_d
-       real(c_dp) :: dt
+       real(c_rp) :: dt
        integer(c_int) :: nel, lx
      end function metal_cfl
   end interface
