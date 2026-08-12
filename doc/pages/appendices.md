@@ -15,7 +15,12 @@ of the code. But can be useful for users and developers alike.
 
 | Name                     | Description                                                           | Default value |
 | ------------------------ | --------------------------------------------------------------------- | ------------- |
-| `NEKO_AUTOTUNE`          | Force Ax auto-tuning strategy (``'1D'``,``'KSTEP'``)                  | Unset         |
+| `NEKO_AUTOTUNE`          | Force SEM operator kernel formulation (``'1D'``,``'KSTEP'``)          | Unset         |
+| `NEKO_EB_TUNE`           | Sweep elements per block for the kstep kernels (boolean)              | CUDA: 1, HIP: 0 |
+| `NEKO_EB`                | Elements per block candidate when `NEKO_AUTOTUNE=KSTEP` (0, 1 or 2)   | 0             |
+| `NEKO_CHUNKS`            | Chunk size candidate when `NEKO_AUTOTUNE=1D` (0 to 3)                 | 0             |
+| `NEKO_TUNE_ROUNDS`       | Interleaved sampling rounds used by the operator auto-tuner           | 3             |
+| `NEKO_TUNE_ITERS`        | Kernel launches timed per candidate per round                        | 100           |
 | `NEKO_LOG_FILE`          | Log file name, uses `stdout` if not set.                              | Unset         |
 | `NEKO_LOG_TAB_SIZE`      | Number of spaces added for each level of indentation in the log file. | 1             |
 | `NEKO_LOG_LEVEL`         | Log verbosity level (integer > 0, default: 1)                         | Unset         |
@@ -27,6 +32,48 @@ of the code. But can be useful for users and developers alike.
 | `NEKO_METAL_ZEROCOPY`    | Zero-copy host/device mapping on unified memory (Metal), 0 disables   | 1             |
 | `NEKO_MPI_THREAD_LEVEL`  | Requested MPI (and SHMEM) thread support level                        | Unset         |
 | `NEKO_DEPRECATION_ERROR` | Whether to treat deprecated features as errors (boolean)              | Unset         |
+
+### SEM operator auto-tuning details
+
+On the CUDA and HIP backends each spectral element operator benchmarks
+its available kernel formulations on first call and caches the winner
+for the rest of the run; see @ref performance-operator-autotuning for
+what is measured and why the defaults differ between vendors.
+
+`NEKO_AUTOTUNE` pins a formulation and skips the search:
+
+- `NEKO_AUTOTUNE=1D`    : always use the 1d variant, with the chunk size
+  given by `NEKO_CHUNKS`.
+- `NEKO_AUTOTUNE=KSTEP` : always use the kstep variant, with the
+  elements per block given by `NEKO_EB`.
+
+Any other value is reported as an error and the search runs as usual.
+
+`NEKO_EB_TUNE` controls whether the elements per block dimension is
+swept at all. It defaults to enabled on CUDA, where blocking measures a
+clear gain, and disabled on HIP, where the blocked kernels exceed the
+register budget and spill to scratch. Setting it to `0` or `1`
+overrides the per-backend default.
+
+`NEKO_CHUNKS` selects among the instantiated chunk sizes when the 1d
+variant is pinned with `NEKO_AUTOTUNE=1D`. Candidates `0` to `3` are
+1024, 512, 256 and 128 threads; candidate `0` is the historical value,
+so `NEKO_AUTOTUNE=1D` on its own is the A/B baseline for the chunk
+sweep. A candidate smaller than one derivative matrix (`lx*lx`) is
+invalid and falls back to 1024.
+
+`NEKO_EB` selects among the instantiated blocking candidates when a
+formulation is pinned with `NEKO_AUTOTUNE=KSTEP`; candidate `0` is one
+element per block, i.e. the unblocked geometry, which makes
+`NEKO_AUTOTUNE=KSTEP` on its own the A/B baseline for the blocking.
+Values outside the valid range fall back to `0`.
+
+`NEKO_TUNE_ROUNDS` and `NEKO_TUNE_ITERS` control the sampling, and
+apply to *both* sweeps --- they are not specific to the elements per
+block dimension. Each round times every candidate once, chunk sizes
+included, and the best round per candidate is kept, so raising the
+round count guards against transients and clock drift during the sweep,
+whereas raising the iteration count only reduces per-sample noise.
 
 ### Logging level details
 

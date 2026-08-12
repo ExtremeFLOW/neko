@@ -118,6 +118,60 @@ treated as fatal errors. If unset, they are reported as warnings.
 .B NEKO_LOG_TAB_SIZE
 Indentation width used by the logger.
 .TP
+.B NEKO_AUTOTUNE
+Pins the kernel formulation used by the spectral element operators on the
+CUDA and HIP backends, skipping the auto-tuning search that otherwise runs
+on the first call of each operator. Accepted values are
+.BR 1D " and " KSTEP .
+When unset, each operator benchmarks both formulations, and the geometry
+parameter of each, against the running case and caches the winner.
+.TP
+.B NEKO_EB_TUNE
+Controls whether the auto-tuner sweeps the number of elements per thread
+block for the kstep kernels. Enabled by default on CUDA, where blocking
+measures a clear gain, and disabled on HIP, where the blocked kernels
+exceed the register budget and spill to scratch. Set to
+.BR 0 " or " 1
+to override the per-backend default.
+.TP
+.B NEKO_EB
+Selects the elements-per-block candidate used when the kstep formulation
+is pinned with
+.BR NEKO_AUTOTUNE=KSTEP .
+Candidate
+.B 0
+is one element per block, i.e. the unblocked geometry. Values outside the
+valid range fall back to
+.BR 0 .
+Defaults to
+.BR 0 .
+.TP
+.B NEKO_CHUNKS
+Selects the chunk size candidate used when the 1d formulation is pinned
+with
+.BR NEKO_AUTOTUNE=1D .
+Candidates
+.BR 0 " to " 3
+are 1024, 512, 256 and 128 threads per block; candidate
+.B 0
+is the historical value. A candidate smaller than one derivative matrix
+is invalid and falls back to 1024. Defaults to
+.BR 0 .
+.TP
+.B NEKO_TUNE_ROUNDS
+Number of interleaved sampling rounds used by the operator auto-tuner. Each
+round times every candidate once \(em chunk sizes and elements per block
+alike \(em and the best round per candidate is kept, so raising this guards
+against transients and clock drift during the sweep. Defaults to
+.BR 3 .
+.TP
+.B NEKO_TUNE_ITERS
+Number of kernel launches timed per candidate per round, for both
+sweeps. Lowering it
+shortens startup on cases with very large element counts, at the cost of
+noisier measurements. Defaults to
+.BR 100 .
+.TP
 .B NEKO_GS_COMM
 Selects the communication backend used by the gather\-scatter kernel.
 Accepted values are
