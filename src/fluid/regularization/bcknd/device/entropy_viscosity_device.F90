@@ -221,11 +221,11 @@ module entropy_viscosity_device
           bdf1, bdf2, bdf3, bdf4, dt, n) &
           bind(c, name = 'metal_entropy_visc_compute_residual')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        type(c_ptr), value :: entropy_residual_d
        type(c_ptr), value :: S_d, S_lag1_d, S_lag2_d, S_lag3_d
        real(c_rp), value :: bdf1, bdf2, bdf3, bdf4
-       real(c_dp), value :: dt
+       real(c_rp), value :: dt
        integer(c_int), value :: n
      end subroutine metal_entropy_visc_compute_residual
   end interface
