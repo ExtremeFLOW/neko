@@ -2,6 +2,15 @@
 
 ## Develop
 
+- The CUDA and HIP auto-tuners for `ax_helm` and the SEM operators (`opgrad`,
+  `dudxyz`, `cdtp`, `conv1`, `convect_scalar`, `lambda2`) now also sweep the
+  thread block geometry, not just the kernel formulation: chunk size for the
+  1d variants and elements per block for the kstep variants. Candidates are
+  timed in interleaved rounds and min-reduced, and all of them are logged.
+  New environment variables `NEKO_EB_TUNE`, `NEKO_EB`, `NEKO_CHUNKS`,
+  `NEKO_TUNE_ROUNDS` and `NEKO_TUNE_ITERS` control the search; the
+  elements-per-block sweep is on by default for CUDA and off for HIP, where
+  the blocked kernels spill.
 - Added mathematical expressions as case file values, available as the
   `expression` initial condition for the fluid and the scalar, and as the
   `expression_velocity`, `expression_pressure` and `expression_dirichlet`
