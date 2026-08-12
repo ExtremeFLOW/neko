@@ -49,7 +49,7 @@ using namespace metal;
  */
 
 template <int LX>
-void cfl_impl(const float dt,
+void cfl_impl(const double dt,
               device const float *u,
               device const float *v,
               device const float *w,
@@ -66,7 +66,7 @@ void cfl_impl(const float dt,
               device const float *ds_inv,
               device const float *dt_inv,
               device const float *jacinv,
-              device float *cfl_h,
+              device double *cfl_h,
               threadgroup float *shu,
               threadgroup float *shv,
               threadgroup float *shw,
@@ -74,7 +74,7 @@ void cfl_impl(const float dt,
               threadgroup float *shdr_inv,
               threadgroup float *shds_inv,
               threadgroup float *shdt_inv,
-              threadgroup float *shcfl,
+              threadgroup double *shcfl,
               uint eid, uint tid, uint tpg) {
 
   int i, j, k;
@@ -102,7 +102,7 @@ void cfl_impl(const float dt,
 
   threadgroup_barrier(mem_flags::mem_threadgroup);
 
-  float cfl_tmp = 0.0f;
+  double cfl_tmp = 0.0;
   for (int n = 0; n < nchunks; n++) {
     const int ijk = iii + n * CFL_CHUNKS;
     const int jk = ijk / LX;
@@ -110,15 +110,15 @@ void cfl_impl(const float dt,
     k = jk / LX;
     j = jk - k * LX;
     if (i < LX && j < LX && k < LX) {
-      const float cflr = fabs(dt * ((shu[ijk] * drdx[ijk + e * LX * LX * LX]
+      const double cflr = fabs(dt * ((shu[ijk] * drdx[ijk + e * LX * LX * LX]
                                      + shv[ijk] * drdy[ijk + e * LX * LX * LX]
                                      + shw[ijk] * drdz[ijk + e * LX * LX * LX]
                                      ) * shjacinv[ijk]) * shdr_inv[i]);
-      const float cfls = fabs(dt * ((shu[ijk] * dsdx[ijk + e * LX * LX * LX]
+      const double cfls = fabs(dt * ((shu[ijk] * dsdx[ijk + e * LX * LX * LX]
                                      + shv[ijk] * dsdy[ijk + e * LX * LX * LX]
                                      + shw[ijk] * dsdz[ijk + e * LX * LX * LX]
                                      ) * shjacinv[ijk]) * shds_inv[j]);
-      const float cflt = fabs(dt * ((shu[ijk] * dtdx[ijk + e * LX * LX * LX]
+      const double cflt = fabs(dt * ((shu[ijk] * dtdx[ijk + e * LX * LX * LX]
                                      + shv[ijk] * dtdy[ijk + e * LX * LX * LX]
                                      + shw[ijk] * dtdz[ijk + e * LX * LX * LX]
                                      ) * shjacinv[ijk]) * shdt_inv[k]);
@@ -146,7 +146,7 @@ void cfl_impl(const float dt,
 
 #define INSTANTIATE_CFL(LX)                                                     \
 kernel void cfl_kernel_lx##LX(                                                  \
-    constant float &dt[[ buffer(0) ]],                                          \
+    constant double &dt[[ buffer(0) ]],                                          \
     device const float *u[[ buffer(1) ]],                                       \
     device const float *v[[ buffer(2) ]],                                       \
     device const float *w[[ buffer(3) ]],                                       \
@@ -163,7 +163,7 @@ kernel void cfl_kernel_lx##LX(                                                  
     device const float *ds_inv[[ buffer(14) ]],                                 \
     device const float *dt_inv[[ buffer(15) ]],                                 \
     device const float *jacinv[[ buffer(16) ]],                                 \
-    device float *cfl_h[[ buffer(17) ]],                                        \
+    device double *cfl_h[[ buffer(17) ]],                                        \
     uint eid [[ threadgroup_position_in_grid ]],                                \
     uint tid [[ thread_index_in_threadgroup ]],                                 \
     uint tpg [[ threads_per_threadgroup ]]) {                                   \
