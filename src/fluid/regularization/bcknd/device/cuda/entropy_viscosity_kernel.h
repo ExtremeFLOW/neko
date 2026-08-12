@@ -40,7 +40,7 @@
 /**
  * Kernel for computing entropy residual from BDF time derivative
  */
-template<typename T>
+template<typename T, typename D>
 __global__ void entropy_visc_compute_residual_kernel(T * __restrict__ entropy_residual,
                                                      const T * __restrict__ S,
                                                      const T * __restrict__ S_lag1,
@@ -50,7 +50,7 @@ __global__ void entropy_visc_compute_residual_kernel(T * __restrict__ entropy_re
                                                      const T bdf2,
                                                      const T bdf3,
                                                      const T bdf4,
-                                                     const T dt,
+                                                     const D dt,
                                                      const int n) {
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
