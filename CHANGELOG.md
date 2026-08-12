@@ -11,6 +11,9 @@
   `NEKO_TUNE_ROUNDS` and `NEKO_TUNE_ITERS` control the search; the
   elements-per-block sweep is on by default for CUDA and off for HIP, where
   the blocked kernels spill.
+- Fixed a data race in openMP block in `adv_dealias` for scalar and ALE.
+- Added `phmg_update` to propagate mesh change to coarse level grids.
+- Fixed extrusion of curved edges when reading a 2D .nmsh file.
 - Added mathematical expressions as case file values, available as the
   `expression` initial condition for the fluid and the scalar, and as the
   `expression_velocity`, `expression_pressure` and `expression_dirichlet`
