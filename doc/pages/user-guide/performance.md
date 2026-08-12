@@ -143,8 +143,8 @@ depends on the host/accelerator combination and the interconnect.
 The active backend can be selected at runtime via the `NEKO_GS_COMM`
 environment variable. If the variable is unset, a sensible default is
 chosen based on the build configuration (device-aware MPI when device
-MPI is available, and otherwise the faster of the two host backends,
-picked by the autotuner described in
+MPI is available, and otherwise the fastest of the host backends the
+build supports, picked by the autotuner described in
 @ref performance-gs-autotuning). The supported values are:
 
 | `NEKO_GS_COMM` | Backend | Requirement | Typical use |
@@ -354,7 +354,7 @@ switching modes means rebuilding -- and the fastest one becomes the
  Tuned CAF sig:       atomic
  MPI          :  5.176E-05 s
  MPI neigh.   :  6.147E-05 s
- CAF          :  7.431E-05 s
+ CAF (atomic) :  7.431E-05 s
  Tuned comm   :          MPI
 ```
 

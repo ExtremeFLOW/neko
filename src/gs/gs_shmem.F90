@@ -227,7 +227,10 @@ contains
     call neko_error('Neko was not built with OpenSHMEM support')
 #else
 
-    call this%free()
+    ! No self-free here: gs_schedule has just filled send_dof/recv_dof and
+    ! gs_shmem_free would deallocate them again, leaving the buffer setup
+    ! below reading from a dangling descriptor. Like every other comm
+    ! backend, init assumes a freshly allocated object.
     call this%init_order(send_pe, recv_pe)
 
     ! Decide once whether the OpenSHMEM library tolerates concurrent calls

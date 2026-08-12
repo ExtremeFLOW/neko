@@ -173,7 +173,7 @@ module gs_caf
   end type gs_caf_t
 
   public :: gs_caf_signal_auto, gs_caf_signal_modes, gs_caf_mode_name, &
-       gs_caf_set_mode
+       gs_caf_mode_get, gs_caf_set_mode
 
 contains
 
@@ -211,6 +211,19 @@ contains
     mode = m(1:n)
 
   end function gs_caf_signal_modes
+
+  !> The signaling mode currently in force, or 0 if none has been bound yet
+  !! (no gs_caf_t has been initialised and the autotuner has not run).
+  function gs_caf_mode_get() result(mode)
+    integer :: mode
+
+#ifdef HAVE_COARRAY
+    mode = gs_caf_mode
+#else
+    mode = 0
+#endif
+
+  end function gs_caf_mode_get
 
   !> Name of the signaling mode @a mode, right-adjusted for the log
   function gs_caf_mode_name(mode) result(name)

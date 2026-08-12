@@ -6,6 +6,9 @@
   gather-scatter backends, which duplicated the one-sided puts and the
   signalling on every thread in hybrid MPI+OpenMP runs.
 - Added `boundary_data_t`, `wall_shear_stress_simcomp`, and `boundary_data_writer_simcomp`.
+- Fixed a segfault at initialisation in the OpenSHMEM gather-scatter backend
+  (`NEKO_GS_COMM=SHMEM`), which freed its own dof lists at the start of
+  `init` and then read from them to size the symmetric buffers.
 - Added runtime autotuning of the host gather-scatter communication backend,
   mirroring the device MPI strategy tuning: with `NEKO_GS_COMM` unset, each
   `gs_t` benchmarks the host backends the build supports and keeps the

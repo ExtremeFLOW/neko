@@ -46,7 +46,7 @@ module gather_scatter
   use gs_neighbour, only : gs_neighbour_t
   use gs_shmem, only : gs_shmem_t, GS_SHMEM_AVAIL
   use gs_caf, only : gs_caf_t, GS_CAF_AVAIL, gs_caf_signal_auto, &
-       gs_caf_signal_modes, gs_caf_mode_name, gs_caf_set_mode
+       gs_caf_signal_modes, gs_caf_mode_name, gs_caf_mode_get, gs_caf_set_mode
   use gs_utofu, only : gs_utofu_t, GS_UTOFU_AVAIL
   use gs_device_mpi, only : gs_device_mpi_t
   use gs_device_nccl, only : gs_device_nccl_t
@@ -617,6 +617,12 @@ contains
 
     do i = 1, size(cand)
        label = adjustl(gs_comm_name(cand(i)))
+       ! What the coarray backend costs depends on the signaling mode in
+       ! force, so report the timing under the mode it was measured in
+       if (cand(i) .eq. GS_COMM_CAF .and. gs_caf_mode_get() .ne. 0) then
+          label = 'CAF (' // &
+               trim(adjustl(gs_caf_mode_name(gs_caf_mode_get()))) // ')'
+       end if
        ! ES10.3 + ' s' fills the same 12 columns as the right-adjusted
        ! backend names, so the unit lines up with their last letter
        write(log_buf, '(A,A,ES10.3,A)') label, ': ', cand_time(i), ' s'
