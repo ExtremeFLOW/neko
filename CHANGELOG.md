@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Added `phmg_update` to propagate mesh change to coarse level grids.
 - Fixed extrusion of curved edges when reading a 2D .nmsh file.
 - Added mathematical expressions as case file values, available as the
   `expression` initial condition for the fluid and the scalar, and as the
