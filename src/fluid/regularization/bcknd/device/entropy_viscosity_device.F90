@@ -306,7 +306,8 @@ contains
 #elif HAVE_METAL
     call metal_entropy_visc_compute_residual(entropy_residual_d, &
          S_d, S_lag1_d, S_lag2_d, S_lag3_d, &
-         bdf_coeffs(1), bdf_coeffs(2), bdf_coeffs(3), bdf_coeffs(4), dt, n)
+         bdf_coeffs(1), bdf_coeffs(2), bdf_coeffs(3), bdf_coeffs(4), &
+         real(dt, kind=rp), n)
 #else
     call neko_error('No device backend configured')
 #endif
