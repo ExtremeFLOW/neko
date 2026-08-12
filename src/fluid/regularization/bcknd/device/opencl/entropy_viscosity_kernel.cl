@@ -44,7 +44,7 @@ __kernel void entropy_visc_compute_residual_kernel(__global real * __restrict__ 
                                                    const real bdf2,
                                                    const real bdf3,
                                                    const real bdf4,
-                                                   const real dt,
+                                                   const double dt,
                                                    const int n) {
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
