@@ -2,6 +2,10 @@
 
 ## Develop
 
+- Fixed threaded OpenSHMEM startup, which called `shmem_init_thread` twice
+  when the first call provided less than `SHMEM_THREAD_MULTIPLE` (Cray LIBSMA
+  aborts on a second initialisation), and then rejected any level below
+  `SHMEM_THREAD_FUNNELED` even though the host backend funnels its calls.
 - Added OpenMP threading to the Coarray Fortran and host OpenSHMEM
   gather-scatter backends, which duplicated the one-sided puts and the
   signalling on every thread in hybrid MPI+OpenMP runs.

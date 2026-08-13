@@ -87,6 +87,34 @@ module gs_caf
   real(kind=rp), allocatable :: gs_caf_recv_buf(:)[:]
   integer :: gs_caf_buf_size = 0
 
+  ! Double-buffer parity (0 or 1) per remote rank, flipped at the end of
+  ! every nbwait for the peers that round involved: the round writes to and
+  ! reads from the gs_caf_peer_parity(peer)*gs_caf_buf_size half, the next
+  ! round with that same peer uses the other one.
+  !
+  ! The parity belongs to the buffer, which is module state shared by every
+  ! instance, so it cannot live in gs_caf_t. It has to be per *pair* rather
+  ! than one counter for the whole buffer, because what makes it safe for a
+  ! sender to run ahead of a receiver is "the next round I exchange with this
+  ! peer writes the other half", and only traffic between that pair advances
+  ! it. A single global parity holds only while every instance shares one
+  ! peer set: with instances whose peer sets differ -- hsmg, where the
+  ! Schwarz smoother's gs lives on the extended lx+2 dofmap and so does not
+  ! have the connectivity of the level's own gs -- two consecutive rounds
+  ! between I and J can sit an even number of global rounds apart and land on
+  ! the same half. Nothing then orders I's put against J's still-running
+  ! unpack: in sync mode the intervening round does not name the pair in its
+  ! sync images set, and in atomic mode the back-pressure spin explicitly
+  ! tolerates a receiver one round behind. p-multigrid never shows it, since
+  ! every level shares the partition's peer set and so every pair
+  ! synchronises every round.
+  !
+  ! Sender and receiver stay in step because gs schedules are symmetric: both
+  ! endpoints of a pair take part in the same rounds and flip at the same
+  ! point, at the end of nbwait, so a round's put and its unpack agree on the
+  ! half. Flipping in nbsend as well would make the two ends disagree.
+  integer, allocatable :: gs_caf_peer_parity(:)
+
   ! Active signaling mode; bound on the first gs_caf_t init from the
   ! NEKO_GS_CAF_SIGNALING environment variable. Subsequent instances
   ! must use the same mode (the env var is read once).
@@ -150,17 +178,17 @@ module gs_caf
      integer, allocatable :: dest_offset(:)
      !> 1-based image numbers for the send and recv peer arrays.
      integer, allocatable :: send_img(:), recv_img(:)
-     !> sync-mode only: image numbers of the union of send and recv peers,
-     !! used for the pairwise sync images that bracket the put. Unallocated
-     !! in atomic and event modes.
+     !> Ranks of the union of send and recv peers, i.e. every peer this
+     !! instance exchanges with in a round. Used to advance the per-peer
+     !! double-buffer parity in nbwait.
+     integer, allocatable :: peer(:)
+     !> sync-mode only: the same set as image numbers, used for the pairwise
+     !! sync images that bracket the put. Unallocated in atomic and event
+     !! modes.
      integer, allocatable :: sync_img(:)
      !> event-mode only: false on the very first nbsend so the buf_ready
      !! wait is skipped (there are no credits posted yet).
      logical :: send_started = .false.
-     !> Double-buffer parity (0 or 1), flipped after every nbwait. The
-     !! current round writes to and reads from the parity*buf_size half
-     !! of gs_caf_recv_buf, the next round uses the other half.
-     integer :: parity = 0
    contains
      procedure, pass(this) :: init => gs_caf_init
      procedure, pass(this) :: free => gs_caf_free
@@ -397,29 +425,50 @@ contains
     end do
     deallocate(dest_xchg)
 
+    ! Peer set = union of send and recv peers. Both endpoints of every
+    ! neighbour pair include each other, so the two sides advance the pair's
+    ! double-buffer parity on the same rounds (and, in sync mode, their
+    ! pairwise sync images statements match up).
+    allocate(in_neigh(0:pe_size - 1))
+    in_neigh = .false.
+    do i = 1, nsend
+       in_neigh(this%send_pe(i)) = .true.
+    end do
+    do i = 1, nrecv
+       in_neigh(this%recv_pe(i)) = .true.
+    end do
+    n_neigh = count(in_neigh)
+    allocate(this%peer(n_neigh))
+    n_neigh = 0
+    do i = 0, pe_size - 1
+       if (in_neigh(i)) then
+          n_neigh = n_neigh + 1
+          this%peer(n_neigh) = i
+       end if
+    end do
+    deallocate(in_neigh)
+
+    ! Shared by every instance, like the buffer it indexes, so allocate it
+    ! once and never reset it: the parity of a pair has to keep advancing
+    ! across instances.
+    if (.not. allocated(gs_caf_peer_parity)) then
+       allocate(gs_caf_peer_parity(0:pe_size - 1))
+       gs_caf_peer_parity = 0
+    end if
+
     if (gs_caf_mode .eq. GS_CAF_SIGNAL_SYNC) then
-       ! Sync image set = union of send and recv peers. Both endpoints of
-       ! every neighbour pair must include each other so the pairwise
-       ! sync images statements match up.
-       allocate(in_neigh(0:pe_size - 1))
-       in_neigh = .false.
-       do i = 1, nsend
-          in_neigh(this%send_pe(i)) = .true.
-       end do
-       do i = 1, nrecv
-          in_neigh(this%recv_pe(i)) = .true.
-       end do
-       n_neigh = count(in_neigh)
-       allocate(this%sync_img(n_neigh))
-       n_neigh = 0
-       do i = 0, pe_size - 1
-          if (in_neigh(i)) then
-             n_neigh = n_neigh + 1
-             this%sync_img(n_neigh) = i + 1
-          end if
-       end do
-       deallocate(in_neigh)
-    end if ! atomic & event modes: no per-instance state to allocate
+       allocate(this%sync_img(size(this%peer)))
+       this%sync_img = this%peer + 1
+#ifdef HAVE_COARRAY_EVENTS
+    else if (gs_caf_mode .eq. GS_CAF_SIGNAL_EVENT) then
+       ! Start from zero event counts; see gs_caf_event_drain for why an
+       ! instance leaves credits behind and what accumulating them costs.
+       call gs_caf_event_drain()
+       ! No gs op can be in flight here (init is collective), so any in-use
+       ! flag left set by a torn-down instance is stale.
+       gs_caf_event_in_use = .false.
+#endif
+    end if ! atomic mode: no per-instance state to allocate
 
     ! Ensure recv_buf is allocated and (atomic mode) baselines are stable
     ! on every image before any signalling activity begins.
@@ -444,12 +493,54 @@ contains
     if (allocated(this%dest_offset)) deallocate(this%dest_offset)
     if (allocated(this%send_img)) deallocate(this%send_img)
     if (allocated(this%recv_img)) deallocate(this%recv_img)
+    if (allocated(this%peer)) deallocate(this%peer)
     if (allocated(this%sync_img)) deallocate(this%sync_img)
 
     call this%free_order()
     call this%free_dofs()
 #endif
   end subroutine gs_caf_free
+
+#ifdef HAVE_COARRAY
+
+#ifdef HAVE_COARRAY_EVENTS
+
+  !> Consume the event posts left over by a previous gs_caf_t, so that each
+  !! instance starts counting from zero.
+  !!
+  !! The event coarrays are module state that outlives an instance, while
+  !! the credit accounting is per-instance. Over a run of R rounds an image
+  !! receives one buf_ready post per send peer per round but consumes them
+  !! only R-1 times, since the first nbsend skips its wait (nothing has been
+  !! credited yet) -- so every instance leaves size(send_pe) credits behind.
+  !! Left alone they accumulate by one round per instance until a later wait
+  !! is satisfied by stale credits: the sender then runs further ahead than
+  !! the double buffer tolerates and can overwrite a half the receiver has
+  !! not unpacked. data_ready is balanced (every nbsend is paired with an
+  !! nbwait) but is drained too, so the invariant is simply "both events are
+  !! zero when an instance starts".
+  !!
+  !! event_query reports what has already landed, so neither wait can block.
+  !! The caller brackets this with the sync all of gs_caf_init: the earlier
+  !! one has delivered every post of the previous instance, the later one
+  !! keeps any image from signalling before all of them have drained.
+  subroutine gs_caf_event_drain()
+    integer :: pending
+
+    call event_query(gs_caf_buf_ready_ev, pending)
+    if (pending .gt. 0) then
+       event wait(gs_caf_buf_ready_ev, until_count=pending)
+    end if
+
+    call event_query(gs_caf_data_ready_ev, pending)
+    if (pending .gt. 0) then
+       event wait(gs_caf_data_ready_ev, until_count=pending)
+    end if
+
+  end subroutine gs_caf_event_drain
+
+#endif
+#endif
 
   !> Pack u into per-peer slabs and put each slab into the remote image's
   !! recv_buf. Double buffering means each round writes to a different
@@ -481,7 +572,6 @@ contains
     !
     ! parity is flipped by the master at the end of nbwait and published by
     ! the barrier there, so it is stable for every thread here.
-    half_off = this%parity * gs_caf_buf_size
 
     if (gs_caf_mode .eq. GS_CAF_SIGNAL_SYNC) then
        do i = 1, size(this%send_pe)
@@ -490,6 +580,7 @@ contains
           ndst = this%send_len(i)
           dimg = this%send_img(i)
           doff = this%dest_offset(i)
+          half_off = gs_caf_peer_parity(dst) * gs_caf_buf_size
           sp => this%send_dof(dst)%array()
           !OCL NORECURRENCE, NOVREC, NOALIAS
           !DIR$ CONCURRENT
@@ -501,9 +592,6 @@ contains
              this%send_buf(off + j) = u(sp(j))
           end do
           !$omp end do
-          ! No barrier needed between the pack and the put: end do carries
-          ! one. The team meanwhile packs the next peer's (disjoint) slab
-          ! while the master injects this one.
           !$omp master
           gs_caf_recv_buf(half_off + doff + 1 : half_off + doff + ndst)[dimg] &
                = this%send_buf(off + 1 : off + ndst)
@@ -544,6 +632,7 @@ contains
           ndst = this%send_len(i)
           dimg = this%send_img(i)
           doff = this%dest_offset(i)
+          half_off = gs_caf_peer_parity(dst) * gs_caf_buf_size
           sp => this%send_dof(dst)%array()
           !OCL NORECURRENCE, NOVREC, NOALIAS
           !DIR$ CONCURRENT
@@ -598,10 +687,12 @@ contains
        !$omp master
        me_rank = this_image() - 1
        do i = 1, size(this%send_pe)
+          dst = this%send_pe(i)
           off = this%send_offset(i)
           ndst = this%send_len(i)
           dimg = this%send_img(i)
           doff = this%dest_offset(i)
+          half_off = gs_caf_peer_parity(dst) * gs_caf_buf_size
 
           do
              call atomic_ref(flag, gs_caf_buf_ready(this%send_pe(i)))
@@ -647,7 +738,6 @@ contains
     integer(kind=atomic_int_kind) :: flag
     integer :: me_rank
 
-    half_off = this%parity * gs_caf_buf_size
 
     ! All incoming data is awaited by the master (see gs_nbsend_caf on why
     ! coarray operations are funnelled); the barrier then releases the team
@@ -688,6 +778,7 @@ contains
        src = this%recv_pe(i)
        off = this%recv_offset(i)
        nsrc = this%recv_len(i)
+       half_off = gs_caf_peer_parity(src) * gs_caf_buf_size
        sp => this%recv_dof(src)%array()
        select case (op)
        case (GS_OP_ADD)
@@ -760,8 +851,11 @@ contains
 #endif
     end if
 
-    ! Flip the double-buffer parity for the next round.
-    this%parity = 1 - this%parity
+    ! Flip the double-buffer parity of every peer this round involved, so
+    ! our next exchange with each of them uses the other half.
+    do i = 1, size(this%peer)
+       gs_caf_peer_parity(this%peer(i)) = 1 - gs_caf_peer_parity(this%peer(i))
+    end do
     !$omp end master
     !$omp barrier
 #else
@@ -789,7 +883,6 @@ contains
     ! Same threading split as the scalar path: the nc-component pack is
     ! work-shared over the dofs of one peer at a time, every coarray
     ! operation is issued by the master alone.
-    half_off = this%parity * gs_caf_buf_size
 
     if (gs_caf_mode .eq. GS_CAF_SIGNAL_SYNC) then
        do i = 1, size(this%send_pe)
@@ -798,6 +891,7 @@ contains
           ndst = this%send_len(i)
           dimg = this%send_img(i)
           doff = this%dest_offset(i)
+          half_off = gs_caf_peer_parity(dst) * gs_caf_buf_size
           sp => this%send_dof(dst)%array()
           !$omp do
           do j = 1, ndst
@@ -837,6 +931,7 @@ contains
           ndst = this%send_len(i)
           dimg = this%send_img(i)
           doff = this%dest_offset(i)
+          half_off = gs_caf_peer_parity(dst) * gs_caf_buf_size
           sp => this%send_dof(dst)%array()
           !$omp do
           do j = 1, ndst
@@ -848,6 +943,12 @@ contains
           !$omp master
           gs_caf_recv_buf(half_off + nc*doff + 1 : half_off + nc*doff + nc*ndst) &
                [dimg] = this%send_buf(nc*off + 1 : nc*off + nc*ndst)
+          ! event post is meant to act as an image-control statement
+          ! that establishes segment ordering with the matching event
+          ! wait, but real-world coarray runtimes can let a small event
+          ! message race past a still-in-flight RDMA put -- the
+          ! receiver's wait then completes before the data has landed.
+          ! sync memory forces the put to commit locally before the post.
           sync memory
           event post(gs_caf_data_ready_ev[dimg])
           !$omp end master
@@ -872,10 +973,12 @@ contains
        !$omp master
        me_rank = this_image() - 1
        do i = 1, size(this%send_pe)
+          dst = this%send_pe(i)
           off = this%send_offset(i)
           ndst = this%send_len(i)
           dimg = this%send_img(i)
           doff = this%dest_offset(i)
+          half_off = gs_caf_peer_parity(dst) * gs_caf_buf_size
 
           do
              call atomic_ref(flag, gs_caf_buf_ready(this%send_pe(i)))
@@ -917,7 +1020,6 @@ contains
     integer(kind=atomic_int_kind) :: flag
     integer :: me_rank
 
-    half_off = this%parity * gs_caf_buf_size
 
     !$omp master
     if (gs_caf_mode .eq. GS_CAF_SIGNAL_SYNC) then
@@ -951,6 +1053,7 @@ contains
        src = this%recv_pe(i)
        off = this%recv_offset(i)
        nsrc = this%recv_len(i)
+       half_off = gs_caf_peer_parity(src) * gs_caf_buf_size
        sp => this%recv_dof(src)%array()
        select case (op)
        case (GS_OP_ADD)
@@ -1010,7 +1113,9 @@ contains
 #endif
     end if
 
-    this%parity = 1 - this%parity
+    do i = 1, size(this%peer)
+       gs_caf_peer_parity(this%peer(i)) = 1 - gs_caf_peer_parity(this%peer(i))
+    end do
     !$omp end master
     !$omp barrier
 #else
