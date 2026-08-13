@@ -5,6 +5,7 @@
 - Added OpenMP threading to the Coarray Fortran and host OpenSHMEM
   gather-scatter backends, which duplicated the one-sided puts and the
   signalling on every thread in hybrid MPI+OpenMP runs.
+- Added `boundary_data_t`, `wall_shear_stress_simcomp`, and `boundary_data_writer_simcomp`.
 - Fixed a data race in openMP block in `adv_dealias` for scalar and ALE.
 - Added `phmg_update` to propagate mesh change to coarse level grids.
 - Fixed extrusion of curved edges when reading a 2D .nmsh file.
