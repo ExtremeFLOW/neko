@@ -129,10 +129,30 @@ is native one\-sided communication over the Tofu interconnect and
 is host MPI using an
 .B MPI_Ineighbor_alltoallv
 neighbourhood collective. When unset, a device\-aware variant is used
-on accelerator builds and host MPI otherwise.
+on accelerator builds; otherwise the host backends available in the build
+are benchmarked at startup and the fastest one is used.
 .TP
 .B NEKO_GS_STRTGY
 Selects the gather\-scatter strategy.
+.TP
+.B NEKO_GS_CAF_SIGNALING
+Selects the per\-pair synchronisation used by the coarray gather\-scatter
+backend
+.RB ( NEKO_GS_COMM=CAF ).
+Accepted values are
+.BR sync " (the default), " atomic ", " event " and " auto ,
+where
+.B auto
+benchmarks the modes the build supports and binds the fastest one. The mode
+is bound on the first gather\-scatter initialisation and cannot change
+thereafter, so
+.B auto
+only takes effect when the communication backend is autotuned as well, that
+is when
+.B NEKO_GS_COMM
+is unset; it falls back to
+.B sync
+otherwise.
 .TP
 .B NEKO_GS_UTOFU_NTNI
 Number of Tofu network interfaces (TNIs) that the per\-thread injection

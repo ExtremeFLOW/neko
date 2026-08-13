@@ -6,6 +6,13 @@
   gather-scatter backends, which duplicated the one-sided puts and the
   signalling on every thread in hybrid MPI+OpenMP runs.
 - Added `boundary_data_t`, `wall_shear_stress_simcomp`, and `boundary_data_writer_simcomp`.
+- Added runtime autotuning of the host gather-scatter communication backend,
+  mirroring the device MPI strategy tuning: with `NEKO_GS_COMM` unset, each
+  `gs_t` benchmarks the host backends the build supports and keeps the
+  fastest one. Setting `NEKO_GS_COMM` pins a backend and skips the benchmark.
+- Added `NEKO_GS_CAF_SIGNALING=auto`, selecting the fastest coarray
+  signalling mode by benchmarking. Bound once per program, and only in
+  effect when the comm. backend is autotuned as well.
 - Fixed a data race in openMP block in `adv_dealias` for scalar and ALE.
 - Added `phmg_update` to propagate mesh change to coarse level grids.
 - Fixed extrusion of curved edges when reading a 2D .nmsh file.

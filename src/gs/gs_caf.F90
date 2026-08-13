@@ -47,6 +47,15 @@ module gs_caf
   implicit none
   private
 
+  !> Whether coarray support was built into this Neko. Lets callers (e.g.
+  !! the gs comm. autotuner) skip the backend rather than aborting in init
+  !! on builds without it.
+#ifdef HAVE_COARRAY
+  logical, parameter, public :: GS_CAF_AVAIL = .true.
+#else
+  logical, parameter, public :: GS_CAF_AVAIL = .false.
+#endif
+
   ! Signaling mode constants. Selected at first init via the
   ! NEKO_GS_CAF_SIGNALING environment variable
   ! ("sync", "atomic", or "event").
@@ -163,25 +172,82 @@ module gs_caf
      procedure, pass(this) :: nbwait_vec => gs_nbwait_vec_caf
   end type gs_caf_t
 
+  public :: gs_caf_signal_auto, gs_caf_signal_modes, gs_caf_mode_name, &
+       gs_caf_set_mode
+
 contains
 
-  !> Initialise Coarray Fortran based communication method
-  subroutine gs_caf_init(this, send_pe, recv_pe)
-    class(gs_caf_t), intent(inout) :: this
-    type(stack_i4_t), intent(inout) :: send_pe
-    type(stack_i4_t), intent(inout) :: recv_pe
-#ifdef HAVE_COARRAY
-    integer, allocatable :: dest_xchg(:)[:]
-    logical, allocatable :: in_neigh(:)
-    integer :: i, nsend, nrecv, send_total, recv_total, max_total, n_neigh
-    integer :: me, env_len
+  !> Whether the signaling mode should be selected by benchmarking, i.e.
+  !! NEKO_GS_CAF_SIGNALING=auto. The mode is a program-wide binding shared
+  !! by every gs_caf_t instance, so the caller (the gs comm. autotuner) must
+  !! bind it once and keep it: see gs_caf_set_mode.
+  function gs_caf_signal_auto() result(auto)
+    logical :: auto
     character(len=64) :: env_val
+    integer :: env_len
 
-    ! Bind the signaling mode on the first init.
-    if (gs_caf_mode .eq. 0) then
-       call get_environment_variable("NEKO_GS_CAF_SIGNALING", env_val, env_len)
-       if (env_len .gt. 0 .and. env_val(1:env_len) .eq. "atomic") then
-          gs_caf_mode = GS_CAF_SIGNAL_ATOMIC
+    call get_environment_variable("NEKO_GS_CAF_SIGNALING", env_val, env_len)
+    auto = (env_len .gt. 0)
+    if (auto) auto = (env_val(1:env_len) .eq. "auto")
+
+  end function gs_caf_signal_auto
+
+  !> The signaling modes this build can run, in the order they should be
+  !! benchmarked. Events are only available with a compiler that implements
+  !! them.
+  function gs_caf_signal_modes() result(mode)
+    integer, allocatable :: mode(:)
+    integer :: m(3), n
+
+    n = 2
+    m(1) = GS_CAF_SIGNAL_SYNC
+    m(2) = GS_CAF_SIGNAL_ATOMIC
+#ifdef HAVE_COARRAY_EVENTS
+    n = n + 1
+    m(n) = GS_CAF_SIGNAL_EVENT
+#endif
+
+    allocate(mode(n))
+    mode = m(1:n)
+
+  end function gs_caf_signal_modes
+
+  !> Name of the signaling mode @a mode, right-adjusted for the log
+  function gs_caf_mode_name(mode) result(name)
+    integer, intent(in) :: mode
+    character(len=12) :: name
+
+    select case (mode)
+    case (GS_CAF_SIGNAL_SYNC)
+       name = '        sync'
+    case (GS_CAF_SIGNAL_ATOMIC)
+       name = '      atomic'
+    case (GS_CAF_SIGNAL_EVENT)
+       name = '       event'
+    case default
+       name = '     unknown'
+       call neko_error('Unknown coarray gather-scatter signaling mode')
+    end select
+
+  end function gs_caf_mode_name
+
+  !> Bind the signaling mode shared by every gs_caf_t instance, allocating
+  !! whatever module-level state the mode needs. Idempotent per mode, so it
+  !! may be called again to switch modes while no gs op is in flight and no
+  !! gs_caf_t instance is live -- which is what the autotuner does to
+  !! benchmark the modes against each other.
+  !! @note Collective: the atomic counters and the event coarrays are
+  !! coarrays, so every image must call this in the same order.
+  subroutine gs_caf_set_mode(mode)
+    integer, intent(in) :: mode
+#ifdef HAVE_COARRAY
+    integer :: i
+
+    select case (mode)
+    case (GS_CAF_SIGNAL_SYNC)
+       ! Nothing to set up; the image set is built per instance in init
+    case (GS_CAF_SIGNAL_ATOMIC)
+       if (.not. allocated(gs_caf_data_ready)) then
           allocate(gs_caf_data_ready(0:pe_size - 1)[*])
           allocate(gs_caf_buf_ready(0:pe_size - 1)[*])
           allocate(gs_caf_send_count(0:pe_size - 1))
@@ -195,30 +261,57 @@ contains
              call atomic_define(gs_caf_data_ready(i), 0_atomic_int_kind)
              call atomic_define(gs_caf_buf_ready(i), 0_atomic_int_kind)
           end do
-       else if (env_len .gt. 0 .and. env_val(1:env_len) .eq. "event") then
-#ifdef HAVE_COARRAY_EVENTS
-          gs_caf_mode = GS_CAF_SIGNAL_EVENT
-#else
-          call neko_error("NEKO_GS_CAF_SIGNALING=event requires a Fortran " // &
-               "compiler with coarray events support")
-#endif
-       else
-          gs_caf_mode = GS_CAF_SIGNAL_SYNC
        end if
-    end if
-
+    case (GS_CAF_SIGNAL_EVENT)
 #ifdef HAVE_COARRAY_EVENTS
-    ! Allocate the shared event coarrays once, lazily, on the first
-    ! event-mode init. The in-use guard against overlapping gs ops is
-    ! enforced in nbsend/nbwait, not here -- multiple gs_caf_t instances
-    ! may be initialised back-to-back.
-    if (gs_caf_mode .eq. GS_CAF_SIGNAL_EVENT) then
+       ! One set of event coarrays shared by all instances. The guard
+       ! against overlapping gs ops is enforced in nbsend/nbwait, not here.
        if (.not. allocated(gs_caf_data_ready_ev)) then
           allocate(gs_caf_data_ready_ev[*])
           allocate(gs_caf_buf_ready_ev[*])
        end if
-    end if
+#else
+       call neko_error("NEKO_GS_CAF_SIGNALING=event requires a Fortran " // &
+            "compiler with coarray events support")
 #endif
+    case default
+       call neko_error('Unknown coarray gather-scatter signaling mode')
+    end select
+
+    gs_caf_mode = mode
+#else
+    call neko_error("Coarray Fortran support not built; reconfigure with " // &
+         "a coarray-capable Fortran compiler")
+#endif
+  end subroutine gs_caf_set_mode
+
+  !> Initialise Coarray Fortran based communication method
+  subroutine gs_caf_init(this, send_pe, recv_pe)
+    class(gs_caf_t), intent(inout) :: this
+    type(stack_i4_t), intent(inout) :: send_pe
+    type(stack_i4_t), intent(inout) :: recv_pe
+#ifdef HAVE_COARRAY
+    integer, allocatable :: dest_xchg(:)[:]
+    logical, allocatable :: in_neigh(:)
+    integer :: i, nsend, nrecv, send_total, recv_total, max_total, n_neigh
+    integer :: me, env_len
+    character(len=64) :: env_val
+
+    ! Bind the signaling mode on the first init. With
+    ! NEKO_GS_CAF_SIGNALING=auto the mode is instead selected by
+    ! benchmarking, and the gs comm. autotuner has already bound it with
+    ! gs_caf_set_mode by the time we get here; falling through to sync
+    ! covers the case where nothing tuned it (CAF requested explicitly).
+    if (gs_caf_mode .eq. 0) then
+       call get_environment_variable("NEKO_GS_CAF_SIGNALING", env_val, env_len)
+       if (env_len .gt. 0 .and. env_val(1:env_len) .eq. "atomic") then
+          call gs_caf_set_mode(GS_CAF_SIGNAL_ATOMIC)
+       else if (env_len .gt. 0 .and. env_val(1:env_len) .eq. "event") then
+          call gs_caf_set_mode(GS_CAF_SIGNAL_EVENT)
+       else
+          call gs_caf_set_mode(GS_CAF_SIGNAL_SYNC)
+       end if
+    end if
 
     call this%init_order(send_pe, recv_pe)
 
