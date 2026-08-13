@@ -126,6 +126,10 @@ module gs_caf
   !! images` over the union of send and recv peers, `atomic` uses
   !! per-peer `atomic_define`/`atomic_ref` on `data_ready`/`buf_ready`
   !! counters, and `event` uses coarray events.
+  !!
+  !! Under OpenMP the pack and unpack loops are work-shared across the
+  !! calling team, while every coarray operation is funnelled through the
+  !! master thread -- see gs_nbsend_caf.
   type, public, extends(gs_comm_t) :: gs_caf_t
      !> Local gathered send buffer (concatenated slabs, one per send peer).
      real(kind=rp), allocatable :: send_buf(:)
@@ -354,6 +358,18 @@ contains
     integer(kind=atomic_int_kind) :: flag
     integer :: me_rank
 
+    ! These routines are entered from inside the gs_op_vector OpenMP
+    ! parallel region (the CAF backend is a host comm method), so the whole
+    ! thread team executes them. Coarray Fortran image control is not
+    ! thread-safe: every put, sync, atomic_* and event statement -- and the
+    ! shared module/instance signalling state -- is performed by the master
+    ! thread alone, inside !$omp master regions. Only the local pack of the
+    ! send buffer is work-shared across the team with !$omp do. The implicit
+    ! barrier at the end of each !$omp do guarantees the slab is fully packed
+    ! before the master thread reads it for the put.
+    !
+    ! parity is flipped by the master at the end of nbwait and published by
+    ! the barrier there, so it is stable for every thread here.
     half_off = this%parity * gs_caf_buf_size
 
     if (gs_caf_mode .eq. GS_CAF_SIGNAL_SYNC) then
@@ -364,14 +380,30 @@ contains
           dimg = this%send_img(i)
           doff = this%dest_offset(i)
           sp => this%send_dof(dst)%array()
-          do concurrent (j = 1:ndst)
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !DIR$ IVDEP
+          !GCC$ ivdep
+          !NEC$ IVDEP
+          !$omp do
+          do j = 1, ndst
              this%send_buf(off + j) = u(sp(j))
           end do
+          !$omp end do
+          ! No barrier needed between the pack and the put: end do carries
+          ! one. The team meanwhile packs the next peer's (disjoint) slab
+          ! while the master injects this one.
+          !$omp master
           gs_caf_recv_buf(half_off + doff + 1 : half_off + doff + ndst)[dimg] &
                = this%send_buf(off + 1 : off + ndst)
+          !$omp end master
        end do
+       !$omp barrier
 #ifdef HAVE_COARRAY_EVENTS
     else if (gs_caf_mode .eq. GS_CAF_SIGNAL_EVENT) then
+       ! Event-mode signalling is a sequence of image-control statements and
+       ! is executed by the master thread alone.
+       !$omp master
        ! Event mode shares one set of module-level event coarrays among
        ! all instances and cannot disambiguate posts from concurrent gs
        ! ops, so we must guarantee non-overlapping nbsend/nbwait windows.
@@ -390,6 +422,10 @@ contains
        else
           this%send_started = .true.
        end if
+       !$omp end master
+       ! The back-pressure wait above must complete before any put below
+       ! overwrites the receivers' buffers.
+       !$omp barrier
 
        do i = 1, size(this%send_pe)
           dst = this%send_pe(i)
@@ -398,9 +434,17 @@ contains
           dimg = this%send_img(i)
           doff = this%dest_offset(i)
           sp => this%send_dof(dst)%array()
-          do concurrent (j = 1:ndst)
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !DIR$ IVDEP
+          !GCC$ ivdep
+          !NEC$ IVDEP
+          !$omp do
+          do j = 1, ndst
              this%send_buf(off + j) = u(sp(j))
           end do
+          !$omp end do
+          !$omp master
           gs_caf_recv_buf(half_off + doff + 1 : half_off + doff + ndst)[dimg] &
                = this%send_buf(off + 1 : off + ndst)
           ! event post is meant to act as an image-control statement
@@ -411,28 +455,37 @@ contains
           ! sync memory forces the put to commit locally before the post.
           sync memory
           event post(gs_caf_data_ready_ev[dimg])
+          !$omp end master
        end do
+       !$omp barrier
 #endif
     else
-       me_rank = this_image() - 1
-
-       ! Pack all peers up front so the subsequent network waits and
-       ! puts can overlap with each other rather than serialising
+       ! Pack all peers up front (work-shared) so the subsequent network
+       ! waits and puts can overlap with each other rather than serialising
        ! behind per-peer pack work.
        do i = 1, size(this%send_pe)
           dst = this%send_pe(i)
           off = this%send_offset(i)
           ndst = this%send_len(i)
           sp => this%send_dof(dst)%array()
-          do concurrent (j = 1:ndst)
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !DIR$ IVDEP
+          !GCC$ ivdep
+          !NEC$ IVDEP
+          !$omp do
+          do j = 1, ndst
              this%send_buf(off + j) = u(sp(j))
           end do
+          !$omp end do
        end do
 
-       ! Back-pressure, put and signal per peer. With double-buffering
-       ! the half we are about to write last carried round
-       ! (send_count - 2), so we only need the receiver to have
-       ! unpacked through (send_count - 1).
+       ! Back-pressure, put and signal per peer -- all coarray operations,
+       ! so master only. With double-buffering the half we are about to
+       ! write last carried round (send_count - 2), so we only need the
+       ! receiver to have unpacked through (send_count - 1).
+       !$omp master
+       me_rank = this_image() - 1
        do i = 1, size(this%send_pe)
           off = this%send_offset(i)
           ndst = this%send_len(i)
@@ -452,6 +505,8 @@ contains
           call atomic_define(gs_caf_data_ready(me_rank)[dimg], &
                int(gs_caf_send_count(this%send_pe(i)), atomic_int_kind))
        end do
+       !$omp end master
+       !$omp barrier
     end if
 #else
     call neko_error("Coarray Fortran support not built")
@@ -483,6 +538,10 @@ contains
 
     half_off = this%parity * gs_caf_buf_size
 
+    ! All incoming data is awaited by the master (see gs_nbsend_caf on why
+    ! coarray operations are funnelled); the barrier then releases the team
+    ! into the unpack once every slab has landed.
+    !$omp master
     if (gs_caf_mode .eq. GS_CAF_SIGNAL_SYNC) then
        if (allocated(this%sync_img)) then
           if (size(this%sync_img) .gt. 0) then
@@ -507,7 +566,13 @@ contains
           end do
        end do
     end if
+    !$omp end master
+    !$omp barrier
 
+    ! Reduce each received slab into u. The loop over peers stays serial: a
+    ! dof shared by 3+ ranks appears in several recv_dof lists, so reducing
+    ! two slabs concurrently would race on that dof. Parallelism is taken
+    ! within each slab instead.
     do i = 1, size(this%recv_pe)
        src = this%recv_pe(i)
        off = this%recv_offset(i)
@@ -515,30 +580,58 @@ contains
        sp => this%recv_dof(src)%array()
        select case (op)
        case (GS_OP_ADD)
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !DIR$ IVDEP
+          !GCC$ ivdep
           !NEC$ IVDEP
-          do concurrent (j = 1:nsrc)
+          !$omp do
+          do j = 1, nsrc
              u(sp(j)) = u(sp(j)) + gs_caf_recv_buf(half_off + off + j)
           end do
+          !$omp end do
        case (GS_OP_MUL)
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !DIR$ IVDEP
+          !GCC$ ivdep
           !NEC$ IVDEP
-          do concurrent (j = 1:nsrc)
+          !$omp do
+          do j = 1, nsrc
              u(sp(j)) = u(sp(j)) * gs_caf_recv_buf(half_off + off + j)
           end do
+          !$omp end do
        case (GS_OP_MIN)
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !DIR$ IVDEP
+          !GCC$ ivdep
           !NEC$ IVDEP
-          do concurrent (j = 1:nsrc)
+          !$omp do
+          do j = 1, nsrc
              u(sp(j)) = min(u(sp(j)), gs_caf_recv_buf(half_off + off + j))
           end do
+          !$omp end do
        case (GS_OP_MAX)
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !DIR$ IVDEP
+          !GCC$ ivdep
           !NEC$ IVDEP
-          do concurrent (j = 1:nsrc)
+          !$omp do
+          do j = 1, nsrc
              u(sp(j)) = max(u(sp(j)), gs_caf_recv_buf(half_off + off + j))
           end do
+          !$omp end do
        case default
           call neko_error("Unknown operation in gs_nbwait_caf")
        end select
     end do
 
+    ! The implicit barrier at the last end do guarantees every slab has been
+    ! consumed before the master credits the senders and flips the parity;
+    ! the trailing barrier publishes the new parity to the whole team.
+    !$omp master
     if (gs_caf_mode .eq. GS_CAF_SIGNAL_ATOMIC) then
        ! Credit each sender that we have unpacked their slab so they
        ! may proceed with their next round.
@@ -558,6 +651,8 @@ contains
 
     ! Flip the double-buffer parity for the next round.
     this%parity = 1 - this%parity
+    !$omp end master
+    !$omp barrier
 #else
     call neko_error("Coarray Fortran support not built")
 #endif
@@ -580,6 +675,9 @@ contains
     integer(kind=atomic_int_kind) :: flag
     integer :: me_rank
 
+    ! Same threading split as the scalar path: the nc-component pack is
+    ! work-shared over the dofs of one peer at a time, every coarray
+    ! operation is issued by the master alone.
     half_off = this%parity * gs_caf_buf_size
 
     if (gs_caf_mode .eq. GS_CAF_SIGNAL_SYNC) then
@@ -590,16 +688,22 @@ contains
           dimg = this%send_img(i)
           doff = this%dest_offset(i)
           sp => this%send_dof(dst)%array()
-          do c = 1, nc
-             do concurrent (j = 1:ndst)
+          !$omp do
+          do j = 1, ndst
+             do c = 1, nc
                 this%send_buf(nc*off + (c-1)*ndst + j) = u((c-1)*n + sp(j))
              end do
           end do
+          !$omp end do
+          !$omp master
           gs_caf_recv_buf(half_off + nc*doff + 1 : half_off + nc*doff + nc*ndst) &
                [dimg] = this%send_buf(nc*off + 1 : nc*off + nc*ndst)
+          !$omp end master
        end do
+       !$omp barrier
 #ifdef HAVE_COARRAY_EVENTS
     else if (gs_caf_mode .eq. GS_CAF_SIGNAL_EVENT) then
+       !$omp master
        if (gs_caf_event_in_use) then
           call neko_error("Event-mode coarray gather-scatter does not " // &
                "support overlapping gs ops on different instances")
@@ -613,6 +717,8 @@ contains
        else
           this%send_started = .true.
        end if
+       !$omp end master
+       !$omp barrier
 
        do i = 1, size(this%send_pe)
           dst = this%send_pe(i)
@@ -621,32 +727,39 @@ contains
           dimg = this%send_img(i)
           doff = this%dest_offset(i)
           sp => this%send_dof(dst)%array()
-          do c = 1, nc
-             do concurrent (j = 1:ndst)
+          !$omp do
+          do j = 1, ndst
+             do c = 1, nc
                 this%send_buf(nc*off + (c-1)*ndst + j) = u((c-1)*n + sp(j))
              end do
           end do
+          !$omp end do
+          !$omp master
           gs_caf_recv_buf(half_off + nc*doff + 1 : half_off + nc*doff + nc*ndst) &
                [dimg] = this%send_buf(nc*off + 1 : nc*off + nc*ndst)
           sync memory
           event post(gs_caf_data_ready_ev[dimg])
+          !$omp end master
        end do
+       !$omp barrier
 #endif
     else
-       me_rank = this_image() - 1
-
        do i = 1, size(this%send_pe)
           dst = this%send_pe(i)
           off = this%send_offset(i)
           ndst = this%send_len(i)
           sp => this%send_dof(dst)%array()
-          do c = 1, nc
-             do concurrent (j = 1:ndst)
+          !$omp do
+          do j = 1, ndst
+             do c = 1, nc
                 this%send_buf(nc*off + (c-1)*ndst + j) = u((c-1)*n + sp(j))
              end do
           end do
+          !$omp end do
        end do
 
+       !$omp master
+       me_rank = this_image() - 1
        do i = 1, size(this%send_pe)
           off = this%send_offset(i)
           ndst = this%send_len(i)
@@ -666,6 +779,8 @@ contains
           call atomic_define(gs_caf_data_ready(me_rank)[dimg], &
                int(gs_caf_send_count(this%send_pe(i)), atomic_int_kind))
        end do
+       !$omp end master
+       !$omp barrier
     end if
 #else
     call neko_error("Coarray Fortran support not built")
@@ -693,6 +808,7 @@ contains
 
     half_off = this%parity * gs_caf_buf_size
 
+    !$omp master
     if (gs_caf_mode .eq. GS_CAF_SIGNAL_SYNC) then
        if (allocated(this%sync_img)) then
           if (size(this%sync_img) .gt. 0) then
@@ -715,7 +831,11 @@ contains
           end do
        end do
     end if
+    !$omp end master
+    !$omp barrier
 
+    ! Serial over peers (a dof shared by 3+ ranks appears in several recv
+    ! lists); parallelism is taken within each slab.
     do i = 1, size(this%recv_pe)
        src = this%recv_pe(i)
        off = this%recv_offset(i)
@@ -723,42 +843,47 @@ contains
        sp => this%recv_dof(src)%array()
        select case (op)
        case (GS_OP_ADD)
-          do c = 1, nc
-             !NEC$ IVDEP
-             do concurrent (j = 1:nsrc)
+          !$omp do
+          do j = 1, nsrc
+             do c = 1, nc
                 u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) + &
                      gs_caf_recv_buf(half_off + nc*off + (c-1)*nsrc + j)
              end do
           end do
+          !$omp end do
        case (GS_OP_MUL)
-          do c = 1, nc
-             !NEC$ IVDEP
-             do concurrent (j = 1:nsrc)
+          !$omp do
+          do j = 1, nsrc
+             do c = 1, nc
                 u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) * &
                      gs_caf_recv_buf(half_off + nc*off + (c-1)*nsrc + j)
              end do
           end do
+          !$omp end do
        case (GS_OP_MIN)
-          do c = 1, nc
-             !NEC$ IVDEP
-             do concurrent (j = 1:nsrc)
+          !$omp do
+          do j = 1, nsrc
+             do c = 1, nc
                 u((c-1)*n + sp(j)) = min(u((c-1)*n + sp(j)), &
                      gs_caf_recv_buf(half_off + nc*off + (c-1)*nsrc + j))
              end do
           end do
+          !$omp end do
        case (GS_OP_MAX)
-          do c = 1, nc
-             !NEC$ IVDEP
-             do concurrent (j = 1:nsrc)
+          !$omp do
+          do j = 1, nsrc
+             do c = 1, nc
                 u((c-1)*n + sp(j)) = max(u((c-1)*n + sp(j)), &
                      gs_caf_recv_buf(half_off + nc*off + (c-1)*nsrc + j))
              end do
           end do
+          !$omp end do
        case default
           call neko_error("Unknown operation in gs_nbwait_vec_caf")
        end select
     end do
 
+    !$omp master
     if (gs_caf_mode .eq. GS_CAF_SIGNAL_ATOMIC) then
        me_rank = this_image() - 1
        do i = 1, size(this%recv_pe)
@@ -775,6 +900,8 @@ contains
     end if
 
     this%parity = 1 - this%parity
+    !$omp end master
+    !$omp barrier
 #else
     call neko_error("Coarray Fortran support not built")
 #endif
