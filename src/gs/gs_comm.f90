@@ -244,6 +244,7 @@ contains
   !! freed). No communication resources are set up here; complete the
   !! handover with @a init_schedule once @a src has been freed, so that the
   !! two backends never hold their resources at the same time.
+  !! @param src the backend to take the schedule from, left without one
   subroutine take_schedule(this, src)
     class(gs_comm_t), intent(inout) :: this
     class(gs_comm_t), intent(inout) :: src

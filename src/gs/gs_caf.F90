@@ -181,6 +181,7 @@ contains
   !! NEKO_GS_CAF_SIGNALING=auto. The mode is a program-wide binding shared
   !! by every gs_caf_t instance, so the caller (the gs comm. autotuner) must
   !! bind it once and keep it: see gs_caf_set_mode.
+  !! @return whether the mode should be selected by benchmarking
   function gs_caf_signal_auto() result(auto)
     logical :: auto
     character(len=64) :: env_val
@@ -195,6 +196,7 @@ contains
   !> The signaling modes this build can run, in the order they should be
   !! benchmarked. Events are only available with a compiler that implements
   !! them.
+  !! @return the runnable modes, as GS_CAF_SIGNAL_* constants
   function gs_caf_signal_modes() result(mode)
     integer, allocatable :: mode(:)
     integer :: m(3), n
@@ -214,6 +216,7 @@ contains
 
   !> The signaling mode currently in force, or 0 if none has been bound yet
   !! (no gs_caf_t has been initialised and the autotuner has not run).
+  !! @return the bound mode, a GS_CAF_SIGNAL_* constant, or 0
   function gs_caf_mode_get() result(mode)
     integer :: mode
 
@@ -226,6 +229,7 @@ contains
   end function gs_caf_mode_get
 
   !> Name of the signaling mode @a mode, right-adjusted for the log
+  !! @param mode the mode to name, one of the GS_CAF_SIGNAL_* constants
   function gs_caf_mode_name(mode) result(name)
     integer, intent(in) :: mode
     character(len=12) :: name
@@ -249,6 +253,7 @@ contains
   !! may be called again to switch modes while no gs op is in flight and no
   !! gs_caf_t instance is live -- which is what the autotuner does to
   !! benchmark the modes against each other.
+  !! @param mode the mode to bind, one of the GS_CAF_SIGNAL_* constants
   !! @note Collective: the atomic counters and the event coarrays are
   !! coarrays, so every image must call this in the same order.
   subroutine gs_caf_set_mode(mode)

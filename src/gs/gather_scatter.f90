@@ -403,6 +403,13 @@ contains
   end subroutine gs_init
 
   !> Allocate a gather-scatter comm. backend of type @a comm_bcknd
+  !! @param comm the allocated backend. Must not hold a live backend on
+  !! entry: intent(out) releases it without running its free, which would
+  !! leak whatever resources it holds (symmetric memory, coarrays, uTofu
+  !! VCQs). Both callers free the previous backend themselves, see gs_free
+  !! and gs_comm_switch.
+  !! @param comm_bcknd comm. backend to allocate, one of the GS_COMM_*
+  !! constants
   subroutine gs_comm_alloc(comm, comm_bcknd)
     class(gs_comm_t), allocatable, intent(out) :: comm
     integer, intent(in) :: comm_bcknd
@@ -436,6 +443,7 @@ contains
   !! support was built in, as their init aborts otherwise.
   !! @note The first entry is the backend the gs schedule is built with in
   !! gs_init, and must stay that way (see gs_tune_comm).
+  !! @return the candidate backends, as GS_COMM_* constants
   function gs_comm_host_cand() result(cand)
     integer, allocatable :: cand(:)
     integer :: c(5), n
@@ -471,6 +479,7 @@ contains
 
   !> Name of the gather-scatter comm. backend @a comm_bcknd, right-adjusted
   !! for the log
+  !! @param comm_bcknd comm. backend to name, one of the GS_COMM_* constants
   function gs_comm_name(comm_bcknd) result(name)
     integer, intent(in) :: comm_bcknd
     character(len=12) :: name
@@ -504,6 +513,9 @@ contains
   !! new backend, not recomputed). The old backend is freed before the new
   !! one is set up, so backends holding scarce resources (uTofu VCQs,
   !! symmetric memory, coarrays) never overlap.
+  !! @param gs gather-scatter kernel whose comm. backend is replaced
+  !! @param comm_bcknd comm. backend to switch to, one of the GS_COMM_*
+  !! constants
   !! @note Collective, every rank must switch to the same backend.
   subroutine gs_comm_switch(gs, comm_bcknd)
     type(gs_t), intent(inout) :: gs
@@ -522,6 +534,12 @@ contains
   !> Time @a ntrials gather-scatter operations on @a u, returning the
   !! average wall time (s) per operation. The backend is warmed up and all
   !! ranks are synchronised before the timing window is opened.
+  !! @param gs gather-scatter kernel to time
+  !! @param u working vector to operate on
+  !! @param n length of @a u
+  !! @param op gather-scatter operation, one of the GS_OP_* constants
+  !! @param ntrials number of timed operations to average over
+  !! @return the average wall time (s) per operation on this rank
   function gs_time_ops(gs, u, n, op, ntrials) result(t)
     type(gs_t), intent(inout) :: gs
     integer, intent(in) :: n
@@ -553,6 +571,12 @@ contains
   !! candidate to the next, see gs_comm_t%take_schedule), and @a gs is left
   !! with the fastest backend allocated. On entry @a gs%comm must be the
   !! first candidate, i.e. the backend the schedule was built with.
+  !!
+  !! @param gs gather-scatter kernel to tune, left holding the fastest
+  !! backend
+  !! @param n length of the dummy vector to benchmark on (the dofmap size)
+  !! @param cand comm. backends to consider, as GS_COMM_* constants, in the
+  !! order they are benchmarked (see gs_comm_host_cand)
   !!
   !! @note Setting up and running a comm. backend is collective over
   !! NEKO_COMM (the neighbourhood backend builds a graph communicator, the
@@ -649,6 +673,12 @@ contains
   !! over all ranks before the winner is picked, so every rank binds the
   !! same mode; the returned time is that rank-invariant average, which the
   !! caller's own averaging leaves unchanged.
+  !!
+  !! @param gs gather-scatter kernel to tune, left holding a CAF backend
+  !! running in the winning mode
+  !! @param u working vector to operate on
+  !! @param n length of @a u
+  !! @return the winning mode's average wall time (s) per operation
   function gs_tune_caf_signal(gs, u, n) result(t)
     type(gs_t), intent(inout) :: gs
     integer, intent(in) :: n
