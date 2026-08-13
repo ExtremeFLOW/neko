@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.6</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.7</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -116,7 +116,7 @@ Public Member Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="aff3db0c152fe4232bd1493c8d5614c97" name="aff3db0c152fe4232bd1493c8d5614c97"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aff3db0c152fe4232bd1493c8d5614c97">&#9670;&#160;</a></span>set_scalar_ic_int()</h2>
@@ -169,6 +169,7 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Set scalar initial condition using one of the builtin types currently supported:</p><ul>
 <li>uniform</li>
+<li>expression</li>
 <li>point zone</li>
 <li>field <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -184,24 +185,26 @@ Public Member Functions</h2></td></tr>
 </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic_aff3db0c152fe4232bd1493c8d5614c97_cgraph.png" border="0" usemap="#adf/d8e/interfacescalar__ic_1_1set__scalar__ic_aff3db0c152fe4232bd1493c8d5614c97_cgraph" alt=""/></div>
 <map name="adf/d8e/interfacescalar__ic_1_1set__scalar__ic_aff3db0c152fe4232bd1493c8d5614c97_cgraph" id="adf/d8e/interfacescalar__ic_1_1set__scalar__ic_aff3db0c152fe4232bd1493c8d5614c97_cgraph">
-<area shape="rect" title="Set scalar initial condition (builtin)" alt="" coords="5,133,161,173"/>
+<area shape="rect" title="Set scalar initial condition (builtin)" alt="" coords="5,165,161,205"/>
 <area shape="rect" href="../../d8/da8/namespacejson__utils.html#ab32ecc2e205eaaad7cc379b5271e51b6" title="Extract a sub&#45;object from a json object and returns an empty object if the key is missing." alt="" coords="213,5,359,45"/>
-<area shape="poly" title=" " alt="" coords="106,131,151,94,208,55,219,49,222,54,211,60,155,98,109,135"/>
+<area shape="poly" title=" " alt="" coords="98,163,144,111,174,81,208,55,217,50,220,54,211,60,178,85,148,114,102,167"/>
 <area shape="rect" href="../../d8/ddf/namespacescalar__ic.html#a284c2151baaf62794c62dfa896b63a6b" title="Set scalar initial condition (common)" alt="" coords="209,69,363,109"/>
-<area shape="poly" title=" " alt="" coords="147,131,208,111,210,116,148,136"/>
-<area shape="rect" href="../../d8/ddf/namespacescalar__ic.html#a185d2bd8ca348cdc784e9c325d893f08" title="Set the initial condition of the scalar based on a field. @detail The field is read from an fld file...." alt="" coords="209,133,363,173"/>
-<area shape="poly" title=" " alt="" coords="161,151,195,151,195,156,161,156"/>
-<area shape="rect" href="../../d8/ddf/namespacescalar__ic.html#a1c59efdb48873bad7bf1521a344c1a67" title="Point zone initial condition." alt="" coords="209,197,363,237"/>
-<area shape="poly" title=" " alt="" coords="148,171,210,191,208,196,147,176"/>
-<area shape="rect" href="../../d8/ddf/namespacescalar__ic.html#a09ded6a29d28776765c85df12aca2a67" title="Uniform initial condition." alt="" coords="411,227,564,267"/>
-<area shape="poly" title=" " alt="" coords="104,172,149,212,179,232,210,247,257,258,305,263,353,263,397,260,397,265,353,268,305,268,256,264,208,252,176,237,146,217,101,175"/>
-<area shape="poly" title=" " alt="" coords="363,226,398,231,397,236,363,231"/>
+<area shape="poly" title=" " alt="" coords="121,163,208,119,222,113,224,117,210,124,123,168"/>
+<area shape="rect" href="../../d8/ddf/namespacescalar__ic.html#add56c7a3506632e3796d624c06533b6d" title="Expression initial condition." alt="" coords="209,133,363,173"/>
+<area shape="poly" title=" " alt="" coords="161,170,195,165,196,170,162,176"/>
+<area shape="rect" href="../../d8/ddf/namespacescalar__ic.html#a185d2bd8ca348cdc784e9c325d893f08" title="Set the initial condition of the scalar based on a field. @detail The field is read from an fld file...." alt="" coords="209,197,363,237"/>
+<area shape="poly" title=" " alt="" coords="162,195,196,200,195,206,161,200"/>
+<area shape="rect" href="../../d8/ddf/namespacescalar__ic.html#a1c59efdb48873bad7bf1521a344c1a67" title="Point zone initial condition." alt="" coords="209,261,363,301"/>
+<area shape="poly" title=" " alt="" coords="123,203,210,247,224,253,222,258,208,252,121,208"/>
+<area shape="rect" href="../../d8/ddf/namespacescalar__ic.html#a09ded6a29d28776765c85df12aca2a67" title="Uniform initial condition." alt="" coords="411,291,564,331"/>
+<area shape="poly" title=" " alt="" coords="99,204,117,231,143,261,174,289,210,311,256,325,305,331,352,331,397,326,397,332,353,336,304,336,255,330,208,316,171,294,139,264,113,234,95,207"/>
+<area shape="poly" title=" " alt="" coords="363,290,398,295,397,300,363,295"/>
 </map>
 </div>
 
@@ -261,7 +264,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00156">156</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00164">164</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -284,7 +287,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/ddf/namespacescalar__ic.html">scalar_ic</a></li><li class="navelem"><a class="el" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html">set_scalar_ic</a></li>
-    <li class="footer">Generated on Tue Aug 11 2026 04:02:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Aug 13 2026 04:17:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

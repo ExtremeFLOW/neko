@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.6</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.7</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -133,6 +133,7 @@ $(document).ready(function(){initNavTree('functions_c.html',''); initResizable()
 <li>cfl_r4()&#160;:&#160;<a class="el" href="df/d06/interfaceoperators_1_1cfl.html#a8bac19ec6fe4cefa221abca7bbf2bdb3">operators::cfl</a></li>
 <li>cfl_trg&#160;:&#160;<a class="el" href="d5/dab/structtime__step__controller_1_1time__step__controller__t.html#a75853f5701a8179d6f7553eb47ee8f5b">time_step_controller::time_step_controller_t</a></li>
 <li>cheby&#160;:&#160;<a class="el" href="d5/dec/structphmg_1_1phmg__lvl__t.html#a7a293db7f9ac8df61dd079b8b5a5edb5">phmg::phmg_lvl_t</a></li>
+<li>cheby_acc&#160;:&#160;<a class="el" href="d8/d4e/structphmg_1_1phmg__t.html#afe90c6e1cce81bae225a2759e0b36374">phmg::phmg_t</a></li>
 <li>cheby_device&#160;:&#160;<a class="el" href="d5/dec/structphmg_1_1phmg__lvl__t.html#aa39997738b3e77b1211a4f8de05a4774">phmg::phmg_lvl_t</a></li>
 <li>check()&#160;:&#160;<a class="el" href="d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#a92a8a3e6377a34b0f706b53a8e7978fd">data_streamer_simcomp::data_streamer_simcomp_t</a>, <a class="el" href="df/df8/structfield__subsampler_1_1field__subsampler__t.html#a882355c4ea21bfc529cc25cde43e268b">field_subsampler::field_subsampler_t</a>, <a class="el" href="d1/d27/structsponge__source__term_1_1sponge__source__term__t.html#a059bff9e053cbe32f3d406583e1310ba">sponge_source_term::sponge_source_term_t</a>, <a class="el" href="db/de7/structtime__based__controller_1_1time__based__controller__t.html#af83caef332ca1f4a46398b24bdc027d7">time_based_controller::time_based_controller_t</a></li>
 <li>check_exists()&#160;:&#160;<a class="el" href="d5/d37/structgeneric__file_1_1generic__file__t.html#a6019f3063f90b496f9ab9d84a4bb472b">generic_file::generic_file_t</a></li>
@@ -251,6 +252,7 @@ $(document).ready(function(){initNavTree('functions_c.html',''); initResizable()
 <li>cr_k1&#160;:&#160;<a class="el" href="d0/d27/structadv__oifs_1_1adv__oifs__t.html#a90decfbaa02f32f67e99fb5549dd18fb">adv_oifs::adv_oifs_t</a></li>
 <li>cr_k23&#160;:&#160;<a class="el" href="d0/d27/structadv__oifs_1_1adv__oifs__t.html#ada646078748bb2fae19859b5055ceb6f">adv_oifs::adv_oifs_t</a></li>
 <li>cr_k4&#160;:&#160;<a class="el" href="d0/d27/structadv__oifs_1_1adv__oifs__t.html#a6a05212c2d515cc4a971fa67ffbf04ac">adv_oifs::adv_oifs_t</a></li>
+<li>crd_intrp&#160;:&#160;<a class="el" href="d8/d4e/structphmg_1_1phmg__t.html#a7a7040aab4b5d68c08cfebb56f136e31">phmg::phmg_t</a></li>
 <li>create_periodic_ids()&#160;:&#160;<a class="el" href="d7/d28/structmesh_1_1mesh__t.html#a1647f3878b8cefdf50b57f05fad05157">mesh::mesh_t</a></li>
 <li>criterion()&#160;:&#160;<a class="el" href="d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#ae9985132afdc0b4ddffb31b09a779fde">box_point_zone::box_point_zone_t</a>, <a class="el" href="d9/d38/structcombine__point__zone_1_1combine__point__zone__t.html#aa001de5757dfa93a7ce12142541bf854">combine_point_zone::combine_point_zone_t</a>, <a class="el" href="d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html#a07f62f5fdc799763879e97bb98777668">cylinder_point_zone::cylinder_point_zone_t</a>, <a class="el" href="d6/d13/structpoint__zone_1_1point__zone__t.html#acb47d75383a81be32fbe3c7a8c48e178">point_zone::point_zone_t</a>, <a class="el" href="d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html#a88ba9b4d371fa1645d277b454aab57c1">sphere_point_zone::sphere_point_zone_t</a></li>
 <li>crs_solver&#160;:&#160;<a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#aebcfeb4e84e3be80bce45413594fa0fb">hsmg::hsmg_t</a></li>
@@ -378,6 +380,7 @@ $(document).ready(function(){initNavTree('functions_c.html',''); initResizable()
 <li>cudastreamdestroy()&#160;:&#160;<a class="el" href="d3/d7c/interfacecuda__intf_1_1cudastreamdestroy.html#abd912f911ab10cb80a9c9f0c931d51e3">cuda_intf::cudastreamdestroy</a></li>
 <li>cudastreamsynchronize()&#160;:&#160;<a class="el" href="d2/d9f/interfacecuda__intf_1_1cudastreamsynchronize.html#a7c792ced47bdf03b2fb90a04b750e0ea">cuda_intf::cudastreamsynchronize</a></li>
 <li>cudastreamwaitevent()&#160;:&#160;<a class="el" href="d7/d0b/interfacecuda__intf_1_1cudastreamwaitevent.html#a0872a948d1744cc2ef57a9838128e7e8">cuda_intf::cudastreamwaitevent</a></li>
+<li>cur&#160;:&#160;<a class="el" href="da/d23/structexpression_1_1parser__t.html#aeafedbe4bf2f4318809d1b70802f5f4c">expression::parser_t</a></li>
 <li>curl_x&#160;:&#160;<a class="el" href="d7/d9c/structcurl__simcomp_1_1curl__t.html#a82b7ec7dea2c11d3efd122ae07590671">curl_simcomp::curl_t</a></li>
 <li>curl_y&#160;:&#160;<a class="el" href="d7/d9c/structcurl__simcomp_1_1curl__t.html#a91ec7a5cda6b1e93b21a4dead06b1a0f">curl_simcomp::curl_t</a></li>
 <li>curl_z&#160;:&#160;<a class="el" href="d7/d9c/structcurl__simcomp_1_1curl__t.html#a6fbdd540a1da961a2594098f4c575fb5">curl_simcomp::curl_t</a></li>
@@ -403,7 +406,7 @@ $(document).ready(function(){initNavTree('functions_c.html',''); initResizable()
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Aug 11 2026 04:02:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Aug 13 2026 04:17:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

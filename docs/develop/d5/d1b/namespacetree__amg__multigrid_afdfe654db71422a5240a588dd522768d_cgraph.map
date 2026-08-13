@@ -1,19 +1,21 @@
 <map id="tree_amg_multigrid::tamg_mg_init" name="tree_amg_multigrid::tamg_mg_init">
-<area shape="rect" id="Node000001" title="Initialization of the TreeAMG multigrid solver." alt="" coords="5,340,156,380"/>
+<area shape="rect" id="Node000001" title="Initialization of the TreeAMG multigrid solver." alt="" coords="5,372,156,412"/>
 <area shape="rect" id="Node000002" href="$da/d77/namespacetree__amg__aggregate.html#a2bbacf70f1edcab65c424b998f5506af" title="Aggregate all dofs to a single point to form a tree&#45;like structure." alt="" coords="215,87,372,127"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,339,100,297,124,243,158,186,179,160,202,137,209,132,212,136,206,141,183,164,162,189,129,245,105,299,90,341"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="84,371,96,324,119,261,154,195,176,164,202,137,208,132,211,136,206,141,180,167,159,198,124,263,102,325,89,372"/>
 <area shape="rect" id="Node000003" href="$da/d77/namespacetree__amg__aggregate.html#a98e7b195bc43fad16dcf171919c3e38d" title="Aggregaiton on finest level Aggregates all dofs in an element into a single aggregate." alt="" coords="204,151,383,191"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="103,338,258,198,261,202,106,342"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="99,370,261,199,265,203,103,374"/>
 <area shape="rect" id="Node000009" href="$da/d77/namespacetree__amg__aggregate.html#a6b8dcb1915a0e9af672e75db09450d37" title="Aggregates dofs based on adjacent dofs." alt="" coords="215,340,372,380"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="156,357,201,357,201,363,156,363"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="156,378,200,371,201,377,156,383"/>
 <area shape="rect" id="Node000016" href="$da/d77/namespacetree__amg__aggregate.html#a47299926f3ee5d2dc3258c060f494626" title="Aggregates pairs of dofs based on adjacent dofs." alt="" coords="215,276,372,316"/>
-<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="147,337,212,317,214,323,149,342"/>
-<area shape="rect" id="Node000017" href="$d5/d1b/namespacetree__amg__multigrid.html#aa0ebd4855c075a56ae22ef03102f9309" title="Create index mapping between levels and directly to finest level." alt="" coords="218,404,369,444"/>
-<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="149,378,214,397,212,403,147,383"/>
-<area shape="rect" id="Node000018" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="219,469,367,494"/>
-<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="104,378,148,416,205,454,223,462,221,466,203,458,145,421,101,382"/>
-<area shape="rect" id="Node000019" href="$d5/d1b/namespacetree__amg__multigrid.html#ae9544147240c44b12f36fd1177adbc4a" title=" " alt="" coords="218,519,369,559"/>
-<area shape="poly" id="edge20_Node000001_Node000019" title=" " alt="" coords="96,379,140,441,170,475,206,505,214,510,211,514,202,509,167,479,136,444,92,382"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="116,370,203,326,220,319,222,323,205,330,118,374"/>
+<area shape="rect" id="Node000017" href="$d5/d1b/namespacetree__amg__multigrid.html#a58d594927b8d7a5b8e4dee65c1b2460f" title="Build the transpose of map_finest2lvl in CSR form: for every aggregate on a level,..." alt="" coords="218,404,369,444"/>
+<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="156,401,205,408,204,413,156,406"/>
+<area shape="rect" id="Node000018" href="$d5/d1b/namespacetree__amg__multigrid.html#aa0ebd4855c075a56ae22ef03102f9309" title="Create index mapping between levels and directly to finest level." alt="" coords="218,468,369,508"/>
+<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="118,410,205,454,222,461,220,465,203,458,116,414"/>
+<area shape="rect" id="Node000019" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="219,533,367,558"/>
+<area shape="poly" id="edge20_Node000001_Node000019" title=" " alt="" coords="98,410,142,464,172,493,205,518,220,525,218,530,203,522,168,497,138,468,94,414"/>
+<area shape="rect" id="Node000020" href="$d5/d1b/namespacetree__amg__multigrid.html#ae9544147240c44b12f36fd1177adbc4a" title=" " alt="" coords="218,583,369,623"/>
+<area shape="poly" id="edge21_Node000001_Node000020" title=" " alt="" coords="93,411,110,445,135,487,167,531,206,569,213,574,210,578,202,573,163,534,130,490,105,448,88,413"/>
 <area shape="rect" id="Node000004" href="$da/d77/namespacetree__amg__aggregate.html#ab760962db302cfd723b1ff3cb8ecb3df" title=" " alt="" coords="448,111,615,166"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="383,156,434,149,435,154,383,161"/>
 <area shape="rect" id="Node000005" href="$d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="462,190,601,215"/>

@@ -2,8 +2,10 @@ var structtree__amg__multigrid_1_1tamg__solver__t =
 [
     [ "free", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#af42cc6d3ecb898236d8f1d27d77dfe2f", null ],
     [ "init", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a3a6a9180d01388a61971e7955aa4d8be", null ],
+    [ "invalidate_eigs", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#aa45cc2c90b42a1e09b5878ac96b63c75", null ],
     [ "mg_cycle", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a781dd532b6b637f8273ac5f93ba37fcf", null ],
     [ "mg_cycle_d", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a2dc2582b16f3a75739c56fa17af5d4c2", null ],
+    [ "set_eig_refresh", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a38c02417fc104430022a30158f0aa930", null ],
     [ "solve", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#aa7a0b5f5b869c63fe07730bd543b0eb5", null ],
     [ "amg", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a3132e8e62d28912ea3914519cc985670", null ],
     [ "max_iter", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a85574f0489be9692da7e764753026381", null ],

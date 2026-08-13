@@ -206,6 +206,9 @@ var namespaces_dup =
       [ "entropy_viscosity_smooth_divide_cpu", "d4/d05/namespaceentropy__viscosity__cpu.html#a9ead36765ddba96b03e43e973a0dff3d", null ]
     ] ],
     [ "entropy_viscosity_device", "d0/d70/namespaceentropy__viscosity__device.html", "d0/d70/namespaceentropy__viscosity__device" ],
+    [ "expression", "df/d95/namespaceexpression.html", "df/d95/namespaceexpression" ],
+    [ "expression_dirichlet", "db/de8/namespaceexpression__dirichlet.html", "db/de8/namespaceexpression__dirichlet" ],
+    [ "expression_dirichlet_vector", "db/d90/namespaceexpression__dirichlet__vector.html", "db/d90/namespaceexpression__dirichlet__vector" ],
     [ "ext_time_scheme", "d2/d75/namespaceext__time__scheme.html", "d2/d75/namespaceext__time__scheme" ],
     [ "facet_normal", "d4/d86/namespacefacet__normal.html", "d4/d86/namespacefacet__normal" ],
     [ "facet_zone", "df/db1/namespacefacet__zone.html", "df/db1/namespacefacet__zone" ],

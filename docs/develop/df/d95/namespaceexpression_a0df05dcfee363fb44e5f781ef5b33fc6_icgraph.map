@@ -1,0 +1,16 @@
+<map id="expression::parse_term" name="expression::parse_term">
+<area shape="rect" id="Node000001" title="Parse a multiplicative expression." alt="" coords="937,80,1112,105"/>
+<area shape="rect" id="Node000002" href="$df/d95/namespaceexpression.html#af1004f3fa142e027b50994e63baf6fa3" title="Parse an additive expression." alt="" coords="716,55,889,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="924,84,889,80,890,75,924,79"/>
+<area shape="rect" id="Node000003" href="$df/d95/namespaceexpression.html#a64c73e9cd7bd15c57d859520508e62f8" title="Compile an expression." alt="" coords="468,5,668,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="728,54,629,33,630,28,729,49"/>
+<area shape="rect" id="Node000004" href="$df/d95/namespaceexpression.html#ac7e48db9a0cf6bf7d1c05b86caf11330" title="Parse a literal, a symbol, a function call or a parenthesised expression." alt="" coords="471,55,665,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="702,70,666,70,666,65,702,65"/>
+<area shape="rect" id="Node000005" href="$df/d95/namespaceexpression.html#af8ca67cc302e6cdfd3154623f0597b34" title="Parse an exponentiation. Right associative, so 2^3^2 is 2^(3^2)." alt="" coords="236,55,420,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="457,70,420,70,420,65,457,65"/>
+<area shape="rect" id="Node000006" href="$df/d95/namespaceexpression.html#a1a626d0f9ee780e624c8dc48908fd710" title="Parse a possibly signed factor. Unary minus binds looser than ^, so &#45;x^2 is &#45;(x^2),..." alt="" coords="5,55,188,80"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="222,79,188,79,188,73,222,74"/>
+<area shape="poly" id="edge8_Node000006_Node000001" title=" " alt="" coords="168,80,236,90,432,102,627,104,802,101,937,95,937,100,802,106,627,109,432,107,236,95,167,85"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="202,56,236,56,236,61,202,61"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="138,46,127,37,97,33,72,35,59,40,56,46,63,53,59,56,51,46,55,36,71,30,97,28,129,32,141,41"/>
+</map>

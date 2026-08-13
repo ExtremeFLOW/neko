@@ -1,0 +1,7 @@
+<map id="expression::parse_symbol" name="expression::parse_symbol">
+<area shape="rect" id="Node000001" title="Resolve a bare identifier into either a variable opcode or a literal." alt="" coords="5,31,197,56"/>
+<area shape="rect" id="Node000002" href="$df/d95/namespaceexpression.html#ac78197d179f186708845842cfef1663a" title="Append an opcode, keeping track of how deep the evaluation stack gets." alt="" coords="264,5,395,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,30,250,24,251,29,198,35"/>
+<area shape="rect" id="Node000003" href="$df/d95/namespaceexpression.html#a38f30fba25d591fa867c41f27b5de43b" title="Abort with a message pointing at the offending part of the expression." alt="" coords="245,55,413,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,51,232,54,231,60,197,56"/>
+</map>

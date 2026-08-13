@@ -1,6 +1,9 @@
 var structtree__amg_1_1tamg__lvl__t =
 [
     [ "free", "d8/d61/structtree__amg_1_1tamg__lvl__t.html#a32fca3d62996023f88571b3e1ce17c98", null ],
+    [ "agg_dof", "d8/d61/structtree__amg_1_1tamg__lvl__t.html#a43fd7d9ccf2e8593df0f06c0689bd597", null ],
+    [ "agg_part", "d8/d61/structtree__amg_1_1tamg__lvl__t.html#a036c6ba8718617300777a415a6ed1efe", null ],
+    [ "agg_ptr", "d8/d61/structtree__amg_1_1tamg__lvl__t.html#aeafe95d84a55be16d82f3d9a45bafa71", null ],
     [ "fine_lvl_dofs", "d8/d61/structtree__amg_1_1tamg__lvl__t.html#a342f1977a1800b476d5de8780ec81158", null ],
     [ "lvl", "d8/d61/structtree__amg_1_1tamg__lvl__t.html#a5e3f3147820147c3d12211e3b40707a1", null ],
     [ "map_f2c", "d8/d61/structtree__amg_1_1tamg__lvl__t.html#a0d1add5ff3785f69c7acde862daa8e67", null ],

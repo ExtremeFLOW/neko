@@ -13,5 +13,8 @@ var searchData=
   ['elementwise_5ffilter_5ft_10',['elementwise_filter_t',['../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html',1,'elementwise_filter']]],
   ['entity_5ft_11',['entity_t',['../da/d8b/structentity_1_1entity__t.html',1,'entity']]],
   ['entropy_5fviscosity_5ft_12',['entropy_viscosity_t',['../da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html',1,'entropy_viscosity']]],
-  ['ext_5ftime_5fscheme_5ft_13',['ext_time_scheme_t',['../d2/d90/structext__time__scheme_1_1ext__time__scheme__t.html',1,'ext_time_scheme']]]
+  ['expression_5fdirichlet_5ft_13',['expression_dirichlet_t',['../da/de6/structexpression__dirichlet_1_1expression__dirichlet__t.html',1,'expression_dirichlet']]],
+  ['expression_5fdirichlet_5fvector_5ft_14',['expression_dirichlet_vector_t',['../de/d15/structexpression__dirichlet__vector_1_1expression__dirichlet__vector__t.html',1,'expression_dirichlet_vector']]],
+  ['expression_5ft_15',['expression_t',['../d1/dcf/structexpression_1_1expression__t.html',1,'expression']]],
+  ['ext_5ftime_5fscheme_5ft_16',['ext_time_scheme_t',['../d2/d90/structext__time__scheme_1_1ext__time__scheme__t.html',1,'ext_time_scheme']]]
 ];

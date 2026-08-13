@@ -1,0 +1,5 @@
+<map id="expression::parser_t" name="expression::parser_t">
+<area shape="rect" id="Node000001" title="State of the recursive descent parser." alt="" coords="5,93,160,119"/>
+<area shape="rect" id="Node000002" href="$dc/df0/structexpression_1_1token__t.html" title="A single token of an expression." alt="" coords="8,5,157,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,45,85,93,80,93,80,45"/>
+</map>

@@ -58,6 +58,8 @@ var hierarchy =
       [ "blasius::blasius_t", "d0/dca/structblasius_1_1blasius__t.html", null ],
       [ "dirichlet::dirichlet_t", "df/dd9/structdirichlet_1_1dirichlet__t.html", null ],
       [ "dong_outflow::dong_outflow_t", "d0/d88/structdong__outflow_1_1dong__outflow__t.html", null ],
+      [ "expression_dirichlet::expression_dirichlet_t", "da/de6/structexpression__dirichlet_1_1expression__dirichlet__t.html", null ],
+      [ "expression_dirichlet_vector::expression_dirichlet_vector_t", "de/d15/structexpression__dirichlet__vector_1_1expression__dirichlet__vector__t.html", null ],
       [ "facet_normal::facet_normal_t", "d1/d1e/structfacet__normal_1_1facet__normal__t.html", null ],
       [ "field_dirichlet::field_dirichlet_t", "d9/da8/structfield__dirichlet_1_1field__dirichlet__t.html", null ],
       [ "field_dirichlet_vector::field_dirichlet_vector_t", "da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html", null ],
@@ -293,6 +295,7 @@ var hierarchy =
       ] ],
       [ "point::point_t", "db/d6f/structpoint_1_1point__t.html", null ]
     ] ],
+    [ "expression::expression_t", "d1/dcf/structexpression_1_1expression__t.html", null ],
     [ "most_cpu::f_interface", "dd/d2d/interfacemost__cpu_1_1f__interface.html", null ],
     [ "facet_zone::facet_zone_t", "d2/d94/structfacet__zone_1_1facet__zone__t.html", [
       [ "facet_zone::facet_zone_periodic_t", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html", null ]
@@ -845,6 +848,7 @@ var hierarchy =
     ] ],
     [ "parmetis::parmetis_v3_partgeom", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom.html", null ],
     [ "parmetis::parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", null ],
+    [ "expression::parser_t", "da/d23/structexpression_1_1parser__t.html", null ],
     [ "particles::particles_t", "d7/d84/structparticles_1_1particles__t.html", null ],
     [ "precon::pc_solve", "df/db4/interfaceprecon_1_1pc__solve.html", null ],
     [ "precon::pc_t", "d7/d3a/structprecon_1_1pc__t.html", [
@@ -1154,6 +1158,7 @@ var hierarchy =
     ] ],
     [ "time_state::time_state_t", "d7/d90/structtime__state_1_1time__state__t.html", null ],
     [ "time_step_controller::time_step_controller_t", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html", null ],
+    [ "expression::token_t", "dc/df0/structexpression_1_1token__t.html", null ],
     [ "tensor::transpose", "db/da7/interfacetensor_1_1transpose.html", null ],
     [ "tri_mesh::tri_mesh_t", "d2/dd7/structtri__mesh_1_1tri__mesh__t.html", null ],
     [ "tensor::triple_tensor_product", "dc/d32/interfacetensor_1_1triple__tensor__product.html", null ],

@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.6</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.7</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -153,11 +153,11 @@ Experimental workflows</h2>
 High-order boundary representation</h1>
 <p>The polynomial order in the case file determines the number of GLL points used inside an element. It does not, by itself, make a boundary curved: a mesh whose elements are specified only by their corner vertices has a linear (bilinear in 2D or trilinear in 3D) geometric map. A high-order boundary representation is obtained when the coordinates of the GLL points on that boundary are modified while the geometry is constructed.</p>
 <p>Neko provides the following routes.</p>
-<h2><a class="anchor" id="autotoc_md166"></a>
+<h2><a class="anchor" id="autotoc_md167"></a>
 Curves stored in the mesh file</h2>
 <p>Besides its vertex and boundary-zone records, an <code>.nmsh</code> file can contain a curve record for an element. Each record supplies curve data and a type for each of its edges. Neko currently constructs geometry for circular arcs (<code>'C'</code> in a Nek5000 <code>.<a class="el" href="../../dd/da1/namespacere2.html" title="NEKTON re2 format.">re2</a></code> file) and mapped curves (<code>'m'</code>): the latter uses an edge midpoint to construct a quadratic map. The resulting coordinates at the GLL points are generated when the function space is initialized.</p>
 <p>This is the appropriate route when the boundary can be described by these Nek5000 curve types. The usual workflow is to retain the curve information in the <code>.<a class="el" href="../../dd/da1/namespacere2.html" title="NEKTON re2 format.">re2</a></code> mesh and convert it with <code>rea2nbin</code>; the curve block is then carried into the <code>.nmsh</code> file. In particular, simply exporting a high-order mesh from another tool is not sufficient unless its converter writes Neko curve records. The exact record layout and the currently supported type codes are described in the <a class="el" href="../../d0/d5b/nmsh-format.html">`.nmsh` format appendix</a>.</p>
-<h2><a class="anchor" id="autotoc_md167"></a>
+<h2><a class="anchor" id="autotoc_md168"></a>
 User-defined geometry deformation</h2>
 <p>For a boundary that is not an arc or mapped curve, install an <code>apply_deform</code> procedure on the mesh from the user-file <code>mesh_setup</code> hook. The hook is called after the mesh is read but before the solvers create their coordinate fields; the deformation procedure itself is called after Neko has generated the linear and any file-defined curved geometry at all GLL points. It can therefore project the nodes of selected boundary facets onto an analytic surface or apply another high-order mapping.</p>
 <p>The user-file setup and registration are described under <a class="el" href="../../d6/def/user-file.html#user-file_user-mesh-setup">runtime mesh</a>deformation".
@@ -202,7 +202,7 @@ create_periodic_zones input.nmsh output.nmsh "(1,2)" --tol=1.0e-7 </p>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Tue Aug 11 2026 04:02:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Aug 13 2026 04:17:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

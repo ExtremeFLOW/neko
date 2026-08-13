@@ -1,5 +1,7 @@
 <map id="cuda_inhom_dirichlet_apply_scalar" name="cuda_inhom_dirichlet_apply_scalar">
-<area shape="rect" id="Node000001" title=" " alt="" coords="235,13,396,53"/>
-<area shape="rect" id="Node000002" href="$d1/dc8/namespacedevice__inhom__dirichlet.html#a1fee6e206a4853c92b15abb81319acf0" title=" " alt="" coords="5,5,187,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,35,187,35,187,30,221,30"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="444,13,605,53"/>
+<area shape="rect" id="Node000002" href="$d1/dc8/namespacedevice__inhom__dirichlet.html#a1fee6e206a4853c92b15abb81319acf0" title=" " alt="" coords="215,5,396,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="430,35,396,35,396,30,430,30"/>
+<area shape="rect" id="Node000003" href="$db/de8/namespaceexpression__dirichlet.html#a77a37fadf5dd3f6440c55df4fc92099c" title="Apply the condition to a scalar field (device version)." alt="" coords="5,5,167,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="201,35,167,35,167,30,201,30"/>
 </map>

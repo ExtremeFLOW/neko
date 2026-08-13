@@ -530,6 +530,17 @@ var annotated_dup =
       [ "hip_entropy_visc_compute_viscosity", "da/d1b/interfaceentropy__viscosity__device_1_1hip__entropy__visc__compute__viscosity.html", "da/d1b/interfaceentropy__viscosity__device_1_1hip__entropy__visc__compute__viscosity" ],
       [ "hip_entropy_visc_smooth_divide", "dd/d60/interfaceentropy__viscosity__device_1_1hip__entropy__visc__smooth__divide.html", "dd/d60/interfaceentropy__viscosity__device_1_1hip__entropy__visc__smooth__divide" ]
     ] ],
+    [ "expression", "df/d95/namespaceexpression.html", [
+      [ "expression_t", "d1/dcf/structexpression_1_1expression__t.html", "d1/dcf/structexpression_1_1expression__t" ],
+      [ "parser_t", "da/d23/structexpression_1_1parser__t.html", "da/d23/structexpression_1_1parser__t" ],
+      [ "token_t", "dc/df0/structexpression_1_1token__t.html", "dc/df0/structexpression_1_1token__t" ]
+    ] ],
+    [ "expression_dirichlet", "db/de8/namespaceexpression__dirichlet.html", [
+      [ "expression_dirichlet_t", "da/de6/structexpression__dirichlet_1_1expression__dirichlet__t.html", "da/de6/structexpression__dirichlet_1_1expression__dirichlet__t" ]
+    ] ],
+    [ "expression_dirichlet_vector", "db/d90/namespaceexpression__dirichlet__vector.html", [
+      [ "expression_dirichlet_vector_t", "de/d15/structexpression__dirichlet__vector_1_1expression__dirichlet__vector__t.html", "de/d15/structexpression__dirichlet__vector_1_1expression__dirichlet__vector__t" ]
+    ] ],
     [ "ext_time_scheme", "d2/d75/namespaceext__time__scheme.html", [
       [ "ext_time_scheme_t", "d2/d90/structext__time__scheme_1_1ext__time__scheme__t.html", "d2/d90/structext__time__scheme_1_1ext__time__scheme__t" ]
     ] ],

@@ -11,6 +11,9 @@ var searchData=
   ['entropy_5fviscosity_5fcpu_2ef90_8',['entropy_viscosity_cpu.f90',['../d0/d7b/entropy__viscosity__cpu_8f90.html',1,'']]],
   ['entropy_5fviscosity_5fdevice_2ef90_9',['entropy_viscosity_device.F90',['../d3/d5e/entropy__viscosity__device_8F90.html',1,'']]],
   ['entropy_5fviscosity_5fkernel_2eh_10',['entropy_viscosity_kernel.h',['../d1/d7a/cuda_2entropy__viscosity__kernel_8h.html',1,'(Global Namespace)'],['../d9/d27/hip_2entropy__viscosity__kernel_8h.html',1,'(Global Namespace)']]],
-  ['ext_5ftime_5fscheme_2ef90_11',['ext_time_scheme.f90',['../d3/d32/ext__time__scheme_8f90.html',1,'']]],
-  ['extension_2emd_12',['extension.md',['../da/d98/extension_8md.html',1,'']]]
+  ['expression_2ef90_11',['expression.f90',['../dd/dde/expression_8f90.html',1,'']]],
+  ['expression_5fdirichlet_2ef90_12',['expression_dirichlet.f90',['../dc/d7e/expression__dirichlet_8f90.html',1,'']]],
+  ['expression_5fdirichlet_5fvector_2ef90_13',['expression_dirichlet_vector.f90',['../d0/d87/expression__dirichlet__vector_8f90.html',1,'']]],
+  ['ext_5ftime_5fscheme_2ef90_14',['ext_time_scheme.f90',['../d3/d32/ext__time__scheme_8f90.html',1,'']]],
+  ['extension_2emd_15',['extension.md',['../da/d98/extension_8md.html',1,'']]]
 ];

@@ -23,12 +23,13 @@ var searchData=
   ['xh_5fto_5fyht_20',['xh_to_yht',['../db/d74/structinterpolation_1_1interpolator__t.html#a3d0e146884779844de14b3782a4e4197',1,'interpolation::interpolator_t']]],
   ['xh_5fyh_5fd_21',['xh_yh_d',['../db/d74/structinterpolation_1_1interpolator__t.html#a11e24943a3dfefafa0579abd74841070',1,'interpolation::interpolator_t']]],
   ['xh_5fyht_5fd_22',['xh_yht_d',['../db/d74/structinterpolation_1_1interpolator__t.html#a21961cdca8012a01d9ffee264f05525d',1,'interpolation::interpolator_t']]],
-  ['xmax_23',['xmax',['../d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#af3044a770909233ff9259e5f9ddafefe',1,'box_point_zone::box_point_zone_t']]],
-  ['xmin_24',['xmin',['../d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#ade062a581f4beb39380e0ac31bd42f3f',1,'box_point_zone::box_point_zone_t']]],
-  ['xp_25',['xp',['../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021',1,'num_types']]],
-  ['xx_26',['xx',['../d5/dcf/structprojection_1_1projection__t.html#a99754c7527eefd4772ad37f305811471',1,'projection::projection_t']]],
-  ['xx_5fd_27',['xx_d',['../d5/dcf/structprojection_1_1projection__t.html#aabb5bbe9eb0216dcc8b2b39194c62202',1,'projection::projection_t']]],
-  ['xx_5fd_5fd_28',['xx_d_d',['../d5/dcf/structprojection_1_1projection__t.html#a4fba2fb95391cfe7b01d5e963f4555e1',1,'projection::projection_t']]],
-  ['xyz_29',['xyz',['../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a79ab1eaa5bf05941c0e8e0cde6a6d498',1,'global_interpolation::global_interpolation_t::xyz'],['../d5/db1/structtree__amg_1_1tamg__node__t.html#a204e8f6f22ba5fa890b15bf3bb9b65c6',1,'tree_amg::tamg_node_t::xyz'],['../d7/dd3/structprobes_1_1probes__t.html#a980f9192a9d910dea4b5dc0b3ff9dbcd',1,'probes::probes_t::xyz']]],
-  ['xyz_5flocal_30',['xyz_local',['../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a44f5e029e069a46f6d48388f6f194644',1,'global_interpolation::global_interpolation_t']]]
+  ['xm_23',['xm',['../da/de6/structexpression__dirichlet_1_1expression__dirichlet__t.html#ad56dae32db5da07696ad71b84275118f',1,'expression_dirichlet::expression_dirichlet_t::xm'],['../de/d15/structexpression__dirichlet__vector_1_1expression__dirichlet__vector__t.html#a0600015f9e0b0106815a184a90697bfe',1,'expression_dirichlet_vector::expression_dirichlet_vector_t::xm']]],
+  ['xmax_24',['xmax',['../d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#af3044a770909233ff9259e5f9ddafefe',1,'box_point_zone::box_point_zone_t']]],
+  ['xmin_25',['xmin',['../d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#ade062a581f4beb39380e0ac31bd42f3f',1,'box_point_zone::box_point_zone_t']]],
+  ['xp_26',['xp',['../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021',1,'num_types']]],
+  ['xx_27',['xx',['../d5/dcf/structprojection_1_1projection__t.html#a99754c7527eefd4772ad37f305811471',1,'projection::projection_t']]],
+  ['xx_5fd_28',['xx_d',['../d5/dcf/structprojection_1_1projection__t.html#aabb5bbe9eb0216dcc8b2b39194c62202',1,'projection::projection_t']]],
+  ['xx_5fd_5fd_29',['xx_d_d',['../d5/dcf/structprojection_1_1projection__t.html#a4fba2fb95391cfe7b01d5e963f4555e1',1,'projection::projection_t']]],
+  ['xyz_30',['xyz',['../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a79ab1eaa5bf05941c0e8e0cde6a6d498',1,'global_interpolation::global_interpolation_t::xyz'],['../d5/db1/structtree__amg_1_1tamg__node__t.html#a204e8f6f22ba5fa890b15bf3bb9b65c6',1,'tree_amg::tamg_node_t::xyz'],['../d7/dd3/structprobes_1_1probes__t.html#a980f9192a9d910dea4b5dc0b3ff9dbcd',1,'probes::probes_t::xyz']]],
+  ['xyz_5flocal_31',['xyz_local',['../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a44f5e029e069a46f6d48388f6f194644',1,'global_interpolation::global_interpolation_t']]]
 ];

@@ -1,0 +1,5 @@
+<map id="phmg::phmg_update_coarse_geometry" name="phmg::phmg_update_coarse_geometry">
+<area shape="rect" id="Node000001" title="Sample the new fine coordinates on the coarse levels and rebuild their metrics. Level 0 shares the ca..." alt="" coords="209,5,416,45"/>
+<area shape="rect" id="Node000002" href="$d1/d38/namespacephmg.html#a4b4699e6c222fd54365a713d9571a23d" title="Bring the preconditioner back in sync after the mesh has changed." alt="" coords="5,13,161,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,28,161,28,161,23,196,23"/>
+</map>

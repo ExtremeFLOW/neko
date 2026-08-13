@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.6</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.7</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -129,6 +129,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a6b4c73702cac8cb46dd2a803491ea0ac" id="r_a6b4c73702cac8cb46dd2a803491ea0ac"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d13/namespaceflow__ic.html#a6b4c73702cac8cb46dd2a803491ea0ac">set_flow_ic_uniform</a> (u, v, w, uinf)</td></tr>
 <tr class="memdesc:a6b4c73702cac8cb46dd2a803491ea0ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uniform initial condition.  <br /></td></tr>
 <tr class="separator:a6b4c73702cac8cb46dd2a803491ea0ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa12cfd84289d6030cd1376644fd98ca2" id="r_aa12cfd84289d6030cd1376644fd98ca2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d13/namespaceflow__ic.html#aa12cfd84289d6030cd1376644fd98ca2">set_flow_ic_expression</a> (u, v, w, expr)</td></tr>
+<tr class="memdesc:aa12cfd84289d6030cd1376644fd98ca2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the initial condition from one mathematical expression per velocity component.  <br /></td></tr>
+<tr class="separator:aa12cfd84289d6030cd1376644fd98ca2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff7567086e0593009521c74afc760ff4" id="r_aff7567086e0593009521c74afc760ff4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4">set_flow_ic_blasius</a> (u, v, w, delta, uinf, type)</td></tr>
 <tr class="memdesc:aff7567086e0593009521c74afc760ff4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a Blasius profile as initial condition.  <br /></td></tr>
 <tr class="separator:aff7567086e0593009521c74afc760ff4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -216,7 +219,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00185">185</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00196">196</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 
 </div>
 </div>
@@ -250,13 +253,13 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>delta</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(3), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(3), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>uinf</em>, </td>
         </tr>
         <tr>
@@ -279,7 +282,7 @@ Functions/Subroutines</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>currently limited to axis aligned flow </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00301">301</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00361">361</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -351,7 +354,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00234">234</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00245">245</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -364,6 +367,75 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="218,107,168,107,168,102,218,102"/>
 <area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#a3ae0362448781bf4610527ffa9d6e081" title="Set intial flow condition (user defined)" alt="" coords="21,149,168,189"/>
 <area shape="poly" title=" " alt="" coords="226,131,162,151,160,146,225,126"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="aa12cfd84289d6030cd1376644fd98ca2" name="aa12cfd84289d6030cd1376644fd98ca2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa12cfd84289d6030cd1376644fd98ca2">&#9670;&#160;</a></span>set_flow_ic_expression()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> flow_ic::set_flow_ic_expression </td>
+          <td>(</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>w</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>expr</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The expressions are evaluated in every GLL point of the mesh, with <code>x</code>, <code>y</code> and <code>z</code> bound to the coordinates of the point. Constants declared under <code>case.constants</code> in the case file can be referred to by name, see the <code>expression</code> module for the full syntax. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">u</td><td>The x-component of the velocity field. </td></tr>
+    <tr><td class="paramname">v</td><td>The y-component of the velocity field. </td></tr>
+    <tr><td class="paramname">w</td><td>The z-component of the velocity field. </td></tr>
+    <tr><td class="paramname">expr</td><td>The expressions, one per velocity component. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00320">320</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d2/d13/namespaceflow__ic_aa12cfd84289d6030cd1376644fd98ca2_icgraph.png" border="0" usemap="#ad2/d13/namespaceflow__ic_aa12cfd84289d6030cd1376644fd98ca2_icgraph" alt=""/></div>
+<map name="ad2/d13/namespaceflow__ic_aa12cfd84289d6030cd1376644fd98ca2_icgraph" id="ad2/d13/namespaceflow__ic_aa12cfd84289d6030cd1376644fd98ca2_icgraph">
+<area shape="rect" title="Set the initial condition from one mathematical expression per velocity component." alt="" coords="200,5,347,45"/>
+<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,5,152,45"/>
+<area shape="poly" title=" " alt="" coords="186,28,152,28,152,23,186,23"/>
 </map>
 </div>
 
@@ -444,7 +516,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00418">418</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00478">478</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -528,7 +600,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 
 </div>
 </div>
@@ -562,7 +634,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(3), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(3), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>base_value</em>, </td>
         </tr>
         <tr>
@@ -574,7 +646,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>zone_value</em>&#160;</td>
         </tr>
         <tr>
@@ -601,7 +673,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00371">371</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00431">431</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -655,7 +727,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(3), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(3), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>uinf</em>&#160;</td>
         </tr>
         <tr>
@@ -671,7 +743,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00274">274</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00285">285</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -758,7 +830,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00156">156</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00167">167</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 
 </div>
 </div>
@@ -768,7 +840,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d2/d13/namespaceflow__ic.html">flow_ic</a></li>
-    <li class="footer">Generated on Tue Aug 11 2026 04:02:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Aug 13 2026 04:17:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

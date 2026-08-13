@@ -1,0 +1,9 @@
+<map id="phmg::phmg_update" name="phmg::phmg_update">
+<area shape="rect" id="Node000001" title="Bring the preconditioner back in sync after the mesh has changed." alt="" coords="5,70,161,95"/>
+<area shape="rect" id="Node000002" href="$d1/d38/namespacephmg.html#a4ed33f225f09e0d3d928aa0e1aec56c4" title="Sample the new fine coordinates on the coarse levels and rebuild their metrics. Level 0 shares the ca..." alt="" coords="235,5,442,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,67,235,46,236,51,141,73"/>
+<area shape="rect" id="Node000003" href="$d1/d38/namespacephmg.html#a032ce97ecba036bc68ec6f2595f465ab" title="Rebuild the accelerator the Chebyshev smoother uses, which depends on the geometry." alt="" coords="211,70,466,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="162,80,198,80,198,85,162,85"/>
+<area shape="rect" id="Node000004" href="$d1/d38/namespacephmg.html#a4caecb727c8441a92e83753d4225730f" title="Mark every smoother to re&#45;estimate its eigenvalues on the next solve." alt="" coords="209,119,468,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="150,93,259,114,258,119,149,98"/>
+</map>

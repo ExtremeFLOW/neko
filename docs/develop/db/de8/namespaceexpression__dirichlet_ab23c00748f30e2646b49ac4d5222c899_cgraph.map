@@ -1,0 +1,5 @@
+<map id="expression_dirichlet::expression_mask_coords" name="expression_dirichlet::expression_mask_coords">
+<area shape="rect" id="Node000001" title="Tabulate the coordinates of the points of the mask of a boundary condition." alt="" coords="5,5,200,45"/>
+<area shape="rect" id="Node000002" href="$db/de8/namespaceexpression__dirichlet.html#a4fd72b42495a2e9e749ca7e75469515a" title="Gather the coordinates of the masked points into contiguous arrays." alt="" coords="248,5,401,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,23,234,23,234,28,200,28"/>
+</map>

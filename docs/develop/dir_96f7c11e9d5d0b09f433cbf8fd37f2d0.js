@@ -6,6 +6,8 @@ var dir_96f7c11e9d5d0b09f433cbf8fd37f2d0 =
     [ "blasius.f90", "db/d18/blasius_8f90.html", "db/d18/blasius_8f90" ],
     [ "dirichlet.f90", "d8/d69/dirichlet_8f90.html", "d8/d69/dirichlet_8f90" ],
     [ "dong_outflow.f90", "d0/d58/dong__outflow_8f90.html", "d0/d58/dong__outflow_8f90" ],
+    [ "expression_dirichlet.f90", "dc/d7e/expression__dirichlet_8f90.html", "dc/d7e/expression__dirichlet_8f90" ],
+    [ "expression_dirichlet_vector.f90", "d0/d87/expression__dirichlet__vector_8f90.html", "d0/d87/expression__dirichlet__vector_8f90" ],
     [ "facet_normal.f90", "d8/d63/facet__normal_8f90.html", "d8/d63/facet__normal_8f90" ],
     [ "field_dirichlet.f90", "d4/d15/field__dirichlet_8f90.html", "d4/d15/field__dirichlet_8f90" ],
     [ "field_dirichlet_vector.f90", "d8/dce/field__dirichlet__vector_8f90.html", "d8/dce/field__dirichlet__vector_8f90" ],

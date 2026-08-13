@@ -1,0 +1,5 @@
+<map id="phmg::phmg_update_smoother_acc" name="phmg::phmg_update_smoother_acc">
+<area shape="rect" id="Node000001" title="Rebuild the accelerator the Chebyshev smoother uses, which depends on the geometry." alt="" coords="209,5,464,31"/>
+<area shape="rect" id="Node000002" href="$d1/d38/namespacephmg.html#a4b4699e6c222fd54365a713d9571a23d" title="Bring the preconditioner back in sync after the mesh has changed." alt="" coords="5,5,161,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,21,161,21,161,15,196,15"/>
+</map>

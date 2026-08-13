@@ -1,0 +1,11 @@
+<map id="expression::expr_tokenize" name="expression::expr_tokenize">
+<area shape="rect" id="Node000001" title="Split the source string into a stream of tokens." alt="" coords="5,80,197,105"/>
+<area shape="rect" id="Node000002" href="$df/d95/namespaceexpression.html#a38f30fba25d591fa867c41f27b5de43b" title="Abort with a message pointing at the offending part of the expression." alt="" coords="249,5,417,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,77,245,39,270,32,271,37,246,45,137,82"/>
+<area shape="rect" id="Node000003" href="$df/d95/namespaceexpression.html#a197728dd611f76751397563735f9e4a3" title="True if c is a letter." alt="" coords="255,55,410,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,79,241,75,242,80,198,85"/>
+<area shape="rect" id="Node000004" href="$df/d95/namespaceexpression.html#a65727e82a9d81006e8e2aee48fb1a2a3" title="True if c is a decimal digit." alt="" coords="259,104,407,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="198,100,245,105,245,110,197,105"/>
+<area shape="rect" id="Node000005" href="$df/d95/namespaceexpression.html#a02185136b477c67a6dfe368a3a12e694" title="Append a token to the token stream." alt="" coords="245,153,420,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="140,103,246,138,275,147,273,152,245,143,139,108"/>
+</map>

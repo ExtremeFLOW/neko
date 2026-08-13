@@ -19,12 +19,16 @@ var structcheby__device_1_1cheby__device__t =
     [ "d", "d7/d81/structcheby__device_1_1cheby__device__t.html#a8391e28c3892dbe3c83ced9c2e4db938", null ],
     [ "d_d", "d7/d81/structcheby__device_1_1cheby__device__t.html#ae79d29cabe077f17713b80c11fbbdfc8", null ],
     [ "dlt", "d7/d81/structcheby__device_1_1cheby__device__t.html#ab46c9a8c35a3b0ca1b8c962b80412d14", null ],
+    [ "eigs_computed", "d7/d81/structcheby__device_1_1cheby__device__t.html#ac9eb4c079c3b47876618ac6d772b28db", null ],
+    [ "ev", "d7/d81/structcheby__device_1_1cheby__device__t.html#a8ee4b1c8dea4535fcb981a6d8b15caed", null ],
+    [ "ev_d", "d7/d81/structcheby__device_1_1cheby__device__t.html#a3a4b1c1bcdb560abb9d932fd23712c5a", null ],
     [ "gs_event", "d7/d81/structcheby__device_1_1cheby__device__t.html#a01b33474690796aa3463998b7fd0f41d", null ],
     [ "m", "d7/d81/structcheby__device_1_1cheby__device__t.html#a919f46cedba40962024d26a886ab31f9", null ],
     [ "m_ident", "d7/d81/structcheby__device_1_1cheby__device__t.html#aeec0dc845eecbf135d94945f24a937dd", null ],
     [ "max_iter", "d7/d81/structcheby__device_1_1cheby__device__t.html#a0604caa64f407001658d0678f200e426", null ],
     [ "monitor", "d7/d81/structcheby__device_1_1cheby__device__t.html#a28a4c9b86fb1d7419f87185bcdff744d", null ],
     [ "power_its", "d7/d81/structcheby__device_1_1cheby__device__t.html#af52184a461321de0b6e04fdb86945f6e", null ],
+    [ "power_its_refresh", "d7/d81/structcheby__device_1_1cheby__device__t.html#a10db85dec9ccda6800348d0ce2dcbd66", null ],
     [ "r", "d7/d81/structcheby__device_1_1cheby__device__t.html#ac63abfddeaa83e5215f86ad90447099b", null ],
     [ "r_d", "d7/d81/structcheby__device_1_1cheby__device__t.html#a96bbdcd1bb91a9e582f78a6dfc650e7b", null ],
     [ "recompute_eigs", "d7/d81/structcheby__device_1_1cheby__device__t.html#a915ac26a5f563409623b46e30a8ab0c7", null ],
@@ -33,5 +37,6 @@ var structcheby__device_1_1cheby__device__t =
     [ "tha", "d7/d81/structcheby__device_1_1cheby__device__t.html#a5e5b42664ab14e8c79e0099817957c0b", null ],
     [ "w", "d7/d81/structcheby__device_1_1cheby__device__t.html#a7fd16683fdeb12de352436e256b642c5", null ],
     [ "w_d", "d7/d81/structcheby__device_1_1cheby__device__t.html#a0d5c6cf256125b94a9f35baeb17f32be", null ],
+    [ "warm_start_eigs", "d7/d81/structcheby__device_1_1cheby__device__t.html#a170fe96d0ea3b7d10b2b83d636ca3198", null ],
     [ "zero_initial_guess", "d7/d81/structcheby__device_1_1cheby__device__t.html#ad9f64cfc85d5ca7e0142eedf55ab656c", null ]
 ];
