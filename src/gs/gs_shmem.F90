@@ -43,12 +43,21 @@ module gs_shmem
   use shmem, only : shmem_malloc, shmem_calloc, shmem_free, &
        shmem_putmem_signal_nbi, shmem_signal_wait_until, &
        shmem_uint64_atomic_set, shmem_uint64_wait_until, &
-       shmem_barrier_all, SHMEM_SIGNAL_SET, SHMEM_CMP_GE
+       shmem_barrier_all, shmem_query_thread, SHMEM_SIGNAL_SET, &
+       SHMEM_CMP_GE, SHMEM_THREAD_MULTIPLE
 #endif
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_loc, &
-       c_f_pointer, c_associated, c_sizeof, c_size_t, c_int64_t
+       c_f_pointer, c_associated, c_sizeof, c_size_t, c_int64_t, c_int
   implicit none
   private
+
+  !> True when the OpenSHMEM library provides SHMEM_THREAD_MULTIPLE. The
+  !! send path then lets each OpenMP thread run the back-pressure wait, the
+  !! pack and the put for its own share of the send peers; otherwise every
+  !! SHMEM call is funnelled through the master thread, mirroring how gs_mpi
+  !! keys off NEKO_MPI_THREAD_PROVIDED. Queried on every gs_shmem_t init
+  !! (the level is a property of the library, so all instances agree).
+  logical :: gs_shmem_thread_multiple = .false.
 
   !> Symmetric buffer for one direction of OpenSHMEM communication
   type :: gs_shmem_buf_t
@@ -88,6 +97,13 @@ module gs_shmem
   !! neighbor-list-position scheme would require, which is fragile
   !! because send_pe and recv_pe are pushed independently in
   !! gs_schedule and may differ in size and ordering.
+  !!
+  !! Under OpenMP the pack and unpack loops are work-shared across the
+  !! calling team. The send path additionally farms the whole per-peer
+  !! protocol out to the threads when the library provides
+  !! SHMEM_THREAD_MULTIPLE (see gs_shmem_thread_multiple); otherwise, and
+  !! always on the receive side, the SHMEM calls are issued by the master
+  !! thread alone.
   type, public, extends(gs_comm_t) :: gs_shmem_t
      type(gs_shmem_buf_t) :: send_buf
      type(gs_shmem_buf_t) :: recv_buf
@@ -195,12 +211,20 @@ contains
     integer(c_size_t) :: i64_size
     integer(c_int64_t) :: i64_dummy
     integer, allocatable :: local_offsets(:), remote_offsets(:)
+#ifdef HAVE_OPENSHMEM
+    integer(c_int) :: thread_level
+#endif
 #ifndef HAVE_OPENSHMEM
     call neko_error('Neko was not built with OpenSHMEM support')
 #else
 
     call this%free()
     call this%init_order(send_pe, recv_pe)
+
+    ! Decide once whether the OpenSHMEM library tolerates concurrent calls
+    ! from several OpenMP threads; the send path branches on it.
+    call shmem_query_thread(thread_level)
+    gs_shmem_thread_multiple = (thread_level .eq. SHMEM_THREAD_MULTIPLE)
 
     call this%send_buf%init(this%send_pe, this%send_dof)
     call this%recv_buf%init(this%recv_pe, this%recv_dof)
@@ -286,7 +310,7 @@ contains
     integer, intent(in) :: tag
     type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
-    integer :: i, j, dst, base
+    integer :: i, j, dst, base, ndst
     integer(c_size_t) :: nbytes
     integer , pointer :: sp(:)
     real(kind=rp), pointer :: send_data(:), recv_data(:)
@@ -294,9 +318,15 @@ contains
     real(c_rp) :: rp_dummy
 #ifdef HAVE_OPENSHMEM
 
+    ! Entered from inside the gs_op_vector OpenMP parallel region. Every
+    ! thread binds its own pointers to the symmetric buffers (the c_f_pointer
+    ! targets are private locals), but the iteration counter is shared state
+    ! and must be bumped exactly once per round.
+    !$omp master
     ! Each gs op gets a fresh signal value so receivers can distinguish
     ! puts from one call vs. the next.
     this%iter = this%iter + 1
+    !$omp end master
 
     call c_f_pointer(this%send_buf%buf_ptr, send_data, &
          [max(this%send_buf%max_total, 1)])
@@ -305,31 +335,83 @@ contains
     call c_f_pointer(this%data_signals_ptr, data_signals, [pe_size])
     call c_f_pointer(this%ack_signals_ptr, ack_signals, [pe_size])
 
-    do i = 1, size(this%send_pe)
-       dst = this%send_pe(i)
+    ! Publish the new iter before anyone reads it below.
+    !$omp barrier
 
-       ! Wait for dst to have consumed our previous round's data before
-       ! we overwrite their recv buffer. ack_signals[dst] is calloc'd
-       ! to 0 and dst writes the iter value (via atomic_set) after
-       ! consumption, so for iter == 1 the wait succeeds immediately.
-       call shmem_uint64_wait_until(c_loc(ack_signals(dst + 1)), &
-            SHMEM_CMP_GE, this%iter - 1_8)
+    if (gs_shmem_thread_multiple) then
+       ! Each thread drives the whole protocol for its share of the peers,
+       ! keeping the per-peer wait/pack/put order of the serial code.
+       !$omp do
+       do i = 1, size(this%send_pe)
+          dst = this%send_pe(i)
 
-       sp => this%send_dof(dst)%array()
-       base = this%send_buf%offset(i)
-       do concurrent (j = 1:this%send_dof(dst)%size())
-          send_data(base + j) = u(sp(j))
+          ! Wait for dst to have consumed our previous round's data before
+          ! we overwrite their recv buffer. ack_signals[dst] is calloc'd
+          ! to 0 and dst writes the iter value (via atomic_set) after
+          ! consumption, so for iter == 1 the wait succeeds immediately.
+          call shmem_uint64_wait_until(c_loc(ack_signals(dst + 1)), &
+               SHMEM_CMP_GE, this%iter - 1_8)
+
+          sp => this%send_dof(dst)%array()
+          base = this%send_buf%offset(i)
+          ndst = this%send_buf%ndofs(i)
+          do concurrent (j = 1:ndst)
+             send_data(base + j) = u(sp(j))
+          end do
+
+          nbytes = int(ndst, c_size_t) * c_sizeof(rp_dummy)
+          ! Put data + signal dst's data_signals[my_rank].
+          call shmem_putmem_signal_nbi( &
+               c_loc(recv_data(this%send_buf%remote_offset(i) + 1)), &
+               c_loc(send_data(base + 1)), &
+               nbytes, &
+               c_loc(data_signals(pe_rank + 1)), &
+               this%iter, SHMEM_SIGNAL_SET, dst)
        end do
+       !$omp end do
+    else
+       ! Funnelled: every SHMEM call is left to the master and only the pack
+       ! is work-shared, one peer at a time. The per-peer wait/pack/put order
+       ! of the serial code is kept -- the ack is what makes a slab safe to
+       ! repack as well, since it means the previous round's non-blocking put
+       ! has been consumed and no longer reads our send buffer. The barrier
+       ! after the ack wait releases the team into the pack, and the implicit
+       ! barrier at end do completes the slab before the master puts it.
+       do i = 1, size(this%send_pe)
+          dst = this%send_pe(i)
+          base = this%send_buf%offset(i)
+          ndst = this%send_buf%ndofs(i)
 
-       nbytes = int(this%send_buf%ndofs(i), c_size_t) * c_sizeof(rp_dummy)
-       ! Put data + signal dst's data_signals[my_rank].
-       call shmem_putmem_signal_nbi( &
-            c_loc(recv_data(this%send_buf%remote_offset(i) + 1)), &
-            c_loc(send_data(base + 1)), &
-            nbytes, &
-            c_loc(data_signals(pe_rank + 1)), &
-            this%iter, SHMEM_SIGNAL_SET, dst)
-    end do
+          !$omp master
+          call shmem_uint64_wait_until(c_loc(ack_signals(dst + 1)), &
+               SHMEM_CMP_GE, this%iter - 1_8)
+          !$omp end master
+          !$omp barrier
+
+          sp => this%send_dof(dst)%array()
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !DIR$ IVDEP
+          !GCC$ ivdep
+          !NEC$ IVDEP
+          !$omp do
+          do j = 1, ndst
+             send_data(base + j) = u(sp(j))
+          end do
+          !$omp end do
+
+          !$omp master
+          nbytes = int(ndst, c_size_t) * c_sizeof(rp_dummy)
+          call shmem_putmem_signal_nbi( &
+               c_loc(recv_data(this%send_buf%remote_offset(i) + 1)), &
+               c_loc(send_data(base + 1)), &
+               nbytes, &
+               c_loc(data_signals(pe_rank + 1)), &
+               this%iter, SHMEM_SIGNAL_SET, dst)
+          !$omp end master
+       end do
+       !$omp barrier
+    end if
 #endif
   end subroutine gs_shmem_nbsend
 
@@ -349,7 +431,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), intent(inout) :: strm
     integer :: op
-    integer :: i, j, src, base
+    integer :: i, j, src, base, nsrc
     integer(c_int64_t) :: dummy
     integer , pointer :: sp(:)
     real(kind=rp), pointer :: recv_data(:)
@@ -361,46 +443,83 @@ contains
     call c_f_pointer(this%data_signals_ptr, data_signals, [pe_size])
     call c_f_pointer(this%ack_signals_ptr, ack_signals, [pe_size])
 
+    ! The loop over peers stays serial even when the library is thread
+    ! multiple: a dof shared by 3+ ranks appears in several recv_dof lists,
+    ! so reducing two slabs concurrently would race on that dof. The master
+    ! awaits and acks each slab in turn and the team reduces it, taking the
+    ! parallelism within the slab instead.
     do i = 1, size(this%recv_pe)
        src = this%recv_pe(i)
+       base = this%recv_buf%offset(i)
+       nsrc = this%recv_buf%ndofs(i)
 
        ! Wait for data from src; data_signals[src] is set by src's put.
+       !$omp master
        dummy = shmem_signal_wait_until(c_loc(data_signals(src + 1)), &
             SHMEM_CMP_GE, this%iter)
+       !$omp end master
+       !$omp barrier
 
        sp => this%recv_dof(src)%array()
-       base = this%recv_buf%offset(i)
        select case (op)
        case (GS_OP_ADD)
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !DIR$ IVDEP
+          !GCC$ ivdep
           !NEC$ IVDEP
-          do concurrent (j = 1:this%recv_dof(src)%size())
+          !$omp do
+          do j = 1, nsrc
              u(sp(j)) = u(sp(j)) + recv_data(base + j)
           end do
+          !$omp end do
        case (GS_OP_MUL)
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !DIR$ IVDEP
+          !GCC$ ivdep
           !NEC$ IVDEP
-          do concurrent (j = 1:this%recv_dof(src)%size())
+          !$omp do
+          do j = 1, nsrc
              u(sp(j)) = u(sp(j)) * recv_data(base + j)
           end do
+          !$omp end do
        case (GS_OP_MIN)
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !DIR$ IVDEP
+          !GCC$ ivdep
           !NEC$ IVDEP
-          do concurrent (j = 1:this%recv_dof(src)%size())
+          !$omp do
+          do j = 1, nsrc
              u(sp(j)) = min(u(sp(j)), recv_data(base + j))
           end do
+          !$omp end do
        case (GS_OP_MAX)
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !DIR$ IVDEP
+          !GCC$ ivdep
           !NEC$ IVDEP
-          do concurrent (j = 1:this%recv_dof(src)%size())
+          !$omp do
+          do j = 1, nsrc
              u(sp(j)) = max(u(sp(j)), recv_data(base + j))
           end do
+          !$omp end do
        case default
           call neko_error("Unknown operation in gs_nbwait_shmem")
        end select
 
        ! Tell src we are done with this round's buffer so they may
        ! overwrite it on the next round. We set our own rank's slot
-       ! in src's ack_signals; src waits there on the next nbsend.
+       ! in src's ack_signals; src waits there on the next nbsend. The
+       ! implicit barrier at the end do above guarantees the whole team is
+       ! finished with the slab before it is released.
+       !$omp master
        call shmem_uint64_atomic_set( &
             c_loc(ack_signals(pe_rank + 1)), &
             this%iter, src)
+       !$omp end master
     end do
 #endif
   end subroutine gs_shmem_nbwait
@@ -424,7 +543,9 @@ contains
     real(c_rp) :: rp_dummy
 #ifdef HAVE_OPENSHMEM
 
+    !$omp master
     this%iter = this%iter + 1
+    !$omp end master
 
     call c_f_pointer(this%send_buf%buf_ptr, send_data, &
          [max(nc*this%send_buf%max_total, 1)])
@@ -433,29 +554,68 @@ contains
     call c_f_pointer(this%data_signals_ptr, data_signals, [pe_size])
     call c_f_pointer(this%ack_signals_ptr, ack_signals, [pe_size])
 
-    do i = 1, size(this%send_pe)
-       dst = this%send_pe(i)
+    !$omp barrier
 
-       call shmem_uint64_wait_until(c_loc(ack_signals(dst + 1)), &
-            SHMEM_CMP_GE, this%iter - 1_8)
+    ! Same threading split as the scalar path; see gs_shmem_nbsend.
+    if (gs_shmem_thread_multiple) then
+       !$omp do
+       do i = 1, size(this%send_pe)
+          dst = this%send_pe(i)
 
-       sp => this%send_dof(dst)%array()
-       base = this%send_buf%offset(i)
-       ndst = this%send_buf%ndofs(i)
-       do c = 1, nc
-          do concurrent (j = 1:ndst)
-             send_data(nc*base + (c-1)*ndst + j) = u((c-1)*n + sp(j))
+          call shmem_uint64_wait_until(c_loc(ack_signals(dst + 1)), &
+               SHMEM_CMP_GE, this%iter - 1_8)
+
+          sp => this%send_dof(dst)%array()
+          base = this%send_buf%offset(i)
+          ndst = this%send_buf%ndofs(i)
+          do c = 1, nc
+             do concurrent (j = 1:ndst)
+                send_data(nc*base + (c-1)*ndst + j) = u((c-1)*n + sp(j))
+             end do
           end do
-       end do
 
-       nbytes = int(nc*ndst, c_size_t) * c_sizeof(rp_dummy)
-       call shmem_putmem_signal_nbi( &
-            c_loc(recv_data(nc*this%send_buf%remote_offset(i) + 1)), &
-            c_loc(send_data(nc*base + 1)), &
-            nbytes, &
-            c_loc(data_signals(pe_rank + 1)), &
-            this%iter, SHMEM_SIGNAL_SET, dst)
-    end do
+          nbytes = int(nc*ndst, c_size_t) * c_sizeof(rp_dummy)
+          call shmem_putmem_signal_nbi( &
+               c_loc(recv_data(nc*this%send_buf%remote_offset(i) + 1)), &
+               c_loc(send_data(nc*base + 1)), &
+               nbytes, &
+               c_loc(data_signals(pe_rank + 1)), &
+               this%iter, SHMEM_SIGNAL_SET, dst)
+       end do
+       !$omp end do
+    else
+       do i = 1, size(this%send_pe)
+          dst = this%send_pe(i)
+          base = this%send_buf%offset(i)
+          ndst = this%send_buf%ndofs(i)
+
+          !$omp master
+          call shmem_uint64_wait_until(c_loc(ack_signals(dst + 1)), &
+               SHMEM_CMP_GE, this%iter - 1_8)
+          !$omp end master
+          !$omp barrier
+
+          sp => this%send_dof(dst)%array()
+          !$omp do
+          do j = 1, ndst
+             do c = 1, nc
+                send_data(nc*base + (c-1)*ndst + j) = u((c-1)*n + sp(j))
+             end do
+          end do
+          !$omp end do
+
+          !$omp master
+          nbytes = int(nc*ndst, c_size_t) * c_sizeof(rp_dummy)
+          call shmem_putmem_signal_nbi( &
+               c_loc(recv_data(nc*this%send_buf%remote_offset(i) + 1)), &
+               c_loc(send_data(nc*base + 1)), &
+               nbytes, &
+               c_loc(data_signals(pe_rank + 1)), &
+               this%iter, SHMEM_SIGNAL_SET, dst)
+          !$omp end master
+       end do
+       !$omp barrier
+    end if
 #endif
   end subroutine gs_shmem_nbsend_vec
 
@@ -485,55 +645,66 @@ contains
     call c_f_pointer(this%data_signals_ptr, data_signals, [pe_size])
     call c_f_pointer(this%ack_signals_ptr, ack_signals, [pe_size])
 
+    ! Serial over peers (a dof shared by 3+ ranks appears in several recv
+    ! lists); parallelism is taken within each slab. See gs_shmem_nbwait.
     do i = 1, size(this%recv_pe)
        src = this%recv_pe(i)
-
-       dummy = shmem_signal_wait_until(c_loc(data_signals(src + 1)), &
-            SHMEM_CMP_GE, this%iter)
-
-       sp => this%recv_dof(src)%array()
        base = this%recv_buf%offset(i)
        nsrc = this%recv_buf%ndofs(i)
+
+       !$omp master
+       dummy = shmem_signal_wait_until(c_loc(data_signals(src + 1)), &
+            SHMEM_CMP_GE, this%iter)
+       !$omp end master
+       !$omp barrier
+
+       sp => this%recv_dof(src)%array()
        select case (op)
        case (GS_OP_ADD)
-          do c = 1, nc
-             !NEC$ IVDEP
-             do concurrent (j = 1:nsrc)
+          !$omp do
+          do j = 1, nsrc
+             do c = 1, nc
                 u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) + &
                      recv_data(nc*base + (c-1)*nsrc + j)
              end do
           end do
+          !$omp end do
        case (GS_OP_MUL)
-          do c = 1, nc
-             !NEC$ IVDEP
-             do concurrent (j = 1:nsrc)
+          !$omp do
+          do j = 1, nsrc
+             do c = 1, nc
                 u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) * &
                      recv_data(nc*base + (c-1)*nsrc + j)
              end do
           end do
+          !$omp end do
        case (GS_OP_MIN)
-          do c = 1, nc
-             !NEC$ IVDEP
-             do concurrent (j = 1:nsrc)
+          !$omp do
+          do j = 1, nsrc
+             do c = 1, nc
                 u((c-1)*n + sp(j)) = min(u((c-1)*n + sp(j)), &
                      recv_data(nc*base + (c-1)*nsrc + j))
              end do
           end do
+          !$omp end do
        case (GS_OP_MAX)
-          do c = 1, nc
-             !NEC$ IVDEP
-             do concurrent (j = 1:nsrc)
+          !$omp do
+          do j = 1, nsrc
+             do c = 1, nc
                 u((c-1)*n + sp(j)) = max(u((c-1)*n + sp(j)), &
                      recv_data(nc*base + (c-1)*nsrc + j))
              end do
           end do
+          !$omp end do
        case default
           call neko_error("Unknown operation in gs_shmem_nbwait_vec")
        end select
 
+       !$omp master
        call shmem_uint64_atomic_set( &
             c_loc(ack_signals(pe_rank + 1)), &
             this%iter, src)
+       !$omp end master
     end do
 #endif
   end subroutine gs_shmem_nbwait_vec
