@@ -596,7 +596,7 @@ contains
              this%send_buf(off + j) = u(sp(j))
           end do
           !$omp end do
-           if (thrdid .eq. 0) then
+          if (thrdid .eq. 0) then
              gs_caf_recv_buf(half_off + doff + 1 : half_off + doff + ndst)[dimg] &
                   = this%send_buf(off + 1 : off + ndst)
           end if
