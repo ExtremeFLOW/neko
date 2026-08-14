@@ -45,7 +45,7 @@ module bc
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
   use field, only : field_t
-  use gs_ops, only : GS_OP_ADD
+  use gs_ops, only : GS_OP_MUL
   use math, only : relcmp
   use utils, only : neko_error, linear_index, split_string
   use logger, only : neko_log, LOG_SIZE
@@ -542,24 +542,30 @@ contains
        call test_field%init(this%dof)
 
        n = test_field%size()
-       test_field%x = 0.0_rp
+       test_field%x = 1.0_rp
        !Apply this bc once
        do i = 1, msk_c
-          test_field%x(this%msk(i),1,1,1) = 1.0
+          test_field%x(this%msk(i),1,1,1) = 0.0
        end do
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(test_field%x, test_field%x_d, n, &
                HOST_TO_DEVICE, sync = .true.)
        end if
        !Check if some point that was not zeroed was zeroed on another element
-       call this%coef%gs_h%op(test_field, GS_OP_ADD)
+       if (allocated(this%coef%gs_h%interp)) then
+          call this%coef%gs_h%gs_op_vector(test_field%x, this%dof%size(), &
+               GS_OP_MUL)
+          call this%coef%gs_h%interp%apply_j(test_field)
+       else
+          call this%coef%gs_h%op(test_field, GS_OP_MUL)
+       end if
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(test_field%x, test_field%x_d, n, &
                DEVICE_TO_HOST, sync = .true.)
        end if
        msk_c = 0
        do i = 1, this%dof%size()
-          if (test_field%x(i,1,1,1) .gt. 0.5) then
+          if (test_field%x(i,1,1,1) .lt. 0.25) then
              msk_c = msk_c + 1
           end if
        end do
@@ -568,7 +574,7 @@ contains
        allocate(this%msk(0:msk_c))
        j = 1
        do i = 1, this%dof%size()
-          if (test_field%x(i,1,1,1) .gt. 0.5) then
+          if (test_field%x(i,1,1,1) .lt. 0.25) then
              this%msk(j) = i
              j = j + 1
           end if
