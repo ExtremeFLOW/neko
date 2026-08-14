@@ -112,7 +112,6 @@ __kernel void makeext_kernel(__global real * __restrict__ abx1,
 __kernel void scalar_makeext_kernel(__global real * __restrict__ fs_lag,
                                     __global real * __restrict__ fs_laglag,
                                     __global real * __restrict__ fs,
-                                    const real rho,
                                     const real ext1,
                                     const real ext2,
                                     const real ext3,
@@ -127,7 +126,7 @@ __kernel void scalar_makeext_kernel(__global real * __restrict__ fs_lag,
     fs_laglag[i] = fs_lag[i];
     fs_lag[i] = fs[i];
 
-    fs[i] = (ext1 * fs[i] + ta1_val) * rho;
+    fs[i] = ext1 * fs[i] + ta1_val;
   }
 
 }
@@ -187,7 +186,7 @@ __kernel void scalar_makebdf_kernel(__global const real * __restrict__ s_lag,
                                     __global real * __restrict__ fs,
                                     __global const real * __restrict__ s,
                                     __global const real * __restrict__ B,
-                                    const real rho,
+                                    __global const real * __restrict__ rho_cp,
                                     const real dt,
                                     const real bd2,
                                     const real bd3,
@@ -209,7 +208,7 @@ __kernel void scalar_makebdf_kernel(__global const real * __restrict__ s_lag,
       tb1_val += s_laglag[i] * B[i] * bd4;
     }
 
-    fs[i] = fs[i] + tb1_val * (rho / dt);
+    fs[i] = fs[i] + tb1_val * (rho_cp[i] / dt);
   }
 
 }
@@ -238,7 +237,7 @@ __kernel void makeoifs_kernel(__global const real * __restrict__ phi_x,
 
 __kernel void scalar_makeoifs_kernel(__global const real * __restrict__ phi_s,
                                     __global real * __restrict__ bf_s,
-                                    const real rho,
+                                    __global const real * __restrict__ rho_cp,
                                     const real dt,
                                     const int n) {
 
@@ -247,7 +246,7 @@ __kernel void scalar_makeoifs_kernel(__global const real * __restrict__ phi_s,
 
   for (int i = idx; i < n; i += str) {
 
-    bf_s[i] = bf_s[i] + phi_s[i] * (rho / dt);
+    bf_s[i] = bf_s[i] + phi_s[i] * (rho_cp[i] / dt);
   }
 
 }
