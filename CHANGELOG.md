@@ -5,6 +5,12 @@
 - Fixed material property handling in `scalar_pnpn`: user-defined properties
   are now updated before right-hand-side assembly, Neumann values are treated
   as physical fluxes, and spatially varying `rho * cp` is applied consistently.
+- Added OpenMP threading to the Coarray Fortran and host OpenSHMEM
+  gather-scatter backends, which duplicated the one-sided puts and the
+  signalling on every thread in hybrid MPI+OpenMP runs.
+- Added `boundary_data_t`, `wall_shear_stress_simcomp`, and `boundary_data_writer_simcomp`.
+- Fixed a data race in openMP block in `adv_dealias` for scalar and ALE.
+- Added `phmg_update` to propagate mesh change to coarse level grids.
 - Fixed extrusion of curved edges when reading a 2D .nmsh file.
 - Added mathematical expressions as case file values, available as the
   `expression` initial condition for the fluid and the scalar, and as the
