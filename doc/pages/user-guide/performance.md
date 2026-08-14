@@ -103,6 +103,94 @@ associated tolerance criteria. The best combination is very case
 dependent, thus it is best to experiment with the various types
 provided (see #case-file).
 
+### SEM operator auto-tuning {#performance-operator-autotuning}
+
+On the CUDA and HIP backends the spectral element operators --- the
+Helmholtz operator `Ax`, and `opgrad`, `dudxyz`, `cdtp`, `conv1`,
+`convect_scalar` and `lambda2` --- each ship two kernel formulations,
+and the best one depends on the polynomial order, the element count and
+the hardware. Rather than fix a choice at build time, Neko benchmarks
+them on the first call of each operator, using the real element count of
+the running case, and caches the winner for the rest of the run.
+
+The two formulations are:
+
+- the **1d** variant, which stages a whole element in shared memory and
+  walks it with a flat thread block; and
+- the **kstep** variant, which assigns one `(lx, lx)` thread plane per
+  element and marches it in the third direction, holding the column in
+  registers.
+
+Within each formulation the tuner also sweeps a geometry parameter. For
+the kstep kernels this is the number of *elements per thread block*: a
+single element is only half a warp at `lx = 4` and two warps at `lx = 8`,
+so stacking several of them widens the block and lets the element
+independent derivative matrices be loaded once per block instead of once
+per element. For the 1d kernels it is the *chunk size*, which is both
+the thread block size and the stride over the `lx^3` points of an
+element; the historical value of 1024 leaves most of the block idle at
+low order, where only 64 of 1024 threads have work to do at `lx = 4`.
+Four sizes are measured (1024, 512, 256, 128), with any that would be
+smaller than one derivative matrix falling back to 1024.
+
+The tuner reports every candidate it measured, so the margins are
+visible rather than implied:
+
+```
+---Autotune opgrad (lx: 4)----
+  1D    ch=1024:     61.53 us/call
+  1D    ch=512 :     32.10 us/call
+  1D    ch=256 :     24.80 us/call
+  1D    ch=128 :     21.40 us/call
+  KSTEP eb=1   :     18.29 us/call
+  KSTEP eb=2   :     15.40 us/call
+  KSTEP eb=4   :     15.65 us/call
+  Chose        : 2 (KSTEP, 2 elem/block)
+```
+
+The chosen line reports only the geometry that applies to the winning
+formulation: an elements-per-block count when kstep wins, a chunk size
+when the 1d variant does.
+
+@note The chunk sweep measures all four sizes rather than predicting a
+best one. Thread utilisation alone suggests the smallest valid block,
+but that is only right at the lowest orders: once the shared memory
+footprint --- which grows as `lx^3` --- caps how many blocks fit on a
+multiprocessor, a smaller block wastes thread slots instead of filling
+them. Where the crossover falls depends on the shared memory per
+multiprocessor, which differs across NVIDIA generations and again on
+CDNA, so it is measured rather than assumed.
+
+Sampling interleaves the variants over several rounds and keeps the best
+round for each, rather than timing them one after another in a fixed
+order --- on a machine whose clocks move during the sweep, a fixed order
+biases the comparison by candidate position, which no amount of extra
+iterations removes.
+
+@note The measured ranking differs sharply between vendors. On an
+NVIDIA GH200 the kstep variant wins and benefits from element blocking,
+whereas on AMD MI250X and MI300A the blocked kernels overrun the
+register budget and spill to scratch, so the elements per block sweep is
+**disabled by default on HIP** and enabled on CUDA. The defaults reflect
+measurements on those parts; on a machine that behaves differently,
+`NEKO_EB_TUNE` overrides the choice either way.
+
+The tuning behaviour is controlled by the environment variables
+described in the @ref appendices_env-var reference: `NEKO_AUTOTUNE`
+pins a formulation and skips the search entirely, `NEKO_EB_TUNE`
+enables or disables the elements per block sweep, `NEKO_EB` and
+`NEKO_CHUNKS` force a particular geometry when a formulation is
+pinned, and
+`NEKO_TUNE_ROUNDS` / `NEKO_TUNE_ITERS` control the sampling of both
+sweeps. All
+of them are useful mainly for A/B testing; the defaults are intended to
+be right without intervention.
+
+@note The search runs once per operator and polynomial order, at the
+first call, and costs a few hundred kernel launches. On a case with a
+very large element count this is visible in the startup time; reducing
+`NEKO_TUNE_ITERS` shortens it, at the cost of noisier measurements.
+
 ## Running a simulation
 
 When running a simulation, the only parameter a user has some control
