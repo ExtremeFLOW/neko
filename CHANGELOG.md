@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Fixed material property handling in `scalar_pnpn`: user-defined properties
+  are now updated before right-hand-side assembly, Neumann values are treated
+  as physical fluxes, and spatially varying `rho * cp` is applied consistently.
 - Fixed extrusion of curved edges when reading a 2D .nmsh file.
 - Added mathematical expressions as case file values, available as the
   `expression` initial condition for the fluid and the scalar, and as the
