@@ -1,0 +1,110 @@
+{
+  "version": 1.0,
+  "//": "Full CVD train: turbulent jet (Re_pipe=4000) -> diffusor -> hot zone.",
+  "//2": "Low-Mach, non-dimensional: U_ref = pipe bulk = 1, T 1 -> 6 ramped.",
+  "//3": "FRAME: flow -x, z vertical (gravity on w). Mesh in metres.",
+  "//4": "mu_ref = D_pipe/Re_p = 0.0302/4000 = 7.55e-6; duct Re_H ~ 600.",
+  "//5": "Zones: 1 inlet, 2 outlet, 3 wallCold, 4 wallHot, 5 substrate.",
+  "//6": "Flow-through ~ 6.3 time units (duct-dominated). Solver stack from",
+  "//7": "the sigma heated_hump case, unchanged. Build: makeneko fulltrain.f90",
+  "case": {
+    "mesh_file": "train.nmsh",
+    "output_at_end": true,
+    "output_boundary": false,
+    "output_checkpoints": true,
+    "checkpoint_control": "simulationtime",
+    "checkpoint_value": 0.2,
+    "time": {
+      "end_time": 20.0,
+      "variable_timestep": true,
+      "target_cfl": 0.3,
+      "max_timestep": 5.0e-4
+    },
+    "numerics": {
+      "time_order": 3,
+      "polynomial_order": 6,
+      "dealias": true
+    },
+    "fluid": {
+      "scheme": "lowmach",
+      "full_stress_formulation": true,
+      "source_terms": [
+        { "type": "user" },
+        { "type": "gradient_jump_penalty", "enabled": true,
+          "scaling_factor": 0.8, "scaling_exponent": 4.0 }
+      ],
+      "initial_condition": { "type": "user" },
+      "velocity_solver": {
+        "type": "coupled_cg",
+        "preconditioner": { "type": "jacobi" },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-05,
+        "max_iterations": 800
+      },
+      "pressure_solver": {
+        "type": "gmres",
+        "preconditioner": {
+          "type": "hsmg",
+          "coarse_grid": { "solver": "cg", "preconditioner": "jacobi",
+                           "iterations": 100 }
+        },
+        "projection_space_size": 4,
+        "projection_reorthogonalize_basis": true,
+        "absolute_tolerance": 1e-05,
+        "max_iterations": 800
+      },
+      "output_control": "simulationtime",
+      "output_value": 0.1,
+      "boundary_conditions": [
+        { "//": "turbulent 1/7-power jet profile, bulk 1, in -x (fulltrain.f90)",
+          "type": "user_velocity", "zone_indices": [1] },
+        { "type": "outflow+dong", "zone_indices": [2],
+          "delta": 0.01, "velocity_scale": 1.0 },
+        { "type": "no_slip", "zone_indices": [3, 4, 5] }
+      ],
+      "low_mach": {
+        "enabled": true,
+        "P0": 1.0,
+        "R_specific": 1.0,
+        "cp": 1.0,
+        "k_conductivity": 1.0,
+        "T_eos_min": 0.8,
+        "T_eos_max": 8.0,
+        "temperature_field": "temperature",
+        "property_model": {
+          "//": "H2 over 300->1800 K: mu(T) = mu_ref (T/T_ref)^0.71",
+          "type": "power_law",
+          "mu_ref": 7.55e-06,
+          "lambda_ref": 1.078571e-05,
+          "T_ref": 1.0,
+          "exponent": 0.71
+        }
+      }
+    },
+    "scalar": {
+      "name": "temperature",
+      "low_mach": { "enabled": true },
+      "solver": {
+        "type": "cg",
+        "preconditioner": { "type": "jacobi" },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-06,
+        "max_iterations": 800
+      },
+      "boundary_conditions": [
+        { "type": "dirichlet", "value": 1.0, "zone_indices": [1] },
+        { "//": "outflow: zero gradient",
+          "type": "neumann", "flux": 0.0, "zone_indices": [2] },
+        { "//": "unheated walls: adiabatic",
+          "type": "neumann", "flux": 0.0, "zone_indices": [3] },
+        { "//": "heated walls AND substrate: smoothstep ramp in x and t",
+          "type": "user", "zone_indices": [4, 5] }
+      ],
+      "initial_condition": { "type": "user" },
+      "source_terms": [
+        { "type": "gradient_jump_penalty", "enabled": true,
+          "scaling_factor": 0.8, "scaling_exponent": 4.0 }
+      ]
+    }
+  }
+}

@@ -1,0 +1,185 @@
+{
+  "version": 1.0,
+  "//": "SiC CVD hot zone + tripped inlet extension, low-Mach, NON-DIMENSIONAL.",
+  "//2": "rho_ref=1, U_in=1, T_cold=1, T_hot=3; ideal gas rho = P0/(R T) = 1/T.",
+  "//3": "Mesh stays in METRES. Re_H = rho U H / mu = 0.030823/1.027433e-5 = 3000",
+  "//4": "(Re_Dh ~ 5000, Re_tau ~ 105). Physical: H2 at 200 mbar / 300 K,",
+  "//5": "nu = 5.504e-4 m2/s -> U_phys = 53.6 m/s. Solver/preconditioner stack",
+  "//6": "copied from sigma:neko_low_mach_solver/full_run/heated_hump_full.case.",
+  "//7": "Zones: 1 inlet, 2 outlet, 3 wallCold, 4 wallHot, 5 substrate.",
+  "//8": "Build: makeneko hotzone_trip.f90",
+  "case": {
+    "mesh_file": "hotzone_trip_sem.nmsh",
+    "output_at_end": true,
+    "output_boundary": false,
+    "output_checkpoints": true,
+    "//9": "dt is CFL-limited to ~7e-6 by the 0.63 mm side-wall BL elements, so",
+    "//10": "a 16 h job on 4 nodes advances t by ~0.17. checkpoint_value MUST be",
+    "//11": "small or a wall-clock kill loses everything. RESTART: add",
+    "//12": "\"restart_file\": \"fluid000NN.chkp\" for each follow-on job.",
+    "checkpoint_control": "simulationtime",
+    "checkpoint_value": 0.01,
+    "time": {
+      "//": "flow-through = 0.908 m / U_in = 0.908; ~3.3 of them",
+      "end_time": 3.0,
+      "variable_timestep": true,
+      "target_cfl": 0.3,
+      "max_timestep": 0.001
+    },
+    "numerics": {
+      "time_order": 3,
+      "polynomial_order": 6,
+      "dealias": true
+    },
+    "fluid": {
+      "scheme": "lowmach",
+      "full_stress_formulation": true,
+      "source_terms": [
+        {
+          "//": "buoyancy, hotzone_trip.f90:fluid_source",
+          "type": "user"
+        },
+        {
+          "type": "gradient_jump_penalty",
+          "enabled": true,
+          "scaling_factor": 0.8,
+          "scaling_exponent": 4.0
+        }
+      ],
+      "initial_condition": {
+        "type": "user"
+      },
+      "velocity_solver": {
+        "type": "coupled_cg",
+        "preconditioner": {
+          "type": "jacobi"
+        },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-05,
+        "max_iterations": 800
+      },
+      "pressure_solver": {
+        "type": "gmres",
+        "preconditioner": {
+          "type": "hsmg",
+          "coarse_grid": {
+            "solver": "cg",
+            "preconditioner": "jacobi",
+            "iterations": 100
+          }
+        },
+        "projection_space_size": 4,
+        "projection_reorthogonalize_basis": true,
+        "absolute_tolerance": 1e-05,
+        "max_iterations": 800
+      },
+      "output_control": "simulationtime",
+      "output_value": 0.01,
+      "boundary_conditions": [
+        {
+          "//": "parabolic profile, bulk 1, in -z (hotzone_trip.f90)",
+          "type": "user_velocity",
+          "zone_indices": [
+            1
+          ]
+        },
+        {
+          "type": "outflow+dong",
+          "zone_indices": [
+            2
+          ],
+          "delta": 0.01,
+          "velocity_scale": 1.0
+        },
+        {
+          "type": "no_slip",
+          "zone_indices": [
+            3,
+            4,
+            5
+          ]
+        }
+      ],
+      "low_mach": {
+        "enabled": true,
+        "P0": 1.0,
+        "R_specific": 1.0,
+        "cp": 1.0,
+        "k_conductivity": 1.0,
+        "T_eos_min": 0.8,
+        "T_eos_max": 8.0,
+        "temperature_field": "temperature",
+        "property_model": {
+          "//": "mu(T) = mu_ref (T/T_ref)^0.71 -- H2 over 300->900 K",
+          "//2": "(8.9e-6 -> 1.94e-5 Pa.s). lambda_ref = mu_ref/Pr, Pr = 0.70.",
+          "type": "power_law",
+          "mu_ref": 1.54115e-05,
+          "lambda_ref": 2.201643e-05,
+          "T_ref": 1.0,
+          "exponent": 0.71
+        }
+      }
+    },
+    "scalar": {
+      "name": "temperature",
+      "low_mach": {
+        "enabled": true
+      },
+      "solver": {
+        "type": "cg",
+        "preconditioner": {
+          "type": "jacobi"
+        },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-06,
+        "max_iterations": 800
+      },
+      "boundary_conditions": [
+        {
+          "type": "dirichlet",
+          "value": 1.0,
+          "zone_indices": [
+            1
+          ]
+        },
+        {
+          "//": "outflow: zero-gradient temperature",
+          "type": "neumann",
+          "flux": 0.0,
+          "zone_indices": [
+            2
+          ]
+        },
+        {
+          "//": "extension, trip hump and unheated duct: adiabatic",
+          "type": "neumann",
+          "flux": 0.0,
+          "zone_indices": [
+            3
+          ]
+        },
+        {
+          "//": "heated walls AND susceptor: smoothstep in z (leading edge) x smoothstep in t (heat-up over T_RAMP=0.03). Both zones must be 'user' -- ramping only zone 4 would leave a discontinuity at the zone 4/5 junction.",
+          "type": "user",
+          "zone_indices": [
+            4,
+            5
+          ]
+        }
+      ],
+      "initial_condition": {
+        "type": "user"
+      },
+      "source_terms": [
+        {
+          "type": "gradient_jump_penalty",
+          "enabled": true,
+          "scaling_factor": 0.8,
+          "scaling_exponent": 4.0
+        }
+      ]
+    },
+    "//ramp": "T_hot = 6 (1800 K at T_ref=300 K). Zone 4 uses a smoothstep wall-T ramp over 25 mm from z=0.285; zone 5 (susceptor) is a plain dirichlet 6.0.",
+    "//cadence": "checkpoint/output at 0.01: run 4637228 ran 16 h at dt~1.4e-6 and would have reached only t~0.05, missing its first checkpoint at 0.10 entirely. Size cadence to the observed dt."
+  }
+}

@@ -1,0 +1,410 @@
+{
+  "version": 1.0,
+  "case": {
+    "//": "STEP 1: hotzone_trip + 5 PASSIVE species. No chemistry, no deposition.",
+    "//2": "Feed H2 0.7094 / SiHCl3 0.2407 / C2H4 0.0499 (mass). Products are 0 at the inlet AND initially -- with no source they MUST stay 0; that is the sharpest test for spectral undershoot, so watch min(Y).",
+    "//3": "Zones: 1 inlet, 2 outlet, 3 wallCold, 4 wallHot, 5 substrate.",
+    "//4": "Everything else identical to hotzone_trip.case (Re_H=3000, T 1->3, gravity, N=6, same solvers/preconditioners).",
+    "mesh_file": "hotzone_trip_sem.nmsh",
+    "output_at_end": true,
+    "output_boundary": false,
+    "output_checkpoints": true,
+    "checkpoint_control": "simulationtime",
+    "checkpoint_value": 0.01,
+    "time": {
+      "end_time": 2.0,
+      "variable_timestep": true,
+      "target_cfl": 0.3,
+      "max_timestep": 0.001
+    },
+    "numerics": {
+      "time_order": 3,
+      "polynomial_order": 6,
+      "dealias": true
+    },
+    "fluid": {
+      "scheme": "lowmach",
+      "full_stress_formulation": true,
+      "source_terms": [
+        {
+          "type": "user"
+        },
+        {
+          "type": "gradient_jump_penalty",
+          "enabled": true,
+          "scaling_factor": 0.8,
+          "scaling_exponent": 4.0
+        }
+      ],
+      "initial_condition": {
+        "type": "user"
+      },
+      "velocity_solver": {
+        "type": "coupled_cg",
+        "preconditioner": {
+          "type": "jacobi"
+        },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-05,
+        "max_iterations": 800
+      },
+      "pressure_solver": {
+        "type": "gmres",
+        "preconditioner": {
+          "type": "hsmg",
+          "coarse_grid": {
+            "solver": "cg",
+            "preconditioner": "jacobi",
+            "iterations": 100
+          }
+        },
+        "projection_space_size": 4,
+        "projection_reorthogonalize_basis": true,
+        "absolute_tolerance": 1e-05,
+        "max_iterations": 800
+      },
+      "output_control": "simulationtime",
+      "output_value": 0.01,
+      "boundary_conditions": [
+        {
+          "type": "user_velocity",
+          "zone_indices": [
+            1
+          ]
+        },
+        {
+          "type": "outflow+dong",
+          "zone_indices": [
+            2
+          ],
+          "delta": 0.01,
+          "velocity_scale": 1.0
+        },
+        {
+          "type": "no_slip",
+          "zone_indices": [
+            3,
+            4,
+            5
+          ]
+        }
+      ],
+      "low_mach": {
+        "enabled": true,
+        "P0": 1.0,
+        "R_specific": 1.0,
+        "cp": 1.0,
+        "k_conductivity": 1.0,
+        "T_eos_min": 0.8,
+        "T_eos_max": 8.0,
+        "temperature_field": "temperature",
+        "property_model": {
+          "type": "power_law",
+          "mu_ref": 1.54115e-05,
+          "lambda_ref": 2.201643e-05,
+          "T_ref": 1.0,
+          "exponent": 0.71
+        }
+      }
+    },
+    "scalars": [
+      {
+        "name": "temperature",
+        "low_mach": {
+          "enabled": true
+        },
+        "//lam": "was injected by the f90 startup hook as case.scalar.lambda; moved here because that key shadows case.scalars",
+        "lambda": 2.201643e-05,
+        "cp": 1.0,
+        "solver": {
+          "type": "cg",
+          "preconditioner": {
+            "type": "jacobi"
+          },
+          "projection_space_size": 0,
+          "absolute_tolerance": 1e-06,
+          "max_iterations": 800
+        },
+        "boundary_conditions": [
+          {
+            "type": "dirichlet",
+            "value": 1.0,
+            "zone_indices": [
+              1
+            ]
+          },
+          {
+            "type": "neumann",
+            "flux": 0.0,
+            "zone_indices": [
+              2
+            ]
+          },
+          {
+            "type": "neumann",
+            "flux": 0.0,
+            "zone_indices": [
+              3
+            ]
+          },
+          {
+            "//": "heated walls AND susceptor: smoothstep in z (leading edge) x smoothstep in t (heat-up over T_RAMP=0.03). Both zones must be 'user' -- ramping only zone 4 would leave a discontinuity at the zone 4/5 junction.",
+            "type": "user",
+            "zone_indices": [
+              4,
+              5
+            ]
+          }
+        ],
+        "initial_condition": {
+          "type": "user"
+        },
+        "source_terms": [
+          {
+            "type": "gradient_jump_penalty",
+            "enabled": true,
+            "scaling_factor": 0.8,
+            "scaling_exponent": 4.0
+          }
+        ]
+      },
+      {
+        "//": "Sc=3.321 from Transport_SiC.dat; lambda=mu_ref/Sc held CONSTANT (species scalars accept no property_model, so Sc drifts with T)",
+        "//2": "no source_terms -- STEP 1 is pure transport, chemistry off",
+        "name": "SiHCl3",
+        "low_mach": {
+          "enabled": true
+        },
+        "lambda": 4.64062e-06,
+        "cp": 1.0,
+        "solver": {
+          "type": "cg",
+          "preconditioner": {
+            "type": "jacobi"
+          },
+          "projection_space_size": 0,
+          "absolute_tolerance": 1e-08,
+          "max_iterations": 800
+        },
+        "boundary_conditions": [
+          {
+            "//": "inlet feed mass fraction",
+            "type": "dirichlet",
+            "value": 0.2407,
+            "zone_indices": [
+              1
+            ]
+          },
+          {
+            "//": "outlet, walls, substrate: zero flux",
+            "type": "neumann",
+            "flux": 0.0,
+            "zone_indices": [
+              2,
+              3,
+              4,
+              5
+            ]
+          }
+        ],
+        "initial_condition": {
+          "type": "uniform",
+          "value": 0.0
+        }
+      },
+      {
+        "//": "Sc=2.181 from Transport_SiC.dat; lambda=mu_ref/Sc held CONSTANT (species scalars accept no property_model, so Sc drifts with T)",
+        "//2": "no source_terms -- STEP 1 is pure transport, chemistry off",
+        "name": "SiCl2",
+        "low_mach": {
+          "enabled": true
+        },
+        "lambda": 7.066254e-06,
+        "cp": 1.0,
+        "solver": {
+          "type": "cg",
+          "preconditioner": {
+            "type": "jacobi"
+          },
+          "projection_space_size": 0,
+          "absolute_tolerance": 1e-08,
+          "max_iterations": 800
+        },
+        "boundary_conditions": [
+          {
+            "//": "inlet feed mass fraction",
+            "type": "dirichlet",
+            "value": 0.0,
+            "zone_indices": [
+              1
+            ]
+          },
+          {
+            "//": "outlet, walls, substrate: zero flux",
+            "type": "neumann",
+            "flux": 0.0,
+            "zone_indices": [
+              2,
+              3,
+              4,
+              5
+            ]
+          }
+        ],
+        "initial_condition": {
+          "type": "uniform",
+          "value": 0.0
+        }
+      },
+      {
+        "//": "Sc=1.524 from Transport_SiC.dat; lambda=mu_ref/Sc held CONSTANT (species scalars accept no property_model, so Sc drifts with T)",
+        "//2": "no source_terms -- STEP 1 is pure transport, chemistry off",
+        "name": "C2H4",
+        "low_mach": {
+          "enabled": true
+        },
+        "lambda": 1.011253e-05,
+        "cp": 1.0,
+        "solver": {
+          "type": "cg",
+          "preconditioner": {
+            "type": "jacobi"
+          },
+          "projection_space_size": 0,
+          "absolute_tolerance": 1e-08,
+          "max_iterations": 800
+        },
+        "boundary_conditions": [
+          {
+            "//": "inlet feed mass fraction",
+            "type": "dirichlet",
+            "value": 0.0499,
+            "zone_indices": [
+              1
+            ]
+          },
+          {
+            "//": "outlet, walls, substrate: zero flux",
+            "type": "neumann",
+            "flux": 0.0,
+            "zone_indices": [
+              2,
+              3,
+              4,
+              5
+            ]
+          }
+        ],
+        "initial_condition": {
+          "type": "uniform",
+          "value": 0.0
+        }
+      },
+      {
+        "//": "Sc=1.429 from Transport_SiC.dat; lambda=mu_ref/Sc held CONSTANT (species scalars accept no property_model, so Sc drifts with T)",
+        "//2": "no source_terms -- STEP 1 is pure transport, chemistry off",
+        "name": "C2H2",
+        "low_mach": {
+          "enabled": true
+        },
+        "lambda": 1.078481e-05,
+        "cp": 1.0,
+        "solver": {
+          "type": "cg",
+          "preconditioner": {
+            "type": "jacobi"
+          },
+          "projection_space_size": 0,
+          "absolute_tolerance": 1e-08,
+          "max_iterations": 800
+        },
+        "boundary_conditions": [
+          {
+            "//": "inlet feed mass fraction",
+            "type": "dirichlet",
+            "value": 0.0,
+            "zone_indices": [
+              1
+            ]
+          },
+          {
+            "//": "outlet, walls, substrate: zero flux",
+            "type": "neumann",
+            "flux": 0.0,
+            "zone_indices": [
+              2,
+              3,
+              4,
+              5
+            ]
+          }
+        ],
+        "initial_condition": {
+          "type": "uniform",
+          "value": 0.0
+        }
+      },
+      {
+        "//": "Sc=1.263 from Transport_SiC.dat; lambda=mu_ref/Sc held CONSTANT (species scalars accept no property_model, so Sc drifts with T)",
+        "//2": "no source_terms -- STEP 1 is pure transport, chemistry off",
+        "name": "HCl",
+        "low_mach": {
+          "enabled": true
+        },
+        "lambda": 1.22023e-05,
+        "cp": 1.0,
+        "solver": {
+          "type": "cg",
+          "preconditioner": {
+            "type": "jacobi"
+          },
+          "projection_space_size": 0,
+          "absolute_tolerance": 1e-08,
+          "max_iterations": 800
+        },
+        "boundary_conditions": [
+          {
+            "//": "inlet feed mass fraction",
+            "type": "dirichlet",
+            "value": 0.0,
+            "zone_indices": [
+              1
+            ]
+          },
+          {
+            "//": "outlet, walls, substrate: zero flux",
+            "type": "neumann",
+            "flux": 0.0,
+            "zone_indices": [
+              2,
+              3,
+              4,
+              5
+            ]
+          }
+        ],
+        "initial_condition": {
+          "type": "uniform",
+          "value": 0.0
+        }
+      }
+    ],
+    "simulation_components": [
+      {
+        "type": "field_writer",
+        "fields": [
+          "SiHCl3",
+          "SiCl2",
+          "C2H4",
+          "C2H2",
+          "HCl"
+        ],
+        "output_filename": "species",
+        "output_control": "simulationtime",
+        "output_value": 0.01
+      }
+    ],
+    "//ramp": "T_hot = 6 (1800 K at T_ref=300 K). Zone 4 uses a smoothstep wall-T ramp over 25 mm from z=0.285; zone 5 (susceptor) is a plain dirichlet 6.0.",
+    "//cadence": "checkpoint/output at 0.01: run 4637228 ran 16 h at dt~1.4e-6 and would have reached only t~0.05, missing its first checkpoint at 0.10 entirely. Size cadence to the observed dt."
+  }
+}
