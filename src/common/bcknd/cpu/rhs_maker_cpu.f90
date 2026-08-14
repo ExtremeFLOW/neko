@@ -139,11 +139,10 @@ contains
 
   end subroutine rhs_maker_ext_cpu
 
-  subroutine scalar_rhs_maker_ext_cpu(fs_lag, fs_laglag, fs, rho, &
-       ext_coeffs, n)
+  subroutine scalar_rhs_maker_ext_cpu(fs_lag, fs_laglag, fs, ext_coeffs, n)
     type(field_t), intent(inout) :: fs_lag
     type(field_t), intent(inout) :: fs_laglag
-    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
+    real(kind=rp), intent(in) :: ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fs(n)
     integer :: i
@@ -181,7 +180,7 @@ contains
     !GCC$ ivdep
     !$omp do
     do i = 1, n
-       fs(i) = (ext_coeffs(1) * fs(i) + temp1%x(i,1,1,1)) * rho
+       fs(i) = ext_coeffs(1) * fs(i) + temp1%x(i,1,1,1)
     end do
     !$omp end do
     !$omp end parallel
@@ -269,13 +268,13 @@ contains
 
   end subroutine rhs_maker_bdf_cpu
 
-  subroutine scalar_rhs_maker_bdf_cpu(s_lag, fs, s, B, rho, dt, bd, nbd, n)
+  subroutine scalar_rhs_maker_bdf_cpu(s_lag, fs, s, B, rho_cp, dt, bd, nbd, n)
     integer, intent(in) :: n, nbd
-    type(field_t), intent(in) :: s
+    type(field_t), intent(in) :: s, rho_cp
     type(field_series_t), intent(in) :: s_lag
     real(kind=rp), intent(inout) :: fs(n)
     real(kind=rp), intent(in) :: B(n)
-    real(kind=rp), intent(in) :: dt, rho, bd(4)
+    real(kind=rp), intent(in) :: dt, bd(4)
     integer :: i, ilag
     type(field_t), pointer :: temp1
     integer :: temp_indices
@@ -312,7 +311,8 @@ contains
     !GCC$ ivdep
     !$omp do
     do i = 1, n
-       fs(i) = fs(i) + temp1%x(i,1,1,1) * (rho / dt)
+       fs(i) = fs(i) + temp1%x(i,1,1,1) * &
+            (rho_cp%x(i,1,1,1) / dt)
     end do
     !$omp end do
     !$omp end parallel
@@ -342,8 +342,9 @@ contains
 
   end subroutine rhs_maker_oifs_cpu
 
-  subroutine scalar_rhs_maker_oifs_cpu(phi_s, bf_s, rho, dt, n)
-    real(kind=rp), intent(in) :: rho, dt
+  subroutine scalar_rhs_maker_oifs_cpu(phi_s, bf_s, rho_cp, dt, n)
+    type(field_t), intent(in) :: rho_cp
+    real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: bf_s(n)
     real(kind=rp), intent(inout) :: phi_s(n)
@@ -355,7 +356,7 @@ contains
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, n
-       bf_s(i) = bf_s(i) + phi_s(i) * (rho / dt)
+       bf_s(i) = bf_s(i) + phi_s(i) * (rho_cp%x(i,1,1,1) / dt)
     end do
     !$omp end parallel do
 

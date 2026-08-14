@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Fixed material property handling in `scalar_pnpn`: user-defined properties
+  are now updated before right-hand-side assembly, Neumann values are treated
+  as physical fluxes, and spatially varying `rho * cp` is applied consistently.
 - Added OpenMP threading to the Coarray Fortran and host OpenSHMEM
   gather-scatter backends, which duplicated the one-sided puts and the
   signalling on every thread in hybrid MPI+OpenMP runs.

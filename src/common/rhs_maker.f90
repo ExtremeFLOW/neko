@@ -98,13 +98,12 @@ module rhs_maker
   end interface
 
   abstract interface
-     subroutine scalar_rhs_maker_ext(fs_lag, fs_laglag, fs, rho, &
-          ext_coeffs, n)
+     subroutine scalar_rhs_maker_ext(fs_lag, fs_laglag, fs, ext_coeffs, n)
        import field_t
        import rp
        type(field_t), intent(inout) :: fs_lag
        type(field_t), intent(inout) :: fs_laglag
-       real(kind=rp), intent(in) :: rho, ext_coeffs(4)
+       real(kind=rp), intent(in) :: ext_coeffs(4)
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: fs(n)
      end subroutine scalar_rhs_maker_ext
@@ -126,23 +125,23 @@ module rhs_maker
   end interface
 
   abstract interface
-     subroutine scalar_rhs_maker_bdf(s_lag, fs, s, B, rho, dt, &
+     subroutine scalar_rhs_maker_bdf(s_lag, fs, s, B, rho_cp, dt, &
           bd, nbd, n)
        import field_series_t
        import field_t
        import rp
        integer, intent(in) :: n, nbd
-       type(field_t), intent(in) :: s
+       type(field_t), intent(in) :: s, rho_cp
        type(field_series_t), intent(in) :: s_lag
        real(kind=rp), intent(inout) :: fs(n)
        real(kind=rp), intent(in) :: B(n)
-       real(kind=rp), intent(in) :: dt, rho, bd(4)
+       real(kind=rp), intent(in) :: dt, bd(4)
      end subroutine scalar_rhs_maker_bdf
   end interface
 
   abstract interface
      subroutine rhs_maker_oifs(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
-                               rho, dt, n)
+          rho, dt, n)
        import rp
        real(kind=rp), intent(in) :: rho, dt
        integer, intent(in) :: n
@@ -152,9 +151,11 @@ module rhs_maker
   end interface
 
   abstract interface
-     subroutine scalar_rhs_maker_oifs(phi_s, bf_s, rho, dt, n)
+     subroutine scalar_rhs_maker_oifs(phi_s, bf_s, rho_cp, dt, n)
+       import field_t
        import rp
-       real(kind=rp), intent(in) :: rho, dt
+       type(field_t), intent(in) :: rho_cp
+       real(kind=rp), intent(in) :: dt
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: bf_s(n)
        real(kind=rp), intent(inout) :: phi_s(n)
@@ -196,6 +197,6 @@ module rhs_maker
   end interface
 
   public :: rhs_maker_sumab_fctry, rhs_maker_ext_fctry, rhs_maker_bdf_fctry, &
-            rhs_maker_oifs_fctry
+       rhs_maker_oifs_fctry
 
 end module rhs_maker
