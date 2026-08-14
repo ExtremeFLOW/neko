@@ -54,6 +54,13 @@ A number of gather-scatter backends are supported.
 - `NEKO_GS_COMM=UTOFU`  : Native Tofu interconnect (uTofu) one-sided RDMA
   (Fugaku and other Tofu-D systems; requires building with `--with-utofu`)
 
+When `NEKO_GS_COMM` is unset and the build has no device-aware MPI,
+the host backends are benchmarked at initialisation and the fastest
+one is kept (see @ref performance-gs-autotuning). `MPI` and
+`NEIGHBOUR` are always benchmarked; `SHMEM`, `CAF` and `UTOFU` join
+them if the build has the corresponding support. Set `NEKO_GS_COMM`
+explicitly to skip the benchmark and pin a backend.
+
 ### MPI thread level details
 
 `NEKO_MPI_THREAD_LEVEL` overrides the default thread support requested
@@ -73,10 +80,10 @@ level, initialisation aborts.
 
 ### Coarray Fortran signaling mode details
 
-When `NEKO_GS_COMM=CAF`, the per-pair synchronisation strategy is
-selected by `NEKO_GS_CAF_SIGNALING`. The mode is bound on the first
-gather-scatter initialisation and cannot change thereafter. The
-default (when unset) is `sync`.
+When the CAF gather-scatter backend is used, the per-pair
+synchronisation strategy is selected by `NEKO_GS_CAF_SIGNALING`. The
+mode is bound on the first gather-scatter initialisation and cannot
+change thereafter. The default (when unset) is `sync`.
 
 - `NEKO_GS_CAF_SIGNALING=sync`   : `sync images` over the union of
   neighbour pairs, with a double-buffered receive coarray (F2008).
@@ -85,6 +92,12 @@ default (when unset) is `sync`.
 - `NEKO_GS_CAF_SIGNALING=event`  : F2018 events (`event post` /
   `event wait`); requires a runtime that implements F2018 event
   semantics.
+- `NEKO_GS_CAF_SIGNALING=auto`   : Benchmark the modes above that the
+  build supports and bind the fastest one. Only takes effect when the
+  comm. backend is autotuned too (i.e. `NEKO_GS_COMM` unset), and only
+  on the first gather-scatter that tunes CAF, as the mode is shared by
+  every instance; falls back to `sync` otherwise. See
+  @ref performance-gs-autotuning.
 
 ### uTofu injection details
 

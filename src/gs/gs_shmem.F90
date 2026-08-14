@@ -59,6 +59,15 @@ module gs_shmem
   !! (the level is a property of the library, so all instances agree).
   logical :: gs_shmem_thread_multiple = .false.
 
+  !> Whether a native OpenSHMEM library was built into this Neko
+  !! (--with-openshmem). Lets callers (e.g. the gs comm. autotuner) skip
+  !! the backend rather than aborting in init on builds without it.
+#ifdef HAVE_OPENSHMEM
+  logical, parameter, public :: GS_SHMEM_AVAIL = .true.
+#else
+  logical, parameter, public :: GS_SHMEM_AVAIL = .false.
+#endif
+
   !> Symmetric buffer for one direction of OpenSHMEM communication
   type :: gs_shmem_buf_t
      !> Number of dofs per neighbor
@@ -218,7 +227,10 @@ contains
     call neko_error('Neko was not built with OpenSHMEM support')
 #else
 
-    call this%free()
+    ! No self-free here: gs_schedule has just filled send_dof/recv_dof and
+    ! gs_shmem_free would deallocate them again, leaving the buffer setup
+    ! below reading from a dangling descriptor. Like every other comm
+    ! backend, init assumes a freshly allocated object.
     call this%init_order(send_pe, recv_pe)
 
     ! Decide once whether the OpenSHMEM library tolerates concurrent calls
