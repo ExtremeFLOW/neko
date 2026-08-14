@@ -1,0 +1,9 @@
+<map id="boundary_data::boundary_data_get_vector_by_field" name="boundary_data::boundary_data_get_vector_by_field">
+<area shape="rect" id="Node000001" title="Sample a field at the boundary points into a vector." alt="" coords="5,37,197,77"/>
+<area shape="rect" id="Node000002" href="$d3/d0d/namespacevector__math.html#a102c3fdd6473f46807a9cd38290910de" title="Gather a vector to reduced contigous array ." alt="" coords="245,37,428,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,55,232,55,232,60,198,60"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#ab5d60404a08d01766f7d764fd0f144a1" title="Gather a masked vector ." alt="" coords="476,5,659,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="428,42,462,37,463,43,428,47"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a93ebdef19d8a165651d852f29d2bf5b7" title="Gather a masked vector to reduced contigous vector ." alt="" coords="485,69,649,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="428,67,472,73,471,79,428,73"/>
+</map>

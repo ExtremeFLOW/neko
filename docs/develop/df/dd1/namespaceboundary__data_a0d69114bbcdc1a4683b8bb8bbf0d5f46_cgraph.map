@@ -1,0 +1,10 @@
+<map id="boundary_data::boundary_data_point_average" name="boundary_data::boundary_data_point_average">
+<area shape="rect" id="Node000001" title="Unweighted mean of the boundary point coordinates." alt="" coords="5,47,193,87"/>
+<area shape="rect" id="Node000002" href="$d3/d0d/namespacevector__math.html#a83da312e1061e280d36d8ae363663f0f" title=" " alt="" coords="241,47,395,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,64,227,64,227,69,194,69"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a2bfbeed670b2e6b704a1a2c4e5bc03c4" title="Sum a vector of length n." alt="" coords="443,5,600,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="395,48,429,41,430,47,396,54"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="469,94,573,119"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="396,79,456,91,455,96,395,84"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="488,96,481,86,485,76,498,70,521,67,550,71,561,80,557,84,547,76,521,73,500,75,488,79,486,85,492,92"/>
+</map>

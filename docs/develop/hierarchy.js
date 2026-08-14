@@ -80,6 +80,7 @@ var hierarchy =
     ] ],
     [ "flow_profile::blasius_profile", "dd/d19/interfaceflow__profile_1_1blasius__profile.html", null ],
     [ "ale_rigid_kinematics::body_kinematics_t", "de/da9/structale__rigid__kinematics_1_1body__kinematics__t.html", null ],
+    [ "boundary_data::boundary_data_t", "d5/dd2/structboundary__data_1_1boundary__data__t.html", null ],
     [ "buffer::buffer_t", "d2/d35/structbuffer_1_1buffer__t.html", [
       [ "buffer_1d::buffer_1d_t", "d8/db0/structbuffer__1d_1_1buffer__1d__t.html", null ],
       [ "buffer_4d::buffer_4d_t", "d8/dce/structbuffer__4d_1_1buffer__4d__t.html", null ],
@@ -1054,6 +1055,7 @@ var hierarchy =
     [ "simulation_component::simulation_component_free", "d7/d7f/interfacesimulation__component_1_1simulation__component__free.html", null ],
     [ "simulation_component::simulation_component_init", "d6/deb/interfacesimulation__component_1_1simulation__component__init.html", null ],
     [ "simulation_component::simulation_component_t", "dc/d0d/structsimulation__component_1_1simulation__component__t.html", [
+      [ "boundary_data_writer_simcomp::boundary_data_writer_t", "df/df7/structboundary__data__writer__simcomp_1_1boundary__data__writer__t.html", null ],
       [ "boundary_flux::boundary_flux_t", "d7/df8/structboundary__flux_1_1boundary__flux__t.html", null ],
       [ "boundary_operation::boundary_operation_t", "d0/d23/structboundary__operation_1_1boundary__operation__t.html", null ],
       [ "curl_simcomp::curl_t", "d7/d9c/structcurl__simcomp_1_1curl__t.html", null ],
@@ -1075,6 +1077,7 @@ var hierarchy =
       [ "spatial_average::spatial_average_t", "d2/dd1/structspatial__average_1_1spatial__average__t.html", null ],
       [ "spectral_error::spectral_error_t", "d9/deb/structspectral__error_1_1spectral__error__t.html", null ],
       [ "user_stats::user_stats_t", "dd/d8b/structuser__stats_1_1user__stats__t.html", null ],
+      [ "wall_shear_stress_simcomp::wall_shear_stress_t", "d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t.html", null ],
       [ "weak_gradient_simcomp::weak_gradient_t", "df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html", null ]
     ] ],
     [ "simulation_component::simulation_component_wrapper_t", "d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html", null ],

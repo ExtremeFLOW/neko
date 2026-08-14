@@ -9,5 +9,6 @@ var searchData=
   ['wall_5fmodel_5finit_6',['wall_model_init',['../d5/db1/interfacewall__model_1_1wall__model__init.html',1,'wall_model']]],
   ['wall_5fmodel_5fpartial_5finit_7',['wall_model_partial_init',['../d8/df2/interfacewall__model_1_1wall__model__partial__init.html',1,'wall_model']]],
   ['wall_5fmodel_5ft_8',['wall_model_t',['../d4/d70/structwall__model_1_1wall__model__t.html',1,'wall_model']]],
-  ['weak_5fgradient_5ft_9',['weak_gradient_t',['../df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html',1,'weak_gradient_simcomp']]]
+  ['wall_5fshear_5fstress_5ft_9',['wall_shear_stress_t',['../d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t.html',1,'wall_shear_stress_simcomp']]],
+  ['weak_5fgradient_5ft_10',['weak_gradient_t',['../df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html',1,'weak_gradient_simcomp']]]
 ];

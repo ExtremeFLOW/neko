@@ -1,0 +1,7 @@
+<map id="boundary_data_writer_simcomp::boundary_data_writer_setup_output_csv" name="boundary_data_writer_simcomp::boundary_data_writer_setup_output_csv">
+<area shape="rect" id="Node000001" title="Set up a CSV output." alt="" coords="5,37,200,92"/>
+<area shape="rect" id="Node000002" href="$d5/d29/namespaceboundary__data__writer__simcomp.html#a9bb061112ef0aa2c627abd7869d9ce54" title="Gather the reference geometry of all points onto rank zero." alt="" coords="248,5,443,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,49,234,45,235,50,201,54"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="251,84,439,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,75,238,80,237,85,200,80"/>
+</map>

@@ -1,5 +1,7 @@
 <map id="drag_torque::calc_force_array" name="drag_torque::calc_force_array">
-<area shape="rect" id="Node000001" title="Calculate drag and torque from array of points." alt="" coords="199,5,373,45"/>
-<area shape="rect" id="Node000002" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="5,5,151,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,28,151,28,151,23,185,23"/>
+<area shape="rect" id="Node000001" title="Calculate drag and torque from array of points." alt="" coords="264,37,439,77"/>
+<area shape="rect" id="Node000002" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="38,5,183,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="250,47,183,38,184,32,250,41"/>
+<area shape="rect" id="Node000003" href="$d5/d15/namespacewall__shear__stress__simcomp.html#a67243455c77fdf2f525efc734ced8a54" title="Compute the wall shear stress." alt="" coords="5,69,216,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="251,73,217,78,216,73,250,68"/>
 </map>

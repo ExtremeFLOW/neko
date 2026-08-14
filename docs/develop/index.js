@@ -112,15 +112,15 @@ var index =
         [ "Runtime statistics", "dd/d33/case-file.html#autotoc_md114", null ]
       ] ],
       [ "User File", "d6/def/user-file.html", [
-        [ "Compiling and running", "d6/def/user-file.html#autotoc_md205", null ],
-        [ "High-level structure", "d6/def/user-file.html#autotoc_md206", null ],
-        [ "Default user functions", "d6/def/user-file.html#autotoc_md207", [
+        [ "Compiling and running", "d6/def/user-file.html#autotoc_md206", null ],
+        [ "High-level structure", "d6/def/user-file.html#autotoc_md207", null ],
+        [ "Default user functions", "d6/def/user-file.html#autotoc_md208", [
           [ "Initializing and finalizing", "d6/def/user-file.html#user-file_init-and-final", null ],
           [ "Computing at every time step", "d6/def/user-file.html#user-file_user-check", null ],
           [ "Setting material properties", "d6/def/user-file.html#user-file_mat-prop", null ],
           [ "Runtime mesh deformation", "d6/def/user-file.html#user-file_user-mesh-setup", null ]
         ] ],
-        [ "Case-specific user functions", "d6/def/user-file.html#autotoc_md208", [
+        [ "Case-specific user functions", "d6/def/user-file.html#autotoc_md209", [
           [ "Fluid and Scalar initial conditions", "d6/def/user-file.html#user-file_user-ic", null ],
           [ "Fluid and scalar source terms", "d6/def/user-file.html#user-file_user-f", null ],
           [ "Dirichlet boundary conditions", "d6/def/user-file.html#user-file_field-dirichlet-update", null ],
@@ -131,7 +131,7 @@ var index =
           [ "Mesh Velocity", "d6/def/user-file.html#user-file_ale-mesh-velocity", null ],
           [ "Custom Base Shapes", "d6/def/user-file.html#user-file_ale-base-shapes", null ]
         ] ],
-        [ "Additional remarks and tips", "d6/def/user-file.html#autotoc_md209", [
+        [ "Additional remarks and tips", "d6/def/user-file.html#autotoc_md210", [
           [ "Running on GPUs", "d6/def/user-file.html#user-file_tips_running-on-gpus", null ],
           [ "Running in multiple program multiple data (MPMD) mode", "d6/def/user-file.html#user-file_tips_mpmd", [
             [ "Custom GPU kernels", "d6/def/user-file.html#user-file_tips_running-on-gpus-custom-kernels", null ]
@@ -155,15 +155,19 @@ var index =
           [ "lambda2", "d3/d84/simcomps.html#simcomp_lambda2", null ],
           [ "boundary_operation", "d3/d84/simcomps.html#simcomp_boundary_operation", null ],
           [ "boundary_flux", "d3/d84/simcomps.html#simcomp_boundary_flux", null ],
+          [ "boundary_data_writer", "d3/d84/simcomps.html#simcomp_boundary_data_writer", [
+            [ "Output files", "d3/d84/simcomps.html#autotoc_md193", null ]
+          ] ],
           [ "probes", "d3/d84/simcomps.html#simcomp_probes", [
-            [ "Supported types", "d3/d84/simcomps.html#autotoc_md193", null ],
-            [ "Example usage", "d3/d84/simcomps.html#autotoc_md194", null ]
+            [ "Supported types", "d3/d84/simcomps.html#autotoc_md194", null ],
+            [ "Example usage", "d3/d84/simcomps.html#autotoc_md195", null ]
           ] ],
           [ "field_writer", "d3/d84/simcomps.html#simcomp_field_writer", null ],
           [ "lagrangian_particles", "d3/d84/simcomps.html#simcomp_lagrangian_particles", null ],
           [ "force_torque", "d3/d84/simcomps.html#simcomp_force_torque", [
-            [ "Torque calculation for moving bodies", "d3/d84/simcomps.html#autotoc_md195", null ]
+            [ "Torque calculation for moving bodies", "d3/d84/simcomps.html#autotoc_md196", null ]
           ] ],
+          [ "wall_shear_stress", "d3/d84/simcomps.html#simcomp_wall_shear_stress", null ],
           [ "les_model", "d3/d84/simcomps.html#simcomp_les_model", null ],
           [ "User statistics", "d3/d84/simcomps.html#user_stats", null ],
           [ "Spatial average", "d3/d84/simcomps.html#simcomp_spatial_average", null ],
@@ -189,21 +193,21 @@ var index =
       ] ],
       [ "Statistics guide", "df/d8f/statistics-guide.html", [
         [ "Fluid Statistics", "df/d8f/statistics-guide.html#fluid-statistics", [
-          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md196", null ],
-          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md197", null ]
+          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md197", null ],
+          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md198", null ]
         ] ],
-        [ "Postprocessing", "df/d8f/statistics-guide.html#autotoc_md198", null ],
+        [ "Postprocessing", "df/d8f/statistics-guide.html#autotoc_md199", null ],
         [ "Scalar Statistics", "df/d8f/statistics-guide.html#scalar-statistics", [
-          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md199", null ],
-          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md200", null ]
+          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md200", null ],
+          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md201", null ]
         ] ],
         [ "Fluid Subgrid-Scale (SGS) Statistics", "df/d8f/statistics-guide.html#fluid-sgs-statistics", [
-          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md201", null ],
-          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md202", null ]
+          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md202", null ],
+          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md203", null ]
         ] ],
         [ "Scalar Subgrid-Scale (SGS) Statistics", "df/d8f/statistics-guide.html#scalar-sgs-statistics", [
-          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md203", null ],
-          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md204", null ]
+          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md204", null ],
+          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md205", null ]
         ] ],
         [ "Note to users", "df/d8f/statistics-guide.html#note-to-users", null ]
       ] ],

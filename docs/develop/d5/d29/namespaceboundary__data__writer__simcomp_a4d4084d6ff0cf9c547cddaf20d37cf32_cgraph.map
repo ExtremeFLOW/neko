@@ -1,0 +1,5 @@
+<map id="boundary_data_writer_simcomp::boundary_data_writer_gather_column" name="boundary_data_writer_simcomp::boundary_data_writer_gather_column">
+<area shape="rect" id="Node000001" title="Gather a field at the masked points into a column of the local buffer." alt="" coords="5,5,200,60"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="248,20,343,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,30,234,30,234,35,200,35"/>
+</map>

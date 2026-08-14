@@ -1,19 +1,23 @@
 <map id="tensor::trsp" name="tensor::trsp">
-<area shape="rect" id="Node000001" title="Transpose of a rectangular tensor ." alt="" coords="949,95,1045,121"/>
-<area shape="rect" id="Node000002" href="$dd/d52/namespaceelementwise__filter.html#a106ce51f62e266dfa441bde829ddff19" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="742,5,885,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="961,91,900,60,871,48,873,43,902,55,963,86"/>
-<area shape="rect" id="Node000004" href="$dd/dd2/namespacedofmap.html#a971e44364f26c18dcc5aeaa06ab7d50d" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="725,70,901,95"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="935,102,901,97,902,92,936,97"/>
-<area shape="rect" id="Node000007" href="$dd/dd2/namespacedofmap.html#adb78d2dd3cc039858605775479de13ca" title=" " alt="" coords="485,121,677,146"/>
-<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="936,114,678,130,678,125,935,109"/>
-<area shape="rect" id="Node000008" href="$d2/d47/namespacelpt__output.html#a940653e294daa546971bb94d7789893a" title="Write one trajectory snapshot to CSV by gathering particle data to rank 0." alt="" coords="732,171,895,211"/>
-<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="958,129,902,154,861,173,859,168,900,150,955,124"/>
-<area shape="rect" id="Node000003" href="$dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="510,5,653,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="728,28,653,28,653,23,728,23"/>
-<area shape="rect" id="Node000005" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="212,95,437,121"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="712,91,437,105,437,100,711,85"/>
-<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="742,101,641,123,640,118,740,96"/>
-<area shape="rect" id="Node000006" href="$dd/dd2/namespacedofmap.html#ab00433635f8523e38ff52650bdbe62c0" title="Constructor." alt="" coords="5,95,164,121"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="198,111,164,111,164,105,198,105"/>
-<area shape="poly" id="edge7_Node000007_Node000005" title=" " alt="" coords="471,125,437,122,438,116,472,120"/>
+<area shape="rect" id="Node000001" title="Transpose of a rectangular tensor ." alt="" coords="971,149,1067,175"/>
+<area shape="rect" id="Node000002" href="$d5/d29/namespaceboundary__data__writer__simcomp.html#a5c34e089f68435684e6c13907854e3f6" title="Gather the local sample buffer onto rank zero." alt="" coords="728,5,923,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="995,141,962,107,921,75,899,62,902,58,924,70,966,103,999,137"/>
+<area shape="rect" id="Node000004" href="$dd/d52/namespaceelementwise__filter.html#a106ce51f62e266dfa441bde829ddff19" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="754,85,897,125"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="961,148,892,127,894,122,963,143"/>
+<area shape="rect" id="Node000006" href="$dd/dd2/namespacedofmap.html#a971e44364f26c18dcc5aeaa06ab7d50d" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="737,149,913,175"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="957,165,913,165,913,159,957,159"/>
+<area shape="rect" id="Node000009" href="$dd/dd2/namespacedofmap.html#adb78d2dd3cc039858605775479de13ca" title=" " alt="" coords="487,200,679,225"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="964,181,923,190,796,206,679,213,679,208,795,200,922,185,962,176"/>
+<area shape="rect" id="Node000010" href="$d2/d47/namespacelpt__output.html#a940653e294daa546971bb94d7789893a" title="Write one trajectory snapshot to CSV by gathering particle data to rank 0." alt="" coords="744,250,907,290"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="993,186,961,210,924,234,885,252,882,247,921,229,958,206,990,181"/>
+<area shape="rect" id="Node000003" href="$d5/d29/namespaceboundary__data__writer__simcomp.html#a3314df73ea7f8aaa8a99a7fd4d698b28" title="Sample the boundary and write." alt="" coords="485,5,680,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="714,35,680,35,680,30,714,30"/>
+<area shape="rect" id="Node000005" href="$dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="511,85,654,125"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="740,107,654,107,654,102,740,102"/>
+<area shape="rect" id="Node000007" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="212,175,437,200"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="724,170,438,184,437,179,724,164"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="751,180,645,203,644,197,750,175"/>
+<area shape="rect" id="Node000008" href="$dd/dd2/namespacedofmap.html#ab00433635f8523e38ff52650bdbe62c0" title="Constructor." alt="" coords="5,175,164,200"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="198,190,164,190,164,185,198,185"/>
+<area shape="poly" id="edge9_Node000009_Node000007" title=" " alt="" coords="473,205,437,201,438,196,474,199"/>
 </map>

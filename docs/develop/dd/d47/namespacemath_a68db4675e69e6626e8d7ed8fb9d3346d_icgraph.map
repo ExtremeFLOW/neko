@@ -1,7 +1,9 @@
 <map id="math::masked_scatter_copy_0" name="math::masked_scatter_copy_0">
-<area shape="rect" id="Node000001" title="Scatter a contigous vector to masked positions in a target array ." alt="" coords="239,37,405,77"/>
-<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#af057757f2838f6f4d061543b9b561094" title="Gather a contiguous array into a field ." alt="" coords="5,5,191,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="225,46,190,41,191,36,225,41"/>
-<area shape="rect" id="Node000003" href="$d3/d0d/namespacevector__math.html#ae6a9b6ccf8813a576d35925f2c451e27" title="Scatter a contiguous vector into an array ." alt="" coords="5,69,191,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="225,74,191,79,190,73,225,69"/>
+<area shape="rect" id="Node000001" title="Scatter a contigous vector to masked positions in a target array ." alt="" coords="475,37,641,77"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#af057757f2838f6f4d061543b9b561094" title="Gather a contiguous array into a field ." alt="" coords="241,5,427,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="461,46,426,41,427,36,461,41"/>
+<area shape="rect" id="Node000003" href="$d3/d0d/namespacevector__math.html#ae6a9b6ccf8813a576d35925f2c451e27" title="Scatter a contiguous vector into an array ." alt="" coords="241,69,427,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="461,74,427,79,426,73,461,69"/>
+<area shape="rect" id="Node000004" href="$df/dd1/namespaceboundary__data.html#a3f62606b7e17de072482817c87e28603" title="Scatter a boundary vector back into a full field." alt="" coords="5,62,193,117"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="227,92,194,92,194,87,227,87"/>
 </map>

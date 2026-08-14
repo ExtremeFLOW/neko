@@ -19,14 +19,20 @@
 <area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="804,277,792,312,773,353,746,394,712,429,692,442,669,451,667,446,689,438,709,425,742,391,768,350,787,309,799,275"/>
 <area shape="rect" id="Node000003" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="221,5,423,60"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="490,35,423,35,423,30,490,30"/>
-<area shape="rect" id="Node000011" href="$df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="242,369,402,424"/>
-<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="501,442,402,418,403,413,502,437"/>
-<area shape="rect" id="Node000012" href="$de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="220,448,424,473"/>
-<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="501,463,424,463,424,458,501,458"/>
-<area shape="rect" id="Node000014" href="$d3/d22/namespacerichardson.html#a21876c302c8bbb83882d77251432e958" title=" " alt="" coords="239,498,405,538"/>
-<area shape="poly" id="edge14_Node000010_Node000014" title=" " alt="" coords="502,482,406,503,405,498,501,477"/>
-<area shape="rect" id="Node000013" href="$de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="9,448,169,473"/>
-<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="206,463,169,463,169,458,206,458"/>
-<area shape="rect" id="Node000015" href="$d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,498,172,538"/>
-<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="224,521,172,521,172,515,224,515"/>
+<area shape="rect" id="Node000011" href="$df/dd1/namespaceboundary__data.html#a647c50f24010ceb4a651154e64a80c40" title="Area weighted geometric centre of the zones." alt="" coords="228,277,416,317"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="500,447,470,429,459,417,451,404,445,379,439,354,433,342,422,331,405,319,408,315,426,327,437,339,444,352,450,378,456,402,463,414,474,425,503,442"/>
+<area shape="rect" id="Node000012" href="$df/dd1/namespaceboundary__data.html#a0d69114bbcdc1a4683b8bb8bbf0d5f46" title="Unweighted mean of the boundary point coordinates." alt="" coords="228,341,416,381"/>
+<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="500,442,471,430,446,412,423,395,395,383,397,378,425,390,449,408,473,425,502,437"/>
+<area shape="rect" id="Node000013" href="$df/dd1/namespaceboundary__data.html#a9c27a60ea3609978a961c35a52cd508b" title="Total surface area of the zones." alt="" coords="228,405,416,445"/>
+<area shape="poly" id="edge13_Node000010_Node000013" title=" " alt="" coords="501,451,416,440,416,435,501,446"/>
+<area shape="rect" id="Node000014" href="$df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="242,469,402,524"/>
+<area shape="poly" id="edge14_Node000010_Node000014" title=" " alt="" coords="502,475,403,489,402,483,501,470"/>
+<area shape="rect" id="Node000015" href="$de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="220,548,424,573"/>
+<area shape="poly" id="edge15_Node000010_Node000015" title=" " alt="" coords="539,489,485,514,425,538,382,550,381,545,423,533,483,509,537,484"/>
+<area shape="rect" id="Node000017" href="$d3/d22/namespacerichardson.html#a21876c302c8bbb83882d77251432e958" title=" " alt="" coords="239,598,405,638"/>
+<area shape="poly" id="edge17_Node000010_Node000017" title=" " alt="" coords="560,492,500,541,425,588,398,600,395,596,423,584,497,536,557,488"/>
+<area shape="rect" id="Node000016" href="$de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="9,548,169,573"/>
+<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="206,563,169,563,169,558,206,558"/>
+<area shape="rect" id="Node000018" href="$d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,598,172,638"/>
+<area shape="poly" id="edge18_Node000017_Node000018" title=" " alt="" coords="224,621,172,621,172,615,224,615"/>
 </map>

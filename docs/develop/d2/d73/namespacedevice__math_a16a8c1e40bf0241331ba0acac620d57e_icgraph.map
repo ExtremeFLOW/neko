@@ -1,9 +1,11 @@
 <map id="device_math::device_masked_scatter_copy_0" name="device_math::device_masked_scatter_copy_0">
-<area shape="rect" id="Node000001" title="Scatter a masked vector ." alt="" coords="257,69,443,109"/>
-<area shape="rect" id="Node000002" href="$d4/d86/namespacefacet__normal.html#a93d2f3b5fd10d1a5338fc2b2712a4149" title="Apply in facet normal direction (vector valued, device version)" alt="" coords="5,5,209,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="260,68,183,48,184,43,261,63"/>
-<area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#af057757f2838f6f4d061543b9b561094" title="Gather a contiguous array into a field ." alt="" coords="15,69,200,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="244,92,200,92,200,87,244,87"/>
-<area shape="rect" id="Node000004" href="$d3/d0d/namespacevector__math.html#ae6a9b6ccf8813a576d35925f2c451e27" title="Scatter a contiguous vector into an array ." alt="" coords="15,133,200,173"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="261,115,184,136,183,131,260,110"/>
+<area shape="rect" id="Node000001" title="Scatter a masked vector ." alt="" coords="493,69,679,109"/>
+<area shape="rect" id="Node000002" href="$d4/d86/namespacefacet__normal.html#a93d2f3b5fd10d1a5338fc2b2712a4149" title="Apply in facet normal direction (vector valued, device version)" alt="" coords="241,5,445,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="496,68,419,48,420,43,497,63"/>
+<area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#af057757f2838f6f4d061543b9b561094" title="Gather a contiguous array into a field ." alt="" coords="251,69,436,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="480,92,436,92,436,87,480,87"/>
+<area shape="rect" id="Node000004" href="$d3/d0d/namespacevector__math.html#ae6a9b6ccf8813a576d35925f2c451e27" title="Scatter a contiguous vector into an array ." alt="" coords="251,133,436,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="497,115,420,136,419,131,496,110"/>
+<area shape="rect" id="Node000005" href="$df/dd1/namespaceboundary__data.html#a3f62606b7e17de072482817c87e28603" title="Scatter a boundary vector back into a full field." alt="" coords="5,126,193,181"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="237,156,193,156,193,151,237,151"/>
 </map>

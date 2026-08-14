@@ -112,6 +112,12 @@ var annotated_dup =
     [ "blasius", "de/da4/namespaceblasius.html", [
       [ "blasius_t", "d0/dca/structblasius_1_1blasius__t.html", "d0/dca/structblasius_1_1blasius__t" ]
     ] ],
+    [ "boundary_data", "df/dd1/namespaceboundary__data.html", [
+      [ "boundary_data_t", "d5/dd2/structboundary__data_1_1boundary__data__t.html", "d5/dd2/structboundary__data_1_1boundary__data__t" ]
+    ] ],
+    [ "boundary_data_writer_simcomp", "d5/d29/namespaceboundary__data__writer__simcomp.html", [
+      [ "boundary_data_writer_t", "df/df7/structboundary__data__writer__simcomp_1_1boundary__data__writer__t.html", "df/df7/structboundary__data__writer__simcomp_1_1boundary__data__writer__t" ]
+    ] ],
     [ "boundary_flux", "d1/d36/namespaceboundary__flux.html", [
       [ "boundary_flux_t", "d7/df8/structboundary__flux_1_1boundary__flux__t.html", "d7/df8/structboundary__flux_1_1boundary__flux__t" ]
     ] ],
@@ -1898,6 +1904,9 @@ var annotated_dup =
     ] ],
     [ "wall_model_device", "db/d0e/namespacewall__model__device.html", [
       [ "hip_wall_model_compute_mag_field", "d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field.html", "d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field" ]
+    ] ],
+    [ "wall_shear_stress_simcomp", "d5/d15/namespacewall__shear__stress__simcomp.html", [
+      [ "wall_shear_stress_t", "d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t.html", "d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t" ]
     ] ],
     [ "weak_gradient_simcomp", "d4/dd6/namespaceweak__gradient__simcomp.html", [
       [ "weak_gradient_t", "df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html", "df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t" ]

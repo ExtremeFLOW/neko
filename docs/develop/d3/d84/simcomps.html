@@ -115,15 +115,19 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 <li class="level2"><a href="#simcomp_lambda2">lambda2</a></li>
 <li class="level2"><a href="#simcomp_boundary_operation">boundary_operation</a></li>
 <li class="level2"><a href="#simcomp_boundary_flux">boundary_flux</a></li>
-<li class="level2"><a href="#simcomp_probes">probes</a><ul><li class="level3"><a href="#autotoc_md193">Supported types</a></li>
-<li class="level3"><a href="#autotoc_md194">Example usage</a></li>
+<li class="level2"><a href="#simcomp_boundary_data_writer">boundary_data_writer</a><ul><li class="level3"><a href="#autotoc_md193">Output files</a></li>
+</ul>
+</li>
+<li class="level2"><a href="#simcomp_probes">probes</a><ul><li class="level3"><a href="#autotoc_md194">Supported types</a></li>
+<li class="level3"><a href="#autotoc_md195">Example usage</a></li>
 </ul>
 </li>
 <li class="level2"><a href="#simcomp_field_writer">field_writer</a></li>
 <li class="level2"><a href="#simcomp_lagrangian_particles">lagrangian_particles</a></li>
-<li class="level2"><a href="#simcomp_force_torque">force_torque</a><ul><li class="level3"><a href="#autotoc_md195">Torque calculation for moving bodies</a></li>
+<li class="level2"><a href="#simcomp_force_torque">force_torque</a><ul><li class="level3"><a href="#autotoc_md196">Torque calculation for moving bodies</a></li>
 </ul>
 </li>
+<li class="level2"><a href="#simcomp_wall_shear_stress">wall_shear_stress</a></li>
 <li class="level2"><a href="#simcomp_les_model">les_model</a></li>
 <li class="level2"><a href="#user_stats">User statistics</a></li>
 <li class="level2"><a href="#simcomp_spatial_average">Spatial average</a></li>
@@ -158,8 +162,10 @@ List of simulation components</h1>
 <li>Probing of fields at selected points <a class="el" href="../../d3/d84/simcomps.html#simcomp_probes">probes</a></li>
 <li>Output of registered fields to a file <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a></li>
 <li>Computation of forces and torque on a surface <a class="el" href="../../d3/d84/simcomps.html#simcomp_force_torque">force_torque</a></li>
+<li>Computation of the wall shear stress on labelled zones <a class="el" href="../../d3/d84/simcomps.html#simcomp_wall_shear_stress">wall_shear_stress</a></li>
 <li>Boundary operations on labelled zones <a class="el" href="../../d3/d84/simcomps.html#simcomp_boundary_operation">boundary_operation</a></li>
 <li>Total vector flux through labelled zones <a class="el" href="../../d3/d84/simcomps.html#simcomp_boundary_flux">boundary_flux</a></li>
+<li>Sampling of fields on labelled boundary zones to CSV or HDF5 <a class="el" href="../../d3/d84/simcomps.html#simcomp_boundary_data_writer">boundary_data_writer</a></li>
 <li>Lagrangian particle tracking <a class="el" href="../../d3/d84/simcomps.html#simcomp_lagrangian_particles">lagrangian_particles</a></li>
 <li>Computation of subgrid-scale (SGS) eddy viscosity via a SGS model <a class="el" href="../../d3/d84/simcomps.html#simcomp_les_model">les_model</a></li>
 <li>User defined components <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">user-file_simcomps</a></li>
@@ -279,7 +285,46 @@ boundary_flux</h2>
 <div class="line">  &quot;log&quot;: true,</div>
 <div class="line">  &quot;output_filename&quot;: &quot;inlet_flux.csv&quot;</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="simcomp_probes"></a>
+</div><!-- fragment --><h2><a class="anchor" id="simcomp_boundary_data_writer"></a>
+boundary_data_writer</h2>
+<p>Samples registered fields at the boundary points of one or more labelled zones and writes them to a CSV or HDF5 file. Unlike <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a>, which writes whole volume fields, this simcomp writes only the points on the selected zones, together with their coordinates and, optionally, the surface quadrature weight <code>area</code> and the unit normals. It works for both static and moving (e.g. ALE) simulations.</p>
+<p>The simcomp only samples fields that are already in the registry. To write a derived quantity, add the simcomp that produces it first and then list its registered field names here. For example, use <a class="el" href="../../d3/d84/simcomps.html#simcomp_gradient">gradient</a> or <a class="el" href="../../d3/d84/simcomps.html#simcomp_derivative">derivative</a> for spatial derivatives, or <a class="el" href="../../d3/d84/simcomps.html#simcomp_wall_shear_stress">wall_shear_stress</a> for the wall shear stress.</p>
+<p>Mandatory fields for this simcomp are:</p><ul>
+<li><code>zone_indices</code>: the labelled boundary zones to include.</li>
+<li><code>fields</code>: the registered field names to sample, one column each.</li>
+<li><code>output_filename</code>: the output file, ending in <code>.csv</code>, <code>.h5</code> or <code>.hdf5</code>.</li>
+</ul>
+<p>Optional fields for this simcomp are:</p><ul>
+<li><code>output_normals</code>: if <code>true</code>, include the unit normal components <code>n_x</code>, <code>n_y</code> and <code>n_z</code>. The normals point out of the wall into the fluid. Default <code>true</code>.</li>
+<li><code>output_area</code>: if <code>true</code>, include the surface quadrature weight <code>area</code>. Default <code>true</code>.</li>
+<li><code>append_output</code>: HDF5 only. Selects between appending samples into shared datasets and writing each sample into its own <code>Step_i</code> subgroup, exactly as for <a class="el" href="../../d3/d84/simcomps.html#simcomp_probes">probes</a>. Default <code>true</code>.</li>
+<li><code>start_time</code>: only write samples after this time. Default <code>0.0</code>.</li>
+</ul>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;boundary_data_writer&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;wall_data&quot;,</div>
+<div class="line">  &quot;zone_indices&quot;: [7],</div>
+<div class="line">  &quot;fields&quot;: [&quot;p&quot;, &quot;u&quot;, &quot;v&quot;, &quot;w&quot;, &quot;tau_mag&quot;],</div>
+<div class="line">  &quot;output_filename&quot;: &quot;wall_data.csv&quot;,</div>
+<div class="line">  &quot;output_normals&quot;: true,</div>
+<div class="line">  &quot;output_area&quot;: true,</div>
+<div class="line">  &quot;output_control&quot;: &quot;tsteps&quot;,</div>
+<div class="line">  &quot;output_value&quot;: 50</div>
+<div class="line">}</div>
+</div><!-- fragment --><dl class="section note"><dt>Note</dt><dd>Each boundary quadrature point is written once per facet, so points shared between facets appear more than once. This is intended: <code>area</code> is the per-facet quadrature weight.</dd></dl>
+<h3><a class="anchor" id="autotoc_md193"></a>
+Output files</h3>
+<p>The geometry (coordinates, plus the optional normals and <code>area</code>) is written differently for a static and a moving mesh, so that it is stored only where it is actually needed.</p>
+<p>On a <b>static mesh</b>, the geometry is constant and is written once to a companion file, while the main file holds only <code>time</code> and the sampled fields:</p><ul>
+<li>CSV: geometry in <code>&lt;name&gt;_mesh.csv</code> (columns <code>x, y, z</code>, then <code>n_x, n_y, n_z</code> if <code>output_normals</code>, then <code>area</code> if <code>output_area</code>); data in <code>&lt;name&gt;.csv</code> (columns <code>time</code> then the sampled fields).</li>
+<li>HDF5: geometry in the <code>coordinates</code> dataset; the samples are appended under the <code><a class="el" href="../../df/dd1/namespaceboundary__data.html" title="Implements the boundary_data_t type.">boundary_data</a></code> group.</li>
+</ul>
+<p>On a <b>moving mesh (ALE)</b>, the geometry changes every step, so it is written inline as leading columns of every sample; in addition, the initial (undeformed) geometry is written once as a reference:</p><ul>
+<li>CSV: <code>&lt;name&gt;.csv</code> has columns <code>time, x, y, z, [n_x, n_y, n_z,] [area]</code>, then the sampled fields; the initial geometry is in <code>&lt;name&gt;_initial_mesh.csv</code>.</li>
+<li>HDF5: the per-sample geometry is written with each sample under the <code><a class="el" href="../../df/dd1/namespaceboundary__data.html" title="Implements the boundary_data_t type.">boundary_data</a></code> group, and the initial geometry is in the <code>initial_coordinates</code> dataset.</li>
+</ul>
+<dl class="section attention"><dt>Attention</dt><dd>The <code>mesh</code> / <code>initial_mesh</code> CSV rows correspond one-to-one, in order, with the points of each time block of the data file.</dd></dl>
+<h2><a class="anchor" id="simcomp_probes"></a>
 probes</h2>
 <p>Probes selected solution fields at a list of points. This list of points can be generated in a variety of ways, but the most common is to use the <code>csv</code> type.</p>
 <p>Mandatory fields for this simcomp are:</p><ul>
@@ -294,7 +339,7 @@ probes</h2>
 </div><!-- fragment --></li>
 </ul>
 <p>It is also possible to set a <code>start_time</code> before which the probes will not be executed (same behavior as the statistics).</p>
-<h3><a class="anchor" id="autotoc_md193"></a>
+<h3><a class="anchor" id="autotoc_md194"></a>
 Supported types</h3>
 <ul>
 <li><code>file</code>: Reads a list of points from a CSV file. The name of the file is provided with the <code>file_name</code> keyword. The CSV file should have the following format: <div class="fragment"><div class="line">x_0, y_0, z_0</div>
@@ -334,7 +379,7 @@ Supported types</h3>
 <div class="line">0.0, -1.0, 0.0</div>
 </div><!-- fragment --></li>
 </ul>
-<h3><a class="anchor" id="autotoc_md194"></a>
+<h3><a class="anchor" id="autotoc_md195"></a>
 Example usage</h3>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;probes&quot;,</div>
@@ -489,7 +534,7 @@ force_torque</h2>
 <div class="line">  &quot;compute_control&quot; : &quot;tsteps&quot;,</div>
 <div class="line">  &quot;compute_value&quot; : 10</div>
 <div class="line">}</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md195"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md196"></a>
 Torque calculation for moving bodies</h3>
 <p>When an object undergoes translational or rotational movement, it is often necessary to calculate the torque around its dynamic center of rotation, or around another specific reference point that moves rigidly with the body. The <code>center_type</code> parameter enables accurate torque computation for these scenarios by dictating how the tracking point behaves:</p>
 <ul>
@@ -504,6 +549,32 @@ Torque calculation for moving bodies</h3>
 <dl class="section note"><dt>Note</dt><dd><b>Restarting Simulations:</b> When restarting an ALE simulation, the code automatically calculates the correct current position of the torque center at the restart time. Therefore, if the intended torque calculation point remains the same, the <code>center</code> array in the JSON file should <b>not</b> be modified between restarts. If you wish to calculate torque around a <em>new</em> point upon restart, the <code>center</code> array must specify the coordinates of that new point in the <b>original, undeformed mesh</b> (at \( t=0 \)), not its current spatial location.</dd></dl>
 </li>
 </ul>
+<h2><a class="anchor" id="simcomp_wall_shear_stress"></a>
+wall_shear_stress</h2>
+<p>Computes the wall shear stress on one or more labelled boundary zones and registers the result in the field registry. With \( \hat{n} \) the unit normal pointing out of the fluid domain and \( S \) the strain rate tensor, the computed quantity is the tangential part of the traction that the fluid exerts on the wall, \( \tau = -2 \mu S \cdot \hat{n} + 2 \mu (\hat{n}^T S \hat{n}) \hat{n} \). The pressure contribution is purely wall normal and so drops out of the tangential projection. The results are registered as <code>&lt;computed_field&gt;_x</code>, <code>_y</code>, <code>_z</code> and <code>_mag</code>, which are zero away from the marked zones.</p>
+<p>This simcomp does not write any output of its own. To get the fields onto disk, add a <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a> listing the field names to write them to an fld file, or a <a class="el" href="../../d3/d84/simcomps.html#simcomp_boundary_data_writer">boundary_data_writer</a> to sample them on the boundary and write CSV or HDF5.</p>
+<dl class="section attention"><dt>Attention</dt><dd>For a moving mesh (ALE) simulation: A <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a> with an <code>output_filename</code> writes to a separate fld series that (as for now) stores the mesh only in its first file, so later files would show the registered stresses on the initial geometry. For an ALE case, either use a <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a> <b>without</b> an <code>output_filename</code>, so the fields are appended to the main fluid output (which re-writes the deformed mesh every step), or use a <a class="el" href="../../d3/d84/simcomps.html#simcomp_boundary_data_writer">boundary_data_writer</a>, which writes the current wall geometry alongside every sample. On a static mesh this distinction does not matter and either <code><a class="el" href="../../d9/dde/namespacefield__writer.html" title="Implements the field_writer_t type.">field_writer</a></code> form is fine.</dd></dl>
+<p>Mandatory fields for this simcomp are:</p><ul>
+<li><code>zone_indices</code>: the labelled boundary zones to include.</li>
+</ul>
+<p>Optional fields for this simcomp are:</p><ul>
+<li><code>computed_field</code>: base name of the registered fields. Default <code>"tau"</code>.</li>
+<li><code>fluid_name</code>: used to build the default viscosity field name. Default <code>"fluid"</code>.</li>
+<li><code>viscosity_field</code>: the registered field used as \( \mu \). Default <code>&lt;fluid_name&gt;_mu_tot</code>.</li>
+<li><code>components</code>: which of the four fields to register, given as a list of <code>"x"</code>, <code>"y"</code>, <code>"z"</code> and <code>"mag"</code>, or as <code>"all"</code> (default). This only controls what is stored, to save memory; the full traction vector is always computed.</li>
+</ul>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;wall_shear_stress&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;wss&quot;,</div>
+<div class="line">  &quot;zone_indices&quot;: [7],</div>
+<div class="line">  &quot;computed_field&quot;: &quot;tau&quot;,</div>
+<div class="line">  &quot;components&quot;: [&quot;x&quot;, &quot;y&quot;, &quot;mag&quot;],</div>
+<div class="line">  &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
+<div class="line">  &quot;compute_value&quot;: 10</div>
+<div class="line">}</div>
+</div><!-- fragment --><dl class="section note"><dt>Note</dt><dd><code>&lt;computed_field&gt;_mag</code> is always the magnitude of the full traction vector, regardless of which components are registered.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>When several zones are given to a single simcomp, they are computed into the same fields. To keep two walls apart, use one simcomp per wall with a different <code>computed_field</code> for each.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>For ALE simulations the wall normals are re-gathered at every time step to account for the moving mesh. If the ALE module is not enabled, they are gathered once during initialization.</dd></dl>
 <h2><a class="anchor" id="simcomp_les_model"></a>
 les_model</h2>
 <p>Computes a subgrid eddy viscosity field using an SGS model. **Note*:* The simcomp <em>only</em> computes the eddy viscosity field. You have to select the corresponding <code>nut_field</code> in the fluid and/or scalar JSON object to actually enable LES, see corresponding documentation. The simcomp is controlled by the following keywords:</p>
@@ -655,7 +726,7 @@ Field subsampler</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Aug 13 2026 04:17:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Aug 14 2026 04:16:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

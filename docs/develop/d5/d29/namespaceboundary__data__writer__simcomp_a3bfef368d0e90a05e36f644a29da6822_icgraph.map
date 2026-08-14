@@ -1,0 +1,7 @@
+<map id="boundary_data_writer_simcomp::boundary_data_writer_local_geometry" name="boundary_data_writer_simcomp::boundary_data_writer_local_geometry">
+<area shape="rect" id="Node000001" title="Collect the reference geometry of the local points into a matrix." alt="" coords="491,5,685,60"/>
+<area shape="rect" id="Node000002" href="$d5/d29/namespaceboundary__data__writer__simcomp.html#a4f7b746ba18b792c88cb961326298cc4" title="Set up an HDF5 output." alt="" coords="248,5,443,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="477,35,443,35,443,30,477,30"/>
+<area shape="rect" id="Node000003" href="$d5/d29/namespaceboundary__data__writer__simcomp.html#aad7e3bfa0207b431e0b167ff4b359585" title="Common part of all constructors." alt="" coords="5,5,200,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,35,200,35,200,30,234,30"/>
+</map>

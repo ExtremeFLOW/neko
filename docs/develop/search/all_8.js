@@ -155,7 +155,7 @@ var searchData=
   ['every_20time_20step_152',['Computing at every time step',['../d6/def/user-file.html#user-file_user-check',1,'']]],
   ['evs_153',['evs',['../dd/dad/structscalar__stats_1_1scalar__stats__t.html#a7df69ecfa78ba2f5d157a66bddb9359b',1,'scalar_stats::scalar_stats_t']]],
   ['ews_154',['ews',['../dd/dad/structscalar__stats_1_1scalar__stats__t.html#a1692692f17aaabf6bdd83b8b0171b115',1,'scalar_stats::scalar_stats_t']]],
-  ['example_20usage_155',['example usage',['../dd/d61/global-interpolation.html#autotoc_md138',1,'Example Usage'],['../d3/d84/simcomps.html#autotoc_md194',1,'Example usage']]],
+  ['example_20usage_155',['example usage',['../dd/d61/global-interpolation.html#autotoc_md138',1,'Example Usage'],['../d3/d84/simcomps.html#autotoc_md195',1,'Example usage']]],
   ['examples_3a_20programming_20the_20user_20file_156',['Examples: Programming the user file',['../d5/db5/programming-examples.html',1,'user-guide']]],
   ['execute_157',['execute',['../d4/d3d/structoutput__controller_1_1output__controller__t.html#a582da3297e824d0972b616004efa24f7',1,'output_controller::output_controller_t']]],
   ['execution_20and_20file_20output_158',['Controlling execution and file output',['../d3/d84/simcomps.html#autotoc_md191',1,'']]],

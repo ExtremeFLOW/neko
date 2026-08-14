@@ -33,6 +33,8 @@ var namespaces_dup =
     [ "bdf_time_scheme", "d4/db4/namespacebdf__time__scheme.html", "d4/db4/namespacebdf__time__scheme" ],
     [ "bicgstab", "dd/d2f/namespacebicgstab.html", "dd/d2f/namespacebicgstab" ],
     [ "blasius", "de/da4/namespaceblasius.html", "de/da4/namespaceblasius" ],
+    [ "boundary_data", "df/dd1/namespaceboundary__data.html", "df/dd1/namespaceboundary__data" ],
+    [ "boundary_data_writer_simcomp", "d5/d29/namespaceboundary__data__writer__simcomp.html", "d5/d29/namespaceboundary__data__writer__simcomp" ],
     [ "boundary_flux", "d1/d36/namespaceboundary__flux.html", "d1/d36/namespaceboundary__flux" ],
     [ "boundary_operation", "df/d21/namespaceboundary__operation.html", "df/d21/namespaceboundary__operation" ],
     [ "boussinesq_source_term", "d0/d10/namespaceboussinesq__source__term.html", "d0/d10/namespaceboussinesq__source__term" ],
@@ -1019,6 +1021,7 @@ var namespaces_dup =
     [ "wall_model", "da/ddd/namespacewall__model.html", "da/ddd/namespacewall__model" ],
     [ "wall_model_bc", "de/d2c/namespacewall__model__bc.html", "de/d2c/namespacewall__model__bc" ],
     [ "wall_model_device", "db/d0e/namespacewall__model__device.html", "db/d0e/namespacewall__model__device" ],
+    [ "wall_shear_stress_simcomp", "d5/d15/namespacewall__shear__stress__simcomp.html", "d5/d15/namespacewall__shear__stress__simcomp" ],
     [ "weak_gradient_simcomp", "d4/dd6/namespaceweak__gradient__simcomp.html", "d4/dd6/namespaceweak__gradient__simcomp" ],
     [ "zero_dirichlet", "da/ddc/namespacezero__dirichlet.html", "da/ddc/namespacezero__dirichlet" ]
 ];

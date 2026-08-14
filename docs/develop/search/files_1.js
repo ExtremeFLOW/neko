@@ -14,7 +14,7 @@ var searchData=
   ['advection_5ffctry_2ef90_11',['advection_fctry.f90',['../da/d60/advection__fctry_8f90.html',1,'']]],
   ['ale_5fkinematics_2ecu_12',['ale_kinematics.cu',['../d9/d17/ale__kinematics_8cu.html',1,'']]],
   ['ale_5fkinematics_2ehip_13',['ale_kinematics.hip',['../d3/d1d/ale__kinematics_8hip.html',1,'']]],
-  ['ale_5fkinematics_5fkernel_2eh_14',['ale_kinematics_kernel.h',['../da/d88/hip_2ale__kinematics__kernel_8h.html',1,'(Global Namespace)'],['../d3/d06/cuda_2ale__kinematics__kernel_8h.html',1,'(Global Namespace)']]],
+  ['ale_5fkinematics_5fkernel_2eh_14',['ale_kinematics_kernel.h',['../d3/d06/cuda_2ale__kinematics__kernel_8h.html',1,'(Global Namespace)'],['../da/d88/hip_2ale__kinematics__kernel_8h.html',1,'(Global Namespace)']]],
   ['ale_5fmanager_2ef90_15',['ale_manager.f90',['../d6/dc8/ale__manager_8f90.html',1,'']]],
   ['ale_5frigid_5fkinematics_2ef90_16',['ale_rigid_kinematics.f90',['../da/d01/ale__rigid__kinematics_8f90.html',1,'']]],
   ['ale_5froutines_5fcpu_2ef90_17',['ale_routines_cpu.f90',['../dc/d4b/ale__routines__cpu_8f90.html',1,'']]],

@@ -1,17 +1,28 @@
 <map id="device_math::device_vdot3" name="device_math::device_vdot3">
-<area shape="rect" id="Node000001" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="463,133,620,173"/>
-<area shape="rect" id="Node000002" href="$db/d3d/namespacecg__cpld__device.html#a4dd7a1a0cb377e19f6c17407064e198b" title="Standard PCG solve." alt="" coords="255,5,403,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="506,126,463,92,413,60,389,48,391,43,416,55,466,88,509,122"/>
-<area shape="rect" id="Node000003" href="$d9/df7/namespaceadv__dealias.html#a4ad2c5d9b00cd1275c1786415a359ab9" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="247,69,412,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="460,132,395,112,397,107,462,127"/>
-<area shape="rect" id="Node000004" href="$d0/d6f/namespacedrag__torque.html#a70a6c2b95914784b94819fb918ff8b15" title="Calculate drag and torque from array of points." alt="" coords="254,133,405,173"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="449,156,405,156,405,151,449,151"/>
-<area shape="rect" id="Node000006" href="$d5/de6/namespacefield__math.html#aec3d5a9d2e66f8b6d1200f02d5169c35" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="244,198,415,223"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="454,180,378,200,377,195,453,174"/>
-<area shape="rect" id="Node000007" href="$d3/d0d/namespacevector__math.html#a2dda46ce20ce34f6b2cff7601e742ad6" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="253,248,406,288"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="504,184,462,212,416,238,389,250,387,246,413,234,459,207,501,179"/>
-<area shape="rect" id="Node000005" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="28,133,173,173"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="240,156,173,156,173,151,240,151"/>
-<area shape="rect" id="Node000008" href="$dd/d2c/namespacelpt.html#ae31979c0367c47ba95eda57175d6b370" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="5,255,196,281"/>
-<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="238,271,196,271,196,265,238,265"/>
+<area shape="rect" id="Node000001" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="483,163,640,203"/>
+<area shape="rect" id="Node000002" href="$db/d3d/namespacecg__cpld__device.html#a4dd7a1a0cb377e19f6c17407064e198b" title="Standard PCG solve." alt="" coords="275,5,423,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="534,154,490,106,433,60,411,48,414,43,436,55,493,102,538,150"/>
+<area shape="rect" id="Node000003" href="$d9/df7/namespaceadv__dealias.html#a4ad2c5d9b00cd1275c1786415a359ab9" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="267,69,432,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="508,159,434,124,405,112,407,107,436,119,510,154"/>
+<area shape="rect" id="Node000004" href="$d0/d6f/namespacedrag__torque.html#a70a6c2b95914784b94819fb918ff8b15" title="Calculate drag and torque from array of points." alt="" coords="274,133,425,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="469,173,425,166,425,161,470,167"/>
+<area shape="rect" id="Node000006" href="$d5/d15/namespacewall__shear__stress__simcomp.html#a67243455c77fdf2f525efc734ced8a54" title="Compute the wall shear stress." alt="" coords="5,159,216,199"/>
+<area shape="poly" id="edge13_Node000001_Node000006" title=" " alt="" coords="469,187,435,188,264,188,216,187,216,181,264,183,435,183,469,182"/>
+<area shape="rect" id="Node000007" href="$d5/de6/namespacefield__math.html#aec3d5a9d2e66f8b6d1200f02d5169c35" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="264,249,435,274"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="495,210,386,251,384,246,493,205"/>
+<area shape="rect" id="Node000008" href="$d3/d0d/namespacevector__math.html#a2dda46ce20ce34f6b2cff7601e742ad6" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="273,312,426,352"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="529,214,486,250,436,288,392,314,389,310,433,283,483,246,526,210"/>
+<area shape="rect" id="Node000005" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="38,95,183,135"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="260,142,183,129,184,124,261,136"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="261,165,216,170,216,165,260,160"/>
+<area shape="rect" id="Node000009" href="$df/dd1/namespaceboundary__data.html#a218d8c4c8b755c32de88bf34013b3e25" title="Keep only the wall normal part of a vector at the boundary points, in place. Each component is overwr..." alt="" coords="17,223,205,263"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="292,309,215,277,180,265,182,260,217,272,294,304"/>
+<area shape="rect" id="Node000010" href="$df/dd1/namespaceboundary__data.html#ab10ecd3241dd508c97b2f003d83e2fe3" title="Wall normal part of a vector at the boundary points, out of place. The input (vx, vy,..." alt="" coords="17,287,205,327"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="258,325,204,319,205,314,259,320"/>
+<area shape="rect" id="Node000011" href="$df/dd1/namespaceboundary__data.html#a7eacb3682528e548636100c084b0f00f" title="Keep only the wall tangential part of a vector at the boundary points, in place. Each component is ov..." alt="" coords="17,351,205,391"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="259,349,205,358,204,353,258,344"/>
+<area shape="rect" id="Node000012" href="$df/dd1/namespaceboundary__data.html#a5af72b85cf751ef7ab444a1f01f8452b" title="Wall tangential part of a vector at the boundary points, out of place. The input (vx,..." alt="" coords="17,415,205,455"/>
+<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="304,361,217,405,185,417,183,412,215,400,302,357"/>
+<area shape="rect" id="Node000013" href="$dd/d2c/namespacelpt.html#ae31979c0367c47ba95eda57175d6b370" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="15,479,206,505"/>
+<area shape="poly" id="edge12_Node000008_Node000013" title=" " alt="" coords="328,365,281,419,251,446,217,469,188,482,186,477,215,464,247,442,277,415,324,362"/>
 </map>

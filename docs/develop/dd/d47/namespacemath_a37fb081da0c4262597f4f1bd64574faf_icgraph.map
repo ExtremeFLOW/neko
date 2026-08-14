@@ -1,7 +1,9 @@
 <map id="math::face_masked_gather_copy_0" name="math::face_masked_gather_copy_0">
-<area shape="rect" id="Node000001" title="Gather values from a face&#45;local SEM field to a reduced contiguous vector." alt="" coords="425,13,624,53"/>
-<area shape="rect" id="Node000002" href="$d3/d0d/namespacevector__math.html#a599a173c753f9f87a1c1eb7ea7e30da1" title="Gather a face&#45;local SEM field to a reduced contiguous vector." alt="" coords="213,5,377,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="412,35,378,35,378,30,412,30"/>
-<area shape="rect" id="Node000003" href="$df/d21/namespaceboundary__operation.html#ac1862320d9535389b67b9cf95cc2a373" title="Common constructor shared by all public constructors." alt="" coords="5,5,165,60"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="200,35,165,35,165,30,200,30"/>
+<area shape="rect" id="Node000001" title="Gather values from a face&#45;local SEM field to a reduced contiguous vector." alt="" coords="453,41,652,81"/>
+<area shape="rect" id="Node000002" href="$d3/d0d/namespacevector__math.html#a599a173c753f9f87a1c1eb7ea7e30da1" title="Gather a face&#45;local SEM field to a reduced contiguous vector." alt="" coords="241,34,405,89"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="440,64,406,64,406,59,440,59"/>
+<area shape="rect" id="Node000003" href="$df/dd1/namespaceboundary__data.html#a253bcb08406e484881ad0a68b64f5098" title="Re&#45;gather the coordinates, normals and surface weights." alt="" coords="5,5,193,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="227,49,193,43,194,38,228,43"/>
+<area shape="rect" id="Node000004" href="$df/d21/namespaceboundary__operation.html#ac1862320d9535389b67b9cf95cc2a373" title="Common constructor shared by all public constructors." alt="" coords="19,70,179,125"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="228,79,180,87,179,82,227,74"/>
 </map>

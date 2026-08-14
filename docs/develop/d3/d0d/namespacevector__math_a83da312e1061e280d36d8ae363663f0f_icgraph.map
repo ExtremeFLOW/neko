@@ -1,13 +1,19 @@
 <map id="vector_math::vector_glsum" name="vector_math::vector_glsum">
-<area shape="rect" id="Node000001" title=" " alt="" coords="472,77,625,117"/>
-<area shape="rect" id="Node000002" href="$df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="242,5,402,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="463,75,402,58,403,53,465,70"/>
-<area shape="rect" id="Node000003" href="$de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="220,84,424,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="458,99,424,99,424,94,458,94"/>
-<area shape="rect" id="Node000005" href="$d3/d22/namespacerichardson.html#a21876c302c8bbb83882d77251432e958" title=" " alt="" coords="239,134,405,174"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="459,122,402,137,401,131,457,117"/>
-<area shape="rect" id="Node000004" href="$de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="9,84,169,109"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="206,99,169,99,169,94,206,94"/>
-<area shape="rect" id="Node000006" href="$d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,134,172,174"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="224,157,172,157,172,151,224,151"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="472,169,625,209"/>
+<area shape="rect" id="Node000002" href="$df/dd1/namespaceboundary__data.html#a647c50f24010ceb4a651154e64a80c40" title="Area weighted geometric centre of the zones." alt="" coords="228,5,416,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="524,160,480,108,453,82,423,60,400,48,402,43,425,55,456,78,484,105,528,157"/>
+<area shape="rect" id="Node000003" href="$df/dd1/namespaceboundary__data.html#a0d69114bbcdc1a4683b8bb8bbf0d5f46" title="Unweighted mean of the boundary point coordinates." alt="" coords="228,69,416,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="501,164,423,124,392,112,394,107,425,119,504,160"/>
+<area shape="rect" id="Node000004" href="$df/dd1/namespaceboundary__data.html#a9c27a60ea3609978a961c35a52cd508b" title="Total surface area of the zones." alt="" coords="228,133,416,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="458,178,416,171,417,166,458,172"/>
+<area shape="rect" id="Node000005" href="$df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="242,198,402,253"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="459,206,403,215,402,210,458,201"/>
+<area shape="rect" id="Node000006" href="$de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="220,277,424,302"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="510,219,470,244,425,266,387,279,385,274,423,262,467,239,507,215"/>
+<area shape="rect" id="Node000008" href="$d3/d22/namespacerichardson.html#a21876c302c8bbb83882d77251432e958" title=" " alt="" coords="239,327,405,367"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="526,222,483,271,455,295,425,317,402,329,399,324,423,312,452,291,479,267,522,218"/>
+<area shape="rect" id="Node000007" href="$de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="9,277,169,302"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="206,292,169,292,169,287,206,287"/>
+<area shape="rect" id="Node000009" href="$d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,327,172,367"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="224,349,172,349,172,344,224,344"/>
 </map>

@@ -12,6 +12,7 @@ var searchData=
   ['wall_5fmodel_5fbc_2ef90_9',['wall_model_bc.f90',['../db/d66/wall__model__bc_8f90.html',1,'']]],
   ['wall_5fmodel_5fdevice_2ef90_10',['wall_model_device.F90',['../d8/d18/wall__model__device_8F90.html',1,'']]],
   ['wall_5fmodel_5ffctry_2ef90_11',['wall_model_fctry.f90',['../da/d1e/wall__model__fctry_8f90.html',1,'']]],
-  ['wall_5fmodel_5fkernel_2eh_12',['wall_model_kernel.h',['../d1/d0f/cuda_2wall__model__kernel_8h.html',1,'(Global Namespace)'],['../de/d25/hip_2wall__model__kernel_8h.html',1,'(Global Namespace)']]],
-  ['weak_5fgradient_5fsimcomp_2ef90_13',['weak_gradient_simcomp.f90',['../d9/de6/weak__gradient__simcomp_8f90.html',1,'']]]
+  ['wall_5fmodel_5fkernel_2eh_12',['wall_model_kernel.h',['../de/d25/hip_2wall__model__kernel_8h.html',1,'(Global Namespace)'],['../d1/d0f/cuda_2wall__model__kernel_8h.html',1,'(Global Namespace)']]],
+  ['wall_5fshear_5fstress_5fsimcomp_2ef90_13',['wall_shear_stress_simcomp.f90',['../d3/db5/wall__shear__stress__simcomp_8f90.html',1,'']]],
+  ['weak_5fgradient_5fsimcomp_2ef90_14',['weak_gradient_simcomp.f90',['../d9/de6/weak__gradient__simcomp_8f90.html',1,'']]]
 ];

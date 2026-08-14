@@ -1,0 +1,5 @@
+<map id="wall_shear_stress_simcomp::wall_shear_stress_t" name="wall_shear_stress_simcomp::wall_shear_stress_t">
+<area shape="rect" id="Node000001" title="A simulation component that computes the wall shear stress on one or more labelled boundary zones and..." alt="" coords="5,93,211,133"/>
+<area shape="rect" id="Node000002" href="$dc/d0d/structsimulation__component_1_1simulation__component__t.html" title="Base abstract class for simulation components." alt="" coords="13,5,203,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,59,111,93,105,93,105,59"/>
+</map>

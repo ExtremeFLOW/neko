@@ -1,0 +1,7 @@
+<map id="vector_math::vector_copy" name="vector_math::vector_copy">
+<area shape="rect" id="Node000001" title="Copy a vector ." alt="" coords="255,45,445,70"/>
+<area shape="rect" id="Node000002" href="$df/dd1/namespaceboundary__data.html#a48aadcdab7e28b8c39b698e313a54a3e" title="Sample a named quantity at the boundary points into a vector." alt="" coords="5,5,207,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,46,206,41,207,36,241,40"/>
+<area shape="rect" id="Node000003" href="$df/dd1/namespaceboundary__data.html#a5af72b85cf751ef7ab444a1f01f8452b" title="Wall tangential part of a vector at the boundary points, out of place. The input (vx,..." alt="" coords="12,69,200,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,74,200,80,200,74,240,69"/>
+</map>

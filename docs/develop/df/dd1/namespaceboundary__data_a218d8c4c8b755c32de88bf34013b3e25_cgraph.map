@@ -1,0 +1,15 @@
+<map id="boundary_data::boundary_data_normal_inplace" name="boundary_data::boundary_data_normal_inplace">
+<area shape="rect" id="Node000001" title="Keep only the wall normal part of a vector at the boundary points, in place. Each component is overwr..." alt="" coords="5,77,193,117"/>
+<area shape="rect" id="Node000002" href="$d3/d0d/namespacevector__math.html#ae678112c08575e245c53df2f50e5f117" title="Vector multiplication with 3 vectors ." alt="" coords="241,55,428,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,82,228,78,228,83,194,88"/>
+<area shape="rect" id="Node000005" href="$d3/d0d/namespacevector__math.html#a2dda46ce20ce34f6b2cff7601e742ad6" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="258,105,411,145"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="194,105,244,111,244,117,193,111"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="526,5,617,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="396,52,512,28,513,33,397,57"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#ada32e4bb9b2ce2ff39e708510146ff23" title="Vector multiplication with 3 vectors ." alt="" coords="476,55,667,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="428,65,462,65,462,70,428,70"/>
+<area shape="rect" id="Node000006" href="$d2/d73/namespacedevice__math.html#a6c3ea57885e144ac36cab4fefde393d7" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="493,105,650,145"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="412,122,479,122,479,127,412,127"/>
+<area shape="rect" id="Node000007" href="$dd/d47/namespacemath.html#ac6b1aa1e5e708afa691fde3c54956283" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="521,169,622,195"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="413,141,508,164,507,169,411,146"/>
+</map>

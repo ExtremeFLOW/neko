@@ -1,0 +1,5 @@
+<map id="boundary_data_writer_simcomp::boundary_data_writer_setup_output_hdf5" name="boundary_data_writer_simcomp::boundary_data_writer_setup_output_hdf5">
+<area shape="rect" id="Node000001" title="Set up an HDF5 output." alt="" coords="5,5,200,60"/>
+<area shape="rect" id="Node000002" href="$d5/d29/namespaceboundary__data__writer__simcomp.html#a3bfef368d0e90a05e36f644a29da6822" title="Collect the reference geometry of the local points into a matrix." alt="" coords="248,5,443,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,30,234,30,234,35,200,35"/>
+</map>

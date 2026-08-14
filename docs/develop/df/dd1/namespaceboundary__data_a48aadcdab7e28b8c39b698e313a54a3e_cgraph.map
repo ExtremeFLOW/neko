@@ -1,0 +1,9 @@
+<map id="boundary_data::boundary_data_get_vector_by_name" name="boundary_data::boundary_data_get_vector_by_name">
+<area shape="rect" id="Node000001" title="Sample a named quantity at the boundary points into a vector." alt="" coords="5,23,207,63"/>
+<area shape="rect" id="Node000002" href="$d3/d0d/namespacevector__math.html#a37ffda7f54dcc1310d9db2032117013e" title="Copy a vector ." alt="" coords="255,31,445,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,41,241,41,241,46,207,46"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="543,5,638,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="445,31,529,22,530,27,446,36"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="493,55,688,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="446,50,480,54,480,59,445,55"/>
+</map>

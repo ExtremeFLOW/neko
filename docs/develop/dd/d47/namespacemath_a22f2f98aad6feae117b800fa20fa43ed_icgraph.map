@@ -12,17 +12,17 @@
 <area shape="rect" id="Node000006" href="$d8/dec/namespacecheby.html#ab40c8151b9adc5d370afba6bc0ef9b65" title=" " alt="" coords="332,233,487,258"/>
 <area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="603,363,570,316,547,293,521,273,486,258,488,253,524,268,551,289,574,313,607,359"/>
 <area shape="rect" id="Node000009" href="$d3/d06/namespaceprojection.html#abe8a2a4afdc38e79a17ec00840c66d0a" title=" " alt="" coords="296,283,523,323"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="584,369,522,338,485,325,486,320,524,334,586,364"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="585,368,522,337,488,325,490,320,524,332,587,363"/>
 <area shape="rect" id="Node000011" href="$d5/de6/namespacefield__math.html#ad4771a764f05b8b745e4de4a5b9573ab" title=" " alt="" coords="325,347,493,373"/>
 <area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="557,380,493,373,494,367,557,375"/>
 <area shape="rect" id="Node000012" href="$dc/d48/namespacegmres.html#a3ad50be018611153f4c6184821724c96" title="Standard GMRES solve." alt="" coords="332,397,487,422"/>
 <area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="557,395,487,403,486,398,557,390"/>
 <area shape="rect" id="Node000013" href="$dc/d12/namespacematrix__math.html#a799a21b14e5cf9f8e45b40ecd13cd0e7" title="Global inner product of three matrices ." alt="" coords="331,447,488,487"/>
-<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="586,407,524,437,489,449,488,444,522,432,584,402"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="585,407,524,436,486,449,484,444,522,431,583,402"/>
 <area shape="rect" id="Node000014" href="$de/d49/namespacepipecg.html#a7cf83f02e364f94f5b2738684b52629b" title="Pipelined PCG solve." alt="" coords="330,511,489,537"/>
 <area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="607,411,573,457,550,481,524,501,490,516,488,511,521,496,547,477,569,454,603,408"/>
 <area shape="rect" id="Node000015" href="$d4/d31/namespacecg__sx.html#ada3bbb4d099941e6c59f24443f628d35" title="Standard PCG solve." alt="" coords="336,561,483,586"/>
-<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="614,412,601,444,583,482,557,520,524,551,505,562,484,569,482,564,503,557,521,547,553,516,578,479,596,442,609,410"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="613,412,601,444,582,482,557,519,524,550,505,561,484,569,482,563,503,556,521,546,553,515,578,479,596,442,608,410"/>
 <area shape="rect" id="Node000016" href="$d5/d6a/namespacegmres__sx.html#ac7e8d806ad2a0c1b84f6ec357d1238ef" title="Standard PCG solve." alt="" coords="331,611,487,651"/>
 <area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="617,412,607,453,589,504,562,556,545,580,524,601,507,612,489,621,486,616,505,608,521,597,541,576,558,553,584,502,602,452,612,411"/>
 <area shape="rect" id="Node000017" href="$df/d53/namespacepipecg__sx.html#ab459493f959c81eade61fbd4812f237c" title="Pipelined PCG solve." alt="" coords="329,675,489,715"/>
@@ -35,4 +35,12 @@
 <area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="318,248,202,248,202,243,318,243"/>
 <area shape="rect" id="Node000010" href="$d3/d06/namespaceprojection.html#a6c2634eed99dd765c86df4ef325ff858" title=" " alt="" coords="5,283,248,323"/>
 <area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="282,305,248,305,248,300,282,300"/>
+<area shape="rect" id="Node000019" href="$df/dd1/namespaceboundary__data.html#a58417ef8c29bfdf59fee42c30e0afa1a" title="Flux of a vector quantity through the zones." alt="" coords="33,639,221,679"/>
+<area shape="poly" id="edge19_Node000018_Node000019" title=" " alt="" coords="319,739,295,729,270,711,247,693,217,681,219,676,249,688,274,706,297,724,321,734"/>
+<area shape="rect" id="Node000020" href="$df/dd1/namespaceboundary__data.html#a126d448af5b0d260c92057004b78f2ca" title="Flux of a named vector quantity through the zones." alt="" coords="33,703,221,743"/>
+<area shape="poly" id="edge20_Node000018_Node000020" title=" " alt="" coords="319,750,221,737,221,732,319,745"/>
+<area shape="rect" id="Node000021" href="$df/dd1/namespaceboundary__data.html#a6ca83fc6588b85b610b30b6de71a8523" title="Surface integral of a scalar quantity times the normal." alt="" coords="33,767,221,822"/>
+<area shape="poly" id="edge21_Node000018_Node000021" title=" " alt="" coords="319,773,221,785,221,780,319,767"/>
+<area shape="rect" id="Node000022" href="$df/dd1/namespaceboundary__data.html#ae2f176c385c1de7697ce9edb145f707a" title="Surface integral of a named scalar quantity times the normal." alt="" coords="33,846,221,901"/>
+<area shape="poly" id="edge22_Node000018_Node000022" title=" " alt="" coords="358,787,249,837,219,848,217,843,247,832,356,783"/>
 </map>

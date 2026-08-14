@@ -1,17 +1,21 @@
 <map id="device_math::device_subcol3" name="device_math::device_subcol3">
-<area shape="rect" id="Node000001" title="Returns ." alt="" coords="497,156,655,196"/>
-<area shape="rect" id="Node000002" href="$d9/de3/namespaceadv__no__dealias.html#acc7206a9cea50114cfc4864cb2385984" title="Add the advection term for the fluid, i.e. &#160;to the RHS." alt="" coords="247,5,435,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="548,147,504,102,477,79,448,60,423,48,425,43,451,55,480,75,508,98,552,144"/>
-<area shape="rect" id="Node000003" href="$d9/de3/namespaceadv__no__dealias.html#ab4cd807b7ab3b310c44c834e3dd0f16a" title="Add the advection term for a scalar, i.e. , to the RHS." alt="" coords="233,69,449,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="519,153,448,124,413,112,415,107,450,119,521,148"/>
-<area shape="rect" id="Node000004" href="$d5/de6/namespacefield__math.html#aa8a83165a055588be30d198cc8701605" title="Returns ." alt="" coords="249,134,433,159"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="483,167,433,161,434,156,484,162"/>
-<area shape="rect" id="Node000006" href="$dc/d12/namespacematrix__math.html#a91cd44255623c158398ffbe4637ff26a" title="Returns ." alt="" coords="263,184,420,224"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="484,190,421,197,420,192,483,184"/>
-<area shape="rect" id="Node000007" href="$d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d" title="Apply the filter." alt="" coords="265,248,417,288"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="525,205,450,238,416,251,414,245,448,234,523,200"/>
-<area shape="rect" id="Node000008" href="$d3/d0d/namespacevector__math.html#ab4bc4dc15b3799233b025018f6d4500a" title="Returns ." alt="" coords="265,312,418,352"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="553,208,509,257,481,281,451,302,419,317,417,312,448,298,478,277,505,253,549,205"/>
-<area shape="rect" id="Node000005" href="$d0/d7b/namespacebrinkman__source__term.html#a90ee5820de2f6e73f56094b091c16c23" title="Computes the source term and adds the result to fields." alt="" coords="5,119,185,174"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="235,149,185,149,185,144,235,144"/>
+<area shape="rect" id="Node000001" title="Returns ." alt="" coords="505,156,663,196"/>
+<area shape="rect" id="Node000002" href="$d9/de3/namespaceadv__no__dealias.html#acc7206a9cea50114cfc4864cb2385984" title="Add the advection term for the fluid, i.e. &#160;to the RHS." alt="" coords="255,5,443,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="556,147,512,102,485,79,456,60,431,48,433,43,459,55,488,75,516,98,560,144"/>
+<area shape="rect" id="Node000003" href="$d9/de3/namespaceadv__no__dealias.html#ab4cd807b7ab3b310c44c834e3dd0f16a" title="Add the advection term for a scalar, i.e. , to the RHS." alt="" coords="241,69,457,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="527,153,456,124,421,112,423,107,458,119,529,148"/>
+<area shape="rect" id="Node000004" href="$d5/de6/namespacefield__math.html#aa8a83165a055588be30d198cc8701605" title="Returns ." alt="" coords="257,134,441,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="491,167,441,161,442,156,492,162"/>
+<area shape="rect" id="Node000006" href="$dc/d12/namespacematrix__math.html#a91cd44255623c158398ffbe4637ff26a" title="Returns ." alt="" coords="271,184,428,224"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="492,190,429,197,428,192,491,184"/>
+<area shape="rect" id="Node000007" href="$d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d" title="Apply the filter." alt="" coords="273,248,425,288"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="533,205,458,238,424,251,422,245,456,234,531,200"/>
+<area shape="rect" id="Node000008" href="$d3/d0d/namespacevector__math.html#ab4bc4dc15b3799233b025018f6d4500a" title="Returns ." alt="" coords="273,312,426,352"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="561,208,517,257,489,281,459,302,427,317,425,312,456,298,486,277,513,253,557,205"/>
+<area shape="rect" id="Node000005" href="$d0/d7b/namespacebrinkman__source__term.html#a90ee5820de2f6e73f56094b091c16c23" title="Computes the source term and adds the result to fields." alt="" coords="9,119,189,174"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="244,149,190,149,190,144,244,144"/>
+<area shape="rect" id="Node000009" href="$df/dd1/namespaceboundary__data.html#a7eacb3682528e548636100c084b0f00f" title="Keep only the wall tangential part of a vector at the boundary points, in place. Each component is ov..." alt="" coords="5,280,193,320"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="258,323,193,315,194,309,259,318"/>
+<area shape="rect" id="Node000010" href="$df/dd1/namespaceboundary__data.html#a5af72b85cf751ef7ab444a1f01f8452b" title="Wall tangential part of a vector at the boundary points, out of place. The input (vx,..." alt="" coords="5,344,193,384"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="259,346,194,355,193,349,258,341"/>
 </map>

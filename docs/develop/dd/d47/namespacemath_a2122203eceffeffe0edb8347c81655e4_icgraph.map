@@ -1,7 +1,9 @@
 <map id="math::sqrt_inplace" name="math::sqrt_inplace">
-<area shape="rect" id="Node000001" title="Sqrt a vector ." alt="" coords="445,13,588,38"/>
-<area shape="rect" id="Node000002" href="$d3/d0d/namespacevector__math.html#ab05c94f41e8cb4739ec02de9be381aa2" title="Sqrt a vector ." alt="" coords="244,5,397,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="431,28,398,28,398,23,431,23"/>
+<area shape="rect" id="Node000001" title="Sqrt a vector ." alt="" coords="503,45,645,70"/>
+<area shape="rect" id="Node000002" href="$d3/d0d/namespacevector__math.html#ab05c94f41e8cb4739ec02de9be381aa2" title="Sqrt a vector ." alt="" coords="273,5,426,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="489,48,426,39,427,34,489,43"/>
+<area shape="rect" id="Node000004" href="$d5/d15/namespacewall__shear__stress__simcomp.html#a67243455c77fdf2f525efc734ced8a54" title="Compute the wall shear stress." alt="" coords="244,69,455,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="489,72,455,77,455,72,489,67"/>
 <area shape="rect" id="Node000003" href="$dd/d2c/namespacelpt.html#ae31979c0367c47ba95eda57175d6b370" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="5,13,196,38"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="230,28,196,28,196,23,230,23"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="259,28,196,28,196,23,259,23"/>
 </map>

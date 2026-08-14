@@ -1,0 +1,31 @@
+<map id="wall_shear_stress_simcomp::wall_shear_stress_compute" name="wall_shear_stress_simcomp::wall_shear_stress_compute">
+<area shape="rect" id="Node000001" title="Compute the wall shear stress." alt="" coords="5,315,216,355"/>
+<area shape="rect" id="Node000002" href="$d0/d6f/namespacedrag__torque.html#a5067723230fde31368ad47fb10c8da77" title="Calculate drag and torque from array of points." alt="" coords="264,97,439,137"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,313,316,144,320,148,136,317"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#ac6b1aa1e5e708afa691fde3c54956283" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="531,153,633,179"/>
+<area shape="poly" id="edge15_Node000001_Node000006" title=" " alt="" coords="158,313,304,254,486,189,517,179,519,185,487,194,305,259,160,318"/>
+<area shape="rect" id="Node000007" href="$d0/d6f/namespacedrag__torque.html#a70a6c2b95914784b94819fb918ff8b15" title="Calculate drag and torque from array of points." alt="" coords="276,286,427,326"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="216,320,262,314,263,319,216,325"/>
+<area shape="rect" id="Node000012" href="$d2/d73/namespacedevice__math.html#a6c3ea57885e144ac36cab4fefde393d7" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="503,431,661,471"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="217,339,326,355,384,368,440,386,464,401,488,417,504,424,501,429,485,422,462,406,438,391,382,373,325,360,216,344"/>
+<area shape="rect" id="Node000013" href="$d2/d73/namespacedevice__math.html#ae947e49cb47eb325ac451a181d82d972" title="Sqrt a vector ." alt="" coords="273,401,430,441"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="169,353,282,394,280,399,167,358"/>
+<area shape="rect" id="Node000014" href="$dd/d47/namespacemath.html#a2122203eceffeffe0edb8347c81655e4" title="Sqrt a vector ." alt="" coords="280,465,423,491"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="135,354,191,402,227,428,265,450,284,458,282,463,263,455,224,432,188,406,131,358"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="537,5,627,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="382,94,430,66,486,40,523,28,524,33,488,44,432,71,385,99"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="537,55,627,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="438,95,523,77,524,82,439,101"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="533,104,631,129"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="439,114,519,114,519,119,439,119"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="439,133,518,150,517,155,438,138"/>
+<area shape="rect" id="Node000008" href="$d2/d73/namespacedevice__math.html#a5bc420eefcedaedd955663f62d9e5e89" title="Multiplication by constant c ." alt="" coords="503,203,661,243"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="404,283,486,253,507,245,509,250,488,258,406,288"/>
+<area shape="rect" id="Node000009" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="487,268,677,293"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="426,295,473,290,473,295,427,300"/>
+<area shape="rect" id="Node000010" href="$d2/d73/namespacedevice__math.html#ada32e4bb9b2ce2ff39e708510146ff23" title="Vector multiplication with 3 vectors ." alt="" coords="487,317,677,343"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="427,311,473,316,473,321,426,316"/>
+<area shape="rect" id="Node000011" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="503,367,661,407"/>
+<area shape="poly" id="edge10_Node000007_Node000011" title=" " alt="" coords="410,324,488,351,512,360,510,365,486,357,408,329"/>
+<area shape="poly" id="edge11_Node000007_Node000012" title=" " alt="" coords="411,324,440,343,457,362,465,381,473,400,488,417,496,422,493,427,485,421,468,402,460,384,452,365,437,347,409,328"/>
+</map>

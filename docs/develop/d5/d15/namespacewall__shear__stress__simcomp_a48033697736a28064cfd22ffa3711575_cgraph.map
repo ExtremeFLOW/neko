@@ -1,0 +1,7 @@
+<map id="wall_shear_stress_simcomp::wall_shear_stress_init_common" name="wall_shear_stress_simcomp::wall_shear_stress_init_common">
+<area shape="rect" id="Node000001" title="Common part of all constructors." alt="" coords="5,53,244,93"/>
+<area shape="rect" id="Node000002" href="$d5/d15/namespacewall__shear__stress__simcomp.html#a104a6b346676b8749c8f1f13fb5e4cae" title="Build the array of selected field names in x, y, z, mag order." alt="" coords="292,5,497,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="244,52,278,47,279,52,244,58"/>
+<area shape="rect" id="Node000003" href="$d5/d15/namespacewall__shear__stress__simcomp.html#abd7ae2fd5583855f6369a3fdba15b30f" title="Translate a components list into the four selection flags." alt="" coords="292,84,497,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="244,87,279,92,278,97,244,92"/>
+</map>
