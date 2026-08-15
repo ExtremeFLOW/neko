@@ -127,15 +127,15 @@ Collaboration diagram for scalar_residual_device::scalar_residual_device_t:</div
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:aae3d97041c42647280385e6c7c78e901" id="r_aae3d97041c42647280385e6c7c78e901"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nopass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/de2/structscalar__residual__device_1_1scalar__residual__device__t.html#aae3d97041c42647280385e6c7c78e901">compute</a> (ax, s, s_res, f_xh, c_xh, msh, xh, lambda, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhocp</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bd</a>, dt, n)</td></tr>
-<tr class="separator:aae3d97041c42647280385e6c7c78e901"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3baa5e24a540e6afc89f4eb98de178c" id="r_aa3baa5e24a540e6afc89f4eb98de178c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nopass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/de2/structscalar__residual__device_1_1scalar__residual__device__t.html#aa3baa5e24a540e6afc89f4eb98de178c">compute</a> (ax, s, s_res, f_xh, c_xh, msh, xh, lambda, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rho_cp</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bd</a>, dt, n)</td></tr>
+<tr class="separator:aa3baa5e24a540e6afc89f4eb98de178c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
 <p class="definition">Definition at line <a class="el" href="../../d9/d76/scalar__residual__device_8F90_source.html#l00046">46</a> of file <a class="el" href="../../d9/d76/scalar__residual__device_8F90_source.html">scalar_residual_device.F90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
-<a id="aae3d97041c42647280385e6c7c78e901" name="aae3d97041c42647280385e6c7c78e901"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aae3d97041c42647280385e6c7c78e901">&#9670;&#160;</a></span>compute()</h2>
+<a id="aa3baa5e24a540e6afc89f4eb98de178c" name="aa3baa5e24a540e6afc89f4eb98de178c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa3baa5e24a540e6afc89f4eb98de178c">&#9670;&#160;</a></span>compute()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -194,8 +194,8 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>rhocp</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>rho_cp</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -228,7 +228,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="../../de/de3/structscalar__residual_1_1scalar__residual__t.html#a7456dc1cbe38d8d4a1ad1441c15cdcf7">scalar_residual::scalar_residual_t</a>.</p>
+<p>Implements <a class="el" href="../../de/de3/structscalar__residual_1_1scalar__residual__t.html#ad1fdacf494947f29e9b4abfb0cfae4fa">scalar_residual::scalar_residual_t</a>.</p>
 
 <p class="definition">Definition at line <a class="el" href="../../d9/d76/scalar__residual__device_8F90_source.html#l00048">48</a> of file <a class="el" href="../../d9/d76/scalar__residual__device_8F90_source.html">scalar_residual_device.F90</a>.</p>
 
@@ -243,7 +243,7 @@ Static Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d4/ddd/namespacescalar__residual__device.html">scalar_residual_device</a></li><li class="navelem"><a class="el" href="../../d3/de2/structscalar__residual__device_1_1scalar__residual__device__t.html">scalar_residual_device_t</a></li>
-    <li class="footer">Generated on Fri Aug 14 2026 04:16:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 15 2026 03:46:39 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -9,6 +9,7 @@ var namespacegs__utofu =
     [ "gs_nbwait_vec_utofu", "d3/d29/namespacegs__utofu.html#a462e9bd43d6e3cca465e1a1be6f96451", null ],
     [ "gs_utofu_free", "d3/d29/namespacegs__utofu.html#abfdb7aacdb5dd9cd88649e7e63f8c465", null ],
     [ "gs_utofu_init", "d3/d29/namespacegs__utofu.html#a1e38af56d755c3a1f86cae3333f4f1ce", null ],
+    [ "gs_utofu_avail", "d3/d29/namespacegs__utofu.html#a9418aaad38aca4d497de18dacd31ad39", null ],
     [ "gs_utofu_xchg_tag", "d3/d29/namespacegs__utofu.html#a047d91216096de5fb2c7148df453b14c", null ],
     [ "gs_utofu_xchg_tag_v", "d3/d29/namespacegs__utofu.html#a3eab89793b9166368a1dcb9af7fd73c1", null ]
 ];

@@ -12,5 +12,6 @@ var gs__shmem_8F90 =
     [ "gs_shmem_nbsend_vec", "d2/d33/gs__shmem_8F90.html#a7e8251e5fe6f866f099d51f5766839a0", null ],
     [ "gs_shmem_nbwait", "d2/d33/gs__shmem_8F90.html#af14fb5c1a8a989c6f944016357669085", null ],
     [ "gs_shmem_nbwait_vec", "d2/d33/gs__shmem_8F90.html#a40511c48f65e006ded364c26cd7ae6d9", null ],
+    [ "gs_shmem_avail", "d2/d33/gs__shmem_8F90.html#a1bab8bde9a774033905adbd61de8959a", null ],
     [ "gs_shmem_thread_multiple", "d2/d33/gs__shmem_8F90.html#ae4005120e1545a67628a90e5c2d1d58d", null ]
 ];

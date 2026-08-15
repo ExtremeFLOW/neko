@@ -1,38 +1,68 @@
 <map id="gather_scatter::gs_init" name="gather_scatter::gs_init">
-<area shape="rect" id="Node000001" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,283,172,308"/>
-<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="220,121,359,161"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,280,250,167,253,171,108,285"/>
-<area shape="rect" id="Node000007" href="$d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="220,275,359,315"/>
-<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="172,293,206,293,206,298,172,298"/>
-<area shape="rect" id="Node000010" href="$d0/d78/namespacegather__scatter.html#a70b1e5adb11770ec89f7e135bb74c793" title="Schedule shared gather&#45;scatter operations." alt="" coords="220,371,359,411"/>
-<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="117,306,235,363,233,368,115,310"/>
-<area shape="rect" id="Node000003" href="$d5/d7e/gather__scatter_8f90.html#a911f14e18cc5ef3b55e29dbdc6fe5ce2" title="Find blocks sharing dofs in non&#45;facet data." alt="" coords="437,5,540,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="307,118,350,79,405,40,423,31,425,36,408,44,353,83,311,122"/>
-<area shape="rect" id="Node000004" href="$d5/d7e/gather__scatter_8f90.html#af8cc5f86931d4ca4f75ac2ddc0b311d8" title="Register a unique dof Takes the unique id dof and checks if it is in the htable map_ If it is we retu..." alt="" coords="409,55,569,80"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="334,118,406,89,427,82,429,87,408,94,336,123"/>
-<area shape="rect" id="Node000005" href="$d5/d7e/gather__scatter_8f90.html#a762680d00a8b9d4de7498ece71c4092b" title="Sort the dof lists based on the dof to gather&#45;scatter list." alt="" coords="421,128,556,153"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="359,138,408,138,408,143,359,143"/>
-<area shape="rect" id="Node000006" href="$d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="419,177,558,203"/>
-<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="360,155,424,171,423,177,358,160"/>
-<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="457,129,450,120,453,110,467,104,489,101,515,105,527,114,523,118,513,110,489,107,468,109,457,113,455,119,461,126"/>
-<area shape="rect" id="Node000008" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="427,227,550,267"/>
-<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="358,276,413,263,414,268,360,281"/>
-<area shape="rect" id="Node000009" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="427,291,550,331"/>
-<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="359,298,414,303,413,308,359,304"/>
-<area shape="rect" id="Node000011" href="$d8/d75/namespacecrystal__router.html#a8feca47eb70b004800b3c053fca83f9c" title="Append one record to a packed crystal&#45;router buffer." alt="" coords="407,355,571,395"/>
-<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="359,383,393,380,393,386,359,388"/>
-<area shape="rect" id="Node000012" href="$d8/d75/namespacecrystal__router.html#a3748daf852207d528e6b3651a74bb6d3" title="Route packed records to their destination ranks." alt="" coords="407,419,571,459"/>
-<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="360,405,394,414,393,419,358,411"/>
-<area shape="rect" id="Node000018" href="$d0/d78/namespacegather__scatter.html#abba505ea99ff836fd6ba1e86d237d655" title="Heap sort for 64&#45;bit integer arrays, returning the permutation ind. Local helper for gs_schedule (the..." alt="" coords="419,483,558,523"/>
-<area shape="poly" id="edge18_Node000010_Node000018" title=" " alt="" coords="318,409,359,439,408,469,421,475,418,480,405,474,356,444,315,414"/>
-<area shape="rect" id="Node000013" href="$d8/d75/namespacecrystal__router.html#a54d76dcc595fd13d9a6ce2276360e2f3" title="Append e(1:ne) to buf(1:n) in place." alt="" coords="619,291,751,331"/>
-<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="550,417,569,405,584,390,593,374,601,358,617,341,623,337,626,341,620,345,606,361,597,377,588,393,572,409,553,421"/>
-<area shape="rect" id="Node000014" href="$d8/d75/namespacecrystal__router.html#a6efdb59be41d218ae48e5f9a86af3f4c" title="Abort if any record destination falls outside ." alt="" coords="619,355,751,395"/>
-<area shape="poly" id="edge14_Node000012_Node000014" title=" " alt="" coords="550,417,609,397,611,402,551,422"/>
-<area shape="rect" id="Node000015" href="$d8/d75/namespacecrystal__router.html#a6545979889a469f3d0108e0d3fa36c41" title="Rebuild buf as the concatenation a(1:na) ++ b(1:nb)." alt="" coords="619,419,751,459"/>
-<area shape="poly" id="edge15_Node000012_Node000015" title=" " alt="" coords="571,437,605,437,605,442,571,442"/>
-<area shape="rect" id="Node000016" href="$d8/d75/namespacecrystal__router.html#aa0c58681b064c8fdbc41a29bccda3995" title="Size&#45;negotiated bidirectional exchange with a partner. Either dst or src may be MPI_PROC_NULL to make..." alt="" coords="619,483,751,523"/>
-<area shape="poly" id="edge16_Node000012_Node000016" title=" " alt="" coords="551,457,611,477,609,482,550,462"/>
-<area shape="rect" id="Node000017" href="$d8/d75/namespacecrystal__router.html#a7ad4715e59a971d678ed51337a5fb3e9" title="Partition buf into records kept locally and records to be sent. A record is kept when the side of its..." alt="" coords="619,547,751,587"/>
-<area shape="poly" id="edge17_Node000012_Node000017" title=" " alt="" coords="553,457,572,469,588,486,597,502,606,517,620,533,626,538,623,542,617,537,601,520,593,504,584,489,569,473,550,462"/>
+<area shape="rect" id="Node000001" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,422,172,448"/>
+<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#a6df8dd2596a97fe71873a035887b4973" title="Allocate a gather&#45;scatter comm. backend of type comm_bcknd." alt="" coords="903,42,1041,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="90,421,104,373,129,302,167,222,191,183,218,148,262,101,303,69,349,47,410,27,474,13,539,5,605,3,670,5,791,19,890,38,889,43,790,24,670,10,605,8,540,10,474,18,411,32,351,52,305,74,266,105,222,151,195,186,172,225,134,304,109,375,96,423"/>
+<area shape="rect" id="Node000003" href="$d0/d78/namespacegather__scatter.html#a76297dc51141ac6b865bdcb1079afff6" title="Host comm. backends to consider in the runtime autotuning, in the order they are benchmarked...." alt="" coords="220,472,363,512"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="135,445,208,466,207,471,134,450"/>
+<area shape="rect" id="Node000004" href="$d0/d78/namespacegather__scatter.html#ac36def8c4fe6eb32b5d2d9615bb434d7" title="Name of the gather&#45;scatter comm. backend comm_bcknd, right&#45;adjusted for the log." alt="" coords="439,42,577,82"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="92,421,108,382,135,327,172,266,218,212,270,170,326,134,383,106,435,84,437,89,385,111,329,139,273,174,222,215,176,270,140,329,113,384,97,423"/>
+<area shape="rect" id="Node000005" href="$d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="222,536,361,576"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="108,446,158,482,221,522,232,528,230,532,219,527,155,486,105,450"/>
+<area shape="rect" id="Node000010" href="$d0/d78/namespacegather__scatter.html#a70b1e5adb11770ec89f7e135bb74c793" title="Schedule shared gather&#45;scatter operations." alt="" coords="222,727,361,767"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="101,446,272,714,267,716,96,449"/>
+<area shape="rect" id="Node000019" href="$d0/d78/namespacegather__scatter.html#ab9244f3ee9ebb109b6122b733f4e7138" title="Time ntrials gather&#45;scatter operations on u, returning the average wall time (s) per operation...." alt="" coords="685,371,823,411"/>
+<area shape="poly" id="edge19_Node000001_Node000019" title=" " alt="" coords="172,428,605,402,671,396,671,401,606,407,172,433"/>
+<area shape="rect" id="Node000023" href="$d0/d78/namespacegather__scatter.html#aed7bd30ec4e32f304bb3a14709570ef0" title="Select the fastest of the comm. backends in cand at runtime." alt="" coords="222,226,361,266"/>
+<area shape="poly" id="edge23_Node000001_Node000023" title=" " alt="" coords="102,420,257,273,260,277,106,424"/>
+<area shape="rect" id="Node000006" href="$d5/d7e/gather__scatter_8f90.html#a911f14e18cc5ef3b55e29dbdc6fe5ce2" title="Find blocks sharing dofs in non&#45;facet data." alt="" coords="457,473,559,498"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="338,534,410,507,443,498,444,503,412,512,340,539"/>
+<area shape="rect" id="Node000007" href="$d5/d7e/gather__scatter_8f90.html#af8cc5f86931d4ca4f75ac2ddc0b311d8" title="Register a unique dof Takes the unique id dof and checks if it is in the htable map_ If it is we retu..." alt="" coords="428,522,588,548"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="361,547,414,541,415,547,361,552"/>
+<area shape="rect" id="Node000008" href="$d5/d7e/gather__scatter_8f90.html#a762680d00a8b9d4de7498ece71c4092b" title="Sort the dof lists based on the dof to gather&#45;scatter list." alt="" coords="441,596,575,621"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="362,570,442,590,440,595,360,575"/>
+<area shape="rect" id="Node000009" href="$d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="439,645,577,670"/>
+<area shape="poly" id="edge9_Node000005_Node000009" title=" " alt="" coords="320,574,362,603,412,630,435,638,433,643,410,635,359,607,317,578"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="473,597,465,587,469,577,484,571,508,569,538,573,550,582,547,586,536,578,508,574,485,576,473,581,470,586,477,594"/>
+<area shape="rect" id="Node000011" href="$d8/d75/namespacecrystal__router.html#a8feca47eb70b004800b3c053fca83f9c" title="Append one record to a packed crystal&#45;router buffer." alt="" coords="426,759,590,799"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="361,754,413,762,412,767,361,760"/>
+<area shape="rect" id="Node000012" href="$d8/d75/namespacecrystal__router.html#a3748daf852207d528e6b3651a74bb6d3" title="Route packed records to their destination ranks." alt="" coords="426,823,590,863"/>
+<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="327,765,412,808,429,816,427,821,410,813,325,769"/>
+<area shape="rect" id="Node000018" href="$d0/d78/namespacegather__scatter.html#abba505ea99ff836fd6ba1e86d237d655" title="Heap sort for 64&#45;bit integer arrays, returning the permutation ind. Local helper for gs_schedule (the..." alt="" coords="439,695,577,735"/>
+<area shape="poly" id="edge18_Node000010_Node000018" title=" " alt="" coords="361,734,425,724,425,730,361,739"/>
+<area shape="rect" id="Node000013" href="$d8/d75/namespacecrystal__router.html#a54d76dcc595fd13d9a6ce2276360e2f3" title="Append e(1:ne) to buf(1:n) in place." alt="" coords="688,759,820,799"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="585,820,674,797,675,802,586,825"/>
+<area shape="rect" id="Node000014" href="$d8/d75/namespacecrystal__router.html#a6efdb59be41d218ae48e5f9a86af3f4c" title="Abort if any record destination falls outside ." alt="" coords="688,823,820,863"/>
+<area shape="poly" id="edge14_Node000012_Node000014" title=" " alt="" coords="590,840,675,840,675,846,590,846"/>
+<area shape="rect" id="Node000015" href="$d8/d75/namespacecrystal__router.html#a6545979889a469f3d0108e0d3fa36c41" title="Rebuild buf as the concatenation a(1:na) ++ b(1:nb)." alt="" coords="688,887,820,927"/>
+<area shape="poly" id="edge15_Node000012_Node000015" title=" " alt="" coords="586,860,675,884,674,889,585,866"/>
+<area shape="rect" id="Node000016" href="$d8/d75/namespacecrystal__router.html#aa0c58681b064c8fdbc41a29bccda3995" title="Size&#45;negotiated bidirectional exchange with a partner. Either dst or src may be MPI_PROC_NULL to make..." alt="" coords="688,951,820,991"/>
+<area shape="poly" id="edge16_Node000012_Node000016" title=" " alt="" coords="537,861,590,899,655,936,676,946,674,951,652,941,587,903,534,865"/>
+<area shape="rect" id="Node000017" href="$d8/d75/namespacecrystal__router.html#a7ad4715e59a971d678ed51337a5fb3e9" title="Partition buf into records kept locally and records to be sent. A record is kept when the side of its..." alt="" coords="688,695,820,735"/>
+<area shape="poly" id="edge17_Node000012_Node000017" title=" " alt="" coords="584,820,604,809,619,793,627,778,636,761,652,745,674,732,677,737,655,749,640,764,632,780,623,797,607,813,586,825"/>
+<area shape="rect" id="Node000020" href="$d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="903,371,1041,411"/>
+<area shape="poly" id="edge20_Node000019_Node000020" title=" " alt="" coords="823,388,889,388,889,394,823,394"/>
+<area shape="rect" id="Node000021" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="1089,339,1212,379"/>
+<area shape="poly" id="edge21_Node000020_Node000021" title=" " alt="" coords="1041,376,1075,370,1076,375,1042,381"/>
+<area shape="rect" id="Node000022" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="1089,403,1212,443"/>
+<area shape="poly" id="edge22_Node000020_Node000022" title=" " alt="" coords="1042,401,1076,407,1075,412,1041,406"/>
+<area shape="poly" id="edge27_Node000023_Node000004" title=" " alt="" coords="306,224,364,150,409,98,430,85,432,90,412,102,368,154,310,227"/>
+<area shape="poly" id="edge30_Node000023_Node000019" title=" " alt="" coords="309,264,351,313,380,337,412,356,477,379,545,391,612,396,671,395,671,401,612,401,545,396,475,384,410,361,376,341,347,316,305,267"/>
+<area shape="rect" id="Node000024" href="$df/dd5/namespacegs__caf.html#a13ecfac527c9207f99cac01188cf278f" title="The signaling mode currently in force, or 0 if none has been bound yet (no gs_caf_t has been initiali..." alt="" coords="415,208,601,233"/>
+<area shape="poly" id="edge24_Node000023_Node000024" title=" " alt="" coords="361,235,402,230,402,235,361,240"/>
+<area shape="rect" id="Node000025" href="$df/dd5/namespacegs__caf.html#a6b0ec94c53d3d629007da5240a6ec5ba" title="Name of the signaling mode mode, right&#45;adjusted for the log." alt="" coords="653,185,855,210"/>
+<area shape="poly" id="edge25_Node000023_Node000025" title=" " alt="" coords="328,223,367,206,410,192,468,183,528,180,640,182,640,188,528,185,469,189,411,197,369,211,330,228"/>
+<area shape="rect" id="Node000026" href="$df/dd5/namespacegs__caf.html#ae641da9ef3ae08889b099dc2ba402ba7" title="Whether the signaling mode should be selected by benchmarking, i.e. NEKO_GS_CAF_SIGNALING=auto...." alt="" coords="411,257,605,282"/>
+<area shape="poly" id="edge26_Node000023_Node000026" title=" " alt="" coords="361,251,397,255,397,260,361,256"/>
+<area shape="rect" id="Node000027" href="$d0/d78/namespacegather__scatter.html#a75fae6bb34ed7306b7729b6ee5d76d48" title="Switch the comm. backend of gs to comm_bcknd, retaining the schedule computed in gs_schedule (the dof..." alt="" coords="685,99,823,139"/>
+<area shape="poly" id="edge28_Node000023_Node000027" title=" " alt="" coords="316,223,358,194,410,168,477,148,546,134,670,119,671,125,546,139,478,153,412,173,361,199,319,228"/>
+<area shape="rect" id="Node000028" href="$d0/d78/namespacegather__scatter.html#a5e15921dd90d8a4ab84e42239e2e1624" title="Benchmark the coarray signaling modes and bind the fastest one, leaving gs holding a CAF backend that..." alt="" coords="439,307,577,347"/>
+<area shape="poly" id="edge31_Node000023_Node000028" title=" " alt="" coords="342,263,412,291,435,300,434,305,410,296,340,268"/>
+<area shape="poly" id="edge29_Node000027_Node000002" title=" " alt="" coords="823,98,889,81,890,86,824,103"/>
+<area shape="poly" id="edge36_Node000028_Node000019" title=" " alt="" coords="578,342,672,367,670,372,577,347"/>
+<area shape="poly" id="edge32_Node000028_Node000025" title=" " alt="" coords="577,305,604,291,618,280,628,268,637,255,652,242,704,213,707,218,655,246,641,259,632,271,622,283,607,296,579,310"/>
+<area shape="poly" id="edge35_Node000028_Node000027" title=" " alt="" coords="576,309,604,292,616,277,623,263,628,234,633,203,640,187,651,170,686,143,689,147,655,174,644,190,638,205,633,235,628,265,620,280,607,296,579,314"/>
+<area shape="rect" id="Node000029" href="$df/dd5/namespacegs__caf.html#a684b036563dccc7480a67f8785196a73" title="Bind the signaling mode shared by every gs_caf_t instance, allocating whatever module&#45;level state the..." alt="" coords="662,257,846,282"/>
+<area shape="poly" id="edge33_Node000028_Node000029" title=" " alt="" coords="577,308,685,283,686,288,578,313"/>
+<area shape="rect" id="Node000030" href="$df/dd5/namespacegs__caf.html#a2a9300ec99b0609b36c9f2202701f98e" title="The signaling modes this build can run, in the order they should be benchmarked. Events are only avai..." alt="" coords="675,307,833,347"/>
+<area shape="poly" id="edge34_Node000028_Node000030" title=" " alt="" coords="578,324,661,324,661,330,578,330"/>
 </map>

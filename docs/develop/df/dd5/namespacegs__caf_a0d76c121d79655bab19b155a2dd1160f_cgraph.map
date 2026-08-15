@@ -1,0 +1,5 @@
+<map id="gs_caf::gs_caf_init" name="gs_caf::gs_caf_init">
+<area shape="rect" id="Node000001" title="Initialise Coarray Fortran based communication method." alt="" coords="5,5,147,31"/>
+<area shape="rect" id="Node000002" href="$df/dd5/namespacegs__caf.html#a684b036563dccc7480a67f8785196a73" title="Bind the signaling mode shared by every gs_caf_t instance, allocating whatever module&#45;level state the..." alt="" coords="195,5,379,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,15,181,15,181,21,147,21"/>
+</map>

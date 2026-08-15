@@ -8,7 +8,7 @@ var namespacerhs__maker__cpu =
     [ "rhs_maker_ext_cpu", "db/dd7/namespacerhs__maker__cpu.html#afea79337d03455b3113007bdb0a7329e", null ],
     [ "rhs_maker_oifs_cpu", "db/dd7/namespacerhs__maker__cpu.html#ad9dfde277595054f2dcb239a95d7dcd5", null ],
     [ "rhs_maker_sumab_cpu", "db/dd7/namespacerhs__maker__cpu.html#a1badd81fd90b551cf3a7922cb50a49e0", null ],
-    [ "scalar_rhs_maker_bdf_cpu", "db/dd7/namespacerhs__maker__cpu.html#ae543c8559d615270dc5c62d2bf683a83", null ],
-    [ "scalar_rhs_maker_ext_cpu", "db/dd7/namespacerhs__maker__cpu.html#a06412d7e9ce4ae6867d1c01eb1a48ef6", null ],
-    [ "scalar_rhs_maker_oifs_cpu", "db/dd7/namespacerhs__maker__cpu.html#a54d34878c1836f30524e3cfaf561ddd2", null ]
+    [ "scalar_rhs_maker_bdf_cpu", "db/dd7/namespacerhs__maker__cpu.html#ac7df01909d253ace2e4e1f54d0b49ae2", null ],
+    [ "scalar_rhs_maker_ext_cpu", "db/dd7/namespacerhs__maker__cpu.html#a5f3edc7d184a929a087c8a398bf338d9", null ],
+    [ "scalar_rhs_maker_oifs_cpu", "db/dd7/namespacerhs__maker__cpu.html#aaee5f5cc8eb323c089a76af5f2a49ccb", null ]
 ];

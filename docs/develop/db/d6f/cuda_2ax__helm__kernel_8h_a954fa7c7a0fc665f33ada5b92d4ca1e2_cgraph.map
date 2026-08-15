@@ -1,8 +1,0 @@
-<map id="ax_helm_kernel_kstep" name="ax_helm_kernel_kstep">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,173,72"/>
-<area shape="rect" id="Node000002" href="$d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="240,5,355,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="153,44,226,29,227,35,154,49"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="221,79,373,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="157,69,208,80,207,85,156,75"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="258,80,256,70,262,60,276,55,297,53,322,56,335,63,332,68,320,61,297,58,277,60,265,65,261,71,263,78"/>
-</map>

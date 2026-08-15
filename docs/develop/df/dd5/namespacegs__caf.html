@@ -117,6 +117,21 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
+<tr class="memitem:ae641da9ef3ae08889b099dc2ba402ba7" id="r_ae641da9ef3ae08889b099dc2ba402ba7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dd5/namespacegs__caf.html#ae641da9ef3ae08889b099dc2ba402ba7">gs_caf_signal_auto</a> ()</td></tr>
+<tr class="memdesc:ae641da9ef3ae08889b099dc2ba402ba7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the signaling mode should be selected by benchmarking, i.e. NEKO_GS_CAF_SIGNALING=auto. The mode is a program-wide binding shared by every <a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html" title="Gather-scatter communication using Coarray Fortran (F2008). Each image puts directly into the (module...">gs_caf_t</a> instance, so the caller (the gs comm. autotuner) must bind it once and keep it: see gs_caf_set_mode.  <br /></td></tr>
+<tr class="separator:ae641da9ef3ae08889b099dc2ba402ba7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a9300ec99b0609b36c9f2202701f98e" id="r_a2a9300ec99b0609b36c9f2202701f98e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dd5/namespacegs__caf.html#a2a9300ec99b0609b36c9f2202701f98e">gs_caf_signal_modes</a> ()</td></tr>
+<tr class="memdesc:a2a9300ec99b0609b36c9f2202701f98e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The signaling modes this build can run, in the order they should be benchmarked. Events are only available with a compiler that implements them.  <br /></td></tr>
+<tr class="separator:a2a9300ec99b0609b36c9f2202701f98e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13ecfac527c9207f99cac01188cf278f" id="r_a13ecfac527c9207f99cac01188cf278f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dd5/namespacegs__caf.html#a13ecfac527c9207f99cac01188cf278f">gs_caf_mode_get</a> ()</td></tr>
+<tr class="memdesc:a13ecfac527c9207f99cac01188cf278f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The signaling mode currently in force, or 0 if none has been bound yet (no <a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html" title="Gather-scatter communication using Coarray Fortran (F2008). Each image puts directly into the (module...">gs_caf_t</a> has been initialised and the autotuner has not run).  <br /></td></tr>
+<tr class="separator:a13ecfac527c9207f99cac01188cf278f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b0ec94c53d3d629007da5240a6ec5ba" id="r_a6b0ec94c53d3d629007da5240a6ec5ba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=12) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dd5/namespacegs__caf.html#a6b0ec94c53d3d629007da5240a6ec5ba">gs_caf_mode_name</a> (mode)</td></tr>
+<tr class="memdesc:a6b0ec94c53d3d629007da5240a6ec5ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name of the signaling mode <em>mode</em>, right-adjusted for the log.  <br /></td></tr>
+<tr class="separator:a6b0ec94c53d3d629007da5240a6ec5ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a684b036563dccc7480a67f8785196a73" id="r_a684b036563dccc7480a67f8785196a73"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dd5/namespacegs__caf.html#a684b036563dccc7480a67f8785196a73">gs_caf_set_mode</a> (mode)</td></tr>
+<tr class="memdesc:a684b036563dccc7480a67f8785196a73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bind the signaling mode shared by every <a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html" title="Gather-scatter communication using Coarray Fortran (F2008). Each image puts directly into the (module...">gs_caf_t</a> instance, allocating whatever module-level state the mode needs. Idempotent per mode, so it may be called again to switch modes while no gs op is in flight and no <a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html" title="Gather-scatter communication using Coarray Fortran (F2008). Each image puts directly into the (module...">gs_caf_t</a> instance is live &ndash; which is what the autotuner does to benchmark the modes against each other.  <br /></td></tr>
+<tr class="separator:a684b036563dccc7480a67f8785196a73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d76c121d79655bab19b155a2dd1160f" id="r_a0d76c121d79655bab19b155a2dd1160f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dd5/namespacegs__caf.html#a0d76c121d79655bab19b155a2dd1160f">gs_caf_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, send_pe, recv_pe)</td></tr>
 <tr class="memdesc:a0d76c121d79655bab19b155a2dd1160f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise Coarray Fortran based communication method.  <br /></td></tr>
 <tr class="separator:a0d76c121d79655bab19b155a2dd1160f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -144,6 +159,9 @@ Functions/Subroutines</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
+<tr class="memitem:ac8d9ff7e173fda1a6f1283cc040a2884" id="r_ac8d9ff7e173fda1a6f1283cc040a2884"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dd5/namespacegs__caf.html#ac8d9ff7e173fda1a6f1283cc040a2884">gs_caf_avail</a> = .false.</td></tr>
+<tr class="memdesc:ac8d9ff7e173fda1a6f1283cc040a2884"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether coarray support was built into this Neko. Lets callers (e.g. the gs comm. autotuner) skip the backend rather than aborting in init on builds without it.  <br /></td></tr>
+<tr class="separator:ac8d9ff7e173fda1a6f1283cc040a2884"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acb47050166ae7459005fda339d3879f4" id="r_acb47050166ae7459005fda339d3879f4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dd5/namespacegs__caf.html#acb47050166ae7459005fda339d3879f4">gs_caf_signal_sync</a> = 1</td></tr>
 <tr class="separator:acb47050166ae7459005fda339d3879f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9d1e54439ed36fdc27f4cd91f2e95987" id="r_a9d1e54439ed36fdc27f4cd91f2e95987"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dd5/namespacegs__caf.html#a9d1e54439ed36fdc27f4cd91f2e95987">gs_caf_signal_atomic</a> = 2</td></tr>
@@ -176,7 +194,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00325">325</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00486">486</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -185,6 +203,9 @@ Variables</h2></td></tr>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gs_caf::gs_caf_init </td>
@@ -210,9 +231,207 @@ Variables</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00169">169</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00336">336</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/dd5/namespacegs__caf_a0d76c121d79655bab19b155a2dd1160f_cgraph.png" border="0" usemap="#adf/dd5/namespacegs__caf_a0d76c121d79655bab19b155a2dd1160f_cgraph" alt=""/></div>
+<map name="adf/dd5/namespacegs__caf_a0d76c121d79655bab19b155a2dd1160f_cgraph" id="adf/dd5/namespacegs__caf_a0d76c121d79655bab19b155a2dd1160f_cgraph">
+<area shape="rect" title="Initialise Coarray Fortran based communication method." alt="" coords="5,5,147,31"/>
+<area shape="rect" href="../../df/dd5/namespacegs__caf.html#a684b036563dccc7480a67f8785196a73" title="Bind the signaling mode shared by every gs_caf_t instance, allocating whatever module&#45;level state the..." alt="" coords="195,5,379,31"/>
+<area shape="poly" title=" " alt="" coords="147,15,181,15,181,21,147,21"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a13ecfac527c9207f99cac01188cf278f" name="a13ecfac527c9207f99cac01188cf278f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13ecfac527c9207f99cac01188cf278f">&#9670;&#160;</a></span>gs_caf_mode_get()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> gs_caf::gs_caf_mode_get</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>the bound mode, a GS_CAF_SIGNAL_* constant, or 0 </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00249">249</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/dd5/namespacegs__caf_a13ecfac527c9207f99cac01188cf278f_icgraph.png" border="0" usemap="#adf/dd5/namespacegs__caf_a13ecfac527c9207f99cac01188cf278f_icgraph" alt=""/></div>
+<map name="adf/dd5/namespacegs__caf_a13ecfac527c9207f99cac01188cf278f_icgraph" id="adf/dd5/namespacegs__caf_a13ecfac527c9207f99cac01188cf278f_icgraph">
+<area shape="rect" title="The signaling mode currently in force, or 0 if none has been bound yet (no gs_caf_t has been initiali..." alt="" coords="475,42,660,67"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#aed7bd30ec4e32f304bb3a14709570ef0" title="Select the fastest of the comm. backends in cand at runtime." alt="" coords="254,5,393,45"/>
+<area shape="poly" title=" " alt="" coords="461,45,393,36,393,31,461,39"/>
+<area shape="rect" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#a9bc51ace34d0fce7cf19dd042a569681" title="Fused nc&#45;component wait/reduce for the coarray backend." alt="" coords="220,70,427,95"/>
+<area shape="poly" title=" " alt="" coords="461,69,427,73,426,68,461,64"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
+<area shape="poly" title=" " alt="" coords="240,28,172,28,172,23,240,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a6b0ec94c53d3d629007da5240a6ec5ba" name="a6b0ec94c53d3d629007da5240a6ec5ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6b0ec94c53d3d629007da5240a6ec5ba">&#9670;&#160;</a></span>gs_caf_mode_name()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=12) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> gs_caf::gs_caf_mode_name </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>mode</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">mode</td><td>the mode to name, one of the GS_CAF_SIGNAL_* constants </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00262">262</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/dd5/namespacegs__caf_a6b0ec94c53d3d629007da5240a6ec5ba_icgraph.png" border="0" usemap="#adf/dd5/namespacegs__caf_a6b0ec94c53d3d629007da5240a6ec5ba_icgraph" alt=""/></div>
+<map name="adf/dd5/namespacegs__caf_a6b0ec94c53d3d629007da5240a6ec5ba_icgraph" id="adf/dd5/namespacegs__caf_a6b0ec94c53d3d629007da5240a6ec5ba_icgraph">
+<area shape="rect" title="Name of the signaling mode mode, right&#45;adjusted for the log." alt="" coords="661,70,863,95"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a5e15921dd90d8a4ab84e42239e2e1624" title="Benchmark the coarray signaling modes and bind the fastest one, leaving gs holding a CAF backend that..." alt="" coords="441,5,579,45"/>
+<area shape="poly" title=" " alt="" coords="692,70,579,44,580,38,693,64"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#aed7bd30ec4e32f304bb3a14709570ef0" title="Select the fastest of the comm. backends in cand at runtime." alt="" coords="220,35,359,75"/>
+<area shape="poly" title=" " alt="" coords="647,79,359,61,359,56,648,73"/>
+<area shape="rect" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#a9bc51ace34d0fce7cf19dd042a569681" title="Fused nc&#45;component wait/reduce for the coarray backend." alt="" coords="407,121,613,146"/>
+<area shape="poly" title=" " alt="" coords="685,101,574,123,573,118,684,96"/>
+<area shape="poly" title=" " alt="" coords="427,39,359,48,358,43,426,34"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,42,172,67"/>
+<area shape="poly" title=" " alt="" coords="206,57,172,57,172,52,206,52"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a684b036563dccc7480a67f8785196a73" name="a684b036563dccc7480a67f8785196a73"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a684b036563dccc7480a67f8785196a73">&#9670;&#160;</a></span>gs_caf_set_mode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> gs_caf::gs_caf_set_mode </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>mode</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">mode</td><td>the mode to bind, one of the GS_CAF_SIGNAL_* constants </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>Collective: the atomic counters and the event coarrays are coarrays, so every image must call this in the same order. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00288">288</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/dd5/namespacegs__caf_a684b036563dccc7480a67f8785196a73_icgraph.png" border="0" usemap="#adf/dd5/namespacegs__caf_a684b036563dccc7480a67f8785196a73_icgraph" alt=""/></div>
+<map name="adf/dd5/namespacegs__caf_a684b036563dccc7480a67f8785196a73_icgraph" id="adf/dd5/namespacegs__caf_a684b036563dccc7480a67f8785196a73_icgraph">
+<area shape="rect" title="Bind the signaling mode shared by every gs_caf_t instance, allocating whatever module&#45;level state the..." alt="" coords="661,63,845,88"/>
+<area shape="rect" href="../../df/dd5/namespacegs__caf.html#a0d76c121d79655bab19b155a2dd1160f" title="Initialise Coarray Fortran based communication method." alt="" coords="439,5,581,31"/>
+<area shape="poly" title=" " alt="" coords="685,62,564,33,565,28,686,57"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a5e15921dd90d8a4ab84e42239e2e1624" title="Benchmark the coarray signaling modes and bind the fastest one, leaving gs holding a CAF backend that..." alt="" coords="441,55,579,95"/>
+<area shape="poly" title=" " alt="" coords="648,78,580,78,580,73,648,73"/>
+<area shape="rect" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#a9bc51ace34d0fce7cf19dd042a569681" title="Fused nc&#45;component wait/reduce for the coarray backend." alt="" coords="407,120,613,145"/>
+<area shape="poly" title=" " alt="" coords="686,94,565,123,564,117,685,89"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#aed7bd30ec4e32f304bb3a14709570ef0" title="Select the fastest of the comm. backends in cand at runtime." alt="" coords="220,55,359,95"/>
+<area shape="poly" title=" " alt="" coords="427,78,359,78,359,73,427,73"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,63,172,88"/>
+<area shape="poly" title=" " alt="" coords="206,78,172,78,172,73,206,73"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ae641da9ef3ae08889b099dc2ba402ba7" name="ae641da9ef3ae08889b099dc2ba402ba7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae641da9ef3ae08889b099dc2ba402ba7">&#9670;&#160;</a></span>gs_caf_signal_auto()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> gs_caf::gs_caf_signal_auto</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>whether the mode should be selected by benchmarking </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00214">214</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/dd5/namespacegs__caf_ae641da9ef3ae08889b099dc2ba402ba7_icgraph.png" border="0" usemap="#adf/dd5/namespacegs__caf_ae641da9ef3ae08889b099dc2ba402ba7_icgraph" alt=""/></div>
+<map name="adf/dd5/namespacegs__caf_ae641da9ef3ae08889b099dc2ba402ba7_icgraph" id="adf/dd5/namespacegs__caf_ae641da9ef3ae08889b099dc2ba402ba7_icgraph">
+<area shape="rect" title="Whether the signaling mode should be selected by benchmarking, i.e. NEKO_GS_CAF_SIGNALING=auto...." alt="" coords="475,42,669,67"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#aed7bd30ec4e32f304bb3a14709570ef0" title="Select the fastest of the comm. backends in cand at runtime." alt="" coords="254,5,393,45"/>
+<area shape="poly" title=" " alt="" coords="461,44,393,36,393,31,461,39"/>
+<area shape="rect" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#a9bc51ace34d0fce7cf19dd042a569681" title="Fused nc&#45;component wait/reduce for the coarray backend." alt="" coords="220,70,427,95"/>
+<area shape="poly" title=" " alt="" coords="461,70,427,74,427,68,461,64"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
+<area shape="poly" title=" " alt="" coords="240,28,172,28,172,23,240,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a2a9300ec99b0609b36c9f2202701f98e" name="a2a9300ec99b0609b36c9f2202701f98e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a9300ec99b0609b36c9f2202701f98e">&#9670;&#160;</a></span>gs_caf_signal_modes()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> gs_caf::gs_caf_signal_modes</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>the runnable modes, as GS_CAF_SIGNAL_* constants </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00229">229</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/dd5/namespacegs__caf_a2a9300ec99b0609b36c9f2202701f98e_icgraph.png" border="0" usemap="#adf/dd5/namespacegs__caf_a2a9300ec99b0609b36c9f2202701f98e_icgraph" alt=""/></div>
+<map name="adf/dd5/namespacegs__caf_a2a9300ec99b0609b36c9f2202701f98e_icgraph" id="adf/dd5/namespacegs__caf_a2a9300ec99b0609b36c9f2202701f98e_icgraph">
+<area shape="rect" title="The signaling modes this build can run, in the order they should be benchmarked. Events are only avai..." alt="" coords="661,35,820,75"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a5e15921dd90d8a4ab84e42239e2e1624" title="Benchmark the coarray signaling modes and bind the fastest one, leaving gs holding a CAF backend that..." alt="" coords="441,5,579,45"/>
+<area shape="poly" title=" " alt="" coords="647,45,579,37,580,31,647,40"/>
+<area shape="rect" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#a9bc51ace34d0fce7cf19dd042a569681" title="Fused nc&#45;component wait/reduce for the coarray backend." alt="" coords="407,70,613,95"/>
+<area shape="poly" title=" " alt="" coords="648,69,614,73,613,67,647,63"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#aed7bd30ec4e32f304bb3a14709570ef0" title="Select the fastest of the comm. backends in cand at runtime." alt="" coords="220,5,359,45"/>
+<area shape="poly" title=" " alt="" coords="427,28,359,28,359,23,427,23"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
+<area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -250,7 +469,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00518">518</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00724">724</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -294,7 +513,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00791">791</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l01015">1015</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -356,7 +575,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00348">348</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00551">551</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -430,7 +649,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00665">665</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00877">877</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -486,7 +705,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00527">527</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00733">733</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -548,11 +767,27 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00797">797</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l01021">1021</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="ac8d9ff7e173fda1a6f1283cc040a2884" name="ac8d9ff7e173fda1a6f1283cc040a2884"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8d9ff7e173fda1a6f1283cc040a2884">&#9670;&#160;</a></span>gs_caf_avail</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> gs_caf::gs_caf_avail = .false.</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00057">57</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+
+</div>
+</div>
 <a id="a9d1e54439ed36fdc27f4cd91f2e95987" name="a9d1e54439ed36fdc27f4cd91f2e95987"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9d1e54439ed36fdc27f4cd91f2e95987">&#9670;&#160;</a></span>gs_caf_signal_atomic</h2>
 
@@ -565,7 +800,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00054">54</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00064">64</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -581,7 +816,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00055">55</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00065">65</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -597,7 +832,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00053">53</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00063">63</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -607,7 +842,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../df/dd5/namespacegs__caf.html">gs_caf</a></li>
-    <li class="footer">Generated on Fri Aug 14 2026 04:16:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 15 2026 03:46:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

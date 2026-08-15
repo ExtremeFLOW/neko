@@ -1,37 +1,37 @@
 var index =
 [
-    [ "Structure of the Manual", "index.html#autotoc_md72", null ],
+    [ "Structure of the Manual", "index.html#autotoc_md73", null ],
     [ "User guide", "dd/d04/user-guide.html", [
       [ "Installing Neko", "d5/dfc/installation.html", [
-        [ "Building from source", "d5/dfc/installation.html#autotoc_md147", [
-          [ "Dependencies", "d5/dfc/installation.html#autotoc_md148", [
-            [ "Building JSON Fortran", "d5/dfc/installation.html#autotoc_md149", null ],
-            [ "Building HDF5 (optional, but highly recommended)", "d5/dfc/installation.html#autotoc_md150", null ],
-            [ "Building ParMETIS (optional)", "d5/dfc/installation.html#autotoc_md151", null ],
-            [ "Bulding PFunit (optional)", "d5/dfc/installation.html#autotoc_md152", null ],
+        [ "Building from source", "d5/dfc/installation.html#autotoc_md148", [
+          [ "Dependencies", "d5/dfc/installation.html#autotoc_md149", [
+            [ "Building JSON Fortran", "d5/dfc/installation.html#autotoc_md150", null ],
+            [ "Building HDF5 (optional, but highly recommended)", "d5/dfc/installation.html#autotoc_md151", null ],
+            [ "Building ParMETIS (optional)", "d5/dfc/installation.html#autotoc_md152", null ],
+            [ "Bulding PFunit (optional)", "d5/dfc/installation.html#autotoc_md153", null ],
             [ "Python (optional)", "d5/dfc/installation.html#deps-python", null ]
           ] ],
           [ "Building Neko", "d5/dfc/installation.html#building-neko", [
             [ "Compute backends and support tiers", "d5/dfc/installation.html#compute-backends", null ],
             [ "Communication backends", "d5/dfc/installation.html#communication-backends", null ],
-            [ "Compiling Neko for CPU or SX-Aurora", "d5/dfc/installation.html#autotoc_md153", null ],
-            [ "Compiling Neko for NVIDIA GPUs", "d5/dfc/installation.html#autotoc_md154", null ],
-            [ "Compiling Neko for AMD GPUs", "d5/dfc/installation.html#autotoc_md155", null ],
-            [ "Compiling Neko for Apple Silicon GPUs", "d5/dfc/installation.html#autotoc_md156", null ],
-            [ "Compiling Neko with a collective communications library", "d5/dfc/installation.html#autotoc_md157", null ]
+            [ "Compiling Neko for CPU or SX-Aurora", "d5/dfc/installation.html#autotoc_md154", null ],
+            [ "Compiling Neko for NVIDIA GPUs", "d5/dfc/installation.html#autotoc_md155", null ],
+            [ "Compiling Neko for AMD GPUs", "d5/dfc/installation.html#autotoc_md156", null ],
+            [ "Compiling Neko for Apple Silicon GPUs", "d5/dfc/installation.html#autotoc_md157", null ],
+            [ "Compiling Neko with a collective communications library", "d5/dfc/installation.html#autotoc_md158", null ]
           ] ]
         ] ],
-        [ "Installing via Spack", "d5/dfc/installation.html#autotoc_md158", [
-          [ "Quick start guide with Spack", "d5/dfc/installation.html#autotoc_md159", null ]
+        [ "Installing via Spack", "d5/dfc/installation.html#autotoc_md159", [
+          [ "Quick start guide with Spack", "d5/dfc/installation.html#autotoc_md160", null ]
         ] ],
-        [ "Installing using pixi", "d5/dfc/installation.html#autotoc_md160", null ],
-        [ "Installing via FreeBSD ports", "d5/dfc/installation.html#autotoc_md161", null ],
-        [ "Using a Docker container", "d5/dfc/installation.html#autotoc_md162", null ],
+        [ "Installing using pixi", "d5/dfc/installation.html#autotoc_md161", null ],
+        [ "Installing via FreeBSD ports", "d5/dfc/installation.html#autotoc_md162", null ],
+        [ "Using a Docker container", "d5/dfc/installation.html#autotoc_md163", null ],
         [ "Testing", "d5/d75/testing.html", [
-          [ "pFUnit", "d5/d75/testing.html#autotoc_md68", null ],
-          [ "Configuring Neko", "d5/d75/testing.html#autotoc_md69", null ],
-          [ "Running the tests", "d5/d75/testing.html#autotoc_md70", null ],
-          [ "Adding a new test", "d5/d75/testing.html#autotoc_md71", null ]
+          [ "pFUnit", "d5/d75/testing.html#autotoc_md69", null ],
+          [ "Configuring Neko", "d5/d75/testing.html#autotoc_md70", null ],
+          [ "Running the tests", "d5/d75/testing.html#autotoc_md71", null ],
+          [ "Adding a new test", "d5/d75/testing.html#autotoc_md72", null ]
         ] ]
       ] ],
       [ "Meshing", "d9/df2/meshing.html", [
@@ -42,74 +42,74 @@ var index =
           [ "Experimental workflows", "d9/df2/meshing.html#constructing-meshes-experimental", null ]
         ] ],
         [ "High-order boundary representation", "d9/df2/meshing.html#high-order-boundary-representation", [
-          [ "Curves stored in the mesh file", "d9/df2/meshing.html#autotoc_md167", null ],
-          [ "User-defined geometry deformation", "d9/df2/meshing.html#autotoc_md168", null ]
+          [ "Curves stored in the mesh file", "d9/df2/meshing.html#autotoc_md168", null ],
+          [ "User-defined geometry deformation", "d9/df2/meshing.html#autotoc_md169", null ]
         ] ],
         [ "Adding periodicity to an existing <tt>.nmsh</tt>", "d9/df2/meshing.html#adding-periodicity-to-an-existing-nmsh", null ]
       ] ],
       [ "Case File", "dd/d33/case-file.html", [
-        [ "High-level structure", "dd/d33/case-file.html#autotoc_md76", null ],
-        [ "Output frequency control", "dd/d33/case-file.html#autotoc_md77", null ],
-        [ "The case object", "dd/d33/case-file.html#autotoc_md78", [
-          [ "Constants", "dd/d33/case-file.html#autotoc_md79", null ],
+        [ "High-level structure", "dd/d33/case-file.html#autotoc_md77", null ],
+        [ "Output frequency control", "dd/d33/case-file.html#autotoc_md78", null ],
+        [ "The case object", "dd/d33/case-file.html#autotoc_md79", [
+          [ "Constants", "dd/d33/case-file.html#autotoc_md80", null ],
           [ "Expressions", "dd/d33/case-file.html#case-file_expressions", null ],
-          [ "Time control", "dd/d33/case-file.html#autotoc_md80", null ],
-          [ "Restarts and joblimit", "dd/d33/case-file.html#autotoc_md81", null ],
-          [ "Boundary type numbering in the \"output_boundary\" field", "dd/d33/case-file.html#autotoc_md82", null ]
+          [ "Time control", "dd/d33/case-file.html#autotoc_md81", null ],
+          [ "Restarts and joblimit", "dd/d33/case-file.html#autotoc_md82", null ],
+          [ "Boundary type numbering in the \"output_boundary\" field", "dd/d33/case-file.html#autotoc_md83", null ]
         ] ],
-        [ "Numerics", "dd/d33/case-file.html#autotoc_md83", null ],
+        [ "Numerics", "dd/d33/case-file.html#autotoc_md84", null ],
         [ "Fluid", "dd/d33/case-file.html#case-file_fluid", [
-          [ "Material properties", "dd/d33/case-file.html#autotoc_md84", null ],
-          [ "Compressible flows", "dd/d33/case-file.html#autotoc_md85", [
-            [ "Compressible boundary conditions", "dd/d33/case-file.html#autotoc_md86", null ]
+          [ "Material properties", "dd/d33/case-file.html#autotoc_md85", null ],
+          [ "Compressible flows", "dd/d33/case-file.html#autotoc_md86", [
+            [ "Compressible boundary conditions", "dd/d33/case-file.html#autotoc_md87", null ]
           ] ],
-          [ "Turbulence modelling", "dd/d33/case-file.html#autotoc_md87", null ],
-          [ "Schwarz iterations", "dd/d33/case-file.html#autotoc_md88", null ],
+          [ "Turbulence modelling", "dd/d33/case-file.html#autotoc_md88", null ],
+          [ "Schwarz iterations", "dd/d33/case-file.html#autotoc_md89", null ],
           [ "Boundary conditions", "dd/d33/case-file.html#case-file_fluid-boundary-conditions", [
-            [ "Specifying the boundaries", "dd/d33/case-file.html#autotoc_md89", null ],
-            [ "Available conditions", "dd/d33/case-file.html#autotoc_md90", null ],
+            [ "Specifying the boundaries", "dd/d33/case-file.html#autotoc_md90", null ],
+            [ "Available conditions", "dd/d33/case-file.html#autotoc_md91", null ],
             [ "MOST wall model", "dd/d33/case-file.html#most-wall-model", null ]
           ] ],
           [ "Richardson wall model", "dd/d33/case-file.html#richardson-wall-model", null ],
           [ "Initial conditions", "dd/d33/case-file.html#case-file_fluid-ic", null ],
           [ "Source terms", "dd/d33/case-file.html#case-file_fluid-source-term", [
-            [ "Brinkman", "dd/d33/case-file.html#autotoc_md91", null ],
-            [ "Gradient Jump Penalty", "dd/d33/case-file.html#autotoc_md92", null ],
-            [ "Sponge", "dd/d33/case-file.html#autotoc_md93", null ]
+            [ "Brinkman", "dd/d33/case-file.html#autotoc_md92", null ],
+            [ "Gradient Jump Penalty", "dd/d33/case-file.html#autotoc_md93", null ],
+            [ "Sponge", "dd/d33/case-file.html#autotoc_md94", null ]
           ] ],
           [ "Arbitrary Lagrangian-Eulerian Framework", "dd/d33/case-file.html#case-file_fluid-ale", [
             [ "Solver", "dd/d33/case-file.html#case-file_fluid-ale-solver", [
-              [ "Output Files and Diagnostics", "dd/d33/case-file.html#autotoc_md94", null ]
+              [ "Output Files and Diagnostics", "dd/d33/case-file.html#autotoc_md95", null ]
             ] ],
-            [ "Mesh preview", "dd/d33/case-file.html#autotoc_md95", null ],
-            [ "Bodies", "dd/d33/case-file.html#autotoc_md96", [
-              [ "Oscillation", "dd/d33/case-file.html#autotoc_md97", null ],
-              [ "Rotation", "dd/d33/case-file.html#autotoc_md98", null ],
+            [ "Mesh preview", "dd/d33/case-file.html#autotoc_md96", null ],
+            [ "Bodies", "dd/d33/case-file.html#autotoc_md97", [
+              [ "Oscillation", "dd/d33/case-file.html#autotoc_md98", null ],
+              [ "Rotation", "dd/d33/case-file.html#autotoc_md99", null ],
               [ "Pivot", "dd/d33/case-file.html#case-file_fluid-ale-pivot", null ],
               [ "Mesh Stiffness", "dd/d33/case-file.html#case-file_fluid_ale_stiff_geom", null ]
             ] ],
-            [ "Restarting ALE simulations", "dd/d33/case-file.html#autotoc_md99", null ]
+            [ "Restarting ALE simulations", "dd/d33/case-file.html#autotoc_md100", null ]
           ] ]
         ] ],
-        [ "Linear solver configuration", "dd/d33/case-file.html#autotoc_md100", [
-          [ "Multilevel preconditioners", "dd/d33/case-file.html#autotoc_md101", [
-            [ "Updating phmg when the mesh changes", "dd/d33/case-file.html#autotoc_md102", null ]
+        [ "Linear solver configuration", "dd/d33/case-file.html#autotoc_md101", [
+          [ "Multilevel preconditioners", "dd/d33/case-file.html#autotoc_md102", [
+            [ "Updating phmg when the mesh changes", "dd/d33/case-file.html#autotoc_md103", null ]
           ] ],
-          [ "Flow rate forcing", "dd/d33/case-file.html#autotoc_md103", null ],
-          [ "Full parameter table", "dd/d33/case-file.html#autotoc_md104", null ]
+          [ "Flow rate forcing", "dd/d33/case-file.html#autotoc_md104", null ],
+          [ "Full parameter table", "dd/d33/case-file.html#autotoc_md105", null ]
         ] ],
         [ "Scalar", "dd/d33/case-file.html#case-file_scalar", [
-          [ "Material properties", "dd/d33/case-file.html#autotoc_md105", null ],
-          [ "Turbulence modelling", "dd/d33/case-file.html#autotoc_md106", null ],
-          [ "Boundary conditions", "dd/d33/case-file.html#autotoc_md107", null ],
-          [ "Initial conditions", "dd/d33/case-file.html#autotoc_md108", null ],
-          [ "Source terms", "dd/d33/case-file.html#autotoc_md109", null ],
-          [ "Linear solver configuration", "dd/d33/case-file.html#autotoc_md110", null ],
-          [ "Full parameter table", "dd/d33/case-file.html#autotoc_md111", null ]
+          [ "Material properties", "dd/d33/case-file.html#autotoc_md106", null ],
+          [ "Turbulence modelling", "dd/d33/case-file.html#autotoc_md107", null ],
+          [ "Boundary conditions", "dd/d33/case-file.html#autotoc_md108", null ],
+          [ "Initial conditions", "dd/d33/case-file.html#autotoc_md109", null ],
+          [ "Source terms", "dd/d33/case-file.html#autotoc_md110", null ],
+          [ "Linear solver configuration", "dd/d33/case-file.html#autotoc_md111", null ],
+          [ "Full parameter table", "dd/d33/case-file.html#autotoc_md112", null ]
         ] ],
-        [ "Simulation components", "dd/d33/case-file.html#autotoc_md112", null ],
-        [ "Point zones", "dd/d33/case-file.html#autotoc_md113", null ],
-        [ "Runtime statistics", "dd/d33/case-file.html#autotoc_md114", null ]
+        [ "Simulation components", "dd/d33/case-file.html#autotoc_md113", null ],
+        [ "Point zones", "dd/d33/case-file.html#autotoc_md114", null ],
+        [ "Runtime statistics", "dd/d33/case-file.html#autotoc_md115", null ]
       ] ],
       [ "User File", "d6/def/user-file.html", [
         [ "Compiling and running", "d6/def/user-file.html#autotoc_md206", null ],
@@ -212,11 +212,11 @@ var index =
         [ "Note to users", "df/d8f/statistics-guide.html#note-to-users", null ]
       ] ],
       [ "Input-output", "d7/d7f/io.html", [
-        [ "Mesh", "d7/d7f/io.html#autotoc_md163", null ],
-        [ "Three-dimensional field output", "d7/d7f/io.html#autotoc_md164", [
-          [ "Compression of field output", "d7/d7f/io.html#autotoc_md165", null ]
+        [ "Mesh", "d7/d7f/io.html#autotoc_md164", null ],
+        [ "Three-dimensional field output", "d7/d7f/io.html#autotoc_md165", [
+          [ "Compression of field output", "d7/d7f/io.html#autotoc_md166", null ]
         ] ],
-        [ "Checkpoint files", "d7/d7f/io.html#autotoc_md166", null ],
+        [ "Checkpoint files", "d7/d7f/io.html#autotoc_md167", null ],
         [ "VTKHDF output", "d7/d7f/io.html#vtkhdf-output", [
           [ "Prerequisites", "d7/d7f/io.html#vtkhdf-prerequisites", null ],
           [ "Enabling VTKHDF output", "d7/d7f/io.html#vtkhdf-enabling", null ],
@@ -228,61 +228,63 @@ var index =
       ] ],
       [ "Extending neko", "d4/d1b/extending.html", null ],
       [ "Neko API", "d8/daa/api.html", [
-        [ "Installation", "d8/daa/api.html#autotoc_md73", [
-          [ "Python (pyneko)", "d8/daa/api.html#autotoc_md74", null ],
-          [ "Julia (Neko.jl)", "d8/daa/api.html#autotoc_md75", null ]
+        [ "Installation", "d8/daa/api.html#autotoc_md74", [
+          [ "Python (pyneko)", "d8/daa/api.html#autotoc_md75", null ],
+          [ "Julia (Neko.jl)", "d8/daa/api.html#autotoc_md76", null ]
         ] ]
       ] ],
       [ "Performance guidelines", "dc/d3c/performance.html", [
-        [ "Installation", "dc/d3c/performance.html#autotoc_md169", [
-          [ "Accelerator specific options", "dc/d3c/performance.html#autotoc_md170", null ],
-          [ "CPU specific options", "dc/d3c/performance.html#autotoc_md171", null ]
+        [ "Installation", "dc/d3c/performance.html#autotoc_md170", [
+          [ "Accelerator specific options", "dc/d3c/performance.html#autotoc_md171", null ],
+          [ "CPU specific options", "dc/d3c/performance.html#autotoc_md172", null ]
         ] ],
-        [ "Simulation setup", "dc/d3c/performance.html#autotoc_md172", [
-          [ "Load balancing", "dc/d3c/performance.html#autotoc_md173", null ],
-          [ "Parameters", "dc/d3c/performance.html#autotoc_md174", null ]
+        [ "Simulation setup", "dc/d3c/performance.html#autotoc_md173", [
+          [ "Load balancing", "dc/d3c/performance.html#autotoc_md174", null ],
+          [ "Parameters", "dc/d3c/performance.html#autotoc_md175", null ],
+          [ "SEM operator auto-tuning", "dc/d3c/performance.html#performance-operator-autotuning", null ]
         ] ],
-        [ "Running a simulation", "dc/d3c/performance.html#autotoc_md175", [
-          [ "Gather-scatter communication backends", "dc/d3c/performance.html#autotoc_md176", [
+        [ "Running a simulation", "dc/d3c/performance.html#autotoc_md176", [
+          [ "Gather-scatter communication backends", "dc/d3c/performance.html#autotoc_md177", [
+            [ "Runtime autotuning of the host backend", "dc/d3c/performance.html#performance-gs-autotuning", null ],
             [ "MPI neighbourhood collective backend", "dc/d3c/performance.html#performance-neighbour-backend", null ],
             [ "NVSHMEM backend", "dc/d3c/performance.html#performance-nvshmem-backend", null ],
             [ "OpenSHMEM backend", "dc/d3c/performance.html#performance-openshmem-backend", null ],
-            [ "Coarray Fortran backend", "dc/d3c/performance.html#autotoc_md177", null ],
+            [ "Coarray Fortran backend", "dc/d3c/performance.html#performance-caf-backend", null ],
             [ "uTofu backend", "dc/d3c/performance.html#performance-utofu-backend", null ]
           ] ]
         ] ]
       ] ],
       [ "Global Interpolation", "dd/d61/global-interpolation.html", [
-        [ "Overview", "dd/d61/global-interpolation.html#autotoc_md115", null ],
-        [ "The global interpolation module", "dd/d61/global-interpolation.html#autotoc_md117", [
-          [ "Description", "dd/d61/global-interpolation.html#autotoc_md118", null ],
-          [ "Features", "dd/d61/global-interpolation.html#autotoc_md119", null ]
+        [ "Overview", "dd/d61/global-interpolation.html#autotoc_md116", null ],
+        [ "The global interpolation module", "dd/d61/global-interpolation.html#autotoc_md118", [
+          [ "Description", "dd/d61/global-interpolation.html#autotoc_md119", null ],
+          [ "Features", "dd/d61/global-interpolation.html#autotoc_md120", null ]
         ] ],
-        [ "The global interpolation type", "dd/d61/global-interpolation.html#autotoc_md121", [
-          [ "Description", "dd/d61/global-interpolation.html#autotoc_md122", null ],
-          [ "Attributes", "dd/d61/global-interpolation.html#autotoc_md123", [
-            [ "Domain and Space Information", "dd/d61/global-interpolation.html#autotoc_md124", null ],
-            [ "Point Management", "dd/d61/global-interpolation.html#autotoc_md125", null ],
-            [ "Local Points", "dd/d61/global-interpolation.html#autotoc_md126", null ],
-            [ "Interpolation Tools", "dd/d61/global-interpolation.html#autotoc_md127", null ],
-            [ "Parallelism", "dd/d61/global-interpolation.html#autotoc_md128", null ],
-            [ "Configuration", "dd/d61/global-interpolation.html#autotoc_md129", null ]
+        [ "The global interpolation type", "dd/d61/global-interpolation.html#autotoc_md122", [
+          [ "Description", "dd/d61/global-interpolation.html#autotoc_md123", null ],
+          [ "Attributes", "dd/d61/global-interpolation.html#autotoc_md124", [
+            [ "Domain and Space Information", "dd/d61/global-interpolation.html#autotoc_md125", null ],
+            [ "Point Management", "dd/d61/global-interpolation.html#autotoc_md126", null ],
+            [ "Local Points", "dd/d61/global-interpolation.html#autotoc_md127", null ],
+            [ "Interpolation Tools", "dd/d61/global-interpolation.html#autotoc_md128", null ],
+            [ "Parallelism", "dd/d61/global-interpolation.html#autotoc_md129", null ],
+            [ "Configuration", "dd/d61/global-interpolation.html#autotoc_md130", null ]
           ] ],
-          [ "Methods", "dd/d61/global-interpolation.html#autotoc_md131", [
-            [ "Initialization", "dd/d61/global-interpolation.html#autotoc_md132", null ],
-            [ "Point Management", "dd/d61/global-interpolation.html#autotoc_md133", null ],
-            [ "Interpolation", "dd/d61/global-interpolation.html#autotoc_md134", null ],
-            [ "Validation", "dd/d61/global-interpolation.html#autotoc_md135", null ],
-            [ "Memory Management", "dd/d61/global-interpolation.html#autotoc_md136", null ]
+          [ "Methods", "dd/d61/global-interpolation.html#autotoc_md132", [
+            [ "Initialization", "dd/d61/global-interpolation.html#autotoc_md133", null ],
+            [ "Point Management", "dd/d61/global-interpolation.html#autotoc_md134", null ],
+            [ "Interpolation", "dd/d61/global-interpolation.html#autotoc_md135", null ],
+            [ "Validation", "dd/d61/global-interpolation.html#autotoc_md136", null ],
+            [ "Memory Management", "dd/d61/global-interpolation.html#autotoc_md137", null ]
           ] ],
-          [ "Example Usage", "dd/d61/global-interpolation.html#autotoc_md138", [
-            [ "Initialization", "dd/d61/global-interpolation.html#autotoc_md139", null ],
-            [ "Finding Points", "dd/d61/global-interpolation.html#autotoc_md140", null ],
-            [ "Interpolation", "dd/d61/global-interpolation.html#autotoc_md141", null ]
+          [ "Example Usage", "dd/d61/global-interpolation.html#autotoc_md139", [
+            [ "Initialization", "dd/d61/global-interpolation.html#autotoc_md140", null ],
+            [ "Finding Points", "dd/d61/global-interpolation.html#autotoc_md141", null ],
+            [ "Interpolation", "dd/d61/global-interpolation.html#autotoc_md142", null ]
           ] ],
-          [ "Notes", "dd/d61/global-interpolation.html#autotoc_md143", null ],
-          [ "Environment variables", "dd/d61/global-interpolation.html#autotoc_md144", null ],
-          [ "Related Modules", "dd/d61/global-interpolation.html#autotoc_md146", null ]
+          [ "Notes", "dd/d61/global-interpolation.html#autotoc_md144", null ],
+          [ "Environment variables", "dd/d61/global-interpolation.html#autotoc_md145", null ],
+          [ "Related Modules", "dd/d61/global-interpolation.html#autotoc_md147", null ]
         ] ]
       ] ],
       [ "Filtering", "df/d4a/filter.html", [
@@ -295,53 +297,53 @@ var index =
     ] ],
     [ "Developer guide", "dc/d70/developer-guide.html", [
       [ "Contributing to Neko", "d1/d5a/contributing.html", [
-        [ "Git branches", "d1/d5a/contributing.html#autotoc_md44", null ],
-        [ "Code style", "d1/d5a/contributing.html#autotoc_md45", [
-          [ "Data types", "d1/d5a/contributing.html#autotoc_md46", null ]
+        [ "Git branches", "d1/d5a/contributing.html#autotoc_md45", null ],
+        [ "Code style", "d1/d5a/contributing.html#autotoc_md46", [
+          [ "Data types", "d1/d5a/contributing.html#autotoc_md47", null ]
         ] ],
-        [ "Build system and code organization", "d1/d5a/contributing.html#autotoc_md47", [
-          [ "Building CPU Fortran code", "d1/d5a/contributing.html#autotoc_md48", null ],
-          [ "Device code", "d1/d5a/contributing.html#autotoc_md49", [
-            [ "CUDA", "d1/d5a/contributing.html#autotoc_md50", null ],
-            [ "HIP", "d1/d5a/contributing.html#autotoc_md51", null ],
-            [ "OpenCL", "d1/d5a/contributing.html#autotoc_md52", null ],
-            [ "Device-based type polymorphism", "d1/d5a/contributing.html#autotoc_md53", null ],
-            [ "Summary of build system entires", "d1/d5a/contributing.html#autotoc_md54", null ]
+        [ "Build system and code organization", "d1/d5a/contributing.html#autotoc_md48", [
+          [ "Building CPU Fortran code", "d1/d5a/contributing.html#autotoc_md49", null ],
+          [ "Device code", "d1/d5a/contributing.html#autotoc_md50", [
+            [ "CUDA", "d1/d5a/contributing.html#autotoc_md51", null ],
+            [ "HIP", "d1/d5a/contributing.html#autotoc_md52", null ],
+            [ "OpenCL", "d1/d5a/contributing.html#autotoc_md53", null ],
+            [ "Device-based type polymorphism", "d1/d5a/contributing.html#autotoc_md54", null ],
+            [ "Summary of build system entires", "d1/d5a/contributing.html#autotoc_md55", null ]
           ] ]
         ] ]
       ] ],
       [ "Programming patterns and conventions", "d0/d47/dev_patterns.html", [
-        [ "A. Naming", "d0/d47/dev_patterns.html#autotoc_md55", null ],
-        [ "B. Scope", "d0/d47/dev_patterns.html#autotoc_md56", null ],
-        [ "C. Constructors and destructors.", "d0/d47/dev_patterns.html#autotoc_md57", null ],
-        [ "D. Documentation", "d0/d47/dev_patterns.html#autotoc_md58", null ],
-        [ "E. Design", "d0/d47/dev_patterns.html#autotoc_md59", null ],
-        [ "F. Complex and Polymorphic arrays.", "d0/d47/dev_patterns.html#autotoc_md60", [
-          [ "F.1. Object wrapper pattern", "d0/d47/dev_patterns.html#autotoc_md61", null ],
-          [ "F.2. Object pointer pattern", "d0/d47/dev_patterns.html#autotoc_md62", null ]
+        [ "A. Naming", "d0/d47/dev_patterns.html#autotoc_md56", null ],
+        [ "B. Scope", "d0/d47/dev_patterns.html#autotoc_md57", null ],
+        [ "C. Constructors and destructors.", "d0/d47/dev_patterns.html#autotoc_md58", null ],
+        [ "D. Documentation", "d0/d47/dev_patterns.html#autotoc_md59", null ],
+        [ "E. Design", "d0/d47/dev_patterns.html#autotoc_md60", null ],
+        [ "F. Complex and Polymorphic arrays.", "d0/d47/dev_patterns.html#autotoc_md61", [
+          [ "F.1. Object wrapper pattern", "d0/d47/dev_patterns.html#autotoc_md62", null ],
+          [ "F.2. Object pointer pattern", "d0/d47/dev_patterns.html#autotoc_md63", null ]
         ] ]
       ] ],
       [ "Code style", "da/db6/code-style.html", [
-        [ "Data types", "da/db6/code-style.html#autotoc_md39", null ],
-        [ "Enforcing rules", "da/db6/code-style.html#autotoc_md40", [
-          [ "Tools", "da/db6/code-style.html#autotoc_md41", [
-            [ "flint", "da/db6/code-style.html#autotoc_md42", null ],
-            [ "findent", "da/db6/code-style.html#autotoc_md43", null ]
+        [ "Data types", "da/db6/code-style.html#autotoc_md40", null ],
+        [ "Enforcing rules", "da/db6/code-style.html#autotoc_md41", [
+          [ "Tools", "da/db6/code-style.html#autotoc_md42", [
+            [ "flint", "da/db6/code-style.html#autotoc_md43", null ],
+            [ "findent", "da/db6/code-style.html#autotoc_md44", null ]
           ] ]
         ] ]
       ] ],
       [ "Testing", "d5/d75/testing.html", [
-        [ "pFUnit", "d5/d75/testing.html#autotoc_md68", null ],
-        [ "Configuring Neko", "d5/d75/testing.html#autotoc_md69", null ],
-        [ "Running the tests", "d5/d75/testing.html#autotoc_md70", null ],
-        [ "Adding a new test", "d5/d75/testing.html#autotoc_md71", null ]
+        [ "pFUnit", "d5/d75/testing.html#autotoc_md69", null ],
+        [ "Configuring Neko", "d5/d75/testing.html#autotoc_md70", null ],
+        [ "Running the tests", "d5/d75/testing.html#autotoc_md71", null ],
+        [ "Adding a new test", "d5/d75/testing.html#autotoc_md72", null ]
       ] ],
       [ "Accelerators", "de/d06/accelerators.html", [
-        [ "Device abstraction layer", "de/d06/accelerators.html#autotoc_md34", [
-          [ "Memory management", "de/d06/accelerators.html#autotoc_md35", [
-            [ "Allocation/deallocation", "de/d06/accelerators.html#autotoc_md36", null ],
-            [ "Associate data on host and device", "de/d06/accelerators.html#autotoc_md37", null ],
-            [ "Map a host array to a device", "de/d06/accelerators.html#autotoc_md38", null ],
+        [ "Device abstraction layer", "de/d06/accelerators.html#autotoc_md35", [
+          [ "Memory management", "de/d06/accelerators.html#autotoc_md36", [
+            [ "Allocation/deallocation", "de/d06/accelerators.html#autotoc_md37", null ],
+            [ "Associate data on host and device", "de/d06/accelerators.html#autotoc_md38", null ],
+            [ "Map a host array to a device", "de/d06/accelerators.html#autotoc_md39", null ],
             [ "Data transfer", "de/d06/accelerators.html#accelerators_data-transfer", null ]
           ] ],
           [ "Offload work", "de/d06/accelerators.html#accelerators_offload-work", null ]
@@ -349,60 +351,61 @@ var index =
       ] ],
       [ "Run-time selectable types", "d5/d5f/rts_types.html", null ],
       [ "Important types", "d3/d40/important_types.html", [
-        [ "SEM foundation types", "d3/d40/important_types.html#autotoc_md63", null ],
-        [ "Basic math routines", "d3/d40/important_types.html#autotoc_md64", null ],
-        [ "Governing equation solvers and related types", "d3/d40/important_types.html#autotoc_md65", null ],
-        [ "Singletons", "d3/d40/important_types.html#autotoc_md66", null ],
-        [ "Linear algebra", "d3/d40/important_types.html#autotoc_md67", null ]
+        [ "SEM foundation types", "d3/d40/important_types.html#autotoc_md64", null ],
+        [ "Basic math routines", "d3/d40/important_types.html#autotoc_md65", null ],
+        [ "Governing equation solvers and related types", "d3/d40/important_types.html#autotoc_md66", null ],
+        [ "Singletons", "d3/d40/important_types.html#autotoc_md67", null ],
+        [ "Linear algebra", "d3/d40/important_types.html#autotoc_md68", null ]
       ] ]
     ] ],
     [ "Appendices", "da/dd6/appendices.html", [
       [ "Environmental variable reference", "da/dd6/appendices.html#appendices_env-var", [
-        [ "Logging level details", "da/dd6/appendices.html#autotoc_md0", null ],
-        [ "Gather-scatter communication backend details", "da/dd6/appendices.html#autotoc_md1", null ],
-        [ "MPI thread level details", "da/dd6/appendices.html#autotoc_md2", null ],
-        [ "Coarray Fortran signaling mode details", "da/dd6/appendices.html#autotoc_md3", null ],
-        [ "uTofu injection details", "da/dd6/appendices.html#autotoc_md4", null ]
+        [ "SEM operator auto-tuning details", "da/dd6/appendices.html#autotoc_md0", null ],
+        [ "Logging level details", "da/dd6/appendices.html#autotoc_md1", null ],
+        [ "Gather-scatter communication backend details", "da/dd6/appendices.html#autotoc_md2", null ],
+        [ "MPI thread level details", "da/dd6/appendices.html#autotoc_md3", null ],
+        [ "Coarray Fortran signaling mode details", "da/dd6/appendices.html#autotoc_md4", null ],
+        [ "uTofu injection details", "da/dd6/appendices.html#autotoc_md5", null ]
       ] ],
       [ "Governing equations", "db/d27/governing-equations.html", [
-        [ "Momentum (Fluid)", "db/d27/governing-equations.html#autotoc_md18", null ],
-        [ "Scalar", "db/d27/governing-equations.html#autotoc_md19", null ],
-        [ "Compressible Flows", "db/d27/governing-equations.html#autotoc_md20", null ],
-        [ "Non-dimensionalisation", "db/d27/governing-equations.html#autotoc_md21", null ]
+        [ "Momentum (Fluid)", "db/d27/governing-equations.html#autotoc_md19", null ],
+        [ "Scalar", "db/d27/governing-equations.html#autotoc_md20", null ],
+        [ "Compressible Flows", "db/d27/governing-equations.html#autotoc_md21", null ],
+        [ "Non-dimensionalisation", "db/d27/governing-equations.html#autotoc_md22", null ]
       ] ],
       [ "Neko .nmsh mesh format", "d0/d5b/nmsh-format.html", [
-        [ "File overview", "d0/d5b/nmsh-format.html#autotoc_md22", null ],
-        [ "Data types and portability", "d0/d5b/nmsh-format.html#autotoc_md23", null ],
-        [ "Element records", "d0/d5b/nmsh-format.html#autotoc_md24", [
-          [ "Vertex record (<tt>nmsh_vertex_t</tt>)", "d0/d5b/nmsh-format.html#autotoc_md25", null ],
-          [ "Quad record (<tt>nmsh_quad_t</tt>)", "d0/d5b/nmsh-format.html#autotoc_md26", null ],
-          [ "Hex record (<tt>nmsh_hex_t</tt>)", "d0/d5b/nmsh-format.html#autotoc_md27", null ],
-          [ "Vertex ordering", "d0/d5b/nmsh-format.html#autotoc_md28", null ]
+        [ "File overview", "d0/d5b/nmsh-format.html#autotoc_md23", null ],
+        [ "Data types and portability", "d0/d5b/nmsh-format.html#autotoc_md24", null ],
+        [ "Element records", "d0/d5b/nmsh-format.html#autotoc_md25", [
+          [ "Vertex record (<tt>nmsh_vertex_t</tt>)", "d0/d5b/nmsh-format.html#autotoc_md26", null ],
+          [ "Quad record (<tt>nmsh_quad_t</tt>)", "d0/d5b/nmsh-format.html#autotoc_md27", null ],
+          [ "Hex record (<tt>nmsh_hex_t</tt>)", "d0/d5b/nmsh-format.html#autotoc_md28", null ],
+          [ "Vertex ordering", "d0/d5b/nmsh-format.html#autotoc_md29", null ]
         ] ],
-        [ "Zone records (boundary and periodic data)", "d0/d5b/nmsh-format.html#autotoc_md29", null ],
-        [ "Curve records (curved edges/faces)", "d0/d5b/nmsh-format.html#autotoc_md30", null ],
-        [ "2D meshes", "d0/d5b/nmsh-format.html#autotoc_md31", null ]
+        [ "Zone records (boundary and periodic data)", "d0/d5b/nmsh-format.html#autotoc_md30", null ],
+        [ "Curve records (curved edges/faces)", "d0/d5b/nmsh-format.html#autotoc_md31", null ],
+        [ "2D meshes", "d0/d5b/nmsh-format.html#autotoc_md32", null ]
       ] ],
       [ "Neko .fld field format", "d8/d00/fld-format.html", [
-        [ "File naming and series", "d8/d00/fld-format.html#autotoc_md5", null ],
-        [ "File overview", "d8/d00/fld-format.html#autotoc_md6", null ],
-        [ "Header", "d8/d00/fld-format.html#autotoc_md7", [
-          [ "rdcode", "d8/d00/fld-format.html#autotoc_md8", null ]
+        [ "File naming and series", "d8/d00/fld-format.html#autotoc_md6", null ],
+        [ "File overview", "d8/d00/fld-format.html#autotoc_md7", null ],
+        [ "Header", "d8/d00/fld-format.html#autotoc_md8", [
+          [ "rdcode", "d8/d00/fld-format.html#autotoc_md9", null ]
         ] ],
-        [ "Test pattern", "d8/d00/fld-format.html#autotoc_md9", null ],
-        [ "Element index list", "d8/d00/fld-format.html#autotoc_md10", null ],
-        [ "Field blocks", "d8/d00/fld-format.html#autotoc_md11", [
-          [ "Vector fields (X and U)", "d8/d00/fld-format.html#autotoc_md12", null ],
-          [ "Scalar fields (P, T, S)", "d8/d00/fld-format.html#autotoc_md13", null ],
-          [ "Precision", "d8/d00/fld-format.html#autotoc_md14", null ]
+        [ "Test pattern", "d8/d00/fld-format.html#autotoc_md10", null ],
+        [ "Element index list", "d8/d00/fld-format.html#autotoc_md11", null ],
+        [ "Field blocks", "d8/d00/fld-format.html#autotoc_md12", [
+          [ "Vector fields (X and U)", "d8/d00/fld-format.html#autotoc_md13", null ],
+          [ "Scalar fields (P, T, S)", "d8/d00/fld-format.html#autotoc_md14", null ],
+          [ "Precision", "d8/d00/fld-format.html#autotoc_md15", null ]
         ] ],
-        [ "Metadata blocks (3D only)", "d8/d00/fld-format.html#autotoc_md15", null ],
-        [ "2D fields and Z-velocity", "d8/d00/fld-format.html#autotoc_md16", null ],
-        [ "Portability notes", "d8/d00/fld-format.html#autotoc_md17", null ]
+        [ "Metadata blocks (3D only)", "d8/d00/fld-format.html#autotoc_md16", null ],
+        [ "2D fields and Z-velocity", "d8/d00/fld-format.html#autotoc_md17", null ],
+        [ "Portability notes", "d8/d00/fld-format.html#autotoc_md18", null ]
       ] ],
       [ "Publications", "de/d26/publications.html", [
-        [ "Computer science", "de/d26/publications.html#autotoc_md32", null ],
-        [ "Flow physics", "de/d26/publications.html#autotoc_md33", null ]
+        [ "Computer science", "de/d26/publications.html#autotoc_md33", null ],
+        [ "Flow physics", "de/d26/publications.html#autotoc_md34", null ]
       ] ]
     ] ]
 ];

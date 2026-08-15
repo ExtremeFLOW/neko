@@ -1,0 +1,11 @@
+<map id="gather_scatter::gs_time_ops" name="gather_scatter::gs_time_ops">
+<area shape="rect" id="Node000001" title="Time ntrials gather&#45;scatter operations on u, returning the average wall time (s) per operation...." alt="" coords="593,29,732,69"/>
+<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,8,172,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="587,28,545,19,445,10,345,8,172,16,172,10,345,3,445,5,546,14,588,22"/>
+<area shape="rect" id="Node000003" href="$d0/d78/namespacegather__scatter.html#a5e15921dd90d8a4ab84e42239e2e1624" title="Benchmark the coarray signaling modes and bind the fastest one, leaving gs holding a CAF backend that..." alt="" coords="407,29,545,69"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="579,51,546,51,546,46,579,46"/>
+<area shape="rect" id="Node000004" href="$d0/d78/namespacegather__scatter.html#aed7bd30ec4e32f304bb3a14709570ef0" title="Select the fastest of the comm. backends in cand at runtime." alt="" coords="220,29,359,69"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="588,75,546,83,476,89,406,83,351,71,352,66,407,78,476,84,545,78,587,70"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="393,51,359,51,359,46,393,46"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="206,40,172,35,173,30,207,34"/>
+</map>

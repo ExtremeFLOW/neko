@@ -1,5 +1,8 @@
 <map id="/home/runner/work/neko/neko/src/math/bcknd/device/cuda/lambda2_kernel.h" name="/home/runner/work/neko/neko/src/math/bcknd/device/cuda/lambda2_kernel.h">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,5,213,60"/>
-<area shape="rect" id="Node000002" href="$da/da7/cuda_2opgrad__kernel_8h.html" title=" " alt="" coords="19,108,200,148"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,60,112,94,107,94,107,60"/>
+<area shape="rect" id="Node000002" href="$d9/d87/cuda_2elem__block_8h.html" title=" " alt="" coords="55,196,164,221"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="93,61,75,102,71,125,73,147,81,166,93,184,88,186,77,169,68,149,65,125,70,100,88,59"/>
+<area shape="rect" id="Node000003" href="$da/da7/cuda_2opgrad__kernel_8h.html" title=" " alt="" coords="83,108,264,148"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="130,59,155,95,151,98,125,62"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="160,150,130,187,126,183,156,147"/>
 </map>

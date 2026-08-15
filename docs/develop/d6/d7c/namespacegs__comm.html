@@ -141,6 +141,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:a7b6ee6b6c0a37c740f810315fabd6ed7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af358299661323a0d9c6f95066f16957b" id="r_af358299661323a0d9c6f95066f16957b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7c/namespacegs__comm.html#af358299661323a0d9c6f95066f16957b">free_order</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="separator:af358299661323a0d9c6f95066f16957b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a478840cf6c1711f77dbbe3ea5e8946a9" id="r_a478840cf6c1711f77dbbe3ea5e8946a9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7c/namespacegs__comm.html#a478840cf6c1711f77dbbe3ea5e8946a9">take_schedule</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, src)</td></tr>
+<tr class="memdesc:a478840cf6c1711f77dbbe3ea5e8946a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Take over the gather-scatter schedule (dof lists and peer order) of <em>src</em>, avoiding a second (expensive) pass over the connectivity. The data is moved rather than copied, so <em>src</em> is left without a schedule and must not be used for communication afterwards (it can still be freed). No communication resources are set up here; complete the handover with <em>init_schedule</em> once <em>src</em> has been freed, so that the two backends never hold their resources at the same time.  <br /></td></tr>
+<tr class="separator:a478840cf6c1711f77dbbe3ea5e8946a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16e6b039dbd76c2229d87db52e79a9f4" id="r_a16e6b039dbd76c2229d87db52e79a9f4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7c/namespacegs__comm.html#a16e6b039dbd76c2229d87db52e79a9f4">init_schedule</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a16e6b039dbd76c2229d87db52e79a9f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set up this communication method for the schedule taken over by <em>take_schedule</em>. Collective, as <em>init</em> is.  <br /></td></tr>
+<tr class="separator:a16e6b039dbd76c2229d87db52e79a9f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17b10fb25e3e407ab72e1b13968a1deb" id="r_a17b10fb25e3e407ab72e1b13968a1deb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7c/namespacegs__comm.html#a17b10fb25e3e407ab72e1b13968a1deb">gs_nbsend_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">tag</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deps</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
 <tr class="memdesc:a17b10fb25e3e407ab72e1b13968a1deb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default fused vector send. Abort unless a backend overrides it.  <br /></td></tr>
 <tr class="separator:a17b10fb25e3e407ab72e1b13968a1deb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -198,7 +204,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00179">179</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00181">181</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -226,7 +232,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00225">225</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00227">227</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -270,7 +276,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00253">253</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00320">320</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -346,7 +352,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00242">242</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00309">309</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -408,7 +414,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00260">260</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00327">327</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -436,7 +442,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00163">163</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00165">165</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -487,7 +493,79 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00202">202</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00204">204</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+
+</div>
+</div>
+<a id="a16e6b039dbd76c2229d87db52e79a9f4" name="a16e6b039dbd76c2229d87db52e79a9f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a16e6b039dbd76c2229d87db52e79a9f4">&#9670;&#160;</a></span>init_schedule()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gs_comm::init_schedule </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html">gs_comm_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00269">269</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+
+</div>
+</div>
+<a id="a478840cf6c1711f77dbbe3ea5e8946a9" name="a478840cf6c1711f77dbbe3ea5e8946a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a478840cf6c1711f77dbbe3ea5e8946a9">&#9670;&#160;</a></span>take_schedule()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gs_comm::take_schedule </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html">gs_comm_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html">gs_comm_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>src</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">src</td><td>the backend to take the schedule from, left without one </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00248">248</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -642,7 +720,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/d7c/namespacegs__comm.html">gs_comm</a></li>
-    <li class="footer">Generated on Fri Aug 14 2026 04:16:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 15 2026 03:46:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -91,6 +91,7 @@ var hierarchy =
     [ "operators::cfl", "df/d06/interfaceoperators_1_1cfl.html", null ],
     [ "operators::cfl_compressible", "de/dff/interfaceoperators_1_1cfl__compressible.html", null ],
     [ "checkpoint::chkp_t", "d9/d88/structcheckpoint_1_1chkp__t.html", null ],
+    [ "chunk_block< LX, C >", "d4/d68/structchunk__block.html", null ],
     [ "opencl_intf::clcreatebuffer", "de/dd5/interfaceopencl__intf_1_1clcreatebuffer.html", null ],
     [ "opencl_intf::clcreatecommandqueue", "da/df2/interfaceopencl__intf_1_1clcreatecommandqueue.html", null ],
     [ "opencl_intf::clcreatecontext", "d4/da9/interfaceopencl__intf_1_1clcreatecontext.html", null ],
@@ -282,6 +283,7 @@ var hierarchy =
       [ "aabb_el_finder::aabb_el_finder_t", "da/d86/structaabb__el__finder_1_1aabb__el__finder__t.html", null ],
       [ "cartesian_el_finder::cartesian_el_finder_t", "dd/d18/structcartesian__el__finder_1_1cartesian__el__finder__t.html", null ]
     ] ],
+    [ "elem_block< LX, C >", "de/d3c/structelem__block.html", null ],
     [ "element::element_centroid", "d4/d46/interfaceelement_1_1element__centroid.html", null ],
     [ "element::element_diameter", "d7/d39/interfaceelement_1_1element__diameter.html", null ],
     [ "element::element_equal", "d6/db2/interfaceelement_1_1element__equal.html", null ],

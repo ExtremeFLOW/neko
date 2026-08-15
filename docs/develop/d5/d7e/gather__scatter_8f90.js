@@ -1,6 +1,10 @@
 var gather__scatter_8f90 =
 [
     [ "gather_scatter::gs_t", "dd/db8/structgather__scatter_1_1gs__t.html", "dd/db8/structgather__scatter_1_1gs__t" ],
+    [ "gs_comm_alloc", "d5/d7e/gather__scatter_8f90.html#a6df8dd2596a97fe71873a035887b4973", null ],
+    [ "gs_comm_host_cand", "d5/d7e/gather__scatter_8f90.html#a76297dc51141ac6b865bdcb1079afff6", null ],
+    [ "gs_comm_name", "d5/d7e/gather__scatter_8f90.html#ac36def8c4fe6eb32b5d2d9615bb434d7", null ],
+    [ "gs_comm_switch", "d5/d7e/gather__scatter_8f90.html#a75fae6bb34ed7306b7729b6ee5d76d48", null ],
     [ "gs_find_blks", "d5/d7e/gather__scatter_8f90.html#a911f14e18cc5ef3b55e29dbdc6fe5ce2", null ],
     [ "gs_free", "d5/d7e/gather__scatter_8f90.html#a7b932fc67f24ee664f40c41bc61487c1", null ],
     [ "gs_init", "d5/d7e/gather__scatter_8f90.html#ab47747b3dc7d9b75b840e7c6aafdf347", null ],
@@ -14,5 +18,11 @@ var gather__scatter_8f90 =
     [ "gs_op_vector3", "d5/d7e/gather__scatter_8f90.html#aac2a59847cf00bf8f06355ebbda60679", null ],
     [ "gs_qsort_dofmap", "d5/d7e/gather__scatter_8f90.html#a762680d00a8b9d4de7498ece71c4092b", null ],
     [ "gs_schedule", "d5/d7e/gather__scatter_8f90.html#a70b1e5adb11770ec89f7e135bb74c793", null ],
-    [ "gs_sort_i8", "d5/d7e/gather__scatter_8f90.html#abba505ea99ff836fd6ba1e86d237d655", null ]
+    [ "gs_sort_i8", "d5/d7e/gather__scatter_8f90.html#abba505ea99ff836fd6ba1e86d237d655", null ],
+    [ "gs_time_ops", "d5/d7e/gather__scatter_8f90.html#ab9244f3ee9ebb109b6122b733f4e7138", null ],
+    [ "gs_tune_caf_signal", "d5/d7e/gather__scatter_8f90.html#a5e15921dd90d8a4ab84e42239e2e1624", null ],
+    [ "gs_tune_comm", "d5/d7e/gather__scatter_8f90.html#aed7bd30ec4e32f304bb3a14709570ef0", null ],
+    [ "caf_signal_tuned", "d5/d7e/gather__scatter_8f90.html#a7cf1162ea7fc64a2e6b22cf52bea9cc4", null ],
+    [ "gs_tune_ntrials", "d5/d7e/gather__scatter_8f90.html#a524d80241ca9d4e2a4cc2153339c7669", null ],
+    [ "gs_tune_nwarmup", "d5/d7e/gather__scatter_8f90.html#a6a126f789af89fc7aa5fc815afdbd77a", null ]
 ];

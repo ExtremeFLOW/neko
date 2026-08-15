@@ -178,6 +178,12 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a8cbd176ce03aa9f17e780266c755e489"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a66dd276aed0a68a9a6e7325b6350f4f7" id="r_a66dd276aed0a68a9a6e7325b6350f4f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a66dd276aed0a68a9a6e7325b6350f4f7">free_order</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="separator:a66dd276aed0a68a9a6e7325b6350f4f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb51ebefe12be9b07dd2e5f01d6cadfe" id="r_adb51ebefe12be9b07dd2e5f01d6cadfe"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#adb51ebefe12be9b07dd2e5f01d6cadfe">take_schedule</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, src)</td></tr>
+<tr class="memdesc:adb51ebefe12be9b07dd2e5f01d6cadfe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Take over the gather-scatter schedule (dof lists and peer order) of <em>src</em>, avoiding a second (expensive) pass over the connectivity. The data is moved rather than copied, so <em>src</em> is left without a schedule and must not be used for communication afterwards (it can still be freed). No communication resources are set up here; complete the handover with <em>init_schedule</em> once <em>src</em> has been freed, so that the two backends never hold their resources at the same time.  <br /></td></tr>
+<tr class="separator:adb51ebefe12be9b07dd2e5f01d6cadfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46d63611d1f60b38d11653ed6a0592fb" id="r_a46d63611d1f60b38d11653ed6a0592fb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a46d63611d1f60b38d11653ed6a0592fb">init_schedule</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a46d63611d1f60b38d11653ed6a0592fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set up this communication method for the schedule taken over by <em>take_schedule</em>. Collective, as <em>init</em> is.  <br /></td></tr>
+<tr class="separator:a46d63611d1f60b38d11653ed6a0592fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af4dc3308d366cc075bc75e6116267c3b" id="r_af4dc3308d366cc075bc75e6116267c3b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#af4dc3308d366cc075bc75e6116267c3b">nbsend_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">tag</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deps</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
 <tr class="memdesc:af4dc3308d366cc075bc75e6116267c3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fused vector halo exchange. Default implementations abort; backends that set vec_supported = .true. override them.  <br /></td></tr>
 <tr class="separator:af4dc3308d366cc075bc75e6116267c3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -211,15 +217,15 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a6cfc4ecf79fa9879a8c08307f0190399"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac29aedbfa84e99c0aabb96f5a737d0a5" id="r_ac29aedbfa84e99c0aabb96f5a737d0a5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#ac29aedbfa84e99c0aabb96f5a737d0a5">recv_img</a></td></tr>
 <tr class="separator:ac29aedbfa84e99c0aabb96f5a737d0a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3dc83e066f6b81c43410af8c18b7c303" id="r_a3dc83e066f6b81c43410af8c18b7c303"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#a3dc83e066f6b81c43410af8c18b7c303">peer</a></td></tr>
+<tr class="memdesc:a3dc83e066f6b81c43410af8c18b7c303"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ranks of the union of send and recv peers, i.e. every peer this instance exchanges with in a round. Used to advance the per-peer double-buffer parity in nbwait.  <br /></td></tr>
+<tr class="separator:a3dc83e066f6b81c43410af8c18b7c303"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4daadc184d9bc5caeae8403565c30175" id="r_a4daadc184d9bc5caeae8403565c30175"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#a4daadc184d9bc5caeae8403565c30175">sync_img</a></td></tr>
-<tr class="memdesc:a4daadc184d9bc5caeae8403565c30175"><td class="mdescLeft">&#160;</td><td class="mdescRight">sync-mode only: image numbers of the union of send and recv peers, used for the pairwise sync images that bracket the put. Unallocated in atomic and event modes.  <br /></td></tr>
+<tr class="memdesc:a4daadc184d9bc5caeae8403565c30175"><td class="mdescLeft">&#160;</td><td class="mdescRight">sync-mode only: the same set as image numbers, used for the pairwise sync images that bracket the put. Unallocated in atomic and event modes.  <br /></td></tr>
 <tr class="separator:a4daadc184d9bc5caeae8403565c30175"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ef8e8848f449df0e5546fa0b0370c76" id="r_a1ef8e8848f449df0e5546fa0b0370c76"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#a1ef8e8848f449df0e5546fa0b0370c76">send_started</a> = .false.</td></tr>
 <tr class="memdesc:a1ef8e8848f449df0e5546fa0b0370c76"><td class="mdescLeft">&#160;</td><td class="mdescRight">event-mode only: false on the very first nbsend so the buf_ready wait is skipped (there are no credits posted yet).  <br /></td></tr>
 <tr class="separator:a1ef8e8848f449df0e5546fa0b0370c76"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0c693c7fc0484cf00d0a9aab4c3409f5" id="r_a0c693c7fc0484cf00d0a9aab4c3409f5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#a0c693c7fc0484cf00d0a9aab4c3409f5">parity</a> = 0</td></tr>
-<tr class="memdesc:a0c693c7fc0484cf00d0a9aab4c3409f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Double-buffer parity (0 or 1), flipped after every nbwait. The current round writes to and reads from the parity*buf_size half of gs_caf_recv_buf, the next round uses the other half.  <br /></td></tr>
-<tr class="separator:a0c693c7fc0484cf00d0a9aab4c3409f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8004e1ed7b91668a726c51f51712c246" id="r_a8004e1ed7b91668a726c51f51712c246"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d2/d45/structstack_1_1stack__i4__t.html">stack_i4_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a8004e1ed7b91668a726c51f51712c246">send_dof</a></td></tr>
 <tr class="memdesc:a8004e1ed7b91668a726c51f51712c246"><td class="mdescLeft">&#160;</td><td class="mdescRight">A list of stacks of dof indices local to this process to send to rank_i.  <br /></td></tr>
 <tr class="separator:a8004e1ed7b91668a726c51f51712c246"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -239,7 +245,7 @@ Public Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Under OpenMP the pack and unpack loops are work-shared across the calling team, while every coarray operation is funnelled through the master thread &ndash; see gs_nbsend_caf. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00133">133</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00171">171</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a2bdc7c541c6dcf0bcf6cc656a46abfcf" name="a2bdc7c541c6dcf0bcf6cc656a46abfcf"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2bdc7c541c6dcf0bcf6cc656a46abfcf">&#9670;&#160;</a></span>free() <span class="overload">[1/2]</span></h2>
@@ -257,7 +263,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00157">157</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00195">195</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -373,7 +379,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00156">156</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00194">194</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -480,6 +486,34 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a46d63611d1f60b38d11653ed6a0592fb" name="a46d63611d1f60b38d11653ed6a0592fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46d63611d1f60b38d11653ed6a0592fb">&#9670;&#160;</a></span>init_schedule()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) gs_comm::gs_comm_t::init_schedule </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html">gs_comm_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+
+</div>
+</div>
 <a id="af7dc4cbdbb1d61aeee6ee8392e6c0b23" name="af7dc4cbdbb1d61aeee6ee8392e6c0b23"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af7dc4cbdbb1d61aeee6ee8392e6c0b23">&#9670;&#160;</a></span>nbrecv() <span class="overload">[1/2]</span></h2>
 
@@ -506,7 +540,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00159">159</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00197">197</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -566,7 +600,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00162">162</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00200">200</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -610,7 +644,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -664,7 +698,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00158">158</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00196">196</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -754,7 +788,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00161">161</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00199">199</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -830,7 +864,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -878,7 +912,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00160">160</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00198">198</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -956,7 +990,25 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00163">163</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00201">201</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d1/d7a/structgs__caf_1_1gs__caf__t_a9bc51ace34d0fce7cf19dd042a569681_cgraph.png" border="0" usemap="#ad1/d7a/structgs__caf_1_1gs__caf__t_a9bc51ace34d0fce7cf19dd042a569681_cgraph" alt=""/></div>
+<map name="ad1/d7a/structgs__caf_1_1gs__caf__t_a9bc51ace34d0fce7cf19dd042a569681_cgraph" id="ad1/d7a/structgs__caf_1_1gs__caf__t_a9bc51ace34d0fce7cf19dd042a569681_cgraph">
+<area shape="rect" title="Fused nc&#45;component wait/reduce for the coarray backend." alt="" coords="5,104,212,129"/>
+<area shape="rect" href="../../df/dd5/namespacegs__caf.html#a13ecfac527c9207f99cac01188cf278f" title="The signaling mode currently in force, or 0 if none has been bound yet (no gs_caf_t has been initiali..." alt="" coords="268,5,453,31"/>
+<area shape="poly" title=" " alt="" coords="130,102,188,71,259,40,283,32,285,37,261,44,190,76,133,106"/>
+<area shape="rect" href="../../df/dd5/namespacegs__caf.html#a6b0ec94c53d3d629007da5240a6ec5ba" title="Name of the signaling mode mode, right&#45;adjusted for the log." alt="" coords="260,55,461,80"/>
+<area shape="poly" title=" " alt="" coords="174,101,281,80,282,85,175,107"/>
+<area shape="rect" href="../../df/dd5/namespacegs__caf.html#a684b036563dccc7480a67f8785196a73" title="Bind the signaling mode shared by every gs_caf_t instance, allocating whatever module&#45;level state the..." alt="" coords="269,104,453,129"/>
+<area shape="poly" title=" " alt="" coords="212,114,255,114,255,119,212,119"/>
+<area shape="rect" href="../../df/dd5/namespacegs__caf.html#ae641da9ef3ae08889b099dc2ba402ba7" title="Whether the signaling mode should be selected by benchmarking, i.e. NEKO_GS_CAF_SIGNALING=auto...." alt="" coords="263,153,458,179"/>
+<area shape="poly" title=" " alt="" coords="175,127,282,148,281,153,174,132"/>
+<area shape="rect" href="../../df/dd5/namespacegs__caf.html#a2a9300ec99b0609b36c9f2202701f98e" title="The signaling modes this build can run, in the order they should be benchmarked. Events are only avai..." alt="" coords="281,203,440,243"/>
+<area shape="poly" title=" " alt="" coords="135,127,192,156,261,188,283,196,281,201,259,192,190,161,133,132"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -1018,7 +1070,51 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00084">84</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+
+</div>
+</div>
+<a id="adb51ebefe12be9b07dd2e5f01d6cadfe" name="adb51ebefe12be9b07dd2e5f01d6cadfe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb51ebefe12be9b07dd2e5f01d6cadfe">&#9670;&#160;</a></span>take_schedule()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) gs_comm::gs_comm_t::take_schedule </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html">gs_comm_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html">gs_comm_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>src</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">src</td><td>the backend to take the schedule from, left without one </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -1035,23 +1131,23 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00141">141</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00179">179</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
-<a id="a0c693c7fc0484cf00d0a9aab4c3409f5" name="a0c693c7fc0484cf00d0a9aab4c3409f5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0c693c7fc0484cf00d0a9aab4c3409f5">&#9670;&#160;</a></span>parity</h2>
+<a id="a3dc83e066f6b81c43410af8c18b7c303" name="a3dc83e066f6b81c43410af8c18b7c303"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3dc83e066f6b81c43410af8c18b7c303">&#9670;&#160;</a></span>peer</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> gs_caf::gs_caf_t::parity = 0</td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a> gs_caf::gs_caf_t::peer</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00154">154</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00185">185</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -1091,7 +1187,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00143">143</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00181">181</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -1107,7 +1203,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00137">137</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00175">175</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -1123,7 +1219,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00139">139</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00177">177</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -1163,7 +1259,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00135">135</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00173">173</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -1203,7 +1299,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00143">143</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00181">181</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -1219,7 +1315,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00137">137</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00175">175</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -1235,7 +1331,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00139">139</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00177">177</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -1276,7 +1372,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00150">150</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00192">192</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -1292,7 +1388,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00147">147</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/df1/gs__caf_8F90_source.html#l00189">189</a> of file <a class="el" href="../../db/df1/gs__caf_8F90_source.html">gs_caf.F90</a>.</p>
 
 </div>
 </div>
@@ -1329,7 +1425,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../df/dd5/namespacegs__caf.html">gs_caf</a></li><li class="navelem"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html">gs_caf_t</a></li>
-    <li class="footer">Generated on Fri Aug 14 2026 04:16:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 15 2026 03:46:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

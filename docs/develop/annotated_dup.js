@@ -1914,7 +1914,9 @@ var annotated_dup =
     [ "zero_dirichlet", "da/ddc/namespacezero__dirichlet.html", [
       [ "zero_dirichlet_t", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t" ]
     ] ],
+    [ "chunk_block", "d4/d68/structchunk__block.html", "d4/d68/structchunk__block" ],
     [ "cuda_buffer", "db/d62/structcuda__buffer.html", "db/d62/structcuda__buffer" ],
+    [ "elem_block", "de/d3c/structelem__block.html", "de/d3c/structelem__block" ],
     [ "gs_utofu_ctx_t", "d3/d60/structgs__utofu__ctx__t.html", "d3/d60/structgs__utofu__ctx__t" ],
     [ "hip_buffer", "d3/d16/structhip__buffer.html", "d3/d16/structhip__buffer" ],
     [ "kinematics_params_t", "df/dc7/structkinematics__params__t.html", "df/dc7/structkinematics__params__t" ],

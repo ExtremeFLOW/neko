@@ -1,0 +1,21 @@
+<map id="gather_scatter::gs_tune_caf_signal" name="gather_scatter::gs_tune_caf_signal">
+<area shape="rect" id="Node000001" title="Benchmark the coarray signaling modes and bind the fastest one, leaving gs holding a CAF backend that..." alt="" coords="5,105,144,145"/>
+<area shape="rect" id="Node000002" href="$df/dd5/namespacegs__caf.html#a6b0ec94c53d3d629007da5240a6ec5ba" title="Name of the signaling mode mode, right&#45;adjusted for the log." alt="" coords="192,5,393,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,102,139,70,191,40,209,32,211,37,193,44,142,74,100,106"/>
+<area shape="rect" id="Node000003" href="$df/dd5/namespacegs__caf.html#a684b036563dccc7480a67f8785196a73" title="Bind the signaling mode shared by every gs_caf_t instance, allocating whatever module&#45;level state the..." alt="" coords="201,55,385,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="143,103,191,90,227,81,228,86,193,95,145,108"/>
+<area shape="rect" id="Node000004" href="$df/dd5/namespacegs__caf.html#a2a9300ec99b0609b36c9f2202701f98e" title="The signaling modes this build can run, in the order they should be benchmarked. Events are only avai..." alt="" coords="213,105,372,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="144,122,200,122,200,127,144,127"/>
+<area shape="rect" id="Node000005" href="$d0/d78/namespacegather__scatter.html#a75fae6bb34ed7306b7729b6ee5d76d48" title="Switch the comm. backend of gs to comm_bcknd, retaining the schedule computed in gs_schedule (the dof..." alt="" coords="223,169,362,209"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="144,142,212,162,210,167,143,147"/>
+<area shape="rect" id="Node000007" href="$d0/d78/namespacegather__scatter.html#ab9244f3ee9ebb109b6122b733f4e7138" title="Time ntrials gather&#45;scatter operations on u, returning the average wall time (s) per operation...." alt="" coords="223,233,362,273"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="97,143,140,181,193,218,212,227,209,232,191,223,136,185,94,147"/>
+<area shape="rect" id="Node000006" href="$d0/d78/namespacegather__scatter.html#a6df8dd2596a97fe71873a035887b4973" title="Allocate a gather&#45;scatter comm. backend of type comm_bcknd." alt="" coords="441,169,580,209"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="362,186,427,186,427,191,362,191"/>
+<area shape="rect" id="Node000008" href="$d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="441,233,580,273"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="362,250,427,250,427,255,362,255"/>
+<area shape="rect" id="Node000009" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="628,201,751,241"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="580,238,614,231,615,237,581,243"/>
+<area shape="rect" id="Node000010" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="628,265,751,305"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="581,262,615,269,614,274,580,268"/>
+</map>

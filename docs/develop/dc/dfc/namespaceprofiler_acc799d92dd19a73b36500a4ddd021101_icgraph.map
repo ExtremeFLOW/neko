@@ -1,66 +1,74 @@
 <map id="profiler::profiler_start_region" name="profiler::profiler_start_region">
-<area shape="rect" id="Node000001" title="Started a named (name) profiler region." alt="" coords="884,521,1007,561"/>
-<area shape="rect" id="Node000002" href="$dd/db4/namespaceale__manager.html#af984430ba7e4a8bae68b2ca61d0e9f72" title="Main routine to advance the mesh in time." alt="" coords="608,5,821,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="939,507,928,401,908,262,894,193,877,130,857,79,834,45,818,33,821,29,838,41,862,77,882,129,899,192,913,262,933,401,944,507"/>
-<area shape="rect" id="Node000003" href="$dc/d09/namespacetree__amg__smoother.html#a50905e9240529935d6f5dfdc9905a73b" title="Power method to approximate largest eigenvalue." alt="" coords="634,55,795,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="937,508,924,415,902,295,872,182,854,139,834,109,816,96,794,86,796,81,819,91,838,105,859,136,877,180,908,294,930,414,943,507"/>
-<area shape="rect" id="Node000004" href="$d3/d06/namespaceprojection.html#a56d60824af6be625d76a70c8720e6c8b" title=" " alt="" coords="603,120,827,145"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="943,507,940,434,926,340,912,291,893,243,867,199,834,160,817,148,820,143,838,156,872,195,898,241,918,289,931,339,945,434,948,507"/>
-<area shape="rect" id="Node000005" href="$d1/db9/namespaceprojection__vel.html#a6231bf620f62e4eb908858383cc21bfb" title=" " alt="" coords="634,170,795,210"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="940,507,933,446,916,370,902,330,884,291,862,255,834,224,816,211,795,202,797,197,819,206,838,220,866,252,889,289,907,328,921,368,938,445,945,506"/>
-<area shape="rect" id="Node000006" href="$d3/d06/namespaceprojection.html#ab9388020e6233dbfc903db3a50502bd6" title=" " alt="" coords="610,235,819,260"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="938,507,928,455,910,392,879,328,859,300,834,275,815,262,817,258,838,271,863,296,884,325,915,390,934,454,943,506"/>
-<area shape="rect" id="Node000007" href="$d3/d06/namespaceprojection.html#a6c2634eed99dd765c86df4ef325ff858" title=" " alt="" coords="593,285,836,325"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="933,508,920,469,899,423,871,377,834,339,816,327,819,323,838,335,875,374,904,420,925,467,938,507"/>
-<area shape="rect" id="Node000008" href="$d4/dc5/namespacecheby__device.html#ac74f17f6b4fa300083abdc31f3e98693" title=" " alt="" coords="635,349,794,389"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="925,510,888,455,863,427,835,403,793,384,795,379,837,398,867,423,893,451,930,507"/>
-<area shape="rect" id="Node000011" href="$d8/dec/namespacecheby.html#ab40c8151b9adc5d370afba6bc0ef9b65" title=" " alt="" coords="637,413,792,439"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="914,513,878,481,835,454,791,439,793,434,837,449,881,477,917,508"/>
-<area shape="rect" id="Node000014" href="$d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="645,463,784,503"/>
-<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="870,525,783,503,785,498,871,520"/>
-<area shape="rect" id="Node000019" href="$d0/d78/namespacegather__scatter.html#aac2a59847cf00bf8f06355ebbda60679" title="Gather&#45;scatter operation on a 3&#45;component vector (u1, u2, u3) with op op. When the comm backend suppo..." alt="" coords="393,647,531,687"/>
-<area shape="poly" id="edge24_Node000001_Node000019" title=" " alt="" coords="870,532,808,528,737,530,663,542,628,553,595,568,579,581,570,596,562,612,547,629,515,650,512,645,544,625,558,609,566,593,575,578,592,564,626,548,662,537,736,525,808,523,870,527"/>
-<area shape="rect" id="Node000021" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="643,579,787,604"/>
-<area shape="poly" id="edge25_Node000001_Node000021" title=" " alt="" coords="871,560,774,581,773,576,870,554"/>
-<area shape="rect" id="Node000022" href="$dd/d2c/namespacelpt.html#aed225922ee92df9e3a91feeb19052f5d" title="Advance particle positions and, for inertial particles, velocities." alt="" coords="643,628,786,653"/>
-<area shape="poly" id="edge26_Node000001_Node000022" title=" " alt="" coords="912,571,877,596,837,618,787,633,786,628,835,613,874,592,909,567"/>
-<area shape="rect" id="Node000023" href="$d8/d57/namespaceoutput__controller.html#a08c282053e52e289594f25a59e1926a8" title="Query each of the controllers whether it is time to write, and if so, do so for the corresponding out..." alt="" coords="619,678,810,718"/>
-<area shape="poly" id="edge27_Node000001_Node000023" title=" " alt="" coords="926,574,889,622,865,646,837,667,811,680,808,676,835,662,861,642,885,619,922,571"/>
-<area shape="rect" id="Node000024" href="$d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d" title="Apply the filter." alt="" coords="639,742,791,782"/>
-<area shape="poly" id="edge28_Node000001_Node000024" title=" " alt="" coords="936,575,922,612,901,654,873,696,838,732,816,745,792,754,790,749,813,741,834,728,869,693,897,652,917,610,931,573"/>
-<area shape="rect" id="Node000025" href="$d1/d38/namespacephmg.html#a2174d59460e75e83696f622b4a7c0678" title=" " alt="" coords="641,807,788,832"/>
-<area shape="poly" id="edge29_Node000001_Node000025" title=" " alt="" coords="942,575,932,624,913,684,882,745,862,772,838,796,815,810,789,818,787,813,812,805,834,792,858,769,878,742,908,682,927,623,937,574"/>
-<area shape="rect" id="Node000026" href="$d1/d2d/namespacesimulation.html#a625edcf01f19970ace9c4af485edfb19" title="Compute a single time&#45;step of a case." alt="" coords="613,856,816,881"/>
-<area shape="poly" id="edge30_Node000001_Node000026" title=" " alt="" coords="945,574,938,633,921,707,907,746,889,783,866,817,838,847,818,860,815,855,834,843,862,814,884,780,902,744,915,706,933,633,940,574"/>
-<area shape="rect" id="Node000028" href="$d5/d1b/namespacetree__amg__multigrid.html#ad8909c9e701623c78bcd446fcc2ef26a" title="multigrid cycle for the TreeAMG solver object" alt="" coords="639,906,790,946"/>
-<area shape="poly" id="edge32_Node000001_Node000028" title=" " alt="" coords="947,575,942,642,926,728,912,774,893,818,869,859,838,896,816,911,792,921,790,916,814,907,834,892,864,856,889,816,907,772,921,727,936,641,941,574"/>
-<area shape="rect" id="Node000029" href="$dd/d2c/namespacelpt.html#ad022e77c71687022a65cb0e37e1db44a" title="Refresh particle RHS values using the current fluid solution." alt="" coords="629,971,801,996"/>
-<area shape="poly" id="edge33_Node000001_Node000029" title=" " alt="" coords="943,575,929,665,907,780,877,889,858,931,838,960,821,972,802,980,800,975,818,967,834,956,854,928,872,887,902,779,924,664,937,574"/>
-<area shape="rect" id="Node000030" href="$dd/db4/namespaceale__manager.html#aac0b6c752943e3cd820d8361a1bf5e46" title="Updates the mesh velocity field based on current time and kinematics Sums contributions from all bodi..." alt="" coords="635,1021,795,1061"/>
-<area shape="poly" id="edge34_Node000001_Node000030" title=" " alt="" coords="943,575,931,674,910,804,896,870,879,929,860,977,838,1010,818,1025,796,1035,794,1030,816,1021,834,1007,855,975,874,927,891,868,905,803,926,674,938,574"/>
-<area shape="rect" id="Node000009" href="$d4/dc5/namespacecheby__device.html#af7ddf3344912ba0450cd079cec7e5929" title="A chebyshev preconditioner." alt="" coords="383,214,541,254"/>
-<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="621,354,592,339,575,321,566,303,559,285,544,268,525,256,528,252,547,264,563,283,571,301,579,318,595,335,623,350"/>
-<area shape="rect" id="Node000010" href="$d4/dc5/namespacecheby__device.html#a9e071811daf316169a425a385bf6d80c" title="A chebyshev preconditioner." alt="" coords="383,278,541,318"/>
-<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="623,348,593,339,529,321,530,315,594,334,624,342"/>
-<area shape="rect" id="Node000012" href="$d8/dec/namespacecheby.html#a7cd4306d83190ab13e731079edeeb61d" title="A chebyshev preconditioner." alt="" coords="391,343,533,368"/>
-<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="627,413,592,403,544,382,510,371,512,366,546,377,594,398,629,408"/>
-<area shape="rect" id="Node000013" href="$d8/dec/namespacecheby.html#af7979c0181a627e385c8bd107d603e84" title="A chebyshev preconditioner." alt="" coords="387,392,537,417"/>
-<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="624,421,537,414,537,408,624,416"/>
-<area shape="rect" id="Node000015" href="$d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="379,441,545,467"/>
-<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="631,476,545,466,546,461,632,471"/>
-<area shape="rect" id="Node000016" href="$d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="192,478,331,518"/>
-<area shape="poly" id="edge15_Node000014_Node000016" title=" " alt="" coords="632,489,331,498,331,493,631,483"/>
-<area shape="rect" id="Node000017" href="$dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="5,593,144,633"/>
-<area shape="poly" id="edge23_Node000014_Node000017" title=" " alt="" coords="632,499,432,534,193,583,145,595,144,590,191,578,431,529,631,494"/>
-<area shape="rect" id="Node000018" href="$d0/d78/namespacegather__scatter.html#a9add4a7c59c01d0c077e39fcdba63b23" title="Gather&#45;scatter operation on a rank 4 array." alt="" coords="192,593,331,633"/>
-<area shape="poly" id="edge17_Node000014_Node000018" title=" " alt="" coords="633,510,595,530,581,541,572,553,562,565,547,576,492,597,436,609,380,616,331,618,331,612,380,610,435,604,491,592,544,572,559,561,568,550,577,538,592,525,631,505"/>
-<area shape="poly" id="edge19_Node000014_Node000019" title=" " alt="" coords="633,502,613,511,595,524,584,536,577,549,571,574,565,601,547,629,520,649,516,645,543,626,560,599,566,573,572,547,580,533,592,520,610,507,631,497"/>
-<area shape="poly" id="edge16_Node000016_Node000017" title=" " alt="" coords="213,527,193,539,107,595,104,590,191,534,210,523"/>
-<area shape="poly" id="edge18_Node000018_Node000017" title=" " alt="" coords="178,615,145,615,145,610,178,610"/>
-<area shape="poly" id="edge22_Node000019_Node000017" title=" " alt="" coords="379,667,288,660,192,647,140,635,141,630,192,642,289,655,379,662"/>
-<area shape="rect" id="Node000020" href="$d0/d78/namespacegather__scatter.html#ae43657febcc9273f7327ad60e4e381be" title="Gather&#45;scatter operation on a 3&#45;component vector of rank&#45;4 arrays (u1, u2, u3) with op op; see gs_op_..." alt="" coords="192,707,331,747"/>
-<area shape="poly" id="edge20_Node000019_Node000020" title=" " alt="" coords="382,694,330,710,328,705,380,689"/>
-<area shape="poly" id="edge21_Node000020_Node000017" title=" " alt="" coords="210,703,191,691,104,635,107,631,193,686,213,698"/>
-<area shape="rect" id="Node000027" href="$dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04" title="Main driver to solve a case C." alt="" coords="395,856,529,881"/>
-<area shape="poly" id="edge31_Node000026_Node000027" title=" " alt="" coords="599,871,530,871,530,866,599,866"/>
+<area shape="rect" id="Node000001" title="Started a named (name) profiler region." alt="" coords="1091,521,1213,561"/>
+<area shape="rect" id="Node000002" href="$dd/db4/namespaceale__manager.html#af984430ba7e4a8bae68b2ca61d0e9f72" title="Main routine to advance the mesh in time." alt="" coords="815,5,1028,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1145,507,1135,401,1114,262,1100,193,1083,130,1064,79,1041,45,1024,33,1027,29,1045,41,1068,77,1088,129,1105,192,1120,262,1140,401,1151,507"/>
+<area shape="rect" id="Node000003" href="$dc/d09/namespacetree__amg__smoother.html#a50905e9240529935d6f5dfdc9905a73b" title="Power method to approximate largest eigenvalue." alt="" coords="841,55,1002,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1144,508,1131,415,1109,295,1079,182,1061,139,1041,109,1023,96,1001,86,1003,81,1025,91,1045,105,1065,136,1084,180,1114,294,1136,414,1149,507"/>
+<area shape="rect" id="Node000004" href="$d3/d06/namespaceprojection.html#a56d60824af6be625d76a70c8720e6c8b" title=" " alt="" coords="809,120,1033,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1149,507,1147,434,1133,340,1119,291,1100,243,1074,199,1041,160,1023,148,1026,143,1044,156,1078,195,1105,241,1124,289,1138,339,1152,434,1155,507"/>
+<area shape="rect" id="Node000005" href="$d1/db9/namespaceprojection__vel.html#a6231bf620f62e4eb908858383cc21bfb" title=" " alt="" coords="841,170,1002,210"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1147,507,1140,446,1123,370,1109,330,1091,291,1069,255,1041,224,1023,211,1002,202,1004,197,1025,206,1044,220,1073,252,1096,289,1114,328,1128,368,1145,445,1152,506"/>
+<area shape="rect" id="Node000006" href="$d3/d06/namespaceprojection.html#ab9388020e6233dbfc903db3a50502bd6" title=" " alt="" coords="817,235,1026,260"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1145,507,1135,455,1117,392,1086,328,1066,300,1041,275,1021,262,1024,258,1044,271,1070,296,1091,325,1122,390,1140,454,1150,506"/>
+<area shape="rect" id="Node000007" href="$d3/d06/namespaceprojection.html#a6c2634eed99dd765c86df4ef325ff858" title=" " alt="" coords="800,285,1043,325"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1140,508,1126,469,1106,423,1078,377,1041,339,1023,327,1025,323,1044,335,1082,374,1111,420,1131,467,1145,507"/>
+<area shape="rect" id="Node000008" href="$d4/dc5/namespacecheby__device.html#ac74f17f6b4fa300083abdc31f3e98693" title=" " alt="" coords="842,349,1001,389"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="1132,510,1095,455,1070,427,1041,403,1000,384,1002,379,1044,398,1074,423,1099,451,1136,507"/>
+<area shape="rect" id="Node000011" href="$d8/dec/namespacecheby.html#ab40c8151b9adc5d370afba6bc0ef9b65" title=" " alt="" coords="844,413,999,439"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="1120,513,1085,481,1042,454,998,439,1000,434,1044,449,1088,477,1124,508"/>
+<area shape="rect" id="Node000014" href="$d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="852,463,991,503"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="1076,525,990,503,991,498,1078,520"/>
+<area shape="rect" id="Node000018" href="$d0/d78/namespacegather__scatter.html#aac2a59847cf00bf8f06355ebbda60679" title="Gather&#45;scatter operation on a 3&#45;component vector (u1, u2, u3) with op op. When the comm backend suppo..." alt="" coords="603,663,742,703"/>
+<area shape="poly" id="edge29_Node000001_Node000018" title=" " alt="" coords="1077,531,1014,527,943,529,870,541,834,553,801,568,785,582,776,598,768,615,754,635,713,665,709,661,750,631,764,613,772,595,781,579,799,564,832,548,868,536,942,524,1014,522,1077,526"/>
+<area shape="rect" id="Node000024" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="849,579,993,604"/>
+<area shape="poly" id="edge30_Node000001_Node000024" title=" " alt="" coords="1078,560,980,581,979,576,1076,554"/>
+<area shape="rect" id="Node000025" href="$dd/d2c/namespacelpt.html#aed225922ee92df9e3a91feeb19052f5d" title="Advance particle positions and, for inertial particles, velocities." alt="" coords="850,628,993,653"/>
+<area shape="poly" id="edge31_Node000001_Node000025" title=" " alt="" coords="1118,571,1084,596,1044,618,994,633,992,628,1042,613,1081,592,1115,567"/>
+<area shape="rect" id="Node000026" href="$d8/d57/namespaceoutput__controller.html#a08c282053e52e289594f25a59e1926a8" title="Query each of the controllers whether it is time to write, and if so, do so for the corresponding out..." alt="" coords="826,678,1017,718"/>
+<area shape="poly" id="edge32_Node000001_Node000026" title=" " alt="" coords="1133,574,1096,622,1071,646,1044,667,1017,680,1015,676,1041,662,1068,642,1092,619,1129,571"/>
+<area shape="rect" id="Node000027" href="$d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d" title="Apply the filter." alt="" coords="845,742,997,782"/>
+<area shape="poly" id="edge33_Node000001_Node000027" title=" " alt="" coords="1143,575,1129,612,1108,654,1080,696,1044,732,1022,745,998,754,996,749,1020,741,1041,728,1076,693,1103,652,1124,610,1138,573"/>
+<area shape="rect" id="Node000028" href="$d1/d38/namespacephmg.html#a2174d59460e75e83696f622b4a7c0678" title=" " alt="" coords="848,807,995,832"/>
+<area shape="poly" id="edge34_Node000001_Node000028" title=" " alt="" coords="1149,575,1139,624,1119,684,1089,745,1069,772,1044,796,1021,810,996,818,994,813,1019,805,1041,792,1065,769,1084,742,1114,682,1133,623,1144,574"/>
+<area shape="rect" id="Node000029" href="$d1/d2d/namespacesimulation.html#a625edcf01f19970ace9c4af485edfb19" title="Compute a single time&#45;step of a case." alt="" coords="820,856,1023,881"/>
+<area shape="poly" id="edge35_Node000001_Node000029" title=" " alt="" coords="1152,574,1145,633,1127,707,1113,746,1095,783,1073,817,1044,847,1024,860,1021,855,1041,843,1068,814,1091,780,1109,744,1122,706,1139,633,1146,574"/>
+<area shape="rect" id="Node000031" href="$d5/d1b/namespacetree__amg__multigrid.html#ad8909c9e701623c78bcd446fcc2ef26a" title="multigrid cycle for the TreeAMG solver object" alt="" coords="846,906,997,946"/>
+<area shape="poly" id="edge37_Node000001_Node000031" title=" " alt="" coords="1153,575,1148,642,1133,728,1119,774,1100,818,1076,859,1044,896,1023,911,998,921,996,916,1020,907,1041,892,1071,856,1095,816,1114,772,1127,727,1143,641,1148,574"/>
+<area shape="rect" id="Node000032" href="$dd/d2c/namespacelpt.html#ad022e77c71687022a65cb0e37e1db44a" title="Refresh particle RHS values using the current fluid solution." alt="" coords="835,971,1007,996"/>
+<area shape="poly" id="edge38_Node000001_Node000032" title=" " alt="" coords="1149,575,1136,665,1114,780,1083,889,1065,931,1045,960,1028,972,1009,980,1007,975,1025,967,1041,956,1060,928,1078,887,1109,779,1131,664,1144,574"/>
+<area shape="rect" id="Node000033" href="$dd/db4/namespaceale__manager.html#aac0b6c752943e3cd820d8361a1bf5e46" title="Updates the mesh velocity field based on current time and kinematics Sums contributions from all bodi..." alt="" coords="841,1021,1001,1061"/>
+<area shape="poly" id="edge39_Node000001_Node000033" title=" " alt="" coords="1150,575,1138,674,1117,804,1102,870,1086,929,1067,977,1045,1010,1025,1025,1003,1035,1001,1030,1022,1021,1041,1007,1062,975,1081,927,1097,868,1111,803,1133,674,1145,574"/>
+<area shape="rect" id="Node000009" href="$d4/dc5/namespacecheby__device.html#af7ddf3344912ba0450cd079cec7e5929" title="A chebyshev preconditioner." alt="" coords="593,207,752,247"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="828,355,798,339,781,320,773,300,766,280,750,261,733,250,736,245,754,257,770,278,778,298,785,317,802,335,830,350"/>
+<area shape="rect" id="Node000010" href="$d4/dc5/namespacecheby__device.html#a9e071811daf316169a425a385bf6d80c" title="A chebyshev preconditioner." alt="" coords="593,271,752,311"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="828,348,799,339,726,314,728,309,801,334,829,343"/>
+<area shape="rect" id="Node000012" href="$d8/dec/namespacecheby.html#a7cd4306d83190ab13e731079edeeb61d" title="A chebyshev preconditioner." alt="" coords="601,336,744,361"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="829,413,799,403,774,389,751,375,721,364,723,359,753,370,777,385,801,398,831,408"/>
+<area shape="rect" id="Node000013" href="$d8/dec/namespacecheby.html#af7979c0181a627e385c8bd107d603e84" title="A chebyshev preconditioner." alt="" coords="598,385,747,411"/>
+<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="830,418,747,409,748,404,831,413"/>
+<area shape="rect" id="Node000015" href="$d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="407,603,545,643"/>
+<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="840,504,802,524,787,539,779,555,770,572,753,587,702,610,648,623,594,629,546,630,546,625,594,624,647,618,701,604,751,582,766,569,774,553,782,536,798,520,838,500"/>
+<area shape="rect" id="Node000016" href="$dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="220,603,359,643"/>
+<area shape="poly" id="edge28_Node000014_Node000016" title=" " alt="" coords="839,501,642,541,407,594,360,606,359,601,406,589,641,536,838,496"/>
+<area shape="rect" id="Node000017" href="$d0/d78/namespacegather__scatter.html#a9add4a7c59c01d0c077e39fcdba63b23" title="Gather&#45;scatter operation on a rank 4 array." alt="" coords="407,489,545,529"/>
+<area shape="poly" id="edge16_Node000014_Node000017" title=" " alt="" coords="838,491,546,507,545,502,838,485"/>
+<area shape="poly" id="edge18_Node000014_Node000018" title=" " alt="" coords="840,501,820,511,802,524,790,538,783,551,777,580,772,609,765,625,754,641,723,665,720,661,750,637,761,622,767,608,772,579,778,550,785,535,798,520,817,506,838,496"/>
+<area shape="rect" id="Node000020" href="$d0/d78/namespacegather__scatter.html#ab9244f3ee9ebb109b6122b733f4e7138" title="Time ntrials gather&#45;scatter operations on u, returning the average wall time (s) per operation...." alt="" coords="603,435,742,475"/>
+<area shape="poly" id="edge22_Node000014_Node000020" title=" " alt="" coords="838,477,742,466,742,460,838,471"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="393,626,359,626,359,621,393,621"/>
+<area shape="poly" id="edge17_Node000017_Node000016" title=" " alt="" coords="428,538,408,550,322,605,319,601,405,545,425,533"/>
+<area shape="poly" id="edge21_Node000018_Node000016" title=" " alt="" coords="611,710,565,723,513,732,459,733,406,722,375,707,347,687,305,645,309,642,351,682,378,702,408,717,459,728,513,727,564,718,609,705"/>
+<area shape="rect" id="Node000019" href="$d0/d78/namespacegather__scatter.html#ae43657febcc9273f7327ad60e4e381be" title="Gather&#45;scatter operation on a 3&#45;component vector of rank&#45;4 arrays (u1, u2, u3) with op op; see gs_op_..." alt="" coords="407,667,545,707"/>
+<area shape="poly" id="edge19_Node000018_Node000019" title=" " alt="" coords="589,688,546,689,546,683,589,682"/>
+<area shape="poly" id="edge20_Node000019_Node000016" title=" " alt="" coords="403,665,347,646,349,641,405,660"/>
+<area shape="rect" id="Node000021" href="$d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,353,172,379"/>
+<area shape="poly" id="edge23_Node000020_Node000021" title=" " alt="" coords="606,432,592,424,568,405,558,396,544,388,497,372,448,361,348,350,253,350,172,356,172,351,253,344,348,344,449,356,499,367,546,384,562,392,572,401,595,420,608,427"/>
+<area shape="rect" id="Node000022" href="$d0/d78/namespacegather__scatter.html#a5e15921dd90d8a4ab84e42239e2e1624" title="Benchmark the coarray signaling modes and bind the fastest one, leaving gs holding a CAF backend that..." alt="" coords="407,425,545,465"/>
+<area shape="poly" id="edge24_Node000020_Node000022" title=" " alt="" coords="589,453,546,451,546,446,589,448"/>
+<area shape="rect" id="Node000023" href="$d0/d78/namespacegather__scatter.html#aed7bd30ec4e32f304bb3a14709570ef0" title="Select the fastest of the comm. backends in cand at runtime." alt="" coords="220,374,359,414"/>
+<area shape="poly" id="edge27_Node000020_Node000023" title=" " alt="" coords="608,433,545,415,448,402,359,397,359,392,448,397,546,410,609,428"/>
+<area shape="poly" id="edge25_Node000022_Node000023" title=" " alt="" coords="392,425,359,415,360,410,394,420"/>
+<area shape="poly" id="edge26_Node000023_Node000021" title=" " alt="" coords="206,385,172,380,173,375,207,380"/>
+<area shape="rect" id="Node000030" href="$dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04" title="Main driver to solve a case C." alt="" coords="605,856,740,881"/>
+<area shape="poly" id="edge36_Node000029_Node000030" title=" " alt="" coords="806,871,740,871,740,866,806,866"/>
 </map>

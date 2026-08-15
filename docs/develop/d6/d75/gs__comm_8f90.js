@@ -13,6 +13,8 @@ var gs__comm_8f90 =
     [ "gs_nbwait_vec", "d6/d75/gs__comm_8f90.html#a8471cd85c960e8e4c087823fd0aee730", null ],
     [ "init_dofs", "d6/d75/gs__comm_8f90.html#a21f8761e92a47ba0e2644ae2b48aa27d", null ],
     [ "init_order", "d6/d75/gs__comm_8f90.html#a7b6ee6b6c0a37c740f810315fabd6ed7", null ],
+    [ "init_schedule", "d6/d75/gs__comm_8f90.html#a16e6b039dbd76c2229d87db52e79a9f4", null ],
+    [ "take_schedule", "d6/d75/gs__comm_8f90.html#a478840cf6c1711f77dbbe3ea5e8946a9", null ],
     [ "gs_comm_caf", "d6/d75/gs__comm_8f90.html#af452e0832739cc2acbdd1b415fc727e2", null ],
     [ "gs_comm_mpi", "d6/d75/gs__comm_8f90.html#a58325561231afe6ed26e5234d5d67f0e", null ],
     [ "gs_comm_mpigpu", "d6/d75/gs__comm_8f90.html#a393ea0390a10bb91e06c660203f08f82", null ],

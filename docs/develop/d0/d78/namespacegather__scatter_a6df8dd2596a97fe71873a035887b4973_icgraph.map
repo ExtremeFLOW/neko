@@ -1,0 +1,13 @@
+<map id="gather_scatter::gs_comm_alloc" name="gather_scatter::gs_comm_alloc">
+<area shape="rect" id="Node000001" title="Allocate a gather&#45;scatter comm. backend of type comm_bcknd." alt="" coords="780,88,919,128"/>
+<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#a75fae6bb34ed7306b7729b6ee5d76d48" title="Switch the comm. backend of gs to comm_bcknd, retaining the schedule computed in gs_schedule (the dof..." alt="" coords="593,59,732,99"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="766,98,732,92,733,87,766,92"/>
+<area shape="rect" id="Node000005" href="$d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,95,172,121"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="767,113,732,113,220,113,172,113,172,107,220,108,732,108,766,107"/>
+<area shape="rect" id="Node000003" href="$d0/d78/namespacegather__scatter.html#a5e15921dd90d8a4ab84e42239e2e1624" title="Benchmark the coarray signaling modes and bind the fastest one, leaving gs holding a CAF backend that..." alt="" coords="407,5,545,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="579,58,545,48,547,43,580,52"/>
+<area shape="rect" id="Node000004" href="$d0/d78/namespacegather__scatter.html#aed7bd30ec4e32f304bb3a14709570ef0" title="Select the fastest of the comm. backends in cand at runtime." alt="" coords="220,59,359,99"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="579,81,359,81,359,76,579,76"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="394,52,360,61,358,56,392,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="207,93,173,98,172,93,206,88"/>
+</map>

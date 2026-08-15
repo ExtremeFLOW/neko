@@ -1,0 +1,13 @@
+<map id="gs_caf::gs_caf_set_mode" name="gs_caf::gs_caf_set_mode">
+<area shape="rect" id="Node000001" title="Bind the signaling mode shared by every gs_caf_t instance, allocating whatever module&#45;level state the..." alt="" coords="661,63,845,88"/>
+<area shape="rect" id="Node000002" href="$df/dd5/namespacegs__caf.html#a0d76c121d79655bab19b155a2dd1160f" title="Initialise Coarray Fortran based communication method." alt="" coords="439,5,581,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="685,62,564,33,565,28,686,57"/>
+<area shape="rect" id="Node000003" href="$d0/d78/namespacegather__scatter.html#a5e15921dd90d8a4ab84e42239e2e1624" title="Benchmark the coarray signaling modes and bind the fastest one, leaving gs holding a CAF backend that..." alt="" coords="441,55,579,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="648,78,580,78,580,73,648,73"/>
+<area shape="rect" id="Node000006" href="$d1/d7a/structgs__caf_1_1gs__caf__t.html#a9bc51ace34d0fce7cf19dd042a569681" title="Fused nc&#45;component wait/reduce for the coarray backend." alt="" coords="407,120,613,145"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="686,94,565,123,564,117,685,89"/>
+<area shape="rect" id="Node000004" href="$d0/d78/namespacegather__scatter.html#aed7bd30ec4e32f304bb3a14709570ef0" title="Select the fastest of the comm. backends in cand at runtime." alt="" coords="220,55,359,95"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="427,78,359,78,359,73,427,73"/>
+<area shape="rect" id="Node000005" href="$d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,63,172,88"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="206,78,172,78,172,73,206,73"/>
+</map>

@@ -104,7 +104,18 @@ $(document).ready(function(){initNavTree('dd/d72/hip_2cdtp__kernel_8h.html','../
   <div class="headertitle"><div class="title">cdtp_kernel.h File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><div class="dynheader">
+<div class="textblock"><code>#include &quot;<a class="el" href="../../d1/d1c/hip_2elem__block_8h_source.html">elem_block.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Include dependency graph for cdtp_kernel.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d8b/hip_2cdtp__kernel_8h__incl.png" border="0" usemap="#a_2home_2runner_2work_2neko_2neko_2src_2math_2bcknd_2device_2hip_2cdtp__kernel_8h" alt=""/></div>
+<map name="a_2home_2runner_2work_2neko_2neko_2src_2math_2bcknd_2device_2hip_2cdtp__kernel_8h" id="a_2home_2runner_2work_2neko_2neko_2src_2math_2bcknd_2device_2hip_2cdtp__kernel_8h">
+<area shape="rect" title=" " alt="" coords="5,5,213,60"/>
+<area shape="rect" href="../../d1/d1c/hip_2elem__block_8h.html" title=" " alt="" coords="55,108,164,133"/>
+<area shape="poly" title=" " alt="" coords="112,60,112,94,107,94,107,60"/>
+</map>
+</div>
+</div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d6/dff/hip_2cdtp__kernel_8h__dep__incl.png" border="0" usemap="#a_2home_2runner_2work_2neko_2neko_2src_2math_2bcknd_2device_2hip_2cdtp__kernel_8hdep" alt=""/></div>
@@ -122,9 +133,11 @@ Functions</h2></td></tr>
 <tr class="memitem:ae383d5862e0214ef164f9cc34d9f574b" id="r_ae383d5862e0214ef164f9cc34d9f574b"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> , <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> LX, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> CHUNKS&gt; </td></tr>
 <tr class="memitem:ae383d5862e0214ef164f9cc34d9f574b"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#ae383d5862e0214ef164f9cc34d9f574b">cdtp_kernel_1d</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dtx</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a3b35a10334f641ae16ea1c310523d458">x</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a17859a85b9bd6c55edc5d8cb73d0937f">dr</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a2cfa915b570e0c40a7cefc12cfa2b698">ds</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a3e11a80408df26c616ebd9ac3c50da66">dt</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#affe49acdcc940652feb93cb3438eaa9c">dxt</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#af4dfdc19ce423df0d0e277a211ee34a8">dyt</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#ac074100bc8161312918795a55ed1fd6a">dzt</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a97bfa79c186ff7f943a8d8865fc31df8">w3</a>)</td></tr>
 <tr class="separator:ae383d5862e0214ef164f9cc34d9f574b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a97a4a095d6f25eaa6c190e7ca7f4bbba" id="r_a97a4a095d6f25eaa6c190e7ca7f4bbba"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> , <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> LX&gt; </td></tr>
-<tr class="memitem:a97a4a095d6f25eaa6c190e7ca7f4bbba"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a97a4a095d6f25eaa6c190e7ca7f4bbba">__launch_bounds__</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, 3) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">cdtp_kernel_kstep</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dtx</a></td></tr>
-<tr class="separator:a97a4a095d6f25eaa6c190e7ca7f4bbba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7cdd61888712a5c1f46242c8aed9e5c" id="r_ac7cdd61888712a5c1f46242c8aed9e5c"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> , <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> LX, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> EB&gt; </td></tr>
+<tr class="memitem:ac7cdd61888712a5c1f46242c8aed9e5c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#ac7cdd61888712a5c1f46242c8aed9e5c">__launch_bounds__</a> ((<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">EB</a>), 3) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">cdtp_kernel_kstep</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dtx</a></td></tr>
+<tr class="separator:ac7cdd61888712a5c1f46242c8aed9e5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf142115b93071739e1781f314da00cb" id="r_adf142115b93071739e1781f314da00cb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#adf142115b93071739e1781f314da00cb">if</a> (<a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a306082d89dde4824cbe1848162a06a37">eb</a>==0)</td></tr>
+<tr class="separator:adf142115b93071739e1781f314da00cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a705bedcd4be856669ef2b973a02fa044" id="r_a705bedcd4be856669ef2b973a02fa044"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a705bedcd4be856669ef2b973a02fa044">for</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">k</a>=0;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">k</a>&lt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>;++<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">k</a>)</td></tr>
 <tr class="separator:a705bedcd4be856669ef2b973a02fa044"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae687dbe50139c5805369b59554bddc67" id="r_ae687dbe50139c5805369b59554bddc67"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#ae687dbe50139c5805369b59554bddc67">__syncthreads</a> ()</td></tr>
@@ -148,22 +161,32 @@ Variables</h2></td></tr>
 <tr class="separator:ac074100bc8161312918795a55ed1fd6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a97bfa79c186ff7f943a8d8865fc31df8" id="r_a97bfa79c186ff7f943a8d8865fc31df8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a97bfa79c186ff7f943a8d8865fc31df8">w3</a></td></tr>
 <tr class="separator:a97bfa79c186ff7f943a8d8865fc31df8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a106a5e2bfadf5c980fc93a9a6d915a6d" id="r_a106a5e2bfadf5c980fc93a9a6d915a6d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a106a5e2bfadf5c980fc93a9a6d915a6d">shdyt</a> [<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>] = <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#af4dfdc19ce423df0d0e277a211ee34a8">dyt</a>[<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7">ij</a>]</td></tr>
-<tr class="separator:a106a5e2bfadf5c980fc93a9a6d915a6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae54bd3b08ffbb35b42e1aa71adde056" id="r_aae54bd3b08ffbb35b42e1aa71adde056"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#aae54bd3b08ffbb35b42e1aa71adde056">shdzt</a> [<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>] = <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#ac074100bc8161312918795a55ed1fd6a">dzt</a>[<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7">ij</a>]</td></tr>
-<tr class="separator:aae54bd3b08ffbb35b42e1aa71adde056"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adfd540294c7e40f92707442e10e507da" id="r_adfd540294c7e40f92707442e10e507da"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#adfd540294c7e40f92707442e10e507da">shtar</a> [<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td></tr>
-<tr class="separator:adfd540294c7e40f92707442e10e507da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42789ce6e7337d5d96d8d5d76483bbc0" id="r_a42789ce6e7337d5d96d8d5d76483bbc0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a42789ce6e7337d5d96d8d5d76483bbc0">shtas</a> [<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td></tr>
-<tr class="separator:a42789ce6e7337d5d96d8d5d76483bbc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad42fc788cf783c4dbe35c0017322d6b3" id="r_ad42fc788cf783c4dbe35c0017322d6b3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#ad42fc788cf783c4dbe35c0017322d6b3">nelv</a></td></tr>
+<tr class="separator:ad42fc788cf783c4dbe35c0017322d6b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae38692b1a7d4b62d998097775642f50f" id="r_ae38692b1a7d4b62d998097775642f50f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#ae38692b1a7d4b62d998097775642f50f">shdyt</a> [<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td></tr>
+<tr class="separator:ae38692b1a7d4b62d998097775642f50f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b9a7b88bf8d17feba53bbbe75c621a7" id="r_a4b9a7b88bf8d17feba53bbbe75c621a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a4b9a7b88bf8d17feba53bbbe75c621a7">shdzt</a> [<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td></tr>
+<tr class="separator:a4b9a7b88bf8d17feba53bbbe75c621a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac85186947f6b6b28eef6d1cab826f852" id="r_ac85186947f6b6b28eef6d1cab826f852"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#ac85186947f6b6b28eef6d1cab826f852">shtar</a> [<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">EB</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td></tr>
+<tr class="separator:ac85186947f6b6b28eef6d1cab826f852"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad99b0f014abc2792ca039ae8aa34459a" id="r_ad99b0f014abc2792ca039ae8aa34459a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#ad99b0f014abc2792ca039ae8aa34459a">shtas</a> [<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">EB</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td></tr>
+<tr class="separator:ad99b0f014abc2792ca039ae8aa34459a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b525513fc50831b52c065caaf88e23f" id="r_a8b525513fc50831b52c065caaf88e23f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a8b525513fc50831b52c065caaf88e23f">rtar</a> [<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td></tr>
 <tr class="separator:a8b525513fc50831b52c065caaf88e23f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1cbc79c8a2c1b75e86acb2084eb772a6" id="r_a1cbc79c8a2c1b75e86acb2084eb772a6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a1cbc79c8a2c1b75e86acb2084eb772a6">rtas</a> [<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td></tr>
 <tr class="separator:a1cbc79c8a2c1b75e86acb2084eb772a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5654f56739d0f473b6eb57496b5e4b08" id="r_a5654f56739d0f473b6eb57496b5e4b08"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a5654f56739d0f473b6eb57496b5e4b08">rtat</a> [<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td></tr>
 <tr class="separator:a5654f56739d0f473b6eb57496b5e4b08"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a83e52139e060d0c1ba0475539f657304" id="r_a83e52139e060d0c1ba0475539f657304"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a> = <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a3b35a10334f641ae16ea1c310523d458">blockIdx.x</a></td></tr>
+<tr class="memitem:a306082d89dde4824cbe1848162a06a37" id="r_a306082d89dde4824cbe1848162a06a37"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a306082d89dde4824cbe1848162a06a37">eb</a> = (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">EB</a> == 1) ? 0 : threadIdx.z</td></tr>
+<tr class="separator:a306082d89dde4824cbe1848162a06a37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9fecd33d4b9c96d5cbc1d9d27afe2a30" id="r_a9fecd33d4b9c96d5cbc1d9d27afe2a30"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a9fecd33d4b9c96d5cbc1d9d27afe2a30">e_blk</a> = <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a3b35a10334f641ae16ea1c310523d458">blockIdx.x</a> * <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">EB</a> + <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a306082d89dde4824cbe1848162a06a37">eb</a></td></tr>
+<tr class="separator:a9fecd33d4b9c96d5cbc1d9d27afe2a30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a003d2af368daeb41cd4f5f4f7373843e" id="r_a003d2af368daeb41cd4f5f4f7373843e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a003d2af368daeb41cd4f5f4f7373843e">active</a> = (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">EB</a> == 1) ? <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">true</a> : (<a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a9fecd33d4b9c96d5cbc1d9d27afe2a30">e_blk</a> &lt; <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a09287020de774fbd175892b6aab61155">nelv</a>)</td></tr>
+<tr class="separator:a003d2af368daeb41cd4f5f4f7373843e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83e52139e060d0c1ba0475539f657304" id="r_a83e52139e060d0c1ba0475539f657304"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a> = <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a003d2af368daeb41cd4f5f4f7373843e">active</a> ? <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a9fecd33d4b9c96d5cbc1d9d27afe2a30">e_blk</a> : (<a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a09287020de774fbd175892b6aab61155">nelv</a> - 1)</td></tr>
 <tr class="separator:a83e52139e060d0c1ba0475539f657304"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23126ad1f5d555606a8dbd1fd5de792c" id="r_a23126ad1f5d555606a8dbd1fd5de792c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a23126ad1f5d555606a8dbd1fd5de792c">sh</a> = <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a306082d89dde4824cbe1848162a06a37">eb</a> * <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> * <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a></td></tr>
+<tr class="separator:a23126ad1f5d555606a8dbd1fd5de792c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5cebda4bfa014cb7a1f859d5afb5cc1" id="r_ad5cebda4bfa014cb7a1f859d5afb5cc1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#ad5cebda4bfa014cb7a1f859d5afb5cc1">j</a> = threadIdx.y</td></tr>
 <tr class="separator:ad5cebda4bfa014cb7a1f859d5afb5cc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a516e79afaff41160487af846f7360b3d" id="r_a516e79afaff41160487af846f7360b3d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> = <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a3b35a10334f641ae16ea1c310523d458">threadIdx.x</a></td></tr>
@@ -172,23 +195,21 @@ Variables</h2></td></tr>
 <tr class="separator:a5bd8dc2d8498c77e4b299f4388b435f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac362bc5553a0c408f4c65f5a66545909" id="r_ac362bc5553a0c408f4c65f5a66545909"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#ac362bc5553a0c408f4c65f5a66545909">ele</a> = <a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a>*<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>*<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>*<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a></td></tr>
 <tr class="separator:ac362bc5553a0c408f4c65f5a66545909"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa9cbc42a68a37ff6512f049d907f0a7" id="r_afa9cbc42a68a37ff6512f049d907f0a7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#afa9cbc42a68a37ff6512f049d907f0a7">shdxt</a> [<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7">ij</a>] = <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#affe49acdcc940652feb93cb3438eaa9c">dxt</a>[<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7">ij</a>]</td></tr>
-<tr class="separator:afa9cbc42a68a37ff6512f049d907f0a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a97a4a095d6f25eaa6c190e7ca7f4bbba" name="a97a4a095d6f25eaa6c190e7ca7f4bbba"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a97a4a095d6f25eaa6c190e7ca7f4bbba">&#9670;&#160;</a></span>__launch_bounds__()</h2>
+<a id="ac7cdd61888712a5c1f46242c8aed9e5c" name="ac7cdd61888712a5c1f46242c8aed9e5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac7cdd61888712a5c1f46242c8aed9e5c">&#9670;&#160;</a></span>__launch_bounds__()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> , <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> LX&gt; </div>
+template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> , <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> LX, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> EB&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> __launch_bounds__ </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *&#160;</td>
-          <td class="paramname"><em>LX</em>, </td>
+          <td class="paramtype">(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">EB</a>)&#160;</td>
+          <td class="paramname">, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -294,7 +315,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for \( D^T x \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00042">42</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00045">45</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -326,7 +347,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00138">138</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00159">159</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -341,7 +362,54 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
+<a id="adf142115b93071739e1781f314da00cb" name="adf142115b93071739e1781f314da00cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf142115b93071739e1781f314da00cb">&#9670;&#160;</a></span>if()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">if </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a306082d89dde4824cbe1848162a06a37">eb</a>&#160;</td>
+          <td class="paramname"> = <code>=&#160;0</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00151">151</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d72/hip_2cdtp__kernel_8h_adf142115b93071739e1781f314da00cb_cgraph.png" border="0" usemap="#add/d72/hip_2cdtp__kernel_8h_adf142115b93071739e1781f314da00cb_cgraph" alt=""/></div>
+<map name="add/d72/hip_2cdtp__kernel_8h_adf142115b93071739e1781f314da00cb_cgraph" id="add/d72/hip_2cdtp__kernel_8h_adf142115b93071739e1781f314da00cb_cgraph">
+<area shape="rect" title=" " alt="" coords="5,37,44,62"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="92,29,244,69"/>
+<area shape="poly" title=" " alt="" coords="44,47,78,47,78,52,44,52"/>
+<area shape="poly" title=" " alt="" coords="141,29,139,20,143,11,153,5,168,3,185,6,194,13,191,17,183,11,168,8,155,10,147,14,144,21,146,29"/>
+</map>
+</div>
+
+</div>
+</div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="a003d2af368daeb41cd4f5f4f7373843e" name="a003d2af368daeb41cd4f5f4f7373843e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a003d2af368daeb41cd4f5f4f7373843e">&#9670;&#160;</a></span>active</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bool</a> active = (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">EB</a> == 1) ? <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">true</a> : (<a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a9fecd33d4b9c96d5cbc1d9d27afe2a30">e_blk</a> &lt; <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a09287020de774fbd175892b6aab61155">nelv</a>)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00143">143</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+
+</div>
+</div>
 <a id="a17859a85b9bd6c55edc5d8cb73d0937f" name="a17859a85b9bd6c55edc5d8cb73d0937f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a17859a85b9bd6c55edc5d8cb73d0937f">&#9670;&#160;</a></span>dr</h2>
 
@@ -354,7 +422,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00107">107</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00110">110</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -370,7 +438,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00108">108</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00111">111</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -386,7 +454,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00109">109</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00112">112</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -402,7 +470,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00110">110</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00113">113</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -418,7 +486,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00111">111</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00114">114</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -434,7 +502,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00112">112</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00115">115</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -445,12 +513,44 @@ Here is the call graph for this function:</div>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> e = <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a3b35a10334f641ae16ea1c310523d458">blockIdx.x</a></td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> e = <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a003d2af368daeb41cd4f5f4f7373843e">active</a> ? <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a9fecd33d4b9c96d5cbc1d9d27afe2a30">e_blk</a> : (<a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a09287020de774fbd175892b6aab61155">nelv</a> - 1)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00126">126</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00144">144</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+
+</div>
+</div>
+<a id="a9fecd33d4b9c96d5cbc1d9d27afe2a30" name="a9fecd33d4b9c96d5cbc1d9d27afe2a30"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9fecd33d4b9c96d5cbc1d9d27afe2a30">&#9670;&#160;</a></span>e_blk</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> e_blk = <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a3b35a10334f641ae16ea1c310523d458">blockIdx.x</a> * <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">EB</a> + <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a306082d89dde4824cbe1848162a06a37">eb</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00139">139</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+
+</div>
+</div>
+<a id="a306082d89dde4824cbe1848162a06a37" name="a306082d89dde4824cbe1848162a06a37"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a306082d89dde4824cbe1848162a06a37">&#9670;&#160;</a></span>eb</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> eb = (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">EB</a> == 1) ? 0 : threadIdx.z</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00138">138</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -466,7 +566,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00130">130</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00149">149</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -482,7 +582,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00128">128</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00147">147</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -498,7 +598,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00129">129</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00148">148</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -514,7 +614,27 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00127">127</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00146">146</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+
+</div>
+</div>
+<a id="ad42fc788cf783c4dbe35c0017322d6b3" name="ad42fc788cf783c4dbe35c0017322d6b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad42fc788cf783c4dbe35c0017322d6b3">&#9670;&#160;</a></span>nelv</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>* <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>* <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>* <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>* <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>* <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>* <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>* <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>* <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> nelv</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">{</div>
+<div class="line"> </div>
+<div class="line">  <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">shdxt</a>[<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> * <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</div>
+<div class="ttc" id="acuda_2ale__kinematics__kernel_8h_html_ad4350b4cac096924ce42615d376f4759"><div class="ttname"><a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ale_add_kinematics_kernel</a></div><div class="ttdeci">__global__ void ale_add_kinematics_kernel(const int n, T *__restrict__ wx, T *__restrict__ wy, T *__restrict__ wz, const T *__restrict__ x_ref, const T *__restrict__ y_ref, const T *__restrict__ z_ref, const T *__restrict__ phi, const T *__restrict__ x, const T *__restrict__ y, const T *__restrict__ z, const kinematics_params_t kin_params)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h_source.html#l00052">ale_kinematics_kernel.h:52</a></div></div>
+</div><!-- fragment -->
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00117">117</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -530,7 +650,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00122">122</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00134">134</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -546,7 +666,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00123">123</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00135">135</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -562,87 +682,87 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00124">124</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00136">136</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
-<a id="afa9cbc42a68a37ff6512f049d907f0a7" name="afa9cbc42a68a37ff6512f049d907f0a7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afa9cbc42a68a37ff6512f049d907f0a7">&#9670;&#160;</a></span>shdxt</h2>
+<a id="a23126ad1f5d555606a8dbd1fd5de792c" name="a23126ad1f5d555606a8dbd1fd5de792c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23126ad1f5d555606a8dbd1fd5de792c">&#9670;&#160;</a></span>sh</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">shdxt[<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7">ij</a>] = <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#affe49acdcc940652feb93cb3438eaa9c">dxt</a>[<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7">ij</a>]</td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> sh = <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a306082d89dde4824cbe1848162a06a37">eb</a> * <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> * <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00132">132</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00145">145</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
-<a id="a106a5e2bfadf5c980fc93a9a6d915a6d" name="a106a5e2bfadf5c980fc93a9a6d915a6d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a106a5e2bfadf5c980fc93a9a6d915a6d">&#9670;&#160;</a></span>shdyt</h2>
+<a id="ae38692b1a7d4b62d998097775642f50f" name="ae38692b1a7d4b62d998097775642f50f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae38692b1a7d4b62d998097775642f50f">&#9670;&#160;</a></span>shdyt</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">shdyt[<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7">ij</a>] = <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#af4dfdc19ce423df0d0e277a211ee34a8">dyt</a>[<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7">ij</a>]</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00116">116</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
-
-</div>
-</div>
-<a id="aae54bd3b08ffbb35b42e1aa71adde056" name="aae54bd3b08ffbb35b42e1aa71adde056"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aae54bd3b08ffbb35b42e1aa71adde056">&#9670;&#160;</a></span>shdzt</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">shdzt[<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7">ij</a>] = <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#ac074100bc8161312918795a55ed1fd6a">dzt</a>[<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7">ij</a>]</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00117">117</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
-
-</div>
-</div>
-<a id="adfd540294c7e40f92707442e10e507da" name="adfd540294c7e40f92707442e10e507da"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adfd540294c7e40f92707442e10e507da">&#9670;&#160;</a></span>shtar</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> shtar[<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00119">119</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
-
-</div>
-</div>
-<a id="a42789ce6e7337d5d96d8d5d76483bbc0" name="a42789ce6e7337d5d96d8d5d76483bbc0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a42789ce6e7337d5d96d8d5d76483bbc0">&#9670;&#160;</a></span>shtas</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> shtas[<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> shdyt[<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00120">120</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+
+</div>
+</div>
+<a id="a4b9a7b88bf8d17feba53bbbe75c621a7" name="a4b9a7b88bf8d17feba53bbbe75c621a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b9a7b88bf8d17feba53bbbe75c621a7">&#9670;&#160;</a></span>shdzt</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> shdzt[<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00121">121</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+
+</div>
+</div>
+<a id="ac85186947f6b6b28eef6d1cab826f852" name="ac85186947f6b6b28eef6d1cab826f852"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac85186947f6b6b28eef6d1cab826f852">&#9670;&#160;</a></span>shtar</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> shtar[<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">EB</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00123">123</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+
+</div>
+</div>
+<a id="ad99b0f014abc2792ca039ae8aa34459a" name="ad99b0f014abc2792ca039ae8aa34459a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad99b0f014abc2792ca039ae8aa34459a">&#9670;&#160;</a></span>shtas</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> shtas[<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">EB</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00124">124</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -657,13 +777,8 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">{ </div>
-<div class="line">  </div>
-<div class="line">  <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__shared__</a> <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> <a class="code hl_variable" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#afa9cbc42a68a37ff6512f049d907f0a7">shdxt</a>[<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a> * <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>]</div>
-<div class="ttc" id="acuda_2ale__kinematics__kernel_8h_html_ad4350b4cac096924ce42615d376f4759"><div class="ttname"><a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ale_add_kinematics_kernel</a></div><div class="ttdeci">__global__ void ale_add_kinematics_kernel(const int n, T *__restrict__ wx, T *__restrict__ wy, T *__restrict__ wz, const T *__restrict__ x_ref, const T *__restrict__ y_ref, const T *__restrict__ z_ref, const T *__restrict__ phi, const T *__restrict__ x, const T *__restrict__ y, const T *__restrict__ z, const kinematics_params_t kin_params)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h_source.html#l00052">ale_kinematics_kernel.h:52</a></div></div>
-<div class="ttc" id="acuda_2cdtp__kernel_8h_html_afa9cbc42a68a37ff6512f049d907f0a7"><div class="ttname"><a href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#afa9cbc42a68a37ff6512f049d907f0a7">shdxt</a></div><div class="ttdeci">shdxt[ij]</div><div class="ttdef"><b>Definition</b> <a href="../../d3/dd9/cuda_2cdtp__kernel_8h_source.html#l00132">cdtp_kernel.h:132</a></div></div>
-</div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00113">113</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00116">116</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -679,7 +794,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00106">106</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html#l00109">109</a> of file <a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h_source.html">cdtp_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -689,7 +804,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_f48359d827d7566deae6b1b647b520e2.html">hip</a></li><li class="navelem"><a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html">cdtp_kernel.h</a></li>
-    <li class="footer">Generated on Fri Aug 14 2026 04:16:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 15 2026 03:46:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -9,6 +9,8 @@ var dir_f48359d827d7566deae6b1b647b520e2 =
     [ "conv1_kernel.h", "dc/daa/hip_2conv1__kernel_8h.html", "dc/daa/hip_2conv1__kernel_8h" ],
     [ "convect_scalar_kernel.h", "d8/d15/hip_2convect__scalar__kernel_8h.html", "d8/d15/hip_2convect__scalar__kernel_8h" ],
     [ "dudxyz_kernel.h", "dd/dd4/hip_2dudxyz__kernel_8h.html", "dd/dd4/hip_2dudxyz__kernel_8h" ],
+    [ "elem_block.h", "d1/d1c/hip_2elem__block_8h.html", "d1/d1c/hip_2elem__block_8h" ],
+    [ "elem_block_tune.h", "d7/df2/hip_2elem__block__tune_8h.html", "d7/df2/hip_2elem__block__tune_8h" ],
     [ "fdm.hip", "de/d7f/fdm_8hip.html", "de/d7f/fdm_8hip" ],
     [ "fdm_kernel.h", "d9/d4b/hip_2fdm__kernel_8h.html", "d9/d4b/hip_2fdm__kernel_8h" ],
     [ "hip_math.f90", "d5/ddf/hip__math_8f90.html", "d5/ddf/hip__math_8f90" ],

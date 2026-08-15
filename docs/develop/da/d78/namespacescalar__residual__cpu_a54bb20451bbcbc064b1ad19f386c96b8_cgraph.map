@@ -1,0 +1,5 @@
+<map id="scalar_residual_cpu::scalar_residual_cpu_compute" name="scalar_residual_cpu::scalar_residual_cpu_compute">
+<area shape="rect" id="Node000001" title="Compute the residual." alt="" coords="5,5,164,60"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="212,20,307,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,30,198,30,198,35,164,35"/>
+</map>

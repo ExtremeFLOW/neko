@@ -180,6 +180,12 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a8cbd176ce03aa9f17e780266c755e489"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a66dd276aed0a68a9a6e7325b6350f4f7" id="r_a66dd276aed0a68a9a6e7325b6350f4f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a66dd276aed0a68a9a6e7325b6350f4f7">free_order</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="separator:a66dd276aed0a68a9a6e7325b6350f4f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb51ebefe12be9b07dd2e5f01d6cadfe" id="r_adb51ebefe12be9b07dd2e5f01d6cadfe"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#adb51ebefe12be9b07dd2e5f01d6cadfe">take_schedule</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, src)</td></tr>
+<tr class="memdesc:adb51ebefe12be9b07dd2e5f01d6cadfe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Take over the gather-scatter schedule (dof lists and peer order) of <em>src</em>, avoiding a second (expensive) pass over the connectivity. The data is moved rather than copied, so <em>src</em> is left without a schedule and must not be used for communication afterwards (it can still be freed). No communication resources are set up here; complete the handover with <em>init_schedule</em> once <em>src</em> has been freed, so that the two backends never hold their resources at the same time.  <br /></td></tr>
+<tr class="separator:adb51ebefe12be9b07dd2e5f01d6cadfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46d63611d1f60b38d11653ed6a0592fb" id="r_a46d63611d1f60b38d11653ed6a0592fb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a46d63611d1f60b38d11653ed6a0592fb">init_schedule</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a46d63611d1f60b38d11653ed6a0592fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set up this communication method for the schedule taken over by <em>take_schedule</em>. Collective, as <em>init</em> is.  <br /></td></tr>
+<tr class="separator:a46d63611d1f60b38d11653ed6a0592fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af4dc3308d366cc075bc75e6116267c3b" id="r_af4dc3308d366cc075bc75e6116267c3b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#af4dc3308d366cc075bc75e6116267c3b">nbsend_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">tag</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deps</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
 <tr class="memdesc:af4dc3308d366cc075bc75e6116267c3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fused vector halo exchange. Default implementations abort; backends that set vec_supported = .true. override them.  <br /></td></tr>
 <tr class="separator:af4dc3308d366cc075bc75e6116267c3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -288,7 +294,7 @@ Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00067">67</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00076">76</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="aeb11d01634431c59e2e62287df5fce3c" name="aeb11d01634431c59e2e62287df5fce3c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aeb11d01634431c59e2e62287df5fce3c">&#9670;&#160;</a></span>free() <span class="overload">[1/2]</span></h2>
@@ -306,7 +312,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00129">129</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00138">138</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -422,7 +428,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00128">128</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00137">137</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -529,6 +535,34 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a46d63611d1f60b38d11653ed6a0592fb" name="a46d63611d1f60b38d11653ed6a0592fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46d63611d1f60b38d11653ed6a0592fb">&#9670;&#160;</a></span>init_schedule()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) gs_comm::gs_comm_t::init_schedule </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html">gs_comm_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+
+</div>
+</div>
 <a id="a9111a10306a4ed67c66395bef40adc81" name="a9111a10306a4ed67c66395bef40adc81"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9111a10306a4ed67c66395bef40adc81">&#9670;&#160;</a></span>nbrecv() <span class="overload">[1/2]</span></h2>
 
@@ -555,7 +589,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00131">131</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00140">140</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -623,7 +657,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -659,7 +693,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00134">134</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00143">143</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -713,7 +747,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00130">130</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00139">139</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -813,7 +847,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -879,7 +913,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00133">133</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00142">142</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -927,7 +961,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00132">132</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00141">141</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1013,7 +1047,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00084">84</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -1067,7 +1101,51 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00135">135</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00144">144</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+
+</div>
+</div>
+<a id="adb51ebefe12be9b07dd2e5f01d6cadfe" name="adb51ebefe12be9b07dd2e5f01d6cadfe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb51ebefe12be9b07dd2e5f01d6cadfe">&#9670;&#160;</a></span>take_schedule()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) gs_comm::gs_comm_t::take_schedule </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html">gs_comm_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html">gs_comm_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>src</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">src</td><td>the backend to take the schedule from, left without one </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -1084,7 +1162,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00092">92</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00101">101</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1100,7 +1178,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00102">102</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00111">111</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1116,7 +1194,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00126">126</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00135">135</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1132,7 +1210,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00085">85</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00094">94</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1148,7 +1226,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00085">85</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00094">94</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1164,7 +1242,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00122">122</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00131">131</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1180,7 +1258,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00086">86</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00095">95</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1196,7 +1274,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00098">98</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00107">107</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1212,7 +1290,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00090">90</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00099">99</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1228,7 +1306,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00100">100</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00109">109</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1244,7 +1322,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00124">124</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00133">133</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1260,7 +1338,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00075">75</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00084">84</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1276,7 +1354,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00111">111</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00120">120</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1316,7 +1394,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00089">89</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00098">98</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1332,7 +1410,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00077">77</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00086">86</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1348,7 +1426,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00078">78</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00087">87</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1388,7 +1466,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00117">117</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00126">126</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1404,7 +1482,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00117">117</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00126">126</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1420,7 +1498,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00084">84</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00093">93</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1436,7 +1514,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00116">116</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00125">125</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1452,7 +1530,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00084">84</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00093">93</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1468,7 +1546,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00116">116</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00125">125</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1484,7 +1562,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00071">71</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00080">80</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1500,7 +1578,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00110">110</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00119">119</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1540,7 +1618,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00077">77</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00086">86</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1556,7 +1634,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00080">80</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00089">89</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1572,7 +1650,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00121">121</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00130">130</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1588,7 +1666,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00080">80</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00089">89</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1604,7 +1682,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00121">121</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00130">130</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1620,7 +1698,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00078">78</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00087">87</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1661,7 +1739,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00096">96</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html#l00105">105</a> of file <a class="el" href="../../d2/dd5/gs__utofu_8F90_source.html">gs_utofu.F90</a>.</p>
 
 </div>
 </div>
@@ -1698,7 +1776,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/d29/namespacegs__utofu.html">gs_utofu</a></li><li class="navelem"><a class="el" href="../../d8/dce/structgs__utofu_1_1gs__utofu__t.html">gs_utofu_t</a></li>
-    <li class="footer">Generated on Fri Aug 14 2026 04:16:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 15 2026 03:46:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
