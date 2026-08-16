@@ -183,11 +183,37 @@ is native one\-sided communication over the Tofu interconnect and
 is host MPI using an
 .B MPI_Ineighbor_alltoallv
 neighbourhood collective. When unset, a device\-aware variant is used
-on accelerator builds; otherwise the host backends available in the build
+on accelerator builds; otherwise the host backends selected by
+.B NEKO_GS_TUNE
 are benchmarked at startup and the fastest one is used.
 .TP
 .B NEKO_GS_STRTGY
 Selects the gather\-scatter strategy.
+.TP
+.B NEKO_GS_TUNE
+Selects which communication backends are benchmarked at startup when
+.B NEKO_GS_COMM
+is unset. Takes a list of backend names, spelled as for
+.BR NEKO_GS_COMM ,
+separated by commas or spaces and matched case insensitively. Names
+prefixed with
+.B +
+or
+.B \-
+are added to and removed from the default set, plain names replace it
+altogether, and the two forms cannot be mixed. When unset, the default set
+is every host backend the build supports except
+.BR CAF ,
+which has to be asked for with
+.B NEKO_GS_TUNE=+CAF
+since a compiler may accept coarrays at configure time and still give each
+process a single image, which the coarray backend cannot communicate over.
+A list leaving a single candidate pins that backend without benchmarking.
+Selecting a backend outright with
+.B NEKO_GS_COMM
+ignores this variable;
+.B NEKO_GS_COMM=CAF
+fails with an error if the run does not provide one image per rank.
 .TP
 .B NEKO_GS_CAF_SIGNALING
 Selects the per\-pair synchronisation used by the coarray gather\-scatter
@@ -204,7 +230,11 @@ thereafter, so
 only takes effect when the communication backend is autotuned as well, that
 is when
 .B NEKO_GS_COMM
-is unset; it falls back to
+is unset and
+.B CAF
+is among the backends selected by
+.BR NEKO_GS_TUNE ;
+it falls back to
 .B sync
 otherwise.
 .TP

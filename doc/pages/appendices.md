@@ -26,6 +26,7 @@ of the code. But can be useful for users and developers alike.
 | `NEKO_LOG_LEVEL`         | Log verbosity level (integer > 0, default: 1)                         | Unset         |
 | `NEKO_GS_STRTGY`         | Gather-scatter device MPI sync. strategy (0 < integer < 5 )           | Unset         |
 | `NEKO_GS_COMM`           | Gather-scatter communication backend                                  | Unset         |
+| `NEKO_GS_TUNE`           | Comm. backends the gather-scatter autotuning benchmarks (list)        | Unset (all but `CAF`) |
 | `NEKO_GS_CAF_SIGNALING`  | Coarray Fortran gather-scatter signaling mode                         | Unset         |
 | `NEKO_COMM_ID`           | Communicator id for this process (non-negative integer)               | 0             |
 | `NEKO_HIP_ZEROCOPY`      | Zero-copy host/device mapping on unified memory (HIP), 1 enables      | 0             |
@@ -103,10 +104,26 @@ A number of gather-scatter backends are supported.
 
 When `NEKO_GS_COMM` is unset and the build has no device-aware MPI,
 the host backends are benchmarked at initialisation and the fastest
-one is kept (see @ref performance-gs-autotuning). `MPI` and
-`NEIGHBOUR` are always benchmarked; `SHMEM`, `CAF` and `UTOFU` join
-them if the build has the corresponding support. Set `NEKO_GS_COMM`
-explicitly to skip the benchmark and pin a backend.
+one is kept (see @ref performance-gs-autotuning). Which ones take part
+is set by `NEKO_GS_TUNE`, a list of backend names spelled as for
+`NEKO_GS_COMM` (comma or space separated, case insensitive). Unset, it
+means every host backend the build supports except `CAF`, which a
+compiler can accept at configure time while still giving the job a
+single image the coarray backend cannot use.
+
+- `NEKO_GS_TUNE=+CAF` adds the coarray backend to that default set,
+  `NEKO_GS_TUNE=-SHMEM` removes a backend from it, and the two can be
+  combined (`NEKO_GS_TUNE=+CAF,-SHMEM`).
+- Plain names replace the set outright: `NEKO_GS_TUNE=MPI,NEIGHBOUR`
+  benchmarks those two and nothing else. A single name pins that
+  backend without benchmarking anything.
+- The two forms cannot be mixed, and a name that is not a host
+  gather-scatter backend is an error.
+
+Backends that are selected but cannot run in this build or run are
+dropped; those named explicitly are reported in the log as
+`unavailable`. Set `NEKO_GS_COMM` to skip the benchmark and pin a
+backend outright; that path ignores `NEKO_GS_TUNE`.
 
 ### MPI thread level details
 

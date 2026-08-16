@@ -198,7 +198,7 @@ supported backends are listed below.
 | NCCL / RCCL      | Collective comms library on GPUs (NVIDIA / AMD) | CUDA, HIP        | `--with-nccl` / `--with-rccl` | `NCCL`         |
 | NVSHMEM          | NVIDIA OpenSHMEM, one-sided on device buffers   | CUDA             | `--with-nvshmem`              | `SHMEM`        |
 | OpenSHMEM        | Host OpenSHMEM, one-sided                        | CPU              | `--with-openshmem`           | `SHMEM`        |
-| Co-Array Fortran | Fortran coarrays                                | CPU              | coarray-capable compiler      | `CAF`          |
+| Co-Array Fortran | Fortran coarrays (one image per rank required)   | CPU              | coarray-capable compiler      | `CAF`          |
 | uTofu            | Native Tofu interconnect, one-sided RDMA        | CPU              | `--with-utofu`                | `UTOFU`        |
 
 @note Every device backend (CUDA, HIP, OpenCL, Metal) can use host `MPI`, which
@@ -209,6 +209,13 @@ host `MPI`.
 
 @note `NEKO_GS_COMM=SHMEM` selects NVSHMEM on a device (GPU) build and host
 OpenSHMEM otherwise.
+
+@note `CAF` needs the coarray images to map one-to-one onto the MPI ranks.
+Compilers that accept coarrays but build a single-image program (for example
+gfortran without an `-fcoarray=lib` runtime) pass the configure check yet
+cannot run the backend, so it is left out of the startup benchmark unless
+asked for with `NEKO_GS_TUNE=+CAF`, and `NEKO_GS_COMM=CAF` aborts with an
+error on such a build.
 
 @note `UTOFU` targets the native Tofu interconnect (Tofu-D, e.g. Fugaku) and
 requires the `libtofucom` library; it is a host (CPU) backend. The number of
