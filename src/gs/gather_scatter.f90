@@ -44,10 +44,12 @@ module gather_scatter
        GS_COMM_UTOFU, GS_VEC_NC
   use gs_mpi, only : gs_mpi_t
   use gs_neighbour, only : gs_neighbour_t
-  use gs_shmem, only : gs_shmem_t, GS_SHMEM_AVAIL
-  use gs_caf, only : gs_caf_t, GS_CAF_AVAIL, gs_caf_signal_auto, &
-       gs_caf_signal_modes, gs_caf_mode_name, gs_caf_mode_get, gs_caf_set_mode
-  use gs_utofu, only : gs_utofu_t, GS_UTOFU_AVAIL
+  ! Only the backend types are needed here; what tells whether a backend can
+  ! run at all is used by the autotuning, and imported by the gs_tune
+  ! submodule instead
+  use gs_shmem, only : gs_shmem_t
+  use gs_caf, only : gs_caf_t
+  use gs_utofu, only : gs_utofu_t
   use gs_device_mpi, only : gs_device_mpi_t
   use gs_device_nccl, only : gs_device_nccl_t
   use gs_device_shmem, only : gs_device_shmem_t
@@ -129,18 +131,39 @@ module gather_scatter
   public :: GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, GS_COMM_NVSHMEM, &
        GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_NEIGHBOUR, GS_COMM_UTOFU
 
+  ! These routines (used by the gs_tune submodule) have to be public
+  ! since gfortran gives a private module procedure internal linkage
+  public :: gs_comm_t, gs_comm_alloc, gs_comm_name
+
   !> Number of timed (and untimed, warm-up) gather-scatter operations per
   !! candidate in the runtime autotuning of comm. backends and device
   !! synchronisation strategies
   integer, parameter :: GS_TUNE_NTRIALS = 100
   integer, parameter :: GS_TUNE_NWARMUP = 2
 
-  !> Whether the coarray signaling mode has already been selected by the
-  !! autotuner (NEKO_GS_CAF_SIGNALING=auto). The mode is a program-wide
-  !! binding shared by every gs_caf_t instance, so it is benchmarked once,
-  !! on the first gs_t that tunes the CAF backend, and kept: re-binding it
-  !! later would change the protocol under instances already running.
-  logical, save :: caf_signal_tuned = .false.
+  !> The runtime autotuning of the comm. backend, implemented in the gs_tune
+  !! submodule: everything the selection needs (the candidate list, the
+  !! NEKO_GS_TUNE parsing, switching a live gs over to another backend) is
+  !! private to it, and only what gs_init drives is declared here.
+  interface
+     !> Time @a ntrials gather-scatter operations on @a u, returning the
+     !! average wall time (s) per operation on this rank
+     module function gs_time_ops(gs, u, n, op, ntrials) result(t)
+       type(gs_t), intent(inout) :: gs
+       integer, intent(in) :: n
+       real(kind=rp), dimension(n), intent(inout) :: u
+       integer, intent(in) :: op, ntrials
+       real(kind=dp) :: t
+     end function gs_time_ops
+
+     !> Benchmark the candidate comm. backends and leave @a gs holding the
+     !! fastest one
+     module subroutine gs_tune_comm(gs, n, comm_bcknd)
+       type(gs_t), intent(inout) :: gs
+       integer, intent(in) :: n
+       integer, intent(in) :: comm_bcknd
+     end subroutine gs_tune_comm
+  end interface
 
 contains
 
@@ -395,7 +418,7 @@ contains
 
     ! Select the fastest host comm. backend at runtime
     if (tune_comm) then
-       call gs_tune_comm(gs, dofmap%size(), gs_comm_host_cand())
+       call gs_tune_comm(gs, dofmap%size(), comm_bcknd_)
     end if
 
     call neko_log%end_section()
@@ -407,7 +430,7 @@ contains
   !! entry: intent(out) releases it without running its free, which would
   !! leak whatever resources it holds (symmetric memory, coarrays, uTofu
   !! VCQs). Both callers free the previous backend themselves, see gs_free
-  !! and gs_comm_switch.
+  !! and gs_comm_switch (in the gs_tune submodule).
   !! @param comm_bcknd comm. backend to allocate, one of the GS_COMM_*
   !! constants
   subroutine gs_comm_alloc(comm, comm_bcknd)
@@ -436,46 +459,6 @@ contains
     end select
 
   end subroutine gs_comm_alloc
-
-  !> Host comm. backends to consider in the runtime autotuning, in the order
-  !! they are benchmarked. MPI and the neighbourhood collective need nothing
-  !! but MPI-3; the remaining ones are only included if the corresponding
-  !! support was built in, as their init aborts otherwise.
-  !! @note The first entry is the backend the gs schedule is built with in
-  !! gs_init, and must stay that way (see gs_tune_comm).
-  !! @return the candidate backends, as GS_COMM_* constants
-  function gs_comm_host_cand() result(cand)
-    integer, allocatable :: cand(:)
-    integer :: c(5), n
-
-    n = 2
-    c(1) = GS_COMM_MPI
-    c(2) = GS_COMM_NEIGHBOUR
-
-    ! The one-sided backends that address their peers by global PE or image
-    ! number (OpenSHMEM PEs, coarray images) are only correct when NEKO_COMM
-    ! spans every process, so skip them when the run has been split into
-    ! several communicators (NEKO_COMM_ID). uTofu exchanges its addresses
-    ! over NEKO_COMM itself and is unaffected.
-    if (GS_SHMEM_AVAIL .and. (pe_size .eq. global_pe_size)) then
-       n = n + 1
-       c(n) = GS_COMM_OPENSHMEM
-    end if
-
-    if (GS_CAF_AVAIL .and. (pe_size .eq. global_pe_size)) then
-       n = n + 1
-       c(n) = GS_COMM_CAF
-    end if
-
-    if (GS_UTOFU_AVAIL) then
-       n = n + 1
-       c(n) = GS_COMM_UTOFU
-    end if
-
-    allocate(cand(n))
-    cand = c(1:n)
-
-  end function gs_comm_host_cand
 
   !> Name of the gather-scatter comm. backend @a comm_bcknd, right-adjusted
   !! for the log
@@ -507,225 +490,6 @@ contains
     end select
 
   end function gs_comm_name
-
-  !> Switch the comm. backend of @a gs to @a comm_bcknd, retaining the
-  !! schedule computed in gs_schedule (the dof lists are moved over to the
-  !! new backend, not recomputed). The old backend is freed before the new
-  !! one is set up, so backends holding scarce resources (uTofu VCQs,
-  !! symmetric memory, coarrays) never overlap.
-  !! @param gs gather-scatter kernel whose comm. backend is replaced
-  !! @param comm_bcknd comm. backend to switch to, one of the GS_COMM_*
-  !! constants
-  !! @note Collective, every rank must switch to the same backend.
-  subroutine gs_comm_switch(gs, comm_bcknd)
-    type(gs_t), intent(inout) :: gs
-    integer, intent(in) :: comm_bcknd
-    class(gs_comm_t), allocatable :: comm_new
-
-    call gs_comm_alloc(comm_new, comm_bcknd)
-    call comm_new%take_schedule(gs%comm)
-    call gs%comm%free()
-    deallocate(gs%comm)
-    call move_alloc(comm_new, gs%comm)
-    call gs%comm%init_schedule()
-
-  end subroutine gs_comm_switch
-
-  !> Time @a ntrials gather-scatter operations on @a u, returning the
-  !! average wall time (s) per operation. The backend is warmed up and all
-  !! ranks are synchronised before the timing window is opened.
-  !! @param gs gather-scatter kernel to time
-  !! @param u working vector to operate on
-  !! @param n length of @a u
-  !! @param op gather-scatter operation, one of the GS_OP_* constants
-  !! @param ntrials number of timed operations to average over
-  !! @return the average wall time (s) per operation on this rank
-  function gs_time_ops(gs, u, n, op, ntrials) result(t)
-    type(gs_t), intent(inout) :: gs
-    integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: u
-    integer, intent(in) :: op, ntrials
-    real(kind=dp) :: t
-    integer :: i
-
-    do i = 1, GS_TUNE_NWARMUP
-       call gs_op_vector(gs, u, n, op)
-    end do
-
-    if (NEKO_BCKND_DEVICE .eq. 1) call device_sync
-    call MPI_Barrier(NEKO_COMM)
-
-    t = MPI_Wtime()
-    do i = 1, ntrials
-       call gs_op_vector(gs, u, n, op)
-    end do
-    if (NEKO_BCKND_DEVICE .eq. 1) call device_sync
-    t = (MPI_Wtime() - t) / real(ntrials, dp)
-
-  end function gs_time_ops
-
-  !> Select the fastest of the comm. backends in @a cand at runtime.
-  !!
-  !! Each candidate is benchmarked in turn on a dummy vector of length @a n,
-  !! reusing the schedule computed by gs_schedule (handed over from one
-  !! candidate to the next, see gs_comm_t%take_schedule), and @a gs is left
-  !! with the fastest backend allocated. On entry @a gs%comm must be the
-  !! first candidate, i.e. the backend the schedule was built with.
-  !!
-  !! @param gs gather-scatter kernel to tune, left holding the fastest
-  !! backend
-  !! @param n length of the dummy vector to benchmark on (the dofmap size)
-  !! @param cand comm. backends to consider, as GS_COMM_* constants, in the
-  !! order they are benchmarked (see gs_comm_host_cand)
-  !!
-  !! @note Setting up and running a comm. backend is collective over
-  !! NEKO_COMM (the neighbourhood backend builds a graph communicator, the
-  !! one-sided backends allocate symmetric memory), so every rank has to
-  !! arrive at the same decision: the per-rank timings are averaged over all
-  !! ranks before the winner is picked.
-  subroutine gs_tune_comm(gs, n, cand)
-    type(gs_t), intent(inout) :: gs
-    integer, intent(in) :: n
-    integer, intent(in) :: cand(:)
-    character(len=LOG_SIZE) :: log_buf
-    character(len=13) :: label
-    real(kind=dp), allocatable :: cand_time(:)
-    real(kind=rp), allocatable :: tmp(:)
-    type(c_ptr) :: tmp_d
-    integer :: i, best, nmin
-
-    ! A rank without any dofs skips the halo exchange in gs_op_vector, which
-    ! would leave every other rank hanging in a collective based backend.
-    ! Keep the default backend in that case.
-    nmin = n
-    call MPI_Allreduce(MPI_IN_PLACE, nmin, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
-    if (nmin .eq. 0) then
-       call neko_log%message('Comm tuning  :      skipped')
-       call neko_log%message('Tuned comm   : ' // gs_comm_name(cand(1)))
-       return
-    end if
-
-    allocate(cand_time(size(cand)))
-
-    tmp_d = C_NULL_PTR
-    allocate(tmp(n))
-    tmp = 1.0_rp
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(tmp, tmp_d, n)
-       call device_memcpy(tmp, tmp_d, n, HOST_TO_DEVICE, sync = .false.)
-    end if
-
-    ! GS_OP_MIN leaves the working vector untouched, so the benchmark can
-    ! run for any number of trials without the values growing out of range
-    do i = 1, size(cand)
-       if (cand(i) .eq. GS_COMM_CAF .and. gs_caf_signal_auto() .and. &
-            .not. caf_signal_tuned) then
-          ! Benchmark the signaling modes as well; this leaves the CAF
-          ! backend allocated in the winning mode
-          cand_time(i) = gs_tune_caf_signal(gs, tmp, n)
-          caf_signal_tuned = .true.
-       else
-          if (i .gt. 1) call gs_comm_switch(gs, cand(i))
-          cand_time(i) = gs_time_ops(gs, tmp, n, GS_OP_MIN, GS_TUNE_NTRIALS)
-       end if
-    end do
-
-    if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(tmp, tmp_d)
-    deallocate(tmp)
-
-    call MPI_Allreduce(MPI_IN_PLACE, cand_time, size(cand), &
-         MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM)
-    cand_time = cand_time / pe_size
-
-    best = minloc(cand_time, 1)
-
-    do i = 1, size(cand)
-       label = adjustl(gs_comm_name(cand(i)))
-       ! What the coarray backend costs depends on the signaling mode in
-       ! force, so report the timing under the mode it was measured in
-       if (cand(i) .eq. GS_COMM_CAF .and. gs_caf_mode_get() .ne. 0) then
-          label = 'CAF (' // &
-               trim(adjustl(gs_caf_mode_name(gs_caf_mode_get()))) // ')'
-       end if
-       ! ES10.3 + ' s' fills the same 12 columns as the right-adjusted
-       ! backend names, so the unit lines up with their last letter
-       write(log_buf, '(A,A,ES10.3,A)') label, ': ', cand_time(i), ' s'
-       call neko_log%message(log_buf)
-    end do
-
-    ! The last candidate is the one currently allocated
-    if (best .ne. size(cand)) call gs_comm_switch(gs, cand(best))
-
-    call neko_log%message('Tuned comm   : ' // gs_comm_name(cand(best)))
-
-    deallocate(cand_time)
-
-  end subroutine gs_tune_comm
-
-  !> Benchmark the coarray signaling modes and bind the fastest one, leaving
-  !! @a gs holding a CAF backend that runs in that mode. Returns the winning
-  !! mode's average time per gather-scatter operation, so the caller can use
-  !! it as the CAF entry of the comm. backend benchmark.
-  !!
-  !! The mode is a program-wide binding shared by every gs_caf_t instance
-  !! and the per-instance state depends on it, so every mode is measured on
-  !! a freshly built backend. As in gs_tune_comm the timings are averaged
-  !! over all ranks before the winner is picked, so every rank binds the
-  !! same mode; the returned time is that rank-invariant average, which the
-  !! caller's own averaging leaves unchanged.
-  !!
-  !! @param gs gather-scatter kernel to tune, left holding a CAF backend
-  !! running in the winning mode
-  !! @param u working vector to operate on
-  !! @param n length of @a u
-  !! @return the winning mode's average wall time (s) per operation
-  function gs_tune_caf_signal(gs, u, n) result(t)
-    type(gs_t), intent(inout) :: gs
-    integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: u
-    real(kind=dp) :: t
-    character(len=LOG_SIZE) :: log_buf
-    character(len=13) :: label
-    integer, allocatable :: mode(:)
-    real(kind=dp), allocatable :: mode_time(:)
-    integer :: i, best
-
-    allocate(mode, source = gs_caf_signal_modes())
-    allocate(mode_time(size(mode)))
-
-    do i = 1, size(mode)
-       ! Bind the mode before building the backend: gs_caf_init sets up its
-       ! per-instance signaling state according to the mode in force
-       call gs_caf_set_mode(mode(i))
-       call gs_comm_switch(gs, GS_COMM_CAF)
-       mode_time(i) = gs_time_ops(gs, u, n, GS_OP_MIN, GS_TUNE_NTRIALS)
-    end do
-
-    call MPI_Allreduce(MPI_IN_PLACE, mode_time, size(mode), &
-         MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM)
-    mode_time = mode_time / pe_size
-
-    best = minloc(mode_time, 1)
-
-    do i = 1, size(mode)
-       label = 'CAF ' // adjustl(gs_caf_mode_name(mode(i)))
-       write(log_buf, '(A,A,ES10.3,A)') label, ': ', mode_time(i), ' s'
-       call neko_log%message(log_buf)
-    end do
-
-    ! The last mode is the one currently allocated
-    if (best .ne. size(mode)) then
-       call gs_caf_set_mode(mode(best))
-       call gs_comm_switch(gs, GS_COMM_CAF)
-    end if
-
-    call neko_log%message('Tuned CAF sig: ' // gs_caf_mode_name(mode(best)))
-
-    t = mode_time(best)
-
-    deallocate(mode, mode_time)
-
-  end function gs_tune_caf_signal
 
   !> Deallocate a gather-scatter kernel
   subroutine gs_free(gs)

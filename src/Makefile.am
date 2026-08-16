@@ -71,6 +71,7 @@ neko_fortran_SOURCES = \
 	gs/bcknd/device/gs_device_nccl.F90\
 	gs/bcknd/device/gs_device_shmem.F90\
 	gs/gather_scatter.f90\
+	gs/gs_tune.f90\
 	mesh/entity.f90\
 	mesh/point.f90\
 	mesh/element.f90\

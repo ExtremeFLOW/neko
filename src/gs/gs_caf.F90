@@ -201,10 +201,30 @@ module gs_caf
      procedure, pass(this) :: nbwait_vec => gs_nbwait_vec_caf
   end type gs_caf_t
 
-  public :: gs_caf_signal_auto, gs_caf_signal_modes, gs_caf_mode_name, &
-       gs_caf_mode_get, gs_caf_set_mode
+  public :: gs_caf_usable, gs_caf_signal_auto, gs_caf_signal_modes, &
+       gs_caf_mode_name, gs_caf_mode_get, gs_caf_set_mode
 
 contains
+
+  !> Whether the coarray backend can actually run in this job. GS_CAF_AVAIL
+  !! only says that the compiler accepted coarrays when Neko was configured;
+  !! a compiler may well do so and still provide a single image per process
+  !! (gfortran's -fcoarray=single, a coarray runtime that was not linked in),
+  !! in which case every image sees num_images() == 1 and no halo can be
+  !! exchanged. The images must map one-to-one onto the ranks of NEKO_COMM,
+  !! as the backend addresses its peers by image number (rank + 1) -- which
+  !! also rules out a run split into several communicators (NEKO_COMM_ID).
+  !! @return whether a gs_caf_t can be used by this run
+  function gs_caf_usable() result(usable)
+    logical :: usable
+
+#ifdef HAVE_COARRAY
+    usable = (num_images() .eq. pe_size)
+#else
+    usable = .false.
+#endif
+
+  end function gs_caf_usable
 
   !> Whether the signaling mode should be selected by benchmarking, i.e.
   !! NEKO_GS_CAF_SIGNALING=auto. The mode is a program-wide binding shared
@@ -343,6 +363,14 @@ contains
     integer :: i, nsend, nrecv, send_total, recv_total, max_total, n_neigh
     integer :: me, env_len
     character(len=64) :: env_val
+
+    ! A build with coarray support is not necessarily a build that can run
+    ! them across the job (see gs_caf_usable). Catch it here rather than
+    ! silently exchanging nothing, or deadlocking in the first put.
+    if (.not. gs_caf_usable()) then
+       call neko_error("Coarray gather-scatter needs one image per rank; " // &
+            "this build or run has num_images() /= pe_size")
+    end if
 
     ! Bind the signaling mode on the first init. With
     ! NEKO_GS_CAF_SIGNALING=auto the mode is instead selected by

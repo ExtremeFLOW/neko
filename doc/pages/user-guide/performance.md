@@ -269,18 +269,53 @@ fastest one. This mirrors the autotuning of the device MPI
 synchronisation strategy (`NEKO_GS_STRTGY`) already done on
 accelerator builds.
 
-The candidates are `MPI` and `NEIGHBOUR`, which need nothing but
-MPI-3 and are therefore always benchmarked, plus `SHMEM`
-(OpenSHMEM), `CAF` and `UTOFU` when the corresponding support was
+By default the candidates are every host backend the build supports
+except `CAF`: `MPI` and `NEIGHBOUR`, which need nothing but MPI-3, plus
+`SHMEM` (OpenSHMEM) and `UTOFU` when the corresponding support was
 built in -- a backend whose support is missing aborts in its `init`,
 so it is left out of the list rather than tried. `SHMEM` and `CAF` are
 additionally skipped when `NEKO_COMM` does not span every process
 (`NEKO_COMM_ID`), since they address their peers by global PE / image
 number; `UTOFU` exchanges its addresses over `NEKO_COMM` itself and is
-kept in that case. `CAF` is benchmarked in the single signaling mode
-bound by `NEKO_GS_CAF_SIGNALING` (`sync` unless set), unless that
-variable is set to `auto`, which tunes the modes as well -- see
-@ref performance-caf-backend.
+kept in that case.
+
+##### Choosing the candidates
+
+`NEKO_GS_TUNE` overrides that set. It takes a list of backend names,
+spelled as for `NEKO_GS_COMM`, separated by commas or spaces and
+matched case insensitively:
+
+| `NEKO_GS_TUNE` | Candidates |
+|---|---|
+| unset | every supported host backend but `CAF` |
+| `+CAF` | the default set, plus the coarray backend |
+| `-SHMEM` | the default set, without OpenSHMEM |
+| `+CAF,-SHMEM` | both deltas applied to the default set |
+| `MPI,NEIGHBOUR` | exactly those two, whatever the build supports |
+| `UTOFU` | uTofu alone -- nothing to compare, so it is simply used |
+
+Names prefixed with `+`/`-` modify the default set, plain names
+replace it, and mixing the two forms is an error, as is naming
+something that is not a host gather-scatter backend. Backends selected
+but unusable in this build or run are dropped from the comparison; a
+backend that was named explicitly says so in the log:
+
+```
+ CAF          : unavailable
+```
+
+`CAF` is out of the default set because coarray support at configure
+time says nothing about the job running more than one image: a
+compiler may accept the syntax and still build every process as a
+single-image program (gfortran's `-fcoarray=single`, or a coarray
+runtime that was never linked in), where the backend has no peers to
+put to. The case Neko can detect, `num_images() /= pe_size`, makes
+`CAF` unusable no matter how it was asked for, and requesting the
+backend outright with `NEKO_GS_COMM=CAF` then fails with an error
+rather than exchanging nothing. When `CAF` is benchmarked, it runs in
+the single signaling mode bound by `NEKO_GS_CAF_SIGNALING` (`sync`
+unless set), unless that variable is set to `auto`, which tunes the
+modes as well -- see @ref performance-caf-backend.
 
 The gs schedule is computed once, by `gs_schedule`, and handed over
 from one candidate backend to the next (`gs_comm_t%take_schedule`), so
@@ -310,7 +345,9 @@ backend that was kept:
 
 Tuning is skipped, keeping the host MPI backend, if any rank holds
 zero dofs: such a rank skips the halo exchange entirely, which would
-hang the other ranks in a collective-based backend. Since each `gs_t`
+hang the other ranks in a collective-based backend. It is likewise
+skipped when `NEKO_GS_TUNE` leaves fewer than two candidates, the
+single candidate then simply being switched to. Since each `gs_t`
 instance is tuned separately, a multigrid hierarchy tunes each level
 on its own message sizes. Set `NEKO_GS_COMM` explicitly to pin a
 backend and skip the benchmark, for example when comparing runs where
@@ -421,7 +458,7 @@ synchronisation strategy controlled by `NEKO_GS_CAF_SIGNALING`:
 | `sync` (default) | F2008 | `sync images` over the union of neighbour pairs, with a double-buffered receive coarray so only one rendezvous is needed per gs op | Most portable; works on every coarray-capable compiler |
 | `atomic` | F2008 | Per-pair atomic counters via `atomic_define`/`atomic_ref` and a busy-wait spin | Avoids the image-set barrier; trade-off depends on the relative cost of pairwise atomics versus `sync images` on the target runtime |
 | `event` | F2018 | F2018 events (`event post`/`event wait`) | Lowest theoretical overhead; requires a runtime that implements F2018 event semantics |
-| `auto` | -- | Benchmarks the modes above that the build supports and binds the fastest | Only takes effect when the comm. backend is autotuned as well; see below |
+| `auto` | -- | Benchmarks the modes above that the build supports and binds the fastest | Only takes effect when the comm. backend is autotuned as well, with `CAF` among the candidates (`NEKO_GS_TUNE=+CAF`); see below |
 
 The signaling mode is bound on the first gs initialisation and cannot
 be changed thereafter. If the chosen mode requires a feature
@@ -430,9 +467,11 @@ events), Neko aborts with a clear error.
 
 With `NEKO_GS_CAF_SIGNALING=auto` the mode is chosen by measurement
 instead, as part of the host backend autotuning described in
-@ref performance-gs-autotuning. When that tuning reaches the `CAF`
-candidate, it times each available mode on a freshly built backend --
-the mode determines what per-instance state `gs_caf_init` sets up, so
+@ref performance-gs-autotuning -- which needs `CAF` among the tuning
+candidates (`NEKO_GS_TUNE=+CAF`), as it is not one by default. When
+that tuning reaches the `CAF` candidate, it times each available mode
+on a freshly built backend -- the mode determines what per-instance
+state `gs_caf_init` sets up, so
 switching modes means rebuilding -- and the fastest one becomes the
 `CAF` entry in the backend comparison:
 
@@ -455,8 +494,10 @@ same module-level mode -- so it is benchmarked only on the *first*
 later would swap the protocol under instances that are already live,
 and in `atomic` mode desynchronise the round counters they share.
 `auto` therefore has no effect when the comm. backend itself is not
-autotuned (`NEKO_GS_COMM=CAF`, or a `comm_bcknd` argument); the mode
-falls back to `sync` in that case.
+autotuned (`NEKO_GS_COMM=CAF`, or a `comm_bcknd` argument), nor when
+the autotuning runs without `CAF` among its candidates
+(`NEKO_GS_TUNE` without `CAF`); the mode falls back to `sync` in those
+cases.
 
 @warning A signaling mode that the runtime does not really implement
 fails by hanging, not by aborting, and the benchmark has no timeout.
