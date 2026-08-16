@@ -131,6 +131,10 @@ module gather_scatter
   public :: GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, GS_COMM_NVSHMEM, &
        GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_NEIGHBOUR, GS_COMM_UTOFU
 
+  ! These routines (used by the gs_tune submodule) have to be public
+  ! since gfortran gives a private module procedure internal linkage
+  public :: gs_comm_t, gs_comm_alloc, gs_comm_name
+
   !> Number of timed (and untimed, warm-up) gather-scatter operations per
   !! candidate in the runtime autotuning of comm. backends and device
   !! synchronisation strategies
