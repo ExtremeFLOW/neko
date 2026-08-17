@@ -194,32 +194,15 @@ contains
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
 
-    if (NEKO_BCKND_DEVICE .eq. 1) write(*, '(A)') &
-         'bc_projector trace: initialise fixture'
     call init_single_face_case(mesh, Xh, dof, gs, coef)
-    if (NEKO_BCKND_DEVICE .eq. 1) write(*, '(A)') &
-         'bc_projector trace: finalise boundary condition'
     call init_dirichlet_face(bc, coef, 1)
-    if (NEKO_BCKND_DEVICE .eq. 1) write(*, '(A)') &
-         'bc_projector trace: initialise projector'
     call projector%init(coef)
-    if (NEKO_BCKND_DEVICE .eq. 1) write(*, '(A)') &
-         'bc_projector trace: access component projectors'
     call vector_bc_projector_components(projector, rx, ry, rz)
 
     @assertTrue(associated(rx))
     @assertTrue(associated(ry))
     @assertTrue(associated(rz))
 
-    ! The projector is accessed through component pointers below. Reset the
-    ! component-local masks explicitly so this test does not rely on nested
-    ! derived-type default initialization of their device pointers.
-    call rx%free()
-    call ry%free()
-    call rz%free()
-
-    if (NEKO_BCKND_DEVICE .eq. 1) write(*, '(A)') &
-         'bc_projector trace: mark x component'
     call rx%mark(bc)
 
     dof_size = dof%size()
@@ -228,8 +211,6 @@ contains
     y = 2.0_rp
     z = 3.0_rp
 
-    if (NEKO_BCKND_DEVICE .eq. 1) write(*, '(A)') &
-         'bc_projector trace: map vector inputs'
     call map_vectors(x, y, z)
     call projector%apply(x, y, z, dof_size)
     call unmap_vectors(x, y, z)
@@ -293,20 +274,15 @@ contains
 
   subroutine map_vectors(x, y, z)
     real(kind=rp), intent(inout), target :: x(:), y(:), z(:)
-    type(c_ptr) :: x_d = c_null_ptr
-    type(c_ptr) :: y_d = c_null_ptr
-    type(c_ptr) :: z_d = c_null_ptr
+    type(c_ptr) :: x_d, y_d, z_d
 
     if (NEKO_BCKND_DEVICE .ne. 1) return
 
-    if (NEKO_BCKND_DEVICE .eq. 1) write(*, '(A)') &
-         'bc_projector trace: map x'
+    x_d = c_null_ptr
+    y_d = c_null_ptr
+    z_d = c_null_ptr
     call device_map(x, x_d, size(x))
-    if (NEKO_BCKND_DEVICE .eq. 1) write(*, '(A)') &
-         'bc_projector trace: map y'
     call device_map(y, y_d, size(y))
-    if (NEKO_BCKND_DEVICE .eq. 1) write(*, '(A)') &
-         'bc_projector trace: map z'
     call device_map(z, z_d, size(z))
     call device_memcpy(x, x_d, size(x), HOST_TO_DEVICE, sync = .true.)
     call device_memcpy(y, y_d, size(y), HOST_TO_DEVICE, sync = .true.)

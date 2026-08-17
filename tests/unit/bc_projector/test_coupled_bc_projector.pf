@@ -923,12 +923,13 @@ contains
 
   subroutine map_vectors(x, y, z)
     real(kind=rp), intent(inout), target :: x(:), y(:), z(:)
-    type(c_ptr) :: x_d = c_null_ptr
-    type(c_ptr) :: y_d = c_null_ptr
-    type(c_ptr) :: z_d = c_null_ptr
+    type(c_ptr) :: x_d, y_d, z_d
 
     if (NEKO_BCKND_DEVICE .ne. 1) return
 
+    x_d = c_null_ptr
+    y_d = c_null_ptr
+    z_d = c_null_ptr
     call device_map(x, x_d, size(x))
     call device_map(y, y_d, size(y))
     call device_map(z, z_d, size(z))
