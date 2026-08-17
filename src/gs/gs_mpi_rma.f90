@@ -70,7 +70,7 @@ module gs_mpi_rma
 
   !> Gather-scatter communication using MPI one-sided puts into a passive
   !! target window, with per-rank signalling for completion.
-   type, public, extends(gs_comm_t) :: gs_mpi_rma_t
+  type, public, extends(gs_comm_t) :: gs_mpi_rma_t
      !> Origin buffer for the puts. Plain local memory, no window needed.
      real(kind=rp), allocatable :: send_buf(:)
      !> Number of dofs to send to each peer, in send_pe order
@@ -366,7 +366,7 @@ contains
     !$omp end master
 
     ! Pack and put one peer at a time.
-     do i = 1, size(this%send_pe)
+    do i = 1, size(this%send_pe)
        dst = this%send_pe(i)
        base = this%send_offset(i)
        ndst = this%send_ndofs(i)
