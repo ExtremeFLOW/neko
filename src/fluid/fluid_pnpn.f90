@@ -865,16 +865,21 @@ contains
             call ortho(p_res%x, this%glb_n_points, n)
          end if
 
-         call gs_Xh%op(p_res, GS_OP_ADD, event)
-         call device_event_sync(event)
+         ! For nonconforming interfaces changed order of gs and bc operations
+         ! due to interpolation operator, that for nonconforming interface
+         ! normal to pressure bc could pollute domain interior with noise
+         ! values from the boundary.
 
          ! Set the residual to zero at strong pressure boundaries.
          call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
 
+         call gs_Xh%op(p_res, GS_OP_ADD, event)
+         call device_event_sync(event)
+
          call profiler_end_region('Pressure_residual', 18)
 
-         call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-              Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
+         call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, &
+              dt_controller, Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
               string = 'Pressure')
 
          call this%pc_prs%update()
@@ -1508,8 +1513,6 @@ contains
 
     ! Reconstruct checkpoint
     ! LEFT FOR FUTURE !!!!!!!
-
-!    call this%write_boundary_conditions()
 
     ! Add new mass matrix to the fields that require it. Removing it was
     ! important to properly interpolate them
