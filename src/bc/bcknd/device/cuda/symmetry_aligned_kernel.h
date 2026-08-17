@@ -67,7 +67,6 @@ __global__ void symmetry_aligned_apply_vector_kernel(
     const int k = (zmsk[i+1] - 1);
     z[k] = 0.0;
   }
-  
 }
 
 #endif // __BC_SYMMETRY_ALIGNED_KERNEL__

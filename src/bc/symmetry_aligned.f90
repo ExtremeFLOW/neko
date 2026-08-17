@@ -182,9 +182,9 @@ contains
             end do
          end do
       end select
-      sx = sx / (c%Xh%lx - 2)**2
-      sy = sy / (c%Xh%lx - 2)**2
-      sz = sz / (c%Xh%lx - 2)**2
+      sx = sx / (c%Xh%lx - 2.0_rp)**2.0_rp
+      sy = sy / (c%Xh%lx - 2.0_rp)**2.0_rp
+      sz = sz / (c%Xh%lx - 2.0_rp)**2.0_rp
     end associate
   end subroutine symmetry_aligned_get_normal_axis
 
