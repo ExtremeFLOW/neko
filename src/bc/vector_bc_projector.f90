@@ -321,11 +321,14 @@ contains
     call this%z%free()
   end subroutine segregated_vector_bc_projector_free
 
-  !> Constructor, no-op.
+  !> Constructor.
   !! @param[in] coef SEM coefficients defining the dof layout.
   subroutine segregated_vector_bc_projector_init(this, coef)
     class(segregated_vector_bc_projector_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
+
+    ! Just ensure we get a fresh object
+    call this%free()
   end subroutine segregated_vector_bc_projector_init
 
   !> Finalize the segregated vector boundary-condition projector.
