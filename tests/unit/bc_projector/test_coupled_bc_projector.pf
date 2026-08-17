@@ -3,7 +3,9 @@ module test_coupled_bc_projector
   use pfunit
   use num_types, only : rp
   use comm, only : NEKO_COMM, pe_rank, pe_size
-  use device, only : device_init, device_finalize
+  use device, only : device_init, device_finalize, device_map, device_unmap, &
+       device_get_ptr, device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
+  use, intrinsic :: iso_c_binding, only : c_ptr
   use neko_config, only : NEKO_BCKND_DEVICE
   use neko_mpi_types, only : neko_mpi_types_init
   use mesh_fixture, only : single_reference_element_mesh, &
@@ -365,7 +367,9 @@ contains
     y = 5.0_rp
     z = 6.0_rp
 
+    call map_vectors(x, y, z)
     call bc_projector%apply(x, y, z, dof_size)
+    call unmap_vectors(x, y, z)
 
     ! Face 1 has normal (-1, 0, 0), so a symmetry condition kills only x.
     @assertEqual(0.0_rp, x(face_center), tolerance=test_tol)
@@ -451,7 +455,9 @@ contains
     y = 5.0_rp
     z = 6.0_rp
 
+    call map_vectors(x, y, z)
     call bc_projector%apply(x, y, z, dof_size)
+    call unmap_vectors(x, y, z)
 
     normal_component = x(top_center) * &
          bc_projector%n%x(1, projector_idx) + y(top_center) * &
@@ -513,7 +519,9 @@ contains
     y = 5.0_rp
     z = 6.0_rp
 
+    call map_vectors(x, y, z)
     call bc_projector%apply(x, y, z, dof_size)
+    call unmap_vectors(x, y, z)
 
     ! Face 1 has normal (-1, 0, 0), so only the x/normal component remains.
     @assertEqual(4.0_rp, x(face_center), tolerance=test_tol)
@@ -912,5 +920,36 @@ contains
     @assertEqual(a(2), b(2), tolerance=test_tol)
     @assertEqual(a(3), b(3), tolerance=test_tol)
   end subroutine assert_basis_equal
+
+  subroutine map_vectors(x, y, z)
+    real(kind=rp), intent(inout), target :: x(:), y(:), z(:)
+    type(c_ptr) :: x_d, y_d, z_d
+
+    if (NEKO_BCKND_DEVICE .ne. 1) return
+
+    call device_map(x, x_d, size(x))
+    call device_map(y, y_d, size(y))
+    call device_map(z, z_d, size(z))
+    call device_memcpy(x, x_d, size(x), HOST_TO_DEVICE, sync = .true.)
+    call device_memcpy(y, y_d, size(y), HOST_TO_DEVICE, sync = .true.)
+    call device_memcpy(z, z_d, size(z), HOST_TO_DEVICE, sync = .true.)
+  end subroutine map_vectors
+
+  subroutine unmap_vectors(x, y, z)
+    real(kind=rp), intent(inout), target :: x(:), y(:), z(:)
+    type(c_ptr) :: x_d, y_d, z_d
+
+    if (NEKO_BCKND_DEVICE .ne. 1) return
+
+    x_d = device_get_ptr(x)
+    y_d = device_get_ptr(y)
+    z_d = device_get_ptr(z)
+    call device_memcpy(x, x_d, size(x), DEVICE_TO_HOST, sync = .true.)
+    call device_memcpy(y, y_d, size(y), DEVICE_TO_HOST, sync = .true.)
+    call device_memcpy(z, z_d, size(z), DEVICE_TO_HOST, sync = .true.)
+    call device_unmap(x, x_d)
+    call device_unmap(y, y_d)
+    call device_unmap(z, z_d)
+  end subroutine unmap_vectors
 
 end module test_coupled_bc_projector

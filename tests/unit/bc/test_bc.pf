@@ -47,6 +47,10 @@ contains
     class(bc_test_case), intent(inout) :: this
     integer :: ierr
 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+
 !   @assertTrue(associated(b%dof))
 !   @assertTrue(associated(b%msh))
 !   @assertTrue(associated(b%Xh))
