@@ -93,7 +93,7 @@ module bc
      !> Device pointer for facet
      type(c_ptr) :: facet_d = C_NULL_PTR
      !> Type of the boundary condition, from the `BC_*` constants.
-     integer :: bc_type
+     integer :: bc_type = -1
      !> Indicates wether the bc has been updated, for those BCs that need
      !! additional computations
      logical :: updated = .false.
