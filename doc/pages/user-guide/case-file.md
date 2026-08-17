@@ -1930,6 +1930,23 @@ For `phmg`, the following keywords are used:
 | `coarse_grid.iterations`   | Number of linear solver iterations for coarse grid solver               | An integer                    | 1             |
 | `coarse_grid.cheby_degree` | Degree of the Chebyshev based AMG smoother                              | An integer                    | 4             |
 
+#### Updating phmg when the mesh changes
+The coarse levels of `phmg` are built once, and are otherwise left at the geometry they were built from. If the mesh changes during the simulation, they can be updated with an `update` block under `preconditioner`.
+
+| Name                             | Description                                                     | Admissible values                 | Default value |
+| -------------------------------- | --------------------------------------------------------------- | --------------------------------- | ------------- |
+| `update.enabled`                 | Update the coarse levels when the mesh changes                 | `true` or `false`                 | `false`       |
+| `update.eigs.enabled`            | Re-estimate the Chebyshev eigenvalues on an update              | `true` or `false`                 | `true`        |
+| `update.eigs.frequency`          | Re-estimate the eigenvalues every N-th update                   | An integer                        | 20             |
+| `update.eigs.warm_start`         | Start the estimation from the previous eigenvector              | `true` or `false`                 | `true`        |
+| `update.eigs.warm_start_iterations` | Power iterations used for a warm started estimation          | An integer                        | 20            |
+
+The geometry and the smoother are updated on every mesh change. The `eigs` keywords only control the eigenvalue re-estimation, which is the expensive part.
+
+The smoother accelerator is only rebuilt for `smoother_cheby_acc` set to `jacobi`, where the Jacobi diagonal is recomputed from the new geometry. With `schwarz` the local solves are left at the initial geometry. The coarse geometry and the eigenvalues are updated either way.
+
+The PHMG update (as for now) also assumes that the mesh connectivity does not change.
+
 
 ### Flow rate forcing
 The optional `flow_rate_force` object can be used to force a particular flow
