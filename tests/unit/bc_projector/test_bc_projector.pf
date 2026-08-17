@@ -5,7 +5,7 @@ module test_bc_projector
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use device, only : device_init, device_finalize, device_map, device_unmap, &
        device_get_ptr, device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
-  use, intrinsic :: iso_c_binding, only : c_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   use neko_config, only : NEKO_BCKND_DEVICE
   use neko_mpi_types, only : neko_mpi_types_init
   use mesh_fixture, only : single_reference_element_mesh
@@ -274,7 +274,9 @@ contains
 
   subroutine map_vectors(x, y, z)
     real(kind=rp), intent(inout), target :: x(:), y(:), z(:)
-    type(c_ptr) :: x_d, y_d, z_d
+    type(c_ptr) :: x_d = c_null_ptr
+    type(c_ptr) :: y_d = c_null_ptr
+    type(c_ptr) :: z_d = c_null_ptr
 
     if (NEKO_BCKND_DEVICE .ne. 1) return
 
