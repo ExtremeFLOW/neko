@@ -175,14 +175,17 @@ noisier measurements. Defaults to
 .B NEKO_GS_COMM
 Selects the communication backend used by the gather\-scatter kernel.
 Accepted values are
-.BR MPI ", " MPIGPU ", " NCCL ", " SHMEM ", " CAF ", " UTOFU " and " NEIGHBOUR ,
+.BR MPI ", " MPIGPU ", " NCCL ", " SHMEM ", " CAF ", " UTOFU ", " NEIGHBOUR " and " MPIRMA ,
 where
 .B UTOFU
-is native one\-sided communication over the Tofu interconnect and
+is native one\-sided communication over the Tofu interconnect,
 .B NEIGHBOUR
 is host MPI using an
 .B MPI_Ineighbor_alltoallv
-neighbourhood collective. When unset, a device\-aware variant is used
+neighbourhood collective and
+.B MPIRMA
+is host MPI one\-sided communication into a passive\-target window.
+When unset, a device\-aware variant is used
 on accelerator builds; otherwise the host backends selected by
 .B NEKO_GS_TUNE
 are benchmarked at startup and the fastest one is used.
@@ -208,6 +211,16 @@ which has to be asked for with
 .B NEKO_GS_TUNE=+CAF
 since a compiler may accept coarrays at configure time and still give each
 process a single image, which the coarray backend cannot communicate over.
+.B MPIRMA
+is benchmarked by default, but assumes the MPI implementation makes
+one\-sided progress without the target entering MPI, which holds for
+hardware\-driven components (Open MPI
+.BR osc/rdma ", " osc/ucx ,
+Cray MPICH over libfabric) but not for
+.BR osc/pt2pt ;
+skip it with
+.B NEKO_GS_TUNE=\-MPIRMA
+where it is known to be slow.
 A list leaving a single candidate pins that backend without benchmarking.
 Selecting a backend outright with
 .B NEKO_GS_COMM
@@ -268,6 +281,21 @@ When set to
 .BR 0 ,
 disables the uTofu backend's fused vector (multi\-component) exchange;
 multi\-component gather\-scatter falls back to independent scalar rounds.
+.TP
+.B NEKO_GS_RMA_FLUSH_ALL
+When set to
+.BR 0 ,
+the MPI one\-sided gather\-scatter backend
+.RB ( NEKO_GS_COMM=MPIRMA )
+completes each peer's put with its own
+.B MPI_Win_flush
+instead of a single
+.B MPI_Win_flush_all
+for all of them (an A/B reference). Per\-peer flushing announces each
+receiver as soon as its own put lands, at the cost of one flush call per
+peer; it measured slower on Cray MPICH over Slingshot, hence the batched
+default, but the balance depends on how cheaply the implementation scopes
+a flush to one target.
 .TP
 .B NEKO_GLOBAL_INTERP_EL_FINDER
 Selects the element search algorithm used by the global interpolation

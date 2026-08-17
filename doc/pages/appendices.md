@@ -28,6 +28,7 @@ of the code. But can be useful for users and developers alike.
 | `NEKO_GS_COMM`           | Gather-scatter communication backend                                  | Unset         |
 | `NEKO_GS_TUNE`           | Comm. backends the gather-scatter autotuning benchmarks (list)        | Unset (all but `CAF`) |
 | `NEKO_GS_CAF_SIGNALING`  | Coarray Fortran gather-scatter signaling mode                         | Unset         |
+| `NEKO_GS_RMA_FLUSH_ALL`  | Batch the MPI RMA gather-scatter payload flush (boolean)              | 1             |
 | `NEKO_COMM_ID`           | Communicator id for this process (non-negative integer)               | 0             |
 | `NEKO_HIP_ZEROCOPY`      | Zero-copy host/device mapping on unified memory (HIP), 1 enables      | 0             |
 | `NEKO_METAL_ZEROCOPY`    | Zero-copy host/device mapping on unified memory (Metal), 0 disables   | 1             |
@@ -101,6 +102,12 @@ A number of gather-scatter backends are supported.
   neighbourhood collective (`NEIGHBOR` is also accepted; MPI-3, host only)
 - `NEKO_GS_COMM=UTOFU`  : Native Tofu interconnect (uTofu) one-sided RDMA
   (Fugaku and other Tofu-D systems; requires building with `--with-utofu`)
+- `NEKO_GS_COMM=MPIRMA` : Host MPI one-sided puts into a passive-target
+  window (`RMA` is also accepted; MPI-3, host only). Assumes an MPI whose
+  RMA progresses without the target entering MPI, as the hardware-driven
+  one-sided components do (Open MPI `osc/rdma` and `osc/ucx`, Cray MPICH
+  over libfabric); `NEKO_GS_TUNE=-MPIRMA` drops it from the autotuning on
+  systems where that does not hold
 
 When `NEKO_GS_COMM` is unset and the build has no device-aware MPI,
 the host backends are benchmarked at initialisation and the fastest
@@ -124,6 +131,27 @@ Backends that are selected but cannot run in this build or run are
 dropped; those named explicitly are reported in the log as
 `unavailable`. Set `NEKO_GS_COMM` to skip the benchmark and pin a
 backend outright; that path ignores `NEKO_GS_TUNE`.
+
+### MPI RMA backend details
+
+`NEKO_GS_RMA_FLUSH_ALL` selects how the MPI one-sided backend
+(`NEKO_GS_COMM=MPIRMA`) forces remote completion of the payload puts
+before announcing them. MPI has no put-with-notify, so the data and the
+signal are separate, unordered operations and the data must be flushed
+in between.
+
+- Unset or non-zero (the default): one `MPI_Win_flush_all` completes
+  every put, then all the signals are issued.
+- `NEKO_GS_RMA_FLUSH_ALL=0`: each peer gets its own `MPI_Win_flush` and
+  is announced as soon as its put lands, which releases early receivers
+  sooner but costs one flush call per peer.
+
+The per-peer form is the better structure wherever a flush really is
+scoped cheaply to the named target. On Cray MPICH over Slingshot it was
+not -- the extra calls outweighed the pipelining they recovered -- so
+the batched form is the default. It is worth re-measuring on an
+unfamiliar MPI; the setting is read once, at the first gather-scatter
+initialisation, so a run uses one strategy throughout.
 
 ### MPI thread level details
 
