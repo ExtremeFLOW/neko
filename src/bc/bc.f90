@@ -451,6 +451,10 @@ contains
     integer :: i, j, k, l, msk_c
     integer :: lx, ly, lz, n
     character(len=LOG_SIZE) :: log_buf
+    ! threshold to identify boundary points; should be rather low due to
+    ! interpolation used at nonconforming interfaces; this value can restrict
+    ! max polynomial order of the run
+    real(rp), parameter :: thrshld = 0.1
     lx = this%Xh%lx
     ly = this%Xh%ly
     lz = this%Xh%lz
@@ -565,7 +569,7 @@ contains
        end if
        msk_c = 0
        do i = 1, this%dof%size()
-          if (test_field%x(i,1,1,1) .lt. 0.25) then
+          if (test_field%x(i,1,1,1) .lt. thrshld) then
              msk_c = msk_c + 1
           end if
        end do
@@ -574,7 +578,7 @@ contains
        allocate(this%msk(0:msk_c))
        j = 1
        do i = 1, this%dof%size()
-          if (test_field%x(i,1,1,1) .lt. 0.25) then
+          if (test_field%x(i,1,1,1) .lt. thrshld) then
              this%msk(j) = i
              j = j + 1
           end if
