@@ -103,6 +103,94 @@ associated tolerance criteria. The best combination is very case
 dependent, thus it is best to experiment with the various types
 provided (see #case-file).
 
+### SEM operator auto-tuning {#performance-operator-autotuning}
+
+On the CUDA and HIP backends the spectral element operators --- the
+Helmholtz operator `Ax`, and `opgrad`, `dudxyz`, `cdtp`, `conv1`,
+`convect_scalar` and `lambda2` --- each ship two kernel formulations,
+and the best one depends on the polynomial order, the element count and
+the hardware. Rather than fix a choice at build time, Neko benchmarks
+them on the first call of each operator, using the real element count of
+the running case, and caches the winner for the rest of the run.
+
+The two formulations are:
+
+- the **1d** variant, which stages a whole element in shared memory and
+  walks it with a flat thread block; and
+- the **kstep** variant, which assigns one `(lx, lx)` thread plane per
+  element and marches it in the third direction, holding the column in
+  registers.
+
+Within each formulation the tuner also sweeps a geometry parameter. For
+the kstep kernels this is the number of *elements per thread block*: a
+single element is only half a warp at `lx = 4` and two warps at `lx = 8`,
+so stacking several of them widens the block and lets the element
+independent derivative matrices be loaded once per block instead of once
+per element. For the 1d kernels it is the *chunk size*, which is both
+the thread block size and the stride over the `lx^3` points of an
+element; the historical value of 1024 leaves most of the block idle at
+low order, where only 64 of 1024 threads have work to do at `lx = 4`.
+Four sizes are measured (1024, 512, 256, 128), with any that would be
+smaller than one derivative matrix falling back to 1024.
+
+The tuner reports every candidate it measured, so the margins are
+visible rather than implied:
+
+```
+---Autotune opgrad (lx: 4)----
+  1D    ch=1024:     61.53 us/call
+  1D    ch=512 :     32.10 us/call
+  1D    ch=256 :     24.80 us/call
+  1D    ch=128 :     21.40 us/call
+  KSTEP eb=1   :     18.29 us/call
+  KSTEP eb=2   :     15.40 us/call
+  KSTEP eb=4   :     15.65 us/call
+  Chose        : 2 (KSTEP, 2 elem/block)
+```
+
+The chosen line reports only the geometry that applies to the winning
+formulation: an elements-per-block count when kstep wins, a chunk size
+when the 1d variant does.
+
+@note The chunk sweep measures all four sizes rather than predicting a
+best one. Thread utilisation alone suggests the smallest valid block,
+but that is only right at the lowest orders: once the shared memory
+footprint --- which grows as `lx^3` --- caps how many blocks fit on a
+multiprocessor, a smaller block wastes thread slots instead of filling
+them. Where the crossover falls depends on the shared memory per
+multiprocessor, which differs across NVIDIA generations and again on
+CDNA, so it is measured rather than assumed.
+
+Sampling interleaves the variants over several rounds and keeps the best
+round for each, rather than timing them one after another in a fixed
+order --- on a machine whose clocks move during the sweep, a fixed order
+biases the comparison by candidate position, which no amount of extra
+iterations removes.
+
+@note The measured ranking differs sharply between vendors. On an
+NVIDIA GH200 the kstep variant wins and benefits from element blocking,
+whereas on AMD MI250X and MI300A the blocked kernels overrun the
+register budget and spill to scratch, so the elements per block sweep is
+**disabled by default on HIP** and enabled on CUDA. The defaults reflect
+measurements on those parts; on a machine that behaves differently,
+`NEKO_EB_TUNE` overrides the choice either way.
+
+The tuning behaviour is controlled by the environment variables
+described in the @ref appendices_env-var reference: `NEKO_AUTOTUNE`
+pins a formulation and skips the search entirely, `NEKO_EB_TUNE`
+enables or disables the elements per block sweep, `NEKO_EB` and
+`NEKO_CHUNKS` force a particular geometry when a formulation is
+pinned, and
+`NEKO_TUNE_ROUNDS` / `NEKO_TUNE_ITERS` control the sampling of both
+sweeps. All
+of them are useful mainly for A/B testing; the defaults are intended to
+be right without intervention.
+
+@note The search runs once per operator and polynomial order, at the
+first call, and costs a few hundred kernel launches. On a case with a
+very large element count this is visible in the startup time; reducing
+`NEKO_TUNE_ITERS` shortens it, at the cost of noisier measurements.
+
 ## Running a simulation
 
 When running a simulation, the only parameter a user has some control
@@ -143,7 +231,9 @@ depends on the host/accelerator combination and the interconnect.
 The active backend can be selected at runtime via the `NEKO_GS_COMM`
 environment variable. If the variable is unset, a sensible default is
 chosen based on the build configuration (device-aware MPI when device
-MPI is available, host MPI otherwise). The supported values are:
+MPI is available, and otherwise the fastest of the host backends the
+build supports, picked by the autotuner described in
+@ref performance-gs-autotuning). The supported values are:
 
 | `NEKO_GS_COMM` | Backend | Requirement | Typical use |
 |---|---|---|---|
@@ -166,6 +256,107 @@ The backend can also be selected programmatically by passing the
 `GS_COMM_OPENSHMEM`, `GS_COMM_CAF`, `GS_COMM_NEIGHBOUR` or `GS_COMM_UTOFU`
 exposed by the `gather_scatter` module. The environment variable wins when
 both are present.
+
+#### Runtime autotuning of the host backend {#performance-gs-autotuning}
+
+Which host backend wins depends on the MPI implementation, the
+interconnect and the halo of the particular decomposition, so the
+choice is made by measurement rather than by a built-in rule. When
+`NEKO_GS_COMM` is unset, no `comm_bcknd` argument is passed to
+`gs%init` and the run has more than one rank, each `gs_t` instance
+benchmarks the available host backends at initialisation and keeps the
+fastest one. This mirrors the autotuning of the device MPI
+synchronisation strategy (`NEKO_GS_STRTGY`) already done on
+accelerator builds.
+
+By default the candidates are every host backend the build supports
+except `CAF`: `MPI` and `NEIGHBOUR`, which need nothing but MPI-3, plus
+`SHMEM` (OpenSHMEM) and `UTOFU` when the corresponding support was
+built in -- a backend whose support is missing aborts in its `init`,
+so it is left out of the list rather than tried. `SHMEM` and `CAF` are
+additionally skipped when `NEKO_COMM` does not span every process
+(`NEKO_COMM_ID`), since they address their peers by global PE / image
+number; `UTOFU` exchanges its addresses over `NEKO_COMM` itself and is
+kept in that case.
+
+##### Choosing the candidates
+
+`NEKO_GS_TUNE` overrides that set. It takes a list of backend names,
+spelled as for `NEKO_GS_COMM`, separated by commas or spaces and
+matched case insensitively:
+
+| `NEKO_GS_TUNE` | Candidates |
+|---|---|
+| unset | every supported host backend but `CAF` |
+| `+CAF` | the default set, plus the coarray backend |
+| `-SHMEM` | the default set, without OpenSHMEM |
+| `+CAF,-SHMEM` | both deltas applied to the default set |
+| `MPI,NEIGHBOUR` | exactly those two, whatever the build supports |
+| `UTOFU` | uTofu alone -- nothing to compare, so it is simply used |
+
+Names prefixed with `+`/`-` modify the default set, plain names
+replace it, and mixing the two forms is an error, as is naming
+something that is not a host gather-scatter backend. Backends selected
+but unusable in this build or run are dropped from the comparison; a
+backend that was named explicitly says so in the log:
+
+```
+ CAF          : unavailable
+```
+
+`CAF` is out of the default set because coarray support at configure
+time says nothing about the job running more than one image: a
+compiler may accept the syntax and still build every process as a
+single-image program (gfortran's `-fcoarray=single`, or a coarray
+runtime that was never linked in), where the backend has no peers to
+put to. The case Neko can detect, `num_images() /= pe_size`, makes
+`CAF` unusable no matter how it was asked for, and requesting the
+backend outright with `NEKO_GS_COMM=CAF` then fails with an error
+rather than exchanging nothing. When `CAF` is benchmarked, it runs in
+the single signaling mode bound by `NEKO_GS_CAF_SIGNALING` (`sync`
+unless set), unless that variable is set to `auto`, which tunes the
+modes as well -- see @ref performance-caf-backend.
+
+The gs schedule is computed once, by `gs_schedule`, and handed over
+from one candidate backend to the next (`gs_comm_t%take_schedule`), so
+tuning costs one extra backend setup plus a short burst of
+gather-scatter operations (100 timed, 2 untimed, per candidate) on a
+dummy vector, not a second pass over the connectivity. The handover is
+split in two so that the outgoing backend is freed before the incoming
+one is set up: backends holding scarce resources (uTofu VCQs,
+symmetric memory, coarrays) never overlap. `GS_OP_MIN` is used for the
+benchmark so that the working vector is left unchanged no matter how
+many trials are run. The timings are averaged over all ranks with an
+`MPI_Allreduce` before the winner is picked: setting up and driving a
+backend is collective (the neighbourhood backend builds a graph
+communicator, the one-sided backends allocate symmetric memory), so
+every rank must arrive at the same decision. The log reports the
+average time per gather-scatter operation for each candidate and the
+backend that was kept:
+
+```
+ Comm         :         auto
+ ...
+ MPI          :  5.176E-05 s
+ MPI neigh.   :  6.147E-05 s
+ uTofu        :  1.732E-04 s
+ Tuned comm   :          MPI
+```
+
+Tuning is skipped, keeping the host MPI backend, if any rank holds
+zero dofs: such a rank skips the halo exchange entirely, which would
+hang the other ranks in a collective-based backend. It is likewise
+skipped when `NEKO_GS_TUNE` leaves fewer than two candidates, the
+single candidate then simply being switched to. Since each `gs_t`
+instance is tuned separately, a multigrid hierarchy tunes each level
+on its own message sizes. Set `NEKO_GS_COMM` explicitly to pin a
+backend and skip the benchmark, for example when comparing runs where
+the tuning outcome itself should not vary.
+
+@note Benchmarking `CAF` allocates the module-level receive coarray
+shared by all `gs_caf_t` instances. That buffer is grown on demand and
+retained for the lifetime of the program, so the memory stays
+allocated even when the coarray backend loses the benchmark.
 
 #### MPI neighbourhood collective backend {#performance-neighbour-backend}
 
@@ -256,7 +447,7 @@ exchange a neighbour-list scheme would require. Multiple `gs_t`
 objects can coexist provided they are used strictly sequentially --
 no overlapping nbsend / nbwait windows across instances.
 
-#### Coarray Fortran backend
+#### Coarray Fortran backend {#performance-caf-backend}
 
 The CAF backend (`NEKO_GS_COMM=CAF`) uses one-sided coarray puts
 directly into a symmetric receive buffer, with a runtime-selectable
@@ -267,11 +458,51 @@ synchronisation strategy controlled by `NEKO_GS_CAF_SIGNALING`:
 | `sync` (default) | F2008 | `sync images` over the union of neighbour pairs, with a double-buffered receive coarray so only one rendezvous is needed per gs op | Most portable; works on every coarray-capable compiler |
 | `atomic` | F2008 | Per-pair atomic counters via `atomic_define`/`atomic_ref` and a busy-wait spin | Avoids the image-set barrier; trade-off depends on the relative cost of pairwise atomics versus `sync images` on the target runtime |
 | `event` | F2018 | F2018 events (`event post`/`event wait`) | Lowest theoretical overhead; requires a runtime that implements F2018 event semantics |
+| `auto` | -- | Benchmarks the modes above that the build supports and binds the fastest | Only takes effect when the comm. backend is autotuned as well, with `CAF` among the candidates (`NEKO_GS_TUNE=+CAF`); see below |
 
 The signaling mode is bound on the first gs initialisation and cannot
 be changed thereafter. If the chosen mode requires a feature
 unavailable in the build (e.g. `event` on a compiler without F2018
 events), Neko aborts with a clear error.
+
+With `NEKO_GS_CAF_SIGNALING=auto` the mode is chosen by measurement
+instead, as part of the host backend autotuning described in
+@ref performance-gs-autotuning -- which needs `CAF` among the tuning
+candidates (`NEKO_GS_TUNE=+CAF`), as it is not one by default. When
+that tuning reaches the `CAF` candidate, it times each available mode
+on a freshly built backend -- the mode determines what per-instance
+state `gs_caf_init` sets up, so
+switching modes means rebuilding -- and the fastest one becomes the
+`CAF` entry in the backend comparison:
+
+```
+ CAF sync     :  9.882E-05 s
+ CAF atomic   :  7.431E-05 s
+ Tuned CAF sig:       atomic
+ MPI          :  5.176E-05 s
+ MPI neigh.   :  6.147E-05 s
+ CAF (atomic) :  7.431E-05 s
+ Tuned comm   :          MPI
+```
+
+The per-mode lines are written while the `CAF` candidate is being
+measured, so they precede the summary of the backend comparison.
+
+The binding is program-wide -- every `gs_caf_t` instance reads the
+same module-level mode -- so it is benchmarked only on the *first*
+`gs_t` that tunes CAF and kept for the rest of the run. Re-binding it
+later would swap the protocol under instances that are already live,
+and in `atomic` mode desynchronise the round counters they share.
+`auto` therefore has no effect when the comm. backend itself is not
+autotuned (`NEKO_GS_COMM=CAF`, or a `comm_bcknd` argument), nor when
+the autotuning runs without `CAF` among its candidates
+(`NEKO_GS_TUNE` without `CAF`); the mode falls back to `sync` in those
+cases.
+
+@warning A signaling mode that the runtime does not really implement
+fails by hanging, not by aborting, and the benchmark has no timeout.
+`auto` is opt-in for that reason: `sync` remains the default, and
+`atomic` / `event` are only exercised when explicitly asked for.
 
 @note The CAF backend allocates a symmetric receive coarray sized to
 the global maximum total receive count (doubled for the buffer

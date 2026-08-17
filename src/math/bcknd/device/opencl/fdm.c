@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
 #include <device/opencl/prgm_lib.h>
@@ -91,5 +92,10 @@ void opencl_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel,
     CASE(13);
     CASE(14);
     CASE(15);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *nl);
+      exit(1);
+    }
   }
 }

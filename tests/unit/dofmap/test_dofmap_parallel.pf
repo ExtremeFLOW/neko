@@ -10,6 +10,8 @@ module test_dofmap_parallel
   use datadist
   use device
   use neko_config
+  use file, only : file_t
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use pfunit_comm_utils, only : comm_init_test, comm_free_test
   implicit none
@@ -26,6 +28,7 @@ contains
   subroutine setUp(this)
     class(test_dofmap), intent(inout) :: this
     call comm_init_test(this%getMpiCommunicator())
+    call neko_mpi_types_init()
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
@@ -36,6 +39,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
+    call neko_mpi_types_free()
     call comm_free_test()
   end subroutine tearDown
 
@@ -562,9 +566,86 @@ contains
 
   end subroutine test_dofmap_face14
 
+  @test(npes=[1])
+  subroutine test_dofmap_2d_curve_extrusion(this)
+    class(test_dofmap), intent(inout) :: this
+    character(len=*), parameter :: fname = &
+         "test_dofmap_2d_curve_extrusion.nmsh"
+    type(dofmap_t) :: d
+    type(file_t) :: mesh_file
+    type(mesh_t) :: m_2d, m_extruded
+    type(point_t) :: p(4)
+    type(space_t) :: Xh
+    real(kind=dp) :: curve_data(5,12)
+    real(kind=rp), parameter :: tol = 100.0_rp * epsilon(1.0_rp)
+    integer :: curve_type(12)
+    integer :: i, j, unit, ierr
 
+    open(newunit = unit, file = fname, status = "old", iostat = ierr)
+    if (ierr .eq. 0) close(unit, status = "delete")
 
+    call p(1)%init(0.0_dp, 0.0_dp, 0.0_dp)
+    call p(1)%set_id(1)
+    call p(2)%init(1.0_dp, 0.0_dp, 0.0_dp)
+    call p(2)%set_id(2)
+    call p(3)%init(0.0_dp, 1.0_dp, 0.0_dp)
+    call p(3)%set_id(4)
+    call p(4)%init(1.0_dp, 1.0_dp, 0.0_dp)
+    call p(4)%set_id(3)
 
+    call m_2d%init(2, 1)
+    call m_2d%add_element(1, 1, p(1), p(2), p(3), p(4))
 
+    curve_data = 0.0_dp
+    curve_type = 0
+
+    ! A mapped lower edge with a midpoint below the straight edge.
+    curve_type(1) = 4
+    curve_data(1:3,1) = [0.5_dp, -0.1_dp, 0.0_dp]
+
+    ! An arc on the adjacent edge.
+    curve_type(2) = 3
+    curve_data(1,2) = 1.0_dp
+
+    call m_2d%mark_curve_element(1, curve_data, curve_type)
+    call m_2d%finalize()
+
+    call mesh_file%init(fname)
+    call mesh_file%write(m_2d)
+    call mesh_file%read(m_extruded)
+
+    @assertEqual(3, m_extruded%gdim)
+    @assertEqual(1, m_extruded%curve%size)
+    @assertEqual(4, m_extruded%curve%curve_el(1)%curve_type(1))
+    @assertEqual(3, m_extruded%curve%curve_el(1)%curve_type(2))
+    @assertEqual(4, m_extruded%curve%curve_el(1)%curve_type(5))
+    @assertEqual(3, m_extruded%curve%curve_el(1)%curve_type(6))
+    @assertEqual(1.0_dp, m_extruded%curve%curve_el(1)%curve_data(3,5), tolerance=1.0e-14_dp)
+    @assertEqual(1.0_dp, m_extruded%curve%curve_el(1)%curve_data(1,6), tolerance=1.0e-14_dp)
+
+    call Xh%init(GLL, 3, 3, 3)
+    call d%init(m_extruded, Xh)
+
+    do j = 1, Xh%ly
+       do i = 1, Xh%lx
+          @assertEqual(d%x(i,j,1,1), d%x(i,j,3,1), tolerance=tol)
+          @assertEqual(d%y(i,j,1,1), d%y(i,j,3,1), tolerance=tol)
+          @assertEqual(0.0_rp, d%z(i,j,1,1), tolerance = tol)
+          @assertEqual(1.0_rp, d%z(i,j,3,1), tolerance = tol)
+       end do
+    end do
+
+    @assertEqual(-0.1_rp, d%y(2,1,1,1), tolerance = tol)
+    @assertTrue(abs(d%x(3,2,1,1) - 1.0_rp) .gt. tol)
+
+    call d%free()
+    call Xh%free()
+    call m_extruded%free()
+    call m_2d%free()
+    call mesh_file%free()
+
+    open(newunit = unit, file = fname, status = "old", iostat = ierr)
+    if (ierr .eq. 0) close(unit, status = "delete")
+  end subroutine test_dofmap_2d_curve_extrusion
 
 end module test_dofmap_parallel
