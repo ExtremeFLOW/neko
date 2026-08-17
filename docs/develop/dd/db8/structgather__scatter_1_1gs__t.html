@@ -206,7 +206,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a2672f383114bc055cc12bfdf68b77274"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather-scatter operation on a 3-component vector (<em>u1</em>, <em>u2</em>, <em>u3</em>) with op <em>op</em>. When the comm backend supports a fused vector halo exchange, the three components are communicated in a single round; otherwise this falls back to three independent scalar gs_op_vector calls (identical result, 3 rounds). The on-node gather/scatter is always done per component (scalar), so only the communication cost is reduced. On device backends the caller's event is recorded once, after the last component's scatter (or superseded by hard synchronisation on host-mirrored comms), so a single event sync covers all components.  <br /></td></tr>
 <tr class="separator:a2672f383114bc055cc12bfdf68b77274"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8f8b2d7e6f5846fa920a879d481527dd" id="r_a8f8b2d7e6f5846fa920a879d481527dd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(gs)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html#a8f8b2d7e6f5846fa920a879d481527dd">init</a> (gs, <a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html#a4b7826a8e75000bf22fb7c41286758ec">dofmap</a>, <a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html#aa2c175586dd0149be7281003bfc09967">bcknd</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">comm_bcknd</a>)</td></tr>
-<tr class="memdesc:a8f8b2d7e6f5846fa920a879d481527dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a gather-scatter kernel.  <br /></td></tr>
+<tr class="memdesc:a8f8b2d7e6f5846fa920a879d481527dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">The runtime autotuning of the comm. backend, implemented in the gs_tune submodule: everything the selection needs (the candidate list, the NEKO_GS_TUNE parsing, switching a live gs over to another backend) is private to it, and only what gs_init drives is declared here.  <br /></td></tr>
 <tr class="separator:a8f8b2d7e6f5846fa920a879d481527dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7e96b76c8e8142ce4b1571966dae41a1" id="r_a7e96b76c8e8142ce4b1571966dae41a1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(gs)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html#a7e96b76c8e8142ce4b1571966dae41a1">free</a> (gs)</td></tr>
 <tr class="memdesc:a7e96b76c8e8142ce4b1571966dae41a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a gather-scatter kernel.  <br /></td></tr>
@@ -308,7 +308,7 @@ Private Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section note"><dt>Note</dt><dd>A <a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html" title="Gather-scatter kernel.">gs_t</a> instance is not re-entrant: each object owns mutable scratch buffers, backend device state and communication state that are reused by every gather-scatter operation. Concurrent calls to <em>op</em> on the same object must be serialised by the caller (or use one object per thread). </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00084">84</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00086">86</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a7e96b76c8e8142ce4b1571966dae41a1" name="a7e96b76c8e8142ce4b1571966dae41a1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7e96b76c8e8142ce4b1571966dae41a1">&#9670;&#160;</a></span>free()</h2>
@@ -326,7 +326,7 @@ Private Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00117">117</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00119">119</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -376,7 +376,7 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00111">111</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -436,7 +436,7 @@ Private Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00114">114</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00116">116</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -492,7 +492,7 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00112">112</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00114">114</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -540,7 +540,7 @@ Private Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00115">115</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -600,7 +600,7 @@ Private Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00115">115</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00117">117</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -641,7 +641,7 @@ Private Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Time <em>ntrials</em> gather-scatter operations on <em>u</em>, returning the average wall time (s) per operation on this rank Benchmark the candidate comm. backends and leave <em>gs</em> holding the fastest one Initialize a gather-scatter kernel </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dofmap,global</td><td>numbering of points and connectivity to base gs on </td></tr>
     <tr><td class="paramname">bcknd,backend</td><td>for executing the <a class="el" href="../../dd/d18/namespacegs__ops.html" title="Defines Gather-scatter operations.">gs_ops</a> </td></tr>
@@ -650,7 +650,7 @@ Private Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00116">116</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00118">118</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -698,7 +698,7 @@ Private Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00118">118</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00120">120</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -746,7 +746,7 @@ Private Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00118">118</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00120">120</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -788,37 +788,33 @@ Private Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00118">118</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00120">120</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/db8/structgather__scatter_1_1gs__t_a4f76ff0582ea573bf30d49a8aa5cd66a_cgraph.png" border="0" usemap="#add/db8/structgather__scatter_1_1gs__t_a4f76ff0582ea573bf30d49a8aa5cd66a_cgraph" alt=""/></div>
 <map name="add/db8/structgather__scatter_1_1gs__t_a4f76ff0582ea573bf30d49a8aa5cd66a_cgraph" id="add/db8/structgather__scatter_1_1gs__t_a4f76ff0582ea573bf30d49a8aa5cd66a_cgraph">
-<area shape="rect" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="5,127,144,167"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="379,127,517,167"/>
-<area shape="poly" title=" " alt="" coords="144,144,365,144,365,149,144,149"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="565,171,704,211"/>
-<area shape="poly" title=" " alt="" coords="96,165,138,202,164,220,193,233,241,246,292,252,343,253,393,249,487,233,565,212,566,217,488,239,394,255,343,258,291,258,240,251,191,239,162,225,134,207,92,169"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ae43657febcc9273f7327ad60e4e381be" title="Gather&#45;scatter operation on a 3&#45;component vector of rank&#45;4 arrays (u1, u2, u3) with op op; see gs_op_..." alt="" coords="192,19,331,59"/>
-<area shape="poly" title=" " alt="" coords="108,124,191,75,211,63,214,68,193,80,111,129"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#aac2a59847cf00bf8f06355ebbda60679" title="Gather&#45;scatter operation on a 3&#45;component vector (u1, u2, u3) with op op. When the comm backend suppo..." alt="" coords="379,63,517,103"/>
-<area shape="poly" title=" " alt="" coords="144,132,365,94,366,99,145,137"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a9add4a7c59c01d0c077e39fcdba63b23" title="Gather&#45;scatter operation on a rank 4 array." alt="" coords="192,184,331,224"/>
-<area shape="poly" title=" " alt="" coords="141,164,183,177,182,182,140,169"/>
-<area shape="poly" title=" " alt="" coords="518,160,552,169,551,174,517,166"/>
-<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="771,79,893,119"/>
-<area shape="poly" title=" " alt="" coords="678,168,775,122,777,127,680,173"/>
-<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="771,161,893,201"/>
-<area shape="poly" title=" " alt="" coords="704,185,756,182,757,188,704,190"/>
-<area shape="poly" title=" " alt="" coords="332,52,366,61,364,66,331,58"/>
-<area shape="poly" title=" " alt="" coords="497,100,519,112,543,131,567,150,585,161,582,166,564,154,540,135,516,117,494,105"/>
-<area shape="poly" title=" " alt="" coords="518,83,757,93,757,98,517,88"/>
-<area shape="poly" title=" " alt="" coords="518,98,758,160,757,165,517,103"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a2895d584c6ac94e9da48452a2e56abd4" title="Device path for the fused 3&#45;component gs. The device backend&#39;s shared gather/scatter always operate o..." alt="" coords="565,5,704,45"/>
-<area shape="poly" title=" " alt="" coords="513,60,555,47,557,52,514,65"/>
-<area shape="rect" href="../../d0/dbe/namespacedevice.html#a00bc2d2b16f268496f2a31bb8cb8017f" title="Record a device event." alt="" coords="752,5,912,45"/>
-<area shape="poly" title=" " alt="" coords="704,23,738,23,738,28,704,28"/>
-<area shape="poly" title=" " alt="" coords="331,199,552,191,552,196,331,204"/>
+<area shape="rect" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="5,197,144,237"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a9b9332334df914926a792ad727274072" title="Allocate a gather&#45;scatter comm. backend of type comm_bcknd." alt="" coords="192,5,331,45"/>
+<area shape="poly" title=" " alt="" coords="84,196,125,129,155,90,190,55,197,50,200,55,194,59,159,93,129,132,89,199"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a2b48358c6972e008ed587c5d301915b2" title="Name of the gather&#45;scatter comm. backend comm_bcknd, right&#45;adjusted for the log." alt="" coords="192,69,331,109"/>
+<area shape="poly" title=" " alt="" coords="95,195,138,158,191,119,200,114,202,118,193,124,141,162,99,199"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="192,133,331,173"/>
+<area shape="poly" title=" " alt="" coords="133,195,189,175,191,180,135,200"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ae43657febcc9273f7327ad60e4e381be" title="Gather&#45;scatter operation on a 3&#45;component vector of rank&#45;4 arrays (u1, u2, u3) with op op; see gs_op_..." alt="" coords="192,197,331,237"/>
+<area shape="poly" title=" " alt="" coords="145,215,178,215,178,220,145,220"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a9add4a7c59c01d0c077e39fcdba63b23" title="Gather&#45;scatter operation on a rank 4 array." alt="" coords="192,261,331,301"/>
+<area shape="poly" title=" " alt="" coords="135,235,191,254,189,259,133,240"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="192,389,331,429"/>
+<area shape="poly" title=" " alt="" coords="89,236,129,303,159,341,194,375,200,380,197,384,190,379,155,345,125,306,84,239"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#aac2a59847cf00bf8f06355ebbda60679" title="Gather&#45;scatter operation on a 3&#45;component vector (u1, u2, u3) with op op. When the comm backend suppo..." alt="" coords="192,325,331,365"/>
+<area shape="poly" title=" " alt="" coords="99,235,141,273,193,311,202,316,200,321,191,316,138,277,95,239"/>
+<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="379,325,501,365"/>
+<area shape="poly" title=" " alt="" coords="317,387,370,367,372,372,319,392"/>
+<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="379,389,501,429"/>
+<area shape="poly" title=" " alt="" coords="331,407,365,407,365,412,331,412"/>
+<area shape="poly" title=" " alt="" coords="331,343,365,343,365,348,331,348"/>
+<area shape="poly" title=" " alt="" coords="319,363,372,382,370,387,317,368"/>
 </map>
 </div>
 
@@ -880,7 +876,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00118">118</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00120">120</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -940,7 +936,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00118">118</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00120">120</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -957,7 +953,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00108">108</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00110">110</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -973,7 +969,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00109">109</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00111">111</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -989,7 +985,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00100">100</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00102">102</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1005,7 +1001,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00090">90</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1021,7 +1017,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00091">91</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1037,7 +1033,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00086">86</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1053,7 +1049,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00106">106</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00108">108</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1069,7 +1065,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1085,7 +1081,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1101,7 +1097,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00102">102</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00104">104</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1117,7 +1113,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00104">104</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00106">106</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1133,7 +1129,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00103">103</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00105">105</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1149,7 +1145,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00105">105</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00107">107</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1165,7 +1161,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00098">98</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00100">100</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1181,7 +1177,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00101">101</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1197,7 +1193,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00098">98</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1213,7 +1209,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00101">101</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00103">103</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1229,7 +1225,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00107">107</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00109">109</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1245,7 +1241,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00090">90</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00092">92</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1261,7 +1257,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00097">97</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1277,7 +1273,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1293,7 +1289,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00095">95</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00097">97</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1306,7 +1302,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d78/namespacegather__scatter.html">gather_scatter</a></li><li class="navelem"><a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a></li>
-    <li class="footer">Generated on Sun Aug 16 2026 03:48:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Aug 17 2026 03:48:28 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

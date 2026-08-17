@@ -1,10 +1,8 @@
 var namespacegather__scatter =
 [
     [ "gs_t", "dd/db8/structgather__scatter_1_1gs__t.html", "dd/db8/structgather__scatter_1_1gs__t" ],
-    [ "gs_comm_alloc", "d0/d78/namespacegather__scatter.html#a6df8dd2596a97fe71873a035887b4973", null ],
-    [ "gs_comm_host_cand", "d0/d78/namespacegather__scatter.html#a76297dc51141ac6b865bdcb1079afff6", null ],
-    [ "gs_comm_name", "d0/d78/namespacegather__scatter.html#ac36def8c4fe6eb32b5d2d9615bb434d7", null ],
-    [ "gs_comm_switch", "d0/d78/namespacegather__scatter.html#a75fae6bb34ed7306b7729b6ee5d76d48", null ],
+    [ "gs_comm_alloc", "d0/d78/namespacegather__scatter.html#a9b9332334df914926a792ad727274072", null ],
+    [ "gs_comm_name", "d0/d78/namespacegather__scatter.html#a2b48358c6972e008ed587c5d301915b2", null ],
     [ "gs_free", "d0/d78/namespacegather__scatter.html#a7b932fc67f24ee664f40c41bc61487c1", null ],
     [ "gs_init", "d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347", null ],
     [ "gs_init_mapping", "d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566", null ],
@@ -16,10 +14,6 @@ var namespacegather__scatter =
     [ "gs_op_vector3", "d0/d78/namespacegather__scatter.html#aac2a59847cf00bf8f06355ebbda60679", null ],
     [ "gs_schedule", "d0/d78/namespacegather__scatter.html#a70b1e5adb11770ec89f7e135bb74c793", null ],
     [ "gs_sort_i8", "d0/d78/namespacegather__scatter.html#abba505ea99ff836fd6ba1e86d237d655", null ],
-    [ "gs_time_ops", "d0/d78/namespacegather__scatter.html#ab9244f3ee9ebb109b6122b733f4e7138", null ],
-    [ "gs_tune_caf_signal", "d0/d78/namespacegather__scatter.html#a5e15921dd90d8a4ab84e42239e2e1624", null ],
-    [ "gs_tune_comm", "d0/d78/namespacegather__scatter.html#aed7bd30ec4e32f304bb3a14709570ef0", null ],
-    [ "caf_signal_tuned", "d0/d78/namespacegather__scatter.html#a7cf1162ea7fc64a2e6b22cf52bea9cc4", null ],
     [ "gs_tune_ntrials", "d0/d78/namespacegather__scatter.html#a524d80241ca9d4e2a4cc2153339c7669", null ],
     [ "gs_tune_nwarmup", "d0/d78/namespacegather__scatter.html#a6a126f789af89fc7aa5fc815afdbd77a", null ]
 ];

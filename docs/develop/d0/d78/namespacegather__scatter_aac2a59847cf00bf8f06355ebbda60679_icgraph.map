@@ -1,8 +1,5 @@
 <map id="gather_scatter::gs_op_vector3" name="gather_scatter::gs_op_vector3">
-<area shape="rect" id="Node000001" title="Gather&#45;scatter operation on a 3&#45;component vector (u1, u2, u3) with op op. When the comm backend suppo..." alt="" coords="379,35,517,75"/>
-<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#ae43657febcc9273f7327ad60e4e381be" title="Gather&#45;scatter operation on a 3&#45;component vector of rank&#45;4 arrays (u1, u2, u3) with op op; see gs_op_..." alt="" coords="192,5,331,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="364,44,331,39,332,34,365,39"/>
-<area shape="rect" id="Node000003" href="$dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="5,35,144,75"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="365,59,331,60,192,60,144,59,144,54,192,55,331,55,365,54"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="178,41,145,46,144,41,178,36"/>
+<area shape="rect" id="Node000001" title="Gather&#45;scatter operation on a 3&#45;component vector (u1, u2, u3) with op op. When the comm backend suppo..." alt="" coords="192,5,331,45"/>
+<area shape="rect" id="Node000002" href="$dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="5,5,144,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,28,145,28,145,23,178,23"/>
 </map>

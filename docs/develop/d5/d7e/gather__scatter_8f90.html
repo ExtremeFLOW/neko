@@ -124,29 +124,14 @@ Modules</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ab47747b3dc7d9b75b840e7c6aafdf347" id="r_ab47747b3dc7d9b75b840e7c6aafdf347"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347">gather_scatter::gs_init</a> (gs, dofmap, bcknd, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">comm_bcknd</a>)</td></tr>
-<tr class="memdesc:ab47747b3dc7d9b75b840e7c6aafdf347"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a gather-scatter kernel.  <br /></td></tr>
+<tr class="memdesc:ab47747b3dc7d9b75b840e7c6aafdf347"><td class="mdescLeft">&#160;</td><td class="mdescRight">The runtime autotuning of the comm. backend, implemented in the gs_tune submodule: everything the selection needs (the candidate list, the NEKO_GS_TUNE parsing, switching a live gs over to another backend) is private to it, and only what gs_init drives is declared here.  <br /></td></tr>
 <tr class="separator:ab47747b3dc7d9b75b840e7c6aafdf347"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6df8dd2596a97fe71873a035887b4973" id="r_a6df8dd2596a97fe71873a035887b4973"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a6df8dd2596a97fe71873a035887b4973">gather_scatter::gs_comm_alloc</a> (comm, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">comm_bcknd</a>)</td></tr>
-<tr class="memdesc:a6df8dd2596a97fe71873a035887b4973"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate a gather-scatter comm. backend of type <em>comm_bcknd</em>.  <br /></td></tr>
-<tr class="separator:a6df8dd2596a97fe71873a035887b4973"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a76297dc51141ac6b865bdcb1079afff6" id="r_a76297dc51141ac6b865bdcb1079afff6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a76297dc51141ac6b865bdcb1079afff6">gather_scatter::gs_comm_host_cand</a> ()</td></tr>
-<tr class="memdesc:a76297dc51141ac6b865bdcb1079afff6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Host comm. backends to consider in the runtime autotuning, in the order they are benchmarked. MPI and the neighbourhood collective need nothing but MPI-3; the remaining ones are only included if the corresponding support was built in, as their init aborts otherwise.  <br /></td></tr>
-<tr class="separator:a76297dc51141ac6b865bdcb1079afff6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac36def8c4fe6eb32b5d2d9615bb434d7" id="r_ac36def8c4fe6eb32b5d2d9615bb434d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=12) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#ac36def8c4fe6eb32b5d2d9615bb434d7">gather_scatter::gs_comm_name</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">comm_bcknd</a>)</td></tr>
-<tr class="memdesc:ac36def8c4fe6eb32b5d2d9615bb434d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name of the gather-scatter comm. backend <em>comm_bcknd</em>, right-adjusted for the log.  <br /></td></tr>
-<tr class="separator:ac36def8c4fe6eb32b5d2d9615bb434d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a75fae6bb34ed7306b7729b6ee5d76d48" id="r_a75fae6bb34ed7306b7729b6ee5d76d48"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a75fae6bb34ed7306b7729b6ee5d76d48">gather_scatter::gs_comm_switch</a> (gs, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">comm_bcknd</a>)</td></tr>
-<tr class="memdesc:a75fae6bb34ed7306b7729b6ee5d76d48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Switch the comm. backend of <em>gs</em> to <em>comm_bcknd</em>, retaining the schedule computed in gs_schedule (the dof lists are moved over to the new backend, not recomputed). The old backend is freed before the new one is set up, so backends holding scarce resources (uTofu VCQs, symmetric memory, coarrays) never overlap.  <br /></td></tr>
-<tr class="separator:a75fae6bb34ed7306b7729b6ee5d76d48"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab9244f3ee9ebb109b6122b733f4e7138" id="r_ab9244f3ee9ebb109b6122b733f4e7138"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#ab9244f3ee9ebb109b6122b733f4e7138">gather_scatter::gs_time_ops</a> (gs, u, n, op, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ntrials</a>)</td></tr>
-<tr class="memdesc:ab9244f3ee9ebb109b6122b733f4e7138"><td class="mdescLeft">&#160;</td><td class="mdescRight">Time <em>ntrials</em> gather-scatter operations on <em>u</em>, returning the average wall time (s) per operation. The backend is warmed up and all ranks are synchronised before the timing window is opened.  <br /></td></tr>
-<tr class="separator:ab9244f3ee9ebb109b6122b733f4e7138"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed7bd30ec4e32f304bb3a14709570ef0" id="r_aed7bd30ec4e32f304bb3a14709570ef0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#aed7bd30ec4e32f304bb3a14709570ef0">gather_scatter::gs_tune_comm</a> (gs, n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">cand</a>)</td></tr>
-<tr class="memdesc:aed7bd30ec4e32f304bb3a14709570ef0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Select the fastest of the comm. backends in <em>cand</em> at runtime.  <br /></td></tr>
-<tr class="separator:aed7bd30ec4e32f304bb3a14709570ef0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5e15921dd90d8a4ab84e42239e2e1624" id="r_a5e15921dd90d8a4ab84e42239e2e1624"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a5e15921dd90d8a4ab84e42239e2e1624">gather_scatter::gs_tune_caf_signal</a> (gs, u, n)</td></tr>
-<tr class="memdesc:a5e15921dd90d8a4ab84e42239e2e1624"><td class="mdescLeft">&#160;</td><td class="mdescRight">Benchmark the coarray signaling modes and bind the fastest one, leaving <em>gs</em> holding a CAF backend that runs in that mode. Returns the winning mode's average time per gather-scatter operation, so the caller can use it as the CAF entry of the comm. backend benchmark.  <br /></td></tr>
-<tr class="separator:a5e15921dd90d8a4ab84e42239e2e1624"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b9332334df914926a792ad727274072" id="r_a9b9332334df914926a792ad727274072"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a9b9332334df914926a792ad727274072">gather_scatter::gs_comm_alloc</a> (comm, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">comm_bcknd</a>)</td></tr>
+<tr class="memdesc:a9b9332334df914926a792ad727274072"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate a gather-scatter comm. backend of type <em>comm_bcknd</em>.  <br /></td></tr>
+<tr class="separator:a9b9332334df914926a792ad727274072"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b48358c6972e008ed587c5d301915b2" id="r_a2b48358c6972e008ed587c5d301915b2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=12) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a2b48358c6972e008ed587c5d301915b2">gather_scatter::gs_comm_name</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">comm_bcknd</a>)</td></tr>
+<tr class="memdesc:a2b48358c6972e008ed587c5d301915b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name of the gather-scatter comm. backend <em>comm_bcknd</em>, right-adjusted for the log.  <br /></td></tr>
+<tr class="separator:a2b48358c6972e008ed587c5d301915b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b932fc67f24ee664f40c41bc61487c1" id="r_a7b932fc67f24ee664f40c41bc61487c1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a7b932fc67f24ee664f40c41bc61487c1">gather_scatter::gs_free</a> (gs)</td></tr>
 <tr class="memdesc:a7b932fc67f24ee664f40c41bc61487c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a gather-scatter kernel.  <br /></td></tr>
 <tr class="separator:a7b932fc67f24ee664f40c41bc61487c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -194,9 +179,6 @@ Variables</h2></td></tr>
 <tr class="separator:a524d80241ca9d4e2a4cc2153339c7669"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a126f789af89fc7aa5fc815afdbd77a" id="r_a6a126f789af89fc7aa5fc815afdbd77a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a6a126f789af89fc7aa5fc815afdbd77a">gather_scatter::gs_tune_nwarmup</a> = 2</td></tr>
 <tr class="separator:a6a126f789af89fc7aa5fc815afdbd77a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7cf1162ea7fc64a2e6b22cf52bea9cc4" id="r_a7cf1162ea7fc64a2e6b22cf52bea9cc4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">save</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a7cf1162ea7fc64a2e6b22cf52bea9cc4">gather_scatter::caf_signal_tuned</a> = .false.</td></tr>
-<tr class="memdesc:a7cf1162ea7fc64a2e6b22cf52bea9cc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the coarray signaling mode has already been selected by the autotuner (NEKO_GS_CAF_SIGNALING=auto). The mode is a program-wide binding shared by every gs_caf_t instance, so it is benchmarked once, on the first <a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html" title="Gather-scatter kernel.">gs_t</a> that tunes the CAF backend, and kept: re-binding it later would change the protocol under instances already running.  <br /></td></tr>
-<tr class="separator:a7cf1162ea7fc64a2e6b22cf52bea9cc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a911f14e18cc5ef3b55e29dbdc6fe5ce2" name="a911f14e18cc5ef3b55e29dbdc6fe5ce2"></a>
@@ -257,17 +239,15 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01656">1656</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01420">1420</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d5/d7e/gather__scatter_8f90_a911f14e18cc5ef3b55e29dbdc6fe5ce2_icgraph.png" border="0" usemap="#ad5/d7e/gather__scatter_8f90_a911f14e18cc5ef3b55e29dbdc6fe5ce2_icgraph" alt=""/></div>
 <map name="ad5/d7e/gather__scatter_8f90_a911f14e18cc5ef3b55e29dbdc6fe5ce2_icgraph" id="ad5/d7e/gather__scatter_8f90_a911f14e18cc5ef3b55e29dbdc6fe5ce2_icgraph">
-<area shape="rect" title="Find blocks sharing dofs in non&#45;facet data." alt="" coords="407,13,509,38"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="220,5,359,45"/>
-<area shape="poly" title=" " alt="" coords="393,28,359,28,359,23,393,23"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
-<area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
+<area shape="rect" title="Find blocks sharing dofs in non&#45;facet data." alt="" coords="192,13,295,38"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="5,5,144,45"/>
+<area shape="poly" title=" " alt="" coords="178,28,144,28,144,23,178,23"/>
 </map>
 </div>
 
@@ -321,17 +301,15 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01599">1599</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01363">1363</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d5/d7e/gather__scatter_8f90_af8cc5f86931d4ca4f75ac2ddc0b311d8_icgraph.png" border="0" usemap="#ad5/d7e/gather__scatter_8f90_af8cc5f86931d4ca4f75ac2ddc0b311d8_icgraph" alt=""/></div>
 <map name="ad5/d7e/gather__scatter_8f90_af8cc5f86931d4ca4f75ac2ddc0b311d8_icgraph" id="ad5/d7e/gather__scatter_8f90_af8cc5f86931d4ca4f75ac2ddc0b311d8_icgraph">
-<area shape="rect" title="Register a unique dof Takes the unique id dof and checks if it is in the htable map_ If it is we retu..." alt="" coords="407,13,567,38"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="220,5,359,45"/>
-<area shape="poly" title=" " alt="" coords="393,28,359,28,359,23,393,23"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
-<area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
+<area shape="rect" title="Register a unique dof Takes the unique id dof and checks if it is in the htable map_ If it is we retu..." alt="" coords="192,13,352,38"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="5,5,144,45"/>
+<area shape="poly" title=" " alt="" coords="178,28,144,28,144,23,178,23"/>
 </map>
 </div>
 
@@ -389,7 +367,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01614">1614</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01378">1378</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -404,12 +382,10 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d5/d7e/gather__scatter_8f90_a762680d00a8b9d4de7498ece71c4092b_icgraph.png" border="0" usemap="#ad5/d7e/gather__scatter_8f90_a762680d00a8b9d4de7498ece71c4092b_icgraph" alt=""/></div>
 <map name="ad5/d7e/gather__scatter_8f90_a762680d00a8b9d4de7498ece71c4092b_icgraph" id="ad5/d7e/gather__scatter_8f90_a762680d00a8b9d4de7498ece71c4092b_icgraph">
-<area shape="rect" title="Sort the dof lists based on the dof to gather&#45;scatter list." alt="" coords="407,29,541,55"/>
-<area shape="poly" title=" " alt="" coords="507,19,497,11,474,8,455,10,444,15,442,20,448,28,443,31,437,21,440,11,453,5,474,3,499,6,510,15"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="220,22,359,62"/>
-<area shape="poly" title=" " alt="" coords="393,45,359,45,359,39,393,39"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,29,172,55"/>
-<area shape="poly" title=" " alt="" coords="206,45,172,45,172,39,206,39"/>
+<area shape="rect" title="Sort the dof lists based on the dof to gather&#45;scatter list." alt="" coords="192,29,327,55"/>
+<area shape="poly" title=" " alt="" coords="292,19,283,11,259,8,240,10,230,15,228,20,233,28,229,31,222,21,226,11,238,5,259,3,285,6,295,15"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="5,22,144,62"/>
+<area shape="poly" title=" " alt="" coords="178,45,144,45,144,39,178,39"/>
 </map>
 </div>
 
@@ -421,7 +397,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_efc6cc943adcbbcf7353b1e68a05f09f.html">gs</a></li><li class="navelem"><a class="el" href="../../d5/d7e/gather__scatter_8f90.html">gather_scatter.f90</a></li>
-    <li class="footer">Generated on Sun Aug 16 2026 03:48:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Aug 17 2026 03:48:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

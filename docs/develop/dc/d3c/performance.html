@@ -111,7 +111,9 @@ $(document).ready(function(){initNavTree('dc/d3c/performance.html','../../'); in
 <li class="level2"><a href="#performance-operator-autotuning">SEM operator auto-tuning</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md176">Running a simulation</a><ul><li class="level2"><a href="#autotoc_md177">Gather-scatter communication backends</a><ul><li class="level3"><a href="#performance-gs-autotuning">Runtime autotuning of the host backend</a></li>
+<li class="level1"><a href="#autotoc_md176">Running a simulation</a><ul><li class="level2"><a href="#autotoc_md177">Gather-scatter communication backends</a><ul><li class="level3"><a href="#performance-gs-autotuning">Runtime autotuning of the host backend</a><ul><li class="level4"><a href="#autotoc_md178">Choosing the candidates</a></li>
+</ul>
+</li>
 <li class="level3"><a href="#performance-neighbour-backend">MPI neighbourhood collective backend</a></li>
 <li class="level3"><a href="#performance-nvshmem-backend">NVSHMEM backend</a></li>
 <li class="level3"><a href="#performance-openshmem-backend">OpenSHMEM backend</a></li>
@@ -207,7 +209,29 @@ Gather-scatter communication backends</h2>
 <h3><a class="anchor" id="performance-gs-autotuning"></a>
 Runtime autotuning of the host backend</h3>
 <p>Which host backend wins depends on the MPI implementation, the interconnect and the halo of the particular decomposition, so the choice is made by measurement rather than by a built-in rule. When <code>NEKO_GS_COMM</code> is unset, no <code>comm_bcknd</code> argument is passed to <code>gsinit</code> and the run has more than one rank, each <code>gs_t</code> instance benchmarks the available host backends at initialisation and keeps the fastest one. This mirrors the autotuning of the device MPI synchronisation strategy (<code>NEKO_GS_STRTGY</code>) already done on accelerator builds.</p>
-<p>The candidates are <code>MPI</code> and <code>NEIGHBOUR</code>, which need nothing but MPI-3 and are therefore always benchmarked, plus <code>SHMEM</code> (OpenSHMEM), <code>CAF</code> and <code>UTOFU</code> when the corresponding support was built in &ndash; a backend whose support is missing aborts in its <code>init</code>, so it is left out of the list rather than tried. <code>SHMEM</code> and <code>CAF</code> are additionally skipped when <code>NEKO_COMM</code> does not span every process (<code>NEKO_COMM_ID</code>), since they address their peers by global PE / image number; <code>UTOFU</code> exchanges its addresses over <code>NEKO_COMM</code> itself and is kept in that case. <code>CAF</code> is benchmarked in the single signaling mode bound by <code>NEKO_GS_CAF_SIGNALING</code> (<code>sync</code> unless set), unless that variable is set to <code>auto</code>, which tunes the modes as well &ndash; see <a class="el" href="../../dc/d3c/performance.html#performance-caf-backend">Coarray Fortran backend</a>.</p>
+<p>By default the candidates are every host backend the build supports except <code>CAF</code>: <code>MPI</code> and <code>NEIGHBOUR</code>, which need nothing but MPI-3, plus <code>SHMEM</code> (OpenSHMEM) and <code>UTOFU</code> when the corresponding support was built in &ndash; a backend whose support is missing aborts in its <code>init</code>, so it is left out of the list rather than tried. <code>SHMEM</code> and <code>CAF</code> are additionally skipped when <code>NEKO_COMM</code> does not span every process (<code>NEKO_COMM_ID</code>), since they address their peers by global PE / image number; <code>UTOFU</code> exchanges its addresses over <code>NEKO_COMM</code> itself and is kept in that case.</p>
+<h4><a class="anchor" id="autotoc_md178"></a>
+Choosing the candidates</h4>
+<p><code>NEKO_GS_TUNE</code> overrides that set. It takes a list of backend names, spelled as for <code>NEKO_GS_COMM</code>, separated by commas or spaces and matched case insensitively:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone"><code>NEKO_GS_TUNE</code>   </th><th class="markdownTableHeadNone">Candidates    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">unset   </td><td class="markdownTableBodyNone">every supported host backend but <code>CAF</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>+CAF</code>   </td><td class="markdownTableBodyNone">the default set, plus the coarray backend    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>-SHMEM</code>   </td><td class="markdownTableBodyNone">the default set, without OpenSHMEM    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>+CAF,-SHMEM</code>   </td><td class="markdownTableBodyNone">both deltas applied to the default set    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>MPI,NEIGHBOUR</code>   </td><td class="markdownTableBodyNone">exactly those two, whatever the build supports    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>UTOFU</code>   </td><td class="markdownTableBodyNone">uTofu alone &ndash; nothing to compare, so it is simply used   </td></tr>
+</table>
+<p>Names prefixed with <code>+</code>/<code>-</code> modify the default set, plain names replace it, and mixing the two forms is an error, as is naming something that is not a host gather-scatter backend. Backends selected but unusable in this build or run are dropped from the comparison; a backend that was named explicitly says so in the log:</p>
+<div class="fragment"><div class="line">CAF          : unavailable</div>
+</div><!-- fragment --><p><code>CAF</code> is out of the default set because coarray support at configure time says nothing about the job running more than one image: a compiler may accept the syntax and still build every process as a single-image program (gfortran's <code>-fcoarray=single</code>, or a coarray runtime that was never linked in), where the backend has no peers to put to. The case Neko can detect, <code><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">num_images()</a> /= pe_size</code>, makes <code>CAF</code> unusable no matter how it was asked for, and requesting the backend outright with <code>NEKO_GS_COMM=CAF</code> then fails with an error rather than exchanging nothing. When <code>CAF</code> is benchmarked, it runs in the single signaling mode bound by <code>NEKO_GS_CAF_SIGNALING</code> (<code>sync</code> unless set), unless that variable is set to <code>auto</code>, which tunes the modes as well &ndash; see <a class="el" href="../../dc/d3c/performance.html#performance-caf-backend">Coarray Fortran backend</a>.</p>
 <p>The gs schedule is computed once, by <code>gs_schedule</code>, and handed over from one candidate backend to the next (<code>gs_comm_ttake_schedule</code>), so tuning costs one extra backend setup plus a short burst of gather-scatter operations (100 timed, 2 untimed, per candidate) on a dummy vector, not a second pass over the connectivity. The handover is split in two so that the outgoing backend is freed before the incoming one is set up: backends holding scarce resources (uTofu VCQs, symmetric memory, coarrays) never overlap. <code>GS_OP_MIN</code> is used for the benchmark so that the working vector is left unchanged no matter how many trials are run. The timings are averaged over all ranks with an <code>MPI_Allreduce</code> before the winner is picked: setting up and driving a backend is collective (the neighbourhood backend builds a graph communicator, the one-sided backends allocate symmetric memory), so every rank must arrive at the same decision. The log reports the average time per gather-scatter operation for each candidate and the backend that was kept:</p>
 <div class="fragment"><div class="line">Comm         :         auto</div>
 <div class="line">...</div>
@@ -215,7 +239,7 @@ Runtime autotuning of the host backend</h3>
 <div class="line">MPI neigh.   :  6.147E-05 s</div>
 <div class="line">uTofu        :  1.732E-04 s</div>
 <div class="line">Tuned comm   :          MPI</div>
-</div><!-- fragment --><p>Tuning is skipped, keeping the host MPI backend, if any rank holds zero dofs: such a rank skips the halo exchange entirely, which would hang the other ranks in a collective-based backend. Since each <code>gs_t</code> instance is tuned separately, a multigrid hierarchy tunes each level on its own message sizes. Set <code>NEKO_GS_COMM</code> explicitly to pin a backend and skip the benchmark, for example when comparing runs where the tuning outcome itself should not vary.</p>
+</div><!-- fragment --><p>Tuning is skipped, keeping the host MPI backend, if any rank holds zero dofs: such a rank skips the halo exchange entirely, which would hang the other ranks in a collective-based backend. It is likewise skipped when <code>NEKO_GS_TUNE</code> leaves fewer than two candidates, the single candidate then simply being switched to. Since each <code>gs_t</code> instance is tuned separately, a multigrid hierarchy tunes each level on its own message sizes. Set <code>NEKO_GS_COMM</code> explicitly to pin a backend and skip the benchmark, for example when comparing runs where the tuning outcome itself should not vary.</p>
 <dl class="section note"><dt>Note</dt><dd>Benchmarking <code>CAF</code> allocates the module-level receive coarray shared by all <code>gs_caf_t</code> instances. That buffer is grown on demand and retained for the lifetime of the program, so the memory stays allocated even when the coarray backend loses the benchmark.</dd></dl>
 <h3><a class="anchor" id="performance-neighbour-backend"></a>
 MPI neighbourhood collective backend</h3>
@@ -246,10 +270,10 @@ Coarray Fortran backend</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>event</code>   </td><td class="markdownTableBodyNone">F2018   </td><td class="markdownTableBodyNone">F2018 events (<code>event post</code>/<code>event wait</code>)   </td><td class="markdownTableBodyNone">Lowest theoretical overhead; requires a runtime that implements F2018 event semantics    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>auto</code>   </td><td class="markdownTableBodyNone">&ndash;   </td><td class="markdownTableBodyNone">Benchmarks the modes above that the build supports and binds the fastest   </td><td class="markdownTableBodyNone">Only takes effect when the comm. backend is autotuned as well; see below   </td></tr>
+<td class="markdownTableBodyNone"><code>auto</code>   </td><td class="markdownTableBodyNone">&ndash;   </td><td class="markdownTableBodyNone">Benchmarks the modes above that the build supports and binds the fastest   </td><td class="markdownTableBodyNone">Only takes effect when the comm. backend is autotuned as well, with <code>CAF</code> among the candidates (<code>NEKO_GS_TUNE=+CAF</code>); see below   </td></tr>
 </table>
 <p>The signaling mode is bound on the first gs initialisation and cannot be changed thereafter. If the chosen mode requires a feature unavailable in the build (e.g. <code>event</code> on a compiler without F2018 events), Neko aborts with a clear error.</p>
-<p>With <code>NEKO_GS_CAF_SIGNALING=auto</code> the mode is chosen by measurement instead, as part of the host backend autotuning described in <a class="el" href="../../dc/d3c/performance.html#performance-gs-autotuning">Runtime autotuning of the host backend</a>. When that tuning reaches the <code>CAF</code> candidate, it times each available mode on a freshly built backend &ndash; the mode determines what per-instance state <code>gs_caf_init</code> sets up, so switching modes means rebuilding &ndash; and the fastest one becomes the <code>CAF</code> entry in the backend comparison:</p>
+<p>With <code>NEKO_GS_CAF_SIGNALING=auto</code> the mode is chosen by measurement instead, as part of the host backend autotuning described in <a class="el" href="../../dc/d3c/performance.html#performance-gs-autotuning">Runtime autotuning of the host backend</a> &ndash; which needs <code>CAF</code> among the tuning candidates (<code>NEKO_GS_TUNE=+CAF</code>), as it is not one by default. When that tuning reaches the <code>CAF</code> candidate, it times each available mode on a freshly built backend &ndash; the mode determines what per-instance state <code>gs_caf_init</code> sets up, so switching modes means rebuilding &ndash; and the fastest one becomes the <code>CAF</code> entry in the backend comparison:</p>
 <div class="fragment"><div class="line">CAF sync     :  9.882E-05 s</div>
 <div class="line">CAF atomic   :  7.431E-05 s</div>
 <div class="line">Tuned CAF sig:       atomic</div>
@@ -258,7 +282,7 @@ Coarray Fortran backend</h3>
 <div class="line">CAF (atomic) :  7.431E-05 s</div>
 <div class="line">Tuned comm   :          MPI</div>
 </div><!-- fragment --><p>The per-mode lines are written while the <code>CAF</code> candidate is being measured, so they precede the summary of the backend comparison.</p>
-<p>The binding is program-wide &ndash; every <code>gs_caf_t</code> instance reads the same module-level mode &ndash; so it is benchmarked only on the <em>first</em> <code>gs_t</code> that tunes CAF and kept for the rest of the run. Re-binding it later would swap the protocol under instances that are already live, and in <code>atomic</code> mode desynchronise the round counters they share. <code>auto</code> therefore has no effect when the comm. backend itself is not autotuned (<code>NEKO_GS_COMM=CAF</code>, or a <code>comm_bcknd</code> argument); the mode falls back to <code>sync</code> in that case.</p>
+<p>The binding is program-wide &ndash; every <code>gs_caf_t</code> instance reads the same module-level mode &ndash; so it is benchmarked only on the <em>first</em> <code>gs_t</code> that tunes CAF and kept for the rest of the run. Re-binding it later would swap the protocol under instances that are already live, and in <code>atomic</code> mode desynchronise the round counters they share. <code>auto</code> therefore has no effect when the comm. backend itself is not autotuned (<code>NEKO_GS_COMM=CAF</code>, or a <code>comm_bcknd</code> argument), nor when the autotuning runs without <code>CAF</code> among its candidates (<code>NEKO_GS_TUNE</code> without <code>CAF</code>); the mode falls back to <code>sync</code> in those cases.</p>
 <dl class="section warning"><dt>Warning</dt><dd>A signaling mode that the runtime does not really implement fails by hanging, not by aborting, and the benchmark has no timeout. <code>auto</code> is opt-in for that reason: <code>sync</code> remains the default, and <code>atomic</code> / <code>event</code> are only exercised when explicitly asked for.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The CAF backend allocates a symmetric receive coarray sized to the global maximum total receive count (doubled for the buffer parity), shared by all gs instances. The buffer is grown on demand and retained for the program lifetime. Multiple <code>gs_t</code> objects can coexist provided they are used strictly sequentially &ndash; no overlapping nbsend/nbwait windows across instances.</dd></dl>
 <h3><a class="anchor" id="performance-utofu-backend"></a>
@@ -278,7 +302,7 @@ uTofu backend</h3>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sun Aug 16 2026 03:48:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Aug 17 2026 03:48:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,27 +1,5 @@
 <map id="gather_scatter::gs_op_vector" name="gather_scatter::gs_op_vector">
-<area shape="rect" id="Node000001" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="780,120,919,160"/>
-<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="407,5,545,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="812,114,774,88,731,66,684,52,636,41,546,30,546,25,636,36,686,47,733,62,777,83,815,109"/>
-<area shape="rect" id="Node000003" href="$dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="220,113,359,153"/>
-<area shape="poly" id="edge15_Node000001_Node000003" title=" " alt="" coords="774,119,732,111,631,103,529,106,436,114,359,124,359,119,435,108,529,100,631,98,732,105,775,114"/>
-<area shape="rect" id="Node000004" href="$d0/d78/namespacegather__scatter.html#a9add4a7c59c01d0c077e39fcdba63b23" title="Gather&#45;scatter operation on a rank 4 array." alt="" coords="593,120,732,160"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="766,143,733,143,733,137,766,137"/>
-<area shape="rect" id="Node000005" href="$d0/d78/namespacegather__scatter.html#aac2a59847cf00bf8f06355ebbda60679" title="Gather&#45;scatter operation on a 3&#45;component vector (u1, u2, u3) with op op. When the comm backend suppo..." alt="" coords="593,184,732,224"/>
-<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="779,167,722,187,721,181,777,162"/>
-<area shape="rect" id="Node000007" href="$d0/d78/namespacegather__scatter.html#ab9244f3ee9ebb109b6122b733f4e7138" title="Time ntrials gather&#45;scatter operations on u, returning the average wall time (s) per operation...." alt="" coords="593,307,732,347"/>
-<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="820,172,686,308,682,304,817,168"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="428,55,408,66,325,115,323,111,405,62,426,50"/>
-<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="579,141,359,137,359,132,579,136"/>
-<area shape="poly" id="edge8_Node000005_Node000003" title=" " alt="" coords="579,191,358,149,359,144,580,186"/>
-<area shape="rect" id="Node000006" href="$d0/d78/namespacegather__scatter.html#ae43657febcc9273f7327ad60e4e381be" title="Gather&#45;scatter operation on a 3&#45;component vector of rank&#45;4 arrays (u1, u2, u3) with op op; see gs_op_..." alt="" coords="407,221,545,261"/>
-<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="580,223,546,230,545,225,579,218"/>
-<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="426,217,405,205,323,156,325,151,408,200,428,212"/>
-<area shape="rect" id="Node000008" href="$d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,315,172,341"/>
-<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="580,327,545,327,220,327,172,328,172,322,220,321,545,321,580,322"/>
-<area shape="rect" id="Node000009" href="$d0/d78/namespacegather__scatter.html#a5e15921dd90d8a4ab84e42239e2e1624" title="Benchmark the coarray signaling modes and bind the fastest one, leaving gs holding a CAF backend that..." alt="" coords="407,336,545,376"/>
-<area shape="poly" id="edge11_Node000007_Node000009" title=" " alt="" coords="580,342,546,348,545,342,579,337"/>
-<area shape="rect" id="Node000010" href="$d0/d78/namespacegather__scatter.html#aed7bd30ec4e32f304bb3a14709570ef0" title="Select the fastest of the comm. backends in cand at runtime." alt="" coords="220,336,359,376"/>
-<area shape="poly" id="edge14_Node000007_Node000010" title=" " alt="" coords="623,356,587,376,546,391,495,398,443,396,394,389,351,379,352,373,395,384,444,391,495,392,545,385,584,371,620,352"/>
-<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="393,359,359,359,359,353,393,353"/>
-<area shape="poly" id="edge13_Node000010_Node000008" title=" " alt="" coords="206,347,172,342,173,337,207,342"/>
+<area shape="rect" id="Node000001" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="192,5,331,45"/>
+<area shape="rect" id="Node000002" href="$dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="5,5,144,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,28,145,28,145,23,178,23"/>
 </map>

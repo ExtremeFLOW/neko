@@ -8,6 +8,7 @@ var namespacegs__caf =
     [ "gs_caf_set_mode", "df/dd5/namespacegs__caf.html#a684b036563dccc7480a67f8785196a73", null ],
     [ "gs_caf_signal_auto", "df/dd5/namespacegs__caf.html#ae641da9ef3ae08889b099dc2ba402ba7", null ],
     [ "gs_caf_signal_modes", "df/dd5/namespacegs__caf.html#a2a9300ec99b0609b36c9f2202701f98e", null ],
+    [ "gs_caf_usable", "df/dd5/namespacegs__caf.html#a4cad799b1464ae644ac07dc2e67e5ae7", null ],
     [ "gs_nbrecv_caf", "df/dd5/namespacegs__caf.html#a050497915a908fafaf15f87647727037", null ],
     [ "gs_nbrecv_vec_caf", "df/dd5/namespacegs__caf.html#a057a8285c91de14a967d60097c61e144", null ],
     [ "gs_nbsend_caf", "df/dd5/namespacegs__caf.html#a0a8f70944b4eeada9d8adb9cfa2b699b", null ],

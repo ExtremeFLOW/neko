@@ -148,16 +148,18 @@ Environmental variable reference</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>NEKO_GS_COMM</code>   </td><td class="markdownTableBodyNone">Gather-scatter communication backend   </td><td class="markdownTableBodyNone">Unset    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>NEKO_GS_TUNE</code>   </td><td class="markdownTableBodyNone">Comm. backends the gather-scatter autotuning benchmarks (list)   </td><td class="markdownTableBodyNone">Unset (all but <code>CAF</code>)    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>NEKO_GS_CAF_SIGNALING</code>   </td><td class="markdownTableBodyNone">Coarray Fortran gather-scatter signaling mode   </td><td class="markdownTableBodyNone">Unset    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_COMM_ID</code>   </td><td class="markdownTableBodyNone">Communicator id for this process (non-negative integer)   </td><td class="markdownTableBodyNone">0    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>NEKO_HIP_ZEROCOPY</code>   </td><td class="markdownTableBodyNone">Zero-copy host/device mapping on unified memory (HIP), 1 enables   </td><td class="markdownTableBodyNone">0    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>NEKO_METAL_ZEROCOPY</code>   </td><td class="markdownTableBodyNone">Zero-copy host/device mapping on unified memory (Metal), 0 disables   </td><td class="markdownTableBodyNone">1    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>NEKO_MPI_THREAD_LEVEL</code>   </td><td class="markdownTableBodyNone">Requested MPI (and SHMEM) thread support level   </td><td class="markdownTableBodyNone">Unset    </td></tr>
+<td class="markdownTableBodyNone"><code>NEKO_METAL_ZEROCOPY</code>   </td><td class="markdownTableBodyNone">Zero-copy host/device mapping on unified memory (Metal), 0 disables   </td><td class="markdownTableBodyNone">1    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>NEKO_MPI_THREAD_LEVEL</code>   </td><td class="markdownTableBodyNone">Requested MPI (and SHMEM) thread support level   </td><td class="markdownTableBodyNone">Unset    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_DEPRECATION_ERROR</code>   </td><td class="markdownTableBodyNone">Whether to treat deprecated features as errors (boolean)   </td><td class="markdownTableBodyNone">Unset   </td></tr>
 </table>
 <h2><a class="anchor" id="autotoc_md0"></a>
@@ -195,7 +197,13 @@ Gather-scatter communication backend details</h2>
 <li><code>NEKO_GS_COMM=NEIGHBOUR</code> : Host MPI using an <code>MPI_Ineighbor_alltoallv</code> neighbourhood collective (<code>NEIGHBOR</code> is also accepted; MPI-3, host only)</li>
 <li><code>NEKO_GS_COMM=UTOFU</code> : Native Tofu interconnect (uTofu) one-sided RDMA (Fugaku and other Tofu-D systems; requires building with <code>--with-utofu</code>)</li>
 </ul>
-<p>When <code>NEKO_GS_COMM</code> is unset and the build has no device-aware MPI, the host backends are benchmarked at initialisation and the fastest one is kept (see <a class="el" href="../../dc/d3c/performance.html#performance-gs-autotuning">Runtime autotuning of the host backend</a>). <code>MPI</code> and <code>NEIGHBOUR</code> are always benchmarked; <code>SHMEM</code>, <code>CAF</code> and <code>UTOFU</code> join them if the build has the corresponding support. Set <code>NEKO_GS_COMM</code> explicitly to skip the benchmark and pin a backend.</p>
+<p>When <code>NEKO_GS_COMM</code> is unset and the build has no device-aware MPI, the host backends are benchmarked at initialisation and the fastest one is kept (see <a class="el" href="../../dc/d3c/performance.html#performance-gs-autotuning">Runtime autotuning of the host backend</a>). Which ones take part is set by <code>NEKO_GS_TUNE</code>, a list of backend names spelled as for <code>NEKO_GS_COMM</code> (comma or space separated, case insensitive). Unset, it means every host backend the build supports except <code>CAF</code>, which a compiler can accept at configure time while still giving the job a single image the coarray backend cannot use.</p>
+<ul>
+<li><code>NEKO_GS_TUNE=+CAF</code> adds the coarray backend to that default set, <code>NEKO_GS_TUNE=-SHMEM</code> removes a backend from it, and the two can be combined (<code>NEKO_GS_TUNE=+CAF,-SHMEM</code>).</li>
+<li>Plain names replace the set outright: <code>NEKO_GS_TUNE=MPI,NEIGHBOUR</code> benchmarks those two and nothing else. A single name pins that backend without benchmarking anything.</li>
+<li>The two forms cannot be mixed, and a name that is not a host gather-scatter backend is an error.</li>
+</ul>
+<p>Backends that are selected but cannot run in this build or run are dropped; those named explicitly are reported in the log as <code>unavailable</code>. Set <code>NEKO_GS_COMM</code> to skip the benchmark and pin a backend outright; that path ignores <code>NEKO_GS_TUNE</code>.</p>
 <h2><a class="anchor" id="autotoc_md3"></a>
 MPI thread level details</h2>
 <p><code>NEKO_MPI_THREAD_LEVEL</code> overrides the default thread support requested from the MPI runtime (and, when built with <code>--with-openshmem</code>, from the SHMEM runtime as well). When unset, the level is chosen automatically: <code>MPI_THREAD_MULTIPLE</code> when running with more than one OpenMP thread per rank, falling back to <code>MPI_THREAD_FUNNELED</code> on host-only backends, and <code>MPI_Init</code> otherwise. Device backends require <code>MPI_THREAD_MULTIPLE</code> under the automatic policy. Setting the variable bypasses these heuristics; if the runtime cannot honor the requested level, initialisation aborts.</p>
@@ -239,7 +247,7 @@ uTofu injection details</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Sun Aug 16 2026 03:48:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Aug 17 2026 03:48:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

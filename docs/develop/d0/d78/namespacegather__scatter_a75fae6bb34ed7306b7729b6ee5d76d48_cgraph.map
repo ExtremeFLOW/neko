@@ -1,5 +1,0 @@
-<map id="gather_scatter::gs_comm_switch" name="gather_scatter::gs_comm_switch">
-<area shape="rect" id="Node000001" title="Switch the comm. backend of gs to comm_bcknd, retaining the schedule computed in gs_schedule (the dof..." alt="" coords="5,5,144,45"/>
-<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#a6df8dd2596a97fe71873a035887b4973" title="Allocate a gather&#45;scatter comm. backend of type comm_bcknd." alt="" coords="192,5,331,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,23,178,23,178,28,145,28"/>
-</map>

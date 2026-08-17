@@ -1,11 +1,9 @@
 <map id="gather_scatter::gs_schedule" name="gather_scatter::gs_schedule">
-<area shape="rect" id="Node000001" title="Schedule shared gather&#45;scatter operations." alt="" coords="5,133,144,173"/>
+<area shape="rect" id="Node000001" title="Schedule shared gather&#45;scatter operations." alt="" coords="5,101,144,141"/>
 <area shape="rect" id="Node000002" href="$d8/d75/namespacecrystal__router.html#a8feca47eb70b004800b3c053fca83f9c" title="Append one record to a packed crystal&#45;router buffer." alt="" coords="192,69,356,109"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,131,197,111,199,116,139,136"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,108,178,102,179,107,145,113"/>
 <area shape="rect" id="Node000003" href="$d8/d75/namespacecrystal__router.html#a3748daf852207d528e6b3651a74bb6d3" title="Route packed records to their destination ranks." alt="" coords="192,133,356,173"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="144,151,178,151,178,156,144,156"/>
-<area shape="rect" id="Node000009" href="$d0/d78/namespacegather__scatter.html#abba505ea99ff836fd6ba1e86d237d655" title="Heap sort for 64&#45;bit integer arrays, returning the permutation ind. Local helper for gs_schedule (the..." alt="" coords="205,197,343,237"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="139,171,199,191,197,196,137,176"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="145,130,179,135,178,141,144,135"/>
 <area shape="rect" id="Node000004" href="$d8/d75/namespacecrystal__router.html#a54d76dcc595fd13d9a6ce2276360e2f3" title="Append e(1:ne) to buf(1:n) in place." alt="" coords="404,5,536,45"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="335,131,354,119,369,104,378,88,387,72,402,55,408,51,411,55,406,59,391,75,383,91,374,107,358,123,338,135"/>
 <area shape="rect" id="Node000005" href="$d8/d75/namespacecrystal__router.html#a6efdb59be41d218ae48e5f9a86af3f4c" title="Abort if any record destination falls outside ." alt="" coords="404,69,536,109"/>
@@ -15,5 +13,5 @@
 <area shape="rect" id="Node000007" href="$d8/d75/namespacecrystal__router.html#aa0c58681b064c8fdbc41a29bccda3995" title="Size&#45;negotiated bidirectional exchange with a partner. Either dst or src may be MPI_PROC_NULL to make..." alt="" coords="404,197,536,237"/>
 <area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="337,171,396,191,395,196,335,176"/>
 <area shape="rect" id="Node000008" href="$d8/d75/namespacecrystal__router.html#a7ad4715e59a971d678ed51337a5fb3e9" title="Partition buf into records kept locally and records to be sent. A record is kept when the side of its..." alt="" coords="404,261,536,301"/>
-<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="338,171,358,183,374,200,383,216,391,231,406,247,411,252,408,256,402,251,387,234,378,218,369,203,354,187,335,176"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="301,171,348,208,405,247,415,253,412,257,403,252,345,212,298,176"/>
 </map>

@@ -306,13 +306,15 @@ Communication backends</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">OpenSHMEM   </td><td class="markdownTableBodyNone">Host OpenSHMEM, one-sided   </td><td class="markdownTableBodyNone">CPU   </td><td class="markdownTableBodyNone"><code>--with-openshmem</code>   </td><td class="markdownTableBodyNone"><code>SHMEM</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">Co-Array Fortran   </td><td class="markdownTableBodyNone">Fortran coarrays   </td><td class="markdownTableBodyNone">CPU   </td><td class="markdownTableBodyNone">coarray-capable compiler   </td><td class="markdownTableBodyNone"><code>CAF</code>    </td></tr>
+<td class="markdownTableBodyNone">Co-Array Fortran   </td><td class="markdownTableBodyNone">Fortran coarrays (one image per rank required)   </td><td class="markdownTableBodyNone">CPU   </td><td class="markdownTableBodyNone">coarray-capable compiler   </td><td class="markdownTableBodyNone"><code>CAF</code>    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">uTofu   </td><td class="markdownTableBodyNone">Native Tofu interconnect, one-sided RDMA   </td><td class="markdownTableBodyNone">CPU   </td><td class="markdownTableBodyNone"><code>--with-utofu</code>   </td><td class="markdownTableBodyNone"><code>UTOFU</code>   </td></tr>
 </table>
 <dl class="section note"><dt>Note</dt><dd>Every device backend (CUDA, HIP, OpenCL, Metal) can use host <code>MPI</code>, which stages data through host memory before the exchange. The device-resident backends &mdash; device-aware MPI, NCCL/RCCL and NVSHMEM &mdash; are implemented only for CUDA and HIP (NVSHMEM is CUDA-only), so OpenCL and Metal builds fall back to host <code>MPI</code>.</dd>
 <dd>
 <code>NEKO_GS_COMM=SHMEM</code> selects NVSHMEM on a device (GPU) build and host OpenSHMEM otherwise.</dd>
+<dd>
+<code>CAF</code> needs the coarray images to map one-to-one onto the MPI ranks. Compilers that accept coarrays but build a single-image program (for example gfortran without an <code>-fcoarray=lib</code> runtime) pass the configure check yet cannot run the backend, so it is left out of the startup benchmark unless asked for with <code>NEKO_GS_TUNE=+CAF</code>, and <code>NEKO_GS_COMM=CAF</code> aborts with an error on such a build.</dd>
 <dd>
 <code>UTOFU</code> targets the native Tofu interconnect (Tofu-D, e.g. Fugaku) and requires the <code>libtofucom</code> library; it is a host (CPU) backend. The number of Tofu network interfaces used for injection is set with <code>NEKO_GS_UTOFU_NTNI</code> (default <code>1</code>).</dd></dl>
 <h3><a class="anchor" id="autotoc_md154"></a>
@@ -414,7 +416,7 @@ Using a Docker container</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sun Aug 16 2026 03:48:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Aug 17 2026 03:48:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
