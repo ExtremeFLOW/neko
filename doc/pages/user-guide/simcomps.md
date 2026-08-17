@@ -812,10 +812,10 @@ keywords:
  direction(s) via the `avg_direction`, which can be `x`, `y`, `z`, `xy`, `xz` or
   `yz`. Averaging across two directions will lead to the average being saved as
   a .csv, whereas a 2D .fld file will be produced when averaging across only one
-  axis. The filename is controlled  by the `output_filename` keyword and default to
-  `user_stats`. We encourage reading the [statistics guide](@ref
-  statistics-guide) for further details regarding how statistics are computed in
-  Neko.
+  axis. The base filename is controlled by the `output_filename` keyword and
+  defaults to `user_stats`. The run and per-run counters follow the convention
+  in the [statistics guide](@ref statistics-guide). We encourage reading that
+  guide for further details regarding how statistics are computed in Neko.
 
   Keep in mind that simcomps execute before `user%compute`, so if you update
   some custom averaged field in that routine, it will not affect the average
