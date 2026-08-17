@@ -795,7 +795,8 @@ METAL_OBJS = \
 	bc/bcknd/device/metal/facet_normal.lo\
 	bc/bcknd/device/metal/neumann.lo\
 	bc/bcknd/device/metal/inhom_dirichlet.lo\
-	bc/bcknd/device/metal/dong_outflow.lo
+	bc/bcknd/device/metal/dong_outflow.lo\
+	bc/bcknd/device/metal/coupled_vector_bc_projector.lo
 
 libneko_la_LIBADD += $(METAL_OBJS)
 
@@ -840,7 +841,8 @@ dist_noinst_DATA = \
 	bc/bcknd/device/metal/facet_normal.m\
 	bc/bcknd/device/metal/neumann.m\
 	bc/bcknd/device/metal/inhom_dirichlet.m\
-	bc/bcknd/device/metal/dong_outflow.m
+	bc/bcknd/device/metal/dong_outflow.m\
+	bc/bcknd/device/metal/coupled_vector_bc_projector.m
 
 METAL_KERNELS = \
 	math/bcknd/device/metal/math_kernel.metal\
@@ -882,7 +884,8 @@ METAL_KERNELS = \
 	bc/bcknd/device/metal/facet_normal_kernel.metal\
 	bc/bcknd/device/metal/neumann_kernel.metal\
 	bc/bcknd/device/metal/inhom_dirichlet_kernel.metal\
-	bc/bcknd/device/metal/dong_outflow_kernel.metal
+	bc/bcknd/device/metal/dong_outflow_kernel.metal\
+	bc/bcknd/device/metal/coupled_vector_bc_projector_kernel.metal
 
 device/metal/neko_kernels.metallib: $(METAL_KERNELS)
 	$(MKDIR_P) device/metal
@@ -1206,6 +1209,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/metal/neumann_kernel.metal\
 	bc/bcknd/device/metal/inhom_dirichlet_kernel.metal\
 	bc/bcknd/device/metal/dong_outflow_kernel.metal\
+	bc/bcknd/device/metal/coupled_vector_bc_projector_kernel.metal\
 	bc/bcknd/device/metal/bc_utils.h\
 	bc/bcknd/device/metal/bc_shader_utils.h\
 	device/metal/check.h\

@@ -75,6 +75,19 @@ module device_coupled_vector_bc_projector
        type(c_ptr), value :: n, t1, t2, strm
      end subroutine opencl_coupled_vector_bc_projector_apply
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_coupled_vector_bc_projector_apply(mixed_msk, x, y, z, &
+          constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
+          bind(c, name = 'metal_coupled_vector_bc_projector_apply')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       implicit none
+       integer(c_int) :: m
+       type(c_ptr), value :: mixed_msk, x, y, z
+       type(c_ptr), value :: constraint_n, constraint_t1, constraint_t2
+       type(c_ptr), value :: n, t1, t2, strm
+     end subroutine metal_coupled_vector_bc_projector_apply
+  end interface
 #endif
 
   public :: device_coupled_vector_bc_projector_apply
@@ -97,6 +110,9 @@ contains
          constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm)
 #elif HAVE_OPENCL
     call opencl_coupled_vector_bc_projector_apply(mixed_msk, x, y, z, &
+         constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm)
+#elif HAVE_METAL
+    call metal_coupled_vector_bc_projector_apply(mixed_msk, x, y, z, &
          constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm)
 #else
     call neko_error('No device backend configured for coupled vector BC apply')
