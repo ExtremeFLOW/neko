@@ -351,7 +351,7 @@ contains
           end if
           if (full_stress_formulation) then
              if (trim(string_val1) .ne. 'coupled_cg' .and. &
-                 trim(string_val1) .ne. 'fused_coupled_cg') then
+                  trim(string_val1) .ne. 'fused_coupled_cg') then
                 call neko_error("Full-stress SVV requires a " // &
                      "coupled velocity solver (`coupled_cg` or " // &
                      "`fused_coupled_cg`)")
