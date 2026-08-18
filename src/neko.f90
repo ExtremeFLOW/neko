@@ -111,6 +111,7 @@ module neko
        register_simulation_component
   use boundary_operation, only : boundary_operation_t
   use boundary_flux, only : boundary_flux_t
+  use boundary_data, only : boundary_data_t
   use probes, only : probes_t
   use spectral_error, only : spectral_error_t
   use profiler, only : profiler_start, profiler_stop, &

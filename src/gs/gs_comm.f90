@@ -75,6 +75,8 @@ module gs_comm
      procedure, pass(this) :: free_dofs
      procedure, pass(this) :: init_order
      procedure, pass(this) :: free_order
+     procedure, pass(this) :: take_schedule
+     procedure, pass(this) :: init_schedule
      !> Fused vector halo exchange. Default implementations abort; backends
      !! that set vec_supported = .true. override them.
      procedure, pass(this) :: nbsend_vec => gs_nbsend_vec
@@ -234,6 +236,71 @@ contains
     end if
 
   end subroutine free_order
+
+  !> Take over the gather-scatter schedule (dof lists and peer order) of
+  !! @a src, avoiding a second (expensive) pass over the connectivity. The
+  !! data is moved rather than copied, so @a src is left without a schedule
+  !! and must not be used for communication afterwards (it can still be
+  !! freed). No communication resources are set up here; complete the
+  !! handover with @a init_schedule once @a src has been freed, so that the
+  !! two backends never hold their resources at the same time.
+  !! @param src the backend to take the schedule from, left without one
+  subroutine take_schedule(this, src)
+    class(gs_comm_t), intent(inout) :: this
+    class(gs_comm_t), intent(inout) :: src
+
+    if (.not. allocated(src%send_dof) .or. .not. allocated(src%recv_dof) .or. &
+         .not. allocated(src%send_pe) .or. .not. allocated(src%recv_pe)) then
+       call neko_error('Gather-scatter comm. method has no schedule')
+    end if
+
+    call this%free_dofs()
+    call this%free_order()
+
+    call move_alloc(src%send_dof, this%send_dof)
+    call move_alloc(src%recv_dof, this%recv_dof)
+    call move_alloc(src%send_pe, this%send_pe)
+    call move_alloc(src%recv_pe, this%recv_pe)
+
+  end subroutine take_schedule
+
+  !> Set up this communication method for the schedule taken over by
+  !! @a take_schedule. Collective, as @a init is.
+  subroutine init_schedule(this)
+    class(gs_comm_t), intent(inout) :: this
+    type(stack_i4_t) :: send_pe, recv_pe
+    integer, allocatable :: sp(:), rp(:)
+    integer :: i, pe
+
+    if (.not. allocated(this%send_pe) .or. .not. allocated(this%recv_pe)) then
+       call neko_error('Gather-scatter comm. method has no schedule')
+    end if
+
+    ! init_order allocates send_pe/recv_pe from the stacks, so hand the
+    ! peer lists back as stacks and leave the arrays deallocated
+    call move_alloc(this%send_pe, sp)
+    call move_alloc(this%recv_pe, rp)
+
+    call send_pe%init(max(size(sp), 1))
+    do i = 1, size(sp)
+       pe = sp(i)
+       call send_pe%push(pe)
+    end do
+
+    call recv_pe%init(max(size(rp), 1))
+    do i = 1, size(rp)
+       pe = rp(i)
+       call recv_pe%push(pe)
+    end do
+
+    deallocate(sp, rp)
+
+    call this%init(send_pe, recv_pe)
+
+    call send_pe%free()
+    call recv_pe%free()
+
+  end subroutine init_schedule
 
   !> Default fused vector send. Abort unless a backend overrides it.
   !! @param u compact shared buffer, component-outer: u((c-1)*n + idx)

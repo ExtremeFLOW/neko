@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:wall_shear_stress",
+  "$defs": {
+    "simulationComponent": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "wall_shear_stress" },
+        "computed_field": { "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString" },
+        "fluid_name": { "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString" },
+        "viscosity_field": { "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString" },
+        "zone_indices": { "$ref": "urn:neko:schema:simulation-components#/$defs/integerArray" },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["x", "y", "z", "mag", "all"]
+          },
+          "minItems": 1
+        }
+      },
+      "required": ["type", "zone_indices"],
+      "allOf": [
+        { "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase" }
+      ],
+      "additionalProperties": true
+    }
+  }
+}

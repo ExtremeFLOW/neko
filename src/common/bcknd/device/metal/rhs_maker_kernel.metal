@@ -114,17 +114,16 @@ kernel void makeext_kernel(device float *abx1[[ buffer(0) ]],
 kernel void scalar_makeext_kernel(device float *fs_lag[[ buffer(0) ]],
                                   device float *fs_laglag[[ buffer(1) ]],
                                   device float *fs[[ buffer(2) ]],
-                                  constant float &rho[[ buffer(3) ]],
-                                  constant float &ext1[[ buffer(4) ]],
-                                  constant float &ext2[[ buffer(5) ]],
-                                  constant float &ext3[[ buffer(6) ]],
-                                  constant int &n[[ buffer(7) ]],
+                                  constant float &ext1[[ buffer(3) ]],
+                                  constant float &ext2[[ buffer(4) ]],
+                                  constant float &ext3[[ buffer(5) ]],
+                                  constant int &n[[ buffer(6) ]],
                                   uint idx [[ thread_position_in_grid ]]) {
   if (idx >= (uint)n) return;
   const float ta1_val = ext2 * fs_lag[idx] + ext3 * fs_laglag[idx];
   fs_laglag[idx] = fs_lag[idx];
   fs_lag[idx] = fs[idx];
-  fs[idx] = (ext1 * fs[idx] + ta1_val) * rho;
+  fs[idx] = ext1 * fs[idx] + ta1_val;
 }
 
 /**
@@ -179,7 +178,7 @@ kernel void scalar_makebdf_kernel(device const float *s_lag[[ buffer(0) ]],
                                   device float *fs[[ buffer(2) ]],
                                   device const float *s[[ buffer(3) ]],
                                   device const float *B[[ buffer(4) ]],
-                                  constant float &rho[[ buffer(5) ]],
+                                  device const float *rho_cp[[ buffer(5) ]],
                                   constant float &dt[[ buffer(6) ]],
                                   constant float &bd2[[ buffer(7) ]],
                                   constant float &bd3[[ buffer(8) ]],
@@ -193,7 +192,7 @@ kernel void scalar_makebdf_kernel(device const float *s_lag[[ buffer(0) ]],
   if (nbd == 3) {
     tb1_val += s_laglag[idx] * B[idx] * bd4;
   }
-  fs[idx] = fs[idx] + tb1_val * (rho / dt);
+  fs[idx] = fs[idx] + tb1_val * (rho_cp[idx] / dt);
 }
 
 /**
@@ -220,10 +219,10 @@ kernel void makeoifs_kernel(device const float *phi_x[[ buffer(0) ]],
  */
 kernel void scalar_makeoifs_kernel(device const float *phi_s[[ buffer(0) ]],
                                    device float *bf_s[[ buffer(1) ]],
-                                   constant float &rho[[ buffer(2) ]],
+                                   device const float *rho_cp[[ buffer(2) ]],
                                    constant float &dt[[ buffer(3) ]],
                                    constant int &n[[ buffer(4) ]],
                                    uint idx [[ thread_position_in_grid ]]) {
   if (idx >= (uint)n) return;
-  bf_s[idx] = bf_s[idx] + phi_s[idx] * (rho / dt);
+  bf_s[idx] = bf_s[idx] + phi_s[idx] * (rho_cp[idx] / dt);
 }
