@@ -63,7 +63,7 @@ contains
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
   subroutine ax_helm_svv_KS_full_compute_vector(this, au, av, aw, u, v, w, coef, msh,&
-                                         Xh)
+       Xh)
     class(ax_helm_svv_KS_full_cpu_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
@@ -76,12 +76,12 @@ contains
     real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
     call ax_helm_svv_KS_full_lx(au, av, aw, u, v, w, &
-            Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, &
-            coef%dsdz, coef%dtdx, coef%dtdy, coef%dtdz, &
-            coef%jacinv, Xh%w3, this%svv%h1, this%svv%filter%fh, &
-            this%svv%filter%fht, this%svv%direction, this%svv%ident, &
-            msh%nelv, Xh%lx)
+         Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
+         coef%h1, coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, &
+         coef%dsdz, coef%dtdx, coef%dtdy, coef%dtdz, &
+         coef%jacinv, Xh%w3, this%svv%h1, this%svv%filter%fh, &
+         this%svv%filter%fht, this%svv%direction, this%svv%ident, &
+         msh%nelv, Xh%lx)
 
     if (coef%ifh2) then
        call addcol4 (au, coef%h2, coef%B, u, coef%dof%size())
@@ -127,7 +127,7 @@ contains
     real(kind=rp), intent(inout) :: ident(lx, lx)
 
     real(kind=rp) :: s11_h, s22_h, s33_h, s12_h, s13_h, s23_h
-    
+
     real(kind=rp) :: wur(lx, lx, lx)
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
@@ -208,32 +208,32 @@ contains
 
        do i = 1, lx*lx*lx
           u1 = (drdx(i,1,1,e) * wur(i,1,1) &
-              + dsdx(i,1,1,e) * wus(i,1,1) &
-              + dtdx(i,1,1,e) * wut(i,1,1)) * jacinv(i,1,1,e)
+               + dsdx(i,1,1,e) * wus(i,1,1) &
+               + dtdx(i,1,1,e) * wut(i,1,1)) * jacinv(i,1,1,e)
           u2 = (drdy(i,1,1,e) * wur(i,1,1) &
-              + dsdy(i,1,1,e) * wus(i,1,1) &
-              + dtdy(i,1,1,e) * wut(i,1,1)) * jacinv(i,1,1,e)
+               + dsdy(i,1,1,e) * wus(i,1,1) &
+               + dtdy(i,1,1,e) * wut(i,1,1)) * jacinv(i,1,1,e)
           u3 = (drdz(i,1,1,e) * wur(i,1,1) &
-              + dsdz(i,1,1,e) * wus(i,1,1) &
-              + dtdz(i,1,1,e) * wut(i,1,1)) * jacinv(i,1,1,e)
+               + dsdz(i,1,1,e) * wus(i,1,1) &
+               + dtdz(i,1,1,e) * wut(i,1,1)) * jacinv(i,1,1,e)
           v1 = (drdx(i,1,1,e) * wvr(i,1,1) &
-              + dsdx(i,1,1,e) * wvs(i,1,1) &
-              + dtdx(i,1,1,e) * wvt(i,1,1)) * jacinv(i,1,1,e)
+               + dsdx(i,1,1,e) * wvs(i,1,1) &
+               + dtdx(i,1,1,e) * wvt(i,1,1)) * jacinv(i,1,1,e)
           v2 = (drdy(i,1,1,e) * wvr(i,1,1) &
-              + dsdy(i,1,1,e) * wvs(i,1,1) &
-              + dtdy(i,1,1,e) * wvt(i,1,1)) * jacinv(i,1,1,e)
+               + dsdy(i,1,1,e) * wvs(i,1,1) &
+               + dtdy(i,1,1,e) * wvt(i,1,1)) * jacinv(i,1,1,e)
           v3 = (drdz(i,1,1,e) * wvr(i,1,1) &
-              + dsdz(i,1,1,e) * wvs(i,1,1) &
-              + dtdz(i,1,1,e) * wvt(i,1,1)) * jacinv(i,1,1,e)
+               + dsdz(i,1,1,e) * wvs(i,1,1) &
+               + dtdz(i,1,1,e) * wvt(i,1,1)) * jacinv(i,1,1,e)
           w1 = (drdx(i,1,1,e) * wwr(i,1,1) &
-              + dsdx(i,1,1,e) * wws(i,1,1) &
-              + dtdx(i,1,1,e) * wwt(i,1,1)) * jacinv(i,1,1,e)
+               + dsdx(i,1,1,e) * wws(i,1,1) &
+               + dtdx(i,1,1,e) * wwt(i,1,1)) * jacinv(i,1,1,e)
           w2 = (drdy(i,1,1,e) * wwr(i,1,1) &
-              + dsdy(i,1,1,e) * wws(i,1,1) &
-              + dtdy(i,1,1,e) * wwt(i,1,1)) * jacinv(i,1,1,e)
+               + dsdy(i,1,1,e) * wws(i,1,1) &
+               + dtdy(i,1,1,e) * wwt(i,1,1)) * jacinv(i,1,1,e)
           w3 = (drdz(i,1,1,e) * wwr(i,1,1) &
-              + dsdz(i,1,1,e) * wws(i,1,1) &
-              + dtdz(i,1,1,e) * wwt(i,1,1)) * jacinv(i,1,1,e)
+               + dsdz(i,1,1,e) * wws(i,1,1) &
+               + dtdz(i,1,1,e) * wwt(i,1,1)) * jacinv(i,1,1,e)
           s11(i,1,1) = u1 + u1
           s22(i,1,1) = v2 + v2
           s33(i,1,1) = w3 + w3
@@ -296,54 +296,54 @@ contains
 
        do i = 1, lx*lx*lx
           ! high pass filter from the LPF result
-          s11_svv(i,1,1) =  s11(i,1,1) - s11_svv(i,1,1)
-          s22_svv(i,1,1) =  s22(i,1,1) - s22_svv(i,1,1)
-          s33_svv(i,1,1) =  s33(i,1,1) - s33_svv(i,1,1)
-          s12_svv(i,1,1) =  s12(i,1,1) - s12_svv(i,1,1)
-          s13_svv(i,1,1) =  s13(i,1,1) - s13_svv(i,1,1)
-          s23_svv(i,1,1) =  s23(i,1,1) - s23_svv(i,1,1)
+          s11_svv(i,1,1) = s11(i,1,1) - s11_svv(i,1,1)
+          s22_svv(i,1,1) = s22(i,1,1) - s22_svv(i,1,1)
+          s33_svv(i,1,1) = s33(i,1,1) - s33_svv(i,1,1)
+          s12_svv(i,1,1) = s12(i,1,1) - s12_svv(i,1,1)
+          s13_svv(i,1,1) = s13(i,1,1) - s13_svv(i,1,1)
+          s23_svv(i,1,1) = s23(i,1,1) - s23_svv(i,1,1)
 
           ! multiply the viscosity
           s11_h = (svv_h1(i,1,1,e) * s11_svv(i,1,1) + &
-                              h1(i,1,1,e) * s11(i,1,1)) * weights3(i,1,1)
+               h1(i,1,1,e) * s11(i,1,1)) * weights3(i,1,1)
           s22_h = (svv_h1(i,1,1,e) * s22_svv(i,1,1) + &
-                              h1(i,1,1,e) * s22(i,1,1)) * weights3(i,1,1)
+               h1(i,1,1,e) * s22(i,1,1)) * weights3(i,1,1)
           s33_h = (svv_h1(i,1,1,e) * s33_svv(i,1,1) + &
-                              h1(i,1,1,e) * s33(i,1,1)) * weights3(i,1,1)
+               h1(i,1,1,e) * s33(i,1,1)) * weights3(i,1,1)
           s12_h = (svv_h1(i,1,1,e) * s12_svv(i,1,1) + &
-                              h1(i,1,1,e) * s12(i,1,1)) * weights3(i,1,1)
+               h1(i,1,1,e) * s12(i,1,1)) * weights3(i,1,1)
           s13_h = (svv_h1(i,1,1,e) * s13_svv(i,1,1) + &
-                              h1(i,1,1,e) * s13(i,1,1)) * weights3(i,1,1)
+               h1(i,1,1,e) * s13(i,1,1)) * weights3(i,1,1)
           s23_h = (svv_h1(i,1,1,e) * s23_svv(i,1,1) + &
-                              h1(i,1,1,e) * s23(i,1,1)) * weights3(i,1,1)
+               h1(i,1,1,e) * s23(i,1,1)) * weights3(i,1,1)
           ! utilize wur, wus, wut as work arrays again
           wur(i,1,1) = drdx(i,1,1,e) * s11_h &
-                     + drdy(i,1,1,e) * s12_h &
-                     + drdz(i,1,1,e) * s13_h
+               + drdy(i,1,1,e) * s12_h &
+               + drdz(i,1,1,e) * s13_h
           wus(i,1,1) = dsdx(i,1,1,e) * s11_h &
-                     + dsdy(i,1,1,e) * s12_h &
-                     + dsdz(i,1,1,e) * s13_h
+               + dsdy(i,1,1,e) * s12_h &
+               + dsdz(i,1,1,e) * s13_h
           wut(i,1,1) = dtdx(i,1,1,e) * s11_h &
-                     + dtdy(i,1,1,e) * s12_h &
-                     + dtdz(i,1,1,e) * s13_h
+               + dtdy(i,1,1,e) * s12_h &
+               + dtdz(i,1,1,e) * s13_h
           wvr(i,1,1) = drdx(i,1,1,e) * s12_h &
-                     + drdy(i,1,1,e) * s22_h &
-                     + drdz(i,1,1,e) * s23_h
+               + drdy(i,1,1,e) * s22_h &
+               + drdz(i,1,1,e) * s23_h
           wvs(i,1,1) = dsdx(i,1,1,e) * s12_h &
-                     + dsdy(i,1,1,e) * s22_h &
-                     + dsdz(i,1,1,e) * s23_h
+               + dsdy(i,1,1,e) * s22_h &
+               + dsdz(i,1,1,e) * s23_h
           wvt(i,1,1) = dtdx(i,1,1,e) * s12_h &
-                     + dtdy(i,1,1,e) * s22_h &
-                     + dtdz(i,1,1,e) * s23_h
+               + dtdy(i,1,1,e) * s22_h &
+               + dtdz(i,1,1,e) * s23_h
           wwr(i,1,1) = drdx(i,1,1,e) * s13_h &
-                     + drdy(i,1,1,e) * s23_h &
-                     + drdz(i,1,1,e) * s33_h
+               + drdy(i,1,1,e) * s23_h &
+               + drdz(i,1,1,e) * s33_h
           wws(i,1,1) = dsdx(i,1,1,e) * s13_h &
-                     + dsdy(i,1,1,e) * s23_h &
-                     + dsdz(i,1,1,e) * s33_h
+               + dsdy(i,1,1,e) * s23_h &
+               + dsdz(i,1,1,e) * s33_h
           wwt(i,1,1) = dtdx(i,1,1,e) * s13_h &
-                     + dtdy(i,1,1,e) * s23_h &
-                     + dtdz(i,1,1,e) * s33_h
+               + dtdy(i,1,1,e) * s23_h &
+               + dtdz(i,1,1,e) * s33_h
        end do
 
        do j = 1, lx*lx

@@ -99,7 +99,7 @@ contains
     real(kind=rp), allocatable :: transfer(:)
     real(kind=rp) :: nu_val, power_coef
     character(len=:), allocatable :: nu_type, direction, &
-                                     formulation, kernel_type
+         formulation, kernel_type
     integer :: i, lx
 
 
@@ -132,7 +132,7 @@ contains
        else
           do i = 1, lx
              transfer(i) = 1.0_rp - ((i - 1.0_rp) / (lx - 1.0_rp)) ** &
-                           ((lx - 1.0_rp) * power_coef)
+                  ((lx - 1.0_rp) * power_coef)
           end do
        end if
     case default
