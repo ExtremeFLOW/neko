@@ -346,20 +346,16 @@ contains
             this%svv_enabled, .false.)
        if (this%svv_enabled) then
           if (.not. kspv_init) then
-             call neko_error("Asymmetric SVV is only supported by fluid " // &
+             call neko_error("SVV is only supported by fluid " // &
                   "schemes with an implicit velocity solve")
           end if
           if (full_stress_formulation) then
              if (trim(string_val1) .ne. 'coupled_cg' .and. &
                  trim(string_val1) .ne. 'fused_coupled_cg') then
-                call neko_error("Asymmetric full-stress SVV requires a " // &
+                call neko_error("Full-stress SVV requires a " // &
                      "coupled velocity solver (`coupled_cg` or " // &
                      "`fused_coupled_cg`)")
              end if
-          else if (trim(string_val1) .ne. 'gmres' .and. &
-               trim(string_val1) .ne. 'bicgstab') then
-             call neko_error("Asymmetric SVV requires a nonsymmetric " // &
-                  "velocity solver (`gmres` or `bicgstab`)")
           end if
           allocate(this%svv)
           call this%svv%init(json_subdict, this%c_Xh, this%rho)

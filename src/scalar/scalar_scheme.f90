@@ -420,11 +420,6 @@ contains
        call json_get_or_default(params, 'svv.enabled', this%svv_enabled, &
             .false.)
        if (this%svv_enabled) then
-          if (trim(solver_type) .ne. 'gmres' .and. &
-              trim(solver_type) .ne. 'bicgstab') then
-             call neko_error("Asymmetric SVV requires a nonsymmetric " // &
-                  "scalar solver (`gmres` or `bicgstab`)")
-          end if
           allocate(this%svv)
           call this%svv%init(params, this%c_Xh, this%rho)
        end if
