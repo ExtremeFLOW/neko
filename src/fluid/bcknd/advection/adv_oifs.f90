@@ -441,9 +441,7 @@ contains
 
       call dtime%init(oifs_scheme%ndiff)
 
-      ! The explicit casting below is not technically needed but is here for
-      ! clarity.
-      tau = real(ctlag(oifs_scheme%ndiff), kind=dp)
+      tau = ctlag(oifs_scheme%ndiff)
 
       call this%set_conv_velocity_fst(vx, vy, vz)
 
@@ -574,9 +572,7 @@ contains
 
       call dtime%init(oifs_scheme%ndiff)
 
-      ! The explicit casting below is not technically needed but is here for
-      ! clarity.
-      tau = real(ctlag(oifs_scheme%ndiff), kind=dp)
+      tau = ctlag(oifs_scheme%ndiff)
 
       call this%set_conv_velocity_fst(vx, vy, vz)
 
