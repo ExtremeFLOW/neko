@@ -35,14 +35,14 @@
 */
 
 /**
- * Fused device kernel for the asymmetric SVV Helmholtz operator.
+ * Fused device kernel for the Kirby-Sherwin SVV Helmholtz operator.
  *
  * The filter matrices are selected by the caller. An identity matrix in a
  * direction disables filtering in that direction while retaining the complete
  * Helmholtz gradient and divergence.
  */
 template<typename T, const int LX>
-__global__ void ax_helm_svv_kernel(
+__global__ void ax_helm_svv_KS_kernel(
     T * __restrict__ w,
     const T * __restrict__ u,
     const T * __restrict__ dx,

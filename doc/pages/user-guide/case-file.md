@@ -357,16 +357,15 @@ coupled manner, which requires an appropriate linear solver. By default, Neko
 will use the simplified form of the tensor, and the full one must be selected
 by the user by setting `full_stress_formulation` to true.
 
-### Asymmetric spectral vanishing viscosity {#case-file-svv}
+### Spectral vanishing viscosity {#case-file-svv}
 
 Spectral vanishing viscosity (SVV) can add dissipation selectively to the
-high-frequency content of the solution. Neko's asymmetric formulation applies
-the high-pass operator to the trial-function gradient only. For the simplified
-stress formulation, the resulting linear operator is nonsymmetric, so the
-velocity or scalar solver must be `gmres` or `bicgstab`. The full-stress
-formulation is also supported for velocity and requires `coupled_cg` (or
-`fused_coupled_cg` on CUDA/HIP). SVV is available for the implicit `pnpn`
-scheme.
+high-frequency content of the solution. Neko's Kirby-Sherwin formulation applies
+the high-pass operator to the trial-function gradient only. 
+Also note that Neko's SVV perform the projection onto the Legendre polynomials. 
+The full-stress formulation is also supported for velocity and requires 
+`coupled_cg` (or `fused_coupled_cg` on CUDA/HIP). 
+SVV is available for the implicit `pnpn` scheme.
 
 For the fluid equations, add `svv` to the `fluid` object. For a scalar, add the
 same object directly to that scalar's configuration:
@@ -375,7 +374,7 @@ same object directly to that scalar's configuration:
 {
   "svv": {
     "enabled": true,
-    "formulation": "asymmetric",
+    "formulation": "Kirby-Sherwin",
     "direction": "rst",
     "power_coefficient": 0.5,
     "nu": {
@@ -386,17 +385,17 @@ same object directly to that scalar's configuration:
 }
 ```
 
-The optional `formulation` entry defaults to `asymmetric`; it is shown above to
-make the operator choice explicit. The `direction` selects the
-reference-element directions in which the modal filter is applied and defaults
-to `rst`. The `power_coefficient` controls the modal transfer function; larger
-values confine the added dissipation to modes nearer the polynomial cut-off.
-The SVV viscosity `nu` is multiplied by density internally and may be either a
-constant `value` or a registered `field`. A field configuration uses
+The optional `formulation` entry defaults to `Kirby-Sherwin`; 
+it is shown above to make the operator choice explicit. The `direction` selects 
+the reference-element directions in which the modal filter is applied and 
+defaults to `rst`. The `power_coefficient` controls the modal transfer function; 
+larger values confine the added dissipation to modes nearer the polynomial 
+cut-off. The SVV viscosity `nu` is multiplied by density internally and may be 
+either a constant `value` or a registered `field`. A field configuration uses
 `field_name` and may set `time_variable` (default `true`) to refresh the
 viscosity each time step.
 
-The asymmetric operator, including its full-stress variant, is implemented for
+The SVV operator, including its full-stress variant, is implemented for
 CPU, CUDA, and HIP backends. It is not currently available with the SX, XSMM,
 OpenCL, or Metal backends.
 

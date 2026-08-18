@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm_svv_device
-  use ax_helm_svv, only : ax_helm_svv_t
+module ax_helm_svv_KS_device
+  use ax_helm_svv_KS, only : ax_helm_svv_KS_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -44,19 +44,19 @@ module ax_helm_svv_device
   private
 
   !> Device matrix-vector product for an SVV Helmholtz problem.
-  type, public, extends(ax_helm_svv_t) :: ax_helm_svv_device_t
+  type, public, extends(ax_helm_svv_KS_t) :: ax_helm_svv_KS_device_t
    contains
      !> Compute the product.
-     procedure, pass(this) :: compute => ax_helm_svv_device_compute
-  end type ax_helm_svv_device_t
+     procedure, pass(this) :: compute => ax_helm_svv_KS_device_compute
+  end type ax_helm_svv_KS_device_t
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_ax_helm_svv(w_d, u_d, dx_d, dy_d, dz_d, h1_d, &
+     subroutine hip_ax_helm_svv_KS(w_d, u_d, dx_d, dy_d, dz_d, h1_d, &
           drdx_d, drdy_d, drdz_d, dsdx_d, dsdy_d, dsdz_d, &
           dtdx_d, dtdy_d, dtdz_d, jacinv_d, w3_d, svv_h1_d, &
           filter_r_d, filter_s_d, filter_t_d, nelv, lx) &
-          bind(c, name='hip_ax_helm_svv')
+          bind(c, name='hip_ax_helm_svv_KS')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        type(c_ptr), value :: w_d, u_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, h1_d
@@ -66,15 +66,15 @@ module ax_helm_svv_device
        type(c_ptr), value :: jacinv_d, w3_d, svv_h1_d
        type(c_ptr), value :: filter_r_d, filter_s_d, filter_t_d
        integer(c_int) :: nelv, lx
-     end subroutine hip_ax_helm_svv
+     end subroutine hip_ax_helm_svv_KS
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_ax_helm_svv(w_d, u_d, dx_d, dy_d, dz_d, h1_d, &
+     subroutine cuda_ax_helm_svv_KS(w_d, u_d, dx_d, dy_d, dz_d, h1_d, &
           drdx_d, drdy_d, drdz_d, dsdx_d, dsdy_d, dsdz_d, &
           dtdx_d, dtdy_d, dtdz_d, jacinv_d, w3_d, svv_h1_d, &
           filter_r_d, filter_s_d, filter_t_d, nelv, lx) &
-          bind(c, name='cuda_ax_helm_svv')
+          bind(c, name='cuda_ax_helm_svv_KS')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        type(c_ptr), value :: w_d, u_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, h1_d
@@ -84,7 +84,7 @@ module ax_helm_svv_device
        type(c_ptr), value :: jacinv_d, w3_d, svv_h1_d
        type(c_ptr), value :: filter_r_d, filter_s_d, filter_t_d
        integer(c_int) :: nelv, lx
-     end subroutine cuda_ax_helm_svv
+     end subroutine cuda_ax_helm_svv_KS
   end interface
 #endif
 
@@ -97,8 +97,8 @@ contains
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space.
-  subroutine ax_helm_svv_device_compute(this, w, u, coef, msh, Xh)
-    class(ax_helm_svv_device_t), intent(in) :: this
+  subroutine ax_helm_svv_KS_device_compute(this, w, u, coef, msh, Xh)
+    class(ax_helm_svv_KS_device_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
@@ -129,14 +129,14 @@ contains
     end if
 
 #ifdef HAVE_HIP
-    call hip_ax_helm_svv(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+    call hip_ax_helm_svv_KS(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
          coef%h1_d, coef%drdx_d, coef%drdy_d, coef%drdz_d, &
          coef%dsdx_d, coef%dsdy_d, coef%dsdz_d, &
          coef%dtdx_d, coef%dtdy_d, coef%dtdz_d, coef%jacinv_d, &
          Xh%w3_d, this%svv%h1_d, filter_r_d, filter_s_d, filter_t_d, &
          msh%nelv, Xh%lx)
 #elif HAVE_CUDA
-    call cuda_ax_helm_svv(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+    call cuda_ax_helm_svv_KS(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
          coef%h1_d, coef%drdx_d, coef%drdy_d, coef%drdz_d, &
          coef%dsdx_d, coef%dsdy_d, coef%dsdz_d, &
          coef%dtdx_d, coef%dtdy_d, coef%dtdz_d, coef%jacinv_d, &
@@ -154,6 +154,6 @@ contains
        call device_addcol4(w_d, coef%h2_d, coef%B_d, u_d, coef%dof%size())
     end if
 
-  end subroutine ax_helm_svv_device_compute
+  end subroutine ax_helm_svv_KS_device_compute
 
-end module ax_helm_svv_device
+end module ax_helm_svv_KS_device

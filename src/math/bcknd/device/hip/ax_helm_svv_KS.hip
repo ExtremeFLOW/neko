@@ -37,14 +37,14 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
-#include "ax_helm_svv_kernel.h"
+#include "ax_helm_svv_KS_kernel.h"
 
 extern "C" {
 
 /**
  * Fortran wrapper for the fused HIP SVV Helmholtz operator.
  */
-void hip_ax_helm_svv(
+void hip_ax_helm_svv_KS(
     void *w, void *u, void *dx, void *dy, void *dz, void *h1,
     void *drdx, void *drdy, void *drdz,
     void *dsdx, void *dsdy, void *dsdz,
@@ -60,7 +60,7 @@ void hip_ax_helm_svv(
 
 #define CASE(LX)                                                               \
   case LX:                                                                     \
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(ax_helm_svv_kernel<real, LX>),          \
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(ax_helm_svv_KS_kernel<real, LX>),          \
         blocks, threads, shared_size, (hipStream_t) glb_cmd_queue,             \
         (real *) w, (real *) u,                                                \
         (real *) dx, (real *) dy, (real *) dz, (real *) h1,                   \

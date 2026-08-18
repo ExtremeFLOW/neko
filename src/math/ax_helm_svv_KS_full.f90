@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm_svv_full
+module ax_helm_svv_KS_full
   use ax_product, only : ax_t
   use num_types, only : rp
   use coefs, only : coef_t
@@ -43,12 +43,12 @@ module ax_helm_svv_full
   private
 
   !> Matrix-vector product for a Helmholtz problem.
-  type, public, abstract, extends(ax_t) :: ax_helm_svv_full_t
+  type, public, abstract, extends(ax_t) :: ax_helm_svv_KS_full_t
      !> A pointer to the svv object
      type(svv_t), pointer :: svv => null()
    contains
-     procedure, pass(this) :: compute => ax_helm_svv_full_compute
-  end type ax_helm_svv_full_t
+     procedure, pass(this) :: compute => ax_helm_svv_KS_full_compute
+  end type ax_helm_svv_KS_full_t
 
 contains
   !> Compute the product for a single vector. Not implemented for the full
@@ -58,8 +58,8 @@ contains
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
-  subroutine ax_helm_svv_full_compute(this, w, u, coef, msh, Xh)
-    class(ax_helm_svv_full_t), intent(in) :: this
+  subroutine ax_helm_svv_KS_full_compute(this, w, u, coef, msh, Xh)
+    class(ax_helm_svv_KS_full_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
@@ -71,6 +71,6 @@ contains
          "or variable material properties are on, but a velocity solver " // &
          "not supporting a coupled solve is selected. Fixed by setting " // &
          "the solver type to e.g. coupled_cg.")
-  end subroutine ax_helm_svv_full_compute
+  end subroutine ax_helm_svv_KS_full_compute
 
-end module ax_helm_svv_full
+end module ax_helm_svv_KS_full

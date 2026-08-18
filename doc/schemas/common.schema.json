@@ -393,7 +393,7 @@
           "type": "boolean"
         },
         "formulation": {
-          "const": "asymmetric"
+          "const": "Kirby-Sherwin"
         },
         "direction": {
           "type": "string",

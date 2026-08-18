@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm_svv_full_cpu
-  use ax_helm_svv_full, only : ax_helm_svv_full_t
+module ax_helm_svv_KS_full_cpu
+  use ax_helm_svv_KS_full, only : ax_helm_svv_KS_full_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -43,11 +43,11 @@ module ax_helm_svv_full_cpu
   private
 
   !> CPU matrix-vector product for a Helmholtz problem.
-  type, public, extends(ax_helm_svv_full_t) :: ax_helm_svv_full_cpu_t
+  type, public, extends(ax_helm_svv_KS_full_t) :: ax_helm_svv_KS_full_cpu_t
    contains
      !> Compute the product.
-     procedure, pass(this) :: compute_vector => ax_helm_svv_full_compute_vector
-  end type ax_helm_svv_full_cpu_t
+     procedure, pass(this) :: compute_vector => ax_helm_svv_KS_full_compute_vector
+  end type ax_helm_svv_KS_full_cpu_t
 
 contains
 
@@ -62,9 +62,9 @@ contains
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
-  subroutine ax_helm_svv_full_compute_vector(this, au, av, aw, u, v, w, coef, msh,&
+  subroutine ax_helm_svv_KS_full_compute_vector(this, au, av, aw, u, v, w, coef, msh,&
                                          Xh)
-    class(ax_helm_svv_full_cpu_t), intent(in) :: this
+    class(ax_helm_svv_KS_full_cpu_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
@@ -75,7 +75,7 @@ contains
     real(kind=rp), intent(inout) :: av(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    call ax_helm_svv_full_lx(au, av, aw, u, v, w, &
+    call ax_helm_svv_KS_full_lx(au, av, aw, u, v, w, &
             Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, &
             coef%dsdz, coef%dtdx, coef%dtdy, coef%dtdz, &
@@ -90,9 +90,9 @@ contains
     end if
 
 
-  end subroutine ax_helm_svv_full_compute_vector
+  end subroutine ax_helm_svv_KS_full_compute_vector
 
-  subroutine ax_helm_svv_full_lx(au, av, aw, u, v, w, &
+  subroutine ax_helm_svv_KS_full_lx(au, av, aw, u, v, w, &
        Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, svv_h1, svv_Q, svv_Qt, svv_direction, ident, n, lx)
@@ -397,6 +397,6 @@ contains
        end do
 
     end do
-  end subroutine ax_helm_svv_full_lx
+  end subroutine ax_helm_svv_KS_full_lx
 
-end module ax_helm_svv_full_cpu
+end module ax_helm_svv_KS_full_cpu

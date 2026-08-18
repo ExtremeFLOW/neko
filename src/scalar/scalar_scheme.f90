@@ -135,9 +135,9 @@ module scalar_scheme
           user_material_properties => null()
      !> Freeze the scheme, i.e. do nothing in step()
      logical :: freeze = .false.
-     !> Whether asymmetric spectral vanishing viscosity is enabled.
+     !> Whether spectral vanishing viscosity is enabled.
      logical :: svv_enabled = .false.
-     !> Asymmetric spectral vanishing viscosity data.
+     !> Spectral vanishing viscosity data.
      type(svv_t), allocatable :: svv
    contains
      !> Constructor for the base type.
@@ -414,7 +414,7 @@ contains
     call this%set_material_properties(params, user)
 
     !
-    ! Asymmetric spectral vanishing viscosity
+    ! Spectral vanishing viscosity
     !
     if (params%valid_path('svv')) then
        call json_get_or_default(params, 'svv.enabled', this%svv_enabled, &

@@ -29,7 +29,7 @@
 ! ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Data and filter construction for asymmetric spectral vanishing viscosity.
+!> Data and filter construction for spectral vanishing viscosity.
 module spectral_vanishing_viscosity
   use num_types, only : rp
   use elementwise_filter, only : elementwise_filter_t
@@ -50,7 +50,7 @@ module spectral_vanishing_viscosity
   character(len=3), parameter :: KNOWN_DIRECTIONS(7) = [ &
        "rst", "rs ", "rt ", "st ", "r  ", "s  ", "t  "]
 
-  !> Asymmetric spectral vanishing viscosity configuration and coefficients.
+  !> Spectral vanishing viscosity configuration and coefficients.
   type, public :: svv_t
      !> Element-local modal low-pass filter.
      type(elementwise_filter_t) :: filter
@@ -79,7 +79,7 @@ module spectral_vanishing_viscosity
 
 contains
 
-  !> Construct an asymmetric SVV object from case parameters.
+  !> Construct a SVV object from case parameters.
   !! @param this SVV object.
   !! @param json JSON object containing an `svv` dictionary.
   !! @param coef SEM coefficients.
@@ -99,9 +99,9 @@ contains
     lx = coef%Xh%lx
 
     call json_get_or_default(json, "svv.formulation", formulation, &
-         "asymmetric")
-    if (trim(formulation) .ne. "asymmetric") then
-       call neko_error("This SVV operator only supports the asymmetric " // &
+         "Kirby-Sherwin")
+    if (trim(formulation) .ne. "Kirby-Sherwin") then
+       call neko_error("This SVV operator only supports the Kirby-Sherwin " // &
             "formulation")
     end if
 

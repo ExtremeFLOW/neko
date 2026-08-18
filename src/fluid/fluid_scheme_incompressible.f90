@@ -88,9 +88,9 @@ module fluid_scheme_incompressible
      logical :: pr_projection_reorthogonalize_basis !< To reorthogonalize proj basis
      logical :: strict_convergence !< Strict convergence for the velocity solver
      logical :: allow_stabilization !< Allow stabilization period
-     !> Whether asymmetric spectral vanishing viscosity is enabled.
+     !> Whether spectral vanishing viscosity is enabled.
      logical :: svv_enabled = .false.
-     !> Asymmetric spectral vanishing viscosity data.
+     !> Spectral vanishing viscosity object.
      type(svv_t), allocatable :: svv
      !> Extrapolation velocity fields for LES
      type(field_t), pointer :: u_e => null() !< Extrapolated x-Velocity

@@ -38,7 +38,7 @@
  * Evaluate one physical derivative of a field at a nodal point.
  */
 template<typename T, const int LX>
-__device__ __forceinline__ T ax_helm_svv_full_derivative(
+__device__ __forceinline__ T ax_helm_svv_KS_full_derivative(
     const T * __restrict__ field,
     const int component,
     const int i,
@@ -87,13 +87,13 @@ __device__ __forceinline__ T ax_helm_svv_full_derivative(
 }
 
 /**
- * Fused device kernel for the asymmetric full-stress SVV Helmholtz operator.
+ * Fused device kernel for the Kirby-Sherwin full-stress SVV Helmholtz operator.
  *
  * Each physical strain component is formed, filtered and consumed entirely
  * within the kernel. Only two element-sized shared arrays are required.
  */
 template<typename T, const int LX>
-__global__ void ax_helm_svv_full_kernel(
+__global__ void ax_helm_svv_KS_full_kernel(
     T * __restrict__ au,
     T * __restrict__ av,
     T * __restrict__ aw,
@@ -148,49 +148,49 @@ __global__ void ax_helm_svv_full_kernel(
     for (int k = 0; k < LX; ++k) {
       T value;
       if (stress == 0) {
-        value = 2.0 * ax_helm_svv_full_derivative<T, LX>(
+        value = 2.0 * ax_helm_svv_KS_full_derivative<T, LX>(
             u, 0, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv);
       }
       else if (stress == 1) {
-        value = 2.0 * ax_helm_svv_full_derivative<T, LX>(
+        value = 2.0 * ax_helm_svv_KS_full_derivative<T, LX>(
             v, 1, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv);
       }
       else if (stress == 2) {
-        value = 2.0 * ax_helm_svv_full_derivative<T, LX>(
+        value = 2.0 * ax_helm_svv_KS_full_derivative<T, LX>(
             w, 2, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv);
       }
       else if (stress == 3) {
-        value = ax_helm_svv_full_derivative<T, LX>(
+        value = ax_helm_svv_KS_full_derivative<T, LX>(
             u, 1, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv)
-          + ax_helm_svv_full_derivative<T, LX>(
+          + ax_helm_svv_KS_full_derivative<T, LX>(
             v, 0, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv);
       }
       else if (stress == 4) {
-        value = ax_helm_svv_full_derivative<T, LX>(
+        value = ax_helm_svv_KS_full_derivative<T, LX>(
             u, 2, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv)
-          + ax_helm_svv_full_derivative<T, LX>(
+          + ax_helm_svv_KS_full_derivative<T, LX>(
             w, 0, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv);
       }
       else {
-        value = ax_helm_svv_full_derivative<T, LX>(
+        value = ax_helm_svv_KS_full_derivative<T, LX>(
             v, 2, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv)
-          + ax_helm_svv_full_derivative<T, LX>(
+          + ax_helm_svv_KS_full_derivative<T, LX>(
             w, 1, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv);
@@ -240,49 +240,49 @@ __global__ void ax_helm_svv_full_kernel(
     for (int k = 0; k < LX; ++k) {
       T value;
       if (stress == 0) {
-        value = 2.0 * ax_helm_svv_full_derivative<T, LX>(
+        value = 2.0 * ax_helm_svv_KS_full_derivative<T, LX>(
             u, 0, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv);
       }
       else if (stress == 1) {
-        value = 2.0 * ax_helm_svv_full_derivative<T, LX>(
+        value = 2.0 * ax_helm_svv_KS_full_derivative<T, LX>(
             v, 1, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv);
       }
       else if (stress == 2) {
-        value = 2.0 * ax_helm_svv_full_derivative<T, LX>(
+        value = 2.0 * ax_helm_svv_KS_full_derivative<T, LX>(
             w, 2, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv);
       }
       else if (stress == 3) {
-        value = ax_helm_svv_full_derivative<T, LX>(
+        value = ax_helm_svv_KS_full_derivative<T, LX>(
             u, 1, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv)
-          + ax_helm_svv_full_derivative<T, LX>(
+          + ax_helm_svv_KS_full_derivative<T, LX>(
             v, 0, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv);
       }
       else if (stress == 4) {
-        value = ax_helm_svv_full_derivative<T, LX>(
+        value = ax_helm_svv_KS_full_derivative<T, LX>(
             u, 2, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv)
-          + ax_helm_svv_full_derivative<T, LX>(
+          + ax_helm_svv_KS_full_derivative<T, LX>(
             w, 0, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv);
       }
       else {
-        value = ax_helm_svv_full_derivative<T, LX>(
+        value = ax_helm_svv_KS_full_derivative<T, LX>(
             v, 2, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv)
-          + ax_helm_svv_full_derivative<T, LX>(
+          + ax_helm_svv_KS_full_derivative<T, LX>(
             w, 1, i, j, k, elem, dx, dy, dz,
             drdx, drdy, drdz, dsdx, dsdy, dsdz,
             dtdx, dtdy, dtdz, jacinv);
