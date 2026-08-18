@@ -47,8 +47,15 @@ module spectral_vanishing_viscosity
   implicit none
   private
 
-  character(len=3), parameter :: KNOWN_DIRECTIONS(7) = [ &
-       "rst", "rs ", "rt ", "st ", "r  ", "s  ", "t  "]
+  character(len=3), parameter :: KNOWN_DIRECTIONS(7) = [character(len=3) :: &
+       "rst", "rs", "rt", "st", "r", "s", "t"]
+  character(len=13), parameter :: KNOWN_FORMULATIONS(1) = [character(len=13) :: &
+       "Kirby-Sherwin"]
+  character(len=5), parameter :: KNOWN_NU_TYPES(2) = [character(len=5) :: &
+       "value", "field"]
+  character(len=5), parameter :: KNOWN_KERNEL_TYPES(1) = [character(len=5) :: &
+       "power"]
+
 
   !> Spectral vanishing viscosity configuration and coefficients.
   type, public :: svv_t
@@ -56,8 +63,8 @@ module spectral_vanishing_viscosity
      type(elementwise_filter_t) :: filter
      !> Reference directions in which the filter is applied.
      character(len=:), allocatable :: direction
-     !> Power coefficient defining the modal transfer function.
-     real(kind=rp) :: power_coef = 0.0_rp
+     !> Kernel type defining the modal transfer function.
+     character(len=:), allocatable :: kernel_type
      !> SEM coefficients associated with this SVV object.
      type(coef_t), pointer :: coef => null()
      !> Density-weighted SVV viscosity.
@@ -90,9 +97,11 @@ contains
     type(coef_t), intent(in), target :: coef
     type(field_t), intent(in) :: rho
     real(kind=rp), allocatable :: transfer(:)
-    real(kind=rp) :: nu_val
-    character(len=:), allocatable :: nu_type, direction, formulation
+    real(kind=rp) :: nu_val, power_coef
+    character(len=:), allocatable :: nu_type, direction, &
+                                     formulation, kernel_type
     integer :: i, lx
+
 
     call this%free()
     this%coef => coef
@@ -112,16 +121,25 @@ contains
             KNOWN_DIRECTIONS)
     end if
 
-    call json_get(json, "svv.power_coefficient", this%power_coef)
     allocate(transfer(lx))
-    if (this%power_coef .eq. 0.0_rp) then
-       transfer = 0.0_rp
-    else
-       do i = 1, lx
-          transfer(i) = 1.0_rp - ((i - 1.0_rp) / (lx - 1.0_rp)) ** &
-               ((lx - 1.0_rp) * this%power_coef)
-       end do
-    end if
+
+    call json_get(json, "svv.kernel_type", this%kernel_type)
+    select case (trim(this%kernel_type))
+    case ("power")
+       call json_get(json, "svv.power_coefficient", power_coef)
+       if (power_coef .eq. 0.0_rp) then
+          transfer = 0.0_rp
+       else
+          do i = 1, lx
+             transfer(i) = 1.0_rp - ((i - 1.0_rp) / (lx - 1.0_rp)) ** &
+                           ((lx - 1.0_rp) * power_coef)
+          end do
+       end if
+    case default
+       call neko_type_error("The SVV kernel type `", &
+            trim(this%kernel_type), KNOWN_KERNEL_TYPES)
+    end select
+
     call this%filter%init_from_components(coef, "nonBoyd", transfer)
     deallocate(transfer)
 
@@ -234,7 +252,6 @@ contains
     nullify(this%nue)
     this%h1_d = C_NULL_PTR
     this%ident_d = C_NULL_PTR
-    this%power_coef = 0.0_rp
     this%tvar_h1 = .false.
   end subroutine svv_free
 
