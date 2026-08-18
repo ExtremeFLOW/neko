@@ -106,13 +106,13 @@ contains
     write (log_buf, '(A, g0)') "dt: ", fld_data_avg%time - start_time
     call neko_log%message(log_buf)
 
-    dt = real(fld_data_avg%time - start_time, kind=rp)
+    dt = fld_data_avg%time - start_time
     call fld_data_avg%scale(dt)
 
     do i = 1, fld_data_avg%meta_nsamples-1
        call fld_file%read(fld_data)
 
-       dt = real(fld_data%time - fld_data_avg%time, kind=rp)
+       dt = fld_data%time - fld_data_avg%time
        call fld_data%scale(dt)
        call fld_data_avg%add(fld_data)
 
@@ -123,7 +123,7 @@ contains
     end do
 
     ! Divide the sum by the total length of the signal
-    dt = real(1.0_dp/(fld_data_avg%time-start_time), kind = rp)
+    dt = 1.0_dp/(fld_data_avg%time-start_time)
     call fld_data_avg%scale(dt)
 
     call output_file%init(trim(output_fname))
@@ -195,8 +195,9 @@ contains
          real(kind=rp) :: dt
 
          tb = data%x(1,1) ! First time stamp
-         ta = start_time ! User defined
-         dt = real(tb - ta, kind=rp) ! First "sampling length"
+         ta = start_time  ! User defined
+         dt = tb - ta     ! First "sampling length"
+
          write (log_buf, '(A,I0,A,I0,A,g0)') "Length of sample ", 1, "/", &
               n_samples, ": ", dt
          call neko_log%message(log_buf)
@@ -208,7 +209,7 @@ contains
 
             ta = data%x(sample_size*(i-1) + 1, 1) ! Previous time stamp
             tb = data%x(sample_size* i + 1, 1) ! Current time stamp
-            dt = real(tb - ta, kind=rp) ! Sampling time for the current sample
+            dt = tb - ta ! Sampling time for the current sample
 
             write (log_buf, '(A,I0,A,I0,A,g0)') "Length of sample ", i+1, "/", &
                  n_samples, ": ", dt
