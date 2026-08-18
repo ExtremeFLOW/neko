@@ -405,12 +405,13 @@ contains
 
       if (oifs) then
          call makeoifs%compute_scalar(this%advs%x, f_Xh%x, &
-              rho_cp, dt, n)
+              rho_cp, real(dt, kind=rp), n)
       else
 
          ! Add the RHS contributions coming from the BDF scheme.
          call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, &
-              rho_cp, dt, ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
+              rho_cp, real(dt, kind=rp), ext_bdf%diffusion_coeffs%x, &
+              ext_bdf%ndiff, n)
       end if
 
       call slag%update()

@@ -195,8 +195,8 @@ contains
          real(kind=rp) :: dt
 
          tb = data%x(1,1) ! First time stamp
-         ta = start_time  ! User defined
-         dt = tb - ta     ! First "sampling length"
+         ta = start_time ! User defined
+         dt = tb - ta ! First "sampling length"
 
          write (log_buf, '(A,I0,A,I0,A,g0)') "Length of sample ", 1, "/", &
               n_samples, ": ", dt

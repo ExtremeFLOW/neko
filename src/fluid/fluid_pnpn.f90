@@ -734,7 +734,7 @@ contains
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
               this%advx, this%advy, this%advz, &
-              Xh, this%c_Xh, dm_Xh%size(), dt)
+              Xh, this%c_Xh, dm_Xh%size(), real(dt, kind=rp))
 
          ! At this point the RHS contains the sum of the advection operator and
          ! additional source terms, evaluated using the velocity field from the
@@ -750,7 +750,7 @@ contains
          ! RHS.
          call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
               f_x%x, f_y%x, f_z%x, &
-              rho%x(1,1,1,1), dt, n)
+              rho%x(1,1,1,1), real(dt, kind=rp), n)
       else
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
@@ -773,7 +773,8 @@ contains
          ! are just the initial B matrix, filled at initialization.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
               u, v, w, c_Xh%B, c_Xh%Blag, c_Xh%Blaglag, rho%x(1,1,1,1), &
-              dt, ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
+              real(dt, kind=rp), &
+              ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
 
       end if
 

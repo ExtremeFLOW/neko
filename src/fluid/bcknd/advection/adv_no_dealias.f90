@@ -33,7 +33,7 @@
 !> Subroutines to add advection terms to the RHS of a transport equation.
 module adv_no_dealias
   use advection, only : advection_t
-  use num_types, only : rp, dp
+  use num_types, only : rp
   use math, only : subcol3, rzero, addcol3
   use field_math, only : field_col3
   use space, only : space_t
@@ -103,7 +103,7 @@ contains
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: fx, fy, fz
     integer, intent(in) :: n
-    real(kind=dp), intent(in), optional :: dt
+    real(kind=rp), intent(in), optional :: dt
 
     type(field_t), pointer :: temp
     integer :: id_temp
@@ -159,7 +159,7 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
-    real(kind=dp), intent(in), optional :: dt
+    real(kind=rp), intent(in), optional :: dt
 
     type(field_t), pointer :: temp
     integer :: id_temp
@@ -202,7 +202,7 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
-    real(kind=dp), intent(in), optional :: dt
+    real(kind=rp), intent(in), optional :: dt
     type(field_t), pointer :: temp, work_x, work_y, work_z
     integer :: id(4)
 

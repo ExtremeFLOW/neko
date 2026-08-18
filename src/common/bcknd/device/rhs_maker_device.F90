@@ -552,7 +552,7 @@ contains
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n), Blag(n), Blaglag(n)
     real(kind=rp), intent(in) :: rho, bd(4)
-    real(kind=dp), intent(in) :: dt
+    real(kind=rp), intent(in) :: dt
     type(c_ptr) :: bfx_d, bfy_d, bfz_d, B_d, Blag_d, Blaglag_d
 
     bfx_d = device_get_ptr(bfx)
@@ -599,7 +599,7 @@ contains
     real(kind=rp), intent(inout) :: fs(n)
     real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(in) :: bd(4)
-    real(kind=dp), intent(in) :: dt
+    real(kind=rp), intent(in) :: dt
     type(c_ptr) :: fs_d, B_d
 
     fs_d = device_get_ptr(fs)
@@ -628,7 +628,7 @@ contains
   subroutine rhs_maker_oifs_device(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
        rho, dt, n)
     real(kind=rp), intent(in) :: rho
-    real(kind=dp), intent(in) :: dt
+    real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
     real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
@@ -660,7 +660,7 @@ contains
 
   subroutine scalar_rhs_maker_oifs_device(phi_s, bf_s, rho_cp, dt, n)
     type(field_t), intent(in) :: rho_cp
-    real(kind=dp), intent(in) :: dt
+    real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: bf_s(n)
     real(kind=rp), intent(inout) :: phi_s(n)

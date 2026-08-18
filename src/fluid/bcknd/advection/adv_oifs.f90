@@ -421,7 +421,7 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
-    real(kind=dp), intent(in), optional :: dt
+    real(kind=rp), intent(in), optional :: dt
     real(kind=dp) :: tau, tau1, th, dtau
     integer :: i, ilag, itau, nel, n_GL
 
@@ -552,7 +552,7 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
-    real(kind=dp), intent(in), optional :: dt
+    real(kind=rp), intent(in), optional :: dt
 
     real(kind=dp) :: tau, tau1, th, dtau
     integer :: i, ilag, itau, nel, n_GL
@@ -646,7 +646,7 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
-    real(kind=dp), intent(in), optional :: dt
+    real(kind=rp), intent(in), optional :: dt
     ! no-op
   end subroutine adv_oifs_compute_ale
 end module adv_oifs

@@ -33,7 +33,7 @@
 !> Implements `adv_dummy_t`
 module adv_dummy
   use advection, only : advection_t
-  use num_types, only : dp
+  use num_types, only : rp
   use space, only : space_t
   use field, only : field_t
   use coefs, only : coef_t
@@ -98,7 +98,7 @@ contains
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: fx, fy, fz
     integer, intent(in) :: n
-    real(kind=dp), intent(in), optional :: dt
+    real(kind=rp), intent(in), optional :: dt
 
   end subroutine compute_adv_dummy
 
@@ -124,7 +124,7 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
-    real(kind=dp), intent(in), optional :: dt
+    real(kind=rp), intent(in), optional :: dt
 
   end subroutine compute_scalar_adv_dummy
 
@@ -136,7 +136,7 @@ contains
   end subroutine recompute_metrics_dummy_noop
 
   subroutine compute_ale_adv_dummy(this, vx, vy, vz, wm_x, wm_y, wm_z, &
-       fx, fy, fz, Xh, coef, n, dt)
+                                           fx, fy, fz, Xh, coef, n, dt)
     class(adv_dummy_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: wm_x, wm_y, wm_z
@@ -144,7 +144,7 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
-    real(kind=dp), intent(in), optional :: dt
+    real(kind=rp), intent(in), optional :: dt
     ! no-op
   end subroutine compute_ale_adv_dummy
 end module adv_dummy
