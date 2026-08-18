@@ -244,6 +244,7 @@ build supports, picked by the autotuner described in
 | `CAF` | Coarray Fortran (`gs_caf`) | Coarray-capable Fortran compiler | Systems with a tuned coarray runtime |
 | `NEIGHBOUR` | MPI neighbourhood collective (`gs_neighbour`) | None (MPI-3) | CPU runs where one collective per gs beats many point-to-point messages (e.g. Fugaku / Tofu) |
 | `UTOFU` | Native Tofu RDMA (`gs_utofu`) | `--with-utofu` (Tofu-D, e.g. Fugaku) | CPU runs on Fugaku/Tofu; native RDMA, a faster successor to CAF |
+| `MPIRMA` (or `RMA`) | MPI one-sided (`gs_mpi_rma`) | None (MPI-3) | CPU runs on systems with no OpenSHMEM, coarray or uTofu support, where one-sided is still worth trying; needs an MPI whose RMA progresses in hardware (see below) |
 
 @note `MPIGPU` and `NCCL` require Neko to be built with GPU support
 and the corresponding optional dependency. `SHMEM` picks the device
@@ -253,7 +254,8 @@ which of NVSHMEM / OpenSHMEM is present at configure time.
 The backend can also be selected programmatically by passing the
 `comm_bcknd` argument to `gs%init`, using the constants `GS_COMM_MPI`,
 `GS_COMM_MPIGPU`, `GS_COMM_NCCL`, `GS_COMM_NVSHMEM`,
-`GS_COMM_OPENSHMEM`, `GS_COMM_CAF`, `GS_COMM_NEIGHBOUR` or `GS_COMM_UTOFU`
+`GS_COMM_OPENSHMEM`, `GS_COMM_CAF`, `GS_COMM_NEIGHBOUR`, `GS_COMM_UTOFU`
+or `GS_COMM_MPIRMA`
 exposed by the `gather_scatter` module. The environment variable wins when
 both are present.
 
@@ -270,14 +272,22 @@ synchronisation strategy (`NEKO_GS_STRTGY`) already done on
 accelerator builds.
 
 By default the candidates are every host backend the build supports
-except `CAF`: `MPI` and `NEIGHBOUR`, which need nothing but MPI-3, plus
-`SHMEM` (OpenSHMEM) and `UTOFU` when the corresponding support was
-built in -- a backend whose support is missing aborts in its `init`,
-so it is left out of the list rather than tried. `SHMEM` and `CAF` are
-additionally skipped when `NEKO_COMM` does not span every process
-(`NEKO_COMM_ID`), since they address their peers by global PE / image
-number; `UTOFU` exchanges its addresses over `NEKO_COMM` itself and is
-kept in that case.
+except `CAF`: `MPI`, `NEIGHBOUR` and `MPIRMA`, which need nothing but
+MPI-3, plus `SHMEM` (OpenSHMEM) and `UTOFU` when the corresponding
+support was built in -- a backend whose support is missing aborts in
+its `init`, so it is left out of the list rather than tried. `SHMEM`
+and `CAF` are additionally skipped when `NEKO_COMM` does not span every
+process (`NEKO_COMM_ID`), since they address their peers by global PE /
+image number; `UTOFU` and `MPIRMA` exchange their addresses over
+`NEKO_COMM` itself and are kept in that case.
+
+@note `MPIRMA` assumes the MPI implementation makes one-sided progress
+without the target entering MPI. That holds for hardware-driven
+components (Open MPI `osc/rdma` and `osc/ucx`, Cray MPICH over
+libfabric) and not for `osc/pt2pt`, where its spin waits make it slow
+rather than wrong -- it loses the benchmark and is dropped, at the cost
+of the time spent measuring it. Use `NEKO_GS_TUNE=-MPIRMA` to skip it
+outright on such a system.
 
 ##### Choosing the candidates
 
@@ -289,6 +299,7 @@ matched case insensitively:
 |---|---|
 | unset | every supported host backend but `CAF` |
 | `+CAF` | the default set, plus the coarray backend |
+| `-MPIRMA` | the default set, without the MPI one-sided backend |
 | `-SHMEM` | the default set, without OpenSHMEM |
 | `+CAF,-SHMEM` | both deltas applied to the default set |
 | `MPI,NEIGHBOUR` | exactly those two, whatever the build supports |
