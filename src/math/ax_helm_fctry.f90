@@ -32,7 +32,7 @@
 !
 submodule (ax_product) ax_helm_fctry
   use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
-       NEKO_BCKND_DEVICE
+       NEKO_BCKND_DEVICE, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
   use ax_helm_device, only : ax_helm_device_t
   use ax_helm_xsmm, only : ax_helm_xsmm_t
   use ax_helm_sx, only : ax_helm_sx_t
@@ -40,14 +40,20 @@ submodule (ax_product) ax_helm_fctry
   use ax_helm_cpu, only : ax_helm_cpu_t
   use ax_helm_full_cpu, only : ax_helm_full_cpu_t
   use ax_helm_full_device, only : ax_helm_full_device_t
-  use utils, only : neko_error, neko_type_error, &
-       neko_type_registration_error
+  use ax_helm_svv_ks_cpu, only : ax_helm_svv_ks_cpu_t
+  use ax_helm_svv_ks_device, only : ax_helm_svv_ks_device_t
+  use ax_helm_svv_ks_full_cpu, only : ax_helm_svv_ks_full_cpu_t
+  use ax_helm_svv_ks_full_device, only : ax_helm_svv_ks_full_device_t
+  use spectral_vanishing_viscosity, only : svv_t
+  use utils, only : neko_error, neko_type_error, neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the allocator routine
-  character(len=20) :: AX_HELM_KNOWN_TYPES(2) = [character(len=20) :: &
+  character(len=20) :: AX_HELM_KNOWN_TYPES(4) = [character(len=20) :: &
        "standard", &
-       "full"]
+       "full", &
+       "standard_svv", &
+       "full_svv"]
 
 contains
 
@@ -61,6 +67,7 @@ contains
     integer :: i
 
     if (allocated(object)) then
+       call object%free()
        deallocate(object)
     end if
 
@@ -83,6 +90,32 @@ contains
           allocate(ax_helm_full_device_t::object)
        else
           allocate(ax_helm_full_cpu_t::object)
+       end if
+    case ("standard_svv")
+       if (NEKO_BCKND_SX .eq. 1 .or. NEKO_BCKND_XSMM .eq. 1) then
+          call neko_error("SVV is not available with the SX or " // &
+               "XSMM backend")
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
+          if (NEKO_BCKND_CUDA .ne. 1 .and. NEKO_BCKND_HIP .ne. 1) then
+             call neko_error("SVV is only available on CPU, " // &
+                  "CUDA, and HIP backends")
+          end if
+          allocate(ax_helm_svv_ks_device_t::object)
+       else
+          allocate(ax_helm_svv_ks_cpu_t::object)
+       end if
+    case ("full_svv")
+       if (NEKO_BCKND_SX .eq. 1 .or. NEKO_BCKND_XSMM .eq. 1) then
+          call neko_error("Full stress formulation is only available &
+          &on the CPU and device")
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
+          if (NEKO_BCKND_CUDA .ne. 1 .and. NEKO_BCKND_HIP .ne. 1) then
+             call neko_error("Full-stress SVV is only " // &
+                  "available on CPU, CUDA, and HIP backends")
+          end if
+          allocate(ax_helm_svv_ks_full_device_t::object)
+       else
+          allocate(ax_helm_svv_ks_full_cpu_t::object)
        end if
     case default
        do i = 1, ax_helm_registry_size

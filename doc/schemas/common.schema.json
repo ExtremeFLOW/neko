@@ -383,6 +383,77 @@
         }
       ]
     },
+    "svv": {
+      "type": "object",
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "formulation": {
+          "const": "asymmetric"
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["rst", "rs", "rt", "st", "r", "s", "t"]
+        },
+        "power_coefficient": {
+          "$ref": "#/$defs/nonNegativeNumberOrRef"
+        },
+        "nu": {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["value", "field"]
+            },
+            "value": {
+              "$ref": "#/$defs/nonNegativeNumberOrRef"
+            },
+            "field_name": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "time_variable": {
+              "type": "boolean"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {"const": "value"}
+                }
+              },
+              "then": {
+                "required": ["value"]
+              },
+              "else": {
+                "required": ["field_name"]
+              }
+            }
+          ],
+          "additionalProperties": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "enabled": {"const": true}
+            }
+          },
+          "then": {
+            "required": ["power_coefficient", "nu"]
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
     "linearSolver": {
       "type": "object",
       "required": [
