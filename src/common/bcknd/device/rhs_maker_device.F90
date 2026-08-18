@@ -37,7 +37,7 @@ module rhs_maker_device
   use device_math, only : device_copy
   use field_series, only : field_series_t
   use field, only : field_t
-  use num_types, only : rp, c_rp, dp, c_dp
+  use num_types, only : rp, c_rp
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -113,13 +113,12 @@ module rhs_maker_device
           Blag_d, Blaglag_d, rho, dt, bd2, bd3, bd4, nbd, n) &
           bind(c, name = 'rhs_maker_bdf_hip')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        type(c_ptr), value :: ulag1_d, ulag2_d, vlag1_d
        type(c_ptr), value :: vlag2_d, wlag1_d, wlag2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d
        type(c_ptr), value :: Blag_d, Blaglag_d
-       real(c_rp) :: rho, bd2, bd3, bd4
-       real(c_dp) :: dt
+       reaL(c_rp) :: rho, dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine rhs_maker_bdf_hip
   end interface
@@ -129,11 +128,10 @@ module rhs_maker_device
           rho_cp_d, dt, bd2, bd3, bd4, nbd, n) &
           bind(c, name = 'scalar_rhs_maker_bdf_hip')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        type(c_ptr), value :: s_lag_d, s_laglag_d
        type(c_ptr), value :: fs_d, s_d, B_d, rho_cp_d
-       real(c_rp) :: bd2, bd3, bd4
-       real(c_dp) :: dt
+       reaL(c_rp) :: dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine scalar_rhs_maker_bdf_hip
   end interface
@@ -142,11 +140,10 @@ module rhs_maker_device
      subroutine rhs_maker_oifs_hip(phi_x_d, phi_y_d, phi_z_d, bf_x_d, &
           bf_y_d, bf_z_d, rho, dt, n) bind(c, name = 'rhs_maker_oifs_hip')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        type(c_ptr), value :: bf_x_d, bf_y_d, bf_z_d
        type(c_ptr), value :: phi_x_d, phi_y_d, phi_z_d
-       real(c_rp) :: rho
-       real(c_dp) :: dt
+       reaL(c_rp) :: rho, dt
        integer(c_int) :: n
      end subroutine rhs_maker_oifs_hip
   end interface
@@ -155,9 +152,9 @@ module rhs_maker_device
      subroutine scalar_rhs_maker_oifs_hip(phi_s_d, bf_s_d, rho_cp_d, dt, n) &
           bind(c, name = 'scalar_rhs_maker_oifs_hip')
        use, intrinsic :: iso_c_binding
-       import c_dp
+       import c_rp
        type(c_ptr), value :: bf_s_d, phi_s_d, rho_cp_d
-       reaL(c_dp) :: dt
+       reaL(c_rp) :: dt
        integer(c_int) :: n
      end subroutine scalar_rhs_maker_oifs_hip
   end interface
@@ -209,13 +206,12 @@ module rhs_maker_device
           Blag_d, Blaglag_d, rho, dt, bd2, bd3, bd4, nbd, n) &
           bind(c, name = 'rhs_maker_bdf_cuda')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        type(c_ptr), value :: ulag1_d, ulag2_d, vlag1_d
        type(c_ptr), value :: vlag2_d, wlag1_d, wlag2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d
        type(c_ptr), value :: Blag_d, Blaglag_d
-       real(c_rp) :: rho, bd2, bd3, bd4
-       real(c_dp) :: dt
+       reaL(c_rp) :: rho, dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine rhs_maker_bdf_cuda
   end interface
@@ -225,11 +221,10 @@ module rhs_maker_device
           rho_cp_d, dt, bd2, bd3, bd4, nbd, n) &
           bind(c, name = 'scalar_rhs_maker_bdf_cuda')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        type(c_ptr), value :: s_lag_d, s_laglag_d
        type(c_ptr), value :: fs_d, s_d, B_d, rho_cp_d
-       real(c_rp) :: bd2, bd3, bd4
-       real(c_dp) :: dt
+       reaL(c_rp) :: dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine scalar_rhs_maker_bdf_cuda
   end interface
@@ -238,11 +233,10 @@ module rhs_maker_device
      subroutine rhs_maker_oifs_cuda(phi_x_d, phi_y_d, phi_z_d, bf_x_d, &
           bf_y_d, bf_z_d, rho, dt, n) bind(c, name = 'rhs_maker_oifs_cuda')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        type(c_ptr), value :: bf_x_d, bf_y_d, bf_z_d
        type(c_ptr), value :: phi_x_d, phi_y_d, phi_z_d
-       real(c_rp) :: rho
-       real(c_dp) :: dt
+       reaL(c_rp) :: rho, dt
        integer(c_int) :: n
      end subroutine rhs_maker_oifs_cuda
   end interface
@@ -251,9 +245,9 @@ module rhs_maker_device
      subroutine scalar_rhs_maker_oifs_cuda(phi_s_d, bf_s_d, rho_cp_d, dt, n) &
           bind(c, name = 'scalar_rhs_maker_oifs_cuda')
        use, intrinsic :: iso_c_binding
-       import c_dp
+       import c_rp
        type(c_ptr), value :: bf_s_d, phi_s_d, rho_cp_d
-       reaL(c_dp) :: dt
+       reaL(c_rp) :: dt
        integer(c_int) :: n
      end subroutine scalar_rhs_maker_oifs_cuda
   end interface
@@ -304,12 +298,11 @@ module rhs_maker_device
           wlag1_d, wlag2_d, bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
           rho, dt, bd2, bd3, bd4, nbd, n) bind(c, name = 'rhs_maker_bdf_opencl')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        type(c_ptr), value :: ulag1_d, ulag2_d, vlag1_d
        type(c_ptr), value :: vlag2_d, wlag1_d, wlag2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d
-       reaL(c_rp) :: rho, bd2, bd3, bd4
-       real(c_dp) :: dt
+       reaL(c_rp) :: rho, dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine rhs_maker_bdf_opencl
   end interface
@@ -319,11 +312,10 @@ module rhs_maker_device
           rho_cp_d, dt, bd2, bd3, bd4, nbd, n) &
           bind(c, name = 'scalar_rhs_maker_bdf_opencl')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        type(c_ptr), value :: s_lag_d, s_laglag_d
        type(c_ptr), value :: fs_d, s_d, B_d, rho_cp_d
-       reaL(c_rp) :: bd2, bd3, bd4
-       real(c_dp) :: dt
+       reaL(c_rp) :: dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine scalar_rhs_maker_bdf_opencl
   end interface
@@ -332,11 +324,10 @@ module rhs_maker_device
      subroutine rhs_maker_oifs_opencl(phi_x_d, phi_y_d, phi_z_d, bf_x_d, &
           bf_y_d, bf_z_d, rho, dt, n) bind(c, name = 'rhs_maker_oifs_opencl')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        type(c_ptr), value :: bf_x_d, bf_y_d, bf_z_d
        type(c_ptr), value :: phi_x_d, phi_y_d, phi_z_d
-       reaL(c_rp) :: rho
-       real(c_dp) :: dt
+       reaL(c_rp) :: rho, dt
        integer(c_int) :: n
      end subroutine rhs_maker_oifs_opencl
   end interface
@@ -345,9 +336,9 @@ module rhs_maker_device
      subroutine scalar_rhs_maker_oifs_opencl(phi_s_d, bf_s_d, rho_cp_d, dt, n) &
           bind(c, name = 'scalar_rhs_maker_oifs_opencl')
        use, intrinsic :: iso_c_binding
-       import c_dp
+       import c_rp
        type(c_ptr), value :: bf_s_d, phi_s_d, rho_cp_d
-       reaL(c_dp) :: dt
+       reaL(c_rp) :: dt
        integer(c_int) :: n
      end subroutine scalar_rhs_maker_oifs_opencl
   end interface
@@ -398,12 +389,11 @@ module rhs_maker_device
           wlag1_d, wlag2_d, bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
           rho, dt, bd2, bd3, bd4, nbd, n) bind(c, name = 'rhs_maker_bdf_metal')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        type(c_ptr), value :: ulag1_d, ulag2_d, vlag1_d
        type(c_ptr), value :: vlag2_d, wlag1_d, wlag2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d
-       reaL(c_rp) :: rho, bd2, bd3, bd4
-       real(c_dp) :: dt
+       reaL(c_rp) :: rho, dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine rhs_maker_bdf_metal
   end interface
@@ -413,11 +403,10 @@ module rhs_maker_device
           rho_cp_d, dt, bd2, bd3, bd4, nbd, n) &
           bind(c, name = 'scalar_rhs_maker_bdf_metal')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        type(c_ptr), value :: s_lag_d, s_laglag_d
        type(c_ptr), value :: fs_d, s_d, B_d, rho_cp_d
-       reaL(c_rp) :: bd2, bd3, bd4
-       real(c_dp) :: dt
+       reaL(c_rp) :: dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine scalar_rhs_maker_bdf_metal
   end interface
@@ -426,11 +415,10 @@ module rhs_maker_device
      subroutine rhs_maker_oifs_metal(phi_x_d, phi_y_d, phi_z_d, bf_x_d, &
           bf_y_d, bf_z_d, rho, dt, n) bind(c, name = 'rhs_maker_oifs_metal')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        type(c_ptr), value :: bf_x_d, bf_y_d, bf_z_d
        type(c_ptr), value :: phi_x_d, phi_y_d, phi_z_d
-       reaL(c_rp) :: rho
-       real(c_dp) :: dt
+       reaL(c_rp) :: rho, dt
        integer(c_int) :: n
      end subroutine rhs_maker_oifs_metal
   end interface
@@ -439,9 +427,9 @@ module rhs_maker_device
      subroutine scalar_rhs_maker_oifs_metal(phi_s_d, bf_s_d, rho_cp_d, dt, n) &
           bind(c, name = 'scalar_rhs_maker_oifs_metal')
        use, intrinsic :: iso_c_binding
-       import c_dp
+       import c_rp
        type(c_ptr), value :: bf_s_d, phi_s_d, rho_cp_d
-       reaL(c_dp) :: dt
+       reaL(c_rp) :: dt
        integer(c_int) :: n
      end subroutine scalar_rhs_maker_oifs_metal
   end interface
@@ -551,8 +539,7 @@ contains
     type(field_series_t), intent(in) :: ulag, vlag, wlag
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n), Blag(n), Blaglag(n)
-    real(kind=rp), intent(in) :: rho, bd(4)
-    real(kind=rp), intent(in) :: dt
+    real(kind=rp), intent(in) :: dt, rho, bd(4)
     type(c_ptr) :: bfx_d, bfy_d, bfz_d, B_d, Blag_d, Blaglag_d
 
     bfx_d = device_get_ptr(bfx)
@@ -598,8 +585,7 @@ contains
     type(field_series_t), intent(in) :: s_lag
     real(kind=rp), intent(inout) :: fs(n)
     real(kind=rp), intent(in) :: B(n)
-    real(kind=rp), intent(in) :: bd(4)
-    real(kind=rp), intent(in) :: dt
+    real(kind=rp), intent(in) :: dt, bd(4)
     type(c_ptr) :: fs_d, B_d
 
     fs_d = device_get_ptr(fs)
@@ -627,8 +613,7 @@ contains
 
   subroutine rhs_maker_oifs_device(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
        rho, dt, n)
-    real(kind=rp), intent(in) :: rho
-    real(kind=rp), intent(in) :: dt
+    real(kind=rp), intent(in) :: rho, dt
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
     real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
