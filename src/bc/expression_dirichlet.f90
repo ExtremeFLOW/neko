@@ -32,7 +32,7 @@
 !
 !> Defines a Dirichlet condition prescribed by a mathematical expression
 module expression_dirichlet
-  use num_types, only : rp, dp
+  use num_types, only : rp
   use bc, only : bc_t
   use coefs, only : coef_t
   use expression, only : expression_t, expression_check_finite
