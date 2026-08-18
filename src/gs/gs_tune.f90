@@ -37,19 +37,20 @@ submodule (gather_scatter) gs_tune
        gs_caf_signal_modes, gs_caf_mode_name, gs_caf_mode_get, &
        gs_caf_set_mode
   use gs_utofu, only : GS_UTOFU_AVAIL
+  use gs_mpi_rma, only : GS_MPI_RMA_AVAIL
   implicit none
 
   !> The host comm. backends the runtime autotuning can benchmark, in the
   !! order they are benchmarked and reported. The device backends are not
   !! among them: the autotuning only runs on host builds (see gs_init).
-  integer, parameter :: GS_TUNE_BCKND(5) = [GS_COMM_MPI, GS_COMM_NEIGHBOUR, &
-       GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_UTOFU]
+  integer, parameter :: GS_TUNE_BCKND(6) = [GS_COMM_MPI, GS_COMM_NEIGHBOUR, &
+       GS_COMM_MPIRMA, GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_UTOFU]
 
   !> Which of GS_TUNE_BCKND are benchmarked when NEKO_GS_TUNE is unset: all
   !! of them the build supports but CAF, which has to be asked for (see
   !! gs_tune_select).
-  logical, parameter :: GS_TUNE_DEFAULT(5) = [.true., .true., .true., &
-       .false., .true.]
+  logical, parameter :: GS_TUNE_DEFAULT(6) = [.true., .true., .true., &
+       .true., .false., .true.]
 
   !> Whether the coarray signaling mode has already been selected by the
   !! autotuner (NEKO_GS_CAF_SIGNALING=auto). The mode is a program-wide
@@ -113,6 +114,17 @@ contains
     select case (comm_bcknd)
     case (GS_COMM_MPI, GS_COMM_NEIGHBOUR)
        tunable = .true.
+    case (GS_COMM_MPIRMA)
+       ! Nothing beyond MPI-3, and it addresses its peers by their rank in
+       ! NEKO_COMM rather than by a global PE or image number, so unlike the
+       ! other one-sided backends a communicator split (NEKO_COMM_ID) does
+       ! not rule it out. What it does assume is that the implementation
+       ! makes RMA progress without the target entering MPI; on one that
+       ! does not (Open MPI osc/pt2pt) it is slow rather than wrong, so it
+       ! loses the benchmark and is dropped, which is the outcome the
+       ! autotuning exists to produce. Rule it out with NEKO_GS_TUNE=-MPIRMA
+       ! if paying for that measurement is not worth it.
+       tunable = GS_MPI_RMA_AVAIL
     case (GS_COMM_OPENSHMEM)
        ! The one-sided backends that address their peers by global PE or
        ! image number (OpenSHMEM PEs, coarray images) are only correct when
@@ -237,6 +249,8 @@ contains
        bcknd = GS_COMM_CAF
     case ('UTOFU')
        bcknd = GS_COMM_UTOFU
+    case ('MPIRMA', 'RMA')
+       bcknd = GS_COMM_MPIRMA
     case default
        bcknd = 0
     end select

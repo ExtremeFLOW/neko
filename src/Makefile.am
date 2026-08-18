@@ -63,6 +63,7 @@ neko_fortran_SOURCES = \
 	gs/gs_ops.f90\
 	gs/gs_comm.f90\
 	gs/gs_mpi.f90\
+	gs/gs_mpi_rma.f90\
 	gs/gs_shmem.F90\
 	gs/gs_caf.F90\
 	gs/gs_neighbour.f90\
