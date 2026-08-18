@@ -192,6 +192,7 @@ var index =
         [ "Using point zones", "da/dd0/point-zones.html#point-zones_using-point-zones", null ]
       ] ],
       [ "Statistics guide", "df/d8f/statistics-guide.html", [
+        [ "Output filenames and restarts", "df/d8f/statistics-guide.html#statistics-output-filenames", null ],
         [ "Fluid Statistics", "df/d8f/statistics-guide.html#fluid-statistics", [
           [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md198", null ],
           [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md199", null ]

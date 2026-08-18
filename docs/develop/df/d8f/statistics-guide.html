@@ -102,7 +102,8 @@ $(document).ready(function(){initNavTree('df/d8f/statistics-guide.html','../../'
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#fluid-statistics">Fluid Statistics</a><ul><li class="level2"><a href="#autotoc_md198">Using statistics</a></li>
+<ul><li class="level1"><a href="#statistics-output-filenames">Output filenames and restarts</a></li>
+<li class="level1"><a href="#fluid-statistics">Fluid Statistics</a><ul><li class="level2"><a href="#autotoc_md198">Using statistics</a></li>
 <li class="level2"><a href="#autotoc_md199">List of fields in output files</a></li>
 </ul>
 </li>
@@ -133,6 +134,22 @@ $(document).ready(function(){initNavTree('df/d8f/statistics-guide.html','../../'
 <p>$$ \langle u \rangle_t = \int_{T_0}^{T_N} u dt $$</p>
 <p>In Neko, this is computed as</p>
 <p>$$ \langle u \rangle_t = \sum_{i=0}^N u_i \Delta t_i $$ where \( u_0 \) is the fields value at \( T_0 \) and \( N \) is the number of time steps needed to reach \( T_N \), \( T_N = T_0 + \sum_{i=0}^N \Delta t_i \).</p>
+<h1><a class="anchor" id="statistics-output-filenames"></a>
+Output filenames and restarts</h1>
+<p>All statistics components use the same output filename convention. This includes <code><a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a></code>, <code><a class="el" href="../../dc/d5e/namespacescalar__stats.html" title="Computes various statistics for the scalar fields. We use the Reynolds decomposition for a field u = ...">scalar_stats</a></code>, <code><a class="el" href="../../d8/dc1/namespacefluid__sgs__stats.html" title="Computes the subgrid-scale contributions for Reynolds stresses. We use the Reynolds decomposition for...">fluid_sgs_stats</a></code>, <code><a class="el" href="../../de/db2/namespacescalar__sgs__stats.html" title="Computes the subgrid-scale contributions for the scalar fluxes. We use the Reynolds decomposition for...">scalar_sgs_stats</a></code>, and <code><a class="el" href="../../df/ded/namespaceuser__stats.html" title="Implements the user_stats_t type.">user_stats</a></code>.</p>
+<p>Let <code>name</code> be the default output stem or the value of <code>output_filename</code>. Let <code>R</code> be the index of the first statistics output in the current run, counting outputs from before a restart, and let <code>K</code> be the zero-based output index within the current run. The filenames are:</p>
+<ul>
+<li><code>nameR0.fKKKKK</code> for <code>.fld</code> output, where <code>KKKKK</code> is padded to five digits;</li>
+<li><code>nameR.csv</code> for <code>.csv</code> output.</li>
+</ul>
+<p>The initial run uses <code>R = 0</code>. On restart, <code>R</code> continues from the outputs in the preceding run, while <code>K</code> is reset to zero. For example, if three <code><a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a></code> files were written before a restart, the names are:</p>
+<div class="fragment"><div class="line">fluid_stats00.f00000</div>
+<div class="line">fluid_stats00.f00001</div>
+<div class="line">fluid_stats00.f00002</div>
+</div><!-- fragment --><p>The restarted run then begins with:</p>
+<div class="fragment"><div class="line">fluid_stats30.f00000</div>
+<div class="line">fluid_stats30.f00001</div>
+</div><!-- fragment --><p>For <code>.csv</code> output, the corresponding files are <code>fluid_stats0.csv</code> before the restart and <code>fluid_stats3.csv</code> after it. A custom value such as <code>"output_filename": "my_stats"</code> only replaces the <code><a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a></code> stem; the same run and per-run counters are still applied.</p>
 <h1><a class="anchor" id="fluid-statistics"></a>
 Fluid Statistics</h1>
 <p>In the fluid statistics in Neko, various averages of the different velocity components, derivatives and pressure are computed. In total, 44 "raw 
@@ -152,9 +169,9 @@ Using statistics</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>compute_value</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps or simulationtime, depending on compute_control, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive real or int   </td><td class="markdownTableBodyNone">- (recommended every 50 timesteps or so)    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified filename to store output in.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone">fluid_statsX*   </td></tr>
+<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified base filename for the output.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a></code>   </td></tr>
 </table>
-<p>*The name of the written statistics file will by default be <code>fluid_statsX0.f0000X,..., fluid_statsX0.f0000Y</code> where X is the number of the first outputted statistic of the current run.</p>
+<p>The run and per-run counters are appended according to <a class="el" href="../../df/d8f/statistics-guide.html#statistics-output-filenames">Output filenames and restarts</a>.</p>
 <p>In addition, one can specify the usual controls for the output, which then outputs the averages computes from the last time the statistics were written to file. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:</p>
 <div class="fragment"><div class="line">&quot;simulation_components&quot;:</div>
 <div class="line">  [</div>
@@ -172,7 +189,7 @@ Using statistics</h2>
 </div><!-- fragment --><dl class="section attention"><dt>Attention</dt><dd>For simulations requiring restarts, it is recommended to run each restart in a different output directory as a precaution to avoid potential overwritings of files.</dd></dl>
 <p>Preferably set the initial transient to a multiple of output_value as otherwise the first output will be slightly shorter than the rest. The code related to fluid statistics are located in <a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a> and <a class="el" href="../../dd/dc6/namespacefluid__stats__simcomp.html" title="Implements the fluid_stats_simcomp_t type.">fluid_stats_simcomp</a>.</p>
 <p>The argument "avg_direction" is optional and if ignored we output 3d fields. The statistics are saved in a fld file according to the following in 2D and 3D. Observe that in 2D the mean Z-velocity is stored in a last scalar field. All other fields are kept the same. This is due to a limitation of the fld file format.</p>
-<p>For 1D statistics a CSV file is outputted. The first column is the time at which the statistics are collected, the second column the spatial coordinate, and the rest of the data is stored in the order below. In this case all statistics are kept in the same order as in 3D. The name for these files are <code>fluid_statsX.csv,..., fluid_statsX.csv</code> where X is the number of the first outputted statistic of the current run.</p>
+<p>For 1D statistics a CSV file is outputted. The first column is the time at which the statistics are collected, the second column the spatial coordinate, and the rest of the data is stored in the order below. In this case all statistics are kept in the same order as in 3D. The name for these files are <code>fluid_statsR.csv</code>, using the run index described in <a class="el" href="../../df/d8f/statistics-guide.html#statistics-output-filenames">Output filenames and restarts</a>.</p>
 <p>The statistics fields created by this simcomp are accessible from the neko registry and retrievable under the following naming convention: <code>name_in_registry = name_of_simcomp + "/mean_" + name_of_field</code>. Unless specified, the name of the simcomp will default to <code><a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a></code>. For example, if <code>"fields": ["s", "my_field"]</code> and <code>"name": "my_stats"</code> then the fields <code>"my_stats/mean_s"</code> and <code>"my_stats/mean_my_field"</code> will be added to the registry.</p>
 <h2><a class="anchor" id="autotoc_md199"></a>
 List of fields in output files</h2>
@@ -297,9 +314,9 @@ Using statistics</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>compute_value</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps or simulationtime, depending on compute_control, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive real or int   </td><td class="markdownTableBodyNone">- (recommended every 50 timesteps or so)    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified filename to store output in.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone"><code>scalar_statsX*</code>   </td></tr>
+<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified base filename for the output.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone"><code>scalar_stats_{field}</code>   </td></tr>
 </table>
-<p>*The name of the written statistics file will by default be <code>scalar_statsX0.f0000X,..., scalar_statsX0.f0000Y</code> where X is the number of the first outputted statistic of the current run. If <code>field</code> is specified, it will be appended to the default filename as <code>scalar_stats_{field}X0.f0000X</code>. Otherwise, you can specify an independent <code>output_filename</code> for each scalar you compute statistics for.</p>
+<p>The scalar field name is part of the default output stem. The run and per-run counters are appended according to <a class="el" href="../../df/d8f/statistics-guide.html#statistics-output-filenames">Output filenames and restarts</a>. An independent <code>output_filename</code> can be specified for each scalar statistics component.</p>
 <p>In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:</p>
 <div class="fragment"><div class="line">&quot;simulation_components&quot;:</div>
 <div class="line">  [</div>
@@ -427,9 +444,9 @@ Using statistics</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>compute_value</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps or simulationtime, depending on compute_control, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive real or int   </td><td class="markdownTableBodyNone">Not set (but recommended with every 50 timesteps or so)    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified filename to store output in.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone">fluid_sgs_statsX*   </td></tr>
+<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified base filename for the output.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../d8/dc1/namespacefluid__sgs__stats.html" title="Computes the subgrid-scale contributions for Reynolds stresses. We use the Reynolds decomposition for...">fluid_sgs_stats</a></code>   </td></tr>
 </table>
-<p>*The name of the written statistics file will by default be <code>fluid_sgs_statsX0.f0000X,..., fluid_sgs_statsX0.f0000Y</code> where X is the number of the first outputted statistic of the current run.</p>
+<p>The run and per-run counters are appended according to <a class="el" href="../../df/d8f/statistics-guide.html#statistics-output-filenames">Output filenames and restarts</a>.</p>
 <p>In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:</p>
 <div class="fragment"><div class="line">&quot;simulation_components&quot;:</div>
 <div class="line">  [</div>
@@ -490,9 +507,9 @@ Using statistics</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>compute_value</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps or simulationtime, depending on compute_control, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive real or int   </td><td class="markdownTableBodyNone">Not set (but recommended with every 50 timesteps or so)    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified filename to store output in.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone">scalar_sgs_statsX*   </td></tr>
+<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified base filename for the output.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone"><code>scalar_sgs_stats_{field}</code>   </td></tr>
 </table>
-<p>*The name of the written statistics file will by default be <code>scalar_sgs_statsX0.f0000X,..., scalar_sgs_statsX0.f0000Y</code> where X is the number of the first outputted statistic of the current run.</p>
+<p>The scalar field name is part of the default output stem. The run and per-run counters are appended according to <a class="el" href="../../df/d8f/statistics-guide.html#statistics-output-filenames">Output filenames and restarts</a>.</p>
 <p>In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work if the eddy diffusivity field is registered:</p>
 <div class="fragment"><div class="line">&quot;simulation_components&quot;:</div>
 <div class="line">  [</div>
@@ -558,7 +575,7 @@ Note to users</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Mon Aug 17 2026 03:48:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Aug 18 2026 03:47:33 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

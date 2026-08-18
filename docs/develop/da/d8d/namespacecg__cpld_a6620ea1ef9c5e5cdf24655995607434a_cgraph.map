@@ -1,6 +1,0 @@
-<map id="cg_cpld::cg_cpld_solve" name="cg_cpld::cg_cpld_solve">
-<area shape="rect" id="Node000001" title="Coupled PCG solve." alt="" coords="5,29,176,55"/>
-<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed" title="Weighted inner product ." alt="" coords="224,29,323,55"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,39,210,39,210,45,176,45"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="243,31,237,21,240,11,253,5,273,3,298,6,309,15,305,19,296,11,273,8,254,10,244,15,242,20,248,28"/>
-</map>
