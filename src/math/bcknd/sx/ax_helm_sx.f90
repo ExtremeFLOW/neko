@@ -42,12 +42,13 @@ module ax_helm_sx
 
   type, public, extends(ax_helm_t) :: ax_helm_sx_t
    contains
-     procedure, nopass :: compute => ax_helm_sx_compute
+     procedure, pass(this) :: compute => ax_helm_sx_compute
   end type ax_helm_sx_t
 
 contains
 
-  subroutine ax_helm_sx_compute(w, u, coef, msh, Xh)
+  subroutine ax_helm_sx_compute(this, w, u, coef, msh, Xh)
+    class(ax_helm_sx_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef

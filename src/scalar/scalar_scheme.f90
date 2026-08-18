@@ -69,6 +69,7 @@ module scalar_scheme
   use time_state, only : time_state_t
   use device, only : device_memcpy, DEVICE_TO_HOST
   use scalar_ic, only : set_scalar_ic
+  use spectral_vanishing_viscosity, only : svv_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -135,6 +136,10 @@ module scalar_scheme
           user_material_properties => null()
      !> Freeze the scheme, i.e. do nothing in step()
      logical :: freeze = .false.
+     !> Whether asymmetric spectral vanishing viscosity is enabled.
+     logical :: svv_enabled = .false.
+     !> Asymmetric spectral vanishing viscosity data.
+     type(svv_t), allocatable :: svv
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -424,6 +429,23 @@ contains
     !
     call this%set_material_properties(params, user)
 
+    !
+    ! Asymmetric spectral vanishing viscosity
+    !
+    if (params%valid_path('svv')) then
+       call json_get_or_default(params, 'svv.enabled', this%svv_enabled, &
+            .false.)
+       if (this%svv_enabled) then
+          if (trim(solver_type) .ne. 'gmres' .and. &
+              trim(solver_type) .ne. 'bicgstab') then
+             call neko_error("Asymmetric SVV requires a nonsymmetric " // &
+                  "scalar solver (`gmres` or `bicgstab`)")
+          end if
+          allocate(this%svv)
+          call this%svv%init(params, this%c_Xh, this%rho)
+       end if
+    end if
+
 
     !
     ! Turbulence modelling
@@ -517,6 +539,12 @@ contains
     integer :: i
 
     bc => null()
+
+    if (allocated(this%svv)) then
+       call this%svv%free()
+       deallocate(this%svv)
+    end if
+    this%svv_enabled = .false.
 
     nullify(this%Xh)
     nullify(this%dm_Xh)

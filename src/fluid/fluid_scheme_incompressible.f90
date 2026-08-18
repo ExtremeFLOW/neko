@@ -69,6 +69,7 @@ module fluid_scheme_incompressible
   use device, only : device_event_sync, glb_cmd_event, DEVICE_TO_HOST, &
        device_memcpy
   use time_state, only : time_state_t
+  use spectral_vanishing_viscosity, only : svv_t
   implicit none
   private
 
@@ -87,6 +88,10 @@ module fluid_scheme_incompressible
      logical :: pr_projection_reorthogonalize_basis !< To reorthogonalize proj basis
      logical :: strict_convergence !< Strict convergence for the velocity solver
      logical :: allow_stabilization !< Allow stabilization period
+     !> Whether asymmetric spectral vanishing viscosity is enabled.
+     logical :: svv_enabled = .false.
+     !> Asymmetric spectral vanishing viscosity data.
+     type(svv_t), allocatable :: svv
      !> Extrapolation velocity fields for LES
      type(field_t), pointer :: u_e => null() !< Extrapolated x-Velocity
      type(field_t), pointer :: v_e => null() !< Extrapolated y-Velocity
@@ -157,7 +162,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: real_vec(:)
     real(kind=rp) :: real_val, kappa, B, z0
-    logical :: logical_val
+    logical :: logical_val, full_stress_formulation
     integer :: integer_val, ierr
     type(json_file) :: wm_json
     character(len=:), allocatable :: string_val1, string_val2
@@ -262,8 +267,8 @@ contains
     call neko_log%message(log_buf)
 
     call json_get_or_default(params, "case.fluid.full_stress_formulation", &
-         logical_val, .false.)
-    write(log_buf, '(A, L1)') 'Full stress: ', logical_val
+         full_stress_formulation, .false.)
+    write(log_buf, '(A, L1)') 'Full stress: ', full_stress_formulation
     call neko_log%message(log_buf)
 
 
@@ -335,6 +340,32 @@ contains
     call this%source_term%add(params, 'case.fluid.source_terms')
     call neko_log%end_section()
 
+    if (params%valid_path('case.fluid.svv')) then
+       call json_get(params, 'case.fluid', json_subdict)
+       call json_get_or_default(json_subdict, 'svv.enabled', &
+            this%svv_enabled, .false.)
+       if (this%svv_enabled) then
+          if (.not. kspv_init) then
+             call neko_error("Asymmetric SVV is only supported by fluid " // &
+                  "schemes with an implicit velocity solve")
+          end if
+          if (full_stress_formulation) then
+             if (trim(string_val1) .ne. 'coupled_cg' .and. &
+                 trim(string_val1) .ne. 'fused_coupled_cg') then
+                call neko_error("Asymmetric full-stress SVV requires a " // &
+                     "coupled velocity solver (`coupled_cg` or " // &
+                     "`fused_coupled_cg`)")
+             end if
+          else if (trim(string_val1) .ne. 'gmres' .and. &
+               trim(string_val1) .ne. 'bicgstab') then
+             call neko_error("Asymmetric SVV requires a nonsymmetric " // &
+                  "velocity solver (`gmres` or `bicgstab`)")
+          end if
+          allocate(this%svv)
+          call this%svv%init(json_subdict, this%c_Xh, this%rho)
+       end if
+    end if
+
   end subroutine fluid_scheme_init_base
 
   subroutine fluid_scheme_free(this)
@@ -342,6 +373,12 @@ contains
     class(bc_t), pointer :: bc
     integer :: i
 
+
+    if (allocated(this%svv)) then
+       call this%svv%free()
+       deallocate(this%svv)
+    end if
+    this%svv_enabled = .false.
 
     call this%Xh%free()
 
