@@ -120,8 +120,6 @@ contains
          hom_dir, 'none')
     call json_get_or_lookup_or_default(json, 'start_time', &
          start_time, 0.0_dp)
-    call json_get_or_default(json, 'field', &
-         sname, 's')
 
     call json_get(json, 'alphat', json_subdict)
     call json_get(json_subdict, 'nut_dependency', nut_dependency)
