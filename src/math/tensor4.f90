@@ -53,7 +53,13 @@ module tensor4
      integer, private :: n = 0 !< Total size n1*n2*n3*n4.
    contains
      !> Initialise a tensor of size `n1*n2*n3*n4`.
-     procedure, pass(t) :: init => tensor4_init
+     procedure, pass(t), private :: init_dims => tensor4_init
+     !> Initialise a tensor of size `n1*n2*n3*n4`.
+     !! @note Declared as a generic (rather than a plain binding) so that
+     !! types extending tensor4_t can override `init_dims` and have that
+     !! override correctly replace this specific within the inherited
+     !! `init` generic, instead of ambiguously merging with it.
+     generic :: init => init_dims
      !> Deallocate a tensor.
      procedure, pass(t) :: free => tensor4_free
      !> Returns the number of entries in the tensor.
@@ -106,11 +112,13 @@ contains
     integer, intent(in) :: n4
     character(len=*), intent(in), optional :: name
 
+    ! t%alloc zeroes the device side (and synchronizes) before any
+    ! host-side touch: under zero-copy the device then faults the
+    ! pages first (device first touch), which gives contiguous
+    ! physical mappings and thus better GPU TLB utilisation; rewriting
+    ! the zeros on the host afterwards is benign.
     call t%alloc(n1, n2, n3, n4)
     t%x = 0.0_rp
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(t%x_d, 0.0_rp, t%n)
-    end if
 
     if (present(name)) then
        t%name = name

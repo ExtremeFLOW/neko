@@ -33,46 +33,55 @@
 !> Defines a field
 module field
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math, only : device_add2, device_cadd, device_cfill, device_copy
-  use num_types, only : rp, c_rp
-  use device, only : device_map, device_unmap, device_memset, device_memcpy
-  use math, only : add2, copy, cadd, cfill
+  use device_math, only : device_add2, device_cadd, device_copy
+  use num_types, only : rp
+  use math, only : add2, copy, cadd
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
-  use utils, only : NEKO_VARNAME_LEN
+  use tensor4, only : tensor4_t
+  use utils, only : neko_error, NEKO_VARNAME_LEN
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
-  type, public :: field_t
-     real(kind=rp), allocatable :: x(:,:,:,:) !< Field data
-
+  type, public, extends(tensor4_t) :: field_t
      type(space_t), pointer :: Xh !< Function space \f$ X_h \f$
      type(mesh_t), pointer :: msh !< Mesh
      type(dofmap_t), pointer :: dof !< Dofmap
 
      logical :: internal_dofmap = .false. !< Does the field have an own dofmap
-     character(len=NEKO_VARNAME_LEN) :: name = "" !< Name of the field
-     type(c_ptr) :: x_d = C_NULL_PTR
    contains
      procedure, private, pass(this) :: init_common => field_init_common
      procedure, private, pass(this) :: init_external_dof => &
           field_init_external_dof
      procedure, private, pass(this) :: init_internal_dof => &
           field_init_internal_dof
+     !> Seals off tensor4_t's raw dimension initialiser: field_t must always
+     !! be initialised with a mesh/space or dofmap, never bare dimensions,
+     !! since that would leave Xh/msh/dof unassociated. Overriding
+     !! `init_dims` here (matching tensor4_t's exact signature and passed-
+     !! object argument name) replaces it within the inherited `init`
+     !! generic rather than merging alongside it as an ambiguous overload.
+     procedure, private, pass(t) :: init_dims => field_init_dims_seal
      procedure, private, pass(this) :: assign_field => field_assign_field
-     procedure, private, pass(this) :: assign_scalar => field_assign_scalar
      procedure, private, pass(this) :: add_field => field_add_field
      procedure, private, pass(this) :: add_scalar => field_add_scalar
-     procedure, pass(this) :: copy_from => field_copy_from
-     procedure, pass(this) :: free => field_free
-     !> Return the size of the field.
-     procedure, pass(this) :: size => field_size
+     procedure, pass(t) :: free => field_free
+     !> Seals off tensor4_t's raw tensor assignment so `field = tensor4`
+     !! cannot silently bypass Xh/msh/dof; same reasoning as init_dims
+     !! above. Not ambiguous with assign_field below since the right-hand
+     !! side types differ (tensor4_t vs. field_t).
+     procedure, pass(t) :: tensor4_assign_tensor4 => &
+          field_assign_tensor4_seal
+     !> Scalar assignment is *not* overridden: tensor4_t's own
+     !! tensor4_assign_scalar (cfill by total size) is exactly what a
+     !! field-level scalar fill needs too, with no Xh/msh/dof involved, so
+     !! it is left to merge into `assignment(=)` below unchanged.
      !> Initialise a field
      generic :: init => init_external_dof, init_internal_dof
      !> Assignemnt to current field
-     generic :: assignment(=) => assign_field, assign_scalar
+     generic :: assignment(=) => assign_field
      !> Add to current field
      !! @note We don't overload operator(+), to avoid
      !! the extra assignemnt operator
@@ -154,88 +163,78 @@ contains
   end subroutine field_init_external_dof
 
   !> Initialize a field @a this
+  !! @note Called with @a this%x already deallocated (init_external_dof and
+  !! init_internal_dof both call `this%free()` before reaching here), so the
+  !! parent init's alloc-always-frees-first semantics are a no-op on the
+  !! array and safe to rely on unconditionally.
   subroutine field_init_common(this, fld_name)
     class(field_t), intent(inout) :: this !< Field to be initialized
     character(len=*), optional :: fld_name !< Name of the field
-    integer :: ierr
-    integer :: n
-    logical :: fresh
 
     associate(lx => this%Xh%lx, ly => this%Xh%ly, &
          lz => this%Xh%lz, nelv => this%msh%nelv)
 
-      fresh = .not. allocated(this%x)
-      if (fresh) then
-         allocate(this%x(lx, ly, lz, nelv), stat = ierr)
-      end if
-
+      ! tensor4_t%init (via tensor4_allocate) zeroes the device side
+      ! (and synchronizes) before the host-side zero-fill below: under
+      ! zero-copy the device then faults the pages first (device first
+      ! touch), which gives contiguous physical mappings and thus
+      ! better GPU TLB utilisation; rewriting the zeros on the host
+      ! afterwards is benign. See tensor4_init/tensor4_allocate.
       if (present(fld_name)) then
-         this%name = fld_name
+         call this%tensor4_t%init(lx, ly, lz, nelv, fld_name)
       else
-         this%name = "Field"
-      end if
-
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         n = lx * ly * lz * nelv
-         call device_map(this%x, this%x_d, n)
-         block
-           real(c_rp) :: rp_dummy
-           integer(c_size_t) :: s
-           s = c_sizeof(rp_dummy) * n
-           call device_memset(this%x_d, 0, s, sync = .true.)
-         end block
-      end if
-
-      ! Zero on the host after the device-side memset: under zero-copy
-      ! the device then faults the pages first (device first touch),
-      ! which gives contiguous physical mappings and thus better GPU
-      ! TLB utilisation; rewriting the zeros on the host is benign
-      if (fresh) then
-         this%x = 0.0_rp
+         call this%tensor4_t%init(lx, ly, lz, nelv, "Field")
       end if
     end associate
 
   end subroutine field_init_common
 
   !> Deallocate a field @a f
-  subroutine field_free(this)
-    class(field_t), intent(inout) :: this
+  subroutine field_free(t)
+    class(field_t), intent(inout) :: t
 
-    this%name = ""
-    if (allocated(this%x)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%x, this%x_d)
-       end if
-       deallocate(this%x)
+    call t%tensor4_t%free()
+
+    if (t%internal_dofmap) then
+       call t%dof%free()
+       deallocate(t%dof)
+       t%internal_dofmap = .false.
     end if
 
-    if (this%internal_dofmap) then
-       call this%dof%free()
-       deallocate(this%dof)
-       this%internal_dofmap = .false.
-    end if
-
-    nullify(this%msh)
-    nullify(this%Xh)
-    nullify(this%dof)
+    nullify(t%msh)
+    nullify(t%Xh)
+    nullify(t%dof)
 
   end subroutine field_free
 
-  !> Easy way to copy between host and device.
-  !! @param this field to copy to/from device/host
-  !! @memdir direction to copy (HOST_TO_DEVICE or DEVICE_TO_HOST)
-  !! @sync whether the memcopy to be blocking or not
-  subroutine field_copy_from(this, memdir, sync)
-    class(field_t), intent(inout) :: this
-    integer, intent(in) :: memdir
-    logical, intent(in) :: sync
+  !> Seals off the inherited raw dimension initialiser (tensor4_t%init_dims)
+  !! so it cannot be called on a field_t, which requires Xh/msh/dof to be
+  !! set up and must always go through init_external_dof/init_internal_dof.
+  subroutine field_init_dims_seal(t, n1, n2, n3, n4, name)
+    class(field_t), intent(inout) :: t
+    integer, intent(in) :: n1
+    integer, intent(in) :: n2
+    integer, intent(in) :: n3
+    integer, intent(in) :: n4
+    character(len=*), intent(in), optional :: name
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%x, this%x_d, this%size(), memdir, sync)
-    end if
+    call neko_error('field_t must be initialised via init(msh, space, &
+         &name) or init(dof, name), not the inherited tensor4 dimension &
+         &initialiser')
 
-  end subroutine field_copy_from
+  end subroutine field_init_dims_seal
 
+  !> Seals off the inherited raw tensor4_t assignment so `field = tensor4`
+  !! cannot silently bypass Xh/msh/dof; use assign_field (field = field)
+  !! instead.
+  subroutine field_assign_tensor4_seal(t, w)
+    class(field_t), intent(inout) :: t
+    type(tensor4_t), intent(in) :: w
+
+    call neko_error('field_t must be assigned from another field_t, not &
+         &a bare tensor4_t')
+
+  end subroutine field_assign_tensor4_seal
 
   !> Assignment \f$ this = G \f$
   !! @note @a this will be initialized if it has a different size than
@@ -274,13 +273,17 @@ contains
     end if
 
     if (.not. allocated(this%x)) then
-
-       allocate(this%x(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(this%x, this%x_d, this%size())
-       end if
-
+       ! Delegates to the parent's alloc+zero-fill+device_map. The name is
+       ! copied to a local first: tensor4_t%init resets t%name to "" (via
+       ! its internal free()) before applying the name argument, and
+       ! passing `this%name` directly would alias that same memory,
+       ! clobbering the value set above before init could read it.
+       block
+         character(len=NEKO_VARNAME_LEN) :: fld_name
+         fld_name = this%name
+         call this%tensor4_t%init(this%Xh%lx, this%Xh%ly, this%Xh%lz, &
+              this%msh%nelv, fld_name)
+       end block
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -290,19 +293,6 @@ contains
     end if
 
   end subroutine field_assign_field
-
-  !> Assignment \f$ this = a \f$
-  subroutine field_assign_scalar(this, a)
-    class(field_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: a
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(this%x_d, a, this%size())
-    else
-       call cfill(this%x, a, this%size())
-    end if
-
-  end subroutine field_assign_scalar
 
   !> Add \f$ this(u_1, u_2, ... , u_n) =
   !! this(u_1, u_2, ... , u_n) + G(u_1, u_2, ... , u_n) \f$
@@ -333,14 +323,6 @@ contains
     end if
 
   end subroutine field_add_scalar
-
-  !> Return the size of the field based on the underlying dofmap.
-  pure function field_size(this) result(size)
-    class(field_t), intent(in) :: this
-    integer :: size
-
-    size = this%dof%size()
-  end function field_size
 
   ! ========================================================================== !
   ! Field pointer type subroutines

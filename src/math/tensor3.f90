@@ -101,11 +101,13 @@ contains
     integer, intent(in) :: n3
     character(len=*), intent(in), optional :: name
 
+    ! t%alloc zeroes the device side (and synchronizes) before any
+    ! host-side touch: under zero-copy the device then faults the
+    ! pages first (device first touch), which gives contiguous
+    ! physical mappings and thus better GPU TLB utilisation; rewriting
+    ! the zeros on the host afterwards is benign.
     call t%alloc(n1, n2, n3)
     t%x = 0.0_rp
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(t%x_d, 0.0_rp, t%n)
-    end if
 
     if (present(name)) then
        t%name = name
