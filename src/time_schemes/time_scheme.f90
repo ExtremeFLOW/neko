@@ -59,7 +59,7 @@
 !
 !> Base class for time integration schemes
 module time_scheme
-  use num_types, only : rp, dp
+  use num_types, only : rp
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -77,9 +77,9 @@ module time_scheme
      !! @param order Order the scheme.
      subroutine compute_coeffs(coeffs, dt, order)
        import time_scheme_t
-       import rp, dp
+       import rp
        real(kind=rp), intent(out) :: coeffs(4)
-       real(kind=dp), intent(in) :: dt(10)
+       real(kind=rp), intent(in) :: dt(10)
        integer, intent(in) :: order
      end subroutine compute_coeffs
   end interface

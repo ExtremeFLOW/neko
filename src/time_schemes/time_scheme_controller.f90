@@ -34,7 +34,7 @@
 !! equation.
 module time_scheme_controller
   use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : dp, rp
+  use num_types, only : rp
   use bdf_time_scheme, only : bdf_time_scheme_t
   use ext_time_scheme, only : ext_time_scheme_t
   use ab_time_scheme, only : ab_time_scheme_t
@@ -138,15 +138,11 @@ contains
 
   !> Set the time coefficients
   !! @details Implements all necessary logic to handle
-  !! @param dt Timestep values, first element is the current timestep.
-  !! @note
-  !! that `dt` is cast to `rp` when passed down to the time scheme objects,
-  !! meaning that although `dt` is forced to double precision, the computation
-  !! of the time scheme coefficients is kept in `rp`.
+  !! @param t Timestep values, first element is the current timestep.
   subroutine time_scheme_controller_set_coeffs(this, dt)
     implicit none
     class(time_scheme_controller_t) :: this
-    real(kind=dp), intent(in), dimension(10) :: dt
+    real(kind=rp), intent(inout), dimension(10) :: dt
     real(kind=rp), dimension(4) :: adv_coeffs_old
     real(kind=rp), dimension(4) :: diff_coeffs_old
 
@@ -208,11 +204,11 @@ contains
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         if (maxval(abs(adv_coeffs%x - adv_coeffs_old)) .gt. 1e-10_dp) then
+         if (maxval(abs(adv_coeffs%x - adv_coeffs_old)) .gt. 1e-10_rp) then
             call adv_coeffs%copy_from(HOST_TO_DEVICE, sync = .false.)
          end if
 
-         if (maxval(abs(diff_coeffs%x - diff_coeffs_old)) .gt. 1e-10_dp) then
+         if (maxval(abs(diff_coeffs%x - diff_coeffs_old)) .gt. 1e-10_rp) then
             call diff_coeffs%copy_from(HOST_TO_DEVICE, sync = .false.)
          end if
       end if
