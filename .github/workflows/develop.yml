@@ -95,6 +95,7 @@ jobs:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   Nvidia:
+    if: ${{ github.event_name != 'pull_request' }}
     name: Nvidia
     needs:
       - prepare
@@ -176,10 +177,11 @@ jobs:
             fail+=("\t- Valgrind check: $valgrind_status (informational only)")
           fi
 
-          if [ "$nvidia_status" != "success" ]; then
-            fail+=("\t- NVIDIA check: $nvidia_status")
-            success=false
-          fi
+          # NVidia check is skipped since the compiler is broken.
+          #if [ "$nvidia_status" != "success" ]; then
+          #  fail+=("\t- NVIDIA check: $nvidia_status")
+          #  success=false
+          #fi
 
           if [ ${#fail[@]} -ne 0 ]; then
             >&2 echo "The following checks failed:"

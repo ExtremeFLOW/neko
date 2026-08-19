@@ -198,7 +198,7 @@ supported backends are listed below.
 | NCCL / RCCL      | Collective comms library on GPUs (NVIDIA / AMD) | CUDA, HIP        | `--with-nccl` / `--with-rccl` | `NCCL`         |
 | NVSHMEM          | NVIDIA OpenSHMEM, one-sided on device buffers   | CUDA             | `--with-nvshmem`              | `SHMEM`        |
 | OpenSHMEM        | Host OpenSHMEM, one-sided                        | CPU              | `--with-openshmem`           | `SHMEM`        |
-| Co-Array Fortran | Fortran coarrays                                | CPU              | coarray-capable compiler      | `CAF`          |
+| Co-Array Fortran | Fortran coarrays (one image per rank required)   | CPU              | coarray-capable compiler      | `CAF`          |
 | uTofu            | Native Tofu interconnect, one-sided RDMA        | CPU              | `--with-utofu`                | `UTOFU`        |
 
 @note Every device backend (CUDA, HIP, OpenCL, Metal) can use host `MPI`, which
@@ -209,6 +209,13 @@ host `MPI`.
 
 @note `NEKO_GS_COMM=SHMEM` selects NVSHMEM on a device (GPU) build and host
 OpenSHMEM otherwise.
+
+@note `CAF` needs the coarray images to map one-to-one onto the MPI ranks.
+Compilers that accept coarrays but build a single-image program (for example
+gfortran without an `-fcoarray=lib` runtime) pass the configure check yet
+cannot run the backend, so it is left out of the startup benchmark unless
+asked for with `NEKO_GS_TUNE=+CAF`, and `NEKO_GS_COMM=CAF` aborts with an
+error on such a build.
 
 @note `UTOFU` targets the native Tofu interconnect (Tofu-D, e.g. Fugaku) and
 requires the `libtofucom` library; it is a host (CPU) backend. The number of
@@ -256,6 +263,8 @@ $ ./configure  --with-hip=/opt/rocm/hip
 ```shell
 $ ./configure  --with-hip=/opt/rocm/hip HIP_HIPCC_FLAGS=-O3  HIPCC=/opt/rocm/hip/bin/hipcc
 ```
+
+@note On APUs with unified physical memory (e.g. AMD Instinct MI300A) and XNACK enabled (`HSA_XNACK=1`), Neko can map arrays zero-copy: host and device share a single allocation instead of keeping replicated copies, and host-device transfers become no-ops. This roughly halves the memory footprint of mapped data, but is currently slower per step than replicated buffers on MI300A, so it is **off by default** and is intended as an opt-in capacity mode for running larger cases. Enable it at runtime by setting the environment variable `NEKO_HIP_ZEROCOPY=1`; it then activates only on a supported APU with XNACK (discrete GPUs such as MI250X always use replicated buffers, and requesting it there prints a warning and falls back). Since host and device share one allocation under zero-copy, host code (e.g. user routines) must not write to a mapped array while device work touching it may be in flight; synchronize with `device_sync` first.
 
 #### Compiling Neko for Apple Silicon GPUs
 To compile Neko for Apple Silicon GPUs (macOS only)

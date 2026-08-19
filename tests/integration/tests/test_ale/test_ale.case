@@ -1,0 +1,129 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "meshes/small_test_cyl.nmsh",
+        "output_at_end": true,
+        "output_boundary": false,
+        "output_checkpoints": true,
+        "checkpoint_control": "simulationtime",
+        "checkpoint_value": 0.005,
+        "job_timelimit": "00:02:00",
+        "time": {
+            "end_time": 0.01,
+            "timestep": 0.001
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 5,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "Re": 200.0,
+            "initial_condition": {
+                "type": "uniform",
+                "value": [ 1.0, 0.0, 0.0 ]
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-13,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 3,
+                "absolute_tolerance": 1e-13,
+                "projection_reorthogonalize_basis": true,
+                "max_iterations": 800
+            },
+            "ale": {
+                "enabled": true,
+                "solver": {
+                    "type": "cg",
+                    "preconditioner": {
+                        "type": "jacobi"
+                    },
+                    "absolute_tolerance": 1.0e-10,
+                    "max_iterations": 10000,
+                    "output_base_shape": true
+                },
+                "mesh_preview": {
+                    "enabled": false,
+                    "start_time": 0.0,
+                    "end_time": 100.0,
+                    "output_freq": 1000,
+                    "dt": 0.001
+                },
+                "bodies": [
+                    {
+                        "name": "cylinder",
+                        "zone_indices": [ 7 ],
+                        "oscillation": {
+                            "amplitude": [ 0.1, 0.3, 0.0 ],
+                            "frequency": [ 0.1, 0.2, 0.0 ]
+                        },
+                        "rotation": {
+                            "type": "harmonic",
+                            "amplitude_deg": [ 0.0, 0.0, 2.0 ],
+                            "frequency": [ 0.0, 0.0, 0.1 ]
+                        },
+                        "pivot": {
+                            "value": [ 3.0, 2.0, 0.0 ]
+                        },
+                        "stiff_geom": {
+                            "type": "cheap_dist",
+                            "decay_profile": "tanh",
+                            "stiff_dist": 3.0,
+                            "gain": 20.0
+                        }
+                    }
+                ]
+            },
+            "boundary_conditions": [
+                {
+                    "type": "velocity_value",
+                    "value": [ 1.0, 0.0, 0.0 ],
+                    "zone_indices": [ 1 ]
+                },
+                {
+                    "type": "outflow+dong",
+                    "zone_indices": [ 2 ]
+                },
+                {
+                    "type": "normal_outflow",
+                    "zone_indices": [ 5 ]
+                },
+                {
+                    "type": "normal_outflow",
+                    "zone_indices": [ 6 ]
+                },
+                {
+                    "type": "no_slip",
+                    "zone_indices": [ 7 ],
+                    "moving": true
+                }
+            ],
+            "output_control": "simulationtime",
+            "output_value": 0.05
+        },
+        "simulation_components": [
+            {
+                "type": "force_torque",
+                "compute_control": "tsteps",
+                "compute_value": 1,
+                "zone_id": 7,
+                "zone_name": "Cylinder",
+                "center": [ -1.0, 1.0, 0.0 ],
+                "center_type": "body_attached",
+                "long_print": true
+            }
+        ]
+    }
+}

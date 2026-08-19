@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -189,6 +189,7 @@ contains
     integer :: i
     real(kind=rp) :: tmp
 
+    v = 1d0
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
     end do
@@ -226,6 +227,7 @@ contains
     integer :: i
     real(kind=rp) :: tmp
 
+    v = huge(0.0_rp)
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
     end do
@@ -263,6 +265,7 @@ contains
     integer :: i
     real(kind=rp) :: tmp
 
+    v = -huge(0.0_rp)
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
     end do

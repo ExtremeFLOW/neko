@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.99.6])
+AC_INIT([neko],[1.99.7])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -8,6 +8,8 @@ AC_LANG([Fortran])
 AC_PROG_INSTALL
 AC_PROG_SED
 AC_PROG_MAKE_SET
+AC_PROG_CC
+AC_PROG_CXX
 AC_LANG_PUSH([C])
 LT_INIT([disable-shared])
 AC_LANG_POP([C])
@@ -33,10 +35,10 @@ AC_ARG_ENABLE(device-mpi,
           AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
           [enable_device_mpi=${enableval}], [enable_device_mpi=no])
 
-AC_ARG_ENABLE(openmp, AC_HELP_STRING([--enable-openmp], [Enable OpenMP]),
+AC_ARG_ENABLE(openmp, AS_HELP_STRING([--enable-openmp], [Enable OpenMP]),
               [enable_openmp=${enableval}], [enable_openmp=no])
 
-AC_ARG_ENABLE(python, AC_HELP_STRING([--enable-python],
+AC_ARG_ENABLE(python, AS_HELP_STRING([--enable-python],
               [Install Python modules, requires a Python interpreter]),
               [enable_python=${enableval}],[enable_python=no])
 
@@ -479,6 +481,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/time_based_controller/Makefile\
         tests/unit/json_utils/Makefile\
         tests/unit/utils/Makefile\
+        tests/unit/expression/Makefile\
         tests/unit/point_interpolation/Makefile\
         tests/unit/templates/parallel/Makefile\
         tests/unit/boundary_operation/Makefile\

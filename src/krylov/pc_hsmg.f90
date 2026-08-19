@@ -63,7 +63,7 @@ module hsmg
   use num_types, only : rp
   use math, only : copy, col2, add2
   use utils, only : neko_error
-  use precon, only : pc_t, precon_factory, precon_destroy
+  use precon, only : pc_t, precon_allocator, precon_destroy
   use ax_product, only : ax_t, ax_helm_factory
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
@@ -344,7 +344,7 @@ contains
             this%grids(1)%bclst, crs_tamg_itrs, crs_tamg_cheby_degree)
     else
        ! Create a backend specific preconditioner
-       call precon_factory(this%pc_crs, crs_pc)
+       call precon_allocator(this%pc_crs, crs_pc)
 
        select type (pc => this%pc_crs)
        type is (jacobi_t)

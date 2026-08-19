@@ -159,13 +159,14 @@ contains
     character(len=*), optional :: fld_name !< Name of the field
     integer :: ierr
     integer :: n
+    logical :: fresh
 
     associate(lx => this%Xh%lx, ly => this%Xh%ly, &
          lz => this%Xh%lz, nelv => this%msh%nelv)
 
-      if (.not. allocated(this%x)) then
+      fresh = .not. allocated(this%x)
+      if (fresh) then
          allocate(this%x(lx, ly, lz, nelv), stat = ierr)
-         this%x = 0.0_rp
       end if
 
       if (present(fld_name)) then
@@ -183,6 +184,14 @@ contains
            s = c_sizeof(rp_dummy) * n
            call device_memset(this%x_d, 0, s, sync = .true.)
          end block
+      end if
+
+      ! Zero on the host after the device-side memset: under zero-copy
+      ! the device then faults the pages first (device first touch),
+      ! which gives contiguous physical mappings and thus better GPU
+      ! TLB utilisation; rewriting the zeros on the host is benign
+      if (fresh) then
+         this%x = 0.0_rp
       end if
     end associate
 

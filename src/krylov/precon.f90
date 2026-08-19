@@ -66,11 +66,11 @@ module precon
   end interface
 
   interface
-     !> Create a preconditioner
-     module subroutine precon_factory(pc, type_name)
-       class(pc_t),  allocatable, intent(inout) :: pc
+     !> Allocate a preconditioner
+     module subroutine precon_allocator(pc, type_name)
+       class(pc_t), allocatable, intent(inout) :: pc
        character(len=*), intent(in) :: type_name
-     end subroutine precon_factory
+     end subroutine precon_allocator
 
      !> Destroy a preconditioner
      module subroutine precon_destroy(pc)
@@ -78,6 +78,40 @@ module precon
      end subroutine precon_destroy
   end interface
 
-  public :: precon_factory, precon_destroy
-  
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for a preconditioner allocator.
+  !! Implemented in user modules, should allocate `obj` to the custom user
+  !! type.
+  abstract interface
+     subroutine precon_allocate(obj)
+       import pc_t
+       class(pc_t), allocatable, intent(inout) :: obj
+     end subroutine precon_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_precon(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(precon_allocate), pointer, intent(in) :: allocator
+     end subroutine register_precon
+  end interface
+
+  !> A name-allocator pair for user-defined preconditioner types.
+  type precon_allocator_entry
+     character(len=20) :: type_name
+     procedure(precon_allocate), pointer, nopass :: allocator
+  end type precon_allocator_entry
+
+  !> Registry of allocators for user-defined preconditioner types.
+  type(precon_allocator_entry), allocatable :: precon_registry(:)
+
+  !> The size of the `precon_registry`.
+  integer :: precon_registry_size = 0
+
+  public :: precon_allocator, precon_destroy, register_precon, precon_allocate
+
 end module precon
