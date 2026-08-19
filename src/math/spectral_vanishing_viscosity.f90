@@ -37,7 +37,7 @@ module spectral_vanishing_viscosity
   use field, only : field_t
   use utils, only : neko_error, neko_type_error
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup
   use coefs, only : coef_t
   use math, only : cfill, copy, rzero, col2
   use device_math, only : device_rzero, device_cfill, device_copy, device_col2
@@ -86,7 +86,7 @@ module spectral_vanishing_viscosity
 
 contains
 
-  !> Construct a SVV object from case parameters.
+  !> Construct an SVV object from case parameters.
   !! @param this SVV object.
   !! @param json JSON object containing an `svv` dictionary.
   !! @param coef SEM coefficients.
@@ -98,8 +98,7 @@ contains
     type(field_t), intent(in) :: rho
     real(kind=rp), allocatable :: transfer(:)
     real(kind=rp) :: nu_val, power_coef
-    character(len=:), allocatable :: nu_type, direction, &
-         formulation, kernel_type
+    character(len=:), allocatable :: nu_type, direction, formulation
     integer :: i, lx
 
 
@@ -126,7 +125,7 @@ contains
     call json_get(json, "svv.kernel_type", this%kernel_type)
     select case (trim(this%kernel_type))
     case ("power")
-       call json_get(json, "svv.power_coefficient", power_coef)
+       call json_get_or_lookup(json, "svv.power_coefficient", power_coef)
        if (power_coef .eq. 0.0_rp) then
           transfer = 0.0_rp
        else
@@ -163,7 +162,7 @@ contains
     call json_get(json, "svv.nu.type", nu_type)
     select case (trim(nu_type))
     case ("value")
-       call json_get(json, "svv.nu.value", nu_val)
+       call json_get_or_lookup(json, "svv.nu.value", nu_val)
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_cfill(this%h1_d, nu_val, coef%dof%size())
           call device_col2(this%h1_d, rho%x_d, coef%dof%size())
@@ -247,6 +246,7 @@ contains
        deallocate(this%ident)
     end if
     if (allocated(this%direction)) deallocate(this%direction)
+    if (allocated(this%kernel_type)) deallocate(this%kernel_type)
     if (allocated(this%nue_field_name)) deallocate(this%nue_field_name)
     nullify(this%coef)
     nullify(this%nue)

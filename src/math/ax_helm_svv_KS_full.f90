@@ -44,7 +44,7 @@ module ax_helm_svv_KS_full
 
   !> Matrix-vector product for a Helmholtz problem.
   type, public, abstract, extends(ax_t) :: ax_helm_svv_KS_full_t
-     !> A pointer to the svv object
+     !> Pointer to the SVV object.
      type(svv_t), pointer :: svv => null()
    contains
      procedure, pass(this) :: compute => ax_helm_svv_KS_full_compute
@@ -66,11 +66,11 @@ contains
     real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    call neko_error("The full Helmholtz operators cannot be applied to a " // &
-         "single field. This error is common when turbulence modelling " // &
-         "or variable material properties are on, but a velocity solver " // &
-         "not supporting a coupled solve is selected. Fixed by setting " // &
-         "the solver type to e.g. coupled_cg.")
+    call neko_error("The full Helmholtz operator cannot be applied to a " // &
+         "single field. This error commonly occurs when turbulence " // &
+         "modelling or variable material properties are enabled, but " // &
+         "the selected velocity solver does not support coupled solves. " // &
+         "Set the solver type to, for example, coupled_cg.")
   end subroutine ax_helm_svv_KS_full_compute
 
 end module ax_helm_svv_KS_full

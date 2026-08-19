@@ -36,7 +36,7 @@ module ax_helm_svv_KS
   implicit none
   private
 
-  !> Helmholtz operator carrying non-owning Kirby-Sherwin SVV object.
+  !> Helmholtz operator carrying a non-owning Kirby-Sherwin SVV object.
   type, public, abstract, extends(ax_helm_t) :: ax_helm_svv_KS_t
      !> SVV coefficients used by the operator.
      type(svv_t), pointer :: svv => null()
