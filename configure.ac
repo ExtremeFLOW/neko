@@ -471,6 +471,8 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/octree/Makefile\
         tests/unit/vector/Makefile\
         tests/unit/matrix/Makefile\
+        tests/unit/tensor3/Makefile\
+        tests/unit/tensor4/Makefile\
         tests/unit/case_file_utils/Makefile\
         tests/unit/scratch_registry/Makefile\
         tests/unit/registry/Makefile\

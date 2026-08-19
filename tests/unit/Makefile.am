@@ -27,6 +27,8 @@ SUBDIRS = tuple\
 	  octree\
 	  vector\
 	  matrix\
+	  tensor3\
+	  tensor4\
 	  case_file_utils\
 	  registry\
 	  scratch_registry\
@@ -72,6 +74,8 @@ TESTS = device/device_test\
 	octree/octree_test\
 	vector/vector_test\
 	matrix/matrix_test\
+	tensor3/tensor3_test\
+	tensor4/tensor4_test\
 	case_file_utils/case_file_utils_test\
 	registry/registry_test\
 	scratch_registry/scratch_registry_test\
@@ -145,6 +149,8 @@ EXTRA_DIST = \
 	octree/test_octree.pf\
 	vector/test_vector_parallel.pf\
 	matrix/test_matrix_parallel.pf\
+	tensor3/test_tensor3_parallel.pf\
+	tensor4/test_tensor4_parallel.pf\
 	case_file_utils/test_case_file_utils.pf\
 	registry/test_registry.pf\
 	registry/test_field_registry.pf\

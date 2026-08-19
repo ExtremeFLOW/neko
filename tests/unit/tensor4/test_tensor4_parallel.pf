@@ -1,0 +1,190 @@
+module test_tensor4_parallel
+  use mpi
+  use pfunit
+  use neko_config
+  use tensor4
+  use num_types
+  use device
+  use math
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
+  use, intrinsic :: iso_c_binding
+  implicit none
+
+  @TestCase
+  type, extends(MPITestCase) :: test_tensor4
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_tensor4
+
+contains
+
+  subroutine setUp(this)
+    class(test_tensor4), intent(inout) :: this
+    call comm_init_test(this%getMpiCommunicator())
+    if ((NEKO_BCKND_DEVICE .eq. 1)) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_tensor4), intent(inout) :: this
+    if ((NEKO_BCKND_DEVICE .eq. 1)) then
+       call device_finalize
+    end if
+    call comm_free_test()
+  end subroutine tearDown
+
+  @test(npes=[1])
+  subroutine test_tensor4_init(this)
+    class (test_tensor4), intent(inout) :: this
+    integer, parameter :: n1 = 7, n2 = 5, n3 = 3, n4 = 2
+    type(tensor4_t) :: t
+
+    call t%init(n1, n2, n3, n4)
+    @assertTrue(allocated(t%x))
+    @assertEqual(size(t%x), n1*n2*n3*n4)
+    @assertEqual(t%size(), n1*n2*n3*n4)
+    @assertEqual(t%get_n1(), n1)
+    @assertEqual(t%get_n2(), n2)
+    @assertEqual(t%get_n3(), n3)
+    @assertEqual(t%get_n4(), n4)
+    @assertEqual(maxval(t%x), 0d0)
+    @assertEqual(minval(t%x), 0d0)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       @assertTrue(c_associated(t%x_d))
+    else
+       @assertFalse(c_associated(t%x_d))
+    end if
+
+  end subroutine test_tensor4_init
+
+  @test(npes=[1])
+  subroutine test_tensor4_init_name(this)
+    class (test_tensor4), intent(inout) :: this
+    integer, parameter :: n1 = 4, n2 = 3, n3 = 2, n4 = 5
+    type(tensor4_t) :: t
+
+    call t%init(n1, n2, n3, n4, 'my_tensor')
+    @assertEqual(trim(t%name), 'my_tensor')
+
+  end subroutine test_tensor4_init_name
+
+  @test(npes=[1])
+  subroutine test_tensor4_free(this)
+    class (test_tensor4), intent(inout) :: this
+    integer, parameter :: n1 = 7, n2 = 5, n3 = 3, n4 = 2
+    type(tensor4_t) :: t
+
+    call t%init(n1, n2, n3, n4, 'my_tensor')
+    call t%free()
+    @assertFalse(allocated(t%x))
+    @assertEqual(t%size(), 0)
+    @assertEqual(t%get_n1(), 0)
+    @assertEqual(t%get_n2(), 0)
+    @assertEqual(t%get_n3(), 0)
+    @assertEqual(t%get_n4(), 0)
+    @assertEqual(trim(t%name), '')
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       @assertFalse(c_associated(t%x_d))
+    end if
+
+  end subroutine test_tensor4_free
+
+  @test(npes=[1])
+  subroutine test_tensor4_assign_tensor4(this)
+    class (test_tensor4), intent(inout) :: this
+    integer, parameter :: n1 = 7, n2 = 5, n3 = 3, n4 = 2
+    type(tensor4_t) :: t, w
+    integer :: i, j, k, l
+
+    call w%init(n1, n2, n3, n4, 'source')
+    w = 3.0_rp
+
+    t = w
+    @assertEqual(t%size(), w%size())
+    @assertEqual(t%size(), n1*n2*n3*n4)
+    @assertEqual(t%get_n1(), n1)
+    @assertEqual(t%get_n2(), n2)
+    @assertEqual(t%get_n3(), n3)
+    @assertEqual(t%get_n4(), n4)
+    @assertTrue(allocated(t%x))
+    @assertEqual(trim(t%name), 'source')
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(t%x, t%x_d, t%size(), DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    do l = 1, n4
+       do k = 1, n3
+          do j = 1, n2
+             do i = 1, n1
+                @assertEqual(3.0_rp, t%x(i,j,k,l), tolerance=NEKO_EPS)
+             end do
+          end do
+       end do
+    end do
+
+    ! Reassignment with different dimensions
+    call w%free()
+    call w%init(n4, n3, n1, n2)
+
+    t = w
+    @assertEqual(t%size(), w%size())
+    @assertEqual(t%get_n1(), n4)
+    @assertEqual(t%get_n2(), n3)
+    @assertEqual(t%get_n3(), n1)
+    @assertEqual(t%get_n4(), n2)
+    @assertTrue(allocated(t%x))
+
+  end subroutine test_tensor4_assign_tensor4
+
+  @test(npes=[1])
+  subroutine test_tensor4_assign_scalar(this)
+    class (test_tensor4), intent(inout) :: this
+    integer, parameter :: n1 = 11, n2 = 4, n3 = 6, n4 = 3
+    real(kind=rp), parameter :: s = 42.0_rp
+    type(tensor4_t) :: t
+    integer :: i, j, k, l
+
+    call t%init(n1, n2, n3, n4)
+    t = s
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(t%x, t%x_d, n1*n2*n3*n4, DEVICE_TO_HOST, &
+            sync=.true.)
+    end if
+
+    do l = 1, n4
+       do k = 1, n3
+          do j = 1, n2
+             do i = 1, n1
+                @assertEqual(42.0_rp, t%x(i,j,k,l), tolerance=NEKO_EPS)
+             end do
+          end do
+       end do
+    end do
+
+  end subroutine test_tensor4_assign_scalar
+
+  @test(npes=[1])
+  subroutine test_tensor4_ptr(this)
+    class (test_tensor4), intent(inout) :: this
+    integer, parameter :: n1 = 3, n2 = 4, n3 = 5, n4 = 2
+    type(tensor4_t), target :: t
+    type(tensor4_ptr_t) :: p
+
+    call t%init(n1, n2, n3, n4)
+    call p%init(t)
+    @assertTrue(associated(p%ptr))
+    @assertEqual(p%ptr%size(), n1*n2*n3*n4)
+
+    call p%free()
+    @assertFalse(associated(p%ptr))
+
+  end subroutine test_tensor4_ptr
+
+end module test_tensor4_parallel
