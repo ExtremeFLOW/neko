@@ -145,9 +145,9 @@ contains
     integer :: file_unit
 
     if (present(t)) then
-       time = real(t, dp)
+       time = t
     else
-       time = 0.0_rp
+       time = 0.0_dp
     end if
 
     nullify(msh)
