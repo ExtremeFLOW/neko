@@ -359,13 +359,15 @@ by the user by setting `full_stress_formulation` to true.
 
 ### Spectral vanishing viscosity {#case-file-svv}
 
-Spectral vanishing viscosity (SVV) can add dissipation selectively to the
-high-frequency content of the solution. Neko's Kirby-Sherwin formulation applies
-the high-pass operator to the trial-function gradient only. 
-Also note that Neko's SVV perform the projection onto the Legendre polynomials. 
-The full-stress formulation is also supported for velocity and requires 
-`coupled_cg` (or `fused_coupled_cg` on CUDA/HIP). 
-SVV is available for the implicit `pnpn` scheme.
+Spectral vanishing viscosity (SVV) selectively adds dissipation to the
+high-frequency content of the solution. It was first proposed by Tadmor (1989)
+and later introduced to the spectral element method (SEM) community by Kirby
+and Sherwin (2006). Neko currently supports only the Kirby-Sherwin formulation,
+which applies the high-pass operator to the trial-function gradient in physical
+space (i.e., to gradients in the x, y, and z directions). The full-stress
+formulation is also supported for velocity and requires `coupled_cg` (or
+`fused_coupled_cg` on CUDA/HIP). For fluid solves, SVV is available with the
+implicit `pnpn` scheme.
 
 For the fluid equations, add `svv` to the `fluid` object. For a scalar, add the
 same object directly to that scalar's configuration:
@@ -375,6 +377,7 @@ same object directly to that scalar's configuration:
   "svv": {
     "enabled": true,
     "formulation": "Kirby-Sherwin",
+    "kernel_type": "power",
     "direction": "rst",
     "power_coefficient": 0.5,
     "nu": {
@@ -385,19 +388,51 @@ same object directly to that scalar's configuration:
 }
 ```
 
-The optional `formulation` entry defaults to `Kirby-Sherwin`; 
-it is shown above to make the operator choice explicit. The `direction` selects 
-the reference-element directions in which the modal filter is applied and 
-defaults to `rst`. The `power_coefficient` controls the modal transfer function; 
-larger values confine the added dissipation to modes nearer the polynomial 
-cut-off. The SVV viscosity `nu` is multiplied by density internally and may be 
-either a constant `value` or a registered `field`. A field configuration uses
-`field_name` and may set `time_variable` (default `true`) to refresh the
-viscosity each time step.
+The optional `formulation` entry defaults to `Kirby-Sherwin`;
+it is shown above to make the operator choice explicit. The required
+`kernel_type` selects the modal transfer function; currently, only `power` is
+supported. The `direction` selects the reference-element directions in which
+the modal filter is applied and defaults to `rst`. For the `power` kernel, the
+required `power_coefficient` controls the modal transfer function; larger values
+confine the added dissipation to modes nearer the polynomial cut-off. The SVV
+viscosity `nu` is multiplied by density internally and may be either a constant
+`value` or a registered `field`. A field configuration uses `field_name`:
+
+```json
+{
+  "svv": {
+    "enabled": true,
+    "formulation": "Kirby-Sherwin",
+    "kernel_type": "power",
+    "direction": "rst",
+    "power_coefficient": 0.5,
+    "nu": {
+      "type": "field",
+      "time_variable": true,
+      "field_name": "some_viscosity"
+    }
+  }
+}
+```
+
+For a field-valued viscosity, the optional `time_variable` entry controls
+whether the field is refreshed at every time step and defaults to `true`.
 
 The SVV operator, including its full-stress variant, is implemented for
 CPU, CUDA, and HIP backends. It is not currently available with the SX, XSMM,
 OpenCL, or Metal backends.
+
+<details>
+<summary><b><u>References</u></b></summary>
+
+- Eitan Tadmor. “Convergence of spectral methods for nonlinear conservation
+  laws.” *SIAM Journal on Numerical Analysis*, 26(1):30–44, 1989.
+- Robert M. Kirby and Spencer J. Sherwin. “Stabilisation of spectral/hp element
+  methods through spectral vanishing viscosity: Application to fluid mechanics
+  modelling.” *Computer Methods in Applied Mechanics and Engineering*,
+  195(23):3128–3144, 2006.
+
+</details>
 
 ### Compressible flows
 

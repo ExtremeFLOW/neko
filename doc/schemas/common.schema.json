@@ -395,6 +395,9 @@
         "formulation": {
           "const": "Kirby-Sherwin"
         },
+        "kernel_type": {
+          "const": "power"
+        },
         "direction": {
           "type": "string",
           "enum": ["rst", "rs", "rt", "st", "r", "s", "t"]
@@ -448,7 +451,7 @@
             }
           },
           "then": {
-            "required": ["power_coefficient", "nu"]
+            "required": ["kernel_type", "power_coefficient", "nu"]
           }
         }
       ],
