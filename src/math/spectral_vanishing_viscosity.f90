@@ -122,10 +122,10 @@ contains
 
     allocate(transfer(lx))
 
-    call json_get(json, "svv.kernel_type", this%kernel_type)
+    call json_get(json, "svv.kernel.type", this%kernel_type)
     select case (trim(this%kernel_type))
     case ("power")
-       call json_get_or_lookup(json, "svv.power_coefficient", power_coef)
+       call json_get_or_lookup(json, "svv.kernel.power_coefficient", power_coef)
        if (power_coef .eq. 0.0_rp) then
           transfer = 0.0_rp
        else

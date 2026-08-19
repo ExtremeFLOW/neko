@@ -395,15 +395,25 @@
         "formulation": {
           "const": "Kirby-Sherwin"
         },
-        "kernel_type": {
-          "const": "power"
-        },
         "direction": {
           "type": "string",
           "enum": ["rst", "rs", "rt", "st", "r", "s", "t"]
         },
-        "power_coefficient": {
-          "$ref": "#/$defs/nonNegativeNumberOrRef"
+        "kernel": {
+          "type": "object",
+          "required": [
+            "type",
+            "power_coefficient"
+          ],
+          "properties": {
+            "type": {
+              "const": "power"
+            },
+            "power_coefficient": {
+              "$ref": "#/$defs/nonNegativeNumberOrRef"
+            }
+          },
+          "additionalProperties": false
         },
         "nu": {
           "type": "object",
@@ -451,7 +461,7 @@
             }
           },
           "then": {
-            "required": ["kernel_type", "power_coefficient", "nu"]
+            "required": ["kernel", "nu"]
           }
         }
       ],
