@@ -43,12 +43,12 @@ void hip_entropy_visc_compute_residual(void *entropy_residual,
                                        void *S_lag2, void *S_lag3,
                                        real *bdf1, real *bdf2,
                                        real *bdf3, real *bdf4,
-                                       double *dt, int *n) {
+                                       real *dt, int *n) {
   const dim3 nthrds(1024, 1, 1);
   const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
   const hipStream_t stream = (hipStream_t) glb_cmd_queue;
 
-  hipLaunchKernelGGL(HIP_KERNEL_NAME(entropy_visc_compute_residual_kernel<real, double>),
+  hipLaunchKernelGGL(HIP_KERNEL_NAME(entropy_visc_compute_residual_kernel<real>),
                      nblcks, nthrds, 0, stream,
                      (real *) entropy_residual,
                      (real *) S, (real *) S_lag1,

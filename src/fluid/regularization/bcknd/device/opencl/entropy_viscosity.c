@@ -51,7 +51,7 @@ void opencl_entropy_visc_compute_residual(void *entropy_residual,
                                           void *S_lag2, void *S_lag3,
                                           real bdf1, real bdf2,
                                           real bdf3, real bdf4,
-                                          double dt, int n) {
+                                          real dt, int n) {
   cl_int err;
 
   if (entropy_viscosity_program == NULL)
@@ -71,7 +71,7 @@ void opencl_entropy_visc_compute_residual(void *entropy_residual,
   CL_CHECK(clSetKernelArg(kernel, 6, sizeof(real), &bdf2));
   CL_CHECK(clSetKernelArg(kernel, 7, sizeof(real), &bdf3));
   CL_CHECK(clSetKernelArg(kernel, 8, sizeof(real), &bdf4));
-  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(double), &dt));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(real), &dt));
   CL_CHECK(clSetKernelArg(kernel, 10, sizeof(int), &n));
 
   const int nb = (n + 256 - 1) / 256;
