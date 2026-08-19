@@ -31,13 +31,14 @@ var searchData=
   ['gs_5fdevice_5fshmem_2ef90_28',['gs_device_shmem.F90',['../da/d8d/gs__device__shmem_8F90.html',1,'']]],
   ['gs_5fkernels_2eh_29',['gs_kernels.h',['../d0/dc4/cuda_2gs__kernels_8h.html',1,'(Global Namespace)'],['../d7/de4/hip_2gs__kernels_8h.html',1,'(Global Namespace)']]],
   ['gs_5fmpi_2ef90_30',['gs_mpi.f90',['../d6/ddf/gs__mpi_8f90.html',1,'']]],
-  ['gs_5fneighbour_2ef90_31',['gs_neighbour.f90',['../d1/db8/gs__neighbour_8f90.html',1,'']]],
-  ['gs_5fnvshmem_2ecu_32',['gs_nvshmem.cu',['../d3/de2/gs__nvshmem_8cu.html',1,'']]],
-  ['gs_5fnvshmem_5fkernels_2eh_33',['gs_nvshmem_kernels.h',['../de/df0/gs__nvshmem__kernels_8h.html',1,'']]],
-  ['gs_5fops_2ef90_34',['gs_ops.f90',['../d4/d67/gs__ops_8f90.html',1,'']]],
-  ['gs_5fshmem_2ef90_35',['gs_shmem.F90',['../d2/d33/gs__shmem_8F90.html',1,'']]],
-  ['gs_5fsx_2ef90_36',['gs_sx.f90',['../de/d94/gs__sx_8f90.html',1,'']]],
-  ['gs_5ftune_2ef90_37',['gs_tune.f90',['../d6/d63/gs__tune_8f90.html',1,'']]],
-  ['gs_5futofu_2ef90_38',['gs_utofu.F90',['../d2/dd5/gs__utofu_8F90.html',1,'']]],
-  ['gs_5futofu_5faux_2ec_39',['gs_utofu_aux.c',['../d0/d1b/gs__utofu__aux_8c.html',1,'']]]
+  ['gs_5fmpi_5frma_2ef90_31',['gs_mpi_rma.f90',['../d7/d7c/gs__mpi__rma_8f90.html',1,'']]],
+  ['gs_5fneighbour_2ef90_32',['gs_neighbour.f90',['../d1/db8/gs__neighbour_8f90.html',1,'']]],
+  ['gs_5fnvshmem_2ecu_33',['gs_nvshmem.cu',['../d3/de2/gs__nvshmem_8cu.html',1,'']]],
+  ['gs_5fnvshmem_5fkernels_2eh_34',['gs_nvshmem_kernels.h',['../de/df0/gs__nvshmem__kernels_8h.html',1,'']]],
+  ['gs_5fops_2ef90_35',['gs_ops.f90',['../d4/d67/gs__ops_8f90.html',1,'']]],
+  ['gs_5fshmem_2ef90_36',['gs_shmem.F90',['../d2/d33/gs__shmem_8F90.html',1,'']]],
+  ['gs_5fsx_2ef90_37',['gs_sx.f90',['../de/d94/gs__sx_8f90.html',1,'']]],
+  ['gs_5ftune_2ef90_38',['gs_tune.f90',['../d6/d63/gs__tune_8f90.html',1,'']]],
+  ['gs_5futofu_2ef90_39',['gs_utofu.F90',['../d2/dd5/gs__utofu_8F90.html',1,'']]],
+  ['gs_5futofu_5faux_2ec_40',['gs_utofu_aux.c',['../d0/d1b/gs__utofu__aux_8c.html',1,'']]]
 ];

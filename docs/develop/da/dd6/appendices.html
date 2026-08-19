@@ -105,9 +105,10 @@ $(document).ready(function(){initNavTree('da/dd6/appendices.html','../../'); ini
 <ul><li class="level1"><a href="#appendices_env-var">Environmental variable reference</a><ul><li class="level2"><a href="#autotoc_md0">SEM operator auto-tuning details</a></li>
 <li class="level2"><a href="#autotoc_md1">Logging level details</a></li>
 <li class="level2"><a href="#autotoc_md2">Gather-scatter communication backend details</a></li>
-<li class="level2"><a href="#autotoc_md3">MPI thread level details</a></li>
-<li class="level2"><a href="#autotoc_md4">Coarray Fortran signaling mode details</a></li>
-<li class="level2"><a href="#autotoc_md5">uTofu injection details</a></li>
+<li class="level2"><a href="#autotoc_md3">MPI RMA backend details</a></li>
+<li class="level2"><a href="#autotoc_md4">MPI thread level details</a></li>
+<li class="level2"><a href="#autotoc_md5">Coarray Fortran signaling mode details</a></li>
+<li class="level2"><a href="#autotoc_md6">uTofu injection details</a></li>
 </ul>
 </li>
 </ul>
@@ -152,14 +153,16 @@ Environmental variable reference</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>NEKO_GS_CAF_SIGNALING</code>   </td><td class="markdownTableBodyNone">Coarray Fortran gather-scatter signaling mode   </td><td class="markdownTableBodyNone">Unset    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>NEKO_GS_RMA_FLUSH_ALL</code>   </td><td class="markdownTableBodyNone">Batch the MPI RMA gather-scatter payload flush (boolean)   </td><td class="markdownTableBodyNone">1    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>NEKO_COMM_ID</code>   </td><td class="markdownTableBodyNone">Communicator id for this process (non-negative integer)   </td><td class="markdownTableBodyNone">0    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_HIP_ZEROCOPY</code>   </td><td class="markdownTableBodyNone">Zero-copy host/device mapping on unified memory (HIP), 1 enables   </td><td class="markdownTableBodyNone">0    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>NEKO_METAL_ZEROCOPY</code>   </td><td class="markdownTableBodyNone">Zero-copy host/device mapping on unified memory (Metal), 0 disables   </td><td class="markdownTableBodyNone">1    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>NEKO_MPI_THREAD_LEVEL</code>   </td><td class="markdownTableBodyNone">Requested MPI (and SHMEM) thread support level   </td><td class="markdownTableBodyNone">Unset    </td></tr>
+<td class="markdownTableBodyNone"><code>NEKO_METAL_ZEROCOPY</code>   </td><td class="markdownTableBodyNone">Zero-copy host/device mapping on unified memory (Metal), 0 disables   </td><td class="markdownTableBodyNone">1    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>NEKO_MPI_THREAD_LEVEL</code>   </td><td class="markdownTableBodyNone">Requested MPI (and SHMEM) thread support level   </td><td class="markdownTableBodyNone">Unset    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>NEKO_DEPRECATION_ERROR</code>   </td><td class="markdownTableBodyNone">Whether to treat deprecated features as errors (boolean)   </td><td class="markdownTableBodyNone">Unset   </td></tr>
 </table>
 <h2><a class="anchor" id="autotoc_md0"></a>
@@ -196,6 +199,7 @@ Gather-scatter communication backend details</h2>
 <li><code>NEKO_GS_COMM=CAF</code> : Coarray Fortran (requires a coarray-capable compiler)</li>
 <li><code>NEKO_GS_COMM=NEIGHBOUR</code> : Host MPI using an <code>MPI_Ineighbor_alltoallv</code> neighbourhood collective (<code>NEIGHBOR</code> is also accepted; MPI-3, host only)</li>
 <li><code>NEKO_GS_COMM=UTOFU</code> : Native Tofu interconnect (uTofu) one-sided RDMA (Fugaku and other Tofu-D systems; requires building with <code>--with-utofu</code>)</li>
+<li><code>NEKO_GS_COMM=MPIRMA</code> : Host MPI one-sided puts into a passive-target window (<code>RMA</code> is also accepted; MPI-3, host only). Assumes an MPI whose RMA progresses without the target entering MPI, as the hardware-driven one-sided components do (Open MPI <code>osc/rdma</code> and <code>osc/ucx</code>, Cray MPICH over libfabric); <code>NEKO_GS_TUNE=-MPIRMA</code> drops it from the autotuning on systems where that does not hold</li>
 </ul>
 <p>When <code>NEKO_GS_COMM</code> is unset and the build has no device-aware MPI, the host backends are benchmarked at initialisation and the fastest one is kept (see <a class="el" href="../../dc/d3c/performance.html#performance-gs-autotuning">Runtime autotuning of the host backend</a>). Which ones take part is set by <code>NEKO_GS_TUNE</code>, a list of backend names spelled as for <code>NEKO_GS_COMM</code> (comma or space separated, case insensitive). Unset, it means every host backend the build supports except <code>CAF</code>, which a compiler can accept at configure time while still giving the job a single image the coarray backend cannot use.</p>
 <ul>
@@ -205,6 +209,14 @@ Gather-scatter communication backend details</h2>
 </ul>
 <p>Backends that are selected but cannot run in this build or run are dropped; those named explicitly are reported in the log as <code>unavailable</code>. Set <code>NEKO_GS_COMM</code> to skip the benchmark and pin a backend outright; that path ignores <code>NEKO_GS_TUNE</code>.</p>
 <h2><a class="anchor" id="autotoc_md3"></a>
+MPI RMA backend details</h2>
+<p><code>NEKO_GS_RMA_FLUSH_ALL</code> selects how the MPI one-sided backend (<code>NEKO_GS_COMM=MPIRMA</code>) forces remote completion of the payload puts before announcing them. MPI has no put-with-notify, so the data and the signal are separate, unordered operations and the data must be flushed in between.</p>
+<ul>
+<li>Unset or non-zero (the default): one <code>MPI_Win_flush_all</code> completes every put, then all the signals are issued.</li>
+<li><code>NEKO_GS_RMA_FLUSH_ALL=0</code>: each peer gets its own <code>MPI_Win_flush</code> and is announced as soon as its put lands, which releases early receivers sooner but costs one flush call per peer.</li>
+</ul>
+<p>The per-peer form is the better structure wherever a flush really is scoped cheaply to the named target. On Cray MPICH over Slingshot it was not &ndash; the extra calls outweighed the pipelining they recovered &ndash; so the batched form is the default. It is worth re-measuring on an unfamiliar MPI; the setting is read once, at the first gather-scatter initialisation, so a run uses one strategy throughout.</p>
+<h2><a class="anchor" id="autotoc_md4"></a>
 MPI thread level details</h2>
 <p><code>NEKO_MPI_THREAD_LEVEL</code> overrides the default thread support requested from the MPI runtime (and, when built with <code>--with-openshmem</code>, from the SHMEM runtime as well). When unset, the level is chosen automatically: <code>MPI_THREAD_MULTIPLE</code> when running with more than one OpenMP thread per rank, falling back to <code>MPI_THREAD_FUNNELED</code> on host-only backends, and <code>MPI_Init</code> otherwise. Device backends require <code>MPI_THREAD_MULTIPLE</code> under the automatic policy. Setting the variable bypasses these heuristics; if the runtime cannot honor the requested level, initialisation aborts.</p>
 <ul>
@@ -213,7 +225,7 @@ MPI thread level details</h2>
 <li><code>NEKO_MPI_THREAD_LEVEL=serialized</code> : <code>MPI_THREAD_SERIALIZED</code>.</li>
 <li><code>NEKO_MPI_THREAD_LEVEL=multiple</code> : <code>MPI_THREAD_MULTIPLE</code>.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md4"></a>
+<h2><a class="anchor" id="autotoc_md5"></a>
 Coarray Fortran signaling mode details</h2>
 <p>When the CAF gather-scatter backend is used, the per-pair synchronisation strategy is selected by <code>NEKO_GS_CAF_SIGNALING</code>. The mode is bound on the first gather-scatter initialisation and cannot change thereafter. The default (when unset) is <code>sync</code>.</p>
 <ul>
@@ -222,7 +234,7 @@ Coarray Fortran signaling mode details</h2>
 <li><code>NEKO_GS_CAF_SIGNALING=event</code> : F2018 events (<code>event post</code> / <code>event wait</code>); requires a runtime that implements F2018 event semantics.</li>
 <li><code>NEKO_GS_CAF_SIGNALING=auto</code> : Benchmark the modes above that the build supports and bind the fastest one. Only takes effect when the comm. backend is autotuned too (i.e. <code>NEKO_GS_COMM</code> unset), and only on the first gather-scatter that tunes CAF, as the mode is shared by every instance; falls back to <code>sync</code> otherwise. See <a class="el" href="../../dc/d3c/performance.html#performance-gs-autotuning">Runtime autotuning of the host backend</a>.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md5"></a>
+<h2><a class="anchor" id="autotoc_md6"></a>
 uTofu injection details</h2>
 <p>When <code>NEKO_GS_COMM=UTOFU</code>, one injection virtual control queue (VCQ) is created per OpenMP thread, dealt round-robin over the Tofu network interfaces (TNIs) selected by <code>NEKO_GS_UTOFU_NTNI</code> (default <code>1</code>). Every VCQ is created with <code>UTOFU_VCQ_FLAG_THREAD_SAFE</code>, and both the packing of the send buffer and the <code>utofu_put</code> calls are parallelised over the OpenMP team: each thread fires the puts for its share of the peers on its own VCQ. This is the uTofu substitute for the per-thread <code>MPI_Isend</code> that Fujitsu MPI's missing <code>MPI_THREAD_MULTIPLE</code> support rules out. The counts are bound on the first gather-scatter initialisation and cannot change thereafter; the TNI count is silently clamped to the number of one-sided TNIs the hardware exposes, and the VCQ count to whatever the TNIs' VCQ budget allows (threads beyond the granted VCQ count do not inject).</p>
 <ul>
@@ -247,7 +259,7 @@ uTofu injection details</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Tue Aug 18 2026 03:47:33 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Aug 19 2026 03:53:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

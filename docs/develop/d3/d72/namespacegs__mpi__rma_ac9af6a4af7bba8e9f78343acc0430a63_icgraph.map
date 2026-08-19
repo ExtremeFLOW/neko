@@ -1,0 +1,13 @@
+<map id="gs_mpi_rma::gs_mpi_rma_load" name="gs_mpi_rma::gs_mpi_rma_load">
+<area shape="rect" id="Node000001" title="Reload a signal counter through a VOLATILE dummy, so the spin in gs_mpi_rma_wait_ge reads memory on e..." alt="" coords="416,101,573,141"/>
+<area shape="rect" id="Node000002" href="$d3/d72/namespacegs__mpi__rma.html#ae3b0cd65852da12d518e23b2193dc798" title="Spin until the local signal counter in slot slot has reached val. Called by the master thread only." alt="" coords="211,101,368,141"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="402,124,368,124,368,119,402,119"/>
+<area shape="rect" id="Node000003" href="$d3/d72/namespacegs__mpi__rma.html#ad7b5bac301447bc36e582f991af6cf9c" title="Pack the gathered shared dofs and put them into each neighbour&#39;s receive window, then announce the pu..." alt="" coords="5,5,163,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="237,97,162,60,134,48,137,43,164,55,240,92"/>
+<area shape="rect" id="Node000004" href="$d3/d72/namespacegs__mpi__rma.html#a3d59b4744fae6d1a1bf274290c7296da" title="Fused nc&#45;component send: pack nc contiguous component blocks per peer slab and put nc*ndofs reals...." alt="" coords="5,69,163,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="197,110,162,104,163,99,197,104"/>
+<area shape="rect" id="Node000005" href="$d3/d72/namespacegs__mpi__rma.html#accaf5e8ad7985b51daac56f676a5d0b9" title="Wait per neighbour for the signal that its data has landed, reduce the slab into u,..." alt="" coords="5,133,163,173"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="197,138,163,144,162,138,197,133"/>
+<area shape="rect" id="Node000006" href="$d3/d72/namespacegs__mpi__rma.html#a62ab8b3765cfa39bad3d4176dc5a577d" title="Fused nc&#45;component wait/reduce: per peer, wait on the data signal and reduce nc component blocks into..." alt="" coords="5,197,163,237"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="240,150,164,188,137,200,134,195,162,183,237,145"/>
+</map>

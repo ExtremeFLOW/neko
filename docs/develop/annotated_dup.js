@@ -800,6 +800,9 @@ var annotated_dup =
     [ "gs_mpi", "d0/d25/namespacegs__mpi.html", [
       [ "gs_mpi_t", "d6/d6b/structgs__mpi_1_1gs__mpi__t.html", "d6/d6b/structgs__mpi_1_1gs__mpi__t" ]
     ] ],
+    [ "gs_mpi_rma", "d3/d72/namespacegs__mpi__rma.html", [
+      [ "gs_mpi_rma_t", "d2/d80/structgs__mpi__rma_1_1gs__mpi__rma__t.html", "d2/d80/structgs__mpi__rma_1_1gs__mpi__rma__t" ]
+    ] ],
     [ "gs_neighbour", "d6/dc1/namespacegs__neighbour.html", [
       [ "gs_neighbour_t", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t" ]
     ] ],

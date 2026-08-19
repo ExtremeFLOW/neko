@@ -18,9 +18,10 @@ var searchData=
   ['gs_5fdevice_5fnccl_15',['gs_device_nccl',['../de/dcf/namespacegs__device__nccl.html',1,'']]],
   ['gs_5fdevice_5fshmem_16',['gs_device_shmem',['../d0/d2a/namespacegs__device__shmem.html',1,'']]],
   ['gs_5fmpi_17',['gs_mpi',['../d0/d25/namespacegs__mpi.html',1,'']]],
-  ['gs_5fneighbour_18',['gs_neighbour',['../d6/dc1/namespacegs__neighbour.html',1,'']]],
-  ['gs_5fops_19',['gs_ops',['../dd/d18/namespacegs__ops.html',1,'']]],
-  ['gs_5fshmem_20',['gs_shmem',['../de/dce/namespacegs__shmem.html',1,'']]],
-  ['gs_5fsx_21',['gs_sx',['../d2/dc3/namespacegs__sx.html',1,'']]],
-  ['gs_5futofu_22',['gs_utofu',['../d3/d29/namespacegs__utofu.html',1,'']]]
+  ['gs_5fmpi_5frma_18',['gs_mpi_rma',['../d3/d72/namespacegs__mpi__rma.html',1,'']]],
+  ['gs_5fneighbour_19',['gs_neighbour',['../d6/dc1/namespacegs__neighbour.html',1,'']]],
+  ['gs_5fops_20',['gs_ops',['../dd/d18/namespacegs__ops.html',1,'']]],
+  ['gs_5fshmem_21',['gs_shmem',['../de/dce/namespacegs__shmem.html',1,'']]],
+  ['gs_5fsx_22',['gs_sx',['../d2/dc3/namespacegs__sx.html',1,'']]],
+  ['gs_5futofu_23',['gs_utofu',['../d3/d29/namespacegs__utofu.html',1,'']]]
 ];

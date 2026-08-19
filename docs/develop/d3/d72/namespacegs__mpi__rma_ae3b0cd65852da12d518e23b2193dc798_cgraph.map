@@ -1,0 +1,5 @@
+<map id="gs_mpi_rma::gs_mpi_rma_wait_ge" name="gs_mpi_rma::gs_mpi_rma_wait_ge">
+<area shape="rect" id="Node000001" title="Spin until the local signal counter in slot slot has reached val. Called by the master thread only." alt="" coords="5,5,163,45"/>
+<area shape="rect" id="Node000002" href="$d3/d72/namespacegs__mpi__rma.html#ac9af6a4af7bba8e9f78343acc0430a63" title="Reload a signal counter through a VOLATILE dummy, so the spin in gs_mpi_rma_wait_ge reads memory on e..." alt="" coords="211,5,368,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,23,197,23,197,28,163,28"/>
+</map>

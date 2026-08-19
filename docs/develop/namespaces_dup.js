@@ -348,6 +348,7 @@ var namespaces_dup =
     [ "gs_device_nccl", "de/dcf/namespacegs__device__nccl.html", "de/dcf/namespacegs__device__nccl" ],
     [ "gs_device_shmem", "d0/d2a/namespacegs__device__shmem.html", "d0/d2a/namespacegs__device__shmem" ],
     [ "gs_mpi", "d0/d25/namespacegs__mpi.html", "d0/d25/namespacegs__mpi" ],
+    [ "gs_mpi_rma", "d3/d72/namespacegs__mpi__rma.html", "d3/d72/namespacegs__mpi__rma" ],
     [ "gs_neighbour", "d6/dc1/namespacegs__neighbour.html", "d6/dc1/namespacegs__neighbour" ],
     [ "gs_ops", "dd/d18/namespacegs__ops.html", [
       [ "gs_op_add", "dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8", null ],
