@@ -659,12 +659,6 @@ neko_dep "NVSHMEM" with_nvshmem "$have_nvshmem"
 neko_dep "uTofu" with_utofu "$have_utofu"
 neko_dep "OpenSHMEM" with_openshmem "$neko_shmem"
 AS_ECHO([""])
-AS_ECHO(["  Device backends"])
-neko_dep "CUDA" with_cuda "$have_cuda"
-neko_dep "HIP" with_hip "$have_hip"
-neko_dep "OpenCL" with_opencl "$have_opencl"
-neko_dep "Metal" with_metal "$have_metal"
-AS_ECHO([""])
 AS_ECHO(["  Math and partitioning"])
 neko_dep "libxsmm" with_libxsmm "$have_libxsmm"
 neko_dep "ParMETIS" with_parmetis "$found_domain_decomp"
