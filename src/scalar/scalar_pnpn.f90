@@ -55,6 +55,8 @@ module scalar_pnpn
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use math, only : glsc2, col2, add2s2
+  use field_math, only : field_col2, field_col3
+  use scratch_registry, only : neko_scratch_registry
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
@@ -348,12 +350,15 @@ contains
     type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
     type(ksp_monitor_t), intent(inout) :: ksp_results
+    type(field_t), pointer :: rho_cp
+    integer :: rho_cp_index
     ! Number of degrees of freedom
     integer :: n
 
     if (this%freeze) return
 
     n = this%dm_Xh%size()
+    call neko_scratch_registry%request_field(rho_cp, rho_cp_index, .false.)
 
     call profiler_start_region(trim(this%name), 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
@@ -370,37 +375,42 @@ contains
 
       ! Logs extra information the log level is NEKO_LOG_DEBUG or above.
       call print_debug(this)
+
+      ! Update material properties and their pointwise product.
+      call this%update_material_properties(time)
+      call field_col3(rho_cp, rho, cp, n)
+
       ! Compute the source terms
       call this%source_term%compute(time)
-
-      ! Apply weak boundary conditions, that contribute to the source terms.
-      call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), time, .false.)
 
       if (oifs) then
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, this%advs, &
               Xh, this%c_Xh, dm_Xh%size())
-
-         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
-
-         call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho%x(1,1,1,1), dt,&
-              n)
       else
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, f_Xh, &
               Xh, this%c_Xh, dm_Xh%size())
+      end if
 
-         ! At this point the RHS contains the sum of the advection operator,
-         ! Neumann boundary sources and additional source terms, evaluated using
-         ! the scalar field from the previous time-step. Now, this value is
-         ! used in the explicit time scheme to advance these terms in time.
-         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
+      ! Scale the volumetric source and advection terms by rho * cp.
+      call field_col2(f_Xh, rho_cp, n)
+
+      ! Add weak boundary fluxes without scaling them by rho * cp.
+      call this%bcs%apply_scalar(f_Xh%x, n, time, .false.)
+
+      ! Extrapolate the already scaled explicit right-hand side.
+      call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
+           ext_bdf%advection_coeffs%x, n)
+
+      if (oifs) then
+         call makeoifs%compute_scalar(this%advs%x, f_Xh%x, &
+              rho_cp, dt, n)
+      else
 
          ! Add the RHS contributions coming from the BDF scheme.
-         call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho%x(1,1,1,1), &
-              dt, ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
+         call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, &
+              rho_cp, dt, ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
       end if
 
       call slag%update()
@@ -408,13 +418,10 @@ contains
       !> Apply strong boundary conditions.
       call this%apply_strong_bcs(time)
 
-      ! Update material properties if necessary
-      call this%update_material_properties(time)
-
       ! Compute scalar residual.
       call profiler_start_region(trim(this%name) // '_residual', 20)
       call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_tot, &
-           rho%x(1,1,1,1)*cp%x(1,1,1,1), ext_bdf%diffusion_coeffs%x(1), dt, &
+           rho_cp, ext_bdf%diffusion_coeffs%x(1), dt, &
            dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
@@ -444,6 +451,7 @@ contains
       end if
 
     end associate
+    call neko_scratch_registry%relinquish_field(rho_cp_index)
     call profiler_end_region(trim(this%name), 2)
   end subroutine scalar_pnpn_step
 

@@ -15,18 +15,67 @@ of the code. But can be useful for users and developers alike.
 
 | Name                     | Description                                                           | Default value |
 | ------------------------ | --------------------------------------------------------------------- | ------------- |
-| `NEKO_AUTOTUNE`          | Force Ax auto-tuning strategy (``'1D'``,``'KSTEP'``)                  | Unset         |
+| `NEKO_AUTOTUNE`          | Force SEM operator kernel formulation (``'1D'``,``'KSTEP'``)          | Unset         |
+| `NEKO_EB_TUNE`           | Sweep elements per block for the kstep kernels (boolean)              | CUDA: 1, HIP: 0 |
+| `NEKO_EB`                | Elements per block candidate when `NEKO_AUTOTUNE=KSTEP` (0, 1 or 2)   | 0             |
+| `NEKO_CHUNKS`            | Chunk size candidate when `NEKO_AUTOTUNE=1D` (0 to 3)                 | 0             |
+| `NEKO_TUNE_ROUNDS`       | Interleaved sampling rounds used by the operator auto-tuner           | 3             |
+| `NEKO_TUNE_ITERS`        | Kernel launches timed per candidate per round                        | 100           |
 | `NEKO_LOG_FILE`          | Log file name, uses `stdout` if not set.                              | Unset         |
 | `NEKO_LOG_TAB_SIZE`      | Number of spaces added for each level of indentation in the log file. | 1             |
 | `NEKO_LOG_LEVEL`         | Log verbosity level (integer > 0, default: 1)                         | Unset         |
 | `NEKO_GS_STRTGY`         | Gather-scatter device MPI sync. strategy (0 < integer < 5 )           | Unset         |
 | `NEKO_GS_COMM`           | Gather-scatter communication backend                                  | Unset         |
+| `NEKO_GS_TUNE`           | Comm. backends the gather-scatter autotuning benchmarks (list)        | Unset (all but `CAF`) |
 | `NEKO_GS_CAF_SIGNALING`  | Coarray Fortran gather-scatter signaling mode                         | Unset         |
+| `NEKO_GS_RMA_FLUSH_ALL`  | Batch the MPI RMA gather-scatter payload flush (boolean)              | 1             |
 | `NEKO_COMM_ID`           | Communicator id for this process (non-negative integer)               | 0             |
 | `NEKO_HIP_ZEROCOPY`      | Zero-copy host/device mapping on unified memory (HIP), 1 enables      | 0             |
 | `NEKO_METAL_ZEROCOPY`    | Zero-copy host/device mapping on unified memory (Metal), 0 disables   | 1             |
 | `NEKO_MPI_THREAD_LEVEL`  | Requested MPI (and SHMEM) thread support level                        | Unset         |
 | `NEKO_DEPRECATION_ERROR` | Whether to treat deprecated features as errors (boolean)              | Unset         |
+
+### SEM operator auto-tuning details
+
+On the CUDA and HIP backends each spectral element operator benchmarks
+its available kernel formulations on first call and caches the winner
+for the rest of the run; see @ref performance-operator-autotuning for
+what is measured and why the defaults differ between vendors.
+
+`NEKO_AUTOTUNE` pins a formulation and skips the search:
+
+- `NEKO_AUTOTUNE=1D`    : always use the 1d variant, with the chunk size
+  given by `NEKO_CHUNKS`.
+- `NEKO_AUTOTUNE=KSTEP` : always use the kstep variant, with the
+  elements per block given by `NEKO_EB`.
+
+Any other value is reported as an error and the search runs as usual.
+
+`NEKO_EB_TUNE` controls whether the elements per block dimension is
+swept at all. It defaults to enabled on CUDA, where blocking measures a
+clear gain, and disabled on HIP, where the blocked kernels exceed the
+register budget and spill to scratch. Setting it to `0` or `1`
+overrides the per-backend default.
+
+`NEKO_CHUNKS` selects among the instantiated chunk sizes when the 1d
+variant is pinned with `NEKO_AUTOTUNE=1D`. Candidates `0` to `3` are
+1024, 512, 256 and 128 threads; candidate `0` is the historical value,
+so `NEKO_AUTOTUNE=1D` on its own is the A/B baseline for the chunk
+sweep. A candidate smaller than one derivative matrix (`lx*lx`) is
+invalid and falls back to 1024.
+
+`NEKO_EB` selects among the instantiated blocking candidates when a
+formulation is pinned with `NEKO_AUTOTUNE=KSTEP`; candidate `0` is one
+element per block, i.e. the unblocked geometry, which makes
+`NEKO_AUTOTUNE=KSTEP` on its own the A/B baseline for the blocking.
+Values outside the valid range fall back to `0`.
+
+`NEKO_TUNE_ROUNDS` and `NEKO_TUNE_ITERS` control the sampling, and
+apply to *both* sweeps --- they are not specific to the elements per
+block dimension. Each round times every candidate once, chunk sizes
+included, and the best round per candidate is kept, so raising the
+round count guards against transients and clock drift during the sweep,
+whereas raising the iteration count only reduces per-sample noise.
 
 ### Logging level details
 
@@ -53,6 +102,56 @@ A number of gather-scatter backends are supported.
   neighbourhood collective (`NEIGHBOR` is also accepted; MPI-3, host only)
 - `NEKO_GS_COMM=UTOFU`  : Native Tofu interconnect (uTofu) one-sided RDMA
   (Fugaku and other Tofu-D systems; requires building with `--with-utofu`)
+- `NEKO_GS_COMM=MPIRMA` : Host MPI one-sided puts into a passive-target
+  window (`RMA` is also accepted; MPI-3, host only). Assumes an MPI whose
+  RMA progresses without the target entering MPI, as the hardware-driven
+  one-sided components do (Open MPI `osc/rdma` and `osc/ucx`, Cray MPICH
+  over libfabric); `NEKO_GS_TUNE=-MPIRMA` drops it from the autotuning on
+  systems where that does not hold
+
+When `NEKO_GS_COMM` is unset and the build has no device-aware MPI,
+the host backends are benchmarked at initialisation and the fastest
+one is kept (see @ref performance-gs-autotuning). Which ones take part
+is set by `NEKO_GS_TUNE`, a list of backend names spelled as for
+`NEKO_GS_COMM` (comma or space separated, case insensitive). Unset, it
+means every host backend the build supports except `CAF`, which a
+compiler can accept at configure time while still giving the job a
+single image the coarray backend cannot use.
+
+- `NEKO_GS_TUNE=+CAF` adds the coarray backend to that default set,
+  `NEKO_GS_TUNE=-SHMEM` removes a backend from it, and the two can be
+  combined (`NEKO_GS_TUNE=+CAF,-SHMEM`).
+- Plain names replace the set outright: `NEKO_GS_TUNE=MPI,NEIGHBOUR`
+  benchmarks those two and nothing else. A single name pins that
+  backend without benchmarking anything.
+- The two forms cannot be mixed, and a name that is not a host
+  gather-scatter backend is an error.
+
+Backends that are selected but cannot run in this build or run are
+dropped; those named explicitly are reported in the log as
+`unavailable`. Set `NEKO_GS_COMM` to skip the benchmark and pin a
+backend outright; that path ignores `NEKO_GS_TUNE`.
+
+### MPI RMA backend details
+
+`NEKO_GS_RMA_FLUSH_ALL` selects how the MPI one-sided backend
+(`NEKO_GS_COMM=MPIRMA`) forces remote completion of the payload puts
+before announcing them. MPI has no put-with-notify, so the data and the
+signal are separate, unordered operations and the data must be flushed
+in between.
+
+- Unset or non-zero (the default): one `MPI_Win_flush_all` completes
+  every put, then all the signals are issued.
+- `NEKO_GS_RMA_FLUSH_ALL=0`: each peer gets its own `MPI_Win_flush` and
+  is announced as soon as its put lands, which releases early receivers
+  sooner but costs one flush call per peer.
+
+The per-peer form is the better structure wherever a flush really is
+scoped cheaply to the named target. On Cray MPICH over Slingshot it was
+not -- the extra calls outweighed the pipelining they recovered -- so
+the batched form is the default. It is worth re-measuring on an
+unfamiliar MPI; the setting is read once, at the first gather-scatter
+initialisation, so a run uses one strategy throughout.
 
 ### MPI thread level details
 
@@ -73,10 +172,10 @@ level, initialisation aborts.
 
 ### Coarray Fortran signaling mode details
 
-When `NEKO_GS_COMM=CAF`, the per-pair synchronisation strategy is
-selected by `NEKO_GS_CAF_SIGNALING`. The mode is bound on the first
-gather-scatter initialisation and cannot change thereafter. The
-default (when unset) is `sync`.
+When the CAF gather-scatter backend is used, the per-pair
+synchronisation strategy is selected by `NEKO_GS_CAF_SIGNALING`. The
+mode is bound on the first gather-scatter initialisation and cannot
+change thereafter. The default (when unset) is `sync`.
 
 - `NEKO_GS_CAF_SIGNALING=sync`   : `sync images` over the union of
   neighbour pairs, with a double-buffered receive coarray (F2008).
@@ -85,6 +184,12 @@ default (when unset) is `sync`.
 - `NEKO_GS_CAF_SIGNALING=event`  : F2018 events (`event post` /
   `event wait`); requires a runtime that implements F2018 event
   semantics.
+- `NEKO_GS_CAF_SIGNALING=auto`   : Benchmark the modes above that the
+  build supports and bind the fastest one. Only takes effect when the
+  comm. backend is autotuned too (i.e. `NEKO_GS_COMM` unset), and only
+  on the first gather-scatter that tunes CAF, as the mode is shared by
+  every instance; falls back to `sync` otherwise. See
+  @ref performance-gs-autotuning.
 
 ### uTofu injection details
 

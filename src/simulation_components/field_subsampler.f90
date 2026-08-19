@@ -43,7 +43,7 @@ module field_subsampler
   use device_math, only : device_masked_gather_copy_aligned
   use comm, only : pe_rank, NEKO_COMM
   use mpi_f08, only : MPI_ALLREDUCE, MPI_IN_PLACE, MPI_SUM, MPI_INTEGER
-  use utils, only : neko_warning, neko_error
+  use utils, only : neko_warning, neko_error, NEKO_VARNAME_LEN
   use simulation_component, only : simulation_component_t
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
@@ -292,7 +292,7 @@ contains
     ! We cannot use the JSON because "fields" is already taken by the field
 
     block
-      character(len=1024) :: new_field_names(this%n_fields)
+      character(len=NEKO_VARNAME_LEN) :: new_field_names(this%n_fields)
       integer :: i
 
       do i = 1, this%n_fields

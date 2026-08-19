@@ -221,22 +221,16 @@ contains
           call shmem_init()
        else
           shmem_ierr = shmem_init_thread(shmem_requested, provided)
-          if (provided .lt. shmem_requested) then
-             call neko_error('Requested SHMEM thread level not provided')
-          end if
+          call shmem_check_thread_level(provided)
        end if
     else if (nthrds .gt. 1) then
+       ! One shot only: OpenSHMEM allows a single initialisation call, so a
+       ! provided level below the requested one cannot be retried with a
+       ! second shmem_init_thread -- Cray LIBSMA aborts the job when it sees
+       ! one ("multiple initializations are done for multithreading"). Ask
+       ! for MULTIPLE and take whatever comes back.
        shmem_ierr = shmem_init_thread(SHMEM_THREAD_MULTIPLE, provided)
-       if (provided .ne. SHMEM_THREAD_MULTIPLE) then
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call neko_error('Invalid thread support provided by SHMEM')
-          else
-             shmem_ierr = shmem_init_thread(SHMEM_THREAD_SERIALIZED, provided)
-             if (provided .ne. SHMEM_THREAD_SERIALIZED) then
-                call neko_error('Invalid thread support provided by SHMEM')
-             end if
-          end if
-       end if
+       call shmem_check_thread_level(provided)
     else
        call shmem_init()
     end if
@@ -244,6 +238,30 @@ contains
 
 
   end subroutine comm_init
+
+#ifdef HAVE_OPENSHMEM
+  !> Decide whether the thread level an OpenSHMEM library handed back is
+  !! usable, given how Neko drives it.
+  !!
+  !! Only the device backends need SHMEM_THREAD_MULTIPLE, where several host
+  !! threads drive their own streams. On the host, gs_shmem issues every
+  !! SHMEM call from the OpenMP master thread -- which is the initial
+  !! thread, the one that called shmem_init_thread -- and only lets the team
+  !! drive the puts when the library reports MULTIPLE, so no level is
+  !! actually unusable. That matters in practice: Cray LIBSMA reports
+  !! SHMEM_THREAD_SINGLE, and refusing anything below FUNNELED would rule
+  !! out hybrid MPI+OpenMP runs there altogether.
+  !! @param provided thread level reported by shmem_init_thread
+  subroutine shmem_check_thread_level(provided)
+    integer, intent(in) :: provided
+
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+         provided .lt. SHMEM_THREAD_MULTIPLE) then
+       call neko_error('Invalid thread support provided by SHMEM')
+    end if
+
+  end subroutine shmem_check_thread_level
+#endif
 
   subroutine comm_free
     integer :: ierr

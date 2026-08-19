@@ -1,5 +1,6 @@
 #ifndef __MATH_OPGRAD_KERNEL_H__
 #define __MATH_OPGRAD_KERNEL_H__
+
 /*
  Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
@@ -34,6 +35,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "elem_block.h"
+
 /**
  * Device kernel for convective terms
  */
@@ -62,10 +65,10 @@ __global__ void opgrad_kernel_1d(T * __restrict__ ux,
   __shared__ T shdx[LX * LX];
   __shared__ T shdy[LX * LX];
   __shared__ T shdz[LX * LX];
-  
-  
+
+
   int i,j,k;
-  
+
   const int e = blockIdx.x;
   const int iii = threadIdx.x;
   const int nchunks = (LX * LX * LX - 1) / CHUNKS + 1;
@@ -81,9 +84,9 @@ __global__ void opgrad_kernel_1d(T * __restrict__ ux,
     shu[j] = u[j + e * LX * LX * LX];
     j = j + CHUNKS;
   }
-  
+
   __syncthreads();
-  
+
   for (int n = 0; n < nchunks; n++) {
     const int ijk = iii + n * CHUNKS;
     const int jk = ijk / LX;
@@ -94,34 +97,34 @@ __global__ void opgrad_kernel_1d(T * __restrict__ ux,
       T rtmp = 0.0;
       T stmp = 0.0;
       T ttmp = 0.0;
-      for (int l = 0; l < LX; l++) {		
-	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];	
+      for (int l = 0; l < LX; l++) {
+	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];
 	stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];
 	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];
       }
 
-      ux[ijk + e * LX * LX * LX] = w3[ijk] 
+      ux[ijk + e * LX * LX * LX] = w3[ijk]
 	* (drdx[ijk + e * LX * LX * LX] * rtmp
 	   + dsdx[ijk + e * LX * LX * LX] * stmp
 	   + dtdx[ijk + e * LX * LX * LX] * ttmp);
 
-      uy[ijk + e * LX * LX * LX] = w3[ijk] 
+      uy[ijk + e * LX * LX * LX] = w3[ijk]
 	* (drdy[ijk + e * LX * LX * LX] * rtmp
 	   + dsdy[ijk + e * LX * LX * LX] * stmp
 	   + dtdy[ijk + e * LX * LX * LX] * ttmp);
-      
-      uz[ijk + e * LX * LX * LX] = w3[ijk] 
+
+      uz[ijk + e * LX * LX * LX] = w3[ijk]
 	* (drdz[ijk + e * LX * LX * LX] * rtmp
 	   + dsdz[ijk + e * LX * LX * LX] * stmp
 	   + dtdz[ijk + e * LX * LX * LX] * ttmp);
 
     }
-  } 
-  
+  }
+
 }
 
-template< typename T, const int LX >
-__global__ void __launch_bounds__(LX*LX,3)
+template< typename T, const int LX, const int EB >
+__global__ void NEKO_EB_BOUNDS(LX*LX*EB)
 opgrad_kernel_kstep(T * __restrict__ ux,
                     T * __restrict__ uy,
                     T * __restrict__ uz,
@@ -138,31 +141,47 @@ opgrad_kernel_kstep(T * __restrict__ ux,
                     const T * __restrict__ drdz,
                     const T * __restrict__ dsdz,
                     const T * __restrict__ dtdz,
-                    const T * __restrict__ w3) {
+                    const T * __restrict__ w3,
+                    const int nelv) {
 
-  __shared__ T shu[LX * LX];
+  /* One slice per element in the block */
+  __shared__ T shu[EB * LX * LX];
 
+  /* Element independent, one copy per block */
   __shared__ T shdx[LX * LX];
   __shared__ T shdy[LX * LX];
   __shared__ T shdz[LX * LX];
-    
-  const int e = blockIdx.x;
+
+  static_assert(sizeof(shu) + sizeof(shdx) + sizeof(shdy) + sizeof(shdz)
+                <= NEKO_EB_MAX_LDS,
+                "kstep block exceeds the LDS budget");
+
+  /* Threads past the last element still have to reach the barriers in the k
+     loop, so clamp their reads and drop their stores rather than returning
+     early. At EB == 1 all of this is constant folded away */
+  const int eb = (EB == 1) ? 0 : threadIdx.z;
+  const int e_blk = blockIdx.x * EB + eb;
+  const bool active = (EB == 1) ? true : (e_blk < nelv);
+  const int e = active ? e_blk : (nelv - 1);
   const int j = threadIdx.y;
   const int i = threadIdx.x;
   const int ij = i + j * LX;
+  const int sh = eb * LX * LX;
   const int ele = e*LX*LX*LX;
-  
-  shdx[ij] = dx[ij];
-  shdy[ij] = dy[ij];
-  shdz[ij] = dz[ij];
+
+  if (eb == 0) {
+    shdx[ij] = dx[ij];
+    shdy[ij] = dy[ij];
+    shdz[ij] = dz[ij];
+  }
 
   T ru[LX];
-  
+
 #pragma unroll LX
   for (int k = 0; k < LX; ++k) {
     ru[k] = u[ij + k*LX*LX + ele];
   }
-    
+
   __syncthreads();
 
   #pragma unroll
@@ -170,7 +189,8 @@ opgrad_kernel_kstep(T * __restrict__ ux,
     const int ijk = ij + k*LX*LX;
     const T W3 = w3[ijk];
     T ttmp = 0.0;
-    shu[ij] = ru[k];
+    shu[sh + ij] = ru[k];
+#pragma unroll
     for (int l = 0; l < LX; l++) {
       ttmp += shdz[k+l*LX] * ru[l];
     }
@@ -180,21 +200,23 @@ opgrad_kernel_kstep(T * __restrict__ ux,
     T stmp = 0.0;
 #pragma unroll
     for (int l = 0; l < LX; l++) {
-      rtmp += shdx[i+l*LX] * shu[l+j*LX];
-      stmp += shdy[j+l*LX] * shu[i+l*LX];
+      rtmp += shdx[i+l*LX] * shu[sh + l+j*LX];
+      stmp += shdy[j+l*LX] * shu[sh + i+l*LX];
     }
 
-    ux[ijk + ele] = W3 * (drdx[ijk + ele] * rtmp
-                          + dsdx[ijk + ele] * stmp
-                          + dtdx[ijk + ele] * ttmp);
+    if (active) {
+      ux[ijk + ele] = W3 * (drdx[ijk + ele] * rtmp
+                            + dsdx[ijk + ele] * stmp
+                            + dtdx[ijk + ele] * ttmp);
 
-    uy[ijk + ele] = W3 * (drdy[ijk + ele] * rtmp
-                          + dsdy[ijk + ele] * stmp
-                          + dtdy[ijk + ele] * ttmp);
+      uy[ijk + ele] = W3 * (drdy[ijk + ele] * rtmp
+                            + dsdy[ijk + ele] * stmp
+                            + dtdy[ijk + ele] * ttmp);
 
-    uz[ijk + ele] = W3 * (drdz[ijk + ele] * rtmp
-                          + dsdz[ijk + ele] * stmp
-                          + dtdz[ijk + ele] * ttmp);
+      uz[ijk + ele] = W3 * (drdz[ijk + ele] * rtmp
+                            + dsdz[ijk + ele] * stmp
+                            + dtdz[ijk + ele] * ttmp);
+    }
     __syncthreads();
   }
 }
