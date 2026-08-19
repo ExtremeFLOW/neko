@@ -32,7 +32,7 @@
 !
 ! Routines for expensive ALE calculations on CPU
 module ale_routines_cpu
-  use num_types, only : rp, dp
+  use num_types, only : rp
   use field, only : field_t
   use coefs, only : coef_t
   use math, only : cfill, glimax, rzero
@@ -354,13 +354,13 @@ contains
     integer :: i, j, n
     character(len=*), intent(in) :: scheme_type
     real(kind=rp) :: ab_coeffs(4)
-    real(kind=dp) :: dt_history(10)
+    real(kind=rp) :: dt_history(10)
 
     call rzero(ab_coeffs, 4)
     if (trim(scheme_type) .eq. 'ab') then
-       dt_history(1) = time%dt
-       dt_history(2) = time%dtlag(1)
-       dt_history(3) = time%dtlag(2)
+       dt_history(1) = real(time%dt, kind=rp)
+       dt_history(2) = real(time%dtlag(1), kind=rp)
+       dt_history(3) = real(time%dtlag(2), kind=rp)
        call ab_scheme_obj%compute_coeffs(ab_coeffs, dt_history, nadv)
     else
        call neko_error("ALE: Unknown mesh time-integration scheme")

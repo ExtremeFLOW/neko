@@ -158,13 +158,13 @@ contains
 
     type(ab_time_scheme_t) :: ab_scheme_obj
     real(kind=rp) :: ab_coeffs(4)
-    real(kind=dp) :: dt_history(10)
+    real(kind=rp) :: dt_history(10)
     integer :: j
 
     call rzero(ab_coeffs, 4)
-    dt_history(1) = time%dt
-    dt_history(2) = time%dtlag(1)
-    dt_history(3) = time%dtlag(2)
+    dt_history(1) = real(time%dt, kind=rp)
+    dt_history(2) = real(time%dtlag(1), kind=rp)
+    dt_history(3) = real(time%dtlag(2), kind=rp)
     call ab_scheme_obj%compute_coeffs(ab_coeffs, dt_history, nadv)
 
     pos(1) = pos(1) + time%dt * ab_coeffs(1) * current_vel(1)
