@@ -4,15 +4,15 @@ contains
  subroutine test_constant_dt()
    use pfunit
    use bdf_time_scheme, only : bdf_time_scheme_t
-   use num_types, only : rp, dp
+   use num_types, only : rp
    implicit none
    
    type(bdf_time_scheme_t) bdf
-   real(kind=dp) :: dt(10)
-   real(kind=rp) :: x, coeffs(4)
+   real(kind=rp) :: dt(10), x
+   real(kind=rp) :: coeffs(4)
    
    ! Equal timesteps
-   dt = 1.00_dp
+   dt = 1.00_rp
 
    ! Firt order scheme, [1, 1]
    call bdf%compute_coeffs(coeffs, dt, 1)
@@ -39,19 +39,18 @@ end subroutine test_constant_dt
  subroutine test_variable_dt()
    use pfunit
    use bdf_time_scheme, only : bdf_time_scheme_t
-   use num_types, only : rp, dp
+   use num_types, only : rp
    implicit none
    
    type(bdf_time_scheme_t) bdf
-   real(kind=rp) :: coeffs(10), coeffs_new(4)
-   real(kind=dp) :: dt(10)
+   real(kind=rp) :: dt(10), coeffs(10), coeffs_new(4)
    integer :: nbdf
    
    ! Some random dt values
-   dt = 4.3_dp
-   dt(1) = 2_dp
-   dt(2) = 0.05_dp
-   dt(3) = 1.34_dp
+   dt = 4.3_rp
+   dt(1) = 2_rp
+   dt(2) = 0.05_rp
+   dt(3) = 1.34_rp
 
    ! order 1
    nbdf = 0
@@ -91,15 +90,15 @@ end subroutine test_variable_dt
    
    type(bdf_time_scheme_t) bdf
    integer, parameter :: n=3, m=1
-   real(kind=dp) :: dt(10)
+   real(kind=rp) :: dt(10)
    real(kind=rp) :: coeffs(4)
    real(kind=rp) :: x(0:n), c(0:n,0:m)
    
    ! Some random dt values
-   dt = 4.3_dp
-   dt(1) = 2_dp
-   dt(2) = 0.05_dp
-   dt(3) = 1.34_dp
+   dt = 4.3_rp
+   dt(1) = 2_rp
+   dt(2) = 0.05_rp
+   dt(3) = 1.34_rp
 
    ! order 3
    call bdf%compute_coeffs(coeffs, dt, 3)
@@ -129,7 +128,7 @@ end subroutine test_with_df_weights_full
     integer, intent(inout) :: nbd
     integer, intent(in) :: time_order
     real(kind=rp), dimension(10) :: bd
-    real(kind=dp), intent(inout), dimension(10) :: dt
+    real(kind=rp), intent(inout), dimension(10) :: dt
     real(kind=rp), dimension(10,10) :: bdmat
     real(kind=rp), dimension(10) :: bdrhs
     real(kind=rp), dimension(10) :: bd_old
@@ -170,8 +169,7 @@ subroutine bdsys (a, b, dt, nbd, ldim)
   use num_types
   use math
   integer :: ldim, j, n, k, i, nsys, nbd
-  real(kind=rp) ::  A(ldim,9),B(9)
-  real(kind=dp) :: DT(9)
+  real(kind=rp) ::  A(ldim,9),B(9),DT(9)
   real(kind=rp) :: SUMDT
 
   CALL RZERO (A, ldim**2)

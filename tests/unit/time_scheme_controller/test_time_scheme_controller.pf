@@ -9,7 +9,7 @@ module test_time_scheme_controller
   use ext_time_scheme, only : ext_time_scheme_t
   use ab_time_scheme, only : ab_time_scheme_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use num_types, only : rp, dp
+  use num_types, only : rp
   implicit none
 
   @TestCase
@@ -43,12 +43,11 @@ contains
     type(ab_time_scheme_t) ab
     type(ext_time_scheme_t) ext
     type(time_scheme_controller_t) ctrl
-    real(kind=rp) :: x
-    real(kind=dp) :: dt(10)
+    real(kind=rp) :: dt(10), x
     real(kind=rp) :: diff_coeffs(4), adv_coeffs(4)
 
     ! Equal timesteps
-    dt = 1.00_dp
+    dt = 1.00_rp
 
     ! BDF = 1
     ! First time step, bdf1 and ext1
@@ -117,12 +116,11 @@ contains
     type(ab_time_scheme_t) ab
     type(ext_time_scheme_t) ext
     type(time_scheme_controller_t) ctrl
-    real(kind=rp) :: x
-    real(kind=dp) :: dt(10)
+    real(kind=rp) :: dt(10), x
     real(kind=rp) :: diff_coeffs(4), adv_coeffs(4)
 
     ! Equal timesteps
-    dt = 1.00_dp
+    dt = 1.00_rp
 
     ! BDF = 1
     ! First time step, bdf1 and ext1
@@ -184,12 +182,11 @@ contains
     type(ab_time_scheme_t) ab
     type(ext_time_scheme_t) ext
     type(time_scheme_controller_t) ctrl
-    real(kind=rp) :: x
-    real(kind=dp) :: dt(10)
+    real(kind=rp) :: dt(10), x
     real(kind=rp) :: diff_coeffs(4), adv_coeffs(4)
 
     ! Equal timesteps
-    dt = 1.00_dp
+    dt = 1.00_rp
 
     ! BDF = 2
     ! First time step, bdf1 and ext1
@@ -254,12 +251,11 @@ contains
     type(bdf_time_scheme_t) bdf
     type(ext_time_scheme_t) ext
     type(time_scheme_controller_t) ctrl
-    real(kind=rp) :: x
-    real(kind=dp) :: dt(10)
+    real(kind=rp) :: dt(10), x
     real(kind=rp) :: diff_coeffs(4), adv_coeffs(4)
 
     ! Equal timesteps
-    dt = 1.00_dp
+    dt = 1.00_rp
 
     ! BDF = 2
     ! First time step, bdf1 and ext1

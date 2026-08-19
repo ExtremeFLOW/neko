@@ -4,15 +4,14 @@ contains
 subroutine test_ext_constant_dt()
   use pfunit
   use ext_time_scheme
-  use num_types, only : rp, dp
+  use num_types
   implicit none
   
   type(ext_time_scheme_t) ext
-  real(kind=rp) :: x, coeffs(4)
-  real(kind=dp) :: dt(10)
+  real(kind=rp) :: dt(10), x, coeffs(4)
   
   ! Equal timesteps
-  dt = 1.00_dp
+  dt = 1.00_rp
 
   ! 1st order scheme, [1]
   call ext%compute_coeffs(coeffs, dt, 1)
@@ -34,19 +33,18 @@ end subroutine test_ext_constant_dt
 @test
 subroutine test_ext_variable_dt()
   use pfunit
-  use ext_time_scheme, only : ext_time_scheme_t
-  use num_types, only : rp, dp
+  use ext_time_scheme, only: ext_time_scheme_t
+  use num_types, only : rp
   implicit none
   
   type(ext_time_scheme_t) ext
-  real(kind=rp) :: coeffs(4)
-  real(kind=dp) :: dt(10)
+  real(kind=rp) :: dt(10), coeffs(4)
   
   ! Some random dt values
-  dt = 4.3_dp
-  dt(1) = 2_dp
-  dt(2) = 0.05_dp
-  dt(3) = 1.34_dp
+  dt = 4.3_rp
+  dt(1) = 2_rp
+  dt(2) = 0.05_rp
+  dt(3) = 1.34_rp
 
   ! order 1
   call ext%compute_coeffs(coeffs, dt, 1)
@@ -54,9 +52,8 @@ subroutine test_ext_variable_dt()
 
   ! order 2
   call ext%compute_coeffs(coeffs, dt, 2)
-  
-  @assertRelativelyEqual(1.0_rp + real(dt(1)/dt(2), kind=rp), coeffs(1), tolerance=1e-3_rp)
-  @assertRelativelyEqual(real(-dt(1)/dt(2), kind=rp), coeffs(2), tolerance=1e-3_rp)
+  @assertRelativelyEqual(1.0_rp + dt(1)/dt(2), coeffs(1), tolerance=1e-3_rp)
+  @assertRelativelyEqual(-dt(1)/dt(2), coeffs(2), tolerance=1e-3_rp)
 
   ! order 3 not done now. Perhaps use fd_weights_full later
   
@@ -66,15 +63,14 @@ end subroutine test_ext_variable_dt
 subroutine test_ext_modified()
   use pfunit
   use ext_time_scheme
-  use num_types, only : rp, dp
+  use num_types
   implicit none
   
   type(ext_time_scheme_t) ext
-  real(kind=rp) :: x, coeffs(4)
-  real(kind=dp) :: dt(10)
+  real(kind=rp) :: dt(10), x, coeffs(4)
   
   ! Equal timesteps
-  dt = 1.00_dp
+  dt = 1.00_rp
 
   ! Expecting [8/3 -7/3 2/3]
   call ext%compute_modified_coeffs(coeffs, dt)
