@@ -685,3 +685,9 @@ fi
 AS_ECHO([""])
 AS_ECHO(["$neko_rule"])
 AS_ECHO([""])
+
+# Let the caller (e.g. a build script) see that something requested
+# was missing, the warning above says what
+if test -n "$neko_missing"; then
+   AS_EXIT([1])
+fi
