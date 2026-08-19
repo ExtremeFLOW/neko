@@ -36,7 +36,7 @@
 !> of objects in an ALE simulation.
 !> CPU-only module.
 module ale_rigid_kinematics
-  use num_types, only : rp, dp
+  use num_types, only : rp
   use math, only : pi, math_dstepf
   use time_state, only : time_state_t
   use ab_time_scheme, only : ab_time_scheme_t
@@ -157,8 +157,7 @@ contains
     integer, intent(in) :: nadv
 
     type(ab_time_scheme_t) :: ab_scheme_obj
-    real(kind=rp) :: ab_coeffs(4)
-    real(kind=rp) :: dt_history(10)
+    real(kind=rp) :: ab_coeffs(4), dt_history(10)
     integer :: j
 
     call rzero(ab_coeffs, 4)

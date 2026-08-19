@@ -272,8 +272,7 @@ contains
     integer, intent(in) :: nadv
     integer :: j, n
     character(len=*), intent(in) :: scheme_type
-    real(kind=rp) :: ab_coeffs(4), factor
-    real(kind=rp) :: dt_history(10)
+    real(kind=rp) :: ab_coeffs(4), factor, dt_history(10)
 
     call rzero(ab_coeffs, 4)
     if (trim(scheme_type) .eq. 'ab') then
