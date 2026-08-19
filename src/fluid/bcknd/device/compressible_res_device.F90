@@ -36,7 +36,7 @@ module compressible_res_device
   use ax_product, only : ax_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use num_types, only : rp, c_rp, dp, c_dp
+  use num_types, only : rp, c_rp
   use scratch_registry, only : neko_scratch_registry
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
@@ -143,13 +143,12 @@ module compressible_res_device
           dt, b_i, n) &
           bind(c, name = 'compressible_res_part_rk_sum_hip')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        implicit none
        type(c_ptr), value :: rho, m_x, m_y, m_z, E, &
             k_rho_i, k_m_x_i, k_m_y_i, &
             k_m_z_i, k_E_i
-       real(c_rp) :: b_i
-       real(c_dp) :: dt
+       real(c_rp) :: dt, b_i
        integer(c_int) :: n
      end subroutine compressible_res_part_rk_sum_hip
   end interface
@@ -230,13 +229,12 @@ module compressible_res_device
           dt, c, n) &
           bind(c, name = 'compressible_res_part_rk_sum_cuda')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        implicit none
        type(c_ptr), value :: rho, m_x, m_y, m_z, E, &
             k_rho_i, k_m_x_i, k_m_y_i, &
             k_m_z_i, k_E_i
-       real(c_rp) :: c
-       real(c_dp) :: dt
+       real(c_rp) :: dt, c
        integer(c_int) :: n
      end subroutine compressible_res_part_rk_sum_cuda
   end interface
@@ -317,13 +315,12 @@ module compressible_res_device
           dt, c, n) &
           bind(c, name = 'compressible_res_part_rk_sum_opencl')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        implicit none
        type(c_ptr), value :: rho, m_x, m_y, m_z, E, &
             k_rho_i, k_m_x_i, k_m_y_i, &
             k_m_z_i, k_E_i
-       real(c_rp) :: c
-       real(c_dp) :: dt
+       real(c_rp) :: dt, c
        integer(c_int) :: n
      end subroutine compressible_res_part_rk_sum_opencl
   end interface
@@ -404,13 +401,12 @@ module compressible_res_device
           dt, c, n) &
           bind(c, name = 'compressible_res_part_rk_sum_metal')
        use, intrinsic :: iso_c_binding
-       import c_rp, c_dp
+       import c_rp
        implicit none
        type(c_ptr), value :: rho, m_x, m_y, m_z, E, &
             k_rho_i, k_m_x_i, k_m_y_i, &
             k_m_z_i, k_E_i
-       real(c_rp) :: c
-       real(c_dp) :: dt
+       real(c_rp) :: dt, c
        integer(c_int) :: n
      end subroutine compressible_res_part_rk_sum_metal
   end interface
@@ -429,7 +425,7 @@ contains
     type(bc_list_t), intent(inout) :: bcs_vel
     type(time_state_t), intent(in) :: time
     class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
-    real(kind=dp), intent(in) :: dt
+    real(kind=rp), intent(in) :: dt
     integer :: n, s, i, j, k
     real(kind=rp) :: t, c
     type(field_t), pointer :: k_rho_1, k_rho_2, k_rho_3, k_rho_4, &
@@ -542,9 +538,9 @@ contains
                dt, rk_scheme%coeffs_A(i, j), n)
 #elif HAVE_METAL
           call compressible_res_part_rk_sum_metal(temp_rho%x_d, &
-               temp_m_x%x_d, temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
-               k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, &
-               k_m_y%items(j)%ptr%x_d, &
+              temp_m_x%x_d, temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
+              k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, &
+              k_m_y%items(j)%ptr%x_d, &
                k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                dt, rk_scheme%coeffs_A(i, j), n)
 #endif
@@ -596,8 +592,8 @@ contains
 #elif HAVE_METAL
        call compressible_res_part_rk_sum_metal(rho_field%x_d, &
             m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
-            k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, &
-            k_m_y%items(i)%ptr%x_d, &
+           k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, &
+           k_m_y%items(i)%ptr%x_d, &
             k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
             dt, rk_scheme%coeffs_b(i), n)
 #endif

@@ -59,7 +59,7 @@
 !
 !> Adam-Bashforth scheme for time integration.
 module ab_time_scheme
-  use num_types, only : rp, dp
+  use num_types, only : rp
   use time_scheme, only : time_scheme_t
   use math, only : rzero
   use utils, only : neko_error
@@ -86,7 +86,7 @@ contains
   subroutine ab_time_scheme_compute_coeffs(coeffs, dt, order)
     implicit none
     real(kind=rp), intent(out) :: coeffs(4)
-    real(kind=dp), intent(in) :: dt(10)
+    real(kind=rp), intent(in) :: dt(10)
     integer, intent(in) :: order
     real(kind=rp) dta, dtb, dtc, dtd, dte, dts
 

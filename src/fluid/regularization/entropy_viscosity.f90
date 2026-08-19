@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module entropy_viscosity
-  use num_types, only : rp, dp
+  use num_types, only : rp
   use regularization, only : regularization_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
@@ -147,28 +147,29 @@ contains
 
   end subroutine entropy_viscosity_free
 
-  subroutine entropy_viscosity_compute(this, time, tstep, dt)
+  subroutine entropy_viscosity_compute(this, time)
     class(entropy_viscosity_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    integer, intent(in) :: tstep
-    real(kind=dp), intent(in) :: dt
 
-    call this%compute_residual(tstep, dt, time%dtlag)
-    call this%compute_viscosity(tstep)
+    call this%compute_residual(time%tstep, &
+         real(time%dt, kind=rp), &
+         real(time%dtlag, kind=rp))
+
+    call this%compute_viscosity(time%tstep)
 
   end subroutine entropy_viscosity_compute
 
   subroutine entropy_viscosity_compute_residual(this, tstep, dt, dt_lag)
     class(entropy_viscosity_t), intent(inout) :: this
     integer, intent(in) :: tstep
-    real(kind=dp), intent(in) :: dt
-    real(kind=dp), intent(in) :: dt_lag(10)
+    real(kind=rp), intent(in) :: dt
+    real(kind=rp), intent(in) :: dt_lag(10)
     integer :: n
     type(field_t), pointer :: us_field, vs_field, ws_field, div_field
     integer :: temp_indices(4)
     real(kind=rp) :: bdf_coeffs(4)
     type(bdf_time_scheme_t) :: bdf_scheme
-    real(kind=dp) :: dt_local(10)
+    real(kind=rp) :: dt_local(10)
 
     if (tstep .le. 3) then
        return

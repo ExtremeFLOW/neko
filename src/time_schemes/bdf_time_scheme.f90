@@ -59,7 +59,7 @@
 !
 !> Backward-differencing scheme for time integration.
 module bdf_time_scheme
-  use num_types, only : rp, dp
+  use num_types, only : rp
   use time_scheme, only : time_scheme_t
   use math, only : rzero
   use utils, only : neko_error
@@ -113,7 +113,7 @@ contains
   subroutine bdf_time_scheme_compute_coeffs(coeffs, dt, order)
     implicit none
     real(kind=rp), intent(out) :: coeffs(4)
-    real(kind=dp), intent(in) :: dt(10)
+    real(kind=rp), intent(in) :: dt(10)
     integer, intent(in) :: order
 
     call rzero(coeffs, 4)
