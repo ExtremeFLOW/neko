@@ -283,7 +283,9 @@ contains
     real(kind=rp) :: p_val
     n = phi%dof%size()
     associate (x => coef%dof%x, y => coef%dof%y, z => coef%dof%z)
-      do concurrent (i = 1:n)
+      !$omp parallel do private(i, rx, ry, rz, v_tan_x, v_tan_y, v_tan_z, &
+      !$omp& dx_ref, dy_ref, dz_ref, rx_target, ry_target, rz_target, p_val)
+      do i = 1, n
          ! for points on the wall (phi=1) we do this to avoid any
          ! numeric error due to computation of rotation matrix.
          ! It ensures, the walls are always where they need to be!
@@ -339,6 +341,7 @@ contains
 
          end if
       end do
+      !$omp end parallel do
     end associate
   end subroutine add_kinematics_to_mesh_velocity_cpu
 
@@ -367,7 +370,8 @@ contains
 
     n = c_Xh%dof%size()
 
-    do concurrent (i = 1:n)
+    !$omp parallel do private(i, j)
+    do i = 1, n
        c_Xh%dof%x(i, 1, 1, 1) = c_Xh%dof%x(i, 1, 1, 1) + &
             time%dt * ab_coeffs(1) * wm_x%x(i, 1, 1, 1)
        c_Xh%dof%y(i, 1, 1, 1) = c_Xh%dof%y(i, 1, 1, 1) + &
@@ -385,6 +389,7 @@ contains
        end do
 
     end do
+    !$omp end parallel do
   end subroutine update_ale_mesh_cpu
 
 end module ale_routines_cpu
