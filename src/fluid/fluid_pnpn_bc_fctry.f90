@@ -87,7 +87,7 @@ contains
     type(fluid_pnpn_t), intent(in) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), target, intent(in) :: coef
-    type(user_t), intent(in) :: user
+    type(user_t), target, intent(in) :: user
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
@@ -186,11 +186,12 @@ contains
     type(fluid_pnpn_t), intent(inout) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), target, intent(in) :: coef
-    type(user_t), intent(in) :: user
+    type(user_t), target, intent(in) :: user
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
     character(len=:), allocatable :: default_name
+    character(len=:), allocatable :: bc_name
     character(len=64) :: buf
 
     call json_get(json, "type", type)
@@ -215,6 +216,11 @@ contains
        ! Kind of hack, but  OK for now
        call json%add("scheme_name", scheme%name)
 
+       select type (wall_bc => object)
+       type is (wall_model_bc_t)
+          wall_bc%user => user
+       end select
+
     case ("user_velocity")
        allocate(field_dirichlet_vector_t::object)
        select type (obj => object)
@@ -238,15 +244,18 @@ contains
     end select
 
     call json_get_or_lookup(json, "zone_indices", zone_indices)
+    write(buf,'("velocity_bc_",I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", bc_name, default_name)
+
     call object%init(coef, json)
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
 
-    write(buf,'("velocity_bc_",I0)') zone_indices(1)
-    default_name = trim(buf)
-    call json_get_or_default(json, "name", object%name, default_name)
+    object%name = bc_name
     object%zone_indices = zone_indices
+
     call object%finalize()
 
     ! Exclude these two because they are bcs for the residual, not velocity
