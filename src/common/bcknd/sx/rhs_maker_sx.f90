@@ -104,11 +104,10 @@ contains
 
   end subroutine rhs_maker_ext_sx
 
-  subroutine scalar_rhs_maker_ext_sx(fs_lag, fs_laglag, fs, rho, &
-       ext_coeffs, n)
+  subroutine scalar_rhs_maker_ext_sx(fs_lag, fs_laglag, fs, ext_coeffs, n)
     type(field_t), intent(inout) :: fs_lag
     type(field_t), intent(inout) :: fs_laglag
-    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
+    real(kind=rp), intent(in) :: ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fs(n)
     integer :: i
@@ -128,7 +127,7 @@ contains
     end do
 
     do i = 1, n
-       fs(i) = (ext_coeffs(1) * fs(i) + temp1%x(i,1,1,1)) * rho
+       fs(i) = ext_coeffs(1) * fs(i) + temp1%x(i,1,1,1)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_index)
@@ -184,13 +183,13 @@ contains
 
   end subroutine rhs_maker_bdf_sx
 
-  subroutine scalar_rhs_maker_bdf_sx(s_lag, fs, s, B, rho, dt, bd, nbd, n)
+  subroutine scalar_rhs_maker_bdf_sx(s_lag, fs, s, B, rho_cp, dt, bd, nbd, n)
     integer, intent(in) :: n, nbd
-    type(field_t), intent(in) :: s
+    type(field_t), intent(in) :: s, rho_cp
     type(field_series_t), intent(in) :: s_lag
     real(kind=rp), intent(inout) :: fs(n)
     real(kind=rp), intent(in) :: B(n)
-    real(kind=rp), intent(in) :: dt, rho, bd(4)
+    real(kind=rp), intent(in) :: dt, bd(4)
     integer :: i, ilag
     type(field_t), pointer :: temp1, temp2
     integer :: temp_indices(2)
@@ -213,7 +212,8 @@ contains
     end do
 
     do i = 1, n
-       fs(i) = fs(i) + temp2%x(i,1,1,1) * (rho / dt)
+       fs(i) = fs(i) + temp2%x(i,1,1,1) * &
+            (rho_cp%x(i,1,1,1) / dt)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
@@ -235,18 +235,18 @@ contains
 
   end subroutine rhs_maker_oifs_sx
 
-  subroutine scalar_rhs_maker_oifs_sx(phi_s, bf_s, rho, dt, n)
-    real(kind=rp), intent(in) :: rho, dt
+  subroutine scalar_rhs_maker_oifs_sx(phi_s, bf_s, rho_cp, dt, n)
+    type(field_t), intent(in) :: rho_cp
+    real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: bf_s(n)
     real(kind=rp), intent(inout) :: phi_s(n)
     integer :: i
 
     do i = 1, n
-       bf_s(i) = bf_s(i) + phi_s(i) * (rho / dt)
+       bf_s(i) = bf_s(i) + phi_s(i) * (rho_cp%x(i,1,1,1) / dt)
     end do
 
   end subroutine scalar_rhs_maker_oifs_sx
 
 end module rhs_maker_sx
-

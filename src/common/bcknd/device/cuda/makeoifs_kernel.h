@@ -61,7 +61,7 @@ __global__ void makeoifs_kernel(const T * __restrict__ phi_x,
 template< typename T >
 __global__ void scalar_makeoifs_kernel(const T * __restrict__ phi_s,
                                       T * __restrict__ bf_s,
-                                      const T rho,
+                                      const T * __restrict__ rho_cp,
                                       const T dt,
                                       const int n) {
 
@@ -70,7 +70,7 @@ __global__ void scalar_makeoifs_kernel(const T * __restrict__ phi_s,
 
   for (int i = idx; i < n; i += str) {
 
-    bf_s[i] = bf_s[i] + phi_s[i] * (rho / dt);
+    bf_s[i] = bf_s[i] + phi_s[i] * (rho_cp[i] / dt);
   }
 
 }

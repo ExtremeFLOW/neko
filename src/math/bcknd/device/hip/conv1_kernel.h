@@ -1,5 +1,6 @@
 #ifndef __MATH_CONV1_KERNEL_H__
 #define __MATH_CONV1_KERNEL_H__
+
 /*
  Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
@@ -34,6 +35,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "elem_block.h"
+
 /**
  * Device kernel for convective terms
  */
@@ -56,25 +59,25 @@ __global__ void conv1_kernel_1d(T * __restrict__ du,
                                 const T * __restrict__ drdz,
                                 const T * __restrict__ dsdz,
                                 const T * __restrict__ dtdz,
-                                const T * __restrict__ jacinv) { 
+                                const T * __restrict__ jacinv) {
 
   __shared__ T shu[LX * LX * LX];
 
   __shared__ T shvx[LX * LX * LX];
   __shared__ T shvy[LX * LX * LX];
   __shared__ T shvz[LX * LX * LX];
-  
+
   __shared__ T shdx[LX * LX];
   __shared__ T shdy[LX * LX];
   __shared__ T shdz[LX * LX];
-  
+
   __shared__ T shjacinv[LX * LX * LX];
 
   const int e = blockIdx.x;
   const int iii = threadIdx.x;
   const int nchunks = (LX * LX * LX - 1) / CHUNKS + 1;
   const int ele = e*LX*LX*LX;
-  
+
   if (iii < (LX * LX)) {
     shdx[iii] = dx[iii];
     shdy[iii] = dy[iii];
@@ -88,14 +91,14 @@ __global__ void conv1_kernel_1d(T * __restrict__ du,
     shvx[l] = vx[l + ele];
     shvy[l] = vy[l + ele];
     shvz[l] = vz[l + ele];
-    
+
     shjacinv[l] = jacinv[l + ele];
 
     l = l + CHUNKS;
   }
-  
+
   __syncthreads();
-  
+
   for (int n = 0; n < nchunks; n++) {
     const int ijk = iii + n * CHUNKS;
     const int jk = ijk / LX;
@@ -106,12 +109,12 @@ __global__ void conv1_kernel_1d(T * __restrict__ du,
       T rtmp = 0.0;
       T stmp = 0.0;
       T ttmp = 0.0;
-      for (int l = 0; l < LX; l++) {		
-	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];	
+      for (int l = 0; l < LX; l++) {
+	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];
 	stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];
 	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];
       }
-      
+
       du[ijk + e * LX * LX * LX] = shjacinv[ijk] *
 	(shvx[ijk] * (drdx[ijk + ele] * rtmp
 		      + dsdx[ijk + ele] * stmp
@@ -123,11 +126,11 @@ __global__ void conv1_kernel_1d(T * __restrict__ du,
 			+ dsdz[ijk + ele] * stmp
 			+ dtdz[ijk + ele] * ttmp));
     }
-  }  
+  }
 }
 
-template< typename T, const int LX >
-__global__ void __launch_bounds__(LX*LX,3)
+template< typename T, const int LX, const int EB >
+__global__ void NEKO_EB_BOUNDS(LX*LX*EB)
   conv1_kernel_kstep(T * __restrict__ du,
                      const T * __restrict__ u,
                      const T * __restrict__ vx,
@@ -145,30 +148,47 @@ __global__ void __launch_bounds__(LX*LX,3)
                      const T * __restrict__ drdz,
                      const T * __restrict__ dsdz,
                      const T * __restrict__ dtdz,
-                     const T * __restrict__ jacinv) { 
+                     const T * __restrict__ jacinv,
+                    const int nelv) {
 
-  __shared__ T shu[LX * LX];
-  
+  __shared__ T shu[EB * LX * LX];
+
   __shared__ T shdx[LX*LX];
   __shared__ T shdy[LX*LX];
   __shared__ T shdz[LX*LX];
-  
-  const int e = blockIdx.x;
+
+  static_assert(sizeof(shu) +
+                sizeof(shdx) +
+                sizeof(shdy) +
+                sizeof(shdz)
+                <= NEKO_EB_MAX_LDS,
+                "kstep block exceeds the LDS budget");
+
+  const int eb = (EB == 1) ? 0 : threadIdx.z;
+  const int e_blk = blockIdx.x * EB + eb;
+  /* Threads past the last element still have to reach the barriers in
+     the k loop, so clamp their reads and drop their stores rather than
+     returning early. At EB == 1 this all constant folds away */
+  const bool active = (EB == 1) ? true : (e_blk < nelv);
+  const int e = active ? e_blk : (nelv - 1);
+  const int sh = eb * LX * LX;
   const int j = threadIdx.y;
   const int i = threadIdx.x;
   const int ij = i + j * LX;
   const int ele = e*LX*LX*LX;
-  
-  shdx[ij] = dx[ij];
-  shdy[ij] = dy[ij];
-  shdz[ij] = dz[ij];
+
+  if (eb == 0) {
+    shdx[ij] = dx[ij];
+    shdy[ij] = dy[ij];
+    shdz[ij] = dz[ij];
+  }
 
   T ru[LX];
   T rvx[LX];
   T rvy[LX];
   T rvz[LX];
   T rjacinv[LX];
-  
+
 #pragma unroll LX
   for (int k = 0; k < LX; ++k) {
     ru[k] = u[ij + k*LX*LX + ele];
@@ -177,14 +197,15 @@ __global__ void __launch_bounds__(LX*LX,3)
     rvz[k] = vz[ij + k*LX*LX + ele];
     rjacinv[k] = jacinv[ij + k*LX*LX + ele];
   }
-    
+
   __syncthreads();
 
 #pragma unroll
   for (int k = 0; k < LX; ++k) {
     const int ijk = ij + k*LX*LX;
     T ttmp = 0.0;
-    shu[ij] = ru[k];
+    shu[sh + ij] = ru[k];
+#pragma unroll
     for (int l = 0; l < LX; l++) {
       ttmp += shdz[k+l*LX] * ru[l];
     }
@@ -194,20 +215,22 @@ __global__ void __launch_bounds__(LX*LX,3)
     T stmp = 0.0;
 #pragma unroll
     for (int l = 0; l < LX; l++) {
-      rtmp += shdx[i+l*LX] * shu[l+j*LX];
-      stmp += shdy[j+l*LX] * shu[i+l*LX];
+      rtmp += shdx[i+l*LX] * shu[sh + l+j*LX];
+      stmp += shdy[j+l*LX] * shu[sh + i+l*LX];
     }
 
-    du[ijk + ele] = rjacinv[k] *
-	(rvx[k] * (drdx[ijk + ele] * rtmp
-                   + dsdx[ijk + ele] * stmp
-                   + dtdx[ijk + ele] * ttmp)
-	 + rvy[k] * (drdy[ijk + ele] * rtmp
-                     + dsdy[ijk + ele] * stmp
-                     + dtdy[ijk + ele] * ttmp)
-	 + rvz[k] * (drdz[ijk + ele] * rtmp
-                     + dsdz[ijk + ele] * stmp
-                     + dtdz[ijk + ele] * ttmp));
+    if (active) {
+      du[ijk + ele] = rjacinv[k] *
+  	(rvx[k] * (drdx[ijk + ele] * rtmp
+                     + dsdx[ijk + ele] * stmp
+                     + dtdx[ijk + ele] * ttmp)
+  	 + rvy[k] * (drdy[ijk + ele] * rtmp
+                       + dsdy[ijk + ele] * stmp
+                       + dtdy[ijk + ele] * ttmp)
+  	 + rvz[k] * (drdz[ijk + ele] * rtmp
+                       + dsdz[ijk + ele] * stmp
+                       + dtdz[ijk + ele] * ttmp));
+    }
     __syncthreads();
   }
 }

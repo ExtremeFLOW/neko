@@ -25,13 +25,13 @@ plt.legend()
 plt.show()
 ```
 
-- All statistics required to compute the budgets for the Reynolds stress components are sampled from $T=60\delta/U_b$ and averaged in the homogenous directions. The output is then written into a CSV file called fluid_stats.csv. This file can then be easily read into python or preffered postprocessing tool of choice. For example, if one wants compute the mean velocity profile, one ccould load `fluid_stats.csv` into python accordin to the following:
+- All statistics required to compute the budgets for the Reynolds stress components are sampled from $T=60\delta/U_b$ and averaged in the homogenous directions. The output is then written into a CSV file called fluid_stats0.csv. This file can then be easily read into python or preffered postprocessing tool of choice. For example, if one wants compute the mean velocity profile, one could load `fluid_stats0.csv` into python accordin to the following:
 
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
 # dat = [output time, coordinate, <p>, <u>, <v>, <w>, <pp>, <uu>, <vv>, <ww>, <uv>, <uw>,... 
-dat = np.genfromtxt('fluid_stats.csv',delimiter=',')
+dat = np.genfromtxt('fluid_stats0.csv',delimiter=',')
 #Time of batch of interest (our batchsize is 5 convective time units) and sampling started at 60
 #First batch of average between 60 and 65 is therefore written out at T=65 (OBSERVE you need to have run beyond T=65)
 # Lets see how the mean profile looks
@@ -51,4 +51,3 @@ plt.show()
 Details on all the averages that are computed can be found in the documentation under statistics_guide.
 
 - Lambda 2 is also calculated. It can be nicely visualized in paraview or visit by creating an isosurfaces of the "temperature" field.
-

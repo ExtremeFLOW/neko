@@ -423,7 +423,8 @@ contains
          call sub2(fs%x, this%temp, n)
 
       else
-         !$omp parallel do private (e, i, idx, vx_GL, vy_GL, s_GL, f_GL, temp)
+         !$omp parallel do private (e, i, idx, vx_GL, vy_GL, vz_GL, s_GL), &
+         !$omp& private (f_GL, temp, dsdx, dsdy, dsdz)
          do e = 1, coef%msh%nelv
             ! Map advecting velocity onto the higher-order space
             call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
@@ -569,7 +570,9 @@ contains
          call device_add2(fz%x_d, this%temp_d, n)
 
       else
-         !$omp parallel do private(e, i, flux_GL, total_div_GL, idx)
+         !$omp parallel do private (e, i, idx, vx_GL, vy_GL, vz_GL), &
+         !$omp& private (wm_x_GL, wm_y_GL, wm_z_GL, flux_GL, total_div_GL), &
+         !$omp& private (grad_x, grad_y, grad_z, temp_x, temp_y, temp_z)
          do e = 1, coef%msh%nelv
             ! Map advecting velocity and mesh velocity onto the
             ! higher-order space

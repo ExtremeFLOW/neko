@@ -222,7 +222,7 @@ contains
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: depth = 1d0
+    real(kind=dp) :: depth = 1.0_dp
     real(kind=dp) :: coord(3)
     type(tuple4_i4_t) :: glb_pt_ids
 
@@ -307,7 +307,7 @@ contains
        mpi_offset = mpi_el_offset + &
             int(2*MPI_INTEGER_SIZE, i8) + &
             int(nzones, i8)*int(nmsh_zone_size, i8)
-       call nmsh_file_read_curves(fh, mpi_offset, ncurves, msh)
+       call nmsh_file_read_curves(fh, mpi_offset, ncurves, msh, depth)
     end if
 
     call MPI_File_close(fh, ierr)
@@ -574,17 +574,21 @@ contains
 
   !> Read curve element data in chunks and ring-pass between ranks,
   !! avoiding storage of the full curve list on every rank.
-  subroutine nmsh_file_read_curves(fh, base_offset, ncurves, msh)
+  !! If @a extrusion_depth is present, copy the four 2D curve edges to the
+  !! corresponding upper edges of the extruded slab.
+  subroutine nmsh_file_read_curves(fh, base_offset, ncurves, msh, &
+       extrusion_depth)
     type(MPI_File), intent(inout) :: fh
     integer(kind=MPI_OFFSET_KIND), intent(in) :: base_offset
     integer, intent(in) :: ncurves
     type(mesh_t), intent(inout) :: msh
+    real(kind=dp), intent(in), optional :: extrusion_depth
     type(nmsh_curve_el_t), allocatable :: curve_send(:), curve_recv(:)
     type(linear_dist_t) :: dist
     type(MPI_Status) :: status
     integer(kind=MPI_OFFSET_KIND) :: mpi_offset
     integer :: nmsh_curve_size, nlocal, max_recv, n_recv
-    integer :: i, ierr, src, dst, step, el_idx, el_idx_glb
+    integer :: i, j, ierr, src, dst, step, el_idx, el_idx_glb
 
     call MPI_Type_size(MPI_NMSH_CURVE, nmsh_curve_size, ierr)
 
@@ -597,6 +601,19 @@ contains
          int(dist%start_idx(), i8) * int(nmsh_curve_size, i8)
     call MPI_File_read_at_all(fh, mpi_offset, &
          curve_send, nlocal, MPI_NMSH_CURVE, status, ierr)
+
+    if (present(extrusion_depth)) then
+       do i = 1, nlocal
+          curve_send(i)%curve_data(:,5:8) = &
+               curve_send(i)%curve_data(:,1:4)
+          curve_send(i)%type(5:8) = curve_send(i)%type(1:4)
+          do j = 5, 8
+             if (curve_send(i)%type(j) .eq. 4) then
+                curve_send(i)%curve_data(3,j) = extrusion_depth
+             end if
+          end do
+       end do
+    end if
 
     call MPI_Allreduce(nlocal, max_recv, 1, MPI_INTEGER, MPI_MAX, &
          NEKO_COMM, ierr)

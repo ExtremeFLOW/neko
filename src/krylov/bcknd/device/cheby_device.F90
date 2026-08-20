@@ -36,6 +36,7 @@ module cheby_device
   use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only : rp, c_rp
+  use profiler, only : profiler_start_region, profiler_end_region
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
@@ -65,6 +66,15 @@ module cheby_device
      type(c_ptr) :: gs_event = C_NULL_PTR
      real(kind=rp) :: tha, dlt
      integer :: power_its = 150
+     !> Iterations to use when restarting from ev
+     integer :: power_its_refresh = 20
+     !> Restart the power method from ev instead of a random vector
+     logical :: warm_start_eigs = .false.
+     !> Whether ev holds a usable eigenvector yet
+     logical :: eigs_computed = .false.
+     !> Saved eigenvector, for restarting after a small operator change
+     real(kind=rp), allocatable :: ev(:)
+     type(c_ptr) :: ev_d = C_NULL_PTR
      logical :: recompute_eigs = .true.
      logical :: zero_initial_guess = .false.
      type(schwarz_t), pointer :: schwarz => null() !< Schwarz decompostions
@@ -256,6 +266,13 @@ contains
        deallocate(this%r)
     end if
 
+    if (allocated(this%ev)) then
+       if (c_associated(this%ev_d)) then
+          call device_unmap(this%ev, this%ev_d)
+       end if
+       deallocate(this%ev)
+    end if
+
     nullify(this%M)
 
     if (c_associated(this%gs_event)) then
@@ -277,32 +294,43 @@ contains
     real(kind=rp) :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
     integer, allocatable :: fixed_seed(:), saved_seed(:)
-    integer :: i, rnd_n
+    integer :: i, rnd_n, its
+    logical :: warm
 
+    call profiler_start_region('cheby_power')
+    warm = this%warm_start_eigs .and. this%eigs_computed .and. &
+         c_associated(this%ev_d)
     associate(w => this%w, w_d => this%w_d, d => this%d, d_d => this%d_d)
 
-      ! Save current random seed and set a fixed seed
-      call random_seed( size = rnd_n )
-      allocate(saved_seed(rnd_n))
-      allocate(fixed_seed(rnd_n))
-      fixed_seed = 3901
-      call random_seed( get = saved_seed )
-      call random_seed( put = fixed_seed )
+      if (warm) then
+         its = this%power_its_refresh
+         call device_copy(d_d, this%ev_d, n)
+      else
+         its = this%power_its
 
-      do i = 1, n
-         call random_number(rn)
-         d(i) = rn + 10.0_rp
-      end do
-      call device_memcpy(d, d_d, n, HOST_TO_DEVICE, sync = .true.)
+         ! Save current random seed and set a fixed seed
+         call random_seed(size = rnd_n)
+         allocate(saved_seed(rnd_n))
+         allocate(fixed_seed(rnd_n))
+         fixed_seed = 3901
+         call random_seed(get = saved_seed)
+         call random_seed(put = fixed_seed)
 
-      ! Restore saved random seed
-      call random_seed( put = saved_seed )
+         do i = 1, n
+            call random_number(rn)
+            d(i) = rn + 10.0_rp
+         end do
+         call device_memcpy(d, d_d, n, HOST_TO_DEVICE, sync = .true.)
 
-      call gs_h%op(d, n, GS_OP_ADD, this%gs_event)
-      call blst%apply(d, n)
+         ! Restore saved random seed
+         call random_seed(put = saved_seed)
 
-      !Power method to get lamba max
-      do i = 1, this%power_its
+         call gs_h%op(d, n, GS_OP_ADD, this%gs_event)
+         call blst%apply(d, n)
+      end if
+
+      !Power method to get lambda max
+      do i = 1, its
          call ax%compute(w, d, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
          call blst%apply(w, n)
@@ -338,8 +366,18 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
+      if (this%warm_start_eigs) then
+         if (.not. c_associated(this%ev_d)) then
+            allocate(this%ev(size(this%d)))
+            call device_map(this%ev, this%ev_d, size(this%d))
+         end if
+         call device_copy(this%ev_d, d_d, n)
+      end if
+      this%eigs_computed = .true.
+
       this%recompute_eigs = .false.
     end associate
+    call profiler_end_region('cheby_power')
   end subroutine cheby_device_power
 
   !> A chebyshev preconditioner

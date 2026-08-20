@@ -29,6 +29,42 @@ where \f$ u_0 \f$ is the fields value at \f$ T_0 \f$ and \f$ N \f$ is the
 number of time steps needed to reach 
 \f$ T_N \f$, \f$ T_N = T_0 + \sum_{i=0}^N \Delta t_i \f$.
 
+## Output filenames and restarts {#statistics-output-filenames}
+
+All statistics components use the same output filename convention. This
+includes `fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
+`scalar_sgs_stats`, and `user_stats`.
+
+Let `name` be the default output stem or the value of `output_filename`. Let
+`R` be the index of the first statistics output in the current run, counting
+outputs from before a restart, and let `K` be the zero-based output index
+within the current run. The filenames are:
+
+- `nameR0.fKKKKK` for `.fld` output, where `KKKKK` is padded to five digits;
+- `nameR.csv` for `.csv` output.
+
+The initial run uses `R = 0`. On restart, `R` continues from the outputs in
+the preceding run, while `K` is reset to zero. For example, if three
+`fluid_stats` files were written before a restart, the names are:
+
+```
+fluid_stats00.f00000
+fluid_stats00.f00001
+fluid_stats00.f00002
+```
+
+The restarted run then begins with:
+
+```
+fluid_stats30.f00000
+fluid_stats30.f00001
+```
+
+For `.csv` output, the corresponding files are `fluid_stats0.csv` before the
+restart and `fluid_stats3.csv` after it. A custom value such as
+`"output_filename": "my_stats"` only replaces the `fluid_stats` stem; the
+same run and per-run counters are still applied.
+
 # Fluid Statistics {#fluid-statistics}
 
 In the fluid statistics in Neko, various averages of the different velocity 
@@ -47,11 +83,10 @@ Statistics are enabled in the case file as a simcomp with the added argument
 | `avg_direction`   | Directions to compute spatial average.                                                                                | x,y,z,xy,xz,yz       | No spatial average                       |
 | `set_of_stats`    | What set of stats to compute.                                                                                         | basic, full          | full                                     |
 | `compute_value`   | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int | - (recommended every 50 timesteps or so) |
-| `output_filename` | User-specified filename to store output in.                                                                           | filename             | fluid_statsX*                            |
+| `output_filename` | User-specified base filename for the output.                                                                           | filename             | `fluid_stats`                            |
 
-\*The name of the written statistics file will by default be 
-`fluid_statsX0.f0000X,..., fluid_statsX0.f0000Y` where X is the number of the
-first outputted statistic of the current run.
+The run and per-run counters are appended according to
+@ref statistics-output-filenames.
 
 In addition, one can specify the usual controls for the output, which then 
 outputs the averages computes from the last time the statistics were written
@@ -94,8 +129,8 @@ For 1D statistics a CSV file is outputted. The first column is the time at
 which the statistics are collected, the second column the spatial coordinate,
 and the rest of the data is stored in the order below. In this case all
 statistics are kept in the same order as in 3D. The name for these files are
-`fluid_statsX.csv,..., fluid_statsX.csv` where X is the number of the first
-outputted statistic of the current run.
+`fluid_statsR.csv`, using the run index described in
+@ref statistics-output-filenames.
 
 The statistics fields created by this simcomp are accessible from the 
 neko registry and retrievable under the following naming convention:
@@ -217,16 +252,13 @@ field to be averaged, which will be appended to the default prefix of the
 | `avg_direction`   | Directions to compute spatial average.                                                                                | x,y,z,xy,xz,yz       | No spatial average                       |
 | `set_of_stats`    | What set of stats to compute.                                                                                         | basic, full          | full                                     |
 | `compute_value`   | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int | - (recommended every 50 timesteps or so) |
-| `output_filename` | User-specified filename to store output in.                                                                           | filename             | `scalar_statsX*`                         |
+| `output_filename` | User-specified base filename for the output.                                                                           | filename             | `scalar_stats_{field}`                   |
 
 
-
-\*The name of the written statistics file will by default be
-`scalar_statsX0.f0000X,..., scalar_statsX0.f0000Y` where X is the number of
-the first outputted statistic of the current run. If `field` is specified,
-it will be appended to the default filename as `scalar_stats_{field}X0.f0000X`.
-Otherwise, you can specify an independent `output_filename` for each scalar you
-compute statistics for.
+The scalar field name is part of the default output stem. The run and per-run
+counters are appended according to @ref statistics-output-filenames. An
+independent `output_filename` can be specified for each scalar statistics
+component.
 
 In addition, one can specify the usual controls for the output, in the same
 manner as for fluid statistics. For example, if one wants to compute only the
@@ -329,9 +361,10 @@ viscosity field:
 | `start_time`        | Time at which to start gathering statistics.                        | Positive real     | 0             |
 | `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
 | `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so)  |
-| `output_filename`        | User-specified filename to store output in.                       | filename  |  fluid_sgs_statsX*        |
+| `output_filename`        | User-specified base filename for the output.                       | filename  | `fluid_sgs_stats`         |
 
-\*The name of the written statistics file will by default be `fluid_sgs_statsX0.f0000X,..., fluid_sgs_statsX0.f0000Y` where X is the number of the first outputted statistic of the current run.
+The run and per-run counters are appended according to
+@ref statistics-output-filenames.
 
 In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:
 
@@ -382,11 +415,10 @@ latter is a JSON sub-dictionary:
 | `start_time`        | Time at which to start gathering statistics.                        | Positive real     | 0             |
 | `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
 | `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so)  |
-| `output_filename`        | User-specified filename to store output in.                       | filename  |  scalar_sgs_statsX*        |
+| `output_filename`        | User-specified base filename for the output.                       | filename  | `scalar_sgs_stats_{field}` |
 
-\*The name of the written statistics file will by default be
-`scalar_sgs_statsX0.f0000X,..., scalar_sgs_statsX0.f0000Y` where X is the
-number of the first outputted statistic of the current run.
+The scalar field name is part of the default output stem. The run and per-run
+counters are appended according to @ref statistics-output-filenames.
 
 In addition, one can specify the usual controls for the output, in the same
 manner as for fluid statistics. For example, if one wants to compute only the
@@ -468,4 +500,3 @@ the following two characteristics of the `stats0` files:
    [the case file documentation](https://neko.cfd/docs/develop/dd/d33/case-file.html).
    This issue has been discussed more in detail in
    [#2278](https://github.com/ExtremeFLOW/neko/issues/2278).
-

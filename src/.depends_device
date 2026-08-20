@@ -3,16 +3,16 @@ device/hip/buffer.lo : device/hip/buffer.hip device/hip/buffer.h
 device/hip/unified.lo : device/hip/unified.hip device/hip/unified.h
 math/bcknd/device/hip/math.lo : math/bcknd/device/hip/math.hip math/bcknd/device/hip/math_kernel.h device/hip/unified.h device/hip/buffer.lo
 math/bcknd/device/hip/mathops.lo : math/bcknd/device/hip/mathops.hip math/bcknd/device/hip/mathops_kernel.h
-math/bcknd/device/hip/opr_dudxyz.lo : math/bcknd/device/hip/opr_dudxyz.hip math/bcknd/device/hip/dudxyz_kernel.h
-math/bcknd/device/hip/opr_cdtp.lo : math/bcknd/device/hip/opr_cdtp.hip math/bcknd/device/hip/cdtp_kernel.h
-math/bcknd/device/hip/opr_conv1.lo : math/bcknd/device/hip/opr_conv1.hip math/bcknd/device/hip/conv1_kernel.h
-math/bcknd/device/hip/opr_convect_scalar.lo : math/bcknd/device/hip/opr_convect_scalar.hip math/bcknd/device/hip/convect_scalar_kernel.h
+math/bcknd/device/hip/opr_dudxyz.lo : math/bcknd/device/hip/opr_dudxyz.hip math/bcknd/device/hip/dudxyz_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h
+math/bcknd/device/hip/opr_cdtp.lo : math/bcknd/device/hip/opr_cdtp.hip math/bcknd/device/hip/cdtp_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h
+math/bcknd/device/hip/opr_conv1.lo : math/bcknd/device/hip/opr_conv1.hip math/bcknd/device/hip/conv1_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h
+math/bcknd/device/hip/opr_convect_scalar.lo : math/bcknd/device/hip/opr_convect_scalar.hip math/bcknd/device/hip/convect_scalar_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h
 math/bcknd/device/hip/set_convect_rst.lo : math/bcknd/device/hip/set_convect_rst.hip math/bcknd/device/hip/set_convect_rst_kernel.h
-math/bcknd/device/hip/opr_opgrad.lo : math/bcknd/device/hip/opr_opgrad.hip math/bcknd/device/hip/opgrad_kernel.h
-math/bcknd/device/hip/opr_lambda2.lo : math/bcknd/device/hip/opr_lambda2.hip math/bcknd/device/hip/lambda2_kernel.h
+math/bcknd/device/hip/opr_opgrad.lo : math/bcknd/device/hip/opr_opgrad.hip math/bcknd/device/hip/opgrad_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h
+math/bcknd/device/hip/opr_lambda2.lo : math/bcknd/device/hip/opr_lambda2.hip math/bcknd/device/hip/lambda2_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h
 math/bcknd/device/hip/opr_cfl.lo : math/bcknd/device/hip/opr_cfl.hip math/bcknd/device/hip/cfl_kernel.h device/hip/buffer.lo
 math/bcknd/device/hip/opr_rotate_cyc.lo : math/bcknd/device/hip/opr_rotate_cyc.hip math/bcknd/device/hip/rotate_kernel.h
-math/bcknd/device/hip/ax_helm.lo : math/bcknd/device/hip/ax_helm.hip math/bcknd/device/hip/ax_helm_kernel.h
+math/bcknd/device/hip/ax_helm.lo : math/bcknd/device/hip/ax_helm.hip math/bcknd/device/hip/ax_helm_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h
 math/bcknd/device/hip/ax_helm_full.lo : math/bcknd/device/hip/ax_helm_full.hip math/bcknd/device/hip/ax_helm_full_kernel.h
 math/bcknd/device/hip/schwarz.lo : math/bcknd/device/hip/schwarz.hip math/bcknd/device/hip/schwarz_kernel.h
 math/bcknd/device/hip/tensor.lo : math/bcknd/device/hip/tensor.hip math/bcknd/device/hip/tensor_kernel.h
@@ -58,16 +58,16 @@ device/cuda/buffer.lo : device/cuda/buffer.cu device/cuda/buffer.h
 device/cuda/nvtx_wrapper.lo : device/cuda/nvtx_wrapper.cu
 math/bcknd/device/cuda/math.lo : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h device/cuda/buffer.lo
 math/bcknd/device/cuda/mathops.lo : math/bcknd/device/cuda/mathops.cu math/bcknd/device/cuda/mathops_kernel.h
-math/bcknd/device/cuda/opr_dudxyz.lo : math/bcknd/device/cuda/opr_dudxyz.cu math/bcknd/device/cuda/dudxyz_kernel.h
-math/bcknd/device/cuda/opr_cdtp.lo : math/bcknd/device/cuda/opr_cdtp.cu math/bcknd/device/cuda/cdtp_kernel.h
-math/bcknd/device/cuda/opr_conv1.lo : math/bcknd/device/cuda/opr_conv1.cu math/bcknd/device/cuda/conv1_kernel.h
-math/bcknd/device/cuda/opr_convect_scalar.lo : math/bcknd/device/cuda/opr_convect_scalar.cu math/bcknd/device/cuda/set_convect_rst_kernel.h
+math/bcknd/device/cuda/opr_dudxyz.lo : math/bcknd/device/cuda/opr_dudxyz.cu math/bcknd/device/cuda/dudxyz_kernel.h math/bcknd/device/cuda/elem_block.h math/bcknd/device/cuda/elem_block_tune.h
+math/bcknd/device/cuda/opr_cdtp.lo : math/bcknd/device/cuda/opr_cdtp.cu math/bcknd/device/cuda/cdtp_kernel.h math/bcknd/device/cuda/elem_block.h math/bcknd/device/cuda/elem_block_tune.h
+math/bcknd/device/cuda/opr_conv1.lo : math/bcknd/device/cuda/opr_conv1.cu math/bcknd/device/cuda/conv1_kernel.h math/bcknd/device/cuda/elem_block.h math/bcknd/device/cuda/elem_block_tune.h
+math/bcknd/device/cuda/opr_convect_scalar.lo : math/bcknd/device/cuda/opr_convect_scalar.cu math/bcknd/device/cuda/convect_scalar_kernel.h math/bcknd/device/cuda/elem_block.h math/bcknd/device/cuda/elem_block_tune.h
 math/bcknd/device/cuda/set_convect_rst.lo : math/bcknd/device/cuda/set_convect_rst.cu math/bcknd/device/cuda/set_convect_rst_kernel.h
-math/bcknd/device/cuda/opr_opgrad.lo : math/bcknd/device/cuda/opr_opgrad.cu math/bcknd/device/cuda/opgrad_kernel.h
-math/bcknd/device/cuda/opr_lambda2.lo : math/bcknd/device/cuda/opr_lambda2.cu math/bcknd/device/cuda/lambda2_kernel.h
+math/bcknd/device/cuda/opr_opgrad.lo : math/bcknd/device/cuda/opr_opgrad.cu math/bcknd/device/cuda/opgrad_kernel.h math/bcknd/device/cuda/elem_block.h math/bcknd/device/cuda/elem_block_tune.h
+math/bcknd/device/cuda/opr_lambda2.lo : math/bcknd/device/cuda/opr_lambda2.cu math/bcknd/device/cuda/lambda2_kernel.h math/bcknd/device/cuda/elem_block.h math/bcknd/device/cuda/elem_block_tune.h
 math/bcknd/device/cuda/opr_cfl.lo : math/bcknd/device/cuda/opr_cfl.cu math/bcknd/device/cuda/cfl_kernel.h device/cuda/buffer.lo
 math/bcknd/device/cuda/opr_rotate_cyc.lo : math/bcknd/device/cuda/opr_rotate_cyc.cu math/bcknd/device/cuda/rotate_kernel.h
-math/bcknd/device/cuda/ax_helm.lo : math/bcknd/device/cuda/ax_helm.cu math/bcknd/device/cuda/ax_helm_kernel.h
+math/bcknd/device/cuda/ax_helm.lo : math/bcknd/device/cuda/ax_helm.cu math/bcknd/device/cuda/ax_helm_kernel.h math/bcknd/device/cuda/elem_block.h math/bcknd/device/cuda/elem_block_tune.h
 math/bcknd/device/cuda/ax_helm_full.lo : math/bcknd/device/cuda/ax_helm_full.cu math/bcknd/device/cuda/ax_helm_full_kernel.h
 math/bcknd/device/cuda/schwarz.lo : math/bcknd/device/cuda/schwarz.cu math/bcknd/device/cuda/schwarz_kernel.h
 math/bcknd/device/cuda/tensor.lo : math/bcknd/device/cuda/tensor.cu math/bcknd/device/cuda/tensor_kernel.h

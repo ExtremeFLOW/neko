@@ -494,15 +494,15 @@ contains
        end do
 
        byte_offset = mpi_offset + &
-           dof_offset * int(MPI_REAL_PREC_SIZE, i8)
+            dof_offset * int(MPI_REAL_PREC_SIZE, i8)
        call MPI_File_write_at_all(fh, byte_offset, Blag, size(Blag), &
-           MPI_REAL_PRECISION, status, ierr)
+            MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
        byte_offset = mpi_offset + &
-           dof_offset * int(MPI_REAL_PREC_SIZE, i8)
+            dof_offset * int(MPI_REAL_PREC_SIZE, i8)
        call MPI_File_write_at_all(fh, byte_offset, Blaglag, size(Blaglag), &
-           MPI_REAL_PRECISION, status, ierr)
+            MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
        call MPI_File_write_at_all(fh, mpi_offset, pivot_pos, size(pivot_pos), &
@@ -901,12 +901,12 @@ contains
        call MPI_File_read_at_all(fh, mpi_offset, pivot_pos, &
             size(pivot_pos), MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + int(size(pivot_pos), i8) &
-       * int(MPI_REAL_PREC_SIZE, i8)
+            * int(MPI_REAL_PREC_SIZE, i8)
 
        call MPI_File_read_at_all(fh, mpi_offset, pivot_vel_lag, &
             size(pivot_vel_lag), MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + int(size(pivot_vel_lag), i8) &
-       * int(MPI_REAL_PREC_SIZE, i8)
+            * int(MPI_REAL_PREC_SIZE, i8)
 
        call MPI_File_read_at_all(fh, mpi_offset, basis_pos, &
             size(basis_pos), MPI_REAL_PRECISION, status, ierr)

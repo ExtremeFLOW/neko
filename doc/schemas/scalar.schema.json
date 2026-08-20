@@ -75,6 +75,22 @@
           "type": "object",
           "required": [
             "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "const": "expression"
+            },
+            "value": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
             "zone_name",
             "base_value",
             "zone_value"
@@ -156,6 +172,29 @@
             },
             "value": {
               "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "const": "expression_dirichlet"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "value": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             }
           },
           "additionalProperties": false

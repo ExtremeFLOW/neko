@@ -606,6 +606,12 @@
         },
         {
           "$ref": "urn:neko:schema:simcomps:field_subsampler#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:boundary_data_writer#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:wall_shear_stress#/$defs/simulationComponent"
         }
       ]
     }

@@ -162,14 +162,13 @@ contains
 
   !> Main routine to compute the surface stresses based on MOST.
   !! @param tstep The current time-step
-  subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
-       n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
+  subroutine most_compute_cpu(u, v, w, temp, temp_w, &
+       n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, &
        kappa, mu_w, rho_w, g_vec, Pr, z0, z0h_in, bc_type, bc_value, tstep, &
        Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, ts_diagn,&
-       q_diagn, h_x_idx, h_y_idx, h_z_idx)
-    integer, intent(in) :: n_nodes, lx, nelv, tstep
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
-    integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
+       q_diagn)
+    integer, intent(in) :: n_nodes, tstep
+    real(kind=rp), dimension(n_nodes), intent(in) :: u, v, w, temp, temp_w
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
     real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value, Pr
     real(kind=rp), dimension(3), intent(in) :: g_vec
@@ -192,16 +191,13 @@ contains
     real(kind=rp), dimension(n_nodes), intent(inout) :: utau_diagn, magu_diagn
     real(kind=rp), dimension(n_nodes), intent(inout) :: ti_diagn, ts_diagn
     real(kind=rp), dimension(n_nodes), intent(inout) :: q_diagn
-    integer, dimension(n_nodes), intent(in) :: h_x_idx
-    integer, dimension(n_nodes), intent(in) :: h_y_idx
-    integer, dimension(n_nodes), intent(in) :: h_z_idx
 
     do i=1, n_nodes
        ! Sample the variables
-       ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       ti = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       ui = u(i)
+       vi = v(i)
+       wi = w(i)
+       ti = temp(i)
        hi = h(i)
        rho = rho_w(i)
        mu = mu_w(i)
@@ -320,8 +316,7 @@ contains
        utau_diagn(i) = utau
        magu_diagn(i) = magu
        ti_diagn(i) = ti
-       ts_diagn(i) = temp(ind_r(i) - h_x_idx(i), ind_s(i) - h_y_idx(i), &
-            ind_t(i) - h_z_idx(i), ind_e(i))
+       ts_diagn(i) = temp_w(i)
        q_diagn(i) = q
     end do
   end subroutine most_compute_cpu

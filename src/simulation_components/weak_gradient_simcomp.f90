@@ -102,7 +102,7 @@ contains
     call json_get_or_default(json, "name", name, "weak_gradient")
     call json_get(json, "field", field_name)
     call json_get_or_default(json, "computed_field", computed_field, &
-         "weak_gradient" // trim(field_name))
+         "weak_gradient_" // trim(field_name))
 
     fields(1) = computed_field // "_x"
     fields(2) = computed_field // "_y"

@@ -44,6 +44,7 @@ module tree_amg_smoother
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
+  use profiler, only : profiler_start_region, profiler_end_region
   use device, only: device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   use device_tree_amg_smoother, only : amg_device_cheby_solve_part1, &
        amg_device_cheby_solve_part2
@@ -77,10 +78,20 @@ module tree_amg_smoother
      type(c_ptr) :: w_d = C_NULL_PTR
      real(kind=rp), allocatable :: r(:)
      type(c_ptr) :: r_d = C_NULL_PTR
+     !> Saved eigenvector, to restart the power method after a small
+     !> operator change. Allocated only if warm_start_eigs.
+     real(kind=rp), allocatable :: ev(:)
+     type(c_ptr) :: ev_d = C_NULL_PTR
      real(kind=rp) :: tha, dlt
      integer :: lvl
      integer :: n
      integer :: power_its = 250
+     !> Iterations to use when restarting from ev
+     integer :: power_its_refresh = 20
+     !> Restart the power method from ev instead of a random vector
+     logical :: warm_start_eigs = .false.
+     !> Whether ev holds a usable eigenvector yet
+     logical :: eigs_computed = .false.
      integer :: max_iter = 10
      logical :: recompute_eigs = .true.
    contains
@@ -143,6 +154,12 @@ contains
        end if
        deallocate(this%r)
     end if
+    if (allocated(this%ev)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%ev_d)) then
+          call device_unmap(this%ev, this%ev_d)
+       end if
+       deallocate(this%ev)
+    end if
   end subroutine amg_cheby_free
 
 
@@ -158,32 +175,44 @@ contains
     real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
     integer, allocatable :: fixed_seed(:), saved_seed(:)
-    integer :: i, rnd_n
+    integer :: i, rnd_n, its
+    logical :: warm
+
+    call profiler_start_region('AMG_cheby_power')
+    warm = this%warm_start_eigs .and. this%eigs_computed .and. &
+         allocated(this%ev)
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
          msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
 
-      ! Save current random seed and set a fixed seed
-      call random_seed( size=rnd_n )
-      allocate(saved_seed(rnd_n))
-      allocate(fixed_seed(rnd_n))
-      fixed_seed = 3901
-      call random_seed( get=saved_seed )
-      call random_seed( put=fixed_seed )
+      if (warm) then
+         its = this%power_its_refresh
+         call copy(d, this%ev, n)
+      else
+         its = this%power_its
 
-      do i = 1, n
-         call random_number(rn)
-         d(i) = rn + 10.0_rp
-      end do
+         ! Save current random seed and set a fixed seed
+         call random_seed(size = rnd_n)
+         allocate(saved_seed(rnd_n))
+         allocate(fixed_seed(rnd_n))
+         fixed_seed = 3901
+         call random_seed(get = saved_seed)
+         call random_seed(put = fixed_seed)
 
-      ! Restore saved random seed
-      call random_seed( put=saved_seed )
+         do i = 1, n
+            call random_number(rn)
+            d(i) = rn + 10.0_rp
+         end do
 
-      if (this%lvl .eq. 0) then
-         call gs_h%op(d, n, GS_OP_ADD)!TODO
-         call blst%apply(d, n)
+         ! Restore saved random seed
+         call random_seed(put = saved_seed)
+
+         if (this%lvl .eq. 0) then
+            call gs_h%op(d, n, GS_OP_ADD)!TODO
+            call blst%apply(d, n)
+         end if
       end if
       !Power method to get lamba max
-      do i = 1, this%power_its
+      do i = 1, its
          call amg%matvec(w, d, this%lvl)
 
          if (this%lvl .eq. 0) then
@@ -210,9 +239,18 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
+      if (this%warm_start_eigs) then
+         if (.not. allocated(this%ev)) then
+            allocate(this%ev(this%n))
+         end if
+         call copy(this%ev, d, n)
+      end if
+      this%eigs_computed = .true.
+
       this%recompute_eigs = .false.
       call amg_cheby_monitor(this%lvl, lam)
     end associate
+    call profiler_end_region('AMG_cheby_power')
   end subroutine amg_cheby_power
 
   !> Chebyshev smoother
@@ -306,32 +344,44 @@ contains
     real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
     integer, allocatable :: fixed_seed(:), saved_seed(:)
-    integer :: i, rnd_n
+    integer :: i, rnd_n, its
+    logical :: warm
+
+    call profiler_start_region('AMG_cheby_power')
+    warm = this%warm_start_eigs .and. this%eigs_computed .and. &
+         c_associated(this%ev_d)
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
          msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
 
-      ! Save current random seed and set a fixed seed
-      call random_seed( size=rnd_n )
-      allocate(saved_seed(rnd_n))
-      allocate(fixed_seed(rnd_n))
-      fixed_seed = 3901
-      call random_seed( get=saved_seed )
-      call random_seed( put=fixed_seed )
+      if (warm) then
+         its = this%power_its_refresh
+         call device_copy(this%d_d, this%ev_d, n)
+      else
+         its = this%power_its
 
-      do i = 1, n
-         call random_number(rn)
-         d(i) = rn + 10.0_rp
-      end do
-      call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
+         ! Save current random seed and set a fixed seed
+         call random_seed(size = rnd_n)
+         allocate(saved_seed(rnd_n))
+         allocate(fixed_seed(rnd_n))
+         fixed_seed = 3901
+         call random_seed(get = saved_seed)
+         call random_seed(put = fixed_seed)
 
-      ! Restore saved random seed
-      call random_seed( put=saved_seed )
+         do i = 1, n
+            call random_number(rn)
+            d(i) = rn + 10.0_rp
+         end do
+         call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
 
-      if (this%lvl .eq. 0) then
-         call gs_h%op(d, n, GS_OP_ADD)!TODO
-         call blst%apply(d, n)
+         ! Restore saved random seed
+         call random_seed(put = saved_seed)
+
+         if (this%lvl .eq. 0) then
+            call gs_h%op(d, n, GS_OP_ADD)!TODO
+            call blst%apply(d, n)
+         end if
       end if
-      do i = 1, this%power_its
+      do i = 1, its
          call amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)
 
          if (this%lvl .eq. 0) then
@@ -358,9 +408,19 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
+      if (this%warm_start_eigs) then
+         if (.not. c_associated(this%ev_d)) then
+            allocate(this%ev(this%n))
+            call device_map(this%ev, this%ev_d, this%n)
+         end if
+         call device_copy(this%ev_d, this%d_d, n)
+      end if
+      this%eigs_computed = .true.
+
       this%recompute_eigs = .false.
       call amg_cheby_monitor(this%lvl, lam)
     end associate
+    call profiler_end_region('AMG_cheby_power')
   end subroutine amg_device_cheby_power
 
   !> Chebyshev smoother

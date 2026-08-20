@@ -94,7 +94,7 @@ __global__ void scalar_makebdf_kernel(const T * __restrict__ s_lag,
                                       T * __restrict__ fs,
                                       const T * __restrict__ s,
                                       const T * __restrict__ B,
-                                      const T rho,
+                                      const T * __restrict__ rho_cp,
                                       const T dt,
                                       const T bd2,
                                       const T bd3,
@@ -116,8 +116,7 @@ __global__ void scalar_makebdf_kernel(const T * __restrict__ s_lag,
       tb1_val += s_laglag[i] * B[i] * bd4;
     }
     
-    // todo: probably not just rho here
-    fs[i] = fs[i] + tb1_val * (rho / dt);
+    fs[i] = fs[i] + tb1_val * (rho_cp[i] / dt);
   }
 
 }

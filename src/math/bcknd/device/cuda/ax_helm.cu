@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "ax_helm_kernel.h"
+#include "elem_block_tune.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
 
@@ -47,13 +48,13 @@ template < const int>
 int tune(void *w, void *u, void *dx, void *dy, void *dz,
          void *dxt, void *dyt, void *dzt, void *h1,
          void *g11, void *g22, void *g33, void *g12,
-         void *g13, void *g23, int *nelv, int *lx);
+         void *g13, void *g23, int *nelv, int *lx, int *eb_sel, int *ch_sel);
 
 template < const int>
 int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
                 void *dxt, void *dyt, void *dzt, void *h1,
                 void *g11, void *g22, void *g33, void *g12,
-                void *g13, void *g23, int *nelv, int *lx);
+                void *g13, void *g23, int *nelv, int *lx, int *eb_sel, int *ch_sel);
 
 extern "C" {
 
@@ -66,40 +67,67 @@ extern "C" {
                     void *g13, void *g23, int *nelv, int *lx) {
 
     static int autotune[17] = { 0 };
+    /* Elements per block candidate chosen by the autotuner, see
+       elem_block<> in elem_block.h */
+    static int autotune_eb[17] = { 0 };
+    /* chunk candidate chosen for the 1d variant */
+    static int autotune_ch[17] = { 0 };
 
     const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nblcks_1d((*nelv), 1, 1);
-    const dim3 nthrds_kstep((*lx), (*lx), 1);
-    const dim3 nblcks_kstep((*nelv), 1, 1);
-
-    const dim3 nthrds((*lx), (*lx), 1);
-    const dim3 nblcks((*nelv), 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-#define CASE_1D(LX)                                                             \
-    ax_helm_kernel_1d<real, LX, 1024>                                           \
-      <<<nblcks_1d, nthrds_1d, 0, stream>>>((real *) w, (real *) u,             \
+#define CASE_1D(LX, C)                                                          \
+    ax_helm_kernel_1d<real, LX, NEKO_CHUNKS(LX, C)>                             \
+      <<<nblcks_1d, NEKO_CHUNKS_NTHRDS(LX, C), 0, stream>>>                     \
+                         ((real *) w, (real *) u,                               \
                           (real *) dx, (real *) dy, (real *) dz,                \
                           (real *) dxt, (real *) dyt, (real *) dzt, (real *) h1,\
                           (real *) g11, (real *) g22, (real *) g33,             \
                           (real *) g12, (real *) g13, (real *) g23);            \
       CUDA_CHECK(cudaGetLastError());
 
-#define CASE_KSTEP(LX)                                                          \
-    ax_helm_kernel_kstep<real, LX>                                              \
-      <<<nblcks_kstep, nthrds_kstep, 0, stream>>>((real *) w, (real *) u,       \
+/* Runtime dispatch onto the tuned chunk candidate */
+#define CASE_1D_SEL(LX, SEL)                                                    \
+    switch (SEL) {                                                              \
+    case 0:  CASE_1D(LX, 0); break;                                             \
+    case 1:  CASE_1D(LX, 1); break;                                             \
+    case 2:  CASE_1D(LX, 2); break;                                             \
+    default: CASE_1D(LX, 3); break;                                             \
+    }
+
+#define CASE_KSTEP(LX, C)                                                       \
+    ax_helm_kernel_kstep<real, LX, NEKO_EB(LX, C)>                              \
+      <<<NEKO_EB_NBLCKS(*nelv, LX, C), NEKO_EB_NTHRDS(LX, C), 0, stream>>>      \
+                          ((real *) w, (real *) u,                              \
                            (real *) dx, (real *) dy, (real *) dz, (real *) h1,  \
                            (real *) g11, (real *) g22, (real *) g33,            \
-                           (real *) g12, (real *) g13, (real *) g23);           \
+                           (real *) g12, (real *) g13, (real *) g23, *nelv);    \
       CUDA_CHECK(cudaGetLastError());
 
-#define CASE_KSTEP_PADDED(LX)                                                   \
-    ax_helm_kernel_kstep_padded<real, LX>                                       \
-    <<<nblcks_kstep, nthrds_kstep, 0, stream>>>((real *) w, (real *) u,         \
+#define CASE_KSTEP_PADDED(LX, C)                                                \
+    ax_helm_kernel_kstep_padded<real, LX, NEKO_EB(LX, C)>                       \
+      <<<NEKO_EB_NBLCKS(*nelv, LX, C), NEKO_EB_NTHRDS(LX, C), 0, stream>>>      \
+                          ((real *) w, (real *) u,                              \
                            (real *) dx, (real *) dy, (real *) dz, (real *) h1,  \
                            (real *) g11, (real *) g22, (real *) g33,            \
-                           (real *) g12, (real *) g13, (real *) g23);           \
+                           (real *) g12, (real *) g13, (real *) g23, *nelv);    \
       CUDA_CHECK(cudaGetLastError());
+
+/* Runtime dispatch onto the tuned elements per block candidate */
+#define CASE_KSTEP_SEL(LX, SEL)                                                 \
+    switch (SEL) {                                                              \
+    case 0:  CASE_KSTEP(LX, 0); break;                                          \
+    case 1:  CASE_KSTEP(LX, 1); break;                                          \
+    default: CASE_KSTEP(LX, 2); break;                                          \
+    }
+
+#define CASE_KSTEP_PADDED_SEL(LX, SEL)                                          \
+    switch (SEL) {                                                              \
+    case 0:  CASE_KSTEP_PADDED(LX, 0); break;                                   \
+    case 1:  CASE_KSTEP_PADDED(LX, 1); break;                                   \
+    default: CASE_KSTEP_PADDED(LX, 2); break;                                   \
+    }
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \
@@ -108,14 +136,14 @@ extern "C" {
                                dx,  dy, dz,                                     \
                                dxt, dyt, dzt,h1,                                \
                                g11, g22, g33,                                   \
-                               g12, g13, g23, nelv, lx);                        \
+                               g12, g13, g23, nelv, lx,                         \
+                               &autotune_eb[LX], &autotune_ch[LX]);             \
       } else if (autotune[LX] == 1 ) {                                          \
-        CASE_1D(LX);                                                            \
+        CASE_1D_SEL(LX, autotune_ch[LX]);                                       \
       } else if (autotune[LX] == 2 ) {                                          \
-        CASE_KSTEP(LX);                                                         \
+        CASE_KSTEP_SEL(LX, autotune_eb[LX]);                                    \
       }                                                                         \
       break
-
 
 #define CASE_PADDED(LX)                                                         \
     case LX:                                                                    \
@@ -124,24 +152,29 @@ extern "C" {
                                      dx,  dy, dz,                               \
                                      dxt, dyt, dzt,h1,                          \
                                      g11, g22, g33,                             \
-                                     g12, g13, g23,nelv,lx);                    \
+                                     g12, g13, g23,nelv,lx,                     \
+                                     &autotune_eb[LX], &autotune_ch[LX]);       \
       } else if (autotune[LX] == 1 ) {                                          \
-        CASE_1D(LX);                                                            \
+        CASE_1D_SEL(LX, autotune_ch[LX]);                                       \
       } else if (autotune[LX] == 2 ) {                                          \
-        CASE_KSTEP_PADDED(LX);                                                  \
+        CASE_KSTEP_PADDED_SEL(LX, autotune_eb[LX]);                             \
       }                                                                         \
       break
 
+/*
+ * High order cases have no 1d variant to compare against (its shared memory
+ * footprint grows as LX^3), so they are not tuned and keep one element per
+ * block, i.e. candidate 0
+ */
 #define CASE_LARGE(LX)                                                          \
     case LX:                                                                    \
-      CASE_KSTEP(LX);                                                           \
+      CASE_KSTEP(LX, 0);                                                        \
       break
 
 #define CASE_LARGE_PADDED(LX)                                                   \
     case LX:                                                                    \
-      CASE_KSTEP_PADDED(LX);                                                    \
+      CASE_KSTEP_PADDED(LX, 0);                                                 \
       break
-
 
     if ((*lx) < 12) {
       switch(*lx) {
@@ -189,30 +222,38 @@ extern "C" {
                            void *g33, void *g12, void *g13,
                            void *g23, int *nelv, int *lx) {
 
-    const dim3 nthrds((*lx), (*lx), 1);
-    const dim3 nblcks((*nelv), 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
+/*
+ * The vector kernels are not swept by the autotuner, see the note on
+ * NEKO_AX_HELM_VECTOR_EB_C in ax_helm_kernel.h
+ */
+#define AX_VEC_EB(LX) (elem_block<LX, NEKO_AX_HELM_VECTOR_EB_C>::value)
+#define AX_VEC_NTHRDS(LX) dim3((LX), (LX), AX_VEC_EB(LX))
+#define AX_VEC_NBLCKS(LX)                                                      \
+    dim3(((*nelv) + AX_VEC_EB(LX) - 1)/AX_VEC_EB(LX), 1, 1)
+
 #define CASE_VECTOR_KSTEP(LX)                                                  \
-    ax_helm_kernel_vector_kstep<real, LX>                                      \
-    <<<nblcks, nthrds, 0, stream>>> ((real *) au, (real *) av, (real *) aw,    \
+    ax_helm_kernel_vector_kstep<real, LX, AX_VEC_EB(LX)>                       \
+    <<<AX_VEC_NBLCKS(LX), AX_VEC_NTHRDS(LX), 0, stream>>>                      \
+                                    ((real *) au, (real *) av, (real *) aw,    \
                                      (real *) u, (real *) v, (real *) w,       \
                                      (real *) dx, (real *) dy, (real *) dz,    \
                                      (real *) h1, (real *) g11, (real *) g22,  \
                                      (real *) g33, (real *) g12, (real *) g13, \
-                                     (real *) g23);                            \
+                                     (real *) g23, *nelv);                     \
     CUDA_CHECK(cudaGetLastError());
 
 #define CASE_VECTOR_KSTEP_PADDED(LX)                                           \
-    ax_helm_kernel_vector_kstep_padded<real, LX>                               \
-    <<<nblcks, nthrds, 0, stream>>> ((real *) au, (real *) av, (real *) aw,    \
+    ax_helm_kernel_vector_kstep_padded<real, LX, AX_VEC_EB(LX)>                \
+    <<<AX_VEC_NBLCKS(LX), AX_VEC_NTHRDS(LX), 0, stream>>>                      \
+                                    ((real *) au, (real *) av, (real *) aw,    \
                                      (real *) u, (real *) v, (real *) w,       \
                                      (real *) dx, (real *) dy, (real *) dz,    \
                                      (real *) h1, (real *) g11, (real *) g22,  \
                                      (real *) g33, (real *) g12, (real *) g13, \
-                                     (real *) g23);                            \
+                                     (real *) g23, *nelv);                     \
     CUDA_CHECK(cudaGetLastError());
-
 
 #define CASE_VECTOR(LX)                                                        \
     case LX:                                                                   \
@@ -270,16 +311,27 @@ template < const int LX >
 int tune(void *w, void *u, void *dx, void *dy, void *dz,
          void *dxt, void *dyt, void *dzt, void *h1,
          void *g11, void *g22, void *g33, void *g12,
-         void *g13, void *g23, int *nelv, int *lx) {
+         void *g13, void *g23, int *nelv, int *lx, int *eb_sel, int *ch_sel) {
   cudaEvent_t start,stop;
-  float time1,time2;
+  float time1[NEKO_CHUNKS_CANDIDATES];
+  int best1 = 0;
+  float time2[NEKO_EB_CANDIDATES];
+  const int rounds = neko_tune_rounds();
+  const int iters = neko_tune_iters();
+  const int sweep = neko_eb_sweep();
+  int best = 0;
   int retval;
+
+  for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
+    time2[c] = NEKO_TUNE_INIT;
+  }
+  for (int c = 0; c < NEKO_CHUNKS_CANDIDATES; c++) {
+    time1[c] = NEKO_TUNE_INIT;
+  }
 
   const dim3 nthrds_1d(1024, 1, 1);
   const dim3 nblcks_1d((*nelv), 1, 1);
-  const dim3 nthrds_kstep((*lx), (*lx), 1);
-  const dim3 nblcks_kstep((*nelv), 1, 1);
- const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
   char *env_value = NULL;
   char neko_log_buf[80];
@@ -289,16 +341,24 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   sprintf(neko_log_buf, "Autotune Ax helm (lx: %d)", *lx);
   log_section(neko_log_buf);
 
+  *eb_sel = 0;
+  *ch_sel = 0;
+
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
-      CASE_1D(LX);
-      sprintf(neko_log_buf,"Set by env : 1 (1D)");
+      *ch_sel = neko_chunks_env();
+      CASE_1D_SEL(LX, *ch_sel);
+      sprintf(neko_log_buf,"Set by env   : 1 (1D, %d chunk)",
+              NEKO_CHUNKS_SEL(LX, *ch_sel));
       log_message(neko_log_buf);
       log_end_section();
       return 1;
     } else if( !strcmp(env_value,"KSTEP") ) {
-      CASE_KSTEP(LX);
-      sprintf(neko_log_buf,"Set by env : 2 (KSTEP)");
+      const int c = neko_eb_env();
+      *eb_sel = c;
+      CASE_KSTEP_SEL(LX, c);
+      sprintf(neko_log_buf,"Set by env   : 2 (KSTEP, %d elem/block)",
+              NEKO_EB_SEL(LX, c));
       log_message(neko_log_buf);
       log_end_section();
       return 2;
@@ -311,39 +371,66 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
 
-  /* Warmup */
-  for(int i = 0; i < 10; i++) {
-    CASE_1D(LX);
+  /* Warm every variant before timing anything: each specialisation has to
+     be resident and the clocks at steady state, or whichever variant is
+     timed first is measured on a colder part */
+  for (int i = 0; i < NEKO_TUNE_WARMUP; i++) {
+    CASE_1D(LX, 0);
+    CASE_1D(LX, 1);
+    CASE_1D(LX, 2);
+    CASE_1D(LX, 3);
+    CASE_KSTEP(LX, 0);
+    if (sweep) {
+      CASE_KSTEP(LX, 1);
+      CASE_KSTEP(LX, 2);
+    }
   }
 
-  cudaEventRecord(start, stream);
-
-  for(int i = 0; i < 100; i++) {
-    CASE_1D(LX);
+  /* Interleaved rounds, best time per variant: timing them one after another
+     in a fixed order lets clock drift bias the comparison by position */
+  for (int r = 0; r < rounds; r++) {
+    NEKO_TUNE_TIME(time1, CASE_1D, LX, 0, iters);
+    NEKO_TUNE_TIME(time1, CASE_1D, LX, 1, iters);
+    NEKO_TUNE_TIME(time1, CASE_1D, LX, 2, iters);
+    NEKO_TUNE_TIME(time1, CASE_1D, LX, 3, iters);
+    NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 0, iters);
+    if (sweep) {
+      NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 1, iters);
+      NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 2, iters);
+    }
   }
 
-  cudaEventRecord(stop, stream);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&time1, start, stop);
+  NEKO_TUNE_LOG(LX, time1, time2);
 
-  cudaEventRecord(start, stream);
+  NEKO_TUNE_BEST(time1, best1, NEKO_CHUNKS_CANDIDATES);
+  NEKO_TUNE_BEST(time2, best, NEKO_EB_CANDIDATES);
+  *eb_sel = best;
+  *ch_sel = best1;
 
-  for(int i = 0; i < 100; i++) {
-     CASE_KSTEP(LX);
-   }
-
-  cudaEventRecord(stop, stream);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&time2, start, stop);
-
-  if(time1 < time2) {
+  if (time1[best1] < time2[best]) {
      retval = 1;
   } else {
     retval = 2;
   }
 
-  sprintf(neko_log_buf, "Chose      : %d (%s)", retval,
-          (retval > 1 ? "KSTEP" : "1D"));
+  cudaEventDestroy(start);
+  cudaEventDestroy(stop);
+
+  /* The tuner stands in for a real Ax evaluation, and the variants do not
+     sum in the same order, so leave the output of the chosen kernel in w */
+  if (retval == 1) {
+    CASE_1D_SEL(LX, best1);
+  } else {
+    CASE_KSTEP_SEL(LX, best);
+  }
+
+  if (retval == 1) {
+    sprintf(neko_log_buf, "Chose        : 1 (1D, %d chunk)",
+            NEKO_CHUNKS_SEL(LX, best1));
+  } else {
+    sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
+            NEKO_EB_SEL(LX, best));
+  }
   log_message(neko_log_buf);
   log_end_section();
   return retval;
@@ -353,16 +440,27 @@ template < const int LX >
 int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
                 void *dxt, void *dyt, void *dzt, void *h1,
                 void *g11, void *g22, void *g33, void *g12,
-                void *g13, void *g23, int *nelv, int *lx) {
+                void *g13, void *g23, int *nelv, int *lx, int *eb_sel, int *ch_sel) {
   cudaEvent_t start, stop;
-  float time1, time2;
+  float time1[NEKO_CHUNKS_CANDIDATES];
+  int best1 = 0;
+  float time2[NEKO_EB_CANDIDATES];
+  const int rounds = neko_tune_rounds();
+  const int iters = neko_tune_iters();
+  const int sweep = neko_eb_sweep();
+  int best = 0;
   int retval;
+
+  for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
+    time2[c] = NEKO_TUNE_INIT;
+  }
+  for (int c = 0; c < NEKO_CHUNKS_CANDIDATES; c++) {
+    time1[c] = NEKO_TUNE_INIT;
+  }
 
   const dim3 nthrds_1d(1024, 1, 1);
   const dim3 nblcks_1d((*nelv), 1, 1);
-  const dim3 nthrds_kstep((*lx), (*lx), 1);
-  const dim3 nblcks_kstep((*nelv), 1, 1);
- const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
   char *env_value = NULL;
   char neko_log_buf[80];
@@ -372,16 +470,24 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   sprintf(neko_log_buf, "Autotune Ax helm (lx: %d)", *lx);
   log_section(neko_log_buf);
 
+  *eb_sel = 0;
+  *ch_sel = 0;
+
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
-      CASE_1D(LX);
-      sprintf(neko_log_buf,"Set by env : 1 (1D)");
+      *ch_sel = neko_chunks_env();
+      CASE_1D_SEL(LX, *ch_sel);
+      sprintf(neko_log_buf,"Set by env   : 1 (1D, %d chunk)",
+              NEKO_CHUNKS_SEL(LX, *ch_sel));
       log_message(neko_log_buf);
       log_end_section();
       return 1;
      } else if( !strcmp(env_value,"KSTEP") ) {
-      CASE_KSTEP(LX);
-      sprintf(neko_log_buf,"Set by env : 2 (KSTEP)");
+      const int c = neko_eb_env();
+      *eb_sel = c;
+      CASE_KSTEP_PADDED_SEL(LX, c);
+      sprintf(neko_log_buf,"Set by env   : 2 (KSTEP, %d elem/block)",
+              NEKO_EB_SEL(LX, c));
       log_message(neko_log_buf);
       log_end_section();
       return 2;
@@ -394,39 +500,65 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
 
-  /* Warmup */
-  for(int i = 0; i < 10; i++) {
-    CASE_1D(LX);
+  /* Warm every variant before timing anything: each specialisation has to
+     be resident and the clocks at steady state, or whichever variant is
+     timed first is measured on a colder part */
+  for (int i = 0; i < NEKO_TUNE_WARMUP; i++) {
+    CASE_1D(LX, 0);
+    CASE_1D(LX, 1);
+    CASE_1D(LX, 2);
+    CASE_1D(LX, 3);
+    CASE_KSTEP_PADDED(LX, 0);
+    if (sweep) {
+      CASE_KSTEP_PADDED(LX, 1);
+      CASE_KSTEP_PADDED(LX, 2);
+    }
   }
 
-  cudaEventRecord(start, stream);
-
-  for(int i = 0; i < 100; i++) {
-    CASE_1D(LX);
+  /* Interleaved rounds, best time per variant: timing them one after another
+     in a fixed order lets clock drift bias the comparison by position */
+  for (int r = 0; r < rounds; r++) {
+    NEKO_TUNE_TIME(time1, CASE_1D, LX, 0, iters);
+    NEKO_TUNE_TIME(time1, CASE_1D, LX, 1, iters);
+    NEKO_TUNE_TIME(time1, CASE_1D, LX, 2, iters);
+    NEKO_TUNE_TIME(time1, CASE_1D, LX, 3, iters);
+    NEKO_TUNE_TIME(time2, CASE_KSTEP_PADDED, LX, 0, iters);
+    if (sweep) {
+      NEKO_TUNE_TIME(time2, CASE_KSTEP_PADDED, LX, 1, iters);
+      NEKO_TUNE_TIME(time2, CASE_KSTEP_PADDED, LX, 2, iters);
+    }
   }
 
-  cudaEventRecord(stop, stream);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&time1, start, stop);
+  NEKO_TUNE_LOG(LX, time1, time2);
 
-  cudaEventRecord(start, stream);
+  NEKO_TUNE_BEST(time1, best1, NEKO_CHUNKS_CANDIDATES);
+  NEKO_TUNE_BEST(time2, best, NEKO_EB_CANDIDATES);
+  *eb_sel = best;
+  *ch_sel = best1;
 
-  for(int i = 0; i < 100; i++) {
-    CASE_KSTEP_PADDED(LX);
-  }
-
-  cudaEventRecord(stop, stream);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&time2, start, stop);
-
-  if(time1 < time2) {
+  if (time1[best1] < time2[best]) {
     retval=1;
   } else {
     retval=2;
   }
 
-  sprintf(neko_log_buf, "Chose      : %d (%s)", retval,
-          (retval > 1 ? "KSTEP" : "1D"));
+  cudaEventDestroy(start);
+  cudaEventDestroy(stop);
+
+  /* Leave the output of the chosen kernel in w, see tune() */
+  if (retval == 1) {
+    CASE_1D_SEL(LX, best1);
+  } else {
+    CASE_KSTEP_PADDED_SEL(LX, best);
+  }
+
+  if (retval == 1) {
+    sprintf(neko_log_buf, "Chose        : 1 (1D, %d chunk)",
+            NEKO_CHUNKS_SEL(LX, best1));
+  } else {
+    sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
+            NEKO_EB_SEL(LX, best));
+  }
   log_message(neko_log_buf);
   log_end_section();
   return retval;

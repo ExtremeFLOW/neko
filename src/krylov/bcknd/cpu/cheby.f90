@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ module cheby
   use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp
+  use profiler, only : profiler_start_region, profiler_end_region
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
@@ -55,6 +56,14 @@ module cheby
      real(kind=rp), allocatable :: r(:)
      real(kind=rp) :: tha, dlt
      integer :: power_its = 150
+     !> Iterations to use when restarting from ev
+     integer :: power_its_refresh = 20
+     !> Restart the power method from ev instead of a random vector
+     logical :: warm_start_eigs = .false.
+     !> Whether ev holds a usable eigenvector yet
+     logical :: eigs_computed = .false.
+     !> Saved eigenvector, for restarting after a small operator change
+     real(kind=rp), allocatable :: ev(:)
      logical :: recompute_eigs = .true.
      logical :: zero_initial_guess = .false.
      type(schwarz_t), pointer :: schwarz => null() !< Schwarz decompostions
@@ -119,6 +128,9 @@ contains
     if (allocated(this%r)) then
        deallocate(this%r)
     end if
+    if (allocated(this%ev)) then
+       deallocate(this%ev)
+    end if
   end subroutine cheby_free
 
   subroutine cheby_power(this, Ax, x, n, coef, blst, gs_h)
@@ -134,30 +146,42 @@ contains
     real(kind=rp) :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
     integer, allocatable :: fixed_seed(:), saved_seed(:)
-    integer :: i, rnd_n
+    integer :: i, rnd_n, its
+    logical :: warm
+
+    call profiler_start_region('cheby_power')
+    warm = this%warm_start_eigs .and. this%eigs_computed .and. &
+         allocated(this%ev)
     associate(w => this%w, d => this%d, r => this%r)
 
-      ! Save current random seed and set a fixed seed
-      call random_seed( size=rnd_n )
-      allocate(saved_seed(rnd_n))
-      allocate(fixed_seed(rnd_n))
-      fixed_seed = 3901
-      call random_seed( get=saved_seed )
-      call random_seed( put=fixed_seed )
+      if (warm) then
+         its = this%power_its_refresh
+         call copy(d, this%ev, n)
+      else
+         its = this%power_its
 
-      do i = 1, n
-         call random_number(rn)
-         d(i) = rn + 10.0_rp
-      end do
+         ! Save current random seed and set a fixed seed
+         call random_seed(size = rnd_n)
+         allocate(saved_seed(rnd_n))
+         allocate(fixed_seed(rnd_n))
+         fixed_seed = 3901
+         call random_seed(get = saved_seed)
+         call random_seed(put = fixed_seed)
 
-      ! Restore saved random seed
-      call random_seed( put=saved_seed )
+         do i = 1, n
+            call random_number(rn)
+            d(i) = rn + 10.0_rp
+         end do
 
-      call gs_h%op(d, n, GS_OP_ADD)
-      call blst%apply(d, n)
+         ! Restore saved random seed
+         call random_seed(put = saved_seed)
 
-      !Power method to get lamba max
-      do i = 1, this%power_its
+         call gs_h%op(d, n, GS_OP_ADD)
+         call blst%apply(d, n)
+      end if
+
+      !Power method to get lambda max
+      do i = 1, its
          call ax%compute(w, d, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
          call blst%apply(w, n)
@@ -193,8 +217,17 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
+      if (this%warm_start_eigs) then
+         if (.not. allocated(this%ev)) then
+            allocate(this%ev(size(this%d)))
+         end if
+         call copy(this%ev, d, n)
+      end if
+      this%eigs_computed = .true.
+
       this%recompute_eigs = .false.
     end associate
+    call profiler_end_region('cheby_power')
   end subroutine cheby_power
 
   !> A chebyshev preconditioner
@@ -295,7 +328,7 @@ contains
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, i
     real(kind=rp) :: a, b, rtr, rnorm, norm_fac
-    real(kind=rp) :: rhok, rhokp1, sig1, tmp1, tmp2
+    real(kind=rp) :: rhok, rhokp1, sig1, tmp1, tmp2, inv_tha
 
     if (this%recompute_eigs) then
        call cheby_power(this, Ax, x, n, coef, blst, gs_h)
@@ -327,10 +360,17 @@ contains
          call this%M%solve(d, r, n)
       end if
 
-      do concurrent (i = 1:n)
-         d(i) = 1.0_rp/this%tha * d(i)
+      inv_tha = 1.0_rp / this%tha
+      !OCL NORECURRENCE, NOVREC, NOALIAS
+      !DIR$ CONCURRENT
+      !DIR$ IVDEP
+      !GCC$ ivdep
+      !$omp parallel do
+      do i = 1, n
+         d(i) = inv_tha * d(i)
          x%x(i,1,1,1) = x%x(i,1,1,1) + d(i)
       end do
+      !$omp end parallel do
 
       sig1 = this%tha / this%dlt
       rhok = 1.0_rp / sig1
@@ -352,10 +392,16 @@ contains
          else
             call this%M%solve(w, r, n)
          end if
-         do concurrent (i = 1:n)
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !DIR$ IVDEP
+         !GCC$ ivdep
+         !$omp parallel do
+         do i = 1, n
             d(i) = tmp1 * d(i) + tmp2 * w(i)
             x%x(i,1,1,1) = x%x(i,1,1,1) + d(i)
          end do
+         !$omp end parallel do
       end do
 
     end associate

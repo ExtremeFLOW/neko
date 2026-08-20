@@ -68,6 +68,27 @@
           "type": "object",
           "required": [
             "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "const": "expression"
+            },
+            "value": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
             "delta",
             "freestream_velocity",
             "approximation"

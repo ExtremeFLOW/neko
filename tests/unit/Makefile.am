@@ -37,10 +37,12 @@ SUBDIRS = tuple\
 	  time_based_controller\
 	  json_utils\
 	  utils\
+	  expression\
 	  point_interpolation\
 	  idw_source_term\
 	  templates/parallel\
 	  boundary_operation\
+	  wall_sampling\
 	  templates/serial
 
 TESTS = device/device_test\
@@ -82,10 +84,12 @@ TESTS = device/device_test\
 	time_based_controller/time_based_controller_test\
 	json_utils/json_utils_test\
 	utils/read_duration_test\
+	expression/expression_test\
 	point_interpolation/point_interpolation_test\
 	idw_source_term/idw_source_term_test\
 	templates/parallel/parallel_test\
 	boundary_operation/boundary_operation_test\
+	wall_sampling/wall_sampling_test\
 	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
@@ -165,11 +169,16 @@ EXTRA_DIST = \
 	runge_kutta_scheme/test_runge_kutta_scheme.pf\
 	json_utils/test_json_utils.pf\
 	utils/test_read_duration.pf\
+	expression/test_expression.pf\
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
 	point_interpolation/point_interpolation_test\
 	idw_source_term/test_idw_interp.pf\
 	boundary_operation/test_boundary_operation.pf\
+	wall_sampling/test_base.pf\
+	wall_sampling/test_gll.pf\
+	wall_sampling/test_distance.pf\
+	wall_sampling/wall_sampling_test\
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\
 	templates/serial/test_serial.pf

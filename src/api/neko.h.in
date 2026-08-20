@@ -1,4 +1,5 @@
 #ifndef __NEKO_H
+#define __NEKO_H
 
 #include <stdint.h>
 
@@ -7,6 +8,39 @@
  * @note Set to the same C/C++ equivalent type as @a rp
  */
 typedef @NEKO_DEV_REAL_TYPE@ neko_real;
+
+/**
+ * Initial condition callback
+ * @note @a scheme_name is not null-terminated, use @a scheme_name_len
+ */
+typedef void (*neko_initial_condition_cb)(const char *scheme_name,
+                                          int scheme_name_len);
+
+/* Pre timestep callback */
+typedef void (*neko_preprocess_cb)(neko_real t, int tstep);
+
+/* End of timestep callback */
+typedef void (*neko_compute_cb)(neko_real t, int tstep);
+
+/* User boundary condition callback */
+typedef void (*neko_dirichlet_condition_cb)(int *msk, int msk_size,
+                                            neko_real t, int tstep);
+
+/**
+ * Material properties callback
+ * @note @a scheme_name is not null-terminated, use @a scheme_name_len
+ */
+typedef void (*neko_material_properties_cb)(const char *scheme_name,
+                                            int scheme_name_len,
+                                            neko_real t, int tstep);
+
+/**
+ * Source term callback
+ * @note @a scheme_name is not null-terminated, use @a scheme_name_len
+ */
+typedef void (*neko_source_term_cb)(const char *scheme_name,
+                                    int scheme_name_len,
+                                    neko_real t, int tstep);
 
 /* Initialise Neko */
 void neko_init();
@@ -59,6 +93,9 @@ void neko_solve(int **case_iptr);
 /* Compute a time-step for a neko case */
 void neko_step(int **case_iptr);
 
+/* Execute a case's output controller */
+void neko_output_ctrl_execute(int **case_iptr, int force_output);
+
 /* Retrive a pointer to a flow field */
 neko_real *neko_field(char *field_name);
 
@@ -77,7 +114,7 @@ void neko_field_dofmap(char *field_name, int64_t **dof, neko_real **x,
 
 /* Retrive the dofmapassociated with a case's fluid solver */
 void neko_case_fluid_dofmap(int **case_iptr, int64_t **dof, neko_real **x,
-                            neko_real **y, neko_real **z);
+                            neko_real **y, neko_real **z, int *size);
 
 /* Retrive the space associated with a field */
 void neko_field_space(char *field_name, int *lx, neko_real **zg,
@@ -103,4 +140,23 @@ void neko_case_fluid_coef(int **case_iptr, neko_real **G11, neko_real **G22,
                           neko_real **dtdy, neko_real **dtdz, neko_real **jac,
                           neko_real **B, neko_real **area, neko_real **nx,
                           neko_real **ny, neko_real **nz);
+
+/* Setup user-provided callbacks, a null pointer leaves a callback undefined */
+void neko_user_setup(int **case_iptr,
+                     neko_initial_condition_cb initial_cb,
+                     neko_preprocess_cb preprocess_cb,
+                     neko_compute_cb compute_cb,
+                     neko_dirichlet_condition_cb dirichlet_cb,
+                     neko_material_properties_cb material_cb,
+                     neko_source_term_cb source_cb);
+
+/* Retrive a pointer to a field of the currently active callback */
+neko_real *neko_cb_field_by_name(char *field_name);
+
+/* Retrive a pointer to a field of the currently active callback */
+neko_real *neko_cb_field_by_index(int *field_idx);
+
+/* Check if the callback's field at a given index has a given name */
+int neko_cb_field_name_at_index(int *field_idx, char *field_name);
+
 #endif

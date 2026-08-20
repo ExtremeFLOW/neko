@@ -184,8 +184,7 @@ void rhs_maker_ext_metal(void *abx1, void *aby1, void *abz1,
  * Extrapolate the scalar source term.
  */
 void scalar_rhs_maker_ext_metal(void *fs_lag, void *fs_laglag, void *fs,
-                                real *rho, real *ext1, real *ext2, real *ext3,
-                                int *n) {
+                                real *ext1, real *ext2, real *ext3, int *n) {
 
   if (*n <= 0)
     return;
@@ -200,11 +199,10 @@ void scalar_rhs_maker_ext_metal(void *fs_lag, void *fs_laglag, void *fs,
   [enc setBuffer:(__bridge id<MTLBuffer>)fs_lag    offset:0 atIndex:0];
   [enc setBuffer:(__bridge id<MTLBuffer>)fs_laglag offset:0 atIndex:1];
   [enc setBuffer:(__bridge id<MTLBuffer>)fs        offset:0 atIndex:2];
-  [enc setBytes:rho length:sizeof(real) atIndex:3];
-  [enc setBytes:ext1 length:sizeof(real) atIndex:4];
-  [enc setBytes:ext2 length:sizeof(real) atIndex:5];
-  [enc setBytes:ext3 length:sizeof(real) atIndex:6];
-  [enc setBytes:n length:sizeof(int) atIndex:7];
+  [enc setBytes:ext1 length:sizeof(real) atIndex:3];
+  [enc setBytes:ext2 length:sizeof(real) atIndex:4];
+  [enc setBytes:ext3 length:sizeof(real) atIndex:5];
+  [enc setBytes:n length:sizeof(int) atIndex:6];
 
   rhs_maker_dispatch(cmdBuf, enc, *n);
 }
@@ -258,7 +256,7 @@ void rhs_maker_bdf_metal(void *ulag1, void *ulag2, void *vlag1, void *vlag2,
  */
 void scalar_rhs_maker_bdf_metal(void *s_lag, void *s_laglag, void *fs,
                                 void *s, void *B,
-                                real *rho, real *dt, real *bd2, real *bd3,
+                                void *rho_cp, real *dt, real *bd2, real *bd3,
                                 real *bd4, int *nbd, int *n) {
 
   if (*n <= 0)
@@ -276,7 +274,7 @@ void scalar_rhs_maker_bdf_metal(void *s_lag, void *s_laglag, void *fs,
   [enc setBuffer:(__bridge id<MTLBuffer>)fs       offset:0 atIndex:2];
   [enc setBuffer:(__bridge id<MTLBuffer>)s        offset:0 atIndex:3];
   [enc setBuffer:(__bridge id<MTLBuffer>)B        offset:0 atIndex:4];
-  [enc setBytes:rho length:sizeof(real) atIndex:5];
+  [enc setBuffer:(__bridge id<MTLBuffer>)rho_cp   offset:0 atIndex:5];
   [enc setBytes:dt length:sizeof(real) atIndex:6];
   [enc setBytes:bd2 length:sizeof(real) atIndex:7];
   [enc setBytes:bd3 length:sizeof(real) atIndex:8];
@@ -321,7 +319,7 @@ void rhs_maker_oifs_metal(void *phi_x, void *phi_y, void *phi_z,
  * OIFS contribution to the scalar source term.
  */
 void scalar_rhs_maker_oifs_metal(void *phi_s, void *bf_s,
-                                 real *rho, real *dt, int *n) {
+                                 void *rho_cp, real *dt, int *n) {
 
   if (*n <= 0)
     return;
@@ -335,7 +333,7 @@ void scalar_rhs_maker_oifs_metal(void *phi_s, void *bf_s,
 
   [enc setBuffer:(__bridge id<MTLBuffer>)phi_s offset:0 atIndex:0];
   [enc setBuffer:(__bridge id<MTLBuffer>)bf_s  offset:0 atIndex:1];
-  [enc setBytes:rho length:sizeof(real) atIndex:2];
+  [enc setBuffer:(__bridge id<MTLBuffer>)rho_cp offset:0 atIndex:2];
   [enc setBytes:dt length:sizeof(real) atIndex:3];
   [enc setBytes:n length:sizeof(int) atIndex:4];
 

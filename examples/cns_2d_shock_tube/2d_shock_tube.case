@@ -20,6 +20,8 @@
         "fluid": {
             "scheme": "compressible",
             "gamma": 1.4,
+            "Re": 1000.0,
+            "Pr": 0.73,
             "initial_condition": {
                 "type": "user"
             },

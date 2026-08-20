@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "dudxyz_kernel.h"
+#include "elem_block_tune.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
 
@@ -47,7 +48,7 @@ template <const int >
 int tune_dudxyz(void *du, void *u,
                 void *dr, void *ds, void *dt,
                 void *dx, void *dy, void *dz,
-                void *jacinv, int *nel, int *lx);
+                void *jacinv, int *nel, int *lx, int *eb_sel, int *ch_sel);
 
 extern "C" {
 
@@ -60,27 +61,50 @@ extern "C" {
                   void *jacinv, int *nel, int *lx) {
 
     static int autotune[16] = { 0 };
+    /* elements per block candidate chosen by the tuner */
+    static int autotune_eb[16] = { 0 };
+    /* chunk candidate chosen for the 1d variant */
+    static int autotune_ch[16] = { 0 };
 
     const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nthrds_kstep((*lx), (*lx), 1);
     const dim3 nblcks((*nel), 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-#define CASE_1D(LX)                                                             \
-    dudxyz_kernel_1d<real, LX, 1024>                                            \
-      <<<nblcks, nthrds_1d, 0, stream>>>((real *) du, (real *) u,               \
+#define CASE_1D(LX, C)                                                          \
+    dudxyz_kernel_1d<real, LX, NEKO_CHUNKS(LX, C)>                              \
+      <<<nblcks, NEKO_CHUNKS_NTHRDS(LX, C), 0, stream>>>                        \
+                              ((real *) du, (real *) u,                         \
                               (real *) dr, (real *) ds, (real *) dt,            \
                               (real *) dx, (real *) dy, (real *) dz,            \
                               (real *) jacinv);                                 \
     CUDA_CHECK(cudaGetLastError());
 
-#define CASE_KSTEP(LX)                                                          \
-    dudxyz_kernel_kstep<real, LX>                                               \
-      <<<nblcks, nthrds_kstep, 0, stream>>>((real *) du, (real *) u,            \
+/* Runtime dispatch onto the tuned chunk candidate */
+#define CASE_1D_SEL(LX, SEL)                                                    \
+    switch (SEL) {                                                              \
+    case 0:  CASE_1D(LX, 0); break;                                             \
+    case 1:  CASE_1D(LX, 1); break;                                             \
+    case 2:  CASE_1D(LX, 2); break;                                             \
+    default: CASE_1D(LX, 3); break;                                             \
+    }
+
+#define CASE_KSTEP(LX, C)                                                       \
+    dudxyz_kernel_kstep<real, LX, NEKO_EB(LX, C)>                               \
+      <<<NEKO_EB_NBLCKS(*nel, LX, C), NEKO_EB_NTHRDS(LX, C), 0, stream>>>       \
+                                ((real *) du, (real *) u,                       \
                                 (real *) dr, (real *) ds, (real *) dt,          \
                                 (real *) dx, (real *) dy, (real *) dz,          \
-                                (real *) jacinv);                               \
+                                (real *) jacinv, *nel);                         \
       CUDA_CHECK(cudaGetLastError());
+
+/* Runtime dispatch onto the tuned candidate */
+#define CASE_KSTEP_SEL(LX, SEL)                                                 \
+    switch (SEL) {                                                              \
+    case 0:  CASE_KSTEP(LX, 0); break;                                          \
+    case 1:  CASE_KSTEP(LX, 1); break;                                          \
+    default: CASE_KSTEP(LX, 2); break;                                          \
+    }
 
  #define CASE(LX)                                                               \
     case LX:                                                                    \
@@ -88,17 +112,18 @@ extern "C" {
         autotune[LX]=tune_dudxyz<LX>(du, u,                                     \
                                      dr, ds, dt,                                \
                                      dx, dy, dz,                                \
-                                     jacinv, nel, lx);                          \
+                                     jacinv, nel, lx, &autotune_eb[LX],         \
+                                     &autotune_ch[LX]);                         \
       } else if (autotune[LX] == 1 ) {                                          \
-        CASE_1D(LX);                                                            \
+        CASE_1D_SEL(LX, autotune_ch[LX]);                                       \
       } else if (autotune[LX] == 2 ) {                                          \
-        CASE_KSTEP(LX);                                                         \
+        CASE_KSTEP_SEL(LX, autotune_eb[LX]);                                    \
       }                                                                         \
       break
 
 #define CASE_LARGE(LX)                                                          \
     case LX:                                                                    \
-      CASE_KSTEP(LX);                                                           \
+      CASE_KSTEP(LX, 0);                                                        \
       break
 
 
@@ -142,10 +167,23 @@ template < const int LX >
 int tune_dudxyz(void *du, void *u,
                 void *dr, void *ds, void *dt,
                 void *dx, void *dy, void *dz,
-                void *jacinv, int *nel, int *lx) {
+                void *jacinv, int *nel, int *lx, int *eb_sel, int *ch_sel) {
   cudaEvent_t start,stop;
-  float time1,time2;
+  float time1[NEKO_CHUNKS_CANDIDATES];
+  int best1 = 0;
+  float time2[NEKO_EB_CANDIDATES];
+  const int rounds = neko_tune_rounds();
+  const int iters = neko_tune_iters();
+  const int sweep = neko_eb_sweep();
+  int best = 0;
   int retval;
+
+  for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
+    time2[c] = NEKO_TUNE_INIT;
+  }
+  for (int c = 0; c < NEKO_CHUNKS_CANDIDATES; c++) {
+    time1[c] = NEKO_TUNE_INIT;
+  }
 
   const dim3 nthrds_1d(1024, 1, 1);
   const dim3 nthrds_kstep((*lx), (*lx), 1);
@@ -160,16 +198,23 @@ int tune_dudxyz(void *du, void *u,
   sprintf(neko_log_buf, "Autotune dudxyz (lx: %d)", *lx);
   log_section(neko_log_buf);
 
+  *eb_sel = 0;
+  *ch_sel = 0;
+
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
-      CASE_1D(LX);
-      sprintf(neko_log_buf,"Set by env : 1 (1D)");
+      *ch_sel = neko_chunks_env();
+      CASE_1D_SEL(LX, *ch_sel);
+      sprintf(neko_log_buf,"Set by env   : 1 (1D, %d chunk)",
+              NEKO_CHUNKS_SEL(LX, *ch_sel));
       log_message(neko_log_buf);
       log_end_section();
       return 1;
     } else if( !strcmp(env_value,"KSTEP") ) {
-      CASE_KSTEP(LX);
-      sprintf(neko_log_buf,"Set by env : 2 (KSTEP)");
+      *eb_sel = neko_eb_env();
+      CASE_KSTEP_SEL(LX, *eb_sel);
+      sprintf(neko_log_buf,"Set by env   : 2 (KSTEP, %d elem/block)",
+              NEKO_EB_SEL(LX, *eb_sel));
       log_message(neko_log_buf);
       log_end_section();
       return 2;
@@ -182,39 +227,61 @@ int tune_dudxyz(void *du, void *u,
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
 
-  /* Warmup */
-  for(int i = 0; i < 10; i++) {
-    CASE_1D(LX);
+  /* Warm every variant before timing anything: each specialisation has to be
+     resident and the clocks at steady state, or whichever is timed first is
+     measured on a colder part */
+  for (int i = 0; i < NEKO_TUNE_WARMUP; i++) {
+    CASE_1D(LX, 0);
+    CASE_1D(LX, 1);
+    CASE_1D(LX, 2);
+    CASE_1D(LX, 3);
+    CASE_KSTEP(LX, 0);
+    if (sweep) {
+      CASE_KSTEP(LX, 1);
+      CASE_KSTEP(LX, 2);
+    }
   }
 
-  cudaEventRecord(start, stream);
-
-  for(int i = 0; i < 100; i++) {
-    CASE_1D(LX);
+  /* Interleaved rounds, best time per variant */
+  for (int r = 0; r < rounds; r++) {
+    NEKO_TUNE_TIME(time1, CASE_1D, LX, 0, iters);
+    NEKO_TUNE_TIME(time1, CASE_1D, LX, 1, iters);
+    NEKO_TUNE_TIME(time1, CASE_1D, LX, 2, iters);
+    NEKO_TUNE_TIME(time1, CASE_1D, LX, 3, iters);
+    NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 0, iters);
+    if (sweep) {
+      NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 1, iters);
+      NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 2, iters);
+    }
   }
 
-  cudaEventRecord(stop, stream);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&time1, start, stop);
+  NEKO_TUNE_LOG(LX, time1, time2);
+  NEKO_TUNE_BEST(time1, best1, NEKO_CHUNKS_CANDIDATES);
+  NEKO_TUNE_BEST(time2, best, NEKO_EB_CANDIDATES);
+  *eb_sel = best;
+  *ch_sel = best1;
 
-  cudaEventRecord(start, stream);
-
-  for(int i = 0; i < 100; i++) {
-     CASE_KSTEP(LX);
-   }
-
-  cudaEventRecord(stop, stream);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&time2, start, stop);
-
-  if(time1 < time2) {
-     retval = 1;
+  if (time1[best1] < time2[best]) {
+    retval = 1;
   } else {
     retval = 2;
   }
 
-  sprintf(neko_log_buf, "Chose      : %d (%s)", retval,
-          (retval > 1 ? "KSTEP" : "1D"));
+  /* Leave the chosen kernel's output in place: the tuner stands in for a real
+     evaluation and the variants do not sum in the same order */
+  if (retval == 1) {
+    CASE_1D_SEL(LX, best1);
+  } else {
+    CASE_KSTEP_SEL(LX, best);
+  }
+
+  if (retval == 1) {
+    sprintf(neko_log_buf, "Chose        : 1 (1D, %d chunk)",
+            NEKO_CHUNKS_SEL(LX, best1));
+  } else {
+    sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
+            NEKO_EB_SEL(LX, best));
+  }
   log_message(neko_log_buf);
   log_end_section();
   return retval;

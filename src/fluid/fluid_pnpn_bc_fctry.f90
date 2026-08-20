@@ -1,5 +1,5 @@
 
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -48,14 +48,18 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use shear_stress, only : shear_stress_t
   use wall_model_bc, only : wall_model_bc_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use expression_dirichlet, only : expression_dirichlet_t
+  use expression_dirichlet_vector, only : expression_dirichlet_vector_t
   use overset_interface, only : overset_interface_t
   use overset_interface_vector, only : overset_interface_vector_t
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(15) = [character(len=25) :: &
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(17) = [character(len=25) :: &
        "symmetry", &
        "velocity_value", &
+       "expression_velocity", &
+       "expression_pressure", &
        "no_slip", &
        "outflow", &
        "normal_outflow", &
@@ -83,7 +87,7 @@ contains
     type(fluid_pnpn_t), intent(in) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), target, intent(in) :: coef
-    type(user_t), intent(in) :: user
+    type(user_t), target, intent(in) :: user
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
@@ -101,6 +105,9 @@ contains
     select case (trim(type))
     case ("outflow", "normal_outflow")
        allocate(zero_dirichlet_t::object)
+
+    case ("expression_pressure")
+       allocate(expression_dirichlet_t::object)
 
     case ("outflow+dong", "normal_outflow+dong")
        allocate(dong_outflow_t::object)
@@ -179,11 +186,12 @@ contains
     type(fluid_pnpn_t), intent(inout) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), target, intent(in) :: coef
-    type(user_t), intent(in) :: user
+    type(user_t), target, intent(in) :: user
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
     character(len=:), allocatable :: default_name
+    character(len=:), allocatable :: bc_name
     character(len=64) :: buf
 
     call json_get(json, "type", type)
@@ -193,6 +201,8 @@ contains
        allocate(symmetry_t::object)
     case ("velocity_value")
        allocate(inflow_t::object)
+    case ("expression_velocity")
+       allocate(expression_dirichlet_vector_t::object)
     case ("no_slip")
        allocate(no_slip_t::object)
     case ("normal_outflow", "normal_outflow+dong", "normal_outflow+user")
@@ -205,6 +215,11 @@ contains
        allocate(wall_model_bc_t::object)
        ! Kind of hack, but  OK for now
        call json%add("scheme_name", scheme%name)
+
+       select type (wall_bc => object)
+       type is (wall_model_bc_t)
+          wall_bc%user => user
+       end select
 
     case ("user_velocity")
        allocate(field_dirichlet_vector_t::object)
@@ -229,15 +244,18 @@ contains
     end select
 
     call json_get_or_lookup(json, "zone_indices", zone_indices)
+    write(buf,'("velocity_bc_",I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", bc_name, default_name)
+
     call object%init(coef, json)
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
 
-    write(buf,'("velocity_bc_",I0)') zone_indices(1)
-    default_name = trim(buf)
-    call json_get_or_default(json, "name", object%name, default_name)
+    object%name = bc_name
     object%zone_indices = zone_indices
+
     call object%finalize()
 
     ! Exclude these two because they are bcs for the residual, not velocity

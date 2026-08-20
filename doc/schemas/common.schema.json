@@ -247,6 +247,36 @@
       },
       "additionalProperties": false
     },
+    "phmgUpdateEigs": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "frequency": {
+          "$ref": "#/$defs/nonNegativeIntegerOrRef"
+        },
+        "warm_start": {
+          "type": "boolean"
+        },
+        "warm_start_iterations": {
+          "$ref": "#/$defs/positiveIntegerOrRef"
+        }
+      },
+      "additionalProperties": false
+    },
+    "phmgUpdate": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "eigs": {
+          "$ref": "#/$defs/phmgUpdateEigs"
+        }
+      },
+      "additionalProperties": false
+    },
     "phmgCoarseGrid": {
       "type": "object",
       "properties": {
@@ -327,6 +357,9 @@
             "jacobi",
             "schwarz"
           ]
+        },
+        "update": {
+          "$ref": "#/$defs/phmgUpdate"
         },
         "coarse_grid": {
           "$ref": "#/$defs/phmgCoarseGrid"

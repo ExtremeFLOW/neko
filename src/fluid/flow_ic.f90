@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -61,6 +61,7 @@ module flow_ic
   use space, only : space_t, GLL
   use field_list, only : field_list_t
   use operators, only : rotate_cyc
+  use expression, only : expression_eval_static, NEKO_EXPR_LEN
   implicit none
   private
 
@@ -87,6 +88,7 @@ contains
     real(kind=rp), allocatable :: uinf(:)
     real(kind=rp), allocatable :: zone_value(:)
     character(len=:), allocatable :: read_str
+    character(len=NEKO_EXPR_LEN), allocatable :: expr_str(:)
 
 
     !
@@ -96,6 +98,15 @@ contains
 
        call json_get_or_lookup(params, 'value', uinf)
        call set_flow_ic_uniform(u, v, w, uinf)
+
+       !
+       ! One mathematical expression per velocity component
+       !
+    else if (trim(type) .eq. 'expression') then
+
+       call json_get(params, 'value', expr_str, filler = '')
+       call set_flow_ic_expression(u, v, w, expr_str)
+       if (allocated(expr_str)) deallocate(expr_str)
 
        !
        ! Blasius boundary layer
@@ -295,6 +306,55 @@ contains
     end if
 
   end subroutine set_flow_ic_uniform
+
+  !> Set the initial condition from one mathematical expression per velocity
+  !! component.
+  !! @details The expressions are evaluated in every GLL point of the mesh,
+  !! with `x`, `y` and `z` bound to the coordinates of the point. Constants
+  !! declared under `case.constants` in the case file can be referred to by
+  !! name, see the `expression` module for the full syntax.
+  !! @param u The x-component of the velocity field.
+  !! @param v The y-component of the velocity field.
+  !! @param w The z-component of the velocity field.
+  !! @param expr The expressions, one per velocity component.
+  subroutine set_flow_ic_expression(u, v, w, expr)
+    type(field_t), target, intent(inout) :: u
+    type(field_t), target, intent(inout) :: v
+    type(field_t), target, intent(inout) :: w
+    character(len=*), intent(in) :: expr(:)
+    character(len=1), parameter :: comp(3) = ['u', 'v', 'w']
+    type(field_t), pointer :: f
+    integer :: i, n
+
+    if (size(expr) .ne. 3) then
+       call neko_error('The expression initial condition takes exactly ' // &
+            'three expressions, one per velocity component')
+    end if
+
+    call neko_log%message("Type : expression")
+    do i = 1, 3
+       call neko_log%message(comp(i) // "    : " // trim(expr(i)))
+    end do
+
+    n = u%dof%size()
+
+    do i = 1, 3
+       select case (i)
+       case (1)
+          f => u
+       case (2)
+          f => v
+       case default
+          f => w
+       end select
+
+       call expression_eval_static(expr(i), f%x, n, &
+            u%dof%x, u%dof%y, u%dof%z, 'fluid initial condition')
+    end do
+
+    nullify(f)
+
+  end subroutine set_flow_ic_expression
 
   !> Set a Blasius profile as initial condition
   !! @note currently limited to axis aligned flow

@@ -108,7 +108,7 @@ contains
 
     call json_get_or_default(json, "name", this%name, "curl")
     call json_get_or_default(json, "computed_field", computed_field, &
-         "omega")
+         "curl")
     call json_get(json, "fields", field_names)
 
     if (size(field_names) .ne. 3) then

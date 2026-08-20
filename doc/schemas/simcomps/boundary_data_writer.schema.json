@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:boundary_data_writer",
+  "$defs": {
+    "simulationComponent": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "boundary_data_writer" },
+        "zone_indices": { "$ref": "urn:neko:schema:simulation-components#/$defs/integerArray" },
+        "output_filename": {
+          "type": "string",
+          "pattern": "\\.(csv|h5|hdf5)$"
+        },
+        "output_normals": { "type": "boolean" },
+        "output_area": { "type": "boolean" },
+        "append_output": { "type": "boolean" },
+        "start_time": { "type": "number", "x-neko-real": true },
+        "fields": { "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFields" }
+      },
+      "required": ["type", "zone_indices", "output_filename", "fields"],
+      "allOf": [
+        { "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase" }
+      ],
+      "additionalProperties": true
+    }
+  }
+}

@@ -393,6 +393,7 @@ contains
     type(json_value), pointer :: json_val, val_ptr
     type(json_core) :: core
     character(len=:), allocatable :: string_value
+    character(len=16) :: len_buf
     integer :: i, n_children
     integer :: var_type
 
@@ -406,7 +407,7 @@ contains
 
     if (.not. allocated(value)) then
        allocate(value(n_children))
-    else if (len(value) .lt. n_children) then
+    else if (size(value) .lt. n_children) then
        deallocate(value)
        allocate(value(n_children))
     end if
@@ -417,6 +418,16 @@ contains
     do i = 1, n_children
        call core%get_child(json_val, i, val_ptr, found)
        call core%get(val_ptr, string_value)
+
+       ! Assigning into the fixed length elements of `value` would silently
+       ! truncate anything longer, so reject it rather than hand the caller
+       ! a string that is not what the case file says.
+       if (len(string_value) .gt. len(value)) then
+          write (len_buf, '(I0)') len(value)
+          call neko_error("An entry of the array parameter " // name // &
+               " is longer than the " // trim(len_buf) // &
+               " characters available for it")
+       end if
 
        if (len(string_value) .gt. 0) then
           value(i) = string_value

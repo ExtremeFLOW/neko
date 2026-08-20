@@ -47,6 +47,7 @@ module tree_amg
        device_stream_wait_event, glb_cmd_queue, glb_cmd_event
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
+  !$ use omp_lib, only : omp_get_thread_num
   implicit none
   private
 
@@ -79,6 +80,18 @@ module tree_amg
      !--!
      integer, allocatable :: map_f2c(:)
      type(c_ptr) :: map_f2c_d = C_NULL_PTR
+     !> Transpose of map_finest2lvl in CSR form: agg_dof(agg_ptr(c) :
+     !! agg_ptr(c+1)-1) are the finest-level dofs belonging to aggregate c.
+     !! Lets the flat matvec restrict as a segmented reduction over
+     !! aggregates (disjoint writes) instead of an atomic scatter over dofs.
+     integer, allocatable :: agg_ptr(:)
+     integer, allocatable :: agg_dof(:)
+     !> Per-thread partial sums, only allocated on levels with too few
+     !! aggregates to give every thread one (the coarsest level has exactly
+     !! one, from aggregate_end). Shaped (ldpart, nthrds) with the leading
+     !! dimension padded up to a cache line so the columns do not false
+     !! share; only rows 1:nnodes carry data.
+     real(kind=rp), allocatable :: agg_part(:,:)
    contains
      procedure, pass(this) :: free => lvl_free
   end type tamg_lvl_t
@@ -245,6 +258,15 @@ contains
        end if
        deallocate(this%map_finest2lvl)
     end if
+    if (allocated(this%agg_ptr)) then
+       deallocate(this%agg_ptr)
+    end if
+    if (allocated(this%agg_dof)) then
+       deallocate(this%agg_dof)
+    end if
+    if (allocated(this%agg_part)) then
+       deallocate(this%agg_part)
+    end if
     this%nnodes = 0
     this%lvl = -1
     this%fine_lvl_dofs = 0
@@ -374,7 +396,9 @@ contains
     real(kind=rp), intent(inout) :: vec_in(:)
     integer, intent(in) :: lvl_blah
     integer, intent(in) :: lvl_out
-    integer :: i, n, cdof, lvl
+    integer :: i, n, lvl, c, k, nagg, tid, nthrds
+    real(kind=rp) :: val, acc
+    logical :: use_partials
 
     lvl = lvl_out
     n = this%lvl(1)%fine_lvl_dofs
@@ -383,12 +407,35 @@ contains
        call this%gs_h%op(vec_out, n, GS_OP_ADD)
        call this%blst%apply(vec_out, n)
     else !> pass down through hierarchy
-       associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
-         !> Map input level to finest level
-         do i = 1, n
-            cdof = this%lvl(lvl)%map_finest2lvl(i)
-            wrk_in(i) = vec_in( cdof )
+       ! Hoisted out of the associate below: associate names in OpenMP
+       ! data-sharing contexts have been unreliable with frt and CCE, and
+       ! an associate name to an allocatable is not itself allocatable, so
+       ! the branch below cannot query it.
+       nagg = this%lvl(lvl)%nnodes
+       use_partials = allocated(this%lvl(lvl)%agg_part)
+       nthrds = 1
+       if (use_partials) nthrds = size(this%lvl(lvl)%agg_part, 2)
+
+       ! agg_part is deliberately not associated here: it is unallocated on
+       ! the levels that take the aggregate-parallel branch, and associating
+       ! with an unallocated allocatable is not conforming even when the
+       ! branch using it is never taken.
+       associate( wrk_in => this%lvl(1)%wrk_in, &
+            wrk_out => this%lvl(1)%wrk_out, &
+            aptr => this%lvl(lvl)%agg_ptr, adof => this%lvl(lvl)%agg_dof, &
+            map => this%lvl(lvl)%map_finest2lvl)
+
+         !> Map input level to finest level. Walking the aggregates rather
+         !! than the dofs reads vec_in once per aggregate and broadcasts it,
+         !! instead of doing an indirect load per dof.
+         !$omp parallel do private(c, k, val)
+         do c = 1, nagg
+            val = vec_in(c)
+            do k = aptr(c), aptr(c + 1) - 1
+               wrk_in(adof(k)) = val
+            end do
          end do
+         !$omp end parallel do
 
          !> Average on overlapping dofs
          call this%gs_h%op(wrk_in, n, GS_OP_ADD)
@@ -402,15 +449,55 @@ contains
 
          call col2(wrk_out, this%coef%mult, n)
 
-         !> Map finest level matvec back to output level
-         call rzero(vec_out, this%lvl(lvl)%nnodes)
-         !$omp parallel do private(cdof)
-         do i = 1, n
-            cdof = this%lvl(lvl)%map_finest2lvl(i)
-            !$omp atomic
-            vec_out(cdof) = vec_out(cdof) + wrk_out( i )
-         end do
-         !$omp end parallel do
+         !> Map finest level matvec back to output level. This is a
+         !! segmented reduction, so drive it from the aggregate side: each
+         !! aggregate is owned by exactly one thread, which makes the writes
+         !! to vec_out disjoint. No atomics (there is no hardware fp64
+         !! atomic add on AArch64, so !$omp atomic there becomes a CAS retry
+         !! loop, and the aggregation map guarantees maximal contention on
+         !! it), no pre-zeroing, and a deterministic summation order.
+         if (.not. use_partials) then
+            !$omp parallel do private(c, k, acc)
+            do c = 1, nagg
+               acc = 0.0_rp
+               do k = aptr(c), aptr(c + 1) - 1
+                  acc = acc + wrk_out(adof(k))
+               end do
+               vec_out(c) = acc
+            end do
+            !$omp end parallel do
+         else
+            !> Too few aggregates to hand every thread one; the coarsest
+            !! level has exactly one, from aggregate_end. Reduce over the
+            !! dofs into per-thread partials and merge, as in the GMRES
+            !! Gram-Schmidt hp(:,tid). agg_part's leading dimension is
+            !! padded to a cache line by build_agg_csr, so the columns do
+            !! not false share; it is tiny here, so zero all of it up front:
+            !! capping the team at nthrds still permits a smaller team,
+            !! whose unused columns the merge below would otherwise read
+            !! uninitialised.
+            this%lvl(lvl)%agg_part = 0.0_rp
+
+            !$omp parallel num_threads(nthrds) private(tid, i, c)
+            tid = 1
+            !$ tid = omp_get_thread_num() + 1
+            !$omp do
+            do i = 1, n
+               c = map(i)
+               this%lvl(lvl)%agg_part(c, tid) = &
+                    this%lvl(lvl)%agg_part(c, tid) + wrk_out(i)
+            end do
+            !$omp end do
+            !$omp end parallel
+
+            do c = 1, nagg
+               acc = 0.0_rp
+               do k = 1, nthrds
+                  acc = acc + this%lvl(lvl)%agg_part(c, k)
+               end do
+               vec_out(c) = acc
+            end do
+         end if
        end associate
     end if
   end subroutine tamg_matvec_flat_impl
@@ -426,19 +513,29 @@ contains
     real(kind=rp), intent(inout) :: vec_out(:)
     real(kind=rp), intent(inout) :: vec_in(:)
     integer, intent(in) :: lvl
-    integer :: i, n, node_start, node_end, node_id
+    integer :: i, n, nagg, node_start, node_end, node_id
+    real(kind=rp) :: acc
 
     vec_out = 0d0
     if (lvl-1 .eq. 0) then
        call col2(vec_in, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
     end if
-    do n = 1, this%lvl(lvl)%nnodes
-       associate (node => this%lvl(lvl)%nodes(n))
-         do i = 1, node%ndofs
-            vec_out( node%gid ) = vec_out( node%gid ) + vec_in( node%dofs(i) ) * node%interp_r( i )
-         end do
-       end associate
+    nagg = this%lvl(lvl)%nnodes
+    ! Each node contributes to vec_out(node%gid) only, and gids are unique
+    ! across the nodes of a level, so the writes are already disjoint:
+    ! accumulate into a scalar and the node loop threads as-is. Indexed
+    ! rather than associated, since associate names inside an OpenMP loop
+    ! have been unreliable with frt and CCE.
+    !$omp parallel do private(i, acc)
+    do n = 1, nagg
+       acc = 0.0_rp
+       do i = 1, this%lvl(lvl)%nodes(n)%ndofs
+          acc = acc + vec_in( this%lvl(lvl)%nodes(n)%dofs(i) ) &
+               * this%lvl(lvl)%nodes(n)%interp_r( i )
+       end do
+       vec_out( this%lvl(lvl)%nodes(n)%gid ) = acc
     end do
+    !$omp end parallel do
   end subroutine tamg_restriction_operator
 
   !> Prolongation operator for TreeAMG. vec_out = P * vec_in
@@ -450,16 +547,26 @@ contains
     real(kind=rp), intent(inout) :: vec_out(:)
     real(kind=rp), intent(inout) :: vec_in(:)
     integer, intent(in) :: lvl
-    integer :: i, n, node_start, node_end, node_id
+    integer :: i, n, nagg, node_start, node_end, node_id
+    real(kind=rp) :: val
 
     vec_out = 0d0
-    do n = 1, this%lvl(lvl)%nnodes
-       associate (node => this%lvl(lvl)%nodes(n))
-         do i = 1, node%ndofs
-            vec_out( node%dofs(i) ) = vec_out( node%dofs(i) ) + vec_in( node%gid ) * node%interp_p( i )
-         end do
-       end associate
+    nagg = this%lvl(lvl)%nnodes
+    ! The nodes of a level partition the dofs of the level below (checked
+    ! once in build_agg_csr), so no two nodes write the same vec_out entry
+    ! and the node loop threads as-is. vec_in(node%gid) is loop-invariant,
+    ! hoist it. Indexed rather than associated, since associate names
+    ! inside an OpenMP loop have been unreliable with frt and CCE.
+    !$omp parallel do private(i, val)
+    do n = 1, nagg
+       val = vec_in( this%lvl(lvl)%nodes(n)%gid )
+       do i = 1, this%lvl(lvl)%nodes(n)%ndofs
+          vec_out( this%lvl(lvl)%nodes(n)%dofs(i) ) = &
+               vec_out( this%lvl(lvl)%nodes(n)%dofs(i) ) &
+               + val * this%lvl(lvl)%nodes(n)%interp_p( i )
+       end do
     end do
+    !$omp end parallel do
     if (lvl-1 .eq. 0) then
        call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, GS_OP_ADD)
        call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)

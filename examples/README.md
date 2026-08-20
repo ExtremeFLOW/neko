@@ -49,5 +49,8 @@ documented and up to date.
 - recycling, Turbulent channel with recycling boundary conditions using global
   interpolation.
 - scalar_mms, method of manufactured solutions for the scalar verification
-- tgv, 3D Taylor-Green vortex with several different meshes.
+- tgv, 3D Taylor-Green vortex with several different meshes. Also contains
+  `tgv_expression.case`, which prescribes the initial condition as a mathematical
+  expression per velocity component in the case file, rather than in the user
+  file.
 - turb_pipe, Turbulent pipe flow

@@ -180,7 +180,8 @@ module coefs
      type(c_ptr) :: R11_d = C_NULL_PTR
      type(c_ptr) :: R12_d = C_NULL_PTR
 
-
+     !> Version of the current geometry. Incremented by recompute_metrics.
+     integer :: metrics_version = 0
 
    contains
      procedure, private, pass(this) :: init_empty => coef_init_empty
@@ -1448,6 +1449,7 @@ contains
     if (this%cyclic) then
        call coef_generate_cyclic_bc(this)
     end if
+    this%metrics_version = this%metrics_version + 1
   end subroutine coef_recompute_metrics
 
 

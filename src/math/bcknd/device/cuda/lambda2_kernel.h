@@ -1,5 +1,7 @@
 #ifndef __MATH_LAMBDA2_KERNEL_H__
 #define __MATH_LAMBDA2_KERNEL_H__
+
+#include "elem_block.h"
 /*
  Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
@@ -236,8 +238,8 @@ __global__ void lambda2_kernel_1d(T * __restrict__ lambda2,
   
 }
 
-template< typename T, const int LX >
-__global__ void __launch_bounds__(LX*LX,3)
+template< typename T, const int LX, const int EB >
+__global__ void NEKO_EB_BOUNDS(LX*LX*EB)
 lambda2_kernel_kstep(T * __restrict__ lambda2,
                     const T * __restrict__ u,
                     const T * __restrict__ v,
@@ -254,25 +256,44 @@ lambda2_kernel_kstep(T * __restrict__ lambda2,
                     const T * __restrict__ drdz,
                     const T * __restrict__ dsdz,
                     const T * __restrict__ dtdz,
-                    const T * __restrict__ jacinv) {
+                    const T * __restrict__ jacinv,
+                    const int nelv) {
 
-  __shared__ T shu[LX * LX];
-  __shared__ T shv[LX * LX];
-  __shared__ T shw[LX * LX];
+  __shared__ T shu[EB * LX * LX];
+  __shared__ T shv[EB * LX * LX];
+  __shared__ T shw[EB * LX * LX];
 
   __shared__ T shdx[LX * LX];
   __shared__ T shdy[LX * LX];
   __shared__ T shdz[LX * LX];
+
+  static_assert(sizeof(shu) +
+                sizeof(shv) +
+                sizeof(shw) +
+                sizeof(shdx) +
+                sizeof(shdy) +
+                sizeof(shdz)
+                <= NEKO_EB_MAX_SMEM,
+                "kstep block exceeds the shared memory budget");
     
-  const int e = blockIdx.x;
+  const int eb = (EB == 1) ? 0 : threadIdx.z;
+  const int e_blk = blockIdx.x * EB + eb;
+  /* Threads past the last element still have to reach the barriers in
+     the k loop, so clamp their reads and drop their stores rather than
+     returning early. At EB == 1 this all constant folds away */
+  const bool active = (EB == 1) ? true : (e_blk < nelv);
+  const int e = active ? e_blk : (nelv - 1);
+  const int sh = eb * LX * LX;
   const int j = threadIdx.y;
   const int i = threadIdx.x;
   const int ij = i + j * LX;
   const int ele = e*LX*LX*LX;
   
-  shdx[ij] = dx[ij];
-  shdy[ij] = dy[ij];
-  shdz[ij] = dz[ij];
+  if (eb == 0) {
+    shdx[ij] = dx[ij];
+    shdy[ij] = dy[ij];
+    shdz[ij] = dz[ij];
+  }
 
   T ru[LX];
   T rv[LX];
@@ -294,9 +315,10 @@ lambda2_kernel_kstep(T * __restrict__ lambda2,
     T ttmpu = 0.0;
     T ttmpv = 0.0;
     T ttmpw = 0.0;
-    shu[ij] = ru[k];
-    shv[ij] = rv[k];
-    shw[ij] = rw[k];
+    shu[sh + ij] = ru[k];
+    shv[sh + ij] = rv[k];
+    shw[sh + ij] = rw[k];
+#pragma unroll
     for (int l = 0; l < LX; l++) {
       ttmpu += shdz[k+l*LX] * ru[l];
       ttmpv += shdz[k+l*LX] * rv[l];
@@ -312,12 +334,12 @@ lambda2_kernel_kstep(T * __restrict__ lambda2,
     T stmpw = 0.0;
 #pragma unroll
     for (int l = 0; l < LX; l++) {
-      rtmpu += shdx[i+l*LX] * shu[l+j*LX];
-      stmpu += shdy[j+l*LX] * shu[i+l*LX];
-      rtmpv += shdx[i+l*LX] * shv[l+j*LX];
-      stmpv += shdy[j+l*LX] * shv[i+l*LX];
-      rtmpw += shdx[i+l*LX] * shw[l+j*LX];
-      stmpw += shdy[j+l*LX] * shw[i+l*LX];
+      rtmpu += shdx[i+l*LX] * shu[sh + l+j*LX];
+      stmpu += shdy[j+l*LX] * shu[sh + i+l*LX];
+      rtmpv += shdx[i+l*LX] * shv[sh + l+j*LX];
+      stmpv += shdy[j+l*LX] * shv[sh + i+l*LX];
+      rtmpw += shdx[i+l*LX] * shw[sh + l+j*LX];
+      stmpw += shdy[j+l*LX] * shw[sh + i+l*LX];
     }
 
     T grad11 = jinv * (drdx[ijk + ele] * rtmpu
@@ -353,9 +375,11 @@ lambda2_kernel_kstep(T * __restrict__ lambda2,
     T grad33 = jinv * (drdz[ijk + ele] * rtmpw
                           + dsdz[ijk + ele] * stmpw
                           + dtdz[ijk + ele] * ttmpw);
-    lambda2[ijk + ele] = eigen_val_calc<T>( grad11, grad12, grad13,
-                                            grad21, grad22, grad23,
-                                            grad31, grad32, grad33);
+    if (active) {
+      lambda2[ijk + ele] = eigen_val_calc<T>( grad11, grad12, grad13,
+                                              grad21, grad22, grad23,
+                                              grad31, grad32, grad33);
+    }
     __syncthreads();
   }
 }

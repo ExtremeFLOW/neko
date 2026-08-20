@@ -43,7 +43,7 @@ module phmg
   use bc, only : bc_t
   use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
   use cheby, only : cheby_t
   use cheby_device, only : cheby_device_t
   use jacobi, only : jacobi_t
@@ -97,7 +97,27 @@ module phmg
      type(phmg_hrchy_t) :: phmg_hrchy
      class(ax_t), allocatable :: ax
      type(interpolator_t), allocatable :: intrp(:)
+     !> Coordinate interpolators.
+     type(interpolator_t), allocatable :: crd_intrp(:)
      type(mesh_t), pointer :: msh
+     !> Fine-level metrics_version at the last refresh, to detect a change.
+     integer :: last_metrics_version = -1
+     !> When .false., update() does nothing and coarse levels stay frozen
+     !> at their initial geometry. When .true., update() interpolates
+     !> the fine-level geometry to the coarse levels.
+     logical :: update_enabled = .false.
+     !> Whether a refresh also re-estimates the Chebyshev eigenvalues.
+     logical :: refresh_eigs = .true.
+     !> Re-estimate eigenvalues only every N-th refresh.
+     integer :: refresh_eigs_frequency = 20
+     !> Restart eigenvalue estimation from the previous eigenvector.
+     logical :: eigs_warm_start = .true.
+     !> Power iterations used for warm-started re-estimations
+     integer :: power_its_refresh = 20
+     !> Refreshes done so far, for refresh_eigs_frequency
+     integer :: n_refresh = 0
+     !> Which accelerator the Chebyshev smoother uses
+     character(len=:), allocatable :: cheby_acc
    contains
      procedure, pass(this) :: init => phmg_init
      procedure, pass(this) :: init_from_components => &
@@ -119,6 +139,7 @@ contains
     integer :: smoother_itrs
     character(len=:), allocatable :: cheby_acc
     integer, allocatable :: pcrs_sched(:)
+    logical :: update_enabled
 
     call json_get_or_default(phmg_params, 'smoother_iterations', &
          smoother_itrs, 3)
@@ -143,16 +164,28 @@ contains
        pcrs_sched(2) = 1
     end if
 
+    call json_get_or_default(phmg_params, 'update.enabled', &
+         update_enabled, .false.)
+
+    ! Control the eigenvalue re-estimation; geometry always refreshes.
+    call json_get_or_default(phmg_params, 'update.eigs.enabled', &
+         this%refresh_eigs, .true.)
+    call json_get_or_default(phmg_params, 'update.eigs.frequency', &
+         this%refresh_eigs_frequency, 20)
+    call json_get_or_default(phmg_params, 'update.eigs.warm_start', &
+         this%eigs_warm_start, .true.)
+    call json_get_or_default(phmg_params, 'update.eigs.warm_start_iterations', &
+         this%power_its_refresh, 20)
 
     call this%init_from_components(coef, bclst, smoother_itrs, &
          cheby_acc, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree,&
-         pcrs_sched)
+         pcrs_sched, update_enabled)
 
   end subroutine phmg_init
 
   subroutine phmg_init_from_components(this, coef, bclst, smoother_itrs, &
        cheby_acc, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree, &
-       pcrs_sched)
+       pcrs_sched, update_enabled)
     class(phmg_t), intent(inout), target :: this
     type(coef_t), intent(in), target :: coef
     type(bc_list_t), intent(inout), target :: bclst
@@ -161,6 +194,7 @@ contains
     integer, intent(in) :: crs_tamg_lvls, crs_tamg_itrs
     integer, intent(in) :: crs_tamg_cheby_degree
     integer, intent(in), allocatable :: pcrs_sched(:)
+    logical, intent(in), optional :: update_enabled
     integer :: lx_crs, lx_mid
     integer, allocatable :: lx_lvls(:)
     integer :: n, i, j, st
@@ -170,6 +204,13 @@ contains
     use_cheby = .true.
 
     this%msh => coef%msh
+    this%cheby_acc = trim(cheby_acc)
+
+    if (present(update_enabled)) then
+       this%update_enabled = update_enabled
+    else
+       this%update_enabled = .false.
+    end if
 
     this%nlvls = size(pcrs_sched) + 1
     allocate(lx_lvls(0:this%nlvls - 1))
@@ -291,11 +332,44 @@ contains
             this%phmg_hrchy%lvl(i)%Xh)
     end do
 
+    ! Coarse space first. Each level maps from level 0.
+    if (this%update_enabled) then
+       allocate(this%crd_intrp(this%nlvls - 1))
+       do i = 1, this%nlvls - 1
+          call this%crd_intrp(i)%init(this%phmg_hrchy%lvl(i)%Xh, &
+               this%phmg_hrchy%lvl(0)%Xh)
+       end do
+    end if
+
     call this%amg_solver%init(this%ax, this%phmg_hrchy%lvl(this%nlvls -1)%Xh, &
          this%phmg_hrchy%lvl(this%nlvls -1)%coef, this%msh, &
          this%phmg_hrchy%lvl(this%nlvls-1)%gs_h, crs_tamg_lvls, &
          this%phmg_hrchy%lvl(this%nlvls -1)%bclst, &
          crs_tamg_itrs, crs_tamg_cheby_degree)
+
+    ! update() only refreshes when `lvl(0)%coef%metrics_version` changes.
+    this%last_metrics_version = this%phmg_hrchy%lvl(0)%coef%metrics_version
+
+    ! Hand the eigenvalue policy to every smoother.
+    if (this%update_enabled) then
+       do i = 0, this%nlvls - 1
+          this%phmg_hrchy%lvl(i)%cheby%warm_start_eigs = this%eigs_warm_start
+          this%phmg_hrchy%lvl(i)%cheby%power_its_refresh = &
+               this%power_its_refresh
+          this%phmg_hrchy%lvl(i)%cheby_device%warm_start_eigs = &
+               this%eigs_warm_start
+          this%phmg_hrchy%lvl(i)%cheby_device%power_its_refresh = &
+               this%power_its_refresh
+       end do
+       call this%amg_solver%set_eig_refresh(this%eigs_warm_start, &
+            this%power_its_refresh)
+
+       if (trim(cheby_acc) .eq. "schwarz") then
+          call neko_warning("PHMG: the Schwarz smoother is not refreshed " // &
+               "when the mesh changes. Its local solves stay at the " // &
+               "initial geometry.")
+       end if
+    end if
 
   end subroutine phmg_init_from_components
 
@@ -310,6 +384,13 @@ contains
           call this%intrp(i)%free()
        end do
        deallocate(this%intrp)
+    end if
+
+    if (allocated(this%crd_intrp)) then
+       do i = 1, size(this%crd_intrp)
+          call this%crd_intrp(i)%free()
+       end do
+       deallocate(this%crd_intrp)
     end if
 
     if (allocated(this%ax)) then
@@ -414,9 +495,111 @@ contains
 
   end subroutine phmg_solve
 
+  !> Bring the preconditioner back in sync after the mesh has changed.
   subroutine phmg_update(this)
     class(phmg_t), intent(inout) :: this
+    integer :: fine_version
+    logical :: do_eigs
+
+    if (.not. this%update_enabled) return
+
+    fine_version = this%phmg_hrchy%lvl(0)%coef%metrics_version
+
+    ! Mesh has not changed since the last refresh.
+    if (fine_version .eq. this%last_metrics_version) return
+
+    call phmg_update_coarse_geometry(this)
+
+    call phmg_update_smoother_acc(this)
+
+    do_eigs = (this%refresh_eigs) .and. &
+         (this%refresh_eigs_frequency .gt. 0) .and. &
+         (mod(this%n_refresh, max(this%refresh_eigs_frequency, 1)) &
+         .eq. 0)
+    if (do_eigs) call phmg_update_smoother_eigs(this)
+
+    this%n_refresh = this%n_refresh + 1
+    this%last_metrics_version = fine_version
+
   end subroutine phmg_update
+
+
+  !> Sample the new fine coordinates on the coarse levels and rebuild their
+  !! metrics. Level 0 shares the caller's dofmap and coef, so it is skipped.
+  subroutine phmg_update_coarse_geometry(this)
+    class(phmg_t), intent(inout) :: this
+    integer :: i
+
+    if (.not. allocated(this%crd_intrp)) then
+       call neko_error("PHMG: update requested but coordinate " // &
+            "interpolators were not initialized.")
+    end if
+
+    call profiler_start_region('PHMG_update_geometry')
+    associate (mg => this%phmg_hrchy%lvl, nelv => this%msh%nelv)
+      do i = 1, this%nlvls - 1
+         call this%crd_intrp(i)%map(mg(i)%dm_Xh%x, mg(0)%dm_Xh%x, &
+              nelv, mg(i)%Xh)
+         call this%crd_intrp(i)%map(mg(i)%dm_Xh%y, mg(0)%dm_Xh%y, &
+              nelv, mg(i)%Xh)
+         call this%crd_intrp(i)%map(mg(i)%dm_Xh%z, mg(0)%dm_Xh%z, &
+              nelv, mg(i)%Xh)
+
+         call mg(i)%coef%recompute_metrics()
+      end do
+    end associate
+    call profiler_end_region('PHMG_update_geometry')
+
+  end subroutine phmg_update_coarse_geometry
+
+
+  !> Rebuild the accelerator the Chebyshev smoother uses, which depends on
+  !! the geometry.
+  subroutine phmg_update_smoother_acc(this)
+    class(phmg_t), intent(inout) :: this
+    integer :: i
+
+    call profiler_start_region('PHMG_update_smoother_acc')
+    associate (mg => this%phmg_hrchy%lvl)
+      select case (trim(this%cheby_acc))
+      case ("jacobi")
+         do i = 0, this%nlvls - 1
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call mg(i)%device_jacobi%update()
+            else
+               call mg(i)%jacobi%update()
+            end if
+         end do
+      case ("schwarz")
+         ! Not refreshed. The local solves are built by the FDM from the
+         ! element coordinates, and fdm_t has no update path.
+      case default
+         ! No accelerator to refresh.
+      end select
+    end associate
+    call profiler_end_region('PHMG_update_smoother_acc')
+
+  end subroutine phmg_update_smoother_acc
+
+
+  !> Mark every smoother to re-estimate its eigenvalues on the next solve.
+  subroutine phmg_update_smoother_eigs(this)
+    class(phmg_t), intent(inout) :: this
+    integer :: i
+
+    associate (mg => this%phmg_hrchy%lvl)
+      do i = 0, this%nlvls - 1
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            mg(i)%cheby_device%recompute_eigs = .true.
+         else
+            mg(i)%cheby%recompute_eigs = .true.
+         end if
+      end do
+    end associate
+
+    call this%amg_solver%invalidate_eigs()
+
+  end subroutine phmg_update_smoother_eigs
 
 
   subroutine phmg_mg_cycle(this)
