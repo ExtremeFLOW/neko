@@ -1,5 +1,5 @@
 
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -48,14 +48,18 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use shear_stress, only : shear_stress_t
   use wall_model_bc, only : wall_model_bc_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use expression_dirichlet, only : expression_dirichlet_t
+  use expression_dirichlet_vector, only : expression_dirichlet_vector_t
   use overset_interface, only : overset_interface_t
   use overset_interface_vector, only : overset_interface_vector_t
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(15) = [character(len=25) :: &
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(17) = [character(len=25) :: &
        "symmetry", &
        "velocity_value", &
+       "expression_velocity", &
+       "expression_pressure", &
        "no_slip", &
        "outflow", &
        "normal_outflow", &
@@ -101,6 +105,9 @@ contains
     select case (trim(type))
     case ("outflow", "normal_outflow")
        allocate(zero_dirichlet_t::object)
+
+    case ("expression_pressure")
+       allocate(expression_dirichlet_t::object)
 
     case ("outflow+dong", "normal_outflow+dong")
        allocate(dong_outflow_t::object)
@@ -193,6 +200,8 @@ contains
        allocate(symmetry_t::object)
     case ("velocity_value")
        allocate(inflow_t::object)
+    case ("expression_velocity")
+       allocate(expression_dirichlet_vector_t::object)
     case ("no_slip")
        allocate(no_slip_t::object)
     case ("normal_outflow", "normal_outflow+dong", "normal_outflow+user")
