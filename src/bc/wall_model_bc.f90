@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2025, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@ module wall_model_bc
   use wall_model, only : wall_model_t, wall_model_allocator
   use shear_stress, only : shear_stress_t
   use json_module, only : json_file
+  use user_intf, only : user_t
   use time_state, only : time_state_t
   implicit none
   private
@@ -51,6 +52,8 @@ module wall_model_bc
   type, public, extends(shear_stress_t) :: wall_model_bc_t
      !> The wall model to compute the stress.
      class(wall_model_t), allocatable :: wall_model
+     !> User interface of the owning simulation.
+     type(user_t), pointer :: user => null()
    contains
      !> Constructor.
      procedure, pass(this) :: init => wall_model_bc_init
@@ -189,16 +192,16 @@ contains
     class(wall_model_bc_t), target, intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
+    character(len=:), allocatable :: scheme_name, type_name
     real(kind=rp) :: value(3) = [0, 0, 0]
-    character(len=:), allocatable :: type_name
 
+    call json_get(json, "scheme_name", scheme_name)
     ! Initialize the shear stress base class.
     call this%shear_stress_t%init_from_components(coef, value)
     ! Partial initialization of the wall model by parsing the JSON.
     call json_get(json, "model", type_name)
     call wall_model_allocator(this%wall_model, type_name)
-
-    call this%wall_model%partial_init(coef, json)
+    call this%wall_model%partial_init(coef, scheme_name, json)
   end subroutine wall_model_bc_init
 
   !> Destructor.
@@ -211,6 +214,7 @@ contains
     if (allocated(this%wall_model)) then
        deallocate(this%wall_model)
     end if
+    nullify(this%user)
 
   end subroutine wall_model_bc_free
 
@@ -226,7 +230,12 @@ contains
     end if
 
     call this%shear_stress_t%finalize(.true.)
-    call this%wall_model%finalize(this%msk, this%facet)
+    if (associated(this%user)) then
+       call this%wall_model%finalize(this%msk, this%facet, this%name, &
+            this%user)
+    else
+       call this%wall_model%finalize(this%msk, this%facet, this%name)
+    end if
   end subroutine wall_model_bc_finalize
 
 end module wall_model_bc

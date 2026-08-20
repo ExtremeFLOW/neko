@@ -171,7 +171,7 @@ contains
     if (this%iextm_order .lt. 1 .or. this%iextm_order .gt. 3) then
        call neko_error("The order of the IEXTm time scheme must be 1 to 3.")
     end if
-    call json_get_or_default(json, "log", this%log, .false.)
+    call json_get_or_default(json, "log", log, .false.)
 
     call this%init_from_components(coef, tol, pad, log)
 

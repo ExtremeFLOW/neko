@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.99.7])
+AC_INIT([neko],[1.99.8])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -158,7 +158,7 @@ fi
 
 if test "x${have_darshan}" != xyes; then
     AX_DARSHAN
-    if test "x${ax_darshan_ok}" != xno; then
+    if test -n "${DARSHAN_LIBS}"; then
         LIBS="$DARSHAN_LIBS $LIBS"
         have_darshan=yes
     else
@@ -368,6 +368,8 @@ fi
 # Checks for OpenSHMEM
 if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
    AX_CRAY_SHMEM
+else
+   AX_SHMEM
 fi
 
 
@@ -485,6 +487,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/point_interpolation/Makefile\
         tests/unit/templates/parallel/Makefile\
         tests/unit/boundary_operation/Makefile\
+        tests/unit/wall_sampling/Makefile\
         tests/unit/templates/serial/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
@@ -508,3 +511,184 @@ fi
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
 
 AC_OUTPUT
+
+# ---------------------------------------------------------------------
+# Configuration summary
+#
+# neko_dep <label> <option variable> <found>
+#
+# Prints one entry of the summary of optional dependencies, where
+# <option variable> is the name (not the value) of the variable holding
+# the corresponding --with-*/--enable-* option, or "auto" for
+# dependencies that are always checked for, and <found> the outcome of
+# the check. Anything requested but not found is collected in
+# neko_missing and reported at the end.
+#
+# neko_feature <label> <value>
+#
+# Prints one entry of the summary of (auto detected) compiler features.
+# ---------------------------------------------------------------------
+neko_missing=""
+
+neko_yesno () {
+   neko_val=$1
+   if test "x$neko_val" = x || test "x$neko_val" = xno ||
+      test "x$neko_val" = x0 || test "x$neko_val" = x.false.; then
+      neko_val="no"
+   else
+      neko_val="yes"
+   fi
+}
+
+neko_dep () {
+   if test "x$2" = xauto; then
+      neko_req="auto"
+   else
+      # Anything but an unset variable (option not given) or an explicit
+      # no (--without-foo) counts as requested, including an empty value
+      # as given by e.g. --with-foo= or --with-foo=$UNSET_VARIABLE
+      eval "neko_given=\${$2+set}"
+      eval "neko_reqval=\${$2-}"
+      if test "x$neko_given" != xset || test "x$neko_reqval" = xno; then
+         neko_req="no"
+      else
+         neko_req="yes"
+      fi
+   fi
+
+   neko_yesno "$3"
+   neko_found=$neko_val
+
+   if test "x$neko_req" = xno; then
+      neko_found="-"
+   elif test "x$neko_req" = xyes && test "x$neko_found" = xno; then
+      neko_missing="$neko_missing $1"
+   fi
+
+   printf '    %-30s %-11s %s\n' "$1" "$neko_req" "$neko_found"
+}
+
+neko_feature () {
+   neko_yesno "$2"
+   printf '    %-30s %s\n' "$1" "$neko_val"
+}
+
+# Collect the outcome of checks performed by more than one macro
+neko_hdf5=$have_hdf5
+test "x$have_cray_hdf5" = xyes && neko_hdf5=yes
+
+neko_shmem=$have_openshmem
+test "x$have_cray_shmem" = xyes && neko_shmem=yes
+
+neko_blas=`echo $LAPACK_LIBS $BLAS_LIBS`
+test "x$have_cray_libsci" = xyes && neko_blas="Cray LibSci"
+test -z "$neko_blas" && neko_blas="found in the default libraries"
+
+neko_json=""
+test -n "$PKG_CONFIG" && neko_json=`$PKG_CONFIG --modversion json-fortran 2>/dev/null`
+test -z "$neko_json" && neko_json="yes"
+
+neko_prefix=$prefix
+test "x$neko_prefix" = xNONE && neko_prefix=$ac_default_prefix
+
+# Centre the title inside the horizontal rule, in the style of the
+# section headers printed by Neko itself (see src/common/log.f90)
+neko_width=79
+neko_rule=`printf "%${neko_width}s" "" | tr " " "-"`
+neko_title="Configuration of Neko $PACKAGE_VERSION"
+neko_npre=$(( (neko_width - ${#neko_title} - 2) / 2 ))
+neko_npost=$(( neko_width - neko_npre - ${#neko_title} - 2 ))
+if test $neko_npre -lt 1 || test $neko_npost -lt 1; then
+   neko_head="- $neko_title -"
+else
+   neko_pre=`printf "%${neko_npre}s" "" | tr " " "-"`
+   neko_post=`printf "%${neko_npost}s" "" | tr " " "-"`
+   neko_head="$neko_pre $neko_title $neko_post"
+fi
+
+AS_ECHO([""])
+AS_ECHO(["$neko_head"])
+AS_ECHO([""])
+printf '  %-12s %s\n' "Prefix:" "'$neko_prefix'"
+printf '  %-12s %s\n' "Host:" "$host ($ax_cv_fc_compiler_vendor)"
+printf '  %-12s %s\n' "Fortran:" "$FC${FCFLAGS:+ $FCFLAGS}"
+printf '  %-12s %s\n' "C:" "$CC${CPPFLAGS:+ $CPPFLAGS}${CFLAGS:+ $CFLAGS}"
+printf '  %-12s %s\n' "C++:" "$CXX${CPPFLAGS:+ $CPPFLAGS}${CXXFLAGS:+ $CXXFLAGS}"
+printf '  %-12s %s\n' "Libs:" "${LDFLAGS:+$LDFLAGS }$LIBS"
+AS_ECHO([""])
+AS_ECHO(["  Build configuration:"])
+AS_ECHO([""])
+printf '    %-30s %s\n' "Working precision:" \
+       "$enable_real (rp = $NEKO_REAL_TYPE, xp = $NEKO_XREAL_TYPE)"
+printf '    %-30s %s\n' "Fast memory size (blk_size):" "$blk_size"
+printf '    %-30s %s\n' "Backend:" "$NEKO_BCKND"
+printf '    %-30s %s\n' "Contrib tools:" "$enable_contrib"
+AS_ECHO([""])
+AS_ECHO(["  Compiler and MPI features:"])
+AS_ECHO([""])
+neko_feature "Coarray Fortran:" "$ax_coarray"
+neko_feature "Coarray events:" "$ax_coarray_events"
+neko_feature "MPI Fortran 2008 module:" "$ax_mpif08"
+neko_feature "MPI parameter datatypes:" "$ax_mpi_const_dtype"
+neko_feature "Derived type I/O:" "$ax_dtype_io"
+neko_feature "REAL128:" "$have_real128"
+AS_ECHO([""])
+AS_ECHO(["  Required dependencies:"])
+AS_ECHO([""])
+printf '    %-30s %s\n' "BLAS/LAPACK:" "$neko_blas"
+printf '    %-30s %s\n' "JSON-Fortran:" "$neko_json"
+AS_ECHO([""])
+AS_ECHO(["  Python bindings:"])
+AS_ECHO([""])
+printf '    %-30s %s\n' "Enabled:" "$found_python"
+if test "x${found_python}" = xyes; then
+   printf '    %-30s %s\n' "Interpreter:" "$PYTHON${PYTHON_VERSION:+ ($PYTHON_VERSION)}"
+   # pythondir is expressed in terms of ${PYTHON_PREFIX}, which in turn
+   # is expressed in terms of ${prefix}, hence the repeated expansion
+   neko_pydir=`prefix=$neko_prefix; exec_prefix=$neko_prefix; eval eval echo \"$pythondir\"`
+   printf '    %-30s %s\n' "Install path:" "$neko_pydir"
+fi
+AS_ECHO([""])
+printf '  %-32s %-11s %s\n' "Optional dependencies:" "requested" "found"
+AS_ECHO([""])
+AS_ECHO(["  Parallelism and communication"])
+neko_dep "OpenMP" enable_openmp "$have_openmp"
+neko_dep "Device-aware MPI" enable_device_mpi "$device_mpi"
+neko_dep "NCCL" with_nccl "$have_nccl"
+neko_dep "RCCL" with_rccl "$have_rccl"
+neko_dep "NVSHMEM" with_nvshmem "$have_nvshmem"
+neko_dep "uTofu" with_utofu "$have_utofu"
+neko_dep "OpenSHMEM" with_openshmem "$neko_shmem"
+AS_ECHO([""])
+AS_ECHO(["  Math and partitioning"])
+neko_dep "libxsmm" with_libxsmm "$have_libxsmm"
+neko_dep "ParMETIS" with_parmetis "$found_domain_decomp"
+AS_ECHO([""])
+AS_ECHO(["  I/O and profiling"])
+neko_dep "ADIOS2" with_adios2 "$have_adios2"
+neko_dep "ADIOS2 (Fortran)" with_adios2_fortran "$have_adios2_fortran"
+neko_dep "HDF5" with_hdf5 "$neko_hdf5"
+neko_dep "Darshan" with_darshan_libdir "$have_darshan"
+neko_dep "NVTX" with_nvtx "$have_nvtx"
+neko_dep "ROCTX" with_roctx "$have_roctx"
+AS_ECHO([""])
+AS_ECHO(["  Development tools"])
+neko_dep "pFUnit" auto "$have_pfunit"
+neko_dep "Doxygen" auto "$DOXYGEN"
+neko_dep "graphviz (dot)" auto "$DOXYGEN_DEPS"
+neko_dep "makedepf90" auto "$MAKEDEPF90"
+
+if test -n "$neko_missing"; then
+   AS_ECHO([""])
+   AS_ECHO(["  WARNING: requested but not found:$neko_missing"])
+fi
+
+AS_ECHO([""])
+AS_ECHO(["$neko_rule"])
+AS_ECHO([""])
+
+# Let the caller (e.g. a build script) see that something requested
+# was missing, the warning above says what
+if test -n "$neko_missing"; then
+   AS_EXIT([1])
+fi

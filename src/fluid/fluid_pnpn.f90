@@ -228,7 +228,7 @@ module fluid_pnpn
        type(fluid_pnpn_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), target, intent(in) :: coef
-       type(user_t), intent(in) :: user
+       type(user_t), target, intent(in) :: user
      end subroutine pressure_bc_factory
   end interface
 
@@ -245,7 +245,7 @@ module fluid_pnpn
        type(fluid_pnpn_t), intent(inout) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), target, intent(in) :: coef
-       type(user_t), intent(in) :: user
+       type(user_t), target, intent(in) :: user
      end subroutine velocity_bc_factory
   end interface
 
