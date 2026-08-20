@@ -1,0 +1,97 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "../generated_2x_xy/sodermalm_cylinder_2x_xy.nmsh",
+        "output_directory": "fields",
+        "output_at_end": true,
+        "output_boundary": false,
+        "output_checkpoints": false,
+        "checkpoint_control": "never",
+        "checkpoint_value": 1,
+        "time": {
+            "end_time": 10.0,
+            "variable_timestep": true,
+            "timestep": 0.0005,
+            "target_cfl": 0.3,
+            "max_timestep": 0.002
+        },
+        "numerics": {
+            "time_order": 2,
+            "polynomial_order": 2,
+            "dealias": false
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "Re": 100.0,
+            "initial_condition": {
+                "type": "uniform",
+                "value": [ 0.7071067811865476, -0.7071067811865475, 0.0 ]
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-7,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 8,
+                "projection_reorthogonalize_basis": true,
+                "absolute_tolerance": 1e-4,
+                "max_iterations": 1000
+            },
+            "output_control": "never",
+            "output_value": 1,
+            "boundary_conditions": [
+                {
+                    "type": "velocity_value",
+                    "value": [ 0.7071067811865476, -0.7071067811865475, 0.0 ],
+                    "zone_indices": [ 1 ]
+                },
+                {
+                    "type": "outflow+dong",
+                    "zone_indices": [ 2 ]
+                },
+                {
+                    "type": "normal_outflow",
+                    "zone_indices": [ 6 ]
+                },
+                {
+                    "type": "no_slip",
+                    "zone_indices": [ 5 ]
+                }
+            ],
+            "source_terms": [
+                {
+                    "type": "brinkman",
+                    "limits": [ 0.0, 20.0 ],
+                    "penalty": 1.0,
+                    "output": {
+                        "enable": true,
+                        "path": "fields",
+                        "precision": "sp",
+                        "format": "fld"
+                    },
+                    "objects": [
+                        {
+                            "type": "boundary_mesh",
+                            "name": "../generated_2x_xy/sodermalm_buildings_2x_xy.stl",
+                            "cache": true,
+                            "cache_file": "fields/sodermalm_buildings_2x_xy_distance_cache",
+                            "distance_transform": {
+                                "type": "smooth_step",
+                                "value": 50.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
