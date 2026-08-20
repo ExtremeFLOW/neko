@@ -64,7 +64,8 @@ module operators
   use scratch_registry, only : neko_scratch_registry
   use vector, only : vector_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM, &
+   MPI_DOUBLE_PRECISION
   use, intrinsic :: iso_c_binding, only : c_ptr
   use logger, only : neko_log
   implicit none
@@ -593,7 +594,7 @@ contains
 
     if (.not. NEKO_DEVICE_MPI) then
        call MPI_Allreduce(MPI_IN_PLACE, cfl_r4, 1, &
-            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+            MPI_DOUBLE_PRECISION, MPI_MAX, NEKO_COMM, ierr)
     end if
 
   end function cfl_r4
@@ -611,7 +612,7 @@ contains
 
     if (.not. NEKO_DEVICE_MPI) then
        call MPI_Allreduce(MPI_IN_PLACE, cfl_d, 1, &
-            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+            MPI_DOUBLE_PRECISION, MPI_MAX, NEKO_COMM, ierr)
     end if
 
   end function cfl_d
@@ -635,7 +636,7 @@ contains
 
     if (.not. NEKO_DEVICE_MPI) then
        call MPI_Allreduce(MPI_IN_PLACE, cfl_f, 1, &
-            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+            MPI_DOUBLE_PRECISION, MPI_MAX, NEKO_COMM, ierr)
     end if
 
   end function cfl_f
