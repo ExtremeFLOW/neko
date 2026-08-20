@@ -65,7 +65,7 @@ module operators
   use vector, only : vector_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM, &
-   MPI_DOUBLE_PRECISION
+       MPI_DOUBLE_PRECISION
   use, intrinsic :: iso_c_binding, only : c_ptr
   use logger, only : neko_log
   implicit none
