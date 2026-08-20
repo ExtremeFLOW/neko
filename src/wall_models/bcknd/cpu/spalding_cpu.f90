@@ -43,13 +43,12 @@ contains
   !> Compute the wall shear stress on cpu using Spalding's model.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine spalding_compute_cpu(u, v, w, ind_r, ind_s, ind_t, ind_e, &
-       n_x, n_y, n_z, nu, rho_w, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
+  subroutine spalding_compute_cpu(u, v, w, &
+       n_x, n_y, n_z, nu, rho_w, h, tau_x, tau_y, tau_z, n_nodes, &
        kappa, B, tstep)
-    integer, intent(in) :: n_nodes, lx, nelv, tstep
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w
+    integer, intent(in) :: n_nodes, tstep
+    real(kind=rp), dimension(n_nodes), intent(in) :: u, v, w
     real(kind=rp), dimension(n_nodes), intent(in) :: rho_w
-    integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h, nu
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
     real(kind=rp), intent(in) :: kappa, B
@@ -57,10 +56,10 @@ contains
     real(kind=rp) :: ui, vi, wi, magu, utau, normu, guess, rho
 
     do i=1, n_nodes
-       ! Sample the velocity
-       ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       ! Load the sampled velocity
+       ui = u(i)
+       vi = v(i)
+       wi = w(i)
        rho = rho_w(i)
 
        ! Project on tangential direction

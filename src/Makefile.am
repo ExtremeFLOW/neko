@@ -459,6 +459,10 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/deardorff_cpu.f90\
 	les/bcknd/device/deardorff_device.f90\
 	les/bcknd/device/device_deardorff_nut.F90\
+	wall_models/wall_sampler.f90\
+	wall_models/wall_gll_sampler.f90\
+	wall_models/wall_distance_sampler.f90\
+	wall_models/wall_sampler_fctry.f90\
 	wall_models/wall_model.f90\
 	wall_models/bcknd/device/wall_model_device.F90\
 	wall_models/spalding.f90\

@@ -1,0 +1,319 @@
+!> Unit tests for sampling solution fields at GLL nodes near a wall.
+module test_gll
+  use pfunit
+  use mpi
+  use num_types, only : dp, rp
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
+  use dofmap, only : dofmap_t
+  use coefs, only : coef_t
+  use field, only : field_t
+  use vector, only : vector_t
+  use gather_scatter, only : gs_t
+  use point, only : point_t
+  use datadist, only : linear_dist_t
+  use json_module, only : json_file
+  use wall_gll_sampler, only : wall_gll_sampler_t
+  use user_intf, only : user_t
+  use utils, only : linear_index
+  use device, only : device_init, device_finalize, HOST_TO_DEVICE, &
+       DEVICE_TO_HOST
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
+  implicit none
+  real(kind=rp), parameter :: tol = 1.0e-5_rp
+
+  @TestCase
+  type, extends(MPITestCase) :: test_gll_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_gll_case
+
+contains
+
+  !> Initialise Neko state needed by the GLL sampler tests.
+  subroutine setUp(this)
+    class(test_gll_case), intent(inout) :: this
+
+    call comm_init_test(this%getMpiCommunicator())
+    if (NEKO_BCKND_DEVICE .eq. 1) call device_init
+    call neko_mpi_types_init()
+  end subroutine setUp
+
+  !> Release Neko state initialised by the GLL sampler tests.
+  subroutine tearDown(this)
+    class(test_gll_case), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) call device_finalize
+    call neko_mpi_types_free()
+    call comm_free_test()
+  end subroutine tearDown
+
+  !> Build a single affine element with coordinates spanning `[1, 2]^3`.
+  subroutine gll_test_gen_coef(msh, Xh, dof, gs, coef, lx)
+    type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+    integer, intent(in) :: lx
+    type(point_t) :: p(8)
+    type(linear_dist_t) :: dist
+
+    ! The affine geometry makes the coordinate field an exact test oracle.
+    call p(1)%init(1.0_dp, 1.0_dp, 1.0_dp)
+    call p(2)%init(2.0_dp, 1.0_dp, 1.0_dp)
+    call p(3)%init(1.0_dp, 2.0_dp, 1.0_dp)
+    call p(4)%init(2.0_dp, 2.0_dp, 1.0_dp)
+    call p(5)%init(1.0_dp, 1.0_dp, 2.0_dp)
+    call p(6)%init(2.0_dp, 1.0_dp, 2.0_dp)
+    call p(7)%init(1.0_dp, 2.0_dp, 2.0_dp)
+    call p(8)%init(2.0_dp, 2.0_dp, 2.0_dp)
+    call p(1)%set_id(1)
+    call p(2)%set_id(2)
+    call p(3)%set_id(4)
+    call p(4)%set_id(3)
+    call p(5)%set_id(5)
+    call p(6)%set_id(6)
+    call p(7)%set_id(7)
+    call p(8)%set_id(8)
+
+    dist = linear_dist_t(1, pe_rank, pe_size, NEKO_COMM)
+    call msh%init(3, dist)
+    call msh%add_element(1, 1, p(1), p(2), p(3), p(4), &
+         p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
+    call Xh%init(GLL, lx, lx, lx)
+    call dof%init(msh, Xh)
+    call gs%init(dof)
+    call coef%init(gs)
+  end subroutine gll_test_gen_coef
+
+  !> Initialise a coordinate field and upload it when a device is active.
+  subroutine gll_test_init_field(field, coef)
+    type(field_t), intent(inout) :: field
+    type(coef_t), intent(in) :: coef
+
+    call field%init(coef%dof)
+    field%x = coef%dof%x
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call field%copy_from(HOST_TO_DEVICE, sync = .true.)
+    end if
+  end subroutine gll_test_init_field
+
+  !> Verify scalar, array, and user GLL sampling configuration parsing.
+  @test(npes=[1])
+  subroutine test_gll_json_configuration(this)
+    class(test_gll_case), intent(inout) :: this
+    type(wall_gll_sampler_t) :: sampler
+    type(json_file) :: json, json_disabled
+
+    ! A scalar value represents the common single-sample case.
+    call json%load_from_string('{"value":1}')
+    call sampler%init(json)
+    @assertEqual(sampler%n_samples, 1)
+    @assertEqual(sampler%indices(1), 1)
+    @assertTrue(sampler%output_h_enabled)
+    call sampler%free()
+
+    ! An array configures multiple static GLL indices per wall node.
+    call json%load_from_string('{"value":[1,2]}')
+    call sampler%init(json)
+    @assertEqual(sampler%n_samples, 2)
+    @assertEqual(sampler%indices(2), 2)
+    call sampler%free()
+
+    ! The diagnostic is enabled by default but may be disabled explicitly.
+    call json_disabled%load_from_string('{"value":1,"output_h":false}')
+    call sampler%init(json_disabled)
+    @assertFalse(sampler%output_h_enabled)
+    call sampler%free()
+
+    ! User values retain only their sample count until finalisation.
+    call json%load_from_string( &
+         '{"value":"user","n_samples":2,"output_h":false}')
+    call sampler%init(json)
+    @assertTrue(sampler%user_values)
+    @assertEqual(sampler%n_samples, 2)
+    call sampler%free()
+  end subroutine test_gll_json_configuration
+
+  !> Verify component construction gathers fields in node-major sample order.
+  @test(npes=[1])
+  subroutine test_gll_components_sampling(this)
+    class(test_gll_case), intent(inout) :: this
+    integer, parameter :: lx = 4
+    type(mesh_t) :: msh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(field_t) :: field
+    type(vector_t) :: h, values
+    type(wall_gll_sampler_t) :: sampler
+    integer :: sample_idx(4)
+
+    call gll_test_gen_coef(msh, Xh, dof, gs, coef, lx)
+    call gll_test_init_field(field, coef)
+
+    ! The two samples for each node are stored consecutively.
+    sample_idx = [linear_index(2, 2, 2, 1, lx, lx, lx), &
+         linear_index(3, 2, 2, 1, lx, lx, lx), &
+         linear_index(2, 3, 2, 1, lx, lx, lx), &
+         linear_index(3, 3, 2, 1, lx, lx, lx)]
+    call h%init(4)
+    h%x = [0.25_rp, 0.75_rp, 0.25_rp, 0.75_rp]
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call h%copy_from(HOST_TO_DEVICE, sync = .true.)
+    end if
+
+    call sampler%init_from_components([1, 2], sample_idx, h, .true.)
+    call values%init(4)
+    call sampler%sample(field, values)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call values%copy_from(DEVICE_TO_HOST, sync = .true.)
+    end if
+
+    @assertEqual(sampler%n_nodes, 2)
+    @assertEqual(sampler%n_samples, 2)
+    @assertEqual(values%x(1), coef%dof%x(2, 2, 2, 1), tolerance=tol)
+    @assertEqual(values%x(4), coef%dof%x(3, 3, 2, 1), tolerance=tol)
+
+    call values%free()
+    call h%free()
+    call sampler%free()
+    call field%free()
+  end subroutine test_gll_components_sampling
+
+  !> Verify static GLL indices sample each wall node at every configured index.
+  @test(npes=[1])
+  subroutine test_gll_static_sampling(this)
+    class(test_gll_case), intent(inout) :: this
+    integer, parameter :: lx = 4
+    type(mesh_t) :: msh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(field_t) :: field
+    type(vector_t) :: values, n_x, n_y, n_z
+    type(wall_gll_sampler_t) :: sampler
+    type(json_file) :: json
+    integer :: msk(0:2), facet(0:2)
+    real(kind=rp) :: expected_h
+
+    call gll_test_gen_coef(msh, Xh, dof, gs, coef, lx)
+    call gll_test_init_field(field, coef)
+    msk = [2, linear_index(1, 2, 2, 1, lx, lx, lx), &
+         linear_index(1, 3, 2, 1, lx, lx, lx)]
+    facet = [0, 1, 1]
+
+    ! The inward normal for facet one points in the positive x-direction.
+    call n_x%init(2)
+    call n_y%init(2)
+    call n_z%init(2)
+    n_x%x = -1.0_rp
+    n_y%x = 0.0_rp
+    n_z%x = 0.0_rp
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call n_x%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call n_y%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call n_z%copy_from(HOST_TO_DEVICE, sync = .true.)
+    end if
+
+    call json%load_from_string('{"value":[1,2]}')
+    call sampler%init(json)
+    call sampler%finalize(coef, msk, facet, n_x, n_y, n_z)
+    call values%init(4)
+    call sampler%sample(field, values)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call values%copy_from(DEVICE_TO_HOST, sync = .true.)
+       call sampler%h%copy_from(DEVICE_TO_HOST, sync = .true.)
+    end if
+
+    ! Values are ordered `(node 1, sample 1..2), (node 2, sample 1..2)`.
+    @assertEqual(values%x(1), coef%dof%x(2, 2, 2, 1), tolerance=tol)
+    @assertEqual(values%x(2), coef%dof%x(3, 2, 2, 1), tolerance=tol)
+    @assertEqual(values%x(3), coef%dof%x(2, 3, 2, 1), tolerance=tol)
+    @assertEqual(values%x(4), coef%dof%x(3, 3, 2, 1), tolerance=tol)
+    expected_h = values%x(1) - 1.0_rp
+    @assertEqual(sampler%h%x(1), expected_h, tolerance=tol)
+
+    call sampler%free()
+    call values%free()
+    call field%free()
+    call n_x%free()
+    call n_y%free()
+    call n_z%free()
+  end subroutine test_gll_static_sampling
+
+  !> Verify user GLL indices may vary with both wall node and sample number.
+  @test(npes=[1])
+  subroutine test_gll_user_sampling(this)
+    class(test_gll_case), intent(inout) :: this
+    integer, parameter :: lx = 4
+    type(mesh_t) :: msh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(field_t) :: field
+    type(vector_t) :: values, n_x, n_y, n_z
+    type(wall_gll_sampler_t) :: sampler
+    type(user_t), target :: user
+    type(json_file) :: json
+    integer :: msk(0:2), facet(0:2)
+
+    call gll_test_gen_coef(msh, Xh, dof, gs, coef, lx)
+    call gll_test_init_field(field, coef)
+    msk = [2, linear_index(1, 2, 2, 1, lx, lx, lx), &
+         linear_index(1, 3, 2, 1, lx, lx, lx)]
+    facet = [0, 1, 1]
+    call n_x%init(2)
+    call n_y%init(2)
+    call n_z%init(2)
+    n_x%x = -1.0_rp
+    n_y%x = 0.0_rp
+    n_z%x = 0.0_rp
+
+    call json%load_from_string( &
+         '{"value":"user","n_samples":2,"output_h":false}')
+    call sampler%init(json)
+    user%wall_sampling_gll => gll_test_user_indices
+    call sampler%finalize(coef, msk, facet, n_x, n_y, n_z, 'gll_wall', user)
+    call values%init(4)
+    call sampler%sample(field, values)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call values%copy_from(DEVICE_TO_HOST, sync = .true.)
+    end if
+
+    ! The callback reverses the two indices for the second wall node.
+    @assertEqual(values%x(1), coef%dof%x(2, 2, 2, 1), tolerance=tol)
+    @assertEqual(values%x(2), coef%dof%x(3, 2, 2, 1), tolerance=tol)
+    @assertEqual(values%x(3), coef%dof%x(3, 3, 2, 1), tolerance=tol)
+    @assertEqual(values%x(4), coef%dof%x(2, 3, 2, 1), tolerance=tol)
+
+    call sampler%free()
+    call values%free()
+    call field%free()
+    call n_x%free()
+    call n_y%free()
+    call n_z%free()
+  end subroutine test_gll_user_sampling
+
+  !> Supply distinct GLL indices for each wall node in a user sampler test.
+  subroutine gll_test_user_indices(bc_name, msk, indices)
+    character(len=*), intent(in) :: bc_name
+    integer, intent(in) :: msk(:)
+    integer, intent(out) :: indices(:,:)
+
+    if (trim(bc_name) /= 'gll_wall') error stop
+    if (size(msk) /= 2) error stop
+    indices(:, 1) = [1, 2]
+    indices(:, 2) = [2, 1]
+  end subroutine gll_test_user_indices
+
+end module test_gll

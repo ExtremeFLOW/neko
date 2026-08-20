@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Added configurable wall-model field samplers. Wall models can now sample at
+  GLL nodes or physical wall-normal distances using global interpolation. The
+  sampling values can also be supplied per wall node through new user hooks.
 - The CUDA and HIP auto-tuners for `ax_helm` and the SEM operators (`opgrad`,
   `dudxyz`, `cdtp`, `conv1`, `convect_scalar`, `lambda2`) now also sweep the
   thread block geometry, not just the kernel formulation: chunk size for the

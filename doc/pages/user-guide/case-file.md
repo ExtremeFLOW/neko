@@ -658,7 +658,7 @@ A more detailed description of each boundary condition is provided below.
   }
   ```
 
-* `wall_model`. A shear stress condition, where the values is computed by a wall
+* `wall_model`. A shear stress condition where the values are computed by a wall
    model. Meant to be used for wall-modelled large-eddy simulation. Only works
    with axis-aligned boundaries. The model is selected using the `model`
    keyword. Additional configuration depends on the model selected.
@@ -681,16 +681,33 @@ A more detailed description of each boundary condition is provided below.
 
    * The `richardson` model is similar to the `most` model, but it assesses the stability dependence based on the Richardson number instead of the Obukhov length. More details and required keywords are given [below](#richardson-wall-model).
 
-    For all wall models, the distance to the sampling point has to be specified
-    based on the off-wall index in the wall-normal direction. Thus, the sampling
-    is currently from a GLL node and arbitrary distances are not yet supported.
-    The index is set by the `h_index` keyword, with 1 being the minimal value, and
-    the polynomial order + 1 being the maximum.
+    All wall models specify their sampling strategy with a `sampling` object.
+    Its `type` is either `gll`, for sampling at an off-wall GLL node, or
+    `distance`, for sampling at a physical wall-normal distance using global
+    interpolation. The `value` entry specifies the GLL index or distance,
+    respectively. It may be a scalar or an array. Current wall models require
+    exactly one sampling point per wall node, so use the scalar form. GLL
+    indices start at 1 and may not exceed the polynomial order plus 1.
+    Distances must be positive. If `sampling` is omitted, the legacy `h_index`
+    keyword remains available for GLL sampling.
+
+    The optional `output_h` entry in `sampling` controls whether Neko writes a
+    diagnostic field containing the resolved wall-normal sampling distance. It
+    defaults to `true`. The output uses the base name `wall_model_h_<bc_name>`,
+    where `<bc_name>` is the boundary-condition name. The field is zero away
+    from the wall boundary and contains the sampling distance at wall nodes.
+
+    To set sampling values separately for every wall node, set `value` to
+    `"user"` and provide `n_samples`. It specifies the number of samples per
+    wall node and must currently be `1`. Neko then calls the corresponding user
+    sampling routine once during setup; see [user wall
+    sampling](user-file.md#user-file_wall-sampling). The user routine receives
+    the boundary-condition name, so descriptive names are helpful when there
+    are multiple wall-modelled boundaries.
 
     A 3D field with the name `tau` will be registered in the field registry. At
     the boundary it will store the magnitude of the predicted stress. This can
-    be used to post-process the predictions. Additionally, the sampling points
-    are marked with values -1 in this field, for verification purposes.
+    be used to post-process the predictions.
   ```json
   {
     "type": "wall_model",
@@ -698,7 +715,10 @@ A more detailed description of each boundary condition is provided below.
     "kappa": 0.41,
     "B": 5.2,
     "zone_indices": [1, 2],
-    "h_index": 1
+    "sampling": {
+      "type": "gll",
+      "value": 1
+    }
   }
   ```
 * `user_velocity`, a Dirichlet boundary for more complex velocity profiles. This boundary
@@ -835,7 +855,10 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
     "scalar_field": "temperature",
     "time_dependent_temp_bc": "false",
     "zone_indices": [5],
-    "h_index": 1
+    "sampling": {
+      "type": "gll",
+      "value": 1
+    }
   }
   ```
 

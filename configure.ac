@@ -487,6 +487,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/point_interpolation/Makefile\
         tests/unit/templates/parallel/Makefile\
         tests/unit/boundary_operation/Makefile\
+        tests/unit/wall_sampling/Makefile\
         tests/unit/templates/serial/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
