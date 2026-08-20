@@ -52,6 +52,8 @@ module entropy_viscosity
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use device_math, only : device_col3, device_absval, device_glsum
+  use user_intf, only : user_entropy_pair_intf
+  use utils, only : neko_error
   use entropy_viscosity_cpu, only : entropy_viscosity_compute_residual_cpu, &
        entropy_viscosity_compute_viscosity_cpu, &
        entropy_viscosity_apply_element_max_cpu, &
@@ -63,14 +65,18 @@ module entropy_viscosity
        entropy_viscosity_apply_element_max_device, &
        entropy_viscosity_clamp_to_low_order_device, &
        entropy_viscosity_smooth_divide_device
+  use, intrinsic :: ieee_arithmetic, only : ieee_is_finite
   implicit none
   private
 
   type, public, extends(regularization_t) :: entropy_viscosity_t
      real(kind=rp) :: c_avisc_entropy
      real(kind=rp) :: c_avisc_low
+     logical :: use_user_entropy_pair = .false.
      type(field_t) :: entropy_residual
      type(field_series_t) :: S_lag
+     type(field_t), allocatable :: entropy_flux(:)
+     type(field_t), allocatable :: entropy_wave_speed
      type(field_t), pointer :: S => null()
      type(field_t), pointer :: u => null()
      type(field_t), pointer :: v => null()
@@ -80,11 +86,15 @@ module entropy_viscosity
      type(mesh_t), pointer :: msh => null()
      type(space_t), pointer :: Xh => null()
      type(gs_t), pointer :: gs => null()
+     procedure(user_entropy_pair_intf), nopass, pointer :: &
+          user_entropy_pair => null()
    contains
      procedure, pass(this) :: init => entropy_viscosity_init
      procedure, pass(this) :: free => entropy_viscosity_free
      procedure, pass(this) :: compute => entropy_viscosity_compute
      procedure, pass(this) :: update_lag => entropy_viscosity_update_lag
+     procedure, pass(this) :: evaluate_user_entropy_pair => &
+          entropy_viscosity_evaluate_user_entropy_pair
      procedure, pass(this), private :: compute_residual => &
           entropy_viscosity_compute_residual
      procedure, pass(this), private :: compute_viscosity => &
@@ -97,7 +107,8 @@ module entropy_viscosity
           entropy_viscosity_low_order
   end type entropy_viscosity_t
 
-  public :: entropy_viscosity_set_fields
+  public :: entropy_viscosity_set_fields, &
+       entropy_viscosity_set_user_entropy_pair
 
 contains
 
@@ -107,12 +118,36 @@ contains
     type(coef_t), intent(in), target :: coef
     type(dofmap_t), intent(in), target :: dof
     type(field_t), intent(in), target :: reg_coeff
+    character(len=:), allocatable :: entropy_pair_type
+    integer :: i
 
     call this%init_base(json, coef, dof, reg_coeff)
 
     call json_get_or_default(json, 'c_avisc_low', this%c_avisc_low, 1.0_rp)
     call json_get_or_default(json, 'c_avisc_entropy', &
          this%c_avisc_entropy, 1.0_rp)
+    call json_get_or_default(json, 'entropy_pair_type', &
+         entropy_pair_type, 'euler')
+
+    select case (trim(entropy_pair_type))
+    case ('euler')
+       this%use_user_entropy_pair = .false.
+    case ('user')
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call neko_error('User entropy pairs currently require the CPU ' // &
+               'backend')
+       end if
+       this%use_user_entropy_pair = .true.
+       allocate(this%entropy_flux(3))
+       do i = 1, 3
+          call this%entropy_flux(i)%init(dof, 'user_entropy_flux')
+       end do
+       allocate(this%entropy_wave_speed)
+       call this%entropy_wave_speed%init(dof, 'user_entropy_wave_speed')
+    case default
+       call neko_error('Unknown entropy_pair_type: ' // &
+            trim(entropy_pair_type))
+    end select
 
     call this%entropy_residual%init(dof, 'entropy_residual')
 
@@ -125,15 +160,27 @@ contains
     nullify(this%msh)
     nullify(this%Xh)
     nullify(this%gs)
+    nullify(this%user_entropy_pair)
 
   end subroutine entropy_viscosity_init
 
   subroutine entropy_viscosity_free(this)
     class(entropy_viscosity_t), intent(inout) :: this
+    integer :: i
 
     call this%free_base()
     call this%entropy_residual%free()
     call this%S_lag%free()
+    if (allocated(this%entropy_flux)) then
+       do i = 1, size(this%entropy_flux)
+          call this%entropy_flux(i)%free()
+       end do
+       deallocate(this%entropy_flux)
+    end if
+    if (allocated(this%entropy_wave_speed)) then
+       call this%entropy_wave_speed%free()
+       deallocate(this%entropy_wave_speed)
+    end if
 
     nullify(this%S)
     nullify(this%u)
@@ -144,6 +191,8 @@ contains
     nullify(this%msh)
     nullify(this%Xh)
     nullify(this%gs)
+    nullify(this%user_entropy_pair)
+    this%use_user_entropy_pair = .false.
 
   end subroutine entropy_viscosity_free
 
@@ -153,10 +202,45 @@ contains
     integer, intent(in) :: tstep
     real(kind=rp), intent(in) :: dt
 
+    if (this%use_user_entropy_pair) then
+       call this%evaluate_user_entropy_pair(time)
+    end if
+
     call this%compute_residual(tstep, dt, time%dtlag)
     call this%compute_viscosity(tstep)
 
   end subroutine entropy_viscosity_compute
+
+  !> Evaluate and validate a user-defined entropy pair.
+  subroutine entropy_viscosity_evaluate_user_entropy_pair(this, time)
+    class(entropy_viscosity_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    if (.not. this%use_user_entropy_pair) then
+       call neko_error('User entropy pair evaluation requested in Euler ' // &
+            'entropy mode')
+    end if
+    if (.not. associated(this%user_entropy_pair)) then
+       call neko_error('User entropy pair is not associated')
+    end if
+
+    call this%user_entropy_pair(this%S, this%entropy_flux(1), &
+         this%entropy_flux(2), this%entropy_flux(3), &
+         this%entropy_wave_speed, time)
+    if (any(.not. ieee_is_finite(this%S%x))) then
+       call neko_error('User entropy density contains non-finite values')
+    end if
+    if (any(.not. ieee_is_finite(this%entropy_flux(1)%x)) .or. &
+         any(.not. ieee_is_finite(this%entropy_flux(2)%x)) .or. &
+         any(.not. ieee_is_finite(this%entropy_flux(3)%x))) then
+       call neko_error('User entropy flux contains non-finite values')
+    end if
+    if (any(.not. ieee_is_finite(this%entropy_wave_speed%x)) .or. &
+         any(this%entropy_wave_speed%x .lt. 0.0_rp)) then
+       call neko_error('User entropy wave speed must be finite and ' // &
+            'non-negative')
+    end if
+  end subroutine entropy_viscosity_evaluate_user_entropy_pair
 
   subroutine entropy_viscosity_compute_residual(this, tstep, dt, dt_lag)
     class(entropy_viscosity_t), intent(inout) :: this
@@ -202,7 +286,10 @@ contains
     call neko_scratch_registry%request_field(div_field, temp_indices(4), &
          .false.)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    if (this%use_user_entropy_pair) then
+       call div(div_field%x, this%entropy_flux(1)%x, &
+            this%entropy_flux(2)%x, this%entropy_flux(3)%x, this%coef)
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col3(us_field%x_d, this%u%x_d, this%S%x_d, n)
        call device_col3(vs_field%x_d, this%v%x_d, this%S%x_d, n)
        call device_col3(ws_field%x_d, this%w%x_d, this%S%x_d, n)
@@ -211,7 +298,9 @@ contains
             ws_field%x, this%u%x, this%v%x, this%w%x, this%S%x, n)
     end if
 
-    call div(div_field%x, us_field%x, vs_field%x, ws_field%x, this%coef)
+    if (.not. this%use_user_entropy_pair) then
+       call div(div_field%x, us_field%x, vs_field%x, ws_field%x, this%coef)
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%entropy_residual%x, this%entropy_residual%x_d, &
@@ -283,7 +372,11 @@ contains
     end if
 
     ! artificial viscosity = min(entropy viscosity, low-order viscosity)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    if (this%use_user_entropy_pair) then
+       call entropy_viscosity_clamp_to_low_order_cpu( &
+            this%reg_coeff%x, this%h%x, this%entropy_wave_speed%x, &
+            this%c_avisc_low, n)
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        call entropy_viscosity_clamp_to_low_order_device( &
             this%reg_coeff%x_d, this%h%x_d, this%max_wave_speed%x_d, &
             this%c_avisc_low, n)
@@ -371,6 +464,17 @@ contains
 
   end subroutine entropy_viscosity_set_fields
 
+  !> Set the callback used to evaluate a user-defined entropy pair.
+  subroutine entropy_viscosity_set_user_entropy_pair(this, user_proc)
+    class(entropy_viscosity_t), intent(inout) :: this
+    procedure(user_entropy_pair_intf) :: user_proc
+
+    if (.not. this%use_user_entropy_pair) then
+       call neko_error('Cannot set a user entropy pair in Euler entropy mode')
+    end if
+    this%user_entropy_pair => user_proc
+  end subroutine entropy_viscosity_set_user_entropy_pair
+
   subroutine entropy_viscosity_update_lag(this)
     class(entropy_viscosity_t), intent(inout) :: this
 
@@ -420,7 +524,13 @@ contains
     integer, intent(in) :: i
     real(kind=rp) :: visc
 
-    visc = this%c_avisc_low * this%h%x(i,1,1,1) * this%max_wave_speed%x(i,1,1,1)
+    if (this%use_user_entropy_pair) then
+       visc = this%c_avisc_low * this%h%x(i,1,1,1) * &
+            this%entropy_wave_speed%x(i,1,1,1)
+    else
+       visc = this%c_avisc_low * this%h%x(i,1,1,1) * &
+            this%max_wave_speed%x(i,1,1,1)
+    end if
 
   end function entropy_viscosity_low_order
 

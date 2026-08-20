@@ -277,6 +277,10 @@ neko_fortran_SOURCES = \
 	fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.F90\
 	fluid/fluid_scheme_base.f90\
 	fluid/fluid_scheme_incompressible.f90\
+	fluid/euler_idp.f90\
+	fluid/euler_idp_low_order.f90\
+	fluid/euler_idp_limiter.f90\
+	fluid/euler_gll_graph.f90\
 	fluid/fluid_scheme_compressible.f90\
 	fluid/regularization.f90\
 	fluid/regularization_fctry.f90\
@@ -309,6 +313,7 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/cpu/compressible_res_cpu.f90\
 	fluid/bcknd/device/compressible_res_device.F90\
 	fluid/bcknd/cpu/compressible_ops_cpu.f90\
+	fluid/bcknd/cpu/euler_idp_cpu.f90\
 	fluid/bcknd/device/compressible_ops_device.F90\
 	fluid/fluid_source_term.f90\
 	common/time_step_controller.f90\

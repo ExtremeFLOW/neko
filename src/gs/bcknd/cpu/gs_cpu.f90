@@ -299,7 +299,7 @@ contains
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, dimension(nb), intent(inout) :: bo
-    integer :: i, j, k, blk_len
+    integer :: i, j, k, blk_len, tail_start
     real(kind=rp) :: tmp
 
     !$omp do
@@ -313,8 +313,14 @@ contains
     end do
     !$omp end do nowait
 
+    if (nb .gt. 0) then
+       tail_start = bo(nb) + b(nb) + 1
+    else
+       tail_start = 1
+    end if
+
     !$omp do
-    do i = (bo(nb) + b(nb) + 1), m
+    do i = tail_start, m
        u(gd(i)) = v(dg(i))
     end do
     !$omp end do
