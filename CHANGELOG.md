@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Fixed a bug that caused `import_fields` to not read the mesh file if the 
+  mesh file name and the field file name had the same counter (e.g. 
+  `mesh0.f00000` and `field0.f00000`).
 - Added configurable wall-model field samplers. Wall models can now sample at
   GLL nodes or physical wall-normal distances using global interpolation. The
   sampling values can also be supplied per wall node through new user hooks.
