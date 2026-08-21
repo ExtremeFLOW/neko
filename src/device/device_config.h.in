@@ -10,7 +10,6 @@
  * @note Set to the same C/C++ equivalent type as @a rp
  */
 typedef @NEKO_DEV_REAL_TYPE@ real;
-typedef @NEKO_DEV_DOUBLE_TYPE@ double;
 #ifdef __APPLE__
 typedef real real_xp;
 #else
