@@ -35,7 +35,7 @@
 !! because of multiple import requirements.
 module import_field_utils
   use fld_file_data, only : fld_file_data_t
-  use file, only : file_t
+  use file, only : file_t, file_free
   use num_types, only : rp, dp
   use field, only : field_t
   use field_list, only : field_list_t
@@ -157,7 +157,6 @@ contains
 
     character(len=LOG_SIZE) :: log_buf
     integer :: sample_idx, sample_mesh_idx, i
-    character(len=NEKO_FNAME_LEN) :: fname_, mesh_fname_
 
     logical :: interpolate_
 
@@ -167,8 +166,6 @@ contains
     ! ---- Default values
     interpolate_ = .false.
     if (present(interpolate)) interpolate_ = interpolate
-    mesh_fname_ = "none"
-    if (present(mesh_fname)) mesh_fname_ = trim(mesh_fname)
     ! ----
 
     call neko_log%section("Import fields")
@@ -177,60 +174,17 @@ contains
     call neko_log%message(log_buf)
 
     !
-    ! Handling of file names and reading of data
+    ! Read fld file and mesh file if specified
     !
-
-    ! Extract sample index from the file name
-    sample_idx = extract_fld_file_index(fname, -1)
-
-    if (sample_idx .eq. -1) &
-         call neko_error("Invalid file name for the initial condition. The&
-    & file format must be e.g. 'mean0.f00001'")
-
-    ! Change from "field0.f000*" to "field0.fld" for the fld reader
-    call filename_chsuffix(fname, fname_, 'fld')
-
-    ! Initialize file object
-    call f%init(trim(fname_))
-
-    ! If interpolate, check if we need to read the mesh file
-    if (interpolate_) then
-
-       ! If no mesh file is specified, use the default file name
-       if (mesh_fname_ .eq. "none") then
-          mesh_fname_ = trim(fname_)
-          sample_mesh_idx = sample_idx
-       else
-          mesh_fname_ = trim(mesh_fname)
-
-          ! Extract sample index from the mesh file name
-          sample_mesh_idx = extract_fld_file_index(mesh_fname_, -1)
-
-          if (sample_mesh_idx .eq. -1) then
-             call neko_error("Invalid file name for the initial condition." // &
-                  "The file format must be e.g. 'mean0.f00001'")
-          end if
-
-          write (log_buf, '(A,A)') "Mesh file     : ", &
-               trim(mesh_fname_)
-          call neko_log%message(log_buf)
-
-       end if ! if mesh_file_name .eq. none
-
-       ! Read the mesh coordinates if they are not in our fld file
-       if (sample_mesh_idx .ne. sample_idx) then
-          call f%set_counter(sample_mesh_idx)
-          call f%read(fld_data)
-       end if
-
+    if (present(mesh_fname)) then
+       call neko_log%message("Mesh file     : " // trim(mesh_fname))
+       call read_fld_file(mesh_fname, fld_data)
     end if
 
-    ! Read the field file containing (u,v,w,p)
-    call f%set_counter(sample_idx)
-    call f%read(fld_data)
+    call read_fld_file(fname, fld_data)
 
     !
-    ! Copy all vectors to device (GPU) since everything is read on the CPU
+    ! Copy all field data to device (GPU) since everything is read on the CPU
     !
     if (present(u)) call fld_data%u%copy_from(HOST_TO_DEVICE, .true.)
     if (present(v)) call fld_data%v%copy_from(HOST_TO_DEVICE, .true.)
@@ -250,8 +204,8 @@ contains
                 call fld_data%t%copy_from(HOST_TO_DEVICE, .true.)
              else
                 ! For scalar fields, require indices in 1:this%n_scalars
-                if (s_index_list(i) < 1 .or. &
-                     s_index_list(i) > fld_data%n_scalars) then
+                if (s_index_list(i) .lt. 1 .or. &
+                     s_index_list(i) .gt. fld_data%n_scalars) then
                    call neko_error("s_index_list entry out of bounds")
                 end if
                 call fld_data%s(s_index_list(i))%copy_from(HOST_TO_DEVICE, &
@@ -266,9 +220,11 @@ contains
 
     end if ! present s_tgt
 
-
+    !
+    ! Sync coordinates to device for the interpolation
+    ! NOTE: this will not throw an error if x,y,z are not allocated.
+    !
     if (interpolate_) then
-       ! Sync coordinates to device for the interpolation
        call fld_data%x%copy_from(HOST_TO_DEVICE, .false.)
        call fld_data%y%copy_from(HOST_TO_DEVICE, .false.)
        call fld_data%z%copy_from(HOST_TO_DEVICE, .true.)
@@ -282,5 +238,36 @@ contains
     call fld_data%free()
 
   end subroutine import_fields_from_params
+
+  !> Wrapper around the fld file reader. Translates a file name specified as
+  !! "field0.f00132" into "field0.fld" + counter = 132.
+  subroutine read_fld_file(file_name, data)
+    character(len=*), intent(in) :: file_name
+    type(fld_file_data_t), intent(inout) :: data
+
+    type(file_t) :: f
+    integer :: sample_idx
+    character(len=NEKO_FNAME_LEN) :: fname_
+
+    ! Extract sample index from the file name
+    sample_idx = extract_fld_file_index(file_name, -1)
+
+    if (sample_idx .eq. -1) &
+         call neko_error("Invalid file name. The file format must be e.g. " // &
+         "'mean0.f00001'")
+
+    ! Change from "field0.f000*" to "field0.fld" for the fld reader
+    call filename_chsuffix(file_name, fname_, 'fld')
+
+    ! Initialize file object and set the desired sample
+    call f%init(trim(fname_))
+    call f%set_counter(sample_idx)
+
+    ! Read data and load into fld_file_data
+    call f%read(data)
+
+    call file_free(f)
+
+  end subroutine read_fld_file
 
 end module import_field_utils
