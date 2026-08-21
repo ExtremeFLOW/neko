@@ -103,7 +103,7 @@ module entropy_viscosity
           entropy_viscosity_smooth_viscosity
      procedure, pass(this), private :: apply_element_max => &
           entropy_viscosity_apply_element_max
-     procedure, pass(this), private :: low_order_viscosity => &
+     procedure, pass(this) :: low_order_viscosity => &
           entropy_viscosity_low_order
   end type entropy_viscosity_t
 

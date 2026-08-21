@@ -33,13 +33,14 @@
 !> CPU high-order candidate for the Euler IDP solver.
 module euler_idp_cpu
   use, intrinsic :: ieee_arithmetic, only : ieee_is_finite
-  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX, MPI_MIN, MPI_SUM, &
-       MPI_Wtime
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX, MPI_MIN, MPI_SUM
   use num_types, only : rp
   use field, only : field_t
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t
+  use bc, only : bc_t
+  use bc_list, only : bc_list_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
   use operators, only : div
   use compressible_ops_cpu, only : &
@@ -49,7 +50,7 @@ module euler_idp_cpu
        euler_idp_flux_dot_vector, euler_idp_bar_state, &
        euler_idp_internal_energy, euler_idp_internal_energy_timestep
   use euler_idp_limiter, only : euler_idp_limit_edge, &
-       euler_idp_relax_density_bounds
+       euler_idp_relax_density_bounds, euler_idp_specific_entropy
   use euler_gll_graph, only : euler_gll_graph_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank
   use utils, only : neko_error
@@ -61,23 +62,24 @@ module euler_idp_cpu
   type, public :: euler_idp_cpu_t
      logical :: initialized = .false.
      logical :: periodic_graph = .false.
-     logical :: relax_density_bounds = .true.
+     logical :: wall_mask_initialized = .false.
+     logical :: low_order_only = .false.
+     logical :: relax_density_bounds = .false.
      real(kind=rp) :: correction_tolerance = 1.0e-12_rp
      type(euler_gll_graph_t) :: graph
      type(field_t) :: local_residual(EULER_IDP_NCOMP)
-     type(field_t) :: assembled_residual(EULER_IDP_NCOMP)
      type(field_t) :: candidate(EULER_IDP_NCOMP)
      type(field_t) :: low_local_residual(EULER_IDP_NCOMP)
      type(field_t) :: low_assembled_residual(EULER_IDP_NCOMP)
      type(field_t) :: low_candidate(EULER_IDP_NCOMP)
      type(field_t) :: limited_candidate(EULER_IDP_NCOMP)
      type(field_t) :: saved_state(EULER_IDP_NCOMP)
-     type(field_t) :: entropy_viscosity_residual(EULER_IDP_NCOMP)
-     type(field_t) :: local_correction(EULER_IDP_NCOMP)
      type(field_t) :: viscosity_sum
      type(field_t) :: limiter_weight_sum
+     type(field_t) :: wall_mask
      type(field_t) :: density_lower_bound
      type(field_t) :: density_upper_bound
+     type(field_t) :: entropy_lower_bound
      type(field_t) :: density_second_difference
      type(field_t) :: density_second_difference_average
      type(field_t) :: rho
@@ -119,8 +121,7 @@ module euler_idp_cpu
      procedure, pass(this) :: evaluate_low_order => &
           euler_idp_cpu_evaluate_low_order
      procedure, pass(this) :: graph_cfl => euler_idp_cpu_graph_cfl
-     procedure, pass(this) :: compute_density_bounds => &
-          euler_idp_cpu_compute_density_bounds
+     procedure, pass(this) :: compute_bounds => euler_idp_cpu_compute_bounds
      procedure, pass(this) :: forward_euler => euler_idp_cpu_forward_euler
      procedure, pass(this) :: advance => euler_idp_cpu_advance
      procedure, pass(this) :: compute_limiter => &
@@ -144,8 +145,6 @@ contains
     do component = 1, EULER_IDP_NCOMP
        write(name, '(A,I0)') 'euler_idp_local_', component
        call this%local_residual(component)%init(dof, trim(name))
-       write(name, '(A,I0)') 'euler_idp_assembled_', component
-       call this%assembled_residual(component)%init(dof, trim(name))
        write(name, '(A,I0)') 'euler_idp_candidate_', component
        call this%candidate(component)%init(dof, trim(name))
        write(name, '(A,I0)') 'euler_idp_low_local_', component
@@ -158,10 +157,6 @@ contains
        call this%limited_candidate(component)%init(dof, trim(name))
        write(name, '(A,I0)') 'euler_idp_saved_state_', component
        call this%saved_state(component)%init(dof, trim(name))
-       write(name, '(A,I0)') 'euler_idp_entropy_viscosity_', component
-       call this%entropy_viscosity_residual(component)%init(dof, trim(name))
-       write(name, '(A,I0)') 'euler_idp_correction_', component
-       call this%local_correction(component)%init(dof, trim(name))
     end do
 
     call this%rho%init(dof, 'euler_idp_rho')
@@ -176,8 +171,11 @@ contains
     call this%flux_z%init(dof, 'euler_idp_flux_z')
     call this%viscosity_sum%init(dof, 'euler_idp_viscosity_sum')
     call this%limiter_weight_sum%init(dof, 'euler_idp_limiter_weight_sum')
+    call this%wall_mask%init(dof, 'euler_idp_wall_mask')
+    this%wall_mask%x = 0.0_rp
     call this%density_lower_bound%init(dof, 'euler_idp_density_lower_bound')
     call this%density_upper_bound%init(dof, 'euler_idp_density_upper_bound')
+    call this%entropy_lower_bound%init(dof, 'euler_idp_entropy_lower_bound')
     call this%density_second_difference%init(dof, &
          'euler_idp_density_second_difference')
     call this%density_second_difference_average%init(dof, &
@@ -198,6 +196,8 @@ contains
     this%maximum_graph_timestep = huge(1.0_rp)
     this%maximum_floor_timestep = huge(1.0_rp)
     this%limiter_weight_error = 0.0_rp
+    this%wall_mask_initialized = .false.
+    this%low_order_only = .false.
     do component = 1, 3
        call this%stage_diagnostics(component)%reset()
     end do
@@ -205,11 +205,12 @@ contains
   end subroutine euler_idp_cpu_init
 
   !> Initialise the sparse GLL graph after coefficients are available.
-  subroutine euler_idp_cpu_init_graph(this, coef, gs, relax_density_bounds)
+  subroutine euler_idp_cpu_init_graph(this, coef, gs, relax_density_bounds, &
+       low_order_only)
     class(euler_idp_cpu_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     type(gs_t), intent(inout) :: gs
-    logical, intent(in), optional :: relax_density_bounds
+    logical, intent(in), optional :: relax_density_bounds, low_order_only
     real(kind=rp) :: local_error, global_error
     real(kind=rp) :: local_mass, global_mass
     integer :: direction, edge, ierr
@@ -218,10 +219,12 @@ contains
        call neko_error('Euler IDP CPU object is not initialised')
     end if
     this%correction_tolerance = 1.0e-12_rp
-    this%relax_density_bounds = .true.
+    this%relax_density_bounds = .false.
+    this%low_order_only = .false.
     if (present(relax_density_bounds)) then
        this%relax_density_bounds = relax_density_bounds
     end if
+    if (present(low_order_only)) this%low_order_only = low_order_only
     if (allocated(this%edge_viscosity)) deallocate(this%edge_viscosity)
     if (allocated(this%edge_entropy_diffusion)) then
        deallocate(this%edge_entropy_diffusion)
@@ -314,15 +317,12 @@ contains
     call this%graph%free()
     do component = 1, EULER_IDP_NCOMP
        call this%local_residual(component)%free()
-       call this%assembled_residual(component)%free()
        call this%candidate(component)%free()
        call this%low_local_residual(component)%free()
        call this%low_assembled_residual(component)%free()
        call this%low_candidate(component)%free()
        call this%limited_candidate(component)%free()
        call this%saved_state(component)%free()
-       call this%entropy_viscosity_residual(component)%free()
-       call this%local_correction(component)%free()
     end do
     call this%rho%free()
     call this%u%free()
@@ -336,8 +336,10 @@ contains
     call this%flux_z%free()
     call this%viscosity_sum%free()
     call this%limiter_weight_sum%free()
+    call this%wall_mask%free()
     call this%density_lower_bound%free()
     call this%density_upper_bound%free()
+    call this%entropy_lower_bound%free()
     call this%density_second_difference%free()
     call this%density_second_difference_average%free()
     if (allocated(this%element_residual_sum)) then
@@ -363,7 +365,9 @@ contains
     if (allocated(this%state_status)) deallocate(this%state_status)
     this%initialized = .false.
     this%periodic_graph = .false.
-    this%relax_density_bounds = .true.
+    this%wall_mask_initialized = .false.
+    this%low_order_only = .false.
+    this%relax_density_bounds = .false.
     this%correction_tolerance = 1.0e-12_rp
     this%max_graph_rate = 0.0_rp
     this%domain_volume = 0.0_rp
@@ -376,21 +380,16 @@ contains
   !> Evaluate the mass-weighted high-order residual.
   subroutine euler_idp_cpu_evaluate_high_order(this, rho, m_x, m_y, m_z, &
        energy, coef, gs, gamma, internal_energy_floor, &
-       diagnostics, entropy_viscosity)
+       diagnostics, entropy_viscosity_fraction)
     class(euler_idp_cpu_t), intent(inout) :: this
     type(field_t), intent(in) :: rho, m_x, m_y, m_z, energy
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
     real(kind=rp), intent(in) :: gamma, internal_energy_floor
     type(euler_idp_diagnostics_t), intent(inout) :: diagnostics
-    type(field_t), intent(in), optional :: entropy_viscosity
-    real(kind=rp) :: local_error(EULER_IDP_NCOMP)
-    real(kind=rp) :: global_error(EULER_IDP_NCOMP)
-    real(kind=rp) :: local_sum, global_sum, local_volume, global_volume
-    real(kind=rp) :: local_maximum, global_maximum
-    real(kind=rp) :: coefficient_norm, distance, edge_diffusion
-    real(kind=rp) :: coordinate_difference(3), difference
-    integer :: component, edge, e, ierr
+    type(field_t), intent(in), optional :: entropy_viscosity_fraction
+    real(kind=rp) :: edge_diffusion, edge_fraction
+    integer :: component, edge
 
     if (.not. this%initialized) then
        call neko_error('Euler IDP CPU object is not initialised')
@@ -400,90 +399,30 @@ contains
          gamma, internal_energy_floor, 'high-order state')
 
     this%edge_entropy_diffusion = 0.0_rp
-    if (present(entropy_viscosity)) then
+    if (present(entropy_viscosity_fraction)) then
        diagnostics%entropy_viscosity_enabled = .true.
-       do component = 1, EULER_IDP_NCOMP
-          this%entropy_viscosity_residual(component)%x = 0.0_rp
-       end do
        call this%update_graph_viscosity(rho, m_x, m_y, m_z, energy, gs, &
             gamma)
        do edge = 1, this%graph%n_edges
           associate(a => this%graph%left(:,edge), &
-               b => this%graph%right(:,edge), &
-               coefficient => this%graph%coefficient(:,edge))
-               coordinate_difference = [ &
-                    rho%dof%x(b(1),b(2),b(3),b(4)) - &
-                    rho%dof%x(a(1),a(2),a(3),a(4)), &
-                    rho%dof%y(b(1),b(2),b(3),b(4)) - &
-                    rho%dof%y(a(1),a(2),a(3),a(4)), &
-                    rho%dof%z(b(1),b(2),b(3),b(4)) - &
-                    rho%dof%z(a(1),a(2),a(3),a(4))]
-               distance = sqrt(dot_product(coordinate_difference, &
-                    coordinate_difference))
-               if (distance .le. tiny(1.0_rp)) then
-                  call neko_error('Euler IDP graph entropy viscosity ' // &
-                       'found a zero-length edge')
+               b => this%graph%right(:,edge))
+               ! Entropy viscosity supplies a dimensionless fraction of the
+               ! low-order graph viscosity. Its low-order cap therefore maps
+               ! exactly to d_ij on every nonuniform GLL subcell.
+               edge_fraction = min(1.0_rp, max(0.0_rp, &
+                    entropy_viscosity_fraction%x( &
+                    a(1),a(2),a(3),a(4)), &
+                    entropy_viscosity_fraction%x( &
+                    b(1),b(2),b(3),b(4))))
+               edge_diffusion = edge_fraction * this%edge_viscosity(edge)
+               ! Keep the first subcell layer at a slip wall on the robust
+               ! low-order endpoint; no wall-adjacent antidiffusion is added.
+               if (this%wall_mask%x(a(1),a(2),a(3),a(4)) .gt. 0.0_rp .or. &
+                    this%wall_mask%x(b(1),b(2),b(3),b(4)) .gt. 0.0_rp) then
+                  edge_diffusion = this%edge_viscosity(edge)
                end if
-               coefficient_norm = sqrt(dot_product(coefficient, coefficient))
-               ! Map the nodal kinematic viscosity to the nearest-neighbour
-               ! subcell graph. The factor two accounts for the one-half in the
-               ! cumulative-SBP edge coefficient. Capping by d_ij retains the
-               ! low-order graph as the most dissipative candidate.
-               edge_diffusion = min(this%edge_viscosity(edge), &
-                    2.0_rp * coefficient_norm / distance * max( &
-                    entropy_viscosity%x(a(1),a(2),a(3),a(4)), &
-                    entropy_viscosity%x(b(1),b(2),b(3),b(4))))
                this%edge_entropy_diffusion(edge) = edge_diffusion
-               do component = 1, EULER_IDP_NCOMP
-                  difference = euler_idp_cpu_state_component(component, b, &
-                       rho, m_x, m_y, m_z, energy) - &
-                       euler_idp_cpu_state_component(component, a, rho, m_x, &
-                       m_y, m_z, energy)
-                  this%entropy_viscosity_residual(component)%x( &
-                       a(1),a(2),a(3),a(4)) = &
-                       this%entropy_viscosity_residual(component)%x( &
-                       a(1),a(2),a(3),a(4)) - edge_diffusion * difference
-                  this%entropy_viscosity_residual(component)%x( &
-                       b(1),b(2),b(3),b(4)) = &
-                       this%entropy_viscosity_residual(component)%x( &
-                       b(1),b(2),b(3),b(4)) + edge_diffusion * difference
-               end do
           end associate
-       end do
-
-       local_maximum = 0.0_rp
-       if (entropy_viscosity%size() .gt. 0) then
-          local_maximum = maxval(entropy_viscosity%x)
-       end if
-       local_sum = sum(coef%B * entropy_viscosity%x)
-       local_volume = sum(coef%B)
-       call MPI_Allreduce(local_maximum, global_maximum, 1, &
-            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-       call MPI_Allreduce(local_sum, global_sum, 1, MPI_REAL_PRECISION, &
-            MPI_SUM, NEKO_COMM, ierr)
-       call MPI_Allreduce(local_volume, global_volume, 1, MPI_REAL_PRECISION, &
-            MPI_SUM, NEKO_COMM, ierr)
-       diagnostics%max_entropy_viscosity = global_maximum
-       diagnostics%mean_entropy_viscosity = global_sum / global_volume
-
-       do component = 1, EULER_IDP_NCOMP
-          local_sum = sum(this%entropy_viscosity_residual(component)%x)
-          call MPI_Allreduce(local_sum, global_sum, 1, MPI_REAL_PRECISION, &
-               MPI_SUM, NEKO_COMM, ierr)
-          diagnostics%entropy_viscosity_conservation(component) = global_sum
-          local_maximum = 0.0_rp
-          do e = 1, coef%msh%nelv
-             local_maximum = max(local_maximum, abs(sum( &
-                  this%entropy_viscosity_residual(component)%x(:,:,:,e))))
-          end do
-          call MPI_Allreduce(local_maximum, global_maximum, 1, &
-               MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-          diagnostics%entropy_viscosity_element_compatibility(component) = &
-               global_maximum
-       end do
-    else
-       do component = 1, EULER_IDP_NCOMP
-          this%entropy_viscosity_residual(component)%x = 0.0_rp
        end do
     end if
 
@@ -493,34 +432,12 @@ contains
             this%flux_y%x, this%flux_z%x, coef)
        this%local_residual(component)%x = &
             this%local_residual(component)%x * coef%B
-       if (present(entropy_viscosity)) then
-          this%local_residual(component)%x = &
-               this%local_residual(component)%x + &
-               this%entropy_viscosity_residual(component)%x
-       end if
        call euler_idp_cpu_element_sums(this, component, coef, &
             this%local_residual(component), this%element_residual_sum, &
             this%element_boundary_flux)
 
-       this%assembled_residual(component)%x = &
-            this%local_residual(component)%x
-       call gs%op(this%assembled_residual(component), GS_OP_ADD)
-       this%assembled_residual(component)%x = &
-            this%assembled_residual(component)%x * coef%Binv
     end do
 
-    do component = 1, EULER_IDP_NCOMP
-       if (coef%msh%nelv .gt. 0) then
-          local_error(component) = maxval(abs( &
-               this%element_residual_sum(component,:) - &
-               this%element_boundary_flux(component,:)))
-       else
-          local_error(component) = 0.0_rp
-       end if
-    end do
-    call MPI_Allreduce(local_error, global_error, EULER_IDP_NCOMP, &
-         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-    diagnostics%element_compatibility = global_error
   end subroutine euler_idp_cpu_evaluate_high_order
 
   !> Update symmetric graph viscosity, bar states, and the graph CFL rate.
@@ -613,9 +530,7 @@ contains
     type(euler_idp_diagnostics_t), intent(inout) :: diagnostics
     logical, intent(in), optional :: graph_viscosity_current
     real(kind=rp) :: difference, left_value, right_value
-    real(kind=rp) :: local_error(EULER_IDP_NCOMP)
-    real(kind=rp) :: global_error(EULER_IDP_NCOMP)
-    integer :: component, edge, ierr
+    integer :: component, edge
 
     call euler_idp_cpu_primitives(this, rho, m_x, m_y, m_z, energy, &
          gamma, internal_energy_floor, 'low-order state')
@@ -687,18 +602,6 @@ contains
             this%low_assembled_residual(component)%x * coef%Binv
     end do
 
-    do component = 1, EULER_IDP_NCOMP
-       if (coef%msh%nelv .gt. 0) then
-          local_error(component) = maxval(abs( &
-               this%low_element_residual_sum(component,:) - &
-               this%low_element_boundary_flux(component,:)))
-       else
-          local_error(component) = 0.0_rp
-       end if
-    end do
-    call MPI_Allreduce(local_error, global_error, EULER_IDP_NCOMP, &
-         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-    diagnostics%graph_compatibility = global_error
   end subroutine euler_idp_cpu_evaluate_low_order
 
   !> Return the exact maximum nodal graph CFL for a timestep.
@@ -709,23 +612,24 @@ contains
     cfl = dt * this%max_graph_rate
   end function euler_idp_cpu_graph_cfl
 
-  !> Build relaxed stage-local density bounds on the assembled multigraph.
-  subroutine euler_idp_cpu_compute_density_bounds(this, rho, gs, diagnostics)
+  !> Build stage-local density and entropy bounds on the assembled graph.
+  subroutine euler_idp_cpu_compute_bounds(this, rho, m_x, m_y, m_z, energy, &
+       gs, gamma, diagnostics)
     class(euler_idp_cpu_t), intent(inout) :: this
-    type(field_t), intent(in) :: rho
+    type(field_t), intent(in) :: rho, m_x, m_y, m_z, energy
     type(gs_t), intent(inout) :: gs
+    real(kind=rp), intent(in) :: gamma
     type(euler_idp_diagnostics_t), intent(inout) :: diagnostics
     real(kind=rp) :: left_density, right_density, bar_density
+    real(kind=rp) :: left_entropy, right_entropy, entropy
     real(kind=rp) :: difference, pair_average
     real(kind=rp) :: left_weight, right_weight
     real(kind=rp) :: strict_lower, strict_upper
     real(kind=rp) :: relaxed_lower, relaxed_upper
-    real(kind=rp) :: local_lower, global_lower
-    real(kind=rp) :: local_upper, global_upper
-    real(kind=rp) :: local_relaxation, global_relaxation
-    real(kind=rp) :: local_violation, global_violation
+    real(kind=rp) :: local_violation, local_entropy_violation
     real(kind=rp) :: scale, tolerance
-    integer :: direction, edge, i, ierr
+    real(kind=rp) :: state(EULER_IDP_NCOMP)
+    integer :: direction, edge, i
 
     if (.not. this%graph%initialized) then
        call neko_error('Euler IDP graph is not initialised')
@@ -734,11 +638,19 @@ contains
     this%density_lower_bound%x = rho%x
     this%density_upper_bound%x = rho%x
     this%density_second_difference%x = 0.0_rp
+    do i = 1, rho%size()
+       state = [rho%x(i,1,1,1), m_x%x(i,1,1,1), m_y%x(i,1,1,1), &
+            m_z%x(i,1,1,1), energy%x(i,1,1,1)]
+       this%entropy_lower_bound%x(i,1,1,1) = &
+            euler_idp_specific_entropy(state, gamma)
+    end do
     do edge = 1, this%graph%n_edges
        associate(a => this%graph%left(:,edge), &
             b => this%graph%right(:,edge))
          left_density = rho%x(a(1),a(2),a(3),a(4))
          right_density = rho%x(b(1),b(2),b(3),b(4))
+         left_entropy = this%entropy_lower_bound%x(a(1),a(2),a(3),a(4))
+         right_entropy = this%entropy_lower_bound%x(b(1),b(2),b(3),b(4))
          bar_density = this%bar_state(1,edge)
          this%density_lower_bound%x(a(1),a(2),a(3),a(4)) = min( &
               this%density_lower_bound%x(a(1),a(2),a(3),a(4)), &
@@ -752,6 +664,10 @@ contains
          this%density_upper_bound%x(b(1),b(2),b(3),b(4)) = max( &
               this%density_upper_bound%x(b(1),b(2),b(3),b(4)), &
               left_density, bar_density)
+         this%entropy_lower_bound%x(a(1),a(2),a(3),a(4)) = min( &
+              left_entropy, right_entropy)
+         this%entropy_lower_bound%x(b(1),b(2),b(3),b(4)) = min( &
+              left_entropy, right_entropy)
 
          ! Collapse duplicate element occurrences to the unique-neighbour
          ! stencil used by the density-bound relaxation.
@@ -773,6 +689,7 @@ contains
     end do
     call gs%op(this%density_lower_bound, GS_OP_MIN)
     call gs%op(this%density_upper_bound, GS_OP_MAX)
+    call gs%op(this%entropy_lower_bound, GS_OP_MIN)
     call gs%op(this%density_second_difference, GS_OP_ADD)
 
     local_violation = 0.0_rp
@@ -786,12 +703,30 @@ contains
             maxval(this%low_candidate(1)%x - &
             this%density_upper_bound%x), 0.0_rp) / scale
     end if
-    call MPI_Allreduce(local_violation, global_violation, 1, &
-         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
     tolerance = 256.0_rp * epsilon(1.0_rp)
-    if (global_violation .gt. tolerance) then
+    if (local_violation .gt. tolerance) then
        call neko_error('Euler IDP low-order density is outside its local ' // &
             'bar-state bounds')
+    end if
+
+    local_entropy_violation = 0.0_rp
+    do i = 1, rho%size()
+       state = [this%low_candidate(1)%x(i,1,1,1), &
+            this%low_candidate(2)%x(i,1,1,1), &
+            this%low_candidate(3)%x(i,1,1,1), &
+            this%low_candidate(4)%x(i,1,1,1), &
+            this%low_candidate(5)%x(i,1,1,1)]
+       entropy = euler_idp_specific_entropy(state, gamma)
+       local_entropy_violation = max(local_entropy_violation, &
+            this%entropy_lower_bound%x(i,1,1,1) - entropy)
+    end do
+    scale = 1.0_rp
+    if (rho%size() .gt. 0) then
+       scale = max(scale, maxval(abs(this%entropy_lower_bound%x)))
+    end if
+    if (local_entropy_violation .gt. tolerance * scale) then
+       call neko_error('Euler IDP low-order state violates its local ' // &
+            'minimum entropy bound')
     end if
 
     this%density_second_difference_average%x = 0.0_rp
@@ -824,7 +759,6 @@ contains
          this%density_second_difference_average%x / &
          (2.0_rp * real(2 * this%graph%n_directions + 1, rp))
 
-    local_relaxation = 0.0_rp
     if (this%relax_density_bounds) then
        do i = 1, rho%size()
           strict_lower = this%density_lower_bound%x(i,1,1,1)
@@ -835,71 +769,44 @@ contains
                this%graph%n_directions, relaxed_lower, relaxed_upper)
           this%density_lower_bound%x(i,1,1,1) = relaxed_lower
           this%density_upper_bound%x(i,1,1,1) = relaxed_upper
-          local_relaxation = max(local_relaxation, &
-               strict_lower - relaxed_lower, relaxed_upper - strict_upper)
        end do
     end if
-
-    local_lower = huge(1.0_rp)
-    local_upper = -huge(1.0_rp)
-    if (rho%size() .gt. 0) then
-       local_lower = minval(this%density_lower_bound%x)
-       local_upper = maxval(this%density_upper_bound%x)
-    end if
-    call MPI_Allreduce(local_lower, global_lower, 1, MPI_REAL_PRECISION, &
-         MPI_MIN, NEKO_COMM, ierr)
-    call MPI_Allreduce(local_upper, global_upper, 1, MPI_REAL_PRECISION, &
-         MPI_MAX, NEKO_COMM, ierr)
-    call MPI_Allreduce(local_relaxation, global_relaxation, 1, &
-         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-    diagnostics%min_density_lower_bound = global_lower
-    diagnostics%max_density_upper_bound = global_upper
-    diagnostics%max_density_bound_relaxation = global_relaxation
-  end subroutine euler_idp_cpu_compute_density_bounds
+  end subroutine euler_idp_cpu_compute_bounds
 
   !> Form a high-order Forward Euler candidate without changing the input.
   subroutine euler_idp_cpu_forward_euler(this, rho, m_x, m_y, m_z, energy, &
-       coef, gs, gamma, internal_energy_floor, dt, diagnostics, &
-       stage, entropy_viscosity)
+       coef, gs, slip_bcs, gamma, internal_energy_floor, dt, diagnostics, &
+       stage, entropy_viscosity_fraction)
     class(euler_idp_cpu_t), intent(inout) :: this
     type(field_t), intent(in) :: rho, m_x, m_y, m_z, energy
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
+    type(bc_list_t), intent(inout) :: slip_bcs
     real(kind=rp), intent(in) :: gamma, internal_energy_floor
     real(kind=rp), intent(in) :: dt
     type(euler_idp_diagnostics_t), intent(inout) :: diagnostics
     integer, intent(in), optional :: stage
-    type(field_t), intent(in), optional :: entropy_viscosity
+    type(field_t), intent(in), optional :: entropy_viscosity_fraction
     real(kind=rp) :: local_change(EULER_IDP_NCOMP)
-    real(kind=rp) :: global_change(EULER_IDP_NCOMP)
-    real(kind=rp) :: local_norm(EULER_IDP_NCOMP)
-    real(kind=rp) :: global_norm(EULER_IDP_NCOMP)
-    real(kind=rp) :: local_minimum(3), global_minimum(3)
+    real(kind=rp) :: local_minimum(4), global_minimum(4)
     real(kind=rp) :: state(EULER_IDP_NCOMP), residual(EULER_IDP_NCOMP)
     real(kind=rp) :: local_floor_timestep, global_floor_timestep
-    real(kind=rp) :: local_error, global_error, local_scale, global_scale
-    real(kind=rp) :: local_bound_violation(2), global_bound_violation(2)
-    real(kind=rp) :: reconstruction_start, reconstruction_local_time
-    real(kind=rp) :: reconstruction_global_time
-    real(kind=rp) :: local_max_flux, global_max_flux
-    real(kind=rp) :: local_flux_square, global_flux_square
-    real(kind=rp) :: local_edge_count, global_edge_count
-    real(kind=rp) :: forward_euler_start, forward_euler_local_time
+    real(kind=rp) :: local_error, local_scale
+    real(kind=rp) :: local_bound_violation(2), local_entropy_violation
+    real(kind=rp) :: entropy
     real(kind=rp) :: high_order_fraction, state_difference
     real(kind=rp) :: directional_error_local(EULER_IDP_NCOMP)
-    real(kind=rp) :: directional_error_global(EULER_IDP_NCOMP)
     character(len=2 * LOG_SIZE) :: message
     integer :: component, edge, i, ierr
 
     call diagnostics%reset()
     if (present(stage)) diagnostics%stage = stage
-    forward_euler_start = MPI_Wtime()
     call this%evaluate_high_order(rho, m_x, m_y, m_z, energy, coef, gs, &
          gamma, internal_energy_floor, diagnostics, &
-         entropy_viscosity)
+         entropy_viscosity_fraction)
     call this%evaluate_low_order(rho, m_x, m_y, m_z, energy, coef, gs, &
          gamma, internal_energy_floor, diagnostics, &
-         present(entropy_viscosity))
+         present(entropy_viscosity_fraction))
 
     diagnostics%max_graph_cfl = this%graph_cfl(dt)
     diagnostics%min_convex_weight = 1.0_rp - diagnostics%max_graph_cfl
@@ -950,11 +857,6 @@ contains
        call neko_error(trim(message))
     end if
 
-    this%candidate(1)%x = rho%x - dt * this%assembled_residual(1)%x
-    this%candidate(2)%x = m_x%x - dt * this%assembled_residual(2)%x
-    this%candidate(3)%x = m_y%x - dt * this%assembled_residual(3)%x
-    this%candidate(4)%x = m_z%x - dt * this%assembled_residual(4)%x
-    this%candidate(5)%x = energy%x - dt * this%assembled_residual(5)%x
     this%low_candidate(1)%x = rho%x - dt * &
          this%low_assembled_residual(1)%x
     this%low_candidate(2)%x = m_x%x - dt * &
@@ -971,44 +873,10 @@ contains
          this%low_candidate(4), this%low_candidate(5), gamma, &
          internal_energy_floor, 'low-order candidate')
 
-    call this%compute_density_bounds(rho, gs, diagnostics)
-
-    local_change(1) = sum(coef%B * (this%candidate(1)%x - rho%x))
-    local_change(2) = sum(coef%B * (this%candidate(2)%x - m_x%x))
-    local_change(3) = sum(coef%B * (this%candidate(3)%x - m_y%x))
-    local_change(4) = sum(coef%B * (this%candidate(4)%x - m_z%x))
-    local_change(5) = sum(coef%B * (this%candidate(5)%x - energy%x))
-    call MPI_Allreduce(local_change, global_change, EULER_IDP_NCOMP, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-    diagnostics%high_order_conservation = global_change
-
-    local_change(1) = sum(coef%B * (this%low_candidate(1)%x - rho%x))
-    local_change(2) = sum(coef%B * (this%low_candidate(2)%x - m_x%x))
-    local_change(3) = sum(coef%B * (this%low_candidate(3)%x - m_y%x))
-    local_change(4) = sum(coef%B * (this%low_candidate(4)%x - m_z%x))
-    local_change(5) = sum(coef%B * (this%low_candidate(5)%x - energy%x))
-    call MPI_Allreduce(local_change, global_change, EULER_IDP_NCOMP, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-    diagnostics%low_order_conservation = global_change
+    call this%compute_bounds(rho, m_x, m_y, m_z, energy, gs, gamma, &
+         diagnostics)
 
     do component = 1, EULER_IDP_NCOMP
-       this%local_correction(component)%x = dt * &
-            (this%low_local_residual(component)%x - &
-            this%local_residual(component)%x)
-       this%flux_x%x = this%local_correction(component)%x
-       call gs%op(this%flux_x, GS_OP_ADD)
-       local_error = 0.0_rp
-       if (rho%size() .gt. 0) then
-          local_error = maxval(abs(this%flux_x%x - this%graph%mass%x * &
-               (this%candidate(component)%x - &
-               this%low_candidate(component)%x)))
-       end if
-       call MPI_Allreduce(local_error, global_error, 1, MPI_REAL_PRECISION, &
-            MPI_MAX, NEKO_COMM, ierr)
-       diagnostics%correction_assembly_error(component) = global_error
-
-       local_change(component) = sum(this%local_correction(component)%x)
-       local_norm(component) = sum(abs(this%local_correction(component)%x))
        local_error = 0.0_rp
        local_scale = 1.0_rp
        if (coef%msh%nelv .gt. 0) then
@@ -1019,12 +887,8 @@ contains
                this%low_element_residual_sum(component,:))), &
                maxval(abs(dt * this%element_residual_sum(component,:))))
        end if
-       call MPI_Allreduce(local_error, global_error, 1, MPI_REAL_PRECISION, &
-            MPI_MAX, NEKO_COMM, ierr)
-       call MPI_Allreduce(local_scale, global_scale, 1, MPI_REAL_PRECISION, &
-            MPI_MAX, NEKO_COMM, ierr)
        diagnostics%correction_element_compatibility(component) = &
-            global_error / global_scale
+            local_error / local_scale
 
        local_error = 0.0_rp
        local_scale = 1.0_rp
@@ -1036,22 +900,10 @@ contains
                this%low_element_boundary_flux(component,:))), &
                maxval(abs(dt * this%element_boundary_flux(component,:))))
        end if
-       call MPI_Allreduce(local_error, global_error, 1, MPI_REAL_PRECISION, &
-            MPI_MAX, NEKO_COMM, ierr)
-       call MPI_Allreduce(local_scale, global_scale, 1, MPI_REAL_PRECISION, &
-            MPI_MAX, NEKO_COMM, ierr)
        diagnostics%correction_face_mismatch(component) = &
-            global_error / global_scale
+            local_error / local_scale
     end do
-    call MPI_Allreduce(local_change, global_change, EULER_IDP_NCOMP, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-    call MPI_Allreduce(local_norm, global_norm, EULER_IDP_NCOMP, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-    diagnostics%correction_global_compatibility = abs(global_change) / &
-         max(1.0_rp, global_norm)
-    if (maxval(diagnostics%correction_global_compatibility) .gt. &
-         this%correction_tolerance .or. &
-         maxval(diagnostics%correction_element_compatibility) .gt. &
+    if (maxval(diagnostics%correction_element_compatibility) .gt. &
          this%correction_tolerance .or. &
          maxval(diagnostics%correction_face_mismatch) .gt. &
          this%correction_tolerance) then
@@ -1069,12 +921,8 @@ contains
     ! tensor direction. On affine elements the two SBP operators have the same
     ! line boundary flux, so every line correction is compatible and admits a
     ! nearest-neighbour cumulative flux without a graph-Poisson solve.
-    reconstruction_local_time = 0.0_rp
-    local_max_flux = 0.0_rp
-    local_flux_square = 0.0_rp
     directional_error_local = 0.0_rp
     do component = 1, EULER_IDP_NCOMP
-       reconstruction_start = MPI_Wtime()
        call euler_idp_cpu_flux(this, component, m_x, m_y, m_z, energy)
        call this%graph%directional_correction_flux( &
             this%correction_flux(component,:), this%flux_x%x, &
@@ -1097,7 +945,9 @@ contains
                this%correction_flux(component,edge) + dt * &
                this%edge_viscosity(edge) * state_difference
           high_order_fraction = 1.0_rp
-          if (this%edge_viscosity(edge) .gt. tiny(1.0_rp)) then
+          if (this%low_order_only) then
+             high_order_fraction = 0.0_rp
+          else if (this%edge_viscosity(edge) .gt. tiny(1.0_rp)) then
              high_order_fraction = 1.0_rp - min(1.0_rp, &
                   this%edge_entropy_diffusion(edge) / &
                   this%edge_viscosity(edge))
@@ -1108,9 +958,6 @@ contains
           this%correction_flux(component,edge) = high_order_fraction * &
                this%correction_flux(component,edge)
        end do
-       reconstruction_local_time = reconstruction_local_time + &
-            MPI_Wtime() - reconstruction_start
-
        call this%graph%incidence(this%flux_x%x, &
             this%correction_flux(component,:))
        call gs%op(this%flux_x, GS_OP_ADD)
@@ -1126,55 +973,25 @@ contains
                (this%candidate(component)%x - &
                this%low_candidate(component)%x))) / local_scale
        end if
-
-       if (this%graph%n_edges .gt. 0) then
-          local_max_flux = max(local_max_flux, &
-               maxval(abs(this%correction_flux(component,:))))
-          local_flux_square = local_flux_square + &
-               sum(this%correction_flux(component,:)**2)
-       end if
     end do
-    call MPI_Allreduce(directional_error_local, directional_error_global, &
-         EULER_IDP_NCOMP, MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-    if (maxval(directional_error_global) .gt. &
+    if (maxval(directional_error_local) .gt. &
          10.0_rp * this%correction_tolerance) then
        call neko_error('Euler IDP directional correction is not ' // &
             'line-compatible')
     end if
-    call MPI_Allreduce(local_change, &
-         diagnostics%reconstruction_residual, EULER_IDP_NCOMP, &
-         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-    if (maxval(diagnostics%reconstruction_residual) .gt. &
+    diagnostics%reconstruction_residual = local_change
+    if (maxval(local_change) .gt. &
          10.0_rp * this%correction_tolerance) then
        call neko_error('Euler IDP directional correction reconstruction ' // &
             'failed')
     end if
-    local_change(1) = sum(coef%B * (this%candidate(1)%x - rho%x))
-    local_change(2) = sum(coef%B * (this%candidate(2)%x - m_x%x))
-    local_change(3) = sum(coef%B * (this%candidate(3)%x - m_y%x))
-    local_change(4) = sum(coef%B * (this%candidate(4)%x - m_z%x))
-    local_change(5) = sum(coef%B * (this%candidate(5)%x - energy%x))
-    call MPI_Allreduce(local_change, diagnostics%high_order_conservation, &
-         EULER_IDP_NCOMP, MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-    call MPI_Allreduce(reconstruction_local_time, reconstruction_global_time, &
-         1, MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-    diagnostics%reconstruction_time = reconstruction_global_time
-    call MPI_Allreduce(local_max_flux, global_max_flux, 1, &
-         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-    diagnostics%max_correction_flux = global_max_flux
-    call MPI_Allreduce(local_flux_square, global_flux_square, 1, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-    local_edge_count = real(EULER_IDP_NCOMP * this%graph%n_edges, rp)
-    call MPI_Allreduce(local_edge_count, global_edge_count, 1, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-    if (global_edge_count .gt. 0.0_rp) then
-       diagnostics%rms_correction_flux = &
-            sqrt(global_flux_square / global_edge_count)
-    end if
 
     diagnostics%limiter_weight_error = this%limiter_weight_error
-    call this%compute_limiter(internal_energy_floor, diagnostics)
+    call this%compute_limiter(gamma, internal_energy_floor, diagnostics)
     call this%apply_correction(gs)
+    call slip_bcs%apply_vector(this%limited_candidate(2)%x, &
+         this%limited_candidate(3)%x, this%limited_candidate(4)%x, &
+         rho%size(), strong = .true.)
 
     local_bound_violation = 0.0_rp
     local_scale = 1.0_rp
@@ -1189,15 +1006,34 @@ contains
             maxval(abs(this%density_lower_bound%x)), &
             maxval(abs(this%density_upper_bound%x)))
     end if
-    call MPI_Allreduce(local_bound_violation, global_bound_violation, 2, &
-         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-    call MPI_Allreduce(local_scale, global_scale, 1, MPI_REAL_PRECISION, &
-         MPI_MAX, NEKO_COMM, ierr)
-    diagnostics%max_density_lower_violation = global_bound_violation(1)
-    diagnostics%max_density_upper_violation = global_bound_violation(2)
-    if (maxval(global_bound_violation) .gt. &
-         512.0_rp * epsilon(1.0_rp) * global_scale) then
+    diagnostics%max_density_lower_violation = local_bound_violation(1)
+    diagnostics%max_density_upper_violation = local_bound_violation(2)
+    if (maxval(local_bound_violation) .gt. &
+         512.0_rp * epsilon(1.0_rp) * local_scale) then
        call neko_error('Euler IDP limited density violates its local bounds')
+    end if
+
+    local_entropy_violation = 0.0_rp
+    do i = 1, rho%size()
+       state = [this%limited_candidate(1)%x(i,1,1,1), &
+            this%limited_candidate(2)%x(i,1,1,1), &
+            this%limited_candidate(3)%x(i,1,1,1), &
+            this%limited_candidate(4)%x(i,1,1,1), &
+            this%limited_candidate(5)%x(i,1,1,1)]
+       entropy = euler_idp_specific_entropy(state, gamma)
+       local_entropy_violation = max(local_entropy_violation, &
+            this%entropy_lower_bound%x(i,1,1,1) - entropy)
+    end do
+    diagnostics%max_entropy_lower_violation = local_entropy_violation
+    local_scale = 1.0_rp
+    if (rho%size() .gt. 0) then
+       local_scale = max(local_scale, &
+            maxval(abs(this%entropy_lower_bound%x)))
+    end if
+    if (local_entropy_violation .gt. &
+         512.0_rp * epsilon(1.0_rp) * local_scale) then
+       call neko_error('Euler IDP limited state violates its local ' // &
+            'minimum entropy bound')
     end if
 
     call euler_idp_cpu_primitives(this, this%limited_candidate(1), &
@@ -1205,49 +1041,66 @@ contains
          this%limited_candidate(4), this%limited_candidate(5), gamma, &
          internal_energy_floor, 'limited candidate')
 
-    local_change(1) = sum(coef%B * (this%limited_candidate(1)%x - rho%x))
-    local_change(2) = sum(coef%B * (this%limited_candidate(2)%x - m_x%x))
-    local_change(3) = sum(coef%B * (this%limited_candidate(3)%x - m_y%x))
-    local_change(4) = sum(coef%B * (this%limited_candidate(4)%x - m_z%x))
-    local_change(5) = sum(coef%B * (this%limited_candidate(5)%x - energy%x))
-    call MPI_Allreduce(local_change, global_change, EULER_IDP_NCOMP, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-    diagnostics%limited_conservation = global_change
-
     local_minimum = huge(1.0_rp)
     if (this%limited_candidate(1)%size() .gt. 0) then
-       local_minimum = [minval(this%limited_candidate(1)%x), &
+       local_minimum(1:3) = [minval(this%limited_candidate(1)%x), &
             minval(this%internal_energy%x), minval(this%p%x)]
+       do i = 1, rho%size()
+          state = [this%limited_candidate(1)%x(i,1,1,1), &
+               this%limited_candidate(2)%x(i,1,1,1), &
+               this%limited_candidate(3)%x(i,1,1,1), &
+               this%limited_candidate(4)%x(i,1,1,1), &
+               this%limited_candidate(5)%x(i,1,1,1)]
+          local_minimum(4) = min(local_minimum(4), &
+               euler_idp_specific_entropy(state, gamma))
+       end do
     end if
-    call MPI_Allreduce(local_minimum, global_minimum, 3, &
+    call MPI_Allreduce(local_minimum, global_minimum, 4, &
          MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
     diagnostics%min_density = global_minimum(1)
     diagnostics%min_internal_energy = global_minimum(2)
     diagnostics%min_pressure = global_minimum(3)
-    forward_euler_local_time = MPI_Wtime() - forward_euler_start
-    call MPI_Allreduce(forward_euler_local_time, &
-         diagnostics%forward_euler_time, 1, MPI_REAL_PRECISION, MPI_MAX, &
-         NEKO_COMM, ierr)
+    diagnostics%min_specific_entropy = global_minimum(4)
   end subroutine euler_idp_cpu_forward_euler
 
   !> Advance with Forward Euler or SSPRK3 using the limited Euler map.
   subroutine euler_idp_cpu_advance(this, rho, m_x, m_y, m_z, energy, coef, &
-       gs, gamma, internal_energy_floor, dt, order, &
-       diagnostics, entropy_viscosity)
+       gs, slip_bcs, gamma, internal_energy_floor, dt, order, &
+       diagnostics, entropy_viscosity_fraction)
     class(euler_idp_cpu_t), intent(inout) :: this
     type(field_t), intent(inout) :: rho, m_x, m_y, m_z, energy
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
+    type(bc_list_t), intent(inout) :: slip_bcs
     real(kind=rp), intent(in) :: gamma, internal_energy_floor
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: order
     type(euler_idp_diagnostics_t), intent(out) :: diagnostics
-    type(field_t), intent(in), optional :: entropy_viscosity
-    integer :: component
+    type(field_t), intent(in), optional :: entropy_viscosity_fraction
+    class(bc_t), pointer :: boundary
+    integer :: component, i, j
 
     if (order .ne. 1 .and. order .ne. 3) then
        call neko_error('Euler IDP requires Forward Euler or SSPRK3')
     end if
+
+    if (.not. this%wall_mask_initialized) then
+       this%wall_mask%x = 0.0_rp
+       do i = 1, slip_bcs%size()
+          boundary => slip_bcs%get(i)
+          do j = 1, boundary%msk(0)
+             this%wall_mask%x(boundary%msk(j),1,1,1) = 1.0_rp
+          end do
+       end do
+       call gs%op(this%wall_mask, GS_OP_ADD)
+       where (this%wall_mask%x .gt. 0.0_rp)
+          this%wall_mask%x = 1.0_rp
+       end where
+       this%wall_mask_initialized = .true.
+    end if
+
+    call slip_bcs%apply_vector(m_x%x, m_y%x, m_z%x, rho%size(), &
+         strong = .true.)
 
     do component = 1, 3
        call this%stage_diagnostics(component)%reset()
@@ -1259,9 +1112,10 @@ contains
        this%saved_state(4)%x = m_z%x
        this%saved_state(5)%x = energy%x
     end if
-    call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, gamma, &
+    call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, slip_bcs, &
+         gamma, &
          internal_energy_floor, dt, &
-         this%stage_diagnostics(1), 1, entropy_viscosity)
+         this%stage_diagnostics(1), 1, entropy_viscosity_fraction)
     if (order .eq. 1) then
        call this%commit(rho, m_x, m_y, m_z, energy)
        diagnostics = this%stage_diagnostics(1)
@@ -1270,9 +1124,10 @@ contains
 
     ! U(1) = FE(U(n)).
     call this%commit(rho, m_x, m_y, m_z, energy)
-    call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, gamma, &
+    call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, slip_bcs, &
+         gamma, &
          internal_energy_floor, dt, &
-         this%stage_diagnostics(2), 2, entropy_viscosity)
+         this%stage_diagnostics(2), 2, entropy_viscosity_fraction)
 
     ! U(2) = 3/4 U(n) + 1/4 FE(U(1)).
     rho%x = 0.75_rp * this%saved_state(1)%x + &
@@ -1287,9 +1142,10 @@ contains
          0.25_rp * this%limited_candidate(5)%x
     call euler_idp_cpu_primitives(this, rho, m_x, m_y, m_z, energy, gamma, &
          internal_energy_floor, 'SSPRK3 stage 2 state')
-    call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, gamma, &
+    call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, slip_bcs, &
+         gamma, &
          internal_energy_floor, dt, &
-         this%stage_diagnostics(3), 3, entropy_viscosity)
+         this%stage_diagnostics(3), 3, entropy_viscosity_fraction)
 
     ! U(n+1) = 1/3 U(n) + 2/3 FE(U(2)).
     rho%x = this%saved_state(1)%x / 3.0_rp + &
@@ -1308,31 +1164,22 @@ contains
   end subroutine euler_idp_cpu_advance
 
   !> Compute one symmetric vector limiter coefficient per edge occurrence.
-  subroutine euler_idp_cpu_compute_limiter(this, internal_energy_floor, &
-       diagnostics)
+  subroutine euler_idp_cpu_compute_limiter(this, gamma, &
+       internal_energy_floor, diagnostics)
     class(euler_idp_cpu_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: internal_energy_floor
+    real(kind=rp), intent(in) :: gamma, internal_energy_floor
     type(euler_idp_diagnostics_t), intent(inout) :: diagnostics
     real(kind=rp) :: left_base(EULER_IDP_NCOMP)
     real(kind=rp) :: right_base(EULER_IDP_NCOMP)
     real(kind=rp) :: left_correction(EULER_IDP_NCOMP)
     real(kind=rp) :: right_correction(EULER_IDP_NCOMP)
     real(kind=rp) :: local_minimum, global_minimum
-    real(kind=rp) :: local_maximum, global_maximum
-    real(kind=rp) :: local_sum, global_sum
-    real(kind=rp) :: local_count, global_count
-    integer :: local_limited_count, global_limited_count
-    integer :: local_density_count, global_density_count
-    integer :: local_energy_count, global_energy_count
+    integer :: local_count(5), global_count(5)
     integer :: direction, edge, component, ierr
-    logical :: density_limited, energy_limited
+    logical :: density_limited, energy_limited, entropy_limited
 
     local_minimum = 1.0_rp
-    local_maximum = 0.0_rp
-    local_sum = 0.0_rp
-    local_limited_count = 0
-    local_density_count = 0
-    local_energy_count = 0
+    local_count = 0
     do edge = 1, this%graph%n_edges
        associate(a => this%graph%left(:,edge), &
             b => this%graph%right(:,edge))
@@ -1361,8 +1208,10 @@ contains
               this%density_upper_bound%x(a(1),a(2),a(3),a(4)), &
               this%density_lower_bound%x(b(1),b(2),b(3),b(4)), &
               this%density_upper_bound%x(b(1),b(2),b(3),b(4)), &
+              this%entropy_lower_bound%x(a(1),a(2),a(3),a(4)), &
+              this%entropy_lower_bound%x(b(1),b(2),b(3),b(4)), gamma, &
               internal_energy_floor, this%edge_limiter(edge), &
-              density_limited, energy_limited)
+              density_limited, energy_limited, entropy_limited)
        end associate
        if (.not. ieee_is_finite(this%edge_limiter(edge)) .or. &
             this%edge_limiter(edge) .lt. 0.0_rp .or. &
@@ -1370,46 +1219,32 @@ contains
           call neko_error('Euler IDP produced an invalid edge limiter')
        end if
        local_minimum = min(local_minimum, this%edge_limiter(edge))
-       local_maximum = max(local_maximum, this%edge_limiter(edge))
-       local_sum = local_sum + this%edge_limiter(edge)
+       local_count(1) = local_count(1) + 1
        if (this%edge_limiter(edge) .lt. &
             1.0_rp - 32.0_rp * epsilon(1.0_rp)) then
-          local_limited_count = local_limited_count + 1
+          local_count(2) = local_count(2) + 1
        end if
-       if (density_limited) local_density_count = local_density_count + 1
-       if (energy_limited) local_energy_count = local_energy_count + 1
+       if (density_limited) local_count(3) = local_count(3) + 1
+       if (energy_limited) local_count(4) = local_count(4) + 1
+       if (entropy_limited) local_count(5) = local_count(5) + 1
     end do
 
     call MPI_Allreduce(local_minimum, global_minimum, 1, &
          MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
-    call MPI_Allreduce(local_maximum, global_maximum, 1, &
-         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-    call MPI_Allreduce(local_sum, global_sum, 1, MPI_REAL_PRECISION, &
-         MPI_SUM, NEKO_COMM, ierr)
-    local_count = real(this%graph%n_edges, rp)
-    call MPI_Allreduce(local_count, global_count, 1, MPI_REAL_PRECISION, &
-         MPI_SUM, NEKO_COMM, ierr)
-    call MPI_Allreduce(local_limited_count, global_limited_count, 1, &
-         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    call MPI_Allreduce(local_density_count, global_density_count, 1, &
-         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    call MPI_Allreduce(local_energy_count, global_energy_count, 1, &
-         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Allreduce(local_count, global_count, 5, MPI_INTEGER, MPI_SUM, &
+         NEKO_COMM, ierr)
 
     diagnostics%min_limiter = global_minimum
-    diagnostics%max_limiter = global_maximum
-    if (global_count .gt. 0.0_rp) then
-       diagnostics%mean_limiter = global_sum / global_count
+    if (global_count(1) .gt. 0) then
        diagnostics%limited_edge_fraction = &
-            real(global_limited_count, rp) / global_count
+            real(global_count(2), rp) / real(global_count(1), rp)
     else
        diagnostics%min_limiter = 1.0_rp
-       diagnostics%mean_limiter = 1.0_rp
-       diagnostics%max_limiter = 1.0_rp
        diagnostics%limited_edge_fraction = 0.0_rp
     end if
-    diagnostics%density_limited_edges = global_density_count
-    diagnostics%internal_energy_limited_edges = global_energy_count
+    diagnostics%density_limited_edges = global_count(3)
+    diagnostics%internal_energy_limited_edges = global_count(4)
+    diagnostics%entropy_limited_edges = global_count(5)
   end subroutine euler_idp_cpu_compute_limiter
 
   !> Assemble the limited edge correction on the replicated nodal state.

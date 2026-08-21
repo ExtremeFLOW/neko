@@ -1,0 +1,106 @@
+module test_euler_idp_limiter
+contains
+
+@test
+subroutine test_specific_entropy()
+  use pfunit
+  use num_types, only : rp
+  use euler_idp_limiter, only : euler_idp_specific_entropy
+  implicit none
+
+  real(kind=rp), parameter :: gamma = 1.4_rp
+  real(kind=rp) :: state(5), expected, actual
+
+  state = make_state(0.8_rp, 0.3_rp, 0.6_rp, gamma)
+  expected = log(0.6_rp) - gamma * log(0.8_rp)
+  actual = euler_idp_specific_entropy(state, gamma)
+  @assertEqual(expected, actual, tolerance=64.0_rp * epsilon(1.0_rp))
+end subroutine test_specific_entropy
+
+@test
+subroutine test_entropy_endpoint_limit()
+  use pfunit
+  use num_types, only : rp
+  use euler_idp_limiter, only : euler_idp_limit_endpoint, &
+       euler_idp_specific_entropy
+  implicit none
+
+  real(kind=rp), parameter :: gamma = 1.4_rp
+  real(kind=rp) :: base(5), correction(5), trial(5)
+  real(kind=rp) :: limit, entropy_lower
+  logical :: density_limited, energy_limited, entropy_limited
+
+  base = make_state(1.0_rp, 0.0_rp, 1.0_rp, gamma)
+  correction = make_state(1.0_rp, 0.0_rp, 0.25_rp, gamma) - base
+  entropy_lower = log(0.5_rp)
+  call euler_idp_limit_endpoint(base, correction, 0.5_rp, 1.5_rp, &
+       entropy_lower, gamma, 1.0e-12_rp, limit, density_limited, &
+       energy_limited, entropy_limited)
+
+  @assertEqual(2.0_rp / 3.0_rp, limit, tolerance=1.0e-12_rp)
+  @assertFalse(density_limited)
+  @assertFalse(energy_limited)
+  @assertTrue(entropy_limited)
+  trial = base + limit * correction
+  @assertTrue(euler_idp_specific_entropy(trial, gamma) .ge. entropy_lower - 128.0_rp * epsilon(1.0_rp))
+end subroutine test_entropy_endpoint_limit
+
+@test
+subroutine test_entropy_boundary_outward_limit()
+  use pfunit
+  use num_types, only : rp
+  use euler_idp_limiter, only : euler_idp_limit_endpoint
+  implicit none
+
+  real(kind=rp), parameter :: gamma = 1.4_rp
+  real(kind=rp) :: base(5), correction(5), limit
+  logical :: density_limited, energy_limited, entropy_limited
+
+  base = make_state(1.0_rp, 0.0_rp, 1.0_rp, gamma)
+  correction = make_state(1.0_rp, 0.0_rp, 0.5_rp, gamma) - base
+  call euler_idp_limit_endpoint(base, correction, 0.5_rp, 1.5_rp, &
+       0.0_rp, gamma, 1.0e-12_rp, limit, density_limited, &
+       energy_limited, entropy_limited)
+
+  @assertEqual(0.0_rp, limit, tolerance=256.0_rp * epsilon(1.0_rp))
+  @assertTrue(entropy_limited)
+end subroutine test_entropy_boundary_outward_limit
+
+@test
+subroutine test_symmetric_edge_entropy_limit()
+  use pfunit
+  use num_types, only : rp
+  use euler_idp_limiter, only : euler_idp_limit_edge
+  implicit none
+
+  real(kind=rp), parameter :: gamma = 1.4_rp
+  real(kind=rp) :: left(5), right(5), left_correction(5)
+  real(kind=rp) :: right_correction(5), limit
+  logical :: density_limited, energy_limited, entropy_limited
+
+  left = make_state(1.0_rp, 0.0_rp, 1.0_rp, gamma)
+  right = make_state(1.0_rp, 0.0_rp, 1.0_rp, gamma)
+  left_correction = make_state(1.0_rp, 0.0_rp, 0.25_rp, gamma) - left
+  right_correction = -left_correction
+  call euler_idp_limit_edge(left, right, left_correction, &
+       right_correction, 0.5_rp, 1.5_rp, 0.5_rp, 1.5_rp, &
+       log(0.5_rp), log(0.5_rp), gamma, 1.0e-12_rp, limit, &
+       density_limited, energy_limited, entropy_limited)
+
+  @assertEqual(2.0_rp / 3.0_rp, limit, tolerance=1.0e-12_rp)
+  @assertTrue(entropy_limited)
+end subroutine test_symmetric_edge_entropy_limit
+
+pure function make_state(rho, velocity, pressure, gamma) result(state)
+  use num_types, only : rp
+  real(kind=rp), intent(in) :: rho, velocity, pressure, gamma
+  real(kind=rp) :: state(5)
+
+  state = 0.0_rp
+  state(1) = rho
+  state(2) = rho * velocity
+  state(5) = pressure / (gamma - 1.0_rp) + &
+       0.5_rp * rho * velocity**2
+end function make_state
+
+end module test_euler_idp_limiter

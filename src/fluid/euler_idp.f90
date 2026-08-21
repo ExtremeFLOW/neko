@@ -44,7 +44,8 @@ module euler_idp
   !> Configuration of the opt-in Euler IDP path.
   type, public :: euler_idp_config_t
      logical :: enabled = .false.
-     logical :: relax_density_bounds = .true.
+     logical :: low_order_only = .false.
+     logical :: relax_density_bounds = .false.
      real(kind=rp) :: internal_energy_floor = 1.0e-12_rp
    contains
      procedure, pass(this) :: init => euler_idp_config_init
@@ -57,6 +58,7 @@ module euler_idp
      real(kind=rp) :: min_density = huge(1.0_rp)
      real(kind=rp) :: min_internal_energy = huge(1.0_rp)
      real(kind=rp) :: min_pressure = huge(1.0_rp)
+     real(kind=rp) :: min_specific_entropy = huge(1.0_rp)
      real(kind=rp) :: max_graph_cfl = 0.0_rp
      real(kind=rp) :: min_convex_weight = 1.0_rp
      real(kind=rp) :: maximum_floor_timestep = huge(1.0_rp)
@@ -95,8 +97,10 @@ module euler_idp
      real(kind=rp) :: max_density_bound_relaxation = 0.0_rp
      real(kind=rp) :: max_density_lower_violation = 0.0_rp
      real(kind=rp) :: max_density_upper_violation = 0.0_rp
+     real(kind=rp) :: max_entropy_lower_violation = 0.0_rp
      integer :: density_limited_edges = 0
      integer :: internal_energy_limited_edges = 0
+     integer :: entropy_limited_edges = 0
    contains
      procedure, pass(this) :: reset => euler_idp_diagnostics_reset
   end type euler_idp_diagnostics_t
@@ -110,14 +114,17 @@ contains
     character(len=*), parameter :: root = "case.numerics.euler_idp."
 
     this%enabled = .false.
-    this%relax_density_bounds = .true.
+    this%low_order_only = .false.
+    this%relax_density_bounds = .false.
     this%internal_energy_floor = 1.0e-12_rp
 
     if (.not. params%valid_path("case.numerics.euler_idp")) return
 
     call json_get_or_default(params, root // "enabled", this%enabled, .false.)
+    call json_get_or_default(params, root // "low_order_only", &
+         this%low_order_only, .false.)
     call json_get_or_default(params, root // "relax_density_bounds", &
-         this%relax_density_bounds, .true.)
+         this%relax_density_bounds, .false.)
     call json_get_or_default(params, root // "internal_energy_floor", &
          this%internal_energy_floor, 1.0e-12_rp)
   end subroutine euler_idp_config_init
@@ -146,6 +153,7 @@ contains
     this%min_density = huge(1.0_rp)
     this%min_internal_energy = huge(1.0_rp)
     this%min_pressure = huge(1.0_rp)
+    this%min_specific_entropy = huge(1.0_rp)
     this%max_graph_cfl = 0.0_rp
     this%min_convex_weight = 1.0_rp
     this%maximum_floor_timestep = huge(1.0_rp)
@@ -180,8 +188,10 @@ contains
     this%max_density_bound_relaxation = 0.0_rp
     this%max_density_lower_violation = 0.0_rp
     this%max_density_upper_violation = 0.0_rp
+    this%max_entropy_lower_violation = 0.0_rp
     this%density_limited_edges = 0
     this%internal_energy_limited_edges = 0
+    this%entropy_limited_edges = 0
   end subroutine euler_idp_diagnostics_reset
 
 end module euler_idp

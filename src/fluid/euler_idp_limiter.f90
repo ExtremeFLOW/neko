@@ -39,6 +39,8 @@ module euler_idp_limiter
   private
 
   public :: euler_idp_state_is_admissible
+  public :: euler_idp_specific_entropy
+  public :: euler_idp_entropy_is_admissible
   public :: euler_idp_relax_density_bounds
   public :: euler_idp_limit_endpoint
   public :: euler_idp_limit_edge
@@ -61,6 +63,41 @@ contains
          energy_margin .ge. 0.0_rp
   end function euler_idp_state_is_admissible
 
+  !> Return log(p) - gamma*log(rho) for a gamma-law gas.
+  pure real(kind=rp) function euler_idp_specific_entropy(state, gamma) &
+       result(entropy)
+    real(kind=rp), intent(in) :: state(EULER_IDP_NCOMP)
+    real(kind=rp), intent(in) :: gamma
+    real(kind=rp) :: internal_energy, pressure
+
+    entropy = -huge(1.0_rp)
+    if (.not. all(ieee_is_finite(state))) return
+    if (state(1) .le. 0.0_rp) return
+    internal_energy = state(5) - &
+         0.5_rp * dot_product(state(2:4), state(2:4)) / state(1)
+    pressure = (gamma - 1.0_rp) * internal_energy
+    if (.not. ieee_is_finite(pressure) .or. pressure .le. 0.0_rp) return
+    entropy = log(pressure) - gamma * log(state(1))
+  end function euler_idp_specific_entropy
+
+  !> Test the Euler admissible set and a local minimum entropy constraint.
+  pure logical function euler_idp_entropy_is_admissible(state, gamma, &
+       entropy_lower, internal_energy_floor) result(admissible)
+    real(kind=rp), intent(in) :: state(EULER_IDP_NCOMP)
+    real(kind=rp), intent(in) :: gamma, entropy_lower
+    real(kind=rp), intent(in) :: internal_energy_floor
+    real(kind=rp) :: entropy, tolerance
+
+    admissible = euler_idp_state_is_admissible(state, &
+         internal_energy_floor)
+    if (.not. admissible) return
+    entropy = euler_idp_specific_entropy(state, gamma)
+    tolerance = 64.0_rp * epsilon(1.0_rp) * &
+         max(1.0_rp, abs(entropy_lower))
+    admissible = ieee_is_finite(entropy) .and. &
+         entropy .ge. entropy_lower - tolerance
+  end function euler_idp_entropy_is_admissible
+
   !> Apply the averaging relaxation of Guermond et al. to density bounds.
   pure subroutine euler_idp_relax_density_bounds(strict_lower, strict_upper, &
        second_difference, nodal_mass, domain_volume, dimension, &
@@ -81,14 +118,14 @@ contains
 
   !> Limit one directed auxiliary correction to the Euler admissible set.
   pure subroutine euler_idp_limit_endpoint(base, correction, density_lower, &
-       density_upper, internal_energy_floor, limit, density_limited, &
-       energy_limited)
+       density_upper, entropy_lower, gamma, internal_energy_floor, limit, &
+       density_limited, energy_limited, entropy_limited)
     real(kind=rp), intent(in) :: base(EULER_IDP_NCOMP)
     real(kind=rp), intent(in) :: correction(EULER_IDP_NCOMP)
-    real(kind=rp), intent(in) :: density_lower, density_upper
-    real(kind=rp), intent(in) :: internal_energy_floor
+    real(kind=rp), intent(in) :: density_lower, density_upper, entropy_lower
+    real(kind=rp), intent(in) :: gamma, internal_energy_floor
     real(kind=rp), intent(out) :: limit
-    logical, intent(out) :: density_limited, energy_limited
+    logical, intent(out) :: density_limited, energy_limited, entropy_limited
     real(kind=rp) :: lower, upper, midpoint
     real(kind=rp) :: trial(EULER_IDP_NCOMP)
     integer :: iteration
@@ -96,12 +133,19 @@ contains
     limit = 1.0_rp
     density_limited = .false.
     energy_limited = .false.
+    entropy_limited = .false.
     if (.not. euler_idp_state_is_admissible(base, &
          internal_energy_floor) .or. base(1) .lt. density_lower .or. &
          base(1) .gt. density_upper) then
        limit = 0.0_rp
        density_limited = .true.
        energy_limited = .true.
+       return
+    end if
+    if (.not. euler_idp_entropy_is_admissible(base, gamma, entropy_lower, &
+         internal_energy_floor)) then
+       limit = 0.0_rp
+       entropy_limited = .true.
        return
     end if
 
@@ -119,15 +163,18 @@ contains
     end if
 
     trial = base + limit * correction
-    if (euler_idp_state_is_admissible(trial, internal_energy_floor)) return
+    energy_limited = .not. euler_idp_state_is_admissible(trial, &
+         internal_energy_floor)
+    entropy_limited = .not. euler_idp_entropy_is_admissible(trial, gamma, &
+         entropy_lower, internal_energy_floor)
+    if (.not. energy_limited .and. .not. entropy_limited) return
 
-    energy_limited = .true.
     lower = 0.0_rp
     upper = limit
     do iteration = 1, 64
        midpoint = 0.5_rp * (lower + upper)
        trial = base + midpoint * correction
-       if (euler_idp_state_is_admissible(trial, &
+       if (euler_idp_entropy_is_admissible(trial, gamma, entropy_lower, &
             internal_energy_floor)) then
           lower = midpoint
        else
@@ -144,29 +191,37 @@ contains
   pure subroutine euler_idp_limit_edge(left_base, right_base, &
        left_correction, right_correction, left_density_lower, &
        left_density_upper, right_density_lower, right_density_upper, &
-       internal_energy_floor, limit, density_limited, energy_limited)
+       left_entropy_lower, right_entropy_lower, gamma, &
+       internal_energy_floor, limit, density_limited, energy_limited, &
+       entropy_limited)
     real(kind=rp), intent(in) :: left_base(EULER_IDP_NCOMP)
     real(kind=rp), intent(in) :: right_base(EULER_IDP_NCOMP)
     real(kind=rp), intent(in) :: left_correction(EULER_IDP_NCOMP)
     real(kind=rp), intent(in) :: right_correction(EULER_IDP_NCOMP)
     real(kind=rp), intent(in) :: left_density_lower, left_density_upper
     real(kind=rp), intent(in) :: right_density_lower, right_density_upper
-    real(kind=rp), intent(in) :: internal_energy_floor
+    real(kind=rp), intent(in) :: left_entropy_lower, right_entropy_lower
+    real(kind=rp), intent(in) :: gamma, internal_energy_floor
     real(kind=rp), intent(out) :: limit
-    logical, intent(out) :: density_limited, energy_limited
+    logical, intent(out) :: density_limited, energy_limited, entropy_limited
     real(kind=rp) :: left_limit, right_limit
     logical :: left_density_limited, right_density_limited
     logical :: left_energy_limited, right_energy_limited
+    logical :: left_entropy_limited, right_entropy_limited
 
     call euler_idp_limit_endpoint(left_base, left_correction, &
-         left_density_lower, left_density_upper, internal_energy_floor, &
-         left_limit, left_density_limited, left_energy_limited)
+         left_density_lower, left_density_upper, left_entropy_lower, gamma, &
+         internal_energy_floor, left_limit, &
+         left_density_limited, left_energy_limited, left_entropy_limited)
     call euler_idp_limit_endpoint(right_base, right_correction, &
-         right_density_lower, right_density_upper, internal_energy_floor, &
-         right_limit, right_density_limited, right_energy_limited)
+         right_density_lower, right_density_upper, right_entropy_lower, &
+         gamma, internal_energy_floor, right_limit, &
+         right_density_limited, right_energy_limited, &
+         right_entropy_limited)
     limit = min(left_limit, right_limit)
     density_limited = left_density_limited .or. right_density_limited
     energy_limited = left_energy_limited .or. right_energy_limited
+    entropy_limited = left_entropy_limited .or. right_entropy_limited
   end subroutine euler_idp_limit_edge
 
 end module euler_idp_limiter

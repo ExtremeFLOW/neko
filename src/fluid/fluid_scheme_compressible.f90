@@ -609,7 +609,11 @@ contains
     write(log_buf, '(A, I0)') 'RK order   : ', integer_val
     call neko_log%message(log_buf)
     if (this%euler_idp%enabled) then
-       write(log_buf, '(A)') 'Euler IDP  : enabled'
+       if (this%euler_idp%low_order_only) then
+          write(log_buf, '(A)') 'Euler IDP  : low order only'
+       else
+          write(log_buf, '(A)') 'Euler IDP  : enabled'
+       end if
        call neko_log%message(log_buf)
     end if
     call neko_log%end_section()
@@ -625,8 +629,8 @@ contains
     character(len=LOG_SIZE) :: message
     logical :: dealias, oifs, cyclic, ale_enabled
     logical :: local_valid, global_valid
-    integer :: time_order, ierr, local_periodic, global_periodic
-    integer :: e, f, i, n_facets
+    integer :: time_order, ierr
+    integer :: e, f, n_facets
     real(kind=rp) :: metric_tolerance
 
     if (.not. this%euler_idp%enabled) return
@@ -663,9 +667,6 @@ contains
     if (cyclic .or. this%c_Xh%cyclic) then
        call neko_error('Euler IDP does not support rotational periodicity')
     end if
-    if (params%valid_path('case.fluid.boundary_conditions')) then
-       call neko_error('Euler IDP requires a fully periodic domain')
-    end if
     if (params%valid_path('case.fluid.source_terms')) then
        call neko_error('Euler IDP does not support fluid source terms')
     end if
@@ -698,9 +699,6 @@ contains
     end if
 
     local_valid = .true.
-    do i = 1, size(this%msh%labeled_zones)
-       if (this%msh%labeled_zones(i)%size .gt. 0) local_valid = .false.
-    end do
     if (this%msh%gdim .eq. 2) then
        n_facets = 4
     else if (this%msh%gdim .eq. 3) then
@@ -713,18 +711,15 @@ contains
        do f = 1, n_facets
           if (this%msh%facet_neigh(f,e) .eq. 0 .and. &
                .not. fluid_scheme_compressible_is_periodic_facet( &
-               this%msh, f, e)) local_valid = .false.
+               this%msh, f, e) .and. &
+               this%msh%facet_type(f,e) .ge. 0) local_valid = .false.
        end do
     end do
-    local_periodic = this%msh%periodic%size
-    call MPI_Allreduce(local_periodic, global_periodic, 1, MPI_INTEGER, &
-         MPI_SUM, NEKO_COMM, ierr)
-    if (global_periodic .eq. 0) local_valid = .false.
     call MPI_Allreduce(local_valid, global_valid, 1, MPI_LOGICAL, MPI_LAND, &
          NEKO_COMM, ierr)
     if (.not. global_valid) then
        call neko_error( &
-            'Euler IDP requires complete translational periodic pairing')
+            'Euler IDP requires every exterior facet to be periodic or labeled')
     end if
 
     metric_tolerance = 100.0_rp * epsilon(1.0_rp) * &
