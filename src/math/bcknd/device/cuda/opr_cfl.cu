@@ -95,7 +95,7 @@ extern "C" {
     case LX:                                                                  \
       cfl_kernel<double, real, LX, 1024>                                      \
         <<<nblcks, nthrds, 0, stream>>>                                       \
-        ((double *) dt, (real *) u, (real *) v, (real *) w,                   \
+        (*dt, (real *) u, (real *) v, (real *) w,                   \
          (real *) drdx, (real *) dsdx, (real *) dtdx,                         \
          (real *) drdy, (real *) dsdy, (real *) dtdy,                         \
          (real *) drdz, (real *) dsdz, (real *) dtdz,                         \
