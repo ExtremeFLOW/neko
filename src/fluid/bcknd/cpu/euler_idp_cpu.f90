@@ -867,11 +867,6 @@ contains
     this%low_candidate(5)%x = energy%x - dt * &
          this%low_assembled_residual(5)%x
 
-    call euler_idp_cpu_primitives(this, this%low_candidate(1), &
-         this%low_candidate(2), this%low_candidate(3), &
-         this%low_candidate(4), this%low_candidate(5), gamma, &
-         internal_energy_floor, 'low-order candidate')
-
     call this%compute_bounds(rho, m_x, m_y, m_z, energy, gs, gamma, &
          diagnostics)
 
@@ -909,12 +904,6 @@ contains
        call neko_error('Euler IDP correction is incompatible with the ' // &
             'selected element-local reconstruction')
     end if
-
-    ! The low-candidate admissibility check above overwrites the primitive
-    ! work fields. Restore primitives of the stage state before constructing
-    ! its directional Euler fluxes.
-    call euler_idp_cpu_primitives(this, rho, m_x, m_y, m_z, energy, gamma, &
-         internal_energy_floor, 'correction reconstruction state')
 
     ! Reconstruct the low-to-high inviscid correction independently in each
     ! tensor direction. On affine elements the two SBP operators have the same
@@ -984,6 +973,14 @@ contains
        call neko_error('Euler IDP directional correction reconstruction ' // &
             'failed')
     end if
+
+    ! The low-order candidate is the base state for every edge correction.
+    ! Validate it after the stage-state fluxes have been reconstructed so its
+    ! primitive conversion does not need to be undone.
+    call euler_idp_cpu_primitives(this, this%low_candidate(1), &
+         this%low_candidate(2), this%low_candidate(3), &
+         this%low_candidate(4), this%low_candidate(5), gamma, &
+         internal_energy_floor, 'low-order candidate')
 
     diagnostics%limiter_weight_error = this%limiter_weight_error
     call this%compute_limiter(gamma, internal_energy_floor, diagnostics)
