@@ -16,6 +16,9 @@ module test_field_parallel
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use neko_config
+  use gather_scatter, only : gs_t
+  use coefs, only : coef_t
+  use neumann, only : neumann_t
   implicit none
 
   @TestCase
@@ -272,5 +275,35 @@ contains
     @assertEqual(-3.0_rp, field_glmin(f, n - 1))
 
   end subroutine test_field_glminmax
+
+  @test(npes=[1])
+  subroutine test_scalar_neumann_finalize(this)
+    class (test_field), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dm
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(neumann_t) :: bc
+    integer, parameter :: LX = 4
+
+    call test_field_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call dm%init(msh, Xh)
+    call gs%init(dm)
+    call coef%init(gs)
+
+    call bc%init_from_components(coef, 0.0_rp)
+    call bc%finalize()
+
+    @assertTrue(bc%uniform_0)
+
+    call bc%free()
+    call coef%free()
+    call gs%free()
+    call dm%free()
+    call Xh%free()
+    call msh%free()
+  end subroutine test_scalar_neumann_finalize
 
 end module test_field_parallel
