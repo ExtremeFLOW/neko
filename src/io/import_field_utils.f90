@@ -175,13 +175,13 @@ contains
 
     !
     ! Read fld file and mesh file if specified 
-    !
-    call read_fld_file(fname, fld_data)
-
+    ! 
     if (present(mesh_fname)) then
       call neko_log%message("Mesh file     : " // trim(mesh_fname))
       call read_fld_file(mesh_fname, fld_data)
-    end if
+   end if
+
+   call read_fld_file(fname, fld_data)
 
     !
     ! Copy all field data to device (GPU) since everything is read on the CPU
