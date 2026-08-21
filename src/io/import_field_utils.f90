@@ -174,14 +174,14 @@ contains
     call neko_log%message(log_buf)
 
     !
-    ! Read fld file and mesh file if specified 
-    ! 
+    ! Read fld file and mesh file if specified
+    !
     if (present(mesh_fname)) then
-      call neko_log%message("Mesh file     : " // trim(mesh_fname))
-      call read_fld_file(mesh_fname, fld_data)
-   end if
+       call neko_log%message("Mesh file     : " // trim(mesh_fname))
+       call read_fld_file(mesh_fname, fld_data)
+    end if
 
-   call read_fld_file(fname, fld_data)
+    call read_fld_file(fname, fld_data)
 
     !
     ! Copy all field data to device (GPU) since everything is read on the CPU
@@ -242,31 +242,31 @@ contains
   !> Wrapper around the fld file reader. Translates a file name specified as
   !! "field0.f00132" into "field0.fld" + counter = 132.
   subroutine read_fld_file(file_name, data)
-   character(len=*), intent(in) :: file_name
-   type(fld_file_data_t), intent(inout) :: data
+    character(len=*), intent(in) :: file_name
+    type(fld_file_data_t), intent(inout) :: data
 
-   type(file_t) :: f
-   integer :: sample_idx
-   character(len=NEKO_FNAME_LEN) :: fname_
+    type(file_t) :: f
+    integer :: sample_idx
+    character(len=NEKO_FNAME_LEN) :: fname_
 
-   ! Extract sample index from the file name
-   sample_idx = extract_fld_file_index(file_name, -1)
+    ! Extract sample index from the file name
+    sample_idx = extract_fld_file_index(file_name, -1)
 
-   if (sample_idx .eq. -1) &
-      call neko_error("Invalid file name. The file format must be e.g. " // &
+    if (sample_idx .eq. -1) &
+         call neko_error("Invalid file name. The file format must be e.g. " // &
          "'mean0.f00001'")
 
-   ! Change from "field0.f000*" to "field0.fld" for the fld reader
-   call filename_chsuffix(file_name, fname_, 'fld')
+    ! Change from "field0.f000*" to "field0.fld" for the fld reader
+    call filename_chsuffix(file_name, fname_, 'fld')
 
-   ! Initialize file object and set the desired sample
-   call f%init(trim(fname_))
-   call f%set_counter(sample_idx)
+    ! Initialize file object and set the desired sample
+    call f%init(trim(fname_))
+    call f%set_counter(sample_idx)
 
-   ! Read data and load into fld_file_data
-   call f%read(data)
+    ! Read data and load into fld_file_data
+    call f%read(data)
 
-   call file_free(f)
+    call file_free(f)
 
   end subroutine read_fld_file
 
