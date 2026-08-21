@@ -17,7 +17,7 @@ AC_DEFUN([AX_LIBXSMM],[
         if test "x${with_libxsmm}" != xno; then
      	   PKG_CHECK_MODULES([libxsmmf], [libxsmmf >= 0.16.1],
 	           	     have_libxsmm=yes xsmm_bcknd="1",
-			     xsmm_bkcnd="0" have_libxsmm=no)
+			     xsmm_bcknd="0" have_libxsmm=no)
 	   if test "x${have_libxsmm}" = xyes; then
 	      NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $libxsmmf_CFLAGS"
 	      LIBS="$LIBS $libxsmmf_LIBS"

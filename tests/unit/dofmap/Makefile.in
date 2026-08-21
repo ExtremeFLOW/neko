@@ -19,7 +19,8 @@ dofmap_suite.inc: Makefile
 
 distclean:
 clean:
-	$(RM) *.o *.mod *.a  *.inc *.F90 dofmap_suite
+	$(RM) *.o *.mod *.a  *.inc *.F90 dofmap_suite \
+		test_dofmap_2d_curve_extrusion.nmsh
 
 
 

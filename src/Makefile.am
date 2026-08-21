@@ -32,6 +32,7 @@ neko_fortran_SOURCES = \
 	common/json_utils.f90\
 	common/case_file_utils.f90\
 	common/mask.f90\
+	common/expression.f90\
 	common/system.f90\
 	common/runtime_statistics.f90\
 	common/user_access_singleton.f90\
@@ -62,6 +63,7 @@ neko_fortran_SOURCES = \
 	gs/gs_ops.f90\
 	gs/gs_comm.f90\
 	gs/gs_mpi.f90\
+	gs/gs_mpi_rma.f90\
 	gs/gs_shmem.F90\
 	gs/gs_caf.F90\
 	gs/gs_neighbour.f90\
@@ -70,6 +72,7 @@ neko_fortran_SOURCES = \
 	gs/bcknd/device/gs_device_nccl.F90\
 	gs/bcknd/device/gs_device_shmem.F90\
 	gs/gather_scatter.f90\
+	gs/gs_tune.f90\
 	mesh/entity.f90\
 	mesh/point.f90\
 	mesh/element.f90\
@@ -205,6 +208,8 @@ neko_fortran_SOURCES = \
 	bc/field_dirichlet.f90\
 	bc/field_neumann.f90\
 	bc/field_dirichlet_vector.f90\
+	bc/expression_dirichlet.f90\
+	bc/expression_dirichlet_vector.f90\
 	bc/overset_interface.f90\
 	bc/overset_interface_vector.f90\
 	bc/facet_normal.f90\
@@ -245,6 +250,7 @@ neko_fortran_SOURCES = \
 	time_schemes/ab_time_scheme.f90\
 	time_schemes/time_scheme_controller.f90\
 	time_schemes/runge_kutta_scheme.f90\
+	common/boundary_data.f90\
 	common/time_based_controller.f90\
 	common/stats_quant.f90\
 	common/statistics.f90\
@@ -253,6 +259,7 @@ neko_fortran_SOURCES = \
 	simulation_components/probes.F90\
 	simulation_components/boundary_operation.f90\
 	simulation_components/boundary_flux.f90\
+	simulation_components/boundary_data_writer_simcomp.f90\
 	simulation_components/data_streamer_simcomp.F90\
 	simulation_components/field_subsampler.f90\
 	simulation_components/force_torque.f90\
@@ -263,6 +270,7 @@ neko_fortran_SOURCES = \
 	simulation_components/spatial_average.f90\
 	simulation_components/user_stats.f90\
 	simulation_components/field_writer.f90\
+	simulation_components/wall_shear_stress_simcomp.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
 	common/bcknd/device/rhs_maker_device.F90\
@@ -451,6 +459,10 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/deardorff_cpu.f90\
 	les/bcknd/device/deardorff_device.f90\
 	les/bcknd/device/device_deardorff_nut.F90\
+	wall_models/wall_sampler.f90\
+	wall_models/wall_gll_sampler.f90\
+	wall_models/wall_distance_sampler.f90\
+	wall_models/wall_sampler_fctry.f90\
 	wall_models/wall_model.f90\
 	wall_models/bcknd/device/wall_model_device.F90\
 	wall_models/spalding.f90\
@@ -999,6 +1011,8 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/rotate_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
 	math/bcknd/device/cuda/ax_helm_full_kernel.h\
+	math/bcknd/device/cuda/elem_block.h\
+	math/bcknd/device/cuda/elem_block_tune.h\
 	common/bcknd/device/cuda/sumab_kernel.h\
 	common/bcknd/device/cuda/makeext_kernel.h\
 	common/bcknd/device/cuda/makebdf_kernel.h\
@@ -1053,6 +1067,8 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/rotate_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
 	math/bcknd/device/hip/ax_helm_full_kernel.h\
+	math/bcknd/device/hip/elem_block.h\
+	math/bcknd/device/hip/elem_block_tune.h\
 	common/bcknd/device/hip/sumab_kernel.h\
 	common/bcknd/device/hip/makeext_kernel.h\
 	common/bcknd/device/hip/makebdf_kernel.h\

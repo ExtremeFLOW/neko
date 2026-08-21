@@ -39,6 +39,9 @@ module richardson
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
+  use wall_sampler, only : wall_sampler_t
+  use wall_sampler_fctry, only : wall_sampler_factory
+  use user_intf, only : user_t
   use registry, only : neko_registry, neko_const_registry
   use json_utils, only : json_get, json_get_or_default, &
        json_get_or_lookup, json_get_or_lookup_or_default
@@ -51,8 +54,6 @@ module richardson
   use vector_math, only : vector_glsum, vector_glmin, vector_glmax
   use math, only: masked_gather_copy_0
   use device_math, only: device_masked_gather_copy_0
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
-  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   implicit none
   private
 
@@ -83,10 +84,7 @@ module richardson
      character(len=:), allocatable :: scalar_name
      !> Diagnostics
      type(vector_t) :: Ri_b, L_ob, utau, magu, ti, ts, q
-     integer, allocatable :: h_x_idx(:), h_y_idx(:), h_z_idx(:)
-     type(c_ptr) :: h_x_idx_d = C_NULL_PTR
-     type(c_ptr) :: h_y_idx_d = C_NULL_PTR
-     type(c_ptr) :: h_z_idx_d = C_NULL_PTR
+     type(vector_t) :: u_s, v_s, w_s, temp_s, temp_w
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => richardson_init
@@ -113,16 +111,14 @@ contains
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
   subroutine richardson_init(this, scheme_name, coef, msk, facet, &
-       h_index, json)
+       json)
     class(richardson_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, z0, z0h_in, Pr
     character(len=:), allocatable :: bc_type
@@ -131,6 +127,7 @@ contains
     real(kind=rp), allocatable :: g_tmp(:)
     real(kind=rp) :: g(3)
     logical :: if_time_dependent
+    class(wall_sampler_t), allocatable :: sampler
 
     call json_get_or_lookup_or_default(json, "kappa", kappa, 0.4_rp)
     call json_get_or_lookup_or_default(json, "Pr", Pr, 1.0_rp)
@@ -160,8 +157,9 @@ contains
     end if
     deallocate(g_tmp)
 
+    call wall_sampler_factory(sampler, json)
     call this%init_from_components(scheme_name, scalar_name, coef, &
-         msk, facet, h_index, kappa, g, Pr, z0, z0h_in, bc_type, bc_value)
+         msk, facet, sampler, kappa, g, Pr, z0, z0h_in, bc_type, bc_value)
     deallocate(bc_type)
     deallocate(scalar_name)
   end subroutine richardson_init
@@ -169,15 +167,16 @@ contains
   !> Constructor from JSON.
   !! @param coef SEM coefficients.
   !! @param json A dictionary with parameters.
-  subroutine richardson_partial_init(this, coef, json)
+  subroutine richardson_partial_init(this, coef, scheme_name, json)
     class(richardson_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
+    character(len=*), intent(in) :: scheme_name
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: g_tmp(:)
     character(len=LOG_SIZE) :: log_buf
     logical :: if_time_dependent
 
-    call this%partial_init_base(coef, json)
+    call this%partial_init_base(coef, scheme_name, json)
     call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.4_rp)
     call json_get_or_lookup_or_default(json, "Pr", this%Pr, 1.0_rp)
     call json_get_or_lookup(json, "z0", this%z0)
@@ -228,14 +227,14 @@ contains
   !> Finalize the construction using the mask and facet arrays of the bc.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  subroutine richardson_finalize(this, msk, facet)
+  subroutine richardson_finalize(this, msk, facet, bc_name, user)
     class(richardson_t), intent(inout) :: this
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    integer :: i, fid
-
-
-    call this%finalize_base(msk, facet)
+    character(len=*), optional, intent(in) :: bc_name
+    type(user_t), target, optional, intent(in) :: user
+    call this%finalize_base(msk, facet, bc_name, user)
+    call this%validate_single_sample()
 
     call this%Ri_b%init(this%n_nodes)
     call this%L_ob%init(this%n_nodes)
@@ -247,56 +246,12 @@ contains
 
     call this%mu_w%init(this%n_nodes)
     call this%rho_w%init(this%n_nodes)
-
-    allocate(this%h_x_idx(this%n_nodes))
-    allocate(this%h_y_idx(this%n_nodes))
-    allocate(this%h_z_idx(this%n_nodes))
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%h_x_idx, this%h_x_idx_d, this%n_nodes)
-       call device_map(this%h_y_idx, this%h_y_idx_d, this%n_nodes)
-       call device_map(this%h_z_idx, this%h_z_idx_d, this%n_nodes)
-    end if
-
-    do i = 1, this%n_nodes
-       fid = this%facet(i)
-       select case (fid)
-       case (1)
-          this%h_x_idx(i) = this%h_index
-          this%h_y_idx(i) = 0
-          this%h_z_idx(i) = 0
-       case (2)
-          this%h_x_idx(i) = - this%h_index
-          this%h_y_idx(i) = 0
-          this%h_z_idx(i) = 0
-       case (3)
-          this%h_x_idx(i) = 0
-          this%h_y_idx(i) = this%h_index
-          this%h_z_idx(i) = 0
-       case (4)
-          this%h_x_idx(i) = 0
-          this%h_y_idx(i) = - this%h_index
-          this%h_z_idx(i) = 0
-       case (5)
-          this%h_x_idx(i) = 0
-          this%h_y_idx(i) = 0
-          this%h_z_idx(i) = this%h_index
-       case (6)
-          this%h_x_idx(i) = 0
-          this%h_y_idx(i) = 0
-          this%h_z_idx(i) = - this%h_index
-       case default
-          call neko_error("The face index is not correct (richardson.f90)")
-       end select
-    end do
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%h_x_idx, this%h_x_idx_d, this%n_nodes, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%h_y_idx, this%h_y_idx_d, this%n_nodes, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%h_z_idx, this%h_z_idx_d, this%n_nodes, &
-            HOST_TO_DEVICE, sync = .true.)
-    end if
+    call this%u_s%init(this%n_nodes)
+    call this%v_s%init(this%n_nodes)
+    call this%w_s%init(this%n_nodes)
+    call this%temp_s%init(this%n_nodes)
+    call this%temp_w%init(this%n_nodes)
+    call richardson_validate_sampling_height(this)
   end subroutine richardson_finalize
 
   !> Extract the values of rho and mu at the boundary.
@@ -323,7 +278,7 @@ contains
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param h_index The off-wall index of the sampling cell.
+  !! @param sampler The sampling strategy. Ownership is transferred.
   !! @param kappa The von Karman coefficient.
   !! @param g The gravity vector.
   !! @param z0 The roughness height.
@@ -334,7 +289,7 @@ contains
   !! Richardson WM.
   !! @param bc_value The heat flux at the surface boundary condition.
   subroutine richardson_init_from_components(this, scheme_name, &
-       scalar_name, coef, msk, facet, h_index, kappa, g, Pr, z0, &
+       scalar_name, coef, msk, facet, sampler, kappa, g, Pr, z0, &
        z0h_in, bc_type, bc_value)
     class(richardson_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
@@ -343,7 +298,7 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    integer, intent(in) :: h_index
+    class(wall_sampler_t), allocatable, intent(inout) :: sampler
     real(kind=rp), intent(in) :: g(3)
     real(kind=rp) :: g_mag, g_dot_n, cos_alpha, max_ang
     integer :: i
@@ -352,7 +307,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     call this%free()
-    call this%init_base(scheme_name, coef, msk, facet, h_index)
+    call this%init_base(scheme_name, coef, msk, facet, sampler)
 
     this%kappa = kappa
     this%g = g
@@ -365,6 +320,12 @@ contains
 
     call this%mu_w%init(this%n_nodes)
     call this%rho_w%init(this%n_nodes)
+    call this%validate_single_sample()
+    call this%u_s%init(this%n_nodes)
+    call this%v_s%init(this%n_nodes)
+    call this%w_s%init(this%n_nodes)
+    call this%temp_s%init(this%n_nodes)
+    call this%temp_w%init(this%n_nodes)
 
     !> Check magnitude of g
     g_mag = sqrt(sum(g**2))
@@ -389,12 +350,18 @@ contains
        call neko_warning(trim(log_buf))
     end if
 
-    !> Check sampling height
-    if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
+    call richardson_validate_sampling_height(this)
+
+  end subroutine richardson_init_from_components
+
+  subroutine richardson_validate_sampling_height(this)
+    class(richardson_t), intent(in) :: this
+
+    if (any(this%sampler%h%x(1:this%n_nodes) .le. this%z0)) then
        call neko_error("Richardson WM: Sampling height h must be greater " &
             // "than roughness z0.")
     else if ( (this%z0h_in .gt. 0.0_rp) .and. &
-         (any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
+         (any(this%sampler%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
        call neko_error("Richardson WM: Sampling height h must be greater " &
             // "than thermal roughness z0h.")
     else if (this%z0 .eq. 0.0_rp) then
@@ -403,8 +370,7 @@ contains
        call neko_error("Richardson WM: Thermal roughness z0h must " // &
             "be greater than 0.")
     end if
-
-  end subroutine richardson_init_from_components
+  end subroutine richardson_validate_sampling_height
 
   !> Destructor for the richardson_t (base) class.
   subroutine richardson_free(this)
@@ -420,6 +386,11 @@ contains
 
     call this%mu_w%free()
     call this%rho_w%free()
+    call this%u_s%free()
+    call this%v_s%free()
+    call this%w_s%free()
+    call this%temp_s%free()
+    call this%temp_w%free()
     call this%free_base()
 
     call this%Ri_b%free()
@@ -429,27 +400,6 @@ contains
     call this%ti%free()
     call this%ts%free()
     call this%q%free()
-
-    if (allocated(this%h_x_idx)) then
-       if (c_associated(this%h_x_idx_d)) then
-          call device_unmap(this%h_x_idx, this%h_x_idx_d)
-       end if
-       deallocate(this%h_x_idx)
-    end if
-
-    if (allocated(this%h_y_idx)) then
-       if (c_associated(this%h_y_idx_d)) then
-          call device_unmap(this%h_y_idx, this%h_y_idx_d)
-       end if
-       deallocate(this%h_y_idx)
-    end if
-
-    if (allocated(this%h_z_idx)) then
-       if (c_associated(this%h_z_idx_d)) then
-          call device_unmap(this%h_z_idx, this%h_z_idx_d)
-       end if
-       deallocate(this%h_z_idx)
-    end if
 
   end subroutine richardson_free
 
@@ -474,33 +424,44 @@ contains
     w => neko_registry%get_field("w")
     temp => neko_registry%get_field(this%scalar_name)
 
+    call this%sampler%sample(u, this%u_s)
+    call this%sampler%sample(v, this%v_s)
+    call this%sampler%sample(w, this%w_s)
+    call this%sampler%sample(temp, this%temp_s)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_masked_gather_copy_0(this%temp_w%x_d, temp%x_d, &
+            this%msk_d, temp%size(), this%n_nodes)
+    else
+       call masked_gather_copy_0(this%temp_w%x, temp%x, this%msk, &
+            temp%size(), this%n_nodes)
+    end if
+
     if (neko_const_registry%real_scalar_exists("bc_value")) then
        updated_bc_value => neko_const_registry%get_real_scalar("bc_value")
        this%bc_value = updated_bc_value
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call richardson_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, &
-            this%ind_r_d, this%ind_s_d, this%ind_t_d, &
-            this%ind_e_d, this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
-            this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
-            this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
+       call richardson_compute_device(this%u_s%x_d, this%v_s%x_d, &
+            this%w_s%x_d, this%temp_s%x_d, this%temp_w%x_d, &
+            this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
+            this%sampler%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
+            this%tau_z%x_d, this%n_nodes, this%kappa, &
             this%mu_w%x_d, this%rho_w%x_d, this%g, this%Pr, this%z0, &
             this%z0h_in, &
             this%bc_type, this%bc_value, tstep, this%Ri_b%x_d, &
             this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, &
-            this%ts%x_d, &
-            this%q%x_d, this%h_x_idx_d, this%h_y_idx_d, this%h_z_idx_d)
+            this%ts%x_d, this%q%x_d)
     else
-       call richardson_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, &
-            this%ind_s, this%ind_t, this%ind_e, this%n_x%x, &
-            this%n_y%x, this%n_z%x, this%h%x, this%tau_x%x, &
-            this%tau_y%x, this%tau_z%x, this%n_nodes, u%Xh%lx, &
-            u%msh%nelv, this%kappa, this%mu_w%x, this%rho_w%x, &
+       call richardson_compute_cpu(this%u_s%x, this%v_s%x, this%w_s%x, &
+            this%temp_s%x, this%temp_w%x, this%n_x%x, &
+            this%n_y%x, this%n_z%x, this%sampler%h%x, this%tau_x%x, &
+            this%tau_y%x, this%tau_z%x, this%n_nodes, &
+            this%kappa, this%mu_w%x, this%rho_w%x, &
             this%g, this%Pr, this%z0, this%z0h_in, this%bc_type, &
             this%bc_value, tstep, this%Ri_b%x, this%L_ob%x, &
             this%utau%x, this%magu%x, this%ti%x, this%ts%x, &
-            this%q%x, this%h_x_idx, this%h_y_idx, this%h_z_idx)
+            this%q%x)
     end if
 
     call richardson_log_diagnostics(this%Ri_b, this%L_ob, &

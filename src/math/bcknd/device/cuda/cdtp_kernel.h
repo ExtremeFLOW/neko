@@ -1,5 +1,7 @@
 #ifndef __MATH_CDTP_KERNEL_H__
 #define __MATH_CDTP_KERNEL_H__
+
+#include "elem_block.h"
 /*
  Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
@@ -100,8 +102,8 @@ __global__ void cdtp_kernel_1d(T * __restrict__ dtx,
   }
 }
 
-template< typename T, const int LX >
-__global__ void __launch_bounds__(LX*LX,3)
+template< typename T, const int LX, const int EB >
+__global__ void NEKO_EB_BOUNDS(LX*LX*EB)
   cdtp_kernel_kstep(T * __restrict__ dtx,
                     const T * __restrict__ x,
                     const T * __restrict__ dr,
@@ -110,28 +112,46 @@ __global__ void __launch_bounds__(LX*LX,3)
                     const T * __restrict__ dxt,
                     const T * __restrict__ dyt,
                     const T * __restrict__ dzt,
-                    const T * __restrict__ w3) { 
+                    const T * __restrict__ w3,
+                    const int nelv) { 
   
   __shared__ T shdxt[LX * LX];
   __shared__ T shdyt[LX * LX];
   __shared__ T shdzt[LX * LX];
   
-  __shared__ T shtar[LX * LX];
-  __shared__ T shtas[LX * LX];
+  __shared__ T shtar[EB * LX * LX];
+  __shared__ T shtas[EB * LX * LX];
+
+  static_assert(sizeof(shdxt) +
+                sizeof(shdyt) +
+                sizeof(shdzt) +
+                sizeof(shtar) +
+                sizeof(shtas)
+                <= NEKO_EB_MAX_SMEM,
+                "kstep block exceeds the shared memory budget");
 
   T rtar[LX];
   T rtas[LX];
   T rtat[LX];
 
-  const int e = blockIdx.x;
+  const int eb = (EB == 1) ? 0 : threadIdx.z;
+  const int e_blk = blockIdx.x * EB + eb;
+  /* Threads past the last element still have to reach the barriers in
+     the k loop, so clamp their reads and drop their stores rather than
+     returning early. At EB == 1 this all constant folds away */
+  const bool active = (EB == 1) ? true : (e_blk < nelv);
+  const int e = active ? e_blk : (nelv - 1);
+  const int sh = eb * LX * LX;
   const int j = threadIdx.y;
   const int i = threadIdx.x;
   const int ij = i + j * LX;
   const int ele = e*LX*LX*LX;
   
-  shdxt[ij] = dxt[ij];
-  shdyt[ij] = dyt[ij];
-  shdzt[ij] = dzt[ij];
+  if (eb == 0) {
+    shdxt[ij] = dxt[ij];
+    shdyt[ij] = dyt[ij];
+    shdzt[ij] = dzt[ij];
+  }
 
 
 #pragma unroll LX
@@ -149,8 +169,9 @@ __global__ void __launch_bounds__(LX*LX,3)
   for (int k = 0; k < LX; ++k) {
     const int ijk = ij + k*LX*LX;
     T ttmp = 0.0;
-    shtar[ij] = rtar[k];
-    shtas[ij] = rtas[k];
+    shtar[sh + ij] = rtar[k];
+    shtas[sh + ij] = rtas[k];
+#pragma unroll
     for (int l = 0; l < LX; l++) {
       ttmp += shdzt[k+l*LX] * rtat[l];
     }
@@ -160,11 +181,13 @@ __global__ void __launch_bounds__(LX*LX,3)
     T stmp = 0.0;
 #pragma unroll
     for (int l = 0; l < LX; l++) {
-      rtmp += shdxt[i+l*LX] * shtar[l+j*LX];
-      stmp += shdyt[j+l*LX] * shtas[i+l*LX];
+      rtmp += shdxt[i+l*LX] * shtar[sh + l+j*LX];
+      stmp += shdyt[j+l*LX] * shtas[sh + i+l*LX];
     }
 
-    dtx[ijk + ele] = ( rtmp + stmp + ttmp );
+    if (active) {
+      dtx[ijk + ele] = ( rtmp + stmp + ttmp );
+    }
 
     __syncthreads();
   }

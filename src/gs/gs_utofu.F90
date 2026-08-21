@@ -58,6 +58,15 @@ module gs_utofu
   implicit none
   private
 
+  !> Whether uTofu support was built into this Neko (--with-utofu). Lets
+  !! callers (e.g. the gs comm. autotuner) skip the backend rather than
+  !! aborting in init on builds without it.
+#ifdef HAVE_UTOFU
+  logical, parameter, public :: GS_UTOFU_AVAIL = .true.
+#else
+  logical, parameter, public :: GS_UTOFU_AVAIL = .false.
+#endif
+
   !> MPI tag used for the one-off neighbour metadata exchange at init.
   integer, parameter :: GS_UTOFU_XCHG_TAG = 8123
   !> Ditto for the fused vector path's metadata exchange.

@@ -43,8 +43,7 @@ module fluid_sgs_stats_simcomp
   use fluid_sgs_stats_output, only : fluid_sgs_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
-  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
-       NEKO_VARNAME_LEN
+  use utils, only : NEKO_FNAME_LEN, filename_suffix, NEKO_VARNAME_LEN
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default, &
        json_get_or_lookup_or_default
@@ -65,7 +64,8 @@ module fluid_sgs_stats_simcomp
      !> Time value at which the sampling of statistics is initiated.
      real(kind=rp) :: start_time
      real(kind=rp) :: time
-     logical :: default_fname = .true.
+     !> Output filename stem without the run counter.
+     character(len=:), allocatable :: base_filename
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -166,12 +166,11 @@ contains
     this%start_time = start_time
     this%time = start_time
     if (present(fname)) then
-       this%default_fname = .false.
-       stats_fname = fname
+       this%base_filename = fname
     else
-       stats_fname = "fluid_sgs_stats0"
-       this%default_fname = .true.
+       this%base_filename = "fluid_sgs_stats"
     end if
+    stats_fname = trim(this%base_filename) // "0"
 
     call this%stats_output%init(this%stats, this%start_time, &
          hom_dir = hom_dir, name = stats_fname, &
@@ -198,27 +197,19 @@ contains
     type(time_state_t), intent(in) :: time
     character(len=NEKO_FNAME_LEN) :: fname
     character(len=5) :: prefix, suffix
-    integer :: last_slash_pos
     real(kind=rp) :: t
+
     t = time%t
     if (t .gt. this%time) this%time = t
-    if (this%default_fname) then
-       fname = this%stats_output%file_%get_base_fname()
-       write (prefix, '(I5)') &
-            this%stats_output%file_%file_type%get_start_counter()
-       call filename_suffix(fname, suffix)
-       last_slash_pos = &
-            filename_tslash_pos(fname)
-       if (last_slash_pos .ne. 0) then
-          fname = &
-               trim(fname(1:last_slash_pos))// &
-               "fluid_sgs_stats"//trim(adjustl(prefix))//"."//suffix
-       else
-          fname = "fluid_sgs_stats"// &
-               trim(adjustl(prefix))//"."//suffix
-       end if
-       call this%stats_output%init_base(fname)
-    end if
+
+    fname = this%stats_output%file_%get_base_fname()
+    write (prefix, '(I0)') &
+         this%stats_output%file_%file_type%get_start_counter()
+    call filename_suffix(fname, suffix)
+    fname = trim(this%case%output_directory) // &
+         trim(this%base_filename) // trim(prefix) // "." // trim(suffix)
+    call this%stats_output%init_base(fname)
+
   end subroutine fluid_sgs_stats_simcomp_restart
 
   !> fluid_sgs_stats, called depending on compute_control and compute_value
