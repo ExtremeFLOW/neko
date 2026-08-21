@@ -1,5 +1,7 @@
 <map id="vector_math::vector_masked_scatter_copy_0" name="vector_math::vector_masked_scatter_copy_0">
-<area shape="rect" id="Node000001" title="Scatter a contiguous vector into an array ." alt="" coords="241,13,427,53"/>
+<area shape="rect" id="Node000001" title="Scatter a contiguous vector into an array ." alt="" coords="241,49,427,89"/>
 <area shape="rect" id="Node000002" href="$df/dd1/namespaceboundary__data.html#a3f62606b7e17de072482817c87e28603" title="Scatter a boundary vector back into a full field." alt="" coords="5,5,193,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,35,194,35,194,30,227,30"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,55,193,50,194,44,228,50"/>
+<area shape="rect" id="Node000003" href="$d2/dd2/namespacewall__sampler.html#ab2a7abe77c8f858e81700597c2a1cd8e" title="Write the first sampling distance at every wall node to a field file." alt="" coords="26,85,173,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="228,88,173,96,172,91,227,82"/>
 </map>

@@ -11,7 +11,7 @@ var richardson__cpu_8f90 =
     [ "heat_flux_convective", "d7/d87/richardson__cpu_8f90.html#ae2a1a18c41380055570461e78f9fc460", null ],
     [ "heat_flux_neutral", "d7/d87/richardson__cpu_8f90.html#aa1d14c0356a07368401dc45fd80ad8f9", null ],
     [ "heat_flux_stable", "d7/d87/richardson__cpu_8f90.html#ac65702a18f549ba9e98986a5c3fa63da", null ],
-    [ "richardson_compute_cpu", "d7/d87/richardson__cpu_8f90.html#aa8b965abb6730303128b9d34eab854a8", null ],
+    [ "richardson_compute_cpu", "d7/d87/richardson__cpu_8f90.html#a3b07783371c8108662acdc99e2943b82", null ],
     [ "set_stability_regime", "d7/d87/richardson__cpu_8f90.html#aaf05f6297c003348e01bd01b9312eb49", null ],
     [ "tau_convective", "d7/d87/richardson__cpu_8f90.html#aad60ac4880c365954c227fef2da1fbf3", null ],
     [ "tau_neutral", "d7/d87/richardson__cpu_8f90.html#ae3de5d9714ed6f02b18489132c52bb3c", null ],

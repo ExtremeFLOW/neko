@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.7</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.8</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -127,9 +127,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aaf05f6297c003348e01bd01b9312eb49" id="r_aaf05f6297c003348e01bd01b9312eb49"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d09/namespacerichardson__cpu.html#aaf05f6297c003348e01bd01b9312eb49">set_stability_regime</a> (ri_b, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ri_threshold</a>)</td></tr>
 <tr class="memdesc:aaf05f6297c003348e01bd01b9312eb49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the stability regime based on the Richardson number value (quite arbitrary).  <br /></td></tr>
 <tr class="separator:aaf05f6297c003348e01bd01b9312eb49"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8b965abb6730303128b9d34eab854a8" id="r_aa8b965abb6730303128b9d34eab854a8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8">richardson_compute_cpu</a> (u, v, w, temp, ind_r, ind_s, ind_t, ind_e, n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, kappa, mu_w, rho_w, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">g_vec</a>, pr, z0, z0h_in, bc_type, bc_value, tstep, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ri_b_diagn</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">l_ob_diagn</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">utau_diagn</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">magu_diagn</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ti_diagn</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ts_diagn</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">q_diagn</a>, h_x_idx, h_y_idx, h_z_idx)</td></tr>
-<tr class="memdesc:aa8b965abb6730303128b9d34eab854a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main routine to compute the surface stresses based on richardson.  <br /></td></tr>
-<tr class="separator:aa8b965abb6730303128b9d34eab854a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b07783371c8108662acdc99e2943b82" id="r_a3b07783371c8108662acdc99e2943b82"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82">richardson_compute_cpu</a> (u, v, w, temp, temp_w, n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, kappa, mu_w, rho_w, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">g_vec</a>, pr, z0, z0h_in, bc_type, bc_value, tstep, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ri_b_diagn</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">l_ob_diagn</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">utau_diagn</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">magu_diagn</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ti_diagn</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ts_diagn</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">q_diagn</a>)</td></tr>
+<tr class="memdesc:a3b07783371c8108662acdc99e2943b82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main routine to compute the surface stresses based on richardson.  <br /></td></tr>
+<tr class="separator:a3b07783371c8108662acdc99e2943b82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adaef487b1907f0417dd37aacf242e5b3" id="r_adaef487b1907f0417dd37aacf242e5b3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d09/namespacerichardson__cpu.html#adaef487b1907f0417dd37aacf242e5b3">tau_stable</a> (magu, ri_b, h, z0, l, kappa)</td></tr>
 <tr class="memdesc:adaef487b1907f0417dd37aacf242e5b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Similarity laws and corrections for the STABLE regime: Based on Mauritsen et al. 2007.  <br /></td></tr>
 <tr class="separator:adaef487b1907f0417dd37aacf242e5b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -245,7 +245,7 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../d4/d09/namespacerichardson__cpu_a0a8c76b53d0bdedb36ec98a1c21c1ec5_icgraph.png" border="0" usemap="#ad4/d09/namespacerichardson__cpu_a0a8c76b53d0bdedb36ec98a1c21c1ec5_icgraph" alt=""/></div>
 <map name="ad4/d09/namespacerichardson__cpu_a0a8c76b53d0bdedb36ec98a1c21c1ec5_icgraph" id="ad4/d09/namespacerichardson__cpu_a0a8c76b53d0bdedb36ec98a1c21c1ec5_icgraph">
 <area shape="rect" title="Initialises q when the temperature surface bc is dirichlet." alt="" coords="464,5,635,45"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="poly" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -337,7 +337,7 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../d4/d09/namespacerichardson__cpu_aecc3d61378ca08eb69291355923e6823_icgraph.png" border="0" usemap="#ad4/d09/namespacerichardson__cpu_aecc3d61378ca08eb69291355923e6823_icgraph" alt=""/></div>
 <map name="ad4/d09/namespacerichardson__cpu_aecc3d61378ca08eb69291355923e6823_icgraph" id="ad4/d09/namespacerichardson__cpu_aecc3d61378ca08eb69291355923e6823_icgraph">
 <area shape="rect" title="Computes the Richardson number." alt="" coords="464,13,680,38"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="poly" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -380,7 +380,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00303">303</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00298">298</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -391,7 +391,7 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="843,28,810,28,810,23,843,23"/>
 <area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aaf05f6297c003348e01bd01b9312eb49" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="464,5,612,45"/>
 <area shape="poly" title=" " alt="" coords="647,28,612,28,612,23,647,23"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="poly" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -424,7 +424,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00259">259</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00254">254</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -435,7 +435,7 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="843,28,810,28,810,23,843,23"/>
 <area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aaf05f6297c003348e01bd01b9312eb49" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="464,5,612,45"/>
 <area shape="poly" title=" " alt="" coords="647,28,612,28,612,23,647,23"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="poly" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -478,7 +478,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00310">310</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00305">305</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -489,7 +489,7 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="851,28,818,28,818,23,851,23"/>
 <area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aaf05f6297c003348e01bd01b9312eb49" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="464,5,612,45"/>
 <area shape="poly" title=" " alt="" coords="646,28,612,28,612,23,646,23"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="poly" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -522,7 +522,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00266">266</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00261">261</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -533,7 +533,7 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="851,28,818,28,818,23,851,23"/>
 <area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aaf05f6297c003348e01bd01b9312eb49" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="464,5,612,45"/>
 <area shape="poly" title=" " alt="" coords="646,28,612,28,612,23,646,23"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="poly" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -624,7 +624,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00287">287</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00282">282</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -643,7 +643,7 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title=" " alt="" coords="660,5,817,45"/>
 <area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aaf05f6297c003348e01bd01b9312eb49" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="464,5,612,45"/>
 <area shape="poly" title=" " alt="" coords="646,28,612,28,612,23,646,23"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="poly" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -734,7 +734,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00325">325</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00320">320</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -743,7 +743,7 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title=" " alt="" coords="660,5,817,45"/>
 <area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aaf05f6297c003348e01bd01b9312eb49" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="464,5,612,45"/>
 <area shape="poly" title=" " alt="" coords="646,28,612,28,612,23,646,23"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="poly" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -834,7 +834,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00248">248</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00243">243</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -853,7 +853,7 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title=" " alt="" coords="660,5,817,45"/>
 <area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aaf05f6297c003348e01bd01b9312eb49" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="464,5,612,45"/>
 <area shape="poly" title=" " alt="" coords="646,28,612,28,612,23,646,23"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="poly" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -862,8 +862,8 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="aa8b965abb6730303128b9d34eab854a8" name="aa8b965abb6730303128b9d34eab854a8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa8b965abb6730303128b9d34eab854a8">&#9670;&#160;</a></span>richardson_compute_cpu()</h2>
+<a id="a3b07783371c8108662acdc99e2943b82" name="a3b07783371c8108662acdc99e2943b82"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b07783371c8108662acdc99e2943b82">&#9670;&#160;</a></span>richardson_compute_cpu()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -871,50 +871,32 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> richardson_cpu::richardson_compute_cpu </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(lx, lx, lx, nelv), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>u</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(lx, lx, lx, nelv), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>v</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(lx, lx, lx, nelv), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>w</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(lx, lx, lx, nelv), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>temp</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>ind_r</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>ind_s</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>ind_t</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>ind_e</em>, </td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>temp_w</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -963,18 +945,6 @@ Here is the caller graph for this function:</div>
           <td></td>
           <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>n_nodes</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>lx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>nelv</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1076,25 +1046,7 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
-          <td class="paramname"><em>q_diagn</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>h_x_idx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>h_y_idx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>h_z_idx</em>&#160;</td>
+          <td class="paramname"><em>q_diagn</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1114,8 +1066,8 @@ Here is the caller graph for this function:</div>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d4/d09/namespacerichardson__cpu_aa8b965abb6730303128b9d34eab854a8_cgraph.png" border="0" usemap="#ad4/d09/namespacerichardson__cpu_aa8b965abb6730303128b9d34eab854a8_cgraph" alt=""/></div>
-<map name="ad4/d09/namespacerichardson__cpu_aa8b965abb6730303128b9d34eab854a8_cgraph" id="ad4/d09/namespacerichardson__cpu_aa8b965abb6730303128b9d34eab854a8_cgraph">
+<div class="center"><img src="../../d4/d09/namespacerichardson__cpu_a3b07783371c8108662acdc99e2943b82_cgraph.png" border="0" usemap="#ad4/d09/namespacerichardson__cpu_a3b07783371c8108662acdc99e2943b82_cgraph" alt=""/></div>
+<map name="ad4/d09/namespacerichardson__cpu_a3b07783371c8108662acdc99e2943b82_cgraph" id="ad4/d09/namespacerichardson__cpu_a3b07783371c8108662acdc99e2943b82_cgraph">
 <area shape="rect" title="Main routine to compute the surface stresses based on richardson." alt="" coords="5,108,201,148"/>
 <area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a0a8c76b53d0bdedb36ec98a1c21c1ec5" title="Initialises q when the temperature surface bc is dirichlet." alt="" coords="272,51,443,91"/>
 <area shape="poly" title=" " alt="" coords="192,105,258,90,259,95,193,111"/>
@@ -1148,8 +1100,8 @@ Here is the call graph for this function:</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d4/d09/namespacerichardson__cpu_aa8b965abb6730303128b9d34eab854a8_icgraph.png" border="0" usemap="#ad4/d09/namespacerichardson__cpu_aa8b965abb6730303128b9d34eab854a8_icgraph" alt=""/></div>
-<map name="ad4/d09/namespacerichardson__cpu_aa8b965abb6730303128b9d34eab854a8_icgraph" id="ad4/d09/namespacerichardson__cpu_aa8b965abb6730303128b9d34eab854a8_icgraph">
+<div class="center"><img src="../../d4/d09/namespacerichardson__cpu_a3b07783371c8108662acdc99e2943b82_icgraph.png" border="0" usemap="#ad4/d09/namespacerichardson__cpu_a3b07783371c8108662acdc99e2943b82_icgraph" alt=""/></div>
+<map name="ad4/d09/namespacerichardson__cpu_a3b07783371c8108662acdc99e2943b82_icgraph" id="ad4/d09/namespacerichardson__cpu_a3b07783371c8108662acdc99e2943b82_icgraph">
 <area shape="rect" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -1227,7 +1179,7 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../d4/d09/namespacerichardson__cpu_aaf05f6297c003348e01bd01b9312eb49_icgraph.png" border="0" usemap="#ad4/d09/namespacerichardson__cpu_aaf05f6297c003348e01bd01b9312eb49_icgraph" alt=""/></div>
 <map name="ad4/d09/namespacerichardson__cpu_aaf05f6297c003348e01bd01b9312eb49_icgraph" id="ad4/d09/namespacerichardson__cpu_aaf05f6297c003348e01bd01b9312eb49_icgraph">
 <area shape="rect" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="464,5,612,45"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="poly" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -1294,7 +1246,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00275">275</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00270">270</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1313,7 +1265,7 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title="Similarity laws and corrections for the UNSTABLE (convective) regime: Based on Louis 1979." alt="" coords="660,5,809,45"/>
 <area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aaf05f6297c003348e01bd01b9312eb49" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="464,5,612,45"/>
 <area shape="poly" title=" " alt="" coords="647,28,612,28,612,23,647,23"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="poly" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -1380,7 +1332,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00318">318</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00313">313</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1389,7 +1341,7 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title="Similarity laws and corrections for the NEUTRAL regime:" alt="" coords="660,5,809,45"/>
 <area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aaf05f6297c003348e01bd01b9312eb49" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="464,5,612,45"/>
 <area shape="poly" title=" " alt="" coords="647,28,612,28,612,23,647,23"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="poly" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -1456,7 +1408,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00240">240</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html#l00235">235</a> of file <a class="el" href="../../d7/d87/richardson__cpu_8f90_source.html">richardson_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1475,7 +1427,7 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title="Similarity laws and corrections for the STABLE regime: Based on Mauritsen et al. 2007." alt="" coords="660,5,809,45"/>
 <area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aaf05f6297c003348e01bd01b9312eb49" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="464,5,612,45"/>
 <area shape="poly" title=" " alt="" coords="647,28,612,28,612,23,647,23"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a3b07783371c8108662acdc99e2943b82" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
 <area shape="poly" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
@@ -1539,7 +1491,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d4/d09/namespacerichardson__cpu.html">richardson_cpu</a></li>
-    <li class="footer">Generated on Thu Aug 20 2026 03:48:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Aug 21 2026 03:48:28 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

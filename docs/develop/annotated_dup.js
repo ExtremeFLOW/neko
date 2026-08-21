@@ -1843,7 +1843,9 @@ var annotated_dup =
       [ "user_mesh_setup_intf", "d1/d28/interfaceuser__intf_1_1user__mesh__setup__intf.html", "d1/d28/interfaceuser__intf_1_1user__mesh__setup__intf" ],
       [ "user_source_term_intf", "d2/d5b/interfaceuser__intf_1_1user__source__term__intf.html", "d2/d5b/interfaceuser__intf_1_1user__source__term__intf" ],
       [ "user_startup_intf", "de/dc6/interfaceuser__intf_1_1user__startup__intf.html", "de/dc6/interfaceuser__intf_1_1user__startup__intf" ],
-      [ "user_t", "d7/da0/structuser__intf_1_1user__t.html", "d7/da0/structuser__intf_1_1user__t" ]
+      [ "user_t", "d7/da0/structuser__intf_1_1user__t.html", "d7/da0/structuser__intf_1_1user__t" ],
+      [ "user_wall_sampling_distance_intf", "d4/dce/interfaceuser__intf_1_1user__wall__sampling__distance__intf.html", "d4/dce/interfaceuser__intf_1_1user__wall__sampling__distance__intf" ],
+      [ "user_wall_sampling_gll_intf", "d1/da1/interfaceuser__intf_1_1user__wall__sampling__gll__intf.html", "d1/da1/interfaceuser__intf_1_1user__wall__sampling__gll__intf" ]
     ] ],
     [ "user_source_term", "db/de8/namespaceuser__source__term.html", [
       [ "user_source_term_t", "db/da2/structuser__source__term_1_1user__source__term__t.html", "db/da2/structuser__source__term_1_1user__source__term__t" ]
@@ -1892,6 +1894,12 @@ var annotated_dup =
     [ "wale", "d5/d8e/namespacewale.html", [
       [ "wale_t", "db/d6d/structwale_1_1wale__t.html", "db/d6d/structwale_1_1wale__t" ]
     ] ],
+    [ "wall_distance_sampler", "d4/d5b/namespacewall__distance__sampler.html", [
+      [ "wall_distance_sampler_t", "db/d9f/structwall__distance__sampler_1_1wall__distance__sampler__t.html", "db/d9f/structwall__distance__sampler_1_1wall__distance__sampler__t" ]
+    ] ],
+    [ "wall_gll_sampler", "de/dbf/namespacewall__gll__sampler.html", [
+      [ "wall_gll_sampler_t", "d6/d69/structwall__gll__sampler_1_1wall__gll__sampler__t.html", "d6/d69/structwall__gll__sampler_1_1wall__gll__sampler__t" ]
+    ] ],
     [ "wall_model", "da/ddd/namespacewall__model.html", [
       [ "allocator_entry", "da/d57/structwall__model_1_1allocator__entry.html", "da/d57/structwall__model_1_1allocator__entry" ],
       [ "wall_model_allocate", "d6/dee/interfacewall__model_1_1wall__model__allocate.html", "d6/dee/interfacewall__model_1_1wall__model__allocate" ],
@@ -1907,6 +1915,13 @@ var annotated_dup =
     ] ],
     [ "wall_model_device", "db/d0e/namespacewall__model__device.html", [
       [ "hip_wall_model_compute_mag_field", "d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field.html", "d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field" ]
+    ] ],
+    [ "wall_sampler", "d2/dd2/namespacewall__sampler.html", [
+      [ "wall_sampler_finalize", "d0/d38/interfacewall__sampler_1_1wall__sampler__finalize.html", "d0/d38/interfacewall__sampler_1_1wall__sampler__finalize" ],
+      [ "wall_sampler_free", "dc/db6/interfacewall__sampler_1_1wall__sampler__free.html", "dc/db6/interfacewall__sampler_1_1wall__sampler__free" ],
+      [ "wall_sampler_init", "dd/d7a/interfacewall__sampler_1_1wall__sampler__init.html", "dd/d7a/interfacewall__sampler_1_1wall__sampler__init" ],
+      [ "wall_sampler_sample", "d0/dd8/interfacewall__sampler_1_1wall__sampler__sample.html", "d0/dd8/interfacewall__sampler_1_1wall__sampler__sample" ],
+      [ "wall_sampler_t", "d9/d72/structwall__sampler_1_1wall__sampler__t.html", "d9/d72/structwall__sampler_1_1wall__sampler__t" ]
     ] ],
     [ "wall_shear_stress_simcomp", "d5/d15/namespacewall__shear__stress__simcomp.html", [
       [ "wall_shear_stress_t", "d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t.html", "d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t" ]

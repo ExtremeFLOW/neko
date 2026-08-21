@@ -1,0 +1,7 @@
+<map id="spalding::spalding_init" name="spalding::spalding_init">
+<area shape="rect" id="Node000001" title="Constructor from JSON." alt="" coords="5,13,173,38"/>
+<area shape="rect" id="Node000002" href="$d0/d03/namespacewall__sampler__fctry.html#addd019f13ed5b9948db4f1cb9b7f0504" title="Wall sampler factory." alt="" coords="221,5,392,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,23,207,23,207,28,174,28"/>
+<area shape="rect" id="Node000003" href="$d0/d03/namespacewall__sampler__fctry.html#a81f09c7235d4c3951dd90f3b381c8283" title="Allocate a concrete wall sampler implementation by type name." alt="" coords="440,5,621,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="392,23,426,23,426,28,392,28"/>
+</map>

@@ -15,7 +15,7 @@ var namespacemost__cpu =
     [ "dfdl_neumann", "d6/db7/namespacemost__cpu.html#af393e70b5fccb7f3a4c4f30b8e791d1e", null ],
     [ "f_dirichlet", "d6/db7/namespacemost__cpu.html#ac9e2f2046c1df4ab97d6eed2167e4982", null ],
     [ "f_neumann", "d6/db7/namespacemost__cpu.html#a239cf1778a6812ff60dca8bd8dc73e6f", null ],
-    [ "most_compute_cpu", "d6/db7/namespacemost__cpu.html#a0c969e715e29c6ad533ebe32ef5b07fb", null ],
+    [ "most_compute_cpu", "d6/db7/namespacemost__cpu.html#a71ae4468be6635701fa71956de3444f3", null ],
     [ "select_bc_operators", "d6/db7/namespacemost__cpu.html#af32d62623d4a381c17bed0800bbd0c3c", null ],
     [ "set_stability_regime", "d6/db7/namespacemost__cpu.html#a4597a74c2155d949b9a3b631058ad118", null ],
     [ "slaw_h_convective", "d6/db7/namespacemost__cpu.html#ab39527f9167dff0884b24e326c945c84", null ],

@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.7</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.8</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -146,6 +146,12 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A type collecting all the overridable user routines and flag to suppress type injection from custom modules.  <a href="../../d7/da0/structuser__intf_1_1user__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/dce/interfaceuser__intf_1_1user__wall__sampling__distance__intf.html">user_wall_sampling_distance_intf</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for user-defined physical-distance for wall models.  <a href="../../d4/dce/interfaceuser__intf_1_1user__wall__sampling__distance__intf.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/interfaceuser__intf_1_1user__wall__sampling__gll__intf.html">user_wall_sampling_gll_intf</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for user-defined GLL sampling for wall models.  <a href="../../d1/da1/interfaceuser__intf_1_1user__wall__sampling__gll__intf.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
@@ -164,6 +170,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aac41cc7514c9d17b187c2e6672280f13" id="r_aac41cc7514c9d17b187c2e6672280f13"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#aac41cc7514c9d17b187c2e6672280f13">dummy_user_mesh_setup</a> (msh, time)</td></tr>
 <tr class="memdesc:aac41cc7514c9d17b187c2e6672280f13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dummy user mesh apply.  <br /></td></tr>
 <tr class="separator:aac41cc7514c9d17b187c2e6672280f13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad89327afeb07e47f11b5c6568efca174" id="r_ad89327afeb07e47f11b5c6568efca174"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#ad89327afeb07e47f11b5c6568efca174">dummy_user_wall_sampling_gll</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bc_name</a>, msk, indices)</td></tr>
+<tr class="memdesc:ad89327afeb07e47f11b5c6568efca174"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dummy user-defined GLL wall-sampling callback.  <br /></td></tr>
+<tr class="separator:ad89327afeb07e47f11b5c6568efca174"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7bfdcca6bea65d2ec8d8a8f93813b7d" id="r_ab7bfdcca6bea65d2ec8d8a8f93813b7d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#ab7bfdcca6bea65d2ec8d8a8f93813b7d">dummy_user_wall_sampling_distance</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bc_name</a>, msk, distances)</td></tr>
+<tr class="memdesc:ab7bfdcca6bea65d2ec8d8a8f93813b7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dummy user-defined physical-distance wall-sampling callback.  <br /></td></tr>
+<tr class="separator:ab7bfdcca6bea65d2ec8d8a8f93813b7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acfdf4e006e4d70aa9db3fe3b6d08899e" id="r_acfdf4e006e4d70aa9db3fe3b6d08899e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#acfdf4e006e4d70aa9db3fe3b6d08899e">dummy_user_compute</a> (time)</td></tr>
 <tr class="memdesc:acfdf4e006e4d70aa9db3fe3b6d08899e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dummy user compute.  <br /></td></tr>
 <tr class="separator:acfdf4e006e4d70aa9db3fe3b6d08899e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -227,7 +239,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00448">448</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00522">522</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -265,7 +277,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00440">440</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00514">514</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -337,7 +349,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00466">466</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00540">540</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -375,7 +387,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00409">409</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00457">457</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -405,7 +417,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00486">486</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00560">560</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -493,7 +505,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00477">477</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00551">551</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -551,7 +563,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00490">490</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00564">564</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -597,7 +609,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00436">436</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00510">510</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -635,7 +647,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00444">444</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00518">518</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -683,7 +695,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00414">414</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00462">462</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -729,7 +741,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00460">460</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00534">534</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -783,7 +795,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00430">430</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00478">478</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -837,13 +849,137 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00422">422</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00470">470</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d9/dbc/namespaceuser__intf_a3dc1c52b1295c8f99f3a6e2d8b441ab5_icgraph.png" border="0" usemap="#ad9/dbc/namespaceuser__intf_a3dc1c52b1295c8f99f3a6e2d8b441ab5_icgraph" alt=""/></div>
 <map name="ad9/dbc/namespaceuser__intf_a3dc1c52b1295c8f99f3a6e2d8b441ab5_icgraph" id="ad9/dbc/namespaceuser__intf_a3dc1c52b1295c8f99f3a6e2d8b441ab5_icgraph">
 <area shape="rect" title="Dummy user source_term." alt="" coords="224,5,395,45"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9" title="Constructor." alt="" coords="5,13,176,38"/>
+<area shape="poly" title=" " alt="" coords="210,28,176,28,176,23,210,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ab7bfdcca6bea65d2ec8d8a8f93813b7d" name="ab7bfdcca6bea65d2ec8d8a8f93813b7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab7bfdcca6bea65d2ec8d8a8f93813b7d">&#9670;&#160;</a></span>dummy_user_wall_sampling_distance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> user_intf::dummy_user_wall_sampling_distance </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>bc_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>msk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:,:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">out</a>)&#160;</td>
+          <td class="paramname"><em>distances</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bc_name</td><td>Name of the wall-model boundary condition. </td></tr>
+    <tr><td class="paramname">msk</td><td>Linear indices of local wall nodes. </td></tr>
+    <tr><td class="paramname">distances</td><td>Positive distances with shape <code>(n_samples, n_nodes)</code>. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00500">500</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d9/dbc/namespaceuser__intf_ab7bfdcca6bea65d2ec8d8a8f93813b7d_icgraph.png" border="0" usemap="#ad9/dbc/namespaceuser__intf_ab7bfdcca6bea65d2ec8d8a8f93813b7d_icgraph" alt=""/></div>
+<map name="ad9/dbc/namespaceuser__intf_ab7bfdcca6bea65d2ec8d8a8f93813b7d_icgraph" id="ad9/dbc/namespaceuser__intf_ab7bfdcca6bea65d2ec8d8a8f93813b7d_icgraph">
+<area shape="rect" title="Dummy user&#45;defined physical&#45;distance wall&#45;sampling callback." alt="" coords="224,5,409,45"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9" title="Constructor." alt="" coords="5,13,176,38"/>
+<area shape="poly" title=" " alt="" coords="210,28,176,28,176,23,210,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ad89327afeb07e47f11b5c6568efca174" name="ad89327afeb07e47f11b5c6568efca174"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad89327afeb07e47f11b5c6568efca174">&#9670;&#160;</a></span>dummy_user_wall_sampling_gll()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> user_intf::dummy_user_wall_sampling_gll </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>bc_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>msk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:,:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">out</a>)&#160;</td>
+          <td class="paramname"><em>indices</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bc_name</td><td>Name of the wall-model boundary condition. </td></tr>
+    <tr><td class="paramname">msk</td><td>Linear indices of local wall nodes. </td></tr>
+    <tr><td class="paramname">indices</td><td>GLL indices with shape <code>(n_samples, n_nodes)</code>. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00487">487</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d9/dbc/namespaceuser__intf_ad89327afeb07e47f11b5c6568efca174_icgraph.png" border="0" usemap="#ad9/dbc/namespaceuser__intf_ad89327afeb07e47f11b5c6568efca174_icgraph" alt=""/></div>
+<map name="ad9/dbc/namespaceuser__intf_ad89327afeb07e47f11b5c6568efca174_icgraph" id="ad9/dbc/namespaceuser__intf_ad89327afeb07e47f11b5c6568efca174_icgraph">
+<area shape="rect" title="Dummy user&#45;defined GLL wall&#45;sampling callback." alt="" coords="224,5,395,45"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9" title="Constructor." alt="" coords="5,13,176,38"/>
 <area shape="poly" title=" " alt="" coords="210,28,176,28,176,23,210,23"/>
 </map>
@@ -891,7 +1027,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00454">454</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00528">528</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -921,41 +1057,45 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00263">263</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00295">295</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d9/dbc/namespaceuser__intf_a4911daad15c30f88e758295cdd047be9_cgraph.png" border="0" usemap="#ad9/dbc/namespaceuser__intf_a4911daad15c30f88e758295cdd047be9_cgraph" alt=""/></div>
 <map name="ad9/dbc/namespaceuser__intf_a4911daad15c30f88e758295cdd047be9_cgraph" id="ad9/dbc/namespaceuser__intf_a4911daad15c30f88e758295cdd047be9_cgraph">
-<area shape="rect" title="Constructor." alt="" coords="5,402,176,427"/>
+<area shape="rect" title="Constructor." alt="" coords="5,466,176,491"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#aa9d76b696c09264a3f87ada150d8b6c4" title=" " alt="" coords="254,5,393,45"/>
-<area shape="poly" title=" " alt="" coords="90,401,98,340,118,248,135,196,157,145,186,98,222,55,240,43,243,47,226,59,191,101,162,148,140,198,123,249,103,341,95,402"/>
+<area shape="poly" title=" " alt="" coords="89,466,93,395,111,286,127,224,150,164,182,106,222,55,240,42,243,46,226,59,186,109,155,166,132,226,116,287,99,396,95,466"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a4e36cf17596f21a88059eb8f873c9973" title=" " alt="" coords="224,70,423,95"/>
-<area shape="poly" title=" " alt="" coords="91,401,100,347,123,267,140,224,162,181,189,141,222,106,231,100,234,104,226,110,193,144,166,183,145,226,128,269,106,348,96,402"/>
+<area shape="poly" title=" " alt="" coords="90,466,96,402,115,305,132,251,154,198,184,149,222,106,230,100,233,104,226,110,189,152,159,201,137,253,120,306,101,402,95,466"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#af17c5c0fbf25f153143ad35fd5b3ecd8" title=" " alt="" coords="231,120,416,160"/>
-<area shape="poly" title=" " alt="" coords="93,401,106,357,132,295,170,228,194,197,222,170,229,165,232,169,226,174,198,201,175,231,137,298,111,359,98,403"/>
+<area shape="poly" title=" " alt="" coords="91,465,101,411,124,332,141,289,163,246,190,205,222,170,228,165,231,170,226,174,194,209,168,248,146,291,129,334,107,412,96,466"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a7e93458d4a9d937b4da6e42fd969f3ca" title="Dummy user startup." alt="" coords="229,185,418,210"/>
-<area shape="poly" title=" " alt="" coords="95,400,111,364,138,316,175,264,198,241,222,220,234,213,237,218,226,225,201,245,179,268,142,318,116,367,100,403"/>
+<area shape="poly" title=" " alt="" coords="92,465,105,418,129,352,168,281,193,249,222,221,232,214,235,218,226,225,197,252,172,284,134,354,110,420,97,466"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#ab71276a797a070246953294097e951e1" title=" " alt="" coords="238,235,409,275"/>
-<area shape="poly" title=" " alt="" coords="100,400,149,345,184,313,223,284,234,278,237,283,225,289,187,317,152,349,104,404"/>
+<area shape="poly" title=" " alt="" coords="95,465,112,429,139,381,176,329,222,285,230,279,233,284,226,289,180,333,143,384,116,432,100,467"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a2282c4450a5adf841e54bbe7f7d3123a" title=" " alt="" coords="238,299,409,339"/>
-<area shape="poly" title=" " alt="" coords="115,399,223,348,242,341,244,346,225,353,117,404"/>
+<area shape="poly" title=" " alt="" coords="100,464,149,409,184,377,223,348,234,342,237,347,225,353,187,381,152,413,104,468"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#af305e4599dbbb70ab3450d2a4dac0bc7" title=" " alt="" coords="238,363,409,403"/>
-<area shape="poly" title=" " alt="" coords="176,400,224,394,225,399,177,406"/>
+<area shape="poly" title=" " alt="" coords="115,463,223,412,242,405,244,410,225,417,117,468"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#acfdf4e006e4d70aa9db3fe3b6d08899e" title="Dummy user compute." alt="" coords="238,427,409,467"/>
-<area shape="poly" title=" " alt="" coords="177,424,225,430,224,436,176,429"/>
+<area shape="poly" title=" " alt="" coords="176,464,224,458,225,463,177,470"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a1568cdc2b40c7bec798cf341ed892cc4" title=" " alt="" coords="238,491,409,531"/>
-<area shape="poly" title=" " alt="" coords="117,425,225,476,244,484,242,489,223,481,115,430"/>
+<area shape="poly" title=" " alt="" coords="177,488,225,494,224,500,176,493"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#ac588ec14b17a02a48e4da7a0903cc18b" title="Dummy user initial condition." alt="" coords="238,555,409,595"/>
-<area shape="poly" title=" " alt="" coords="104,426,152,481,187,513,225,540,237,547,234,551,223,545,184,517,149,484,100,429"/>
+<area shape="poly" title=" " alt="" coords="117,489,225,540,244,548,242,553,223,545,115,494"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a7313300d3e61b6b1fb37eab24752bacc" title=" " alt="" coords="238,619,409,659"/>
-<area shape="poly" title=" " alt="" coords="100,426,116,462,143,510,180,561,226,605,233,610,230,614,222,609,176,564,139,513,112,464,95,429"/>
+<area shape="poly" title=" " alt="" coords="104,490,152,545,187,577,225,604,237,611,234,615,223,609,184,581,149,548,100,493"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#aac41cc7514c9d17b187c2e6672280f13" title="Dummy user mesh apply." alt="" coords="238,683,409,723"/>
-<area shape="poly" title=" " alt="" coords="97,427,110,472,135,538,173,608,197,640,226,669,231,673,228,677,222,673,193,644,169,611,130,540,105,474,92,428"/>
+<area shape="poly" title=" " alt="" coords="100,490,116,526,143,574,180,625,226,669,233,674,230,678,222,673,176,628,139,577,112,528,95,493"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a3dc1c52b1295c8f99f3a6e2d8b441ab5" title="Dummy user source_term." alt="" coords="238,747,409,787"/>
-<area shape="poly" title=" " alt="" coords="96,427,106,483,128,565,145,610,166,655,193,696,226,733,231,737,228,741,222,737,189,700,162,657,140,612,123,567,100,484,91,428"/>
-<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a18b06fc9c75c42c91aecbbbb1910d369" title=" " alt="" coords="250,811,397,851"/>
-<area shape="poly" title=" " alt="" coords="95,427,101,492,120,591,137,646,159,701,189,752,226,797,239,807,236,811,222,801,184,755,154,703,132,648,115,592,96,493,90,428"/>
+<area shape="poly" title=" " alt="" coords="97,491,110,536,135,602,173,672,197,704,226,733,231,737,228,741,222,737,193,708,169,675,130,604,105,538,92,492"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#ab7bfdcca6bea65d2ec8d8a8f93813b7d" title="Dummy user&#45;defined physical&#45;distance wall&#45;sampling callback." alt="" coords="231,811,416,851"/>
+<area shape="poly" title=" " alt="" coords="96,491,106,547,128,629,145,674,166,719,193,760,226,797,231,801,228,805,222,801,189,764,162,721,140,676,123,631,100,548,91,492"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#ad89327afeb07e47f11b5c6568efca174" title="Dummy user&#45;defined GLL wall&#45;sampling callback." alt="" coords="238,875,409,915"/>
+<area shape="poly" title=" " alt="" coords="95,491,101,556,120,655,137,710,159,765,189,816,226,861,230,865,227,869,222,865,184,819,154,767,132,712,115,656,96,557,90,492"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a18b06fc9c75c42c91aecbbbb1910d369" title=" " alt="" coords="250,939,397,979"/>
+<area shape="poly" title=" " alt="" coords="94,491,97,566,103,620,113,682,129,746,152,811,184,871,226,925,239,936,236,940,222,929,180,874,147,813,124,748,108,683,97,621,92,566,89,492"/>
 </map>
 </div>
 
@@ -967,7 +1107,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d9/dbc/namespaceuser__intf.html">user_intf</a></li>
-    <li class="footer">Generated on Thu Aug 20 2026 03:48:20 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Aug 21 2026 03:48:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

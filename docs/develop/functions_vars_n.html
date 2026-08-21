@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.7</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.8</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -136,7 +136,7 @@ $(document).ready(function(){initNavTree('functions_vars_n.html',''); initResiza
 <li>n_local_probes&#160;:&#160;<a class="el" href="d7/dd3/structprobes_1_1probes__t.html#a123a632bc2361c545919ef33622ecf3b">probes::probes_t</a></li>
 <li>n_local_probes_tot&#160;:&#160;<a class="el" href="d7/dd3/structprobes_1_1probes__t.html#adf6e85520dc7d532f48c40a17648e713">probes::probes_t</a></li>
 <li>n_local_probes_tot_offset&#160;:&#160;<a class="el" href="d7/dd3/structprobes_1_1probes__t.html#a5e20990a0ee8f2545dd0ba133a97ec7a">probes::probes_t</a></li>
-<li>n_nodes&#160;:&#160;<a class="el" href="d4/d70/structwall__model_1_1wall__model__t.html#a9d6ead8ea280d840d8cff26652d35884">wall_model::wall_model_t</a></li>
+<li>n_nodes&#160;:&#160;<a class="el" href="d4/d70/structwall__model_1_1wall__model__t.html#a9d6ead8ea280d840d8cff26652d35884">wall_model::wall_model_t</a>, <a class="el" href="d9/d72/structwall__sampler_1_1wall__sampler__t.html#aec2c15e0f789944224dd623dd2bca9ec">wall_sampler::wall_sampler_t</a></li>
 <li>n_op&#160;:&#160;<a class="el" href="d1/dcf/structexpression_1_1expression__t.html#a1197c29f33e9334287d3b2b3f1e8f08a">expression::expression_t</a>, <a class="el" href="da/d23/structexpression_1_1parser__t.html#ad33026faa9c52d4bd1d57257e8a9a997">expression::parser_t</a></li>
 <li>n_periodic_dirs&#160;:&#160;<a class="el" href="d7/d57/structlpt__periodic__bc_1_1lpt__periodic__bc__t.html#a838c12c659286a622820635eb20d8977">lpt_periodic_bc::lpt_periodic_bc_t</a></li>
 <li>n_points&#160;:&#160;<a class="el" href="dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">global_interpolation::global_interpolation_t</a>, <a class="el" href="d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#a0e03aaefc1d53f2d3ba8c1f337a2b466">local_interpolation::local_interpolator_t</a></li>
@@ -147,6 +147,7 @@ $(document).ready(function(){initNavTree('functions_vars_n.html',''); initResiza
 <li>n_points_pe_local&#160;:&#160;<a class="el" href="dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a10ec4abc1a4323fd8280a9970abb1d5a">global_interpolation::global_interpolation_t</a></li>
 <li>n_probes_offset&#160;:&#160;<a class="el" href="d7/dd3/structprobes_1_1probes__t.html#ab98c0b617033df34b9d23fd5ee53b0fa">probes::probes_t</a></li>
 <li>n_refresh&#160;:&#160;<a class="el" href="d8/d4e/structphmg_1_1phmg__t.html#a69a68a907f2f2d17ce3a519d85962e81">phmg::phmg_t</a></li>
+<li>n_samples&#160;:&#160;<a class="el" href="d9/d72/structwall__sampler_1_1wall__sampler__t.html#a3a97bc796deabe9d05792234a7fd9d20">wall_sampler::wall_sampler_t</a></li>
 <li>n_scalars&#160;:&#160;<a class="el" href="db/da1/structfld__file__data_1_1fld__file__data__t.html#a662833c7abeb0552f0b79e0a970d9320">fld_file_data::fld_file_data_t</a></li>
 <li>n_simcomps&#160;:&#160;<a class="el" href="de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#a4ebf628066252792db0d1d0a36d542d4">simcomp_executor::simcomp_executor_t</a></li>
 <li>n_stats&#160;:&#160;<a class="el" href="d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#aca32aabd74156ee0fcae753916912a5c">fluid_sgs_stats::fluid_sgs_stats_t</a>, <a class="el" href="da/d8a/structfluid__stats_1_1fluid__stats__t.html#ae8d3d416d0c46614ae2f67cb847bf6bc">fluid_stats::fluid_stats_t</a>, <a class="el" href="df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#ab502034bdd616c87d9a8fd8db1c7b9ca">scalar_sgs_stats::scalar_sgs_stats_t</a>, <a class="el" href="dd/dad/structscalar__stats_1_1scalar__stats__t.html#a8cd8bec57634e79f67e4a8064e755e30">scalar_stats::scalar_stats_t</a></li>
@@ -226,7 +227,7 @@ $(document).ready(function(){initNavTree('functions_vars_n.html',''); initResiza
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Aug 20 2026 03:48:20 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Aug 21 2026 03:48:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

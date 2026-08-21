@@ -12,6 +12,8 @@ var namespaceuser__intf =
     [ "user_source_term_intf", "d2/d5b/interfaceuser__intf_1_1user__source__term__intf.html", "d2/d5b/interfaceuser__intf_1_1user__source__term__intf" ],
     [ "user_startup_intf", "de/dc6/interfaceuser__intf_1_1user__startup__intf.html", "de/dc6/interfaceuser__intf_1_1user__startup__intf" ],
     [ "user_t", "d7/da0/structuser__intf_1_1user__t.html", "d7/da0/structuser__intf_1_1user__t" ],
+    [ "user_wall_sampling_distance_intf", "d4/dce/interfaceuser__intf_1_1user__wall__sampling__distance__intf.html", "d4/dce/interfaceuser__intf_1_1user__wall__sampling__distance__intf" ],
+    [ "user_wall_sampling_gll_intf", "d1/da1/interfaceuser__intf_1_1user__wall__sampling__gll__intf.html", "d1/da1/interfaceuser__intf_1_1user__wall__sampling__gll__intf" ],
     [ "dirichlet_do_nothing", "d9/dbc/namespaceuser__intf.html#aa9d76b696c09264a3f87ada150d8b6c4", null ],
     [ "dummy_initialize", "d9/dbc/namespaceuser__intf.html#a4e36cf17596f21a88059eb8f873c9973", null ],
     [ "dummy_morph_overset_interface", "d9/dbc/namespaceuser__intf.html#af17c5c0fbf25f153143ad35fd5b3ecd8", null ],
@@ -25,6 +27,8 @@ var namespaceuser__intf =
     [ "dummy_user_material_properties", "d9/dbc/namespaceuser__intf.html#a7313300d3e61b6b1fb37eab24752bacc", null ],
     [ "dummy_user_mesh_setup", "d9/dbc/namespaceuser__intf.html#aac41cc7514c9d17b187c2e6672280f13", null ],
     [ "dummy_user_source_term", "d9/dbc/namespaceuser__intf.html#a3dc1c52b1295c8f99f3a6e2d8b441ab5", null ],
+    [ "dummy_user_wall_sampling_distance", "d9/dbc/namespaceuser__intf.html#ab7bfdcca6bea65d2ec8d8a8f93813b7d", null ],
+    [ "dummy_user_wall_sampling_gll", "d9/dbc/namespaceuser__intf.html#ad89327afeb07e47f11b5c6568efca174", null ],
     [ "neumann_do_nothing", "d9/dbc/namespaceuser__intf.html#a18b06fc9c75c42c91aecbbbb1910d369", null ],
     [ "user_intf_init", "d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9", null ]
 ];

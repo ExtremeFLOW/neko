@@ -54,7 +54,7 @@ var namespaces_dup =
     [ "cacg", "d2/d10/namespacecacg.html", "d2/d10/namespacecacg" ],
     [ "cai_sagaut_model_ii", "d0/d21/namespacecai__sagaut__model__ii.html", "d0/d21/namespacecai__sagaut__model__ii" ],
     [ "cai_sagaut_model_ii_cpu", "dd/d35/namespacecai__sagaut__model__ii__cpu.html", [
-      [ "cai_sagaut_model_ii_compute_cpu", "dd/d35/namespacecai__sagaut__model__ii__cpu.html#a37edc2a72084ba50940a68e6666867d7", null ]
+      [ "cai_sagaut_model_ii_compute_cpu", "dd/d35/namespacecai__sagaut__model__ii__cpu.html#a5e741d16d585a70d198ae357ed2ff53c", null ]
     ] ],
     [ "cai_sagaut_model_ii_device", "df/d3e/namespacecai__sagaut__model__ii__device.html", "df/d3e/namespacecai__sagaut__model__ii__device" ],
     [ "cartesian_el_finder", "d6/d46/namespacecartesian__el__finder.html", "d6/d46/namespacecartesian__el__finder" ],
@@ -737,7 +737,7 @@ var namespaces_dup =
     ] ],
     [ "rough_log_law", "d7/d0f/namespacerough__log__law.html", "d7/d0f/namespacerough__log__law" ],
     [ "rough_log_law_cpu", "dc/d1f/namespacerough__log__law__cpu.html", [
-      [ "rough_log_law_compute_cpu", "dc/d1f/namespacerough__log__law__cpu.html#a04f6464bc0758a74068e58f12d953566", null ]
+      [ "rough_log_law_compute_cpu", "dc/d1f/namespacerough__log__law__cpu.html#ad75e97e969cb38b6affdeab6aa9c745d", null ]
     ] ],
     [ "rough_log_law_device", "db/d78/namespacerough__log__law__device.html", "db/d78/namespacerough__log__law__device" ],
     [ "runge_kutta_time_scheme", "d3/dc8/namespacerunge__kutta__time__scheme.html", "d3/dc8/namespacerunge__kutta__time__scheme" ],
@@ -799,7 +799,7 @@ var namespaces_dup =
     [ "spalding", "d5/d90/namespacespalding.html", "d5/d90/namespacespalding" ],
     [ "spalding_cpu", "da/d2d/namespacespalding__cpu.html", [
       [ "solve_cpu", "da/d2d/namespacespalding__cpu.html#a7ad0d1c56c5c9ea6633c4b5724472dca", null ],
-      [ "spalding_compute_cpu", "da/d2d/namespacespalding__cpu.html#a32a37dba89e5039728d993dea147ff2d", null ]
+      [ "spalding_compute_cpu", "da/d2d/namespacespalding__cpu.html#a0ab9ff0f00be5ccf819a8596cca90c31", null ]
     ] ],
     [ "spalding_device", "d2/d9a/namespacespalding__device.html", "d2/d9a/namespacespalding__device" ],
     [ "spatial_average", "da/d3f/namespacespatial__average.html", "da/d3f/namespacespatial__average" ],
@@ -1019,9 +1019,16 @@ var namespaces_dup =
     [ "wale_device", "d0/d87/namespacewale__device.html", [
       [ "wale_compute_device", "d0/d87/namespacewale__device.html#a500b74870423cb69a3ac86bc91974475", null ]
     ] ],
+    [ "wall_distance_sampler", "d4/d5b/namespacewall__distance__sampler.html", "d4/d5b/namespacewall__distance__sampler" ],
+    [ "wall_gll_sampler", "de/dbf/namespacewall__gll__sampler.html", "de/dbf/namespacewall__gll__sampler" ],
     [ "wall_model", "da/ddd/namespacewall__model.html", "da/ddd/namespacewall__model" ],
     [ "wall_model_bc", "de/d2c/namespacewall__model__bc.html", "de/d2c/namespacewall__model__bc" ],
     [ "wall_model_device", "db/d0e/namespacewall__model__device.html", "db/d0e/namespacewall__model__device" ],
+    [ "wall_sampler", "d2/dd2/namespacewall__sampler.html", "d2/dd2/namespacewall__sampler" ],
+    [ "wall_sampler_fctry", "d0/d03/namespacewall__sampler__fctry.html", [
+      [ "wall_sampler_allocator", "d0/d03/namespacewall__sampler__fctry.html#a81f09c7235d4c3951dd90f3b381c8283", null ],
+      [ "wall_sampler_factory", "d0/d03/namespacewall__sampler__fctry.html#addd019f13ed5b9948db4f1cb9b7f0504", null ]
+    ] ],
     [ "wall_shear_stress_simcomp", "d5/d15/namespacewall__shear__stress__simcomp.html", "d5/d15/namespacewall__shear__stress__simcomp" ],
     [ "weak_gradient_simcomp", "d4/dd6/namespaceweak__gradient__simcomp.html", "d4/dd6/namespaceweak__gradient__simcomp" ],
     [ "zero_dirichlet", "da/ddc/namespacezero__dirichlet.html", "da/ddc/namespacezero__dirichlet" ]

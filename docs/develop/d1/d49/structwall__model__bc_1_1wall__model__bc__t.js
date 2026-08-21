@@ -50,6 +50,7 @@ var structwall__model__bc_1_1wall__model__bc__t =
     [ "strong", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a", null ],
     [ "symmetry", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#ac6b06b70bdf56b017c498aa4342d0c44", null ],
     [ "updated", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#acec6ac3a12e639a12be6344c9b4e3208", null ],
+    [ "user", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#a66e8b47fb4948cca3b93c3baec126b0b", null ],
     [ "wall_model", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#a4c50e0431a8945a79f146c25221bbaa6", null ],
     [ "xh", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#aa41e41065c9e29dc8cf48f739eeff18a", null ],
     [ "zone_indices", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#a77af13b6f885bd953fff03b1afe50d0a", null ]

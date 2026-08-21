@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.7</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.8</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -108,10 +108,10 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 <li class="level1"><a href="#autotoc_md193">Controlling execution and file output</a><ul><li class="level2"><a href="#autotoc_md194">Differential operators</a><ul><li class="level3"><a href="#simcomp_derivative">derivative</a></li>
 <li class="level3"><a href="#simcomp_curl">curl</a></li>
 <li class="level3"><a href="#simcomp_divergence">divergence</a></li>
+<li class="level3"><a href="#simcomp_gradient">gradient</a></li>
+<li class="level3"><a href="#simcomp_weak_gradient">weak_gradient</a></li>
 </ul>
 </li>
-<li class="level2"><a href="#simcomp_gradient">gradient</a></li>
-<li class="level2"><a href="#simcomp_weak_gradient">weak_gradient</a></li>
 <li class="level2"><a href="#simcomp_lambda2">lambda2</a></li>
 <li class="level2"><a href="#simcomp_boundary_operation">boundary_operation</a></li>
 <li class="level2"><a href="#simcomp_boundary_flux">boundary_flux</a></li>
@@ -222,16 +222,16 @@ divergence</h3>
 <div class="line">  &quot;fields&quot;: [&quot;u&quot;, &quot;v&quot;, &quot;w&quot;],</div>
 <div class="line">  &quot;computed_field&quot;: &quot;continuity&quot;</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="simcomp_gradient"></a>
-gradient</h2>
+</div><!-- fragment --><h3><a class="anchor" id="simcomp_gradient"></a>
+gradient</h3>
 <p>Computes the gradient of a field. The field to derivate is controlled by the <code>field</code> keyword. The simcomp will, by default, register the computed components of the gradients in the registry as <code>gradient_[field]_x</code>, <code>gradient_[field]_y</code>, <code>gradient_[field]_z</code> where the value in the brackets corresponds to the choice of the user keyword.</p>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;gradient&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;gradient&quot;,</div>
 <div class="line">  &quot;field&quot;: &quot;u&quot;</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="simcomp_weak_gradient"></a>
-weak_gradient</h2>
+</div><!-- fragment --><h3><a class="anchor" id="simcomp_weak_gradient"></a>
+weak_gradient</h3>
 <p>Computes the weak gradient of a field. The weak gradient is value of the gradient multiplied by the local value of the mass matrix. This is how a gradient term appears in the weak formulation of the governing equations. The field to derivate is controlled by the <code>field</code> keyword. The simcomp will, by default, register the computed components of the gradients in the registry as <code>weak_gradient_[field]_x</code>, <code>weak_gradient_[field]_y</code>, <code>weak_gradient_[field]_z</code> where the value in the brackets corresponds to the choice of the user keyword.</p>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;weak_gradient&quot;,</div>
@@ -726,7 +726,7 @@ Field subsampler</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Aug 20 2026 03:48:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Aug 21 2026 03:48:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,0 +1,5 @@
+<map id="wall_distance_sampler::wall_distance_sampler_t" name="wall_distance_sampler::wall_distance_sampler_t">
+<area shape="rect" id="Node000001" title="Implements wall&#45;normal sampling at prescribed physical distances." alt="" coords="5,93,196,133"/>
+<area shape="rect" id="Node000002" href="$d9/d72/structwall__sampler_1_1wall__sampler__t.html" title="Base type for sampling solution fields at points associated with wall nodes. Samples belonging to one..." alt="" coords="29,5,173,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,59,103,93,98,93,98,59"/>
+</map>

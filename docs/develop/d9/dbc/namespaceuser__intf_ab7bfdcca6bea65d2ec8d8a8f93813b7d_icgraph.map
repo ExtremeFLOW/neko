@@ -1,0 +1,5 @@
+<map id="user_intf::dummy_user_wall_sampling_distance" name="user_intf::dummy_user_wall_sampling_distance">
+<area shape="rect" id="Node000001" title="Dummy user&#45;defined physical&#45;distance wall&#45;sampling callback." alt="" coords="224,5,409,45"/>
+<area shape="rect" id="Node000002" href="$d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9" title="Constructor." alt="" coords="5,13,176,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,28,176,28,176,23,210,23"/>
+</map>

@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.7</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.8</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -110,7 +110,8 @@ $(document).ready(function(){initNavTree('d6/def/user-file.html','../../'); init
 <li class="level2"><a href="#user-file_user-mesh-setup">Runtime mesh deformation</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md211">Case-specific user functions</a><ul><li class="level2"><a href="#user-file_user-ic">Fluid and Scalar initial conditions</a></li>
+<li class="level1"><a href="#autotoc_md211">Case-specific user functions</a><ul><li class="level2"><a href="#user-file_wall-sampling">User wall sampling</a></li>
+<li class="level2"><a href="#user-file_user-ic">Fluid and Scalar initial conditions</a></li>
 <li class="level2"><a href="#user-file_user-f">Fluid and scalar source terms</a></li>
 <li class="level2"><a href="#user-file_field-dirichlet-update">Dirichlet boundary conditions</a></li>
 <li class="level2"><a href="#user-file_field-neumann-update">Neumann boundary conditions</a></li>
@@ -278,6 +279,22 @@ Runtime mesh deformation</h2>
 <div class="fragment"><div class="line">u%mesh_setup =&gt; user_mesh_scale</div>
 </div><!-- fragment --><h1><a class="anchor" id="autotoc_md211"></a>
 Case-specific user functions</h1>
+<h2><a class="anchor" id="user-file_wall-sampling"></a>
+User wall sampling</h2>
+<p>Wall-model sampling values can be set separately for each wall node by using <code>"value": "user"</code> in the boundary condition's <code>sampling</code> object. The callback is called once during wall-sampler setup, before sampling locations are constructed. Set a boundary-condition <code>name</code> in the case file to distinguish multiple user-sampled wall boundaries.</p>
+<p>For distance sampling, register <code>wall_sampling_distance</code> in <code>user_setup</code>:</p>
+<div class="fragment"><div class="line"><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a>%wall_sampling_distance =&gt; wall_sampling_distance</div>
+</div><!-- fragment --><p>The callback receives linear wall-node indices in <code>msk(:)</code> and must fill <code>distances(n_samples, n_nodes)</code> with positive values. Geometry can be obtained through <code>neko_user_access</code> when needed:</p>
+<div class="fragment"><div class="line"><span class="keyword">subroutine </span>wall_sampling_distance(bc_name, msk, distances)</div>
+<div class="line">  <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: bc_name</div>
+<div class="line">  <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: msk(:)</div>
+<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(out)</span> :: distances(:,:)</div>
+<div class="line"> </div>
+<div class="line">  <span class="keywordflow">if</span> (trim(bc_name) == <span class="stringliteral">&#39;ground&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line">     distances = 0.5_rp</div>
+<div class="line"><span class="keywordflow">  end if</span></div>
+<div class="line"><span class="keyword">end subroutine </span>wall_sampling_distance</div>
+</div><!-- fragment --><p>For GLL sampling, register <code>wall_sampling_gll</code> instead. Its interface is the same except that the output is <code>integer :: indices(:,:)</code>; every entry must be a positive GLL index. <code>n_samples</code> is the first dimension in both callbacks, so a user routine remains source-compatible when a wall model later supports more than one sample per wall node. Current wall models require <code>n_samples: 1</code>.</p>
 <p>As explained in the <a class="el" href="../../d1/d79/case-file_8md.html">case file</a> page, certain components of the simulation can be set to be user defined. These components and their associated user functions are:</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -289,7 +306,9 @@ Case-specific user functions</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">Dirichlet boundary conditions   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">dirichlet_conditions</a>   </td><td class="markdownTableBodyNone"><code>case.fluid.boundary_conditions</code> or <code>case.scalar.boundary_conditions</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">Neumann boundary conditions   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_field-neumann-update">neumann_conditions</a>   </td><td class="markdownTableBodyNone"><code>case.scalar.boundary_conditions</code>   </td></tr>
+<td class="markdownTableBodyNone">Neumann boundary conditions   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_field-neumann-update">neumann_conditions</a>   </td><td class="markdownTableBodyNone"><code>case.scalar.boundary_conditions</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Wall-model sampling   </td><td class="markdownTableBodyNone"><code>wall_sampling_gll</code> or <code>wall_sampling_distance</code>   </td><td class="markdownTableBodyNone"><code>case.fluid.boundary_conditions[].sampling</code>   </td></tr>
 </table>
 <dl class="section note"><dt>Note</dt><dd>For the sake of simplicity, we refer to the setup with one scalar, i.e. <code>case.scalar</code> in the JSON. For multiple scalars, the same things apply, but the configuration is inside each individual element of <code>case.scalars</code>. In the case of multiple scalars, users should use <code>"checkpoint_format": "hdf5"</code> when enabling checkpointing.</dd></dl>
 <h2><a class="anchor" id="user-file_user-ic"></a>
@@ -856,7 +875,7 @@ User access to solver internals</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Aug 20 2026 03:48:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Aug 21 2026 03:48:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

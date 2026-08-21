@@ -1,0 +1,5 @@
+<map id="wall_sampler_fctry::wall_sampler_factory" name="wall_sampler_fctry::wall_sampler_factory">
+<area shape="rect" id="Node000001" title="Wall sampler factory." alt="" coords="5,5,176,45"/>
+<area shape="rect" id="Node000002" href="$d0/d03/namespacewall__sampler__fctry.html#a81f09c7235d4c3951dd90f3b381c8283" title="Allocate a concrete wall sampler implementation by type name." alt="" coords="224,5,405,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,23,210,23,210,28,176,28"/>
+</map>

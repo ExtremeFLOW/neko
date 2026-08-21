@@ -6,6 +6,8 @@
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="480,92,436,92,436,87,480,87"/>
 <area shape="rect" id="Node000004" href="$d3/d0d/namespacevector__math.html#ae6a9b6ccf8813a576d35925f2c451e27" title="Scatter a contiguous vector into an array ." alt="" coords="251,133,436,173"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="497,115,420,136,419,131,496,110"/>
-<area shape="rect" id="Node000005" href="$df/dd1/namespaceboundary__data.html#a3f62606b7e17de072482817c87e28603" title="Scatter a boundary vector back into a full field." alt="" coords="5,126,193,181"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="237,156,193,156,193,151,237,151"/>
+<area shape="rect" id="Node000005" href="$df/dd1/namespaceboundary__data.html#a3f62606b7e17de072482817c87e28603" title="Scatter a boundary vector back into a full field." alt="" coords="5,90,193,145"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="237,140,193,134,194,129,238,135"/>
+<area shape="rect" id="Node000006" href="$d2/dd2/namespacewall__sampler.html#ab2a7abe77c8f858e81700597c2a1cd8e" title="Write the first sampling distance at every wall node to a field file." alt="" coords="26,169,173,209"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="237,172,173,181,173,176,237,166"/>
 </map>

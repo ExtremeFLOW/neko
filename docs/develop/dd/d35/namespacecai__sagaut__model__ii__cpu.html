@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.7</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.8</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -109,13 +109,13 @@ $(document).ready(function(){initNavTree('dd/d35/namespacecai__sagaut__model__ii
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a37edc2a72084ba50940a68e6666867d7" id="r_a37edc2a72084ba50940a68e6666867d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d35/namespacecai__sagaut__model__ii__cpu.html#a37edc2a72084ba50940a68e6666867d7">cai_sagaut_model_ii_compute_cpu</a> (u, v, w, ind_r, ind_s, ind_t, ind_e, n_x, n_y, n_z, nu, rho_w, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, kappa, b, p, s)</td></tr>
-<tr class="memdesc:a37edc2a72084ba50940a68e6666867d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate wall shear stresses with the CPU Model-II kernel.  <br /></td></tr>
-<tr class="separator:a37edc2a72084ba50940a68e6666867d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e741d16d585a70d198ae357ed2ff53c" id="r_a5e741d16d585a70d198ae357ed2ff53c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d35/namespacecai__sagaut__model__ii__cpu.html#a5e741d16d585a70d198ae357ed2ff53c">cai_sagaut_model_ii_compute_cpu</a> (u, v, w, n_x, n_y, n_z, nu, rho_w, h, tau_x, tau_y, tau_z, n_nodes, kappa, b, p, s)</td></tr>
+<tr class="memdesc:a5e741d16d585a70d198ae357ed2ff53c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate wall shear stresses with the CPU Model-II kernel.  <br /></td></tr>
+<tr class="separator:a5e741d16d585a70d198ae357ed2ff53c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="a37edc2a72084ba50940a68e6666867d7" name="a37edc2a72084ba50940a68e6666867d7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a37edc2a72084ba50940a68e6666867d7">&#9670;&#160;</a></span>cai_sagaut_model_ii_compute_cpu()</h2>
+<a id="a5e741d16d585a70d198ae357ed2ff53c" name="a5e741d16d585a70d198ae357ed2ff53c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e741d16d585a70d198ae357ed2ff53c">&#9670;&#160;</a></span>cai_sagaut_model_ii_compute_cpu()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -123,44 +123,20 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> cai_sagaut_model_ii_cpu::cai_sagaut_model_ii_compute_cpu </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(lx, lx, lx, nelv), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>u</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(lx, lx, lx, nelv), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>v</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(lx, lx, lx, nelv), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>w</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>ind_r</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>ind_s</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>ind_t</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n_nodes), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>ind_e</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -225,18 +201,6 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>lx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>nelv</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>kappa</em>, </td>
         </tr>
@@ -270,10 +234,9 @@ Functions/Subroutines</h2></td></tr>
     <tr><td class="paramname">u</td><td>The sampled x-velocity field. </td></tr>
     <tr><td class="paramname">v</td><td>The sampled y-velocity field. </td></tr>
     <tr><td class="paramname">w</td><td>The sampled z-velocity field. </td></tr>
-    <tr><td class="paramname">ind_r</td><td>The r-index array for sampled GLL points. </td></tr>
-    <tr><td class="paramname">ind_s</td><td>The s-index array for sampled GLL points. </td></tr>
-    <tr><td class="paramname">ind_t</td><td>The t-index array for sampled GLL points. </td></tr>
-    <tr><td class="paramname">ind_e</td><td>The element-index array for sampled GLL points. </td></tr>
+    <tr><td class="paramname">u</td><td>Sampled x velocity. </td></tr>
+    <tr><td class="paramname">v</td><td>Sampled y velocity. </td></tr>
+    <tr><td class="paramname">w</td><td>Sampled z velocity. </td></tr>
     <tr><td class="paramname">n_x</td><td>The x-component of the wall normals. </td></tr>
     <tr><td class="paramname">n_y</td><td>The y-component of the wall normals. </td></tr>
     <tr><td class="paramname">n_z</td><td>The z-component of the wall normals. </td></tr>
@@ -294,12 +257,12 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dc7/cai__sagaut__model__ii__cpu_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d2/dc7/cai__sagaut__model__ii__cpu_8f90_source.html">cai_sagaut_model_ii_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dc7/cai__sagaut__model__ii__cpu_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d2/dc7/cai__sagaut__model__ii__cpu_8f90_source.html">cai_sagaut_model_ii_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../dd/d35/namespacecai__sagaut__model__ii__cpu_a37edc2a72084ba50940a68e6666867d7_cgraph.png" border="0" usemap="#add/d35/namespacecai__sagaut__model__ii__cpu_a37edc2a72084ba50940a68e6666867d7_cgraph" alt=""/></div>
-<map name="add/d35/namespacecai__sagaut__model__ii__cpu_a37edc2a72084ba50940a68e6666867d7_cgraph" id="add/d35/namespacecai__sagaut__model__ii__cpu_a37edc2a72084ba50940a68e6666867d7_cgraph">
+<div class="center"><img src="../../dd/d35/namespacecai__sagaut__model__ii__cpu_a5e741d16d585a70d198ae357ed2ff53c_cgraph.png" border="0" usemap="#add/d35/namespacecai__sagaut__model__ii__cpu_a5e741d16d585a70d198ae357ed2ff53c_cgraph" alt=""/></div>
+<map name="add/d35/namespacecai__sagaut__model__ii__cpu_a5e741d16d585a70d198ae357ed2ff53c_cgraph" id="add/d35/namespacecai__sagaut__model__ii__cpu_a5e741d16d585a70d198ae357ed2ff53c_cgraph">
 <area shape="rect" title="Evaluate wall shear stresses with the CPU Model&#45;II kernel." alt="" coords="5,5,184,60"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#af0b558159bd3227f2024a7836785e195" title="Approximate the principal real branch of the Lambert W function for non&#45;negative real x." alt="" coords="232,20,373,45"/>
 <area shape="poly" title=" " alt="" coords="184,30,218,30,218,35,184,35"/>
@@ -308,8 +271,8 @@ Here is the call graph for this function:</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../dd/d35/namespacecai__sagaut__model__ii__cpu_a37edc2a72084ba50940a68e6666867d7_icgraph.png" border="0" usemap="#add/d35/namespacecai__sagaut__model__ii__cpu_a37edc2a72084ba50940a68e6666867d7_icgraph" alt=""/></div>
-<map name="add/d35/namespacecai__sagaut__model__ii__cpu_a37edc2a72084ba50940a68e6666867d7_icgraph" id="add/d35/namespacecai__sagaut__model__ii__cpu_a37edc2a72084ba50940a68e6666867d7_icgraph">
+<div class="center"><img src="../../dd/d35/namespacecai__sagaut__model__ii__cpu_a5e741d16d585a70d198ae357ed2ff53c_icgraph.png" border="0" usemap="#add/d35/namespacecai__sagaut__model__ii__cpu_a5e741d16d585a70d198ae357ed2ff53c_icgraph" alt=""/></div>
+<map name="add/d35/namespacecai__sagaut__model__ii__cpu_a5e741d16d585a70d198ae357ed2ff53c_icgraph" id="add/d35/namespacecai__sagaut__model__ii__cpu_a5e741d16d585a70d198ae357ed2ff53c_icgraph">
 <area shape="rect" title="Evaluate wall shear stresses with the CPU Model&#45;II kernel." alt="" coords="216,5,395,60"/>
 <area shape="rect" href="../../d0/d21/namespacecai__sagaut__model__ii.html#a93d1df6deba4bdd4c31086f27a1d6f61" title="Evaluate wall shear stresses with the Cai&#45;Sagaut Model&#45;II closure." alt="" coords="5,5,168,60"/>
 <area shape="poly" title=" " alt="" coords="202,35,168,35,168,30,202,30"/>
@@ -324,7 +287,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/d35/namespacecai__sagaut__model__ii__cpu.html">cai_sagaut_model_ii_cpu</a></li>
-    <li class="footer">Generated on Thu Aug 20 2026 03:48:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Aug 21 2026 03:48:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

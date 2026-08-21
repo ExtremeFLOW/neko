@@ -16,5 +16,7 @@ var structuser__intf_1_1user__t =
     [ "preprocess", "d7/da0/structuser__intf_1_1user__t.html#a61cc61ba502a9afb50766cf68e5405ad", null ],
     [ "source_term", "d7/da0/structuser__intf_1_1user__t.html#ae7c65492321446cb36b109bdd45ad913", null ],
     [ "startup", "d7/da0/structuser__intf_1_1user__t.html#aaa480b56968df4827e43f297ede5f8b5", null ],
-    [ "suppress_type_injection", "d7/da0/structuser__intf_1_1user__t.html#aaded7964de57f80598caeba39f25f8c4", null ]
+    [ "suppress_type_injection", "d7/da0/structuser__intf_1_1user__t.html#aaded7964de57f80598caeba39f25f8c4", null ],
+    [ "wall_sampling_distance", "d7/da0/structuser__intf_1_1user__t.html#a2e2347300e0cff94539d338eb1f3ca6f", null ],
+    [ "wall_sampling_gll", "d7/da0/structuser__intf_1_1user__t.html#a8d869f376c0d495a0b88bbd56ac38f6e", null ]
 ];

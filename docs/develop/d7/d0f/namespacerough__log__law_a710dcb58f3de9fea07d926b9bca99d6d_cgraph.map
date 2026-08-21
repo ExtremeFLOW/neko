@@ -1,0 +1,7 @@
+<map id="rough_log_law::rough_log_law_init" name="rough_log_law::rough_log_law_init">
+<area shape="rect" id="Node000001" title="Constructor from JSON." alt="" coords="5,5,165,45"/>
+<area shape="rect" id="Node000002" href="$d0/d03/namespacewall__sampler__fctry.html#addd019f13ed5b9948db4f1cb9b7f0504" title="Wall sampler factory." alt="" coords="213,5,384,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,23,200,23,200,28,166,28"/>
+<area shape="rect" id="Node000003" href="$d0/d03/namespacewall__sampler__fctry.html#a81f09c7235d4c3951dd90f3b381c8283" title="Allocate a concrete wall sampler implementation by type name." alt="" coords="432,5,613,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="384,23,418,23,418,28,384,28"/>
+</map>

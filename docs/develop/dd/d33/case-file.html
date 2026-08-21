@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.7</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.8</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -121,9 +121,9 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 <li class="level2"><a href="#case-file_fluid-boundary-conditions">Boundary conditions</a><ul><li class="level3"><a href="#autotoc_md91">Specifying the boundaries</a></li>
 <li class="level3"><a href="#autotoc_md92">Available conditions</a></li>
 <li class="level3"><a href="#most-wall-model">MOST wall model</a></li>
+<li class="level3"><a href="#richardson-wall-model">Richardson wall model</a></li>
 </ul>
 </li>
-<li class="level2"><a href="#richardson-wall-model">Richardson wall model</a></li>
 <li class="level2"><a href="#case-file_fluid-ic">Initial conditions</a></li>
 <li class="level2"><a href="#case-file_fluid-source-term">Source terms</a><ul><li class="level3"><a href="#autotoc_md93">Brinkman</a></li>
 <li class="level3"><a href="#autotoc_md94">Gradient Jump Penalty</a></li>
@@ -604,20 +604,25 @@ Available conditions</h3>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
-<li><code><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a></code>. A shear stress condition, where the values is computed by a wall model. Meant to be used for wall-modelled large-eddy simulation. Only works with axis-aligned boundaries. The model is selected using the <code>model</code> keyword. Additional configuration depends on the model selected.<ul>
+<li><code><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a></code>. A shear stress condition where the values are computed by a wall model. Meant to be used for wall-modelled large-eddy simulation. Only works with axis-aligned boundaries. The model is selected using the <code>model</code> keyword. Additional configuration depends on the model selected.<ul>
 <li>The <code>spalding</code>model requires specifying <code>kappa</code> and <code>B</code>, which are the log-law constants. This model is suitable for smooth walls.</li>
 <li>The <code><a class="el" href="../../d0/d21/namespacecai__sagaut__model__ii.html" title="Implements cai_sagaut_model_ii_t.">cai_sagaut_model_ii</a></code> model is a smooth-wall explicit algebraic wall model defined as Model-II of Cai and Sagaut (DOI: <code>10.1063/5.0048563</code>). It uses the same <code>kappa</code> and <code>B</code> parameters as <code>spalding</code>, and also accepts optional blending parameters <code>p</code> and <code>s</code>, which default to the paper calibration values <code>1.138</code> and <code>217.8</code>. The main advantage of this model is that it is explicit.</li>
 <li>The <code><a class="el" href="../../d7/d0f/namespacerough__log__law.html" title="Implements rough_log_law_t.">rough_log_law</a></code> model requires specifying <code>kappa</code> and <code>B</code>, which are the log-law constants, and <code>z0</code>, which is the characteristic roughness height.</li>
 <li>The <code>most</code> model is a version of the <code><a class="el" href="../../d7/d0f/namespacerough__log__law.html" title="Implements rough_log_law_t.">rough_log_law</a></code> adapted for flows with temperature stratification, such as atmospheric boundary layer (ABL) flows. The model uses Monin-Obukhov stability theory (MOST) to account for the local temperature gradient. More details and required keywords are given <a class="el" href="../../dd/d33/case-file.html#most-wall-model">below</a>.</li>
 <li><p class="startli">The <code>richardson</code> model is similar to the <code>most</code> model, but it assesses the stability dependence based on the Richardson number instead of the Obukhov length. More details and required keywords are given <a class="el" href="../../dd/d33/case-file.html#richardson-wall-model">below</a>.</p>
-<p class="startli">For all wall models, the distance to the sampling point has to be specified based on the off-wall index in the wall-normal direction. Thus, the sampling is currently from a GLL node and arbitrary distances are not yet supported. The index is set by the <code>h_index</code> keyword, with 1 being the minimal value, and the polynomial order + 1 being the maximum.</p>
-<p class="startli">A 3D field with the name <code>tau</code> will be registered in the field registry. At the boundary it will store the magnitude of the predicted stress. This can be used to post-process the predictions. Additionally, the sampling points are marked with values -1 in this field, for verification purposes. </p><div class="fragment"><div class="line">{</div>
+<p class="startli">All wall models specify their sampling strategy with a <code>sampling</code> object. Its <code>type</code> is either <code>gll</code>, for sampling at an off-wall GLL node, or <code>distance</code>, for sampling at a physical wall-normal distance using global interpolation. The <code>value</code> entry specifies the GLL index or distance, respectively. It may be a scalar or an array. Current wall models require exactly one sampling point per wall node, so use the scalar form. GLL indices start at 1 and may not exceed the polynomial order plus 1. Distances must be positive. If <code>sampling</code> is omitted, the legacy <code>h_index</code> keyword remains available for GLL sampling.</p>
+<p class="startli">The optional <code>output_h</code> entry in <code>sampling</code> controls whether Neko writes a diagnostic field containing the resolved wall-normal sampling distance. It defaults to <code>true</code>. The output uses the base name <code>wall_model_h_&lt;bc_name&gt;</code>, where <code>&lt;bc_name&gt;</code> is the boundary-condition name. The field is zero away from the wall boundary and contains the sampling distance at wall nodes.</p>
+<p class="startli">To set sampling values separately for every wall node, set <code>value</code> to <code>"user"</code> and provide <code>n_samples</code>. It specifies the number of samples per wall node and must currently be <code>1</code>. Neko then calls the corresponding user sampling routine once during setup; see <a href="../../user-file.md#user-file_wall-sampling">user wall sampling</a>. The user routine receives the boundary-condition name, so descriptive names are helpful when there are multiple wall-modelled boundaries.</p>
+<p class="startli">A 3D field with the name <code>tau</code> will be registered in the field registry. At the boundary it will store the magnitude of the predicted stress. This can be used to post-process the predictions. </p><div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;wall_model&quot;,</div>
 <div class="line">  &quot;model&quot;: &quot;cai_sagaut_model_ii&quot;,</div>
 <div class="line">  &quot;kappa&quot;: 0.41,</div>
 <div class="line">  &quot;B&quot;: 5.2,</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2],</div>
-<div class="line">  &quot;h_index&quot;: 1</div>
+<div class="line">  &quot;sampling&quot;: {</div>
+<div class="line">    &quot;type&quot;: &quot;gll&quot;,</div>
+<div class="line">    &quot;value&quot;: 1</div>
+<div class="line">  }</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
 </ul>
@@ -728,7 +733,10 @@ MOST wall model</h3>
 <div class="line">  &quot;scalar_field&quot;: &quot;temperature&quot;,</div>
 <div class="line">  &quot;time_dependent_temp_bc&quot;: &quot;false&quot;,</div>
 <div class="line">  &quot;zone_indices&quot;: [5],</div>
-<div class="line">  &quot;h_index&quot;: 1</div>
+<div class="line">  &quot;sampling&quot;: {</div>
+<div class="line">    &quot;type&quot;: &quot;gll&quot;,</div>
+<div class="line">    &quot;value&quot;: 1</div>
+<div class="line">  }</div>
 <div class="line">}</div>
 </div><!-- fragment --><p></p>
 </details>
@@ -741,8 +749,8 @@ MOST wall model</h3>
 <p>Monin, A. S., &amp; Obukhov, A. M. (1954). Basic laws of turbulent mixing in the surface layer of the atmosphere. Tr Akad Nauk SSSR Geofiz Inst, 24(151), 163–187.</p>
 <p>Zilitinkevich, S. S., 1995: Non-local turbulent transport: Pollution dispersion aspects of coherent structure of convective flows. Air Pollution III, H. Power, N. Moussiopoulos, and C. A. Brebbia, Eds., Vol. 1, Air Pollution Theory and Simulation, Computational Mechanics Publications, 53–60. </p>
 </details>
-<h2><a class="anchor" id="richardson-wall-model"></a>
-Richardson wall model</h2>
+<h3><a class="anchor" id="richardson-wall-model"></a>
+Richardson wall model</h3>
 <p>This Richardson-number based wall model is conceptually similar to the more well-known MOST-based wall model, but it computes the effect of the temperature stratification based on the bulk Richardson number instead of the Obukhov length.</p>
 <p>In the convective regime, the surface shear stress, \(\tau\), and surface heat flux, \(\overline{u&#39;\theta&#39;}\) are computed using the formulations of Louis 1979:  </p><p class="formulaDsp">
 \begin{eqnarray*}
@@ -1893,7 +1901,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Aug 20 2026 03:48:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Aug 21 2026 03:48:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

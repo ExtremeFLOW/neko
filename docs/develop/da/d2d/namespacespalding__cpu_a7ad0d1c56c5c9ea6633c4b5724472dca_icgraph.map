@@ -1,6 +1,6 @@
 <map id="spalding_cpu::solve_cpu" name="spalding_cpu::solve_cpu">
 <area shape="rect" id="Node000001" title="Newton solver for the algebraic equation defined by the law on cpu." alt="" coords="412,13,592,38"/>
-<area shape="rect" id="Node000002" href="$da/d2d/namespacespalding__cpu.html#a32a37dba89e5039728d993dea147ff2d" title="Compute the wall shear stress on cpu using Spalding&#39;s model." alt="" coords="193,5,364,45"/>
+<area shape="rect" id="Node000002" href="$da/d2d/namespacespalding__cpu.html#a0ab9ff0f00be5ccf819a8596cca90c31" title="Compute the wall shear stress on cpu using Spalding&#39;s model." alt="" coords="193,5,364,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="398,28,364,28,364,23,398,23"/>
 <area shape="rect" id="Node000003" href="$d5/d90/namespacespalding.html#a83c835e2b4c317e67d37e19821f62c7f" title="Compute the wall shear stress." alt="" coords="5,5,145,45"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="179,28,146,28,146,23,179,23"/>

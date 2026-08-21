@@ -1,11 +1,13 @@
 <map id="math::masked_gather_copy" name="math::masked_gather_copy">
-<area shape="rect" id="Node000001" title="Gather a masked vector to reduced contigous vector ." alt="" coords="471,85,673,110"/>
+<area shape="rect" id="Node000001" title="Gather a masked vector to reduced contigous vector ." alt="" coords="471,117,673,142"/>
 <area shape="rect" id="Node000002" href="$dd/dd2/namespacedofmap.html#a929a67b52e819fcc73a0a4ad6e8e631d" title="Generate/Initialize a new dofmap object based on a mask." alt="" coords="240,13,420,53"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="509,84,406,56,407,51,511,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="529,113,422,68,390,56,391,51,424,63,531,108"/>
 <area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#a50bd16112741cd8862376d6b844db998" title="Gather a field to reduced contiguous array ." alt="" coords="237,77,423,117"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="457,100,423,100,423,95,457,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="462,117,423,112,423,107,463,112"/>
 <area shape="rect" id="Node000004" href="$d3/d0d/namespacevector__math.html#a580a0e0a951754438d50c403f0f63217" title="Gather a vector to reduced contigous array ." alt="" coords="247,141,413,181"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="511,116,407,144,406,139,509,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="462,146,414,153,413,148,462,141"/>
+<area shape="rect" id="Node000010" href="$de/dbf/namespacewall__gll__sampler.html#ad25f346fd591b412ed8cff13e96047c9" title="Sample the solution field at the sampling points." alt="" coords="247,205,413,245"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="531,150,424,196,391,208,390,203,422,191,529,145"/>
 <area shape="rect" id="Node000005" href="$d1/da5/namespaceoverset__interface.html#a3a71e1559bf234006ae3ad429081a342" title="Gather interface dofs." alt="" coords="12,5,183,45"/>
 <area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="243,137,236,131,219,113,211,94,203,77,188,59,169,48,172,43,191,55,208,74,216,92,224,110,239,127,246,132"/>
 <area shape="rect" id="Node000006" href="$d6/de1/namespaceoverset__interface__vector.html#ad555470637dc93b888bd040d43bcc4ba" title="Gather interface dofs." alt="" coords="5,69,189,109"/>
@@ -15,5 +17,5 @@
 <area shape="rect" id="Node000008" href="$d1/da5/namespaceoverset__interface.html#a7d61c39526e32be5660aa9cb6641ef1c" title="Log interface RMSE for the scalar field." alt="" coords="21,213,173,253"/>
 <area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="252,188,164,216,162,211,251,183"/>
 <area shape="rect" id="Node000009" href="$d6/de1/namespaceoverset__interface__vector.html#a39ae73c70e1d995c7ffc543278df54b6" title="Log interface RMSE for each vector component." alt="" coords="5,277,189,317"/>
-<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="297,193,248,231,191,268,164,280,162,275,188,263,245,226,294,188"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="246,190,239,195,224,213,216,230,208,249,191,267,172,279,169,275,188,263,203,246,211,228,219,210,236,191,243,186"/>
 </map>

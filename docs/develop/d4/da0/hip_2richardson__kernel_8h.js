@@ -7,7 +7,7 @@ var hip_2richardson__kernel_8h =
     [ "heat_flux_convective", "d4/da0/hip_2richardson__kernel_8h.html#a62ddc2320f6eb2286b3160f33a9e8a42", null ],
     [ "heat_flux_neutral", "d4/da0/hip_2richardson__kernel_8h.html#a4d0dafaaad422c48ae93acc3d577553e", null ],
     [ "heat_flux_stable", "d4/da0/hip_2richardson__kernel_8h.html#ac2814a22732eca4c30a0c8cbcd7ab42f", null ],
-    [ "richardson_compute", "d4/da0/hip_2richardson__kernel_8h.html#ab36a4854d57d653c7350dc047b66477c", null ],
+    [ "richardson_compute", "d4/da0/hip_2richardson__kernel_8h.html#ae3ca444aa846fdc12c5a4a1bd8d1ff2f", null ],
     [ "tau_convective", "d4/da0/hip_2richardson__kernel_8h.html#a4bc5296cee245d3f8633310bd127a3b7", null ],
     [ "tau_neutral", "d4/da0/hip_2richardson__kernel_8h.html#a59df68e443b14ca8e02935af81ee61ed", null ],
     [ "tau_stable", "d4/da0/hip_2richardson__kernel_8h.html#a7c4013773641aa9afcc26fb57f838967", null ]

@@ -1193,6 +1193,8 @@ var hierarchy =
     [ "user_intf::user_source_term_intf", "d2/d5b/interfaceuser__intf_1_1user__source__term__intf.html", null ],
     [ "user_intf::user_startup_intf", "de/dc6/interfaceuser__intf_1_1user__startup__intf.html", null ],
     [ "user_intf::user_t", "d7/da0/structuser__intf_1_1user__t.html", null ],
+    [ "user_intf::user_wall_sampling_distance_intf", "d4/dce/interfaceuser__intf_1_1user__wall__sampling__distance__intf.html", null ],
+    [ "user_intf::user_wall_sampling_gll_intf", "d1/da1/interfaceuser__intf_1_1user__wall__sampling__gll__intf.html", null ],
     [ "uset::uset_add", "dd/d59/interfaceuset_1_1uset__add.html", null ],
     [ "uset::uset_clear", "d3/dcc/interfaceuset_1_1uset__clear.html", null ],
     [ "uset::uset_element", "db/d02/interfaceuset_1_1uset__element.html", null ],
@@ -1224,5 +1226,13 @@ var hierarchy =
       [ "richardson::richardson_t", "dd/df1/structrichardson_1_1richardson__t.html", null ],
       [ "rough_log_law::rough_log_law_t", "df/d21/structrough__log__law_1_1rough__log__law__t.html", null ],
       [ "spalding::spalding_t", "df/df1/structspalding_1_1spalding__t.html", null ]
+    ] ],
+    [ "wall_sampler::wall_sampler_finalize", "d0/d38/interfacewall__sampler_1_1wall__sampler__finalize.html", null ],
+    [ "wall_sampler::wall_sampler_free", "dc/db6/interfacewall__sampler_1_1wall__sampler__free.html", null ],
+    [ "wall_sampler::wall_sampler_init", "dd/d7a/interfacewall__sampler_1_1wall__sampler__init.html", null ],
+    [ "wall_sampler::wall_sampler_sample", "d0/dd8/interfacewall__sampler_1_1wall__sampler__sample.html", null ],
+    [ "wall_sampler::wall_sampler_t", "d9/d72/structwall__sampler_1_1wall__sampler__t.html", [
+      [ "wall_distance_sampler::wall_distance_sampler_t", "db/d9f/structwall__distance__sampler_1_1wall__distance__sampler__t.html", null ],
+      [ "wall_gll_sampler::wall_gll_sampler_t", "d6/d69/structwall__gll__sampler_1_1wall__gll__sampler__t.html", null ]
     ] ]
 ];

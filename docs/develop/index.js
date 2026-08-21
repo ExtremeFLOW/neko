@@ -68,9 +68,9 @@ var index =
           [ "Boundary conditions", "dd/d33/case-file.html#case-file_fluid-boundary-conditions", [
             [ "Specifying the boundaries", "dd/d33/case-file.html#autotoc_md91", null ],
             [ "Available conditions", "dd/d33/case-file.html#autotoc_md92", null ],
-            [ "MOST wall model", "dd/d33/case-file.html#most-wall-model", null ]
+            [ "MOST wall model", "dd/d33/case-file.html#most-wall-model", null ],
+            [ "Richardson wall model", "dd/d33/case-file.html#richardson-wall-model", null ]
           ] ],
-          [ "Richardson wall model", "dd/d33/case-file.html#richardson-wall-model", null ],
           [ "Initial conditions", "dd/d33/case-file.html#case-file_fluid-ic", null ],
           [ "Source terms", "dd/d33/case-file.html#case-file_fluid-source-term", [
             [ "Brinkman", "dd/d33/case-file.html#autotoc_md93", null ],
@@ -121,6 +121,7 @@ var index =
           [ "Runtime mesh deformation", "d6/def/user-file.html#user-file_user-mesh-setup", null ]
         ] ],
         [ "Case-specific user functions", "d6/def/user-file.html#autotoc_md211", [
+          [ "User wall sampling", "d6/def/user-file.html#user-file_wall-sampling", null ],
           [ "Fluid and Scalar initial conditions", "d6/def/user-file.html#user-file_user-ic", null ],
           [ "Fluid and scalar source terms", "d6/def/user-file.html#user-file_user-f", null ],
           [ "Dirichlet boundary conditions", "d6/def/user-file.html#user-file_field-dirichlet-update", null ],
@@ -148,10 +149,10 @@ var index =
           [ "Differential operators", "d3/d84/simcomps.html#autotoc_md194", [
             [ "derivative", "d3/d84/simcomps.html#simcomp_derivative", null ],
             [ "curl", "d3/d84/simcomps.html#simcomp_curl", null ],
-            [ "divergence", "d3/d84/simcomps.html#simcomp_divergence", null ]
+            [ "divergence", "d3/d84/simcomps.html#simcomp_divergence", null ],
+            [ "gradient", "d3/d84/simcomps.html#simcomp_gradient", null ],
+            [ "weak_gradient", "d3/d84/simcomps.html#simcomp_weak_gradient", null ]
           ] ],
-          [ "gradient", "d3/d84/simcomps.html#simcomp_gradient", null ],
-          [ "weak_gradient", "d3/d84/simcomps.html#simcomp_weak_gradient", null ],
           [ "lambda2", "d3/d84/simcomps.html#simcomp_lambda2", null ],
           [ "boundary_operation", "d3/d84/simcomps.html#simcomp_boundary_operation", null ],
           [ "boundary_flux", "d3/d84/simcomps.html#simcomp_boundary_flux", null ],

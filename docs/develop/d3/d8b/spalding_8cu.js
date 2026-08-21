@@ -1,4 +1,4 @@
 var spalding_8cu =
 [
-    [ "cuda_spalding_compute", "d3/d8b/spalding_8cu.html#a8d8d6f4c5c8cc8ddad65e3a15868387b", null ]
+    [ "cuda_spalding_compute", "d3/d8b/spalding_8cu.html#ad5a0601953b93f1083465b95b3d2548d", null ]
 ];

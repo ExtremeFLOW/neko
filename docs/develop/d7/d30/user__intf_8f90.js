@@ -4,6 +4,8 @@ var user__intf_8f90 =
     [ "user_intf::user_initial_conditions_intf", "d3/d86/interfaceuser__intf_1_1user__initial__conditions__intf.html", "d3/d86/interfaceuser__intf_1_1user__initial__conditions__intf" ],
     [ "user_intf::user_initialize_intf", "d4/d02/interfaceuser__intf_1_1user__initialize__intf.html", "d4/d02/interfaceuser__intf_1_1user__initialize__intf" ],
     [ "user_intf::user_mesh_setup_intf", "d1/d28/interfaceuser__intf_1_1user__mesh__setup__intf.html", "d1/d28/interfaceuser__intf_1_1user__mesh__setup__intf" ],
+    [ "user_intf::user_wall_sampling_gll_intf", "d1/da1/interfaceuser__intf_1_1user__wall__sampling__gll__intf.html", "d1/da1/interfaceuser__intf_1_1user__wall__sampling__gll__intf" ],
+    [ "user_intf::user_wall_sampling_distance_intf", "d4/dce/interfaceuser__intf_1_1user__wall__sampling__distance__intf.html", "d4/dce/interfaceuser__intf_1_1user__wall__sampling__distance__intf" ],
     [ "user_intf::user_compute_intf", "de/db4/interfaceuser__intf_1_1user__compute__intf.html", "de/db4/interfaceuser__intf_1_1user__compute__intf" ],
     [ "user_intf::user_finalize_intf", "dc/dc2/interfaceuser__intf_1_1user__finalize__intf.html", "dc/dc2/interfaceuser__intf_1_1user__finalize__intf" ],
     [ "user_intf::user_source_term_intf", "d2/d5b/interfaceuser__intf_1_1user__source__term__intf.html", "d2/d5b/interfaceuser__intf_1_1user__source__term__intf" ],
@@ -25,6 +27,8 @@ var user__intf_8f90 =
     [ "dummy_user_material_properties", "d7/d30/user__intf_8f90.html#a7313300d3e61b6b1fb37eab24752bacc", null ],
     [ "dummy_user_mesh_setup", "d7/d30/user__intf_8f90.html#aac41cc7514c9d17b187c2e6672280f13", null ],
     [ "dummy_user_source_term", "d7/d30/user__intf_8f90.html#a3dc1c52b1295c8f99f3a6e2d8b441ab5", null ],
+    [ "dummy_user_wall_sampling_distance", "d7/d30/user__intf_8f90.html#ab7bfdcca6bea65d2ec8d8a8f93813b7d", null ],
+    [ "dummy_user_wall_sampling_gll", "d7/d30/user__intf_8f90.html#ad89327afeb07e47f11b5c6568efca174", null ],
     [ "neumann_do_nothing", "d7/d30/user__intf_8f90.html#a18b06fc9c75c42c91aecbbbb1910d369", null ],
     [ "user_intf_init", "d7/d30/user__intf_8f90.html#a4911daad15c30f88e758295cdd047be9", null ]
 ];

@@ -1,0 +1,9 @@
+<map id="cuda_cai_sagaut_model_ii_compute" name="cuda_cai_sagaut_model_ii_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="527,57,705,97"/>
+<area shape="rect" id="Node000002" href="$df/d3e/namespacecai__sagaut__model__ii__device.html#aad4578bff6aa64af51076713c74a9bb5" title="Evaluate the device wall&#45;model kernel for Model&#45;II." alt="" coords="280,49,479,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="513,79,479,79,479,74,513,74"/>
+<area shape="rect" id="Node000003" href="$d0/d21/namespacecai__sagaut__model__ii.html#a93d1df6deba4bdd4c31086f27a1d6f61" title="Evaluate wall shear stresses with the Cai&#45;Sagaut Model&#45;II closure." alt="" coords="37,5,200,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="266,60,200,49,201,44,267,55"/>
+<area shape="rect" id="Node000004" href="$da/d6a/interfacecai__sagaut__model__ii__device_1_1hip__cai__sagaut__model__ii__compute.html#a55a298b5a563cb40cb2eb5ef5270e30b" title=" " alt="" coords="5,85,232,154"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="267,98,233,103,232,98,266,92"/>
+</map>

@@ -9,11 +9,12 @@ var wall__model_8f90 =
     [ "wall_model::wall_model_allocate", "d6/dee/interfacewall__model_1_1wall__model__allocate.html", "d6/dee/interfacewall__model_1_1wall__model__allocate" ],
     [ "wall_model::allocator_entry", "da/d57/structwall__model_1_1allocator__entry.html", "da/d57/structwall__model_1_1allocator__entry" ],
     [ "wall_model_compute_mag_field", "db/df0/wall__model_8f90.html#ad6397879860434184e35416478a6fd17", null ],
-    [ "wall_model_finalize_base", "db/df0/wall__model_8f90.html#a1fb79793d56ae890dd380413cc67a65b", null ],
-    [ "wall_model_find_points", "db/df0/wall__model_8f90.html#a6adf0170da1ef5da42846e20015081dd", null ],
+    [ "wall_model_finalize_base", "db/df0/wall__model_8f90.html#ac275babdde50c5499537a5a516e8338d", null ],
     [ "wall_model_free_base", "db/df0/wall__model_8f90.html#a9c87c01ab361ff26b866c0e764a2a525", null ],
-    [ "wall_model_init_base", "db/df0/wall__model_8f90.html#a55c82979b1d5c3b6c9e7c0d0da02a1e3", null ],
-    [ "wall_model_partial_init_base", "db/df0/wall__model_8f90.html#a5889a9498af89fc7ba69f1bc288d40af", null ],
+    [ "wall_model_init_base", "db/df0/wall__model_8f90.html#a8d255147195d857da3f1562f21ae62e9", null ],
+    [ "wall_model_partial_init_base", "db/df0/wall__model_8f90.html#a8434eb7e06ea1729e2dd441be1b138c5", null ],
+    [ "wall_model_setup_geometry", "db/df0/wall__model_8f90.html#a9189b364f5317c33746bf935a036875a", null ],
+    [ "wall_model_validate_single_sample", "db/df0/wall__model_8f90.html#ab23de3a15d0fd0dc44bdecf2061e6527", null ],
     [ "wall_model_registry", "db/df0/wall__model_8f90.html#a8e69f3f1a435ae96b14589e30342e9a4", null ],
     [ "wall_model_registry_size", "db/df0/wall__model_8f90.html#a41358c517c230e2a7a8692692da50d4d", null ]
 ];

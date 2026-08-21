@@ -1,0 +1,7 @@
+<map id="most::most_init" name="most::most_init">
+<area shape="rect" id="Node000001" title="Constructor from JSON." alt="" coords="5,13,129,38"/>
+<area shape="rect" id="Node000002" href="$d0/d03/namespacewall__sampler__fctry.html#addd019f13ed5b9948db4f1cb9b7f0504" title="Wall sampler factory." alt="" coords="177,5,348,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,23,164,23,164,28,130,28"/>
+<area shape="rect" id="Node000003" href="$d0/d03/namespacewall__sampler__fctry.html#a81f09c7235d4c3951dd90f3b381c8283" title="Allocate a concrete wall sampler implementation by type name." alt="" coords="396,5,577,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="348,23,382,23,382,28,348,28"/>
+</map>
