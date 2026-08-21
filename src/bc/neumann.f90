@@ -351,7 +351,7 @@ contains
   subroutine neumann_finalize(this, only_facets)
     class(neumann_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    integer :: i, j
+    integer :: i
 
     if (present(only_facets)) then
        if (.not. only_facets) then
@@ -369,7 +369,7 @@ contains
 
     this%uniform_0 = .true.
 
-    do i = 1, 3
+    do i = 1, size(this%init_flux_)
        this%uniform_0 = abscmp(this%init_flux_(i), 0.0_rp) .and. this%uniform_0
     end do
   end subroutine neumann_finalize
