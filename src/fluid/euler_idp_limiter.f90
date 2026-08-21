@@ -41,6 +41,7 @@ module euler_idp_limiter
   public :: euler_idp_state_is_admissible
   public :: euler_idp_specific_entropy
   public :: euler_idp_entropy_is_admissible
+  public :: euler_idp_local_entropy_bounds
   public :: euler_idp_relax_density_bounds
   public :: euler_idp_limit_endpoint
   public :: euler_idp_limit_edge
@@ -97,6 +98,27 @@ contains
     admissible = ieee_is_finite(entropy) .and. &
          entropy .ge. entropy_lower - tolerance
   end function euler_idp_entropy_is_admissible
+
+  !> Compute one-ring entropy minima from an immutable stage field.
+  pure subroutine euler_idp_local_entropy_bounds(stage_entropy, left, right, &
+       entropy_lower_bound)
+    real(kind=rp), intent(in) :: stage_entropy(:,:,:,:)
+    integer, intent(in) :: left(:,:), right(:,:)
+    real(kind=rp), intent(out) :: entropy_lower_bound(:,:,:,:)
+    integer :: edge
+
+    entropy_lower_bound = stage_entropy
+    do edge = 1, size(left, 2)
+       associate(a => left(:,edge), b => right(:,edge))
+         entropy_lower_bound(a(1),a(2),a(3),a(4)) = min( &
+              entropy_lower_bound(a(1),a(2),a(3),a(4)), &
+              stage_entropy(b(1),b(2),b(3),b(4)))
+         entropy_lower_bound(b(1),b(2),b(3),b(4)) = min( &
+              entropy_lower_bound(b(1),b(2),b(3),b(4)), &
+              stage_entropy(a(1),a(2),a(3),a(4)))
+       end associate
+    end do
+  end subroutine euler_idp_local_entropy_bounds
 
   !> Apply the averaging relaxation of Guermond et al. to density bounds.
   pure subroutine euler_idp_relax_density_bounds(strict_lower, strict_upper, &

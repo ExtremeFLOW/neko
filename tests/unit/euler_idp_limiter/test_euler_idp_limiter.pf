@@ -18,6 +18,43 @@ subroutine test_specific_entropy()
 end subroutine test_specific_entropy
 
 @test
+subroutine test_local_entropy_bounds_are_edge_order_independent()
+  use pfunit
+  use num_types, only : rp
+  use euler_idp_limiter, only : euler_idp_local_entropy_bounds
+  implicit none
+
+  real(kind=rp) :: stage_entropy(4,1,1,1)
+  real(kind=rp) :: forward_bounds(4,1,1,1)
+  real(kind=rp) :: reverse_bounds(4,1,1,1)
+  real(kind=rp) :: expected(4)
+  integer :: forward_left(4,3), forward_right(4,3)
+  integer :: reverse_left(4,3), reverse_right(4,3)
+
+  stage_entropy(:,1,1,1) = [3.0_rp, 2.0_rp, 1.0_rp, 0.0_rp]
+  forward_left = reshape([ &
+       1, 1, 1, 1, &
+       2, 1, 1, 1, &
+       3, 1, 1, 1], shape(forward_left))
+  forward_right = reshape([ &
+       2, 1, 1, 1, &
+       3, 1, 1, 1, &
+       4, 1, 1, 1], shape(forward_right))
+  reverse_left = forward_left(:,3:1:-1)
+  reverse_right = forward_right(:,3:1:-1)
+  expected = [2.0_rp, 1.0_rp, 0.0_rp, 0.0_rp]
+
+  call euler_idp_local_entropy_bounds(stage_entropy, forward_left, &
+       forward_right, forward_bounds)
+  call euler_idp_local_entropy_bounds(stage_entropy, reverse_left, &
+       reverse_right, reverse_bounds)
+
+  @assertEqual(expected, forward_bounds(:,1,1,1))
+  @assertEqual(expected, reverse_bounds(:,1,1,1))
+  @assertEqual(forward_bounds, reverse_bounds)
+end subroutine test_local_entropy_bounds_are_edge_order_independent
+
+@test
 subroutine test_entropy_endpoint_limit()
   use pfunit
   use num_types, only : rp

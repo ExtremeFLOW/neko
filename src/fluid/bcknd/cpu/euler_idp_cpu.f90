@@ -50,7 +50,8 @@ module euler_idp_cpu
        euler_idp_flux_dot_vector, euler_idp_bar_state, &
        euler_idp_internal_energy, euler_idp_internal_energy_timestep
   use euler_idp_limiter, only : euler_idp_limit_edge, &
-       euler_idp_relax_density_bounds, euler_idp_specific_entropy
+       euler_idp_local_entropy_bounds, euler_idp_relax_density_bounds, &
+       euler_idp_specific_entropy
   use euler_gll_graph, only : euler_gll_graph_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank
   use utils, only : neko_error
@@ -79,6 +80,7 @@ module euler_idp_cpu
      type(field_t) :: wall_mask
      type(field_t) :: density_lower_bound
      type(field_t) :: density_upper_bound
+     type(field_t) :: stage_entropy
      type(field_t) :: entropy_lower_bound
      type(field_t) :: density_second_difference
      type(field_t) :: density_second_difference_average
@@ -175,6 +177,7 @@ contains
     this%wall_mask%x = 0.0_rp
     call this%density_lower_bound%init(dof, 'euler_idp_density_lower_bound')
     call this%density_upper_bound%init(dof, 'euler_idp_density_upper_bound')
+    call this%stage_entropy%init(dof, 'euler_idp_stage_entropy')
     call this%entropy_lower_bound%init(dof, 'euler_idp_entropy_lower_bound')
     call this%density_second_difference%init(dof, &
          'euler_idp_density_second_difference')
@@ -339,6 +342,7 @@ contains
     call this%wall_mask%free()
     call this%density_lower_bound%free()
     call this%density_upper_bound%free()
+    call this%stage_entropy%free()
     call this%entropy_lower_bound%free()
     call this%density_second_difference%free()
     call this%density_second_difference_average%free()
@@ -621,7 +625,7 @@ contains
     real(kind=rp), intent(in) :: gamma
     type(euler_idp_diagnostics_t), intent(inout) :: diagnostics
     real(kind=rp) :: left_density, right_density, bar_density
-    real(kind=rp) :: left_entropy, right_entropy, entropy
+    real(kind=rp) :: entropy
     real(kind=rp) :: difference, pair_average
     real(kind=rp) :: left_weight, right_weight
     real(kind=rp) :: strict_lower, strict_upper
@@ -641,16 +645,16 @@ contains
     do i = 1, rho%size()
        state = [rho%x(i,1,1,1), m_x%x(i,1,1,1), m_y%x(i,1,1,1), &
             m_z%x(i,1,1,1), energy%x(i,1,1,1)]
-       this%entropy_lower_bound%x(i,1,1,1) = &
+       this%stage_entropy%x(i,1,1,1) = &
             euler_idp_specific_entropy(state, gamma)
     end do
+    call euler_idp_local_entropy_bounds(this%stage_entropy%x, &
+         this%graph%left, this%graph%right, this%entropy_lower_bound%x)
     do edge = 1, this%graph%n_edges
        associate(a => this%graph%left(:,edge), &
             b => this%graph%right(:,edge))
          left_density = rho%x(a(1),a(2),a(3),a(4))
          right_density = rho%x(b(1),b(2),b(3),b(4))
-         left_entropy = this%entropy_lower_bound%x(a(1),a(2),a(3),a(4))
-         right_entropy = this%entropy_lower_bound%x(b(1),b(2),b(3),b(4))
          bar_density = this%bar_state(1,edge)
          this%density_lower_bound%x(a(1),a(2),a(3),a(4)) = min( &
               this%density_lower_bound%x(a(1),a(2),a(3),a(4)), &
@@ -664,11 +668,6 @@ contains
          this%density_upper_bound%x(b(1),b(2),b(3),b(4)) = max( &
               this%density_upper_bound%x(b(1),b(2),b(3),b(4)), &
               left_density, bar_density)
-         this%entropy_lower_bound%x(a(1),a(2),a(3),a(4)) = min( &
-              left_entropy, right_entropy)
-         this%entropy_lower_bound%x(b(1),b(2),b(3),b(4)) = min( &
-              left_entropy, right_entropy)
-
          ! Collapse duplicate element occurrences to the unique-neighbour
          ! stencil used by the density-bound relaxation.
          direction = this%graph%direction(edge)
