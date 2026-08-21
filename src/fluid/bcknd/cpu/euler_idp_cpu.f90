@@ -39,12 +39,15 @@ module euler_idp_cpu
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t
-  use bc, only : bc_t
   use bc_list, only : bc_list_t
+  use time_state, only : time_state_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
   use operators, only : div
   use compressible_ops_cpu, only : &
-       compressible_ops_cpu_conserved_to_primitive, EULER_STATE_OK
+       compressible_ops_cpu_conserved_to_primitive, &
+       compressible_ops_cpu_update_uvw, &
+       compressible_ops_cpu_update_mxyz_p_ruvw, &
+       compressible_ops_cpu_update_e, EULER_STATE_OK
   use euler_idp, only : EULER_IDP_NCOMP, euler_idp_diagnostics_t
   use euler_idp_low_order, only : euler_idp_maximum_wave_speed, &
        euler_idp_flux_dot_vector, euler_idp_bar_state, &
@@ -63,7 +66,6 @@ module euler_idp_cpu
   type, public :: euler_idp_cpu_t
      logical :: initialized = .false.
      logical :: periodic_graph = .false.
-     logical :: wall_mask_initialized = .false.
      logical :: low_order_only = .false.
      logical :: relax_density_bounds = .false.
      real(kind=rp) :: correction_tolerance = 1.0e-12_rp
@@ -77,7 +79,6 @@ module euler_idp_cpu
      type(field_t) :: saved_state(EULER_IDP_NCOMP)
      type(field_t) :: viscosity_sum
      type(field_t) :: limiter_weight_sum
-     type(field_t) :: wall_mask
      type(field_t) :: density_lower_bound
      type(field_t) :: density_upper_bound
      type(field_t) :: stage_entropy
@@ -126,6 +127,8 @@ module euler_idp_cpu
      procedure, pass(this) :: compute_bounds => euler_idp_cpu_compute_bounds
      procedure, pass(this) :: forward_euler => euler_idp_cpu_forward_euler
      procedure, pass(this) :: advance => euler_idp_cpu_advance
+     procedure, pass(this) :: apply_boundary_conditions => &
+          euler_idp_cpu_apply_boundary_conditions
      procedure, pass(this) :: compute_limiter => &
           euler_idp_cpu_compute_limiter
      procedure, pass(this) :: apply_correction => &
@@ -173,8 +176,6 @@ contains
     call this%flux_z%init(dof, 'euler_idp_flux_z')
     call this%viscosity_sum%init(dof, 'euler_idp_viscosity_sum')
     call this%limiter_weight_sum%init(dof, 'euler_idp_limiter_weight_sum')
-    call this%wall_mask%init(dof, 'euler_idp_wall_mask')
-    this%wall_mask%x = 0.0_rp
     call this%density_lower_bound%init(dof, 'euler_idp_density_lower_bound')
     call this%density_upper_bound%init(dof, 'euler_idp_density_upper_bound')
     call this%stage_entropy%init(dof, 'euler_idp_stage_entropy')
@@ -199,7 +200,6 @@ contains
     this%maximum_graph_timestep = huge(1.0_rp)
     this%maximum_floor_timestep = huge(1.0_rp)
     this%limiter_weight_error = 0.0_rp
-    this%wall_mask_initialized = .false.
     this%low_order_only = .false.
     do component = 1, 3
        call this%stage_diagnostics(component)%reset()
@@ -339,7 +339,6 @@ contains
     call this%flux_z%free()
     call this%viscosity_sum%free()
     call this%limiter_weight_sum%free()
-    call this%wall_mask%free()
     call this%density_lower_bound%free()
     call this%density_upper_bound%free()
     call this%stage_entropy%free()
@@ -369,7 +368,6 @@ contains
     if (allocated(this%state_status)) deallocate(this%state_status)
     this%initialized = .false.
     this%periodic_graph = .false.
-    this%wall_mask_initialized = .false.
     this%low_order_only = .false.
     this%relax_density_bounds = .false.
     this%correction_tolerance = 1.0e-12_rp
@@ -419,12 +417,6 @@ contains
                     entropy_viscosity_fraction%x( &
                     b(1),b(2),b(3),b(4))))
                edge_diffusion = edge_fraction * this%edge_viscosity(edge)
-               ! Keep the first subcell layer at a slip wall on the robust
-               ! low-order endpoint; no wall-adjacent antidiffusion is added.
-               if (this%wall_mask%x(a(1),a(2),a(3),a(4)) .gt. 0.0_rp .or. &
-                    this%wall_mask%x(b(1),b(2),b(3),b(4)) .gt. 0.0_rp) then
-                  edge_diffusion = this%edge_viscosity(edge)
-               end if
                this%edge_entropy_diffusion(edge) = edge_diffusion
           end associate
        end do
@@ -774,15 +766,17 @@ contains
 
   !> Form a high-order Forward Euler candidate without changing the input.
   subroutine euler_idp_cpu_forward_euler(this, rho, m_x, m_y, m_z, energy, &
-       coef, gs, slip_bcs, gamma, internal_energy_floor, dt, diagnostics, &
-       stage, entropy_viscosity_fraction)
+       coef, gs, density_bcs, velocity_bcs, pressure_bcs, gamma, &
+       internal_energy_floor, dt, time, diagnostics, stage, &
+       entropy_viscosity_fraction)
     class(euler_idp_cpu_t), intent(inout) :: this
     type(field_t), intent(in) :: rho, m_x, m_y, m_z, energy
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
-    type(bc_list_t), intent(inout) :: slip_bcs
+    type(bc_list_t), intent(inout) :: density_bcs, velocity_bcs, pressure_bcs
     real(kind=rp), intent(in) :: gamma, internal_energy_floor
     real(kind=rp), intent(in) :: dt
+    type(time_state_t), intent(in) :: time
     type(euler_idp_diagnostics_t), intent(inout) :: diagnostics
     integer, intent(in), optional :: stage
     type(field_t), intent(in), optional :: entropy_viscosity_fraction
@@ -988,9 +982,11 @@ contains
     diagnostics%limiter_weight_error = this%limiter_weight_error
     call this%compute_limiter(gamma, internal_energy_floor, diagnostics)
     call this%apply_correction(gs)
-    call slip_bcs%apply_vector(this%limited_candidate(2)%x, &
-         this%limited_candidate(3)%x, this%limited_candidate(4)%x, &
-         rho%size(), strong = .true.)
+    call this%apply_boundary_conditions(this%limited_candidate(1), &
+         this%limited_candidate(2), this%limited_candidate(3), &
+         this%limited_candidate(4), this%limited_candidate(5), density_bcs, &
+         velocity_bcs, pressure_bcs, gamma, internal_energy_floor, time, &
+         'limited candidate after boundary conditions')
 
     local_bound_violation = 0.0_rp
     local_scale = 1.0_rp
@@ -1035,11 +1031,6 @@ contains
             'minimum entropy bound')
     end if
 
-    call euler_idp_cpu_primitives(this, this%limited_candidate(1), &
-         this%limited_candidate(2), this%limited_candidate(3), &
-         this%limited_candidate(4), this%limited_candidate(5), gamma, &
-         internal_energy_floor, 'limited candidate')
-
     local_minimum = huge(1.0_rp)
     if (this%limited_candidate(1)%size() .gt. 0) then
        local_minimum(1:3) = [minval(this%limited_candidate(1)%x), &
@@ -1064,42 +1055,29 @@ contains
 
   !> Advance with Forward Euler or SSPRK3 using the limited Euler map.
   subroutine euler_idp_cpu_advance(this, rho, m_x, m_y, m_z, energy, coef, &
-       gs, slip_bcs, gamma, internal_energy_floor, dt, order, &
-       diagnostics, entropy_viscosity_fraction)
+       gs, density_bcs, velocity_bcs, pressure_bcs, gamma, &
+       internal_energy_floor, dt, order, time, diagnostics, &
+       entropy_viscosity_fraction)
     class(euler_idp_cpu_t), intent(inout) :: this
     type(field_t), intent(inout) :: rho, m_x, m_y, m_z, energy
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
-    type(bc_list_t), intent(inout) :: slip_bcs
+    type(bc_list_t), intent(inout) :: density_bcs, velocity_bcs, pressure_bcs
     real(kind=rp), intent(in) :: gamma, internal_energy_floor
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: order
+    type(time_state_t), intent(in) :: time
     type(euler_idp_diagnostics_t), intent(out) :: diagnostics
     type(field_t), intent(in), optional :: entropy_viscosity_fraction
-    class(bc_t), pointer :: boundary
-    integer :: component, i, j
+    integer :: component
 
     if (order .ne. 1 .and. order .ne. 3) then
        call neko_error('Euler IDP requires Forward Euler or SSPRK3')
     end if
 
-    if (.not. this%wall_mask_initialized) then
-       this%wall_mask%x = 0.0_rp
-       do i = 1, slip_bcs%size()
-          boundary => slip_bcs%get(i)
-          do j = 1, boundary%msk(0)
-             this%wall_mask%x(boundary%msk(j),1,1,1) = 1.0_rp
-          end do
-       end do
-       call gs%op(this%wall_mask, GS_OP_ADD)
-       where (this%wall_mask%x .gt. 0.0_rp)
-          this%wall_mask%x = 1.0_rp
-       end where
-       this%wall_mask_initialized = .true.
-    end if
-
-    call slip_bcs%apply_vector(m_x%x, m_y%x, m_z%x, rho%size(), &
-         strong = .true.)
+    call this%apply_boundary_conditions(rho, m_x, m_y, m_z, energy, &
+         density_bcs, velocity_bcs, pressure_bcs, gamma, &
+         internal_energy_floor, time, 'stage input after boundary conditions')
 
     do component = 1, 3
        call this%stage_diagnostics(component)%reset()
@@ -1111,10 +1089,10 @@ contains
        this%saved_state(4)%x = m_z%x
        this%saved_state(5)%x = energy%x
     end if
-    call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, slip_bcs, &
-         gamma, &
-         internal_energy_floor, dt, &
-         this%stage_diagnostics(1), 1, entropy_viscosity_fraction)
+    call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, &
+         density_bcs, velocity_bcs, pressure_bcs, gamma, &
+         internal_energy_floor, dt, time, this%stage_diagnostics(1), 1, &
+         entropy_viscosity_fraction)
     if (order .eq. 1) then
        call this%commit(rho, m_x, m_y, m_z, energy)
        diagnostics = this%stage_diagnostics(1)
@@ -1123,10 +1101,10 @@ contains
 
     ! U(1) = FE(U(n)).
     call this%commit(rho, m_x, m_y, m_z, energy)
-    call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, slip_bcs, &
-         gamma, &
-         internal_energy_floor, dt, &
-         this%stage_diagnostics(2), 2, entropy_viscosity_fraction)
+    call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, &
+         density_bcs, velocity_bcs, pressure_bcs, gamma, &
+         internal_energy_floor, dt, time, this%stage_diagnostics(2), 2, &
+         entropy_viscosity_fraction)
 
     ! U(2) = 3/4 U(n) + 1/4 FE(U(1)).
     rho%x = 0.75_rp * this%saved_state(1)%x + &
@@ -1139,12 +1117,14 @@ contains
          0.25_rp * this%limited_candidate(4)%x
     energy%x = 0.75_rp * this%saved_state(5)%x + &
          0.25_rp * this%limited_candidate(5)%x
-    call euler_idp_cpu_primitives(this, rho, m_x, m_y, m_z, energy, gamma, &
-         internal_energy_floor, 'SSPRK3 stage 2 state')
-    call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, slip_bcs, &
-         gamma, &
-         internal_energy_floor, dt, &
-         this%stage_diagnostics(3), 3, entropy_viscosity_fraction)
+    call this%apply_boundary_conditions(rho, m_x, m_y, m_z, energy, &
+         density_bcs, velocity_bcs, pressure_bcs, gamma, &
+         internal_energy_floor, time, &
+         'SSPRK3 stage 2 after boundary conditions')
+    call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, &
+         density_bcs, velocity_bcs, pressure_bcs, gamma, &
+         internal_energy_floor, dt, time, this%stage_diagnostics(3), 3, &
+         entropy_viscosity_fraction)
 
     ! U(n+1) = 1/3 U(n) + 2/3 FE(U(2)).
     rho%x = this%saved_state(1)%x / 3.0_rp + &
@@ -1157,8 +1137,10 @@ contains
          2.0_rp * this%limited_candidate(4)%x / 3.0_rp
     energy%x = this%saved_state(5)%x / 3.0_rp + &
          2.0_rp * this%limited_candidate(5)%x / 3.0_rp
-    call euler_idp_cpu_primitives(this, rho, m_x, m_y, m_z, energy, gamma, &
-         internal_energy_floor, 'SSPRK3 final state')
+    call this%apply_boundary_conditions(rho, m_x, m_y, m_z, energy, &
+         density_bcs, velocity_bcs, pressure_bcs, gamma, &
+         internal_energy_floor, time, &
+         'SSPRK3 final state after boundary conditions')
     diagnostics = this%stage_diagnostics(3)
   end subroutine euler_idp_cpu_advance
 
@@ -1273,6 +1255,50 @@ contains
     m_z%x = this%limited_candidate(4)%x
     energy%x = this%limited_candidate(5)%x
   end subroutine euler_idp_cpu_commit
+
+  !> Apply the compressible strong boundary conditions to a conserved state.
+  subroutine euler_idp_cpu_apply_boundary_conditions(this, rho, m_x, m_y, &
+       m_z, energy, density_bcs, velocity_bcs, pressure_bcs, gamma, &
+       internal_energy_floor, time, label)
+    class(euler_idp_cpu_t), intent(inout) :: this
+    type(field_t), intent(inout) :: rho, m_x, m_y, m_z, energy
+    type(bc_list_t), intent(inout) :: density_bcs, velocity_bcs, pressure_bcs
+    real(kind=rp), intent(in) :: gamma, internal_energy_floor
+    type(time_state_t), intent(in), optional :: time
+    character(len=*), intent(in) :: label
+    integer :: n
+
+    n = rho%size()
+    if (present(time)) then
+       call density_bcs%apply(rho, time = time, strong = .true.)
+    else
+       call density_bcs%apply(rho, strong = .true.)
+    end if
+
+    call compressible_ops_cpu_update_uvw(this%u%x, this%v%x, this%w%x, &
+         m_x%x, m_y%x, m_z%x, rho%x, n)
+    if (present(time)) then
+       call velocity_bcs%apply(this%u, this%v, this%w, time = time, &
+            strong = .true.)
+    else
+       call velocity_bcs%apply(this%u, this%v, this%w, &
+            strong = .true.)
+    end if
+
+    call compressible_ops_cpu_update_mxyz_p_ruvw(m_x%x, m_y%x, m_z%x, &
+         this%p%x, this%internal_energy%x, this%u%x, this%v%x, this%w%x, &
+         energy%x, rho%x, gamma, n)
+    if (present(time)) then
+       call pressure_bcs%apply(this%p, time = time, strong = .true.)
+    else
+       call pressure_bcs%apply(this%p, strong = .true.)
+    end if
+    call compressible_ops_cpu_update_e(energy%x, this%p%x, &
+         this%internal_energy%x, gamma, n)
+
+    call euler_idp_cpu_primitives(this, rho, m_x, m_y, m_z, energy, gamma, &
+         internal_energy_floor, label)
+  end subroutine euler_idp_cpu_apply_boundary_conditions
 
   !> Reconstruct primitive fields from one conserved state.
   subroutine euler_idp_cpu_primitives(this, rho, m_x, m_y, m_z, energy, &

@@ -170,8 +170,11 @@ contains
 
     call fluid_scheme_compressible_validate(this)
     if (this%euler_idp%enabled) then
-       call this%bcs_vel%apply_vector(this%m_x%x, this%m_y%x, this%m_z%x, &
-            this%rho%size(), strong = .true.)
+       call this%euler_idp_cpu%apply_boundary_conditions(this%rho, this%m_x, &
+            this%m_y, this%m_z, this%E, this%bcs_density, this%bcs_vel, &
+            this%bcs_prs, this%gamma, &
+            this%euler_idp%internal_energy_floor, &
+            label = 'initial state after boundary conditions')
        call this%euler_idp_cpu%update_graph_viscosity(this%rho, this%m_x, &
             this%m_y, this%m_z, this%E, this%gs_Xh, this%gamma)
     end if
@@ -486,6 +489,7 @@ contains
     class(fluid_scheme_compressible_ns_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: entropy_fraction
+    class(bc_t), pointer :: b
     real(kind=rp) :: low_order_viscosity
     integer :: i, n, temp_indices(1)
     logical :: user_entropy_pair
@@ -511,9 +515,11 @@ contains
        call neko_error('Euler IDP requires entropy viscosity regularization')
     end select
     call this%euler_idp_cpu%advance(this%rho, this%m_x, this%m_y, &
-         this%m_z, this%E, this%c_Xh, this%gs_Xh, this%bcs_vel, this%gamma, &
+         this%m_z, this%E, this%c_Xh, this%gs_Xh, this%bcs_density, &
+         this%bcs_vel, this%bcs_prs, this%gamma, &
          this%euler_idp%internal_energy_floor, time%dt, &
-         this%rk_scheme%order, this%euler_idp_diagnostics, entropy_fraction)
+         this%rk_scheme%order, time, this%euler_idp_diagnostics, &
+         entropy_fraction)
     call neko_scratch_registry%relinquish_field(temp_indices)
 
     this%u%x = this%euler_idp_cpu%u%x
@@ -538,6 +544,19 @@ contains
     call this%compute_max_wave_speed()
     call this%euler_idp_cpu%update_graph_viscosity(this%rho, this%m_x, &
          this%m_y, this%m_z, this%E, this%gs_Xh, this%gamma)
+    do i = 1, this%bcs_vel%size()
+       b => this%bcs_vel%get(i)
+       b%updated = .false.
+    end do
+    do i = 1, this%bcs_prs%size()
+       b => this%bcs_prs%get(i)
+       b%updated = .false.
+    end do
+    do i = 1, this%bcs_density%size()
+       b => this%bcs_density%get(i)
+       b%updated = .false.
+    end do
+    nullify(b)
     call profiler_end_region('Fluid Euler IDP', 1)
   end subroutine fluid_scheme_compressible_ns_step_idp
 
@@ -556,7 +575,6 @@ contains
     type(json_file) :: bc_subdict
     logical :: found
     integer, allocatable :: zone_indices(:)
-    character(len=:), allocatable :: bc_type
     character(len=LOG_SIZE) :: log_buf
 
     ! Process boundary conditions
@@ -574,14 +592,6 @@ contains
           ! Extract BC configuration
           call json_extract_item(core, bc_object, i, bc_subdict)
           call json_get(bc_subdict, "zone_indices", zone_indices)
-          if (this%euler_idp%enabled) then
-             call json_get(bc_subdict, "type", bc_type)
-             if (trim(bc_type) .ne. "symmetry") then
-                call neko_error('Euler IDP currently supports only ' // &
-                     'symmetry boundary conditions')
-             end if
-          end if
-
           ! Validate zones
           do j = 1, size(zone_indices)
              zone_size = this%msh%labeled_zones(zone_indices(j))%size
