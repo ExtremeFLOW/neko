@@ -633,7 +633,9 @@ contains
 
     this%density_lower_bound%x = rho%x
     this%density_upper_bound%x = rho%x
-    this%density_second_difference%x = 0.0_rp
+    if (this%relax_density_bounds) then
+       this%density_second_difference%x = 0.0_rp
+    end if
     do i = 1, rho%size()
        state = [rho%x(i,1,1,1), m_x%x(i,1,1,1), m_y%x(i,1,1,1), &
             m_z%x(i,1,1,1), energy%x(i,1,1,1)]
@@ -660,28 +662,32 @@ contains
          this%density_upper_bound%x(b(1),b(2),b(3),b(4)) = max( &
               this%density_upper_bound%x(b(1),b(2),b(3),b(4)), &
               left_density, bar_density)
-         ! Collapse duplicate element occurrences to the unique-neighbour
-         ! stencil used by the density-bound relaxation.
-         direction = this%graph%direction(edge)
-         left_weight = 2.0_rp / &
-              this%graph%directional_degree(direction)%x( &
-              a(1),a(2),a(3),a(4))
-         right_weight = 2.0_rp / &
-              this%graph%directional_degree(direction)%x( &
-              b(1),b(2),b(3),b(4))
-         difference = left_density - right_density
-         this%density_second_difference%x(a(1),a(2),a(3),a(4)) = &
-              this%density_second_difference%x(a(1),a(2),a(3),a(4)) + &
-              left_weight * difference
-         this%density_second_difference%x(b(1),b(2),b(3),b(4)) = &
-              this%density_second_difference%x(b(1),b(2),b(3),b(4)) - &
-              right_weight * difference
+         if (this%relax_density_bounds) then
+            ! Collapse duplicate element occurrences to the unique-neighbour
+            ! stencil used by the density-bound relaxation.
+            direction = this%graph%direction(edge)
+            left_weight = 2.0_rp / &
+                 this%graph%directional_degree(direction)%x( &
+                 a(1),a(2),a(3),a(4))
+            right_weight = 2.0_rp / &
+                 this%graph%directional_degree(direction)%x( &
+                 b(1),b(2),b(3),b(4))
+            difference = left_density - right_density
+            this%density_second_difference%x(a(1),a(2),a(3),a(4)) = &
+                 this%density_second_difference%x(a(1),a(2),a(3),a(4)) + &
+                 left_weight * difference
+            this%density_second_difference%x(b(1),b(2),b(3),b(4)) = &
+                 this%density_second_difference%x(b(1),b(2),b(3),b(4)) - &
+                 right_weight * difference
+         end if
        end associate
     end do
     call gs%op(this%density_lower_bound, GS_OP_MIN)
     call gs%op(this%density_upper_bound, GS_OP_MAX)
     call gs%op(this%entropy_lower_bound, GS_OP_MIN)
-    call gs%op(this%density_second_difference, GS_OP_ADD)
+    if (this%relax_density_bounds) then
+       call gs%op(this%density_second_difference, GS_OP_ADD)
+    end if
 
     local_violation = 0.0_rp
     if (rho%size() .gt. 0) then
@@ -720,37 +726,37 @@ contains
             'minimum entropy bound')
     end if
 
-    this%density_second_difference_average%x = 0.0_rp
-    do edge = 1, this%graph%n_edges
-       associate(a => this%graph%left(:,edge), &
-            b => this%graph%right(:,edge))
-         pair_average = 0.5_rp * ( &
-              this%density_second_difference%x(a(1),a(2),a(3),a(4)) + &
-              this%density_second_difference%x(b(1),b(2),b(3),b(4)))
-         ! Apply the same occurrence normalization to the neighbour average.
-         direction = this%graph%direction(edge)
-         left_weight = 2.0_rp / &
-              this%graph%directional_degree(direction)%x( &
-              a(1),a(2),a(3),a(4))
-         right_weight = 2.0_rp / &
-              this%graph%directional_degree(direction)%x( &
-              b(1),b(2),b(3),b(4))
-         this%density_second_difference_average%x( &
-              a(1),a(2),a(3),a(4)) = &
-              this%density_second_difference_average%x( &
-              a(1),a(2),a(3),a(4)) + left_weight * pair_average
-         this%density_second_difference_average%x( &
-              b(1),b(2),b(3),b(4)) = &
-              this%density_second_difference_average%x( &
-              b(1),b(2),b(3),b(4)) + right_weight * pair_average
-       end associate
-    end do
-    call gs%op(this%density_second_difference_average, GS_OP_ADD)
-    this%density_second_difference_average%x = &
-         this%density_second_difference_average%x / &
-         (2.0_rp * real(2 * this%graph%n_directions + 1, rp))
-
     if (this%relax_density_bounds) then
+       this%density_second_difference_average%x = 0.0_rp
+       do edge = 1, this%graph%n_edges
+          associate(a => this%graph%left(:,edge), &
+               b => this%graph%right(:,edge))
+            pair_average = 0.5_rp * ( &
+                 this%density_second_difference%x(a(1),a(2),a(3),a(4)) + &
+                 this%density_second_difference%x(b(1),b(2),b(3),b(4)))
+            ! Apply the same occurrence normalization to the neighbour average.
+            direction = this%graph%direction(edge)
+            left_weight = 2.0_rp / &
+                 this%graph%directional_degree(direction)%x( &
+                 a(1),a(2),a(3),a(4))
+            right_weight = 2.0_rp / &
+                 this%graph%directional_degree(direction)%x( &
+                 b(1),b(2),b(3),b(4))
+            this%density_second_difference_average%x( &
+                 a(1),a(2),a(3),a(4)) = &
+                 this%density_second_difference_average%x( &
+                 a(1),a(2),a(3),a(4)) + left_weight * pair_average
+            this%density_second_difference_average%x( &
+                 b(1),b(2),b(3),b(4)) = &
+                 this%density_second_difference_average%x( &
+                 b(1),b(2),b(3),b(4)) + right_weight * pair_average
+          end associate
+       end do
+       call gs%op(this%density_second_difference_average, GS_OP_ADD)
+       this%density_second_difference_average%x = &
+            this%density_second_difference_average%x / &
+            (2.0_rp * real(2 * this%graph%n_directions + 1, rp))
+
        do i = 1, rho%size()
           strict_lower = this%density_lower_bound%x(i,1,1,1)
           strict_upper = this%density_upper_bound%x(i,1,1,1)
