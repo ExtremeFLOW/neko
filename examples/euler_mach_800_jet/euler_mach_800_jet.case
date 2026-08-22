@@ -1,0 +1,77 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "mach_800_jet.nmsh",
+        "output_at_end": true,
+        "output_checkpoints": false,
+        "time": {
+            "end_time": 0.002,
+            "timestep": 1e-7,
+            "variable_timestep": true,
+            "target_cfl": 0.2
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 3,
+            "c_avisc_low": 0.5,
+            "c_avisc_entropy": 1.0,
+            "euler_idp": {
+                "enabled": true,
+                "relax_density_bounds": false
+            }
+        },
+        "fluid": {
+            "scheme": "compressible",
+            "gamma": 1.4,
+            "initial_condition": {
+                "type": "user"
+            },
+            "boundary_conditions": [
+                {
+                    "type": "symmetry",
+                    "zone_indices": [1]
+                },
+                {
+                    "type": "velocity_value",
+                    "zone_indices": [2, 3, 4],
+                    "value": [0.0, 0.0, 0.0]
+                },
+                {
+                    "type": "density_value",
+                    "zone_indices": [2, 3, 4],
+                    "value": 0.14
+                },
+                {
+                    "type": "pressure_value",
+                    "zone_indices": [2, 3, 4],
+                    "value": 1.0
+                },
+                {
+                    "type": "velocity_value",
+                    "zone_indices": [7],
+                    "value": [0.0, 800.0, 0.0]
+                },
+                {
+                    "type": "density_value",
+                    "zone_indices": [7],
+                    "value": 1.4
+                },
+                {
+                    "type": "pressure_value",
+                    "zone_indices": [7],
+                    "value": 1.0
+                }
+            ],
+            "output_control": "nsamples",
+            "output_value": 10
+        },
+        "simulation_components": [
+            {
+                "type": "field_writer",
+                "fields": ["fluid_rho", "p", "S", "artificial_visc"],
+                "output_control": "nsamples",
+                "output_value": 10
+            }
+        ]
+    }
+}

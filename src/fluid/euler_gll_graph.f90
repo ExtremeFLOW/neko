@@ -389,6 +389,7 @@ contains
                     c_last(2) * flux_y(this%lx,j,k,e) + &
                     c_last(3) * flux_z(this%lx,j,k,e)
              end associate
+             line_scale = 0.0_rp
              do i = 1, this%lx
                 derivative_x = 0.0_rp
                 derivative_y = 0.0_rp
@@ -406,11 +407,13 @@ contains
                      coef%drdx(i,j,k,e) * derivative_x + &
                      coef%drdy(i,j,k,e) * derivative_y + &
                      coef%drdz(i,j,k,e) * derivative_z)
+                line_scale = line_scale + &
+                     abs(this%reconstruction_work_1(i,j,k,e)) + &
+                     abs(high_residual)
                 this%reconstruction_work_1(i,j,k,e) = &
                      this%reconstruction_work_1(i,j,k,e) - high_residual
              end do
-             line_scale = max(1.0_rp, &
-                  sum(abs(this%reconstruction_work_1(:,j,k,e))))
+             line_scale = max(1.0_rp, line_scale)
              compatibility_error = max(compatibility_error, &
                   abs(sum(this%reconstruction_work_1(:,j,k,e))) / line_scale)
              cumulative = 0.0_rp
@@ -462,6 +465,7 @@ contains
                     c_last(2) * flux_y(i,this%ly,k,e) + &
                     c_last(3) * flux_z(i,this%ly,k,e)
              end associate
+             line_scale = 0.0_rp
              do j = 1, this%ly
                 derivative_x = 0.0_rp
                 derivative_y = 0.0_rp
@@ -479,11 +483,13 @@ contains
                      coef%dsdx(i,j,k,e) * derivative_x + &
                      coef%dsdy(i,j,k,e) * derivative_y + &
                      coef%dsdz(i,j,k,e) * derivative_z)
+                line_scale = line_scale + &
+                     abs(this%reconstruction_work_1(i,j,k,e)) + &
+                     abs(high_residual)
                 this%reconstruction_work_1(i,j,k,e) = &
                      this%reconstruction_work_1(i,j,k,e) - high_residual
              end do
-             line_scale = max(1.0_rp, &
-                  sum(abs(this%reconstruction_work_1(i,:,k,e))))
+             line_scale = max(1.0_rp, line_scale)
              compatibility_error = max(compatibility_error, &
                   abs(sum(this%reconstruction_work_1(i,:,k,e))) / line_scale)
              cumulative = 0.0_rp
@@ -537,6 +543,7 @@ contains
                        c_last(2) * flux_y(i,j,this%lz,e) + &
                        c_last(3) * flux_z(i,j,this%lz,e)
                 end associate
+                line_scale = 0.0_rp
                 do k = 1, this%lz
                    derivative_x = 0.0_rp
                    derivative_y = 0.0_rp
@@ -554,11 +561,13 @@ contains
                         coef%dtdx(i,j,k,e) * derivative_x + &
                         coef%dtdy(i,j,k,e) * derivative_y + &
                         coef%dtdz(i,j,k,e) * derivative_z)
+                   line_scale = line_scale + &
+                        abs(this%reconstruction_work_1(i,j,k,e)) + &
+                        abs(high_residual)
                    this%reconstruction_work_1(i,j,k,e) = &
                         this%reconstruction_work_1(i,j,k,e) - high_residual
                 end do
-                line_scale = max(1.0_rp, &
-                     sum(abs(this%reconstruction_work_1(i,j,:,e))))
+                line_scale = max(1.0_rp, line_scale)
                 compatibility_error = max(compatibility_error, &
                      abs(sum(this%reconstruction_work_1(i,j,:,e))) / &
                      line_scale)

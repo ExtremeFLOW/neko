@@ -40,6 +40,7 @@ module euler_idp_limiter
 
   public :: euler_idp_state_is_admissible
   public :: euler_idp_specific_entropy
+  public :: euler_idp_entropy_tolerance
   public :: euler_idp_entropy_is_admissible
   public :: euler_idp_local_entropy_bounds
   public :: euler_idp_relax_density_bounds
@@ -81,6 +82,30 @@ contains
     entropy = log(pressure) - gamma * log(state(1))
   end function euler_idp_specific_entropy
 
+  !> Roundoff tolerance for entropy recovered from a conserved state.
+  pure real(kind=rp) function euler_idp_entropy_tolerance(state, &
+       entropy_lower) result(tolerance)
+    real(kind=rp), intent(in) :: state(EULER_IDP_NCOMP)
+    real(kind=rp), intent(in) :: entropy_lower
+    real(kind=rp) :: conditioning, internal_energy, kinetic_energy
+
+    conditioning = 1.0_rp
+    if (all(ieee_is_finite(state)) .and. state(1) .gt. 0.0_rp) then
+       kinetic_energy = 0.5_rp * dot_product(state(2:4), state(2:4)) / &
+            state(1)
+       internal_energy = state(5) - kinetic_energy
+       if (ieee_is_finite(internal_energy) .and. &
+            internal_energy .gt. tiny(1.0_rp)) then
+          conditioning = (abs(state(5)) + abs(kinetic_energy)) / &
+               internal_energy
+       end if
+    end if
+    ! Cap the conditioning correction so it cannot mask a physical violation.
+    tolerance = min(sqrt(epsilon(1.0_rp)), &
+         64.0_rp * epsilon(1.0_rp) * &
+         max(1.0_rp, abs(entropy_lower), conditioning))
+  end function euler_idp_entropy_tolerance
+
   !> Test the Euler admissible set and a local minimum entropy constraint.
   pure logical function euler_idp_entropy_is_admissible(state, gamma, &
        entropy_lower, internal_energy_floor) result(admissible)
@@ -93,8 +118,7 @@ contains
          internal_energy_floor)
     if (.not. admissible) return
     entropy = euler_idp_specific_entropy(state, gamma)
-    tolerance = 64.0_rp * epsilon(1.0_rp) * &
-         max(1.0_rp, abs(entropy_lower))
+    tolerance = euler_idp_entropy_tolerance(state, entropy_lower)
     admissible = ieee_is_finite(entropy) .and. &
          entropy .ge. entropy_lower - tolerance
   end function euler_idp_entropy_is_admissible
@@ -148,7 +172,6 @@ contains
     real(kind=rp), intent(in) :: gamma, internal_energy_floor
     real(kind=rp), intent(out) :: limit
     logical, intent(out) :: density_limited, energy_limited, entropy_limited
-    real(kind=rp) :: entropy_tolerance
     real(kind=rp) :: trial(EULER_IDP_NCOMP)
 
     limit = 1.0_rp
@@ -198,10 +221,7 @@ contains
     trial = base + limit * correction
     if (.not. euler_idp_entropy_is_admissible(trial, gamma, entropy_lower, &
          internal_energy_floor)) then
-       entropy_tolerance = 64.0_rp * epsilon(1.0_rp) * &
-            max(1.0_rp, abs(entropy_lower))
-       call limit_entropy(base, correction, entropy_lower - &
-            entropy_tolerance, gamma, limit)
+       call limit_entropy(base, correction, entropy_lower, gamma, limit)
     end if
     if (limit .gt. 0.0_rp) then
        limit = limit * (1.0_rp - 32.0_rp * epsilon(1.0_rp))

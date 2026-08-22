@@ -54,7 +54,7 @@ module euler_idp_cpu
        euler_idp_internal_energy, euler_idp_internal_energy_timestep
   use euler_idp_limiter, only : euler_idp_limit_edge, &
        euler_idp_local_entropy_bounds, euler_idp_relax_density_bounds, &
-       euler_idp_specific_entropy
+       euler_idp_specific_entropy, euler_idp_entropy_tolerance
   use euler_gll_graph, only : euler_gll_graph_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank
   use utils, only : neko_error
@@ -622,7 +622,8 @@ contains
     real(kind=rp) :: left_weight, right_weight
     real(kind=rp) :: strict_lower, strict_upper
     real(kind=rp) :: relaxed_lower, relaxed_upper
-    real(kind=rp) :: local_violation, local_entropy_violation
+    real(kind=rp) :: local_violation, local_entropy_excess
+    real(kind=rp) :: entropy_tolerance
     real(kind=rp) :: scale, tolerance
     real(kind=rp) :: state(EULER_IDP_NCOMP)
     integer :: direction, edge, i
@@ -706,7 +707,7 @@ contains
             'bar-state bounds')
     end if
 
-    local_entropy_violation = 0.0_rp
+    local_entropy_excess = 0.0_rp
     do i = 1, rho%size()
        state = [this%low_candidate(1)%x(i,1,1,1), &
             this%low_candidate(2)%x(i,1,1,1), &
@@ -714,14 +715,13 @@ contains
             this%low_candidate(4)%x(i,1,1,1), &
             this%low_candidate(5)%x(i,1,1,1)]
        entropy = euler_idp_specific_entropy(state, gamma)
-       local_entropy_violation = max(local_entropy_violation, &
-            this%entropy_lower_bound%x(i,1,1,1) - entropy)
+       difference = this%entropy_lower_bound%x(i,1,1,1) - entropy
+       entropy_tolerance = euler_idp_entropy_tolerance(state, &
+            this%entropy_lower_bound%x(i,1,1,1))
+       local_entropy_excess = max(local_entropy_excess, &
+            difference - entropy_tolerance)
     end do
-    scale = 1.0_rp
-    if (rho%size() .gt. 0) then
-       scale = max(scale, maxval(abs(this%entropy_lower_bound%x)))
-    end if
-    if (local_entropy_violation .gt. tolerance * scale) then
+    if (local_entropy_excess .gt. 0.0_rp) then
        call neko_error('Euler IDP low-order state violates its local ' // &
             'minimum entropy bound')
     end if
@@ -792,7 +792,7 @@ contains
     real(kind=rp) :: local_floor_timestep, global_floor_timestep
     real(kind=rp) :: local_error, local_scale
     real(kind=rp) :: local_bound_violation(2), local_entropy_violation
-    real(kind=rp) :: entropy
+    real(kind=rp) :: local_entropy_excess, entropy, entropy_tolerance
     real(kind=rp) :: high_order_fraction, state_difference
     real(kind=rp) :: directional_error_local(EULER_IDP_NCOMP)
     character(len=2 * LOG_SIZE) :: message
@@ -964,8 +964,10 @@ contains
     end do
     if (maxval(directional_error_local) .gt. &
          10.0_rp * this%correction_tolerance) then
-       call neko_error('Euler IDP directional correction is not ' // &
-            'line-compatible')
+       write(message, '(A,5(1X,ES13.6))') &
+            'Euler IDP directional correction is not line-compatible:', &
+            directional_error_local
+       call neko_error(trim(message))
     end if
     diagnostics%reconstruction_residual = local_change
     if (maxval(local_change) .gt. &
@@ -1012,6 +1014,7 @@ contains
     end if
 
     local_entropy_violation = 0.0_rp
+    local_entropy_excess = 0.0_rp
     do i = 1, rho%size()
        state = [this%limited_candidate(1)%x(i,1,1,1), &
             this%limited_candidate(2)%x(i,1,1,1), &
@@ -1021,15 +1024,14 @@ contains
        entropy = euler_idp_specific_entropy(state, gamma)
        local_entropy_violation = max(local_entropy_violation, &
             this%entropy_lower_bound%x(i,1,1,1) - entropy)
+       entropy_tolerance = euler_idp_entropy_tolerance(state, &
+            this%entropy_lower_bound%x(i,1,1,1))
+       local_entropy_excess = max(local_entropy_excess, &
+            this%entropy_lower_bound%x(i,1,1,1) - entropy - &
+            entropy_tolerance)
     end do
     diagnostics%max_entropy_lower_violation = local_entropy_violation
-    local_scale = 1.0_rp
-    if (rho%size() .gt. 0) then
-       local_scale = max(local_scale, &
-            maxval(abs(this%entropy_lower_bound%x)))
-    end if
-    if (local_entropy_violation .gt. &
-         512.0_rp * epsilon(1.0_rp) * local_scale) then
+    if (local_entropy_excess .gt. 0.0_rp) then
        call neko_error('Euler IDP limited state violates its local ' // &
             'minimum entropy bound')
     end if
