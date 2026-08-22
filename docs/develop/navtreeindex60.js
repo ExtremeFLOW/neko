@@ -1,5 +1,6 @@
 var NAVTREEINDEX60 =
 {
+"d7/df8/structboundary__flux_1_1boundary__flux__t.html":[2,0,29,0],
 "d7/df8/structboundary__flux_1_1boundary__flux__t.html":[1,0,30,0],
 "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a010ab8061137016956365355c7a56ec9":[1,0,30,0,4],
 "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a010ab8061137016956365355c7a56ec9":[2,0,29,0,4],
@@ -248,6 +249,5 @@ var NAVTREEINDEX60 =
 "d8/d11/interfaceopencl__math_1_1opencl__sqrt__inplace.html":[1,0,285,55],
 "d8/d11/interfaceopencl__math_1_1opencl__sqrt__inplace.html#abbd7bd58ec1b2cecd2a8b95674282a21":[1,0,285,55,0],
 "d8/d11/interfaceopencl__math_1_1opencl__sqrt__inplace.html#abbd7bd58ec1b2cecd2a8b95674282a21":[2,0,243,55,0],
-"d8/d12/cai__sagaut__model__ii_8f90.html":[3,0,3,29,1],
-"d8/d12/cai__sagaut__model__ii_8f90.html#a3047b4ffd4ac541dcac3e4c2bd037632":[3,0,3,29,1,2]
+"d8/d12/cai__sagaut__model__ii_8f90.html":[3,0,3,29,1]
 };

@@ -1,5 +1,7 @@
 var NAVTREEINDEX124 =
 {
+"df/d89/interfacedevice__jacobi_1_1cuda__jacobi__update.html":[2,0,91,0],
+"df/d89/interfacedevice__jacobi_1_1cuda__jacobi__update.html#afffcf9f567810e1c145b5865b625c181":[1,0,107,0,0],
 "df/d89/interfacedevice__jacobi_1_1cuda__jacobi__update.html#afffcf9f567810e1c145b5865b625c181":[2,0,91,0,0],
 "df/d8a/interfaceshmem_1_1shmem__calloc.html":[1,0,362,6],
 "df/d8a/interfaceshmem_1_1shmem__calloc.html":[2,0,311,6],
@@ -247,7 +249,5 @@ var NAVTREEINDEX124 =
 "df/da4/interfaceopr__device_1_1hip__convect__scalar.html#ad4f3c4131ac65d96b467caeb91c855b4":[1,0,289,3,0],
 "df/da4/structbc__list_1_1bc__list__t.html":[1,0,24,0],
 "df/da4/structbc__list_1_1bc__list__t.html":[2,0,23,0],
-"df/da4/structbc__list_1_1bc__list__t.html#a03da813f2722ec8c8b391a15feb7df3c":[2,0,23,0,20],
-"df/da4/structbc__list_1_1bc__list__t.html#a03da813f2722ec8c8b391a15feb7df3c":[1,0,24,0,20],
-"df/da4/structbc__list_1_1bc__list__t.html#a1789d48a5b4b4783d044dc6b92853169":[1,0,24,0,23]
+"df/da4/structbc__list_1_1bc__list__t.html#a03da813f2722ec8c8b391a15feb7df3c":[2,0,23,0,20]
 };

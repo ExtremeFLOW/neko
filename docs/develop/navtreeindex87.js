@@ -1,5 +1,6 @@
 var NAVTREEINDEX87 =
 {
+"db/d1a/structregistry_1_1registry__t.html#a983fefbde4e9206a00b385da7bfc8b65":[2,0,279,0,19],
 "db/d1a/structregistry_1_1registry__t.html#a983fefbde4e9206a00b385da7bfc8b65":[1,0,327,0,19],
 "db/d1a/structregistry_1_1registry__t.html#a98669aa23260bfca7ce51affabeac8c5":[2,0,279,0,35],
 "db/d1a/structregistry_1_1registry__t.html#a98669aa23260bfca7ce51affabeac8c5":[1,0,327,0,35],
@@ -248,6 +249,5 @@ var NAVTREEINDEX87 =
 "db/d38/structbp__file_1_1bp__file__t.html#a348c38fcfe4de5c515221da1561ce5b3":[1,0,36,0,18],
 "db/d38/structbp__file_1_1bp__file__t.html#a49d0e1c626cfbc73ee703449a553ca95":[2,0,33,0,16],
 "db/d38/structbp__file_1_1bp__file__t.html#a49d0e1c626cfbc73ee703449a553ca95":[1,0,36,0,16],
-"db/d38/structbp__file_1_1bp__file__t.html#a511271c54588a061da9f6e7670a7f27f":[2,0,33,0,12],
-"db/d38/structbp__file_1_1bp__file__t.html#a511271c54588a061da9f6e7670a7f27f":[1,0,36,0,12]
+"db/d38/structbp__file_1_1bp__file__t.html#a511271c54588a061da9f6e7670a7f27f":[2,0,33,0,12]
 };

@@ -1,5 +1,6 @@
 var NAVTREEINDEX97 =
 {
+"dc/d33/structstack_1_1stack__pt__t.html#ad75a233c618f74bc9fb664d2e7720130":[2,0,328,11,0],
 "dc/d33/structstack_1_1stack__pt__t.html#af808ad8b7eaa125249883974d1893f22":[1,0,386,11,1],
 "dc/d33/structstack_1_1stack__pt__t.html#af808ad8b7eaa125249883974d1893f22":[2,0,328,11,1],
 "dc/d36/interfacecuda__intf_1_1cudafree.html":[1,0,80,9],
@@ -248,6 +249,5 @@ var NAVTREEINDEX97 =
 "dc/d80/structsource__term__handler_1_1source__term__handler__t.html#a95caa0dbde3e9dee256231591cbca0c5":[2,0,319,1,8],
 "dc/d80/structsource__term__handler_1_1source__term__handler__t.html#a95caa0dbde3e9dee256231591cbca0c5":[1,0,375,1,8],
 "dc/d80/structsource__term__handler_1_1source__term__handler__t.html#a9c8962b833874a39a1a7907bbc5f8a50":[2,0,319,1,9],
-"dc/d80/structsource__term__handler_1_1source__term__handler__t.html#a9c8962b833874a39a1a7907bbc5f8a50":[1,0,375,1,9],
-"dc/d80/structsource__term__handler_1_1source__term__handler__t.html#aad9d988bf100522e492f97133fbd9b00":[1,0,375,1,3]
+"dc/d80/structsource__term__handler_1_1source__term__handler__t.html#a9c8962b833874a39a1a7907bbc5f8a50":[1,0,375,1,9]
 };

@@ -435,7 +435,7 @@ $(document).ready(function(){initNavTree('d5/ddf/neumann_8f90_source.html','../.
 <div class="line"><a id="l00351" name="l00351"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#a366fa8d02e929317601092dc2d623c03">  351</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a366fa8d02e929317601092dc2d623c03">neumann_finalize</a>(this, only_facets)</div>
 <div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: this</div>
 <div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: only_facets</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    <span class="keywordtype">integer</span> :: i, j</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span> </div>
 <div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(only_facets)) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>       <span class="keywordflow">if</span> (.not. only_facets) <span class="keywordflow">then</span></div>
@@ -453,7 +453,7 @@ $(document).ready(function(){initNavTree('d5/ddf/neumann_8f90_source.html','../.
 <div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span> </div>
 <div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>    this%uniform_0 = .true.</div>
 <div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span> </div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    <span class="keywordflow">do</span> i = 1, 3</div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%init_flux_)</div>
 <div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>       this%uniform_0 = <a class="code hl_interface" href="../../de/d34/interfacemath_1_1abscmp.html">abscmp</a>(this%init_flux_(i), 0.0_rp) .and. this%uniform_0</div>
 <div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span><span class="keywordflow">    end do</span></div>
 </div>
@@ -547,7 +547,7 @@ $(document).ready(function(){initNavTree('d5/ddf/neumann_8f90_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../d5/ddf/neumann_8f90.html">neumann.f90</a></li>
-    <li class="footer">Generated on Fri Aug 21 2026 03:48:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 22 2026 03:46:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

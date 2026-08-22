@@ -1,5 +1,6 @@
 var NAVTREEINDEX76 =
 {
+"d9/deb/structspectral__error_1_1spectral__error__t.html#ab2fde95e58cc6af6128f745b4a0a0462":[1,0,383,0,36],
 "d9/deb/structspectral__error_1_1spectral__error__t.html#ab2fde95e58cc6af6128f745b4a0a0462":[2,0,325,0,36],
 "d9/deb/structspectral__error_1_1spectral__error__t.html#abb6fa7aea500041acfd41898443d711a":[2,0,325,0,13],
 "d9/deb/structspectral__error_1_1spectral__error__t.html#abb6fa7aea500041acfd41898443d711a":[1,0,383,0,13],
@@ -248,6 +249,5 @@ var NAVTREEINDEX76 =
 "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#aeebc916e33fb7bcf058a72e4bfd7eefd":[2,0,294,0,20],
 "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#aeebc916e33fb7bcf058a72e4bfd7eefd":[1,0,345,0,20],
 "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#af31bdd682da540bc2dd45b9380878af0":[2,0,294,0,15],
-"d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#af31bdd682da540bc2dd45b9380878af0":[1,0,345,0,15],
-"d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#afd3e9a7e85f2e1a1bff37fc955d82add":[2,0,294,0,24]
+"d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#af31bdd682da540bc2dd45b9380878af0":[1,0,345,0,15]
 };

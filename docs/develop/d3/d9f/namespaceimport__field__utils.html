@@ -121,6 +121,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:adfb80fba803f7a8fb424272589df9ba8" id="r_adfb80fba803f7a8fb424272589df9ba8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d9f/namespaceimport__field__utils.html#adfb80fba803f7a8fb424272589df9ba8">import_fields_from_params</a> (fname, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">mesh_fname</a>, u, v, w, p, t, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">s_target_list</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">s_index_list</a>, interpolate, tolerance, padding)</td></tr>
 <tr class="memdesc:adfb80fba803f7a8fb424272589df9ba8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Imports fields from an fld file, potentially with interpolation.  <br /></td></tr>
 <tr class="separator:adfb80fba803f7a8fb424272589df9ba8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae47e67c9d2387fd9e01374afa19ceeba" id="r_ae47e67c9d2387fd9e01374afa19ceeba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d9f/namespaceimport__field__utils.html#ae47e67c9d2387fd9e01374afa19ceeba">read_fld_file</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">file_name</a>, data)</td></tr>
+<tr class="memdesc:ae47e67c9d2387fd9e01374afa19ceeba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper around the fld file reader. Translates a file name specified as "field0.f00132" into "field0.fld" + counter = 132.  <br /></td></tr>
+<tr class="separator:ae47e67c9d2387fd9e01374afa19ceeba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Import field from fld files. This tool is in a separate file because of multiple import requirements. </p>
@@ -364,13 +367,80 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a id="ae47e67c9d2387fd9e01374afa19ceeba" name="ae47e67c9d2387fd9e01374afa19ceeba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae47e67c9d2387fd9e01374afa19ceeba">&#9670;&#160;</a></span>read_fld_file()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> import_field_utils::read_fld_file </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>file_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../db/da1/structfld__file__data_1_1fld__file__data__t.html">fld_file_data_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d61/import__field__utils_8f90_source.html#l00244">244</a> of file <a class="el" href="../../dd/d61/import__field__utils_8f90_source.html">import_field_utils.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d9f/namespaceimport__field__utils_ae47e67c9d2387fd9e01374afa19ceeba_cgraph.png" border="0" usemap="#ad3/d9f/namespaceimport__field__utils_ae47e67c9d2387fd9e01374afa19ceeba_cgraph" alt=""/></div>
+<map name="ad3/d9f/namespaceimport__field__utils_ae47e67c9d2387fd9e01374afa19ceeba_cgraph" id="ad3/d9f/namespaceimport__field__utils_ae47e67c9d2387fd9e01374afa19ceeba_cgraph">
+<area shape="rect" title="Wrapper around the fld file reader. Translates a file name specified as &quot;field0.f00132&quot; into &quot;field0...." alt="" coords="5,63,140,103"/>
+<area shape="rect" href="../../d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0" title="Extracts the index of a field file. For example, &quot;myfield.f00045&quot; will return 45. If the suffix of th..." alt="" coords="188,5,315,45"/>
+<area shape="poly" title=" " alt="" coords="135,60,174,47,176,52,136,65"/>
+<area shape="rect" href="../../da/d16/namespacefile.html#aa1b75b689ccaf533d011ac92fb6e8d5b" title="File operation destructor." alt="" coords="200,70,303,95"/>
+<area shape="poly" title=" " alt="" coords="140,80,186,80,186,85,140,85"/>
+<area shape="rect" href="../../d6/d84/namespaceutils.html#a94a1b10b4fd0d52a2bbd0bdfbac01692" title="Change a filename&#39;s suffix." alt="" coords="363,91,536,117"/>
+<area shape="poly" title=" " alt="" coords="141,97,188,105,270,110,349,109,349,114,270,115,188,111,140,103"/>
+<area shape="rect" href="../../d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="370,27,529,53"/>
+<area shape="poly" title=" " alt="" coords="315,27,357,30,356,36,315,33"/>
+<area shape="rect" href="../../d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="584,67,772,93"/>
+<area shape="poly" title=" " alt="" coords="523,50,592,62,591,68,522,55"/>
+<area shape="poly" title=" " alt="" coords="536,92,570,89,571,94,536,98"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d9f/namespaceimport__field__utils_ae47e67c9d2387fd9e01374afa19ceeba_icgraph.png" border="0" usemap="#ad3/d9f/namespaceimport__field__utils_ae47e67c9d2387fd9e01374afa19ceeba_icgraph" alt=""/></div>
+<map name="ad3/d9f/namespaceimport__field__utils_ae47e67c9d2387fd9e01374afa19ceeba_icgraph" id="ad3/d9f/namespaceimport__field__utils_ae47e67c9d2387fd9e01374afa19ceeba_icgraph">
+<area shape="rect" title="Wrapper around the fld file reader. Translates a file name specified as &quot;field0.f00132&quot; into &quot;field0...." alt="" coords="220,13,355,53"/>
+<area shape="rect" href="../../d8/dde/interfaceimport__field__utils_1_1import__fields.html#a7914e54564326a494e38d4196c56bd9b" title="Imports fields from an fld file, potentially with interpolation." alt="" coords="5,5,172,60"/>
+<area shape="poly" title=" " alt="" coords="206,35,172,35,172,30,206,30"/>
+</map>
+</div>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/d9f/namespaceimport__field__utils.html">import_field_utils</a></li>
-    <li class="footer">Generated on Fri Aug 21 2026 03:48:28 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 22 2026 03:46:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

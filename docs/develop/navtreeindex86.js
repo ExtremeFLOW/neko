@@ -1,5 +1,6 @@
 var NAVTREEINDEX86 =
 {
+"da/dfa/structhtable_1_1htable__cptr__t.html#a94370069f1191d8a0873af756ff471b7":[1,0,221,2,12],
 "da/dfa/structhtable_1_1htable__cptr__t.html#a94370069f1191d8a0873af756ff471b7":[2,0,193,2,12],
 "da/dfa/structhtable_1_1htable__cptr__t.html#a97a189e6f7963d9dfbebd956576a2345":[2,0,193,2,10],
 "da/dfa/structhtable_1_1htable__cptr__t.html#a97a189e6f7963d9dfbebd956576a2345":[1,0,221,2,10],
@@ -248,6 +249,5 @@ var NAVTREEINDEX86 =
 "db/d1a/structregistry_1_1registry__t.html#a95c9d0d3f1e164b2588597f2b6bcc245":[1,0,327,0,3],
 "db/d1a/structregistry_1_1registry__t.html#a95c9d0d3f1e164b2588597f2b6bcc245":[2,0,279,0,3],
 "db/d1a/structregistry_1_1registry__t.html#a97f8dc21e192e4faba088b3de913651a":[1,0,327,0,36],
-"db/d1a/structregistry_1_1registry__t.html#a97f8dc21e192e4faba088b3de913651a":[2,0,279,0,36],
-"db/d1a/structregistry_1_1registry__t.html#a983fefbde4e9206a00b385da7bfc8b65":[2,0,279,0,19]
+"db/d1a/structregistry_1_1registry__t.html#a97f8dc21e192e4faba088b3de913651a":[2,0,279,0,36]
 };
