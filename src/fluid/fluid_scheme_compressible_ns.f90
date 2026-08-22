@@ -65,7 +65,7 @@ module fluid_scheme_compressible_ns
   use bc_list, only : bc_list_t
   use bc, only : bc_t
   use utils, only : neko_error, neko_type_error
-  use logger, only : LOG_SIZE, neko_log
+  use logger, only : LOG_SIZE, neko_log, NEKO_LOG_VERBOSE
   use time_state, only : time_state_t
   use compressible_ops_cpu, only : compressible_ops_cpu_update_uvw, &
        compressible_ops_cpu_update_mxyz_p_ruvw, &
@@ -110,6 +110,8 @@ module fluid_scheme_compressible_ns
           => fluid_scheme_compressible_ns_setup_bcs
      procedure, pass(this) :: compute_h
      procedure, pass(this), private :: setup_regularization
+     procedure, pass(this), private :: log_euler_idp_diagnostics => &
+          fluid_scheme_compressible_ns_log_euler_idp_diagnostics
   end type fluid_scheme_compressible_ns_t
 
   interface
@@ -520,6 +522,7 @@ contains
          this%euler_idp%internal_energy_floor, time%dt, &
          this%rk_scheme%order, time, this%euler_idp_diagnostics, &
          entropy_fraction)
+    call this%log_euler_idp_diagnostics(time)
     call neko_scratch_registry%relinquish_field(temp_indices)
 
     this%u%x = this%euler_idp_cpu%u%x
@@ -559,6 +562,37 @@ contains
     nullify(b)
     call profiler_end_region('Fluid Euler IDP', 1)
   end subroutine fluid_scheme_compressible_ns_step_idp
+
+  !> Log limiter activity for each stage of one completed IDP timestep.
+  subroutine fluid_scheme_compressible_ns_log_euler_idp_diagnostics(this, &
+       time)
+    class(fluid_scheme_compressible_ns_t), intent(in) :: this
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+    integer :: nstages, stage
+
+    nstages = 1
+    if (this%rk_scheme%order .eq. 3) nstages = 3
+    do stage = 1, nstages
+       write(log_buf, '(A,I0,A,I0,A,ES10.3,A,ES10.3)') &
+            'IDP limiter: step=', time%tstep, ' stage=', stage, &
+            ' amin=', &
+            this%euler_idp_cpu%stage_diagnostics(stage)%min_limiter, &
+            ' frac=', this%euler_idp_cpu%stage_diagnostics( &
+            stage)%limited_edge_fraction
+       call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
+       write(log_buf, '(A,I0,A,I0,A,I0)') &
+            'IDP edges: rho=', &
+            this%euler_idp_cpu%stage_diagnostics( &
+            stage)%density_limited_edges, ' energy=', &
+            this%euler_idp_cpu%stage_diagnostics( &
+            stage)%internal_energy_limited_edges, ' entropy=', &
+            this%euler_idp_cpu%stage_diagnostics( &
+            stage)%entropy_limited_edges
+       call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+    end do
+  end subroutine fluid_scheme_compressible_ns_log_euler_idp_diagnostics
 
   !> Set up boundary conditions for the fluid scheme
   !> @param this The fluid scheme object

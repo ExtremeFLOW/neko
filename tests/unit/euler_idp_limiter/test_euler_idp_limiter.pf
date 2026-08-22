@@ -104,6 +104,79 @@ subroutine test_entropy_boundary_outward_limit()
 end subroutine test_entropy_boundary_outward_limit
 
 @test
+subroutine test_newton_secant_matches_bisection()
+  use pfunit
+  use num_types, only : rp
+  use euler_idp_limiter, only : euler_idp_entropy_is_admissible, &
+       euler_idp_limit_endpoint
+  implicit none
+
+  real(kind=rp), parameter :: gamma = 1.4_rp
+  real(kind=rp) :: base(5), target(5), correction(5), trial(5)
+  real(kind=rp) :: limit, lower, upper, midpoint, entropy_lower
+  logical :: density_limited, energy_limited, entropy_limited, admissible
+  integer :: iteration
+
+  base = make_state(1.0_rp, 0.3_rp, 1.0_rp, gamma)
+  target = make_state(1.4_rp, 1.2_rp, 0.05_rp, gamma)
+  correction = target - base
+  entropy_lower = log(0.4_rp)
+  call euler_idp_limit_endpoint(base, correction, 0.5_rp, 2.0_rp, &
+       entropy_lower, gamma, 1.0e-12_rp, limit, density_limited, &
+       energy_limited, entropy_limited)
+
+  lower = 0.0_rp
+  upper = 1.0_rp
+  do iteration = 1, 100
+     midpoint = 0.5_rp * (lower + upper)
+     trial = base + midpoint * correction
+     if (euler_idp_entropy_is_admissible(trial, gamma, entropy_lower, &
+          1.0e-12_rp)) then
+        lower = midpoint
+     else
+        upper = midpoint
+     end if
+  end do
+
+  @assertEqual(lower, limit, tolerance=1.0e-12_rp)
+  @assertFalse(density_limited)
+  @assertFalse(energy_limited)
+  @assertTrue(entropy_limited)
+  trial = base + limit * correction
+  admissible = euler_idp_entropy_is_admissible(trial, gamma, &
+       entropy_lower, 1.0e-12_rp)
+  @assertTrue(admissible)
+end subroutine test_newton_secant_matches_bisection
+
+@test
+subroutine test_internal_energy_floor_limit()
+  use pfunit
+  use num_types, only : rp
+  use euler_idp_limiter, only : euler_idp_limit_endpoint, &
+       euler_idp_state_is_admissible
+  implicit none
+
+  real(kind=rp), parameter :: gamma = 1.4_rp
+  real(kind=rp) :: base(5), target(5), correction(5), trial(5), limit
+  logical :: density_limited, energy_limited, entropy_limited, admissible
+
+  base = make_state(1.0_rp, 0.0_rp, 1.0_rp, gamma)
+  target = make_state(1.0_rp, 0.0_rp, 0.4_rp, gamma)
+  correction = target - base
+  call euler_idp_limit_endpoint(base, correction, 0.5_rp, 1.5_rp, &
+       -100.0_rp, gamma, 2.0_rp, limit, density_limited, &
+       energy_limited, entropy_limited)
+
+  @assertEqual(1.0_rp / 3.0_rp, limit, tolerance=1.0e-12_rp)
+  @assertFalse(density_limited)
+  @assertTrue(energy_limited)
+  @assertTrue(entropy_limited)
+  trial = base + limit * correction
+  admissible = euler_idp_state_is_admissible(trial, 2.0_rp)
+  @assertTrue(admissible)
+end subroutine test_internal_energy_floor_limit
+
+@test
 subroutine test_symmetric_edge_entropy_limit()
   use pfunit
   use num_types, only : rp
