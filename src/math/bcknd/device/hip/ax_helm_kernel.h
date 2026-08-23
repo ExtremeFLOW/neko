@@ -445,17 +445,26 @@ __device__ void ax_helm_mfma_elem(T * __restrict__ w,
                                   const T * __restrict__ g33,
                                   const T * __restrict__ g12,
                                   const T * __restrict__ g13,
-                                  const T * __restrict__ g23) {
+                                  const T * __restrict__ g23,
+                                  const int nelv) {
   const int LX2 = LX * LX;
   const int LX3 = LX * LX * LX;
+
+  /* NWF wavefronts per block, WPE of them cooperating on one element and the
+     block covering EB elements, see the note in mfma_kernel.h. At LX = 4 the
+     contraction offers one column group, so WPE is 1 and every wavefront gets
+     an element of its own rather than idling. */
+  enum { NGROUPS = (LX * LX + 15) / 16,
+         WPE = (NWF < NGROUPS) ? NWF : NGROUPS,
+         EB = NWF / WPE };
 
   __shared__ T shdx[LX * LX];
   __shared__ T shdy[LX * LX];
   __shared__ T shdz[LX * LX];
-  __shared__ T shu[LX * LX * LX];   // input u, later reused as output w
-  __shared__ T shr[LX * LX * LX];   // d/dr -> Sr
-  __shared__ T shs[LX * LX * LX];   // d/ds -> Ss
-  __shared__ T sht[LX * LX * LX];   // d/dt -> St
+  __shared__ T shu[EB * LX * LX * LX];   // input u, later reused as output w
+  __shared__ T shr[EB * LX * LX * LX];   // d/dr -> Sr
+  __shared__ T shs[EB * LX * LX * LX];   // d/ds -> Ss
+  __shared__ T sht[EB * LX * LX * LX];   // d/dt -> St
 
   static_assert(sizeof(shdx) + sizeof(shdy) + sizeof(shdz) +
                 sizeof(shu) + sizeof(shr) + sizeof(shs) + sizeof(sht)
@@ -466,55 +475,77 @@ __device__ void ax_helm_mfma_elem(T * __restrict__ w,
   const int wf   = threadIdx.y;          // 0..NWF-1 : which wavefront
   const int tid  = wf * 64 + lane;       // 0..NWF*64-1 : block-wide thread id
   const int nthr = NWF * 64;
-  const int ele  = blockIdx.x * LX3;
 
-  /* Reference derivative matrices (identical for every element). */
+  const int eb  = wf / WPE;              // which element this wavefront serves
+  const int sub = wf % WPE;              // its rank among that element's waves
+  const int gtid = sub * 64 + lane;      // thread id within the element group
+  const int gnthr = WPE * 64;
+
+  /* Threads past the last element still have to reach the block wide
+     barriers, so clamp their reads and drop their stores rather than
+     returning early. At EB == 1 the grid covers nelv exactly and this is
+     constant folded away */
+  const int e_blk = blockIdx.x * EB + eb;
+  const bool active = (EB == 1) ? true : (e_blk < nelv);
+  const int e = active ? e_blk : (nelv - 1);
+  const int ele = e * LX3;
+  const int sh = eb * LX3;
+
+  /* Reference derivative matrices, one copy shared by every element */
   for (int p = tid; p < LX2; p += nthr) {
     shdx[p] = dx[p];
     shdy[p] = dy[p];
     shdz[p] = dz[p];
   }
-  /* Element-local field. */
-  for (int p = tid; p < LX3; p += nthr)
-    shu[p] = u[p + ele];
+  /* Element-local field, staged by the wavefronts that own it */
+  for (int p = gtid; p < LX3; p += gnthr)
+    shu[sh + p] = u[p + ele];
 
   __syncthreads();
 
   /* Gradient: ur, us, ut in canonical i + LX*j + LX*LX*k layout. */
-  mfma_contract_sel<T, LX, 0, false, false, NWF>::run(shr, shdx, shu, lane, wf);
-  mfma_contract_sel<T, LX, 1, false, false, NWF>::run(shs, shdy, shu, lane, wf);
-  mfma_contract_sel<T, LX, 2, false, false, NWF>::run(sht, shdz, shu, lane, wf);
+  mfma_contract_sel<T, LX, 0, false, false, WPE>::run(shr + sh, shdx,
+                                                      shu + sh, lane, sub);
+  mfma_contract_sel<T, LX, 1, false, false, WPE>::run(shs + sh, shdy,
+                                                      shu + sh, lane, sub);
+  mfma_contract_sel<T, LX, 2, false, false, WPE>::run(sht + sh, shdz,
+                                                      shu + sh, lane, sub);
 
   __syncthreads();
 
   /* Geometry (pointwise): (ur,us,ut) -> (Sr,Ss,St), reusing shr/shs/sht. */
-  for (int p = tid; p < LX3; p += nthr) {
+  for (int p = gtid; p < LX3; p += gnthr) {
     const int gp = p + ele;
     const T G00 = g11[gp], G11 = g22[gp], G22 = g33[gp];
     const T G01 = g12[gp], G02 = g13[gp], G12 = g23[gp];
     const T H1  = h1[gp];
-    const T rr = shr[p], ss = shs[p], tt = sht[p];
-    shr[p] = H1 * (G00 * rr + G01 * ss + G02 * tt);
-    shs[p] = H1 * (G01 * rr + G11 * ss + G12 * tt);
-    sht[p] = H1 * (G02 * rr + G12 * ss + G22 * tt);
+    const T rr = shr[sh + p], ss = shs[sh + p], tt = sht[sh + p];
+    shr[sh + p] = H1 * (G00 * rr + G01 * ss + G02 * tt);
+    shs[sh + p] = H1 * (G01 * rr + G11 * ss + G12 * tt);
+    sht[sh + p] = H1 * (G02 * rr + G12 * ss + G22 * tt);
   }
 
   __syncthreads();
 
   /* Divergence: w = Dr^T Sr + Ds^T Ss + Dt^T St, accumulated in shu (= w). */
-  for (int p = tid; p < LX3; p += nthr)
-    shu[p] = 0.0;
+  for (int p = gtid; p < LX3; p += gnthr)
+    shu[sh + p] = 0.0;
   __syncthreads();
 
-  mfma_contract_sel<T, LX, 0, true, true, NWF>::run(shu, shdx, shr, lane, wf);
+  mfma_contract_sel<T, LX, 0, true, true, WPE>::run(shu + sh, shdx,
+                                                    shr + sh, lane, sub);
   __syncthreads();
-  mfma_contract_sel<T, LX, 1, true, true, NWF>::run(shu, shdy, shs, lane, wf);
+  mfma_contract_sel<T, LX, 1, true, true, WPE>::run(shu + sh, shdy,
+                                                    shs + sh, lane, sub);
   __syncthreads();
-  mfma_contract_sel<T, LX, 2, true, true, NWF>::run(shu, shdz, sht, lane, wf);
+  mfma_contract_sel<T, LX, 2, true, true, WPE>::run(shu + sh, shdz,
+                                                    sht + sh, lane, sub);
   __syncthreads();
 
-  for (int p = tid; p < LX3; p += nthr)
-    w[p + ele] = shu[p];
+  if (active) {
+    for (int p = gtid; p < LX3; p += gnthr)
+      w[p + ele] = shu[sh + p];
+  }
 }
 #endif // __gfx90a__ || __gfx942__
 
@@ -531,7 +562,7 @@ template< typename T, const int LX, const int NWF >
 struct ax_helm_mfma_dispatch {
   __device__ static void run(T *, const T *, const T *, const T *, const T *,
                              const T *, const T *, const T *, const T *,
-                             const T *, const T *, const T *) {}
+                             const T *, const T *, const T *, const int) {}
 };
 
 #if defined(__gfx90a__) || defined(__gfx942__)
@@ -545,9 +576,11 @@ struct ax_helm_mfma_dispatch {
                                const TYPE *dz, const TYPE *h1,                 \
                                const TYPE *g11, const TYPE *g22,               \
                                const TYPE *g33, const TYPE *g12,               \
-                               const TYPE *g13, const TYPE *g23) {             \
+                               const TYPE *g13, const TYPE *g23,              \
+                               const int nelv) {                               \
       ax_helm_mfma_elem< TYPE, LXV, NWF >(w, u, dx, dy, dz, h1,                \
-                                          g11, g22, g33, g12, g13, g23);       \
+                                          g11, g22, g33, g12, g13, g23,        \
+                                          nelv);                               \
     }                                                                          \
   }
 
@@ -591,10 +624,11 @@ ax_helm_kernel_mfma(T * __restrict__ w,
                     const T * __restrict__ g33,
                     const T * __restrict__ g12,
                     const T * __restrict__ g13,
-                    const T * __restrict__ g23) {
+                    const T * __restrict__ g23,
+                    const int nelv) {
 
   ax_helm_mfma_dispatch< T, LX, NWF >::run(w, u, dx, dy, dz, h1,
-                                           g11, g22, g33, g12, g13, g23);
+                                           g11, g22, g33, g12, g13, g23, nelv);
 }
 
 /*

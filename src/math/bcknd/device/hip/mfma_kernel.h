@@ -189,20 +189,31 @@ static inline bool mfma_lx_supported() {
 #define NEKO_MFMA_NTHRDS(C) dim3(64, NEKO_MFMA_NWF(C), 1)
 
 /*
- * Column groups per contraction -- the wavefront-parallel work that actually
- * exists. Both tiles group N the same way, 16 columns at a time, so this is
- * ceil(LX^2/16) either way: 1 at LX = 4, 4 at LX = 8, 9 at LX = 12. A
- * wavefront beyond this one can only idle through the matrix core work; it
- * still helps the staging and pointwise loops, but measurement says not
- * enough to pay. At LX = 4 in single precision the four candidates ran
- * 20.5 / 23.6 / 34.0 / 60.2 us, monotonically worse, while at LX = 8 they ran
- * 218 / 157 / 136.4 / 136.4, improving up to four and then flat. Capping the
- * sweep here costs nothing measurable and skips the candidates that cannot
- * win -- which at low order are also the slowest to time.
+ * Column groups per contraction -- the wavefront-parallel work one element
+ * offers. Both tiles group N the same way, 16 columns at a time, so this is
+ * ceil(LX^2/16) either way: 1 at LX = 4, 4 at LX = 8, 9 at LX = 12.
+ *
+ * A wavefront beyond that count has no matrix core work left on that element,
+ * which is what the LX = 4 single precision sweep measured: 20.5 / 23.6 /
+ * 34.0 / 60.2 us as NWF went 1, 2, 4, 8, monotonically worse, against
+ * 218 / 157 / 136.4 / 136.4 at LX = 8 where four groups exist. Rather than
+ * cap the sweep, the surplus wavefronts are given their own element: NWF is
+ * read as wavefronts per block, WPE = min(NWF, NGROUPS) of them cooperate on
+ * one element, and the block covers EB = NWF/WPE elements. At LX = 4 with
+ * eight wavefronts that is eight elements, one each, with nothing idle; at
+ * LX = 12 it is one element and eight cooperating wavefronts, exactly as
+ * before. This matters because p-multigrid smooths at LX = 4 and 2, so low
+ * order Ax is hot rather than incidental.
  */
 #define NEKO_MFMA_NGROUPS(LX) (((LX) * (LX) + 15) / 16)
-#define NEKO_MFMA_NWF_USEFUL(LX, C) \
-  (NEKO_MFMA_NWF(C) <= NEKO_MFMA_NGROUPS(LX))
+/* Wavefronts cooperating on one element */
+#define NEKO_MFMA_WPE(LX, C)                                                  \
+  (NEKO_MFMA_NWF(C) < NEKO_MFMA_NGROUPS(LX) ? NEKO_MFMA_NWF(C)                \
+                                            : NEKO_MFMA_NGROUPS(LX))
+/* Elements per block */
+#define NEKO_MFMA_EB(LX, C) (NEKO_MFMA_NWF(C) / NEKO_MFMA_WPE(LX, C))
+#define NEKO_MFMA_NBLCKS(NELV, LX, C)                                         \
+  dim3(((NELV) + NEKO_MFMA_EB(LX, C) - 1) / NEKO_MFMA_EB(LX, C), 1, 1)
 
 /*
  * Whether the autotuner sweeps the MFMA strategy, on by default wherever the
@@ -241,12 +252,12 @@ static int neko_mfma_env()
 
 /* Report every measured MFMA candidate, see NEKO_TUNE_LOG in
    elem_block_tune.h */
-#define NEKO_TUNE_LOG_MFMA(T3)                                                \
+#define NEKO_TUNE_LOG_MFMA(LX, T3)                                            \
   do {                                                                        \
     for (int c = 0; c < NEKO_MFMA_CANDIDATES; c++) {                          \
       if ((T3)[c] >= NEKO_TUNE_INIT) { continue; }                            \
-      sprintf(neko_log_buf, "MFMA  nwf=%-3d: %9.2f us/call",                  \
-              NEKO_MFMA_NWF(c), (T3)[c] * 10.0);                              \
+      sprintf(neko_log_buf, "MFMA  %dwf %-2de: %9.2f us/call",                \
+              NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c), (T3)[c] * 10.0);         \
       log_message(neko_log_buf);                                              \
     }                                                                         \
   } while (0)

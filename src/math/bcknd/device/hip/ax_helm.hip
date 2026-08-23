@@ -140,12 +140,12 @@ extern "C" {
 #define CASE_MFMA(LX, C)                                                        \
     hipLaunchKernelGGL( HIP_KERNEL_NAME(                                        \
                           ax_helm_kernel_mfma<real, LX, NEKO_MFMA_NWF(C)> ),    \
-                        dim3((*nelv), 1, 1), NEKO_MFMA_NTHRDS(C), 0,            \
+                        NEKO_MFMA_NBLCKS(*nelv, LX, C), NEKO_MFMA_NTHRDS(C), 0, \
                         (hipStream_t) glb_cmd_queue,                            \
                         (real *) w, (real *) u,                                 \
                         (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
                         (real *) g11, (real *) g22, (real *) g33,               \
-                        (real *) g12, (real *) g13, (real *) g23);              \
+                        (real *) g12, (real *) g13, (real *) g23, *nelv);       \
     HIP_CHECK(hipGetLastError());
 
 /* Runtime dispatch onto the tuned wavefronts per block candidate */
@@ -453,8 +453,8 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
         const int c = neko_mfma_env();
         *nwf_sel = c;
         CASE_MFMA_SEL(LX, c);
-        sprintf(neko_log_buf,"Set by env   : 3 (MFMA, %d wavefronts)",
-                NEKO_MFMA_NWF(c));
+        sprintf(neko_log_buf,"Set by env   : 3 (MFMA, %d wf, %d elem/block)",
+                NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c));
         log_message(neko_log_buf);
         log_end_section();
         return 3;
@@ -486,9 +486,9 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
     }
     if (mfma_tune) {
       CASE_MFMA(LX, 0);
-      if (NEKO_MFMA_NWF_USEFUL(LX, 1)) { CASE_MFMA(LX, 1); }
-      if (NEKO_MFMA_NWF_USEFUL(LX, 2)) { CASE_MFMA(LX, 2); }
-      if (NEKO_MFMA_NWF_USEFUL(LX, 3)) { CASE_MFMA(LX, 3); }
+      CASE_MFMA(LX, 1);
+      CASE_MFMA(LX, 2);
+      CASE_MFMA(LX, 3);
     }
   }
 
@@ -506,20 +506,14 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
     }
     if (mfma_tune) {
       NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 0, iters);
-      if (NEKO_MFMA_NWF_USEFUL(LX, 1)) {
-        NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 1, iters);
-      }
-      if (NEKO_MFMA_NWF_USEFUL(LX, 2)) {
-        NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 2, iters);
-      }
-      if (NEKO_MFMA_NWF_USEFUL(LX, 3)) {
-        NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 3, iters);
-      }
+      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 1, iters);
+      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 2, iters);
+      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 3, iters);
     }
   }
 
   NEKO_TUNE_LOG(LX, time1, time2);
-  NEKO_TUNE_LOG_MFMA(time3);
+  NEKO_TUNE_LOG_MFMA(LX, time3);
 
   NEKO_TUNE_BEST(time1, best1, NEKO_CHUNKS_CANDIDATES);
   NEKO_TUNE_BEST(time2, best, NEKO_EB_CANDIDATES);
@@ -560,8 +554,8 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
     sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
             NEKO_EB_SEL(LX, best));
   } else {
-    sprintf(neko_log_buf, "Chose        : 3 (MFMA, %d wavefronts)",
-            NEKO_MFMA_NWF(best3));
+    sprintf(neko_log_buf, "Chose        : 3 (MFMA, %d wf, %d elem/block)",
+            NEKO_MFMA_NWF(best3), NEKO_MFMA_EB(LX, best3));
   }
   log_message(neko_log_buf);
   log_end_section();
@@ -638,8 +632,8 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
         const int c = neko_mfma_env();
         *nwf_sel = c;
         CASE_MFMA_SEL(LX, c);
-        sprintf(neko_log_buf,"Set by env   : 3 (MFMA, %d wavefronts)",
-                NEKO_MFMA_NWF(c));
+        sprintf(neko_log_buf,"Set by env   : 3 (MFMA, %d wf, %d elem/block)",
+                NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c));
         log_message(neko_log_buf);
         log_end_section();
         return 3;
@@ -671,9 +665,9 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
     }
     if (mfma_tune) {
       CASE_MFMA(LX, 0);
-      if (NEKO_MFMA_NWF_USEFUL(LX, 1)) { CASE_MFMA(LX, 1); }
-      if (NEKO_MFMA_NWF_USEFUL(LX, 2)) { CASE_MFMA(LX, 2); }
-      if (NEKO_MFMA_NWF_USEFUL(LX, 3)) { CASE_MFMA(LX, 3); }
+      CASE_MFMA(LX, 1);
+      CASE_MFMA(LX, 2);
+      CASE_MFMA(LX, 3);
     }
   }
 
@@ -691,20 +685,14 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
     }
     if (mfma_tune) {
       NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 0, iters);
-      if (NEKO_MFMA_NWF_USEFUL(LX, 1)) {
-        NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 1, iters);
-      }
-      if (NEKO_MFMA_NWF_USEFUL(LX, 2)) {
-        NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 2, iters);
-      }
-      if (NEKO_MFMA_NWF_USEFUL(LX, 3)) {
-        NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 3, iters);
-      }
+      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 1, iters);
+      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 2, iters);
+      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 3, iters);
     }
   }
 
   NEKO_TUNE_LOG(LX, time1, time2);
-  NEKO_TUNE_LOG_MFMA(time3);
+  NEKO_TUNE_LOG_MFMA(LX, time3);
 
   NEKO_TUNE_BEST(time1, best1, NEKO_CHUNKS_CANDIDATES);
   NEKO_TUNE_BEST(time2, best, NEKO_EB_CANDIDATES);
@@ -744,8 +732,8 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
     sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
             NEKO_EB_SEL(LX, best));
   } else {
-    sprintf(neko_log_buf, "Chose        : 3 (MFMA, %d wavefronts)",
-            NEKO_MFMA_NWF(best3));
+    sprintf(neko_log_buf, "Chose        : 3 (MFMA, %d wf, %d elem/block)",
+            NEKO_MFMA_NWF(best3), NEKO_MFMA_EB(LX, best3));
   }
   log_message(neko_log_buf);
   log_end_section();
