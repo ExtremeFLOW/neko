@@ -40,7 +40,8 @@ module legendre_rst_finder
   use vector, only: vector_t
   use matrix, only: matrix_t
   use math, only: NEKO_EPS, matinv39
-  use tensor_cpu, only: tnsr3d_cpu, tnsr3d_el_cpu
+  use tensor_cpu, only: tnsr3d_el_cpu
+  use tensor, only: tnsr3d
   use device_local_interpolation, only: device_find_rst_legendre
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
   use device, only: device_alloc, device_free, device_memcpy, &
@@ -100,20 +101,15 @@ contains
     call this%y_hat%init(nelv*Xh%lxyz)
     call this%z_hat%init(nelv*Xh%lxyz)
 
-    call tnsr3d_cpu(this%x_hat%x, Xh%lx, x, &
+    call tnsr3d(this%x_hat%x, Xh%lx, x, &
          Xh%lx, Xh%vinv, &
          Xh%vinvt, Xh%vinvt, nelv)
-    call tnsr3d_cpu(this%y_hat%x, Xh%lx, y, &
+    call tnsr3d(this%y_hat%x, Xh%lx, y, &
          Xh%lx, Xh%vinv, &
          Xh%vinvt, Xh%vinvt, nelv)
-    call tnsr3d_cpu(this%z_hat%x, Xh%lx, z, &
+    call tnsr3d(this%z_hat%x, Xh%lx, z, &
          Xh%lx, Xh%vinv, &
          Xh%vinvt, Xh%vinvt, nelv)
-
-    !> Copy the data to the device (if device exists)
-    call this%x_hat%copy_from(HOST_TO_DEVICE, .false.)
-    call this%y_hat%copy_from(HOST_TO_DEVICE, .false.)
-    call this%z_hat%copy_from(HOST_TO_DEVICE, .false.)
 
   end subroutine legendre_rst_finder_init
 
