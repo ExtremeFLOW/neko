@@ -775,7 +775,12 @@ contains
     call MPI_Barrier(this%comm, ierr)
 
     if (allocated(this%rst_local)) deallocate(this%rst_local)
-    if (allocated(this%el_owner0_local)) deallocate(this%el_owner0_local)
+    if (allocated(this%el_owner0_local)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%el_owner0_local, this%el_owner0_local_d)
+       end if
+       deallocate(this%el_owner0_local)
+    end if
     allocate(this%rst_local(3, this%n_points_local))
     allocate(this%el_owner0_local(this%n_points_local))
     ! Choose the best candidate at this rank
@@ -1152,7 +1157,12 @@ contains
     if (allocated(this%xyz)) deallocate(this%xyz)
     if (allocated(this%rst)) deallocate(this%rst)
     if (allocated(this%pe_owner)) deallocate(this%pe_owner)
-    if (allocated(this%el_owner0)) deallocate(this%el_owner0)
+    if (allocated(this%el_owner0)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%el_owner0, this%el_owner0_d)
+       end if
+       deallocate(this%el_owner0)
+    end if
 
     allocate(this%pe_owner(this%n_points))
     allocate(this%el_owner0(this%n_points))
