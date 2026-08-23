@@ -123,9 +123,7 @@ contains
     ly = Xh%ly
     lz = Xh%lz
     n = nelv * lx*ly*lz
-    ! Create a local tree for each element at this rank
-    call local_aabb_tree%init(nelv)
-
+    ! Create a local tree for the elements at this rank.
     allocate(local_aabb(nelv))
 
     do i = 1, nelv
@@ -137,8 +135,8 @@ contains
             real([maxval(x(id1:id2)), &
             maxval(y(id1:id2)), &
             maxval(z(id1:id2))], dp))
-       call local_aabb_tree%insert_object(local_aabb(i), i)
     end do
+    call local_aabb_tree%build_from_aabb(local_aabb)
 
     this%pe_box_num = min(GLOB_MAP_SIZE/this%pe_size, nelv)
     this%pe_box_num = &
