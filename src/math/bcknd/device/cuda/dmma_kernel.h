@@ -123,6 +123,32 @@ enum {
 #define NEKO_DMMA_NW(C) (1 << ((C) + 1))
 #define NEKO_DMMA_NTHRDS(C) dim3(32 * NEKO_DMMA_NW(C), 1, 1)
 
+/*
+ * Elements packed into one padded cube.
+ *
+ * The staging pads every cube to DMMA_P^3 so that the fixed 8x8x4 tile is
+ * always full, which at LX = DMMA_P is exact and below it is waste: at LX = 4
+ * only 64 of 512 points are real, so seven eighths of every contraction is
+ * spent on zeros. Where LX divides DMMA_P that waste can be turned back into
+ * work by packing DMMA_P/LX elements along each axis -- one per sub-cube --
+ * and making the staged derivative matrix block diagonal, one LX x LX copy of
+ * D per sub-cube. Because D is then block diagonal, the contraction along any
+ * axis couples only indices within the same sub-cube, so the single padded
+ * contraction computes every packed element independently and correctly.
+ *
+ * LX = 8 packs one element and is exactly what it was; LX = 4 packs eight,
+ * LX = 2 packs sixty-four. LX = 3, 5, 6 and 7 do not divide DMMA_P and keep
+ * one element with the old padding waste. This matters because p-multigrid
+ * smooths at LX = 4 and 2, so low order Ax is hot rather than incidental --
+ * and note the packing costs no extra shared memory at all, the cube is
+ * DMMA_P^3 either way.
+ */
+#define NEKO_DMMA_PPA(LX) ((DMMA_P % (LX) == 0) ? (DMMA_P / (LX)) : 1)
+#define NEKO_DMMA_PACK(LX)                                                    \
+  (NEKO_DMMA_PPA(LX) * NEKO_DMMA_PPA(LX) * NEKO_DMMA_PPA(LX))
+#define NEKO_DMMA_NBLCKS(NELV, LX)                                            \
+  dim3(((NELV) + NEKO_DMMA_PACK(LX) - 1) / NEKO_DMMA_PACK(LX), 1, 1)
+
 /* Forced candidate, used when NEKO_AUTOTUNE pins the DMMA variant */
 static int neko_dmma_env()
 {
@@ -137,12 +163,12 @@ static int neko_dmma_env()
 
 /* Report every measured DMMA candidate, see NEKO_TUNE_LOG in
    elem_block_tune.h */
-#define NEKO_TUNE_LOG_DMMA(T3)                                                \
+#define NEKO_TUNE_LOG_DMMA(LX, T3)                                            \
   do {                                                                        \
     for (int c = 0; c < NEKO_DMMA_CANDIDATES; c++) {                          \
       if ((T3)[c] >= NEKO_TUNE_INIT) { continue; }                            \
-      sprintf(neko_log_buf, "DMMA  nw=%-4d: %9.2f us/call",                   \
-              NEKO_DMMA_NW(c), (T3)[c] * 10.0);                               \
+      sprintf(neko_log_buf, "DMMA  %dw %-2de: %9.2f us/call",                 \
+              NEKO_DMMA_NW(c), NEKO_DMMA_PACK(LX), (T3)[c] * 10.0);           \
       log_message(neko_log_buf);                                              \
     }                                                                         \
   } while (0)
@@ -212,8 +238,13 @@ static inline bool cuda_have_dmma()
 
 /**
  * Compile-time predicate for the LX values that the DMMA strategy supports.
- * Double precision and 4 <= LX <= DMMA_P, see the note on the padded staging
- * above. MUST match the dispatch specialisations in each operator's kernel
+ * Double precision and 2 <= LX <= DMMA_P, see the note on the padded staging
+ * above. The lower bound is 2 rather than 4 because packing makes LX = 2
+ * useful rather than absurd -- sixty-four elements to a cube, and it is a
+ * p-multigrid level. LX = 3 is supported but packs one element and wastes
+ * 95% of every contraction; the tuner will reject it.
+ *
+ * MUST match the dispatch specialisations in each operator's kernel
  * header.
  *
  * The double precision requirement is deliberate and is NOT an oversight to
@@ -235,7 +266,7 @@ static inline bool cuda_have_dmma()
 template< const int LX >
 static inline bool dmma_lx_supported()
 {
-  return (sizeof(real) == 8) && (LX >= 4) && (LX <= DMMA_P);
+  return (sizeof(real) == 8) && (LX >= 2) && (LX <= DMMA_P);
 }
 
 #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && (__CUDA_ARCH__ < 1000)

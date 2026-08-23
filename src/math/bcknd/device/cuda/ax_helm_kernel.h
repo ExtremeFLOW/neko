@@ -449,14 +449,16 @@ void ax_helm_dmma_elem(double * __restrict__ w,
                        const double * __restrict__ g33,
                        const double * __restrict__ g12,
                        const double * __restrict__ g13,
-                       const double * __restrict__ g23) {
+                       const double * __restrict__ g23,
+                       const int nelv) {
 
-  /* Element independent, one copy per block */
+  /* Element independent, one copy per block. Block diagonal when more than
+     one element is packed: one LX x LX copy of D per sub-cube */
   __shared__ __align__(16) double shdx[DMMA_MAT];
   __shared__ __align__(16) double shdy[DMMA_MAT];
   __shared__ __align__(16) double shdz[DMMA_MAT];
 
-  /* The element, padded to DMMA_P^3. shu carries the input and then the
+  /* The pack, padded to DMMA_P^3. shu carries the input and then the
      output, shr, shs and sht the reference derivatives */
   __shared__ __align__(16) double shu[DMMA_CUBE];
   __shared__ __align__(16) double shr[DMMA_CUBE];
@@ -473,40 +475,64 @@ void ax_helm_dmma_elem(double * __restrict__ w,
                 <= NEKO_EB_MAX_SMEM,
                 "dmma block exceeds the shared memory budget");
 
+  /* Elements per sub-cube axis, and per cube, see the note in dmma_kernel.h.
+     At LX == DMMA_P both are one and everything below constant folds back to
+     the single element kernel */
+  enum { PPA = (DMMA_P % LX == 0) ? (DMMA_P / LX) : 1,
+         PACK = PPA * PPA * PPA,
+         LX3 = LX * LX * LX,
+         NP = PACK * LX3 };
+
   const int nthrds = 32 * NW;
   const int tid = threadIdx.x;
   const int wf = tid >> 5;
-  const int ele = blockIdx.x * LX * LX * LX;
+  const int ebase = blockIdx.x * PACK;
 
-  /* The padding has to be zero for the tiles to be full without masking, see
-     dmma_kernel.h. At LX == DMMA_P there is none and this is folded away */
+  /* The padding has to be finite, see the note above. At LX == DMMA_P with
+     one element packed there is none and this is folded away */
+  if (PACK * LX3 < DMMA_CUBE) {
+    for (int p = tid; p < DMMA_CUBE; p += nthrds) {
+      shu[p] = 0.0;
+    }
+  }
   if (LX < DMMA_P) {
     for (int p = tid; p < DMMA_MAT; p += nthrds) {
       shdx[p] = 0.0;
       shdy[p] = 0.0;
       shdz[p] = 0.0;
     }
-    for (int p = tid; p < DMMA_CUBE; p += nthrds) {
-      shu[p] = 0.0;
-    }
+  }
+  if (LX < DMMA_P) {
     __syncthreads();
   }
 
+  /* One copy of D per sub-cube, down the diagonal */
   for (int p = tid; p < LX * LX; p += nthrds) {
     const int i = p % LX;
     const int l = p / LX;
-    const int m = i + DMMA_P * l;
-    shdx[m] = dx[p];
-    shdy[m] = dy[p];
-    shdz[m] = dz[p];
+#pragma unroll
+    for (int b = 0; b < PPA; b++) {
+      const int m = (b * LX + i) + DMMA_P * (b * LX + l);
+      shdx[m] = dx[p];
+      shdy[m] = dy[p];
+      shdz[m] = dz[p];
+    }
   }
 
-  for (int p = tid; p < LX * LX * LX; p += nthrds) {
-    const int i = p % LX;
-    const int jk = p / LX;
+  for (int p = tid; p < NP; p += nthrds) {
+    const int q = p / LX3;
+    const int r = p - q * LX3;
+    const int i = r % LX;
+    const int jk = r / LX;
     const int j = jk % LX;
     const int k = jk / LX;
-    shu[i + DMMA_SI * j + DMMA_SJ * k] = u[p + ele];
+    const int qa = q % PPA;
+    const int qb = (q / PPA) % PPA;
+    const int qc = q / (PPA * PPA);
+    const int c = (qa * LX + i) + DMMA_SI * (qb * LX + j)
+                + DMMA_SJ * (qc * LX + k);
+    const int eq = ebase + q;
+    shu[c] = u[r + (eq < nelv ? eq : nelv - 1) * LX3];
   }
 
   __syncthreads();
@@ -517,20 +543,28 @@ void ax_helm_dmma_elem(double * __restrict__ w,
 
   __syncthreads();
 
-  for (int p = tid; p < LX * LX * LX; p += nthrds) {
-    const int i = p % LX;
-    const int jk = p / LX;
+  for (int p = tid; p < NP; p += nthrds) {
+    const int q = p / LX3;
+    const int r = p - q * LX3;
+    const int i = r % LX;
+    const int jk = r / LX;
     const int j = jk % LX;
     const int k = jk / LX;
-    const int c = i + DMMA_SI * j + DMMA_SJ * k;
+    const int qa = q % PPA;
+    const int qb = (q / PPA) % PPA;
+    const int qc = q / (PPA * PPA);
+    const int c = (qa * LX + i) + DMMA_SI * (qb * LX + j)
+                + DMMA_SJ * (qc * LX + k);
+    const int eq = ebase + q;
+    const int gp = r + (eq < nelv ? eq : nelv - 1) * LX3;
 
-    const double G00 = g11[p + ele];
-    const double G11 = g22[p + ele];
-    const double G22 = g33[p + ele];
-    const double G01 = g12[p + ele];
-    const double G02 = g13[p + ele];
-    const double G12 = g23[p + ele];
-    const double H1  = h1[p + ele];
+    const double G00 = g11[gp];
+    const double G11 = g22[gp];
+    const double G22 = g33[gp];
+    const double G01 = g12[gp];
+    const double G02 = g13[gp];
+    const double G12 = g23[gp];
+    const double H1  = h1[gp];
 
     const double rtmp = shr[c];
     const double stmp = shs[c];
@@ -563,12 +597,23 @@ void ax_helm_dmma_elem(double * __restrict__ w,
   dmma_contract< 2, true, true, NW >(shu, shdz, sht, wf);
   __syncthreads();
 
-  for (int p = tid; p < LX * LX * LX; p += nthrds) {
-    const int i = p % LX;
-    const int jk = p / LX;
-    const int j = jk % LX;
-    const int k = jk / LX;
-    w[p + ele] = shu[i + DMMA_SI * j + DMMA_SJ * k];
+  for (int p = tid; p < NP; p += nthrds) {
+    const int q = p / LX3;
+    const int r = p - q * LX3;
+    const int eq = ebase + q;
+
+    if (eq < nelv) {
+      const int i = r % LX;
+      const int jk = r / LX;
+      const int j = jk % LX;
+      const int k = jk / LX;
+      const int qa = q % PPA;
+      const int qb = (q / PPA) % PPA;
+      const int qc = q / (PPA * PPA);
+      const int c = (qa * LX + i) + DMMA_SI * (qb * LX + j)
+                  + DMMA_SJ * (qc * LX + k);
+      w[r + eq * LX3] = shu[c];
+    }
   }
 }
 
@@ -596,7 +641,8 @@ struct ax_helm_dmma_dispatch {
                              const T * __restrict__,
                              const T * __restrict__,
                              const T * __restrict__,
-                             const T * __restrict__) { }
+                             const T * __restrict__,
+                             const int) { }
 };
 
 #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && (__CUDA_ARCH__ < 1000)
@@ -616,12 +662,15 @@ struct ax_helm_dmma_dispatch {
                                const double * __restrict__ g33,                \
                                const double * __restrict__ g12,                \
                                const double * __restrict__ g13,                \
-                               const double * __restrict__ g23) {              \
+                               const double * __restrict__ g23,               \
+                               const int nelv) {                               \
       ax_helm_dmma_elem< LXV, NW >(w, u, dx, dy, dz, h1,                       \
-                                   g11, g22, g33, g12, g13, g23);              \
+                                   g11, g22, g33, g12, g13, g23, nelv);        \
     }                                                                          \
   }
 
+NEKO_AX_HELM_DMMA_DISPATCH(2);
+NEKO_AX_HELM_DMMA_DISPATCH(3);
 NEKO_AX_HELM_DMMA_DISPATCH(4);
 NEKO_AX_HELM_DMMA_DISPATCH(5);
 NEKO_AX_HELM_DMMA_DISPATCH(6);
@@ -643,10 +692,11 @@ ax_helm_kernel_dmma(T * __restrict__ w,
                     const T * __restrict__ g33,
                     const T * __restrict__ g12,
                     const T * __restrict__ g13,
-                    const T * __restrict__ g23) {
+                    const T * __restrict__ g23,
+                    const int nelv) {
 
   ax_helm_dmma_dispatch< T, LX, NW >::run(w, u, dx, dy, dz, h1,
-                                          g11, g22, g33, g12, g13, g23);
+                                          g11, g22, g33, g12, g13, g23, nelv);
 }
 
 /*

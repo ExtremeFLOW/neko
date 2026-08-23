@@ -92,7 +92,6 @@ extern "C" {
     static int autotune_nw[17] = { 0 };
 
     const dim3 nblcks_1d((*nelv), 1, 1);
-    const dim3 nblcks_dmma((*nelv), 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
 #define CASE_1D(LX, C)                                                          \
@@ -149,11 +148,11 @@ extern "C" {
 
 #define CASE_DMMA(LX, C)                                                        \
     ax_helm_kernel_dmma<real, LX, NEKO_DMMA_NW(C)>                              \
-      <<<nblcks_dmma, NEKO_DMMA_NTHRDS(C), 0, stream>>>                         \
+      <<<NEKO_DMMA_NBLCKS(*nelv, LX), NEKO_DMMA_NTHRDS(C), 0, stream>>>         \
                           ((real *) w, (real *) u,                              \
                            (real *) dx, (real *) dy, (real *) dz, (real *) h1,  \
                            (real *) g11, (real *) g22, (real *) g33,            \
-                           (real *) g12, (real *) g13, (real *) g23);           \
+                           (real *) g12, (real *) g13, (real *) g23, *nelv);    \
       CUDA_CHECK(cudaGetLastError());
 
 /* Runtime dispatch onto the tuned warps per block candidate */
@@ -445,7 +444,6 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   }
 
   const dim3 nblcks_1d((*nelv), 1, 1);
-  const dim3 nblcks_dmma((*nelv), 1, 1);
   const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
   char *env_value = NULL;
@@ -540,7 +538,7 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   }
 
   NEKO_TUNE_LOG(LX, time1, time2);
-  NEKO_TUNE_LOG_DMMA(time3);
+  NEKO_TUNE_LOG_DMMA(LX, time3);
 
   NEKO_TUNE_BEST(time1, best1, NEKO_CHUNKS_CANDIDATES);
   NEKO_TUNE_BEST(time2, best, NEKO_EB_CANDIDATES);
@@ -581,8 +579,8 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
     sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
             NEKO_EB_SEL(LX, best));
   } else {
-    sprintf(neko_log_buf, "Chose        : 3 (DMMA, %d warps)",
-            NEKO_DMMA_NW(best3));
+    sprintf(neko_log_buf, "Chose        : 3 (DMMA, %d warps, %d elem/blk)",
+            NEKO_DMMA_NW(best3), NEKO_DMMA_PACK(LX));
   }
   log_message(neko_log_buf);
   log_end_section();
@@ -619,7 +617,6 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   }
 
   const dim3 nblcks_1d((*nelv), 1, 1);
-  const dim3 nblcks_dmma((*nelv), 1, 1);
   const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
   char *env_value = NULL;
@@ -714,7 +711,7 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   }
 
   NEKO_TUNE_LOG(LX, time1, time2);
-  NEKO_TUNE_LOG_DMMA(time3);
+  NEKO_TUNE_LOG_DMMA(LX, time3);
 
   NEKO_TUNE_BEST(time1, best1, NEKO_CHUNKS_CANDIDATES);
   NEKO_TUNE_BEST(time2, best, NEKO_EB_CANDIDATES);
@@ -754,8 +751,8 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
     sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
             NEKO_EB_SEL(LX, best));
   } else {
-    sprintf(neko_log_buf, "Chose        : 3 (DMMA, %d warps)",
-            NEKO_DMMA_NW(best3));
+    sprintf(neko_log_buf, "Chose        : 3 (DMMA, %d warps, %d elem/blk)",
+            NEKO_DMMA_NW(best3), NEKO_DMMA_PACK(LX));
   }
   log_message(neko_log_buf);
   log_end_section();
@@ -882,7 +879,7 @@ int tune_vector(void *au, void *av, void *aw, void *u, void *v, void *w,
             NEKO_EB_SEL(LX, c), time2[c] * 10.0);
     log_message(neko_log_buf);
   }
-  NEKO_TUNE_LOG_DMMA(time3);
+  NEKO_TUNE_LOG_DMMA(LX, time3);
 
   NEKO_TUNE_BEST(time2, best2, NEKO_EB_CANDIDATES);
   NEKO_TUNE_BEST(time3, best3, NEKO_DMMA_CANDIDATES);
@@ -903,8 +900,8 @@ int tune_vector(void *au, void *av, void *aw, void *u, void *v, void *w,
             NEKO_EB_SEL(LX, best2));
   } else {
     CASE_VECTOR_DMMA_SEL(LX, best3);
-    sprintf(neko_log_buf, "Chose        : 3 (DMMA, %d warps)",
-            NEKO_DMMA_NW(best3));
+    sprintf(neko_log_buf, "Chose        : 3 (DMMA, %d warps, %d elem/blk)",
+            NEKO_DMMA_NW(best3), NEKO_DMMA_PACK(LX));
   }
   log_message(neko_log_buf);
   log_end_section();
@@ -1016,7 +1013,7 @@ int tune_vector_padded(void *au, void *av, void *aw, void *u, void *v, void *w,
             NEKO_EB_SEL(LX, c), time2[c] * 10.0);
     log_message(neko_log_buf);
   }
-  NEKO_TUNE_LOG_DMMA(time3);
+  NEKO_TUNE_LOG_DMMA(LX, time3);
 
   NEKO_TUNE_BEST(time2, best2, NEKO_EB_CANDIDATES);
   NEKO_TUNE_BEST(time3, best3, NEKO_DMMA_CANDIDATES);
@@ -1035,8 +1032,8 @@ int tune_vector_padded(void *au, void *av, void *aw, void *u, void *v, void *w,
             NEKO_EB_SEL(LX, best2));
   } else {
     CASE_VECTOR_DMMA_SEL(LX, best3);
-    sprintf(neko_log_buf, "Chose        : 3 (DMMA, %d warps)",
-            NEKO_DMMA_NW(best3));
+    sprintf(neko_log_buf, "Chose        : 3 (DMMA, %d warps, %d elem/blk)",
+            NEKO_DMMA_NW(best3), NEKO_DMMA_PACK(LX));
   }
   log_message(neko_log_buf);
   log_end_section();
