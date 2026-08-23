@@ -1,21 +1,78 @@
 module test_bc
+  use pfunit
+  use num_types, only : rp
+  use slip, only : slip_t
+  implicit none
+
 contains
-! @test
-! subroutine test_bc_init
-!   use pfunit
-!   use dofmap
-!   use bc   
-!   implicit none
-!   type(bc_t) :: b
-!   type(dofmap_t) :: dof
 
-!   call b%init(dof)
+  @test
+  subroutine test_slip_projects_normal_velocity()
+    type(slip_t) :: boundary
+    integer, parameter :: n = 2
+    real(kind=rp) :: x(n), y(n), z(n)
+    real(kind=rp) :: inv_sqrt_two
+    real(kind=rp) :: normal_velocity
 
-!   @assertTrue(associated(b%dof))
-!   @assertTrue(associated(b%msh))
-!   @assertTrue(associated(b%Xh))
-! end subroutine test_bc_init
+    inv_sqrt_two = 1.0_rp / sqrt(2.0_rp)
+    allocate(boundary%unique_mask(0:1))
+    boundary%unique_mask = [1, 1]
+    call boundary%nx%init(1)
+    call boundary%ny%init(1)
+    call boundary%nz%init(1)
+    boundary%nx%x(1) = inv_sqrt_two
+    boundary%ny%x(1) = inv_sqrt_two
+    boundary%nz%x(1) = 0.0_rp
 
+    x = [2.0_rp, 4.0_rp]
+    y = [0.0_rp, 5.0_rp]
+    z = [3.0_rp, 6.0_rp]
+    call boundary%apply_vector(x, y, z, n, strong = .true.)
 
+    @assertEqual(1.0_rp, x(1), tolerance = 1.0e-12_rp)
+    @assertEqual(-1.0_rp, y(1), tolerance = 1.0e-12_rp)
+    @assertEqual(3.0_rp, z(1), tolerance = 1.0e-12_rp)
+    normal_velocity = x(1) * boundary%nx%x(1) + &
+         y(1) * boundary%ny%x(1) + z(1) * boundary%nz%x(1)
+    @assertEqual(0.0_rp, normal_velocity, tolerance = 1.0e-12_rp)
+    @assertEqual(4.0_rp, x(2), tolerance = 1.0e-12_rp)
+    @assertEqual(5.0_rp, y(2), tolerance = 1.0e-12_rp)
+    @assertEqual(6.0_rp, z(2), tolerance = 1.0e-12_rp)
+
+    call boundary%nx%free()
+    call boundary%ny%free()
+    call boundary%nz%free()
+    deallocate(boundary%unique_mask)
+  end subroutine test_slip_projects_normal_velocity
+
+  @test
+  subroutine test_slip_weak_application_is_noop()
+    type(slip_t) :: boundary
+    integer, parameter :: n = 1
+    real(kind=rp) :: x(n), y(n), z(n)
+
+    allocate(boundary%unique_mask(0:1))
+    boundary%unique_mask = [1, 1]
+    call boundary%nx%init(1)
+    call boundary%ny%init(1)
+    call boundary%nz%init(1)
+    boundary%nx%x(1) = 1.0_rp
+    boundary%ny%x(1) = 0.0_rp
+    boundary%nz%x(1) = 0.0_rp
+
+    x = 2.0_rp
+    y = 3.0_rp
+    z = 4.0_rp
+    call boundary%apply_vector(x, y, z, n, strong = .false.)
+
+    @assertEqual(2.0_rp, x(1), tolerance = 1.0e-12_rp)
+    @assertEqual(3.0_rp, y(1), tolerance = 1.0e-12_rp)
+    @assertEqual(4.0_rp, z(1), tolerance = 1.0e-12_rp)
+
+    call boundary%nx%free()
+    call boundary%ny%free()
+    call boundary%nz%free()
+    deallocate(boundary%unique_mask)
+  end subroutine test_slip_weak_application_is_noop
 
 end module test_bc

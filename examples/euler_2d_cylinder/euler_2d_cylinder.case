@@ -44,7 +44,7 @@
                     "value": 1.0
                 },
                 {
-                    "type": "no_slip",
+                    "type": "slip",
                     "zone_indices": [ 7 ]
                 },
                 {

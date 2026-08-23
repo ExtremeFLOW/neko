@@ -68,7 +68,7 @@ module euler_idp_cpu
      logical :: periodic_graph = .false.
      logical :: low_order_only = .false.
      logical :: relax_density_bounds = .false.
-     real(kind=rp) :: correction_tolerance = 1.0e-12_rp
+     real(kind=rp) :: correction_tolerance = 1.0e-10_rp
      type(euler_gll_graph_t) :: graph
      type(field_t) :: local_residual(EULER_IDP_NCOMP)
      type(field_t) :: candidate(EULER_IDP_NCOMP)
@@ -221,7 +221,7 @@ contains
     if (.not. this%initialized) then
        call neko_error('Euler IDP CPU object is not initialised')
     end if
-    this%correction_tolerance = 1.0e-12_rp
+    this%correction_tolerance = 1.0e-10_rp
     this%relax_density_bounds = .false.
     this%low_order_only = .false.
     if (present(relax_density_bounds)) then
@@ -370,7 +370,7 @@ contains
     this%periodic_graph = .false.
     this%low_order_only = .false.
     this%relax_density_bounds = .false.
-    this%correction_tolerance = 1.0e-12_rp
+    this%correction_tolerance = 1.0e-10_rp
     this%max_graph_rate = 0.0_rp
     this%domain_volume = 0.0_rp
     this%density_relaxation_mass = 0.0_rp

@@ -36,15 +36,17 @@ submodule(fluid_scheme_compressible_ns) compressible_ns_bc_fctry
   use inflow, only : inflow_t
   use zero_dirichlet, only : zero_dirichlet_t
   use symmetry, only : symmetry_t
+  use slip, only : slip_t
   use json_utils, only : json_get_or_lookup
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: COMPRESSIBLE_KNOWN_BCS(7) = [character(len=25) :: &
+  character(len=25) :: COMPRESSIBLE_KNOWN_BCS(8) = [character(len=25) :: &
        "velocity_value", &
        "density_value", &
        "pressure_value", &
        "no_slip", &
+       "slip", &
        "symmetry", &
        "outflow", &
        "normal_outflow"]
@@ -175,6 +177,8 @@ contains
     call json_get(json, "type", type)
 
     select case (trim(type))
+    case ("slip")
+       allocate(slip_t::object)
     case ("symmetry")
        allocate(symmetry_t::object)
     case ("no_slip")
