@@ -1240,10 +1240,19 @@ contains
     call copy(this%rst, this%rst_local, 3*n_points)
     call copy(this%xyz, this%xyz_local, 3*n_points)
     this%pe_owner = this%pe_rank
+    ! Unmap before the assignment and map
+    ! the resulting array, whatever its size ends up being.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (allocated(this%el_owner0)) then
+          call device_unmap(this%el_owner0, this%el_owner0_d)
+       end if
+    end if
     this%el_owner0 = this%el_owner0_local
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%el_owner0, this%el_owner0_d, &
+            size(this%el_owner0))
        call device_memcpy(this%el_owner0, this%el_owner0_d, &
-            this%n_points, HOST_TO_DEVICE, sync = .true.)
+            size(this%el_owner0), HOST_TO_DEVICE, sync = .true.)
     end if
     this%all_points_local = .true.
 
