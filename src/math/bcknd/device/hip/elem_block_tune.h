@@ -52,15 +52,19 @@
 #include <stdlib.h>
 
 /* Sweep the elements per block candidates?
-   Measured a LOSS on MI250X and MI300A
-   (the blocked variants spill), hence off by default here; the CUDA copy
-   defaults on, where it measures a 1.6x win
+   On by default, as on CUDA. It was off here because the blocked variants
+   measured a loss on MI250X and MI300A, where they spill -- but baking that
+   in also stopped the tuner from ever re-testing it, and the kstep family has
+   since measured badly enough on gfx90a (788 us/call at lx = 8 against 268
+   for the 1d variant) that its geometry is worth measuring per case rather
+   than assuming. Where the blocked variants still spill the tuner simply
+   rejects them; the cost is tuning time, not run time.
 
    Note NEKO_TUNE_ROUNDS and NEKO_TUNE_ITERS below are not specific to
    this sweep: they control the sampling of every candidate the tuner
    times, chunk sizes included. */
 #ifndef NEKO_EB_SWEEP_DEFAULT
-#define NEKO_EB_SWEEP_DEFAULT 0
+#define NEKO_EB_SWEEP_DEFAULT 1
 #endif
 
 #define NEKO_TUNE_INIT 1.0e30f

@@ -121,6 +121,39 @@ The two formulations are:
   element and marches it in the third direction, holding the column in
   registers.
 
+On CUDA the Helmholtz operator `Ax` ships a third:
+
+- the **dmma** variant, which stages a whole element in shared memory
+  padded to `8^3` and hands each of the six tensor contractions to the
+  fp64 tensor cores as an `8 x 64 x 8` GEMM built from `8 x 8 x 4` WMMA
+  tiles. Its geometry parameter is the number of *warps per block* (2, 4
+  or 8), which stripe the eight tiles of a contraction among themselves.
+
+@note The dmma variant only exists where the fp64 tensor cores do: a
+double precision build, `4 <= lx <= 8`, and an sm_80 (A100) or sm_90
+(H100 / GH200) device that the binary was actually compiled for.
+Anywhere else it is not instantiated and the tuner never offers it. It is
+also not a free win to expect: `Ax` is strongly bandwidth bound, roughly
+1.6 flop/byte at `lx = 8` against a ridge point near 9 on GH200, so the
+tensor cores can only pay by relieving shared memory and issue pressure
+rather than by adding flops. Whether they do on a given part is exactly
+what the tuner measures.
+
+The vector (three component) Helmholtz operator runs its own two-way
+search, reported as a separate `Autotune Ax vector` section: the elements
+per block of its kstep variant against, on CUDA, the warp counts of a
+vector dmma variant. It has no 1d formulation, so `NEKO_AUTOTUNE=1D`
+selects kstep there. Blocking is not expected to pay much for the vector
+kernels --- they sit at 254-255 registers, where a wider block changes
+threads per block but not registers per thread, so it only saves the
+derivative matrix loads --- but it is swept rather than assumed. Because the three components share
+one set of geometric factors, the dmma variant reads them once into
+registers and runs the components through the same staged cubes rather
+than staging twelve of them. On GH200 at `lx = 8` that loses narrowly to
+kstep --- holding the factors costs occupancy --- so it is there for the
+low order end, where the register cost falls away and the shared memory
+footprint does not.
+
 Within each formulation the tuner also sweeps a geometry parameter. For
 the kstep kernels this is the number of *elements per thread block*: a
 single element is only half a warp at `lx = 4` and two warps at `lx = 8`,
@@ -150,7 +183,12 @@ visible rather than implied:
 
 The chosen line reports only the geometry that applies to the winning
 formulation: an elements-per-block count when kstep wins, a chunk size
-when the 1d variant does.
+when the 1d variant does, and a warp count when dmma does, which for
+`Ax` on a part with fp64 tensor cores adds lines of the form
+
+```
+  DMMA  nw=2   :     10.94 us/call
+```
 
 @note The chunk sweep measures all four sizes rather than predicting a
 best one. Thread utilisation alone suggests the smallest valid block,
@@ -167,20 +205,22 @@ order --- on a machine whose clocks move during the sweep, a fixed order
 biases the comparison by candidate position, which no amount of extra
 iterations removes.
 
-@note The measured ranking differs sharply between vendors. On an
-NVIDIA GH200 the kstep variant wins and benefits from element blocking,
-whereas on AMD MI250X and MI300A the blocked kernels overrun the
-register budget and spill to scratch, so the elements per block sweep is
-**disabled by default on HIP** and enabled on CUDA. The defaults reflect
-measurements on those parts; on a machine that behaves differently,
-`NEKO_EB_TUNE` overrides the choice either way.
+@note The measured ranking differs sharply between vendors, and by more
+than the formulations alone. On an NVIDIA GH200 the kstep variant wins
+and benefits from element blocking; on AMD gfx90a the same family
+measures far worse than the 1d variant at `lx = 8`, and the blocked
+kernels can overrun the register budget and spill to scratch. The
+elements per block sweep is nevertheless enabled on both backends: a
+verdict fixed at build time is one the tuner can never revisit, and
+where the blocked variants do spill it simply rejects them. `NEKO_EB_TUNE`
+turns the sweep off if the extra tuning time is not wanted.
 
 The tuning behaviour is controlled by the environment variables
 described in the @ref appendices_env-var reference: `NEKO_AUTOTUNE`
 pins a formulation and skips the search entirely, `NEKO_EB_TUNE`
-enables or disables the elements per block sweep, `NEKO_EB` and
-`NEKO_CHUNKS` force a particular geometry when a formulation is
-pinned, and
+enables or disables the elements per block sweep, `NEKO_EB`,
+`NEKO_CHUNKS` and `NEKO_DMMA_NW` force a particular geometry when a
+formulation is pinned, and
 `NEKO_TUNE_ROUNDS` / `NEKO_TUNE_ITERS` control the sampling of both
 sweeps. All
 of them are useful mainly for A/B testing; the defaults are intended to

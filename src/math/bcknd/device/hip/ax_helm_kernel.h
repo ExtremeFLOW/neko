@@ -36,6 +36,7 @@
 */
 
 #include "elem_block.h"
+#include "mfma_kernel.h"
 
 /**
  * Device kernels for Ax helm
@@ -400,6 +401,200 @@ ax_helm_kernel_kstep_padded(T * __restrict__ w,
       w[ij + k*LX*LX + ele] = rw[k];
     }
   }
+}
+
+
+/**
+ * Matrix-core (MFMA) device kernel for axhelm.
+ *
+ * Additional autotuner strategy that maps the six spectral-element tensor
+ * contractions (3 gradient + 3 divergence) onto the AMD matrix cores via the
+ * precision-dispatched mfma_contract_sel primitive -- double precision uses the
+ * batched 4x4x4 matrix core (full M-utilisation), single precision the 16x16x4
+ * tile (see mfma_kernel.h for the precision traits, lane layout and supported
+ * (precision, LX) set).  AX_HELM_MFMA_NWF cooperating wavefronts process one
+ * element, sharing the LX^3 field staged in LDS; decoupling the block shape
+ * from LX lets one implementation cover 4 <= LX <= 12 rather than only LX = 8.
+ * Unsupported (T, LX) instantiate to a no-op; the autotuner only launches this
+ * kernel for the supported set (see mfma_lx_supported() and hip_have_mfma() in
+ * mfma_kernel.h), so the no-op is never reached at runtime.
+ */
+#if defined(__gfx90a__) || defined(__gfx942__)
+
+/* Matrix-core axhelm for one element of order LX-1 (T = float or double).
+ *
+ * NWF cooperating wavefronts (blockDim = (64, NWF, 1)) process one element,
+ * sharing a single staged cube in LDS.  The matrix-core column tiles are
+ * striped across the wavefronts (wf = threadIdx.y) via mfma_contract_sel, while
+ * the staging, geometry and write-back passes parallelise over all NWF*64
+ * threads (tid).  The three accumulating divergence contractions stay separated
+ * by __syncthreads and each wavefront owns disjoint output columns, so the
+ * accumulation is race-free.  NWF = 1 reproduces the single-wavefront kernel.
+ *
+ * mfma_contract_sel routes double precision through the batched 4x4x4 matrix
+ * core (full M-utilisation) and single precision through the 16x16x4 tile. */
+template< typename T, const int LX, const int NWF >
+__device__ void ax_helm_mfma_elem(T * __restrict__ w,
+                                  const T * __restrict__ u,
+                                  const T * __restrict__ dx,
+                                  const T * __restrict__ dy,
+                                  const T * __restrict__ dz,
+                                  const T * __restrict__ h1,
+                                  const T * __restrict__ g11,
+                                  const T * __restrict__ g22,
+                                  const T * __restrict__ g33,
+                                  const T * __restrict__ g12,
+                                  const T * __restrict__ g13,
+                                  const T * __restrict__ g23) {
+  const int LX2 = LX * LX;
+  const int LX3 = LX * LX * LX;
+
+  __shared__ T shdx[LX * LX];
+  __shared__ T shdy[LX * LX];
+  __shared__ T shdz[LX * LX];
+  __shared__ T shu[LX * LX * LX];   // input u, later reused as output w
+  __shared__ T shr[LX * LX * LX];   // d/dr -> Sr
+  __shared__ T shs[LX * LX * LX];   // d/ds -> Ss
+  __shared__ T sht[LX * LX * LX];   // d/dt -> St
+
+  static_assert(sizeof(shdx) + sizeof(shdy) + sizeof(shdz) +
+                sizeof(shu) + sizeof(shr) + sizeof(shs) + sizeof(sht)
+                <= NEKO_EB_MAX_LDS,
+                "mfma block exceeds the shared memory budget");
+
+  const int lane = threadIdx.x;          // 0..63 : lane within a wavefront
+  const int wf   = threadIdx.y;          // 0..NWF-1 : which wavefront
+  const int tid  = wf * 64 + lane;       // 0..NWF*64-1 : block-wide thread id
+  const int nthr = NWF * 64;
+  const int ele  = blockIdx.x * LX3;
+
+  /* Reference derivative matrices (identical for every element). */
+  for (int p = tid; p < LX2; p += nthr) {
+    shdx[p] = dx[p];
+    shdy[p] = dy[p];
+    shdz[p] = dz[p];
+  }
+  /* Element-local field. */
+  for (int p = tid; p < LX3; p += nthr)
+    shu[p] = u[p + ele];
+
+  __syncthreads();
+
+  /* Gradient: ur, us, ut in canonical i + LX*j + LX*LX*k layout. */
+  mfma_contract_sel<T, LX, 0, false, false, NWF>::run(shr, shdx, shu, lane, wf);
+  mfma_contract_sel<T, LX, 1, false, false, NWF>::run(shs, shdy, shu, lane, wf);
+  mfma_contract_sel<T, LX, 2, false, false, NWF>::run(sht, shdz, shu, lane, wf);
+
+  __syncthreads();
+
+  /* Geometry (pointwise): (ur,us,ut) -> (Sr,Ss,St), reusing shr/shs/sht. */
+  for (int p = tid; p < LX3; p += nthr) {
+    const int gp = p + ele;
+    const T G00 = g11[gp], G11 = g22[gp], G22 = g33[gp];
+    const T G01 = g12[gp], G02 = g13[gp], G12 = g23[gp];
+    const T H1  = h1[gp];
+    const T rr = shr[p], ss = shs[p], tt = sht[p];
+    shr[p] = H1 * (G00 * rr + G01 * ss + G02 * tt);
+    shs[p] = H1 * (G01 * rr + G11 * ss + G12 * tt);
+    sht[p] = H1 * (G02 * rr + G12 * ss + G22 * tt);
+  }
+
+  __syncthreads();
+
+  /* Divergence: w = Dr^T Sr + Ds^T Ss + Dt^T St, accumulated in shu (= w). */
+  for (int p = tid; p < LX3; p += nthr)
+    shu[p] = 0.0;
+  __syncthreads();
+
+  mfma_contract_sel<T, LX, 0, true, true, NWF>::run(shu, shdx, shr, lane, wf);
+  __syncthreads();
+  mfma_contract_sel<T, LX, 1, true, true, NWF>::run(shu, shdy, shs, lane, wf);
+  __syncthreads();
+  mfma_contract_sel<T, LX, 2, true, true, NWF>::run(shu, shdz, sht, lane, wf);
+  __syncthreads();
+
+  for (int p = tid; p < LX3; p += nthr)
+    w[p + ele] = shu[p];
+}
+#endif // __gfx90a__ || __gfx942__
+
+/*
+ * Compile-time dispatch onto the MFMA element kernel. The launch macros in
+ * ax_helm.hip are written for every LX the operator dispatches and for
+ * whatever `real` is, so every combination has to compile; the ones the
+ * strategy does not cover -- LX outside the supported range, a build without
+ * a matrix-core arch -- resolve to this no-op. The autotuner never selects
+ * the strategy for them, so the no-op is unreachable at runtime, see
+ * mfma_lx_supported() and hip_have_mfma() in mfma_kernel.h.
+ */
+template< typename T, const int LX, const int NWF >
+struct ax_helm_mfma_dispatch {
+  __device__ static void run(T *, const T *, const T *, const T *, const T *,
+                             const T *, const T *, const T *, const T *,
+                             const T *, const T *, const T *) {}
+};
+
+#if defined(__gfx90a__) || defined(__gfx942__)
+
+/* Keep in sync with mfma_lx_supported() in mfma_kernel.h */
+#define NEKO_AX_HELM_MFMA_DISPATCH(TYPE, LXV)                                  \
+  template< const int NWF >                                                    \
+  struct ax_helm_mfma_dispatch< TYPE, LXV, NWF > {                             \
+    __device__ static void run(TYPE *w, const TYPE *u,                         \
+                               const TYPE *dx, const TYPE *dy,                 \
+                               const TYPE *dz, const TYPE *h1,                 \
+                               const TYPE *g11, const TYPE *g22,               \
+                               const TYPE *g33, const TYPE *g12,               \
+                               const TYPE *g13, const TYPE *g23) {             \
+      ax_helm_mfma_elem< TYPE, LXV, NWF >(w, u, dx, dy, dz, h1,                \
+                                          g11, g22, g33, g12, g13, g23);       \
+    }                                                                          \
+  }
+
+NEKO_AX_HELM_MFMA_DISPATCH(double, 4);
+NEKO_AX_HELM_MFMA_DISPATCH(double, 5);
+NEKO_AX_HELM_MFMA_DISPATCH(double, 6);
+NEKO_AX_HELM_MFMA_DISPATCH(double, 7);
+NEKO_AX_HELM_MFMA_DISPATCH(double, 8);
+NEKO_AX_HELM_MFMA_DISPATCH(double, 9);
+NEKO_AX_HELM_MFMA_DISPATCH(double, 10);
+NEKO_AX_HELM_MFMA_DISPATCH(double, 11);
+NEKO_AX_HELM_MFMA_DISPATCH(double, 12);
+NEKO_AX_HELM_MFMA_DISPATCH(float, 4);
+NEKO_AX_HELM_MFMA_DISPATCH(float, 5);
+NEKO_AX_HELM_MFMA_DISPATCH(float, 6);
+NEKO_AX_HELM_MFMA_DISPATCH(float, 7);
+NEKO_AX_HELM_MFMA_DISPATCH(float, 8);
+NEKO_AX_HELM_MFMA_DISPATCH(float, 9);
+NEKO_AX_HELM_MFMA_DISPATCH(float, 10);
+NEKO_AX_HELM_MFMA_DISPATCH(float, 11);
+NEKO_AX_HELM_MFMA_DISPATCH(float, 12);
+
+#endif // __gfx90a__ || __gfx942__
+
+/*
+ * Note the bare __launch_bounds__ rather than NEKO_EB_BOUNDS: the kstep
+ * kernels ask for three waves per SIMD, and this kernel was validated on
+ * gfx90a/gfx942 without that constraint. Keep it byte-identical to the
+ * configuration that was confirmed on hardware.
+ */
+template< typename T, const int LX, const int NWF >
+__global__ void __launch_bounds__(64 * NWF)
+ax_helm_kernel_mfma(T * __restrict__ w,
+                    const T * __restrict__ u,
+                    const T * __restrict__ dx,
+                    const T * __restrict__ dy,
+                    const T * __restrict__ dz,
+                    const T * __restrict__ h1,
+                    const T * __restrict__ g11,
+                    const T * __restrict__ g22,
+                    const T * __restrict__ g33,
+                    const T * __restrict__ g12,
+                    const T * __restrict__ g13,
+                    const T * __restrict__ g23) {
+
+  ax_helm_mfma_dispatch< T, LX, NWF >::run(w, u, dx, dy, dz, h1,
+                                           g11, g22, g33, g12, g13, g23);
 }
 
 /*
