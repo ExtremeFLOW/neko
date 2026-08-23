@@ -333,6 +333,30 @@ Optional arguments:
 It is also possible to set a `start_time` before which the probes will not be
 executed (same behavior as the statistics).
 
+- On moving (ALE) meshes, add the `moving_mesh` sub-dictionary to keep the
+  probes sampling at the right locations. Two modes: `fixed` keeps the points
+  at their lab-frame positions while the mesh moves underneath them;
+  `body_attached` moves the points rigidly with an ALE body, identified by one
+  of the body's boundary `zone_id`s.
+  ~~~~~~~~~~~~~~~{.json}
+  "moving_mesh": {
+    "mode": "body_attached",
+    "zone_id": 3,
+    "check_tolerance": 1e-8
+  }
+  ~~~~~~~~~~~~~~~
+  `check_tolerance` (optional) is the maximum accepted distance, in mesh
+  length units, between where a probe is sampled and where it should be; the
+  points are automatically searched for again when it is exceeded. Points
+  that temporarily cannot be found (e.g. covered by the moving body) record
+  zeros until recovered. On a static mesh the sub-dictionary is ignored for
+  `fixed` mode.
+
+  For `body_attached` probes the current coordinates are written with the
+  data: CSV sample rows become `t, x, y, z, field values`, and HDF5 output
+  gains the datasets `coords_x`, `coords_y`, `coords_z` next to the fields
+  (the `coordinates` dataset keeps the initial positions).
+
 #### Supported types
 
 - `file`: Reads a list of points from a CSV file. The name of the file is

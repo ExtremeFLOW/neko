@@ -50,6 +50,7 @@ module probes
        json_get_or_lookup, json_get_or_lookup_or_default, &
        json_get_subdict_or_empty
   use global_interpolation, only : global_interpolation_t
+  use probes_moving_mesh, only : probes_moving_mesh_t
   use tensor, only : trsp
   use point_zone, only : point_zone_t
   use point_zone_registry, only : neko_point_zone_registry
@@ -74,6 +75,8 @@ module probes
      !> Number of output fields
      integer :: n_fields = 0
      type(global_interpolation_t) :: global_interp
+     !> Moving-mesh (ALE) handling of the probe points.
+     type(probes_moving_mesh_t) :: moving_mesh
      !> Global number of probes (needed for i/o)
      integer :: n_global_probes
      !> global offset for writing
@@ -95,6 +98,8 @@ module probes
      !>  For output on rank 0
      logical :: seq_io
      real(kind=rp), allocatable :: global_output_values(:,:)
+     !> Gathered probe coordinates on rank 0 (CSV moving-mesh output)
+     real(kind=rp), allocatable :: global_out_coords(:,:)
      !> Output variables
      type(file_t) :: fout
      type(matrix_t) :: mat_out
@@ -114,6 +119,9 @@ module probes
      procedure, pass(this) :: setup_offset => probes_setup_offset
      !> Interpolate each probe from its `r,s,t` coordinates.
      procedure, pass(this) :: compute_ => probes_evaluate_and_write
+     !> Write the current probe coordinates to an HDF5 file.
+     procedure, private, pass(this) :: write_coords_hdf5 => &
+          probes_write_coords_hdf5
 
      ! ----------------------------------------------------------------------- !
      ! Private methods
@@ -229,6 +237,16 @@ contains
 
     call probes_show(this)
 
+    ! Parse the moving-mesh configuration first; init_common needs to
+    ! know whether coordinates are written.
+    if (json%valid_path('moving_mesh')) then
+       block
+         type(json_file) :: mm_subdict
+         call json_get_subdict_or_empty(json, 'moving_mesh', mm_subdict)
+         call this%moving_mesh%init(mm_subdict)
+       end block
+    end if
+
     ! Get interpolation parameters from json
     block
       type(json_file) :: interp_subdict
@@ -239,6 +257,9 @@ contains
       call this%init_common(case%fluid%dm_Xh, output_file, name)
 
     end block
+
+    call this%moving_mesh%set_points(this%global_interp, this%xyz, &
+         this%n_local_probes)
 
   end subroutine probes_init_from_json
 
@@ -522,7 +543,7 @@ contains
 
     character(len=1024) :: header_line
     real(kind=rp), allocatable :: global_output_coords(:,:)
-    integer :: i, ierr, out_int
+    integer :: i, ierr, out_int, n_cols_out
     type(matrix_t) :: mat_coords
     logical :: attr_exist = .false.
 
@@ -553,9 +574,16 @@ contains
 
        this%seq_io = .true.
 
-       ! Build the header
+       ! Build the header. With moving-mesh coordinates, each sample
+       ! row is: t, x, y, z, field values.
+       n_cols_out = this%n_fields
+       if (this%moving_mesh%output_coords) n_cols_out = n_cols_out + 3
        write(header_line, '(I0, A, I0)') this%n_global_probes, achar(44), &
-            this%n_fields
+            n_cols_out
+       if (this%moving_mesh%output_coords) then
+          header_line = trim(header_line) // achar(44) // 'x' // &
+               achar(44) // 'y' // achar(44) // 'z'
+       end if
        do i = 1, this%n_fields
           header_line = trim(header_line) // achar(44) // &
                trim(this%which_fields(i))
@@ -570,9 +598,12 @@ contains
        call this%setup_offset()
        if (pe_rank .eq. 0) then
           allocate(global_output_coords(3, this%n_global_probes))
-          call this%mat_out%init(this%n_global_probes, this%n_fields)
+          call this%mat_out%init(this%n_global_probes, n_cols_out)
           allocate(this%global_output_values(this%n_fields, &
                this%n_global_probes))
+          if (this%moving_mesh%output_coords) then
+             allocate(this%global_out_coords(3, this%n_global_probes))
+          end if
           call mat_coords%init(this%n_global_probes,3)
        end if
        call MPI_Gatherv(this%xyz, 3*this%n_local_probes, &
@@ -588,6 +619,19 @@ contains
           call mat_coords%free()
        end if
     class is (hdf5_file_t)
+
+       ! Add coordinates.
+       if (this%moving_mesh%output_coords) then
+          do i = 1, this%n_fields
+             if (trim(this%which_fields(i)) .eq. 'coords_x' .or. &
+                  trim(this%which_fields(i)) .eq. 'coords_y' .or. &
+                  trim(this%which_fields(i)) .eq. 'coords_z') then
+                call neko_error("probes: field name '" // &
+                     trim(this%which_fields(i)) // "' clashes with the " // &
+                     "coordinate datasets written for moving-mesh probes.")
+             end if
+          end do
+       end if
 
        !> This is always on cpus.
        if (this%append_out) then
@@ -656,6 +700,10 @@ contains
        deallocate(this%global_output_values)
     end if
 
+    if (allocated(this%global_out_coords)) then
+       deallocate(this%global_out_coords)
+    end if
+
     if (allocated(this%which_fields)) then
        deallocate(this%which_fields)
     end if
@@ -670,6 +718,7 @@ contains
        deallocate(this%out_values)
     end if
 
+    call this%moving_mesh%free()
     call this%global_interp%free()
     call this%mat_out%free()
     call this%vec_out%free()
@@ -751,7 +800,7 @@ contains
   subroutine probes_evaluate_and_write(this, time)
     class(probes_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    integer :: i, ierr
+    integer :: i, j, ierr
     logical :: do_interp_on_host = .false.
     character(len=1000) :: group_name
     real(kind=rp) :: time_
@@ -760,6 +809,10 @@ contains
 
     !> Do not execute if we are below the start_time
     if (time%t .lt. this%start_time) return
+
+    !> Keep the interpolation mapping valid on a moving (ALE) mesh
+    call this%moving_mesh%update(this%global_interp, &
+         this%case%fluid%dm_Xh, this%xyz, this%n_local_probes, time)
 
     !> Check controller to determine if we must write
     do i = 1, this%n_fields
@@ -789,9 +842,27 @@ contains
                   this%n_fields*this%n_local_probes_tot, &
                   this%n_fields*this%n_local_probes_tot_offset, &
                   MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
+             if (this%moving_mesh%output_coords) then
+                call MPI_Gatherv(this%xyz, 3*this%n_local_probes, &
+                     MPI_REAL_PRECISION, this%global_out_coords, &
+                     3*this%n_local_probes_tot, &
+                     3*this%n_local_probes_tot_offset, &
+                     MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
+             end if
              if (pe_rank .eq. 0) then
-                call trsp(this%mat_out%x, this%n_global_probes, &
-                     this%global_output_values, this%n_fields)
+                if (this%moving_mesh%output_coords) then
+                   ! Row layout: x, y, z, field values
+                   do i = 1, this%n_global_probes
+                      this%mat_out%x(i, 1:3) = this%global_out_coords(:, i)
+                      do j = 1, this%n_fields
+                         this%mat_out%x(i, 3 + j) = &
+                              this%global_output_values(j, i)
+                      end do
+                   end do
+                else
+                   call trsp(this%mat_out%x, this%n_global_probes, &
+                        this%global_output_values, this%n_fields)
+                end if
                 call this%fout%write(this%mat_out, time%t)
              end if
           else
@@ -820,6 +891,10 @@ contains
                    this%vec_out%name = trim(this%which_fields(i))
                    call ft%write_dataset(this%vec_out)
                 end do
+
+                if (this%moving_mesh%output_coords) then
+                   call this%write_coords_hdf5(ft)
+                end if
 
                 ! Write the time by hacking the vector write
                 if (pe_rank .eq. 0) then
@@ -850,6 +925,9 @@ contains
                    this%vec_out%name = trim(this%which_fields(i))
                    call ft%write_dataset(this%vec_out)
                 end do
+                if (this%moving_mesh%output_coords) then
+                   call this%write_coords_hdf5(ft)
+                end if
                 ! Write the time as an attribute
                 time_ = time%t
                 call ft%write_attribute("time", time_)
@@ -866,6 +944,27 @@ contains
     end if
 
   end subroutine probes_evaluate_and_write
+
+  !> Write the current probe coordinates as the datasets `coords_x`,
+  !! `coords_y` and `coords_z` into the active group of an HDF5 file.
+  !! In append mode they grow per step like the field datasets.
+  !! @param ft The HDF5 file, opened with the active group set.
+  subroutine probes_write_coords_hdf5(this, ft)
+    class(probes_t), intent(inout) :: this
+    type(hdf5_file_t), intent(inout) :: ft
+    character(len=8), parameter :: coord_names(3) = &
+         ['coords_x', 'coords_y', 'coords_z']
+    integer :: i, j
+
+    do j = 1, 3
+       do i = 1, this%n_local_probes
+          this%vec_out%x(i) = this%xyz(j, i)
+       end do
+       this%vec_out%name = coord_names(j)
+       call ft%write_dataset(this%vec_out)
+    end do
+
+  end subroutine probes_write_coords_hdf5
 
   !> Initialize the physical coordinates from a `csv` input file
   !! @param points_file A csv file containing probes.

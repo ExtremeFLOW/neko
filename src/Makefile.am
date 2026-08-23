@@ -256,6 +256,7 @@ neko_fortran_SOURCES = \
 	common/statistics.f90\
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
+	simulation_components/probes_moving_mesh.f90\
 	simulation_components/probes.F90\
 	simulation_components/boundary_operation.f90\
 	simulation_components/boundary_flux.f90\
