@@ -333,12 +333,16 @@ contains
 
     call interp%init(dof, tol = this%tolerance, pad = this%padding)
 
-    ! No redistribution.
+    ! Only find points, no redistribution.
     call interp%find_points(this%xyz_target, this%n_points)
 
     this%n_lost = 0
+    ! A point is lost if no rank finds a containing element.
     do i = 1, this%n_points
-       if (interp%pe_owner(i) .eq. -1) this%n_lost = this%n_lost + 1
+       if ( (interp%pe_owner(i) .eq. -1) .or. &
+            (interp%el_owner0(i) .eq. -1) ) then
+         this%n_lost = this%n_lost + 1
+       end if
     end do
     call MPI_Allreduce(MPI_IN_PLACE, this%n_lost, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
@@ -384,10 +388,12 @@ contains
 
     err = 0.0_rp
     do i = 1, this%n_points
-       if (interp%pe_owner(i) .eq. -1) cycle
-       err = max(err, norm2([this%chk_x%x(i) - this%xyz_target(1, i), &
-            this%chk_y%x(i) - this%xyz_target(2, i), &
-            this%chk_z%x(i) - this%xyz_target(3, i)]))
+       if ( (interp%pe_owner(i) .eq. -1) .or. &
+            (interp%el_owner0(i) .eq. -1) ) then
+          err = max(err, norm2([this%chk_x%x(i) - this%xyz_target(1, i), &
+               this%chk_y%x(i) - this%xyz_target(2, i), &
+               this%chk_z%x(i) - this%xyz_target(3, i)]))
+       end if
     end do
 
     call MPI_Allreduce(MPI_IN_PLACE, err, 1, MPI_REAL_PRECISION, &
