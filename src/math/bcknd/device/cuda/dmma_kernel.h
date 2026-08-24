@@ -272,6 +272,91 @@ static inline bool dmma_lx_supported()
 #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && (__CUDA_ARCH__ < 1000)
 
 /*
+ * Index map from the flat staging loop counter p to the padded cube offset and
+ * the global element offset, specialised on whether the cube holds more than
+ * one element.
+ *
+ * The two cases have to *generate* different code, not merely fold to it. With
+ * PACK > 1 the grid is ceil(nelv/PACK) blocks, so the last block can own slots
+ * past nelv: those are clamped on the way in -- the cube has to be finite, see
+ * the note above -- and dropped on the way out. With PACK == 1 the grid is
+ * exactly nelv blocks and neither is needed, but leaving that to the optimiser
+ * does NOT work: nvcc cannot prove blockIdx.x < nelv, so the select survives on
+ * every staging and metric load where the unpacked kernel had a single hoisted
+ * blockIdx.x * LX3, and the guarded store keeps its branch. Hence the explicit
+ * PPA == 1 specialisation below, which restores that addressing verbatim and
+ * makes `live` a compile time true.
+ */
+struct dmma_idx {
+  int c;                     /* offset into the padded cube */
+  int g;                     /* offset into the global element arrays */
+  bool live;                 /* false only for a padded tail slot, PACK > 1 */
+};
+
+template< const int LX, const int PPA >
+struct dmma_pack {
+  enum { PACK = PPA * PPA * PPA,
+         LX3 = LX * LX * LX,
+         NP = PACK * LX3 };
+
+  /* Loop invariant part of the addressing, hoisted by the caller */
+  __device__ __forceinline__ static int ebase() {
+    return blockIdx.x * PACK;
+  }
+
+  __device__ __forceinline__ static dmma_idx map(const int p, const int ebase,
+                                                 const int nelv) {
+    const int q = p / LX3;
+    const int r = p - q * LX3;
+    const int i = r % LX;
+    const int jk = r / LX;
+    const int j = jk % LX;
+    const int k = jk / LX;
+    const int qa = q % PPA;
+    const int qb = (q / PPA) % PPA;
+    const int qc = q / (PPA * PPA);
+    const int eq = ebase + q;
+    dmma_idx x;
+
+    x.c = (qa * LX + i) + DMMA_SI * (qb * LX + j) + DMMA_SJ * (qc * LX + k);
+    x.g = r + (eq < nelv ? eq : nelv - 1) * LX3;
+    x.live = (eq < nelv);
+    return x;
+  }
+};
+
+/*
+ * One element per cube: the grid covers nelv exactly, so there is no tail to
+ * clamp, no store to predicate, and ebase() is the element's base offset
+ * outright rather than an element index. This is the addressing the kernel had
+ * before packing existed, and at LX == DMMA_P the cube offset reduces to p.
+ */
+template< const int LX >
+struct dmma_pack< LX, 1 > {
+  enum { PACK = 1,
+         LX3 = LX * LX * LX,
+         NP = LX3 };
+
+  __device__ __forceinline__ static int ebase() {
+    return blockIdx.x * LX3;
+  }
+
+  __device__ __forceinline__ static dmma_idx map(const int p, const int ebase,
+                                                 const int) {
+    const int i = p % LX;
+    const int jk = p / LX;
+    const int j = jk % LX;
+    const int k = jk / LX;
+    dmma_idx x;
+
+    x.c = i + DMMA_SI * j + DMMA_SJ * k;
+    x.g = ebase + p;
+    x.live = true;
+    return x;
+  }
+};
+
+/*
  * How the staged cube is read as an M x N matrix when contracting axis AXIS,
  * see the layout note above. COL_MAJOR is carried alongside the layout tag
  * because the pointer offset of a K step depends on it: the contraction index

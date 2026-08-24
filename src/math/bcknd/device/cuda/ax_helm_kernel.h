@@ -476,17 +476,20 @@ void ax_helm_dmma_elem(double * __restrict__ w,
                 "dmma block exceeds the shared memory budget");
 
   /* Elements per sub-cube axis, and per cube, see the note in dmma_kernel.h.
-     At LX == DMMA_P both are one and everything below constant folds back to
-     the single element kernel */
+     At PPA == 1 the addressing is not left to constant fold -- dmma_pack is
+     specialised so the tail clamp and the guarded store are never emitted at
+     all, see the note there */
   enum { PPA = (DMMA_P % LX == 0) ? (DMMA_P / LX) : 1,
          PACK = PPA * PPA * PPA,
          LX3 = LX * LX * LX,
          NP = PACK * LX3 };
 
+  typedef dmma_pack< LX, PPA > pack;
+
   const int nthrds = 32 * NW;
   const int tid = threadIdx.x;
   const int wf = tid >> 5;
-  const int ebase = blockIdx.x * PACK;
+  const int ebase = pack::ebase();
 
   /* The padding has to be finite, see the note above. At LX == DMMA_P with
      one element packed there is none and this is folded away */
@@ -520,19 +523,9 @@ void ax_helm_dmma_elem(double * __restrict__ w,
   }
 
   for (int p = tid; p < NP; p += nthrds) {
-    const int q = p / LX3;
-    const int r = p - q * LX3;
-    const int i = r % LX;
-    const int jk = r / LX;
-    const int j = jk % LX;
-    const int k = jk / LX;
-    const int qa = q % PPA;
-    const int qb = (q / PPA) % PPA;
-    const int qc = q / (PPA * PPA);
-    const int c = (qa * LX + i) + DMMA_SI * (qb * LX + j)
-                + DMMA_SJ * (qc * LX + k);
-    const int eq = ebase + q;
-    shu[c] = u[r + (eq < nelv ? eq : nelv - 1) * LX3];
+    const dmma_idx x = pack::map(p, ebase, nelv);
+
+    shu[x.c] = u[x.g];
   }
 
   __syncthreads();
@@ -544,19 +537,9 @@ void ax_helm_dmma_elem(double * __restrict__ w,
   __syncthreads();
 
   for (int p = tid; p < NP; p += nthrds) {
-    const int q = p / LX3;
-    const int r = p - q * LX3;
-    const int i = r % LX;
-    const int jk = r / LX;
-    const int j = jk % LX;
-    const int k = jk / LX;
-    const int qa = q % PPA;
-    const int qb = (q / PPA) % PPA;
-    const int qc = q / (PPA * PPA);
-    const int c = (qa * LX + i) + DMMA_SI * (qb * LX + j)
-                + DMMA_SJ * (qc * LX + k);
-    const int eq = ebase + q;
-    const int gp = r + (eq < nelv ? eq : nelv - 1) * LX3;
+    const dmma_idx x = pack::map(p, ebase, nelv);
+    const int c = x.c;
+    const int gp = x.g;
 
     const double G00 = g11[gp];
     const double G11 = g22[gp];
@@ -598,21 +581,10 @@ void ax_helm_dmma_elem(double * __restrict__ w,
   __syncthreads();
 
   for (int p = tid; p < NP; p += nthrds) {
-    const int q = p / LX3;
-    const int r = p - q * LX3;
-    const int eq = ebase + q;
+    const dmma_idx x = pack::map(p, ebase, nelv);
 
-    if (eq < nelv) {
-      const int i = r % LX;
-      const int jk = r / LX;
-      const int j = jk % LX;
-      const int k = jk / LX;
-      const int qa = q % PPA;
-      const int qb = (q / PPA) % PPA;
-      const int qc = q / (PPA * PPA);
-      const int c = (qa * LX + i) + DMMA_SI * (qb * LX + j)
-                  + DMMA_SJ * (qc * LX + k);
-      w[r + eq * LX3] = shu[c];
+    if (x.live) {
+      w[x.g] = shu[x.c];
     }
   }
 }
