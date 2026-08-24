@@ -228,6 +228,9 @@ contains
     integer :: i, m, k, facet, idx(4)
     real(kind=rp) :: normal_xyz(3)
 
+    ! Here and in apply_scalar(), which runs every step
+    call this%coef%require_facets('dong_outflow')
+
     if (present(only_facets)) then
        if (.not. only_facets) then
           call neko_error("For dong_outflow_t, only_facets has to be true.")

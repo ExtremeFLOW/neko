@@ -473,6 +473,8 @@ contains
     real(kind=rp) :: normal(3), area
     integer :: i
 
+    call coef%require_facets('drag_torque')
+
     do i = 1, n_pts
        fid = facets(i)
        if ( (fid .lt. 1) .or. (fid .gt. 6)) then
