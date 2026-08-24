@@ -343,10 +343,10 @@ of the body's boundary `zone_id`s.
 "moving_mesh": {
   "mode": "body_attached",
   "zone_id": 3,
-  "check_tolerance": 1e-8
+  "max_position_drift": 1e-8
 }
 ~~~~~~~~~~~~~~~
-`check_tolerance` (optional) is the maximum accepted distance, in mesh
+`max_position_drift` (optional) is the maximum accepted distance, in mesh
 length units, between where a probe is sampled and where it should be; the
 points are automatically searched for again when it is exceeded. Points
 that temporarily cannot be found (e.g. covered by the moving body) record

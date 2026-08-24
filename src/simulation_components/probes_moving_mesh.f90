@@ -90,7 +90,7 @@ module probes_moving_mesh
      integer :: max_iterations
      !> Max accepted distance between mapped and target position
      !! before a re-find is triggered.
-     real(kind=rp) :: check_tolerance = 1e-8_rp
+     real(kind=rp) :: max_position_drift = 1e-8_rp
      !> Global number of points currently not found in the mesh.
      integer :: n_lost = 0
    contains
@@ -130,10 +130,10 @@ contains
     call json_get(json, 'mode', mode)
 
     ! The default scales with the working precision.
-    call json_get_or_default(json, 'check_tolerance', &
-         this%check_tolerance, max(1e-8_rp, 100.0_rp * epsilon(1.0_rp)))
-    if (this%check_tolerance .le. 0.0_rp) then
-       call neko_error('probes moving_mesh: check_tolerance must be > 0.')
+    call json_get_or_default(json, 'max_position_drift', &
+         this%max_position_drift, max(1e-8_rp, 100.0_rp * epsilon(1.0_rp)))
+    if (this%max_position_drift .le. 0.0_rp) then
+       call neko_error('probes moving_mesh: max_position_drift must be > 0.')
     end if
 
     select case (trim(mode))
@@ -187,7 +187,7 @@ contains
     else
        call neko_log%message('Mode            : ' // PROBES_MM_FIXED)
     end if
-    write(log_buf, '(A,E15.7)') 'Check tolerance : ', this%check_tolerance
+    write(log_buf, '(A,E15.7)') 'Max position drift : ', this%max_position_drift
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
@@ -290,7 +290,7 @@ contains
 
     ! Re-find when the mapping no longer samples within tolerance of
     ! the targets, or while any point is lost.
-    if (err .gt. this%check_tolerance .or. this%n_lost .gt. 0) then
+    if (err .gt. this%max_position_drift .or. this%n_lost .gt. 0) then
        write(log_buf, '(A,I0,A,E15.7)') &
             'Probes moving mesh: re-finding points at step ', time%tstep, &
             ', mapping error: ', err
