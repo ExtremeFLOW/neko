@@ -389,11 +389,11 @@ contains
     err = 0.0_rp
     do i = 1, this%n_points
        if ( (interp%pe_owner(i) .eq. -1) .or. &
-            (interp%el_owner0(i) .eq. -1) ) then
-          err = max(err, norm2([this%chk_x%x(i) - this%xyz_target(1, i), &
-               this%chk_y%x(i) - this%xyz_target(2, i), &
-               this%chk_z%x(i) - this%xyz_target(3, i)]))
-       end if
+            (interp%el_owner0(i) .eq. -1) ) cycle
+
+       err = max(err, norm2([this%chk_x%x(i) - this%xyz_target(1, i), &
+            this%chk_y%x(i) - this%xyz_target(2, i), &
+            this%chk_z%x(i) - this%xyz_target(3, i)]))
     end do
 
     call MPI_Allreduce(MPI_IN_PLACE, err, 1, MPI_REAL_PRECISION, &
