@@ -123,6 +123,11 @@ module scalar_pnpn
      !> Lag arrays
      type(field_t) :: abx1, abx2
 
+     !> Fluid velocity histories used by OIFS scalar advection.
+     type(field_series_t), pointer :: ulag => null()
+     type(field_series_t), pointer :: vlag => null()
+     type(field_series_t), pointer :: wlag => null()
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => scalar_pnpn_init
@@ -256,6 +261,10 @@ contains
     ! the standard BDF history assembly.
     this%oifs = this%oifs .and. advection
 
+    this%ulag => ulag
+    this%vlag => vlag
+    this%wlag => wlag
+
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
          ulag, vlag, wlag, this%chkp%dtlag, &
          this%chkp%tlag, time_scheme, .not. advection, &
@@ -324,6 +333,10 @@ contains
        deallocate(this%adv)
     end if
 
+    nullify(this%ulag)
+    nullify(this%vlag)
+    nullify(this%wlag)
+
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
     end if
@@ -387,8 +400,11 @@ contains
       call this%source_term%compute(time)
 
       if (oifs) then
-         ! Add the advection operators to the right-hans-side.
-         call this%adv%compute_scalar(u, v, w, s, this%advs, &
+         ! The fluid step has already advanced u, v, and w to the new time.
+         ! Its first lag fields contain the velocity at tlag(1), which is the
+         ! latest time represented by the OIFS interpolation history.
+         call this%adv%compute_scalar(this%ulag%lf(1), this%vlag%lf(1), &
+              this%wlag%lf(1), s, this%advs, &
               Xh, this%c_Xh, dm_Xh%size())
       else
          ! Add the advection operators to the right-hans-side.
