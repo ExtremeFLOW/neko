@@ -87,6 +87,7 @@ module probes_moving_mesh
      !! interpolation with.
      real(kind=dp) :: tolerance
      real(kind=dp) :: padding
+     integer :: max_iterations
      !> Max accepted distance between mapped and target position
      !! before a re-find is triggered.
      real(kind=rp) :: check_tolerance = 1e-8_rp
@@ -208,6 +209,7 @@ contains
     ! remember the values the probes were set up with.
     this%tolerance = interp%tolerance
     this%padding = interp%padding
+    this%max_iterations = interp%max_iterations
 
     this%n_points = n_points
     allocate(this%xyz0(3, n_points))
@@ -331,7 +333,8 @@ contains
        call neko_log%message(log_buf)
     end if
 
-    call interp%init(dof, tol = this%tolerance, pad = this%padding)
+    call interp%init(dof, tol = this%tolerance, pad = this%padding, &
+         max_iter = this%max_iterations)
 
     ! Only find points, no redistribution.
     call interp%find_points(this%xyz_target, this%n_points)
