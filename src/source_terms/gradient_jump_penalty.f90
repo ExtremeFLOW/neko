@@ -881,27 +881,35 @@ contains
     real(kind=rp), intent(in) :: wa(lx + 2, lx + 2, lx + 2, nelv)
     real(kind=rp), intent(in) :: dphidxi(lx, lx)
 
-    integer :: i, j, k
+    integer :: e, i, j, k
 
-    do i = 1, lx
-       do j = 1, lx
-          do k = 1, lx
-             penalty(i, j, k, :) = &
-                  wa(1, j + 1, k + 1, :) * &
-                  dphidxi(1, i) + &
-                  wa(lx + 2, j + 1, k + 1, :) * &
-                  dphidxi(lx, i) + &
-                  wa(i + 1, 1, k + 1, :) * &
-                  dphidxi(1, j) + &
-                  wa(i + 1, lx + 2, k + 1, :) * &
-                  dphidxi(lx, j) + &
-                  wa(i + 1, j + 1, 1, :) * &
-                  dphidxi(1, k) + &
-                  wa(i + 1, j + 1, lx + 2, :) * &
-                  dphidxi(lx, k)
+    !$omp parallel do private(e, i, j, k)
+    do e = 1, nelv
+       do k = 1, lx
+          do j = 1, lx
+             !OCL NORECURRENCE, NOVREC, NOALIAS
+             !DIR$ CONCURRENT
+             !DIR$ IVDEP
+             !GCC$ ivdep
+             do i = 1, lx
+                penalty(i, j, k, e) = &
+                     wa(1, j + 1, k + 1, e) * &
+                     dphidxi(1, i) + &
+                     wa(lx + 2, j + 1, k + 1, e) * &
+                     dphidxi(lx, i) + &
+                     wa(i + 1, 1, k + 1, e) * &
+                     dphidxi(1, j) + &
+                     wa(i + 1, lx + 2, k + 1, e) * &
+                     dphidxi(lx, j) + &
+                     wa(i + 1, j + 1, 1, e) * &
+                     dphidxi(1, k) + &
+                     wa(i + 1, j + 1, lx + 2, e) * &
+                     dphidxi(lx, k)
+             end do
           end do
        end do
     end do
+    !$omp end parallel do
 
   end subroutine gradient_jump_penalty_finalize_hex
 

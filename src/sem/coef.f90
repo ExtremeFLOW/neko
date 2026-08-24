@@ -1124,13 +1124,15 @@ contains
           call device_memcpy(c%B, c%B_d, ntot, DEVICE_TO_HOST, sync = .false.)
        end if
     else
-       do concurrent (e = 1:c%msh%nelv)
+       !$omp parallel do private(e, i)
+       do e = 1, c%msh%nelv
           ! Here we need to handle things differently for axis symmetric elements
-          do concurrent (i = 1:lxyz)
+          do i = 1, lxyz
              c%B(i,1,1,e) = c%jac(i,1,1,e) * c%Xh%w3(i,1,1)
              c%Binv(i,1,1,e) = c%B(i,1,1,e)
           end do
        end do
+       !$omp end parallel do
     end if
 
     call c%gs_h%op(c%Binv, ntot, GS_OP_ADD)
