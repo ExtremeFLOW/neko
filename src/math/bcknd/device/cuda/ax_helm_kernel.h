@@ -1338,7 +1338,8 @@ struct ax_helm_dmma_vector_dispatch {
 
 #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && (__CUDA_ARCH__ < 1000)
 
-/* Keep in sync with dmma_lx_supported() in dmma_kernel.h */
+/* Keep in sync with dmma_vector_lx_supported() in dmma_kernel.h, which is
+   4 <= LX <= 8 and not the 2 <= LX <= 8 of the packed scalar kernel */
 #define NEKO_AX_HELM_DMMA_VECTOR_DISPATCH(LXV)                                 \
   template< const int NW >                                                     \
   struct ax_helm_dmma_vector_dispatch< double, LXV, NW > {                     \

@@ -789,7 +789,7 @@ int tune_vector(void *au, void *av, void *aw, void *u, void *v, void *w,
   const int rounds = neko_tune_rounds();
   const int iters = neko_tune_iters();
   const int sweep = neko_eb_sweep();
-  const bool dmma = dmma_lx_supported<LX>() && cuda_have_dmma();
+  const bool dmma = dmma_vector_lx_supported<LX>() && cuda_have_dmma();
   int retval;
 
   for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
@@ -923,7 +923,7 @@ int tune_vector_padded(void *au, void *av, void *aw, void *u, void *v, void *w,
   const int rounds = neko_tune_rounds();
   const int iters = neko_tune_iters();
   const int sweep = neko_eb_sweep();
-  const bool dmma = dmma_lx_supported<LX>() && cuda_have_dmma();
+  const bool dmma = dmma_vector_lx_supported<LX>() && cuda_have_dmma();
   int retval;
 
   for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {

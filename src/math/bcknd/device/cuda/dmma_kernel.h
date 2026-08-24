@@ -56,7 +56,8 @@
  * That fixed tile is also what bounds the strategy: LX > DMMA_P would need
  * the cubes padded to 16^3, i.e. 4 * 16^3 * 8 = 128 kB of shared memory for
  * the four cubes, well past the 48 kB a block gets without the opt-in dynamic
- * path. Supported for double precision and 4 <= LX <= 8 only, see
+ * path. Supported for double precision and 2 <= LX <= 8 only -- the lower
+ * bound is 2 rather than 4 because of the packing below, see
  * dmma_lx_supported(); note that fp32 has no tensor core equivalent, only
  * TF32 with an 11 bit significand, which is not usable for the operator
  * inside a Krylov solve, so a single precision build has no DMMA strategy.
@@ -271,6 +272,28 @@ template< const int LX >
 static inline bool dmma_lx_supported()
 {
   return (sizeof(real) == 8) && (LX >= 2) && (LX <= DMMA_P);
+}
+
+/**
+ * The same predicate for the vector operator, whose supported range is not the
+ * same and must not be assumed to be.
+ *
+ * The vector kernel stages one element per block and does not pack, so the
+ * lower bound stays at 4: below it the padding waste that packing removes for
+ * the scalar kernel is still there, and there is nothing to gain. That is a
+ * performance argument, but the predicate is a correctness one -- the tuner
+ * launches whatever it is told is supported, and an LX the vector dispatch
+ * does not specialise resolves to the no-op primary template, which times as
+ * free, wins the comparison and leaves stale values in au/av/aw. Lowering
+ * dmma_lx_supported() to 2 for the packed scalar kernel is exactly how that
+ * happened.
+ *
+ * MUST match NEKO_AX_HELM_DMMA_VECTOR_DISPATCH in ax_helm_kernel.h.
+ */
+template< const int LX >
+static inline bool dmma_vector_lx_supported()
+{
+  return (sizeof(real) == 8) && (LX >= 4) && (LX <= DMMA_P);
 }
 
 #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && (__CUDA_ARCH__ < 1000)

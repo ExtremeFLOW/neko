@@ -126,8 +126,10 @@ on the first call of each operator. Accepted values are
 .B DMMA
 applies to the CUDA Helmholtz operator only, scalar and vector, and needs a
 double precision build, a polynomial order with
+.BR 2 " <= " lx " <= " 8
+for the scalar operator or
 .BR 4 " <= " lx " <= " 8
-and an sm_80 or sm_90 device the binary was compiled for.
+for the vector one, and an sm_80 or sm_90 device the binary was compiled for.
 .B MFMA
 is its HIP counterpart for the scalar operator, for
 .BR 4 " <= " lx " <= " 12
@@ -192,8 +194,10 @@ Selects the wavefronts-per-block candidate used when the matrix core
 formulation is pinned with
 .BR NEKO_AUTOTUNE=MFMA .
 Candidates
-.BR 0 ", " 1 " and " 2
-are 1, 2 and 4 wavefronts per block. Values outside the valid range fall back to
+.BR 0 " to " 3
+are 1, 2, 4 and 8 wavefronts per block. The count also fixes the elements per
+block: min(nwf, ceil(lx*lx/16)) wavefronts cooperate on one element and the
+block covers the rest. Values outside the valid range fall back to
 .BR 0 .
 Defaults to
 .BR 0 .

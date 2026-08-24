@@ -53,19 +53,23 @@ what is measured and why the defaults differ between vendors.
   elements per block given by `NEKO_EB`.
 - `NEKO_AUTOTUNE=DMMA`  : always use the fp64 tensor core variant of the
   CUDA Helmholtz operator, scalar and vector, with the warps per block
-  given by `NEKO_DMMA_NW`. The other operators have no such variant and
+  given by `NEKO_DMMA_NW`. Double precision only, `2 <= lx <= 8` for the
+  scalar operator and `4 <= lx <= 8` for the vector one, on an sm_80 or
+  sm_90 device. The other operators have no such variant and
   keep tuning as usual.
 
 - `NEKO_AUTOTUNE=MFMA`  : the HIP counterpart of `DMMA` --- always use the
   matrix core variant of the HIP Helmholtz operator, with the wavefronts per
-  block given by `NEKO_MFMA_NWF`.
+  block given by `NEKO_MFMA_NWF`. Either precision, `4 <= lx <= 12`, on a
+  gfx90a or gfx942 device, and for the scalar operator only.
 
 The vector Helmholtz operator has no 1d formulation, so `1D` and `KSTEP`
 both pin it to its kstep variant, and it has no matrix core variant on HIP.
 
 Any other value is reported as an error and the search runs as usual.
-`DMMA` on a build or a device without fp64 tensor cores, or at a
-polynomial order the variant does not cover, is reported the same way.
+`DMMA` on a build or a device without fp64 tensor cores, or `MFMA` on one
+without matrix cores, or either at a polynomial order the variant does not
+cover, is reported the same way.
 
 `NEKO_EB_TUNE` controls whether the elements per block dimension is
 swept at all, and defaults to enabled on both backends. It was once off
@@ -98,7 +102,14 @@ Values outside the valid range fall back to `0`.
 when the tensor core variant is pinned with `NEKO_AUTOTUNE=DMMA`;
 candidates `0`, `1` and `2` are 2, 4 and 8 warps. Values outside the
 valid range fall back to `0`. `NEKO_MFMA_NWF` is the HIP equivalent, with
-candidates `0`, `1` and `2` selecting 1, 2 and 4 wavefronts.
+candidates `0` to `3` selecting 1, 2, 4 and 8 wavefronts per block.
+
+On HIP that count also fixes the elements per block, and the two cannot
+be set independently: `min(nwf, ceil(lx*lx/16))` wavefronts cooperate on
+one element --- that being all the wavefront-parallel work a contraction
+offers --- and the block covers `nwf` divided by that many elements. At
+`lx = 8` the top candidate is eight wavefronts on one element, at `lx = 4`
+it is eight elements with one wavefront each.
 
 `NEKO_TUNE_ROUNDS` and `NEKO_TUNE_ITERS` control the sampling, and
 apply to *both* sweeps --- they are not specific to the elements per
