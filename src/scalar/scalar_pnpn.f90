@@ -252,6 +252,9 @@ contains
     this%chkp => chkp
     ! Initialize advection factory
     call json_get_or_default(params, 'advection', advection, .true.)
+    ! OIFS integrates the advection term. With advection disabled, fall back to
+    ! the standard BDF history assembly.
+    this%oifs = this%oifs .and. advection
 
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
          ulag, vlag, wlag, this%chkp%dtlag, &
