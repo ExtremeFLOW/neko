@@ -162,13 +162,17 @@ static int neko_dmma_env()
 }
 
 /* Report every measured DMMA candidate, see NEKO_TUNE_LOG in
-   elem_block_tune.h */
+   elem_block_tune.h. The label is padded to 13 as a whole rather than by
+   hand counted field widths, so it stays column aligned with the 1D, KSTEP
+   and Chose lines whatever the warp and element counts render as */
 #define NEKO_TUNE_LOG_DMMA(LX, T3)                                            \
   do {                                                                        \
     for (int c = 0; c < NEKO_DMMA_CANDIDATES; c++) {                          \
       if ((T3)[c] >= NEKO_TUNE_INIT) { continue; }                            \
-      sprintf(neko_log_buf, "DMMA  %dw %-2de: %9.2f us/call",                 \
-              NEKO_DMMA_NW(c), NEKO_DMMA_PACK(LX), (T3)[c] * 10.0);           \
+      char lbl_[16];                                                          \
+      sprintf(lbl_, "DMMA  %dw %de",                                          \
+              NEKO_DMMA_NW(c), NEKO_DMMA_PACK(LX));                           \
+      sprintf(neko_log_buf, "%-13s: %9.2f us/call", lbl_, (T3)[c] * 10.0);    \
       log_message(neko_log_buf);                                              \
     }                                                                         \
   } while (0)
