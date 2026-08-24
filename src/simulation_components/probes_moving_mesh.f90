@@ -340,7 +340,8 @@ contains
     ! A point is lost if no rank finds a containing element.
     do i = 1, this%n_points
        if ( (interp%pe_owner(i) .eq. -1) .or. &
-            (interp%el_owner0(i) .eq. -1) ) then
+            (interp%el_owner0(i) .eq. -1) .or. &
+            (maxval(abs(interp%rst(:, i))) .gt. 1.1_rp) ) then
          this%n_lost = this%n_lost + 1
        end if
     end do
@@ -378,7 +379,7 @@ contains
     integer :: i, ierr
 
     ! Interpolating the current coordinate fields through the stored
-    ! mapping gives exactly the point the probe would sample now.
+    ! mapping gives the point the probe would sample now.
     call interp%evaluate(this%chk_x%x, dof%x, .false.)
     call interp%evaluate(this%chk_y%x, dof%y, .false.)
     call interp%evaluate(this%chk_z%x, dof%z, .false.)
@@ -388,8 +389,10 @@ contains
 
     err = 0.0_rp
     do i = 1, this%n_points
+       ! Excluding lost points, until they're found again.
        if ( (interp%pe_owner(i) .eq. -1) .or. &
-            (interp%el_owner0(i) .eq. -1) ) cycle
+            (interp%el_owner0(i) .eq. -1) .or. &
+            (maxval(abs(interp%rst(:, i))) .gt. 1.1_rp) ) cycle
 
        err = max(err, norm2([this%chk_x%x(i) - this%xyz_target(1, i), &
             this%chk_y%x(i) - this%xyz_target(2, i), &

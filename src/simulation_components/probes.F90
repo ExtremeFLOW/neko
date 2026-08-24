@@ -811,6 +811,7 @@ contains
     if (time%t .lt. this%start_time) return
 
     !> Keep the interpolation mapping valid on a moving (ALE) mesh
+    !! No-op for a static simulation.
     call this%moving_mesh%update(this%global_interp, &
          this%case%fluid%dm_Xh, this%xyz, this%n_local_probes, time)
 
