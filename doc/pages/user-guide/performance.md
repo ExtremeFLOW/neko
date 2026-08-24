@@ -43,12 +43,12 @@ number of ranks -- and with it the memory footprint, initialisation
 time, and communication metadata -- which pays off at very large
 scale or under tight memory constraints.
 
-## Simulation setup
+## Simulation setup {#perf_simulation_setup}
 
 This section explains how to set up and select options for a case to
 achieve the best possible simulation performance.
 
-### Load balancing
+### Load balancing {#perf_load_balancing}
 
 Load balancing is essential for good simulation performance. This can
 be performed using graph partitioning of the mesh, either offline or

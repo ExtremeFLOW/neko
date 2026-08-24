@@ -326,36 +326,38 @@ Optional arguments:
   ~~~~~~~~~~~~~~~{.json}
   "interpolation": {
     "tolerance": 1e-8,
-    "padding": 1e-3
+    "padding": 1e-3,
+    "max_iterations": 20
   }
   ~~~~~~~~~~~~~~~
 
 It is also possible to set a `start_time` before which the probes will not be
 executed (same behavior as the statistics).
 
-- On moving (ALE) meshes, add the `moving_mesh` sub-dictionary to keep the
-  probes sampling at the right locations. Two modes: `fixed` keeps the points
-  at their lab-frame positions while the mesh moves underneath them;
-  `body_attached` moves the points rigidly with an ALE body, identified by one
-  of the body's boundary `zone_id`s.
-  ~~~~~~~~~~~~~~~{.json}
-  "moving_mesh": {
-    "mode": "body_attached",
-    "zone_id": 3,
-    "check_tolerance": 1e-8
-  }
-  ~~~~~~~~~~~~~~~
-  `check_tolerance` (optional) is the maximum accepted distance, in mesh
-  length units, between where a probe is sampled and where it should be; the
-  points are automatically searched for again when it is exceeded. Points
-  that temporarily cannot be found (e.g. covered by the moving body) record
-  zeros until recovered. On a static mesh the sub-dictionary is ignored for
-  `fixed` mode.
+On moving (ALE) meshes, add the `moving_mesh` sub-dictionary to keep the
+probes sampling at the right locations. Two modes: `fixed` keeps the points
+at their lab-frame positions while the mesh moves underneath them;
+`body_attached` moves the points rigidly with an ALE body, identified by one
+of the body's boundary `zone_id`s.
+~~~~~~~~~~~~~~~{.json}
+"moving_mesh": {
+  "mode": "body_attached",
+  "zone_id": 3,
+  "check_tolerance": 1e-8
+}
+~~~~~~~~~~~~~~~
+`check_tolerance` (optional) is the maximum accepted distance, in mesh
+length units, between where a probe is sampled and where it should be; the
+points are automatically searched for again when it is exceeded. Points
+that temporarily cannot be found (e.g. covered by the moving body) record
+zeros until recovered.
 
-  For `body_attached` probes the current coordinates are written with the
-  data: CSV sample rows become `t, x, y, z, field values`, and HDF5 output
-  gains the datasets `coords_x`, `coords_y`, `coords_z` next to the fields
-  (the `coordinates` dataset keeps the initial positions).
+For `body_attached` probes the current coordinates are written with the
+data: CSV sample rows become `t, x, y, z, field values`, and HDF5 output
+gains the datasets `coords_x`, `coords_y`, `coords_z` next to the fields
+(the `coordinates` dataset keeps the initial positions).
+
+@note Selecting the AABB finders with setting enviromental variables `NEKO_GLOBAL_INTERP_EL_FINDER=AABB` and `NEKO_GLOBAL_INTERP_PE_FINDER=AABB`, and setting `load_balancing` to `true` in the case file (requires configuring Neko with ParMETIS, see \ref perf_load_balancing), can significantly reduce the computational overheads of finding points in probes for large moving meshes.
 
 #### Supported types
 
