@@ -208,10 +208,16 @@ contains
          call device_cfill(c_Xh%h1_d, 1.0_rp/rho, n)
          call device_rzero(c_Xh%h2_d, n)
       else
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !DIR$ IVDEP
+         !GCC$ ivdep
+         !$omp parallel do
          do i = 1, n
             c_Xh%h1(i,1,1,1) = 1.0_rp / rho
             c_Xh%h2(i,1,1,1) = 0.0_rp
          end do
+         !$omp end parallel do
       end if
       c_Xh%ifh2 = .false.
 
@@ -453,12 +459,18 @@ contains
          call device_add2s2(w%x_d, w_vol%x_d, scale, n)
          call device_add2s2(p%x_d, p_vol%x_d, scale, n)
       else
-         do concurrent (i = 1: n)
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !DIR$ IVDEP
+         !GCC$ ivdep
+         !$omp parallel do
+         do i = 1, n
             u%x(i,1,1,1) = u%x(i,1,1,1) + scale * u_vol%x(i,1,1,1)
             v%x(i,1,1,1) = v%x(i,1,1,1) + scale * v_vol%x(i,1,1,1)
             w%x(i,1,1,1) = w%x(i,1,1,1) + scale * w_vol%x(i,1,1,1)
             p%x(i,1,1,1) = p%x(i,1,1,1) + scale * p_vol%x(i,1,1,1)
          end do
+         !$omp end parallel do
       end if
     end associate
 

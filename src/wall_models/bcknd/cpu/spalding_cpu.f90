@@ -55,6 +55,7 @@ contains
     integer :: i
     real(kind=rp) :: ui, vi, wi, magu, utau, normu, guess, rho
 
+    !$omp parallel do private(i, ui, vi, wi, magu, utau, normu, guess, rho)
     do i=1, n_nodes
        ! Load the sampled velocity
        ui = u(i)
@@ -86,6 +87,7 @@ contains
        tau_y(i) = -rho*utau**2 * vi / magu
        tau_z(i) = -rho*utau**2 * wi / magu
     end do
+    !$omp end parallel do
 
   end subroutine spalding_compute_cpu
 
@@ -136,8 +138,11 @@ contains
     enddo
 
     if (niter .eq. maxiter) then
+       ! Called from inside an OpenMP loop, so serialise the log write.
+       !$omp critical
        write(log_msg, *) "Newton not converged", error, f, utau, old, guess
        call neko_log%message(log_msg, NEKO_LOG_DEBUG)
+       !$omp end critical
     end if
   end function solve_cpu
 end module spalding_cpu

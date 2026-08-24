@@ -67,7 +67,12 @@ contains
     fv => fields%get_by_index(2)
     fw => fields%get_by_index(3)
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do private(i, ui, vi, wi)
+    do i = 1, n
        ui = u%x(i,1,1,1) - u_geo(1)
        vi = v%x(i,1,1,1) - u_geo(2)
        wi = w%x(i,1,1,1) - u_geo(3)
@@ -76,6 +81,7 @@ contains
        fv%x(i,1,1,1) = fv%x(i,1,1,1) - 2.0_rp * (omega(3) * ui - omega(1) * wi)
        fw%x(i,1,1,1) = fw%x(i,1,1,1) - 2.0_rp * (omega(1) * vi - omega(2) * ui)
     end do
+    !$omp end parallel do
 
   end subroutine coriolis_source_term_compute_cpu
 
