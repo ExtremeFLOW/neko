@@ -57,6 +57,9 @@ module logger
 
      character(len=LOG_SIZE), private :: section_header = ""
 
+     !> List of already logged deprecated features
+     character(len=50), private, dimension(:), allocatable :: deprecated_list
+
    contains
      procedure, pass(this) :: init => log_init
      procedure, pass(this) :: free => log_free
@@ -89,37 +92,49 @@ module logger
   !> Debug log level
   integer, public, parameter :: NEKO_LOG_DEBUG = 10
 
-  !> List of already logged deprecated features
-  character(len=50), dimension(:), allocatable :: deprecated_list
-
 contains
 
   !> Initialize a log
-  subroutine log_init(this)
+  !! @param env_prefix Prefix of the environment variables to read the
+  !! configuration from, defaulting to `"NEKO"`, i.e. `NEKO_LOG_TAB_SIZE`,
+  !! `NEKO_LOG_LEVEL` and `NEKO_LOG_FILE`. Passing a different prefix points
+  !! this `log_t` instance at an independent set of environment variables.
+  subroutine log_init(this, env_prefix)
     class(log_t), intent(inout) :: this
+    character(len=*), intent(in), optional :: env_prefix
     character(len=255) :: log_level
     character(len=255) :: log_tab_size
     character(len=255) :: log_file
+    character(len=32) :: prefix
     integer :: envvar_len
+
+    if (present(env_prefix)) then
+       prefix = env_prefix
+    else
+       prefix = "NEKO"
+    end if
 
     this%indent_ = 0
     this%section_id_ = 0
 
-    call get_environment_variable("NEKO_LOG_TAB_SIZE", log_tab_size, envvar_len)
+    call get_environment_variable(trim(prefix) // "_LOG_TAB_SIZE", &
+         log_tab_size, envvar_len)
     if (envvar_len .gt. 0) then
        read(log_tab_size(1:envvar_len), *) this%tab_size_
     else
        this%tab_size_ = 1
     end if
 
-    call get_environment_variable("NEKO_LOG_LEVEL", log_level, envvar_len)
+    call get_environment_variable(trim(prefix) // "_LOG_LEVEL", &
+         log_level, envvar_len)
     if (envvar_len .gt. 0) then
        read(log_level(1:envvar_len), *) this%level_
     else
        this%level_ = NEKO_LOG_INFO
     end if
 
-    call get_environment_variable("NEKO_LOG_FILE", log_file, envvar_len)
+    call get_environment_variable(trim(prefix) // "_LOG_FILE", &
+         log_file, envvar_len)
     if (envvar_len .gt. 0) then
        open(newunit = this%unit_, file = trim(log_file), status = 'replace', &
             action = 'write')
@@ -138,11 +153,11 @@ contains
        call neko_error("Log is unbalanced")
     end if
 
-    if (allocated(deprecated_list)) then
+    if (allocated(this%deprecated_list)) then
        call this%section("Deprecated features summary", NEKO_LOG_DEPRECATION)
 
-       do i = 1, size(deprecated_list)
-          call this%message(trim(deprecated_list(i)), NEKO_LOG_DEPRECATION)
+       do i = 1, size(this%deprecated_list)
+          call this%message(trim(this%deprecated_list(i)), NEKO_LOG_DEPRECATION)
        end do
        call this%end_section()
     end if
@@ -155,8 +170,8 @@ contains
     this%level_ = NEKO_LOG_INFO
     this%unit_ = -1
 
-    if (allocated(deprecated_list)) then
-       deallocate(deprecated_list)
+    if (allocated(this%deprecated_list)) then
+       deallocate(this%deprecated_list)
     end if
 
   end subroutine log_free
@@ -313,19 +328,19 @@ contains
          is_deprecated(removal_version)) then
 
        ! Check that the feature have not already been logged
-       if (.not. allocated(deprecated_list)) then
-          allocate(character(len=50) :: deprecated_list(1))
-          deprecated_list = trim(feature)
+       if (.not. allocated(this%deprecated_list)) then
+          allocate(character(len=50) :: this%deprecated_list(1))
+          this%deprecated_list = trim(feature)
        else
-          do i = 1, size(deprecated_list)
-             if (trim(deprecated_list(i)) .eq. trim(feature)) return
+          do i = 1, size(this%deprecated_list)
+             if (trim(this%deprecated_list(i)) .eq. trim(feature)) return
           end do
 
           ! Save the feature to the list of deprecated features
-          call move_alloc(deprecated_list, tmp_list)
-          allocate(character(len=50)::deprecated_list(size(tmp_list)+1))
-          deprecated_list(1:size(tmp_list)) = tmp_list
-          deprecated_list(size(tmp_list) + 1) = trim(feature)
+          call move_alloc(this%deprecated_list, tmp_list)
+          allocate(character(len=50)::this%deprecated_list(size(tmp_list)+1))
+          this%deprecated_list(1:size(tmp_list)) = tmp_list
+          this%deprecated_list(size(tmp_list) + 1) = trim(feature)
           deallocate(tmp_list)
        end if
 
