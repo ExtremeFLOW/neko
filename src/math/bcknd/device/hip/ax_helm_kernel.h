@@ -576,7 +576,7 @@ struct ax_helm_mfma_dispatch {
                                const TYPE *dz, const TYPE *h1,                 \
                                const TYPE *g11, const TYPE *g22,               \
                                const TYPE *g33, const TYPE *g12,               \
-                               const TYPE *g13, const TYPE *g23,              \
+                               const TYPE *g13, const TYPE *g23,               \
                                const int nelv) {                               \
       ax_helm_mfma_elem< TYPE, LXV, NWF >(w, u, dx, dy, dz, h1,                \
                                           g11, g22, g33, g12, g13, g23,        \

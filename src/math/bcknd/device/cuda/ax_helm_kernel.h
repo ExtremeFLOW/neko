@@ -634,7 +634,7 @@ struct ax_helm_dmma_dispatch {
                                const double * __restrict__ g33,                \
                                const double * __restrict__ g12,                \
                                const double * __restrict__ g13,                \
-                               const double * __restrict__ g23,               \
+                               const double * __restrict__ g23,                \
                                const int nelv) {                               \
       ax_helm_dmma_elem< LXV, NW >(w, u, dx, dy, dz, h1,                       \
                                    g11, g22, g33, g12, g13, g23, nelv);        \
