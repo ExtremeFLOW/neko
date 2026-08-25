@@ -64,17 +64,22 @@
 #else
 
 /*
- * __AMDGCN_WAVEFRONT_SIZE__ is the only one of these that tracks an explicit
- * -mwavefrontsize flag, so it is tried first even though ROCm 6.3 deprecated
- * it; nothing non-deprecated replaces it as a compile time constant. It is
- * expanded here rather than at the point of use so that a deprecation warning
- * is emitted once per translation unit instead of once per reduction. The gfx
- * family macros are the fallback: gfx10 and later default to wave32.
+ * An explicit wavefront macro is tried first: it is the only form that tracks
+ * an explicit -mwavefrontsize flag. Both spellings have to be checked. The
+ * bare __AMDGCN_WAVEFRONT_SIZE is the original and is what every ROCm up to
+ * the 6.x series defines; __AMDGCN_WAVEFRONT_SIZE__ was added later, and ROCm
+ * 6.3 deprecated both without providing a compile time replacement. They are
+ * expanded here rather than at the point of use, so that a deprecation warning
+ * costs one diagnostic per translation unit instead of one per reduction.
  *
- * Failing to identify an AMD target is a build error rather than a silent 64,
- * which on RDNA would not fail -- __shfl_down past the end of a wavefront
- * returns the lane's own value, so the reduction would just quietly double
- * every partial sum.
+ * The gfx family macros are the fallback for a toolchain that defines neither.
+ * gfx6 through gfx9 (GCN, Vega, CDNA) are 64 lanes; gfx10 and later (RDNA)
+ * default to 32.
+ *
+ * A target that matches nothing at all is a build error rather than a silent
+ * 64: on RDNA that would not fail, because __shfl_down past the end of a
+ * wavefront returns the lane's own value, so the reduction would quietly
+ * double every partial sum instead.
  */
 #  if defined(__AMDGCN_WAVEFRONT_SIZE__)
 #    if __AMDGCN_WAVEFRONT_SIZE__ == 32
@@ -82,8 +87,17 @@
 #    else
 #      define NEKO_WAVE_SIZE 64
 #    endif
+#  elif defined(__AMDGCN_WAVEFRONT_SIZE)
+#    if __AMDGCN_WAVEFRONT_SIZE == 32
+#      define NEKO_WAVE_SIZE 32
+#    else
+#      define NEKO_WAVE_SIZE 64
+#    endif
 #  elif defined(__GFX10__) || defined(__GFX11__) || defined(__GFX12__)
 #    define NEKO_WAVE_SIZE 32
+#  elif defined(__GFX6__) || defined(__GFX7__) || defined(__GFX8__) ||         \
+        defined(__GFX9__)
+#    define NEKO_WAVE_SIZE 64
 #  elif defined(__HIP_DEVICE_COMPILE__)
 #    error "Unknown AMD wavefront width, rebuild with -DNEKO_WAVE_SIZE=32 or 64"
 #  else
