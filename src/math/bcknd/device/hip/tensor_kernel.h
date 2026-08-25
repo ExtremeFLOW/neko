@@ -51,12 +51,25 @@ __global__ void tnsr3d_el_kernel(T  * __restrict__  v,
   const int pt = blockIdx.x;
   const int e = elements[pt];
 
+  /* Stage the element into shared memory before the first contraction.
+     Read straight from global, phase 1 fetches every value of u nv times --
+     once per output row i -- and fetches them badly: with ii decomposing as
+     i + j*nv, consecutive threads vary i and share j, so a warp asks for
+     values nu apart and pulls a whole sector for each one. Staged, the global
+     read is a single contiguous pass and the redundancy is served from shared
+     memory. shwork2 is unused until phase 2 writes it, by which point u is
+     dead, so this costs no extra shared memory. */
+  for (int p = idx; p < nu*nu*nu; p += str)
+    shwork2[p] = u[p + e*nu*nu*nu];
+
+  __syncthreads();
+
   for (int ii = idx; ii< nu*nu*nv; ii += str) {
     T tmp = 0.0;
     int j = ii/nv;
     int i = ii - j*nv;
     for( int l = 0; l < nu; l++){
-      tmp += A[i+l*nv+pt*nv*nu]*u[l+nu*j+e*nu*nu*nu];
+      tmp += A[i+l*nv+pt*nv*nu]*shwork2[l+nu*j];
     }
     shwork[ii] = tmp;
   }
@@ -109,12 +122,25 @@ __global__ void tnsr3d_kernel(T  * __restrict__  v,
   const int str = blockDim.x;
   const int e = blockIdx.x;
   
+  /* Stage the element into shared memory before the first contraction.
+     Read straight from global, phase 1 fetches every value of u nv times --
+     once per output row i -- and fetches them badly: with ii decomposing as
+     i + j*nv, consecutive threads vary i and share j, so a warp asks for
+     values nu apart and pulls a whole sector for each one. Staged, the global
+     read is a single contiguous pass and the redundancy is served from shared
+     memory. shwork2 is unused until phase 2 writes it, by which point u is
+     dead, so this costs no extra shared memory. */
+  for (int p = idx; p < nu*nu*nu; p += str)
+    shwork2[p] = u[p + e*nu*nu*nu];
+
+  __syncthreads();
+
   for (int ii = idx; ii< nu*nu*nv; ii += str) {
     T tmp = 0.0;
     int j = ii/nv;
     int i = ii - j*nv;
     for( int l = 0; l < nu; l++){
-      tmp += A[i+l*nv]*u[l+nu*j+e*nu*nu*nu];
+      tmp += A[i+l*nv]*shwork2[l+nu*j];
     }
     shwork[ii] = tmp;
   }

@@ -1,7 +1,7 @@
 #ifndef __MATH_AX_HELM_KERNEL_H__
 #define __MATH_AX_HELM_KERNEL_H__
 /*
- Copyright (c) 2021-2024, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,19 +35,26 @@
 */
 
 #include "elem_block.h"
+#include "dmma_kernel.h"
 
 /*
- * Elements per block for the vector kstep kernels, pinned rather than swept.
+ * A note on elements per block for the vector kstep kernels.
  *
  * These hold three times the register blocked state of the scalar ones -- six
  * T[LX] arrays rather than two -- and measure at 254-255 registers on sm_90
- * for every lx from 8 up, spilling at 10, 12, 14 and 16. There is no headroom
- * for a wider block, so they keep one element per block. Override with
- * -DNEKO_AX_HELM_VECTOR_EB_C=<0|1|2> if that ever changes.
+ * for every lx from 8 up, spilling at 10, 12, 14 and 16. Blocking is therefore
+ * not expected to buy much: it does not change registers per thread, only
+ * threads per block, so at 255 registers the occupancy is the same either way
+ * and all it saves is loading the derivative matrices once per block instead
+ * of once per element.
+ *
+ * They are swept anyway, over the same elem_block<> candidates as the scalar
+ * kernels. "Not expected to buy much" is a prediction, and pinning it at build
+ * time is a prediction the tuner can never check. elem_block<>'s thread clamp
+ * keeps every candidate inside the shared memory budget at every lx -- the
+ * widest case, lx = 11 at four elements per block, comes to 37 kB against the
+ * 48 kB cap -- so nothing here needs a bound of its own.
  */
-#ifndef NEKO_AX_HELM_VECTOR_EB_C
-#define NEKO_AX_HELM_VECTOR_EB_C 0
-#endif
 
 /**
  * Device kernel for axhelm
@@ -412,6 +419,256 @@ ax_helm_kernel_kstep_padded(T * __restrict__ w,
       w[ij + k*LX*LX + ele] = rw[k];
     }
   }
+}
+
+
+/**
+ * Device kernel for axhelm on the fp64 tensor cores
+ *
+ * One element per block, NW warps, and the whole element resident in shared
+ * memory as four DMMA_P^3 cubes: the staged input (reused as the output), and
+ * the three reference derivatives. Unlike the kstep variants, which stream a
+ * k plane at a time and keep the k contraction in registers, all six
+ * contractions here are full D * U GEMMs handed to dmma_contract(), with the
+ * geometric factors applied pointwise in between. See dmma_kernel.h for the
+ * padded staging, the per axis matrix views and the arch and LX bounds.
+ */
+
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && (__CUDA_ARCH__ < 1000)
+
+template< const int LX, const int NW >
+__device__ __forceinline__
+void ax_helm_dmma_elem(double * __restrict__ w,
+                       const double * __restrict__ u,
+                       const double * __restrict__ dx,
+                       const double * __restrict__ dy,
+                       const double * __restrict__ dz,
+                       const double * __restrict__ h1,
+                       const double * __restrict__ g11,
+                       const double * __restrict__ g22,
+                       const double * __restrict__ g33,
+                       const double * __restrict__ g12,
+                       const double * __restrict__ g13,
+                       const double * __restrict__ g23,
+                       const int nelv) {
+
+  /* Element independent, one copy per block. Block diagonal when more than
+     one element is packed: one LX x LX copy of D per sub-cube */
+  __shared__ __align__(16) double shdx[DMMA_MAT];
+  __shared__ __align__(16) double shdy[DMMA_MAT];
+  __shared__ __align__(16) double shdz[DMMA_MAT];
+
+  /* The pack, padded to DMMA_P^3. shu carries the input and then the
+     output, shr, shs and sht the reference derivatives */
+  __shared__ __align__(16) double shu[DMMA_CUBE];
+  __shared__ __align__(16) double shr[DMMA_CUBE];
+  __shared__ __align__(16) double shs[DMMA_CUBE];
+  __shared__ __align__(16) double sht[DMMA_CUBE];
+
+  static_assert(sizeof(shdx) +
+                sizeof(shdy) +
+                sizeof(shdz) +
+                sizeof(shu) +
+                sizeof(shr) +
+                sizeof(shs) +
+                sizeof(sht)
+                <= NEKO_EB_MAX_SMEM,
+                "dmma block exceeds the shared memory budget");
+
+  /* Elements per sub-cube axis, and per cube, see the note in dmma_kernel.h.
+     At PPA == 1 the addressing is not left to constant fold -- dmma_pack is
+     specialised so the tail clamp and the guarded store are never emitted at
+     all, see the note there */
+  enum { PPA = (DMMA_P % LX == 0) ? (DMMA_P / LX) : 1,
+         PACK = PPA * PPA * PPA,
+         LX3 = LX * LX * LX,
+         NP = PACK * LX3 };
+
+  typedef dmma_pack< LX, PPA > pack;
+
+  const int nthrds = 32 * NW;
+  const int tid = threadIdx.x;
+  const int wf = tid >> 5;
+  const int ebase = pack::ebase();
+
+  /* The padding has to be finite, see the note above. At LX == DMMA_P with
+     one element packed there is none and this is folded away */
+  if (PACK * LX3 < DMMA_CUBE) {
+    for (int p = tid; p < DMMA_CUBE; p += nthrds) {
+      shu[p] = 0.0;
+    }
+  }
+  if (LX < DMMA_P) {
+    for (int p = tid; p < DMMA_MAT; p += nthrds) {
+      shdx[p] = 0.0;
+      shdy[p] = 0.0;
+      shdz[p] = 0.0;
+    }
+  }
+  if (LX < DMMA_P) {
+    __syncthreads();
+  }
+
+  /* One copy of D per sub-cube, down the diagonal */
+  for (int p = tid; p < LX * LX; p += nthrds) {
+    const int i = p % LX;
+    const int l = p / LX;
+#pragma unroll
+    for (int b = 0; b < PPA; b++) {
+      const int m = (b * LX + i) + DMMA_P * (b * LX + l);
+      shdx[m] = dx[p];
+      shdy[m] = dy[p];
+      shdz[m] = dz[p];
+    }
+  }
+
+  for (int p = tid; p < NP; p += nthrds) {
+    const dmma_idx x = pack::map(p, ebase, nelv);
+
+    shu[x.c] = u[x.g];
+  }
+
+  __syncthreads();
+
+  dmma_contract< 0, false, false, NW >(shr, shdx, shu, wf);
+  dmma_contract< 1, false, false, NW >(shs, shdy, shu, wf);
+  dmma_contract< 2, false, false, NW >(sht, shdz, shu, wf);
+
+  __syncthreads();
+
+  for (int p = tid; p < NP; p += nthrds) {
+    const dmma_idx x = pack::map(p, ebase, nelv);
+    const int c = x.c;
+    const int gp = x.g;
+
+    const double G00 = g11[gp];
+    const double G11 = g22[gp];
+    const double G22 = g33[gp];
+    const double G01 = g12[gp];
+    const double G02 = g13[gp];
+    const double G12 = g23[gp];
+    const double H1  = h1[gp];
+
+    const double rtmp = shr[c];
+    const double stmp = shs[c];
+    const double ttmp = sht[c];
+
+    shr[c] = H1
+           * (G00 * rtmp
+              + G01 * stmp
+              + G02 * ttmp);
+    shs[c] = H1
+           * (G01 * rtmp
+              + G11 * stmp
+              + G12 * ttmp);
+    sht[c] = H1
+           * (G02 * rtmp
+              + G12 * stmp
+              + G22 * ttmp);
+  }
+
+  __syncthreads();
+
+  /* The result overwrites the staged input; the first contraction writes
+     every tile of the cube, so nothing has to be cleared first. The barriers
+     are needed because the j slab tiles of axis 2 span what every warp wrote
+     along axis 0 and 1 */
+  dmma_contract< 0, true, false, NW >(shu, shdx, shr, wf);
+  __syncthreads();
+  dmma_contract< 1, true, true, NW >(shu, shdy, shs, wf);
+  __syncthreads();
+  dmma_contract< 2, true, true, NW >(shu, shdz, sht, wf);
+  __syncthreads();
+
+  for (int p = tid; p < NP; p += nthrds) {
+    const dmma_idx x = pack::map(p, ebase, nelv);
+
+    if (x.live) {
+      w[x.g] = shu[x.c];
+    }
+  }
+}
+
+#endif // __CUDA_ARCH__ in [800, 1000)
+
+/*
+ * Compile-time dispatch onto the DMMA element kernel. The launch macros in
+ * ax_helm.cu are written for every LX the operator dispatches and for whatever
+ * `real` is, so every combination has to compile; the ones the strategy does
+ * not cover -- single precision, LX outside the supported range, a build
+ * without an fp64 tensor core arch -- resolve to this no-op. The autotuner
+ * never selects the strategy for them, so the no-op is unreachable at runtime,
+ * see dmma_lx_supported() and cuda_have_dmma() in dmma_kernel.h.
+ */
+template< typename T, const int LX, const int NW >
+struct ax_helm_dmma_dispatch {
+  __device__ static void run(T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const int) { }
+};
+
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && (__CUDA_ARCH__ < 1000)
+
+/* Keep in sync with dmma_lx_supported() in dmma_kernel.h */
+#define NEKO_AX_HELM_DMMA_DISPATCH(LXV)                                        \
+  template< const int NW >                                                     \
+  struct ax_helm_dmma_dispatch< double, LXV, NW > {                            \
+    __device__ static void run(double * __restrict__ w,                        \
+                               const double * __restrict__ u,                  \
+                               const double * __restrict__ dx,                 \
+                               const double * __restrict__ dy,                 \
+                               const double * __restrict__ dz,                 \
+                               const double * __restrict__ h1,                 \
+                               const double * __restrict__ g11,                \
+                               const double * __restrict__ g22,                \
+                               const double * __restrict__ g33,                \
+                               const double * __restrict__ g12,                \
+                               const double * __restrict__ g13,                \
+                               const double * __restrict__ g23,                \
+                               const int nelv) {                               \
+      ax_helm_dmma_elem< LXV, NW >(w, u, dx, dy, dz, h1,                       \
+                                   g11, g22, g33, g12, g13, g23, nelv);        \
+    }                                                                          \
+  }
+
+NEKO_AX_HELM_DMMA_DISPATCH(2);
+NEKO_AX_HELM_DMMA_DISPATCH(3);
+NEKO_AX_HELM_DMMA_DISPATCH(4);
+NEKO_AX_HELM_DMMA_DISPATCH(5);
+NEKO_AX_HELM_DMMA_DISPATCH(6);
+NEKO_AX_HELM_DMMA_DISPATCH(7);
+NEKO_AX_HELM_DMMA_DISPATCH(8);
+
+#endif // __CUDA_ARCH__ in [800, 1000)
+
+template< typename T, const int LX, const int NW >
+__global__ void NEKO_EB_BOUNDS(32 * NW)
+ax_helm_kernel_dmma(T * __restrict__ w,
+                    const T * __restrict__ u,
+                    const T * __restrict__ dx,
+                    const T * __restrict__ dy,
+                    const T * __restrict__ dz,
+                    const T * __restrict__ h1,
+                    const T * __restrict__ g11,
+                    const T * __restrict__ g22,
+                    const T * __restrict__ g33,
+                    const T * __restrict__ g12,
+                    const T * __restrict__ g13,
+                    const T * __restrict__ g23,
+                    const int nelv) {
+
+  ax_helm_dmma_dispatch< T, LX, NW >::run(w, u, dx, dy, dz, h1,
+                                          g11, g22, g33, g12, g13, g23, nelv);
 }
 
 /*
@@ -844,6 +1101,300 @@ ax_helm_kernel_vector_kstep_padded(T * __restrict__ au,
       aw[ij + k*LX*LX + ele] = rww[k];
     }
   }
+}
+
+
+/**
+ * Device kernel for the vector axhelm on the fp64 tensor cores
+ *
+ * The three components share one set of geometric factors, which is the whole
+ * point of the vector operator: reading them once and applying them to u, v
+ * and w moves 13 arrays per element instead of the 27 that three scalar calls
+ * would. Twelve staged cubes will not fit in a block's shared memory, so the
+ * components are run one after another through the same four cubes and the
+ * factors are hoisted into registers instead -- PPT points per thread, held
+ * across all three passes. Everything else is the scalar kernel; see
+ * dmma_kernel.h for the padded staging and the per axis matrix views.
+ *
+ * Note the padded entries of a staged cube only have to be *finite*, not zero.
+ * A padded row of the derivative matrix is zero and kills the contribution of
+ * a padded row of the cube, but 0 * NaN would not, so the cube is zeroed once
+ * before its first use and then left to carry whatever the contractions put
+ * there. That is why the component loop below re-stages only the LX^3 real
+ * points and never clears the padding again.
+ *
+ * Measured on GH200 at lx = 8 this loses to the kstep variant: holding the
+ * factors costs enough occupancy (~60 registers of metrics at nw = 4, against
+ * the scalar kernel's handful) to give back more than the access pattern wins.
+ * It is kept for the low order end, where PPT falls to 1 and the register cost
+ * with it, while the shared memory footprint stays flat. The autotuner decides.
+ */
+
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && (__CUDA_ARCH__ < 1000)
+
+template< const int LX, const int NW >
+__device__ __forceinline__
+void ax_helm_dmma_vector_elem(double * __restrict__ au,
+                              double * __restrict__ av,
+                              double * __restrict__ aw,
+                              const double * __restrict__ u,
+                              const double * __restrict__ v,
+                              const double * __restrict__ w,
+                              const double * __restrict__ dx,
+                              const double * __restrict__ dy,
+                              const double * __restrict__ dz,
+                              const double * __restrict__ h1,
+                              const double * __restrict__ g11,
+                              const double * __restrict__ g22,
+                              const double * __restrict__ g33,
+                              const double * __restrict__ g12,
+                              const double * __restrict__ g13,
+                              const double * __restrict__ g23) {
+
+  /* Element independent, one copy per block */
+  __shared__ __align__(16) double shdx[DMMA_MAT];
+  __shared__ __align__(16) double shdy[DMMA_MAT];
+  __shared__ __align__(16) double shdz[DMMA_MAT];
+
+  /* One component at a time: shc carries it in and the result out, shr, shs
+     and sht its reference derivatives */
+  __shared__ __align__(16) double shc[DMMA_CUBE];
+  __shared__ __align__(16) double shr[DMMA_CUBE];
+  __shared__ __align__(16) double shs[DMMA_CUBE];
+  __shared__ __align__(16) double sht[DMMA_CUBE];
+
+  static_assert(sizeof(shdx) +
+                sizeof(shdy) +
+                sizeof(shdz) +
+                sizeof(shc) +
+                sizeof(shr) +
+                sizeof(shs) +
+                sizeof(sht)
+                <= NEKO_EB_MAX_SMEM,
+                "dmma vector block exceeds the shared memory budget");
+
+  enum { NTHRDS = 32 * NW,
+         LX3 = LX * LX * LX,
+         PPT = (LX3 + NTHRDS - 1) / NTHRDS };
+
+  const int tid = threadIdx.x;
+  const int wf = tid >> 5;
+  const int ele = blockIdx.x * LX3;
+
+  /* The geometric factors, read once and reused by all three components */
+  double rG00[PPT], rG11[PPT], rG22[PPT];
+  double rG01[PPT], rG02[PPT], rG12[PPT];
+  double rH1[PPT];
+  int rc[PPT];
+
+  /* The padding only has to be finite, see the note above. At LX == DMMA_P
+     there is none and this is folded away */
+  if (LX < DMMA_P) {
+    for (int p = tid; p < DMMA_MAT; p += NTHRDS) {
+      shdx[p] = 0.0;
+      shdy[p] = 0.0;
+      shdz[p] = 0.0;
+    }
+    for (int p = tid; p < DMMA_CUBE; p += NTHRDS) {
+      shc[p] = 0.0;
+    }
+    __syncthreads();
+  }
+
+  for (int p = tid; p < LX * LX; p += NTHRDS) {
+    const int i = p % LX;
+    const int l = p / LX;
+    const int m = i + DMMA_P * l;
+    shdx[m] = dx[p];
+    shdy[m] = dy[p];
+    shdz[m] = dz[p];
+  }
+
+#pragma unroll
+  for (int q = 0; q < PPT; q++) {
+    const int p = tid + q * NTHRDS;
+
+    if (p < LX3) {
+      const int i = p % LX;
+      const int jk = p / LX;
+      const int j = jk % LX;
+      const int k = jk / LX;
+      rc[q]   = i + DMMA_SI * j + DMMA_SJ * k;
+      rG00[q] = g11[p + ele];
+      rG11[q] = g22[p + ele];
+      rG22[q] = g33[p + ele];
+      rG01[q] = g12[p + ele];
+      rG02[q] = g13[p + ele];
+      rG12[q] = g23[p + ele];
+      rH1[q]  = h1[p + ele];
+    } else {
+      rc[q]   = 0;
+      rG00[q] = 0.0;
+      rG11[q] = 0.0;
+      rG22[q] = 0.0;
+      rG01[q] = 0.0;
+      rG02[q] = 0.0;
+      rG12[q] = 0.0;
+      rH1[q]  = 0.0;
+    }
+  }
+
+  __syncthreads();
+
+  const double * const cin[3]  = { u, v, w };
+  double * const       cout[3] = { au, av, aw };
+
+#pragma unroll
+  for (int c = 0; c < 3; c++) {
+
+    for (int p = tid; p < LX3; p += NTHRDS) {
+      const int i = p % LX;
+      const int jk = p / LX;
+      const int j = jk % LX;
+      const int k = jk / LX;
+      shc[i + DMMA_SI * j + DMMA_SJ * k] = cin[c][p + ele];
+    }
+
+    __syncthreads();
+
+    dmma_contract< 0, false, false, NW >(shr, shdx, shc, wf);
+    dmma_contract< 1, false, false, NW >(shs, shdy, shc, wf);
+    dmma_contract< 2, false, false, NW >(sht, shdz, shc, wf);
+
+    __syncthreads();
+
+#pragma unroll
+    for (int q = 0; q < PPT; q++) {
+      const int p = tid + q * NTHRDS;
+
+      if (p < LX3) {
+        const int idx = rc[q];
+        const double rtmp = shr[idx];
+        const double stmp = shs[idx];
+        const double ttmp = sht[idx];
+
+        shr[idx] = rH1[q]
+                 * (rG00[q] * rtmp
+                    + rG01[q] * stmp
+                    + rG02[q] * ttmp);
+        shs[idx] = rH1[q]
+                 * (rG01[q] * rtmp
+                    + rG11[q] * stmp
+                    + rG12[q] * ttmp);
+        sht[idx] = rH1[q]
+                 * (rG02[q] * rtmp
+                    + rG12[q] * stmp
+                    + rG22[q] * ttmp);
+      }
+    }
+
+    __syncthreads();
+
+    dmma_contract< 0, true, false, NW >(shc, shdx, shr, wf);
+    __syncthreads();
+    dmma_contract< 1, true, true, NW >(shc, shdy, shs, wf);
+    __syncthreads();
+    dmma_contract< 2, true, true, NW >(shc, shdz, sht, wf);
+    __syncthreads();
+
+    for (int p = tid; p < LX3; p += NTHRDS) {
+      const int i = p % LX;
+      const int jk = p / LX;
+      const int j = jk % LX;
+      const int k = jk / LX;
+      cout[c][p + ele] = shc[i + DMMA_SI * j + DMMA_SJ * k];
+    }
+
+    /* shc is restaged by the next component */
+    __syncthreads();
+  }
+}
+
+#endif // __CUDA_ARCH__ in [800, 1000)
+
+/*
+ * Compile-time dispatch onto the vector DMMA element kernel, see the note on
+ * ax_helm_dmma_dispatch above.
+ */
+template< typename T, const int LX, const int NW >
+struct ax_helm_dmma_vector_dispatch {
+  __device__ static void run(T * __restrict__,
+                             T * __restrict__,
+                             T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__) { }
+};
+
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && (__CUDA_ARCH__ < 1000)
+
+/* Keep in sync with dmma_vector_lx_supported() in dmma_kernel.h, which is
+   4 <= LX <= 8 and not the 2 <= LX <= 8 of the packed scalar kernel */
+#define NEKO_AX_HELM_DMMA_VECTOR_DISPATCH(LXV)                                 \
+  template< const int NW >                                                     \
+  struct ax_helm_dmma_vector_dispatch< double, LXV, NW > {                     \
+    __device__ static void run(double * __restrict__ au,                       \
+                               double * __restrict__ av,                       \
+                               double * __restrict__ aw,                       \
+                               const double * __restrict__ u,                  \
+                               const double * __restrict__ v,                  \
+                               const double * __restrict__ w,                  \
+                               const double * __restrict__ dx,                 \
+                               const double * __restrict__ dy,                 \
+                               const double * __restrict__ dz,                 \
+                               const double * __restrict__ h1,                 \
+                               const double * __restrict__ g11,                \
+                               const double * __restrict__ g22,                \
+                               const double * __restrict__ g33,                \
+                               const double * __restrict__ g12,                \
+                               const double * __restrict__ g13,                \
+                               const double * __restrict__ g23) {              \
+      ax_helm_dmma_vector_elem< LXV, NW >(au, av, aw, u, v, w, dx, dy, dz, h1, \
+                                          g11, g22, g33, g12, g13, g23);       \
+    }                                                                          \
+  }
+
+NEKO_AX_HELM_DMMA_VECTOR_DISPATCH(4);
+NEKO_AX_HELM_DMMA_VECTOR_DISPATCH(5);
+NEKO_AX_HELM_DMMA_VECTOR_DISPATCH(6);
+NEKO_AX_HELM_DMMA_VECTOR_DISPATCH(7);
+NEKO_AX_HELM_DMMA_VECTOR_DISPATCH(8);
+
+#endif // __CUDA_ARCH__ in [800, 1000)
+
+template< typename T, const int LX, const int NW >
+__global__ void NEKO_EB_BOUNDS(32 * NW)
+ax_helm_kernel_dmma_vector(T * __restrict__ au,
+                           T * __restrict__ av,
+                           T * __restrict__ aw,
+                           const T * __restrict__ u,
+                           const T * __restrict__ v,
+                           const T * __restrict__ w,
+                           const T * __restrict__ dx,
+                           const T * __restrict__ dy,
+                           const T * __restrict__ dz,
+                           const T * __restrict__ h1,
+                           const T * __restrict__ g11,
+                           const T * __restrict__ g22,
+                           const T * __restrict__ g33,
+                           const T * __restrict__ g12,
+                           const T * __restrict__ g13,
+                           const T * __restrict__ g23) {
+
+  ax_helm_dmma_vector_dispatch< T, LX, NW >::run(au, av, aw, u, v, w,
+                                                 dx, dy, dz, h1,
+                                                 g11, g22, g33,
+                                                 g12, g13, g23);
 }
 
 template< typename T >

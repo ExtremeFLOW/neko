@@ -108,10 +108,11 @@ provided (see #case-file).
 On the CUDA and HIP backends the spectral element operators --- the
 Helmholtz operator `Ax`, and `opgrad`, `dudxyz`, `cdtp`, `conv1`,
 `convect_scalar` and `lambda2` --- each ship two kernel formulations,
-and the best one depends on the polynomial order, the element count and
-the hardware. Rather than fix a choice at build time, Neko benchmarks
-them on the first call of each operator, using the real element count of
-the running case, and caches the winner for the rest of the run.
+and `Ax` a third, and the best one depends on the polynomial order, 
+the element count and the hardware. Rather than fix a choice at 
+build time, Neko benchmarks them on the first call of each operator, 
+using the real element count of the running case, and caches 
+the winner for the rest of the run.
 
 The two formulations are:
 
@@ -120,6 +121,101 @@ The two formulations are:
 - the **kstep** variant, which assigns one `(lx, lx)` thread plane per
   element and marches it in the third direction, holding the column in
   registers.
+
+The Helmholtz operator `Ax` ships a third on both backends, which hands
+the six tensor contractions of an element to the matrix units of the
+device rather than to the ordinary FMA pipes:
+
+- the **dmma** variant on CUDA, which stages a cube in shared memory
+  padded to `8^3` and issues each contraction on the fp64 tensor cores as
+  an `8 x 64 x 8` GEMM built from `8 x 8 x 4` WMMA tiles. Its geometry
+  parameter is the number of *warps per block* (2, 4 or 8), which stripe
+  the eight tiles of a contraction among themselves.
+- the **mfma** variant on HIP, which stages the element in LDS and issues
+  each contraction on the matrix cores as a `D * U` GEMM with `M = lx`,
+  `N = lx^2` and `K = lx`. Double precision uses the batched `4x4x4`
+  tile, which is fully utilised in `M` for any `lx < 16`; single
+  precision uses `16x16x4`, there being no `4x4x4` instruction for it.
+  Its geometry parameter is the number of *wavefronts per block* (1, 2,
+  4 or 8).
+
+Padding the dmma cube to `8^3` keeps every tile full, so no lane ever has
+to test an index, but it is exact only at `lx = 8`: at `lx = 4` just 64
+of the 512 points are real and seven eighths of every contraction is
+spent on zeros. Where `lx` divides 8 that waste is turned back into work
+by packing `8/lx` elements along each axis --- `(8/lx)^3` per cube ---
+and making the staged derivative matrix block diagonal, one `lx * lx`
+copy per sub-cube. A contraction along any axis then couples only indices
+within the same sub-cube, so the single padded contraction computes every
+packed element independently and correctly. `lx = 8` packs one element
+and is exactly what it was, `lx = 4` packs eight and `lx = 2` sixty-four,
+none of it costing any extra shared memory. `lx = 3, 5, 6, 7` do not
+divide 8 and keep one element and the old waste. The packing is aimed at
+p-multigrid, which smooths at `lx = 4` and `lx = 2`, so low order `Ax` is
+hot rather than incidental.
+
+The mfma variant has no padding to fill, but it meets the same imbalance
+from the other side: a contraction offers only `ceil(lx^2/16)` column
+groups of wavefront-parallel work --- one at `lx = 4`, four at `lx = 8`,
+nine at `lx = 12` --- so a wavefront beyond that count has no matrix core
+work left on the element. Rather than cap the sweep there, the surplus
+wavefronts are given an element of their own: `wpe = min(nwf,
+ceil(lx^2/16))` wavefronts cooperate on one element and the block covers
+`nwf / wpe` elements, the staging, geometry and write-back passes
+parallelising over the whole block either way. At `lx = 4` with eight
+wavefronts that is eight elements, one each, with nothing idle; at
+`lx = 12` it is one element and eight cooperating wavefronts.
+
+@note The dmma variant only exists where the fp64 tensor cores do: a
+double precision build, `2 <= lx <= 8` for the scalar operator and
+`4 <= lx <= 8` for the vector one, which does not pack, and an sm_80
+(A100) or sm_90 (H100 / GH200) device that the binary was actually
+compiled for. Both the compile time guard and the runtime check
+allow-list those two architectures rather than testing for "at least
+sm_80", because consumer sm_86 / sm_89 assemble the instruction but have
+no fp64 tensor hardware at all. A single precision build has no dmma
+variant, and that is a hardware limit rather than an omission: NVIDIA
+offers no fp32 tensor path, only TF32, whose 11 bit significand (unit
+roundoff `4.9e-4`, against fp32's `6e-8`) is not usable for the operator
+inside a Krylov solve.
+
+@note The mfma variant covers `4 <= lx <= 12` in *both* precisions, on
+gfx90a (MI250X) and gfx942 (MI300A / MI300X), and only for the scalar
+operator --- there is no vector mfma kernel. `v_mfma_f32_16x16x4f32` is
+true IEEE fp32, so a single precision build loses nothing in accuracy
+there; the upper order bound is the LDS needed to keep the staged cubes
+resident, not the instruction. Availability is confirmed by launching a
+probe kernel that reports whether the device pass really was compiled for
+a matrix core architecture, rather than by reading the device properties:
+a code object selected from a fat binary built for something else would
+otherwise turn the strategy into a silent no-op, launching, writing
+nothing, and leaving stale values in the output.
+
+@note Neither variant is a free win to expect. `Ax` is strongly bandwidth
+bound, roughly 1.6 flop/byte at `lx = 8` against a ridge point near 9 on
+GH200, so the matrix units can only pay by relieving shared memory and
+issue pressure rather than by adding flops. The AMD side has already run
+the experiment that removes precision from the argument: with a true fp32
+matrix core, and therefore no accuracy compromise whatsoever, mfma still
+measured 4.5% *behind* a plain 1d kernel at `lx = 8`. Whether either pays
+on a given part is exactly what the tuner measures.
+
+The vector (three component) Helmholtz operator runs its own two-way
+search, reported as a separate `Autotune Ax vector` section: the elements
+per block of its kstep variant against, on CUDA, the warp counts of a
+vector dmma variant. It has no 1d formulation, so `NEKO_AUTOTUNE=1D`
+selects kstep there, and no matrix core variant on HIP, where the vector
+search is the elements per block sweep alone. Blocking is not expected
+to pay much for the vector kernels --- they sit at 254-255 registers,
+where a wider block changes threads per block but not registers per
+thread, so it only saves the derivative matrix loads --- but it is swept
+rather than assumed. Because the three components share
+one set of geometric factors, the dmma variant reads them once into
+registers and runs the components through the same staged cubes rather
+than staging twelve of them. On GH200 at `lx = 8` that loses narrowly to
+kstep --- holding the factors costs occupancy --- so it is there for the
+low order end, where the register cost falls away and the shared memory
+footprint does not.
 
 Within each formulation the tuner also sweeps a geometry parameter. For
 the kstep kernels this is the number of *elements per thread block*: a
@@ -150,7 +246,26 @@ visible rather than implied:
 
 The chosen line reports only the geometry that applies to the winning
 formulation: an elements-per-block count when kstep wins, a chunk size
-when the 1d variant does.
+when the 1d variant does, and a warp or wavefront count when a matrix
+core variant does, which for `Ax` on a part that has one adds lines of
+the form
+
+```
+  DMMA  2w 8e  :     10.94 us/call
+  DMMA  4w 8e  :     11.62 us/call
+```
+
+on CUDA, where the second field is the elements packed into one cube, and
+
+```
+  MFMA  4wf 1 e:    136.40 us/call
+  MFMA  8wf 1 e:    136.40 us/call
+```
+
+on HIP, where it is the elements per block that the wavefront count
+implies. The chosen line names the same pair, as
+`Chose        : 3 (DMMA, 2 warps, 8 elem/blk)` or
+`Chose        : 3 (MFMA, 4 wf, 1 elem/block)`.
 
 @note The chunk sweep measures all four sizes rather than predicting a
 best one. Thread utilisation alone suggests the smallest valid block,
@@ -167,20 +282,23 @@ order --- on a machine whose clocks move during the sweep, a fixed order
 biases the comparison by candidate position, which no amount of extra
 iterations removes.
 
-@note The measured ranking differs sharply between vendors. On an
-NVIDIA GH200 the kstep variant wins and benefits from element blocking,
-whereas on AMD MI250X and MI300A the blocked kernels overrun the
-register budget and spill to scratch, so the elements per block sweep is
-**disabled by default on HIP** and enabled on CUDA. The defaults reflect
-measurements on those parts; on a machine that behaves differently,
-`NEKO_EB_TUNE` overrides the choice either way.
+@note The measured ranking differs sharply between vendors, and by more
+than the formulations alone. On an NVIDIA GH200 the kstep variant wins
+and benefits from element blocking; on AMD gfx90a the same family
+measures far worse than the 1d variant at `lx = 8`, and the blocked
+kernels can overrun the register budget and spill to scratch. The
+elements per block sweep is nevertheless enabled on both backends: a
+verdict fixed at build time is one the tuner can never revisit, and
+where the blocked variants do spill it simply rejects them. `NEKO_EB_TUNE`
+turns the sweep off if the extra tuning time is not wanted.
 
 The tuning behaviour is controlled by the environment variables
 described in the @ref appendices_env-var reference: `NEKO_AUTOTUNE`
-pins a formulation and skips the search entirely, `NEKO_EB_TUNE`
-enables or disables the elements per block sweep, `NEKO_EB` and
-`NEKO_CHUNKS` force a particular geometry when a formulation is
-pinned, and
+pins a formulation and skips the search entirely, `NEKO_EB_TUNE` and
+`NEKO_MFMA_TUNE` enable or disable the elements per block and matrix
+core sweeps, `NEKO_EB`, `NEKO_CHUNKS`, `NEKO_DMMA_NW` and
+`NEKO_MFMA_NWF` force a particular geometry when a
+formulation is pinned, and
 `NEKO_TUNE_ROUNDS` / `NEKO_TUNE_ITERS` control the sampling of both
 sweeps. All
 of them are useful mainly for A/B testing; the defaults are intended to

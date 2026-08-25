@@ -45,10 +45,17 @@
  * MEASURED TO LOSE on gfx90a and gfx942 for ax_helm: the blocked
  * specialisations roughly double VGPR usage and spill to scratch
  * (kstep_padded<double,8,4>: 168 VGPRs, 2596 B/lane scratch, against 110/0
- * unblocked). The sweep therefore defaults off on this backend. The
- * machinery is kept because the ranking inverts on NVIDIA, where blocking
- * measures a 1.6x win, and because the cause of the AMD register blow-up is
- * not yet understood.
+ * unblocked), and the cause of the register blow-up is still not understood.
+ * A single precision run at lx = 8 puts numbers on it: 130.7 us/call at one
+ * element per block against 1212 us at four and 1213 at eight, a factor of
+ * 9.3.
+ *
+ * The sweep is nevertheless on by default here as of 2026-08-22, as it is on
+ * CUDA. Encoding the verdict in a default meant the tuner could never
+ * re-measure it, and the ranking does invert on NVIDIA, where blocking
+ * measures a 1.6x win. The tuner rejects the blocked variants on its own; the
+ * price is tuning time, and at 9.3x slower those two candidates are most of
+ * it -- roughly 0.7 s per polynomial order at the default sampling.
  *
  * Candidate 0 is one element per block. Candidate C > 0 fits as many whole
  * elements as it can into 2^(C+1) wavefronts.
