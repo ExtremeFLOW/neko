@@ -516,7 +516,8 @@ contains
 
        ! Get the coefficients for the extrapolation
        nhist = min(time%tstep, this%iextm_order)
-       call time_scheme%compute_coeffs(iextm_coeffs, time%dtlag, nhist)
+       call time_scheme%compute_coeffs(iextm_coeffs, &
+            real(time%dtlag, kind=rp), nhist)
 
        ! Perform the extrapolation using the lag arrays
        call vector_cmult2(this%u_interface, this%u_interface_lag%lv(1), &

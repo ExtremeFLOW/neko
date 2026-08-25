@@ -298,11 +298,11 @@ contains
             v_tan_y = kinematics%vel_ang(3) * rx - kinematics%vel_ang(1) * rz
             v_tan_z = kinematics%vel_ang(1) * ry - kinematics%vel_ang(2) * rx
             wx%x(i, 1, 1, 1) = wx%x(i, 1, 1, 1) + &
-                  (kinematics%vel_trans(1) + v_tan_x) * phi%x(i, 1, 1, 1)
+                 (kinematics%vel_trans(1) + v_tan_x) * phi%x(i, 1, 1, 1)
             wy%x(i, 1, 1, 1) = wy%x(i, 1, 1, 1) + &
-                  (kinematics%vel_trans(2) + v_tan_y) * phi%x(i, 1, 1, 1)
+                 (kinematics%vel_trans(2) + v_tan_y) * phi%x(i, 1, 1, 1)
             wz%x(i, 1, 1, 1) = wz%x(i, 1, 1, 1) + &
-                  (kinematics%vel_trans(3) + v_tan_z) * phi%x(i, 1, 1, 1)
+                 (kinematics%vel_trans(3) + v_tan_z) * phi%x(i, 1, 1, 1)
          else
             ! For other points we do this to avoid the time-dependnent
             ! drift in some special cases, which happens due to the nature of
@@ -360,9 +360,9 @@ contains
 
     call rzero(ab_coeffs, 4)
     if (trim(scheme_type) .eq. 'ab') then
-       dt_history(1) = time%dt
-       dt_history(2) = time%dtlag(1)
-       dt_history(3) = time%dtlag(2)
+       dt_history(1) = real(time%dt, kind=rp)
+       dt_history(2) = real(time%dtlag(1), kind=rp)
+       dt_history(3) = real(time%dtlag(2), kind=rp)
        call ab_scheme_obj%compute_coeffs(ab_coeffs, dt_history, nadv)
     else
        call neko_error("ALE: Unknown mesh time-integration scheme")
