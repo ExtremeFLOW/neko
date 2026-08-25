@@ -11,7 +11,7 @@ module user
   real(kind=rp), parameter :: flow_to_deg = modulo(wind_from_deg + 180.0_rp, 360.0_rp)
   real(kind=rp), parameter :: wind_x = sin(flow_to_deg * deg_to_rad)
   real(kind=rp), parameter :: wind_y = cos(flow_to_deg * deg_to_rad)
-  real(kind=rp), parameter :: ramp_time = 5.0_rp
+  real(kind=rp), parameter :: ramp_time = 0.0_rp
 
 contains
 
@@ -36,8 +36,12 @@ contains
     real(kind=rp) :: scale
     real(kind=rp) :: s
 
-    s = min(max(t / ramp_time, 0.0_rp), 1.0_rp)
-    scale = s * s * (3.0_rp - 2.0_rp * s)
+    if (ramp_time <= 0.0_rp) then
+       scale = 1.0_rp
+    else
+       s = min(max(t / ramp_time, 0.0_rp), 1.0_rp)
+       scale = s * s * (3.0_rp - 2.0_rp * s)
+    end if
   end function wind_ramp
 
   subroutine set_profile(u, v, w, idx)

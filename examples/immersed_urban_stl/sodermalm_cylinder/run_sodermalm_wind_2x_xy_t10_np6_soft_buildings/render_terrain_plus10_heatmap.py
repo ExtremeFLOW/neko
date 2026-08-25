@@ -506,6 +506,7 @@ def main() -> None:
     w = fill_missing_nearest(best_w.reshape(GRID_N, GRID_N), valid)
     speed = blur3(np.sqrt(u * u + v * v + w * w), passes=1)
     if NPZ_OUT:
+        Path(NPZ_OUT).parent.mkdir(parents=True, exist_ok=True)
         np.savez_compressed(
             NPZ_OUT,
             speed=speed,
