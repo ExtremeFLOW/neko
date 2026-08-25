@@ -3,7 +3,7 @@
 ## Develop
 
 - Added probes support for moving mesh (ALE) sims, with two `fixed` 
-  and `body_attached` modes.
+  and `body_attached` mode, and some improvments in AABB-tree module.
 - Fixed a bug that caused `import_fields` to not read the mesh file if the 
   mesh file name and the field file name had the same counter (e.g. 
   `mesh0.f00000` and `field0.f00000`).

@@ -355,6 +355,7 @@ contains
     logical :: done
 
     integer :: start_layer, end_layer
+    integer :: capacity, m
 
     type(aabb_t), allocatable :: box_list(:)
     integer, dimension(:), allocatable :: sorted_indices
@@ -364,7 +365,18 @@ contains
     if (allocated(box_list)) deallocate(box_list)
     allocate(box_list(size(objects)))
 
-    call this%init(size(objects) * 2)
+    ! Exact node count of the layered build below: n leaves, then each
+    ! layer of m nodes produces (m + 1) / 2 parents (one wrapper node
+    ! when m is odd). This can exceed 2 n, which would trigger a full
+    ! resize of the node pool for the sake of a few nodes.
+    capacity = size(objects)
+    m = size(objects)
+    do while (m .gt. 1)
+       m = (m + 1) / 2
+       capacity = capacity + m
+    end do
+
+    call this%init(capacity)
     if (size(objects) .eq. 0) then
        return
     end if
@@ -454,6 +466,7 @@ contains
     logical :: done
 
     integer :: start_layer, end_layer
+    integer :: capacity, m
 
     type(aabb_t), allocatable :: box_list(:)
     integer, dimension(:), allocatable :: sorted_indices
@@ -463,7 +476,18 @@ contains
     if (allocated(box_list)) deallocate(box_list)
     allocate(box_list(size(objects)))
 
-    call this%init(size(objects) * 2)
+    ! Exact node count of the layered build below: n leaves, then each
+    ! layer of m nodes produces (m + 1) / 2 parents (one wrapper node
+    ! when m is odd). This can exceed 2 n, which would trigger a full
+    ! resize of the node pool for the sake of a few nodes.
+    capacity = size(objects)
+    m = size(objects)
+    do while (m .gt. 1)
+       m = (m + 1) / 2
+       capacity = capacity + m
+    end do
+
+    call this%init(capacity)
     if (size(objects) .eq. 0) then
        return
     end if
