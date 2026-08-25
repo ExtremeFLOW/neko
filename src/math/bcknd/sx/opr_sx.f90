@@ -2,7 +2,7 @@
 module opr_sx
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use space, only : space_t
   use coefs, only : coef_t
   use math, only : sub3, copy, rzero
@@ -74,9 +74,9 @@ module opr_sx
        type(space_t), intent(in) :: Xh
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: nelv
-       real(kind=rp), intent(in) :: dt
+       real(kind=dp), intent(in) :: dt
        real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u, v, w
-       real(kind=rp) :: cfl
+       real(kind=dp) :: cfl
      end function opr_sx_cfl
 
      module subroutine opr_sx_lambda2(lambda2, u, v, w, coef)

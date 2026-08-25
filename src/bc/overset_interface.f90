@@ -463,7 +463,8 @@ contains
        call this%s_interface_lag%update()
 
        nhist = min(time%tstep, this%iextm_order)
-       call time_scheme%compute_coeffs(iextm_coeffs, time%dtlag, nhist)
+       call time_scheme%compute_coeffs(iextm_coeffs, &
+            real(time%dtlag, kind=rp), nhist)
 
        call vector_cmult2(this%s_interface, this%s_interface_lag%lv(1), &
             iextm_coeffs(1))

@@ -114,7 +114,7 @@ contains
 
     if (.not. strong_) then
        ! Compute the wall stress using the wall model.
-       call this%wall_model%compute(time%t, time%tstep)
+       call this%wall_model%compute( real(time%t, kind=rp), time%tstep)
 
        ! Populate the 3D wall stress field for post-processing.
        call this%wall_model%compute_mag_field()
@@ -168,7 +168,7 @@ contains
 
     if (.not. strong_) then
        ! Compute the wall stress using the wall model.
-       call this%wall_model%compute(time%t, time%tstep)
+       call this%wall_model%compute( real(time%t, kind=rp), time%tstep)
 
        ! Populate the 3D wall stress field for post-processing.
        call this%wall_model%compute_mag_field()

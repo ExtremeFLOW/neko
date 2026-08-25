@@ -68,6 +68,8 @@ module math
 
   !> Machine epsilon \f$ \epsilon \f$
   real(kind=rp), public, parameter :: NEKO_EPS = epsilon(1.0_rp)
+  real(kind=dp), public, parameter :: NEKO_EPS_DP = epsilon(1.0_dp)
+  real(kind=sp), public, parameter :: NEKO_EPS_SP = epsilon(1.0_sp)
 
   !> \f$ ln(2) \f$
   real(kind=rp), public, parameter :: NEKO_M_LN2 = log(2.0_rp)
