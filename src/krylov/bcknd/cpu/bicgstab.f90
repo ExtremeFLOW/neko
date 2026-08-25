@@ -220,7 +220,7 @@ contains
       ! The implementation deliberately starts from x = 0, so f is both the
       ! initial residual and the fixed shadow residual used by BiCGStab.
       rtr = glsc3(r, coef%mult, r, n)
-      r_norm = bicgstab_vector_norm(rtr, 'initial residual')
+      r_norm = bicgstab_sqrt(rtr, 'initial residual')
       shadow_norm = r_norm
       rnorm = r_norm * norm_fac
       gamma = rnorm * this%rel_tol
@@ -269,7 +269,7 @@ contains
          ! an additional global synchronisation.
          call bicgstab_product_and_norm(alpha_denominator, vtr, f, v, &
               coef%mult, n)
-         v_norm = bicgstab_vector_norm(vtr, 'operator result v')
+         v_norm = bicgstab_sqrt(vtr, 'operator result v')
          call bicgstab_check_inner_product(alpha_denominator, shadow_norm, &
               v_norm, 'alpha denominator')
          alpha = rho_1 / alpha_denominator
@@ -280,7 +280,7 @@ contains
          call copy(s, r, n)
          call add2s2(s, v, -alpha, n)
          str = glsc3(s, coef%mult, s, n)
-         s_norm = bicgstab_vector_norm(str, 'intermediate residual')
+         s_norm = bicgstab_sqrt(str, 'intermediate residual')
          rnorm = s_norm * norm_fac
          if (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) then
             call add2s2(x%x, p_hat, alpha,n)
@@ -295,7 +295,7 @@ contains
 
          call bicgstab_product_and_norm(omega_numerator, ttr, s, t, &
               coef%mult, n)
-         t_norm = bicgstab_vector_norm(ttr, 'operator result t')
+         t_norm = bicgstab_sqrt(ttr, 'operator result t')
          if (t_norm .le. 0.0_rp) then
             call neko_error('BiCGStab breakdown: zero omega denominator')
          end if
@@ -312,7 +312,7 @@ contains
          call add2s2(r, t, -omega, n)
 
          rtr = glsc3(r, coef%mult, r, n)
-         r_norm = bicgstab_vector_norm(rtr, 'recursive residual')
+         r_norm = bicgstab_sqrt(rtr, 'recursive residual')
          rnorm = r_norm * norm_fac
          call this%monitor_iter(iter, rnorm)
          if (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) then
@@ -402,22 +402,22 @@ contains
 
   end subroutine bicgstab_product_and_norm
 
-  !> Return a vector norm from its weighted squared norm.
-  !! @param norm_squared Weighted squared norm.
+  !> Return the square root of a valid squared norm.
+  !! @param value Weighted squared norm.
   !! @param quantity Name of the vector for error reporting.
-  !! @return The non-negative vector norm.
-  function bicgstab_vector_norm(norm_squared, quantity) result(vector_norm)
-    real(kind=rp), intent(in) :: norm_squared
+  !! @return The non-negative square root.
+  function bicgstab_sqrt(value, quantity) result(root)
+    real(kind=rp), intent(in) :: value
     character(len=*), intent(in) :: quantity
-    real(kind=rp) :: vector_norm
+    real(kind=rp) :: root
 
-    if (.not. ieee_is_finite(norm_squared) .or. norm_squared .lt. 0.0_rp) then
+    if (.not. ieee_is_finite(value) .or. value .lt. 0.0_rp) then
        call neko_error('BiCGStab failure: invalid ' // trim(quantity) // &
             ' norm')
     end if
-    vector_norm = sqrt(norm_squared)
+    root = sqrt(value)
 
-  end function bicgstab_vector_norm
+  end function bicgstab_sqrt
 
   !> Solve three independent systems with the CPU BiCGStab method.
   !!
