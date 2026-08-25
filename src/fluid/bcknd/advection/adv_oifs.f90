@@ -59,7 +59,7 @@ module adv_oifs
   !! https://dl.acm.org/doi/abs/10.1007/BF01063118
   type, public, extends(advection_t) :: adv_oifs_t
      !> Number of RK4 sub-steps
-     integer :: ntaubd
+     integer :: ntaubd = 0
      !> Coeffs of the higher-order space
      type(coef_t) :: coef_GL
      !> Coeffs of the original space in the simulation
@@ -85,9 +85,12 @@ module adv_oifs
      !> The convecting field series in GL space and rst format
      type(field_series_t) :: convr_GL, convs_GL, convt_GL
      !> The time interpolated convecting field used in Runge_Kutta method
-     type(field_t), pointer :: cr_k1, cs_k1, ct_k1
-     type(field_t), pointer :: cr_k23, cs_k23, ct_k23
-     type(field_t), pointer :: cr_k4, cs_k4, ct_k4
+     type(field_t), pointer :: cr_k1 => null(), cs_k1 => null(), &
+          ct_k1 => null()
+     type(field_t), pointer :: cr_k23 => null(), cs_k23 => null(), &
+          ct_k23 => null()
+     type(field_t), pointer :: cr_k4 => null(), cs_k4 => null(), &
+          ct_k4 => null()
      !> The field_list containing the time interpolated convecting field
      type(field_list_t) :: conv_k1, conv_k23, conv_k4
      !> The convecting velocity field in GL space
@@ -131,7 +134,7 @@ contains
   subroutine adv_oifs_init(this, lxd, coef, ctarget, ulag, vlag, wlag, &
        dtlag, tlag, time_scheme, slag)
     implicit none
-    class(adv_oifs_t) :: this
+    class(adv_oifs_t), intent(inout) :: this
     integer, intent(in) :: lxd
     type(coef_t), target :: coef
     real(kind=rp), intent(in) :: ctarget
@@ -142,6 +145,8 @@ contains
     type(field_series_t), target, optional :: slag
     integer :: nel, n_GL, n, idx, idy, idz
     real(kind=rp) :: max_cfl_rk4
+
+    call this%free()
 
     ! stability limit for RK4 including safety factor
     max_cfl_rk4 = 2.0
@@ -279,65 +284,47 @@ contains
   subroutine adv_oifs_free(this)
     class(adv_oifs_t), intent(inout) :: this
 
-    call this%coef_GL%free()
-
-    nullify(this%coef_GLL)
-
-    call this%GLL_to_GL%free()
-
-    call this%Xh_GL%free()
-
-    nullify(this%Xh_GLL)
-
-    call this%dtime%free()
-
-    call this%cr_GL%free()
-    call this%cs_GL%free()
-    call this%ct_GL%free()
-
-    call this%convr_GL%free()
-    call this%convs_GL%free()
-    call this%convt_GL%free()
-
     call this%conv_k1%free()
     call this%conv_k23%free()
     call this%conv_k4%free()
 
     if (associated(this%cr_k1)) then
+       call this%cr_k1%free()
        deallocate(this%cr_k1)
     end if
     if (associated(this%cs_k1)) then
+       call this%cs_k1%free()
        deallocate(this%cs_k1)
     end if
     if (associated(this%ct_k1)) then
+       call this%ct_k1%free()
        deallocate(this%ct_k1)
     end if
     if (associated(this%cr_k23)) then
+       call this%cr_k23%free()
        deallocate(this%cr_k23)
     end if
     if (associated(this%cs_k23)) then
+       call this%cs_k23%free()
        deallocate(this%cs_k23)
     end if
     if (associated(this%ct_k23)) then
+       call this%ct_k23%free()
        deallocate(this%ct_k23)
     end if
     if (associated(this%cr_k4)) then
+       call this%cr_k4%free()
        deallocate(this%cr_k4)
     end if
     if (associated(this%cs_k4)) then
+       call this%cs_k4%free()
        deallocate(this%cs_k4)
     end if
     if (associated(this%ct_k4)) then
+       call this%ct_k4%free()
        deallocate(this%ct_k4)
     end if
 
-    nullify(this%ulag)
-    nullify(this%vlag)
-    nullify(this%wlag)
-    nullify(this%slag)
-    nullify(this%ctlag)
-    nullify(this%dctlag)
-    nullify(this%oifs_scheme)
     nullify(this%cr_k1)
     nullify(this%cs_k1)
     nullify(this%ct_k1)
@@ -347,6 +334,14 @@ contains
     nullify(this%cr_k4)
     nullify(this%cs_k4)
     nullify(this%ct_k4)
+
+    call this%convr_GL%free()
+    call this%convs_GL%free()
+    call this%convt_GL%free()
+
+    call this%cr_GL%free()
+    call this%cs_GL%free()
+    call this%ct_GL%free()
 
     if (allocated(this%cx)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -366,6 +361,23 @@ contains
        end if
        deallocate(this%cz)
     end if
+
+    call this%dtime%free()
+    call this%GLL_to_GL%free()
+    call this%coef_GL%free()
+    call this%Xh_GL%free()
+
+    nullify(this%coef_GLL)
+    nullify(this%Xh_GLL)
+    nullify(this%ulag)
+    nullify(this%vlag)
+    nullify(this%wlag)
+    nullify(this%slag)
+    nullify(this%ctlag)
+    nullify(this%dctlag)
+    nullify(this%oifs_scheme)
+
+    this%ntaubd = 0
 
   end subroutine adv_oifs_free
 
