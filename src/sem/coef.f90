@@ -39,7 +39,8 @@ module coefs
   use dofmap, only : dofmap_t
   use space, only : space_t
   use math, only : rone, invcol1, addcol3, subcol3, copy, &
-       chsign, rzero, invers2, glsum, glmax, NEKO_EPS
+       chsign, rzero, invers2, glsum, glmax, NEKO_EPS, &
+       eig_sym2, eig_sym3
   use logger, only : neko_log, LOG_SIZE
   use mesh, only : mesh_t
   use device_math, only : device_rone, device_invcol1, &
@@ -1333,11 +1334,11 @@ contains
                 end if
 
                 if (this%msh%gdim .eq. 2) then
-                   call coef_eig_sym2(real(this%G11(i,j,k,e), dp) / scal, &
+                   call eig_sym2(real(this%G11(i,j,k,e), dp) / scal, &
                         real(this%G22(i,j,k,e), dp) / scal, &
                         real(this%G12(i,j,k,e), dp) / scal, e1, e3)
                 else
-                   call coef_eig_sym3(real(this%G11(i,j,k,e), dp) / scal, &
+                   call eig_sym3(real(this%G11(i,j,k,e), dp) / scal, &
                         real(this%G22(i,j,k,e), dp) / scal, &
                         real(this%G33(i,j,k,e), dp) / scal, &
                         real(this%G12(i,j,k,e), dp) / scal, &
@@ -1395,95 +1396,6 @@ contains
     end if
 
   end subroutine coef_metric_condition
-
-  !> Eigenvalues of a symmetric 2x2 matrix, descending
-  !!
-  !! The smaller root is recovered from the determinant rather than from
-  !! \f$ t/2 - s \f$, which cancels catastrophically on the stretched
-  !! elements this is here to measure.
-  pure subroutine coef_eig_sym2(a11, a22, a12, e1, e2)
-    real(kind=dp), intent(in) :: a11, a22, a12
-    real(kind=dp), intent(out) :: e1, e2
-    real(kind=dp) :: t, d, s
-
-    t = a11 + a22
-    d = a11 * a22 - a12 * a12
-    s = sqrt(max(0.0_dp, 0.25_dp * t * t - d))
-    e1 = 0.5_dp * t + s
-
-    if (e1 .gt. 0.0_dp) then
-       e2 = d / e1
-    else
-       e2 = 0.5_dp * t - s
-    end if
-
-  end subroutine coef_eig_sym2
-
-  !> Eigenvalues of a symmetric 3x3 matrix, descending
-  !!
-  !! Closed form via the characteristic polynomial of the deviatoric part,
-  !! which avoids an iterative solve for what is a per quadrature point
-  !! diagnostic. A diagonal matrix is handled by the general path and comes
-  !! back exact; only the isotropic case is special, because the deviatoric
-  !! scaling is singular there.
-  !!
-  !! @note The smallest root is a difference of terms of order
-  !! \f$ \lambda_{max} \f$, so its relative accuracy degrades as
-  !! \f$ \epsilon \kappa \f$ -- about 1e-10 at the 1e6 condition numbers
-  !! this is used to detect, which is ample for a threshold test but would
-  !! not be if \f$ \kappa \f$ approached \f$ 1/\epsilon \f$. That is why
-  !! this works in double regardless of what \a rp is: in a single precision
-  !! build the same amplification against \f$ \epsilon_{sp} \f$ would put a
-  !! 6% error on \f$ \kappa \f$ at 1e6 and lose it entirely near 1e7,
-  !! exactly where the answer matters most.
-  pure subroutine coef_eig_sym3(a11, a22, a33, a12, a13, a23, e1, e2, e3)
-    real(kind=dp), intent(in) :: a11, a22, a33, a12, a13, a23
-    real(kind=dp), intent(out) :: e1, e2, e3
-    real(kind=dp) :: p1, p2, q, p, r, phi
-    real(kind=dp) :: b11, b22, b33, b12, b13, b23
-    real(kind=dp), parameter :: third = 1.0_dp / 3.0_dp
-    real(kind=dp), parameter :: pi_third = 1.0471975511965976_dp
-    real(kind=dp), parameter :: twopi_third = 2.0943951023931953_dp
-
-    p1 = a12 * a12 + a13 * a13 + a23 * a23
-
-    q = (a11 + a22 + a33) * third
-    p2 = (a11 - q)**2 + (a22 - q)**2 + (a33 - q)**2 + 2.0_dp * p1
-    p = sqrt(p2 / 6.0_dp)
-
-    if (p .le. 0.0_dp) then
-       ! diagonal and isotropic, or all zero
-       e1 = max(a11, max(a22, a33))
-       e3 = min(a11, min(a22, a33))
-       e2 = a11 + a22 + a33 - e1 - e3
-       return
-    end if
-
-    b11 = (a11 - q) / p
-    b22 = (a22 - q) / p
-    b33 = (a33 - q) / p
-    b12 = a12 / p
-    b13 = a13 / p
-    b23 = a23 / p
-
-    r = 0.5_dp * (b11 * (b22 * b33 - b23 * b23) &
-         - b12 * (b12 * b33 - b23 * b13) &
-         + b13 * (b12 * b23 - b22 * b13))
-
-    ! r is in [-1, 1] analytically, round-off can push it out
-    if (r .le. -1.0_dp) then
-       phi = pi_third
-    else if (r .ge. 1.0_dp) then
-       phi = 0.0_dp
-    else
-       phi = acos(r) * third
-    end if
-
-    e1 = q + 2.0_dp * p * cos(phi)
-    e3 = q + 2.0_dp * p * cos(phi + twopi_third)
-    e2 = 3.0_dp * q - e1 - e3
-
-  end subroutine coef_eig_sym3
 
   !> Compute processor-local compressed versions of mappings Gij
   !! @note This could be faster with various tweaks
