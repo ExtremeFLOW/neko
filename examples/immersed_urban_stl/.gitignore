@@ -1,6 +1,11 @@
 # Generated geometry/build products.
 geometry_pipeline/generated/
 geometry_pipeline/.build/
+sodermalm_cylinder/generated_*/
+sodermalm_cylinder/figures_*/
+sodermalm_cylinder/run_sodermalm_wind_2x_xy_t10_np6_soft_buildings/renders/
+sodermalm_cylinder/run_sodermalm_wind_2x_xy_t10_np6_soft_buildings/lumi_*_fields/
+sodermalm_cylinder/run_sodermalm_wind_2x_xy_t10_np6_soft_buildings/archived_runs/
 
 # Local/remote run outputs.
 local_*/

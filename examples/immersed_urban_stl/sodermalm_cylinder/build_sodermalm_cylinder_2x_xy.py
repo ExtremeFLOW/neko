@@ -54,12 +54,11 @@ def main() -> None:
 
     land_geometry = base.load_geojson(OUT / "sodermalm_osm_island_epsg3006.geojson")["features"][0]["geometry"]
     shoreline = base.polygon_boundary_rings(land_geometry)
-    outer_shoreline = shoreline[0]
-
-    px = np.array([p[0] for p in outer_shoreline])
-    py = np.array([p[1] for p in outer_shoreline])
+    all_shore_points = [p for ring in shoreline for p in ring]
+    px = np.array([p[0] for p in all_shore_points])
+    py = np.array([p[1] for p in all_shore_points])
     center = (float((px.min() + px.max()) * 0.5), float((py.min() + py.max()) * 0.5))
-    radius = float(max(math.hypot(x - center[0], y - center[1]) for x, y in outer_shoreline) + base.BUFFER_M)
+    radius = float(max(math.hypot(x - center[0], y - center[1]) for x, y in all_shore_points) + base.BUFFER_M)
 
     samples, water_level = base.terrain_samples(OUT / "sodermalm_cylinder_contours.geojson", center)
     geo = OUT / f"sodermalm_cylinder_{TAG}_quad_disk.geo"
@@ -104,6 +103,15 @@ def main() -> None:
         water_level,
         annotate=False,
     )
+    base.render_3d_scene(
+        FIG / f"sodermalm_cylinder_{TAG}_3d_buildings.png",
+        shoreline,
+        OUT / "sodermalm_buildings.geojson",
+        center,
+        radius,
+        samples,
+        water_level,
+    )
     checker_output = base.run_mesh_checker(mesh_path)
 
     metadata = {
@@ -119,8 +127,11 @@ def main() -> None:
         "water_mesh_size_m": base.WATER_MESH_SIZE_M,
         "effective_water_p2_xy_spacing_m": base.WATER_MESH_SIZE_M / 2.0,
         "shoreline_simplify_m": base.SHORELINE_SIMPLIFY_M,
+        "inflow_from_degrees": base.INFLOW_FROM_DEG,
+        "inflow_arc_width_degrees": base.INFLOW_ARC_WIDTH_DEG,
+        "inflow_angle_convention": "meteorological: north is 0/360 degrees, clockwise positive; direction is where wind comes from",
         "zones": {
-            "1": "northwest_quarter_inlet_arc",
+            "1": "inlet_arc",
             "2": "remaining_cylindrical_side",
             "5": "terrain_or_water_bottom",
             "6": "top",

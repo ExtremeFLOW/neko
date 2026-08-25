@@ -9,11 +9,12 @@
         "checkpoint_control": "never",
         "checkpoint_value": 1,
         "time": {
-            "end_time": 10.0,
+            "end_time": 100.0,
             "variable_timestep": true,
-            "timestep": 0.0005,
+            "timestep": 0.01,
             "target_cfl": 0.3,
-            "max_timestep": 0.002
+            "max_timestep": 0.25,
+            "max_dt_increase_factor": 1.5
         },
         "numerics": {
             "time_order": 2,
@@ -24,8 +25,7 @@
             "scheme": "pnpn",
             "Re": 100.0,
             "initial_condition": {
-                "type": "uniform",
-                "value": [ 0.7071067811865476, -0.7071067811865475, 0.0 ]
+                "type": "user"
             },
             "velocity_solver": {
                 "type": "cg",
@@ -46,12 +46,11 @@
                 "absolute_tolerance": 1e-4,
                 "max_iterations": 1000
             },
-            "output_control": "never",
-            "output_value": 1,
+            "output_control": "simulationtime",
+            "output_value": 10.0,
             "boundary_conditions": [
                 {
-                    "type": "velocity_value",
-                    "value": [ 0.7071067811865476, -0.7071067811865475, 0.0 ],
+                    "type": "user_velocity",
                     "zone_indices": [ 1 ]
                 },
                 {

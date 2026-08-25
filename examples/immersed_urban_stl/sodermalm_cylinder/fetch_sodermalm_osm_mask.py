@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Fetch and clean the OSM island polygon for the Södermalm mesh.
+"""Fetch and clean the OSM island polygons for the Södermalm mesh.
 
 The Nominatim `place=island` polygon is too generous for this CFD cutout: it
 can include land around Hammarby sjö, e.g. Lumaparken/Hammarby Sjöstad.  We
 therefore use OSM water polygons as cutters and keep only the connected
-component containing central Södermalm.
+component containing central Södermalm. The upstream old-town islands are then
+added explicitly so Hornsgatan measurements are not sheltered by missing land.
 """
 
 from __future__ import annotations
@@ -26,6 +27,12 @@ WATER_QUERIES = [
     "Hammarby sjö, Stockholm",
     "Årstaviken, Stockholm",
     "Riddarfjärden, Stockholm",
+]
+UPSTREAM_ISLAND_QUERIES = [
+    "Stadsholmen, Stockholm",
+    "Riddarholmen, Stockholm",
+    "Helgeandsholmen, Stockholm",
+    "Strömsborg, Stockholm",
 ]
 CENTRAL_SODERMALM_WGS84 = (18.063, 59.314)
 WATER_CUT_BUFFER_M = 18.0
@@ -171,18 +178,33 @@ def main() -> None:
     if selected is None:
         selected = max(parts, key=lambda geom: geom.GetArea())
 
+    expanded = selected.Clone()
+    upstream_props = []
+    for query in UPSTREAM_ISLAND_QUERIES:
+        match = None
+        for item in fetch_nominatim(query):
+            if item.get("geojson", {}).get("type") in {"Polygon", "MultiPolygon"}:
+                match = item
+                break
+        if match is None:
+            raise SystemExit(f"Could not find OSM island polygon for {query}.")
+        geom = geojson_to_epsg3006(match["geojson"])
+        expanded = expanded.Union(geom).MakeValid()
+        upstream_props.append(f'{match.get("display_name")} [{match.get("osm_type")} {match.get("osm_id")}]')
+
     props = dict(feature_collection["features"][0]["properties"])
     props.update(
         {
-            "cleaning": "raw OSM polygon minus buffered OSM water polygons; selected central Södermalm component",
+            "cleaning": "raw OSM polygon minus buffered OSM water polygons; selected central Södermalm component; added upstream old-town islands",
             "water_cut_buffer_m": WATER_CUT_BUFFER_M,
             "water_cut_sources": " | ".join(water_props),
+            "upstream_island_sources": " | ".join(upstream_props),
             "raw_area_m2": f"{island_geom.GetArea():.1f}",
-            "clean_area_m2": f"{selected.GetArea():.1f}",
+            "clean_area_m2": f"{expanded.GetArea():.1f}",
         }
     )
     write_geojson(water_cut, water_union, {"sources": " | ".join(water_props), "buffer_m": WATER_CUT_BUFFER_M})
-    write_geojson(epsg3006, selected, props)
+    write_geojson(epsg3006, expanded, props)
     print(json.dumps(props, indent=2, ensure_ascii=False))
 
 

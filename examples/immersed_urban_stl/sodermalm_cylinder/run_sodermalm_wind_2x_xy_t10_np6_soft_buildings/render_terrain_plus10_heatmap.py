@@ -14,12 +14,25 @@ from PIL import Image, ImageDraw
 
 HERE = Path(__file__).resolve().parent
 CASE_ROOT = HERE.parent
-GENERATED = CASE_ROOT / "generated_2x_xy"
-FIELD = HERE / "fields" / "field0.f00000"
-OUT = HERE / "renders" / "sodermalm_velocity_terrain_plus10.png"
+GENERATED = Path(os.environ.get("GENERATED_PATH", CASE_ROOT / "generated_2x_xy"))
+FIELD = Path(os.environ.get("FIELD_PATH", HERE / "fields" / "field0.f00000"))
+GEOMETRY_FIELD = Path(os.environ.get("GEOMETRY_FIELD", HERE / "fields" / "field0.f00000"))
+OUT = Path(os.environ.get("OUT_PATH", HERE / "renders" / "sodermalm_velocity_terrain_plus10.png"))
+NPZ_OUT = os.environ.get("NPZ_OUT")
+SHOW_STREAMLINES = os.environ.get("SHOW_STREAMLINES", "1") != "0"
+VMAX_OVERRIDE = os.environ.get("VMAX")
+VMIN_OVERRIDE = os.environ.get("VMIN")
+COLOR_SCALE = os.environ.get("COLOR_SCALE", "linear")
+LOG_VREF = float(os.environ.get("LOG_VREF", "0.08"))
+BUILDING_ALPHA = int(os.environ.get("BUILDING_ALPHA", "185"))
 GRID_N = 420
 LIFT_M = 10.0
+SAMPLE_Z = os.environ.get("SAMPLE_Z")
 CHUNK_ELEMS = 16000
+STREAMLINE_MIN_SPEED = 0.06
+STREAMLINE_STEP_M = 24.0
+STREAMLINE_MAX_STEPS = 260
+STREAMLINE_SEED_SPACING = 34
 
 sys.path.insert(0, str(CASE_ROOT))
 from build_sodermalm_cylinder import (  # noqa: E402
@@ -163,7 +176,15 @@ def blur3(grid: np.ndarray, passes: int = 2) -> np.ndarray:
     return out
 
 
-def color_velocity(speed: np.ndarray, vmax: float) -> np.ndarray:
+def velocity_fraction(speed: np.ndarray, vmin: float, vmax: float) -> np.ndarray:
+    shifted = np.clip(speed - vmin, 0.0, None)
+    span = max(vmax - vmin, 1.0e-12)
+    if COLOR_SCALE == "log":
+        return np.log1p(shifted / LOG_VREF) / np.log1p(span / LOG_VREF)
+    return shifted / span
+
+
+def color_velocity(speed: np.ndarray, vmin: float, vmax: float) -> np.ndarray:
     # A restrained viridis-like ramp, kept readable without saturating the whole map.
     stops = np.array(
         [
@@ -177,7 +198,7 @@ def color_velocity(speed: np.ndarray, vmax: float) -> np.ndarray:
         ],
         dtype=np.float32,
     )
-    t = np.clip(speed / max(vmax, 1.0e-12), 0.0, 1.0)
+    t = np.clip(velocity_fraction(speed, vmin, vmax), 0.0, 1.0)
     pos = t * (len(stops) - 1)
     idx = np.floor(pos).astype(np.int32)
     frac = (pos - idx)[..., None]
@@ -198,10 +219,139 @@ def draw_polyline(draw: ImageDraw.ImageDraw, points, center, radius, size, fill,
         draw.line(rows, fill=fill, width=width, joint="curve")
 
 
-def render_overlay(rgb: np.ndarray, speed: np.ndarray, valid: np.ndarray, center, radius, shoreline, buildings, vmax: float, time: float) -> Image.Image:
+def bilinear(grid: np.ndarray, px: float, py: float) -> float:
+    if px < 0.0 or py < 0.0 or px >= grid.shape[1] - 1 or py >= grid.shape[0] - 1:
+        return float("nan")
+    ix = int(math.floor(px))
+    iy = int(math.floor(py))
+    tx = px - ix
+    ty = py - iy
+    return float(
+        (1.0 - tx) * (1.0 - ty) * grid[iy, ix]
+        + tx * (1.0 - ty) * grid[iy, ix + 1]
+        + (1.0 - tx) * ty * grid[iy + 1, ix]
+        + tx * ty * grid[iy + 1, ix + 1]
+    )
+
+
+def pixel_to_local(px: float, py: float, radius: float) -> tuple[float, float]:
+    x = -radius + (px + 0.5) * (2.0 * radius / GRID_N)
+    y = radius - (py + 0.5) * (2.0 * radius / GRID_N)
+    return x, y
+
+
+def local_to_pixel(x: float, y: float, radius: float) -> tuple[float, float]:
+    px = (x + radius) / (2.0 * radius) * GRID_N - 0.5
+    py = (radius - y) / (2.0 * radius) * GRID_N - 0.5
+    return px, py
+
+
+def integrate_streamline(
+    seed_px: float,
+    seed_py: float,
+    u: np.ndarray,
+    v: np.ndarray,
+    speed: np.ndarray,
+    disk: np.ndarray,
+    radius: float,
+    direction: float,
+) -> list[tuple[float, float]]:
+    points: list[tuple[float, float]] = []
+    x, y = pixel_to_local(seed_px, seed_py, radius)
+    for _ in range(STREAMLINE_MAX_STEPS):
+        px, py = local_to_pixel(x, y, radius)
+        ix = int(round(px))
+        iy = int(round(py))
+        if ix < 0 or iy < 0 or ix >= GRID_N or iy >= GRID_N or not disk[iy, ix]:
+            break
+        local_speed = bilinear(speed, px, py)
+        if not np.isfinite(local_speed) or local_speed < STREAMLINE_MIN_SPEED:
+            break
+        ux = bilinear(u, px, py)
+        vy = bilinear(v, px, py)
+        mag = math.hypot(ux, vy)
+        if not np.isfinite(mag) or mag < STREAMLINE_MIN_SPEED:
+            break
+        points.append((x, y))
+        x += direction * STREAMLINE_STEP_M * ux / mag
+        y += direction * STREAMLINE_STEP_M * vy / mag
+    return points
+
+
+def draw_streamlines(
+    draw: ImageDraw.ImageDraw,
+    u: np.ndarray,
+    v: np.ndarray,
+    speed: np.ndarray,
+    disk: np.ndarray,
+    center: tuple[float, float],
+    radius: float,
+) -> None:
+    for py in range(STREAMLINE_SEED_SPACING // 2, GRID_N, STREAMLINE_SEED_SPACING):
+        for px in range(STREAMLINE_SEED_SPACING // 2, GRID_N, STREAMLINE_SEED_SPACING):
+            if not disk[py, px] or speed[py, px] < STREAMLINE_MIN_SPEED:
+                continue
+            backward = integrate_streamline(px, py, u, v, speed, disk, radius, -1.0)
+            forward = integrate_streamline(px, py, u, v, speed, disk, radius, 1.0)
+            path = list(reversed(backward[1:])) + forward
+            if len(path) < 5:
+                continue
+            global_path = [(x + center[0], y + center[1]) for x, y in path]
+            draw_polyline(draw, global_path, center, radius, GRID_N, (245, 248, 250, 150), width=1)
+
+            end = path[-1]
+            prev = path[-4] if len(path) >= 4 else path[0]
+            dx = end[0] - prev[0]
+            dy = end[1] - prev[1]
+            norm = math.hypot(dx, dy)
+            if norm <= 1.0:
+                continue
+            ux, uy = dx / norm, dy / norm
+            left = (-uy, ux)
+            arrow = [
+                (end[0] + center[0], end[1] + center[1]),
+                (end[0] + center[0] - 22.0 * ux + 8.0 * left[0], end[1] + center[1] - 22.0 * uy + 8.0 * left[1]),
+                (end[0] + center[0] - 22.0 * ux - 8.0 * left[0], end[1] + center[1] - 22.0 * uy - 8.0 * left[1]),
+            ]
+            rows = [project_global(x, y, center, radius, GRID_N) for x, y in arrow]
+            draw.polygon(rows, fill=(245, 248, 250, 135))
+
+
+def inlet_arc_points(
+    center: tuple[float, float],
+    radius: float,
+    wind_from_deg: float,
+    arc_width_deg: float,
+    n: int = 240,
+) -> list[tuple[float, float]]:
+    start = wind_from_deg - 0.5 * arc_width_deg
+    stop = wind_from_deg + 0.5 * arc_width_deg
+    points = []
+    for bearing in np.linspace(start, stop, n):
+        theta = math.radians(bearing)
+        points.append((center[0] + radius * math.sin(theta), center[1] + radius * math.cos(theta)))
+    return points
+
+
+def render_overlay(
+    rgb: np.ndarray,
+    speed: np.ndarray,
+    valid: np.ndarray,
+    u: np.ndarray,
+    v: np.ndarray,
+    disk: np.ndarray,
+    center,
+    radius,
+    shoreline,
+    buildings,
+    wind_from_deg: float,
+    arc_width_deg: float,
+    sample_label: str,
+    vmin: float,
+    vmax: float,
+    time: float,
+) -> Image.Image:
     img = Image.fromarray(rgb, "RGB")
-    alpha = Image.new("L", (GRID_N, GRID_N), 255)
-    alpha_arr = np.asarray(alpha)
     yy, xx = np.mgrid[0:GRID_N, 0:GRID_N]
     x = -radius + (xx + 0.5) * (2 * radius / GRID_N)
     y = radius - (yy + 0.5) * (2 * radius / GRID_N)
@@ -209,6 +359,8 @@ def render_overlay(rgb: np.ndarray, speed: np.ndarray, valid: np.ndarray, center
     rgb[outside] = np.array([166, 213, 232], dtype=np.uint8)
     img = Image.fromarray(rgb, "RGB")
     draw = ImageDraw.Draw(img, "RGBA")
+    if SHOW_STREAMLINES:
+        draw_streamlines(draw, u, v, speed, disk, center, radius)
 
     for ring in shoreline:
         draw_polyline(draw, ring, center, radius, GRID_N, (20, 29, 34, 215), width=2)
@@ -217,14 +369,17 @@ def render_overlay(rgb: np.ndarray, speed: np.ndarray, valid: np.ndarray, center
         if len(pts) < 3:
             continue
         rows = [project_global(x, y, center, radius, GRID_N) for x, y in pts]
-        draw.polygon(rows, fill=(185, 185, 178, 185), outline=(82, 82, 76, 170))
+        draw.polygon(rows, fill=(185, 185, 178, BUILDING_ALPHA), outline=(82, 82, 76, 170))
 
-    # Red inlet arc.
-    inlet = [
-        (center[0] + radius * math.cos(math.radians(a)), center[1] + radius * math.sin(math.radians(a)))
-        for a in np.linspace(90.0, 180.0, 120)
-    ]
-    draw_polyline(draw, inlet, center, radius, GRID_N, (210, 22, 32, 255), width=5)
+    draw_polyline(
+        draw,
+        inlet_arc_points(center, radius, wind_from_deg, arc_width_deg),
+        center,
+        radius,
+        GRID_N,
+        (210, 22, 32, 255),
+        width=5,
+    )
 
     canvas = Image.new("RGB", (GRID_N + 92, GRID_N + 36), "white")
     canvas.paste(img, (18, 18))
@@ -233,16 +388,19 @@ def render_overlay(rgb: np.ndarray, speed: np.ndarray, valid: np.ndarray, center
     bar_y = 50
     bar_h = GRID_N - 92
     bar_w = 20
-    values = np.linspace(vmax, 0.0, bar_h, dtype=np.float32)[:, None]
-    bar = color_velocity(values, vmax).reshape(bar_h, 1, 3)
+    values = np.linspace(vmax, vmin, bar_h, dtype=np.float32)[:, None]
+    bar = color_velocity(values, vmin, vmax).reshape(bar_h, 1, 3)
     bar = np.repeat(bar, bar_w, axis=1)
     canvas.paste(Image.fromarray(bar, "RGB"), (bar_x, bar_y))
     cdraw.rectangle((bar_x, bar_y, bar_x + bar_w, bar_y + bar_h), outline=(20, 20, 20, 255), width=1)
-    for frac, label in ((0.0, f"{vmax:.2f}"), (0.5, f"{0.5 * vmax:.2f}"), (1.0, "0")):
+    vmid = 0.5 * (vmin + vmax)
+    for frac, label in ((0.0, f"{vmax:.2f}"), (0.5, f"{vmid:.2f}"), (1.0, f"{vmin:.2f}")):
         y = bar_y + int(round(frac * bar_h))
         cdraw.line((bar_x + bar_w, y, bar_x + bar_w + 5, y), fill=(20, 20, 20, 255), width=1)
         cdraw.text((bar_x + bar_w + 8, y - 6), label, fill=(20, 20, 20, 255))
-    cdraw.text((18, GRID_N + 20), f"|u| at terrain + {LIFT_M:g} m, t = {time:.3f}", fill=(20, 20, 20, 255))
+    scale_note = "log scale" if COLOR_SCALE == "log" else "linear scale"
+    note = f"|u| at {sample_label}, t = {time:.3f}; {scale_note}; inlet {wind_from_deg:.0f} deg +/- {0.5 * arc_width_deg:.0f} deg"
+    cdraw.text((18, GRID_N + 20), note, fill=(20, 20, 20, 255))
     cdraw.text((bar_x - 5, bar_y - 22), "|u|", fill=(20, 20, 20, 255))
     return canvas
 
@@ -251,29 +409,46 @@ def main() -> None:
     meta_path = GENERATED / "sodermalm_cylinder_2x_xy_metadata.json"
     if not meta_path.exists():
         meta_path = GENERATED / "sodermalm_cylinder_metadata.json"
+    if not meta_path.exists():
+        meta_path = GENERATED / "sodermalm_cylinder_lumi_coarse_metadata.json"
     meta = json.loads(meta_path.read_text())
     center = tuple(float(v) for v in meta["center_epsg3006"])
     radius = float(meta["radius_m"])
+    wind_from_deg = float(meta.get("inflow_from_degrees", 315.0))
+    arc_width_deg = float(meta.get("inflow_arc_width_degrees", 90.0))
     land_geometry = load_geojson(GENERATED / "sodermalm_osm_island_epsg3006.geojson")["features"][0]["geometry"]
     shoreline = polygon_boundary_rings(land_geometry)
 
     header = parse_fld_header(FIELD)
     offsets = field_offsets(header)
-    if "X" not in offsets or "U" not in offsets:
-        raise RuntimeError(f"Field file does not contain X and U blocks; rdcode={header['rdcode']!r}")
+    if "U" not in offsets:
+        raise RuntimeError(f"Field file does not contain U block; rdcode={header['rdcode']!r}")
+    geometry_field = FIELD if "X" in offsets else GEOMETRY_FIELD
+    geometry_header = parse_fld_header(geometry_field)
+    geometry_offsets = field_offsets(geometry_header)
+    if "X" not in geometry_offsets:
+        raise RuntimeError(f"Geometry field does not contain X block; rdcode={geometry_header['rdcode']!r}")
+    for key in ("lx", "ly", "lz", "nelv"):
+        if geometry_header[key] != header[key]:
+            raise RuntimeError(
+                f"Geometry field {geometry_field} is incompatible with {FIELD}: "
+                f"{key}={geometry_header[key]} vs {header[key]}"
+            )
     dtype = np.dtype(header["endian"] + ("f4" if header["wdsz"] == 4 else "f8"))
+    geometry_dtype = np.dtype(geometry_header["endian"] + ("f4" if geometry_header["wdsz"] == 4 else "f8"))
     npts = header["lx"] * header["ly"] * header["lz"]
     nelv = header["nelv"]
     bytes_elem = npts * header["wdsz"]
+    geometry_bytes_elem = npts * geometry_header["wdsz"]
     cells = GRID_N * GRID_N
     bottom_z = np.full(cells, np.inf, dtype=np.float32)
 
-    with FIELD.open("rb") as handle:
+    with geometry_field.open("rb") as handle:
         for start in range(0, nelv, CHUNK_ELEMS):
             stop = min(start + CHUNK_ELEMS, nelv)
             ne = stop - start
-            handle.seek(offsets["X"] + start * 3 * bytes_elem)
-            xyz = np.fromfile(handle, dtype=dtype, count=ne * 3 * npts).reshape(ne, 3, npts)
+            handle.seek(geometry_offsets["X"] + start * 3 * geometry_bytes_elem)
+            xyz = np.fromfile(handle, dtype=geometry_dtype, count=ne * 3 * npts).reshape(ne, 3, npts)
             x = xyz[:, 0, :].ravel()
             y = xyz[:, 1, :].ravel()
             z = xyz[:, 2, :].ravel()
@@ -290,7 +465,13 @@ def main() -> None:
     xg = -radius + (xx + 0.5) * (2 * radius / GRID_N)
     yg = radius - (yy + 0.5) * (2 * radius / GRID_N)
     disk = xg * xg + yg * yg <= radius * radius
-    target = np.where(disk, bottom + LIFT_M, np.nan).astype(np.float32)
+    if SAMPLE_Z is None:
+        target = np.where(disk, bottom + LIFT_M, np.nan).astype(np.float32)
+        sample_label = f"terrain + {LIFT_M:g} m"
+    else:
+        sample_z = float(SAMPLE_Z)
+        target = np.where(disk & (sample_z >= bottom), sample_z, np.nan).astype(np.float32)
+        sample_label = f"z = {sample_z:g} m"
 
     best_score = np.full(cells, np.inf, dtype=np.float32)
     best_u = np.full(cells, np.nan, dtype=np.float32)
@@ -298,14 +479,14 @@ def main() -> None:
     best_w = np.full(cells, np.nan, dtype=np.float32)
     target_flat = target.ravel()
 
-    with FIELD.open("rb") as handle:
+    with geometry_field.open("rb") as geometry_handle, FIELD.open("rb") as field_handle:
         for start in range(0, nelv, CHUNK_ELEMS):
             stop = min(start + CHUNK_ELEMS, nelv)
             ne = stop - start
-            handle.seek(offsets["X"] + start * 3 * bytes_elem)
-            xyz = np.fromfile(handle, dtype=dtype, count=ne * 3 * npts).reshape(ne, 3, npts)
-            handle.seek(offsets["U"] + start * 3 * bytes_elem)
-            uvw = np.fromfile(handle, dtype=dtype, count=ne * 3 * npts).reshape(ne, 3, npts)
+            geometry_handle.seek(geometry_offsets["X"] + start * 3 * geometry_bytes_elem)
+            xyz = np.fromfile(geometry_handle, dtype=geometry_dtype, count=ne * 3 * npts).reshape(ne, 3, npts)
+            field_handle.seek(offsets["U"] + start * 3 * bytes_elem)
+            uvw = np.fromfile(field_handle, dtype=dtype, count=ne * 3 * npts).reshape(ne, 3, npts)
             x = xyz[:, 0, :].ravel()
             y = xyz[:, 1, :].ravel()
             z = xyz[:, 2, :].ravel()
@@ -324,15 +505,46 @@ def main() -> None:
     v = fill_missing_nearest(best_v.reshape(GRID_N, GRID_N), valid)
     w = fill_missing_nearest(best_w.reshape(GRID_N, GRID_N), valid)
     speed = blur3(np.sqrt(u * u + v * v + w * w), passes=1)
-    vmax = float(np.nanpercentile(speed[disk], 99.0))
-    vmax = max(vmax, 1.0e-6)
-    rgb = color_velocity(speed, vmax)
+    if NPZ_OUT:
+        np.savez_compressed(
+            NPZ_OUT,
+            speed=speed,
+            u=u,
+            v=v,
+            w=w,
+            disk=disk,
+            valid=valid,
+            x=xg,
+            y=yg,
+            time=header["time"],
+        )
+    vmin = float(VMIN_OVERRIDE) if VMIN_OVERRIDE else 0.0
+    vmax = float(VMAX_OVERRIDE) if VMAX_OVERRIDE else float(np.nanpercentile(speed[disk], 99.0))
+    vmax = max(vmax, vmin + 1.0e-6)
+    rgb = color_velocity(speed, vmin, vmax)
 
     building_rings = []
     for feature in load_geojson(GENERATED / "sodermalm_buildings.geojson")["features"]:
         for ring in polygon_rings(feature["geometry"]):
             building_rings.append(ring)
-    img = render_overlay(rgb, speed, valid, center, radius, shoreline, building_rings, vmax, header["time"])
+    img = render_overlay(
+        rgb,
+        speed,
+        valid,
+        u,
+        v,
+        disk,
+        center,
+        radius,
+        shoreline,
+        building_rings,
+        wind_from_deg,
+        arc_width_deg,
+        sample_label,
+        vmin,
+        vmax,
+        header["time"],
+    )
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT)
     print(f"Wrote {OUT}")

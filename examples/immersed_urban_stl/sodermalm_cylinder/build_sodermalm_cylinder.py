@@ -42,7 +42,16 @@ LAND_MESH_SIZE_M = 100.0
 WATER_MESH_SIZE_M = 280.0
 SHORELINE_SIMPLIFY_M = 20.0
 SHORE_BLEND_M = 180.0
-NW_ARC_DEG = (90.0, 180.0)
+INFLOW_FROM_DEG = 225.0
+INFLOW_ARC_WIDTH_DEG = 180.0
+CIRCLE_ARC_STEP_DEG = 45.0
+BUILDING_MIN_TERRAIN_ABOVE_WATER_M = 0.75
+BUILDING_BASE_CLEARANCE_M = 0.5
+BUILDING_MIN_FOOTPRINT_AREA_M2 = 0.0
+BUILDING_MIN_EDGE_M = 0.0
+BUILDING_SIMPLIFY_M = 0.0
+BUILDING_MIN_HEIGHT_M = 2.0
+BUILDING_MAX_HEIGHT_M = 65.0
 
 
 # Rough hint used by the mask-derivation helper to find the correct connected
@@ -142,9 +151,12 @@ def point_in_polygon(x: float, y: float, ring: list[tuple[float, float]]) -> boo
 
 
 def point_in_land_mask(x: float, y: float, boundary_rings: list[list[tuple[float, float]]]) -> bool:
-    if not boundary_rings or not point_in_polygon(x, y, boundary_rings[0]):
-        return False
-    return not any(point_in_polygon(x, y, hole) for hole in boundary_rings[1:])
+    # Odd-even containment handles both polygon holes and disjoint island rings.
+    inside = False
+    for ring in boundary_rings:
+        if point_in_polygon(x, y, ring):
+            inside = not inside
+    return inside
 
 
 def point_segment_distance(px: float, py: float, ax: float, ay: float, bx: float, by: float) -> float:
@@ -242,7 +254,50 @@ def simplify_ring(points: list[tuple[float, float]], tolerance: float) -> list[t
     return simplified
 
 
+def compass_bearing_deg(x: float, y: float) -> float:
+    return (math.degrees(math.atan2(x, y)) + 360.0) % 360.0
+
+
+def circular_distance_deg(a: float, b: float) -> float:
+    return abs((a - b + 180.0) % 360.0 - 180.0)
+
+
+def is_inflow_bearing(bearing: float) -> bool:
+    return circular_distance_deg(bearing, INFLOW_FROM_DEG) <= 0.5 * INFLOW_ARC_WIDTH_DEG + 1e-9
+
+
+def circle_point(angle_deg: float, radius: float) -> tuple[float, float]:
+    angle = math.radians(angle_deg)
+    return radius * math.cos(angle), radius * math.sin(angle)
+
+
+def inlet_arc_polylines(radius: float, n: int = 361) -> list[list[tuple[float, float]]]:
+    angles = np.linspace(0.0, 360.0, n, endpoint=False)
+    runs: list[list[tuple[float, float]]] = []
+    current: list[tuple[float, float]] = []
+    for angle in angles:
+        x, y = circle_point(float(angle), radius)
+        if is_inflow_bearing(compass_bearing_deg(x, y)):
+            current.append((x, y))
+        elif current:
+            runs.append(current)
+            current = []
+    if current:
+        runs.append(current)
+    if len(runs) > 1 and is_inflow_bearing(compass_bearing_deg(*circle_point(0.0, radius))):
+        runs[0] = runs[-1] + runs[0]
+        runs.pop()
+    return runs
+
+
 def write_gmsh_geo(path: Path, radius: float, shoreline: list[list[tuple[float, float]]], center: tuple[float, float]) -> None:
+    if 360.0 % CIRCLE_ARC_STEP_DEG != 0.0:
+        raise ValueError("CIRCLE_ARC_STEP_DEG must divide 360 degrees exactly")
+    n_arcs = int(round(360.0 / CIRCLE_ARC_STEP_DEG))
+    circle_points = [circle_point(i * CIRCLE_ARC_STEP_DEG, radius) for i in range(n_arcs)]
+    inlet_curves: list[int] = []
+    outlet_curves: list[int] = []
+
     lines: list[str] = [
         'SetFactory("OpenCASCADE");',
         "Mesh.MshFileVersion = 2.2;",
@@ -253,16 +308,21 @@ def write_gmsh_geo(path: Path, radius: float, shoreline: list[list[tuple[float, 
         f"Mesh.CharacteristicLengthMin = {LAND_MESH_SIZE_M};",
         f"Mesh.CharacteristicLengthMax = {WATER_MESH_SIZE_M};",
         f"Point(1) = {{0, 0, 0, {WATER_MESH_SIZE_M}}};",
-        f"Point(2) = {{{radius}, 0, 0, {WATER_MESH_SIZE_M}}};",
-        f"Point(3) = {{0, {radius}, 0, {WATER_MESH_SIZE_M}}};",
-        f"Point(4) = {{{-radius}, 0, 0, {WATER_MESH_SIZE_M}}};",
-        f"Point(5) = {{0, {-radius}, 0, {WATER_MESH_SIZE_M}}};",
-        "Circle(1) = {2, 1, 3};",
-        "Circle(2) = {3, 1, 4};",
-        "Circle(3) = {4, 1, 5};",
-        "Circle(4) = {5, 1, 2};",
-        "Curve Loop(1) = {1, 2, 3, 4};",
     ]
+    for i, (x, y) in enumerate(circle_points, start=2):
+        lines.append(f"Point({i}) = {{{x}, {y}, 0, {WATER_MESH_SIZE_M}}};")
+    for i in range(n_arcs):
+        curve_id = i + 1
+        start = i + 2
+        end = 2 if i == n_arcs - 1 else i + 3
+        lines.append(f"Circle({curve_id}) = {{{start}, 1, {end}}};")
+        mid_angle = (i + 0.5) * CIRCLE_ARC_STEP_DEG
+        mx, my = circle_point(mid_angle, 1.0)
+        if is_inflow_bearing(compass_bearing_deg(mx, my)):
+            inlet_curves.append(curve_id)
+        else:
+            outlet_curves.append(curve_id)
+    lines.append(f"Curve Loop(1) = {{{', '.join(str(i + 1) for i in range(n_arcs))}}};")
 
     next_point = 100
     next_curve = 100
@@ -287,25 +347,36 @@ def write_gmsh_geo(path: Path, radius: float, shoreline: list[list[tuple[float, 
         lines.append(f"Curve Loop({loop_id}) = {{{', '.join(str(c) for c in curve_ids)}}};")
         return loop_id
 
-    land_outer_loop = add_ring(shoreline[0], LAND_MESH_SIZE_M)
-    hole_loops = [add_ring(ring, LAND_MESH_SIZE_M) for ring in shoreline[1:]]
-    water_surface = 1
-    land_surface = 2
-    first_hole_surface = 3
-    lines.append(f"Plane Surface({water_surface}) = {{1, {land_outer_loop}}};")
-    land_loops = [land_outer_loop] + hole_loops
-    lines.append(f"Plane Surface({land_surface}) = {{{', '.join(str(loop) for loop in land_loops)}}};")
-    hole_surfaces: list[int] = []
-    for idx, loop in enumerate(hole_loops):
-        sid = first_hole_surface + idx
-        hole_surfaces.append(sid)
-        lines.append(f"Plane Surface({sid}) = {{{loop}}};")
+    ring_loops = [add_ring(ring, LAND_MESH_SIZE_M) for ring in shoreline]
 
-    all_surfaces = [water_surface, land_surface] + hole_surfaces
-    lines.append(f"Recombine Surface {{{', '.join(str(s) for s in all_surfaces)}}};")
-    lines.append("Physical Curve(1) = {2};")
-    lines.append("Physical Curve(2) = {1, 3, 4};")
-    lines.append(f"Physical Surface(10) = {{{', '.join(str(s) for s in all_surfaces)}}};")
+    depths: list[int] = []
+    for idx, ring in enumerate(shoreline):
+        probe = ring[0]
+        depth = sum(1 for j, other in enumerate(shoreline) if j != idx and point_in_polygon(probe[0], probe[1], other))
+        depths.append(depth)
+
+    island_loops = [loop for loop, depth in zip(ring_loops, depths) if depth % 2 == 0]
+    water_surface = 1
+    lines.append(f"Plane Surface({water_surface}) = {{1, {', '.join(str(loop) for loop in island_loops)}}};")
+
+    surfaces = [water_surface]
+    next_surface = 2
+    for idx, (loop, depth) in enumerate(zip(ring_loops, depths)):
+        if depth % 2 != 0:
+            continue
+        hole_loops = []
+        for hidx, (hole_loop, hole_depth) in enumerate(zip(ring_loops, depths)):
+            if hole_depth == depth + 1 and point_in_polygon(shoreline[hidx][0][0], shoreline[hidx][0][1], shoreline[idx]):
+                hole_loops.append(hole_loop)
+        surface_loops = [loop] + hole_loops
+        lines.append(f"Plane Surface({next_surface}) = {{{', '.join(str(row) for row in surface_loops)}}};")
+        surfaces.append(next_surface)
+        next_surface += 1
+
+    lines.append(f"Recombine Surface {{{', '.join(str(s) for s in surfaces)}}};")
+    lines.append(f"Physical Curve(1) = {{{', '.join(str(c) for c in inlet_curves)}}};")
+    lines.append(f"Physical Curve(2) = {{{', '.join(str(c) for c in outlet_curves)}}};")
+    lines.append(f"Physical Surface(10) = {{{', '.join(str(s) for s in surfaces)}}};")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -617,7 +688,7 @@ def render_overview(
 
     lines = svg_header(width, height)
     lines.append('<text x="60" y="45" class="title">Södermalm terrain blended to water-level cylinder</text>')
-    lines.append(f'<text x="60" y="70" class="small">Water level inferred from local contours: z = {water_level:.1f} m; red arc is exactly NW quarter circumference</text>')
+    lines.append(f'<text x="60" y="70" class="small">Water level inferred from local contours: z = {water_level:.1f} m; red arc is the {INFLOW_ARC_WIDTH_DEG:.0f} deg inlet centered on wind from {INFLOW_FROM_DEG:.0f} deg</text>')
 
     n = 95
     zmax = float(np.max(samples[:, 2]))
@@ -638,9 +709,9 @@ def render_overview(
     cx, cy = project(center[0], center[1])
     cr = radius * scale
     lines.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{cr:.1f}" fill="none" stroke="#1464a0" stroke-width="3"/>')
-    for a0, a1, color, sw in ((NW_ARC_DEG[0], NW_ARC_DEG[1], "#d7191c", 8),):
-        pts = [(center[0] + radius * math.cos(math.radians(a)), center[1] + radius * math.sin(math.radians(a))) for a in np.linspace(a0, a1, 80)]
-        lines.append(polyline(pts, project, fill="none", stroke=color, stroke_width=sw))
+    for arc in inlet_arc_polylines(radius):
+        pts = [(center[0] + x, center[1] + y) for x, y in arc]
+        lines.append(polyline(pts, project, fill="none", stroke="#d7191c", stroke_width=8))
     for ring in buildings[:6000]:
         lines.append(polyline(ring + [ring[0]], project, fill="none", stroke="#555555", stroke_width=0.55, opacity=0.45))
     for ring in shoreline:
@@ -672,7 +743,7 @@ def render_mesh(
         include_text = True
     if include_text:
         lines.append('<text x="60" y="45" class="title">Gmsh quad-disk cylinder mesh footprint</text>')
-        lines.append(f'<text x="60" y="70" class="small">{len(quads)} base quads x {NZ} vertical layers; red arc is the exact NW quarter zone</text>')
+        lines.append(f'<text x="60" y="70" class="small">{len(quads)} base quads x {NZ} vertical layers; red arc is the {INFLOW_ARC_WIDTH_DEG:.0f} deg inlet zone</text>')
     for _, conn in quads:
         pts = [nodes[n] for n in conn]
         pts.append(pts[0])
@@ -683,8 +754,8 @@ def render_mesh(
         for ring in shoreline:
             local_ring = [(x - center[0], y - center[1]) for x, y in ring]
             lines.append(polyline(local_ring, project, fill="none", stroke="#111111", stroke_width=2.8, opacity=0.92))
-    nw = [(radius * math.cos(math.radians(a)), radius * math.sin(math.radians(a))) for a in np.linspace(*NW_ARC_DEG, 80)]
-    lines.append(polyline(nw, project, fill="none", stroke="#d7191c", stroke_width=8))
+    for arc in inlet_arc_polylines(radius):
+        lines.append(polyline(arc, project, fill="none", stroke="#d7191c", stroke_width=8))
     lines.append("</svg>")
     path.with_suffix(".svg").write_text("\n".join(lines), encoding="utf-8")
     run([RSVG, str(path.with_suffix(".svg")), "-o", str(path)])
@@ -800,8 +871,8 @@ def render_terrain_mesh_3d(
     )
     for item in sorted(items, key=lambda row: row["depth"]):
         lines_svg.append(draw_line(item))
-    inlet = [(radius * math.cos(math.radians(a)), radius * math.sin(math.radians(a)), water_level + 1.0) for a in np.linspace(*NW_ARC_DEG, 100)]
-    lines_svg.append(polyline([(x, y) for x, y, _ in inlet], lambda x, y: project(x, y, water_level + 1.0), fill="none", stroke="#d7191c", stroke_width=8.5, stroke_linecap="round"))
+    for arc in inlet_arc_polylines(radius):
+        lines_svg.append(polyline(arc, lambda x, y: project(x, y, water_level + 1.0), fill="none", stroke="#d7191c", stroke_width=8.5, stroke_linecap="round"))
     lines_svg.append("</svg>")
     path.with_suffix(".svg").write_text("\n".join(lines_svg), encoding="utf-8")
     run([RSVG, str(path.with_suffix(".svg")), "-o", str(path)])
@@ -839,6 +910,16 @@ def building_ring_area(ring: list[tuple[float, float]]) -> float:
         x0 * y1 - x1 * y0
         for (x0, y0), (x1, y1) in zip(ring, ring[1:] + ring[:1])
     )
+
+
+def building_ring_perimeter(ring: list[tuple[float, float]]) -> float:
+    return sum(math.hypot(x1 - x0, y1 - y0) for (x0, y0), (x1, y1) in zip(ring, ring[1:] + ring[:1]))
+
+
+def building_ring_min_edge(ring: list[tuple[float, float]]) -> float:
+    if len(ring) < 2:
+        return 0.0
+    return min(math.hypot(x1 - x0, y1 - y0) for (x0, y0), (x1, y1) in zip(ring, ring[1:] + ring[:1]))
 
 
 def point_in_triangle(
@@ -904,26 +985,26 @@ def building_base_and_top(properties: dict, terrain_base: float, water_level: fl
     mark = properties.get("MARK_Z")
     roof = properties.get("TAK_Z")
     by_height = properties.get("BYGG_H")
-    try:
-        mark_z = float(mark)
-    except (TypeError, ValueError):
-        mark_z = terrain_base
-    base = max(water_level, terrain_base + 0.12, mark_z)
+    base = max(water_level, terrain_base + BUILDING_BASE_CLEARANCE_M)
 
     try:
         h = float(roof) - float(mark)
-        if 1.5 <= h <= 80.0:
+        if BUILDING_MIN_HEIGHT_M <= h <= BUILDING_MAX_HEIGHT_M:
             return base, base + h
     except (TypeError, ValueError):
         pass
 
     try:
         h = float(by_height)
-        if 1.5 <= h <= 80.0:
+        if BUILDING_MIN_HEIGHT_M <= h <= BUILDING_MAX_HEIGHT_M:
             return base, base + h
     except (TypeError, ValueError):
         pass
     return base, base + 12.0
+
+
+def building_sits_on_water_level_terrain(terrain_base: float, water_level: float) -> bool:
+    return terrain_base <= water_level + BUILDING_MIN_TERRAIN_ABOVE_WATER_M
 
 
 def facet_normal(a: tuple[float, float, float], b: tuple[float, float, float], c: tuple[float, float, float]) -> tuple[float, float, float]:
@@ -949,6 +1030,8 @@ def write_sodermalm_building_stl(
 ) -> dict:
     triangles: list[tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]] = []
     skipped = 0
+    skipped_small = 0
+    skipped_skinny = 0
     fallback_triangulations = 0
     parts = 0
 
@@ -959,12 +1042,30 @@ def write_sodermalm_building_stl(
             if len(pts_global) < 3:
                 skipped += 1
                 continue
+            if BUILDING_SIMPLIFY_M > 0.0:
+                pts_global = simplify_ring(pts_global, BUILDING_SIMPLIFY_M)
+                pts_global = clean_building_ring(pts_global)
+                if len(pts_global) < 3:
+                    skipped += 1
+                    continue
+            footprint_area = abs(building_ring_area(pts_global))
+            if footprint_area < BUILDING_MIN_FOOTPRINT_AREA_M2:
+                skipped += 1
+                skipped_small += 1
+                continue
+            if building_ring_min_edge(pts_global) < BUILDING_MIN_EDGE_M:
+                skipped += 1
+                skipped_skinny += 1
+                continue
             cx, cy = ring_centroid(pts_global)
             lx, ly = cx - center[0], cy - center[1]
             if lx * lx + ly * ly > radius * radius:
                 skipped += 1
                 continue
             terrain_base = terrain_height(lx, ly, samples, water_level, shoreline, center, radius)
+            if building_sits_on_water_level_terrain(terrain_base, water_level):
+                skipped += 1
+                continue
             base_z, top_z = building_base_and_top(props, terrain_base, water_level)
             if top_z <= base_z + 0.5:
                 skipped += 1
@@ -1000,7 +1101,14 @@ def write_sodermalm_building_stl(
         "facets": len(triangles),
         "building_parts": parts,
         "skipped_parts": skipped,
+        "skipped_small_parts": skipped_small,
+        "skipped_skinny_parts": skipped_skinny,
         "fallback_triangulations": fallback_triangulations,
+        "min_footprint_area_m2": BUILDING_MIN_FOOTPRINT_AREA_M2,
+        "min_edge_m": BUILDING_MIN_EDGE_M,
+        "simplify_m": BUILDING_SIMPLIFY_M,
+        "base_clearance_m": BUILDING_BASE_CLEARANCE_M,
+        "height_limits_m": [BUILDING_MIN_HEIGHT_M, BUILDING_MAX_HEIGHT_M],
         "description": "Sealed LOD1 building solids in the local cylinder coordinate system for Brinkman boundary_mesh.",
     }
 
@@ -1112,6 +1220,8 @@ def render_3d_scene(
                 continue
             pts = [(x - center[0], y - center[1]) for x, y in pts_global]
             terrain_base = terrain_height(lx, ly, samples, water_level, shoreline, center, radius)
+            if building_sits_on_water_level_terrain(terrain_base, water_level):
+                continue
             base, top = building_base_and_top(props, terrain_base, water_level)
             roof_fill = "#d8d7d2"
             roof_points = [(x, y, top) for x, y in pts]
@@ -1168,8 +1278,8 @@ def render_3d_scene(
         )
     outer = [(radius * math.cos(t), radius * math.sin(t), water_level + 0.05) for t in np.linspace(0, 2 * math.pi, 361)]
     lines.append(polyline([(x, y) for x, y, _ in outer], lambda x, y: project(x, y, water_level + 0.05), fill="none", stroke="#0b5f9f", stroke_width=3.2))
-    inlet = [(radius * math.cos(math.radians(a)), radius * math.sin(math.radians(a)), water_level + 1.0) for a in np.linspace(*NW_ARC_DEG, 100)]
-    lines.append(polyline([(x, y) for x, y, _ in inlet], lambda x, y: project(x, y, water_level + 1.0), fill="none", stroke="#d7191c", stroke_width=8.5, stroke_linecap="round"))
+    for arc in inlet_arc_polylines(radius):
+        lines.append(polyline(arc, lambda x, y: project(x, y, water_level + 1.0), fill="none", stroke="#d7191c", stroke_width=8.5, stroke_linecap="round"))
     lines.append("</svg>")
     path.with_suffix(".svg").write_text("\n".join(lines), encoding="utf-8")
     run([RSVG, str(path.with_suffix(".svg")), "-o", str(path)])
@@ -1183,7 +1293,7 @@ def render_oblique(path: Path, radius: float, terrain_min: float, top_z: float) 
 
     lines = svg_header(width, height)
     lines.append('<text x="60" y="45" class="title">Oblique check: cylindrical side, flat water edge, flat top</text>')
-    lines.append('<text x="60" y="70" class="small">Blue: cylinder wall; red: NW quarter inlet; bottom circle is at inferred water level</text>')
+    lines.append(f'<text x="60" y="70" class="small">Blue: cylinder wall; red: {INFLOW_ARC_WIDTH_DEG:.0f} deg inlet; bottom circle is at inferred water level</text>')
     for z, stroke in ((terrain_min, "#1464a0"), (top_z, "#1464a0")):
         pts = [(radius * math.cos(t), radius * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 160)]
         lines.append(polyline(pts, lambda x, y, zz=z: project(x, y, zz), fill="none", stroke=stroke, stroke_width=2))
@@ -1193,8 +1303,8 @@ def render_oblique(path: Path, radius: float, terrain_min: float, top_z: float) 
         p0 = project(x, y, terrain_min)
         p1 = project(x, y, top_z)
         lines.append(f'<line x1="{p0[0]:.1f}" y1="{p0[1]:.1f}" x2="{p1[0]:.1f}" y2="{p1[1]:.1f}" stroke="#9ecae1" stroke-width="1"/>')
-    nw = [(radius * math.cos(math.radians(a)), radius * math.sin(math.radians(a))) for a in np.linspace(*NW_ARC_DEG, 80)]
-    lines.append(polyline(nw, lambda x, y: project(x, y, top_z), fill="none", stroke="#d7191c", stroke_width=7))
+    for arc in inlet_arc_polylines(radius):
+        lines.append(polyline(arc, lambda x, y: project(x, y, top_z), fill="none", stroke="#d7191c", stroke_width=7))
     lines.append("</svg>")
     path.with_suffix(".svg").write_text("\n".join(lines), encoding="utf-8")
     run([RSVG, str(path.with_suffix(".svg")), "-o", str(path)])
@@ -1210,12 +1320,11 @@ def main() -> None:
     land_mask = OUT / "sodermalm_osm_island_epsg3006.geojson"
     land_geometry = load_geojson(land_mask)["features"][0]["geometry"]
     shoreline = polygon_boundary_rings(land_geometry)
-    outer_shoreline = shoreline[0]
-
-    px = np.array([p[0] for p in outer_shoreline])
-    py = np.array([p[1] for p in outer_shoreline])
+    all_shore_points = [p for ring in shoreline for p in ring]
+    px = np.array([p[0] for p in all_shore_points])
+    py = np.array([p[1] for p in all_shore_points])
     center = (float((px.min() + px.max()) * 0.5), float((py.min() + py.max()) * 0.5))
-    radius = float(max(math.hypot(x - center[0], y - center[1]) for x, y in outer_shoreline) + BUFFER_M)
+    radius = float(max(math.hypot(x - center[0], y - center[1]) for x, y in all_shore_points) + BUFFER_M)
 
     buildings_geojson = OUT / "sodermalm_buildings.geojson"
     contours_geojson = OUT / "sodermalm_cylinder_contours.geojson"
@@ -1273,9 +1382,11 @@ def main() -> None:
         "water_mesh_size_m": WATER_MESH_SIZE_M,
         "shoreline_simplify_m": SHORELINE_SIMPLIFY_M,
         "shore_blend_m": SHORE_BLEND_M,
-        "nw_inlet_arc_degrees": NW_ARC_DEG,
+        "inflow_from_degrees": INFLOW_FROM_DEG,
+        "inflow_arc_width_degrees": INFLOW_ARC_WIDTH_DEG,
+        "inflow_angle_convention": "meteorological: north is 0/360 degrees, clockwise positive; direction is where wind comes from",
         "zones": {
-            "1": "northwest_quarter_inlet_arc",
+            "1": "inlet_arc",
             "2": "remaining_cylindrical_side",
             "5": "terrain_or_water_bottom",
             "6": "top",

@@ -34,7 +34,7 @@
 module brinkman_source_term
   use aabb, only : aabb_t, get_aabb
   use coefs, only : coef_t
-  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
+  use device, only : HOST_TO_DEVICE
   use field, only : field_t
   use field_list, only : field_list_t
   use math, only : cfill_mask, copy
@@ -393,7 +393,16 @@ contains
           call cache_file%init(cache_filename // "0.fld")
           call cache_file%set_counter(0)
           call cache_file%read(cache_data)
-          call cache_data%import_fields(p = temp_field)
+          if (cache_data%n_scalars .lt. 1) then
+             call neko_error("Brinkman cache file does not contain a scalar")
+          end if
+          if (cache_data%s(1)%size() .ne. temp_field%size()) then
+             call neko_error("Brinkman cache file must match current mesh")
+          end if
+          temp_field%x = reshape(cache_data%s(1)%x, shape(temp_field%x))
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call temp_field%copy_from(HOST_TO_DEVICE, sync = .true.)
+          end if
 
           ! Update the global indicator field by max operator
           call field_pwmax2(this%indicator, temp_field)
@@ -628,6 +637,10 @@ contains
     case default
        call neko_error("Brinkman cannot read file: " // trim(file_name))
     end select
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call temp_field%copy_from(HOST_TO_DEVICE, sync = .true.)
+    end if
 
     ! Update the global indicator field by max operator
     call field_pwmax2(this%indicator, temp_field)
