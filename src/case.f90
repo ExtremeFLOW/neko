@@ -46,7 +46,7 @@ module case
   use file, only : file_t
   use utils, only : neko_error, mkdir, filename_split, NEKO_FNAME_LEN
   use mesh, only : mesh_t
-  use math, only : NEKO_EPS
+  use math, only : NEKO_EPS_DP
   use checkpoint, only: chkp_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, NEKO_LOG_QUIET
@@ -150,6 +150,7 @@ contains
     logical :: found, logical_val, load_balance
     integer :: integer_val, var_type
     real(kind=rp) :: real_val
+    real(kind=dp) :: double_val
     real(kind=rp), allocatable :: real_vals(:)
     type(vector_t), pointer :: vec
     character(len=:), allocatable :: string_val, name, file_format
@@ -485,19 +486,20 @@ contains
     if (trim(string_val) .eq. 'org') then
        ! yes, it should be real_val below for type compatibility
        call json_get_or_lookup(this%params, 'case.nsamples', integer_val)
-       real_val = real(integer_val, kind=rp)
-       call this%output_controller%add(this%f_out, real_val, 'nsamples')
+       double_val = real(integer_val, kind=dp)
+       call this%output_controller%add(this%f_out, double_val, 'nsamples')
     else if (trim(string_val) .eq. 'never') then
-       call this%output_controller%add(this%f_out, 0.0_rp, 'never')
+       call this%output_controller%add(this%f_out, 0.0_dp, 'never')
     else if (trim(string_val) .eq. 'tsteps' .or. &
          trim(string_val) .eq. 'nsamples') then
        call json_get_or_lookup(this%params, 'case.fluid.output_value', &
             integer_val)
-       real_val = real(integer_val, kind=rp)
-       call this%output_controller%add(this%f_out, real_val, string_val)
+       double_val = real(integer_val, kind=dp)
+       call this%output_controller%add(this%f_out, double_val, string_val)
     else if (trim(string_val) .eq. 'simulationtime') then
-       call json_get_or_lookup(this%params, 'case.fluid.output_value', real_val)
-       call this%output_controller%add(this%f_out, real_val, string_val)
+       call json_get_or_lookup(this%params, 'case.fluid.output_value', &
+            double_val)
+       call this%output_controller%add(this%f_out, double_val, string_val)
     else
        call neko_log%error('Unknown output control type for the fluid: ' // &
             trim(string_val))
@@ -520,16 +522,16 @@ contains
             trim(string_val) .eq. 'nsamples') then
           call json_get_or_lookup(this%params, 'case.checkpoint_value', &
                integer_val)
-          real_val = real(integer_val, kind=rp)
+          double_val = real(integer_val, kind=dp)
        else if (trim(string_val) .eq. 'simulationtime') then
           call json_get_or_lookup(this%params, 'case.checkpoint_value', &
-               real_val)
+               double_val)
        else if (trim(string_val) .eq. 'never') then
-          real_val = 0.0_rp
+          double_val = 0.0_rp
        end if
 
-       call this%output_controller%add(this%chkp_out, real_val, string_val, &
-            NEKO_EPS)
+       call this%output_controller%add(this%chkp_out, double_val, string_val, &
+            NEKO_EPS_DP)
     end if
 
     !

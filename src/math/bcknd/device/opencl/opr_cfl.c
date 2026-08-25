@@ -51,7 +51,7 @@
 /**
  * Fortran wrapper for device OpenCL convective terms
  */
-real opencl_cfl(real *dt, void *u, void *v, void *w,
+double opencl_cfl(double *dt, void *u, void *v, void *w,
 		void *drdx, void *dsdx, void *dtdx,
 		void *drdy, void *dsdy, void *dtdy,
 		void *drdz, void *dsdz, void *dtdz,
@@ -66,9 +66,9 @@ real opencl_cfl(real *dt, void *u, void *v, void *w,
   const size_t global_item_size = 256 * (*nel);
   const size_t local_item_size = 256;
 
-  real * cfl = (real *) malloc((*nel) * sizeof(real));
+  double * cfl = (double *) malloc((*nel) * sizeof(double));
   cl_mem cfl_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
-                                (*nel) * sizeof(real), NULL, &err);
+                                (*nel) * sizeof(double), NULL, &err);
   CL_CHECK(err);
   cl_kernel kernel;
 
@@ -79,7 +79,7 @@ real opencl_cfl(real *dt, void *u, void *v, void *w,
       kernel = clCreateKernel(cfl_program, STR(cfl_kernel_lx##LX), &err);       \
       CL_CHECK(err);                                                            \
                                                                                 \
-      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(real), dt));                    \
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(double), dt));                    \
       CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &u));         \
       CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &v));         \
       CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &w));         \
@@ -124,10 +124,10 @@ real opencl_cfl(real *dt, void *u, void *v, void *w,
   }
 
   CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue,
-			       cfl_d, CL_TRUE, 0, (*nel) * sizeof(real),
+			       cfl_d, CL_TRUE, 0, (*nel) * sizeof(double),
 			       cfl, 1, &kern_wait, NULL));
 
-  real cfl_max = 0.0;
+  double cfl_max = 0.0;
   for (i = 0; i < (*nel); i++) {
     cfl_max = fmax(cfl_max, cfl[i]);
   }

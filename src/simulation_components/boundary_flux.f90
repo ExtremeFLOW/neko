@@ -32,7 +32,7 @@
 !
 !> Implements `boundary_flux_t`.
 module boundary_flux
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
@@ -304,11 +304,11 @@ contains
     class(case_t), intent(inout), target :: case
     integer, intent(in) :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: output_value
     integer, intent(in) :: zone_indices(:)
     character(len=*), intent(in) :: field_names(:)
     logical, intent(in), optional :: log

@@ -39,7 +39,7 @@
  */
 
 #define DEFINE_CFL_KERNEL(LX, CHUNKS)                                          \
-__kernel void cfl_kernel_lx##LX(const real dt,                                 \
+__kernel void cfl_kernel_lx##LX(const double dt,                                 \
 				__global const real * __restrict__ u,	       \
 				__global const real * __restrict__ v,	       \
 				__global const real * __restrict__ w,	       \
@@ -56,7 +56,7 @@ __kernel void cfl_kernel_lx##LX(const real dt,                                 \
 				__global const real * __restrict__ ds_inv,     \
 				__global const real * __restrict__ dt_inv,     \
 				__global const real * __restrict__ jacinv,     \
-				__global real * __restrict__ cfl_h) {	       \
+				__global double * __restrict__ cfl_h) {	       \
                                                                                \
   int i,j,k;								       \
                                                                                \
@@ -74,7 +74,7 @@ __kernel void cfl_kernel_lx##LX(const real dt,                                 \
                                                                                \
   __local real shjacinv[LX * LX * LX];                                         \
                                                                                \
-  __local real shcfl[256];                                                     \
+  __local double shcfl[256];                                                     \
                                                                                \
   if (iii < LX) {                                                              \
     shdr_inv[iii] = dr_inv[iii];                                               \
@@ -97,7 +97,7 @@ __kernel void cfl_kernel_lx##LX(const real dt,                                 \
                                                                                \
   barrier(CLK_LOCAL_MEM_FENCE);                                                \
                                                                                \
-  real cfl_tmp = 0.0;                                                          \
+  double cfl_tmp = 0.0;                                                          \
   for (int n = 0; n < nchunks; n++) {                                          \
     const int ijk = iii + n * CHUNKS;                                          \
     const int jk = ijk / LX;                                                   \
@@ -105,15 +105,15 @@ __kernel void cfl_kernel_lx##LX(const real dt,                                 \
     k = jk / LX;                                                               \
     j = jk - k * LX;                                                           \
     if ( i < LX && j < LX && k < LX) {                                         \
-      const real cflr = fabs(dt * (( shu[ijk] * drdx[ijk + e * LX * LX * LX]   \
+      const double cflr = fabs(dt * (( shu[ijk] * drdx[ijk + e * LX * LX * LX]   \
                                      + shv[ijk] * drdy[ijk + e * LX * LX * LX] \
                                      + shw[ijk] * drdz[ijk + e * LX * LX * LX] \
                                      ) * shjacinv[ijk]) * shdr_inv[i]);        \
-      const real cfls = fabs(dt * (( shu[ijk] * dsdx[ijk + e * LX * LX * LX]   \
+      const double cfls = fabs(dt * (( shu[ijk] * dsdx[ijk + e * LX * LX * LX]   \
                                      + shv[ijk] * dsdy[ijk + e * LX * LX * LX] \
                                      + shw[ijk] * dsdz[ijk + e * LX * LX * LX] \
                                      ) * shjacinv[ijk]) * shds_inv[j]);        \
-      const real cflt = fabs( dt * ( ( shu[ijk] * dtdx[ijk + e * LX * LX * LX] \
+      const double cflt = fabs( dt * ( ( shu[ijk] * dtdx[ijk + e * LX * LX * LX] \
                                       + shv[ijk] * dtdy[ijk + e * LX * LX * LX]\
 				      + shw[ijk] * dtdz[ijk + e * LX * LX * LX]\
 				      ) * shjacinv[ijk]) * shdt_inv[k]);       \

@@ -11,7 +11,7 @@ module test_boundary_operation
   use gather_scatter, only : gs_t
   use coefs, only : coef_t
   use time_state, only : time_state_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use case, only : case_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use pfunit_comm_utils, only : comm_init_test, comm_free_test
@@ -88,9 +88,9 @@ contains
 
     call init_boundary_operation_for_compute_test(simcomp, fld, coef)
 
-    call time%init(0.0_rp, 1.0_rp, 0.1_rp)
+    call time%init(0.0_dp, 1.0_dp, 0.1_dp)
     time%tstep = 1
-    time%t = 0.1_rp
+    time%t = 0.1_dp
     call simcomp%compute_(time)
 
     @assertEqual(sqrt(2.0_rp), simcomp%integral, tolerance = 1.0e-6_rp)
@@ -136,12 +136,12 @@ contains
        call reg_field%copy_from(HOST_TO_DEVICE, .true.)
     end if
 
-    call test_case%time%init(0.0_rp, 1.0_rp, 0.1_rp)
+    call test_case%time%init(0.0_dp, 1.0_dp, 0.1_dp)
 
     zone_indices = [1, 2]
     operations = [character(len=16) :: "integral", "max"]
     call simcomp%init_from_components("boundary_operation_test", test_case, 7, &
-         "tsteps", 1.0_rp, "tsteps", 1.0_rp, "tsteps", 1.0_rp, &
+         "tsteps", 1.0_dp, "tsteps", 1.0_dp, "tsteps", 1.0_dp, &
          zone_indices, "u", operations, .false.)
 
     @assertEqual("boundary_operation_test", simcomp%name)

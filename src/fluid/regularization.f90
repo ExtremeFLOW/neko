@@ -71,12 +71,10 @@ module regularization
   end interface
 
   abstract interface
-     subroutine reg_compute(this, time, tstep, dt)
-       import regularization_t, rp, time_state_t
+     subroutine reg_compute(this, time)
+       import regularization_t, time_state_t
        class(regularization_t), intent(inout) :: this
        type(time_state_t), intent(in) :: time
-       integer, intent(in) :: tstep
-       real(kind=rp), intent(in) :: dt
      end subroutine reg_compute
   end interface
 
