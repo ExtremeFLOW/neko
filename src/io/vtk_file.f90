@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2025, The Neko Authors
+! Copyright (c) 2019-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 !> Legacy VTK file format
 !! @details This module defines interface to read/write legacy VTK file
 module vtk_file
-  use num_types, only : rp, dp
+  use num_types, only : dp, dp
   use generic_file, only : generic_file_t
   use utils, only : neko_error, filename_suffix_pos
   use mesh, only : mesh_t
@@ -77,7 +77,7 @@ contains
   subroutine vtk_file_write(this, data, t)
     class(vtk_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     type(mesh_t), pointer :: msh => null()
     type(field_t), pointer :: fld => null()
     type(mesh_fld_t), pointer :: mfld => null()

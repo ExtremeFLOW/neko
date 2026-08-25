@@ -53,6 +53,7 @@ contains
     integer :: i
     real(kind=rp) :: ui, vi, wi, magu, utau, normu, rho
 
+    !$omp parallel do private(i, ui, vi, wi, magu, utau, normu, rho)
     do i=1, n_nodes
        ! Load the sampled velocity
        ui = u(i)
@@ -81,6 +82,7 @@ contains
        tau_y(i) = -rho*utau**2 * vi / magu
        tau_z(i) = -rho*utau**2 * wi / magu
     end do
+    !$omp end parallel do
 
   end subroutine rough_log_law_compute_cpu
 

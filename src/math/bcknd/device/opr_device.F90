@@ -33,8 +33,8 @@
 !> Operators accelerator backends
 module opr_device
   use gather_scatter, only : GS_OP_ADD
-  use num_types, only : rp, c_rp, i8
-  use device, only : device_get_ptr, device_event_sync
+  use num_types, only : rp, c_rp, i8, dp, c_dp
+  use device, only : device_get_ptr, device_event_sync, device_map, device_unmap
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
@@ -140,17 +140,17 @@ module opr_device
   end interface
 
   interface
-     real(c_rp) function hip_cfl(dt, u_d, v_d, w_d, &
+     real(c_dp) function hip_cfl(dt, u_d, v_d, w_d, &
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
           jacinv_d, nel, lx) &
           bind(c, name = 'hip_cfl')
        use, intrinsic :: iso_c_binding
-       import c_rp
+       import c_dp
        type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
        type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
        type(c_ptr), value :: dr_inv_d, ds_inv_d, dt_inv_d, jacinv_d
-       real(c_rp) :: dt
+       real(c_dp) :: dt
        integer(c_int) :: nel, lx
      end function hip_cfl
   end interface
@@ -269,17 +269,17 @@ module opr_device
   end interface
 
   interface
-     real(c_rp) function cuda_cfl(dt, u_d, v_d, w_d, &
+     real(c_dp) function cuda_cfl(dt, u_d, v_d, w_d, &
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
           jacinv_d, nel, lx) &
           bind(c, name = 'cuda_cfl')
        use, intrinsic :: iso_c_binding
-       import c_rp
+       import c_dp
        type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
        type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
        type(c_ptr), value :: dr_inv_d, ds_inv_d, dt_inv_d, jacinv_d
-       real(c_rp) :: dt
+       real(c_dp) :: dt
        integer(c_int) :: nel, lx
      end function cuda_cfl
   end interface
@@ -380,17 +380,17 @@ module opr_device
   end interface
 
   interface
-     real(c_rp) function opencl_cfl(dt, u_d, v_d, w_d, &
+     real(c_dp) function opencl_cfl(dt, u_d, v_d, w_d, &
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
           jacinv_d, nel, lx) &
           bind(c, name = 'opencl_cfl')
        use, intrinsic :: iso_c_binding
-       import c_rp
+       import c_dp
        type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
        type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
        type(c_ptr), value :: dr_inv_d, ds_inv_d, dt_inv_d, jacinv_d
-       real(c_rp) :: dt
+       real(c_dp) :: dt
        integer(c_int) :: nel, lx
      end function opencl_cfl
   end interface
@@ -1014,9 +1014,10 @@ contains
     type(space_t) :: Xh
     type(coef_t) :: coef
     integer :: nelv, gdim
-    real(kind=rp) :: dt
+    real(kind=dp) :: dt
     type(c_ptr), intent(in) :: u_d, v_d, w_d
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
+    real(kind=rp) :: cfl_rp
 
 #ifdef HAVE_HIP
     cfl = hip_cfl(dt, u_d, v_d, w_d, &
@@ -1040,14 +1041,15 @@ contains
          Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
          coef%jacinv_d, nelv, Xh%lx)
 #elif HAVE_METAL
-    cfl = metal_cfl(dt, u_d, v_d, w_d, &
+    cfl_rp = metal_cfl(real(dt, kind=rp), u_d, v_d, w_d, &
          coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
          coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
          coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
          Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
          coef%jacinv_d, nelv, Xh%lx)
+    cfl = real(cfl_rp, kind=dp)
 #else
-    cfl = 0.0_rp
+    cfl = 0.0_dp
     call neko_error('No device backend configured')
 #endif
   end function opr_device_cfl
