@@ -24,4 +24,4 @@
 * Baconnet, V., 2025. *Numerical Investigations of Secondary Flows in Low-Pressure Turbines*, Licentiate dissertation, KTH Royal Institute of Technology, Stockholm, Sweden.
 * Stanly, R., Bagheri, E., Mukha, T., Schlatter, P., 2026. *Influence of turbulence inflow conditions on aeroacoustics of wall-bounded flows*. International Journal of Heat and Fluid Flow, 118, 110216. [https://doi.org/10.1016/j.ijheatfluidflow.2025.110216](https://doi.org/10.1016/j.ijheatfluidflow.2025.110216)
 * Du, S., Münsch, M., Jansson, N., Schlatter, P., 2026. *Assessment of the gradient jump penalisation in large-eddy simulations of turbulence*. Acta Mechanica. [https://doi.org/10.1007/s00707-025-04607-z](https://doi.org/10.1007/s00707-025-04607-z)
-
+* Morse, N., Jansson, N., Bode, M., Lingwood, R. J., Alfredsson, P. H., Mihaescu, M., Örlü, R., Schlatter, P., 2026. *Direct numerical simulation of the rotating disk turbulent boundary layer*. Proceedings of the 14th International Symposium on Turbulence and Shear Flow Phenomena (TSFP14).
