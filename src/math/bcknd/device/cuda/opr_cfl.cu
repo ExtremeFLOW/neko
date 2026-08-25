@@ -85,7 +85,7 @@ extern "C" {
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     cuda_buffer_reserve(&cfl_buf, (*nel) * sizeof(double));
-    real *cfl_d = (real *) cfl_buf.dev;
+    double *cfl_d = (double *) cfl_buf.dev;
 #ifdef HAVE_NVSHMEM
     cuda_buffer_reserve(&cfl_red_buf, sizeof(double));
     double *cfl_red_d = (double *) cfl_red_buf.dev;
