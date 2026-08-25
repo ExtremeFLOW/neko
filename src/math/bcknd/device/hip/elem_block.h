@@ -34,12 +34,15 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "wave.h"
+
 /**
  * Elements per thread block for the SEM operator kstep kernels (HIP)
  *
- * A kstep block is one (LX,LX) thread plane per element. Against a 64 wide
- * wavefront that masks off a lot of lanes for every LX whose square is not a
- * multiple of the wave: 25% useful at LX = 4, 39% at LX = 5, 63% at LX = 9.
+ * A kstep block is one (LX,LX) thread plane per element. Against a wavefront
+ * that masks off a lot of lanes for every LX whose square is not a multiple
+ * of the wave: at the 64 lanes of CDNA, 25% useful at LX = 4, 39% at LX = 5,
+ * 63% at LX = 9.
  * Stacking EB elements along threadIdx.z packs the block back up.
  *
  * MEASURED TO LOSE on gfx90a and gfx942 for ax_helm: the blocked
@@ -52,9 +55,16 @@
  *
  * Candidate 0 is one element per block. Candidate C > 0 fits as many whole
  * elements as it can into 2^(C+1) wavefronts.
+ *
+ * NEKO_EB_WAVE is deliberately NEKO_WAVE_SIZE_UNIFORM and not NEKO_WAVE_SIZE:
+ * it sizes a kernel template argument and the matching launch geometry, which
+ * the host and device passes have to agree on, and only the command line form
+ * of the width is visible to both. On RDNA, pass -DNEKO_WAVE_SIZE=32 to size
+ * the candidates for a 32 lane wave; getting it wrong costs occupancy, not
+ * correctness, and this sweep defaults off on AMD regardless.
  */
 #ifndef NEKO_EB_WAVE
-#define NEKO_EB_WAVE 64
+#define NEKO_EB_WAVE NEKO_WAVE_SIZE_UNIFORM
 #endif
 
 /* LDS per CU, and the per workgroup maximum, on CDNA */

@@ -34,13 +34,20 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "wave.h"
+
 
 /**
  * Warp shuffle reduction
+ *
+ * See reduce_warp() in math_kernel.h: the leading half wave shuffle only
+ * exists on a 64 lane wavefront.
  */
 template< typename T>
 __inline__ __device__ T cfl_reduce_warp(T val) {
+#if NEKO_WAVE_SIZE == 64
   val = fmax(val, __shfl_down(val, 32));
+#endif
   val = fmax(val, __shfl_down(val, 16));
   val = fmax(val, __shfl_down(val, 8));
   val = fmax(val, __shfl_down(val, 4));

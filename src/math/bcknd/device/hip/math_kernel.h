@@ -34,6 +34,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "wave.h"
+
 /**
  * Device kernel for cmult
  */
@@ -844,10 +846,18 @@ __global__ void vcross_kernel(T * __restrict__ u1,
 
 /**
  * Warp shuffle reduction
+ *
+ * The ladder is stepped down from NEKO_WAVE_SIZE/2, so the leading half wave
+ * shuffle is only emitted on a 64 lane wavefront. At wave64 this preprocesses
+ * to exactly the sequence it always has; at wave32 the 32 step would have
+ * shuffled past the end of the wave, where __shfl_down returns the lane's own
+ * value and the reduction silently doubles it.
  */
 template< typename T>
 __inline__ __device__ T reduce_warp(T val) {
+#if NEKO_WAVE_SIZE == 64
   val += __shfl_down(val, 32);
+#endif
   val += __shfl_down(val, 16);
   val += __shfl_down(val, 8);
   val += __shfl_down(val, 4);
@@ -861,7 +871,9 @@ __inline__ __device__ T reduce_warp(T val) {
  */
 template< typename T>
 __inline__ __device__ T reduce_max_warp(T val) {
+#if NEKO_WAVE_SIZE == 64
   val = max(val, __shfl_down(val, 32));
+#endif
   val = max(val, __shfl_down(val, 16));
   val = max(val, __shfl_down(val, 8));
   val = max(val, __shfl_down(val, 4));
@@ -875,7 +887,9 @@ __inline__ __device__ T reduce_max_warp(T val) {
  */
 template< typename T>
 __inline__ __device__ T reduce_min_warp(T val) {
+#if NEKO_WAVE_SIZE == 64
   val = min(val, __shfl_down(val, 32));
+#endif
   val = min(val, __shfl_down(val, 16));
   val = min(val, __shfl_down(val, 8));
   val = min(val, __shfl_down(val, 4));
