@@ -59,8 +59,6 @@ module probes_moving_mesh
   type, public :: probes_moving_mesh_t
      !> Whether moving-mesh handling is active.
      logical :: enabled = .false.
-     !> Whether the mesh moves at all.
-     logical :: mesh_has_moved = .false.
      !> Probes move rigidly with a body (otherwise lab-frame fixed).
      logical :: body_attached = .false.
      !> Current probe coordinates are written alongside the data.
@@ -117,15 +115,17 @@ contains
     character(len=256) :: log_buf
     integer :: i, j
     logical :: body_found
+    logical :: mesh_has_moved
 
     call this%free()
+    mesh_has_moved = .false.
 
     if (associated(neko_ale)) then
-       if (neko_ale%active) this%mesh_has_moved = .true.
+       if (neko_ale%active) mesh_has_moved = .true.
     end if
 
     ! Return if the mesh is fixed.
-    if (.not. this%mesh_has_moved) return
+    if (.not. mesh_has_moved) return
 
     call json_get(json, 'mode', mode)
 
@@ -236,7 +236,6 @@ contains
     call this%chk_z%free()
 
     this%enabled = .false.
-    this%mesh_has_moved = .false.
     this%body_attached = .false.
     this%output_coords = .false.
     this%zone_id = -1
