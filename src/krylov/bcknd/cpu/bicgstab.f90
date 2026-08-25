@@ -200,9 +200,9 @@ contains
     integer :: iter, max_iter
     real(kind=rp) :: rnorm, rtr, norm_fac, gamma
     real(kind=rp) :: r_norm, s_norm, shadow_norm, t_norm, v_norm
-    real(kind=rp) :: str, ttr, vtr
+    ! s^T s, f^T v, v^T v, s^T t, t^T t
+    real(kind=rp) :: sts, ftv, vtv, stt, ttt
     real(kind=rp) :: beta, alpha, omega, rho_1, rho_2
-    real(kind=rp) :: alpha_denominator, omega_numerator
 
     if (present(niter)) then
        max_iter = niter
@@ -267,20 +267,19 @@ contains
          ! The alpha denominator is another BiCG breakdown point. Computing it
          ! together with ||v|| permits a scale-aware orthogonality check without
          ! an additional global synchronisation.
-         call bicgstab_product_and_norm(alpha_denominator, vtr, f, v, &
-              coef%mult, n)
-         v_norm = bicgstab_sqrt(vtr, 'operator result v')
-         call bicgstab_check_inner_product(alpha_denominator, shadow_norm, &
+         call bicgstab_product_and_norm(ftv, vtv, f, v, coef%mult, n)
+         v_norm = bicgstab_sqrt(vtv, 'operator result v')
+         call bicgstab_check_inner_product(ftv, shadow_norm, &
               v_norm, 'alpha denominator')
-         alpha = rho_1 / alpha_denominator
+         alpha = rho_1 / ftv
          if (.not. ieee_is_finite(alpha)) then
             call neko_error('BiCGStab failure: non-finite alpha')
          end if
 
          call copy(s, r, n)
          call add2s2(s, v, -alpha, n)
-         str = glsc3(s, coef%mult, s, n)
-         s_norm = bicgstab_sqrt(str, 'intermediate residual')
+         sts = glsc3(s, coef%mult, s, n)
+         s_norm = bicgstab_sqrt(sts, 'intermediate residual')
          rnorm = s_norm * norm_fac
          if (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) then
             call add2s2(x%x, p_hat, alpha,n)
@@ -293,16 +292,15 @@ contains
          call gs_h%op(t, n, GS_OP_ADD)
          call blst%apply(t, n)
 
-         call bicgstab_product_and_norm(omega_numerator, ttr, s, t, &
-              coef%mult, n)
-         t_norm = bicgstab_sqrt(ttr, 'operator result t')
+         call bicgstab_product_and_norm(stt, ttt, s, t, coef%mult, n)
+         t_norm = bicgstab_sqrt(ttt, 'operator result t')
          if (t_norm .le. 0.0_rp) then
             call neko_error('BiCGStab breakdown: zero omega denominator')
          end if
-         if (.not. ieee_is_finite(omega_numerator)) then
+         if (.not. ieee_is_finite(stt)) then
             call neko_error('BiCGStab failure: non-finite omega numerator')
          end if
-         omega = omega_numerator / ttr
+         omega = stt / ttt
          if (.not. ieee_is_finite(omega)) then
             call neko_error('BiCGStab failure: non-finite omega')
          end if
@@ -322,7 +320,7 @@ contains
          ! A negative omega is valid. Breakdown occurs only when the local
          ! minimal-residual step stagnates, i.e. when t and s are numerically
          ! orthogonal.
-         call bicgstab_check_inner_product(omega_numerator, t_norm, s_norm, &
+         call bicgstab_check_inner_product(stt, t_norm, s_norm, &
               'omega numerator')
          rho_2 = rho_1
 
