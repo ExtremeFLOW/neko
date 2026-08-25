@@ -128,6 +128,9 @@ module scalar_pnpn
      procedure, pass(this) :: init => scalar_pnpn_init
      !> To restart
      procedure, pass(this) :: restart => scalar_pnpn_restart
+     !> Register Pn/Pn-specific fields for checkpointing.
+     procedure, pass(this) :: register_checkpoint => &
+          scalar_pnpn_register_checkpoint
      !> Destructor.
      procedure, pass(this) :: free => scalar_pnpn_free
      !> Solve for the current timestep.
@@ -136,7 +139,6 @@ module scalar_pnpn
      procedure, pass(this) :: apply_strong_bcs => scalar_scheme_apply_strong_bcs
      !> Setup the boundary conditions
      procedure, pass(this) :: setup_bcs_ => scalar_pnpn_setup_bcs_
-     !> Sync lag field data to registry for checkpointing
   end type scalar_pnpn_t
 
   interface
@@ -258,6 +260,18 @@ contains
          this%chkp%tlag, time_scheme, .not. advection, &
          this%slag)
   end subroutine scalar_pnpn_init
+
+  !> Register this scalar scheme with the checkpoint.
+  subroutine scalar_pnpn_register_checkpoint(this, chkp, index, n_scalars)
+    class(scalar_pnpn_t), target, intent(inout) :: this
+    type(chkp_t), intent(inout) :: chkp
+    integer, intent(in) :: index
+    integer, intent(in) :: n_scalars
+
+    call chkp%add_scalar(this%s, this%slag, this%abx1, this%abx2, &
+         index = index, n_scalars = n_scalars)
+
+  end subroutine scalar_pnpn_register_checkpoint
 
   ! Restarts the scalar from a checkpoint
   subroutine scalar_pnpn_restart(this, chkp)
