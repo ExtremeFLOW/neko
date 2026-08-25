@@ -903,50 +903,52 @@ $(document).ready(function(){initNavTree('d7/dd3/scalar__stats_8f90_source.html'
 <div class="line"><a id="l00814" name="l00814"></a><span class="lineno">  814</span>       <span class="keyword">call </span>device_col2(this%ews%mf%x_d, this%stats_work%x_d, n)</div>
 <div class="line"><a id="l00815" name="l00815"></a><span class="lineno">  815</span> </div>
 <div class="line"><a id="l00816" name="l00816"></a><span class="lineno">  816</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00817" name="l00817"></a><span class="lineno">  817</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
-<div class="line"><a id="l00818" name="l00818"></a><span class="lineno">  818</span>          wrk = 1.0_rp / this%coef%B(i,1,1,1)</div>
-<div class="line"><a id="l00819" name="l00819"></a><span class="lineno">  819</span>          this%pdsdx%mf%x(i,1,1,1) = this%pdsdx%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span>          this%pdsdy%mf%x(i,1,1,1) = this%pdsdy%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00821" name="l00821"></a><span class="lineno">  821</span>          this%pdsdz%mf%x(i,1,1,1) = this%pdsdz%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00822" name="l00822"></a><span class="lineno">  822</span> </div>
-<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span>          this%udsdx%mf%x(i,1,1,1) = this%udsdx%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00824" name="l00824"></a><span class="lineno">  824</span>          this%udsdy%mf%x(i,1,1,1) = this%udsdy%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00825" name="l00825"></a><span class="lineno">  825</span>          this%udsdz%mf%x(i,1,1,1) = this%udsdz%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00826" name="l00826"></a><span class="lineno">  826</span> </div>
-<div class="line"><a id="l00827" name="l00827"></a><span class="lineno">  827</span>          this%vdsdx%mf%x(i,1,1,1) = this%vdsdx%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00828" name="l00828"></a><span class="lineno">  828</span>          this%vdsdy%mf%x(i,1,1,1) = this%vdsdy%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00829" name="l00829"></a><span class="lineno">  829</span>          this%vdsdz%mf%x(i,1,1,1) = this%vdsdz%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00830" name="l00830"></a><span class="lineno">  830</span> </div>
-<div class="line"><a id="l00831" name="l00831"></a><span class="lineno">  831</span>          this%wdsdx%mf%x(i,1,1,1) = this%wdsdx%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00832" name="l00832"></a><span class="lineno">  832</span>          this%wdsdy%mf%x(i,1,1,1) = this%wdsdy%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00833" name="l00833"></a><span class="lineno">  833</span>          this%wdsdz%mf%x(i,1,1,1) = this%wdsdz%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00834" name="l00834"></a><span class="lineno">  834</span> </div>
-<div class="line"><a id="l00835" name="l00835"></a><span class="lineno">  835</span>          this%sdudx%mf%x(i,1,1,1) = this%sdudx%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00836" name="l00836"></a><span class="lineno">  836</span>          this%sdudy%mf%x(i,1,1,1) = this%sdudy%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00837" name="l00837"></a><span class="lineno">  837</span>          this%sdudz%mf%x(i,1,1,1) = this%sdudz%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00838" name="l00838"></a><span class="lineno">  838</span> </div>
-<div class="line"><a id="l00839" name="l00839"></a><span class="lineno">  839</span>          this%sdvdx%mf%x(i,1,1,1) = this%sdvdx%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00840" name="l00840"></a><span class="lineno">  840</span>          this%sdvdy%mf%x(i,1,1,1) = this%sdvdy%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00841" name="l00841"></a><span class="lineno">  841</span>          this%sdvdz%mf%x(i,1,1,1) = this%sdvdz%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00842" name="l00842"></a><span class="lineno">  842</span> </div>
-<div class="line"><a id="l00843" name="l00843"></a><span class="lineno">  843</span>          this%sdwdx%mf%x(i,1,1,1) = this%sdwdx%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00844" name="l00844"></a><span class="lineno">  844</span>          this%sdwdy%mf%x(i,1,1,1) = this%sdwdy%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00845" name="l00845"></a><span class="lineno">  845</span>          this%sdwdz%mf%x(i,1,1,1) = this%sdwdz%mf%x(i,1,1,1) * wrk</div>
-<div class="line"><a id="l00846" name="l00846"></a><span class="lineno">  846</span> </div>
-<div class="line"><a id="l00847" name="l00847"></a><span class="lineno">  847</span>          wrk_sqr = wrk * wrk</div>
-<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span> </div>
-<div class="line"><a id="l00849" name="l00849"></a><span class="lineno">  849</span>          this%ess%mf%x(i,1,1,1) = this%ess%mf%x(i,1,1,1) * wrk_sqr</div>
-<div class="line"><a id="l00850" name="l00850"></a><span class="lineno">  850</span>          this%eus%mf%x(i,1,1,1) = this%eus%mf%x(i,1,1,1) * wrk_sqr</div>
-<div class="line"><a id="l00851" name="l00851"></a><span class="lineno">  851</span>          this%evs%mf%x(i,1,1,1) = this%evs%mf%x(i,1,1,1) * wrk_sqr</div>
-<div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span>          this%ews%mf%x(i,1,1,1) = this%ews%mf%x(i,1,1,1) * wrk_sqr</div>
-<div class="line"><a id="l00853" name="l00853"></a><span class="lineno">  853</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span> </div>
-<div class="line"><a id="l00855" name="l00855"></a><span class="lineno">  855</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00817" name="l00817"></a><span class="lineno">  817</span>       <span class="comment">!$omp parallel do private(i, wrk, wrk_sqr)</span></div>
+<div class="line"><a id="l00818" name="l00818"></a><span class="lineno">  818</span>       <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00819" name="l00819"></a><span class="lineno">  819</span>          wrk = 1.0_rp / this%coef%B(i,1,1,1)</div>
+<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span>          this%pdsdx%mf%x(i,1,1,1) = this%pdsdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00821" name="l00821"></a><span class="lineno">  821</span>          this%pdsdy%mf%x(i,1,1,1) = this%pdsdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00822" name="l00822"></a><span class="lineno">  822</span>          this%pdsdz%mf%x(i,1,1,1) = this%pdsdz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span> </div>
+<div class="line"><a id="l00824" name="l00824"></a><span class="lineno">  824</span>          this%udsdx%mf%x(i,1,1,1) = this%udsdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00825" name="l00825"></a><span class="lineno">  825</span>          this%udsdy%mf%x(i,1,1,1) = this%udsdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00826" name="l00826"></a><span class="lineno">  826</span>          this%udsdz%mf%x(i,1,1,1) = this%udsdz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00827" name="l00827"></a><span class="lineno">  827</span> </div>
+<div class="line"><a id="l00828" name="l00828"></a><span class="lineno">  828</span>          this%vdsdx%mf%x(i,1,1,1) = this%vdsdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00829" name="l00829"></a><span class="lineno">  829</span>          this%vdsdy%mf%x(i,1,1,1) = this%vdsdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00830" name="l00830"></a><span class="lineno">  830</span>          this%vdsdz%mf%x(i,1,1,1) = this%vdsdz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00831" name="l00831"></a><span class="lineno">  831</span> </div>
+<div class="line"><a id="l00832" name="l00832"></a><span class="lineno">  832</span>          this%wdsdx%mf%x(i,1,1,1) = this%wdsdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00833" name="l00833"></a><span class="lineno">  833</span>          this%wdsdy%mf%x(i,1,1,1) = this%wdsdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00834" name="l00834"></a><span class="lineno">  834</span>          this%wdsdz%mf%x(i,1,1,1) = this%wdsdz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00835" name="l00835"></a><span class="lineno">  835</span> </div>
+<div class="line"><a id="l00836" name="l00836"></a><span class="lineno">  836</span>          this%sdudx%mf%x(i,1,1,1) = this%sdudx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00837" name="l00837"></a><span class="lineno">  837</span>          this%sdudy%mf%x(i,1,1,1) = this%sdudy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00838" name="l00838"></a><span class="lineno">  838</span>          this%sdudz%mf%x(i,1,1,1) = this%sdudz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00839" name="l00839"></a><span class="lineno">  839</span> </div>
+<div class="line"><a id="l00840" name="l00840"></a><span class="lineno">  840</span>          this%sdvdx%mf%x(i,1,1,1) = this%sdvdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00841" name="l00841"></a><span class="lineno">  841</span>          this%sdvdy%mf%x(i,1,1,1) = this%sdvdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00842" name="l00842"></a><span class="lineno">  842</span>          this%sdvdz%mf%x(i,1,1,1) = this%sdvdz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00843" name="l00843"></a><span class="lineno">  843</span> </div>
+<div class="line"><a id="l00844" name="l00844"></a><span class="lineno">  844</span>          this%sdwdx%mf%x(i,1,1,1) = this%sdwdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00845" name="l00845"></a><span class="lineno">  845</span>          this%sdwdy%mf%x(i,1,1,1) = this%sdwdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00846" name="l00846"></a><span class="lineno">  846</span>          this%sdwdz%mf%x(i,1,1,1) = this%sdwdz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00847" name="l00847"></a><span class="lineno">  847</span> </div>
+<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span>          wrk_sqr = wrk * wrk</div>
+<div class="line"><a id="l00849" name="l00849"></a><span class="lineno">  849</span> </div>
+<div class="line"><a id="l00850" name="l00850"></a><span class="lineno">  850</span>          this%ess%mf%x(i,1,1,1) = this%ess%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00851" name="l00851"></a><span class="lineno">  851</span>          this%eus%mf%x(i,1,1,1) = this%eus%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span>          this%evs%mf%x(i,1,1,1) = this%evs%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00853" name="l00853"></a><span class="lineno">  853</span>          this%ews%mf%x(i,1,1,1) = this%ews%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00855" name="l00855"></a><span class="lineno">  855</span>       <span class="comment">!$omp end parallel do</span></div>
 <div class="line"><a id="l00856" name="l00856"></a><span class="lineno">  856</span> </div>
-</div>
-<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d5e/namespacescalar__stats.html#a9f16421452c96ff7f4097483c68d25e9">scalar_stats_make_strong_grad</a></div>
+<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00858" name="l00858"></a><span class="lineno">  858</span> </div>
-<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d5e/namespacescalar__stats.html">scalar_stats</a></div>
+</div>
+<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d5e/namespacescalar__stats.html#a9f16421452c96ff7f4097483c68d25e9">scalar_stats_make_strong_grad</a></div>
+<div class="line"><a id="l00860" name="l00860"></a><span class="lineno">  860</span> </div>
+<div class="line"><a id="l00861" name="l00861"></a><span class="lineno">  861</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d5e/namespacescalar__stats.html">scalar_stats</a></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacedevice__math_html"><div class="ttname"><a href="../../d2/d73/namespacedevice__math.html">device_math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d8/d8f/device__math_8F90_source.html#l00033">device_math.F90:33</a></div></div>
 <div class="ttc" id="anamespacedevice__math_html_a2b8d4f8b84ce7cc369cadc71c01dc207"><div class="ttname"><a href="../../d2/d73/namespacedevice__math.html#a2b8d4f8b84ce7cc369cadc71c01dc207">device_math::device_addcol3</a></div><div class="ttdeci">subroutine, public device_addcol3(a_d, b_d, c_d, n, strm)</div><div class="ttdoc">Returns .</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d8f/device__math_8F90_source.html#l01180">device_math.F90:1181</a></div></div>
@@ -985,7 +987,7 @@ $(document).ready(function(){initNavTree('d7/dd3/scalar__stats_8f90_source.html'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_0691d6202b68dc26b40b4865e3c53c6d.html">scalar</a></li><li class="navelem"><a class="el" href="../../d7/dd3/scalar__stats_8f90.html">scalar_stats.f90</a></li>
-    <li class="footer">Generated on Mon Aug 24 2026 03:49:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Aug 25 2026 03:47:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,45 +1,43 @@
 <map id="math::cmult" name="math::cmult">
-<area shape="rect" id="Node000001" title="Multiplication by constant c ." alt="" coords="571,375,672,400"/>
-<area shape="rect" id="Node000002" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a3451ae6ed3c633d99cfe5b8dd3c0fea7" title="Compute M_ij on the CPU." alt="" coords="322,45,497,85"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="614,361,604,314,586,253,559,189,541,158,521,130,493,106,461,87,464,82,496,101,525,127,546,155,564,186,591,251,609,313,619,360"/>
-<area shape="rect" id="Node000004" href="$d3/d06/namespaceprojection.html#abe8a2a4afdc38e79a17ec00840c66d0a" title=" " alt="" coords="296,141,523,181"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="604,364,569,309,521,249,480,213,440,183,443,179,484,208,525,246,573,306,608,361"/>
-<area shape="rect" id="Node000006" href="$d5/de6/namespacefield__math.html#ace939df7b2efd9fc297be656077298f8" title="Multiplication by constant c ." alt="" coords="324,260,495,285"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="599,366,565,331,521,300,490,288,492,283,524,296,568,327,603,362"/>
-<area shape="rect" id="Node000012" href="$d9/dfd/namespacefld__file__data.html#a81881a35efdda74be86d18c854c614cf" title="Scale the values stored in this fld_file_data." alt="" coords="346,310,473,350"/>
-<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="560,374,472,350,474,344,561,368"/>
-<area shape="rect" id="Node000013" href="$d8/d8b/namespacemap__1d.html#a0de5072eebc7b008f2127668b3460649" title=" " alt="" coords="328,375,491,400"/>
-<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="557,390,491,390,491,385,557,385"/>
-<area shape="rect" id="Node000014" href="$dc/d12/namespacematrix__math.html#a3669edcec8f049816b67c3ef035b66d5" title="Multiplication by constant c ." alt="" coords="331,425,488,465"/>
-<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="561,406,484,427,483,422,560,401"/>
-<area shape="rect" id="Node000015" href="$d1/d99/namespacemap__2d.html#a27867ff2e8551191a1d1788f7744850d" title=" " alt="" coords="323,489,495,529"/>
-<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="602,412,568,447,524,479,497,491,494,487,521,474,565,443,599,409"/>
-<area shape="rect" id="Node000018" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a31cf6435d89a64e387d00dd2d42e019f" title=" " alt="" coords="328,553,491,608"/>
-<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="612,414,580,478,555,513,524,543,493,562,490,557,521,539,551,509,575,475,608,412"/>
-<area shape="rect" id="Node000019" href="$d3/d0d/namespacevector__math.html#a4b22f3cb13faa637574a1ff59e78a237" title="Multiplication by constant c ." alt="" coords="333,643,486,683"/>
-<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="619,415,609,459,591,514,564,572,546,599,524,623,507,636,487,647,485,642,504,632,521,619,541,595,559,569,586,512,604,458,613,413"/>
+<area shape="rect" id="Node000001" title="Multiplication by constant c ." alt="" coords="571,365,672,391"/>
+<area shape="rect" id="Node000002" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a3451ae6ed3c633d99cfe5b8dd3c0fea7" title="Compute M_ij on the CPU." alt="" coords="322,34,497,74"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="613,353,602,307,584,248,557,186,521,129,489,99,453,76,456,72,492,95,525,126,562,184,589,247,607,305,618,351"/>
+<area shape="rect" id="Node000004" href="$d3/d06/namespaceprojection.html#abe8a2a4afdc38e79a17ec00840c66d0a" title=" " alt="" coords="296,139,523,179"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="599,356,521,268,431,182,435,178,525,264,603,353"/>
+<area shape="rect" id="Node000006" href="$d5/de6/namespacefield__math.html#ace939df7b2efd9fc297be656077298f8" title="Multiplication by constant c ." alt="" coords="324,279,495,304"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="591,359,559,338,522,319,483,307,484,301,524,314,561,333,594,355"/>
+<area shape="rect" id="Node000012" href="$d9/dfd/namespacefld__file__data.html#a81881a35efdda74be86d18c854c614cf" title="Scale the values stored in this fld_file_data." alt="" coords="346,329,473,369"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="557,372,473,360,473,355,557,367"/>
+<area shape="rect" id="Node000013" href="$d8/d8b/namespacemap__1d.html#a0de5072eebc7b008f2127668b3460649" title=" " alt="" coords="328,393,491,419"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="558,389,491,398,491,393,557,384"/>
+<area shape="rect" id="Node000014" href="$dc/d12/namespacematrix__math.html#a3669edcec8f049816b67c3ef035b66d5" title="Multiplication by constant c ." alt="" coords="331,443,488,483"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="588,400,524,432,487,446,485,441,522,428,586,395"/>
+<area shape="rect" id="Node000015" href="$d1/d99/namespacemap__2d.html#a27867ff2e8551191a1d1788f7744850d" title=" " alt="" coords="323,507,495,547"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="608,404,574,452,551,476,524,498,497,511,494,507,521,493,547,472,570,448,604,401"/>
+<area shape="rect" id="Node000018" href="$d3/d0d/namespacevector__math.html#a4b22f3cb13faa637574a1ff59e78a237" title="Multiplication by constant c ." alt="" coords="333,631,486,671"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="613,404,578,478,554,521,525,561,484,602,443,633,440,629,481,598,521,558,549,518,574,475,608,402"/>
 <area shape="rect" id="Node000003" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a4413235e5f71141ae47e071699c75afb" title="Compute eddy viscosity on the CPU." alt="" coords="23,5,230,60"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="308,56,230,47,231,42,309,51"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="308,49,230,43,230,38,308,44"/>
 <area shape="rect" id="Node000005" href="$d3/d06/namespaceprojection.html#a6c2634eed99dd765c86df4ef325ff858" title=" " alt="" coords="5,85,248,125"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="294,141,228,127,229,122,295,135"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="292,139,230,127,231,122,293,134"/>
 <area shape="rect" id="Node000007" href="$d3/d66/namespacefluid__scheme__compressible.html#aead24bdf8d441e371475ee0191f2d0f4" title="Validate field initialization and compute derived quantities." alt="" coords="21,149,232,204"/>
-<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="358,258,247,219,210,207,212,202,249,214,360,253"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="369,275,247,219,213,207,215,202,249,214,372,270"/>
 <area shape="rect" id="Node000008" href="$d8/dc1/namespacefluid__sgs__stats.html#a1c33719c9072a10d856295874f897774" title="Updates all fields with a new sample." alt="" coords="49,229,204,269"/>
-<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="310,267,204,258,205,253,311,262"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="311,279,204,263,205,258,312,274"/>
 <area shape="rect" id="Node000009" href="$d7/d3f/namespacehpfrt__source__term.html#a7b741f1a3cb76156b86b2ba831567679" title="Computes the source term and adds the result to fields." alt="" coords="24,293,229,333"/>
-<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="311,289,230,301,229,295,310,284"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="311,301,230,308,230,302,310,296"/>
 <area shape="rect" id="Node000010" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update the mean field with a new sample." alt="" coords="39,357,214,397"/>
-<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="315,292,297,300,283,311,274,323,265,335,249,347,215,362,213,357,247,342,261,331,270,320,279,307,295,296,313,287"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="324,310,297,319,273,333,249,347,215,359,213,354,247,342,271,328,295,314,322,305"/>
 <area shape="rect" id="Node000011" href="$dd/db4/namespaceale__manager.html#aaec889c954567207a1fe41e8961ac448" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="27,421,226,461"/>
-<area shape="poly" id="edge10_Node000006_Node000011" title=" " alt="" coords="313,290,298,300,286,313,279,326,274,354,269,382,262,397,250,411,228,425,225,421,246,407,258,394,264,381,269,353,274,324,282,310,294,296,310,286"/>
+<area shape="poly" id="edge10_Node000006_Node000011" title=" " alt="" coords="313,309,298,319,287,329,281,340,274,363,268,387,261,399,250,411,228,424,225,420,246,407,257,396,263,385,269,362,276,338,283,326,294,315,310,305"/>
 <area shape="rect" id="Node000016" href="$d1/d99/namespacemap__2d.html#aed0fbf197cedeb057b48268a451b2640" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="29,485,224,511"/>
-<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="310,508,224,504,224,499,310,502"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="310,520,224,511,225,505,310,514"/>
 <area shape="rect" id="Node000017" href="$d1/d99/namespacemap__2d.html#aaa22d03617c59612fa2c690b2dc807aa" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="29,535,224,575"/>
-<area shape="poly" id="edge16_Node000015_Node000017" title=" " alt="" coords="310,528,225,542,224,537,309,522"/>
-<area shape="rect" id="Node000020" href="$df/dd1/namespaceboundary__data.html#a253bcb08406e484881ad0a68b64f5098" title="Re&#45;gather the coordinates, normals and surface weights." alt="" coords="33,599,221,639"/>
-<area shape="poly" id="edge19_Node000019_Node000020" title=" " alt="" coords="319,652,221,637,221,631,319,647"/>
-<area shape="rect" id="Node000021" href="$d1/d36/namespaceboundary__flux.html#a316fd4eba5e521e2a2c279b7f2ce4962" title="Common constructor shared by all public constructors." alt="" coords="35,663,218,703"/>
-<area shape="poly" id="edge20_Node000019_Node000021" title=" " alt="" coords="319,672,219,680,218,674,319,667"/>
-<area shape="rect" id="Node000022" href="$dd/d2c/namespacelpt.html#ae31979c0367c47ba95eda57175d6b370" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="31,728,222,753"/>
-<area shape="poly" id="edge21_Node000019_Node000022" title=" " alt="" coords="339,690,249,718,195,731,194,725,247,713,338,685"/>
+<area shape="poly" id="edge16_Node000015_Node000017" title=" " alt="" coords="310,540,225,548,224,543,310,534"/>
+<area shape="rect" id="Node000019" href="$df/dd1/namespaceboundary__data.html#a253bcb08406e484881ad0a68b64f5098" title="Re&#45;gather the coordinates, normals and surface weights." alt="" coords="33,599,221,639"/>
+<area shape="poly" id="edge18_Node000018_Node000019" title=" " alt="" coords="319,644,221,633,221,627,319,639"/>
+<area shape="rect" id="Node000020" href="$d1/d36/namespaceboundary__flux.html#a316fd4eba5e521e2a2c279b7f2ce4962" title="Common constructor shared by all public constructors." alt="" coords="35,663,218,703"/>
+<area shape="poly" id="edge19_Node000018_Node000020" title=" " alt="" coords="319,664,219,676,218,670,319,659"/>
+<area shape="rect" id="Node000021" href="$dd/d2c/namespacelpt.html#ae31979c0367c47ba95eda57175d6b370" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="31,728,222,753"/>
+<area shape="poly" id="edge20_Node000018_Node000021" title=" " alt="" coords="352,679,249,718,199,731,198,725,247,713,351,674"/>
 </map>

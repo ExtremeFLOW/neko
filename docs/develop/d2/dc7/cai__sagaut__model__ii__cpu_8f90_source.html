@@ -162,41 +162,44 @@ $(document).ready(function(){initNavTree('d2/dc7/cai__sagaut__model__ii__cpu_8f9
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    e_const = exp(kappa * b)</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="keywordflow">do</span> i = 1, n_nodes</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>       ui = u(i)</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>       vi = v(i)</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>       wi = w(i)</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>       rho = rho_w(i)</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>       normu = ui * n_x(i) + vi * n_y(i) + wi * n_z(i)</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="comment">!$omp parallel do private(i, ui, vi, wi, magu, utau, normu, rho, &amp;</span></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="comment">!$omp&amp; rey, blend, up, warg)</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keywordflow">do</span> i = 1, n_nodes</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>       ui = u(i)</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>       vi = v(i)</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>       wi = w(i)</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>       rho = rho_w(i)</div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>       ui = ui - normu * n_x(i)</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>       vi = vi - normu * n_y(i)</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>       wi = wi - normu * n_z(i)</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>       magu = sqrt(ui**2 + vi**2 + wi**2)</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>       normu = ui * n_x(i) + vi * n_y(i) + wi * n_z(i)</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>       ui = ui - normu * n_x(i)</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>       vi = vi - normu * n_y(i)</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>       wi = wi - normu * n_z(i)</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>       <span class="keywordflow">if</span> (magu &lt; <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>          tau_x(i) = 0.0_rp</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>          tau_y(i) = 0.0_rp</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>          tau_z(i) = 0.0_rp</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>          cycle</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>       rey = magu * h(i) / nu(i)</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>       blend = exp(-((rey / s) ** p))</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>       warg = kappa * e_const * rey</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>       up = blend * sqrt(rey) + (1.0_rp - blend) * <a class="code hl_function" href="../../dd/d47/namespacemath.html#af0b558159bd3227f2024a7836785e195">lambert_w0</a>(warg, 1) / kappa</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>       utau = magu / (up + <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>)</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>       tau_x(i) = -rho * utau**2 * ui / (magu + <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>)</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>       tau_y(i) = -rho * utau**2 * vi / (magu + <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>)</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>       tau_z(i) = -rho * utau**2 * wi / (magu + <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>)</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>       magu = sqrt(ui**2 + vi**2 + wi**2)</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>       <span class="keywordflow">if</span> (magu &lt; <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>          tau_x(i) = 0.0_rp</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>          tau_y(i) = 0.0_rp</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>          tau_z(i) = 0.0_rp</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>          cycle</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>       rey = magu * h(i) / nu(i)</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>       blend = exp(-((rey / s) ** p))</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>       warg = kappa * e_const * rey</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>       up = blend * sqrt(rey) + (1.0_rp - blend) * <a class="code hl_function" href="../../dd/d47/namespacemath.html#af0b558159bd3227f2024a7836785e195">lambert_w0</a>(warg, 1) / kappa</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>       utau = magu / (up + <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>)</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>       tau_x(i) = -rho * utau**2 * ui / (magu + <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>)</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>       tau_y(i) = -rho * utau**2 * vi / (magu + <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>)</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>       tau_z(i) = -rho * utau**2 * wi / (magu + <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>)</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="comment">!$omp end parallel do</span></div>
 </div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d35/namespacecai__sagaut__model__ii__cpu.html#a5e741d16d585a70d198ae357ed2ff53c">cai_sagaut_model_ii_compute_cpu</a></div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/d35/namespacecai__sagaut__model__ii__cpu.html">cai_sagaut_model_ii_cpu</a></div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d35/namespacecai__sagaut__model__ii__cpu.html#a5e741d16d585a70d198ae357ed2ff53c">cai_sagaut_model_ii_compute_cpu</a></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/d35/namespacecai__sagaut__model__ii__cpu.html">cai_sagaut_model_ii_cpu</a></div>
 <div class="ttc" id="anamespacecai__sagaut__model__ii__cpu_html"><div class="ttname"><a href="../../dd/d35/namespacecai__sagaut__model__ii__cpu.html">cai_sagaut_model_ii_cpu</a></div><div class="ttdoc">CPU backend for cai_sagaut_model_ii_t.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/dc7/cai__sagaut__model__ii__cpu_8f90_source.html#l00034">cai_sagaut_model_ii_cpu.f90:34</a></div></div>
 <div class="ttc" id="anamespacecai__sagaut__model__ii__cpu_html_a5e741d16d585a70d198ae357ed2ff53c"><div class="ttname"><a href="../../dd/d35/namespacecai__sagaut__model__ii__cpu.html#a5e741d16d585a70d198ae357ed2ff53c">cai_sagaut_model_ii_cpu::cai_sagaut_model_ii_compute_cpu</a></div><div class="ttdeci">subroutine, public cai_sagaut_model_ii_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho_w, h, tau_x, tau_y, tau_z, n_nodes, kappa, b, p, s)</div><div class="ttdoc">Evaluate wall shear stresses with the CPU Model-II kernel.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/dc7/cai__sagaut__model__ii__cpu_8f90_source.html#l00066">cai_sagaut_model_ii_cpu.f90:68</a></div></div>
 <div class="ttc" id="anamespacemath_html"><div class="ttname"><a href="../../dd/d47/namespacemath.html">math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00060">math.f90:60</a></div></div>
@@ -210,7 +213,7 @@ $(document).ready(function(){initNavTree('d2/dc7/cai__sagaut__model__ii__cpu_8f9
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_d19e42ec822a5375dfd47528cb2d7af7.html">wall_models</a></li><li class="navelem"><a class="el" href="../../dir_44ca6fb478a66d198bcf4911f3198627.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_6722b42f8d293ef5377b5a3c71e71ffe.html">cpu</a></li><li class="navelem"><a class="el" href="../../d2/dc7/cai__sagaut__model__ii__cpu_8f90.html">cai_sagaut_model_ii_cpu.f90</a></li>
-    <li class="footer">Generated on Mon Aug 24 2026 03:49:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Aug 25 2026 03:47:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
