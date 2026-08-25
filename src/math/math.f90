@@ -1905,10 +1905,6 @@ contains
   end subroutine power
 
   !> Eigenvalues of a symmetric 2x2 matrix, descending
-  !!
-  !! The smaller root is recovered from the determinant rather than from
-  !! \f$ t/2 - s \f$, which cancels catastrophically on the stretched
-  !! elements this is here to measure.
   pure subroutine eig_sym2(a11, a22, a12, e1, e2)
     real(kind=dp), intent(in) :: a11, a22, a12
     real(kind=dp), intent(out) :: e1, e2
