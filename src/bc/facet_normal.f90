@@ -238,6 +238,9 @@ contains
     integer :: htable_data, rcode, i, j, idx(4), facet
     real(kind=rp) :: area, normal(3)
 
+    ! Here and in recompute_normals(), which only runs after this
+    call this%coef%require_facets('facet_normal')
+
     if (present(only_facets)) then
        if (.not. only_facets) then
           call neko_error("For facet_normal_t, only_facets has to be true.")

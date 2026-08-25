@@ -38,7 +38,7 @@ module phmg
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
   use field, only : field_t
-  use coefs, only : coef_t
+  use coefs, only : coef_t, COEF_FULL, COEF_OPERATOR
   use mesh, only : mesh_t
   use bc, only : bc_t
   use bc_list, only : bc_list_t
@@ -238,7 +238,17 @@ contains
        call this%phmg_hrchy%lvl(i)%dm_Xh%init(coef%msh, &
             this%phmg_hrchy%lvl(i)%Xh)
        call this%phmg_hrchy%lvl(i)%gs_h%init(this%phmg_hrchy%lvl(i)%dm_Xh)
-       call this%phmg_hrchy%lvl(i)%coef%init(this%phmg_hrchy%lvl(i)%gs_h)
+       ! A coarse level reads G_ij, h1, h2, B and mult and nothing else, so
+       ! retaining the rest costs memory for no purpose. The exception is a
+       ! moving mesh, where update() has to rebuild the geometry from the
+       ! derivative arrays.
+       if (this%update_enabled) then
+          call this%phmg_hrchy%lvl(i)%coef%init( &
+               this%phmg_hrchy%lvl(i)%gs_h, COEF_FULL)
+       else
+          call this%phmg_hrchy%lvl(i)%coef%init( &
+               this%phmg_hrchy%lvl(i)%gs_h, COEF_OPERATOR)
+       end if
     end do
 
     do i = 0, this%nlvls - 1
