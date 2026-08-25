@@ -108,10 +108,11 @@ provided (see #case-file).
 On the CUDA and HIP backends the spectral element operators --- the
 Helmholtz operator `Ax`, and `opgrad`, `dudxyz`, `cdtp`, `conv1`,
 `convect_scalar` and `lambda2` --- each ship two kernel formulations,
-and `Ax` a third, and the best one depends on the polynomial order, the element count and
-the hardware. Rather than fix a choice at build time, Neko benchmarks
-them on the first call of each operator, using the real element count of
-the running case, and caches the winner for the rest of the run.
+and `Ax` a third, and the best one depends on the polynomial order, 
+the element count and the hardware. Rather than fix a choice at 
+build time, Neko benchmarks them on the first call of each operator, 
+using the real element count of the running case, and caches 
+the winner for the rest of the run.
 
 The two formulations are:
 
