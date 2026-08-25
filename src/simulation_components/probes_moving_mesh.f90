@@ -79,6 +79,8 @@ module probes_moving_mesh
      real(kind=rp), allocatable :: xyz0(:,:)
      !> Current target coordinates (3, n_points).
      real(kind=rp), allocatable :: xyz_target(:,:)
+     !> Whether the stored mapping of each local point is unusable.
+     logical, allocatable :: lost(:)
      !> Work vectors for the validity check.
      type(vector_t) :: chk_x, chk_y, chk_z
      !> Newton tolerance and padding to re-initialize the
@@ -96,6 +98,11 @@ module probes_moving_mesh
      procedure, pass(this) :: set_points => probes_moving_mesh_set_points
      procedure, pass(this) :: free => probes_moving_mesh_free
      procedure, pass(this) :: update => probes_moving_mesh_update
+     procedure, pass(this) :: zero_lost => probes_moving_mesh_zero_lost
+     procedure, private, pass(this) :: update_lost => &
+          probes_moving_mesh_update_lost
+     procedure, private, pass(this) :: rst_limit => &
+          probes_moving_mesh_rst_limit
      procedure, private, pass(this) :: compute_targets => &
           probes_moving_mesh_compute_targets
      procedure, private, pass(this) :: mapping_error => &
@@ -211,16 +218,24 @@ contains
     this%padding = interp%padding
     this%max_iterations = interp%max_iterations
 
+    if (this%padding .le. 0.0_dp) then
+       call neko_error('probes moving_mesh: interpolation padding ' // &
+            'must be > 0.')
+    end if
+
     this%n_points = n_points
     allocate(this%xyz0(3, n_points))
     allocate(this%xyz_target(3, n_points))
+    allocate(this%lost(n_points))
     call copy(this%xyz0, xyz, 3 * n_points)
     call copy(this%xyz_target, xyz, 3 * n_points)
     call this%chk_x%init(n_points)
     call this%chk_y%init(n_points)
     call this%chk_z%init(n_points)
 
-    this%n_lost = 0
+    ! The initial find keeps points whose r,s,t overshoots the element,
+    ! so the census is needed from the start, not only after a re-find.
+    call this%update_lost(interp)
     this%points_set = .true.
 
   end subroutine probes_moving_mesh_set_points
@@ -231,6 +246,7 @@ contains
 
     if (allocated(this%xyz0)) deallocate(this%xyz0)
     if (allocated(this%xyz_target)) deallocate(this%xyz_target)
+    if (allocated(this%lost)) deallocate(this%lost)
     call this%chk_x%free()
     call this%chk_y%free()
     call this%chk_z%free()
@@ -318,7 +334,7 @@ contains
 
     character(len=256) :: log_buf
     real(kind=rp) :: t_start
-    integer :: i, n, ierr
+    integer :: n
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        t_start = MPI_Wtime()
@@ -338,17 +354,7 @@ contains
     ! Only find points, no redistribution.
     call interp%find_points(this%xyz_target, this%n_points)
 
-    this%n_lost = 0
-    ! A point is lost if no rank finds a containing element.
-    do i = 1, this%n_points
-       if ( (interp%pe_owner(i) .eq. -1) .or. &
-            (interp%el_owner0(i) .eq. -1) .or. &
-            (maxval(abs(interp%rst(:, i))) .gt. 1.1_rp) ) then
-         this%n_lost = this%n_lost + 1
-       end if
-    end do
-    call MPI_Allreduce(MPI_IN_PLACE, this%n_lost, 1, MPI_INTEGER, &
-         MPI_SUM, NEKO_COMM, ierr)
+    call this%update_lost(interp)
 
   end subroutine probes_moving_mesh_refind
 
@@ -392,9 +398,7 @@ contains
     err = 0.0_rp
     do i = 1, this%n_points
        ! Excluding lost points, until they're found again.
-       if ( (interp%pe_owner(i) .eq. -1) .or. &
-            (interp%el_owner0(i) .eq. -1) .or. &
-            (maxval(abs(interp%rst(:, i))) .gt. 1.1_rp) ) cycle
+       if (this%lost(i)) cycle
 
        err = max(err, norm2([this%chk_x%x(i) - this%xyz_target(1, i), &
             this%chk_y%x(i) - this%xyz_target(2, i), &
@@ -405,5 +409,68 @@ contains
          MPI_MAX, NEKO_COMM, ierr)
 
   end function probes_moving_mesh_mapping_error
+
+  !> Recompute the lost-point mask and the global lost count from the
+  !! current state of the interpolation.
+  !! @note A point is lost in three distinct ways: no rank claims it,
+  !! the claiming rank found no containing element, or the r,s,t found
+  !! overshoots the element by more than what `rst_limit` accepts.
+  !! Checking only one of them misses the other two.
+  !! @param interp The global interpolation object of the probes.
+  subroutine probes_moving_mesh_update_lost(this, interp)
+    class(probes_moving_mesh_t), intent(inout) :: this
+    type(global_interpolation_t), intent(in) :: interp
+
+    real(kind=rp) :: limit
+    integer :: i, ierr
+
+    limit = this%rst_limit()
+    this%n_lost = 0
+    do i = 1, this%n_points
+       this%lost(i) = (interp%pe_owner(i) .eq. -1) .or. &
+            (interp%el_owner0(i) .eq. -1) .or. &
+            (maxval(abs(interp%rst(:, i))) .gt. limit)
+       if (this%lost(i)) this%n_lost = this%n_lost + 1
+    end do
+    call MPI_Allreduce(MPI_IN_PLACE, this%n_lost, 1, MPI_INTEGER, &
+         MPI_SUM, NEKO_COMM, ierr)
+
+  end subroutine probes_moving_mesh_update_lost
+
+  !> Largest |r|,|s|,|t| accepted for a found point.
+  !! @note Two bounds, both required. `1 + padding` is the criterion
+  !! the point search itself uses to accept a candidate (`rst_cmp` in
+  !! `global_interpolation`); beyond it the stored mapping is an
+  !! extrapolation from outside an element, not a sample. 1.1 is the
+  !! bound in `local_interpolator_compute_weights` beyond which the
+  !! interpolation weights are zeroed and every field, including the
+  !! coordinate fields used for the mapping error, evaluates to
+  !! exactly 0. It must be kept in sync with that routine.
+  pure function probes_moving_mesh_rst_limit(this) result(limit)
+    class(probes_moving_mesh_t), intent(in) :: this
+    real(kind=rp) :: limit
+
+    limit = min(1.1_rp, 1.0_rp + real(this%padding, rp))
+
+  end function probes_moving_mesh_rst_limit
+
+  !> Zero the sampled values of lost points.
+  !! @note Only points whose r,s,t lands in `(1 + padding, 1.1]` are
+  !! affected.
+  !! A lost point reads exactly 0 until it is found again.
+  !! @param values Sampled values (n_points, n_fields), on the host.
+  subroutine probes_moving_mesh_zero_lost(this, values)
+    class(probes_moving_mesh_t), intent(in) :: this
+    real(kind=rp), intent(inout) :: values(:,:)
+
+    integer :: i
+
+    if (.not. this%enabled) return
+
+    do i = 1, this%n_points
+       if (this%lost(i)) values(i, :) = 0.0_rp
+    end do
+
+  end subroutine probes_moving_mesh_zero_lost
 
 end module probes_moving_mesh

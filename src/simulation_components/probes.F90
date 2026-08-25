@@ -258,6 +258,7 @@ contains
 
     end block
 
+    !> No-op for static mesh.
     call this%moving_mesh%set_points(this%global_interp, this%xyz, &
          this%n_local_probes)
 
@@ -831,6 +832,10 @@ contains
                this%n_local_probes, DEVICE_TO_HOST, sync = .true.)
        end do
     end if
+
+    !> Set lost moving-mesh probes to zero.
+    !! No-op on a static mesh.
+    call this%moving_mesh%zero_lost(this%out_values)
 
     if (this%output_controller%check(time)) then
        select type (ft => this%fout%file_type)
