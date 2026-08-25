@@ -349,8 +349,10 @@ of the body's boundary `zone_id`s.
 `max_position_drift` (optional) is the maximum accepted distance, in mesh
 length units, between where a probe is sampled and where it should be; the
 points are automatically searched for again when it is exceeded. Points
-that temporarily cannot be found (e.g. covered by the moving body) record
-zeros until recovered.
+that temporarily cannot be found (e.g. covered by a moving body in `fixed` mode) record
+zeros until recovered. The default depends on the working precision.
+For a double-precision build, the default is 1.0e-8 while for a
+single-precision build the default is 1.2e-5.
 
 For `body_attached` probes the current coordinates are written with the
 data: CSV sample rows become `t, x, y, z, field values`, and HDF5 output
