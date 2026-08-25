@@ -90,6 +90,10 @@ contains
     integer :: ly
     integer :: lz
 
+    ! Once per call rather than at setup: wall_facet_normal() below is only
+    ! reached from here, and this routine has no init to hang the check on
+    call coef%require_facets('lpt wall collisions')
+
     dm_x => dm_Xh%x
     dm_y => dm_Xh%y
     dm_z => dm_Xh%z

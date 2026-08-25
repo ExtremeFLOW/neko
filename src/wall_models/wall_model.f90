@@ -399,6 +399,8 @@ contains
     integer :: n_nodes, fid, idx(4), i, linear
     real(kind=rp) :: normal(3)
 
+    call this%coef%require_facets('wall_model')
+
     n_nodes = this%msk(0)
     this%n_nodes = n_nodes
 

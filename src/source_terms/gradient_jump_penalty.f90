@@ -207,6 +207,9 @@ contains
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
     real(kind=rp) :: normal(3)
 
+    ! Here, and in facet_factor_init() and dist2_quadrature_hex() below
+    call coef%require_facets('gradient_jump_penalty')
+
     call this%free()
 
     call this%init_base(fields, coef, start_time, end_time)
