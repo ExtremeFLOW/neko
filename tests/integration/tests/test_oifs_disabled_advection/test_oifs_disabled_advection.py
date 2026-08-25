@@ -5,13 +5,19 @@ import subprocess
 
 import pytest
 
+import conftest
 from testlib import configure_nprocs, get_genmeshbox, get_neko, run_neko
+
+
+VALUE_TOLERANCE = {"dp": 1.0e-10, "sp": 1.0e-5}
+SOLVER_TOLERANCE = {"dp": 1.0e-12, "sp": 1.0e-6}
 
 
 def test_oifs_disabled_advection(
     launcher_script, log_file, tmp_path
 ):
     """Fluid and scalar fields retain BDF history when OIFS is inapplicable."""
+    solver_tolerance = SOLVER_TOLERANCE[conftest.RP]
     mesh = tmp_path / "box.nmsh"
     result = subprocess.run(
         [
@@ -56,13 +62,13 @@ def test_oifs_disabled_advection(
                 "velocity_solver": {
                     "type": "cg",
                     "preconditioner": {"type": "jacobi"},
-                    "absolute_tolerance": 1.0e-12,
+                    "absolute_tolerance": solver_tolerance,
                     "max_iterations": 100,
                 },
                 "pressure_solver": {
                     "type": "gmres",
                     "preconditioner": {"type": "jacobi"},
-                    "absolute_tolerance": 1.0e-12,
+                    "absolute_tolerance": solver_tolerance,
                     "max_iterations": 100,
                 },
                 "boundary_conditions": [
@@ -82,7 +88,7 @@ def test_oifs_disabled_advection(
                 "solver": {
                     "type": "cg",
                     "preconditioner": {"type": "jacobi"},
-                    "absolute_tolerance": 1.0e-12,
+                    "absolute_tolerance": solver_tolerance,
                     "max_iterations": 100,
                 },
                 "boundary_conditions": [
@@ -128,5 +134,6 @@ def test_oifs_disabled_advection(
     _, velocity_value, scalar_value = map(
         float, probe_lines[-1].split(",")
     )
-    assert velocity_value == pytest.approx(1.0, abs=1.0e-10)
-    assert scalar_value == pytest.approx(1.0, abs=1.0e-10)
+    tolerance = VALUE_TOLERANCE[conftest.RP]
+    assert velocity_value == pytest.approx(1.0, abs=tolerance)
+    assert scalar_value == pytest.approx(1.0, abs=tolerance)

@@ -407,7 +407,7 @@ contains
               this%wlag%lf(1), s, this%advs, &
               Xh, this%c_Xh, dm_Xh%size())
       else
-         ! Add the advection operators to the right-hans-side.
+         ! Add the advection operators to the right-hand side.
          call this%adv%compute_scalar(u, v, w, s, f_Xh, &
               Xh, this%c_Xh, dm_Xh%size())
       end if

@@ -4,7 +4,12 @@ import json
 import subprocess
 from pathlib import Path
 
+import conftest
 from testlib import configure_nprocs, get_genmeshbox, get_neko, run_neko
+
+
+RESIDUAL_TOLERANCE = {"dp": 1.0e-12, "sp": 1.0e-5}
+SOLVER_TOLERANCE = {"dp": 1.0e-12, "sp": 1.0e-6}
 
 
 def _scalar_start_residual(log_file):
@@ -20,6 +25,7 @@ def test_oifs_scalar_uses_matching_velocity_history(
     launcher_script, log_file, tmp_path
 ):
     """Scalar OIFS pairs the fluid lag field with its lagged time."""
+    solver_tolerance = SOLVER_TOLERANCE[conftest.RP]
     mesh = tmp_path / "box.nmsh"
     result = subprocess.run(
         [
@@ -69,14 +75,14 @@ def test_oifs_scalar_uses_matching_velocity_history(
                     "type": "cg",
                     "preconditioner": {"type": "jacobi"},
                     "projection_space_size": 0,
-                    "absolute_tolerance": 1.0e-12,
+                    "absolute_tolerance": solver_tolerance,
                     "max_iterations": 100,
                 },
                 "pressure_solver": {
                     "type": "gmres",
                     "preconditioner": {"type": "hsmg"},
                     "projection_space_size": 0,
-                    "absolute_tolerance": 1.0e-12,
+                    "absolute_tolerance": solver_tolerance,
                     "max_iterations": 800,
                 },
                 "boundary_conditions": [],
@@ -93,7 +99,7 @@ def test_oifs_scalar_uses_matching_velocity_history(
                 "solver": {
                     "type": "cg",
                     "preconditioner": {"type": "jacobi"},
-                    "absolute_tolerance": 1.0e-12,
+                    "absolute_tolerance": solver_tolerance,
                     "max_iterations": 100,
                 },
                 "boundary_conditions": [],
@@ -131,7 +137,7 @@ def test_oifs_scalar_uses_matching_velocity_history(
 
     # The source accelerates the fluid during the first step. Scalar OIFS must
     # nevertheless use the initially stationary velocity stored at tlag(1).
-    assert _scalar_start_residual(log_file) < 1.0e-12
+    assert _scalar_start_residual(log_file) < RESIDUAL_TOLERANCE[conftest.RP]
 
     probe_lines = (tmp_path / "probe.csv").read_text().splitlines()
     _, velocity_value = map(float, probe_lines[-1].split(","))
