@@ -177,7 +177,7 @@ Support tiers are defined as follows:
 | --------- | ------------------------------------ | ------ | ------------------------------------------- |
 | CPU       | Any CPU (portable Fortran)           | Tier 0 | Always available; reference implementation  |
 | CUDA      | NVIDIA GPUs                          | Tier 0 |                                             |
-| HIP       | AMD GPUs                            | Tier 0 |                                             |
+| HIP       | AMD GPUs                             | Tier 0 | Tier 0 covers CDNA; RDNA (wave32) untested  |
 | OpenCL    | Cross-vendor GPUs and accelerators   | Tier 1 |                                             |
 | SX-Aurora | NEC SX-Aurora TSUBASA vector engines | Tier 1 |                                             |
 | Metal     | Apple Silicon GPUs (macOS)           | Tier 2 | Single precision only (`--enable-real=sp`)  |
@@ -263,6 +263,19 @@ $ ./configure  --with-hip=/opt/rocm/hip
 ```shell
 $ ./configure  --with-hip=/opt/rocm/hip HIP_HIPCC_FLAGS=-O3  HIPCC=/opt/rocm/hip/bin/hipcc
 ```
+
+@note Neko's warp level reductions need the wavefront width at compile time, and
+detect it from the macros the ROCm toolchain predefines for the target. A target
+the detection does not recognise fails the build with `Unknown AMD wavefront
+width` rather than guessing; pin it explicitly in that case, e.g.
+`HIP_HIPCC_FLAGS=-DNEKO_WAVE_SIZE=64` for CDNA and GCN, or
+`-DNEKO_WAVE_SIZE=32` for RDNA.
+
+@attention The HIP backend is developed and tested on CDNA (AMD Instinct
+MI250X, MI300A). RDNA (wave32) wavefront widths are handled correctly, but no
+part of the backend is regularly tested on RDNA hardware. Note also that RDNA
+executes double precision at a small fraction of its single precision rate, so a
+default `dp` build will be very slow there irrespective of correctness.
 
 @note On APUs with unified physical memory (e.g. AMD Instinct MI300A) and XNACK enabled (`HSA_XNACK=1`), Neko can map arrays zero-copy: host and device share a single allocation instead of keeping replicated copies, and host-device transfers become no-ops. This roughly halves the memory footprint of mapped data, but is currently slower per step than replicated buffers on MI300A, so it is **off by default** and is intended as an opt-in capacity mode for running larger cases. Enable it at runtime by setting the environment variable `NEKO_HIP_ZEROCOPY=1`; it then activates only on a supported APU with XNACK (discrete GPUs such as MI250X always use replicated buffers, and requesting it there prints a warning and falls back). Since host and device share one allocation under zero-copy, host code (e.g. user routines) must not write to a mapped array while device work touching it may be in flight; synchronize with `device_sync` first.
 
