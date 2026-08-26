@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2025, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -216,7 +216,7 @@ module fluid_pnpn
        type(fluid_pnpn_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), target, intent(in) :: coef
-       type(user_t), intent(in) :: user
+       type(user_t), target, intent(in) :: user
      end subroutine pressure_bc_factory
   end interface
 
@@ -233,7 +233,7 @@ module fluid_pnpn
        type(fluid_pnpn_t), intent(inout) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), target, intent(in) :: coef
-       type(user_t), intent(in) :: user
+       type(user_t), target, intent(in) :: user
      end subroutine velocity_bc_factory
   end interface
 
@@ -418,6 +418,9 @@ contains
 
     ! Initialize the advection factory
     call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
+    ! OIFS integrates the advection term. With advection disabled, fall back to
+    ! the standard BDF history assembly.
+    this%oifs = this%oifs .and. advection
     call json_get(params, 'case.numerics', numerics_params)
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
          this%ulag, this%vlag, this%wlag, &
@@ -722,7 +725,7 @@ contains
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
               this%advx, this%advy, this%advz, &
-              Xh, this%c_Xh, dm_Xh%size(), dt)
+              Xh, this%c_Xh, dm_Xh%size(), real(dt, kind=rp))
 
          ! At this point the RHS contains the sum of the advection operator and
          ! additional source terms, evaluated using the velocity field from the
@@ -734,10 +737,11 @@ contains
               f_x%x, f_y%x, f_z%x, &
               rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
-         ! Now, the source terms from the previous time step are added to the RHS.
+         ! Now, the source terms from the previous time step are added to the
+         ! RHS.
          call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
               f_x%x, f_y%x, f_z%x, &
-              rho%x(1,1,1,1), dt, n)
+              rho%x(1,1,1,1), real(dt, kind=rp), n)
       else
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
@@ -759,7 +763,8 @@ contains
          ! For a normal simulation (no moving mesh), Blag and Blaglag
          ! are just the initial B matrix, filled at initialization.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
-              u, v, w, c_Xh%B, c_Xh%Blag, c_Xh%Blaglag, rho%x(1,1,1,1), dt, &
+              u, v, w, c_Xh%B, c_Xh%Blag, c_Xh%Blaglag, rho%x(1,1,1,1), &
+              real(dt, kind=rp), &
               ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
 
       end if
@@ -800,7 +805,7 @@ contains
               f_x, f_y, f_z, &
               c_Xh, gs_Xh, &
               this%bc_prs_surface, this%bc_sym_surface,&
-              Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
+              Ax_prs, ext_bdf%diffusion_coeffs%x(1), real(dt, kind=rp), &
               mu_tot, rho, event)
 
 
@@ -862,7 +867,7 @@ contains
               f_x, f_y, f_z, &
               c_Xh, msh, Xh, &
               mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &
-              dt, dm_Xh%size())
+              real(dt, kind=rp), dm_Xh%size())
 
          call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
          call gs_Xh%op(u_res%x, v_res%x, w_res%x, dm_Xh%size(), &
@@ -921,8 +926,8 @@ contains
          ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
               c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu_tot, &
-              dt, time, this%bcs_prs_projector, this%bcs_vel_projector, &
-              Ax_vel, Ax_prs, this%ksp_prs, &
+              real(dt, kind=rp), time, this%bcs_prs_projector, & 
+              this%bcs_vel_projector, Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)
       end if

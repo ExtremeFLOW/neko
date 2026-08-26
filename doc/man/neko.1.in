@@ -122,17 +122,37 @@ Indentation width used by the logger.
 Pins the kernel formulation used by the spectral element operators on the
 CUDA and HIP backends, skipping the auto-tuning search that otherwise runs
 on the first call of each operator. Accepted values are
-.BR 1D " and " KSTEP .
-When unset, each operator benchmarks both formulations, and the geometry
-parameter of each, against the running case and caches the winner.
+.BR 1D ", " KSTEP ", " DMMA " and " MFMA .
+.B DMMA
+applies to the CUDA Helmholtz operator only, scalar and vector, and needs a
+double precision build, a polynomial order with
+.BR 2 " <= " lx " <= " 8
+for the scalar operator or
+.BR 4 " <= " lx " <= " 8
+for the vector one, and an sm_80 or sm_90 device the binary was compiled for.
+.B MFMA
+is its HIP counterpart for the scalar operator, for
+.BR 4 " <= " lx " <= " 12
+on a gfx90a or gfx942 device, in either precision.
+When unset, each operator benchmarks every formulation it has, and the
+geometry parameter of each, against the running case and caches the winner.
 .TP
 .B NEKO_EB_TUNE
 Controls whether the auto-tuner sweeps the number of elements per thread
-block for the kstep kernels. Enabled by default on CUDA, where blocking
-measures a clear gain, and disabled on HIP, where the blocked kernels
-exceed the register budget and spill to scratch. Set to
-.BR 0 " or " 1
-to override the per-backend default.
+block for the kstep kernels. Enabled by default on both backends; where the
+blocked variants exceed the register budget and spill, the tuner measures that
+and rejects them. Set to
+.BR 0
+to skip the sweep.
+.TP
+.B NEKO_MFMA_TUNE
+Controls whether the auto-tuner sweeps the matrix core variant of the HIP
+Helmholtz operator. Enabled by default wherever the device and the polynomial
+order support it. Set to
+.BR 0
+to keep it out of the sweep;
+.B NEKO_AUTOTUNE=MFMA
+still pins it explicitly.
 .TP
 .B NEKO_EB
 Selects the elements-per-block candidate used when the kstep formulation
@@ -158,6 +178,30 @@ is the historical value. A candidate smaller than one derivative matrix
 is invalid and falls back to 1024. Defaults to
 .BR 0 .
 .TP
+.B NEKO_DMMA_NW
+Selects the warps-per-block candidate used when the fp64 tensor core
+formulation is pinned with
+.BR NEKO_AUTOTUNE=DMMA .
+Candidates
+.BR 0 ", " 1 " and " 2
+are 2, 4 and 8 warps per block. Values outside the valid range fall back to
+.BR 0 .
+Defaults to
+.BR 0 .
+.TP
+.B NEKO_MFMA_NWF
+Selects the wavefronts-per-block candidate used when the matrix core
+formulation is pinned with
+.BR NEKO_AUTOTUNE=MFMA .
+Candidates
+.BR 0 " to " 3
+are 1, 2, 4 and 8 wavefronts per block. The count also fixes the elements per
+block: min(nwf, ceil(lx*lx/16)) wavefronts cooperate on one element and the
+block covers the rest. Values outside the valid range fall back to
+.BR 0 .
+Defaults to
+.BR 0 .
+.TP
 .B NEKO_TUNE_ROUNDS
 Number of interleaved sampling rounds used by the operator auto-tuner. Each
 round times every candidate once \(em chunk sizes and elements per block
@@ -175,14 +219,17 @@ noisier measurements. Defaults to
 .B NEKO_GS_COMM
 Selects the communication backend used by the gather\-scatter kernel.
 Accepted values are
-.BR MPI ", " MPIGPU ", " NCCL ", " SHMEM ", " CAF ", " UTOFU " and " NEIGHBOUR ,
+.BR MPI ", " MPIGPU ", " NCCL ", " SHMEM ", " CAF ", " UTOFU ", " NEIGHBOUR " and " MPIRMA ,
 where
 .B UTOFU
-is native one\-sided communication over the Tofu interconnect and
+is native one\-sided communication over the Tofu interconnect,
 .B NEIGHBOUR
 is host MPI using an
 .B MPI_Ineighbor_alltoallv
-neighbourhood collective. When unset, a device\-aware variant is used
+neighbourhood collective and
+.B MPIRMA
+is host MPI one\-sided communication into a passive\-target window.
+When unset, a device\-aware variant is used
 on accelerator builds; otherwise the host backends selected by
 .B NEKO_GS_TUNE
 are benchmarked at startup and the fastest one is used.
@@ -208,6 +255,16 @@ which has to be asked for with
 .B NEKO_GS_TUNE=+CAF
 since a compiler may accept coarrays at configure time and still give each
 process a single image, which the coarray backend cannot communicate over.
+.B MPIRMA
+is benchmarked by default, but assumes the MPI implementation makes
+one\-sided progress without the target entering MPI, which holds for
+hardware\-driven components (Open MPI
+.BR osc/rdma ", " osc/ucx ,
+Cray MPICH over libfabric) but not for
+.BR osc/pt2pt ;
+skip it with
+.B NEKO_GS_TUNE=\-MPIRMA
+where it is known to be slow.
 A list leaving a single candidate pins that backend without benchmarking.
 Selecting a backend outright with
 .B NEKO_GS_COMM
@@ -268,6 +325,21 @@ When set to
 .BR 0 ,
 disables the uTofu backend's fused vector (multi\-component) exchange;
 multi\-component gather\-scatter falls back to independent scalar rounds.
+.TP
+.B NEKO_GS_RMA_FLUSH_ALL
+When set to
+.BR 0 ,
+the MPI one\-sided gather\-scatter backend
+.RB ( NEKO_GS_COMM=MPIRMA )
+completes each peer's put with its own
+.B MPI_Win_flush
+instead of a single
+.B MPI_Win_flush_all
+for all of them (an A/B reference). Per\-peer flushing announces each
+receiver as soon as its own put lands, at the cost of one flush call per
+peer; it measured slower on Cray MPICH over Slingshot, hence the batched
+default, but the balance depends on how cheaply the implementation scopes
+a flush to one target.
 .TP
 .B NEKO_GLOBAL_INTERP_EL_FINDER
 Selects the element search algorithm used by the global interpolation

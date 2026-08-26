@@ -171,7 +171,7 @@ contains
     if (this%iextm_order .lt. 1 .or. this%iextm_order .gt. 3) then
        call neko_error("The order of the IEXTm time scheme must be 1 to 3.")
     end if
-    call json_get_or_default(json, "log", this%log, .false.)
+    call json_get_or_default(json, "log", log, .false.)
 
     call this%init_from_components(coef, tol, pad, log)
 
@@ -510,7 +510,8 @@ contains
 
        ! Get the coefficients for the extrapolation
        nhist = min(time%tstep, this%iextm_order)
-       call time_scheme%compute_coeffs(iextm_coeffs, time%dtlag, nhist)
+       call time_scheme%compute_coeffs(iextm_coeffs, &
+            real(time%dtlag, kind=rp), nhist)
 
        ! Perform the extrapolation using the lag arrays
        call vector_cmult2(this%u_interface, this%u_interface_lag%lv(1), &

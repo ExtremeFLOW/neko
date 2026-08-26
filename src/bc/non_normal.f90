@@ -145,6 +145,9 @@ contains
     real(kind=rp) :: normal(3), t1(3), t2(3)
     real(kind=rp) :: u_n, g_t1, g_t2
 
+    ! Reads coef%nx, ny and nz directly, never through get_normal()
+    call this%coef%require_facets('non_normal')
+
     if (present(strong)) then
        strong_ = strong
     else

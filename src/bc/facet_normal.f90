@@ -237,7 +237,11 @@ contains
     integer :: htable_data, rcode, i, j, idx(4), facet
     real(kind=rp) :: area, normal(3)
 
+    ! Here and in recompute_normals(), which only runs after this
+    call this%coef%require_facets('facet_normal')
+
     call this%finalize_base()
+
     ! This part is purely needed to ensure that contributions
     ! for all faces a point is on is properly summed up.
     ! If one simply uses the original mask, if a point is on a corner

@@ -228,6 +228,9 @@ contains
     integer :: i, m, k, facet, idx(4)
     real(kind=rp) :: normal_xyz(3)
 
+    ! Here and in apply_scalar(), which runs every step
+    call this%coef%require_facets('dong_outflow')
+
     call this%finalize_base()
 
     this%u => neko_registry%get_field("u")

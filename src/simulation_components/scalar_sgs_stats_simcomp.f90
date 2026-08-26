@@ -43,8 +43,7 @@ module scalar_sgs_stats_simcomp
   use scalar_sgs_stats_output, only : scalar_sgs_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
-  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
-       filename_name, NEKO_VARNAME_LEN
+  use utils, only : NEKO_FNAME_LEN, filename_suffix, NEKO_VARNAME_LEN
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default, &
        json_get_or_lookup_or_default, json_get_or_lookup
@@ -63,8 +62,9 @@ module scalar_sgs_stats_simcomp
      !> Output writer.
      type(scalar_sgs_stats_output_t) :: stats_output
      !> Time value at which the sampling of statistics is initiated.
-     real(kind=rp) :: start_time
-     real(kind=rp) :: time
+     real(kind=dp) :: start_time
+     real(kind=dp) :: time
+     !> Output filename stem without the run counter.
      character(len=:), allocatable :: base_filename
 
    contains
@@ -104,7 +104,7 @@ contains
     character(len=:), allocatable :: hom_dir
     character(len=:), allocatable :: sname
     character(len=:), allocatable :: name
-    real(kind=rp) :: start_time
+    real(kind=dp) :: start_time
     type(coef_t), pointer :: coef
     character(len=:), allocatable :: alphat_field, nut_field
     real(kind=rp) :: pr_turb
@@ -119,7 +119,7 @@ contains
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
     call json_get_or_lookup_or_default(json, 'start_time', &
-         start_time, 0.0_rp)
+         start_time, 0.0_dp)
 
     call json_get(json, 'alphat', json_subdict)
     call json_get(json_subdict, 'nut_dependency', nut_dependency)
@@ -169,7 +169,7 @@ contains
     character(len=*), intent(in) :: name
     character(len=*), intent(in) :: sname
     character(len=*), intent(in) :: hom_dir
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in) :: alphat_field
     character(len=*), intent(in) :: fname
@@ -222,7 +222,7 @@ contains
     character(len=*), intent(in) :: name
     character(len=*), intent(in) :: sname
     character(len=*), intent(in) :: hom_dir
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in) :: nut_field
     real(kind=rp), intent(in) :: pr_turb
@@ -277,31 +277,19 @@ contains
     type(time_state_t), intent(in) :: time
     character(len=NEKO_FNAME_LEN) :: fname
     character(len=5) :: prefix, suffix
-    integer :: last_slash_pos
-    real(kind=rp) :: t
-    character(len=NEKO_FNAME_LEN) :: basename
-    integer :: i
+    real(kind=dp) :: t
 
     t = time%t
     if (t .gt. this%time) this%time = t
 
     fname = this%stats_output%file_%get_base_fname()
-    write (prefix, '(I5)') &
+    write (prefix, '(I0)') &
          this%stats_output%file_%file_type%get_start_counter()
     call filename_suffix(fname, suffix)
-
-    last_slash_pos = &
-         filename_tslash_pos(fname)
-    if (last_slash_pos .ne. 0) then
-       fname = &
-            trim(fname(1:last_slash_pos))// &
-            trim(this%base_filename)// &
-            trim(adjustl(prefix))//"."//suffix
-    else
-       fname = trim(this%base_filename)// &
-            trim(adjustl(prefix))//"."//suffix
-    end if
+    fname = trim(this%case%output_directory) // &
+         trim(this%base_filename) // trim(prefix) // "." // trim(suffix)
     call this%stats_output%init_base(fname)
+
   end subroutine scalar_sgs_stats_simcomp_restart
 
   !> scalar_sgs_stats, called depending on compute_control and compute_value
@@ -309,8 +297,8 @@ contains
   subroutine scalar_sgs_stats_simcomp_compute(this, time)
     class(scalar_sgs_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    real(kind=rp) :: delta_t, t
-    real(kind=rp) :: sample_start_time, sample_time
+    real(kind=rp) :: delta_t
+    real(kind=dp) :: sample_start_time, sample_time, t
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr
 
@@ -332,7 +320,7 @@ contains
     t = time%t
 
     if (t .ge. this%start_time) then
-       delta_t = t - this%time !This is only a real number
+       delta_t = real(t - this%time, kind=rp) !This is only a real number
 
        call MPI_Barrier(NEKO_COMM, ierr)
 

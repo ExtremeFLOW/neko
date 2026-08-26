@@ -32,7 +32,7 @@
 !
 !> Master module
 module neko
-  use num_types, only : rp, sp, dp, qp, c_rp
+  use num_types, only : rp, sp, dp, qp, c_rp, c_dp
   use comm
   use utils
   use logger

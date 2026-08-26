@@ -63,6 +63,7 @@ neko_fortran_SOURCES = \
 	gs/gs_ops.f90\
 	gs/gs_comm.f90\
 	gs/gs_mpi.f90\
+	gs/gs_mpi_rma.f90\
 	gs/gs_shmem.F90\
 	gs/gs_caf.F90\
 	gs/gs_neighbour.f90\
@@ -465,6 +466,10 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/deardorff_cpu.f90\
 	les/bcknd/device/deardorff_device.f90\
 	les/bcknd/device/device_deardorff_nut.F90\
+	wall_models/wall_sampler.f90\
+	wall_models/wall_gll_sampler.f90\
+	wall_models/wall_distance_sampler.f90\
+	wall_models/wall_sampler_fctry.f90\
 	wall_models/wall_model.f90\
 	wall_models/bcknd/device/wall_model_device.F90\
 	wall_models/spalding.f90\
@@ -1024,6 +1029,7 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/rotate_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
 	math/bcknd/device/cuda/ax_helm_full_kernel.h\
+	math/bcknd/device/cuda/dmma_kernel.h\
 	math/bcknd/device/cuda/elem_block.h\
 	math/bcknd/device/cuda/elem_block_tune.h\
 	common/bcknd/device/cuda/sumab_kernel.h\
@@ -1082,7 +1088,9 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/rotate_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
 	math/bcknd/device/hip/ax_helm_full_kernel.h\
+	math/bcknd/device/hip/mfma_kernel.h\
 	math/bcknd/device/hip/elem_block.h\
+	math/bcknd/device/hip/wave.h\
 	math/bcknd/device/hip/elem_block_tune.h\
 	common/bcknd/device/hip/sumab_kernel.h\
 	common/bcknd/device/hip/makeext_kernel.h\

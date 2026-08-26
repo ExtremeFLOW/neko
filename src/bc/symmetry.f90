@@ -97,6 +97,9 @@ contains
   subroutine symmetry_finalize(this)
     class(symmetry_t), target, intent(inout) :: this
 
+    ! Reads coef%nx, ny and nz directly, never through get_normal()
+    call this%coef%require_facets('symmetry')
+
     call this%finalize_base()
   end subroutine symmetry_finalize
 

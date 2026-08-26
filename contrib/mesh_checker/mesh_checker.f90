@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2025, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,11 @@
 ! Mesh diagnostics tool
 program mesh_checker
   use neko
+  use symmetry, only : symmetry_t
   implicit none
 
   character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname
+  character(len=4) :: normal_alignment
   type(file_t) :: mesh_file
   type(mesh_t) :: msh
   integer :: argc, i, j, k, n_labeled, ierr, n
@@ -43,7 +45,9 @@ program mesh_checker
   integer :: total_size, inlet_size, wall_size, periodic_size
   integer :: outlet_size, symmetry_size, outlet_normal_size
   integer :: e, f, n_unlabeled_local, n_unlabeled_global
+  integer :: n_axis_aligned, axis_alignment_local(4), axis_alignment(4)
   type(dirichlet_t) :: bdry_mask
+  type(symmetry_t) :: symmetry_probe
   type(field_t) :: bdry_field
   type(file_t) :: bdry_file
   type(space_t) :: Xh
@@ -53,6 +57,8 @@ program mesh_checker
   logical :: write_zone_ids
   logical, allocatable :: is_periodic(:,:)
   real(kind=rp) :: xmin, xmax, ymin, ymax, zmin, zmax
+  real(kind=rp) :: sx, sy, sz
+  real(kind=rp), parameter :: axis_alignment_tol = 1e-3_rp
   logical :: failed
 
   argc = command_argument_count()
@@ -87,6 +93,9 @@ program mesh_checker
 
   call Xh%init(1, 3, 3, 3)
   call dofmap%init(msh, Xh)
+  call gs%init(dofmap)
+  call coef%init(gs)
+  call symmetry_probe%init_from_components(coef)
 
   call MPI_Allreduce(msh%periodic%size, periodic_size, 1, &
        MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
@@ -164,18 +173,48 @@ program mesh_checker
 
      call MPI_Allreduce(msh%labeled_zones(i)%size, total_size, 1, &
           MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+     axis_alignment_local = 0
+     do j = 1, msh%labeled_zones(i)%size
+        f = msh%labeled_zones(i)%facet_el(j)%x(1)
+        e = msh%labeled_zones(i)%facet_el(j)%x(2)
+        call symmetry_probe%get_normal_axis(sx, sy, sz, f, e)
+
+        n_axis_aligned = count([sx, sy, sz] .lt. axis_alignment_tol)
+        if (n_axis_aligned .eq. 1) then
+           if (sx .lt. axis_alignment_tol) then
+              axis_alignment_local(1) = axis_alignment_local(1) + 1
+           else if (sy .lt. axis_alignment_tol) then
+              axis_alignment_local(2) = axis_alignment_local(2) + 1
+           else
+              axis_alignment_local(3) = axis_alignment_local(3) + 1
+           end if
+        else
+           axis_alignment_local(4) = axis_alignment_local(4) + 1
+        end if
+     end do
+
+     call MPI_Allreduce(axis_alignment_local, axis_alignment, 4, &
+          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
      if (total_size .gt. 0 .and. pe_rank .eq. 0) then
-        write(*,'(A,I2,A,I0,A)') '    Zone ', i, ': ', total_size, &
-             ' faces'
+        normal_alignment = 'none'
+        if (axis_alignment(1) .eq. total_size) then
+           normal_alignment = 'x'
+        else if (axis_alignment(2) .eq. total_size) then
+           normal_alignment = 'y'
+        else if (axis_alignment(3) .eq. total_size) then
+           normal_alignment = 'z'
+        end if
+
+        write(*,'(A,I2,A,I0,A,A)') &
+             '    Zone ', i, ': ', total_size, &
+             ' faces. Normal alignment: ', trim(normal_alignment)
 
      end if
   end do
 
   if (write_zone_ids) then
      if (pe_rank .eq. 0) write(*,*) 'Writing zone ids to zone_indices0.f00000'
-     call gs%init(dofmap)
-     call coef%init(gs)
-
      call bdry_field%init(dofmap)
 
      do i = 1, size(msh%labeled_zones)
@@ -206,11 +245,13 @@ program mesh_checker
 
      call bdry_file%write(bdry_field)
 
-     call dofmap%free()
      call bdry_field%free()
      call bdry_mask%free()
   end if
 
+  call symmetry_probe%free()
+  call coef%free()
+  call dofmap%free()
   call Xh%free()
   call gs%free()
   call msh%free()

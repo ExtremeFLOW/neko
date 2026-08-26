@@ -42,6 +42,7 @@ SUBDIRS = tuple\
 	  templates/parallel\
 	  bc_projector\
 	  boundary_operation\
+	  wall_sampling\
 	  templates/serial
 
 TESTS = device/device_test\
@@ -88,6 +89,7 @@ TESTS = device/device_test\
 	templates/parallel/parallel_test\
 	bc_projector/bc_projector_test\
 	boundary_operation/boundary_operation_test\
+	wall_sampling/wall_sampling_test\
 	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
@@ -176,6 +178,10 @@ EXTRA_DIST = \
 	bc_projector/test_bc_projector.pf\
 	bc_projector/test_coupled_bc_projector.pf\
 	boundary_operation/test_boundary_operation.pf\
+	wall_sampling/test_base.pf\
+	wall_sampling/test_gll.pf\
+	wall_sampling/test_distance.pf\
+	wall_sampling/wall_sampling_test\
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\
 	templates/serial/test_serial.pf

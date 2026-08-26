@@ -78,3 +78,4 @@ templates/parallel/parallel_suite
 templates/serial/serial_test
 bc_projector/bc_projector_suite
 boundary_operation/boundary_operation_suite
+wall_sampling/wall_sampling_suite

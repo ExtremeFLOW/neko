@@ -313,7 +313,7 @@ Used to define the properties of the numerical discretization.
 
 | Name                         | Description                                                                                                     | Admissible values          | Default value                   |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------- |
-| `polynomial_order`           | The order of the polynomial basis.                                                                              | Integers, typically 5 to 9 | -                               |
+| `polynomial_order`           | The order of the polynomial basis.                                                                              | Integers >= 3 for `pnpn`; integers >= 1 for `compressible` (typically 5 to 9) | -                               |
 | `time_order`                 | The order of the time integration scheme. Refer to the `time_scheme_controller` type documentation for details. | 1, 2, 3                    | -                               |
 | `dealias`                    | Whether to apply dealiasing to advection terms.                                                                 | `true` or `false`          | `false`                         |
 | `dealiased_polynomial order` | The polynomial order in the higher-order space used in the dealising.                                           | Integer                    | `3/2(polynomial_order + 1) - 1` |
@@ -710,7 +710,7 @@ A more detailed description of each boundary condition is provided below.
   }
   ```
 
-* `wall_model`. A shear stress condition, where the values is computed by a wall
+* `wall_model`. A shear stress condition where the values are computed by a wall
    model. Meant to be used for wall-modelled large-eddy simulation. Only works
    with axis-aligned boundaries. The model is selected using the `model`
    keyword. Additional configuration depends on the model selected.
@@ -733,16 +733,33 @@ A more detailed description of each boundary condition is provided below.
 
    * The `richardson` model is similar to the `most` model, but it assesses the stability dependence based on the Richardson number instead of the Obukhov length. More details and required keywords are given [below](#richardson-wall-model).
 
-    For all wall models, the distance to the sampling point has to be specified
-    based on the off-wall index in the wall-normal direction. Thus, the sampling
-    is currently from a GLL node and arbitrary distances are not yet supported.
-    The index is set by the `h_index` keyword, with 1 being the minimal value, and
-    the polynomial order + 1 being the maximum.
+    All wall models specify their sampling strategy with a `sampling` object.
+    Its `type` is either `gll`, for sampling at an off-wall GLL node, or
+    `distance`, for sampling at a physical wall-normal distance using global
+    interpolation. The `value` entry specifies the GLL index or distance,
+    respectively. It may be a scalar or an array. Current wall models require
+    exactly one sampling point per wall node, so use the scalar form. GLL
+    indices start at 1 and may not exceed the polynomial order plus 1.
+    Distances must be positive. If `sampling` is omitted, the legacy `h_index`
+    keyword remains available for GLL sampling.
+
+    The optional `output_h` entry in `sampling` controls whether Neko writes a
+    diagnostic field containing the resolved wall-normal sampling distance. It
+    defaults to `true`. The output uses the base name `wall_model_h_<bc_name>`,
+    where `<bc_name>` is the boundary-condition name. The field is zero away
+    from the wall boundary and contains the sampling distance at wall nodes.
+
+    To set sampling values separately for every wall node, set `value` to
+    `"user"` and provide `n_samples`. It specifies the number of samples per
+    wall node and must currently be `1`. Neko then calls the corresponding user
+    sampling routine once during setup; see [user wall
+    sampling](user-file.md#user-file_wall-sampling). The user routine receives
+    the boundary-condition name, so descriptive names are helpful when there
+    are multiple wall-modelled boundaries.
 
     A 3D field with the name `tau` will be registered in the field registry. At
     the boundary it will store the magnitude of the predicted stress. This can
-    be used to post-process the predictions. Additionally, the sampling points
-    are marked with values -1 in this field, for verification purposes.
+    be used to post-process the predictions.
   ```json
   {
     "type": "wall_model",
@@ -750,7 +767,10 @@ A more detailed description of each boundary condition is provided below.
     "kappa": 0.41,
     "B": 5.2,
     "zone_indices": [1, 2],
-    "h_index": 1
+    "sampling": {
+      "type": "gll",
+      "value": 1
+    }
   }
   ```
 * `user_velocity`, a Dirichlet boundary for more complex velocity profiles. This boundary
@@ -887,7 +907,10 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
     "scalar_field": "temperature",
     "time_dependent_temp_bc": "false",
     "zone_indices": [5],
-    "h_index": 1
+    "sampling": {
+      "type": "gll",
+      "value": 1
+    }
   }
   ```
 
@@ -905,7 +928,7 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
   Zilitinkevich, S. S., 1995: Non-local turbulent transport: Pollution dispersion aspects of coherent structure of convective flows. Air Pollution III, H. Power, N. Moussiopoulos, and C. A. Brebbia, Eds., Vol. 1, Air Pollution Theory and Simulation, Computational Mechanics Publications, 53–60.
 </details>
 
-### Richardson wall model {#richardson-wall-model}
+#### Richardson wall model {#richardson-wall-model}
 This Richardson-number based wall model is conceptually similar to the more well-known MOST-based wall model, but it computes the effect of the temperature stratification based on the bulk Richardson number instead of the Obukhov length.
 
 In the convective regime, the surface shear stress, \f$\tau\f$, and surface heat flux, \f$\overline{u'\theta'}\f$ are computed using the formulations of Louis 1979:
@@ -1978,18 +2001,19 @@ concisely directly in the table.
 | `nut_field`                                        | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                                   | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                                     | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
-| `output_format`                                    | The file format of field data.                                                                     | `nek5000`, `adios2`, or `vtkhdf`                            | `nek5000`     |
+| `output_format`                                    | The file format of field data.                                                                    | `nek5000`, `adios2`, or `vtkhdf`                            | `nek5000`     |
 | `output_mesh_in_all_files`                         | Indicates if the mesh should be written in every output fld file.                                 | `true` or `false`                                           | `false`       |
 | `output_filename`                                  | The output filename.                                                                              | String                                                      | `field`       |
 | `output_subdivide`                                 | Whether to subdivide spectral elements into linear sub-cells for VTKHDF output.                   | `true` or `false`                                           | `false`       |
 | `inflow_condition.type`                            | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
 | `inflow_condition.value`                           | Value of the inflow velocity.                                                                     | Vector of 3 reals                                           | -             |
-| `initial_condition.type`                           | Initial condition type.                                                                           | `user`, `uniform`, `expression`, `blasius`, `point_zone`, `field` | -             |
+| `initial_condition.type`                           | Initial condition type.                                                                           | `user`, `uniform`, `expression`, `blasius`, `point_zone`, `field` | -       |
 | `initial_condition.value`                          | Value of the velocity initial condition.                                                          | Vector of 3 reals, or of 3 strings if `"type" = "expression"` | -             |
-| `initial_condition.file_name`                      | If `"type" = "field"`, the path to the field file to read from.                                   | String ending with `.fld`, `.chkp`, `.nek5000` or `f*****`. | -             |
-| `initial_condition.sample_index`                   | If `"type" = "field"`, and file type is `fld` or `nek5000`, the index of the file to sampled.     | Positive integer.                                           | -1            |
-| `initial_condition.previous_mesh`                  | If `"type" = "field"`, and file type is `chkp`, the previous mesh from which to interpolate.      | String ending with `.nmsh`.                                 | -             |
-| `initial_condition.tolerance`                      | If `"type" = "field"`, and file type is `chkp`, tolerance to use for mesh interpolation.          | Positive real.                                              | 1e-6          |
+| `initial_condition.file_name`                      | If `"type"="field"`, the name of the field file to use (e.g. `myfield0.f00034`).                  | String ending with `f*****`                                 | -             |
+| `initial_condition.interpolate`                    | If `"type"="field"`, whether to enable interpolation on the current mesh.                         | `true` or `false`                                           | `false`       |
+| `initial_condition.mesh_file_name`                 | If `"type"="field"` and interpolation is enabled, the name of the field file that contains the mesh coordinates.       | Strings ending with `f*****`                                | `file_name`   |
+| `initial_condition.interpolation.tolerance`        | If `"type"="field"` and interpolation is enabled, the tolerance for the point search.             | Positive real.                                              | `NEKO_EPS*1e3`|
+| `initial_condition.interpolation.padding`          | If `"type"="field"` and interpolation is enabled, the padding for the point search.               | Positive real.                                              | `1e-2`        |
 | `blasius.delta`                                    | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                               | -             |
 | `blasius.freestream_velocity`                      | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                           | -             |
 | `blasius.approximation`                            | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin`, `tanh`    | -             |

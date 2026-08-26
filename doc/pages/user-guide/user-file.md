@@ -271,6 +271,42 @@ The registering of the above function in `user_setup` should then be done as fol
 
 ## Case-specific user functions
 
+### User wall sampling {#user-file_wall-sampling}
+
+Wall-model sampling values can be set separately for each wall node by using
+`"value": "user"` in the boundary condition's `sampling` object. The callback
+is called once during wall-sampler setup, before sampling locations are
+constructed. Set a boundary-condition `name` in the case file to distinguish
+multiple user-sampled wall boundaries.
+
+For distance sampling, register `wall_sampling_distance` in `user_setup`:
+
+```fortran
+  user%wall_sampling_distance => wall_sampling_distance
+```
+
+The callback receives linear wall-node indices in `msk(:)` and must fill
+`distances(n_samples, n_nodes)` with positive values. Geometry can be obtained
+through `neko_user_access` when needed:
+
+```fortran
+  subroutine wall_sampling_distance(bc_name, msk, distances)
+    character(len=*), intent(in) :: bc_name
+    integer, intent(in) :: msk(:)
+    real(kind=rp), intent(out) :: distances(:,:)
+
+    if (trim(bc_name) == 'ground') then
+       distances = 0.5_rp
+    end if
+  end subroutine wall_sampling_distance
+```
+
+For GLL sampling, register `wall_sampling_gll` instead. Its interface is the
+same except that the output is `integer :: indices(:,:)`; every entry must be
+a positive GLL index. `n_samples` is the first dimension in both callbacks, so
+a user routine remains source-compatible when a wall model later supports more
+than one sample per wall node. Current wall models require `n_samples: 1`.
+
 As explained in the [case file](case-file.md) page, certain components of the
 simulation can be set to be user defined. These components and their associated
 user functions are:
@@ -281,6 +317,7 @@ user functions are:
 | Source terms                  | [source_term](@ref user-file_user-f)                            | `case.fluid.source_terms` or  `case.scalar.source_terms`          |
 | Dirichlet boundary conditions | [dirichlet_conditions](@ref user-file_field-dirichlet-update)   | `case.fluid.boundary_conditions` or `case.scalar.boundary_conditions` |
 | Neumann boundary conditions   | [neumann_conditions](@ref user-file_field-neumann-update)       | `case.scalar.boundary_conditions`                                 |
+| Wall-model sampling           | `wall_sampling_gll` or `wall_sampling_distance`                 | `case.fluid.boundary_conditions[].sampling`                       |
 
 @note For the sake of simplicity, we refer to the setup with one scalar, i.e.
 `case.scalar` in the JSON. For multiple scalars, the same things apply, but the

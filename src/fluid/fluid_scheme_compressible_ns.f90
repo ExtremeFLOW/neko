@@ -329,7 +329,7 @@ contains
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
       ! Compute artificial viscosity
-      call this%regularization%compute(time, time%tstep, time%dt)
+      call this%regularization%compute(time)
 
       ! Refresh user-specified physical viscosity/conductivity before RHS.
       call this%update_material_properties(time)
@@ -338,7 +338,7 @@ contains
       call compressible_rhs%step(rho, m_x, m_y, m_z, E, &
            p, u, v, w, this%Ax, &
            this%Ax_stress, c_Xh, gs_Xh, h, this%artificial_visc, this%mu, &
-           this%kappa, this%bcs_vel, time, rk_scheme, dt)
+           this%kappa, this%bcs_vel, time, rk_scheme, real(dt, kind=rp))
 
       !> Apply density boundary conditions
       call this%bcs_density%apply(rho, time)

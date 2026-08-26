@@ -365,7 +365,7 @@ contains
 
     this%uniform_0 = .true.
 
-    do i = 1, 3
+    do i = 1, size(this%init_flux_)
        this%uniform_0 = abscmp(this%init_flux_(i), 0.0_rp) .and. this%uniform_0
     end do
   end subroutine neumann_finalize
