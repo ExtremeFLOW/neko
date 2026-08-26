@@ -44,13 +44,43 @@
      _a > _b ? _a : _b; })
 
 
+/*
+ * Threads per block for tnsr3d.
+ *
+ * One thread per output point of the widest of the three phases, rounded up
+ * to whole wavefronts and capped at the block maximum. The three phases
+ * produce nu*nu*nv, nu*nv*nv and nv*nv*nv points, so the widest is nu*nu*nv
+ * when restricting and nv*nv*nv when prolonging.
+ *
+ * This used to be a flat 1024 regardless, which on a p-transfer left most of
+ * the block with nothing to do: an 8 -> 4 restriction has 256, 128 and 64
+ * points in its phases, so three quarters to fifteen sixteenths of the
+ * threads idled. p-multigrid transfers between adjacent levels constantly,
+ * which is where that showed up.
+ *
+ * Any block size is correct here: the phases are grid stride loops and the
+ * barriers between them sit outside the loop bodies, so a thread with no
+ * iterations still reaches every barrier.
+ */
+static int hip_tnsr3d_nthrds(const int nu, const int nv)
+{
+  const int w1 = nu * nu * nv;
+  const int w3 = nv * nv * nv;
+  int work = (w1 > w3) ? w1 : w3;
+
+  work = ((work + 64 - 1) / 64) * 64;
+  if (work > 1024) work = 1024;
+  if (work < 64) work = 64;
+  return work;
+}
+
 extern "C" {
 
   /** Fortran wrapper for tnsr3d **/
   void hip_tnsr3d(void *v, int *nv, void *u, int *nu,
 		  void *A, void *Bt, void *Ct, int *nel) {
     
-    const dim3 nthrds(1024, 1, 1);
+    const dim3 nthrds(hip_tnsr3d_nthrds(*nu, *nv), 1, 1);
     const dim3 nblcks(*nel, 1, 1);
 
     int n = max(*nu,*nv);
@@ -92,7 +122,7 @@ extern "C" {
  /** Fortran wrapper for tnsr3d **/
   void hip_tnsr3d_el_list(void *v, int *nv, void *u, int *nu,
 		   void *A, void *Bt, void *Ct, int * elements, int* n_points) {
-    const dim3 nthrds(1024, 1, 1);
+    const dim3 nthrds(hip_tnsr3d_nthrds(*nu, *nv), 1, 1);
     const dim3 nblcks(*n_points, 1, 1);
 
     int n = max(*nu,*nv);
