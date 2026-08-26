@@ -77,8 +77,8 @@ contains
        end if
     case ("full")
        if (NEKO_BCKND_SX .eq. 1 .or. NEKO_BCKND_XSMM .eq. 1) then
-          call neko_error("Full stress formulation is only available &
-                         &on the CPU and device")
+          call neko_error("Full stress formulation is only available " // &
+               "on the CPU and device")
        else if (NEKO_BCKND_DEVICE .eq. 1) then
           allocate(ax_helm_full_device_t::object)
        else
