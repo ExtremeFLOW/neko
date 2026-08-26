@@ -494,13 +494,13 @@ contains
     ps => p
 
     if (trim(mesh_file_name) .eq. 'none') then
-    call import_fields(file_name, global_interp_subdict, &
-         u = us, v = vs, w = ws, p = ps, &
-         interpolate = interpolate)
+       call import_fields(file_name, global_interp_subdict, &
+            u = us, v = vs, w = ws, p = ps, &
+            interpolate = interpolate)
     else
-    call import_fields(file_name, global_interp_subdict, mesh_file_name, &
-         u = us, v = vs, w = ws, p = ps, &
-         interpolate = interpolate)
+       call import_fields(file_name, global_interp_subdict, mesh_file_name, &
+            u = us, v = vs, w = ws, p = ps, &
+            interpolate = interpolate)
     end if
 
     nullify(us, vs, ws, ps)
