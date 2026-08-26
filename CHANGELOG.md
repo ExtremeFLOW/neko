@@ -3,18 +3,9 @@
 ## 1.1.99 [develop]
 
 - Fixed a data race in openMP block in `adv_dealias` for scalar and ALE.
-- Added `phmg_update` to propagate mesh change to coarse level grids.
-- Fixed extrusion of curved edges when reading a 2D .nmsh file.
-- Added mathematical expressions as case file values, available as the
-  `expression` initial condition for the fluid and the scalar, and as the
-  `expression_velocity`, `expression_pressure` and `expression_dirichlet`
-  boundary conditions. Expressions can use `x`, `y`, `z`, `t`, `dt`, `pi`,
-  elementary functions, and any scalar declared under `case.constants`, so
-  simple spatially varying conditions no longer require a user file.
-- Added integration test for ALE (test_ale).
 - Updated simulation_components documentation to mirror the latest codebase.
 - Fixed stale accumulator in the SX gather-scatter backend (min/max/mul).
-## 1.1.0 [2026-07-21]   
+## 1.1.0 [2026-07-21]
 - Added opt-in zero-copy unified memory mapping for the HIP backend on AMD
   MI300A APUs: with `NEKO_HIP_ZEROCOPY=1` (and `HSA_XNACK=1`), mapped arrays
   alias their host allocation instead of being replicated on the device,
