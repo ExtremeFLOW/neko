@@ -114,7 +114,7 @@ contains
     class(les_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call this%les_model%compute(time%t, time%tstep)
+    call this%les_model%compute( real(time%t, kind=rp), time%tstep)
   end subroutine les_simcomp_compute
 
   !> Compute the les_simcomp field when restart.
@@ -123,7 +123,7 @@ contains
     class(les_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call this%les_model%compute(time%t, 0)
+    call this%les_model%compute( real(time%t, kind=rp), 0)
   end subroutine les_simcomp_restart
 
 end module les_simcomp

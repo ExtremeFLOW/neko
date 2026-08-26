@@ -123,6 +123,11 @@ module scalar_pnpn
      !> Lag arrays
      type(field_t) :: abx1, abx2
 
+     !> Fluid velocity histories used by OIFS scalar advection.
+     type(field_series_t), pointer :: ulag => null()
+     type(field_series_t), pointer :: vlag => null()
+     type(field_series_t), pointer :: wlag => null()
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => scalar_pnpn_init
@@ -252,6 +257,13 @@ contains
     this%chkp => chkp
     ! Initialize advection factory
     call json_get_or_default(params, 'advection', advection, .true.)
+    ! OIFS integrates the advection term. With advection disabled, fall back to
+    ! the standard BDF history assembly.
+    this%oifs = this%oifs .and. advection
+
+    this%ulag => ulag
+    this%vlag => vlag
+    this%wlag => wlag
 
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
          ulag, vlag, wlag, this%chkp%dtlag, &
@@ -321,6 +333,10 @@ contains
        deallocate(this%adv)
     end if
 
+    nullify(this%ulag)
+    nullify(this%vlag)
+    nullify(this%wlag)
+
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
     end if
@@ -384,11 +400,14 @@ contains
       call this%source_term%compute(time)
 
       if (oifs) then
-         ! Add the advection operators to the right-hans-side.
-         call this%adv%compute_scalar(u, v, w, s, this%advs, &
+         ! The fluid step has already advanced u, v, and w to the new time.
+         ! Its first lag fields contain the velocity at tlag(1), which is the
+         ! latest time represented by the OIFS interpolation history.
+         call this%adv%compute_scalar(this%ulag%lf(1), this%vlag%lf(1), &
+              this%wlag%lf(1), s, this%advs, &
               Xh, this%c_Xh, dm_Xh%size())
       else
-         ! Add the advection operators to the right-hans-side.
+         ! Add the advection operators to the right-hand side.
          call this%adv%compute_scalar(u, v, w, s, f_Xh, &
               Xh, this%c_Xh, dm_Xh%size())
       end if
@@ -405,12 +424,13 @@ contains
 
       if (oifs) then
          call makeoifs%compute_scalar(this%advs%x, f_Xh%x, &
-              rho_cp, dt, n)
+              rho_cp, real(dt, kind=rp), n)
       else
 
          ! Add the RHS contributions coming from the BDF scheme.
          call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, &
-              rho_cp, dt, ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
+              rho_cp, real(dt, kind=rp), ext_bdf%diffusion_coeffs%x, &
+              ext_bdf%ndiff, n)
       end if
 
       call slag%update()
@@ -421,8 +441,8 @@ contains
       ! Compute scalar residual.
       call profiler_start_region(trim(this%name) // '_residual', 20)
       call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_tot, &
-           rho_cp, ext_bdf%diffusion_coeffs%x(1), dt, &
-           dm_Xh%size())
+           rho_cp, ext_bdf%diffusion_coeffs%x(1), &
+           real(dt, kind=rp), dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 

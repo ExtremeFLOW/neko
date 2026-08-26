@@ -60,8 +60,11 @@ module richardson_cpu
 
   ! These will point to the correct functions
   ! depending on stability regime and bc_type.
+  !! @note These are reassigned per node inside the compute loop, so every
+  !! thread needs its own copy. They are always set before being used.
   procedure(tau_interface), pointer :: tau_ptr => null()
   procedure(heat_flux_interface), pointer :: heat_flux_ptr => null()
+  !$omp threadprivate(tau_ptr, heat_flux_ptr)
 
 contains
 
@@ -149,6 +152,8 @@ contains
     real(kind=rp), dimension(n_nodes), intent(inout) :: ti_diagn, ts_diagn
     real(kind=rp), dimension(n_nodes), intent(inout) :: q_diagn
 
+    !$omp parallel do private(i, ui, vi, wi, hi, rho, mu, normu, z0h, l, &
+    !$omp& utau, Ri_b, L_ob, magu, q, ti, ts, g_dot_n)
     do i=1, n_nodes
        ! Sample the variables
        ui = u(i)
@@ -227,6 +232,7 @@ contains
        ts_diagn(i) = temp_w(i)
        q_diagn(i) = q
     end do
+    !$omp end parallel do
 
   end subroutine richardson_compute_cpu
 
