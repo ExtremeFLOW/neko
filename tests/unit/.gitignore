@@ -25,6 +25,7 @@ test-suite.log
 # Processed files
 **.inc
 **.F90
+**.smod
 !fixtures/*.f90
 **.log
 **.trs
@@ -59,6 +60,7 @@ math/math_suite
 mean_field/mean_field_suite
 mesh/mesh_suite
 gather_scatter/gather_scatter_suite
+ax/ax_test
 jobctrl/jobctrl_suite
 scratch_registry/scratch_registry_test
 vector_scratch_registry/vector_scratch_registry_test

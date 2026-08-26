@@ -49,7 +49,7 @@ module phmg
   use jacobi, only : jacobi_t
   use device_jacobi, only : device_jacobi_t
   use schwarz, only : schwarz_t
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator
   use tree_amg_multigrid, only : tamg_solver_t
   use interpolation, only : interpolator_t
   use json_module, only : json_file
@@ -333,7 +333,7 @@ contains
     call print_phmg_info(this%nlvls, st, this%phmg_hrchy)
 
     ! Create backend specific Ax operator
-    call ax_helm_factory(this%ax, full_formulation = .false.)
+    call ax_helm_allocator(this%ax, type_name = "standard")
 
     ! Interpolator Fine + mg levels
     allocate(this%intrp(this%nlvls - 1))

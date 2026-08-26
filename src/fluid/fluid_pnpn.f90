@@ -59,7 +59,7 @@ module fluid_pnpn
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item, &
        json_get_or_lookup, json_get_or_lookup_or_default
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator
   use field, only : field_t
   use dirichlet, only : dirichlet_t
   use shear_stress, only : shear_stress_t
@@ -296,7 +296,7 @@ contains
 
     if (this%full_stress_formulation) then
        ! Setup backend dependent Ax routines
-       call ax_helm_factory(this%Ax_vel, full_formulation = .true.)
+       call ax_helm_allocator(this%Ax_vel, type_name = "full")
 
        ! Setup backend dependent prs residual routines
        call pnpn_prs_res_stress_factory(this%prs_res)
@@ -305,7 +305,7 @@ contains
        call pnpn_vel_res_stress_factory(this%vel_res)
     else
        ! Setup backend dependent Ax routines
-       call ax_helm_factory(this%Ax_vel, full_formulation = .false.)
+       call ax_helm_allocator(this%Ax_vel, type_name = "standard")
 
        ! Setup backend dependent prs residual routines
        call pnpn_prs_res_factory(this%prs_res)
@@ -328,7 +328,7 @@ contains
     end if
 
     ! Setup Ax for the pressure
-    call ax_helm_factory(this%Ax_prs, full_formulation = .false.)
+    call ax_helm_allocator(this%Ax_prs, type_name = "standard")
 
 
     ! Setup backend dependent summation of AB/BDF

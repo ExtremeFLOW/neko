@@ -15,6 +15,7 @@ SUBDIRS = tuple\
 	  global_interpolation\
 	  mean_field\
 	  gather_scatter\
+	  ax\
 	  krylov\
 	  bc\
 	  signal\
@@ -63,6 +64,7 @@ TESTS = device/device_test\
 	global_interpolation/global_interpolation_test\
 	mean_field/mean_field_test\
 	gather_scatter/gather_scatter_test\
+	ax/ax_test\
 	krylov/krylov_test\
 	bc/bc_test\
 	signal/signal_test\
@@ -95,6 +97,7 @@ EXTRA_DIST = \
 	mesh/test_mesh_parallel.pf\
 	quad/test_quad.pf\
 	gather_scatter/test_gather_scatter_parallel.pf\
+	ax/test_ax_factory.pf\
 	krylov/test_krylov.pf\
 	hex/test_hex.pf\
 	tet/test_tet.pf\

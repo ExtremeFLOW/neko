@@ -24,10 +24,11 @@ The templates cover every type currently supported by factory-based injection:
 - `point_zone_template.f90` — `point_zone_t`
 - `preconditioner_template.f90` — `pc_t`
 - `krylov_solver_template.f90` — `ksp_t`
+- `ax_helm_template.f90` — `ax_t` Helmholtz matrix-vector product
 - `scalar_scheme_template.f90` — `scalar_scheme_t`
 
 The executable bodies are safe, minimal starting points rather than useful
 models: the LES and wall-model templates produce zero additional effects; the
-preconditioner is the identity; and the Krylov template stops with an explicit
-error until its solve routine is implemented.  Replace the marked `TODO`
-sections with the actual algorithm.
+preconditioner and Ax templates are identities; and the Krylov template stops
+with an explicit error until its solve routine is implemented. Replace the
+marked `TODO` sections with the actual algorithm.

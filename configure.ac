@@ -460,6 +460,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/global_interpolation/Makefile\
         tests/unit/mean_field/Makefile\
         tests/unit/gather_scatter/Makefile\
+        tests/unit/ax/Makefile\
         tests/unit/krylov/Makefile\
         tests/unit/bc/Makefile\
         tests/unit/signal/Makefile\

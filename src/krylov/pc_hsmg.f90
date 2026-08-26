@@ -64,7 +64,7 @@ module hsmg
   use math, only : copy, col2, add2
   use utils, only : neko_error
   use precon, only : pc_t, precon_allocator, precon_destroy
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
   use bc, only : bc_t
@@ -283,7 +283,7 @@ contains
     call this%c_mg%init(this%gs_mg, COEF_OPERATOR)
 
     ! Create backend specific Ax operator
-    call ax_helm_factory(this%ax, full_formulation = .false.)
+    call ax_helm_allocator(this%ax, type_name = "standard")
 
     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)

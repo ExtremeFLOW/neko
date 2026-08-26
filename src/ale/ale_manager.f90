@@ -38,7 +38,7 @@ module ale_manager
   use field, only : field_t
   use coefs, only : coef_t
   use space, only : space_t
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
   use precon, only : pc_t, precon_allocator, precon_destroy
   use bc_list, only : bc_list_t
@@ -916,7 +916,7 @@ contains
     call neko_log%message("Starting base mesh motion solve ...")
     n = coef%dof%size()
 
-    call ax_helm_factory(Ax, full_formulation = .false.)
+    call ax_helm_allocator(Ax, type_name = "standard")
     call krylov_solver_factory(ksp, n, ksp_solver, &
          ksp_max_iter, abstol, monitor = res_monitor)
     call ale_precon_factory(pc, ksp, coef, coef%dof, &

@@ -39,7 +39,7 @@ module PDE_filter
   use registry, only : neko_registry
   use field, only : field_t
   use coefs, only : coef_t
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
   use precon, only : pc_t, precon_allocator, precon_destroy
   use bc_list, only : bc_list_t
@@ -157,7 +157,7 @@ contains
     call this%bclst_filt%init()
 
     ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%Ax, full_formulation = .false.)
+    call ax_helm_allocator(this%Ax, type_name = "standard")
 
     ! set up krylov solver
     call krylov_solver_factory(this%ksp_filt, n, this%ksp_solver, &
