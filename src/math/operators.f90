@@ -34,7 +34,7 @@
 module operators
   use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_DEVICE, NEKO_BCKND_XSMM, &
        NEKO_DEVICE_MPI
-  use num_types, only : rp, i8
+  use num_types, only : rp, i8, dp
   use opr_cpu, only : opr_cpu_cfl, opr_cpu_curl, opr_cpu_opgrad, &
        opr_cpu_conv1, opr_cpu_convect_scalar, opr_cpu_cdtp, &
        opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst, &
@@ -64,7 +64,8 @@ module operators
   use scratch_registry, only : neko_scratch_registry
   use vector, only : vector_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM, &
+       MPI_DOUBLE_PRECISION
   use, intrinsic :: iso_c_binding, only : c_ptr
   use logger, only : neko_log
   implicit none
@@ -567,12 +568,12 @@ contains
   !! @param nelv The total number of elements.
   !! @param gdim Number of geometric dimensions.
   function cfl_r4(dt, u, v, w, Xh, coef, nelv, gdim)
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), contiguous, dimension(:,:,:,:), intent(in) :: u, v, w
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp) :: cfl_r4
+    real(kind=dp) :: cfl_r4
     integer :: ierr
     type(c_ptr) :: u_d, v_d, w_d
 
@@ -593,36 +594,36 @@ contains
 
     if (.not. NEKO_DEVICE_MPI) then
        call MPI_Allreduce(MPI_IN_PLACE, cfl_r4, 1, &
-            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+            MPI_DOUBLE_PRECISION, MPI_MAX, NEKO_COMM, ierr)
     end if
 
   end function cfl_r4
 
   function cfl_d(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     type(c_ptr), intent(in) :: u_d, v_d, w_d
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp) :: cfl_d
+    real(kind=dp) :: cfl_d
     integer :: ierr
 
     cfl_d = opr_device_cfl(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
 
     if (.not. NEKO_DEVICE_MPI) then
        call MPI_Allreduce(MPI_IN_PLACE, cfl_d, 1, &
-            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+            MPI_DOUBLE_PRECISION, MPI_MAX, NEKO_COMM, ierr)
     end if
 
   end function cfl_d
 
   function cfl_f(dt, u, v, w, Xh, coef, nelv, gdim)
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     type(field_t), intent(in) :: u, v, w
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp) :: cfl_f
+    real(kind=dp) :: cfl_f
     integer :: ierr
 
     if (NEKO_BCKND_SX .eq. 1) then
@@ -635,7 +636,7 @@ contains
 
     if (.not. NEKO_DEVICE_MPI) then
        call MPI_Allreduce(MPI_IN_PLACE, cfl_f, 1, &
-            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+            MPI_DOUBLE_PRECISION, MPI_MAX, NEKO_COMM, ierr)
     end if
 
   end function cfl_f
@@ -648,12 +649,12 @@ contains
   !! @param nelv The total number of elements.
   !! @param gdim Number of geometric dimensions.
   function cfl_compressible_r4(dt, max_wave_speed, Xh, coef, nelv, gdim)
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), contiguous, dimension(:,:,:,:), intent(in) :: max_wave_speed
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp) :: cfl_compressible_r4
+    real(kind=dp) :: cfl_compressible_r4
 
     cfl_compressible_r4 = cfl(dt, max_wave_speed, max_wave_speed, &
          max_wave_speed, Xh, coef, nelv, gdim)
@@ -668,12 +669,12 @@ contains
   !! @param nelv The total number of elements.
   !! @param gdim Number of geometric dimensions.
   function cfl_compressible_d(dt, max_wave_speed, Xh, coef, nelv, gdim)
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     type(c_ptr), intent(in) :: max_wave_speed
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp) :: cfl_compressible_d
+    real(kind=dp) :: cfl_compressible_d
 
     cfl_compressible_d = cfl(dt, max_wave_speed, max_wave_speed, &
          max_wave_speed, Xh, coef, nelv, gdim)
@@ -688,12 +689,12 @@ contains
   !! @param nelv The total number of elements.
   !! @param gdim Number of geometric dimensions.
   function cfl_compressible_f(dt, max_wave_speed, Xh, coef, nelv, gdim)
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     type(field_t), intent(in) :: max_wave_speed
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp) :: cfl_compressible_f
+    real(kind=dp) :: cfl_compressible_f
 
     cfl_compressible_f = cfl(dt, max_wave_speed, max_wave_speed, &
          max_wave_speed, Xh, coef, nelv, gdim)
@@ -966,7 +967,7 @@ contains
     type(coef_t), intent(in) :: coef
     type(coef_t), intent(inout) :: coef_GL
     type(interpolator_t) :: GLL_to_GL
-    real(kind=rp), intent(inout) :: tau, dtau
+    real(kind=dp), intent(inout) :: tau, dtau
     integer, intent(in) :: n, nel, n_GL
     type(field_t), intent(inout) :: phi
     type(field_list_t) :: conv_k1, conv_k23, conv_k4

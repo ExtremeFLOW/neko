@@ -77,6 +77,8 @@ contains
 
     e_const = exp(kappa * B)
 
+    !$omp parallel do private(i, ui, vi, wi, magu, utau, normu, rho, &
+    !$omp& rey, blend, up, warg)
     do i = 1, n_nodes
        ui = u(i)
        vi = v(i)
@@ -108,6 +110,7 @@ contains
        tau_y(i) = -rho * utau**2 * vi / (magu + NEKO_EPS)
        tau_z(i) = -rho * utau**2 * wi / (magu + NEKO_EPS)
     end do
+    !$omp end parallel do
   end subroutine cai_sagaut_model_ii_compute_cpu
 
 end module cai_sagaut_model_ii_cpu

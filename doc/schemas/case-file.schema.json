@@ -235,6 +235,33 @@
               }
             }
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "fluid": {
+                "properties": {
+                  "scheme": {"const": "pnpn"}
+                },
+                "required": ["scheme"]
+              }
+            },
+            "required": ["fluid"]
+          },
+          "then": {
+            "properties": {
+              "numerics": {
+                "properties": {
+                  "polynomial_order": {
+                    "oneOf": [
+                      {"type": "integer", "minimum": 3},
+                      {"$ref": "urn:neko:schema:common#/$defs/constRef"}
+                    ]
+                  }
+                }
+              }
+            }
+          }
         }
       ],
       "additionalProperties": true

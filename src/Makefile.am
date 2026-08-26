@@ -1011,6 +1011,7 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/rotate_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
 	math/bcknd/device/cuda/ax_helm_full_kernel.h\
+	math/bcknd/device/cuda/dmma_kernel.h\
 	math/bcknd/device/cuda/elem_block.h\
 	math/bcknd/device/cuda/elem_block_tune.h\
 	common/bcknd/device/cuda/sumab_kernel.h\
@@ -1067,7 +1068,9 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/rotate_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
 	math/bcknd/device/hip/ax_helm_full_kernel.h\
+	math/bcknd/device/hip/mfma_kernel.h\
 	math/bcknd/device/hip/elem_block.h\
+	math/bcknd/device/hip/wave.h\
 	math/bcknd/device/hip/elem_block_tune.h\
 	common/bcknd/device/hip/sumab_kernel.h\
 	common/bcknd/device/hip/makeext_kernel.h\

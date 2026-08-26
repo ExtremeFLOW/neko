@@ -112,6 +112,9 @@ contains
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
 
+    ! Reads coef%nx, ny and nz directly, never through get_normal()
+    call this%coef%require_facets('symmetry')
+
     if (present(only_facets)) then
        only_facets_ = only_facets
     else
