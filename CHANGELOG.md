@@ -58,6 +58,7 @@
 - *BREAKING* Renamed the allocation-only `precon_factory` API to
   `precon_allocator`. Added runtime registration of user-defined
   preconditioner and Krylov solver types.
+## 1.1.0 [2026-07-21]  
 - Added opt-in zero-copy unified memory mapping for the HIP backend on AMD
   MI300A APUs: with `NEKO_HIP_ZEROCOPY=1` (and `HSA_XNACK=1`), mapped arrays
   alias their host allocation instead of being replicated on the device,
@@ -272,7 +273,7 @@
 - Fix cyclic boundary rotation device bug, which tried to launch kernels
   with zero threads for ranks not containing cyclic boundaries.
 - Change default parameters for tamg and phmg to be less expensive.
-
+## 1.0.0 [2025-12-05] 
 ### Deprecated features
 - `operator::dudxyz` calls with implicit device arrays are deprecated. Please
   use `opr_device_dudxyz` instead.
