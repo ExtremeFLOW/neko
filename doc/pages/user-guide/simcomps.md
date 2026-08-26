@@ -326,8 +326,7 @@ Optional arguments:
   ~~~~~~~~~~~~~~~{.json}
   "interpolation": {
     "tolerance": 1e-8,
-    "padding": 1e-3,
-    "max_iterations": 20
+    "padding": 1e-3
   }
   ~~~~~~~~~~~~~~~
 

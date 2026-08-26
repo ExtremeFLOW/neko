@@ -270,23 +270,20 @@ contains
   !! @param name Name of the probes simcomp.
   !! @param tolerance Tolerance for finding the probe coordinates.
   !! @param padding Padding for finding the probe coordinates.
-  !! @param max_iterations Maximum number of Newton iterations.
   subroutine probes_init_from_components(this, dof, output_file, name, &
-       tolerance, padding, max_iterations)
+       tolerance, padding)
     class(probes_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
     character(len=:), allocatable, intent(inout) :: output_file
     character(len=*), intent(in) :: name
     real(kind=dp), intent(in), optional :: tolerance, padding
-    integer, intent(in), optional :: max_iterations
 
     character(len=1024) :: header_line
     real(kind=rp), allocatable :: global_output_coords(:,:)
     integer :: i, ierr
     type(matrix_t) :: mat_coords
 
-    call this%global_interp%init(dof, tol = tolerance, pad = padding, &
-         max_iter = max_iterations)
+    call this%global_interp%init(dof, tol = tolerance, pad = padding)
 
     call this%init_common(dof, output_file, name)
 

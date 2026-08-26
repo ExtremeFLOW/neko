@@ -70,7 +70,7 @@
 module aabb_tree
   use aabb, only : aabb_t, get_aabb, merge
   use tri, only : tri_t
-  use num_types, only : rp, dp, i8
+  use num_types, only : rp, dp
   use stack, only : stack_i4_t
   use utils, only : neko_error
   implicit none
@@ -355,7 +355,6 @@ contains
     logical :: done
 
     integer :: start_layer, end_layer
-    integer :: capacity, m
 
     type(aabb_t), allocatable :: box_list(:)
     integer, dimension(:), allocatable :: sorted_indices
@@ -365,18 +364,7 @@ contains
     if (allocated(box_list)) deallocate(box_list)
     allocate(box_list(size(objects)))
 
-    ! Exact node count of the layered build below: n leaves, then each
-    ! layer of m nodes produces (m + 1) / 2 parents (one wrapper node
-    ! when m is odd). This can exceed 2 n, which would trigger a full
-    ! resize of the node pool for the sake of a few nodes.
-    capacity = size(objects)
-    m = size(objects)
-    do while (m .gt. 1)
-       m = (m + 1) / 2
-       capacity = capacity + m
-    end do
-
-    call this%init(capacity)
+    call this%init(size(objects) * 2)
     if (size(objects) .eq. 0) then
        return
     end if
@@ -466,7 +454,6 @@ contains
     logical :: done
 
     integer :: start_layer, end_layer
-    integer :: capacity, m
 
     type(aabb_t), allocatable :: box_list(:)
     integer, dimension(:), allocatable :: sorted_indices
@@ -476,18 +463,7 @@ contains
     if (allocated(box_list)) deallocate(box_list)
     allocate(box_list(size(objects)))
 
-    ! Exact node count of the layered build below: n leaves, then each
-    ! layer of m nodes produces (m + 1) / 2 parents (one wrapper node
-    ! when m is odd). This can exceed 2 n, which would trigger a full
-    ! resize of the node pool for the sake of a few nodes.
-    capacity = size(objects)
-    m = size(objects)
-    do while (m .gt. 1)
-       m = (m + 1) / 2
-       capacity = capacity + m
-    end do
-
-    call this%init(capacity)
+    call this%init(size(objects) * 2)
     if (size(objects) .eq. 0) then
        return
     end if
@@ -568,102 +544,33 @@ contains
   end subroutine aabb_tree_build_tree
 
   !> Return a list of sorted indices of the aabb nodes.
-  !> Argsort of the boxes along a Morton (Z-order) space-filling curve of
-  !! their centers. Spatially close boxes become adjacent in the ordering,
-  !! so the balanced bottom-up build produces tight, little-overlapping
-  !! subtrees and query traversals visit fewer nodes.
   subroutine sort(array, indices)
     type(aabb_t), dimension(:), intent(in) :: array
     integer, intent(inout), dimension(:), allocatable :: indices
+    logical, dimension(:), allocatable :: visited
 
-    integer(kind=i8), dimension(:), allocatable :: code
-    integer, dimension(:), allocatable :: work
-    real(kind=dp) :: dom_min(3), dom_max(3), extent(3), c(3)
-    integer :: i, n, width, lo, mid, hi
+    integer :: i, imin
+    integer :: minidx
 
-    n = size(array)
-    allocate(indices(n))
-    do i = 1, n
-       indices(i) = i
-    end do
-    if (n .lt. 2) return
+    allocate(indices(size(array)))
+    allocate(visited(size(array)))
 
-    ! Bounding box of all centers, for quantization
-    dom_min = huge(0.0_dp)
-    dom_max = -huge(0.0_dp)
-    do i = 1, n
-       c = array(i)%get_center()
-       dom_min = min(dom_min, c)
-       dom_max = max(dom_max, c)
-    end do
-    extent = dom_max - dom_min
-    where (extent .le. 0.0_dp) extent = 1.0_dp
-
-    allocate(code(n))
-    do i = 1, n
-       c = (array(i)%get_center() - dom_min) / extent
-       code(i) = morton_encode(c)
-    end do
-
-    ! Stable bottom-up merge argsort by Morton code
-    allocate(work(n))
-    width = 1
-    do while (width .lt. n)
-       lo = 1
-       do while (lo .le. n - width)
-          mid = lo + width - 1
-          hi = min(lo + 2*width - 1, n)
-          call merge_runs(lo, mid, hi)
-          lo = hi + 1
+    visited = .false.
+    indices = 0
+    do i = 1, size(array)
+       minidx = -1
+       do imin = 1, size(array)
+          if (.not. visited(imin) .and. minidx .eq. -1) minidx = imin
+          if (minidx .gt. -1) then
+             if (visited(imin) .and. array(imin) .lt. array(minidx)) minidx = imin
+          end if
        end do
-       width = 2*width
+
+       indices(i) = minidx
+       visited(minidx) = .true.
     end do
 
-  contains
-
-    !> Interleave the bits of the quantized center coordinates
-    !! (21 bits per dimension) into a 63-bit Morton code.
-    pure function morton_encode(cn) result(m)
-      real(kind=dp), intent(in) :: cn(3)
-      integer(kind=i8) :: m, v
-      integer :: d, bit
-
-      m = 0_i8
-      do d = 1, 3
-         v = int(min(max(cn(d), 0.0_dp), 1.0_dp) &
-              * 2097151.0_dp, kind=i8) ! 2^21 - 1
-         do bit = 0, 20
-            if (btest(v, bit)) m = ibset(m, 3*bit + (d-1))
-         end do
-      end do
-    end function morton_encode
-
-    !> Merge indices(lo:mid) and indices(mid+1:hi), both code-ordered,
-    !! stably into indices(lo:hi).
-    subroutine merge_runs(lo, mid, hi)
-      integer, intent(in) :: lo, mid, hi
-      integer :: a, b, k
-
-      work(lo:hi) = indices(lo:hi)
-      a = lo
-      b = mid + 1
-      do k = lo, hi
-         if (b .gt. hi) then
-            indices(k) = work(a)
-            a = a + 1
-         else if (a .gt. mid) then
-            indices(k) = work(b)
-            b = b + 1
-         else if (code(work(a)) .le. code(work(b))) then
-            indices(k) = work(a)
-            a = a + 1
-         else
-            indices(k) = work(b)
-            b = b + 1
-         end if
-      end do
-    end subroutine merge_runs
-
+    if (allocated(visited)) deallocate(visited)
   end subroutine sort
 
   ! -------------------------------------------------------------------------- !

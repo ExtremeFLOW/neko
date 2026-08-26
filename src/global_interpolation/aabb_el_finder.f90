@@ -76,6 +76,7 @@ contains
     if (allocated(this%local_aabb)) deallocate(this%local_aabb)
     allocate(this%local_aabb(nel))
     !> Create a local tree for each element at this rank
+    call this%local_aabb_tree%init(nel)
     do i = 1, nel
        id1 = lx*ly*lz*(i - 1) + 1
        id2 = lx*ly*lz*(i)
@@ -145,5 +146,6 @@ contains
     end do
 
   end subroutine aabb_el_finder_find_candidates_batch
+
 
 end module aabb_el_finder

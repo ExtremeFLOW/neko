@@ -44,10 +44,6 @@
                 },
                 "padding": {
                   "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
-                },
-                "max_iterations": {
-                  "$ref": "urn:neko:schema:simulation-components#/$defs/integerOrRef",
-                  "minimum": 1
                 }
               },
               "additionalProperties": true
