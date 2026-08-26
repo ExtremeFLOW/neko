@@ -2,6 +2,10 @@
 
 ## Develop
 
+- *BREAKING* The `ax_helm_factory` is renamed to `ax_helm_allocator`. It now
+  selects matrix-vector product types by name instead of a `full_formulation`
+  logical argument, and supports runtime registration of user-defined `ax_t`
+  descendants.
 - Hardened the CPU BiCGStab solver with scale-aware breakdown checks and correct
   handling of converged initial guesses and negative `omega` values.
 - *BREAKING* Changed all time-related variables to double precision. 
