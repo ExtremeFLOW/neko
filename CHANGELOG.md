@@ -2,6 +2,10 @@
 
 ## Develop
 
+- Modified `legendre_rst_finder_init` to apply the `tnsr3d` operation
+  on device, when running on device. Exposed `max_iterations` to case file
+  for the Newton iterations in `global_interpolation`, and prints warning when 
+  it does not converge within `max_iterations`.
 - Hardened the CPU BiCGStab solver with scale-aware breakdown checks and correct
   handling of converged initial guesses and negative `omega` values.
 - *BREAKING* Changed all time-related variables to double precision. 
