@@ -76,7 +76,7 @@ contains
           allocate(ax_helm_cpu_t::object)
        end if
     case ("full")
-       if (NEKO_BCKND_SX .eq. 1 .or. NEKO_BCKND_XSMM .eq. 1) then
+       if (NEKO_BCKND_XSMM .eq. 1) then
           call neko_error("Full stress formulation is only available " // &
                "on the CPU and device")
        else if (NEKO_BCKND_DEVICE .eq. 1) then
