@@ -1,6 +1,6 @@
 <map id="math::invcol1" name="math::invcol1">
 <area shape="rect" id="Node000001" title="Invert a vector ." alt="" coords="463,133,573,159"/>
-<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="252,5,396,31"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#a4fd6fc1c4fc98d7fa254f37aedf70f92" title="Initialize coefficients." alt="" coords="252,5,396,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="497,124,461,83,438,62,413,44,388,33,391,28,416,40,442,58,465,79,501,120"/>
 <area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#a2f1bfc4eecdf82bcbff85a9e93780f48" title="Invert a vector ." alt="" coords="233,55,415,80"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="483,129,414,94,380,83,382,78,416,89,486,124"/>

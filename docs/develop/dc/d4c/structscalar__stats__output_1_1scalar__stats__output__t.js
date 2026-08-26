@@ -14,5 +14,5 @@ var structscalar__stats__output_1_1scalar__stats__output__t =
     [ "map_2d", "dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html#a131e6db9e9e32383321119f03c1c7418", null ],
     [ "output_dim", "dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html#a9ebd5f777504ee3b9982170ae90fd0d0", null ],
     [ "stats", "dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html#a7e454190cd3d128546468dd9e49de11a", null ],
-    [ "t_begin", "dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html#a9631b708e0f55a8f8259122f92341690", null ]
+    [ "t_begin", "dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html#a5426ca71bc3f79c1492ac7ce920ec74a", null ]
 ];

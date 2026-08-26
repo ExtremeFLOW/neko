@@ -456,72 +456,74 @@ $(document).ready(function(){initNavTree('db/df0/wall__model_8f90_source.html','
 <div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>    <span class="keywordtype">integer</span> :: n_nodes, fid, idx(4), i, linear</div>
 <div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: normal(3)</div>
 <div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span> </div>
-<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>    n_nodes = this%msk(0)</div>
-<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>    this%n_nodes = n_nodes</div>
-<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span> </div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>    <span class="keywordflow">do</span> i = 1, n_nodes</div>
-<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>       linear = this%msk(i)</div>
-<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>       fid = this%facet(i)</div>
-<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>       idx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(linear, this%coef%Xh%lx, this%coef%Xh%ly,&amp;</div>
-<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>            this%coef%Xh%lz)</div>
-<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>       normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)</div>
-<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span> </div>
-<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>       this%n_x%x(i) = normal(1)</div>
-<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>       this%n_y%x(i) = normal(2)</div>
-<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>       this%n_z%x(i) = normal(3)</div>
-<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span> </div>
-<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>    <span class="keyword">call </span>this%coef%require_facets(<span class="stringliteral">&#39;wall_model&#39;</span>)</div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span> </div>
+<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>    n_nodes = this%msk(0)</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>    this%n_nodes = n_nodes</div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span> </div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>    <span class="keywordflow">do</span> i = 1, n_nodes</div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>       linear = this%msk(i)</div>
+<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>       fid = this%facet(i)</div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>       idx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(linear, this%coef%Xh%lx, this%coef%Xh%ly,&amp;</div>
+<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>            this%coef%Xh%lz)</div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>       normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)</div>
+<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span> </div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>       this%n_x%x(i) = normal(1)</div>
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>       this%n_y%x(i) = normal(2)</div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>       this%n_z%x(i) = normal(3)</div>
 <div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span> </div>
-<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%n_x%x, this%n_x%x_d, n_nodes, <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, &amp;</div>
-<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>            sync = .false.)</div>
-<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%n_y%x, this%n_y%x_d, n_nodes, <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, &amp;</div>
+<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span> </div>
+<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%n_x%x, this%n_x%x_d, n_nodes, <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, &amp;</div>
 <div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>            sync = .false.)</div>
-<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%n_z%x, this%n_z%x_d, n_nodes, <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, &amp;</div>
-<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>            sync = .true.)</div>
-<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span> </div>
-</div>
-<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>  <span class="keyword">end subroutine </span>wall_model_setup_geometry</div>
+<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%n_y%x, this%n_y%x_d, n_nodes, <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, &amp;</div>
+<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>            sync = .false.)</div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%n_z%x, this%n_z%x_d, n_nodes, <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, &amp;</div>
+<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>            sync = .true.)</div>
+<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span> </div>
-<div class="foldopen" id="foldopen00429" data-start="" data-end="">
-<div class="line"><a id="l00429" name="l00429"></a><span class="lineno"><a class="line" href="../../da/ddd/namespacewall__model.html#ab23de3a15d0fd0dc44bdecf2061e6527">  429</a></span>  <span class="keyword">subroutine </span>wall_model_validate_single_sample(this)</div>
-<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>    <span class="keywordtype">class</span>(wall_model_t), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span> </div>
-<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>    <span class="keywordflow">if</span> (this%sampler%n_samples /= 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;This wall model requires exactly one sample per node&#39;</span>)</div>
-<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span><span class="keywordflow">    end if</span></div>
 </div>
-<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>  <span class="keyword">end subroutine </span>wall_model_validate_single_sample</div>
-<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span> </div>
-<div class="foldopen" id="foldopen00437" data-start="" data-end="">
-<div class="line"><a id="l00437" name="l00437"></a><span class="lineno"><a class="line" href="../../da/ddd/namespacewall__model.html#ad6397879860434184e35416478a6fd17">  437</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d1/d0f/cuda_2wall__model__kernel_8h.html#a4d6b0bafa02feed9c09ed959675ab3f9">wall_model_compute_mag_field</a>(this)</div>
-<div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span>    <span class="keywordtype">class</span>(wall_model_t), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span>    <span class="keywordtype">integer</span> :: i, m</div>
-<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: magtau</div>
-<div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span> </div>
-<div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span>    m = this%msk(0)</div>
-<div class="line"><a id="l00443" name="l00443"></a><span class="lineno">  443</span>    <span class="keywordflow">if</span> (m &gt; 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span>       <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00445" name="l00445"></a><span class="lineno">  445</span>          <span class="keyword">call </span><a class="code hl_function" href="../../db/d0e/namespacewall__model__device.html#afa43959f0a01c6ded4a8ff52afac29f2">wall_model_compute_mag_field_device</a>(this%tau_x%x_d, &amp;</div>
-<div class="line"><a id="l00446" name="l00446"></a><span class="lineno">  446</span>               this%tau_y%x_d, &amp;</div>
-<div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span>               this%tau_z%x_d, &amp;</div>
-<div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span>               this%tau_field%x_d, &amp;</div>
-<div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span>               this%msk_d, m)</div>
-<div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span>       <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>          <span class="keywordflow">do</span> i = 1, m</div>
-<div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span>             magtau = sqrt(this%tau_x%x(i)**2 + &amp;</div>
-<div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span>                  this%tau_y%x(i)**2 + &amp;</div>
-<div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span>                  this%tau_z%x(i)**2)</div>
-<div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span>             this%tau_field%x(this%msk(i),1,1,1) = magtau</div>
-<div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00459" name="l00459"></a><span class="lineno">  459</span> </div>
+<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span>  <span class="keyword">end subroutine </span>wall_model_setup_geometry</div>
+<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span> </div>
+<div class="foldopen" id="foldopen00431" data-start="" data-end="">
+<div class="line"><a id="l00431" name="l00431"></a><span class="lineno"><a class="line" href="../../da/ddd/namespacewall__model.html#ab23de3a15d0fd0dc44bdecf2061e6527">  431</a></span>  <span class="keyword">subroutine </span>wall_model_validate_single_sample(this)</div>
+<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>    <span class="keywordtype">class</span>(wall_model_t), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span> </div>
+<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>    <span class="keywordflow">if</span> (this%sampler%n_samples /= 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;This wall model requires exactly one sample per node&#39;</span>)</div>
+<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span><span class="keywordflow">    end if</span></div>
 </div>
-<div class="line"><a id="l00460" name="l00460"></a><span class="lineno">  460</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/d0f/cuda_2wall__model__kernel_8h.html#a4d6b0bafa02feed9c09ed959675ab3f9">wall_model_compute_mag_field</a></div>
+<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span>  <span class="keyword">end subroutine </span>wall_model_validate_single_sample</div>
+<div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span> </div>
+<div class="foldopen" id="foldopen00439" data-start="" data-end="">
+<div class="line"><a id="l00439" name="l00439"></a><span class="lineno"><a class="line" href="../../da/ddd/namespacewall__model.html#ad6397879860434184e35416478a6fd17">  439</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d1/d0f/cuda_2wall__model__kernel_8h.html#a4d6b0bafa02feed9c09ed959675ab3f9">wall_model_compute_mag_field</a>(this)</div>
+<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span>    <span class="keywordtype">class</span>(wall_model_t), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span>    <span class="keywordtype">integer</span> :: i, m</div>
+<div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: magtau</div>
+<div class="line"><a id="l00443" name="l00443"></a><span class="lineno">  443</span> </div>
+<div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span>    m = this%msk(0)</div>
+<div class="line"><a id="l00445" name="l00445"></a><span class="lineno">  445</span>    <span class="keywordflow">if</span> (m &gt; 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00446" name="l00446"></a><span class="lineno">  446</span>       <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span>          <span class="keyword">call </span><a class="code hl_function" href="../../db/d0e/namespacewall__model__device.html#afa43959f0a01c6ded4a8ff52afac29f2">wall_model_compute_mag_field_device</a>(this%tau_x%x_d, &amp;</div>
+<div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span>               this%tau_y%x_d, &amp;</div>
+<div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span>               this%tau_z%x_d, &amp;</div>
+<div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span>               this%tau_field%x_d, &amp;</div>
+<div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>               this%msk_d, m)</div>
+<div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span>       <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span>          <span class="keywordflow">do</span> i = 1, m</div>
+<div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span>             magtau = sqrt(this%tau_x%x(i)**2 + &amp;</div>
+<div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span>                  this%tau_y%x(i)**2 + &amp;</div>
+<div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span>                  this%tau_z%x(i)**2)</div>
+<div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span>             this%tau_field%x(this%msk(i),1,1,1) = magtau</div>
+<div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00459" name="l00459"></a><span class="lineno">  459</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00460" name="l00460"></a><span class="lineno">  460</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00461" name="l00461"></a><span class="lineno">  461</span> </div>
-<div class="line"><a id="l00462" name="l00462"></a><span class="lineno">  462</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../da/ddd/namespacewall__model.html">wall_model</a></div>
+</div>
+<div class="line"><a id="l00462" name="l00462"></a><span class="lineno">  462</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/d0f/cuda_2wall__model__kernel_8h.html#a4d6b0bafa02feed9c09ed959675ab3f9">wall_model_compute_mag_field</a></div>
+<div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span> </div>
+<div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../da/ddd/namespacewall__model.html">wall_model</a></div>
 <div class="ttc" id="acuda_2bc__utils_8h_html_a97af2a5f58e9e047d747424d0f89132d"><div class="ttname"><a href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a></div><div class="ttdeci">__inline__ __device__ void nonlinear_index(const int idx, const int lx, int *index)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d74/cuda_2bc__utils_8h_source.html#l00044">bc_utils.h:44</a></div></div>
 <div class="ttc" id="acuda_2wall__model__kernel_8h_html_a4d6b0bafa02feed9c09ed959675ab3f9"><div class="ttname"><a href="../../d1/d0f/cuda_2wall__model__kernel_8h.html#a4d6b0bafa02feed9c09ed959675ab3f9">wall_model_compute_mag_field</a></div><div class="ttdeci">__global__ void wall_model_compute_mag_field(const T *__restrict__ tau_x_d, const T *__restrict__ tau_y_d, const T *__restrict__ tau_z_d, T *__restrict__ tau_field_d, const int *__restrict__ msk_d, const int m)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d0f/cuda_2wall__model__kernel_8h_source.html#l00043">wall_model_kernel.h:43</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__get__ptr_html"><div class="ttname"><a href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device::device_get_ptr</a></div><div class="ttdoc">Return the device pointer for an associated Fortran array.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00113">device.F90:113</a></div></div>
@@ -543,7 +545,7 @@ $(document).ready(function(){initNavTree('db/df0/wall__model_8f90_source.html','
 <div class="ttc" id="anamespaceneko__config_html"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html">neko_config</a></div><div class="ttdoc">Build configurations.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00034">neko_config.f90:34</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html_ac196ccb4b3efd94171f0cfbfedaa7b9d"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_config::neko_bcknd_device</a></div><div class="ttdeci">integer, parameter neko_bcknd_device</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00045">neko_config.f90:45</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
-<div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
+<div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00014">num_types.f90:14</a></div></div>
 <div class="ttc" id="anamespaceregistry_html"><div class="ttname"><a href="../../de/d1f/namespaceregistry.html">registry</a></div><div class="ttdoc">Defines a registry for storing solution fields.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/dc6/registry_8f90_source.html#l00034">registry.f90:34</a></div></div>
 <div class="ttc" id="anamespaceregistry_html_a0a9e34b6767a995829f03d12e4b4d63c"><div class="ttname"><a href="../../de/d1f/namespaceregistry.html#a0a9e34b6767a995829f03d12e4b4d63c">registry::neko_registry</a></div><div class="ttdeci">type(registry_t), target, public neko_registry</div><div class="ttdoc">Global field registry.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/dc6/registry_8f90_source.html#l00144">registry.f90:144</a></div></div>
 <div class="ttc" id="anamespaceuser__intf_html"><div class="ttname"><a href="../../d9/dbc/namespaceuser__intf.html">user_intf</a></div><div class="ttdoc">Interfaces for user interaction with NEKO.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d30/user__intf_8f90_source.html#l00034">user_intf.f90:34</a></div></div>
@@ -557,12 +559,12 @@ $(document).ready(function(){initNavTree('db/df0/wall__model_8f90_source.html','
 <div class="ttc" id="anamespacewall__model_html_a8d255147195d857da3f1562f21ae62e9"><div class="ttname"><a href="../../da/ddd/namespacewall__model.html#a8d255147195d857da3f1562f21ae62e9">wall_model::wall_model_init_base</a></div><div class="ttdeci">subroutine wall_model_init_base(this, scheme_name, coef, msk, facet, sampler)</div><div class="ttdoc">Constructor for the wall_model_t (base) class.</div><div class="ttdef"><b>Definition</b> <a href="../../db/df0/wall__model_8f90_source.html#l00269">wall_model.f90:270</a></div></div>
 <div class="ttc" id="anamespacewall__model_html_a9189b364f5317c33746bf935a036875a"><div class="ttname"><a href="../../da/ddd/namespacewall__model.html#a9189b364f5317c33746bf935a036875a">wall_model::wall_model_setup_geometry</a></div><div class="ttdeci">subroutine wall_model_setup_geometry(this)</div><div class="ttdoc">Build wall-node normals independently of the sampling strategy.</div><div class="ttdef"><b>Definition</b> <a href="../../db/df0/wall__model_8f90_source.html#l00397">wall_model.f90:398</a></div></div>
 <div class="ttc" id="anamespacewall__model_html_a9c87c01ab361ff26b866c0e764a2a525"><div class="ttname"><a href="../../da/ddd/namespacewall__model.html#a9c87c01ab361ff26b866c0e764a2a525">wall_model::wall_model_free_base</a></div><div class="ttdeci">subroutine wall_model_free_base(this)</div><div class="ttdoc">Destructor for the wall_model_t (base) class.</div><div class="ttdef"><b>Definition</b> <a href="../../db/df0/wall__model_8f90_source.html#l00365">wall_model.f90:366</a></div></div>
-<div class="ttc" id="anamespacewall__model_html_ab23de3a15d0fd0dc44bdecf2061e6527"><div class="ttname"><a href="../../da/ddd/namespacewall__model.html#ab23de3a15d0fd0dc44bdecf2061e6527">wall_model::wall_model_validate_single_sample</a></div><div class="ttdeci">subroutine wall_model_validate_single_sample(this)</div><div class="ttdef"><b>Definition</b> <a href="../../db/df0/wall__model_8f90_source.html#l00429">wall_model.f90:430</a></div></div>
+<div class="ttc" id="anamespacewall__model_html_ab23de3a15d0fd0dc44bdecf2061e6527"><div class="ttname"><a href="../../da/ddd/namespacewall__model.html#ab23de3a15d0fd0dc44bdecf2061e6527">wall_model::wall_model_validate_single_sample</a></div><div class="ttdeci">subroutine wall_model_validate_single_sample(this)</div><div class="ttdef"><b>Definition</b> <a href="../../db/df0/wall__model_8f90_source.html#l00431">wall_model.f90:432</a></div></div>
 <div class="ttc" id="anamespacewall__model_html_ac275babdde50c5499537a5a516e8338d"><div class="ttname"><a href="../../da/ddd/namespacewall__model.html#ac275babdde50c5499537a5a516e8338d">wall_model::wall_model_finalize_base</a></div><div class="ttdeci">subroutine wall_model_finalize_base(this, msk, facet, bc_name, user)</div><div class="ttdef"><b>Definition</b> <a href="../../db/df0/wall__model_8f90_source.html#l00323">wall_model.f90:324</a></div></div>
 <div class="ttc" id="anamespacewall__sampler__fctry_html"><div class="ttname"><a href="../../d0/d03/namespacewall__sampler__fctry.html">wall_sampler_fctry</a></div><div class="ttdoc">Factory for wall-model samplers.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d59/wall__sampler__fctry_8f90_source.html#l00034">wall_sampler_fctry.f90:34</a></div></div>
 <div class="ttc" id="anamespacewall__sampler__fctry_html_addd019f13ed5b9948db4f1cb9b7f0504"><div class="ttname"><a href="../../d0/d03/namespacewall__sampler__fctry.html#addd019f13ed5b9948db4f1cb9b7f0504">wall_sampler_fctry::wall_sampler_factory</a></div><div class="ttdeci">subroutine, public wall_sampler_factory(object, json)</div><div class="ttdoc">Wall sampler factory.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d59/wall__sampler__fctry_8f90_source.html#l00052">wall_sampler_fctry.f90:53</a></div></div>
 <div class="ttc" id="anamespacewall__sampler_html"><div class="ttname"><a href="../../d2/dd2/namespacewall__sampler.html">wall_sampler</a></div><div class="ttdoc">Defines the abstract interface for wall-model field samplers.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/de9/wall__sampler_8f90_source.html#l00034">wall_sampler.f90:34</a></div></div>
-<div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00063">coef.f90:63</a></div></div>
+<div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00093">coef.f90:93</a></div></div>
 <div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00057">dofmap.f90:57</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00048">field.f90:48</a></div></div>
 <div class="ttc" id="astructuser__intf_1_1user__t_html"><div class="ttname"><a href="../../d7/da0/structuser__intf_1_1user__t.html">user_intf::user_t</a></div><div class="ttdoc">A type collecting all the overridable user routines and flag to suppress type injection from custom m...</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d30/user__intf_8f90_source.html#l00216">user_intf.f90:216</a></div></div>
@@ -575,7 +577,7 @@ $(document).ready(function(){initNavTree('db/df0/wall__model_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_d19e42ec822a5375dfd47528cb2d7af7.html">wall_models</a></li><li class="navelem"><a class="el" href="../../db/df0/wall__model_8f90.html">wall_model.f90</a></li>
-    <li class="footer">Generated on Tue Aug 25 2026 03:47:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Aug 26 2026 03:48:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,0 +1,9 @@
+<map id="hip_mfma_arch_probe" name="hip_mfma_arch_probe">
+<area shape="rect" id="Node000001" title=" " alt="" coords="335,31,501,56"/>
+<area shape="rect" id="Node000002" href="$d7/d35/mfma__kernel_8h.html#a7e3ce445f098e02799be0deeeee1fe6d" title=" " alt="" coords="160,31,287,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="321,46,287,46,287,41,321,41"/>
+<area shape="rect" id="Node000003" href="$de/d11/ax__helm_8hip.html#afb4c4d97ea42bd24a727371cd9f84eac" title=" " alt="" coords="33,5,84,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="146,34,84,24,85,19,147,29"/>
+<area shape="rect" id="Node000004" href="$de/d11/ax__helm_8hip.html#a08725d38ae5955a49d9a8b463ba14fd5" title=" " alt="" coords="5,55,112,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="147,57,113,62,112,57,146,52"/>
+</map>

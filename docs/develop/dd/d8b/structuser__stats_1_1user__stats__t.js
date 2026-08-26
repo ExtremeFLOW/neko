@@ -35,6 +35,6 @@ var structuser__stats_1_1user__stats__t =
     [ "output", "dd/d8b/structuser__stats_1_1user__stats__t.html#ac81ce8f6c52290e7022ac17ee6c170b1", null ],
     [ "output_controller", "dd/d8b/structuser__stats_1_1user__stats__t.html#acc0e9937091f7dbbb6bc1e1c8b0b2c9f", null ],
     [ "preprocess_controller", "dd/d8b/structuser__stats_1_1user__stats__t.html#ae51a7cdb03cda7e4460ee4bc645aef01", null ],
-    [ "start_time", "dd/d8b/structuser__stats_1_1user__stats__t.html#a17ad7908611bb460d45e53f0a48e5c66", null ],
-    [ "time", "dd/d8b/structuser__stats_1_1user__stats__t.html#aa4a498038c554e18c0c3dd5ca48f87ed", null ]
+    [ "start_time", "dd/d8b/structuser__stats_1_1user__stats__t.html#a9d979d3472f6e69eda8ffbd7035311b7", null ],
+    [ "time", "dd/d8b/structuser__stats_1_1user__stats__t.html#a03c8af415462cf5130e09b72525398d4", null ]
 ];

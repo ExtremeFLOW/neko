@@ -1,0 +1,8 @@
+<map id="hip_have_mfma" name="hip_have_mfma">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,66,132,91"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="187,29,339,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,67,174,60,174,65,133,72"/>
+<area shape="rect" id="Node000003" href="$d7/d35/mfma__kernel_8h.html#ae2b08e8fbb72ab4f77a1a66fe8091f51" title=" " alt="" coords="180,94,347,119"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="133,85,167,90,166,95,132,90"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="227,30,224,20,230,11,243,5,263,3,286,6,299,13,296,17,285,11,263,8,245,10,234,15,230,21,232,28"/>
+</map>

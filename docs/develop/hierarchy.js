@@ -32,6 +32,9 @@ var hierarchy =
     [ "time_based_controller::assignment(=)", "da/d69/interfacetime__based__controller_1_1assignment_07_0a_08.html", null ],
     [ "ax_product::ax_compute", "dd/def/interfaceax__product_1_1ax__compute.html", null ],
     [ "ax_product::ax_compute_vector", "d1/d2e/interfaceax__product_1_1ax__compute__vector.html", null ],
+    [ "ax_helm_dmma_dispatch< T, LX, NW >", "d7/dc9/structax__helm__dmma__dispatch.html", null ],
+    [ "ax_helm_dmma_vector_dispatch< T, LX, NW >", "dc/d57/structax__helm__dmma__vector__dispatch.html", null ],
+    [ "ax_helm_mfma_dispatch< T, LX, NWF >", "d9/d4b/structax__helm__mfma__dispatch.html", null ],
     [ "ax_product::ax_t", "d3/d2c/structax__product_1_1ax__t.html", [
       [ "ax_helm::ax_helm_t", "d1/d58/structax__helm_1_1ax__helm__t.html", [
         [ "ax_helm_cpu::ax_helm_cpu_t", "d7/d70/structax__helm__cpu_1_1ax__helm__cpu__t.html", null ],

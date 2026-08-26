@@ -127,42 +127,48 @@ Environmental variable reference</h1>
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Default value    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>NEKO_AUTOTUNE</code>   </td><td class="markdownTableBodyNone">Force SEM operator kernel formulation (<code>'1D'</code>,<code>'KSTEP'</code>)   </td><td class="markdownTableBodyNone">Unset    </td></tr>
+<td class="markdownTableBodyNone"><code>NEKO_AUTOTUNE</code>   </td><td class="markdownTableBodyNone">Force SEM operator kernel formulation (<code>'1D'</code>,<code>'KSTEP'</code>,<code>'DMMA'</code>,<code>'MFMA'</code>)   </td><td class="markdownTableBodyNone">Unset    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>NEKO_EB_TUNE</code>   </td><td class="markdownTableBodyNone">Sweep elements per block for the kstep kernels (boolean)   </td><td class="markdownTableBodyNone">CUDA: 1, HIP: 0    </td></tr>
+<td class="markdownTableBodyNone"><code>NEKO_EB_TUNE</code>   </td><td class="markdownTableBodyNone">Sweep elements per block for the kstep kernels (boolean)   </td><td class="markdownTableBodyNone">1    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>NEKO_EB</code>   </td><td class="markdownTableBodyNone">Elements per block candidate when <code>NEKO_AUTOTUNE=KSTEP</code> (0, 1 or 2)   </td><td class="markdownTableBodyNone">0    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_CHUNKS</code>   </td><td class="markdownTableBodyNone">Chunk size candidate when <code>NEKO_AUTOTUNE=1D</code> (0 to 3)   </td><td class="markdownTableBodyNone">0    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>NEKO_DMMA_NW</code>   </td><td class="markdownTableBodyNone">Warps per block candidate when <code>NEKO_AUTOTUNE=DMMA</code> (0, 1 or 2)   </td><td class="markdownTableBodyNone">0    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>NEKO_MFMA_NWF</code>   </td><td class="markdownTableBodyNone">Wavefronts per block candidate when <code>NEKO_AUTOTUNE=MFMA</code> (0 to 3)   </td><td class="markdownTableBodyNone">0    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>NEKO_MFMA_TUNE</code>   </td><td class="markdownTableBodyNone">Sweep the matrix core variant of the HIP Helmholtz operator (boolean)   </td><td class="markdownTableBodyNone">1    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_TUNE_ROUNDS</code>   </td><td class="markdownTableBodyNone">Interleaved sampling rounds used by the operator auto-tuner   </td><td class="markdownTableBodyNone">3    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>NEKO_TUNE_ITERS</code>   </td><td class="markdownTableBodyNone">Kernel launches timed per candidate per round   </td><td class="markdownTableBodyNone">100    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_LOG_FILE</code>   </td><td class="markdownTableBodyNone">Log file name, uses <code>stdout</code> if not set.   </td><td class="markdownTableBodyNone">Unset    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>NEKO_LOG_TAB_SIZE</code>   </td><td class="markdownTableBodyNone">Number of spaces added for each level of indentation in the log file.   </td><td class="markdownTableBodyNone">1    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_LOG_LEVEL</code>   </td><td class="markdownTableBodyNone">Log verbosity level (integer &gt; 0, default: 1)   </td><td class="markdownTableBodyNone">Unset    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>NEKO_GS_STRTGY</code>   </td><td class="markdownTableBodyNone">Gather-scatter device MPI sync. strategy (0 &lt; integer &lt; 5 )   </td><td class="markdownTableBodyNone">Unset    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_GS_COMM</code>   </td><td class="markdownTableBodyNone">Gather-scatter communication backend   </td><td class="markdownTableBodyNone">Unset    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>NEKO_GS_TUNE</code>   </td><td class="markdownTableBodyNone">Comm. backends the gather-scatter autotuning benchmarks (list)   </td><td class="markdownTableBodyNone">Unset (all but <code>CAF</code>)    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_GS_CAF_SIGNALING</code>   </td><td class="markdownTableBodyNone">Coarray Fortran gather-scatter signaling mode   </td><td class="markdownTableBodyNone">Unset    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>NEKO_GS_RMA_FLUSH_ALL</code>   </td><td class="markdownTableBodyNone">Batch the MPI RMA gather-scatter payload flush (boolean)   </td><td class="markdownTableBodyNone">1    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_COMM_ID</code>   </td><td class="markdownTableBodyNone">Communicator id for this process (non-negative integer)   </td><td class="markdownTableBodyNone">0    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>NEKO_HIP_ZEROCOPY</code>   </td><td class="markdownTableBodyNone">Zero-copy host/device mapping on unified memory (HIP), 1 enables   </td><td class="markdownTableBodyNone">0    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>NEKO_METAL_ZEROCOPY</code>   </td><td class="markdownTableBodyNone">Zero-copy host/device mapping on unified memory (Metal), 0 disables   </td><td class="markdownTableBodyNone">1    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>NEKO_MPI_THREAD_LEVEL</code>   </td><td class="markdownTableBodyNone">Requested MPI (and SHMEM) thread support level   </td><td class="markdownTableBodyNone">Unset    </td></tr>
+<td class="markdownTableBodyNone"><code>NEKO_METAL_ZEROCOPY</code>   </td><td class="markdownTableBodyNone">Zero-copy host/device mapping on unified memory (Metal), 0 disables   </td><td class="markdownTableBodyNone">1    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>NEKO_MPI_THREAD_LEVEL</code>   </td><td class="markdownTableBodyNone">Requested MPI (and SHMEM) thread support level   </td><td class="markdownTableBodyNone">Unset    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_DEPRECATION_ERROR</code>   </td><td class="markdownTableBodyNone">Whether to treat deprecated features as errors (boolean)   </td><td class="markdownTableBodyNone">Unset   </td></tr>
 </table>
 <h2><a class="anchor" id="autotoc_md0"></a>
@@ -172,11 +178,17 @@ SEM operator auto-tuning details</h2>
 <ul>
 <li><code>NEKO_AUTOTUNE=1D</code> : always use the 1d variant, with the chunk size given by <code>NEKO_CHUNKS</code>.</li>
 <li><code>NEKO_AUTOTUNE=KSTEP</code> : always use the kstep variant, with the elements per block given by <code>NEKO_EB</code>.</li>
+<li><code>NEKO_AUTOTUNE=DMMA</code> : always use the fp64 tensor core variant of the CUDA Helmholtz operator, scalar and vector, with the warps per block given by <code>NEKO_DMMA_NW</code>. Double precision only, <code>2 &lt;= lx &lt;= 8</code> for the scalar operator and <code>4 &lt;= lx &lt;= 8</code> for the vector one, on an sm_80 or sm_90 device. The other operators have no such variant and keep tuning as usual.</li>
+<li><code>NEKO_AUTOTUNE=MFMA</code> : the HIP counterpart of <code>DMMA</code> &mdash; always use the matrix core variant of the HIP Helmholtz operator, with the wavefronts per block given by <code>NEKO_MFMA_NWF</code>. Either precision, <code>4 &lt;= lx &lt;= 12</code>, on a gfx90a or gfx942 device, and for the scalar operator only.</li>
 </ul>
-<p>Any other value is reported as an error and the search runs as usual.</p>
-<p><code>NEKO_EB_TUNE</code> controls whether the elements per block dimension is swept at all. It defaults to enabled on CUDA, where blocking measures a clear gain, and disabled on HIP, where the blocked kernels exceed the register budget and spill to scratch. Setting it to <code>0</code> or <code>1</code> overrides the per-backend default.</p>
+<p>The vector Helmholtz operator has no 1d formulation, so <code>1D</code> and <code>KSTEP</code> both pin it to its kstep variant, and it has no matrix core variant on HIP.</p>
+<p>Any other value is reported as an error and the search runs as usual. <code>DMMA</code> on a build or a device without fp64 tensor cores, or <code>MFMA</code> on one without matrix cores, or either at a polynomial order the variant does not cover, is reported the same way.</p>
+<p><code>NEKO_EB_TUNE</code> controls whether the elements per block dimension is swept at all, and defaults to enabled on both backends. It was once off on HIP, where the blocked kernels can exceed the register budget and spill to scratch, but fixing that verdict at build time also stopped the tuner from ever re-testing it. Where the blocked variants do spill the tuner rejects them, so the cost of sweeping is tuning time rather than run time. Set it to <code>0</code> to skip the sweep.</p>
+<p><code>NEKO_MFMA_TUNE</code> is the equivalent switch for the matrix core variant of the HIP Helmholtz operator. It defaults to enabled wherever the hardware and the polynomial order allow the variant at all; setting it to <code>0</code> keeps the strategy out of the sweep while leaving <code>NEKO_AUTOTUNE=MFMA</code> able to pin it explicitly.</p>
 <p><code>NEKO_CHUNKS</code> selects among the instantiated chunk sizes when the 1d variant is pinned with <code>NEKO_AUTOTUNE=1D</code>. Candidates <code>0</code> to <code>3</code> are 1024, 512, 256 and 128 threads; candidate <code>0</code> is the historical value, so <code>NEKO_AUTOTUNE=1D</code> on its own is the A/B baseline for the chunk sweep. A candidate smaller than one derivative matrix (<code>lx*lx</code>) is invalid and falls back to 1024.</p>
 <p><code>NEKO_EB</code> selects among the instantiated blocking candidates when a formulation is pinned with <code>NEKO_AUTOTUNE=KSTEP</code>; candidate <code>0</code> is one element per block, i.e. the unblocked geometry, which makes <code>NEKO_AUTOTUNE=KSTEP</code> on its own the A/B baseline for the blocking. Values outside the valid range fall back to <code>0</code>.</p>
+<p><code>NEKO_DMMA_NW</code> selects among the instantiated warps per block candidates when the tensor core variant is pinned with <code>NEKO_AUTOTUNE=DMMA</code>; candidates <code>0</code>, <code>1</code> and <code>2</code> are 2, 4 and 8 warps. Values outside the valid range fall back to <code>0</code>. <code>NEKO_MFMA_NWF</code> is the HIP equivalent, with candidates <code>0</code> to <code>3</code> selecting 1, 2, 4 and 8 wavefronts per block.</p>
+<p>On HIP that count also fixes the elements per block, and the two cannot be set independently: <code>min(nwf, ceil(lx*lx/16))</code> wavefronts cooperate on one element &mdash; that being all the wavefront-parallel work a contraction offers &mdash; and the block covers <code>nwf</code> divided by that many elements. At <code>lx = 8</code> the top candidate is eight wavefronts on one element, at <code>lx = 4</code> it is eight elements with one wavefront each.</p>
 <p><code>NEKO_TUNE_ROUNDS</code> and <code>NEKO_TUNE_ITERS</code> control the sampling, and apply to <em>both</em> sweeps &mdash; they are not specific to the elements per block dimension. Each round times every candidate once, chunk sizes included, and the best round per candidate is kept, so raising the round count guards against transients and clock drift during the sweep, whereas raising the iteration count only reduces per-sample noise.</p>
 <h2><a class="anchor" id="autotoc_md1"></a>
 Logging level details</h2>
@@ -259,7 +271,7 @@ uTofu injection details</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Tue Aug 25 2026 03:47:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Aug 26 2026 03:48:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

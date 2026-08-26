@@ -1,6 +1,9 @@
 <map id="hip_tnsr3d" name="hip_tnsr3d">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,96,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="144,29,296,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,47,131,47,131,52,96,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="188,30,186,20,191,11,203,5,220,3,240,6,251,13,248,17,238,11,220,8,204,10,195,15,191,21,193,28"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="331,29,483,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,47,317,47,317,52,96,52"/>
+<area shape="rect" id="Node000003" href="$d1/dea/tensor_8hip.html#a87ea8b7348d73ffc9448ad977bb0574d" title=" " alt="" coords="144,62,283,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="97,54,131,59,130,64,96,59"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="370,30,368,20,374,11,387,5,407,3,429,6,442,13,439,17,428,11,407,8,388,10,377,15,373,21,376,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="283,63,317,58,317,64,283,68"/>
 </map>

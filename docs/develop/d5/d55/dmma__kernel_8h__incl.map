@@ -1,0 +1,13 @@
+<map id="/home/runner/work/neko/neko/src/math/bcknd/device/cuda/dmma_kernel.h" name="/home/runner/work/neko/neko/src/math/bcknd/device/cuda/dmma_kernel.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="149,5,357,60"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,108,76,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,63,83,105,81,100,187,58"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="101,108,167,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="218,62,163,102,160,98,215,58"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="191,108,314,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="255,60,255,94,250,94,250,60"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="339,108,407,133"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="291,58,347,98,344,102,288,62"/>
+<area shape="rect" id="Node000006" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="431,108,602,133"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="334,58,469,101,468,106,332,63"/>
+</map>

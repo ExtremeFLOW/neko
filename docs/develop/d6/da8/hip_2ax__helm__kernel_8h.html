@@ -99,20 +99,34 @@ $(document).ready(function(){initNavTree('d6/da8/hip_2ax__helm__kernel_8h.html',
 
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">ax_helm_kernel.h File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="../../d1/d1c/hip_2elem__block_8h_source.html">elem_block.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="../../d7/d35/mfma__kernel_8h_source.html">mfma_kernel.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for ax_helm_kernel.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../da/da2/hip_2ax__helm__kernel_8h__incl.png" border="0" usemap="#a_2home_2runner_2work_2neko_2neko_2src_2math_2bcknd_2device_2hip_2ax__helm__kernel_8h" alt=""/></div>
 <map name="a_2home_2runner_2work_2neko_2neko_2src_2math_2bcknd_2device_2hip_2ax__helm__kernel_8h" id="a_2home_2runner_2work_2neko_2neko_2src_2math_2bcknd_2device_2hip_2ax__helm__kernel_8h">
-<area shape="rect" title=" " alt="" coords="5,5,213,60"/>
-<area shape="rect" href="../../d1/d1c/hip_2elem__block_8h.html" title=" " alt="" coords="55,108,164,133"/>
-<area shape="poly" title=" " alt="" coords="112,60,112,94,107,94,107,60"/>
+<area shape="rect" title=" " alt="" coords="31,5,239,60"/>
+<area shape="rect" href="../../d1/d1c/hip_2elem__block_8h.html" title=" " alt="" coords="11,108,120,133"/>
+<area shape="poly" title=" " alt="" coords="116,62,86,99,81,95,111,58"/>
+<area shape="rect" href="../../d7/d35/mfma__kernel_8h.html" title=" " alt="" coords="169,108,289,133"/>
+<area shape="poly" title=" " alt="" coords="165,58,208,97,205,101,162,62"/>
+<area shape="rect" href="../../dc/d61/wave_8h.html" title=" " alt="" coords="5,181,75,207"/>
+<area shape="poly" title=" " alt="" coords="64,135,51,169,46,168,59,133"/>
+<area shape="rect" title=" " alt="" coords="99,181,170,207"/>
+<area shape="poly" title=" " alt="" coords="216,135,163,175,160,171,213,131"/>
+<area shape="rect" title=" " alt="" coords="194,181,265,207"/>
+<area shape="poly" title=" " alt="" coords="232,134,232,168,227,168,227,134"/>
+<area shape="rect" title=" " alt="" coords="289,181,425,207"/>
+<area shape="poly" title=" " alt="" coords="251,131,325,172,323,177,249,136"/>
+<area shape="rect" href="../../d8/dc8/device__config_8h.html" title=" " alt="" coords="449,181,620,207"/>
+<area shape="poly" title=" " alt="" coords="279,131,473,176,471,181,278,136"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -128,6 +142,11 @@ This graph shows which files directly or indirectly include this file:</div>
 </div>
 <p><a href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d4b/structax__helm__mfma__dispatch.html">ax_helm_mfma_dispatch&lt; T, LX, NWF &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a4a85bb452502bb7f5e989959bcd68179" id="r_a4a85bb452502bb7f5e989959bcd68179"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> , <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> LX, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> CHUNKS&gt; </td></tr>
@@ -144,6 +163,9 @@ Functions</h2></td></tr>
 <tr class="separator:ae687dbe50139c5805369b59554bddc67"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab48fe2a7cc248ca68c0283062951eee5" id="r_ab48fe2a7cc248ca68c0283062951eee5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#ab48fe2a7cc248ca68c0283062951eee5">if</a> (<a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html#a003d2af368daeb41cd4f5f4f7373843e">active</a>)</td></tr>
 <tr class="separator:ab48fe2a7cc248ca68c0283062951eee5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fc641269ac03287c90e08d2e3379d63" id="r_a7fc641269ac03287c90e08d2e3379d63"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> , <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> LX, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> NWF&gt; </td></tr>
+<tr class="memitem:a7fc641269ac03287c90e08d2e3379d63"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a7fc641269ac03287c90e08d2e3379d63">__launch_bounds__</a> (64 *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NWF</a>) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ax_helm_kernel_mfma</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a></td></tr>
+<tr class="separator:a7fc641269ac03287c90e08d2e3379d63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af15d604a7aa3d7fb54a15eadfa6a2e8c" id="r_af15d604a7aa3d7fb54a15eadfa6a2e8c"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> &gt; </td></tr>
 <tr class="memitem:af15d604a7aa3d7fb54a15eadfa6a2e8c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#af15d604a7aa3d7fb54a15eadfa6a2e8c">ax_helm_kernel_vector_part2</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">au</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a8a6d6766590077039475e3b382141e55">av</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a1b9a8f75eaeaa8f313a88742c927c135">aw</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> h2, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> B, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n)</td></tr>
 <tr class="separator:af15d604a7aa3d7fb54a15eadfa6a2e8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -247,7 +269,7 @@ Variables</h2></td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="ac0e7d27082787422f7204c37fd345c2c" name="ac0e7d27082787422f7204c37fd345c2c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac0e7d27082787422f7204c37fd345c2c">&#9670;&#160;</a></span>__launch_bounds__()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0e7d27082787422f7204c37fd345c2c">&#9670;&#160;</a></span>__launch_bounds__() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -274,6 +296,36 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
       </table>
 </div><div class="memdoc">
 <p>Device kernel for axhelm with padding in shared memory to remove bank conflicts when LX is a power of 2 </p>
+
+</div>
+</div>
+<a id="a7fc641269ac03287c90e08d2e3379d63" name="a7fc641269ac03287c90e08d2e3379d63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7fc641269ac03287c90e08d2e3379d63">&#9670;&#160;</a></span>__launch_bounds__() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> , <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> LX, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> NWF&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> __launch_bounds__ </td>
+          <td>(</td>
+          <td class="paramtype">64 *&#160;</td>
+          <td class="paramname"><em>NWF</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d6/da8/hip_2ax__helm__kernel_8h_a7fc641269ac03287c90e08d2e3379d63_cgraph.png" border="0" usemap="#ad6/da8/hip_2ax__helm__kernel_8h_a7fc641269ac03287c90e08d2e3379d63_cgraph" alt=""/></div>
+<map name="ad6/da8/hip_2ax__helm__kernel_8h_a7fc641269ac03287c90e08d2e3379d63_cgraph" id="ad6/da8/hip_2ax__helm__kernel_8h_a7fc641269ac03287c90e08d2e3379d63_cgraph">
+<area shape="rect" title=" " alt="" coords="5,5,152,31"/>
+<area shape="rect" href="../../d9/d4b/structax__helm__mfma__dispatch.html#a82f3ba877f294155aa56a7fd284668d0" title=" " alt="" coords="200,5,415,31"/>
+<area shape="poly" title=" " alt="" coords="152,15,186,15,186,21,152,21"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -401,7 +453,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernels for Ax helm </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00045">45</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00046">46</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -488,7 +540,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00838">838</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l01067">1067</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -518,7 +570,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00212">212</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00213">213</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -549,7 +601,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00268">268</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00269">269</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -580,7 +632,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00205">205</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00206">206</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -597,7 +649,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00197">197</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00198">198</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -613,7 +665,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00412">412</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00641">641</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -629,7 +681,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00413">413</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00642">642</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -645,7 +697,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00155">155</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00156">156</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -661,7 +713,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00156">156</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00157">157</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -677,7 +729,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00157">157</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00158">158</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -693,7 +745,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00198">198</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00199">199</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -709,7 +761,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00196">196</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00197">197</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -725,7 +777,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00195">195</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00196">196</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -741,7 +793,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00203">203</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00204">204</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -757,7 +809,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00159">159</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00160">160</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -773,7 +825,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00162">162</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00163">163</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -789,7 +841,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00163">163</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00164">164</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -805,7 +857,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00160">160</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00161">161</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -821,7 +873,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00164">164</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00165">165</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -837,7 +889,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00161">161</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00162">162</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -853,7 +905,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00158">158</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00159">159</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -869,7 +921,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00200">200</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00201">201</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -885,7 +937,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00201">201</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00202">202</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -901,7 +953,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00329">329</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00330">330</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -917,7 +969,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00199">199</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00200">200</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -939,7 +991,7 @@ Here is the call graph for this function:</div>
 <div class="ttc" id="acuda_2ale__kinematics__kernel_8h_html_ad4350b4cac096924ce42615d376f4759"><div class="ttname"><a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ale_add_kinematics_kernel</a></div><div class="ttdeci">__global__ void ale_add_kinematics_kernel(const int n, T *__restrict__ wx, T *__restrict__ wy, T *__restrict__ wz, const T *__restrict__ x_ref, const T *__restrict__ y_ref, const T *__restrict__ z_ref, const T *__restrict__ phi, const T *__restrict__ x, const T *__restrict__ y, const T *__restrict__ z, const kinematics_params_t kin_params)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h_source.html#l00052">ale_kinematics_kernel.h:52</a></div></div>
 <div class="ttc" id="acuda_2ax__helm__full__kernel_8h_html_a67820afc9dbc74c90a140cd4903d7cef"><div class="ttname"><a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a67820afc9dbc74c90a140cd4903d7cef">shdx</a></div><div class="ttdeci">shdx[ij]</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h_source.html#l00099">ax_helm_full_kernel.h:99</a></div></div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00165">165</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00166">166</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -955,7 +1007,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00186">186</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00187">187</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -971,7 +1023,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00188">188</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00189">189</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -987,7 +1039,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00466">466</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00695">695</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1003,7 +1055,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00463">463</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00692">692</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1019,7 +1071,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00471">471</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00700">700</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1035,7 +1087,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00467">467</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00696">696</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1051,7 +1103,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00187">187</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00188">188</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1067,7 +1119,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00472">472</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00701">701</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1083,7 +1135,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00468">468</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00697">697</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1099,7 +1151,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00202">202</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00203">203</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1115,7 +1167,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00331">331</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00332">332</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1131,7 +1183,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00169">169</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00170">170</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1147,7 +1199,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00170">170</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00171">171</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1163,7 +1215,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00173">173</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00174">174</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1179,7 +1231,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00174">174</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00175">175</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1195,7 +1247,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00175">175</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00176">176</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1211,7 +1263,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00439">439</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00668">668</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1227,7 +1279,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00440">440</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00669">669</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1243,7 +1295,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00441">441</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00670">670</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1259,7 +1311,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00443">443</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00672">672</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1275,7 +1327,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00444">444</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00673">673</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1291,7 +1343,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00445">445</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00674">674</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1307,7 +1359,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00154">154</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00155">155</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1323,7 +1375,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00415">415</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00644">644</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1339,7 +1391,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00416">416</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00645">645</a> of file <a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -1349,7 +1401,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_f48359d827d7566deae6b1b647b520e2.html">hip</a></li><li class="navelem"><a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html">ax_helm_kernel.h</a></li>
-    <li class="footer">Generated on Tue Aug 25 2026 03:47:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Aug 26 2026 03:48:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

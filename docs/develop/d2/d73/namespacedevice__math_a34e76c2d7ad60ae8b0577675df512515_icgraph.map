@@ -1,6 +1,6 @@
 <map id="device_math::device_invcol1" name="device_math::device_invcol1">
 <area shape="rect" id="Node000001" title="Invert a vector ." alt="" coords="445,142,603,182"/>
-<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="235,5,379,31"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#a4fd6fc1c4fc98d7fa254f37aedf70f92" title="Initialize coefficients." alt="" coords="235,5,379,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="496,133,452,88,425,65,396,46,367,33,369,28,399,41,428,61,456,84,500,129"/>
 <area shape="rect" id="Node000003" href="$d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b" title=" " alt="" coords="225,55,388,95"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="465,139,396,110,365,98,367,93,398,105,467,134"/>

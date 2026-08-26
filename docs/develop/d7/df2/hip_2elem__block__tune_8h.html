@@ -142,7 +142,7 @@ This graph shows which files directly or indirectly include this file:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a037aa8de67f6f5ba208b488610efc315" id="r_a037aa8de67f6f5ba208b488610efc315"><td class="memItemLeft" align="right" valign="top">#<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">define</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/df2/hip_2elem__block__tune_8h.html#a037aa8de67f6f5ba208b488610efc315">NEKO_EB_SWEEP_DEFAULT</a>&#160;&#160;&#160;0</td></tr>
+<tr class="memitem:a037aa8de67f6f5ba208b488610efc315" id="r_a037aa8de67f6f5ba208b488610efc315"><td class="memItemLeft" align="right" valign="top">#<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">define</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/df2/hip_2elem__block__tune_8h.html#a037aa8de67f6f5ba208b488610efc315">NEKO_EB_SWEEP_DEFAULT</a>&#160;&#160;&#160;1</td></tr>
 <tr class="separator:a037aa8de67f6f5ba208b488610efc315"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a646ee7c3605c0d9875e06fb0b8894d67" id="r_a646ee7c3605c0d9875e06fb0b8894d67"><td class="memItemLeft" align="right" valign="top">#<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">define</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/df2/hip_2elem__block__tune_8h.html#a646ee7c3605c0d9875e06fb0b8894d67">NEKO_TUNE_INIT</a>&#160;&#160;&#160;1.0e30f</td></tr>
 <tr class="separator:a646ee7c3605c0d9875e06fb0b8894d67"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -176,15 +176,15 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">define</a> NEKO_EB_SWEEP_DEFAULT&#160;&#160;&#160;0</td>
+          <td class="memname">#<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">define</a> NEKO_EB_SWEEP_DEFAULT&#160;&#160;&#160;1</td>
         </tr>
       </table>
 </div><div class="memdoc">
 <p>Shared autotuner scaffolding for the SEM operator kernels</p>
-<p>Each operator's <a class="el" href="../../db/d49/ax__helm_8cu.html#a4162d37efff96abe16f8aea8bb33d69b">tune()</a> picks between the 1d variant and the kstep variant, and &ndash; when sweeping is enabled &ndash; between the elements per block candidates in elem_block.h. The sampling is interleaved and min reduced: timing the variants one after another in a fixed order lets clock drift bias the comparison by candidate position, which no amount of extra iterations removes.</p>
+<p>Each operator's <a class="el" href="../../db/d49/ax__helm_8cu.html#aae0df5f4a95a35354d029a152828ba5b">tune()</a> picks between the 1d variant and the kstep variant, and &ndash; when sweeping is enabled &ndash; between the elements per block candidates in elem_block.h. The sampling is interleaved and min reduced: timing the variants one after another in a fixed order lets clock drift bias the comparison by candidate position, which no amount of extra iterations removes.</p>
 <p>A tune function using these macros is expected to have <code>start</code>, <code>stop</code> and <code>stream</code> in scope, plus a <a class="el" href="../../db/d49/ax__helm_8cu.html#abcaa73cd3d4525730fbb0e155cddfd5b">CASE_1D(LX)</a> macro and a kstep launch macro taking (LX, C). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00063">63</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00067">67</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
 
 </div>
 </div>
@@ -226,7 +226,7 @@ Functions</h2></td></tr>
 <div class="line">  } <span class="keywordflow">while</span> (0)</div>
 <div class="ttc" id="acuda_2ale__kinematics__kernel_8h_html_ad4350b4cac096924ce42615d376f4759"><div class="ttname"><a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ale_add_kinematics_kernel</a></div><div class="ttdeci">__global__ void ale_add_kinematics_kernel(const int n, T *__restrict__ wx, T *__restrict__ wy, T *__restrict__ wz, const T *__restrict__ x_ref, const T *__restrict__ y_ref, const T *__restrict__ z_ref, const T *__restrict__ phi, const T *__restrict__ x, const T *__restrict__ y, const T *__restrict__ z, const kinematics_params_t kin_params)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h_source.html#l00052">ale_kinematics_kernel.h:52</a></div></div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00131">131</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00135">135</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
 
 </div>
 </div>
@@ -242,7 +242,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00066">66</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00070">70</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
 
 </div>
 </div>
@@ -297,7 +297,7 @@ Functions</h2></td></tr>
 <div class="ttc" id="acuda_2elem__block_8h_html_afb0e5ae829cf069a85450059b52a4826"><div class="ttname"><a href="../../d9/d87/cuda_2elem__block_8h.html#afb0e5ae829cf069a85450059b52a4826">NEKO_CHUNKS_SEL</a></div><div class="ttdeci">#define NEKO_CHUNKS_SEL(LX, SEL)</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d87/cuda_2elem__block_8h_source.html#l00147">elem_block.h:147</a></div></div>
 <div class="ttc" id="acuda_2elem__block__tune_8h_html_a646ee7c3605c0d9875e06fb0b8894d67"><div class="ttname"><a href="../../db/d36/cuda_2elem__block__tune_8h.html#a646ee7c3605c0d9875e06fb0b8894d67">NEKO_TUNE_INIT</a></div><div class="ttdeci">#define NEKO_TUNE_INIT</div><div class="ttdef"><b>Definition</b> <a href="../../db/d36/cuda_2elem__block__tune_8h_source.html#l00065">elem_block_tune.h:65</a></div></div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00139">139</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00143">143</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
 
 </div>
 </div>
@@ -354,7 +354,7 @@ Functions</h2></td></tr>
 <div class="line"><a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">    if</a> (<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">t_</a> &lt; (<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>)[<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C</a>]) { (<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>)[<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C</a>] = <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">t_</a>; }                                         \</div>
 <div class="line">  } <span class="keywordflow">while</span> (0)</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00120">120</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00124">124</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
 
 </div>
 </div>
@@ -370,7 +370,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00067">67</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00071">71</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
 
 </div>
 </div>
@@ -398,7 +398,7 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00092">92</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00096">96</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -436,7 +436,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00080">80</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00084">84</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -474,7 +474,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00069">69</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00073">73</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -512,7 +512,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00111">111</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00115">115</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -550,7 +550,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00103">103</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html#l00107">107</a> of file <a class="el" href="../../d7/df2/hip_2elem__block__tune_8h_source.html">elem_block_tune.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -571,7 +571,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_f48359d827d7566deae6b1b647b520e2.html">hip</a></li><li class="navelem"><a class="el" href="../../d7/df2/hip_2elem__block__tune_8h.html">elem_block_tune.h</a></li>
-    <li class="footer">Generated on Tue Aug 25 2026 03:47:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Aug 26 2026 03:48:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -57,8 +57,11 @@ var structscalar__pnpn_1_1scalar__pnpn__t =
     [ "slag", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a783436e16b2fc713401118a35ee89fa5", null ],
     [ "source_term", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#abd115b21b6eb902c045d17561f254617", null ],
     [ "u", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a44037993bd8743a0f5021ddf8c0b49de", null ],
+    [ "ulag", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#ab3a9eead42fe305538c3fa198eecb4bf", null ],
     [ "user_material_properties", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a8520f100dad699d7a112b4042ab695e4", null ],
     [ "v", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a6eb0f84d7e313f889e52bdc44ceeaba6", null ],
+    [ "vlag", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a88215d66b923475846753a2bfda9db11", null ],
     [ "w", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a0b26b36a90acaf3a7936a1f2865ee291", null ],
+    [ "wlag", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#aa3fedde0ad126513e509132b36b231cb", null ],
     [ "xh", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a98d6e15f64240a0e2bbdce68c4e0b4ec", null ]
 ];

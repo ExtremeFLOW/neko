@@ -6,5 +6,6 @@ var tensor_8cu =
     [ "max", "d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f", null ],
     [ "cuda_tnsr3d", "d9/d0b/tensor_8cu.html#a6df9c12fe7b8cbdb29aebd6480f65c61", null ],
     [ "cuda_tnsr3d_el_list", "d9/d0b/tensor_8cu.html#a781fdf8c8266a46a805cab7170ff37de", null ],
+    [ "cuda_tnsr3d_nthrds", "d9/d0b/tensor_8cu.html#ae73bd351f4f0ac33d3073feb2b618c8f", null ],
     [ "set_tnsr3d_large_shmem_attr", "d9/d0b/tensor_8cu.html#af64e675c4bff4ab2575d13a91398967c", null ]
 ];

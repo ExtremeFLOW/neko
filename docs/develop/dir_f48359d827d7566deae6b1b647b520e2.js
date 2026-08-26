@@ -19,6 +19,7 @@ var dir_f48359d827d7566deae6b1b647b520e2 =
     [ "math_kernel.h", "d8/d17/hip_2math__kernel_8h.html", "d8/d17/hip_2math__kernel_8h" ],
     [ "mathops.hip", "d5/d0f/mathops_8hip.html", "d5/d0f/mathops_8hip" ],
     [ "mathops_kernel.h", "d6/d43/hip_2mathops__kernel_8h.html", "d6/d43/hip_2mathops__kernel_8h" ],
+    [ "mfma_kernel.h", "d7/d35/mfma__kernel_8h.html", "d7/d35/mfma__kernel_8h" ],
     [ "opgrad_kernel.h", "dd/d9e/hip_2opgrad__kernel_8h.html", "dd/d9e/hip_2opgrad__kernel_8h" ],
     [ "opr_cdtp.hip", "d9/d63/opr__cdtp_8hip.html", "d9/d63/opr__cdtp_8hip" ],
     [ "opr_cfl.hip", "d1/d38/opr__cfl_8hip.html", "d1/d38/opr__cfl_8hip" ],
@@ -34,5 +35,6 @@ var dir_f48359d827d7566deae6b1b647b520e2 =
     [ "set_convect_rst.hip", "d2/d4b/set__convect__rst_8hip.html", "d2/d4b/set__convect__rst_8hip" ],
     [ "set_convect_rst_kernel.h", "df/d96/hip_2set__convect__rst__kernel_8h.html", "df/d96/hip_2set__convect__rst__kernel_8h" ],
     [ "tensor.hip", "d1/dea/tensor_8hip.html", "d1/dea/tensor_8hip" ],
-    [ "tensor_kernel.h", "de/d5d/hip_2tensor__kernel_8h.html", "de/d5d/hip_2tensor__kernel_8h" ]
+    [ "tensor_kernel.h", "de/d5d/hip_2tensor__kernel_8h.html", "de/d5d/hip_2tensor__kernel_8h" ],
+    [ "wave.h", "dc/d61/wave_8h.html", "dc/d61/wave_8h" ]
 ];

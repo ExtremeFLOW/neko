@@ -1,6 +1,6 @@
 var structregularization_1_1regularization__t =
 [
-    [ "compute", "d0/d2d/structregularization_1_1regularization__t.html#a2047a68bab39fd8c4612aff29c7b4625", null ],
+    [ "compute", "d0/d2d/structregularization_1_1regularization__t.html#ada4f5e7649c0f437e1c0485ad460b55f", null ],
     [ "free", "d0/d2d/structregularization_1_1regularization__t.html#ade57f2f6817d92e1adfb1043d177fe74", null ],
     [ "free_base", "d0/d2d/structregularization_1_1regularization__t.html#a99e3284492978fdd59379a7c33fb2e54", null ],
     [ "init", "d0/d2d/structregularization_1_1regularization__t.html#a8aa32294d8f51a0d26805c7f2e1e1093", null ],

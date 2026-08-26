@@ -39,6 +39,8 @@ var namespacemath =
     [ "cwrap", "dd/d47/namespacemath.html#a514c2529ddf65bed07454ff3d3a0bbe6", null ],
     [ "dabscmp", "dd/d47/namespacemath.html#a16d5ca46363fc149ebcd66c27ada506a", null ],
     [ "drelcmp", "dd/d47/namespacemath.html#ac2fcdee74563190bd832055d9efe4d51", null ],
+    [ "eig_sym2", "dd/d47/namespacemath.html#a4dee0ddc9e1916e3215f327be312d1a4", null ],
+    [ "eig_sym3", "dd/d47/namespacemath.html#a1af3b037676205343205709097c649ac", null ],
     [ "face_masked_gather_copy_0", "dd/d47/namespacemath.html#a37fb081da0c4262597f4f1bd64574faf", null ],
     [ "flipvdp", "dd/d47/namespacemath.html#a6aa2ed6eaca7993ffc58b78d5558fe66", null ],
     [ "flipvi4", "dd/d47/namespacemath.html#a5cac807e77679b68a1eaa206a9ec4ea8", null ],
@@ -100,6 +102,8 @@ var namespacemath =
     [ "vlsc3", "dd/d47/namespacemath.html#af4c83f4aa26f2ac67268743d989dd3e5", null ],
     [ "x_update", "dd/d47/namespacemath.html#a705aede90b9b2421ab4111ebdcfc18eb", null ],
     [ "neko_eps", "dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0", null ],
+    [ "neko_eps_dp", "dd/d47/namespacemath.html#ad4c3c58f583449e8ec652986d105baae", null ],
+    [ "neko_eps_sp", "dd/d47/namespacemath.html#aa9deedc7fd0844df7916fa29e11fe184", null ],
     [ "neko_m_ln2", "dd/d47/namespacemath.html#aa0d29e9848fb4462d771c530376239a9", null ],
     [ "pi", "dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb", null ]
 ];

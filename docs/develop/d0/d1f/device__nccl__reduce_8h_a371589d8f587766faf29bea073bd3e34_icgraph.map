@@ -1,6 +1,6 @@
 <map id="device_nccl_allreduce" name="device_nccl_allreduce">
 <area shape="rect" id="Node000001" title=" " alt="" coords="721,425,887,451"/>
-<area shape="rect" id="Node000002" href="$da/d37/opr__cfl_8cu.html#adeaa12656ff2c67c96231368ffc58bc7" title=" " alt="" coords="539,37,613,63"/>
+<area shape="rect" id="Node000002" href="$da/d37/opr__cfl_8cu.html#aef1f506b4432f0f92b1dad3c0d0a5a1c" title=" " alt="" coords="539,37,613,63"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="796,412,783,352,760,272,723,185,699,144,671,106,643,82,611,65,613,60,646,78,675,103,704,141,728,183,765,270,789,351,801,411"/>
 <area shape="rect" id="Node000004" href="$d2/dba/fusedcg__aux_8cu.html#a0d3d53e8ce39bb62fab78e6878ddbefa" title=" " alt="" coords="500,117,652,143"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="796,412,784,358,761,288,744,252,724,217,700,184,672,156,651,144,654,139,675,152,704,181,729,214,749,250,765,287,789,357,801,411"/>
@@ -14,7 +14,7 @@
 <area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="760,423,673,390,633,379,634,374,674,385,762,418"/>
 <area shape="rect" id="Node000016" href="$d6/d29/gmres__aux_8cu.html#a3952e21e8b02d7069a6d91b3708cffca" title=" " alt="" coords="505,400,647,425"/>
 <area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="707,430,647,423,648,418,708,425"/>
-<area shape="rect" id="Node000019" href="$d1/d38/opr__cfl_8hip.html#a71a2e6ecec4dd085491f08ce82c5bbd4" title=" " alt="" coords="544,449,608,475"/>
+<area shape="rect" id="Node000019" href="$d1/d38/opr__cfl_8hip.html#a847957f11f2cd5d9ca4d11c794a6f66c" title=" " alt="" coords="544,449,608,475"/>
 <area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="708,451,608,461,608,456,707,445"/>
 <area shape="rect" id="Node000020" href="$db/df7/fusedcg__aux_8hip.html#a115cf98ddf6ab441ca3e3806db6d1945" title=" " alt="" coords="505,499,647,524"/>
 <area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="759,458,674,489,630,501,629,496,673,483,758,453"/>
@@ -28,7 +28,7 @@
 <area shape="poly" id="edge31_Node000001_Node000032" title=" " alt="" coords="799,465,784,512,760,572,724,633,701,661,675,685,653,698,650,694,672,681,697,657,719,630,755,570,779,511,794,463"/>
 <area shape="rect" id="Node000034" href="$da/d1d/gmres__aux_8hip.html#ad1130bc0fe9218ff1432134acd57f48d" title=" " alt="" coords="511,745,641,771"/>
 <area shape="poly" id="edge33_Node000001_Node000034" title=" " alt="" coords="801,465,790,521,767,594,750,632,730,670,705,704,675,735,643,752,640,747,672,731,701,701,725,667,745,630,762,592,784,520,796,464"/>
-<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#a58c9564dd9794b516ff67a652ccbcf14" title=" " alt="" coords="236,5,431,31"/>
+<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#a566378180652b788704f0de7377d9626" title=" " alt="" coords="236,5,431,31"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="524,46,430,33,430,28,525,41"/>
 <area shape="rect" id="Node000007" href="$de/d1e/math_8cu.html#a7d62b91319e4f6b8acbb04d7a4fb6c78" title=" " alt="" coords="286,55,381,80"/>
 <area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="487,213,477,205,465,191,458,176,453,147,447,119,441,106,429,93,406,80,380,73,382,68,408,75,432,89,445,103,453,118,458,146,463,174,469,188,481,201,490,209"/>

@@ -1,8 +1,8 @@
 var structentropy__viscosity_1_1entropy__viscosity__t =
 [
     [ "apply_element_max", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html#a9b24bf4fed2e529e77e857e816588fd0", null ],
-    [ "compute", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html#a2047a68bab39fd8c4612aff29c7b4625", null ],
-    [ "compute", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html#a5475d459d155d8b3163444836c773bc6", null ],
+    [ "compute", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html#ada4f5e7649c0f437e1c0485ad460b55f", null ],
+    [ "compute", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html#a887dc34f7e046e65062140e9fa9b583e", null ],
     [ "compute_residual", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html#a23ebde0307e2e74d5115c42142d0c0fc", null ],
     [ "compute_viscosity", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html#a7754a32a2daf2d18c53aa4e9aa8250c7", null ],
     [ "free", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html#ade57f2f6817d92e1adfb1043d177fe74", null ],

@@ -1,0 +1,11 @@
+<map id="/home/runner/work/neko/neko/src/math/bcknd/device/hip/mfma_kernel.h" name="/home/runner/work/neko/neko/src/math/bcknd/device/hip/mfma_kernel.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="95,5,303,60"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,108,76,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,62,75,104,73,99,150,58"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="100,108,171,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="182,62,154,99,150,95,178,58"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="195,108,331,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="221,58,249,95,244,99,217,62"/>
+<area shape="rect" id="Node000005" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="355,108,526,133"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="274,58,396,101,394,106,272,63"/>
+</map>

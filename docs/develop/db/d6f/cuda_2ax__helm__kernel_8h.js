@@ -1,6 +1,8 @@
 var cuda_2ax__helm__kernel_8h =
 [
-    [ "NEKO_AX_HELM_VECTOR_EB_C", "db/d6f/cuda_2ax__helm__kernel_8h.html#ad91f7d09bcb82c513a9e308798cb4ecb", null ],
+    [ "ax_helm_dmma_dispatch< T, LX, NW >", "d7/dc9/structax__helm__dmma__dispatch.html", "d7/dc9/structax__helm__dmma__dispatch" ],
+    [ "ax_helm_dmma_vector_dispatch< T, LX, NW >", "dc/d57/structax__helm__dmma__vector__dispatch.html", "dc/d57/structax__helm__dmma__vector__dispatch" ],
+    [ "__launch_bounds__", "db/d6f/cuda_2ax__helm__kernel_8h.html#a23c3d084e6a95f6f3f04daf54a9e303e", null ],
     [ "__launch_bounds__", "db/d6f/cuda_2ax__helm__kernel_8h.html#a81c969ff38ec03020e67fac1f69b25df", null ],
     [ "__syncthreads", "db/d6f/cuda_2ax__helm__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],
     [ "ax_helm_kernel_1d", "db/d6f/cuda_2ax__helm__kernel_8h.html#a4a85bb452502bb7f5e989959bcd68179", null ],

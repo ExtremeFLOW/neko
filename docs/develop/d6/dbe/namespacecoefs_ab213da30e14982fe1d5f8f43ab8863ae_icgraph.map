@@ -1,0 +1,5 @@
+<map id="coefs::coef_metric_condition" name="coefs::coef_metric_condition">
+<area shape="rect" id="Node000001" title="Compute the largest condition number of the metric tensor over the mesh." alt="" coords="197,5,340,45"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#a4fd6fc1c4fc98d7fa254f37aedf70f92" title="Initialize coefficients." alt="" coords="5,13,149,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,28,150,28,150,23,183,23"/>
+</map>

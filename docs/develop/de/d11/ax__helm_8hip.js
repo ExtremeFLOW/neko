@@ -9,6 +9,8 @@ var ax__helm_8hip =
     [ "CASE_KSTEP_SEL", "de/d11/ax__helm_8hip.html#a1f05745b9e72d232a8f9ae5b243541cf", null ],
     [ "CASE_LARGE", "de/d11/ax__helm_8hip.html#a6da2275131442637a01cb5dea579a604", null ],
     [ "CASE_LARGE_PADDED", "de/d11/ax__helm_8hip.html#aa24ef32d12b6f3f517255c7359977373", null ],
+    [ "CASE_MFMA", "de/d11/ax__helm_8hip.html#ab1021927c2c26d9d74ac53e3a898b28c", null ],
+    [ "CASE_MFMA_SEL", "de/d11/ax__helm_8hip.html#a4bcc2f31da1bcd8fbd41e3296d47abea", null ],
     [ "CASE_PADDED", "de/d11/ax__helm_8hip.html#a552b47049e2cb53a99b404632f295024", null ],
     [ "CASE_VECTOR", "de/d11/ax__helm_8hip.html#a0e633116639902b6dbb336d5ffd095e0", null ],
     [ "CASE_VECTOR_KSTEP", "de/d11/ax__helm_8hip.html#a44876b92236ddea1e39a34f45278e905", null ],
@@ -19,8 +21,8 @@ var ax__helm_8hip =
     [ "hip_ax_helm", "de/d11/ax__helm_8hip.html#a946ea4d3c1efc7593a51a12627001329", null ],
     [ "hip_ax_helm_vector", "de/d11/ax__helm_8hip.html#a84f44270dc4fa7113cde5e675ba64c57", null ],
     [ "hip_ax_helm_vector_part2", "de/d11/ax__helm_8hip.html#a3def8cf9f8aaf27c88165a392dad3d33", null ],
-    [ "tune", "de/d11/ax__helm_8hip.html#a4162d37efff96abe16f8aea8bb33d69b", null ],
-    [ "tune_padded", "de/d11/ax__helm_8hip.html#aa6aeb0d040368c90939dd0dcea814b2a", null ],
+    [ "tune", "de/d11/ax__helm_8hip.html#afb4c4d97ea42bd24a727371cd9f84eac", null ],
+    [ "tune_padded", "de/d11/ax__helm_8hip.html#a08725d38ae5955a49d9a8b463ba14fd5", null ],
     [ "tune_vector", "de/d11/ax__helm_8hip.html#a7dbea834a809ed0d84fdf4135d650eb8", null ],
     [ "tune_vector_padded", "de/d11/ax__helm_8hip.html#a8effd70feda36150d6bf87c1ed4d7f86", null ]
 ];

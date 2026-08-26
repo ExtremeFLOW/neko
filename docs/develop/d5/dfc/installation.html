@@ -279,7 +279,7 @@ Compute backends and support tiers</h3>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">CUDA   </td><td class="markdownTableBodyNone">NVIDIA GPUs   </td><td class="markdownTableBodyNone">Tier 0   </td><td class="markdownTableBodyNone"></td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">HIP   </td><td class="markdownTableBodyNone">AMD GPUs   </td><td class="markdownTableBodyNone">Tier 0   </td><td class="markdownTableBodyNone"></td></tr>
+<td class="markdownTableBodyNone">HIP   </td><td class="markdownTableBodyNone">AMD GPUs   </td><td class="markdownTableBodyNone">Tier 0   </td><td class="markdownTableBodyNone">Tier 0 covers CDNA; RDNA (wave32) untested    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">OpenCL   </td><td class="markdownTableBodyNone">Cross-vendor GPUs and accelerators   </td><td class="markdownTableBodyNone">Tier 1   </td><td class="markdownTableBodyNone"></td></tr>
 <tr class="markdownTableRowOdd">
@@ -342,6 +342,8 @@ Compiling Neko for AMD GPUs</h3>
 <li>HIP compiler flags and options can be passed using HIP_HIPCC_FLAGS and HIPCC, respectively, e.g.: <div class="fragment"><div class="line">$ ./configure  --with-hip=/opt/rocm/hip HIP_HIPCC_FLAGS=-O3  HIPCC=/opt/rocm/hip/bin/hipcc</div>
 </div><!-- fragment --></li>
 </ul>
+<dl class="section note"><dt>Note</dt><dd>Neko's warp level reductions need the wavefront width at compile time, and detect it from the macros the ROCm toolchain predefines for the target. A target the detection does not recognise fails the build with <code>Unknown AMD wavefront width</code> rather than guessing; pin it explicitly in that case, e.g. <code>HIP_HIPCC_FLAGS=-DNEKO_WAVE_SIZE=64</code> for CDNA and GCN, or <code>-DNEKO_WAVE_SIZE=32</code> for RDNA.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>The HIP backend is developed and tested on CDNA (AMD Instinct MI250X, MI300A). RDNA (wave32) wavefront widths are handled correctly, but no part of the backend is regularly tested on RDNA hardware. Note also that RDNA executes double precision at a small fraction of its single precision rate, so a default <code>dp</code> build will be very slow there irrespective of correctness.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On APUs with unified physical memory (e.g. AMD Instinct MI300A) and XNACK enabled (<code>HSA_XNACK=1</code>), Neko can map arrays zero-copy: host and device share a single allocation instead of keeping replicated copies, and host-device transfers become no-ops. This roughly halves the memory footprint of mapped data, but is currently slower per step than replicated buffers on MI300A, so it is <b>off by default</b> and is intended as an opt-in capacity mode for running larger cases. Enable it at runtime by setting the environment variable <code>NEKO_HIP_ZEROCOPY=1</code>; it then activates only on a supported APU with XNACK (discrete GPUs such as MI250X always use replicated buffers, and requesting it there prints a warning and falls back). Since host and device share one allocation under zero-copy, host code (e.g. user routines) must not write to a mapped array while device work touching it may be in flight; synchronize with <code>device_sync</code> first.</dd></dl>
 <h3><a class="anchor" id="autotoc_md158"></a>
 Compiling Neko for Apple Silicon GPUs</h3>
@@ -416,7 +418,7 @@ Using a Docker container</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Tue Aug 25 2026 03:47:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Aug 26 2026 03:48:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

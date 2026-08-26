@@ -1,0 +1,5 @@
+<map id="coefs::coef_release_scratch" name="coefs::coef_release_scratch">
+<area shape="rect" id="Node000001" title="Release the coefficients that COEF_OPERATOR does not retain." alt="" coords="197,5,345,45"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#a4fd6fc1c4fc98d7fa254f37aedf70f92" title="Initialize coefficients." alt="" coords="5,13,149,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,28,149,28,149,23,184,23"/>
+</map>

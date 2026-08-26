@@ -268,6 +268,7 @@ var menudata={children:[
 {text:"x",url:"globals_vars_x.html#index_x"},
 {text:"z",url:"globals_vars_z.html#index_z"}]},
 {text:"Typedefs",url:"globals_type.html"},
+{text:"Enumerator",url:"globals_eval.html"},
 {text:"Macros",url:"globals_defs.html",children:[
 {text:"a",url:"globals_defs.html#index_a"},
 {text:"c",url:"globals_defs_c.html#index_c"},

@@ -1,6 +1,8 @@
 var num__types_8f90 =
 [
+    [ "c_dp", "dc/d99/num__types_8f90.html#a22ae68bbb46351f897bb20b4afc4775e", null ],
     [ "c_rp", "dc/d99/num__types_8f90.html#ad604d43a6e18e80802dcc80ed820d8b1", null ],
+    [ "c_sp", "dc/d99/num__types_8f90.html#a4e7b6e9d6775f9dcd32b5d2acccdf7c5", null ],
     [ "c_xp", "dc/d99/num__types_8f90.html#a9133e732b6a246311fcce06f91266217", null ],
     [ "dp", "dc/d99/num__types_8f90.html#aab47a6c4827cb5c6bbd741a44c87e956", null ],
     [ "i2", "dc/d99/num__types_8f90.html#a17105a114a50f0975c1d817327199cb1", null ],

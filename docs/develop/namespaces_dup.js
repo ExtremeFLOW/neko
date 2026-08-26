@@ -593,7 +593,9 @@ var namespaces_dup =
     [ "no_slip", "d1/da7/namespaceno__slip.html", "d1/da7/namespaceno__slip" ],
     [ "non_normal", "d8/d74/namespacenon__normal.html", "d8/d74/namespacenon__normal" ],
     [ "num_types", "df/d48/namespacenum__types.html", [
+      [ "c_dp", "df/d48/namespacenum__types.html#a22ae68bbb46351f897bb20b4afc4775e", null ],
       [ "c_rp", "df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1", null ],
+      [ "c_sp", "df/d48/namespacenum__types.html#a4e7b6e9d6775f9dcd32b5d2acccdf7c5", null ],
       [ "c_xp", "df/d48/namespacenum__types.html#a9133e732b6a246311fcce06f91266217", null ],
       [ "dp", "df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956", null ],
       [ "i2", "df/d48/namespacenum__types.html#a17105a114a50f0975c1d817327199cb1", null ],
@@ -657,7 +659,7 @@ var namespaces_dup =
     ] ],
     [ "operators", "dd/d30/namespaceoperators.html", "dd/d30/namespaceoperators" ],
     [ "opr_cpu", "d0/d94/namespaceopr__cpu.html", [
-      [ "opr_cpu_cfl", "d0/d94/namespaceopr__cpu.html#a4a465514ef3ae0473678d23d8792f799", null ],
+      [ "opr_cpu_cfl", "d0/d94/namespaceopr__cpu.html#afc3d7680ffc028de6d61ff035b8e1e63", null ],
       [ "opr_cpu_curl", "d0/d94/namespaceopr__cpu.html#a102777fce325ee827cf3ddbbe20e1eea", null ],
       [ "opr_cpu_lambda2", "d0/d94/namespaceopr__cpu.html#a9ddb521f33adfff1eee02fb4fc9255f8", null ],
       [ "opr_cpu_rotate_cyc_r1", "d0/d94/namespaceopr__cpu.html#a281916ba5bf1e7c29c581832bdc01ac9", null ],

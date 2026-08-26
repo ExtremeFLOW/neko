@@ -11,7 +11,7 @@ var namespaceopr__device =
     [ "hip_set_convect_rst", "d5/d24/interfaceopr__device_1_1hip__set__convect__rst.html", "d5/d24/interfaceopr__device_1_1hip__set__convect__rst" ],
     [ "device_ortho", "d3/d4d/namespaceopr__device.html#a98b6c537e40cda3676ab93c5523d7bc7", null ],
     [ "opr_device_cdtp", "d3/d4d/namespaceopr__device.html#a1dd0915931c64c27ccfc8e805411216c", null ],
-    [ "opr_device_cfl", "d3/d4d/namespaceopr__device.html#a58c9564dd9794b516ff67a652ccbcf14", null ],
+    [ "opr_device_cfl", "d3/d4d/namespaceopr__device.html#a566378180652b788704f0de7377d9626", null ],
     [ "opr_device_conv1", "d3/d4d/namespaceopr__device.html#a767c11824ee9ed9e99b019e683f08150", null ],
     [ "opr_device_convect_scalar", "d3/d4d/namespaceopr__device.html#a046cc3f2f0d5f27cc7b098b2085a717e", null ],
     [ "opr_device_curl", "d3/d4d/namespaceopr__device.html#a99baf3e0c295d2b3603f603e7d11f458", null ],

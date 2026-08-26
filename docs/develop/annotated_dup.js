@@ -1932,6 +1932,9 @@ var annotated_dup =
     [ "zero_dirichlet", "da/ddc/namespacezero__dirichlet.html", [
       [ "zero_dirichlet_t", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t" ]
     ] ],
+    [ "ax_helm_dmma_dispatch", "d7/dc9/structax__helm__dmma__dispatch.html", "d7/dc9/structax__helm__dmma__dispatch" ],
+    [ "ax_helm_dmma_vector_dispatch", "dc/d57/structax__helm__dmma__vector__dispatch.html", "dc/d57/structax__helm__dmma__vector__dispatch" ],
+    [ "ax_helm_mfma_dispatch", "d9/d4b/structax__helm__mfma__dispatch.html", "d9/d4b/structax__helm__mfma__dispatch" ],
     [ "chunk_block", "d4/d68/structchunk__block.html", "d4/d68/structchunk__block" ],
     [ "cuda_buffer", "db/d62/structcuda__buffer.html", "db/d62/structcuda__buffer" ],
     [ "elem_block", "de/d3c/structelem__block.html", "de/d3c/structelem__block" ],
