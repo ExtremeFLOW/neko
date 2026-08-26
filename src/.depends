@@ -189,7 +189,7 @@ global_interpolation/cartesian_el_finder.lo : global_interpolation/cartesian_el_
 global_interpolation/cartesian_pe_finder.lo : global_interpolation/cartesian_pe_finder.f90 comm/comm.lo mesh/point.lo adt/htable.lo common/utils.lo adt/stack.lo global_interpolation/pe_finder.lo sem/space.lo config/neko_config.lo config/num_types.lo 
 global_interpolation/el_finder.lo : global_interpolation/el_finder.f90 mesh/point.lo adt/stack.lo config/num_types.lo 
 global_interpolation/pe_finder.lo : global_interpolation/pe_finder.f90 mesh/point.lo adt/stack.lo config/num_types.lo 
-global_interpolation/legendre_rst_finder.lo : global_interpolation/legendre_rst_finder.f90 math/bcknd/device/device_math.lo sem/bcknd/device/device_local_interpolation.lo math/tensor.lo math/bcknd/cpu/tensor_cpu.lo math/math.lo math/matrix.lo math/vector.lo common/utils.lo sem/space.lo device/device.lo config/neko_config.lo config/num_types.lo 
+global_interpolation/legendre_rst_finder.lo : global_interpolation/legendre_rst_finder.f90 math/bcknd/device/device_math.lo sem/bcknd/device/device_local_interpolation.lo math/bcknd/device/tensor_device.lo math/bcknd/cpu/tensor_cpu.lo math/math.lo math/matrix.lo math/vector.lo common/utils.lo sem/space.lo device/device.lo config/neko_config.lo config/num_types.lo 
 io/mean_field_output.lo : io/mean_field_output.f90 io/fld_file.lo math/matrix.lo io/output.lo field/mean_field.lo device/device.lo sem/coef.lo sem/map_1d.lo sem/map_2d.lo io/fld_file_data.lo config/neko_config.lo field/field_list.lo config/num_types.lo 
 common/profiler.lo : common/profiler.F90 common/runtime_statistics.lo common/craypat.lo device/hip/roctx.lo device/cuda/nvtx.lo device/device.lo config/neko_config.lo 
 common/craypat.lo : common/craypat.F90 
