@@ -1071,6 +1071,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/ax_helm_full_kernel.h\
 	math/bcknd/device/hip/mfma_kernel.h\
 	math/bcknd/device/hip/elem_block.h\
+	math/bcknd/device/hip/wave.h\
 	math/bcknd/device/hip/elem_block_tune.h\
 	common/bcknd/device/hip/sumab_kernel.h\
 	common/bcknd/device/hip/makeext_kernel.h\
