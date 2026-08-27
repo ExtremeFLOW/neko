@@ -354,7 +354,8 @@ static int neko_dmma_tma_env()
       if ((T5)[c] >= NEKO_TUNE_INIT) { continue; }                            \
       char lbl_[16];                                                          \
       sprintf(lbl_, "TMAB  %dw", NEKO_DMMA_NW(c));                            \
-      sprintf(neko_log_buf, "%-13s: %9.2f us/call", lbl_, (T5)[c] * 10.0);    \
+      sprintf(neko_log_buf, "%-13s: %9.2f us/call", lbl_,                     \
+              NEKO_TUNE_US((T5)[c], iters));                                  \
       log_message(neko_log_buf);                                              \
     }                                                                         \
   } while (0)
@@ -366,7 +367,8 @@ static int neko_dmma_tma_env()
       if ((T4)[c] >= NEKO_TUNE_INIT) { continue; }                            \
       char lbl_[16];                                                          \
       sprintf(lbl_, "TMA   %dw", NEKO_DMMA_NW(c));                            \
-      sprintf(neko_log_buf, "%-13s: %9.2f us/call", lbl_, (T4)[c] * 10.0);    \
+      sprintf(neko_log_buf, "%-13s: %9.2f us/call", lbl_,                     \
+              NEKO_TUNE_US((T4)[c], iters));                                  \
       log_message(neko_log_buf);                                              \
     }                                                                         \
   } while (0)

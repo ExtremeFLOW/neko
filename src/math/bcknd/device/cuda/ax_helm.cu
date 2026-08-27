@@ -1137,7 +1137,7 @@ int tune_vector(void *au, void *av, void *aw, void *u, void *v, void *w,
   for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
     if (time2[c] >= NEKO_TUNE_INIT) { continue; }
     sprintf(neko_log_buf, "KSTEP eb=%-4d: %9.2f us/call",
-            NEKO_EB_SEL(LX, c), time2[c] * 10.0);
+            NEKO_EB_SEL(LX, c), NEKO_TUNE_US(time2[c], iters));
     log_message(neko_log_buf);
   }
   NEKO_TUNE_LOG_DMMA(LX, time3);
@@ -1362,7 +1362,7 @@ int tune_vector_padded(void *au, void *av, void *aw, void *u, void *v, void *w,
   for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
     if (time2[c] >= NEKO_TUNE_INIT) { continue; }
     sprintf(neko_log_buf, "KSTEP eb=%-4d: %9.2f us/call",
-            NEKO_EB_SEL(LX, c), time2[c] * 10.0);
+            NEKO_EB_SEL(LX, c), NEKO_TUNE_US(time2[c], iters));
     log_message(neko_log_buf);
   }
   NEKO_TUNE_LOG_DMMA(LX, time3);
