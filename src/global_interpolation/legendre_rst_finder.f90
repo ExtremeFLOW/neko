@@ -122,7 +122,7 @@ contains
        call tnsr3d_cpu(this%z_hat%x, Xh%lx, z, &
             Xh%lx, Xh%vinv, &
             Xh%vinvt, Xh%vinvt, nelv)
-     end if
+    end if
 
   end subroutine legendre_rst_finder_init
 
