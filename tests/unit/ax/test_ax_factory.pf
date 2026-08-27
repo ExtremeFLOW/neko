@@ -10,7 +10,7 @@ module test_ax_factory
 
   type, extends(ax_t) :: test_ax_t
    contains
-     procedure, nopass :: compute => test_ax_compute
+     procedure, pass(this) :: compute => test_ax_compute
      procedure, pass(this) :: compute_vector => test_ax_compute_vector
   end type test_ax_t
 
@@ -112,7 +112,8 @@ contains
     allocate(test_ax_t::obj)
   end subroutine test_ax_allocate
 
-  subroutine test_ax_compute(w, u, coef, msh, Xh)
+  subroutine test_ax_compute(this, w, u, coef, msh, Xh)
+    class(test_ax_t), intent(in) :: this
     type(space_t), intent(in) :: Xh
     type(mesh_t), intent(in) :: msh
     type(coef_t), intent(in) :: coef
