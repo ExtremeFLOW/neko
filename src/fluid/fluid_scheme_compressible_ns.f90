@@ -53,7 +53,7 @@ module fluid_scheme_compressible_ns
   use profiler, only : profiler_start_region, profiler_end_region
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator
   use coefs, only : coef_t
   use compressible_residual, only : compressible_rhs_t, compressible_rhs_factory
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -221,8 +221,8 @@ contains
     end if
 
     ! Initialize the diffusion operators
-    call ax_helm_factory(this%Ax, full_formulation = .false.)
-    call ax_helm_factory(this%Ax_stress, full_formulation = .true.)
+    call ax_helm_allocator(this%Ax, type_name = "standard")
+    call ax_helm_allocator(this%Ax_stress, type_name = "full")
 
     ! Compute h
     call this%compute_h()
