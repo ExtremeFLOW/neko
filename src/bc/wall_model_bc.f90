@@ -226,7 +226,7 @@ contains
     call this%wall_model%finalize(this%facet_node_msk, this%facet)
 
     if (associated(this%user)) then
-       call this%wall_model%finalize(this%facet_node_msk, this%facet, & 
+       call this%wall_model%finalize(this%facet_node_msk, this%facet, &
             this%name, this%user)
     else
        call this%wall_model%finalize(this%facet_node_msk, this%facet, this%name)
