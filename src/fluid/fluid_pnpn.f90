@@ -869,12 +869,27 @@ contains
          ! due to interpolation operator, that for nonconforming interface
          ! normal to pressure bc could pollute domain interior with noise
          ! values from the boundary.
+         if (allocated(gs_Xh%interp)) then
+            ! Set the residual to zero at strong pressure boundaries.
+            call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
 
-         ! Set the residual to zero at strong pressure boundaries.
-         call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
+            call gs_Xh%op(p_res, GS_OP_ADD, event)
+            call device_event_sync(event)
 
-         call gs_Xh%op(p_res, GS_OP_ADD, event)
-         call device_event_sync(event)
+            ! For testing
+!            call gs_Xh%interp%apply_jt(p_res)
+
+!            call gs_Xh%gs_op_vector(p_res%x, p%dof%size(), GS_OP_ADD, event)
+!            call device_event_sync(event)
+
+!            call gs_Xh%interp%apply_j(p_res)
+         else
+            call gs_Xh%op(p_res, GS_OP_ADD, event)
+            call device_event_sync(event)
+
+            ! Set the residual to zero at strong pressure boundaries.
+            call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
+         end if
 
          call profiler_end_region('Pressure_residual', 18)
 
