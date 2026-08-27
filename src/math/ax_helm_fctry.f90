@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,34 +40,32 @@ submodule (ax_product) ax_helm_fctry
   use ax_helm_cpu, only : ax_helm_cpu_t
   use ax_helm_full_cpu, only : ax_helm_full_cpu_t
   use ax_helm_full_device, only : ax_helm_full_device_t
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_type_error, &
+       neko_type_registration_error
   implicit none
+
+  ! List of all possible types created by the allocator routine
+  character(len=20) :: AX_HELM_KNOWN_TYPES(2) = [character(len=20) :: &
+       "standard", &
+       "full"]
 
 contains
 
-  !> Factory routine for the a Helmholtz problem matrix-vector product.
-  !! The selection is based on the compute backend.
+  !> Allocate a Helmholtz problem matrix-vector product.
+  !! The implementation is selected by name and compute backend.
   !! @param object The matrix-vector product type to be allocated.
-  !! @param full_formulation Whether to use the formulation with the full
-  !! viscous stress tensor, not assuming constant material properties.
-  module subroutine ax_helm_factory(object, full_formulation)
+  !! @param type_name The name of the matrix-vector product type.
+  module subroutine ax_helm_allocator(object, type_name)
     class(ax_t), allocatable, intent(inout) :: object
-    logical, intent(in) :: full_formulation
+    character(len=*), intent(in) :: type_name
+    integer :: i
 
     if (allocated(object)) then
        deallocate(object)
     end if
 
-    if (full_formulation) then
-      if (NEKO_BCKND_SX .eq. 1 .or. NEKO_BCKND_XSMM .eq. 1) then
-         call neko_error("Full stress formulation is only available &
-                        &on the CPU and device")
-      else if (NEKO_BCKND_DEVICE .eq. 1) then
-         allocate(ax_helm_full_device_t::object)
-      else
-         allocate(ax_helm_full_cpu_t::object)
-      end if
-    else
+    select case (trim(type_name))
+    case ("standard")
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(ax_helm_sx_t::object)
        else if (NEKO_BCKND_XSMM .eq. 1) then
@@ -77,9 +75,66 @@ contains
        else
           allocate(ax_helm_cpu_t::object)
        end if
+    case ("full")
+       if (NEKO_BCKND_XSMM .eq. 1) then
+          call neko_error("Full stress formulation is only available " // &
+               "on the CPU and device")
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
+          allocate(ax_helm_full_device_t::object)
+       else
+          allocate(ax_helm_full_cpu_t::object)
+       end if
+    case default
+       do i = 1, ax_helm_registry_size
+          if (trim(type_name) .eq. &
+               trim(ax_helm_registry(i)%type_name)) then
+             call ax_helm_registry(i)%allocator(object)
+             return
+          end if
+       end do
+
+       call neko_type_error("matrix-vector product", type_name, &
+            AX_HELM_KNOWN_TYPES)
+    end select
+
+  end subroutine ax_helm_allocator
+
+  !> Register a custom matrix-vector product allocator.
+  !! Called in custom user modules inside the `module_name_register_types`
+  !! routine to add a custom type allocator to the registry.
+  !! @param type_name The name of the type to allocate.
+  !! @param allocator The allocator for the custom user type.
+  module subroutine register_ax_helm(type_name, allocator)
+    character(len=*), intent(in) :: type_name
+    procedure(ax_helm_allocate), pointer, intent(in) :: allocator
+    type(ax_helm_allocator_entry), allocatable :: temp(:)
+    integer :: i
+
+    do i = 1, size(AX_HELM_KNOWN_TYPES)
+       if (trim(type_name) .eq. trim(AX_HELM_KNOWN_TYPES(i))) then
+          call neko_type_registration_error("matrix-vector product", &
+               type_name, .true.)
+       end if
+    end do
+
+    do i = 1, ax_helm_registry_size
+       if (trim(type_name) .eq. trim(ax_helm_registry(i)%type_name)) then
+          call neko_type_registration_error("matrix-vector product", &
+               type_name, .false.)
+       end if
+    end do
+
+    if (ax_helm_registry_size .eq. 0) then
+       allocate(ax_helm_registry(1))
+    else
+       allocate(temp(ax_helm_registry_size + 1))
+       temp(1:ax_helm_registry_size) = ax_helm_registry
+       call move_alloc(temp, ax_helm_registry)
     end if
 
-  end subroutine ax_helm_factory
-
+    ax_helm_registry_size = ax_helm_registry_size + 1
+    ax_helm_registry(ax_helm_registry_size)%type_name = type_name
+    ax_helm_registry(ax_helm_registry_size)%allocator => allocator
+  end subroutine register_ax_helm
 
 end submodule ax_helm_fctry
