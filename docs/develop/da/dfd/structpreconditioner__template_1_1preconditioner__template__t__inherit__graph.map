@@ -1,0 +1,5 @@
+<map id="preconditioner_template::preconditioner_template_t" name="preconditioner_template::preconditioner_template_t">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,79,208,119"/>
+<area shape="rect" id="Node000002" href="$d7/d3a/structprecon_1_1pc__t.html" title="Defines a canonical Krylov preconditioner." alt="" coords="56,5,157,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,44,109,79,104,79,104,44"/>
+</map>

@@ -156,7 +156,7 @@ $(document).ready(function(){initNavTree('d4/da1/phmg_8f90_source.html','../../'
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d49/namespacejacobi.html">jacobi</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../da/d72/structjacobi_1_1jacobi__t.html">jacobi_t</a></div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/da7/namespacedevice__jacobi.html">device_jacobi</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d8/dca/structdevice__jacobi_1_1device__jacobi__t.html">device_jacobi_t</a></div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/d37/namespaceschwarz.html">schwarz</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d0/d9f/structschwarz_1_1schwarz__t.html">schwarz_t</a></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/dd1/namespaceax__product.html">ax_product</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a>, ax_helm_factory</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/dd1/namespaceax__product.html">ax_product</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a>, ax_helm_allocator</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d5/d1b/namespacetree__amg__multigrid.html">tree_amg_multigrid</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html">tamg_solver_t</a></div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/da0/namespaceinterpolation.html">interpolation</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../db/d74/structinterpolation_1_1interpolator__t.html">interpolator_t</a></div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  <span class="keywordtype">use </span>json_module, <span class="keywordtype">only</span> : json_file</div>
@@ -437,7 +437,7 @@ $(document).ready(function(){initNavTree('d4/da1/phmg_8f90_source.html','../../'
 <div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d1/d38/namespacephmg.html#ab48ada80640b1d78132c82130722f4de">print_phmg_info</a>(this%nlvls, st, this%phmg_hrchy)</div>
 <div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span> </div>
 <div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>    <span class="comment">! Create backend specific Ax operator</span></div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="keyword">call </span>ax_helm_factory(this%ax, full_formulation = .false.)</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="keyword">call </span>ax_helm_allocator(this%ax, type_name = <span class="stringliteral">&quot;standard&quot;</span>)</div>
 <div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span> </div>
 <div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    <span class="comment">! Interpolator Fine + mg levels</span></div>
 <div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    <span class="keyword">allocate</span>(this%intrp(this%nlvls - 1))</div>
@@ -1105,7 +1105,7 @@ $(document).ready(function(){initNavTree('d4/da1/phmg_8f90_source.html','../../'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e7871f939970ad66f8f2efbe2c80ad83.html">multigrid</a></li><li class="navelem"><a class="el" href="../../d4/da1/phmg_8f90.html">phmg.f90</a></li>
-    <li class="footer">Generated on Wed Aug 26 2026 03:48:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Aug 27 2026 05:20:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

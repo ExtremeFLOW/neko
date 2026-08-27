@@ -1,0 +1,5 @@
+<map id="krylov_solver_template::krylov_solver_template_t" name="krylov_solver_template::krylov_solver_template_t">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,79,201,119"/>
+<area shape="rect" id="Node000002" href="$d0/d3b/structkrylov_1_1ksp__t.html" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="51,5,156,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,44,106,79,101,79,101,44"/>
+</map>

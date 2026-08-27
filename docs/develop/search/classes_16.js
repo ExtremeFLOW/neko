@@ -11,11 +11,12 @@ var searchData=
   ['wall_5fmodel_5finit_8',['wall_model_init',['../d5/db1/interfacewall__model_1_1wall__model__init.html',1,'wall_model']]],
   ['wall_5fmodel_5fpartial_5finit_9',['wall_model_partial_init',['../d8/df2/interfacewall__model_1_1wall__model__partial__init.html',1,'wall_model']]],
   ['wall_5fmodel_5ft_10',['wall_model_t',['../d4/d70/structwall__model_1_1wall__model__t.html',1,'wall_model']]],
-  ['wall_5fsampler_5ffinalize_11',['wall_sampler_finalize',['../d0/d38/interfacewall__sampler_1_1wall__sampler__finalize.html',1,'wall_sampler']]],
-  ['wall_5fsampler_5ffree_12',['wall_sampler_free',['../dc/db6/interfacewall__sampler_1_1wall__sampler__free.html',1,'wall_sampler']]],
-  ['wall_5fsampler_5finit_13',['wall_sampler_init',['../dd/d7a/interfacewall__sampler_1_1wall__sampler__init.html',1,'wall_sampler']]],
-  ['wall_5fsampler_5fsample_14',['wall_sampler_sample',['../d0/dd8/interfacewall__sampler_1_1wall__sampler__sample.html',1,'wall_sampler']]],
-  ['wall_5fsampler_5ft_15',['wall_sampler_t',['../d9/d72/structwall__sampler_1_1wall__sampler__t.html',1,'wall_sampler']]],
-  ['wall_5fshear_5fstress_5ft_16',['wall_shear_stress_t',['../d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t.html',1,'wall_shear_stress_simcomp']]],
-  ['weak_5fgradient_5ft_17',['weak_gradient_t',['../df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html',1,'weak_gradient_simcomp']]]
+  ['wall_5fmodel_5ftemplate_5ft_11',['wall_model_template_t',['../de/d77/structwall__model__template_1_1wall__model__template__t.html',1,'wall_model_template']]],
+  ['wall_5fsampler_5ffinalize_12',['wall_sampler_finalize',['../d0/d38/interfacewall__sampler_1_1wall__sampler__finalize.html',1,'wall_sampler']]],
+  ['wall_5fsampler_5ffree_13',['wall_sampler_free',['../dc/db6/interfacewall__sampler_1_1wall__sampler__free.html',1,'wall_sampler']]],
+  ['wall_5fsampler_5finit_14',['wall_sampler_init',['../dd/d7a/interfacewall__sampler_1_1wall__sampler__init.html',1,'wall_sampler']]],
+  ['wall_5fsampler_5fsample_15',['wall_sampler_sample',['../d0/dd8/interfacewall__sampler_1_1wall__sampler__sample.html',1,'wall_sampler']]],
+  ['wall_5fsampler_5ft_16',['wall_sampler_t',['../d9/d72/structwall__sampler_1_1wall__sampler__t.html',1,'wall_sampler']]],
+  ['wall_5fshear_5fstress_5ft_17',['wall_shear_stress_t',['../d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t.html',1,'wall_shear_stress_simcomp']]],
+  ['weak_5fgradient_5ft_18',['weak_gradient_t',['../df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html',1,'weak_gradient_simcomp']]]
 ];

@@ -3,7 +3,7 @@
 <area shape="poly" id="edge11_Node000001_Node000001" title=" " alt="" coords="658,363,647,355,620,351,598,353,586,358,583,364,590,371,585,374,578,364,582,354,596,348,620,346,649,350,661,359"/>
 <area shape="rect" id="Node000002" href="$dc/d09/namespacetree__amg__smoother.html#a50905e9240529935d6f5dfdc9905a73b" title="Power method to approximate largest eigenvalue." alt="" coords="329,5,490,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="616,359,613,298,600,217,588,174,571,133,549,94,521,59,506,48,489,40,491,35,509,43,525,55,553,90,576,130,593,173,605,216,618,297,622,359"/>
-<area shape="rect" id="Node000003" href="$dd/d2f/namespacebicgstab.html#af95e1c5813a5792173b519b09fea8270" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="339,69,479,109"/>
+<area shape="rect" id="Node000003" href="$dd/d2f/namespacebicgstab.html#af95e1c5813a5792173b519b09fea8270" title="Solve a linear system with the CPU BiCGStab method." alt="" coords="339,69,479,109"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="614,359,607,309,591,245,564,180,544,150,521,123,501,110,479,101,481,96,504,105,524,119,549,146,568,177,596,244,612,308,619,358"/>
 <area shape="rect" id="Node000004" href="$d2/d10/namespacecacg.html#a2b9a6da5ee5dab7e10d72d97392d731c" title="S&#45;step CA PCG solve." alt="" coords="343,134,475,159"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="612,359,603,317,586,267,559,215,541,193,521,173,499,160,475,153,476,148,502,155,524,169,545,189,563,213,590,265,608,316,617,358"/>

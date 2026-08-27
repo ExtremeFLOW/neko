@@ -14,7 +14,7 @@ var searchData=
   ['advection_5ffctry_2ef90_11',['advection_fctry.f90',['../da/d60/advection__fctry_8f90.html',1,'']]],
   ['ale_5fkinematics_2ecu_12',['ale_kinematics.cu',['../d9/d17/ale__kinematics_8cu.html',1,'']]],
   ['ale_5fkinematics_2ehip_13',['ale_kinematics.hip',['../d3/d1d/ale__kinematics_8hip.html',1,'']]],
-  ['ale_5fkinematics_5fkernel_2eh_14',['ale_kinematics_kernel.h',['../d3/d06/cuda_2ale__kinematics__kernel_8h.html',1,'(Global Namespace)'],['../da/d88/hip_2ale__kinematics__kernel_8h.html',1,'(Global Namespace)']]],
+  ['ale_5fkinematics_5fkernel_2eh_14',['ale_kinematics_kernel.h',['../da/d88/hip_2ale__kinematics__kernel_8h.html',1,'(Global Namespace)'],['../d3/d06/cuda_2ale__kinematics__kernel_8h.html',1,'(Global Namespace)']]],
   ['ale_5fmanager_2ef90_15',['ale_manager.f90',['../d6/dc8/ale__manager_8f90.html',1,'']]],
   ['ale_5frigid_5fkinematics_2ef90_16',['ale_rigid_kinematics.f90',['../da/d01/ale__rigid__kinematics_8f90.html',1,'']]],
   ['ale_5froutines_5fcpu_2ef90_17',['ale_routines_cpu.f90',['../dc/d4b/ale__routines__cpu_8f90.html',1,'']]],
@@ -39,9 +39,10 @@ var searchData=
   ['ax_5fhelm_5ffull_2ehip_36',['ax_helm_full.hip',['../d0/de7/ax__helm__full_8hip.html',1,'']]],
   ['ax_5fhelm_5ffull_5fcpu_2ef90_37',['ax_helm_full_cpu.f90',['../db/d43/ax__helm__full__cpu_8f90.html',1,'']]],
   ['ax_5fhelm_5ffull_5fdevice_2ef90_38',['ax_helm_full_device.F90',['../dd/d4d/ax__helm__full__device_8F90.html',1,'']]],
-  ['ax_5fhelm_5ffull_5fkernel_2eh_39',['ax_helm_full_kernel.h',['../d0/d7e/cuda_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)'],['../df/d1b/hip_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)']]],
+  ['ax_5fhelm_5ffull_5fkernel_2eh_39',['ax_helm_full_kernel.h',['../df/d1b/hip_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)'],['../d0/d7e/cuda_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)']]],
   ['ax_5fhelm_5fkernel_2eh_40',['ax_helm_kernel.h',['../db/d6f/cuda_2ax__helm__kernel_8h.html',1,'(Global Namespace)'],['../d6/da8/hip_2ax__helm__kernel_8h.html',1,'(Global Namespace)']]],
   ['ax_5fhelm_5fsx_2ef90_41',['ax_helm_sx.f90',['../dd/d7b/ax__helm__sx_8f90.html',1,'']]],
-  ['ax_5fhelm_5fvector_5fcpu_2ef90_42',['ax_helm_vector_cpu.f90',['../d5/dc8/ax__helm__vector__cpu_8f90.html',1,'']]],
-  ['ax_5fhelm_5fxsmm_2ef90_43',['ax_helm_xsmm.F90',['../dd/de0/ax__helm__xsmm_8F90.html',1,'']]]
+  ['ax_5fhelm_5ftemplate_2ef90_42',['ax_helm_template.f90',['../d3/db9/ax__helm__template_8f90.html',1,'']]],
+  ['ax_5fhelm_5fvector_5fcpu_2ef90_43',['ax_helm_vector_cpu.f90',['../d5/dc8/ax__helm__vector__cpu_8f90.html',1,'']]],
+  ['ax_5fhelm_5fxsmm_2ef90_44',['ax_helm_xsmm.F90',['../dd/de0/ax__helm__xsmm_8F90.html',1,'']]]
 ];

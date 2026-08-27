@@ -32,6 +32,8 @@ var hierarchy =
     [ "time_based_controller::assignment(=)", "da/d69/interfacetime__based__controller_1_1assignment_07_0a_08.html", null ],
     [ "ax_product::ax_compute", "dd/def/interfaceax__product_1_1ax__compute.html", null ],
     [ "ax_product::ax_compute_vector", "d1/d2e/interfaceax__product_1_1ax__compute__vector.html", null ],
+    [ "ax_product::ax_helm_allocate", "d8/df9/interfaceax__product_1_1ax__helm__allocate.html", null ],
+    [ "ax_product::ax_helm_allocator_entry", "d3/de0/structax__product_1_1ax__helm__allocator__entry.html", null ],
     [ "ax_helm_dmma_dispatch< T, LX, NW >", "d7/dc9/structax__helm__dmma__dispatch.html", null ],
     [ "ax_helm_dmma_vector_dispatch< T, LX, NW >", "dc/d57/structax__helm__dmma__vector__dispatch.html", null ],
     [ "ax_helm_mfma_dispatch< T, LX, NWF >", "d9/d4b/structax__helm__mfma__dispatch.html", null ],
@@ -40,6 +42,7 @@ var hierarchy =
         [ "ax_helm_cpu::ax_helm_cpu_t", "d7/d70/structax__helm__cpu_1_1ax__helm__cpu__t.html", null ],
         [ "ax_helm_device::ax_helm_device_t", "d7/d68/structax__helm__device_1_1ax__helm__device__t.html", null ],
         [ "ax_helm_sx::ax_helm_sx_t", "de/d9f/structax__helm__sx_1_1ax__helm__sx__t.html", null ],
+        [ "ax_helm_template::ax_helm_template_t", "db/d0b/structax__helm__template_1_1ax__helm__template__t.html", null ],
         [ "ax_helm_xsmm::ax_helm_xsmm_t", "d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html", null ]
       ] ],
       [ "ax_helm_full::ax_helm_full_t", "d8/d81/structax__helm__full_1_1ax__helm__full__t.html", [
@@ -648,6 +651,7 @@ var hierarchy =
       [ "gmres::gmres_t", "df/db9/structgmres_1_1gmres__t.html", null ],
       [ "gmres_device::gmres_device_t", "d8/d1e/structgmres__device_1_1gmres__device__t.html", null ],
       [ "gmres_sx::sx_gmres_t", "d3/d41/structgmres__sx_1_1sx__gmres__t.html", null ],
+      [ "krylov_solver_template::krylov_solver_template_t", "da/d9c/structkrylov__solver__template_1_1krylov__solver__template__t.html", null ],
       [ "pipecg::pipecg_t", "d4/db4/structpipecg_1_1pipecg__t.html", null ],
       [ "pipecg_device::pipecg_device_t", "dc/d01/structpipecg__device_1_1pipecg__device__t.html", null ],
       [ "pipecg_sx::sx_pipecg_t", "d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html", null ]
@@ -661,6 +665,7 @@ var hierarchy =
     [ "les_model::les_model_t", "df/d6c/structles__model_1_1les__model__t.html", [
       [ "deardorff::deardorff_t", "dd/dcd/structdeardorff_1_1deardorff__t.html", null ],
       [ "dynamic_smagorinsky::dynamic_smagorinsky_t", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html", null ],
+      [ "les_model_template::les_model_template_t", "d7/d2e/structles__model__template_1_1les__model__template__t.html", null ],
       [ "sigma::sigma_t", "d2/dae/structsigma_1_1sigma__t.html", null ],
       [ "smagorinsky::smagorinsky_t", "d7/d8f/structsmagorinsky_1_1smagorinsky__t.html", null ],
       [ "vreman::vreman_t", "de/d91/structvreman_1_1vreman__t.html", null ],
@@ -865,6 +870,7 @@ var hierarchy =
       [ "identity::ident_t", "d7/d69/structidentity_1_1ident__t.html", null ],
       [ "jacobi::jacobi_t", "da/d72/structjacobi_1_1jacobi__t.html", null ],
       [ "phmg::phmg_t", "d8/d4e/structphmg_1_1phmg__t.html", null ],
+      [ "preconditioner_template::preconditioner_template_t", "d9/d31/structpreconditioner__template_1_1preconditioner__template__t.html", null ],
       [ "sx_jacobi::sx_jacobi_t", "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html", null ]
     ] ],
     [ "precon::pc_update", "d0/d0b/interfaceprecon_1_1pc__update.html", null ],
@@ -913,6 +919,7 @@ var hierarchy =
       [ "box_point_zone::box_point_zone_t", "d4/d0c/structbox__point__zone_1_1box__point__zone__t.html", null ],
       [ "combine_point_zone::combine_point_zone_t", "d9/d38/structcombine__point__zone_1_1combine__point__zone__t.html", null ],
       [ "cylinder_point_zone::cylinder_point_zone_t", "d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html", null ],
+      [ "point_zone_template::point_zone_template_t", "da/da2/structpoint__zone__template_1_1point__zone__template__t.html", null ],
       [ "sphere_point_zone::sphere_point_zone_t", "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html", null ]
     ] ],
     [ "point_zone::point_zone_wrapper_t", "dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html", null ],
@@ -997,7 +1004,8 @@ var hierarchy =
     [ "scalar_scheme::scalar_scheme_restart_intrf", "d1/da1/interfacescalar__scheme_1_1scalar__scheme__restart__intrf.html", null ],
     [ "scalar_scheme::scalar_scheme_step_intrf", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf.html", null ],
     [ "scalar_scheme::scalar_scheme_t", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html", [
-      [ "scalar_pnpn::scalar_pnpn_t", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html", null ]
+      [ "scalar_pnpn::scalar_pnpn_t", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html", null ],
+      [ "scalar_scheme_template::scalar_scheme_template_t", "dd/df3/structscalar__scheme__template_1_1scalar__scheme__template__t.html", null ]
     ] ],
     [ "scalar_scheme::scalar_scheme_wrapper_t", "dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html", null ],
     [ "scalars::scalars_t", "d2/df2/structscalars_1_1scalars__t.html", null ],
@@ -1080,6 +1088,7 @@ var hierarchy =
       [ "probes::probes_t", "d7/dd3/structprobes_1_1probes__t.html", null ],
       [ "scalar_sgs_stats_simcomp::scalar_sgs_stats_simcomp_t", "d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html", null ],
       [ "scalar_stats_simcomp::scalar_stats_simcomp_t", "d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html", null ],
+      [ "simulation_component_template::simulation_component_template_t", "de/dae/structsimulation__component__template_1_1simulation__component__template__t.html", null ],
       [ "spatial_average::spatial_average_t", "d2/dd1/structspatial__average_1_1spatial__average__t.html", null ],
       [ "spectral_error::spectral_error_t", "d9/deb/structspectral__error_1_1spectral__error__t.html", null ],
       [ "user_stats::user_stats_t", "dd/d8b/structuser__stats_1_1user__stats__t.html", null ],
@@ -1110,6 +1119,7 @@ var hierarchy =
       [ "field_source_term::field_source_term_t", "d5/d82/structfield__source__term_1_1field__source__term__t.html", null ],
       [ "gradient_jump_penalty::gradient_jump_penalty_t", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html", null ],
       [ "hpfrt_source_term::hpfrt_source_term_t", "dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t.html", null ],
+      [ "source_term_template::source_term_template_t", "d3/d54/structsource__term__template_1_1source__term__template__t.html", null ],
       [ "sponge_source_term::sponge_source_term_t", "d1/d27/structsponge__source__term_1_1sponge__source__term__t.html", null ],
       [ "translation_source_term::translation_source_term_t", "df/dd9/structtranslation__source__term_1_1translation__source__term__t.html", null ],
       [ "user_source_term::user_source_term_t", "db/da2/structuser__source__term_1_1user__source__term__t.html", null ]
@@ -1228,7 +1238,8 @@ var hierarchy =
       [ "most::most_t", "de/d0b/structmost_1_1most__t.html", null ],
       [ "richardson::richardson_t", "dd/df1/structrichardson_1_1richardson__t.html", null ],
       [ "rough_log_law::rough_log_law_t", "df/d21/structrough__log__law_1_1rough__log__law__t.html", null ],
-      [ "spalding::spalding_t", "df/df1/structspalding_1_1spalding__t.html", null ]
+      [ "spalding::spalding_t", "df/df1/structspalding_1_1spalding__t.html", null ],
+      [ "wall_model_template::wall_model_template_t", "de/d77/structwall__model__template_1_1wall__model__template__t.html", null ]
     ] ],
     [ "wall_sampler::wall_sampler_finalize", "d0/d38/interfacewall__sampler_1_1wall__sampler__finalize.html", null ],
     [ "wall_sampler::wall_sampler_free", "dc/db6/interfacewall__sampler_1_1wall__sampler__free.html", null ],

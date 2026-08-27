@@ -578,23 +578,29 @@ $(document).ready(function(){initNavTree('d9/d91/flow__ic_8f90_source.html','../
 <div class="line"><a id="l00493" name="l00493"></a><span class="lineno">  493</span>    ws =&gt; w</div>
 <div class="line"><a id="l00494" name="l00494"></a><span class="lineno">  494</span>    ps =&gt; p</div>
 <div class="line"><a id="l00495" name="l00495"></a><span class="lineno">  495</span> </div>
-<div class="line"><a id="l00496" name="l00496"></a><span class="lineno">  496</span>    <span class="keyword">call </span>import_fields(file_name, global_interp_subdict, mesh_file_name, &amp;</div>
-<div class="line"><a id="l00497" name="l00497"></a><span class="lineno">  497</span>         u = us, v = vs, w = ws, p = ps, &amp;</div>
-<div class="line"><a id="l00498" name="l00498"></a><span class="lineno">  498</span>         interpolate = interpolate)</div>
-<div class="line"><a id="l00499" name="l00499"></a><span class="lineno">  499</span> </div>
-<div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span>    <span class="keyword">nullify</span>(us, vs, ws, ps)</div>
-<div class="line"><a id="l00501" name="l00501"></a><span class="lineno">  501</span> </div>
-<div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span>    <span class="comment">! If we are on GPU we need to move (u,v,w) and p back to the host</span></div>
-<div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>    <span class="comment">! since set_flow_ic_common copies it again to the device.</span></div>
-<div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span>    <span class="keyword">call </span>u%copy_from(device_to_host, sync = .false.)</div>
-<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>    <span class="keyword">call </span>v%copy_from(device_to_host, sync = .false.)</div>
-<div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>    <span class="keyword">call </span>w%copy_from(device_to_host, sync = .false.)</div>
-<div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span>    <span class="keyword">call </span>p%copy_from(device_to_host, sync = .true.)</div>
-<div class="line"><a id="l00508" name="l00508"></a><span class="lineno">  508</span> </div>
+<div class="line"><a id="l00496" name="l00496"></a><span class="lineno">  496</span>    <span class="keywordflow">if</span> (trim(mesh_file_name) .eq. <span class="stringliteral">&#39;none&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00497" name="l00497"></a><span class="lineno">  497</span>       <span class="keyword">call </span>import_fields(file_name, global_interp_subdict, &amp;</div>
+<div class="line"><a id="l00498" name="l00498"></a><span class="lineno">  498</span>            u = us, v = vs, w = ws, p = ps, &amp;</div>
+<div class="line"><a id="l00499" name="l00499"></a><span class="lineno">  499</span>            interpolate = interpolate)</div>
+<div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00501" name="l00501"></a><span class="lineno">  501</span>       <span class="keyword">call </span>import_fields(file_name, global_interp_subdict, mesh_file_name, &amp;</div>
+<div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span>            u = us, v = vs, w = ws, p = ps, &amp;</div>
+<div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>            interpolate = interpolate)</div>
+<div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span> </div>
+<div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>    <span class="keyword">nullify</span>(us, vs, ws, ps)</div>
+<div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span> </div>
+<div class="line"><a id="l00508" name="l00508"></a><span class="lineno">  508</span>    <span class="comment">! If we are on GPU we need to move (u,v,w) and p back to the host</span></div>
+<div class="line"><a id="l00509" name="l00509"></a><span class="lineno">  509</span>    <span class="comment">! since set_flow_ic_common copies it again to the device.</span></div>
+<div class="line"><a id="l00510" name="l00510"></a><span class="lineno">  510</span>    <span class="keyword">call </span>u%copy_from(device_to_host, sync = .false.)</div>
+<div class="line"><a id="l00511" name="l00511"></a><span class="lineno">  511</span>    <span class="keyword">call </span>v%copy_from(device_to_host, sync = .false.)</div>
+<div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>    <span class="keyword">call </span>w%copy_from(device_to_host, sync = .false.)</div>
+<div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span>    <span class="keyword">call </span>p%copy_from(device_to_host, sync = .true.)</div>
+<div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span> </div>
 </div>
-<div class="line"><a id="l00509" name="l00509"></a><span class="lineno">  509</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d13/namespaceflow__ic.html#a12df0ee743fe67d367fac371b3ccbccc">set_flow_ic_fld</a></div>
-<div class="line"><a id="l00510" name="l00510"></a><span class="lineno">  510</span> </div>
-<div class="line"><a id="l00511" name="l00511"></a><span class="lineno">  511</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d2/d13/namespaceflow__ic.html">flow_ic</a></div>
+<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d13/namespaceflow__ic.html#a12df0ee743fe67d367fac371b3ccbccc">set_flow_ic_fld</a></div>
+<div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span> </div>
+<div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d2/d13/namespaceflow__ic.html">flow_ic</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00072">device.F90:72</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__sync_html"><div class="ttname"><a href="../../d0/dbb/interfacedevice_1_1device__sync.html">device::device_sync</a></div><div class="ttdoc">Synchronize a device or stream.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00119">device.F90:119</a></div></div>
 <div class="ttc" id="ainterfaceflow__ic_1_1set__flow__ic_html"><div class="ttname"><a href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html">flow_ic::set_flow_ic</a></div><div class="ttdef"><b>Definition</b> <a href="../../d9/d91/flow__ic_8f90_source.html#l00068">flow_ic.f90:68</a></div></div>
@@ -685,7 +691,7 @@ $(document).ready(function(){initNavTree('d9/d91/flow__ic_8f90_source.html','../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d9/d91/flow__ic_8f90.html">flow_ic.f90</a></li>
-    <li class="footer">Generated on Wed Aug 26 2026 03:48:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Aug 27 2026 05:20:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

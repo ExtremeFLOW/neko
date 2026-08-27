@@ -80,12 +80,17 @@ var annotated_dup =
     [ "ax_helm_sx", "d5/dd0/namespaceax__helm__sx.html", [
       [ "ax_helm_sx_t", "de/d9f/structax__helm__sx_1_1ax__helm__sx__t.html", "de/d9f/structax__helm__sx_1_1ax__helm__sx__t" ]
     ] ],
+    [ "ax_helm_template", "d2/db3/namespaceax__helm__template.html", [
+      [ "ax_helm_template_t", "db/d0b/structax__helm__template_1_1ax__helm__template__t.html", "db/d0b/structax__helm__template_1_1ax__helm__template__t" ]
+    ] ],
     [ "ax_helm_xsmm", "d3/d57/namespaceax__helm__xsmm.html", [
       [ "ax_helm_xsmm_t", "d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html", "d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t" ]
     ] ],
     [ "ax_product", "d2/dd1/namespaceax__product.html", [
       [ "ax_compute", "dd/def/interfaceax__product_1_1ax__compute.html", "dd/def/interfaceax__product_1_1ax__compute" ],
       [ "ax_compute_vector", "d1/d2e/interfaceax__product_1_1ax__compute__vector.html", "d1/d2e/interfaceax__product_1_1ax__compute__vector" ],
+      [ "ax_helm_allocate", "d8/df9/interfaceax__product_1_1ax__helm__allocate.html", "d8/df9/interfaceax__product_1_1ax__helm__allocate" ],
+      [ "ax_helm_allocator_entry", "d3/de0/structax__product_1_1ax__helm__allocator__entry.html", "d3/de0/structax__product_1_1ax__helm__allocator__entry" ],
       [ "ax_t", "d3/d2c/structax__product_1_1ax__t.html", "d3/d2c/structax__product_1_1ax__t" ]
     ] ],
     [ "bc", "d0/dc0/namespacebc.html", [
@@ -991,6 +996,9 @@ var annotated_dup =
       [ "ksp_t", "d0/d3b/structkrylov_1_1ksp__t.html", "d0/d3b/structkrylov_1_1ksp__t" ],
       [ "ksp_t_free", "d6/dc8/interfacekrylov_1_1ksp__t__free.html", "d6/dc8/interfacekrylov_1_1ksp__t__free" ]
     ] ],
+    [ "krylov_solver_template", "dc/d35/namespacekrylov__solver__template.html", [
+      [ "krylov_solver_template_t", "da/d9c/structkrylov__solver__template_1_1krylov__solver__template__t.html", "da/d9c/structkrylov__solver__template_1_1krylov__solver__template__t" ]
+    ] ],
     [ "lambda2", "d0/d66/namespacelambda2.html", [
       [ "lambda2_t", "d6/db3/structlambda2_1_1lambda2__t.html", "d6/db3/structlambda2_1_1lambda2__t" ]
     ] ],
@@ -1004,6 +1012,9 @@ var annotated_dup =
       [ "les_model_free", "d8/daa/interfaceles__model_1_1les__model__free.html", "d8/daa/interfaceles__model_1_1les__model__free" ],
       [ "les_model_init", "d3/d58/interfaceles__model_1_1les__model__init.html", "d3/d58/interfaceles__model_1_1les__model__init" ],
       [ "les_model_t", "df/d6c/structles__model_1_1les__model__t.html", "df/d6c/structles__model_1_1les__model__t" ]
+    ] ],
+    [ "les_model_template", "d2/dcb/namespaceles__model__template.html", [
+      [ "les_model_template_t", "d7/d2e/structles__model__template_1_1les__model__template__t.html", "d7/d2e/structles__model__template_1_1les__model__template__t" ]
     ] ],
     [ "les_simcomp", "d0/d0d/namespaceles__simcomp.html", [
       [ "les_simcomp_t", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html", "d1/d3b/structles__simcomp_1_1les__simcomp__t" ]
@@ -1416,12 +1427,18 @@ var annotated_dup =
     [ "point_zone_registry", "d9/dac/namespacepoint__zone__registry.html", [
       [ "point_zone_registry_t", "dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html", "dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t" ]
     ] ],
+    [ "point_zone_template", "d7/d50/namespacepoint__zone__template.html", [
+      [ "point_zone_template_t", "da/da2/structpoint__zone__template_1_1point__zone__template__t.html", "da/da2/structpoint__zone__template_1_1point__zone__template__t" ]
+    ] ],
     [ "precon", "d0/dbb/namespaceprecon.html", [
       [ "pc_solve", "df/db4/interfaceprecon_1_1pc__solve.html", "df/db4/interfaceprecon_1_1pc__solve" ],
       [ "pc_t", "d7/d3a/structprecon_1_1pc__t.html", "d7/d3a/structprecon_1_1pc__t" ],
       [ "pc_update", "d0/d0b/interfaceprecon_1_1pc__update.html", "d0/d0b/interfaceprecon_1_1pc__update" ],
       [ "precon_allocate", "d2/d3a/interfaceprecon_1_1precon__allocate.html", "d2/d3a/interfaceprecon_1_1precon__allocate" ],
       [ "precon_allocator_entry", "dd/d81/structprecon_1_1precon__allocator__entry.html", "dd/d81/structprecon_1_1precon__allocator__entry" ]
+    ] ],
+    [ "preconditioner_template", "d3/dfd/namespacepreconditioner__template.html", [
+      [ "preconditioner_template_t", "d9/d31/structpreconditioner__template_1_1preconditioner__template__t.html", "d9/d31/structpreconditioner__template_1_1preconditioner__template__t" ]
     ] ],
     [ "probes", "d2/d4d/namespaceprobes.html", [
       [ "probes_t", "d7/dd3/structprobes_1_1probes__t.html", "d7/dd3/structprobes_1_1probes__t" ]
@@ -1566,6 +1583,9 @@ var annotated_dup =
       [ "scalar_scheme_t", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html", "dd/ded/structscalar__scheme_1_1scalar__scheme__t" ],
       [ "scalar_scheme_wrapper_t", "dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html", "dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t" ]
     ] ],
+    [ "scalar_scheme_template", "d0/de3/namespacescalar__scheme__template.html", [
+      [ "scalar_scheme_template_t", "dd/df3/structscalar__scheme__template_1_1scalar__scheme__template__t.html", "dd/df3/structscalar__scheme__template_1_1scalar__scheme__template__t" ]
+    ] ],
     [ "scalar_sgs_stats", "de/db2/namespacescalar__sgs__stats.html", [
       [ "scalar_sgs_stats_t", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t" ]
     ] ],
@@ -1671,6 +1691,9 @@ var annotated_dup =
       [ "simulation_component_t", "dc/d0d/structsimulation__component_1_1simulation__component__t.html", "dc/d0d/structsimulation__component_1_1simulation__component__t" ],
       [ "simulation_component_wrapper_t", "d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html", "d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t" ]
     ] ],
+    [ "simulation_component_template", "db/d69/namespacesimulation__component__template.html", [
+      [ "simulation_component_template_t", "de/dae/structsimulation__component__template_1_1simulation__component__template__t.html", "de/dae/structsimulation__component__template_1_1simulation__component__template__t" ]
+    ] ],
     [ "smagorinsky", "d9/d9a/namespacesmagorinsky.html", [
       [ "smagorinsky_t", "d7/d8f/structsmagorinsky_1_1smagorinsky__t.html", "d7/d8f/structsmagorinsky_1_1smagorinsky__t" ]
     ] ],
@@ -1686,6 +1709,9 @@ var annotated_dup =
     [ "source_term_handler", "db/d94/namespacesource__term__handler.html", [
       [ "source_term_handler_init_user_source", "dd/d0a/interfacesource__term__handler_1_1source__term__handler__init__user__source.html", "dd/d0a/interfacesource__term__handler_1_1source__term__handler__init__user__source" ],
       [ "source_term_handler_t", "dc/d80/structsource__term__handler_1_1source__term__handler__t.html", "dc/d80/structsource__term__handler_1_1source__term__handler__t" ]
+    ] ],
+    [ "source_term_template", "d1/d7a/namespacesource__term__template.html", [
+      [ "source_term_template_t", "d3/d54/structsource__term__template_1_1source__term__template__t.html", "d3/d54/structsource__term__template_1_1source__term__template__t" ]
     ] ],
     [ "space", "d5/d0d/namespacespace.html", [
       [ "operator(.eq.)", "d2/d73/interfacespace_1_1operator_07_8eq_8_08.html", "d2/d73/interfacespace_1_1operator_07_8eq_8_08" ],
@@ -1915,6 +1941,9 @@ var annotated_dup =
     ] ],
     [ "wall_model_device", "db/d0e/namespacewall__model__device.html", [
       [ "hip_wall_model_compute_mag_field", "d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field.html", "d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field" ]
+    ] ],
+    [ "wall_model_template", "df/d8c/namespacewall__model__template.html", [
+      [ "wall_model_template_t", "de/d77/structwall__model__template_1_1wall__model__template__t.html", "de/d77/structwall__model__template_1_1wall__model__template__t" ]
     ] ],
     [ "wall_sampler", "d2/dd2/namespacewall__sampler.html", [
       [ "wall_sampler_finalize", "d0/d38/interfacewall__sampler_1_1wall__sampler__finalize.html", "d0/d38/interfacewall__sampler_1_1wall__sampler__finalize" ],

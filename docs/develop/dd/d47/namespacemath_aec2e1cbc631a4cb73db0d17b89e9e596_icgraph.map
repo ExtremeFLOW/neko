@@ -1,6 +1,6 @@
 <map id="math::add2s2" name="math::add2s2">
 <area shape="rect" id="Node000001" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="571,214,681,239"/>
-<area shape="rect" id="Node000002" href="$dd/d2f/namespacebicgstab.html#af95e1c5813a5792173b519b09fea8270" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="339,5,479,45"/>
+<area shape="rect" id="Node000002" href="$dd/d2f/namespacebicgstab.html#af95e1c5813a5792173b519b09fea8270" title="Solve a linear system with the CPU BiCGStab method." alt="" coords="339,5,479,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="614,202,600,169,580,130,554,92,521,59,501,47,479,39,481,34,503,43,524,55,558,89,585,128,605,167,618,200"/>
 <area shape="rect" id="Node000003" href="$d3/d4a/namespaceboussinesq__source__term__cpu.html#a5ce59ca22e2af735737cc2044a472aa5" title="Computes the Boussinesq source term on the cpu." alt="" coords="318,70,501,125"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="601,205,565,172,521,140,497,127,499,122,524,135,569,168,605,201"/>

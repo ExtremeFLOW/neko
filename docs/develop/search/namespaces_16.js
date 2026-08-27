@@ -8,8 +8,9 @@ var searchData=
   ['wall_5fmodel_5',['wall_model',['../da/ddd/namespacewall__model.html',1,'']]],
   ['wall_5fmodel_5fbc_6',['wall_model_bc',['../de/d2c/namespacewall__model__bc.html',1,'']]],
   ['wall_5fmodel_5fdevice_7',['wall_model_device',['../db/d0e/namespacewall__model__device.html',1,'']]],
-  ['wall_5fsampler_8',['wall_sampler',['../d2/dd2/namespacewall__sampler.html',1,'']]],
-  ['wall_5fsampler_5ffctry_9',['wall_sampler_fctry',['../d0/d03/namespacewall__sampler__fctry.html',1,'']]],
-  ['wall_5fshear_5fstress_5fsimcomp_10',['wall_shear_stress_simcomp',['../d5/d15/namespacewall__shear__stress__simcomp.html',1,'']]],
-  ['weak_5fgradient_5fsimcomp_11',['weak_gradient_simcomp',['../d4/dd6/namespaceweak__gradient__simcomp.html',1,'']]]
+  ['wall_5fmodel_5ftemplate_8',['wall_model_template',['../df/d8c/namespacewall__model__template.html',1,'']]],
+  ['wall_5fsampler_9',['wall_sampler',['../d2/dd2/namespacewall__sampler.html',1,'']]],
+  ['wall_5fsampler_5ffctry_10',['wall_sampler_fctry',['../d0/d03/namespacewall__sampler__fctry.html',1,'']]],
+  ['wall_5fshear_5fstress_5fsimcomp_11',['wall_shear_stress_simcomp',['../d5/d15/namespacewall__shear__stress__simcomp.html',1,'']]],
+  ['weak_5fgradient_5fsimcomp_12',['weak_gradient_simcomp',['../d4/dd6/namespaceweak__gradient__simcomp.html',1,'']]]
 ];

@@ -1,5 +1,7 @@
 <map id="scalar_scheme::scalar_scheme_t" name="scalar_scheme::scalar_scheme_t">
-<area shape="rect" id="Node000001" title="Base type for a scalar advection&#45;diffusion solver." alt="" coords="5,5,172,45"/>
-<area shape="rect" id="Node000002" href="$d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html" title=" " alt="" coords="15,93,162,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,59,91,93,86,93,86,59"/>
+<area shape="rect" id="Node000001" title="Base type for a scalar advection&#45;diffusion solver." alt="" coords="95,5,262,45"/>
+<area shape="rect" id="Node000002" href="$d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html" title=" " alt="" coords="5,93,152,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,56,103,95,99,91,144,52"/>
+<area shape="rect" id="Node000003" href="$dd/df3/structscalar__scheme__template_1_1scalar__scheme__template__t.html" title=" " alt="" coords="176,93,381,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,52,258,91,255,95,209,56"/>
 </map>

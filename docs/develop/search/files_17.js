@@ -15,9 +15,10 @@ var searchData=
   ['wall_5fmodel_5fdevice_2ef90_12',['wall_model_device.F90',['../d8/d18/wall__model__device_8F90.html',1,'']]],
   ['wall_5fmodel_5ffctry_2ef90_13',['wall_model_fctry.f90',['../da/d1e/wall__model__fctry_8f90.html',1,'']]],
   ['wall_5fmodel_5fkernel_2eh_14',['wall_model_kernel.h',['../d1/d0f/cuda_2wall__model__kernel_8h.html',1,'(Global Namespace)'],['../de/d25/hip_2wall__model__kernel_8h.html',1,'(Global Namespace)']]],
-  ['wall_5fsampler_2ef90_15',['wall_sampler.f90',['../d3/de9/wall__sampler_8f90.html',1,'']]],
-  ['wall_5fsampler_5ffctry_2ef90_16',['wall_sampler_fctry.f90',['../d3/d59/wall__sampler__fctry_8f90.html',1,'']]],
-  ['wall_5fshear_5fstress_5fsimcomp_2ef90_17',['wall_shear_stress_simcomp.f90',['../d3/db5/wall__shear__stress__simcomp_8f90.html',1,'']]],
-  ['wave_2eh_18',['wave.h',['../dc/d61/wave_8h.html',1,'']]],
-  ['weak_5fgradient_5fsimcomp_2ef90_19',['weak_gradient_simcomp.f90',['../d9/de6/weak__gradient__simcomp_8f90.html',1,'']]]
+  ['wall_5fmodel_5ftemplate_2ef90_15',['wall_model_template.f90',['../db/d35/wall__model__template_8f90.html',1,'']]],
+  ['wall_5fsampler_2ef90_16',['wall_sampler.f90',['../d3/de9/wall__sampler_8f90.html',1,'']]],
+  ['wall_5fsampler_5ffctry_2ef90_17',['wall_sampler_fctry.f90',['../d3/d59/wall__sampler__fctry_8f90.html',1,'']]],
+  ['wall_5fshear_5fstress_5fsimcomp_2ef90_18',['wall_shear_stress_simcomp.f90',['../d3/db5/wall__shear__stress__simcomp_8f90.html',1,'']]],
+  ['wave_2eh_19',['wave.h',['../dc/d61/wave_8h.html',1,'']]],
+  ['weak_5fgradient_5fsimcomp_2ef90_20',['weak_gradient_simcomp.f90',['../d9/de6/weak__gradient__simcomp_8f90.html',1,'']]]
 ];

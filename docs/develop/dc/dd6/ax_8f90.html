@@ -100,7 +100,8 @@ $(document).ready(function(){initNavTree('dc/dd6/ax_8f90.html','../../'); initRe
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Types</a> &#124;
-<a href="#namespaces">Modules</a>  </div>
+<a href="#namespaces">Modules</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">ax.f90 File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -112,8 +113,14 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_product::ax_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base type for a matrix-vector product providing \( Ax \).  <a href="../../d3/d2c/structax__product_1_1ax__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/df9/interfaceax__product_1_1ax__helm__allocate.html">ax_product::ax_helm_allocate</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate a Helmholtz problem matrix-vector product. The implementation is selected by name and compute backend.  <a href="../../d8/df9/interfaceax__product_1_1ax__helm__allocate.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/de0/structax__product_1_1ax__helm__allocator__entry.html">ax_product::ax_helm_allocator_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in user modules to add an allocator for custom types.  <a href="../../d3/de0/structax__product_1_1ax__helm__allocator__entry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/def/interfaceax__product_1_1ax__compute.html">ax_product::ax_compute</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory routine for the a Helmholtz problem matrix-vector product. The selection is based on the compute backend.  <a href="../../dd/def/interfaceax__product_1_1ax__compute.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for computing \( Ax \) inside a Krylov method.  <a href="../../dd/def/interfaceax__product_1_1ax__compute.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2e/interfaceax__product_1_1ax__compute__vector.html">ax_product::ax_compute_vector</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for computing \( Ax \) inside a Krylov method, taking 3 components of a vector field in a coupled manner.  <a href="../../d1/d2e/interfaceax__product_1_1ax__compute__vector.html#details">More...</a><br /></td></tr>
@@ -124,6 +131,15 @@ Modules</h2></td></tr>
 <tr class="memitem:d2/dd1/namespaceax__product" id="r_d2/dd1/namespaceax__product"><td class="memItemLeft" align="right" valign="top">module &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/dd1/namespaceax__product.html">ax_product</a></td></tr>
 <tr class="memdesc:d2/dd1/namespaceax__product"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines a Matrix-vector product. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a3a6934bf6eb2fd435b4e9f3697201548" id="r_a3a6934bf6eb2fd435b4e9f3697201548"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d3/de0/structax__product_1_1ax__helm__allocator__entry.html">ax_helm_allocator_entry</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/dd1/namespaceax__product.html#a3a6934bf6eb2fd435b4e9f3697201548">ax_product::ax_helm_registry</a></td></tr>
+<tr class="memdesc:a3a6934bf6eb2fd435b4e9f3697201548"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry of allocators for user-defined matrix-vector product types.  <br /></td></tr>
+<tr class="separator:a3a6934bf6eb2fd435b4e9f3697201548"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0cd9c59ea91ef3aac08d3f7fe31e8704" id="r_a0cd9c59ea91ef3aac08d3f7fe31e8704"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/dd1/namespaceax__product.html#a0cd9c59ea91ef3aac08d3f7fe31e8704">ax_product::ax_helm_registry_size</a> = 0</td></tr>
+<tr class="memdesc:a0cd9c59ea91ef3aac08d3f7fe31e8704"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of <code>ax_helm_registry</code>.  <br /></td></tr>
+<tr class="separator:a0cd9c59ea91ef3aac08d3f7fe31e8704"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -131,7 +147,7 @@ Modules</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dc/dd6/ax_8f90.html">ax.f90</a></li>
-    <li class="footer">Generated on Wed Aug 26 2026 03:48:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Aug 27 2026 05:20:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

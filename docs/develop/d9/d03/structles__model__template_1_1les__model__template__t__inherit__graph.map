@@ -1,0 +1,5 @@
+<map id="les_model_template::les_model_template_t" name="les_model_template::les_model_template_t">
+<area shape="rect" id="Node000001" title=" " alt="" coords="6,79,181,119"/>
+<area shape="rect" id="Node000002" href="$df/d6c/structles__model_1_1les__model__t.html" title="Base abstract type for LES models based on the Boussinesq approximation." alt="" coords="5,5,181,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,44,96,79,91,79,91,44"/>
+</map>

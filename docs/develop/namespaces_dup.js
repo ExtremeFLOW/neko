@@ -26,6 +26,7 @@ var namespaces_dup =
     [ "ax_helm_full_cpu", "df/d07/namespaceax__helm__full__cpu.html", "df/d07/namespaceax__helm__full__cpu" ],
     [ "ax_helm_full_device", "d1/d73/namespaceax__helm__full__device.html", "d1/d73/namespaceax__helm__full__device" ],
     [ "ax_helm_sx", "d5/dd0/namespaceax__helm__sx.html", "d5/dd0/namespaceax__helm__sx" ],
+    [ "ax_helm_template", "d2/db3/namespaceax__helm__template.html", "d2/db3/namespaceax__helm__template" ],
     [ "ax_helm_xsmm", "d3/d57/namespaceax__helm__xsmm.html", "d3/d57/namespaceax__helm__xsmm" ],
     [ "ax_product", "d2/dd1/namespaceax__product.html", "d2/dd1/namespaceax__product" ],
     [ "bc", "d0/dc0/namespacebc.html", "d0/dc0/namespacebc" ],
@@ -382,9 +383,11 @@ var namespaces_dup =
     [ "jobctrl", "d7/d06/namespacejobctrl.html", "d7/d06/namespacejobctrl" ],
     [ "json_utils", "d8/da8/namespacejson__utils.html", "d8/da8/namespacejson__utils" ],
     [ "krylov", "db/d6d/namespacekrylov.html", "db/d6d/namespacekrylov" ],
+    [ "krylov_solver_template", "dc/d35/namespacekrylov__solver__template.html", "dc/d35/namespacekrylov__solver__template" ],
     [ "lambda2", "d0/d66/namespacelambda2.html", "d0/d66/namespacelambda2" ],
     [ "legendre_rst_finder", "d4/d3b/namespacelegendre__rst__finder.html", "d4/d3b/namespacelegendre__rst__finder" ],
     [ "les_model", "dd/dfc/namespaceles__model.html", "dd/dfc/namespaceles__model" ],
+    [ "les_model_template", "d2/dcb/namespaceles__model__template.html", "d2/dcb/namespaceles__model__template" ],
     [ "les_simcomp", "d0/d0d/namespaceles__simcomp.html", "d0/d0d/namespaceles__simcomp" ],
     [ "local_interpolation", "da/d80/namespacelocal__interpolation.html", "da/d80/namespacelocal__interpolation" ],
     [ "logger", "d8/da0/namespacelogger.html", "d8/da0/namespacelogger" ],
@@ -703,7 +706,9 @@ var namespaces_dup =
     [ "point_interpolator", "df/d77/namespacepoint__interpolator.html", "df/d77/namespacepoint__interpolator" ],
     [ "point_zone", "dc/d5f/namespacepoint__zone.html", "dc/d5f/namespacepoint__zone" ],
     [ "point_zone_registry", "d9/dac/namespacepoint__zone__registry.html", "d9/dac/namespacepoint__zone__registry" ],
+    [ "point_zone_template", "d7/d50/namespacepoint__zone__template.html", "d7/d50/namespacepoint__zone__template" ],
     [ "precon", "d0/dbb/namespaceprecon.html", "d0/dbb/namespaceprecon" ],
+    [ "preconditioner_template", "d3/dfd/namespacepreconditioner__template.html", "d3/dfd/namespacepreconditioner__template" ],
     [ "probes", "d2/d4d/namespaceprobes.html", "d2/d4d/namespaceprobes" ],
     [ "profiler", "dc/dfc/namespaceprofiler.html", [
       [ "profiler_end_region", "dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5", null ],
@@ -756,6 +761,7 @@ var namespaces_dup =
     [ "scalar_residual_device", "d4/ddd/namespacescalar__residual__device.html", "d4/ddd/namespacescalar__residual__device" ],
     [ "scalar_residual_sx", "d9/db6/namespacescalar__residual__sx.html", "d9/db6/namespacescalar__residual__sx" ],
     [ "scalar_scheme", "da/de3/namespacescalar__scheme.html", "da/de3/namespacescalar__scheme" ],
+    [ "scalar_scheme_template", "d0/de3/namespacescalar__scheme__template.html", "d0/de3/namespacescalar__scheme__template" ],
     [ "scalar_sgs_stats", "de/db2/namespacescalar__sgs__stats.html", "de/db2/namespacescalar__sgs__stats" ],
     [ "scalar_sgs_stats_output", "d0/d56/namespacescalar__sgs__stats__output.html", "d0/d56/namespacescalar__sgs__stats__output" ],
     [ "scalar_sgs_stats_simcomp", "d6/da1/namespacescalar__sgs__stats__simcomp.html", "d6/da1/namespacescalar__sgs__stats__simcomp" ],
@@ -788,6 +794,7 @@ var namespaces_dup =
     [ "simcomp_executor", "d2/d78/namespacesimcomp__executor.html", "d2/d78/namespacesimcomp__executor" ],
     [ "simulation", "d1/d2d/namespacesimulation.html", "d1/d2d/namespacesimulation" ],
     [ "simulation_component", "d2/def/namespacesimulation__component.html", "d2/def/namespacesimulation__component" ],
+    [ "simulation_component_template", "db/d69/namespacesimulation__component__template.html", "db/d69/namespacesimulation__component__template" ],
     [ "smagorinsky", "d9/d9a/namespacesmagorinsky.html", "d9/d9a/namespacesmagorinsky" ],
     [ "smagorinsky_cpu", "dd/d73/namespacesmagorinsky__cpu.html", [
       [ "smagorinsky_compute_cpu", "dd/d73/namespacesmagorinsky__cpu.html#a481f97d45d0f9cdff801d0e0c0e48da8", null ]
@@ -797,6 +804,7 @@ var namespaces_dup =
     ] ],
     [ "source_term", "de/de7/namespacesource__term.html", "de/de7/namespacesource__term" ],
     [ "source_term_handler", "db/d94/namespacesource__term__handler.html", "db/d94/namespacesource__term__handler" ],
+    [ "source_term_template", "d1/d7a/namespacesource__term__template.html", "d1/d7a/namespacesource__term__template" ],
     [ "space", "d5/d0d/namespacespace.html", "d5/d0d/namespacespace" ],
     [ "spalding", "d5/d90/namespacespalding.html", "d5/d90/namespacespalding" ],
     [ "spalding_cpu", "da/d2d/namespacespalding__cpu.html", [
@@ -1026,6 +1034,7 @@ var namespaces_dup =
     [ "wall_model", "da/ddd/namespacewall__model.html", "da/ddd/namespacewall__model" ],
     [ "wall_model_bc", "de/d2c/namespacewall__model__bc.html", "de/d2c/namespacewall__model__bc" ],
     [ "wall_model_device", "db/d0e/namespacewall__model__device.html", "db/d0e/namespacewall__model__device" ],
+    [ "wall_model_template", "df/d8c/namespacewall__model__template.html", "df/d8c/namespacewall__model__template" ],
     [ "wall_sampler", "d2/dd2/namespacewall__sampler.html", "d2/dd2/namespacewall__sampler" ],
     [ "wall_sampler_fctry", "d0/d03/namespacewall__sampler__fctry.html", [
       [ "wall_sampler_allocator", "d0/d03/namespacewall__sampler__fctry.html#a81f09c7235d4c3951dd90f3b381c8283", null ],

@@ -1,16 +1,22 @@
 <map id="bicgstab::bicgstab_solve" name="bicgstab::bicgstab_solve">
-<area shape="rect" id="Node000001" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="5,146,145,186"/>
-<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="200,5,311,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,144,132,93,160,65,192,40,201,34,204,39,195,44,164,69,136,97,93,148"/>
-<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="208,55,303,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="104,143,145,116,192,89,204,83,207,88,195,94,147,121,106,148"/>
-<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="206,128,305,153"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="145,153,192,147,193,152,146,159"/>
-<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#afa191599ec08553ac175650544c1e901" title="Returns ." alt="" coords="193,177,317,203"/>
-<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="146,173,180,177,179,183,145,178"/>
-<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="207,227,304,252"/>
-<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="126,184,211,219,209,224,124,189"/>
-<area shape="rect" id="Node000007" href="$dd/d47/namespacemath.html#a705aede90b9b2421ab4111ebdcfc18eb" title="Returns ." alt="" coords="193,276,317,301"/>
-<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="99,184,141,222,195,261,207,268,205,273,192,266,138,227,95,188"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="226,129,219,120,223,110,235,104,255,101,280,105,290,114,287,118,278,110,255,107,236,109,227,113,225,119,230,126"/>
+<area shape="rect" id="Node000001" title="Solve a linear system with the CPU BiCGStab method." alt="" coords="5,226,145,266"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="224,5,335,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="80,225,94,186,117,137,149,85,169,62,192,41,210,30,213,35,195,45,173,66,154,89,122,139,99,188,85,227"/>
+<area shape="rect" id="Node000003" href="$dd/d2f/namespacebicgstab.html#a566359d2da1b2da4e455d6e0c446d39e" title="Check an inner product for a BiCGStab breakdown." alt="" coords="198,55,361,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="87,224,129,166,158,134,192,105,200,100,203,104,195,109,162,137,133,169,91,227"/>
+<area shape="rect" id="Node000004" href="$dd/d2f/namespacebicgstab.html#a2a277168559b45a87721ec97194abb29" title="Compute a weighted inner product and squared norm in one reduction." alt="" coords="204,119,355,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="103,224,144,196,192,169,206,162,208,167,195,174,147,201,106,228"/>
+<area shape="rect" id="Node000005" href="$dd/d2f/namespacebicgstab.html#a173a4513fa6c5a632e54bff40bd47ebc" title="Return the square root of a valid squared norm." alt="" coords="193,184,365,209"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="145,227,212,210,214,215,146,232"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="232,233,327,259"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="145,243,218,243,218,249,145,249"/>
+<area shape="rect" id="Node000007" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="230,307,329,332"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="133,264,231,299,229,304,131,269"/>
+<area shape="rect" id="Node000008" href="$dd/d47/namespacemath.html#afa191599ec08553ac175650544c1e901" title="Returns ." alt="" coords="217,356,341,381"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="98,264,140,303,195,341,212,349,209,354,192,346,137,307,94,268"/>
+<area shape="rect" id="Node000009" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="231,405,328,431"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="90,265,131,327,160,361,195,390,219,403,217,407,192,395,156,365,126,330,85,268"/>
+<area shape="rect" id="Node000010" href="$dd/d47/namespacemath.html#a705aede90b9b2421ab4111ebdcfc18eb" title="Returns ." alt="" coords="217,455,341,480"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="86,266,100,303,123,350,155,399,195,440,206,447,203,452,192,444,150,402,118,353,95,305,81,268"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="246,308,239,298,243,288,256,282,279,280,308,284,319,293,315,297,305,289,279,285,258,287,246,292,244,298,250,305"/>
 </map>

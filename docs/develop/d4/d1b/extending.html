@@ -118,8 +118,10 @@ $(document).ready(function(){initNavTree('d4/d1b/extending.html','../../'); init
 <li>Point zones (<code>point_zone_t</code> descendants).</li>
 <li>Preconditioners (<code>pc_t</code> descendants).</li>
 <li>Krylov solvers (<code>ksp_t</code> descendants).</li>
+<li>Matrix-vector products (<code>ax_t</code> descendants).</li>
+<li>Scalar schemes (<code>scalar_scheme_t</code> descendants).</li>
 </ul>
-<p>This list will hopefully be extended later. Notable omissions are scalar and fluid schemes.</p>
+<p>This list will hopefully be extended later. Fluid schemes are a notable omission.</p>
 <p>To implement a new type, the easiest thing is to start by copying over the <code>.f90</code> of an already existing type, renaming things inside and then adding the functionality you want (e.g. the particular form of the source term). When you are done, two special subroutines have to be added to you module. To make explaining easier, let us assume that your module is called <code>mymodule</code> and the new type <code>mytype</code>.</p>
 <ul>
 <li>All the types in the list above have a routine called <code>register_*</code>, where the <code>*</code> is replaced by the name of the type, for example, <code>register_source_term</code>.</li>
@@ -183,7 +185,7 @@ $(document).ready(function(){initNavTree('d4/d1b/extending.html','../../'); init
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Aug 26 2026 03:48:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Aug 27 2026 05:20:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
