@@ -34,6 +34,11 @@
 !
 !> Defines factory subroutines for `fluid_pnpn_t`.
 submodule(fluid_pnpn) fluid_pnpn_bc_fctry
+  ! We explicitly import all necessary modules to work around an ifx 2026.1
+  ! internal compiler error even when they are only available through the 
+  ! parent.
+  use vector_bc_projector, only : segregated_vector_bc_projector_t, &
+       coupled_vector_bc_projector_t
   use user_intf, only : user_t
   use utils, only : neko_type_error
   use field_dirichlet, only : field_dirichlet_t
