@@ -464,8 +464,9 @@ the governing equations to feature the full viscous stress tensor, as required
 for a variable viscosity field.
 
 Note that the full viscous stress tensor requires the equations for the 3
-velocity components to be solved in a coupled manner. Therefore, the `coupled_cg`
-(or `fused_coupled_cg`) solver should be used for velocity.
+velocity components to be solved in a coupled manner. Therefore,
+`coupled_bicgstab`, `coupled_cg`, or `fused_coupled_cg` should be used for
+velocity. The `coupled_bicgstab` solver is currently available on CPUs only.
 
 ### Schwarz iterations
 This feature is enabled by setting the `schwarz_iterations` keyword inside
@@ -1831,6 +1832,8 @@ The following keywords are used, with the corresponding options.
   - `cg`, a conjugate gradient solver.
   - `pipecg`, a pipelined conjugate gradient solver.
   - `bicgstab`, a bi-conjugate gradient stabilized solver.
+  - `coupled_bicgstab`, a coupled bi-conjugate gradient stabilized solver for
+    CPU backends. It can be used for velocity when viscosity varies in space.
   - `cacg`, a communication-avoiding conjugate gradient solver.
   - `coupled_cg`, a coupled conjugate gradient solver. Must be used for velocity
     when viscosity varies in space.
@@ -1970,7 +1973,7 @@ concisely directly in the table.
 | `source_terms`                                     | Array of JSON objects, defining additional source terms.                                          | See list of source terms above                              | -             |
 | `gradient_jump_penalty`                            | Array of JSON objects, defining additional gradient jump penalty.                                 | See list of gradient jump penalty above                     | -             |
 | `boundary_types`                                   | Boundary types/conditions labels.                                                                 | Array of strings                                            | -             |
-| `velocity_solver.type`                             | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`                 | -             |
+| `velocity_solver.type`                             | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `coupled_bicgstab`, `coupled_cg`, `cacg`, `gmres` | -             |
 | `velocity_solver.preconditioner.type`              | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
 | `velocity_solver.absolute_tolerance`               | Linear solver convergence criterion for the momentum equation.                                    | Positive real                                               | -             |
 | `velocity_solver.maxiter`                          | Linear solver max iteration count for the momentum equation.                                      | Positive real                                               | 800           |

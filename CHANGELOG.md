@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Added a coupled CPU BiCGStab solver for three-component vector systems.
 - Hardened the CPU BiCGStab solver with scale-aware breakdown checks and correct
   handling of converged initial guesses and negative `omega` values.
 - *BREAKING* Changed all time-related variables to double precision. 
