@@ -15,11 +15,12 @@ of the code. But can be useful for users and developers alike.
 
 | Name                     | Description                                                           | Default value |
 | ------------------------ | --------------------------------------------------------------------- | ------------- |
-| `NEKO_AUTOTUNE`          | Force SEM operator kernel formulation (``'1D'``,``'KSTEP'``,``'DMMA'``,``'MFMA'``) | Unset |
+| `NEKO_AUTOTUNE`          | Force SEM operator kernel formulation (``'1D'``,``'KSTEP'``,``'DMMA'``,``'DMMA_TMA'``,``'DMMA_TMA_BATCH'``,``'MFMA'``) | Unset |
 | `NEKO_EB_TUNE`           | Sweep elements per block for the kstep kernels (boolean)              | 1             |
 | `NEKO_EB`                | Elements per block candidate when `NEKO_AUTOTUNE=KSTEP` (0, 1 or 2)   | 0             |
 | `NEKO_CHUNKS`            | Chunk size candidate when `NEKO_AUTOTUNE=1D` (0 to 3)                 | 0             |
 | `NEKO_DMMA_NW`           | Warps per block candidate when `NEKO_AUTOTUNE=DMMA` (0, 1 or 2)       | 0             |
+| `NEKO_DMMA_TMA_NW`       | Warps per block candidate when `NEKO_AUTOTUNE=DMMA_TMA` or `DMMA_TMA_BATCH` (0, 1 or 2) | 0 |
 | `NEKO_MFMA_NWF`          | Wavefronts per block candidate when `NEKO_AUTOTUNE=MFMA` (0 to 3)     | 0             |
 | `NEKO_MFMA_TUNE`         | Sweep the matrix core variant of the HIP Helmholtz operator (boolean) | 1             |
 | `NEKO_TUNE_ROUNDS`       | Interleaved sampling rounds used by the operator auto-tuner           | 3             |
@@ -57,6 +58,14 @@ what is measured and why the defaults differ between vendors.
   scalar operator and `4 <= lx <= 8` for the vector one, on an sm_80 or
   sm_90 device. The other operators have no such variant and
   keep tuning as usual.
+- `NEKO_AUTOTUNE=DMMA_TMA` : always use the TMA staged form of that
+  variant, scalar and vector, with the warps per block given by
+  `NEKO_DMMA_TMA_NW`. Double precision and `lx = 8` only, on an sm_90
+  device, and needs a CUDA 12 or later toolkit.
+- `NEKO_AUTOTUNE=DMMA_TMA_BATCH` : the batched form of the TMA variant,
+  which stages all ten input cubes of an element at once. Same scope and
+  same `NEKO_DMMA_TMA_NW` knob, but for the vector operator only --- the
+  scalar operator has no such variant and reports the value as invalid.
 
 - `NEKO_AUTOTUNE=MFMA`  : the HIP counterpart of `DMMA` --- always use the
   matrix core variant of the HIP Helmholtz operator, with the wavefronts per
@@ -69,7 +78,12 @@ both pin it to its kstep variant, and it has no matrix core variant on HIP.
 Any other value is reported as an error and the search runs as usual.
 `DMMA` on a build or a device without fp64 tensor cores, or `MFMA` on one
 without matrix cores, or either at a polynomial order the variant does not
-cover, is reported the same way.
+cover, is reported the same way. So are `DMMA_TMA` and `DMMA_TMA_BATCH`
+on anything but an sm_90 device with a CUDA 12 toolkit, at any order but
+`lx = 8`, or when the field pointers the operator is handed are not 16
+byte aligned, which is checked per tune rather than assumed;
+`DMMA_TMA_BATCH` additionally needs a device that will grant a block the
+54800 B it stages into.
 
 `NEKO_EB_TUNE` controls whether the elements per block dimension is
 swept at all, and defaults to enabled on both backends. It was once off
@@ -101,8 +115,11 @@ Values outside the valid range fall back to `0`.
 `NEKO_DMMA_NW` selects among the instantiated warps per block candidates
 when the tensor core variant is pinned with `NEKO_AUTOTUNE=DMMA`;
 candidates `0`, `1` and `2` are 2, 4 and 8 warps. Values outside the
-valid range fall back to `0`. `NEKO_MFMA_NWF` is the HIP equivalent, with
-candidates `0` to `3` selecting 1, 2, 4 and 8 wavefronts per block.
+valid range fall back to `0`. `NEKO_DMMA_TMA_NW` is the same selector for
+the two TMA staged variants, with the same three candidates, and is read
+by both `DMMA_TMA` and `DMMA_TMA_BATCH`. `NEKO_MFMA_NWF` is the HIP
+equivalent, with candidates `0` to `3` selecting 1, 2, 4 and 8 wavefronts
+per block.
 
 On HIP that count also fixes the elements per block, and the two cannot
 be set independently: `min(nwf, ceil(lx*lx/16))` wavefronts cooperate on
