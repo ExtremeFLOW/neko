@@ -125,25 +125,7 @@ contains
     log_buf = 'Reconstruct fluid source'
     call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 
-    ! reconstruct coef; No problem, as AMR restart prevents recursive
-    ! reconstructions
-    if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-         counter, time)
-
-    ! reconstruct right-hand side fields; No problem, as AMR restart prevents
-    ! recursive reconstructions
-    call this%rhs_fields%amr_restart(reconstruct, counter, time)
-
-    ! Reconstruct source terms
-    ! Most of the fluid source terms do not require restart, as rhs are already
-    ! reconstructed, and most of the fields seem to be taken from registries.
-    ! However, some seem to have internal fields
-    if (allocated(this%source_terms)) then
-       do il = 1, size(this%source_terms)
-          call this%source_terms(il)%source_term%amr_restart(reconstruct, &
-               counter, time)
-       end do
-    end if
+    call this%amr_restart_base(reconstruct, counter, time)
 
     call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 

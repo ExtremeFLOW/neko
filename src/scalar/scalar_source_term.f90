@@ -120,16 +120,11 @@ contains
     this%counter = counter
 
     log_buf = 'Reconstruct scalar source terms'
-    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
-!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 
-    block
-      use utils, only : neko_error
-      call neko_error('Nothing done yet')
-    end block
+    call this%amr_restart_base(reconstruct, counter, time)
 
-
-!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 
   end subroutine scalar_source_term_amr_restart
 

@@ -48,6 +48,7 @@ module source_term_handler
   use device_math, only : device_col2
   use time_state, only : time_state_t
   use amr_restart_component, only : amr_restart_component_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -92,6 +93,9 @@ module source_term_handler
      !> Initialize the user source term.
      procedure(source_term_handler_init_user_source), &
           nopass, deferred :: init_user_source
+     !> AMR restart
+     procedure, pass(this) :: amr_restart_base => &
+          source_term_handler_amr_restart_base
   end type source_term_handler_t
 
   abstract interface
@@ -272,4 +276,41 @@ contains
     this%source_terms(n_sources + 1)%source_term = source_term
 
   end subroutine source_term_handler_add_source_term
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine source_term_handler_amr_restart_base(this, reconstruct, counter, &
+       time)
+    class(source_term_handler_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    integer :: il
+
+    ! No counter checking
+
+    ! reconstruct coef; No problem, as AMR restart prevents recursive
+    ! reconstructions
+    if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+         counter, time)
+
+    ! reconstruct right-hand side fields; No problem, as AMR restart prevents
+    ! recursive reconstructions
+    call this%rhs_fields%amr_restart(reconstruct, counter, time)
+
+    ! Reconstruct source terms
+    ! Most of the source terms may not require restart, as rhs are already
+    ! reconstructed, and most of the fields seem to be taken from registries.
+    ! However, some of them do require restart.
+    if (allocated(this%source_terms)) then
+       do il = 1, size(this%source_terms)
+          call this%source_terms(il)%source_term%amr_restart(reconstruct, &
+               counter, time)
+       end do
+    end if
+
+  end subroutine source_term_handler_amr_restart_base
+
 end module source_term_handler
