@@ -318,8 +318,8 @@ contains
   end subroutine gmres_device_free
 
   !> Standard GMRES solve
-  function gmres_device_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
-       result(ksp_results)
+  function gmres_device_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, &
+       niter) result(ksp_results)
     class(gmres_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x

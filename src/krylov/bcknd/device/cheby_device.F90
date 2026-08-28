@@ -383,8 +383,8 @@ contains
   end subroutine cheby_device_power
 
   !> A chebyshev preconditioner
-  function cheby_device_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
-       result(ksp_results)
+  function cheby_device_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, &
+       niter) result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -472,8 +472,8 @@ contains
   end function cheby_device_solve
 
   !> A chebyshev preconditioner
-  function cheby_device_impl(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
-       result(ksp_results)
+  function cheby_device_impl(this, Ax, x, f, n, coef, bc_projector, gs_h, &
+       niter) result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x

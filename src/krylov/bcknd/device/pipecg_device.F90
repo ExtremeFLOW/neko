@@ -349,7 +349,8 @@ contains
   end subroutine pipecg_device_free
 
   !> Pipelined PCG solve
-  function pipecg_device_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) result(ksp_results)
+  function pipecg_device_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, &
+       niter) result(ksp_results)
     class(pipecg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -446,7 +447,8 @@ contains
 
          if (iter .gt. 1) then
             beta(p_cur) = gamma1 / gamma2
-            alpha(p_cur) = gamma1 / (delta - (beta(p_cur) * gamma1/alpha(p_prev)))
+            alpha(p_cur) = &
+                 gamma1 / (delta - (beta(p_cur) * gamma1/alpha(p_prev)))
          else
             beta(p_cur) = 0.0_rp
             alpha(p_cur) = gamma1/delta
@@ -462,8 +464,8 @@ contains
                  HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(beta, beta_d, p_cur, &
                  HOST_TO_DEVICE, sync = .false.)
-            call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
-                 DEVICE_PIPECG_P_SPACE, n)
+            call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, &
+                 p_cur, DEVICE_PIPECG_P_SPACE, n)
             p_prev = p_cur
             u_prev = DEVICE_PIPECG_P_SPACE + 1
             alpha(1) = alpha(p_cur)
@@ -477,7 +479,8 @@ contains
       end do
 
       if ( p_cur .ne. 1) then
-         call device_memcpy(alpha, alpha_d, p_cur, HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(alpha, alpha_d, p_cur, HOST_TO_DEVICE, &
+              sync = .false.)
          call device_memcpy(beta, beta_d, p_cur, HOST_TO_DEVICE, sync = .false.)
          call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
               DEVICE_PIPECG_P_SPACE, n)
