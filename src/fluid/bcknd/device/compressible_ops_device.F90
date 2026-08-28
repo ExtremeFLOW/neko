@@ -100,7 +100,7 @@ module compressible_ops_device
 
   interface
      subroutine hip_update_temperature(T_d, p_d, rho_d, gamma, n) &
-       bind(c, name = 'hip_update_temperature')
+          bind(c, name = 'hip_update_temperature')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: T_d, p_d, rho_d
@@ -209,7 +209,7 @@ module compressible_ops_device
 
   interface
      subroutine cuda_update_temperature(T_d, p_d, rho_d, gamma, n) &
-       bind(c, name = 'cuda_update_temperature')
+          bind(c, name = 'cuda_update_temperature')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: T_d, p_d, rho_d
@@ -317,7 +317,7 @@ module compressible_ops_device
   end interface
   interface
      subroutine opencl_update_temperature(T_d, p_d, rho_d, gamma, n) &
-       bind(c, name = 'opencl_update_temperature')
+          bind(c, name = 'opencl_update_temperature')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: T_d, p_d, rho_d
@@ -425,7 +425,7 @@ module compressible_ops_device
 
   interface
      subroutine metal_update_temperature(T_d, p_d, rho_d, gamma, n) &
-       bind(c, name = 'metal_update_temperature')
+          bind(c, name = 'metal_update_temperature')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: T_d, p_d, rho_d

@@ -320,7 +320,7 @@ contains
 
     call this%bc%init_base(this%coef)
     call this%bc%mark_zone(this%case%msh%labeled_zones(this%zone_id))
-    call this%bc%finalize(only_facets = .true.)
+    call this%bc%finalize()
     n_pts = this%bc%msk(0)
     if (n_pts .gt. 0) then
        call this%n1%init(n_pts)

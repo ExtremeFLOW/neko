@@ -39,7 +39,9 @@ module pipecg_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       vector_bc_projector_components
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, &
        device_glsc3, device_vlsc3
@@ -347,14 +349,15 @@ contains
   end subroutine pipecg_device_free
 
   !> Pipelined PCG solve
-  function pipecg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function pipecg_device_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, &
+       niter) result(ksp_results)
     class(pipecg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -397,7 +400,7 @@ contains
       call Ax%compute(w, u(1, u_prev), coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
       call device_event_sync(this%gs_event)
-      call blst%apply_scalar(w, n)
+      call bc_projector%apply(w, n)
 
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
       rnorm = sqrt(rtr)*norm_fac
@@ -429,7 +432,7 @@ contains
          call Ax%compute(ni, mi, coef, x%msh, x%Xh)
          call gs_h%op(ni, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
-         call blst%apply(ni, n)
+         call bc_projector%apply(ni, n)
 
          call MPI_Wait(request, status, ierr)
          gamma2 = gamma1
@@ -444,7 +447,8 @@ contains
 
          if (iter .gt. 1) then
             beta(p_cur) = gamma1 / gamma2
-            alpha(p_cur) = gamma1 / (delta - (beta(p_cur) * gamma1/alpha(p_prev)))
+            alpha(p_cur) = &
+                 gamma1 / (delta - (beta(p_cur) * gamma1/alpha(p_prev)))
          else
             beta(p_cur) = 0.0_rp
             alpha(p_cur) = gamma1/delta
@@ -457,11 +461,11 @@ contains
               coef%mult_d, reduction, n)
          if (p_cur .eq. DEVICE_PIPECG_P_SPACE) then
             call device_memcpy(alpha, alpha_d, p_cur, &
-                 HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(beta, beta_d, p_cur, &
-                 HOST_TO_DEVICE, sync=.false.)
-            call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
-                 DEVICE_PIPECG_P_SPACE, n)
+                 HOST_TO_DEVICE, sync = .false.)
+            call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, &
+                 p_cur, DEVICE_PIPECG_P_SPACE, n)
             p_prev = p_cur
             u_prev = DEVICE_PIPECG_P_SPACE + 1
             alpha(1) = alpha(p_cur)
@@ -475,8 +479,9 @@ contains
       end do
 
       if ( p_cur .ne. 1) then
-         call device_memcpy(alpha, alpha_d, p_cur, HOST_TO_DEVICE, sync=.false.)
-         call device_memcpy(beta, beta_d, p_cur, HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(alpha, alpha_d, p_cur, HOST_TO_DEVICE, &
+              sync = .false.)
+         call device_memcpy(beta, beta_d, p_cur, HOST_TO_DEVICE, sync = .false.)
          call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
               DEVICE_PIPECG_P_SPACE, n)
       end if
@@ -491,7 +496,7 @@ contains
 
   !> Pipelined PCG coupled solve
   function pipecg_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(pipecg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -502,16 +507,16 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(scalar_bc_projector_t), pointer :: bc_x, bc_y, bc_z
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    call vector_bc_projector_components(bc_projector, bc_x, bc_y, bc_z)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_x, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_y, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_z, gs_h, niter)
 
   end function pipecg_device_solve_coupled
 

@@ -191,7 +191,7 @@ contains
        call this%bc%mark_zone( &
             this%coef%dof%msh%labeled_zones(this%zone_indices(i)))
     end do
-    call this%bc%finalize(only_facets = .true.)
+    call this%bc%finalize()
 
     this%n_local = this%bc%msk(0)
 

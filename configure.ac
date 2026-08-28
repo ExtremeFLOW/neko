@@ -487,6 +487,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/expression/Makefile\
         tests/unit/point_interpolation/Makefile\
         tests/unit/templates/parallel/Makefile\
+        tests/unit/bc_projector/Makefile\
         tests/unit/boundary_operation/Makefile\
         tests/unit/wall_sampling/Makefile\
         tests/unit/templates/serial/Makefile])

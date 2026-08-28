@@ -39,7 +39,9 @@ module fusedcg_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       vector_bc_projector_components
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3
   use device, only : device_memcpy, HOST_TO_DEVICE, device_get_ptr, &
@@ -79,7 +81,7 @@ module fusedcg_device
 #ifdef HAVE_CUDA
   interface
      subroutine cuda_fusedcg_update_p(p_d, z_d, po_d, beta, n) &
-          bind(c, name='cuda_fusedcg_update_p')
+          bind(c, name = 'cuda_fusedcg_update_p')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -91,7 +93,7 @@ module fusedcg_device
 
   interface
      subroutine cuda_fusedcg_update_x(x_d, p_d, alpha, p_cur, n) &
-          bind(c, name='cuda_fusedcg_update_x')
+          bind(c, name = 'cuda_fusedcg_update_x')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x_d, p_d, alpha
@@ -101,7 +103,7 @@ module fusedcg_device
 
   interface
      real(c_rp) function cuda_fusedcg_part2(a_d, b_d, c_d, alpha_d, alpha, &
-          p_cur, n) bind(c, name='cuda_fusedcg_part2')
+          p_cur, n) bind(c, name = 'cuda_fusedcg_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -113,7 +115,7 @@ module fusedcg_device
 #elif HAVE_HIP
   interface
      subroutine hip_fusedcg_update_p(p_d, z_d, po_d, beta, n) &
-          bind(c, name='hip_fusedcg_update_p')
+          bind(c, name = 'hip_fusedcg_update_p')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -125,7 +127,7 @@ module fusedcg_device
 
   interface
      subroutine hip_fusedcg_update_x(x_d, p_d, alpha, p_cur, n) &
-          bind(c, name='hip_fusedcg_update_x')
+          bind(c, name = 'hip_fusedcg_update_x')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x_d, p_d, alpha
@@ -135,7 +137,7 @@ module fusedcg_device
 
   interface
      real(c_rp) function hip_fusedcg_part2(a_d, b_d, c_d, alpha_d, alpha, &
-          p_cur, n) bind(c, name='hip_fusedcg_part2')
+          p_cur, n) bind(c, name = 'hip_fusedcg_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -237,7 +239,7 @@ contains
     call device_alloc(this%p_d_d, p_size)
     ptr = c_loc(this%p_d)
     call device_memcpy(ptr, this%p_d_d, p_size, &
-         HOST_TO_DEVICE, sync=.false.)
+         HOST_TO_DEVICE, sync = .false.)
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
     else if (present(rel_tol) .and. present(abs_tol)) then
@@ -325,15 +327,15 @@ contains
   end subroutine fusedcg_device_free
 
   !> Pipelined PCG solve
-  function fusedcg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
-       result(ksp_results)
+  function fusedcg_device_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, &
+       niter) result(ksp_results)
     class(fusedcg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -367,7 +369,7 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) then
+      if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
          return
       end if
@@ -384,7 +386,7 @@ contains
          call Ax%compute(w, p(1, p_cur), coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
-         call blst%apply(w, n)
+         call bc_projector%apply(w, n)
 
          pap = device_glsc3(w_d, coef%mult_d, this%p_d(p_cur), n)
 
@@ -415,7 +417,7 @@ contains
 
   !> Pipelined PCG solve coupled solve
   function fusedcg_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(fusedcg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -426,16 +428,16 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(scalar_bc_projector_t), pointer :: bc_x, bc_y, bc_z
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    call vector_bc_projector_components(bc_projector, bc_x, bc_y, bc_z)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_x, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_y, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_z, gs_h, niter)
 
   end function fusedcg_device_solve_coupled
 

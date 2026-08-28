@@ -1,0 +1,309 @@
+module test_bc_projector
+  use mpi
+  use pfunit
+  use num_types, only : rp
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use device, only : device_init, device_finalize, device_map, device_unmap, &
+       device_get_ptr, device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_mpi_types, only : neko_mpi_types_init
+  use mesh_fixture, only : single_reference_element_mesh
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
+  use coefs, only : coef_t
+  use dofmap, only : dofmap_t
+  use gather_scatter, only : gs_t
+  use dirichlet, only : dirichlet_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       segregated_vector_bc_projector_t, vector_bc_projector_components
+  implicit none
+
+  real(kind=rp), parameter :: test_tol = 1000.0_rp * epsilon(1.0_rp)
+
+  @TestCase
+  type, extends(MPITestCase) :: test_bc_projector_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_bc_projector_case
+
+contains
+
+  subroutine setUp(this)
+    class(test_bc_projector_case), intent(inout) :: this
+    integer :: ierr
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call neko_mpi_types_init()
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_bc_projector_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  !> Verify that the parallel test fixture itself is wired correctly. This
+  !! keeps the original smoke coverage for the duplicated communicator and
+  !! pFUnit MPI test case setup.
+  @test(npes=[1])
+  subroutine test_template_passes(this)
+    class(test_bc_projector_case), intent(inout) :: this
+    integer :: ierr, comm_size
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call MPI_Comm_size(NEKO_COMM%mpi_val, comm_size, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(1, pe_size)
+    @assertEqual(1, comm_size)
+    @assertTrue(pe_rank >= 0)
+  end subroutine test_template_passes
+
+  !> Verify that the segregated vector projector marks a Dirichlet condition
+  !! on all components when no component selector is supplied. The test applies
+  !! a single face boundary condition to a vector field and checks that the
+  !! face values are zeroed in x, y, and z while an interior node is untouched.
+  @test(npes=[1])
+  subroutine test_segregated_all_components(this)
+    class(test_bc_projector_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(dirichlet_t) :: bc
+    type(segregated_vector_bc_projector_t) :: projector
+    real(kind=rp), allocatable :: x(:), y(:), z(:)
+    integer :: face1_dofs(9), dof_size, i
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_single_face_case(mesh, Xh, dof, gs, coef)
+    call init_dirichlet_face(bc, coef, 1)
+    call projector%init(coef)
+    call projector%mark(bc)
+
+    dof_size = dof%size()
+    allocate(x(dof_size), y(dof_size), z(dof_size))
+    x = 1.0_rp
+    y = 2.0_rp
+    z = 3.0_rp
+
+    call map_vectors(x, y, z)
+    call projector%apply(x, y, z, dof_size)
+    call unmap_vectors(x, y, z)
+
+    face1_dofs = [1, 4, 7, 10, 13, 16, 19, 22, 25]
+    do i = 1, size(face1_dofs)
+       @assertEqual(0.0_rp, x(face1_dofs(i)), tolerance=test_tol)
+       @assertEqual(0.0_rp, y(face1_dofs(i)), tolerance=test_tol)
+       @assertEqual(0.0_rp, z(face1_dofs(i)), tolerance=test_tol)
+    end do
+
+    ! The element center does not lie on the marked face.
+    @assertEqual(1.0_rp, x(14), tolerance=test_tol)
+    @assertEqual(2.0_rp, y(14), tolerance=test_tol)
+    @assertEqual(3.0_rp, z(14), tolerance=test_tol)
+
+    deallocate(x, y, z)
+    call projector%free()
+    call bc%free()
+    call free_single_face_case(mesh, Xh, dof, gs, coef)
+  end subroutine test_segregated_all_components
+
+  !> Verify component-specific generic dispatch through the abstract projector.
+  !! The allocated segregated projector is accessed through its polymorphic
+  !! parent. Marking the y component must reach the segregated override, so
+  !! applying the projector zeros y on the face and leaves x and z unchanged.
+  @test(npes=[1])
+  subroutine test_segregated_one_component(this)
+    class(test_bc_projector_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(dirichlet_t) :: bc
+    class(vector_bc_projector_t), allocatable :: projector
+    real(kind=rp), allocatable :: x(:), y(:), z(:)
+    integer :: face1_dofs(9), dof_size, i
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_single_face_case(mesh, Xh, dof, gs, coef)
+    call init_dirichlet_face(bc, coef, 1)
+    allocate(segregated_vector_bc_projector_t :: projector)
+    call projector%init(coef)
+    call projector%mark(bc, 'y')
+
+    dof_size = dof%size()
+    allocate(x(dof_size), y(dof_size), z(dof_size))
+    x = 1.0_rp
+    y = 2.0_rp
+    z = 3.0_rp
+
+    call map_vectors(x, y, z)
+    call projector%apply(x, y, z, dof_size)
+    call unmap_vectors(x, y, z)
+
+    face1_dofs = [1, 4, 7, 10, 13, 16, 19, 22, 25]
+    do i = 1, size(face1_dofs)
+       @assertEqual(1.0_rp, x(face1_dofs(i)), tolerance=test_tol)
+       @assertEqual(0.0_rp, y(face1_dofs(i)), tolerance=test_tol)
+       @assertEqual(3.0_rp, z(face1_dofs(i)), tolerance=test_tol)
+    end do
+
+    @assertEqual(1.0_rp, x(14), tolerance=test_tol)
+    @assertEqual(2.0_rp, y(14), tolerance=test_tol)
+    @assertEqual(3.0_rp, z(14), tolerance=test_tol)
+
+    deallocate(x, y, z)
+    call projector%free()
+    deallocate(projector)
+    call bc%free()
+    call free_single_face_case(mesh, Xh, dof, gs, coef)
+  end subroutine test_segregated_one_component
+
+  !> Verify that the public component accessor returns the scalar projectors
+  !! owned by a segregated vector projector. The test then marks only the
+  !! x-component projector through the returned pointer and checks that vector
+  !! application uses that component-local mask.
+  @test(npes=[1])
+  subroutine test_components_accessor(this)
+    class(test_bc_projector_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(dirichlet_t) :: bc
+    type(segregated_vector_bc_projector_t), target :: projector
+    type(scalar_bc_projector_t), pointer :: rx, ry, rz
+    real(kind=rp), allocatable :: x(:), y(:), z(:)
+    integer :: dof_size
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_single_face_case(mesh, Xh, dof, gs, coef)
+    call init_dirichlet_face(bc, coef, 1)
+    call projector%init(coef)
+    call vector_bc_projector_components(projector, rx, ry, rz)
+
+    @assertTrue(associated(rx))
+    @assertTrue(associated(ry))
+    @assertTrue(associated(rz))
+
+    call rx%mark(bc)
+
+    dof_size = dof%size()
+    allocate(x(dof_size), y(dof_size), z(dof_size))
+    x = 1.0_rp
+    y = 2.0_rp
+    z = 3.0_rp
+
+    call map_vectors(x, y, z)
+    call projector%apply(x, y, z, dof_size)
+    call unmap_vectors(x, y, z)
+
+    @assertEqual(0.0_rp, x(13), tolerance=test_tol)
+    @assertEqual(2.0_rp, y(13), tolerance=test_tol)
+    @assertEqual(3.0_rp, z(13), tolerance=test_tol)
+    @assertEqual(1.0_rp, x(14), tolerance=test_tol)
+
+    deallocate(x, y, z)
+    call projector%free()
+    call bc%free()
+    call free_single_face_case(mesh, Xh, dof, gs, coef)
+  end subroutine test_components_accessor
+
+  subroutine init_single_face_case(mesh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: mesh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+    integer :: zone_idx
+
+    call single_reference_element_mesh(mesh)
+    call Xh%init(GLL, 3, 3, 3)
+    call dof%init(mesh, Xh)
+    call gs%init(dof)
+    call coef%init(gs)
+
+    ! Keep the labeled-zone setup identical to the coupled projector tests:
+    ! zone i maps to face i of the single reference hexahedron.
+    do zone_idx = 1, 6
+       call mesh%mark_labeled_facet(zone_idx, 1, zone_idx)
+       call mesh%labeled_zones(zone_idx)%finalize()
+    end do
+  end subroutine init_single_face_case
+
+  subroutine free_single_face_case(mesh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: mesh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+
+    call coef%free()
+    call gs%free()
+    call dof%free()
+    call Xh%free()
+    call mesh%free()
+  end subroutine free_single_face_case
+
+  subroutine init_dirichlet_face(bc, coef, zone_idx)
+    type(dirichlet_t), intent(inout), target :: bc
+    type(coef_t), target, intent(in) :: coef
+    integer, intent(in) :: zone_idx
+
+    call bc%init_from_components(coef, 0.0_rp)
+    call bc%mark_labeled_zone(zone_idx)
+    call bc%finalize()
+  end subroutine init_dirichlet_face
+
+  subroutine map_vectors(x, y, z)
+    real(kind=rp), intent(inout), target :: x(:), y(:), z(:)
+    type(c_ptr) :: x_d, y_d, z_d
+
+    if (NEKO_BCKND_DEVICE .ne. 1) return
+
+    x_d = c_null_ptr
+    y_d = c_null_ptr
+    z_d = c_null_ptr
+    call device_map(x, x_d, size(x))
+    call device_map(y, y_d, size(y))
+    call device_map(z, z_d, size(z))
+    call device_memcpy(x, x_d, size(x), HOST_TO_DEVICE, sync = .true.)
+    call device_memcpy(y, y_d, size(y), HOST_TO_DEVICE, sync = .true.)
+    call device_memcpy(z, z_d, size(z), HOST_TO_DEVICE, sync = .true.)
+  end subroutine map_vectors
+
+  subroutine unmap_vectors(x, y, z)
+    real(kind=rp), intent(inout), target :: x(:), y(:), z(:)
+    type(c_ptr) :: x_d, y_d, z_d
+
+    if (NEKO_BCKND_DEVICE .ne. 1) return
+
+    x_d = device_get_ptr(x)
+    y_d = device_get_ptr(y)
+    z_d = device_get_ptr(z)
+    call device_memcpy(x, x_d, size(x), DEVICE_TO_HOST, sync = .true.)
+    call device_memcpy(y, y_d, size(y), DEVICE_TO_HOST, sync = .true.)
+    call device_memcpy(z, z_d, size(z), DEVICE_TO_HOST, sync = .true.)
+    call device_unmap(x, x_d)
+    call device_unmap(y, y_d)
+    call device_unmap(z, z_d)
+  end subroutine unmap_vectors
+
+end module test_bc_projector
