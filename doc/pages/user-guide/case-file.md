@@ -393,11 +393,11 @@ same object directly to that scalar's configuration:
 The optional `formulation` entry defaults to `Kirby-Sherwin`;
 it is shown above to make the operator choice explicit. The required `kernel`
 object selects the modal transfer function through its `type`; currently, only
-`power` is supported.  For the `power` kernel, the required `power_coefficient` 
-controls the modal transfer function; larger values confine the added 
-dissipation to modes nearer the polynomial cut-off. 
+`power` is supported.  For the `power` kernel, the required `power_coefficient`
+controls the modal transfer function; larger values confine the added
+dissipation to modes nearer the polynomial cut-off.
 The `direction` selects the reference-element directions
-in which the modal filter is applied and defaults to `rst`. 
+in which the modal filter is applied and defaults to `rst`.
 The SVV viscosity `nu` is multiplied by density internally and may be
 either a constant `value` or a registered `field`. A field configuration uses
 `field_name`:

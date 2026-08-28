@@ -256,6 +256,7 @@ contains
   end subroutine svv_free
 
   !> Convert an integer to a compact string.
+  !! @param value Integer value to convert.
   function to_string(value) result(string)
     integer, intent(in) :: value
     character(len=32) :: string

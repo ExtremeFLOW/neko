@@ -1,7 +1,7 @@
 #ifndef __MATH_AX_HELM_SVV_KERNEL_H__
 #define __MATH_AX_HELM_SVV_KERNEL_H__
 /*
- Copyright (c) 2025, The Neko Authors
+ Copyright (c) 2025-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
