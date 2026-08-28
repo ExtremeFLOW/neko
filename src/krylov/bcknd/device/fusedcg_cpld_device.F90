@@ -631,8 +631,6 @@ contains
          call bc_projector%apply(w1, w2, w3, n)
          call rotate_cyc(w1_d, w2_d, w3_d, 0, coef)
 
-
-
          call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d, p1_d(p_cur), &
               p2_d(p_cur), p3_d(p_cur), tmp_d, n)
 
