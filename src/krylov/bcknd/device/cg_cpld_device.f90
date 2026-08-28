@@ -269,8 +269,8 @@ contains
 
   end subroutine cg_cpld_device_free
 
-  function cg_cpld_device_nop(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
-       result(ksp_results)
+  function cg_cpld_device_nop(this, Ax, x, f, n, coef, bc_projector, gs_h, &
+       niter) result(ksp_results)
     class(cg_cpld_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
