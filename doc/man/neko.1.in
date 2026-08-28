@@ -122,7 +122,7 @@ Indentation width used by the logger.
 Pins the kernel formulation used by the spectral element operators on the
 CUDA and HIP backends, skipping the auto-tuning search that otherwise runs
 on the first call of each operator. Accepted values are
-.BR 1D ", " KSTEP ", " DMMA " and " MFMA .
+.BR 1D ", " KSTEP ", " DMMA ", " DMMA_TMA ", " DMMA_TMA_BATCH " and " MFMA .
 .B DMMA
 applies to the CUDA Helmholtz operator only, scalar and vector, and needs a
 double precision build, a polynomial order with
@@ -130,6 +130,14 @@ double precision build, a polynomial order with
 for the scalar operator or
 .BR 4 " <= " lx " <= " 8
 for the vector one, and an sm_80 or sm_90 device the binary was compiled for.
+.B DMMA_TMA
+is the same variant with its staging issued as bulk asynchronous copies on
+the Tensor Memory Accelerator, scalar and vector, and narrows the scope to
+.BR lx " = " 8
+on an sm_90 device, with a CUDA 12 or later toolkit.
+.B DMMA_TMA_BATCH
+is the batched form of it, which stages all ten input cubes of an element at
+once, for the vector operator only.
 .B MFMA
 is its HIP counterpart for the scalar operator, for
 .BR 4 " <= " lx " <= " 12
@@ -185,6 +193,20 @@ formulation is pinned with
 Candidates
 .BR 0 ", " 1 " and " 2
 are 2, 4 and 8 warps per block. Values outside the valid range fall back to
+.BR 0 .
+Defaults to
+.BR 0 .
+.TP
+.B NEKO_DMMA_TMA_NW
+Selects the warps-per-block candidate used when a TMA staged tensor core
+formulation is pinned with
+.BR NEKO_AUTOTUNE=DMMA_TMA " or " NEKO_AUTOTUNE=DMMA_TMA_BATCH .
+Candidates
+.BR 0 ", " 1 " and " 2
+are 2, 4 and 8 warps per block, as for
+.BR NEKO_DMMA_NW ,
+and both variants read this one variable. Values outside the valid range fall
+back to
 .BR 0 .
 Defaults to
 .BR 0 .

@@ -257,7 +257,8 @@ static int neko_mfma_env()
     for (int c = 0; c < NEKO_MFMA_CANDIDATES; c++) {                          \
       if ((T3)[c] >= NEKO_TUNE_INIT) { continue; }                            \
       sprintf(neko_log_buf, "MFMA  %dwf %-2de: %9.2f us/call",                \
-              NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c), (T3)[c] * 10.0);         \
+              NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c),                          \
+              NEKO_TUNE_US((T3)[c], iters));                                  \
       log_message(neko_log_buf);                                              \
     }                                                                         \
   } while (0)
