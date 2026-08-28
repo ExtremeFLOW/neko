@@ -582,6 +582,20 @@ contains
             stage)%limited_edge_fraction
        call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
+       write(log_buf, '(A,ES10.3,A,ES10.3)') &
+            'IDP state: rho_min=', &
+            this%euler_idp_cpu%stage_diagnostics(stage)%min_density, &
+            ' p_min=', &
+            this%euler_idp_cpu%stage_diagnostics(stage)%min_pressure
+       call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
+       write(log_buf, '(A,ES10.3,A,ES10.3)') &
+            'IDP timestep: graph_cfl=', &
+            this%euler_idp_cpu%stage_diagnostics(stage)%max_graph_cfl, &
+            ' dt_floor=', &
+            this%euler_idp_cpu%stage_diagnostics(stage)%maximum_floor_timestep
+       call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
        write(log_buf, '(A,I0,A,I0,A,I0)') &
             'IDP edges: rho=', &
             this%euler_idp_cpu%stage_diagnostics( &

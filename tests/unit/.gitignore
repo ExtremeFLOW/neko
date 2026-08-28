@@ -21,6 +21,7 @@ test-suite.log
 !templates/parallel/parallel_test
 !vector/vector_test
 !vtkhdf/vtkhdf_test
+!euler_gll_graph/euler_gll_graph_test
 
 # Processed files
 **.inc
@@ -68,6 +69,7 @@ time_scheme/time_scheme_test
 time_scheme_controller/time_scheme_controller_test
 time_based_controller/time_based_controller_test
 euler_idp_limiter/euler_idp_limiter_test
+euler_gll_graph/euler_gll_graph_suite
 json_utils/json_utils_test
 expression/expression_test
 point_interpolation/point_interpolation_suite

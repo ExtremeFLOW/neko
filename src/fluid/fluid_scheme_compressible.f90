@@ -631,7 +631,6 @@ contains
     logical :: local_valid, global_valid
     integer :: time_order, ierr
     integer :: e, f, n_facets
-    real(kind=rp) :: metric_tolerance
 
     if (.not. this%euler_idp%enabled) return
 
@@ -722,46 +721,6 @@ contains
             'Euler IDP requires every exterior facet to be periodic or labeled')
     end if
 
-    metric_tolerance = 100.0_rp * epsilon(1.0_rp) * &
-         real(max(1, this%Xh%lxyz), rp)
-    local_valid = .true.
-    do e = 1, this%msh%nelv
-       local_valid = local_valid .and. &
-            fluid_scheme_compressible_constant_metric(this%c_Xh%dxdr, e, &
-            metric_tolerance)
-       local_valid = local_valid .and. &
-            fluid_scheme_compressible_constant_metric(this%c_Xh%dydr, e, &
-            metric_tolerance)
-       local_valid = local_valid .and. &
-            fluid_scheme_compressible_constant_metric(this%c_Xh%dzdr, e, &
-            metric_tolerance)
-       local_valid = local_valid .and. &
-            fluid_scheme_compressible_constant_metric(this%c_Xh%dxds, e, &
-            metric_tolerance)
-       local_valid = local_valid .and. &
-            fluid_scheme_compressible_constant_metric(this%c_Xh%dyds, e, &
-            metric_tolerance)
-       local_valid = local_valid .and. &
-            fluid_scheme_compressible_constant_metric(this%c_Xh%dzds, e, &
-            metric_tolerance)
-       local_valid = local_valid .and. &
-            fluid_scheme_compressible_constant_metric(this%c_Xh%dxdt, e, &
-            metric_tolerance)
-       local_valid = local_valid .and. &
-            fluid_scheme_compressible_constant_metric(this%c_Xh%dydt, e, &
-            metric_tolerance)
-       local_valid = local_valid .and. &
-            fluid_scheme_compressible_constant_metric(this%c_Xh%dzdt, e, &
-            metric_tolerance)
-       local_valid = local_valid .and. &
-            fluid_scheme_compressible_constant_metric(this%c_Xh%jac, e, &
-            metric_tolerance)
-    end do
-    call MPI_Allreduce(local_valid, global_valid, 1, MPI_LOGICAL, MPI_LAND, &
-         NEKO_COMM, ierr)
-    if (.not. global_valid) then
-       call neko_error('Euler IDP requires affine element metrics')
-    end if
   end subroutine fluid_scheme_compressible_validate_idp_setup
 
   !> Return whether a local mesh facet has periodic metadata.
@@ -780,19 +739,5 @@ contains
        end if
     end do
   end function fluid_scheme_compressible_is_periodic_facet
-
-  !> Return whether a geometric metric is constant on one element.
-  logical function fluid_scheme_compressible_constant_metric(metric, &
-       element, tolerance) result(is_constant)
-    real(kind=rp), intent(in) :: metric(:,:,:,:)
-    integer, intent(in) :: element
-    real(kind=rp), intent(in) :: tolerance
-    real(kind=rp) :: reference, scale
-
-    reference = metric(1,1,1,element)
-    scale = max(1.0_rp, maxval(abs(metric(:,:,:,element))))
-    is_constant = maxval(abs(metric(:,:,:,element) - reference)) .le. &
-         tolerance * scale
-  end function fluid_scheme_compressible_constant_metric
 
 end module fluid_scheme_compressible

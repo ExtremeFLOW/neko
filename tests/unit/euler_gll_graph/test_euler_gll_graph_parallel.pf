@@ -1,0 +1,164 @@
+module test_euler_gll_graph_parallel
+  use mpi
+  use pfunit
+  use num_types, only : rp
+  use point, only : point_t
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
+  use dofmap, only : dofmap_t
+  use gather_scatter, only : gs_t
+  use coefs, only : coef_t
+  use euler_gll_graph, only : euler_gll_graph_t
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
+  implicit none
+
+  integer, parameter :: lx_test = 4
+
+  @TestCase
+  type, extends(MPITestCase) :: test_euler_gll_graph
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_euler_gll_graph
+
+contains
+
+  subroutine setUp(this)
+    class(test_euler_gll_graph), intent(inout) :: this
+    call comm_init_test(this%getMpiCommunicator())
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_euler_gll_graph), intent(inout) :: this
+    call comm_free_test()
+  end subroutine tearDown
+
+  !> Constant Cartesian fluxes must remain constant on a warped, straight-
+  !! sided element for both the sparse graph and the high-order operator.
+  @test(npes=[1])
+  subroutine test_warped_hex_free_stream(this)
+    class(test_euler_gll_graph), intent(inout) :: this
+    type(mesh_t) :: msh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(euler_gll_graph_t) :: graph
+    real(kind=rp) :: flux_x(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: flux_y(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: flux_z(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: low(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: high(lx_test,lx_test,lx_test,1)
+
+    call build_warped_hex_fixture(msh, Xh, dof, gs, coef)
+    call graph%init(coef, gs)
+
+    flux_x = 1.25_rp
+    flux_y = -0.7_rp
+    flux_z = 0.4_rp
+    call graph%local_flux_divergence(low, flux_x, flux_y, flux_z)
+    call graph%high_order_flux_divergence(high, flux_x, flux_y, flux_z, coef)
+
+    @assertEqual(0.0_rp, maxval(abs(low)), tolerance = 1.0e-12_rp)
+    @assertEqual(0.0_rp, maxval(abs(high)), tolerance = 1.0e-12_rp)
+
+    call free_warped_hex_fixture(graph, coef, gs, dof, Xh, msh)
+  end subroutine test_warped_hex_free_stream
+
+  !> The reconstructed edge correction must exactly represent the difference
+  !! between the sparse and high-order conservative residuals.
+  @test(npes=[1])
+  subroutine test_warped_hex_correction_identity(this)
+    class(test_euler_gll_graph), intent(inout) :: this
+    type(mesh_t) :: msh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(euler_gll_graph_t) :: graph
+    real(kind=rp) :: flux_x(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: flux_y(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: flux_z(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: low(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: high(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: correction(lx_test,lx_test,lx_test,1)
+    real(kind=rp), allocatable :: edge_flux(:)
+    real(kind=rp) :: compatibility_error, correction_error, error_scale
+
+    call build_warped_hex_fixture(msh, Xh, dof, gs, coef)
+    call graph%init(coef, gs)
+
+    flux_x = 1.0_rp + dof%x + dof%x * dof%y + 0.1_rp * dof%z**2
+    flux_y = dof%y**2 - 0.3_rp * dof%x * dof%z
+    flux_z = dof%z + 0.2_rp * dof%x * dof%y
+    call graph%local_flux_divergence(low, flux_x, flux_y, flux_z)
+    call graph%high_order_flux_divergence(high, flux_x, flux_y, flux_z, coef)
+
+    allocate(edge_flux(graph%n_edges))
+    call graph%directional_correction_flux(edge_flux, flux_x, flux_y, &
+         flux_z, coef, compatibility_error)
+    call graph%incidence(correction, edge_flux)
+    error_scale = max(1.0_rp, maxval(abs(low - high)))
+    correction_error = maxval(abs(correction - (low - high)))
+
+    @assertEqual(0.0_rp, compatibility_error, tolerance = 1.0e-12_rp)
+    @assertEqual(0.0_rp, correction_error, tolerance = 1.0e-11_rp * error_scale)
+
+    deallocate(edge_flux)
+    call free_warped_hex_fixture(graph, coef, gs, dof, Xh, msh)
+  end subroutine test_warped_hex_correction_identity
+
+  !> Build one non-parallelepiped trilinear hex with straight edges.
+  subroutine build_warped_hex_fixture(msh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+    type(point_t) :: p(8)
+
+    call p(1)%init(0.0_rp, 0.0_rp, 0.0_rp)
+    call p(1)%set_id(1)
+    call p(2)%init(1.0_rp, 0.0_rp, 0.0_rp)
+    call p(2)%set_id(2)
+    call p(3)%init(0.02_rp, 1.0_rp, 0.0_rp)
+    call p(3)%set_id(3)
+    call p(4)%init(1.0_rp, 0.98_rp, 0.0_rp)
+    call p(4)%set_id(4)
+    call p(5)%init(0.05_rp, 0.02_rp, 1.0_rp)
+    call p(5)%set_id(5)
+    call p(6)%init(1.05_rp, -0.02_rp, 1.05_rp)
+    call p(6)%set_id(6)
+    call p(7)%init(-0.03_rp, 0.97_rp, 1.02_rp)
+    call p(7)%set_id(7)
+    call p(8)%init(0.98_rp, 1.04_rp, 0.98_rp)
+    call p(8)%set_id(8)
+
+    call msh%init(3, 1)
+    call msh%add_element(1, 1, p(1), p(2), p(3), p(4), &
+         p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
+
+    call Xh%init(GLL, lx_test, lx_test, lx_test)
+    call dof%init(msh, Xh)
+    call gs%init(dof)
+    call coef%init(gs)
+  end subroutine build_warped_hex_fixture
+
+  subroutine free_warped_hex_fixture(graph, coef, gs, dof, Xh, msh)
+    type(euler_gll_graph_t), intent(inout) :: graph
+    type(coef_t), intent(inout) :: coef
+    type(gs_t), intent(inout) :: gs
+    type(dofmap_t), intent(inout) :: dof
+    type(space_t), intent(inout) :: Xh
+    type(mesh_t), intent(inout) :: msh
+
+    call graph%free()
+    call coef%free()
+    call gs%free()
+    call dof%free()
+    call Xh%free()
+    call msh%free()
+  end subroutine free_warped_hex_fixture
+
+end module test_euler_gll_graph_parallel

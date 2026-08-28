@@ -479,6 +479,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/time_scheme_controller/Makefile\
         tests/unit/runge_kutta_scheme/Makefile\
         tests/unit/euler_idp_limiter/Makefile\
+        tests/unit/euler_gll_graph/Makefile\
         tests/unit/time_based_controller/Makefile\
         tests/unit/json_utils/Makefile\
         tests/unit/utils/Makefile\

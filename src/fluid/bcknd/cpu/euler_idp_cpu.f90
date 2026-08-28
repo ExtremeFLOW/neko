@@ -42,7 +42,6 @@ module euler_idp_cpu
   use bc_list, only : bc_list_t
   use time_state, only : time_state_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
-  use operators, only : div
   use compressible_ops_cpu, only : &
        compressible_ops_cpu_conserved_to_primitive, &
        compressible_ops_cpu_update_uvw, &
@@ -424,10 +423,9 @@ contains
 
     do component = 1, EULER_IDP_NCOMP
        call euler_idp_cpu_flux(this, component, m_x, m_y, m_z, energy)
-       call div(this%local_residual(component)%x, this%flux_x%x, &
+       call this%graph%high_order_flux_divergence( &
+            this%local_residual(component)%x, this%flux_x%x, &
             this%flux_y%x, this%flux_z%x, coef)
-       this%local_residual(component)%x = &
-            this%local_residual(component)%x * coef%B
        call euler_idp_cpu_element_sums(this, component, coef, &
             this%local_residual(component), this%element_residual_sum, &
             this%element_boundary_flux)
@@ -905,10 +903,8 @@ contains
             'selected element-local reconstruction')
     end if
 
-    ! Reconstruct the low-to-high inviscid correction independently in each
-    ! tensor direction. On affine elements the two SBP operators have the same
-    ! line boundary flux, so every line correction is compatible and admits a
-    ! nearest-neighbour cumulative flux without a graph-Poisson solve.
+    ! Reconstruct the conservative low-to-high inviscid correction on the
+    ! coordinate-neighbour graph.
     directional_error_local = 0.0_rp
     do component = 1, EULER_IDP_NCOMP
        call euler_idp_cpu_flux(this, component, m_x, m_y, m_z, energy)
@@ -1233,19 +1229,46 @@ contains
     diagnostics%entropy_limited_edges = global_count(5)
   end subroutine euler_idp_cpu_compute_limiter
 
-  !> Assemble the limited edge correction on the replicated nodal state.
+  !> Assemble the limited state as its invariant-domain convex combination.
   subroutine euler_idp_cpu_apply_correction(this, gs)
     class(euler_idp_cpu_t), intent(inout) :: this
     type(gs_t), intent(inout) :: gs
-    integer :: component
+    real(kind=rp) :: degree, weight, auxiliary
+    integer :: component, direction, edge
 
     do component = 1, EULER_IDP_NCOMP
-       call this%graph%incidence(this%flux_x%x, &
-            this%edge_limiter * this%correction_flux(component,:))
-       call gs%op(this%flux_x, GS_OP_ADD)
-       this%limited_candidate(component)%x = &
-            this%low_candidate(component)%x + &
-            this%flux_x%x / this%graph%mass%x
+       this%limited_candidate(component)%x = 0.0_rp
+       do edge = 1, this%graph%n_edges
+          associate(a => this%graph%left(:,edge), &
+               b => this%graph%right(:,edge))
+            direction = this%graph%direction(edge)
+
+            degree = this%graph%directional_degree(direction)%x( &
+                 a(1),a(2),a(3),a(4))
+            weight = 1.0_rp / (real(this%graph%n_directions, rp) * degree)
+            auxiliary = this%low_candidate(component)%x( &
+                 a(1),a(2),a(3),a(4)) + this%edge_limiter(edge) * &
+                 this%correction_flux(component,edge) / &
+                 (this%graph%mass%x(a(1),a(2),a(3),a(4)) * weight)
+            this%limited_candidate(component)%x(a(1),a(2),a(3),a(4)) = &
+                 this%limited_candidate(component)%x( &
+                 a(1),a(2),a(3),a(4)) + &
+                 weight * auxiliary
+
+            degree = this%graph%directional_degree(direction)%x( &
+                 b(1),b(2),b(3),b(4))
+            weight = 1.0_rp / (real(this%graph%n_directions, rp) * degree)
+            auxiliary = this%low_candidate(component)%x( &
+                 b(1),b(2),b(3),b(4)) - this%edge_limiter(edge) * &
+                 this%correction_flux(component,edge) / &
+                 (this%graph%mass%x(b(1),b(2),b(3),b(4)) * weight)
+            this%limited_candidate(component)%x(b(1),b(2),b(3),b(4)) = &
+                 this%limited_candidate(component)%x( &
+                 b(1),b(2),b(3),b(4)) + &
+                 weight * auxiliary
+          end associate
+       end do
+       call gs%op(this%limited_candidate(component), GS_OP_ADD)
     end do
   end subroutine euler_idp_cpu_apply_correction
 
