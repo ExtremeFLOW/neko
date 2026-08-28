@@ -40,8 +40,7 @@ module bicgstab
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
-  use math, only : glsc3, rzero, copy, NEKO_EPS, add2s2, x_update, &
-       p_update
+  use math, only : glsc3, copy, NEKO_EPS, add2s2, p_update
   use utils, only : neko_error
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
@@ -197,12 +196,14 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter, max_iter
+    integer :: iter, max_iter, i, ierr
     real(kind=rp) :: rnorm, rtr, norm_fac, gamma
     real(kind=rp) :: r_norm, s_norm, shadow_norm, t_norm, v_norm
     ! s^T s, f^T v, v^T v, s^T t, t^T t
     real(kind=rp) :: sts, ftv, vtv, stt, ttt
     real(kind=rp) :: beta, alpha, omega, rho_1, rho_2
+    ! Extra-precision accumulator for the fused residual reductions
+    real(kind=xp) :: res_sum
 
     if (present(niter)) then
        max_iter = niter
@@ -214,12 +215,21 @@ contains
     associate(r => this%r, t => this%t, s => this%s, v => this%v, &
          p => this%p, s_hat => this%s_hat, p_hat => this%p_hat)
 
-      call rzero(x%x, n)
-      call copy(r, f, n)
+      res_sum = 0.0_xp
+      !$omp parallel do reduction(+:res_sum)
+      do i = 1, n
+         x%x(i,1,1,1) = 0.0_rp
+         r(i) = f(i)
+         res_sum = res_sum + (r(i) * coef%mult(i,1,1,1) * r(i))
+      end do
+      !$omp end parallel do
+
+      call MPI_Allreduce(MPI_IN_PLACE, res_sum, 1, &
+           MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+      rtr = res_sum
 
       ! The implementation deliberately starts from x = 0, so f is both the
       ! initial residual and the fixed shadow residual used by BiCGStab.
-      rtr = glsc3(r, coef%mult, r, n)
       r_norm = bicgstab_sqrt(rtr, 'initial residual')
       shadow_norm = r_norm
       rnorm = r_norm * norm_fac
@@ -276,13 +286,22 @@ contains
             call neko_error('BiCGStab failure: non-finite alpha')
          end if
 
-         call copy(s, r, n)
-         call add2s2(s, v, -alpha, n)
-         sts = glsc3(s, coef%mult, s, n)
+         res_sum = 0.0_xp
+         !$omp parallel do reduction(+:res_sum)
+         do i = 1, n
+            s(i) = r(i) - alpha * v(i)
+            res_sum = res_sum + s(i) * coef%mult(i,1,1,1) * s(i)
+         end do
+         !$omp end parallel do
+
+         call MPI_Allreduce(MPI_IN_PLACE, res_sum, 1, &
+              MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         sts = res_sum
+
          s_norm = bicgstab_sqrt(sts, 'intermediate residual')
          rnorm = s_norm * norm_fac
          if (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) then
-            call add2s2(x%x, p_hat, alpha,n)
+            call add2s2(x%x, p_hat, alpha, n)
             call this%monitor_iter(iter, rnorm)
             exit
          end if
@@ -305,11 +324,19 @@ contains
             call neko_error('BiCGStab failure: non-finite omega')
          end if
 
-         call x_update(x%x, p_hat, s_hat, alpha, omega, n)
-         call copy(r, s, n)
-         call add2s2(r, t, -omega, n)
+         res_sum = 0.0_xp
+         !$omp parallel do reduction(+:res_sum)
+         do i = 1, n
+            x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * p_hat(i) + omega * s_hat(i)
+            r(i) = s(i) - omega * t(i)
+            res_sum = res_sum + r(i) * coef%mult(i,1,1,1) * r(i)
+         end do
+         !$omp end parallel do
 
-         rtr = glsc3(r, coef%mult, r, n)
+         call MPI_Allreduce(MPI_IN_PLACE, res_sum, 1, &
+              MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         rtr = res_sum
+
          r_norm = bicgstab_sqrt(rtr, 'recursive residual')
          rnorm = r_norm * norm_fac
          call this%monitor_iter(iter, rnorm)
