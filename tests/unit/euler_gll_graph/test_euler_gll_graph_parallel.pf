@@ -52,6 +52,7 @@ contains
 
     call build_warped_hex_fixture(msh, Xh, dof, gs, coef)
     call graph%init(coef, gs)
+    @assertFalse(graph%affine)
 
     flux_x = 1.25_rp
     flux_y = -0.7_rp
@@ -87,6 +88,7 @@ contains
 
     call build_warped_hex_fixture(msh, Xh, dof, gs, coef)
     call graph%init(coef, gs)
+    @assertFalse(graph%affine)
 
     flux_x = 1.0_rp + dof%x + dof%x * dof%y + 0.1_rp * dof%z**2
     flux_y = dof%y**2 - 0.3_rp * dof%x * dof%z
@@ -107,6 +109,93 @@ contains
     deallocate(edge_flux)
     call free_warped_hex_fixture(graph, coef, gs, dof, Xh, msh)
   end subroutine test_warped_hex_correction_identity
+
+  !> On affine elements, a reference-y correction must remain on y-edges.
+  @test(npes=[1])
+  subroutine test_affine_directional_correction(this)
+    class(test_euler_gll_graph), intent(inout) :: this
+    type(mesh_t) :: msh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(euler_gll_graph_t) :: graph
+    real(kind=rp) :: flux_x(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: flux_y(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: flux_z(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: low(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: high(lx_test,lx_test,lx_test,1)
+    real(kind=rp) :: correction(lx_test,lx_test,lx_test,1)
+    real(kind=rp), allocatable :: edge_flux(:)
+    real(kind=rp) :: compatibility_error, correction_error, error_scale
+    real(kind=rp) :: transverse_flux
+    integer :: edge
+
+    call build_affine_hex_fixture(msh, Xh, dof, gs, coef)
+    call graph%init(coef, gs)
+
+    flux_x = 0.0_rp
+    flux_y = dof%x * dof%y**3
+    flux_z = 0.0_rp
+    call graph%local_flux_divergence(low, flux_x, flux_y, flux_z)
+    call graph%high_order_flux_divergence(high, flux_x, flux_y, flux_z, coef)
+
+    allocate(edge_flux(graph%n_edges))
+    call graph%directional_correction_flux(edge_flux, flux_x, flux_y, &
+         flux_z, coef, compatibility_error)
+    call graph%incidence(correction, edge_flux)
+
+    transverse_flux = 0.0_rp
+    do edge = 1, graph%n_edges
+       if (graph%direction(edge) .ne. 2) then
+          transverse_flux = max(transverse_flux, abs(edge_flux(edge)))
+       end if
+    end do
+    error_scale = max(1.0_rp, maxval(abs(low - high)))
+    correction_error = maxval(abs(correction - (low - high)))
+
+    @assertTrue(graph%affine)
+    @assertTrue(maxval(abs(edge_flux)) .gt. 1.0e-8_rp)
+    @assertEqual(0.0_rp, transverse_flux, tolerance = 1.0e-12_rp)
+    @assertEqual(0.0_rp, compatibility_error, tolerance = 1.0e-12_rp)
+    @assertEqual(0.0_rp, correction_error, tolerance = 1.0e-11_rp * error_scale)
+
+    deallocate(edge_flux)
+    call free_warped_hex_fixture(graph, coef, gs, dof, Xh, msh)
+  end subroutine test_affine_directional_correction
+
+  !> Build one affine Cartesian hex.
+  subroutine build_affine_hex_fixture(msh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+    type(point_t) :: p(8)
+    integer :: i
+
+    call p(1)%init(0.0_rp, 0.0_rp, 0.0_rp)
+    call p(2)%init(1.0_rp, 0.0_rp, 0.0_rp)
+    call p(3)%init(0.0_rp, 1.0_rp, 0.0_rp)
+    call p(4)%init(1.0_rp, 1.0_rp, 0.0_rp)
+    call p(5)%init(0.0_rp, 0.0_rp, 1.0_rp)
+    call p(6)%init(1.0_rp, 0.0_rp, 1.0_rp)
+    call p(7)%init(0.0_rp, 1.0_rp, 1.0_rp)
+    call p(8)%init(1.0_rp, 1.0_rp, 1.0_rp)
+    do i = 1, 8
+       call p(i)%set_id(i)
+    end do
+
+    call msh%init(3, 1)
+    call msh%add_element(1, 1, p(1), p(2), p(3), p(4), &
+         p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
+
+    call Xh%init(GLL, lx_test, lx_test, lx_test)
+    call dof%init(msh, Xh)
+    call gs%init(dof)
+    call coef%init(gs)
+  end subroutine build_affine_hex_fixture
 
   !> Build one non-parallelepiped trilinear hex with straight edges.
   subroutine build_warped_hex_fixture(msh, Xh, dof, gs, coef)
