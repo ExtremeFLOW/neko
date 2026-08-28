@@ -62,6 +62,8 @@ module PDE_filter
   use utils, only : neko_error
   use device_math, only : device_cfill, device_subcol3, device_cmult
   use json_utils, only : json_get, json_get_or_default
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -94,9 +96,6 @@ module PDE_filter
      ! > preconditioner type
      character(len=:), allocatable :: precon_type_filt
      integer :: ksp_n, n, i
-
-
-
    contains
      !> Constructor from json.
      procedure, pass(this) :: init => PDE_filter_init_from_json
@@ -107,6 +106,8 @@ module PDE_filter
      procedure, pass(this) :: free => PDE_filter_free
      !> Apply the filter
      procedure, pass(this) :: apply => PDE_filter_apply
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => PDE_filter_amr_restart
   end type PDE_filter_t
 
 contains
@@ -317,5 +318,32 @@ contains
     call ksp%set_pc(pc)
 
   end subroutine filter_precon_factory
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine PDE_filter_amr_restart(this, reconstruct, counter, time)
+    class(PDE_filter_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    call this%amr_restart_base(reconstruct, counter, time)
+
+    ! Krylov solver
+    call this%ksp_filt%amr_restart(reconstruct, counter, time)
+
+    ! Preconditioner
+    call this%pc_filt%amr_restart(reconstruct, counter, time)
+
+    ! No need to work on bclst_filt, as it is empty
+
+  end subroutine PDE_filter_amr_restart
 
 end module PDE_filter

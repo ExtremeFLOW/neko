@@ -40,11 +40,14 @@ module filter
   use json_module, only : json_file
   use coefs, only : coef_t
   use field, only : field_t
+  use time_state, only : time_state_t
+  use amr_restart_component, only : amr_restart_component_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
   !> Base abstract class for filter.
-  type, abstract, public :: filter_t
+  type, abstract, public, extends(amr_restart_component_t) :: filter_t
      !> Coefficients for the SEM.
      type(coef_t), pointer :: coef => null()
 
@@ -59,10 +62,9 @@ module filter
      procedure(filter_free), pass(this), deferred :: free
      !> The main function to be executed during the run.
      procedure(filter_apply), pass(this), deferred :: apply
+     !> AMR restart
+     procedure, pass(this) :: amr_restart_base => filter_amr_restart_base
   end type filter_t
-
-
-
 
   abstract interface
      !> The common constructor using a JSON dictionary.
@@ -127,8 +129,26 @@ contains
     class(filter_t), intent(inout) :: this
 
     nullify(this%coef)
+    call this%free_amr_base()
   end subroutine filter_free_base
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine filter_amr_restart_base(this, reconstruct, counter, time)
+    class(filter_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
+    ! No counter checking
+
+    ! reconstruct coef; No problem, as AMR restart prevents recursive
+    ! reconstructions
+    if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+         counter, time)
+
+  end subroutine filter_amr_restart_base
 
 end module filter

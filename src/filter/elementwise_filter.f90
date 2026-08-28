@@ -48,6 +48,8 @@ module elementwise_filter
   use tensor, only : tnsr3d, trsp
   use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   use device_math, only : device_cfill
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
@@ -79,6 +81,8 @@ module elementwise_filter
      procedure, pass(this) :: build_1d
      !> Filter a 3D field
      procedure, pass(this) :: apply => elementwise_field_filter_3d
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => elementwise_filter_amr_restart
   end type elementwise_filter_t
 
 contains
@@ -280,5 +284,26 @@ contains
     call trsp (fht, nx, fh, nx)
 
   end subroutine build_1d_cpu
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine elementwise_filter_amr_restart(this, reconstruct, counter, time)
+    class(elementwise_filter_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    call this%amr_restart_base(reconstruct, counter, time)
+
+    ! Nothing more to do
+
+  end subroutine elementwise_filter_amr_restart
 
 end module elementwise_filter
