@@ -36,6 +36,7 @@
 
 #include "elem_block.h"
 #include "dmma_kernel.h"
+#include "dmma_tma_kernel.h"
 
 /*
  * A note on elements per block for the vector kstep kernels.
@@ -670,6 +671,257 @@ ax_helm_kernel_dmma(T * __restrict__ w,
   ax_helm_dmma_dispatch< T, LX, NW >::run(w, u, dx, dy, dz, h1,
                                           g11, g22, g33, g12, g13, g23, nelv);
 }
+
+/**
+ * Device kernel for axhelm on the fp64 tensor cores, with the element staged
+ * by the TMA engine
+ *
+ * Same six contractions and the same padded cube layout as
+ * ax_helm_dmma_elem(), and at lx == DMMA_P the padding is empty and the cube
+ * offset is the flat point index, so the arithmetic is identical -- the only
+ * thing that differs is how the eleven cubes get in and out of shared memory.
+ *
+ * Here u arrives as one bulk copy on its own mbarrier and the seven geometric
+ * factors as seven more on a second, and only the first is waited on before
+ * the contractions start. The factors land in shared memory across the three
+ * contractions and are waited on at the pointwise step that consumes them,
+ * which is 78% of the read traffic moved out from between two barriers and
+ * put underneath the tensor cores. The result leaves as a single bulk store.
+ *
+ * See dmma_tma_kernel.h for the primitives, the sm_90 and toolkit guards, the
+ * lx == DMMA_P bound and the occupancy trade this buys the overlap with.
+ */
+
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 900) &&                        \
+    (__CUDA_ARCH__ < 1000) && NEKO_TMA_TOOLKIT
+
+template< const int LX, const int NW >
+__device__ __forceinline__
+void ax_helm_dmma_tma_elem(double * __restrict__ w,
+                           const double * __restrict__ u,
+                           const double * __restrict__ dx,
+                           const double * __restrict__ dy,
+                           const double * __restrict__ dz,
+                           const double * __restrict__ h1,
+                           const double * __restrict__ g11,
+                           const double * __restrict__ g22,
+                           const double * __restrict__ g33,
+                           const double * __restrict__ g12,
+                           const double * __restrict__ g13,
+                           const double * __restrict__ g23) {
+
+  /* A bulk copy needs 16 byte alignment at both ends; the cubes are given the
+     128 the tensor variants would want anyway, which costs nothing here since
+     every one of them is a whole number of 128 byte lines */
+  __shared__ __align__(128) double shdx[DMMA_MAT];
+  __shared__ __align__(128) double shdy[DMMA_MAT];
+  __shared__ __align__(128) double shdz[DMMA_MAT];
+
+  /* shu carries the input and then the output, shr, shs and sht the reference
+     derivatives */
+  __shared__ __align__(128) double shu[DMMA_CUBE];
+  __shared__ __align__(128) double shr[DMMA_CUBE];
+  __shared__ __align__(128) double shs[DMMA_CUBE];
+  __shared__ __align__(128) double sht[DMMA_CUBE];
+
+  /* h1, g11, g22, g33, g12, g13, g23 */
+  __shared__ __align__(128) double shg[DMMA_NG][DMMA_CUBE];
+
+  __shared__ __align__(8) unsigned long long bar_u;
+  __shared__ __align__(8) unsigned long long bar_g;
+
+  static_assert(sizeof(shdx) +
+                sizeof(shdy) +
+                sizeof(shdz) +
+                sizeof(shu) +
+                sizeof(shr) +
+                sizeof(shs) +
+                sizeof(sht) +
+                sizeof(shg) +
+                sizeof(bar_u) +
+                sizeof(bar_g)
+                <= NEKO_EB_MAX_SMEM,
+                "dmma tma block exceeds the shared memory budget");
+
+  /* Only lx == DMMA_P stages as a contiguous run of bytes, which is what a
+     bulk copy moves; see the scope note in dmma_tma_kernel.h. Keep in step
+     with dmma_tma_lx_supported() */
+  static_assert(LX == DMMA_P,
+                "the dmma tma variant stages whole cubes only");
+
+  enum { CUBE_BYTES = DMMA_CUBE * (int) sizeof(double) };
+
+  const int nthrds = 32 * NW;
+  const int tid = threadIdx.x;
+  const int wf = tid >> 5;
+  const int ebase = blockIdx.x * DMMA_CUBE;
+
+  if (tid == 0) {
+    tma_barrier_init(&bar_u, 1);
+    tma_barrier_init(&bar_g, 1);
+  }
+
+  /* At LX == DMMA_P the derivative matrix fills the staged one exactly, and
+     there is no padding anywhere to zero */
+  for (int p = tid; p < DMMA_MAT; p += nthrds) {
+    shdx[p] = dx[p];
+    shdy[p] = dy[p];
+    shdz[p] = dz[p];
+  }
+
+  /* Both barriers initialised and both derivative matrices staged before
+     anyone waits on the one or contracts with the other */
+  __syncthreads();
+
+  if (tid == 0) {
+    tma_expect(&bar_u, CUBE_BYTES);
+    tma_load(shu, u + ebase, CUBE_BYTES, &bar_u);
+
+    tma_expect(&bar_g, DMMA_NG * CUBE_BYTES);
+    tma_load(shg[0], h1  + ebase, CUBE_BYTES, &bar_g);
+    tma_load(shg[1], g11 + ebase, CUBE_BYTES, &bar_g);
+    tma_load(shg[2], g22 + ebase, CUBE_BYTES, &bar_g);
+    tma_load(shg[3], g33 + ebase, CUBE_BYTES, &bar_g);
+    tma_load(shg[4], g12 + ebase, CUBE_BYTES, &bar_g);
+    tma_load(shg[5], g13 + ebase, CUBE_BYTES, &bar_g);
+    tma_load(shg[6], g23 + ebase, CUBE_BYTES, &bar_g);
+  }
+
+  /* u only. The seven factor cubes are still arriving */
+  tma_wait(&bar_u, 0);
+
+  dmma_contract< 0, false, false, NW >(shr, shdx, shu, wf);
+  dmma_contract< 1, false, false, NW >(shs, shdy, shu, wf);
+  dmma_contract< 2, false, false, NW >(sht, shdz, shu, wf);
+
+  __syncthreads();
+
+  tma_wait(&bar_g, 0);
+
+  for (int p = tid; p < DMMA_CUBE; p += nthrds) {
+    const double H1  = shg[0][p];
+    const double G00 = shg[1][p];
+    const double G11 = shg[2][p];
+    const double G22 = shg[3][p];
+    const double G01 = shg[4][p];
+    const double G02 = shg[5][p];
+    const double G12 = shg[6][p];
+
+    const double rtmp = shr[p];
+    const double stmp = shs[p];
+    const double ttmp = sht[p];
+
+    shr[p] = H1
+           * (G00 * rtmp
+              + G01 * stmp
+              + G02 * ttmp);
+    shs[p] = H1
+           * (G01 * rtmp
+              + G11 * stmp
+              + G12 * ttmp);
+    sht[p] = H1
+           * (G02 * rtmp
+              + G12 * stmp
+              + G22 * ttmp);
+  }
+
+  __syncthreads();
+
+  /* The result overwrites the staged input, exactly as in the scalar dmma
+     kernel; see the note there on why the barriers between these are needed */
+  dmma_contract< 0, true, false, NW >(shu, shdx, shr, wf);
+  __syncthreads();
+  dmma_contract< 1, true, true, NW >(shu, shdy, shs, wf);
+  __syncthreads();
+  dmma_contract< 2, true, true, NW >(shu, shdz, sht, wf);
+
+  /* The contractions wrote shu through the generic proxy and the bulk store
+     reads it through the async one, so the fence is needed on top of the
+     barrier; see tma_fence_shared() */
+  tma_fence_shared();
+  __syncthreads();
+
+  if (tid == 0) {
+    tma_store(w + ebase, shu, CUBE_BYTES);
+    tma_store_wait();
+  }
+
+  /* The store reads shu asynchronously, and shared memory lives only as long
+     as the block does: nothing may retire until it has been read out */
+  __syncthreads();
+}
+
+#endif // __CUDA_ARCH__ == sm_90 with a CUDA 12 toolkit
+
+/*
+ * Compile-time dispatch onto the TMA staged DMMA element kernel, see the note
+ * on ax_helm_dmma_dispatch above. The no-op covers everything the strategy
+ * does not: single precision, any lx but DMMA_P, a build without sm_90, and a
+ * toolkit older than CUDA 12.
+ */
+template< typename T, const int LX, const int NW >
+struct ax_helm_dmma_tma_dispatch {
+  __device__ static void run(T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__) { }
+};
+
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 900) &&                        \
+    (__CUDA_ARCH__ < 1000) && NEKO_TMA_TOOLKIT
+
+/* Keep in sync with dmma_tma_lx_supported() in dmma_tma_kernel.h */
+#define NEKO_AX_HELM_DMMA_TMA_DISPATCH(LXV)                                    \
+  template< const int NW >                                                     \
+  struct ax_helm_dmma_tma_dispatch< double, LXV, NW > {                        \
+    __device__ static void run(double * __restrict__ w,                        \
+                               const double * __restrict__ u,                  \
+                               const double * __restrict__ dx,                 \
+                               const double * __restrict__ dy,                 \
+                               const double * __restrict__ dz,                 \
+                               const double * __restrict__ h1,                 \
+                               const double * __restrict__ g11,                \
+                               const double * __restrict__ g22,                \
+                               const double * __restrict__ g33,                \
+                               const double * __restrict__ g12,                \
+                               const double * __restrict__ g13,                \
+                               const double * __restrict__ g23) {              \
+      ax_helm_dmma_tma_elem< LXV, NW >(w, u, dx, dy, dz, h1,                   \
+                                       g11, g22, g33, g12, g13, g23);          \
+    }                                                                          \
+  }
+
+NEKO_AX_HELM_DMMA_TMA_DISPATCH(8);
+
+#endif // __CUDA_ARCH__ == sm_90 with a CUDA 12 toolkit
+
+template< typename T, const int LX, const int NW >
+__global__ void NEKO_EB_BOUNDS(32 * NW)
+ax_helm_kernel_dmma_tma(T * __restrict__ w,
+                        const T * __restrict__ u,
+                        const T * __restrict__ dx,
+                        const T * __restrict__ dy,
+                        const T * __restrict__ dz,
+                        const T * __restrict__ h1,
+                        const T * __restrict__ g11,
+                        const T * __restrict__ g22,
+                        const T * __restrict__ g33,
+                        const T * __restrict__ g12,
+                        const T * __restrict__ g13,
+                        const T * __restrict__ g23) {
+
+  ax_helm_dmma_tma_dispatch< T, LX, NW >::run(w, u, dx, dy, dz, h1,
+                                              g11, g22, g33, g12, g13, g23);
+}
+
 
 /*
  * Vector versions
@@ -1396,6 +1648,607 @@ ax_helm_kernel_dmma_vector(T * __restrict__ au,
                                                  g11, g22, g33,
                                                  g12, g13, g23);
 }
+
+/**
+ * Device kernel for the vector axhelm on the fp64 tensor cores, with the
+ * element staged by the TMA engine
+ *
+ * The same trade as ax_helm_dmma_tma_elem() makes for the scalar operator,
+ * applied to the thing that was holding the vector one back. The register
+ * variant above reads the seven geometric factors once and keeps them in
+ * registers across all three components, which is the right access pattern
+ * and the wrong place to put it: ~60 registers at nw = 4, measured on GH200
+ * as a loss against the kstep variant even though it moves 13 arrays per
+ * element rather than 27. Here they are read once into shared memory instead,
+ * by the TMA engine, and the register file is left alone.
+ *
+ * Everything else follows the scalar TMA kernel. The factor copies are issued
+ * before the component loop and waited on only at the first pointwise step,
+ * so they arrive underneath the staging and the first three contractions of
+ * component 0; after that they are simply resident for components 1 and 2.
+ * Each component is staged by one bulk copy and stored by another.
+ *
+ * The block footprint is the scalar kernel's exactly -- four working cubes
+ * plus seven factor cubes -- because the components run one at a time through
+ * the same four. That leaves no room for a second component cube, so a
+ * component's staging is not overlapped with the previous component's
+ * contractions; doing that needs either the opt-in dynamic shared memory path
+ * or h1 moved back into registers to free a cube. Neither is done here.
+ *
+ * See dmma_tma_kernel.h for the primitives, the sm_90 and toolkit guards and
+ * the lx == DMMA_P bound.
+ */
+
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 900) &&                        \
+    (__CUDA_ARCH__ < 1000) && NEKO_TMA_TOOLKIT
+
+template< const int LX, const int NW >
+__device__ __forceinline__
+void ax_helm_dmma_tma_vector_elem(double * __restrict__ au,
+                                  double * __restrict__ av,
+                                  double * __restrict__ aw,
+                                  const double * __restrict__ u,
+                                  const double * __restrict__ v,
+                                  const double * __restrict__ w,
+                                  const double * __restrict__ dx,
+                                  const double * __restrict__ dy,
+                                  const double * __restrict__ dz,
+                                  const double * __restrict__ h1,
+                                  const double * __restrict__ g11,
+                                  const double * __restrict__ g22,
+                                  const double * __restrict__ g33,
+                                  const double * __restrict__ g12,
+                                  const double * __restrict__ g13,
+                                  const double * __restrict__ g23) {
+
+  /* Element independent, one copy per block */
+  __shared__ __align__(128) double shdx[DMMA_MAT];
+  __shared__ __align__(128) double shdy[DMMA_MAT];
+  __shared__ __align__(128) double shdz[DMMA_MAT];
+
+  /* One component at a time: shc carries it in and the result out, shr, shs
+     and sht its reference derivatives */
+  __shared__ __align__(128) double shc[DMMA_CUBE];
+  __shared__ __align__(128) double shr[DMMA_CUBE];
+  __shared__ __align__(128) double shs[DMMA_CUBE];
+  __shared__ __align__(128) double sht[DMMA_CUBE];
+
+  /* h1, g11, g22, g33, g12, g13, g23, shared by all three components */
+  __shared__ __align__(128) double shg[DMMA_NG][DMMA_CUBE];
+
+  __shared__ __align__(8) unsigned long long bar_c;
+  __shared__ __align__(8) unsigned long long bar_g;
+
+  static_assert(sizeof(shdx) +
+                sizeof(shdy) +
+                sizeof(shdz) +
+                sizeof(shc) +
+                sizeof(shr) +
+                sizeof(shs) +
+                sizeof(sht) +
+                sizeof(shg) +
+                sizeof(bar_c) +
+                sizeof(bar_g)
+                <= NEKO_EB_MAX_SMEM,
+                "dmma tma vector block exceeds the shared memory budget");
+
+  /* Keep in step with dmma_tma_vector_lx_supported() */
+  static_assert(LX == DMMA_P,
+                "the dmma tma vector variant stages whole cubes only");
+
+  enum { CUBE_BYTES = DMMA_CUBE * (int) sizeof(double) };
+
+  const int nthrds = 32 * NW;
+  const int tid = threadIdx.x;
+  const int wf = tid >> 5;
+  const int ele = blockIdx.x * DMMA_CUBE;
+
+  if (tid == 0) {
+    tma_barrier_init(&bar_c, 1);
+    tma_barrier_init(&bar_g, 1);
+  }
+
+  /* At LX == DMMA_P the derivative matrix fills the staged one exactly, and
+     there is no padding anywhere to zero */
+  for (int p = tid; p < DMMA_MAT; p += nthrds) {
+    shdx[p] = dx[p];
+    shdy[p] = dy[p];
+    shdz[p] = dz[p];
+  }
+
+  /* Both barriers initialised and both derivative matrices staged before
+     anyone waits on the one or contracts with the other */
+  __syncthreads();
+
+  /* Read once, outside the component loop, and waited on inside it at the
+     first step that needs them */
+  if (tid == 0) {
+    tma_expect(&bar_g, DMMA_NG * CUBE_BYTES);
+    tma_load(shg[0], h1  + ele, CUBE_BYTES, &bar_g);
+    tma_load(shg[1], g11 + ele, CUBE_BYTES, &bar_g);
+    tma_load(shg[2], g22 + ele, CUBE_BYTES, &bar_g);
+    tma_load(shg[3], g33 + ele, CUBE_BYTES, &bar_g);
+    tma_load(shg[4], g12 + ele, CUBE_BYTES, &bar_g);
+    tma_load(shg[5], g13 + ele, CUBE_BYTES, &bar_g);
+    tma_load(shg[6], g23 + ele, CUBE_BYTES, &bar_g);
+  }
+
+  const double * const cin[3]  = { u, v, w };
+  double * const       cout[3] = { au, av, aw };
+
+#pragma unroll
+  for (int c = 0; c < 3; c++) {
+
+    if (tid == 0) {
+      tma_expect(&bar_c, CUBE_BYTES);
+      tma_load(shc, cin[c] + ele, CUBE_BYTES, &bar_c);
+    }
+
+    /* bar_c is re-armed by every completion, so the parity of the phase each
+       component's copy completes alternates. The __syncthreads() at the foot
+       of the loop is what keeps the next component's arrive from racing a
+       thread that has not yet observed this one */
+    tma_wait(&bar_c, c & 1);
+
+    dmma_contract< 0, false, false, NW >(shr, shdx, shc, wf);
+    dmma_contract< 1, false, false, NW >(shs, shdy, shc, wf);
+    dmma_contract< 2, false, false, NW >(sht, shdz, shc, wf);
+
+    __syncthreads();
+
+    /* Resident from here on; only the first component ever waits */
+    if (c == 0) {
+      tma_wait(&bar_g, 0);
+    }
+
+    for (int p = tid; p < DMMA_CUBE; p += nthrds) {
+      const double H1  = shg[0][p];
+      const double G00 = shg[1][p];
+      const double G11 = shg[2][p];
+      const double G22 = shg[3][p];
+      const double G01 = shg[4][p];
+      const double G02 = shg[5][p];
+      const double G12 = shg[6][p];
+
+      const double rtmp = shr[p];
+      const double stmp = shs[p];
+      const double ttmp = sht[p];
+
+      shr[p] = H1
+             * (G00 * rtmp
+                + G01 * stmp
+                + G02 * ttmp);
+      shs[p] = H1
+             * (G01 * rtmp
+                + G11 * stmp
+                + G12 * ttmp);
+      sht[p] = H1
+             * (G02 * rtmp
+                + G12 * stmp
+                + G22 * ttmp);
+    }
+
+    __syncthreads();
+
+    dmma_contract< 0, true, false, NW >(shc, shdx, shr, wf);
+    __syncthreads();
+    dmma_contract< 1, true, true, NW >(shc, shdy, shs, wf);
+    __syncthreads();
+    dmma_contract< 2, true, true, NW >(shc, shdz, sht, wf);
+
+    /* The contractions wrote shc through the generic proxy and the bulk store
+       reads it through the async one; see tma_fence_shared() */
+    tma_fence_shared();
+    __syncthreads();
+
+    if (tid == 0) {
+      tma_store(cout[c] + ele, shc, CUBE_BYTES);
+      tma_store_wait();
+    }
+
+    /* shc is restaged by the next component, and nothing may retire while the
+       store is still reading it */
+    __syncthreads();
+  }
+}
+
+#endif // __CUDA_ARCH__ == sm_90 with a CUDA 12 toolkit
+
+/*
+ * Compile-time dispatch onto the TMA staged vector DMMA element kernel, see
+ * the note on ax_helm_dmma_tma_dispatch above.
+ */
+template< typename T, const int LX, const int NW >
+struct ax_helm_dmma_tma_vector_dispatch {
+  __device__ static void run(T * __restrict__,
+                             T * __restrict__,
+                             T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__) { }
+};
+
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 900) &&                        \
+    (__CUDA_ARCH__ < 1000) && NEKO_TMA_TOOLKIT
+
+/* Keep in sync with dmma_tma_vector_lx_supported() in dmma_tma_kernel.h */
+#define NEKO_AX_HELM_DMMA_TMA_VECTOR_DISPATCH(LXV)                             \
+  template< const int NW >                                                     \
+  struct ax_helm_dmma_tma_vector_dispatch< double, LXV, NW > {                 \
+    __device__ static void run(double * __restrict__ au,                       \
+                               double * __restrict__ av,                       \
+                               double * __restrict__ aw,                       \
+                               const double * __restrict__ u,                  \
+                               const double * __restrict__ v,                  \
+                               const double * __restrict__ w,                  \
+                               const double * __restrict__ dx,                 \
+                               const double * __restrict__ dy,                 \
+                               const double * __restrict__ dz,                 \
+                               const double * __restrict__ h1,                 \
+                               const double * __restrict__ g11,                \
+                               const double * __restrict__ g22,                \
+                               const double * __restrict__ g33,                \
+                               const double * __restrict__ g12,                \
+                               const double * __restrict__ g13,                \
+                               const double * __restrict__ g23) {              \
+      ax_helm_dmma_tma_vector_elem< LXV, NW >(au, av, aw, u, v, w,             \
+                                              dx, dy, dz, h1,                  \
+                                              g11, g22, g33,                   \
+                                              g12, g13, g23);                  \
+    }                                                                          \
+  }
+
+NEKO_AX_HELM_DMMA_TMA_VECTOR_DISPATCH(8);
+
+#endif // __CUDA_ARCH__ == sm_90 with a CUDA 12 toolkit
+
+template< typename T, const int LX, const int NW >
+__global__ void NEKO_EB_BOUNDS(32 * NW)
+ax_helm_kernel_dmma_tma_vector(T * __restrict__ au,
+                               T * __restrict__ av,
+                               T * __restrict__ aw,
+                               const T * __restrict__ u,
+                               const T * __restrict__ v,
+                               const T * __restrict__ w,
+                               const T * __restrict__ dx,
+                               const T * __restrict__ dy,
+                               const T * __restrict__ dz,
+                               const T * __restrict__ h1,
+                               const T * __restrict__ g11,
+                               const T * __restrict__ g22,
+                               const T * __restrict__ g33,
+                               const T * __restrict__ g12,
+                               const T * __restrict__ g13,
+                               const T * __restrict__ g23) {
+
+  ax_helm_dmma_tma_vector_dispatch< T, LX, NW >::run(au, av, aw, u, v, w,
+                                                     dx, dy, dz, h1,
+                                                     g11, g22, g33,
+                                                     g12, g13, g23);
+}
+
+
+/**
+ * Device kernel for the vector axhelm on the fp64 tensor cores, with the whole
+ * element staged by the TMA engine in one batch
+ *
+ * The component-at-a-time variant above measured 4.9% behind the register
+ * hoisting DMMA kernel at nw = 4 on GH200 while running *more* blocks per SM
+ * than it (five against four, ptxas confirmed) -- so residency is not what
+ * separates them. What separates them is how many bulk copies are outstanding.
+ * The scalar TMA kernel issues eight at once, covering every byte the element
+ * reads, and wins at 20 warps per SM against 48; the component-at-a-time
+ * vector kernel issues seven once and then, for components 1 and 2, a lone
+ * 4 kB copy that one thread issues and every other thread then waits on. A
+ * 4 kB copy is small, its fixed cost only disappears when several are in
+ * flight, and paying it alone three times an element is the deficit.
+ *
+ * So this variant issues all ten of an element's input copies at entry -- the
+ * three components and the seven geometric factors -- and stores the three
+ * results without waiting on each other. Each component keeps its own cube, in
+ * and then out, which is what removes both serialisations at once: nothing has
+ * to be restaged, so no load waits on a store.
+ *
+ * The cost is thirteen cubes rather than four, 54800 B, past the 48 kB a block
+ * gets for free -- hence dynamic shared memory and the one-time opt-in in
+ * ax_helm_dmma_tma_batch_optin() below. That lands at four blocks per SM at
+ * nw = 4, which is exactly what the DMMA kernel it is competing with already
+ * runs at, so the batching is bought with no occupancy at all.
+ *
+ * Only the first component's cube is waited on before work starts; the other
+ * nine copies are waited on at the first pointwise step, and components 1 and
+ * 2 never wait at all. See dmma_tma_kernel.h for the primitives, the struct
+ * that fixes the layout, the sm_90 and toolkit guards and the lx bound.
+ */
+
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 900) &&                        \
+    (__CUDA_ARCH__ < 1000) && NEKO_TMA_TOOLKIT
+
+template< const int LX, const int NW >
+__device__ __forceinline__
+void ax_helm_dmma_tma_batch_elem(double * __restrict__ au,
+                                 double * __restrict__ av,
+                                 double * __restrict__ aw,
+                                 const double * __restrict__ u,
+                                 const double * __restrict__ v,
+                                 const double * __restrict__ w,
+                                 const double * __restrict__ dx,
+                                 const double * __restrict__ dy,
+                                 const double * __restrict__ dz,
+                                 const double * __restrict__ h1,
+                                 const double * __restrict__ g11,
+                                 const double * __restrict__ g22,
+                                 const double * __restrict__ g33,
+                                 const double * __restrict__ g12,
+                                 const double * __restrict__ g13,
+                                 const double * __restrict__ g23) {
+
+  /* Keep in step with dmma_tma_batch_lx_supported() */
+  static_assert(LX == DMMA_P,
+                "the dmma tma batch variant stages whole cubes only");
+
+  extern __shared__ __align__(128) char neko_ax_dyn_smem[];
+  dmma_tma_batch_smem &sm =
+    *reinterpret_cast< dmma_tma_batch_smem * >(neko_ax_dyn_smem);
+
+  enum { CUBE_BYTES = DMMA_CUBE * (int) sizeof(double),
+         /* v, w and the seven factors -- everything but the first cube */
+         REST_BYTES = (DMMA_NG + 2) * CUBE_BYTES };
+
+  const int nthrds = 32 * NW;
+  const int tid = threadIdx.x;
+  const int wf = tid >> 5;
+  const int ele = blockIdx.x * DMMA_CUBE;
+
+  if (tid == 0) {
+    tma_barrier_init(&sm.bar_a, 1);
+    tma_barrier_init(&sm.bar_b, 1);
+  }
+
+  /* At LX == DMMA_P the derivative matrix fills the staged one exactly, and
+     there is no padding anywhere to zero */
+  for (int p = tid; p < DMMA_MAT; p += nthrds) {
+    sm.dx[p] = dx[p];
+    sm.dy[p] = dy[p];
+    sm.dz[p] = dz[p];
+  }
+
+  /* Both barriers initialised and both derivative matrices staged before
+     anyone waits on the one or contracts with the other */
+  __syncthreads();
+
+  /* The whole element, ten copies, one batch. u leads because it is the only
+     one anything waits for before the contractions start */
+  if (tid == 0) {
+    tma_expect(&sm.bar_a, CUBE_BYTES);
+    tma_load(sm.c[0], u + ele, CUBE_BYTES, &sm.bar_a);
+
+    tma_expect(&sm.bar_b, REST_BYTES);
+    tma_load(sm.c[1], v + ele, CUBE_BYTES, &sm.bar_b);
+    tma_load(sm.c[2], w + ele, CUBE_BYTES, &sm.bar_b);
+    tma_load(sm.g[0], h1  + ele, CUBE_BYTES, &sm.bar_b);
+    tma_load(sm.g[1], g11 + ele, CUBE_BYTES, &sm.bar_b);
+    tma_load(sm.g[2], g22 + ele, CUBE_BYTES, &sm.bar_b);
+    tma_load(sm.g[3], g33 + ele, CUBE_BYTES, &sm.bar_b);
+    tma_load(sm.g[4], g12 + ele, CUBE_BYTES, &sm.bar_b);
+    tma_load(sm.g[5], g13 + ele, CUBE_BYTES, &sm.bar_b);
+    tma_load(sm.g[6], g23 + ele, CUBE_BYTES, &sm.bar_b);
+  }
+
+  /* The first component only. The other nine copies are still arriving */
+  tma_wait(&sm.bar_a, 0);
+
+  double * const cout[3] = { au, av, aw };
+
+#pragma unroll
+  for (int c = 0; c < 3; c++) {
+
+    dmma_contract< 0, false, false, NW >(sm.r, sm.dx, sm.c[c], wf);
+    dmma_contract< 1, false, false, NW >(sm.s, sm.dy, sm.c[c], wf);
+    dmma_contract< 2, false, false, NW >(sm.t, sm.dz, sm.c[c], wf);
+
+    __syncthreads();
+
+    /* Everything else has landed by here; components 1 and 2 never wait */
+    if (c == 0) {
+      tma_wait(&sm.bar_b, 0);
+    }
+
+    for (int p = tid; p < DMMA_CUBE; p += nthrds) {
+      const double H1  = sm.g[0][p];
+      const double G00 = sm.g[1][p];
+      const double G11 = sm.g[2][p];
+      const double G22 = sm.g[3][p];
+      const double G01 = sm.g[4][p];
+      const double G02 = sm.g[5][p];
+      const double G12 = sm.g[6][p];
+
+      const double rtmp = sm.r[p];
+      const double stmp = sm.s[p];
+      const double ttmp = sm.t[p];
+
+      sm.r[p] = H1
+              * (G00 * rtmp
+                 + G01 * stmp
+                 + G02 * ttmp);
+      sm.s[p] = H1
+              * (G01 * rtmp
+                 + G11 * stmp
+                 + G12 * ttmp);
+      sm.t[p] = H1
+              * (G02 * rtmp
+                 + G12 * stmp
+                 + G22 * ttmp);
+    }
+
+    __syncthreads();
+
+    /* The result overwrites the component's own staged input, which nothing
+       reads again */
+    dmma_contract< 0, true, false, NW >(sm.c[c], sm.dx, sm.r, wf);
+    __syncthreads();
+    dmma_contract< 1, true, true, NW >(sm.c[c], sm.dy, sm.s, wf);
+    __syncthreads();
+    dmma_contract< 2, true, true, NW >(sm.c[c], sm.dz, sm.t, wf);
+
+    /* The contractions wrote sm.c[c] through the generic proxy and the bulk
+       store reads it through the async one; see tma_fence_shared(). The
+       barrier that follows also separates this component's last reads of
+       r, s and t from the next one's writes to them */
+    tma_fence_shared();
+    __syncthreads();
+
+    /* Issued and left uncommitted: the next component reads its own cube, so
+       nothing here waits on this store. All three are committed together
+       below */
+    if (tid == 0) {
+      tma_store(cout[c] + ele, sm.c[c], CUBE_BYTES);
+    }
+  }
+
+  /* Commit the three stores as one group and wait for them to have read their
+     cubes out; shared memory lives only as long as the block does */
+  if (tid == 0) {
+    tma_store_wait();
+  }
+
+  __syncthreads();
+}
+
+#endif // __CUDA_ARCH__ == sm_90 with a CUDA 12 toolkit
+
+/*
+ * Compile-time dispatch onto the batched TMA element kernel, see the note on
+ * ax_helm_dmma_tma_dispatch above.
+ */
+template< typename T, const int LX, const int NW >
+struct ax_helm_dmma_tma_batch_dispatch {
+  __device__ static void run(T * __restrict__,
+                             T * __restrict__,
+                             T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__,
+                             const T * __restrict__) { }
+};
+
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 900) &&                        \
+    (__CUDA_ARCH__ < 1000) && NEKO_TMA_TOOLKIT
+
+/* Keep in sync with dmma_tma_batch_lx_supported() in dmma_tma_kernel.h */
+#define NEKO_AX_HELM_DMMA_TMA_BATCH_DISPATCH(LXV)                              \
+  template< const int NW >                                                     \
+  struct ax_helm_dmma_tma_batch_dispatch< double, LXV, NW > {                  \
+    __device__ static void run(double * __restrict__ au,                       \
+                               double * __restrict__ av,                       \
+                               double * __restrict__ aw,                       \
+                               const double * __restrict__ u,                  \
+                               const double * __restrict__ v,                  \
+                               const double * __restrict__ w,                  \
+                               const double * __restrict__ dx,                 \
+                               const double * __restrict__ dy,                 \
+                               const double * __restrict__ dz,                 \
+                               const double * __restrict__ h1,                 \
+                               const double * __restrict__ g11,                \
+                               const double * __restrict__ g22,                \
+                               const double * __restrict__ g33,                \
+                               const double * __restrict__ g12,                \
+                               const double * __restrict__ g13,                \
+                               const double * __restrict__ g23) {              \
+      ax_helm_dmma_tma_batch_elem< LXV, NW >(au, av, aw, u, v, w,              \
+                                             dx, dy, dz, h1,                   \
+                                             g11, g22, g33,                    \
+                                             g12, g13, g23);                   \
+    }                                                                          \
+  }
+
+NEKO_AX_HELM_DMMA_TMA_BATCH_DISPATCH(8);
+
+#endif // __CUDA_ARCH__ == sm_90 with a CUDA 12 toolkit
+
+template< typename T, const int LX, const int NW >
+__global__ void NEKO_EB_BOUNDS(32 * NW)
+ax_helm_kernel_dmma_tma_batch(T * __restrict__ au,
+                              T * __restrict__ av,
+                              T * __restrict__ aw,
+                              const T * __restrict__ u,
+                              const T * __restrict__ v,
+                              const T * __restrict__ w,
+                              const T * __restrict__ dx,
+                              const T * __restrict__ dy,
+                              const T * __restrict__ dz,
+                              const T * __restrict__ h1,
+                              const T * __restrict__ g11,
+                              const T * __restrict__ g22,
+                              const T * __restrict__ g33,
+                              const T * __restrict__ g12,
+                              const T * __restrict__ g13,
+                              const T * __restrict__ g23) {
+
+  ax_helm_dmma_tma_batch_dispatch< T, LX, NW >::run(au, av, aw, u, v, w,
+                                                    dx, dy, dz, h1,
+                                                    g11, g22, g33,
+                                                    g12, g13, g23);
+}
+
+/*
+ * Opt into the batched variant's dynamic allocation, once per specialisation.
+ *
+ * A block gets 48 kB of shared memory without asking; anything past that has
+ * to be requested per kernel, and the carveout moved with it or the extra is
+ * granted at the expense of nothing. Both are properties of the function, not
+ * of the launch, so this is a function local static -- one flag per
+ * <T, LX, NW> -- and the launch macro calls it ahead of every launch, where
+ * after the first it is a single predictable branch.
+ *
+ * Returns false if the device refuses, which the tuner has already ruled out
+ * via cuda_have_tma_batch(); the error is cleared rather than left to surface
+ * against an unrelated CUDA_CHECK later.
+ */
+template< typename T, const int LX, const int NW >
+static inline bool ax_helm_dmma_tma_batch_optin()
+{
+  static int state = -1;
+
+  if (state < 0) {
+    const void * const fn =
+      (const void *) ax_helm_kernel_dmma_tma_batch< T, LX, NW >;
+    cudaError_t err =
+      cudaFuncSetAttribute(fn, cudaFuncAttributeMaxDynamicSharedMemorySize,
+                           NEKO_DMMA_TMA_BATCH_SMEM);
+
+    if (err == cudaSuccess) {
+      err = cudaFuncSetAttribute(fn,
+                                 cudaFuncAttributePreferredSharedMemoryCarveout,
+                                 cudaSharedmemCarveoutMaxShared);
+    }
+    state = (err == cudaSuccess) ? 1 : 0;
+    if (state == 0) {
+      cudaGetLastError();
+    }
+  }
+  return state == 1;
+}
+
 
 template< typename T >
 __global__ void ax_helm_kernel_vector_part2(T * __restrict__ au,

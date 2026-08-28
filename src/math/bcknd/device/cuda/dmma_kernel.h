@@ -173,7 +173,8 @@ static int neko_dmma_env()
       char lbl_[16];                                                          \
       sprintf(lbl_, "DMMA  %dw %de",                                          \
               NEKO_DMMA_NW(c), NEKO_DMMA_PACK(LX));                           \
-      sprintf(neko_log_buf, "%-13s: %9.2f us/call", lbl_, (T3)[c] * 10.0);    \
+      sprintf(neko_log_buf, "%-13s: %9.2f us/call", lbl_,                     \
+              NEKO_TUNE_US((T3)[c], iters));                                  \
       log_message(neko_log_buf);                                              \
     }                                                                         \
   } while (0)
