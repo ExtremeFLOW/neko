@@ -807,7 +807,7 @@ int tune_vector(void *au, void *av, void *aw, void *u, void *v, void *w,
 
   for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
     sprintf(neko_log_buf, "eb=%-4d      : %9.2f us/call",
-            NEKO_EB_SEL(LX, c), time[c] * 10.0);
+            NEKO_EB_SEL(LX, c), NEKO_TUNE_US(time[c], iters));
     log_message(neko_log_buf);
   }
 
@@ -883,7 +883,7 @@ int tune_vector_padded(void *au, void *av, void *aw,
 
   for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
     sprintf(neko_log_buf, "eb=%-4d      : %9.2f us/call",
-            NEKO_EB_SEL(LX, c), time[c] * 10.0);
+            NEKO_EB_SEL(LX, c), NEKO_TUNE_US(time[c], iters));
     log_message(neko_log_buf);
   }
 

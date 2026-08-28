@@ -1012,6 +1012,7 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/ax_helm_kernel.h\
 	math/bcknd/device/cuda/ax_helm_full_kernel.h\
 	math/bcknd/device/cuda/dmma_kernel.h\
+	math/bcknd/device/cuda/dmma_tma_kernel.h\
 	math/bcknd/device/cuda/elem_block.h\
 	math/bcknd/device/cuda/elem_block_tune.h\
 	common/bcknd/device/cuda/sumab_kernel.h\
