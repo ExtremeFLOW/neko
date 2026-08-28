@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
+!> CPU implementation of the full-stress Kirby-Sherwin SVV Helmholtz operator.
 module ax_helm_svv_KS_full_cpu
   use ax_helm_svv_KS_full, only : ax_helm_svv_KS_full_t
   use num_types, only : rp
@@ -46,7 +47,8 @@ module ax_helm_svv_KS_full_cpu
   type, public, extends(ax_helm_svv_KS_full_t) :: ax_helm_svv_KS_full_cpu_t
    contains
      !> Compute the product.
-     procedure, pass(this) :: compute_vector => ax_helm_svv_KS_full_compute_vector
+     procedure, pass(this) :: compute_vector => &
+          ax_helm_svv_KS_full_compute_vector
   end type ax_helm_svv_KS_full_cpu_t
 
 contains
@@ -54,16 +56,16 @@ contains
   !> Compute \f$ Ax \f$ inside a Krylov method, taking 3
   !! components of a vector field in a coupled manner.
   !! @param au Result for the first component of the vector.
-  !! @param av Result for the first component of the vector.
-  !! @param aw Result for the first component of the vector.
+  !! @param av Result for the second component of the vector.
+  !! @param aw Result for the third component of the vector.
   !! @param u The first component of the vector.
   !! @param v The second component of the vector.
   !! @param w The third component of the vector.
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
-  subroutine ax_helm_svv_KS_full_compute_vector(this, au, av, aw, u, v, w, coef, msh,&
-       Xh)
+  subroutine ax_helm_svv_KS_full_compute_vector(this, au, av, aw, u, v, w, &
+       coef, msh, Xh)
     class(ax_helm_svv_KS_full_cpu_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
@@ -92,6 +94,38 @@ contains
 
   end subroutine ax_helm_svv_KS_full_compute_vector
 
+  !> Generic CPU kernel for the full-stress Kirby-Sherwin SVV product.
+  !! @param au Result for the first vector component.
+  !! @param av Result for the second vector component.
+  !! @param aw Result for the third vector component.
+  !! @param u First input vector component.
+  !! @param v Second input vector component.
+  !! @param w Third input vector component.
+  !! @param Dx Derivative in the first reference direction.
+  !! @param Dy Derivative in the second reference direction.
+  !! @param Dz Derivative in the third reference direction.
+  !! @param Dxt Transpose derivative in the first reference direction.
+  !! @param Dyt Transpose derivative in the second reference direction.
+  !! @param Dzt Transpose derivative in the third reference direction.
+  !! @param h1 Ordinary diffusion coefficient.
+  !! @param drdx Geometric derivative factor.
+  !! @param drdy Geometric derivative factor.
+  !! @param drdz Geometric derivative factor.
+  !! @param dsdx Geometric derivative factor.
+  !! @param dsdy Geometric derivative factor.
+  !! @param dsdz Geometric derivative factor.
+  !! @param dtdx Geometric derivative factor.
+  !! @param dtdy Geometric derivative factor.
+  !! @param dtdz Geometric derivative factor.
+  !! @param jacinv Inverse Jacobian determinant.
+  !! @param weights3 Tensor-product quadrature weights.
+  !! @param svv_h1 Density-weighted SVV viscosity.
+  !! @param svv_Q One-dimensional modal filter.
+  !! @param svv_Qt Transpose one-dimensional modal filter.
+  !! @param svv_direction Filtered reference directions.
+  !! @param ident Identity matrix.
+  !! @param n Number of elements.
+  !! @param lx Number of points in one element direction.
   subroutine ax_helm_svv_KS_full_lx(au, av, aw, u, v, w, &
        Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &

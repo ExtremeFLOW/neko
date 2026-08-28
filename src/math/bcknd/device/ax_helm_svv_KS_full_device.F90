@@ -30,6 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
+!> Device implementation of the full-stress Kirby-Sherwin SVV operator.
 module ax_helm_svv_KS_full_device
   use ax_helm_svv_KS_full, only : ax_helm_svv_KS_full_t
   use num_types, only : rp
