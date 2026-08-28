@@ -39,7 +39,9 @@ module bicgstab
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       vector_bc_projector_components
   use math, only : glsc3, copy, NEKO_EPS, add2s2, p_update
   use utils, only : neko_error
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
@@ -179,12 +181,12 @@ contains
   !! @param f Right-hand side.
   !! @param n Number of degrees of freedom.
   !! @param coef Spectral element coefficients and multiplicity weights.
-  !! @param blst Boundary conditions applied to the operator result.
+  !! @param bc_projector Projector for dirichlet boundary nodes.
   !! @param gs_h Gather-scatter handle used to assemble the operator result.
   !! @param niter Optional maximum number of iterations, overriding the
   !! configured value.
   !! @return Convergence information for the solve.
-  function bicgstab_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function bicgstab_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
        result(ksp_results)
     class(bicgstab_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -192,7 +194,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -272,7 +274,7 @@ contains
          call this%M%solve(p_hat, p, n)
          call Ax%compute(v, p_hat, coef, x%msh, x%Xh)
          call gs_h%op(v, n, GS_OP_ADD)
-         call blst%apply(v, n)
+         call bc_projector%apply(v, n)
 
          ! The alpha denominator is another BiCG breakdown point. Computing it
          ! together with ||v|| permits a scale-aware orthogonality check without
@@ -309,7 +311,7 @@ contains
          call this%M%solve(s_hat, s, n)
          call Ax%compute(t, s_hat, coef, x%msh, x%Xh)
          call gs_h%op(t, n, GS_OP_ADD)
-         call blst%apply(t, n)
+         call bc_projector%apply(t, n)
 
          call bicgstab_product_and_norm(stt, ttt, s, t, coef%mult, n)
          t_norm = bicgstab_sqrt(ttt, 'operator result t')
@@ -464,7 +466,7 @@ contains
   !! configured value.
   !! @return Convergence information for each component.
   function bicgstab_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(bicgstab_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -475,16 +477,16 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(scalar_bc_projector_t), pointer :: bc_x, bc_y, bc_z
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    call vector_bc_projector_components(bc_projector, bc_x, bc_y, bc_z)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_x, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_y, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_z, gs_h, niter)
 
   end function bicgstab_solve_coupled
 

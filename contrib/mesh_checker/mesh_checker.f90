@@ -33,7 +33,7 @@
 ! Mesh diagnostics tool
 program mesh_checker
   use neko
-  use symmetry, only : symmetry_t
+  use non_normal_aligned, only : non_normal_aligned_t
   implicit none
 
   character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname
@@ -47,7 +47,7 @@ program mesh_checker
   integer :: e, f, n_unlabeled_local, n_unlabeled_global
   integer :: n_axis_aligned, axis_alignment_local(4), axis_alignment(4)
   type(dirichlet_t) :: bdry_mask
-  type(symmetry_t) :: symmetry_probe
+  type(non_normal_aligned_t) :: normal_alignment_probe
   type(field_t) :: bdry_field
   type(file_t) :: bdry_file
   type(space_t) :: Xh
@@ -95,7 +95,8 @@ program mesh_checker
   call dofmap%init(msh, Xh)
   call gs%init(dofmap)
   call coef%init(gs)
-  call symmetry_probe%init_from_components(coef)
+  call normal_alignment_probe%init_from_components(coef, [0.0_rp, 0.0_rp, &
+       0.0_rp])
 
   call MPI_Allreduce(msh%periodic%size, periodic_size, 1, &
        MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
@@ -178,7 +179,7 @@ program mesh_checker
      do j = 1, msh%labeled_zones(i)%size
         f = msh%labeled_zones(i)%facet_el(j)%x(1)
         e = msh%labeled_zones(i)%facet_el(j)%x(2)
-        call symmetry_probe%get_normal_axis(sx, sy, sz, f, e)
+        call normal_alignment_probe%get_normal_axis(sx, sy, sz, f, e)
 
         n_axis_aligned = count([sx, sy, sz] .lt. axis_alignment_tol)
         if (n_axis_aligned .eq. 1) then
@@ -249,7 +250,7 @@ program mesh_checker
      call bdry_mask%free()
   end if
 
-  call symmetry_probe%free()
+  call normal_alignment_probe%free()
   call coef%free()
   call dofmap%free()
   call Xh%free()

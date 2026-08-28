@@ -43,6 +43,7 @@ module PDE_filter
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
   use precon, only : pc_t, precon_allocator, precon_destroy
   use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use neumann, only : neumann_t
   use profiler, only : profiler_start_region, profiler_end_region
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -80,7 +81,7 @@ module PDE_filter
      !> Filter Preconditioner
      class(pc_t), allocatable :: pc_filt
      !> Filter boundary conditions (they will all be Neumann, so empty)
-     type(bc_list_t) :: bclst_filt
+     type(scalar_bc_projector_t) :: bc_projector_filt
 
      ! Inputs from the user
      !> filter radius
@@ -153,9 +154,6 @@ contains
     ! set the number of dofs
     n = this%coef%dof%size()
 
-    ! init the bc list (all Neuman BCs, will remain empty)
-    call this%bclst_filt%init()
-
     ! Setup backend dependent Ax routines
     call ax_helm_allocator(this%Ax, type_name = "standard")
 
@@ -165,8 +163,9 @@ contains
 
     ! set up preconditioner
     call filter_precon_factory(this%pc_filt, this%ksp_filt, &
-         this%coef, this%coef%dof, this%coef%gs_h, this%bclst_filt, &
-         this%precon_type_filt)
+         this%coef, this%coef%dof, &
+         this%coef%gs_h, &
+         this%bc_projector_filt, this%precon_type_filt)
 
   end subroutine PDE_filter_init_from_components
 
@@ -196,7 +195,7 @@ contains
        deallocate(this%precon_type_filt)
     end if
 
-    call this%bclst_filt%free()
+    call this%bc_projector_filt%free()
 
     call this%free_base()
 
@@ -264,13 +263,13 @@ contains
     call this%coef%gs_h%op(RHS, GS_OP_ADD)
 
     ! set BCs
-    call this%bclst_filt%apply_scalar(RHS%x, n)
+    call this%bc_projector_filt%apply(RHS%x, n)
 
     ! Solve Helmholtz equation
     call profiler_start_region("filter solve")
     this%ksp_results(1) = &
          this%ksp_filt%solve(this%Ax, d_F_out, RHS%x, n, this%coef, &
-         this%bclst_filt, this%coef%gs_h)
+         this%bc_projector_filt, this%coef%gs_h)
 
     call profiler_end_region
 
@@ -295,13 +294,14 @@ contains
   end subroutine PDE_filter_apply
 
   !> Initialize a Krylov preconditioner
-  subroutine filter_precon_factory(pc, ksp, coef, dof, gs, bclst, pctype)
+  subroutine filter_precon_factory(pc, ksp, coef, dof, gs, bc_projector, &
+       pctype)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(in) :: coef
     type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs
-    type(bc_list_t), target, intent(inout) :: bclst
+    type(scalar_bc_projector_t), target, intent(inout) :: bc_projector
     character(len=*) :: pctype
 
     call precon_allocator(pc, pctype)

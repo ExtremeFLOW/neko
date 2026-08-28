@@ -41,6 +41,7 @@ SUBDIRS = tuple\
 	  expression\
 	  point_interpolation\
 	  templates/parallel\
+	  bc_projector\
 	  boundary_operation\
 	  wall_sampling\
 	  templates/serial
@@ -88,6 +89,7 @@ TESTS = device/device_test\
 	expression/expression_test\
 	point_interpolation/point_interpolation_test\
 	templates/parallel/parallel_test\
+	bc_projector/bc_projector_test\
 	boundary_operation/boundary_operation_test\
 	wall_sampling/wall_sampling_test\
 	templates/serial/serial_test
@@ -103,6 +105,7 @@ EXTRA_DIST = \
 	tet/test_tet.pf\
 	tri/test_tri.pf\
 	bc/test_bc.pf\
+	bc/bc_test\
 	tuple/test_tuple.pf\
 	point/test_point.pf\
 	signal/test_signal.pf\
@@ -173,7 +176,10 @@ EXTRA_DIST = \
 	expression/test_expression.pf\
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
+	bc_projector/bc_projector_test\
 	point_interpolation/point_interpolation_test\
+	bc_projector/test_bc_projector.pf\
+	bc_projector/test_coupled_bc_projector.pf\
 	boundary_operation/test_boundary_operation.pf\
 	wall_sampling/test_base.pf\
 	wall_sampling/test_gll.pf\

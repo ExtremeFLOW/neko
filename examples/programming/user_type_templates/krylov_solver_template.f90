@@ -1,14 +1,16 @@
 !> Template for a user-defined Krylov solver.
 module krylov_solver_template
   use ax_product, only : ax_t
-  use bc_list, only : bc_list_t
   use coefs, only : coef_t
   use field, only : field_t
   use gather_scatter, only : gs_t
   use krylov, only : ksp_t, ksp_monitor_t, krylov_allocate, register_krylov
   use num_types, only : rp
   use precon, only : pc_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use utils, only : neko_error
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       vector_bc_projector_components
   implicit none
   private
 
@@ -56,15 +58,15 @@ contains
     call this%ksp_free()
   end subroutine krylov_solver_template_free
 
-  function krylov_solver_template_solve(this, Ax, x, f, n, coef, blst, gs_h, &
-       niter) result(ksp_results)
+  function krylov_solver_template_solve(this, Ax, x, f, n, coef, bc_projector, &
+       gs_h, niter) result(ksp_results)
     class(krylov_solver_template_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     real(kind=rp), intent(in) :: f(n)
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     integer, optional, intent(in) :: niter
     type(ksp_monitor_t) :: ksp_results
@@ -74,22 +76,24 @@ contains
   end function krylov_solver_template_solve
 
   function krylov_solver_template_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(krylov_solver_template_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x, y, z
     integer, intent(in) :: n
     real(kind=rp), intent(in) :: fx(n), fy(n), fz(n)
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx, blsty, blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     integer, optional, intent(in) :: niter
     type(ksp_monitor_t) :: ksp_results(3)
+    type(scalar_bc_projector_t), pointer :: bc_x, bc_y, bc_z
 
     ! A valid default when a solver applies independently to each component.
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    call vector_bc_projector_components(bc_projector, bc_x, bc_y, bc_z)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_x, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_y, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_z, gs_h, niter)
   end function krylov_solver_template_solve_coupled
 
   subroutine krylov_solver_template_register_types()

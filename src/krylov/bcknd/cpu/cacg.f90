@@ -40,7 +40,9 @@ module cacg
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       vector_bc_projector_components
   use math, only : glsc3, rzero, copy, x_update, abscmp
   use utils, only : neko_warning
   use comm, only : pe_rank, NEKO_COMM, MPI_REAL_PRECISION
@@ -131,7 +133,7 @@ contains
   end subroutine cacg_free
 
   !> S-step CA PCG solve
-  function cacg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function cacg_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
        result(ksp_results)
     class(cacg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -139,7 +141,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -172,7 +174,7 @@ contains
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
       iter = 0
-      if(abscmp(rnorm, 0.0_rp)) then
+      if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
       end if
       call this%monitor_start('CACG')
@@ -186,7 +188,7 @@ contains
             if (mod(i,2) .eq. 0) then
                call Ax%compute(PR(1,i), PR(1,i-1), coef, x%msh, x%Xh)
                call gs_h%gs_op_vector(PR(1,i), n, GS_OP_ADD)
-               call blst%apply_scalar(PR(1,i), n)
+               call bc_projector%apply(PR(1,i), n)
             else
                call this%M%solve(PR(1,i), PR(1,i-1), n)
             end if
@@ -198,7 +200,7 @@ contains
             else
                call Ax%compute(PR(1,i+1), PR(1,i), coef, x%msh, x%Xh)
                call gs_h%gs_op_vector(PR(1,i+1), n, GS_OP_ADD)
-               call blst%apply_scalar(PR(1,1+i), n)
+               call bc_projector%apply(PR(1,1+i), n)
             end if
          end do
 
@@ -322,7 +324,7 @@ contains
               MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
          rnorm = norm_fac*sqrt(tmp)
          call this%monitor_iter(iter, rnorm)
-         if( rnorm <= this%abs_tol) exit
+         if (rnorm <= this%abs_tol) exit
       end do
       call this%monitor_stop()
       ksp_results%res_final = rnorm
@@ -350,7 +352,7 @@ contains
 
   !> S-step CA PCG coupled solve
   function cacg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(cacg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -361,18 +363,17 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(scalar_bc_projector_t), pointer :: bc_x, bc_y, bc_z
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    call vector_bc_projector_components(bc_projector, bc_x, bc_y, bc_z)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_x, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_y, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_z, gs_h, niter)
 
   end function cacg_solve_coupled
 
 end module cacg
-

@@ -33,7 +33,7 @@
 !> Defines overset interface vector boundary conditions
 module overset_interface_vector
   use comm, only : NEKO_GLOBAL_COMM
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
   use registry, only : neko_registry
   use num_types, only : rp
   use coefs, only : coef_t
@@ -42,7 +42,7 @@ module overset_interface_vector
        global_interpolation_settings_t
   use mask, only : mask_t
   use dofmap, only : dofmap_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use bc_list, only : bc_list_t
   use utils, only : split_string
   use field, only : field_t
@@ -52,7 +52,7 @@ module overset_interface_vector
   use dofmap, only : dofmap_t
   use vector, only : vector_t
   use vector_list, only : vector_list_t
-  use vector_series, only: vector_series_t
+  use vector_series, only : vector_series_t
   use vector_math, only : vector_masked_gather_copy, &
        vector_masked_scatter_copy, vector_add2s2, &
        vector_cmult2, vector_glsc2
@@ -62,7 +62,7 @@ module overset_interface_vector
   use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
   use overset_interface, only : morph_overset_interface
   use utils, only : neko_error, nonlinear_index, linear_index
-  use stack, only: stack_i4_t
+  use stack, only : stack_i4_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
   use field_list, only : field_list_t
@@ -190,6 +190,8 @@ contains
 
     !> This initializes coef, dof, msh, and Xh pointers
     call this%init_base(coef)
+
+    this%bc_type = BC_DIRICHLET
 
     !> Set the interpolation settings
     if (present(tol)) then
@@ -386,27 +388,19 @@ contains
   end subroutine overset_interface_vector_apply_vector_dev
 
   !> Finalize by building the mask arrays and propagating to underlying bcs.
-  subroutine overset_interface_vector_finalize(this, only_facets)
+  subroutine overset_interface_vector_finalize(this)
     class(overset_interface_vector_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
-
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
 
     !> From field_dirichlet_vector_t
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
 
     call this%bc_u%mark_facets(this%marked_facet)
     call this%bc_v%mark_facets(this%marked_facet)
     call this%bc_w%mark_facets(this%marked_facet)
 
-    call this%bc_u%finalize(only_facets_)
-    call this%bc_v%finalize(only_facets_)
-    call this%bc_w%finalize(only_facets_)
+    call this%bc_u%finalize()
+    call this%bc_v%finalize()
+    call this%bc_w%finalize()
 
     !> Build heper masks
     call this%build_masks_()

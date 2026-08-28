@@ -2,6 +2,8 @@
 
 ## Develop
 
+- *BREAKING*, normal_outflow conditions now require specifying `value`, which
+  is used to set the value of the tangential components of velocity.
 - Added fp64 tensor core (`DMMA`) and matrix core (`MFMA`) variants of the
   Helmholtz operator on the CUDA and HIP backends, and on Hopper two TMA
   staged forms of the CUDA one --- `DMMA_TMA` for the scalar and vector
