@@ -398,7 +398,6 @@ contains
     if (this%want_mag) this%tau_mag => &
          neko_registry%get_field_by_name(trim(computed_field) // "_mag")
 
-    ! only_facets = .true.
     ! The normals are requested in the `coef` convention, pointing out of the
     ! fluid domain, because that is what `calc_force_array` expects. The
     ! outward convention would flip the sign of the computed traction.
