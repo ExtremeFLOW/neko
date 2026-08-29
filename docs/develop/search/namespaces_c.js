@@ -19,8 +19,9 @@ var searchData=
   ['metal_5fintf_16',['metal_intf',['../d0/d8c/namespacemetal__intf.html',1,'']]],
   ['metal_5fmappings_17',['metal_mappings',['../da/da1/namespacemetal__mappings.html',1,'']]],
   ['metal_5fmath_18',['metal_math',['../d8/dae/namespacemetal__math.html',1,'']]],
-  ['most_19',['most',['../de/dfa/namespacemost.html',1,'']]],
-  ['most_5fcpu_20',['most_cpu',['../d6/db7/namespacemost__cpu.html',1,'']]],
-  ['most_5fdevice_21',['most_device',['../d3/d02/namespacemost__device.html',1,'']]],
-  ['mxm_5fwrapper_22',['mxm_wrapper',['../d1/d15/namespacemxm__wrapper.html',1,'']]]
+  ['mixed_5fbc_19',['mixed_bc',['../d0/d15/namespacemixed__bc.html',1,'']]],
+  ['most_20',['most',['../de/dfa/namespacemost.html',1,'']]],
+  ['most_5fcpu_21',['most_cpu',['../d6/db7/namespacemost__cpu.html',1,'']]],
+  ['most_5fdevice_22',['most_device',['../d3/d02/namespacemost__device.html',1,'']]],
+  ['mxm_5fwrapper_23',['mxm_wrapper',['../d1/d15/namespacemxm__wrapper.html',1,'']]]
 ];

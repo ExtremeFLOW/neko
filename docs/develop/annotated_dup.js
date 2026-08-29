@@ -402,6 +402,14 @@ var annotated_dup =
       [ "hip_coef_generate_mass", "d8/d7a/interfacedevice__coef_1_1hip__coef__generate__mass.html", "d8/d7a/interfacedevice__coef_1_1hip__coef__generate__mass" ],
       [ "hip_coef_get_normal", "dd/d70/interfacedevice__coef_1_1hip__coef__get__normal.html", "dd/d70/interfacedevice__coef_1_1hip__coef__get__normal" ]
     ] ],
+    [ "device_constrain_mixed_bc", "d3/dd7/namespacedevice__constrain__mixed__bc.html", [
+      [ "hip_constrain_mixed_bc_set", "d7/d30/interfacedevice__constrain__mixed__bc_1_1hip__constrain__mixed__bc__set.html", "d7/d30/interfacedevice__constrain__mixed__bc_1_1hip__constrain__mixed__bc__set" ],
+      [ "hip_constrain_mixed_bc_set_const", "dd/d9e/interfacedevice__constrain__mixed__bc_1_1hip__constrain__mixed__bc__set__const.html", "dd/d9e/interfacedevice__constrain__mixed__bc_1_1hip__constrain__mixed__bc__set__const" ],
+      [ "hip_constrain_mixed_bc_zero", "db/d39/interfacedevice__constrain__mixed__bc_1_1hip__constrain__mixed__bc__zero.html", "db/d39/interfacedevice__constrain__mixed__bc_1_1hip__constrain__mixed__bc__zero" ]
+    ] ],
+    [ "device_coupled_vector_bc_projector", "d2/d84/namespacedevice__coupled__vector__bc__projector.html", [
+      [ "hip_coupled_vector_bc_projector_apply", "dc/d05/interfacedevice__coupled__vector__bc__projector_1_1hip__coupled__vector__bc__projector__apply.html", "dc/d05/interfacedevice__coupled__vector__bc__projector_1_1hip__coupled__vector__bc__projector__apply" ]
+    ] ],
     [ "device_deardorff_nut", "d4/d66/namespacedevice__deardorff__nut.html", [
       [ "hip_deardorff_nut_compute", "d2/d29/interfacedevice__deardorff__nut_1_1hip__deardorff__nut__compute.html", "d2/d29/interfacedevice__deardorff__nut_1_1hip__deardorff__nut__compute" ]
     ] ],
@@ -475,8 +483,8 @@ var annotated_dup =
     [ "device_smagorinsky_nut", "d6/d30/namespacedevice__smagorinsky__nut.html", [
       [ "hip_smagorinsky_nut_compute", "d6/deb/interfacedevice__smagorinsky__nut_1_1hip__smagorinsky__nut__compute.html", "d6/deb/interfacedevice__smagorinsky__nut_1_1hip__smagorinsky__nut__compute" ]
     ] ],
-    [ "device_symmetry", "d0/dc5/namespacedevice__symmetry.html", [
-      [ "hip_symmetry_apply_vector", "df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector.html", "df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector" ]
+    [ "device_symmetry_aligned", "d6/d28/namespacedevice__symmetry__aligned.html", [
+      [ "hip_symmetry_aligned_apply_vector", "de/df2/interfacedevice__symmetry__aligned_1_1hip__symmetry__aligned__apply__vector.html", "de/df2/interfacedevice__symmetry__aligned_1_1hip__symmetry__aligned__apply__vector" ]
     ] ],
     [ "device_tree_amg_smoother", "d4/de8/namespacedevice__tree__amg__smoother.html", [
       [ "hip_amg_cheby_solve_part1", "d8/de2/interfacedevice__tree__amg__smoother_1_1hip__amg__cheby__solve__part1.html", "d8/de2/interfacedevice__tree__amg__smoother_1_1hip__amg__cheby__solve__part1" ],
@@ -1154,6 +1162,9 @@ var annotated_dup =
       [ "metal_vdot3", "dd/d08/interfacemetal__math_1_1metal__vdot3.html", "dd/d08/interfacemetal__math_1_1metal__vdot3" ],
       [ "metal_vlsc3", "dd/d6c/interfacemetal__math_1_1metal__vlsc3.html", "dd/d6c/interfacemetal__math_1_1metal__vlsc3" ]
     ] ],
+    [ "mixed_bc", "d0/d15/namespacemixed__bc.html", [
+      [ "mixed_bc_t", "d0/de5/structmixed__bc_1_1mixed__bc__t.html", "d0/de5/structmixed__bc_1_1mixed__bc__t" ]
+    ] ],
     [ "most", "de/dfa/namespacemost.html", [
       [ "most_t", "de/d0b/structmost_1_1most__t.html", "de/d0b/structmost_1_1most__t" ]
     ] ],
@@ -1199,6 +1210,9 @@ var annotated_dup =
     ] ],
     [ "non_normal", "d8/d74/namespacenon__normal.html", [
       [ "non_normal_t", "da/d18/structnon__normal_1_1non__normal__t.html", "da/d18/structnon__normal_1_1non__normal__t" ]
+    ] ],
+    [ "non_normal_aligned", "d2/d2f/namespacenon__normal__aligned.html", [
+      [ "non_normal_aligned_t", "d1/ddc/structnon__normal__aligned_1_1non__normal__aligned__t.html", "d1/ddc/structnon__normal__aligned_1_1non__normal__aligned__t" ]
     ] ],
     [ "octree", "d8/d38/namespaceoctree.html", [
       [ "oct_ptr_t", "d6/deb/structoctree_1_1oct__ptr__t.html", "d6/deb/structoctree_1_1oct__ptr__t" ],
@@ -1553,6 +1567,9 @@ var annotated_dup =
     [ "runtime_stats", "d6/d78/namespaceruntime__stats.html", [
       [ "runtime_stats_t", "d5/db8/structruntime__stats_1_1runtime__stats__t.html", "d5/db8/structruntime__stats_1_1runtime__stats__t" ]
     ] ],
+    [ "scalar_bc_projector", "de/d9f/namespacescalar__bc__projector.html", [
+      [ "scalar_bc_projector_t", "d6/dc1/structscalar__bc__projector_1_1scalar__bc__projector__t.html", "d6/dc1/structscalar__bc__projector_1_1scalar__bc__projector__t" ]
+    ] ],
     [ "scalar_ic", "d8/ddf/namespacescalar__ic.html", [
       [ "set_scalar_ic", "df/d8e/interfacescalar__ic_1_1set__scalar__ic.html", "df/d8e/interfacescalar__ic_1_1set__scalar__ic" ]
     ] ],
@@ -1780,6 +1797,9 @@ var annotated_dup =
     [ "symmetry", "d1/d70/namespacesymmetry.html", [
       [ "symmetry_t", "d1/d83/structsymmetry_1_1symmetry__t.html", "d1/d83/structsymmetry_1_1symmetry__t" ]
     ] ],
+    [ "symmetry_aligned", "db/d94/namespacesymmetry__aligned.html", [
+      [ "symmetry_aligned_t", "d5/d3b/structsymmetry__aligned_1_1symmetry__aligned__t.html", "d5/d3b/structsymmetry__aligned_1_1symmetry__aligned__t" ]
+    ] ],
     [ "system", "d5/d81/namespacesystem.html", [
       [ "system_cpuid", "d7/d90/interfacesystem_1_1system__cpuid.html", "d7/d90/interfacesystem_1_1system__cpuid" ]
     ] ],
@@ -1901,6 +1921,17 @@ var annotated_dup =
       [ "vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", "d5/d0b/structvector_1_1vector__ptr__t" ],
       [ "vector_t", "d3/d5b/structvector_1_1vector__t.html", "d3/d5b/structvector_1_1vector__t" ]
     ] ],
+    [ "vector_bc_projector", "d6/dcb/namespacevector__bc__projector.html", [
+      [ "coupled_vector_bc_projector_t", "db/d93/structvector__bc__projector_1_1coupled__vector__bc__projector__t.html", "db/d93/structvector__bc__projector_1_1coupled__vector__bc__projector__t" ],
+      [ "segregated_vector_bc_projector_t", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t" ],
+      [ "vector_bc_projector_apply_intrf", "dc/d8b/interfacevector__bc__projector_1_1vector__bc__projector__apply__intrf.html", "dc/d8b/interfacevector__bc__projector_1_1vector__bc__projector__apply__intrf" ],
+      [ "vector_bc_projector_finalize_intrf", "d0/d99/interfacevector__bc__projector_1_1vector__bc__projector__finalize__intrf.html", "d0/d99/interfacevector__bc__projector_1_1vector__bc__projector__finalize__intrf" ],
+      [ "vector_bc_projector_free_intrf", "d0/db8/interfacevector__bc__projector_1_1vector__bc__projector__free__intrf.html", "d0/db8/interfacevector__bc__projector_1_1vector__bc__projector__free__intrf" ],
+      [ "vector_bc_projector_init_intrf", "d4/d6d/interfacevector__bc__projector_1_1vector__bc__projector__init__intrf.html", "d4/d6d/interfacevector__bc__projector_1_1vector__bc__projector__init__intrf" ],
+      [ "vector_bc_projector_mark_bc_intrf", "d5/d8b/interfacevector__bc__projector_1_1vector__bc__projector__mark__bc__intrf.html", "d5/d8b/interfacevector__bc__projector_1_1vector__bc__projector__mark__bc__intrf" ],
+      [ "vector_bc_projector_mark_bc_list_intrf", "da/d16/interfacevector__bc__projector_1_1vector__bc__projector__mark__bc__list__intrf.html", "da/d16/interfacevector__bc__projector_1_1vector__bc__projector__mark__bc__list__intrf" ],
+      [ "vector_bc_projector_t", "d9/d93/structvector__bc__projector_1_1vector__bc__projector__t.html", "d9/d93/structvector__bc__projector_1_1vector__bc__projector__t" ]
+    ] ],
     [ "vector_list", "d3/ddd/namespacevector__list.html", [
       [ "vector_list_t", "d3/d45/structvector__list_1_1vector__list__t.html", "d3/d45/structvector__list_1_1vector__list__t" ]
     ] ],
@@ -1962,10 +1993,14 @@ var annotated_dup =
       [ "zero_dirichlet_t", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t" ]
     ] ],
     [ "ax_helm_dmma_dispatch", "d7/dc9/structax__helm__dmma__dispatch.html", "d7/dc9/structax__helm__dmma__dispatch" ],
+    [ "ax_helm_dmma_tma_batch_dispatch", "da/da4/structax__helm__dmma__tma__batch__dispatch.html", "da/da4/structax__helm__dmma__tma__batch__dispatch" ],
+    [ "ax_helm_dmma_tma_dispatch", "d2/d5c/structax__helm__dmma__tma__dispatch.html", "d2/d5c/structax__helm__dmma__tma__dispatch" ],
+    [ "ax_helm_dmma_tma_vector_dispatch", "dd/dbd/structax__helm__dmma__tma__vector__dispatch.html", "dd/dbd/structax__helm__dmma__tma__vector__dispatch" ],
     [ "ax_helm_dmma_vector_dispatch", "dc/d57/structax__helm__dmma__vector__dispatch.html", "dc/d57/structax__helm__dmma__vector__dispatch" ],
     [ "ax_helm_mfma_dispatch", "d9/d4b/structax__helm__mfma__dispatch.html", "d9/d4b/structax__helm__mfma__dispatch" ],
     [ "chunk_block", "d4/d68/structchunk__block.html", "d4/d68/structchunk__block" ],
     [ "cuda_buffer", "db/d62/structcuda__buffer.html", "db/d62/structcuda__buffer" ],
+    [ "dmma_tma_batch_smem", "d4/d0a/structdmma__tma__batch__smem.html", "d4/d0a/structdmma__tma__batch__smem" ],
     [ "elem_block", "de/d3c/structelem__block.html", "de/d3c/structelem__block" ],
     [ "gs_utofu_ctx_t", "d3/d60/structgs__utofu__ctx__t.html", "d3/d60/structgs__utofu__ctx__t" ],
     [ "hip_buffer", "d3/d16/structhip__buffer.html", "d3/d16/structhip__buffer" ],

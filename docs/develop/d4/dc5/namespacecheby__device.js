@@ -4,11 +4,11 @@ var namespacecheby__device =
     [ "hip_cheby_device_part1", "d5/d5f/interfacecheby__device_1_1hip__cheby__device__part1.html", "d5/d5f/interfacecheby__device_1_1hip__cheby__device__part1" ],
     [ "hip_cheby_device_part2", "d6/db9/interfacecheby__device_1_1hip__cheby__device__part2.html", "d6/db9/interfacecheby__device_1_1hip__cheby__device__part2" ],
     [ "cheby_device_free", "d4/dc5/namespacecheby__device.html#aa0ac1e13e350c208f5b20a9c674b8c4a", null ],
-    [ "cheby_device_impl", "d4/dc5/namespacecheby__device.html#af7ddf3344912ba0450cd079cec7e5929", null ],
+    [ "cheby_device_impl", "d4/dc5/namespacecheby__device.html#a3adc08fbdae38be8c41c033b9a12d2ea", null ],
     [ "cheby_device_init", "d4/dc5/namespacecheby__device.html#a44c5b8d7217a68d7bb151c0855920b53", null ],
     [ "cheby_device_part1", "d4/dc5/namespacecheby__device.html#aafa86a9d038f04af6c23cdf634e9a1bb", null ],
     [ "cheby_device_part2", "d4/dc5/namespacecheby__device.html#a56dd0099614626d018abbb680f4d21ce", null ],
-    [ "cheby_device_power", "d4/dc5/namespacecheby__device.html#ac74f17f6b4fa300083abdc31f3e98693", null ],
-    [ "cheby_device_solve", "d4/dc5/namespacecheby__device.html#a9e071811daf316169a425a385bf6d80c", null ],
-    [ "cheby_device_solve_coupled", "d4/dc5/namespacecheby__device.html#a8a4688052c3ceb69f0ae21a8639a11c6", null ]
+    [ "cheby_device_power", "d4/dc5/namespacecheby__device.html#a2a1c1771a60c554e2d2181b843802534", null ],
+    [ "cheby_device_solve", "d4/dc5/namespacecheby__device.html#ac13beacf4f8644133441e750bc51c850", null ],
+    [ "cheby_device_solve_coupled", "d4/dc5/namespacecheby__device.html#af800dbb1d3204b39754f8b113f44a1ff", null ]
 ];

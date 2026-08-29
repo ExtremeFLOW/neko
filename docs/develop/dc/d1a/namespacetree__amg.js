@@ -9,7 +9,7 @@ var namespacetree__amg =
     [ "tamg_device_prolongation_operator", "dc/d1a/namespacetree__amg.html#a212450d5bbb78bb0a45a04db914998d3", null ],
     [ "tamg_device_restriction_operator", "dc/d1a/namespacetree__amg.html#ae0d38cb6f342fff2ca06575ba19cd26d", null ],
     [ "tamg_free", "dc/d1a/namespacetree__amg.html#addffa0d50cb9a0143050683d25c9677f", null ],
-    [ "tamg_init", "dc/d1a/namespacetree__amg.html#aed109b2113cd566e75a376dd9cd17828", null ],
+    [ "tamg_init", "dc/d1a/namespacetree__amg.html#a00189c3079b0155fcccf83144e10cb7d", null ],
     [ "tamg_lvl_init", "dc/d1a/namespacetree__amg.html#ad89ff7cb0a5789fa030a730c4f4260c0", null ],
     [ "tamg_matvec", "dc/d1a/namespacetree__amg.html#ade46664fb2b37237c10f395d1f5cda07", null ],
     [ "tamg_matvec_flat_impl", "dc/d1a/namespacetree__amg.html#af51fcb1185c2730956e13617fc5e5f40", null ],

@@ -517,8 +517,8 @@ Neumann boundary conditions</h2>
 <li>The field <code>i</code> contained in <code>fields</code> is accessed using <code>fields%items(i)%ptr</code> and will refer to a <code>field_t</code> object. Alternatively, one can use the <code>get</code> method to retrieve a field by name or index, as done in the examples above for other routines.</li>
 </ul>
 </li>
-<li><code>bc</code> contains a <code>field_neumann_t</code> object to help access the boundary indices through the boundary mask, <code>msk</code>.<ul>
-<li>The boundary mask of the <code>bc</code>object is accessed via <code>bc%msk</code>. It contains the linear indices of each GLL point on the boundary facets. <dl class="section note"><dt>Note</dt><dd><code>msk(0)</code> contains the size of the array. The first boundary index is <code>msk(1)</code>.</dd></dl>
+<li><code>bc</code> contains a <code>field_neumann_t</code> object to help access the boundary indices through the boundary mask, <code>facet_node_msk</code>.<ul>
+<li>The boundary mask of the <code>bc</code> object is accessed via <code>bc%facet_node_msk</code>. It contains the linear indices of each GLL point on the boundary facets. <dl class="section note"><dt>Note</dt><dd><code>facet_node_msk(0)</code> contains the size of the array. The first boundary index is <code>facet_node_msk(1)</code>. Note that <code>facet_node_msk</code> is the relevant component and not <code>msk</code>. It is the former that only contains the indices that are on faces that lie on the boundary.</dd></dl>
 </li>
 </ul>
 </li>
@@ -539,12 +539,12 @@ Neumann boundary conditions</h2>
 <div class="line">  s_flux =&gt; fields%get_by_name(<span class="stringliteral">&quot;s&quot;</span>)</div>
 <div class="line">  t = time%t</div>
 <div class="line">  <span class="keywordflow">if</span> (<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%zone_indices(1) == 1) <span class="keywordflow">then</span></div>
-<div class="line">     <span class="keywordflow">do</span> i = 1, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(0)</div>
-<div class="line">        s_flux%x(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(i), 1, 1, 1) = sin(t)</div>
+<div class="line">     <span class="keywordflow">do</span> i = 1, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%facet_node_msk(0)</div>
+<div class="line">        s_flux%x(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%facet_node_msk(i), 1, 1, 1) = sin(t)</div>
 <div class="line"><span class="keywordflow">     end do</span></div>
 <div class="line">  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%zone_indices(1) == 2) <span class="keywordflow">then</span></div>
-<div class="line">     <span class="keywordflow">do</span> i = 1, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(0)</div>
-<div class="line">        s_flux%x(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(i), 1, 1, 1) = -sin(t)</div>
+<div class="line">     <span class="keywordflow">do</span> i = 1, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%facet_node_msk(0)</div>
+<div class="line">        s_flux%x(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%facet_node_msk(i), 1, 1, 1) = -sin(t)</div>
 <div class="line"><span class="keywordflow">     end do</span></div>
 <div class="line"><span class="keywordflow">  end if</span></div>
 <div class="line"> </div>
@@ -875,7 +875,7 @@ User access to solver internals</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Fri Aug 28 2026 06:09:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 29 2026 03:37:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

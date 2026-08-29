@@ -13,6 +13,7 @@ var structbc__list_1_1bc__list__t =
     [ "apply_vector", "df/da4/structbc__list_1_1bc__list__t.html#a6042527e41a000694d398d9f1d059fd1", null ],
     [ "apply_vector_device", "df/da4/structbc__list_1_1bc__list__t.html#ab5a5181090bbf50f42d795eabe249718", null ],
     [ "apply_vector_field", "df/da4/structbc__list_1_1bc__list__t.html#a9f9cde634c2a24f507f4333b093b3bd8", null ],
+    [ "bc_type", "df/da4/structbc__list_1_1bc__list__t.html#adddb468554c31441363e6c2077bbc71f", null ],
     [ "free", "df/da4/structbc__list_1_1bc__list__t.html#a1e15ce0834a1718fa195f505d540b09d", null ],
     [ "get", "df/da4/structbc__list_1_1bc__list__t.html#a9b57ca3253074dae1eacecf10de1cd14", null ],
     [ "get_by_name", "df/da4/structbc__list_1_1bc__list__t.html#a89cdc0968bb871bbb4583d8435321265", null ],
@@ -20,7 +21,6 @@ var structbc__list_1_1bc__list__t =
     [ "init", "df/da4/structbc__list_1_1bc__list__t.html#ad3827f09da91ced4275cba1295463275", null ],
     [ "is_empty", "df/da4/structbc__list_1_1bc__list__t.html#add34d05d8c9a67779c2a885f815dba16", null ],
     [ "size", "df/da4/structbc__list_1_1bc__list__t.html#a4004b00b09fbae0a6b1f5ca6e41402da", null ],
-    [ "strong", "df/da4/structbc__list_1_1bc__list__t.html#a03da813f2722ec8c8b391a15feb7df3c", null ],
     [ "capacity", "df/da4/structbc__list_1_1bc__list__t.html#a9ef710b4ea075f3560425aa8f7d7675e", null ],
     [ "items", "df/da4/structbc__list_1_1bc__list__t.html#a2b9c1131f410ccd8cdc77f73f7098565", null ],
     [ "size_", "df/da4/structbc__list_1_1bc__list__t.html#a1789d48a5b4b4783d044dc6b92853169", null ]

@@ -1,3 +1,13 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$de/d2a/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__update__x.html" title=" " alt="" coords="5,5,163,60"/>
+<area shape="rect" id="Node000000" href="$db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html" title="Base type of all fluid formulations." alt="" coords="5,37,164,77"/>
+<area shape="rect" id="Node000001" href="$d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html" title="Base type of compressible fluid formulations." alt="" coords="218,5,441,45"/>
+<area shape="poly" id="edge53_Node000000_Node000001" title=" " alt="" coords="177,43,218,37,218,43,178,48"/>
+<area shape="rect" id="Node000003" href="$d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html" title="Base type of all fluid formulations." alt="" coords="212,69,447,109"/>
+<area shape="poly" id="edge55_Node000000_Node000003" title=" " alt="" coords="178,67,212,71,211,77,177,72"/>
+<area shape="rect" id="Node000002" href="$d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html" title=" " alt="" coords="495,5,761,45"/>
+<area shape="poly" id="edge54_Node000001_Node000002" title=" " alt="" coords="454,23,494,23,494,28,454,28"/>
+<area shape="rect" id="Node000004" href="$dc/d90/structfluid__plan1_1_1fluid__plan1__t.html" title=" " alt="" coords="563,69,693,109"/>
+<area shape="poly" id="edge56_Node000003_Node000004" title=" " alt="" coords="460,87,563,87,563,92,460,92"/>
+<area shape="rect" id="Node000005" href="$da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html" title=" " alt="" coords="540,134,716,159"/>
+<area shape="poly" id="edge57_Node000003_Node000005" title=" " alt="" coords="447,109,495,119,561,131,560,137,494,124,446,115"/>
 </map>

@@ -35,6 +35,9 @@ var hierarchy =
     [ "ax_product::ax_helm_allocate", "d8/df9/interfaceax__product_1_1ax__helm__allocate.html", null ],
     [ "ax_product::ax_helm_allocator_entry", "d3/de0/structax__product_1_1ax__helm__allocator__entry.html", null ],
     [ "ax_helm_dmma_dispatch< T, LX, NW >", "d7/dc9/structax__helm__dmma__dispatch.html", null ],
+    [ "ax_helm_dmma_tma_batch_dispatch< T, LX, NW >", "da/da4/structax__helm__dmma__tma__batch__dispatch.html", null ],
+    [ "ax_helm_dmma_tma_dispatch< T, LX, NW >", "d2/d5c/structax__helm__dmma__tma__dispatch.html", null ],
+    [ "ax_helm_dmma_tma_vector_dispatch< T, LX, NW >", "dd/dbd/structax__helm__dmma__tma__vector__dispatch.html", null ],
     [ "ax_helm_dmma_vector_dispatch< T, LX, NW >", "dc/d57/structax__helm__dmma__vector__dispatch.html", null ],
     [ "ax_helm_mfma_dispatch< T, LX, NWF >", "d9/d4b/structax__helm__mfma__dispatch.html", null ],
     [ "ax_product::ax_t", "d3/d2c/structax__product_1_1ax__t.html", [
@@ -71,15 +74,18 @@ var hierarchy =
       [ "field_dirichlet_vector::field_dirichlet_vector_t", "da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html", null ],
       [ "field_neumann::field_neumann_t", "df/dd4/structfield__neumann_1_1field__neumann__t.html", null ],
       [ "inflow::inflow_t", "d5/d8a/structinflow_1_1inflow__t.html", null ],
+      [ "mixed_bc::mixed_bc_t", "d0/de5/structmixed__bc_1_1mixed__bc__t.html", [
+        [ "non_normal::non_normal_t", "da/d18/structnon__normal_1_1non__normal__t.html", null ],
+        [ "shear_stress::shear_stress_t", "df/d63/structshear__stress_1_1shear__stress__t.html", [
+          [ "wall_model_bc::wall_model_bc_t", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html", null ]
+        ] ],
+        [ "symmetry::symmetry_t", "d1/d83/structsymmetry_1_1symmetry__t.html", null ]
+      ] ],
       [ "neumann::neumann_t", "d5/d84/structneumann_1_1neumann__t.html", null ],
+      [ "non_normal_aligned::non_normal_aligned_t", "d1/ddc/structnon__normal__aligned_1_1non__normal__aligned__t.html", null ],
       [ "overset_interface::overset_interface_t", "d9/db1/structoverset__interface_1_1overset__interface__t.html", null ],
       [ "overset_interface_vector::overset_interface_vector_t", "d5/d64/structoverset__interface__vector_1_1overset__interface__vector__t.html", null ],
-      [ "shear_stress::shear_stress_t", "df/d63/structshear__stress_1_1shear__stress__t.html", [
-        [ "wall_model_bc::wall_model_bc_t", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html", null ]
-      ] ],
-      [ "symmetry::symmetry_t", "d1/d83/structsymmetry_1_1symmetry__t.html", [
-        [ "non_normal::non_normal_t", "da/d18/structnon__normal_1_1non__normal__t.html", null ]
-      ] ],
+      [ "symmetry_aligned::symmetry_aligned_t", "d5/d3b/structsymmetry__aligned_1_1symmetry__aligned__t.html", null ],
       [ "zero_dirichlet::zero_dirichlet_t", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html", [
         [ "no_slip::no_slip_t", "dc/d90/structno__slip_1_1no__slip__t.html", null ]
       ] ]
@@ -280,6 +286,7 @@ var hierarchy =
     ] ],
     [ "distdata::distdata_t", "d4/ddd/structdistdata_1_1distdata__t.html", null ],
     [ "operators::div", "d5/d2a/interfaceoperators_1_1div.html", null ],
+    [ "dmma_tma_batch_smem", "d4/d0a/structdmma__tma__batch__smem.html", null ],
     [ "dofmap::dofmap_t", "d0/df0/structdofmap_1_1dofmap__t.html", null ],
     [ "operators::dudxyz", "db/d5a/interfaceoperators_1_1dudxyz.html", null ],
     [ "el_finder::el_finder_find", "dc/d70/interfaceel__finder_1_1el__finder__find.html", null ],
@@ -448,9 +455,13 @@ var hierarchy =
     [ "hip_math::hip_col3", "d5/de1/interfacehip__math_1_1hip__col3.html", null ],
     [ "compressible_ops_device::hip_compute_entropy", "d6/d93/interfacecompressible__ops__device_1_1hip__compute__entropy.html", null ],
     [ "compressible_ops_device::hip_compute_max_wave_speed", "da/d9b/interfacecompressible__ops__device_1_1hip__compute__max__wave__speed.html", null ],
+    [ "device_constrain_mixed_bc::hip_constrain_mixed_bc_set", "d7/d30/interfacedevice__constrain__mixed__bc_1_1hip__constrain__mixed__bc__set.html", null ],
+    [ "device_constrain_mixed_bc::hip_constrain_mixed_bc_set_const", "dd/d9e/interfacedevice__constrain__mixed__bc_1_1hip__constrain__mixed__bc__set__const.html", null ],
+    [ "device_constrain_mixed_bc::hip_constrain_mixed_bc_zero", "db/d39/interfacedevice__constrain__mixed__bc_1_1hip__constrain__mixed__bc__zero.html", null ],
     [ "opr_device::hip_conv1", "df/d14/interfaceopr__device_1_1hip__conv1.html", null ],
     [ "opr_device::hip_convect_scalar", "df/da4/interfaceopr__device_1_1hip__convect__scalar.html", null ],
     [ "hip_math::hip_copy", "dc/d2b/interfacehip__math_1_1hip__copy.html", null ],
+    [ "device_coupled_vector_bc_projector::hip_coupled_vector_bc_projector_apply", "dc/d05/interfacedevice__coupled__vector__bc__projector_1_1hip__coupled__vector__bc__projector__apply.html", null ],
     [ "hip_math::hip_cwrap", "db/da5/interfacehip__math_1_1hip__cwrap.html", null ],
     [ "device_deardorff_nut::hip_deardorff_nut_compute", "d2/d29/interfacedevice__deardorff__nut_1_1hip__deardorff__nut__compute.html", null ],
     [ "device_dirichlet::hip_dirichlet_apply_scalar", "de/d8f/interfacedevice__dirichlet_1_1hip__dirichlet__apply__scalar.html", null ],
@@ -552,7 +563,7 @@ var hierarchy =
     [ "hip_math::hip_sub2", "d6/d08/interfacehip__math_1_1hip__sub2.html", null ],
     [ "hip_math::hip_sub3", "db/d3a/interfacehip__math_1_1hip__sub3.html", null ],
     [ "hip_math::hip_subcol3", "df/d2a/interfacehip__math_1_1hip__subcol3.html", null ],
-    [ "device_symmetry::hip_symmetry_apply_vector", "df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector.html", null ],
+    [ "device_symmetry_aligned::hip_symmetry_aligned_apply_vector", "de/df2/interfacedevice__symmetry__aligned_1_1hip__symmetry__aligned__apply__vector.html", null ],
     [ "tensor_device::hip_tnsr3d", "d1/df7/interfacetensor__device_1_1hip__tnsr3d.html", null ],
     [ "tensor_device::hip_tnsr3d_el_list", "d4/d81/interfacetensor__device_1_1hip__tnsr3d__el__list.html", null ],
     [ "compressible_ops_device::hip_update_e", "d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html", null ],
@@ -984,6 +995,7 @@ var hierarchy =
     [ "operators::rotate_cyc", "de/dad/interfaceoperators_1_1rotate__cyc.html", null ],
     [ "runge_kutta_time_scheme::runge_kutta_time_scheme_t", "d4/d16/structrunge__kutta__time__scheme_1_1runge__kutta__time__scheme__t.html", null ],
     [ "runtime_stats::runtime_stats_t", "d5/db8/structruntime__stats_1_1runtime__stats__t.html", null ],
+    [ "scalar_bc_projector::scalar_bc_projector_t", "d6/dc1/structscalar__bc__projector_1_1scalar__bc__projector__t.html", null ],
     [ "scalar_residual::scalar_residual_interface", "d0/d90/interfacescalar__residual_1_1scalar__residual__interface.html", null ],
     [ "scalar_residual::scalar_residual_t", "de/de3/structscalar__residual_1_1scalar__residual__t.html", [
       [ "scalar_residual_cpu::scalar_residual_cpu_t", "db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html", null ],
@@ -1221,6 +1233,16 @@ var hierarchy =
       [ "uset::uset_r8_t", "d3/d19/structuset_1_1uset__r8__t.html", null ]
     ] ],
     [ "fluid_scheme_base::validate_intrf", "d8/d38/interfacefluid__scheme__base_1_1validate__intrf.html", null ],
+    [ "vector_bc_projector::vector_bc_projector_apply_intrf", "dc/d8b/interfacevector__bc__projector_1_1vector__bc__projector__apply__intrf.html", null ],
+    [ "vector_bc_projector::vector_bc_projector_finalize_intrf", "d0/d99/interfacevector__bc__projector_1_1vector__bc__projector__finalize__intrf.html", null ],
+    [ "vector_bc_projector::vector_bc_projector_free_intrf", "d0/db8/interfacevector__bc__projector_1_1vector__bc__projector__free__intrf.html", null ],
+    [ "vector_bc_projector::vector_bc_projector_init_intrf", "d4/d6d/interfacevector__bc__projector_1_1vector__bc__projector__init__intrf.html", null ],
+    [ "vector_bc_projector::vector_bc_projector_mark_bc_intrf", "d5/d8b/interfacevector__bc__projector_1_1vector__bc__projector__mark__bc__intrf.html", null ],
+    [ "vector_bc_projector::vector_bc_projector_mark_bc_list_intrf", "da/d16/interfacevector__bc__projector_1_1vector__bc__projector__mark__bc__list__intrf.html", null ],
+    [ "vector_bc_projector::vector_bc_projector_t", "d9/d93/structvector__bc__projector_1_1vector__bc__projector__t.html", [
+      [ "vector_bc_projector::coupled_vector_bc_projector_t", "db/d93/structvector__bc__projector_1_1coupled__vector__bc__projector__t.html", null ],
+      [ "vector_bc_projector::segregated_vector_bc_projector_t", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html", null ]
+    ] ],
     [ "vector_list::vector_list_t", "d3/d45/structvector__list_1_1vector__list__t.html", null ],
     [ "vector::vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", null ],
     [ "vector_series::vector_series_ptr_t", "df/d78/structvector__series_1_1vector__series__ptr__t.html", null ],

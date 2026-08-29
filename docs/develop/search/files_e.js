@@ -16,7 +16,8 @@ var searchData=
   ['nmsh_5ffile_2ef90_13',['nmsh_file.f90',['../d8/d33/nmsh__file_8f90.html',1,'']]],
   ['no_5fslip_2ef90_14',['no_slip.f90',['../de/d75/no__slip_8f90.html',1,'']]],
   ['non_5fnormal_2ef90_15',['non_normal.f90',['../d1/d20/non__normal_8f90.html',1,'']]],
-  ['num_5ftypes_2ef90_16',['num_types.f90',['../dc/d99/num__types_8f90.html',1,'']]],
-  ['nvtx_2ef90_17',['nvtx.F90',['../da/d09/nvtx_8F90.html',1,'']]],
-  ['nvtx_5fwrapper_2ecu_18',['nvtx_wrapper.cu',['../d7/d1e/nvtx__wrapper_8cu.html',1,'']]]
+  ['non_5fnormal_5faligned_2ef90_16',['non_normal_aligned.f90',['../d4/df2/non__normal__aligned_8f90.html',1,'']]],
+  ['num_5ftypes_2ef90_17',['num_types.f90',['../dc/d99/num__types_8f90.html',1,'']]],
+  ['nvtx_2ef90_18',['nvtx.F90',['../da/d09/nvtx_8F90.html',1,'']]],
+  ['nvtx_5fwrapper_2ecu_19',['nvtx_wrapper.cu',['../d7/d1e/nvtx__wrapper_8cu.html',1,'']]]
 ];

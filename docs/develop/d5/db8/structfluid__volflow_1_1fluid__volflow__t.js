@@ -1,7 +1,7 @@
 var structfluid__volflow_1_1fluid__volflow__t =
 [
-    [ "adjust", "d5/db8/structfluid__volflow_1_1fluid__volflow__t.html#ad8d3fb7aacc1837d7e73f9585c7b9361", null ],
-    [ "compute", "d5/db8/structfluid__volflow_1_1fluid__volflow__t.html#a341d4a9ac527c31246e6a650ef944812", null ],
+    [ "adjust", "d5/db8/structfluid__volflow_1_1fluid__volflow__t.html#a7831d29aeb2a6865f70247ffa6f27187", null ],
+    [ "compute", "d5/db8/structfluid__volflow_1_1fluid__volflow__t.html#a02ffad88a711378ee7c8dbdc4c65c20e", null ],
     [ "free", "d5/db8/structfluid__volflow_1_1fluid__volflow__t.html#a7a8d7a879546fb1d56f3001e7c698786", null ],
     [ "init", "d5/db8/structfluid__volflow_1_1fluid__volflow__t.html#a099952774c51919cc1a4658c924fb966", null ],
     [ "avflow", "d5/db8/structfluid__volflow_1_1fluid__volflow__t.html#afac80f363bd61fa0c6d2e6202ff790a0", null ],

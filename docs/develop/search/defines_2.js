@@ -6,5 +6,6 @@ var searchData=
   ['device_5fnccl_5fmax_3',['DEVICE_NCCL_MAX',['../d4/d97/device__nccl__op_8h.html#a20186c4304a210d4a1a831138ba857cd',1,'device_nccl_op.h']]],
   ['device_5fnccl_5fmin_4',['DEVICE_NCCL_MIN',['../d4/d97/device__nccl__op_8h.html#a3265d323213a0771d00a04486f8409d0',1,'device_nccl_op.h']]],
   ['device_5fnccl_5fsum_5',['DEVICE_NCCL_SUM',['../d4/d97/device__nccl__op_8h.html#aaf21bdcea96ef7504c43138fedd98c0a',1,'device_nccl_op.h']]],
-  ['dxyzdrst_5fcase_6',['dxyzdrst_case',['../d4/d95/coef_8cu.html#af59fd4f84c5c6eacc06be9c08ce34542',1,'DXYZDRST_CASE:&#160;coef.cu'],['../d9/dc3/coef_8hip.html#af59fd4f84c5c6eacc06be9c08ce34542',1,'DXYZDRST_CASE:&#160;coef.hip'],['../d6/da9/coef_8c.html#af59fd4f84c5c6eacc06be9c08ce34542',1,'DXYZDRST_CASE:&#160;coef.c']]]
+  ['dmma_5fng_6',['DMMA_NG',['../dd/df9/dmma__tma__kernel_8h.html#a1ad1cbd6160bf4f401f8f317765b4090',1,'dmma_tma_kernel.h']]],
+  ['dxyzdrst_5fcase_7',['dxyzdrst_case',['../d4/d95/coef_8cu.html#af59fd4f84c5c6eacc06be9c08ce34542',1,'DXYZDRST_CASE:&#160;coef.cu'],['../d9/dc3/coef_8hip.html#af59fd4f84c5c6eacc06be9c08ce34542',1,'DXYZDRST_CASE:&#160;coef.hip'],['../d6/da9/coef_8c.html#af59fd4f84c5c6eacc06be9c08ce34542',1,'DXYZDRST_CASE:&#160;coef.c']]]
 ];

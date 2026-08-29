@@ -9,7 +9,7 @@ var namespacefusedcg__device =
     [ "device_fusedcg_update_x", "dd/d04/namespacefusedcg__device.html#a6c565ca5074aeb3779af13900552a342", null ],
     [ "fusedcg_device_free", "dd/d04/namespacefusedcg__device.html#a239efd69a0c3289d4e1ede8b248ed9d4", null ],
     [ "fusedcg_device_init", "dd/d04/namespacefusedcg__device.html#aaf3371e04ce1c1d8d6dc528f00043aed", null ],
-    [ "fusedcg_device_solve", "dd/d04/namespacefusedcg__device.html#abfce590eb7c6404bf4f2f3f7422cf080", null ],
-    [ "fusedcg_device_solve_coupled", "dd/d04/namespacefusedcg__device.html#a563eb61d5a3f2499dc6e2e8f51ac375d", null ],
+    [ "fusedcg_device_solve", "dd/d04/namespacefusedcg__device.html#aa3a07e16519ee1e35e9571215cfed260", null ],
+    [ "fusedcg_device_solve_coupled", "dd/d04/namespacefusedcg__device.html#af62b6852459fcff2972ac95bbbffed78", null ],
     [ "device_fusedcg_p_space", "dd/d04/namespacefusedcg__device.html#a57400999ef9bfe9a038fd940583c5dd7", null ]
 ];

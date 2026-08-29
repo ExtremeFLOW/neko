@@ -148,14 +148,14 @@ $(document).ready(function(){initNavTree('dc/d19/tree__amg__smoother_8f90_source
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>       <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#acf1e1cf693b74a6c6f9c069cbc10fd55">device_cmult2</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a7eb32013433f33a89a83e9668d2bdf42">device_sub2</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a2599f84bce1660a18c72dc3eddb17bfe">device_add2</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a35993289bdfe4bc7ddb0cbd81b00103d">device_add3s2</a>, &amp;</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>       <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a">device_copy</a></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../db/d6d/namespacekrylov.html">krylov</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d1/dd7/namespacebc__list.html">bc_list</a>, <span class="keywordtype">only</span>: <a class="code hl_struct" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../de/d9f/namespacescalar__bc__projector.html">scalar_bc_projector</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d6/dc1/structscalar__bc__projector_1_1scalar__bc__projector__t.html">scalar_bc_projector_t</a></div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d0/d78/namespacegather__scatter.html">gather_scatter</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>, gs_op_add</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/da0/namespacelogger.html">logger</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>, <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">log_size</a></div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dc/dfc/namespaceprofiler.html">profiler</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>, <a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a></div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d0/dbe/namespacedevice.html">device</a>, <span class="keywordtype">only</span>: <a class="code hl_interface" href="../../da/db0/interfacedevice_1_1device__map.html">device_map</a>, <a class="code hl_interface" href="../../db/d56/interfacedevice_1_1device__unmap.html">device_unmap</a>, <a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>, <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a></div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d4/de8/namespacedevice__tree__amg__smoother.html">device_tree_amg_smoother</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d4/de8/namespacedevice__tree__amg__smoother.html#a4b5d02287134ff0f0b9bea979bc61499">amg_device_cheby_solve_part1</a>, &amp;</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>       <a class="code hl_function" href="../../d4/de8/namespacedevice__tree__amg__smoother.html#ab3542f8bd288335a8af48cfd6317fd1e">amg_device_cheby_solve_part2</a></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/d77/namespaceneko__config.html">neko_config</a>, <span class="keywordtype">only</span>: <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/d77/namespaceneko__config.html">neko_config</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a></div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>  <span class="keywordtype">private</span></div>
@@ -282,7 +282,7 @@ $(document).ready(function(){initNavTree('dc/d19/tree__amg__smoother_8f90_source
 <div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    warm = this%warm_start_eigs .and. this%eigs_computed .and. &amp;</div>
 <div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>         <span class="keyword">allocated</span>(this%ev)</div>
 <div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    associate(w =&gt; this%w, d =&gt; this%d, coef =&gt; amg%coef, gs_h =&gt; amg%gs_h, &amp;</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>         msh =&gt; amg%msh, xh =&gt; amg%Xh, blst =&gt; amg%blst)</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>         msh =&gt; amg%msh, xh =&gt; amg%Xh, bc_projector =&gt; amg%bc_projector)</div>
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span> </div>
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>      <span class="keywordflow">if</span> (warm) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>         its = this%power_its_refresh</div>
@@ -308,7 +308,7 @@ $(document).ready(function(){initNavTree('dc/d19/tree__amg__smoother_8f90_source
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>         <span class="keywordflow">if</span> (this%lvl .eq. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>            <span class="keyword">call </span>gs_h%op(d, n, gs_op_add)<span class="comment">!TODO</span></div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>            <span class="keyword">call </span>blst%apply(d, n)</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>            <span class="keyword">call </span>bc_projector%apply(d, n)</div>
 <div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span><span class="keywordflow">         end if</span></div>
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span><span class="keywordflow">      end if</span></div>
 <div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>      <span class="comment">!Power method to get lamba max</span></div>
@@ -378,175 +378,175 @@ $(document).ready(function(){initNavTree('dc/d19/tree__amg__smoother_8f90_source
 <div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>    max_iter = this%max_iter</div>
 <div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span> </div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    associate( w =&gt; this%w, r =&gt; this%r, d =&gt; this%d, blst =&gt; amg%blst)</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>      <span class="keyword">call </span>copy(r, f, n)</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>      <span class="keywordflow">if</span> (.not. zero_initial_guess) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>         <span class="keyword">call </span>amg%matvec(w, x, this%lvl)</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>         <span class="keyword">call </span>sub2(r, w, n)</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span> </div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>      thet = this%tha</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>      delt = this%dlt</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>      s1 = thet / delt</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>      rhok = 1.0_rp / s1</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>      <span class="comment">! First iteration</span></div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>      <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>      <span class="comment">!DIR$ CONCURRENT</span></div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>      <span class="comment">!DIR$ IVDEP</span></div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>      <span class="comment">!GCC$ ivdep</span></div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>      <span class="comment">!$omp parallel do</span></div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>      <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>         d(i) = 1.0_rp/thet * r(i)</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>         x(i) = x(i) + d(i)</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span><span class="keywordflow">      end do</span></div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>      <span class="comment">!$omp end parallel do</span></div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span> </div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>      <span class="comment">! Rest of iterations</span></div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>      <span class="keywordflow">do</span> iter = 2, max_iter</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>         <span class="keyword">call </span>amg%matvec(w, d, this%lvl)</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>         rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>         tmp1 = rhokp1 * rhok</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>         tmp2 = 2.0_rp * rhokp1 / delt</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>         rhok = rhokp1</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span> </div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>         <span class="comment">!$omp parallel private(i)</span></div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>         <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>         <span class="comment">!DIR$ CONCURRENT</span></div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>         <span class="comment">!DIR$ IVDEP</span></div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>         <span class="comment">!GCC$ ivdep</span></div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>         <span class="comment">!$omp do</span></div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>         <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>            r(i) = r(i) - w(i)</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>            d(i) = tmp1 * d(i) + tmp2 * r(i)</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>            x(i) = x(i) + d(i)</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span><span class="keywordflow">         end do</span></div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>         <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>         <span class="comment">!$omp end parallel</span></div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span><span class="keywordflow">      end do</span></div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>    <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    associate(w =&gt; this%w, r =&gt; this%r, d =&gt; this%d, &amp;</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>         bc_projector =&gt; amg%bc_projector)</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>      <span class="keyword">call </span>copy(r, f, n)</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>      <span class="keywordflow">if</span> (.not. zero_initial_guess) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>         <span class="keyword">call </span>amg%matvec(w, x, this%lvl)</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>         <span class="keyword">call </span>sub2(r, w, n)</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span> </div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>      thet = this%tha</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>      delt = this%dlt</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>      s1 = thet / delt</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>      rhok = 1.0_rp / s1</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>      <span class="comment">! First iteration</span></div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>      <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>      <span class="comment">!DIR$ CONCURRENT</span></div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>      <span class="comment">!DIR$ IVDEP</span></div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>      <span class="comment">!GCC$ ivdep</span></div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>      <span class="comment">!$omp parallel do</span></div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>      <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>         d(i) = 1.0_rp/thet * r(i)</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>         x(i) = x(i) + d(i)</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span><span class="keywordflow">      end do</span></div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>      <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span> </div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>      <span class="comment">! Rest of iterations</span></div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>      <span class="keywordflow">do</span> iter = 2, max_iter</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>         <span class="keyword">call </span>amg%matvec(w, d, this%lvl)</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span> </div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>         rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>         tmp1 = rhokp1 * rhok</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>         tmp2 = 2.0_rp * rhokp1 / delt</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>         rhok = rhokp1</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span> </div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>         <span class="comment">!$omp parallel private(i)</span></div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>         <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>         <span class="comment">!DIR$ CONCURRENT</span></div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>         <span class="comment">!DIR$ IVDEP</span></div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>         <span class="comment">!GCC$ ivdep</span></div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>         <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>         <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>            r(i) = r(i) - w(i)</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>            d(i) = tmp1 * d(i) + tmp2 * r(i)</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>            x(i) = x(i) + d(i)</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>         <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>         <span class="comment">!$omp end parallel</span></div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span><span class="keywordflow">      end do</span></div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>    <span class="keyword">end </span>associate</div>
 </div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d09/namespacetree__amg__smoother.html#a6710120718258fa7d9d4fa76f41252ef">amg_cheby_solve</a></div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span> </div>
-<div class="foldopen" id="foldopen00338" data-start="" data-end="">
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno"><a class="line" href="../../dc/d09/namespacetree__amg__smoother.html#a5f0ce08e2db1caa65ee888d184a5cea2">  338</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d09/namespacetree__amg__smoother.html#a5f0ce08e2db1caa65ee888d184a5cea2">amg_device_cheby_power</a>(this, amg, n)</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html">amg_cheby_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    <span class="keywordtype">type</span>(tamg_hierarchy_t), <span class="keywordtype">intent(inout)</span> :: amg</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span><span class="keywordtype">    real</span>(kind=rp) :: lam, b, a, rn</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">parameter</span> :: boost = 1.1_rp</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">parameter</span> :: lam_factor = 30.0_rp</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span><span class="keywordtype">    real</span>(kind=rp) :: wtw, dtw, dtd</div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: fixed_seed(:), saved_seed(:)</div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    <span class="keywordtype">integer</span> :: i, rnd_n, its</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="keywordtype">logical</span> :: warm</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span> </div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>    <span class="keyword">call </span>profiler_start_region(<span class="stringliteral">&#39;AMG_cheby_power&#39;</span>)</div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>    warm = this%warm_start_eigs .and. this%eigs_computed .and. &amp;</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>         c_associated(this%ev_d)</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>    associate(w =&gt; this%w, d =&gt; this%d, coef =&gt; amg%coef, gs_h =&gt; amg%gs_h, &amp;</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>         msh =&gt; amg%msh, xh =&gt; amg%Xh, blst =&gt; amg%blst)</div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span> </div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>      <span class="keywordflow">if</span> (warm) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>         its = this%power_its_refresh</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>         <span class="keyword">call </span>device_copy(this%d_d, this%ev_d, n)</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>      <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>         its = this%power_its</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span> </div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>         <span class="comment">! Save current random seed and set a fixed seed</span></div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>         <span class="keyword">call </span>random_seed(<span class="keyword">size</span> = rnd_n)</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>         <span class="keyword">allocate</span>(saved_seed(rnd_n))</div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>         <span class="keyword">allocate</span>(fixed_seed(rnd_n))</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>         fixed_seed = 3901</div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>         <span class="keyword">call </span>random_seed(get = saved_seed)</div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>         <span class="keyword">call </span>random_seed(put = fixed_seed)</div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span> </div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>         <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>            <span class="keyword">call </span>random_number(rn)</div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>            d(i) = rn + 10.0_rp</div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span><span class="keywordflow">         end do</span></div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>         <span class="keyword">call </span>device_memcpy(this%d, this%d_d, n, host_to_device, .true.)</div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span> </div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>         <span class="comment">! Restore saved random seed</span></div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>         <span class="keyword">call </span>random_seed(put = saved_seed)</div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span> </div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>         <span class="keywordflow">if</span> (this%lvl .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>            <span class="keyword">call </span>gs_h%op(d, n, gs_op_add)<span class="comment">!TODO</span></div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>            <span class="keyword">call </span>blst%apply(d, n)</div>
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>      <span class="keywordflow">do</span> i = 1, its</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>         <span class="keyword">call </span>amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)</div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span> </div>
-<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>         <span class="keywordflow">if</span> (this%lvl .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>            wtw = device_glsc3(this%w_d, coef%mult_d, this%w_d, n)</div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>         <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>            wtw = device_glsc2(this%w_d, this%w_d, n)</div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span> </div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>         <span class="keyword">call </span>device_cmult2(this%d_d, this%w_d, 1.0_rp/sqrt(wtw), n)</div>
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span><span class="keywordflow">      end do</span></div>
-<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span> </div>
-<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>      <span class="keyword">call </span>amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)</div>
-<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span> </div>
-<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>      <span class="keywordflow">if</span> (this%lvl .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>         dtw = device_glsc3(this%d_d, coef%mult_d, this%w_d, n)</div>
-<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>         dtd = device_glsc3(this%d_d, coef%mult_d, this%d_d, n)</div>
-<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>      <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>         dtw = device_glsc2(this%d_d, this%w_d, n)</div>
-<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>         dtd = device_glsc2(this%d_d, this%d_d, n)</div>
-<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>      lam = dtw / dtd</div>
-<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>      b = lam * boost</div>
-<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>      a = lam / lam_factor</div>
-<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>      this%tha = (b+a)/2.0_rp</div>
-<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>      this%dlt = (b-a)/2.0_rp</div>
-<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span> </div>
-<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>      <span class="keywordflow">if</span> (this%warm_start_eigs) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>         <span class="keywordflow">if</span> (.not. c_associated(this%ev_d)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>            <span class="keyword">allocate</span>(this%ev(this%n))</div>
-<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>            <span class="keyword">call </span>device_map(this%ev, this%ev_d, this%n)</div>
-<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>         <span class="keyword">call </span>device_copy(this%ev_d, this%d_d, n)</div>
-<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>      this%eigs_computed = .true.</div>
-<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span> </div>
-<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>      this%recompute_eigs = .false.</div>
-<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>      <span class="keyword">call </span><a class="code hl_function" href="../../dc/d09/namespacetree__amg__smoother.html#afd89718fea6718237cdba763e55fa7e4">amg_cheby_monitor</a>(this%lvl, lam)</div>
-<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>    <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>    <span class="keyword">call </span>profiler_end_region(<span class="stringliteral">&#39;AMG_cheby_power&#39;</span>)</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d09/namespacetree__amg__smoother.html#a6710120718258fa7d9d4fa76f41252ef">amg_cheby_solve</a></div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span> </div>
+<div class="foldopen" id="foldopen00339" data-start="" data-end="">
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno"><a class="line" href="../../dc/d09/namespacetree__amg__smoother.html#a5f0ce08e2db1caa65ee888d184a5cea2">  339</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d09/namespacetree__amg__smoother.html#a5f0ce08e2db1caa65ee888d184a5cea2">amg_device_cheby_power</a>(this, amg, n)</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html">amg_cheby_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    <span class="keywordtype">type</span>(tamg_hierarchy_t), <span class="keywordtype">intent(inout)</span> :: amg</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span><span class="keywordtype">    real</span>(kind=rp) :: lam, b, a, rn</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">parameter</span> :: boost = 1.1_rp</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">parameter</span> :: lam_factor = 30.0_rp</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span><span class="keywordtype">    real</span>(kind=rp) :: wtw, dtw, dtd</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: fixed_seed(:), saved_seed(:)</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="keywordtype">integer</span> :: i, rnd_n, its</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>    <span class="keywordtype">logical</span> :: warm</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span> </div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>    <span class="keyword">call </span>profiler_start_region(<span class="stringliteral">&#39;AMG_cheby_power&#39;</span>)</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    warm = this%warm_start_eigs .and. this%eigs_computed .and. &amp;</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>         c_associated(this%ev_d)</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    associate(w =&gt; this%w, d =&gt; this%d, coef =&gt; amg%coef, gs_h =&gt; amg%gs_h, &amp;</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>         msh =&gt; amg%msh, xh =&gt; amg%Xh, bc_projector =&gt; amg%bc_projector)</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span> </div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>      <span class="keywordflow">if</span> (warm) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>         its = this%power_its_refresh</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>         <span class="keyword">call </span>device_copy(this%d_d, this%ev_d, n)</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>      <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>         its = this%power_its</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span> </div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>         <span class="comment">! Save current random seed and set a fixed seed</span></div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>         <span class="keyword">call </span>random_seed(<span class="keyword">size</span> = rnd_n)</div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>         <span class="keyword">allocate</span>(saved_seed(rnd_n))</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>         <span class="keyword">allocate</span>(fixed_seed(rnd_n))</div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>         fixed_seed = 3901</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>         <span class="keyword">call </span>random_seed(get = saved_seed)</div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>         <span class="keyword">call </span>random_seed(put = fixed_seed)</div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span> </div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>         <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>            <span class="keyword">call </span>random_number(rn)</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>            d(i) = rn + 10.0_rp</div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>         <span class="keyword">call </span>device_memcpy(this%d, this%d_d, n, host_to_device, .true.)</div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span> </div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>         <span class="comment">! Restore saved random seed</span></div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>         <span class="keyword">call </span>random_seed(put = saved_seed)</div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span> </div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>         <span class="keywordflow">if</span> (this%lvl .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>            <span class="keyword">call </span>gs_h%op(d, n, gs_op_add)<span class="comment">!TODO</span></div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>            <span class="keyword">call </span>bc_projector%apply(d, n)</div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>      <span class="keywordflow">do</span> i = 1, its</div>
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>         <span class="keyword">call </span>amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)</div>
+<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span> </div>
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>         <span class="keywordflow">if</span> (this%lvl .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>            wtw = device_glsc3(this%w_d, coef%mult_d, this%w_d, n)</div>
+<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>         <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>            wtw = device_glsc2(this%w_d, this%w_d, n)</div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span> </div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>         <span class="keyword">call </span>device_cmult2(this%d_d, this%w_d, 1.0_rp/sqrt(wtw), n)</div>
+<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span><span class="keywordflow">      end do</span></div>
+<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span> </div>
+<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>      <span class="keyword">call </span>amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)</div>
+<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span> </div>
+<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>      <span class="keywordflow">if</span> (this%lvl .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>         dtw = device_glsc3(this%d_d, coef%mult_d, this%w_d, n)</div>
+<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>         dtd = device_glsc3(this%d_d, coef%mult_d, this%d_d, n)</div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>      <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>         dtw = device_glsc2(this%d_d, this%w_d, n)</div>
+<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>         dtd = device_glsc2(this%d_d, this%d_d, n)</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>      lam = dtw / dtd</div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>      b = lam * boost</div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>      a = lam / lam_factor</div>
+<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>      this%tha = (b+a)/2.0_rp</div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>      this%dlt = (b-a)/2.0_rp</div>
+<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span> </div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>      <span class="keywordflow">if</span> (this%warm_start_eigs) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>         <span class="keywordflow">if</span> (.not. c_associated(this%ev_d)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>            <span class="keyword">allocate</span>(this%ev(this%n))</div>
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>            <span class="keyword">call </span>device_map(this%ev, this%ev_d, this%n)</div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>         <span class="keyword">call </span>device_copy(this%ev_d, this%d_d, n)</div>
+<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>      this%eigs_computed = .true.</div>
+<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span> </div>
+<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>      this%recompute_eigs = .false.</div>
+<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>      <span class="keyword">call </span><a class="code hl_function" href="../../dc/d09/namespacetree__amg__smoother.html#afd89718fea6718237cdba763e55fa7e4">amg_cheby_monitor</a>(this%lvl, lam)</div>
+<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>    <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>    <span class="keyword">call </span>profiler_end_region(<span class="stringliteral">&#39;AMG_cheby_power&#39;</span>)</div>
 </div>
-<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d09/namespacetree__amg__smoother.html#a5f0ce08e2db1caa65ee888d184a5cea2">amg_device_cheby_power</a></div>
-<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span> </div>
-<div class="foldopen" id="foldopen00432" data-start="" data-end="">
-<div class="line"><a id="l00432" name="l00432"></a><span class="lineno"><a class="line" href="../../dc/d09/namespacetree__amg__smoother.html#aa4eedae4521055fd8cb9fd2ea4f0e6c0">  432</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d09/namespacetree__amg__smoother.html#aa4eedae4521055fd8cb9fd2ea4f0e6c0">amg_device_cheby_solve</a>(this, x, f, x_d, f_d, n, amg, zero_init)</div>
-<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html">amg_cheby_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: x</div>
-<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: f</div>
-<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span>    <span class="keywordtype">type</span>(c_ptr) :: x_d</div>
-<div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span>    <span class="keywordtype">type</span>(c_ptr) :: f_d</div>
-<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span>    <span class="keywordtype">class</span>(tamg_hierarchy_t), <span class="keywordtype">intent(inout)</span> :: amg</div>
-<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span>    <span class="keywordtype">type</span>(ksp_monitor_t) :: ksp_results</div>
-<div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: zero_init</div>
-<div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span>    <span class="keywordtype">integer</span> :: iter, max_iter</div>
-<div class="line"><a id="l00443" name="l00443"></a><span class="lineno">  443</span><span class="keywordtype">    real</span>(kind=rp) :: rtr, rnorm</div>
-<div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span><span class="keywordtype">    real</span>(kind=rp) :: rhok, rhokp1, s1, thet, delt, tmp1, tmp2</div>
-<div class="line"><a id="l00445" name="l00445"></a><span class="lineno">  445</span>    <span class="keywordtype">logical</span> :: zero_initial_guess</div>
-<div class="line"><a id="l00446" name="l00446"></a><span class="lineno">  446</span> </div>
-<div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span>    <span class="keywordflow">if</span> (this%recompute_eigs) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span>       <span class="keyword">call </span>this%device_comp_eig(amg, n)</div>
-<div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(zero_init)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>       zero_initial_guess = zero_init</div>
-<div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span>       zero_initial_guess = .false.</div>
-<div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span>    max_iter = this%max_iter</div>
-<div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span> </div>
-<div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span>    associate( w_d =&gt; this%w_d, r_d =&gt; this%r_d, d_d =&gt; this%d_d, &amp;</div>
-<div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span>         blst =&gt; amg%blst)</div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d09/namespacetree__amg__smoother.html#a5f0ce08e2db1caa65ee888d184a5cea2">amg_device_cheby_power</a></div>
+<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span> </div>
+<div class="foldopen" id="foldopen00433" data-start="" data-end="">
+<div class="line"><a id="l00433" name="l00433"></a><span class="lineno"><a class="line" href="../../dc/d09/namespacetree__amg__smoother.html#aa4eedae4521055fd8cb9fd2ea4f0e6c0">  433</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d09/namespacetree__amg__smoother.html#aa4eedae4521055fd8cb9fd2ea4f0e6c0">amg_device_cheby_solve</a>(this, x, f, x_d, f_d, n, amg, zero_init)</div>
+<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html">amg_cheby_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: x</div>
+<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: f</div>
+<div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span>    <span class="keywordtype">type</span>(c_ptr) :: x_d</div>
+<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span>    <span class="keywordtype">type</span>(c_ptr) :: f_d</div>
+<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span>    <span class="keywordtype">class</span>(tamg_hierarchy_t), <span class="keywordtype">intent(inout)</span> :: amg</div>
+<div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span>    <span class="keywordtype">type</span>(ksp_monitor_t) :: ksp_results</div>
+<div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: zero_init</div>
+<div class="line"><a id="l00443" name="l00443"></a><span class="lineno">  443</span>    <span class="keywordtype">integer</span> :: iter, max_iter</div>
+<div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span><span class="keywordtype">    real</span>(kind=rp) :: rtr, rnorm</div>
+<div class="line"><a id="l00445" name="l00445"></a><span class="lineno">  445</span><span class="keywordtype">    real</span>(kind=rp) :: rhok, rhokp1, s1, thet, delt, tmp1, tmp2</div>
+<div class="line"><a id="l00446" name="l00446"></a><span class="lineno">  446</span>    <span class="keywordtype">logical</span> :: zero_initial_guess</div>
+<div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span> </div>
+<div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span>    <span class="keywordflow">if</span> (this%recompute_eigs) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span>       <span class="keyword">call </span>this%device_comp_eig(amg, n)</div>
+<div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(zero_init)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span>       zero_initial_guess = zero_init</div>
+<div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span>       zero_initial_guess = .false.</div>
+<div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span>    max_iter = this%max_iter</div>
+<div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span> </div>
+<div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span>    associate( w_d =&gt; this%w_d, r_d =&gt; this%r_d, d_d =&gt; this%d_d )</div>
 <div class="line"><a id="l00459" name="l00459"></a><span class="lineno">  459</span> </div>
 <div class="line"><a id="l00460" name="l00460"></a><span class="lineno">  460</span>      <span class="keywordflow">if</span> (.not. zero_initial_guess) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00461" name="l00461"></a><span class="lineno">  461</span>         <span class="keyword">call </span>amg%device_matvec(this%w, x, w_d, x_d, this%lvl)</div>
@@ -705,7 +705,6 @@ $(document).ready(function(){initNavTree('dc/d19/tree__amg__smoother_8f90_source
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00083">device.F90:83</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00072">device.F90:72</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__unmap_html"><div class="ttname"><a href="../../db/d56/interfacedevice_1_1device__unmap.html">device::device_unmap</a></div><div class="ttdoc">Unmap a Fortran array from a device (deassociate and free)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00089">device.F90:89</a></div></div>
-<div class="ttc" id="anamespacebc__list_html"><div class="ttname"><a href="../../d1/dd7/namespacebc__list.html">bc_list</a></div><div class="ttdoc">Defines a list of bc_t.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00034">bc_list.f90:34</a></div></div>
 <div class="ttc" id="anamespacedevice__math_html"><div class="ttname"><a href="../../d2/d73/namespacedevice__math.html">device_math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d8/d8f/device__math_8F90_source.html#l00033">device_math.F90:33</a></div></div>
 <div class="ttc" id="anamespacedevice__math_html_a2599f84bce1660a18c72dc3eddb17bfe"><div class="ttname"><a href="../../d2/d73/namespacedevice__math.html#a2599f84bce1660a18c72dc3eddb17bfe">device_math::device_add2</a></div><div class="ttdeci">subroutine, public device_add2(a_d, b_d, n, strm)</div><div class="ttdoc">Vector addition .</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d8f/device__math_8F90_source.html#l00702">device_math.F90:703</a></div></div>
 <div class="ttc" id="anamespacedevice__math_html_a35993289bdfe4bc7ddb0cbd81b00103d"><div class="ttname"><a href="../../d2/d73/namespacedevice__math.html#a35993289bdfe4bc7ddb0cbd81b00103d">device_math::device_add3s2</a></div><div class="ttdeci">subroutine, public device_add3s2(a_d, b_d, c_d, c1, c2, n, strm)</div><div class="ttdoc">Returns .</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d8f/device__math_8F90_source.html#l00872">device_math.F90:873</a></div></div>
@@ -743,26 +742,27 @@ $(document).ready(function(){initNavTree('dc/d19/tree__amg__smoother_8f90_source
 <div class="ttc" id="anamespaceprofiler_html"><div class="ttname"><a href="../../dc/dfc/namespaceprofiler.html">profiler</a></div><div class="ttdoc">Profiling interface.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d64/profiler_8F90_source.html#l00034">profiler.F90:34</a></div></div>
 <div class="ttc" id="anamespaceprofiler_html_acc799d92dd19a73b36500a4ddd021101"><div class="ttname"><a href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler::profiler_start_region</a></div><div class="ttdeci">subroutine, public profiler_start_region(name, region_id)</div><div class="ttdoc">Started a named (name) profiler region.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d64/profiler_8F90_source.html#l00078">profiler.F90:79</a></div></div>
 <div class="ttc" id="anamespaceprofiler_html_ad7a4d2965ed5d225bcd418d8587dc8b5"><div class="ttname"><a href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler::profiler_end_region</a></div><div class="ttdeci">subroutine, public profiler_end_region(name, region_id)</div><div class="ttdoc">End the most recently started profiler region.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d64/profiler_8F90_source.html#l00115">profiler.F90:116</a></div></div>
+<div class="ttc" id="anamespacescalar__bc__projector_html"><div class="ttname"><a href="../../de/d9f/namespacescalar__bc__projector.html">scalar_bc_projector</a></div><div class="ttdoc">Implements scalar_projector_t.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d4d/scalar__bc__projector_8f90_source.html#l00034">scalar_bc_projector.f90:34</a></div></div>
 <div class="ttc" id="anamespacetree__amg__smoother_html"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html">tree_amg_smoother</a></div><div class="ttdoc">Implements smoothers for use with TreeAMG matrix vector product.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00034">tree_amg_smoother.f90:34</a></div></div>
 <div class="ttc" id="anamespacetree__amg__smoother_html_a3aa333c0d73fca90b9025384eb172ffb"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#a3aa333c0d73fca90b9025384eb172ffb">tree_amg_smoother::amg_cheby_free</a></div><div class="ttdeci">subroutine amg_cheby_free(this)</div><div class="ttdoc">free cheby data</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00137">tree_amg_smoother.f90:138</a></div></div>
 <div class="ttc" id="anamespacetree__amg__smoother_html_a3e9c3ae7f37b2e8c9e7b383cc4a1752b"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#a3e9c3ae7f37b2e8c9e7b383cc4a1752b">tree_amg_smoother::amg_jacobi_init</a></div><div class="ttdeci">subroutine amg_jacobi_init(this, n, lvl, max_iter)</div><div class="ttdoc">Initialization of Jacobi (this is expensive...)</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00493">tree_amg_smoother.f90:494</a></div></div>
 <div class="ttc" id="anamespacetree__amg__smoother_html_a50905e9240529935d6f5dfdc9905a73b"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#a50905e9240529935d6f5dfdc9905a73b">tree_amg_smoother::amg_cheby_power</a></div><div class="ttdeci">subroutine amg_cheby_power(this, amg, n)</div><div class="ttdoc">Power method to approximate largest eigenvalue.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00169">tree_amg_smoother.f90:170</a></div></div>
-<div class="ttc" id="anamespacetree__amg__smoother_html_a5f0ce08e2db1caa65ee888d184a5cea2"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#a5f0ce08e2db1caa65ee888d184a5cea2">tree_amg_smoother::amg_device_cheby_power</a></div><div class="ttdeci">subroutine amg_device_cheby_power(this, amg, n)</div><div class="ttdoc">Power method to approximate largest eigenvalue.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00338">tree_amg_smoother.f90:339</a></div></div>
+<div class="ttc" id="anamespacetree__amg__smoother_html_a5f0ce08e2db1caa65ee888d184a5cea2"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#a5f0ce08e2db1caa65ee888d184a5cea2">tree_amg_smoother::amg_device_cheby_power</a></div><div class="ttdeci">subroutine amg_device_cheby_power(this, amg, n)</div><div class="ttdoc">Power method to approximate largest eigenvalue.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00339">tree_amg_smoother.f90:340</a></div></div>
 <div class="ttc" id="anamespacetree__amg__smoother_html_a6710120718258fa7d9d4fa76f41252ef"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#a6710120718258fa7d9d4fa76f41252ef">tree_amg_smoother::amg_cheby_solve</a></div><div class="ttdeci">subroutine amg_cheby_solve(this, x, f, n, amg, zero_init)</div><div class="ttdoc">Chebyshev smoother From Saad's iterative methods textbook.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00262">tree_amg_smoother.f90:263</a></div></div>
 <div class="ttc" id="anamespacetree__amg__smoother_html_a73ff690416d06b4874565b299769906e"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#a73ff690416d06b4874565b299769906e">tree_amg_smoother::amg_cheby_init</a></div><div class="ttdeci">subroutine amg_cheby_init(this, n, lvl, max_iter)</div><div class="ttdoc">Initialization of chebyshev.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00113">tree_amg_smoother.f90:114</a></div></div>
 <div class="ttc" id="anamespacetree__amg__smoother_html_a8234216acfcd0274c2140233738e69f4"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#a8234216acfcd0274c2140233738e69f4">tree_amg_smoother::amg_jacobi_free</a></div><div class="ttdeci">subroutine amg_jacobi_free(this)</div><div class="ttdoc">free jacobi data</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00510">tree_amg_smoother.f90:511</a></div></div>
 <div class="ttc" id="anamespacetree__amg__smoother_html_a9f56d48ec7dd5470af905db90fbe53c9"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#a9f56d48ec7dd5470af905db90fbe53c9">tree_amg_smoother::amg_jacobi_diag</a></div><div class="ttdeci">subroutine amg_jacobi_diag(this, amg, n)</div><div class="ttdoc">SAMPLE MATRIX DIAGONAL VALUES (DO NOT USE, EXPENSIVE)</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00526">tree_amg_smoother.f90:527</a></div></div>
-<div class="ttc" id="anamespacetree__amg__smoother_html_aa4eedae4521055fd8cb9fd2ea4f0e6c0"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#aa4eedae4521055fd8cb9fd2ea4f0e6c0">tree_amg_smoother::amg_device_cheby_solve</a></div><div class="ttdeci">subroutine amg_device_cheby_solve(this, x, f, x_d, f_d, n, amg, zero_init)</div><div class="ttdoc">Chebyshev smoother From Saad's iterative methods textbook.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00432">tree_amg_smoother.f90:433</a></div></div>
+<div class="ttc" id="anamespacetree__amg__smoother_html_aa4eedae4521055fd8cb9fd2ea4f0e6c0"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#aa4eedae4521055fd8cb9fd2ea4f0e6c0">tree_amg_smoother::amg_device_cheby_solve</a></div><div class="ttdeci">subroutine amg_device_cheby_solve(this, x, f, x_d, f_d, n, amg, zero_init)</div><div class="ttdoc">Chebyshev smoother From Saad's iterative methods textbook.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00433">tree_amg_smoother.f90:434</a></div></div>
 <div class="ttc" id="anamespacetree__amg__smoother_html_aad651a4ea54d512f11b98064c0480105"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#aad651a4ea54d512f11b98064c0480105">tree_amg_smoother::amg_jacobi_solve</a></div><div class="ttdeci">subroutine amg_jacobi_solve(this, x, f, n, amg, niter)</div><div class="ttdoc">Jacobi smoother.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00544">tree_amg_smoother.f90:545</a></div></div>
 <div class="ttc" id="anamespacetree__amg__smoother_html_ab58a4a0614f42d503d41f454323e9cbf"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#ab58a4a0614f42d503d41f454323e9cbf">tree_amg_smoother::amg_smoo_monitor</a></div><div class="ttdeci">subroutine amg_smoo_monitor(lvl, smoo)</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00596">tree_amg_smoother.f90:597</a></div></div>
 <div class="ttc" id="anamespacetree__amg__smoother_html_afd89718fea6718237cdba763e55fa7e4"><div class="ttname"><a href="../../dc/d09/namespacetree__amg__smoother.html#afd89718fea6718237cdba763e55fa7e4">tree_amg_smoother::amg_cheby_monitor</a></div><div class="ttdeci">subroutine amg_cheby_monitor(lvl, lam)</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00607">tree_amg_smoother.f90:608</a></div></div>
 <div class="ttc" id="anamespacetree__amg__utils_html"><div class="ttname"><a href="../../d9/d00/namespacetree__amg__utils.html">tree_amg_utils</a></div><div class="ttdoc">Implements utilities for the TreeAMG hierarchy structure.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/df9/tree__amg__utils_8f90_source.html#l00034">tree_amg_utils.f90:34</a></div></div>
 <div class="ttc" id="anamespacetree__amg__utils_html_ab3554a3d792b5f55a119959c685e3d61"><div class="ttname"><a href="../../d9/d00/namespacetree__amg__utils.html#ab3554a3d792b5f55a119959c685e3d61">tree_amg_utils::tamg_sample_matrix_val</a></div><div class="ttdeci">subroutine, public tamg_sample_matrix_val(val, amg, lvl, i, j)</div><div class="ttdoc">Sample the values in a matix (expensive, use with caution)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/df9/tree__amg__utils_8f90_source.html#l00051">tree_amg_utils.f90:52</a></div></div>
 <div class="ttc" id="anamespacetree__amg_html"><div class="ttname"><a href="../../dc/d1a/namespacetree__amg.html">tree_amg</a></div><div class="ttdoc">Implements the base type for TreeAMG hierarchy structure.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/dfd/tree__amg_8f90_source.html#l00034">tree_amg.f90:34</a></div></div>
-<div class="ttc" id="astructbc__list_1_1bc__list__t_html"><div class="ttname"><a href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list::bc_list_t</a></div><div class="ttdoc">A list of allocatable `bc_t`. Follows the standard interface of lists.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00049">bc_list.f90:49</a></div></div>
 <div class="ttc" id="astructgather__scatter_1_1gs__t_html"><div class="ttname"><a href="../../dd/db8/structgather__scatter_1_1gs__t.html">gather_scatter::gs_t</a></div><div class="ttdoc">Gather-scatter kernel.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d7e/gather__scatter_8f90_source.html#l00087">gather_scatter.f90:87</a></div></div>
-<div class="ttc" id="astructkrylov_1_1ksp__monitor__t_html"><div class="ttname"><a href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">krylov::ksp_monitor_t</a></div><div class="ttdoc">Type for storing initial and final residuals in a Krylov solver.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/da5/krylov_8f90_source.html#l00056">krylov.f90:56</a></div></div>
-<div class="ttc" id="astructtree__amg_1_1tamg__hierarchy__t_html"><div class="ttname"><a href="../../d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html">tree_amg::tamg_hierarchy_t</a></div><div class="ttdoc">Type for a TreeAMG hierarchy.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/dfd/tree__amg_8f90_source.html#l00100">tree_amg.f90:100</a></div></div>
+<div class="ttc" id="astructkrylov_1_1ksp__monitor__t_html"><div class="ttname"><a href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">krylov::ksp_monitor_t</a></div><div class="ttdoc">Type for storing initial and final residuals in a Krylov solver.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/da5/krylov_8f90_source.html#l00057">krylov.f90:57</a></div></div>
+<div class="ttc" id="astructscalar__bc__projector_1_1scalar__bc__projector__t_html"><div class="ttname"><a href="../../d6/dc1/structscalar__bc__projector_1_1scalar__bc__projector__t.html">scalar_bc_projector::scalar_bc_projector_t</a></div><div class="ttdoc">Projector for scalar boundary conditions.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d4d/scalar__bc__projector_8f90_source.html#l00058">scalar_bc_projector.f90:58</a></div></div>
+<div class="ttc" id="astructtree__amg_1_1tamg__hierarchy__t_html"><div class="ttname"><a href="../../d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html">tree_amg::tamg_hierarchy_t</a></div><div class="ttdoc">Type for a TreeAMG hierarchy.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/dfd/tree__amg_8f90_source.html#l00101">tree_amg.f90:101</a></div></div>
 <div class="ttc" id="astructtree__amg__smoother_1_1amg__cheby__t_html"><div class="ttname"><a href="../../d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html">tree_amg_smoother::amg_cheby_t</a></div><div class="ttdoc">Type for Chebyshev iteration using TreeAMG matvec.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00074">tree_amg_smoother.f90:74</a></div></div>
 <div class="ttc" id="astructtree__amg__smoother_1_1amg__jacobi__t_html"><div class="ttname"><a href="../../da/dc0/structtree__amg__smoother_1_1amg__jacobi__t.html">tree_amg_smoother::amg_jacobi_t</a></div><div class="ttdoc">Type for Chebyshev iteration using TreeAMG matvec.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00057">tree_amg_smoother.f90:57</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
@@ -771,7 +771,7 @@ $(document).ready(function(){initNavTree('dc/d19/tree__amg__smoother_8f90_source
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e7871f939970ad66f8f2efbe2c80ad83.html">multigrid</a></li><li class="navelem"><a class="el" href="../../dc/d19/tree__amg__smoother_8f90.html">tree_amg_smoother.f90</a></li>
-    <li class="footer">Generated on Fri Aug 28 2026 06:09:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 29 2026 03:37:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

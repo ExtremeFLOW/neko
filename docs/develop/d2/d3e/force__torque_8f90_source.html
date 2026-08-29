@@ -377,7 +377,7 @@ $(document).ready(function(){initNavTree('d2/d3e/force__torque_8f90_source.html'
 <div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
 <div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>    <span class="keyword">call </span>this%bc%init_base(this%coef)</div>
 <div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>    <span class="keyword">call </span>this%bc%mark_zone(this%case%msh%labeled_zones(this%zone_id))</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    <span class="keyword">call </span>this%bc%finalize(only_facets = .true.)</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    <span class="keyword">call </span>this%bc%finalize()</div>
 <div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    n_pts = this%bc%msk(0)</div>
 <div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordflow">if</span> (n_pts .gt. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>       <span class="keyword">call </span>this%n1%init(n_pts)</div>
@@ -839,7 +839,7 @@ $(document).ready(function(){initNavTree('d2/d3e/force__torque_8f90_source.html'
 <div class="ttc" id="ainterfaceoperators_1_1strain__rate_html"><div class="ttname"><a href="../../db/d20/interfaceoperators_1_1strain__rate.html">operators::strain_rate</a></div><div class="ttdoc">Compute the strain rate tensor of a vector field.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00120">operators.f90:120</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00045">utils.f90:45</a></div></div>
 <div class="ttc" id="anamespaceale__manager_html"><div class="ttname"><a href="../../dd/db4/namespaceale__manager.html">ale_manager</a></div><div class="ttdoc">ALE Manager: Handles Mesh Motion.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dc8/ale__manager_8f90_source.html#l00034">ale_manager.f90:34</a></div></div>
-<div class="ttc" id="anamespaceale__manager_html_a0305b0c5c1936e9ad97a751ca4306612"><div class="ttname"><a href="../../dd/db4/namespaceale__manager.html#a0305b0c5c1936e9ad97a751ca4306612">ale_manager::neko_ale</a></div><div class="ttdeci">type(ale_manager_t), pointer, public neko_ale</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dc8/ale__manager_8f90_source.html#l00172">ale_manager.f90:172</a></div></div>
+<div class="ttc" id="anamespaceale__manager_html_a0305b0c5c1936e9ad97a751ca4306612"><div class="ttname"><a href="../../dd/db4/namespaceale__manager.html#a0305b0c5c1936e9ad97a751ca4306612">ale_manager::neko_ale</a></div><div class="ttdeci">type(ale_manager_t), pointer, public neko_ale</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dc8/ale__manager_8f90_source.html#l00174">ale_manager.f90:174</a></div></div>
 <div class="ttc" id="anamespaceale__rigid__kinematics_html"><div class="ttname"><a href="../../d1/d65/namespaceale__rigid__kinematics.html">ale_rigid_kinematics</a></div><div class="ttdoc">Defines data structures and algorithms for configuring, calculating, and time-integrating the rigid-b...</div><div class="ttdef"><b>Definition</b> <a href="../../da/d01/ale__rigid__kinematics_8f90_source.html#l00038">ale_rigid_kinematics.f90:38</a></div></div>
 <div class="ttc" id="anamespacebc_html"><div class="ttname"><a href="../../d0/dc0/namespacebc.html">bc</a></div><div class="ttdoc">Defines a boundary condition.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00034">bc.f90:34</a></div></div>
 <div class="ttc" id="anamespacecase_html"><div class="ttname"><a href="../../dd/da8/namespacecase.html">case</a></div><div class="ttdoc">Defines a simulation case.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00034">case.f90:34</a></div></div>
@@ -910,7 +910,7 @@ $(document).ready(function(){initNavTree('d2/d3e/force__torque_8f90_source.html'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_702567638a028346607c31c39047d6bd.html">simulation_components</a></li><li class="navelem"><a class="el" href="../../d2/d3e/force__torque_8f90.html">force_torque.f90</a></li>
-    <li class="footer">Generated on Fri Aug 28 2026 06:09:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 29 2026 03:37:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

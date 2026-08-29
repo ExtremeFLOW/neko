@@ -486,10 +486,12 @@ Compressible boundary conditions</h3>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a>   </td><td class="markdownTableBodyNone">Zero velocity wall    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">symmetry   </td><td class="markdownTableBodyNone">Symmetry plane    </td></tr>
+<td class="markdownTableBodyNone">slip   </td><td class="markdownTableBodyNone">A slip wall    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">outflow   </td><td class="markdownTableBodyNone">Pressure outlet (zero gradient)    </td></tr>
+<td class="markdownTableBodyNone">symmetry   </td><td class="markdownTableBodyNone">Symmetry plane    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">outflow   </td><td class="markdownTableBodyNone">Pressure outlet (zero gradient)    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">normal_outflow   </td><td class="markdownTableBodyNone">Normal outflow condition   </td></tr>
 </table>
 <p>For examples of compressible flow setups, see the <code>euler_1d_sod</code>, <code>euler_2d_forward_facing_step</code>, and <code>euler_tgv</code> examples.</p>
@@ -523,11 +525,11 @@ Available conditions</h3>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">velocity_value   </td><td class="markdownTableBodyNone">A Dirichlet condition for velocity.    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a>   </td><td class="markdownTableBodyNone">A no-slip wall. It can be stationary or moving.    </td></tr>
+<td class="markdownTableBodyNone"><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a>   </td><td class="markdownTableBodyNone">A no-slip wall. Either stationary or moving.    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">outflow   </td><td class="markdownTableBodyNone">A pressure outlet.    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">normal_outflow   </td><td class="markdownTableBodyNone">An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned.    </td></tr>
+<td class="markdownTableBodyNone">normal_outflow   </td><td class="markdownTableBodyNone">An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components.    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">outflow+user   </td><td class="markdownTableBodyNone">Same as <code>outflow</code> but with user-specified pressure.    </td></tr>
 <tr class="markdownTableRowOdd">
@@ -535,9 +537,9 @@ Available conditions</h3>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">outflow+dong   </td><td class="markdownTableBodyNone">A pressure outlet with the Dong condition applied.    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">normal_outflow+dong   </td><td class="markdownTableBodyNone">The <code>normal_outflow</code> with the Dong condition applied. Must be axis-aligned.    </td></tr>
+<td class="markdownTableBodyNone">normal_outflow+dong   </td><td class="markdownTableBodyNone">The <code>normal_outflow</code> with the Dong condition applied.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><a class="el" href="../../da/dea/namespaceshear__stress.html" title="Defines a shear stress boundary condition for a vector field. Maintainer: Timofey Mukha.">shear_stress</a>   </td><td class="markdownTableBodyNone">Prescribed wall shear stress. Must be axis-aligned.    </td></tr>
+<td class="markdownTableBodyNone"><a class="el" href="../../da/dea/namespaceshear__stress.html" title="Defines a shear stress boundary condition for a vector field. Maintainer: Timofey Mukha.">shear_stress</a>   </td><td class="markdownTableBodyNone">Prescribed wall shear stress.    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a>   </td><td class="markdownTableBodyNone">Shear stress condition based on a wall model for large-eddy simulation.    </td></tr>
 <tr class="markdownTableRowEven">
@@ -547,11 +549,11 @@ Available conditions</h3>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">user_pressure   </td><td class="markdownTableBodyNone">The <code>field_dirichlet_t</code> user-defined Dirichlet condition for pressure.    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a>   </td><td class="markdownTableBodyNone">A Dirichlet condition that prescribes values from another neko simulation running concurrently.   </td></tr>
+<td class="markdownTableBodyNone"><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a>   </td><td class="markdownTableBodyNone">A Dirichlet condition that prescribes values from another Neko simulation running concurrently.   </td></tr>
 </table>
 <p>A more detailed description of each boundary condition is provided below.</p>
 <ul>
-<li><code>symmetry</code>. A symmetry plane that must be axis-aligned. Sets the surface-normal velocity to 0 and applies a homogenous Neumann condition to the surface-parallel components. Requires no additional keywords. <div class="fragment"><div class="line">{</div>
+<li><code>symmetry</code>. A symmetry plane. Sets the surface-normal velocity to 0 and applies a homogenous Neumann condition to the surface-parallel components. Requires no additional keywords. <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;symmetry&quot;,</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
@@ -589,15 +591,45 @@ Available conditions</h3>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
-<li><code>normal_outflow</code>. The condition lets the flow escape through the boundary by setting a homogeneous Neumann condition for the surface-normal velocity component, but fixes the values of the surface-parallel components. The latter values are not prescribed in the boundary condition's JSON, but are instead taken from the initial conditions. The boundary must be axis-aligned. <div class="fragment"><div class="line">{</div>
+<li><p class="startli"><code>normal_outflow</code>. The condition lets the flow escape through the boundary by setting a homogeneous Neumann condition for the surface-normal velocity component, but fixes the values of the surface-parallel components. The latter values are prescribed in the boundary condition's JSON. There are two alternative ways to do the tangential components. One is to simply provide a <code>value</code> vector. This vector is defined in global Cartesian coordinates and internally a projection onto the local basis is performed. Afterwards, the local tangential values are enforced. This works both in the axis-aligned and in the fully general mixed-boundary implementation.</p>
+<div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;normal_outflow&quot;,</div>
+<div class="line">  &quot;value&quot;: [1.0, 0.0, 0.0],</div>
+<div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
+<div class="line">}</div>
+</div><!-- fragment --><p class="startli">The second option is to provide the values through a field file using the <code>file_name</code> keyword. This is currently supported only by the axis-aligned implementation. The file must contain a three-component vector field in global Cartesian coordinates. Internally, only the tangential components are enforced on the boundary. Optional interpolation settings are the same as for other field-imported data:</p><ul>
+<li><code>interpolate</code>. Logical flag controlling whether interpolation is used.</li>
+<li><code>mesh_file_name</code>. Mesh file used for interpolation when the source field is defined on a different mesh.</li>
+<li><code>interpolation.tolerance</code>. Tolerance for the interpolation search.</li>
+<li><code>interpolation.padding</code>. Padding used in the interpolation search.</li>
+</ul>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;normal_outflow&quot;,</div>
+<div class="line">  &quot;file_name&quot;: &quot;outlet_velocity.fld&quot;,</div>
+<div class="line">  &quot;interpolate&quot;: true,</div>
+<div class="line">  &quot;mesh_file_name&quot;: &quot;coarse_box.nmsh&quot;,</div>
+<div class="line">  &quot;interpolation.tolerance&quot;: 1.0e-8,</div>
+<div class="line">  &quot;interpolation.padding&quot;: 0.01,</div>
+<div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
+<div class="line">}</div>
+</div><!-- fragment --><p class="startli">Exactly one of <code>value</code> or <code>file_name</code> must be provided. If <code>value</code> is used, it must be an array of three reals.</p>
+</li>
+<li><code>outflow+user</code>. Same as <code>outflow</code>, but with user-specified pressure. The pressure is specified via the same interface as <code>user_pressure</code>, see the <a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">relevant section</a> for more information.</li>
+<li><p class="startli"><code>normal_outflow+user</code>. Same as <code>normal_outflow</code>, but with user-specified pressure. The pressure profile is specified via the same interface as <code>user_pressure</code>, see the <a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">relevant section</a> for more information. The tangential velocity values are prescribed exactly as for <code>normal_outflow</code>, i.e. using either <code>value</code> or <code>file_name</code>.</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;normal_outflow+user&quot;,</div>
+<div class="line">  &quot;value&quot;: [1.0, 0.0, 0.0],</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
-<li><code>outflow+user</code>. Same as <code>outflow</code>, but with user-specified pressure. The pressure is specified via the same interface as <code>user_pressure</code>, see the <a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">relevant section</a> for more information.</li>
-<li><code>normal_outflow+user</code>. Same as <code>normal_outflow</code>, but with user-specified pressure. The pressure profile is specified via the same interface as <code>user_pressure</code>, see the <a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">relevant section</a> for more information. Note that, similarly to <code>normal_outflow</code>, surface-parallel velocity components are taken from the initial conditions.</li>
 <li><code>outflow+dong</code>. Same as <code>outflow</code>, but additionally applies the Dong boundary condition on the pressure. This is a way to prevent backflow and therefore promotes numerical stability without having to create a mesh "sponge" at the outlet.</li>
-<li><code>normal_outflow+dong</code>. Same as <code>normal_outflow</code>, but additionally applies the Dong boundary condition for the pressure to prevent backflow. Must be axis-aligned.</li>
+<li><p class="startli"><code>normal_outflow+dong</code>. Same as <code>normal_outflow</code>, but additionally applies the Dong boundary condition for the pressure to prevent backflow. The tangential velocity values are prescribed exactly as for <code>normal_outflow</code>, i.e. using either <code>value</code> or <code>file_name</code>.</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;normal_outflow+dong&quot;,</div>
+<div class="line">  &quot;value&quot;: [1.0, 0.0, 0.0],</div>
+<div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
+<div class="line">}</div>
+</div><!-- fragment --></li>
 <li><code><a class="el" href="../../da/dea/namespaceshear__stress.html" title="Defines a shear stress boundary condition for a vector field. Maintainer: Timofey Mukha.">shear_stress</a></code>. Non-penetration condition combined with a set shear stress vector. Only works with axis-aligned boundaries. The stress value is specified by the <code>value</code> keyword, which should be an array of 3 reals. It is the responsibility of the user to set the vector in the direction parallel to the boundary. <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;shear_stress&quot;,</div>
 <div class="line">  &quot;value&quot;: [&quot;1, 0, 0&quot;],</div>
@@ -1903,7 +1935,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Fri Aug 28 2026 06:09:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 29 2026 03:37:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -6,7 +6,7 @@ var field__dirichlet_8f90 =
     [ "field_dirichlet_apply_scalar_dev", "d4/d15/field__dirichlet_8f90.html#afb56caa3c1bdbcc8c87764ceb722df95", null ],
     [ "field_dirichlet_apply_vector", "d4/d15/field__dirichlet_8f90.html#a6d91294d3b3164e59c17a2e7e3065e49", null ],
     [ "field_dirichlet_apply_vector_dev", "d4/d15/field__dirichlet_8f90.html#a509f4c3b79c1805d0052840159d45c0e", null ],
-    [ "field_dirichlet_finalize", "d4/d15/field__dirichlet_8f90.html#a2fb99d26e9f71eee749cdca0fac23b3a", null ],
+    [ "field_dirichlet_finalize", "d4/d15/field__dirichlet_8f90.html#a52db66458920626d41611203726740cd", null ],
     [ "field_dirichlet_free", "d4/d15/field__dirichlet_8f90.html#ad4feb0c2e3f038aa400c71dfc6794af3", null ],
     [ "field_dirichlet_init", "d4/d15/field__dirichlet_8f90.html#ac2b525a42ba2f4811758f04d57923853", null ],
     [ "field_dirichlet_init_from_components", "d4/d15/field__dirichlet_8f90.html#a797a6240e0f3199b015fd15fd380a0d3", null ]

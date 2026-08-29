@@ -134,10 +134,13 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="center"><img src="../../d7/d0c/dmma__kernel_8h__dep__incl.png" border="0" usemap="#a_2home_2runner_2work_2neko_2neko_2src_2math_2bcknd_2device_2cuda_2dmma__kernel_8hdep" alt=""/></div>
 <map name="a_2home_2runner_2work_2neko_2neko_2src_2math_2bcknd_2device_2cuda_2dmma__kernel_8hdep" id="a_2home_2runner_2work_2neko_2neko_2src_2math_2bcknd_2device_2cuda_2dmma__kernel_8hdep">
 <area shape="rect" title=" " alt="" coords="5,5,213,60"/>
-<area shape="rect" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html" title=" " alt="" coords="5,108,213,163"/>
-<area shape="poly" title=" " alt="" coords="112,74,112,108,107,108,107,74"/>
-<area shape="rect" href="../../db/d49/ax__helm_8cu.html" title=" " alt="" coords="5,211,213,265"/>
-<area shape="poly" title=" " alt="" coords="112,176,112,211,107,211,107,176"/>
+<area shape="rect" href="../../db/d6f/cuda_2ax__helm__kernel_8h.html" title=" " alt="" coords="5,211,213,265"/>
+<area shape="poly" title=" " alt="" coords="83,73,67,109,62,135,67,162,77,187,91,209,86,212,72,189,61,163,56,135,61,107,78,70"/>
+<area shape="rect" href="../../dd/df9/dmma__tma__kernel_8h.html" title=" " alt="" coords="76,108,284,163"/>
+<area shape="poly" title=" " alt="" coords="138,70,164,106,159,109,134,73"/>
+<area shape="rect" href="../../db/d49/ax__helm_8cu.html" title=" " alt="" coords="5,313,213,368"/>
+<area shape="poly" title=" " alt="" coords="112,279,112,313,107,313,107,279"/>
+<area shape="poly" title=" " alt="" coords="156,176,130,212,126,209,151,173"/>
 </map>
 </div>
 </div>
@@ -349,11 +352,13 @@ Functions</h2></td></tr>
 <div class="line">      <span class="keywordtype">char</span> <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">lbl_</a>[16];                                                          <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">\</a></div>
 <div class="line"><a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">      sprintf</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">lbl_</a>, <span class="stringliteral">&quot;DMMA  %dw %de&quot;</span>,                                          \</div>
 <div class="line">              <a class="code hl_define" href="../../d3/d60/dmma__kernel_8h.html#a84e249ac011f2d27e12f047fb131c317">NEKO_DMMA_NW</a>(c), <a class="code hl_define" href="../../d3/d60/dmma__kernel_8h.html#a475a0014bdfe8c10e9efe99f5e848a75">NEKO_DMMA_PACK</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>));                           <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">\</a></div>
-<div class="line"><a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">      sprintf</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">neko_log_buf</a>, <span class="stringliteral">&quot;%-13s: %9.2f us/call&quot;</span>, <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">lbl_</a>, (<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T3</a>)[c] * 10.0);    <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">\</a></div>
+<div class="line"><a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">      sprintf</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">neko_log_buf</a>, <span class="stringliteral">&quot;%-13s: %9.2f us/call&quot;</span>, <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">lbl_</a>,                     \</div>
+<div class="line">              <a class="code hl_define" href="../../db/d36/cuda_2elem__block__tune_8h.html#a31d72213f07273d53ede6595be9d9a1e">NEKO_TUNE_US</a>((<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T3</a>)[c], <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">iters</a>));                                  <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">\</a></div>
 <div class="line"><a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">      log_message</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">neko_log_buf</a>);                                              \</div>
 <div class="line">    }                                                                         \</div>
 <div class="line">  } <span class="keywordflow">while</span> (0)</div>
 <div class="ttc" id="acuda_2ale__kinematics__kernel_8h_html_ad4350b4cac096924ce42615d376f4759"><div class="ttname"><a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ale_add_kinematics_kernel</a></div><div class="ttdeci">__global__ void ale_add_kinematics_kernel(const int n, T *__restrict__ wx, T *__restrict__ wy, T *__restrict__ wz, const T *__restrict__ x_ref, const T *__restrict__ y_ref, const T *__restrict__ z_ref, const T *__restrict__ phi, const T *__restrict__ x, const T *__restrict__ y, const T *__restrict__ z, const kinematics_params_t kin_params)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h_source.html#l00052">ale_kinematics_kernel.h:52</a></div></div>
+<div class="ttc" id="acuda_2elem__block__tune_8h_html_a31d72213f07273d53ede6595be9d9a1e"><div class="ttname"><a href="../../db/d36/cuda_2elem__block__tune_8h.html#a31d72213f07273d53ede6595be9d9a1e">NEKO_TUNE_US</a></div><div class="ttdeci">#define NEKO_TUNE_US(T, ITERS)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d36/cuda_2elem__block__tune_8h_source.html#l00139">elem_block_tune.h:139</a></div></div>
 <div class="ttc" id="acuda_2elem__block__tune_8h_html_a646ee7c3605c0d9875e06fb0b8894d67"><div class="ttname"><a href="../../db/d36/cuda_2elem__block__tune_8h.html#a646ee7c3605c0d9875e06fb0b8894d67">NEKO_TUNE_INIT</a></div><div class="ttdeci">#define NEKO_TUNE_INIT</div><div class="ttdef"><b>Definition</b> <a href="../../db/d36/cuda_2elem__block__tune_8h_source.html#l00065">elem_block_tune.h:65</a></div></div>
 <div class="ttc" id="admma__kernel_8h_html_a02a4033dd0a495bc120bdbe60d10d7fc"><div class="ttname"><a href="../../d3/d60/dmma__kernel_8h.html#a02a4033dd0a495bc120bdbe60d10d7fc">NEKO_DMMA_CANDIDATES</a></div><div class="ttdeci">#define NEKO_DMMA_CANDIDATES</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d60/dmma__kernel_8h_source.html#l00123">dmma_kernel.h:123</a></div></div>
 <div class="ttc" id="admma__kernel_8h_html_a475a0014bdfe8c10e9efe99f5e848a75"><div class="ttname"><a href="../../d3/d60/dmma__kernel_8h.html#a475a0014bdfe8c10e9efe99f5e848a75">NEKO_DMMA_PACK</a></div><div class="ttdeci">#define NEKO_DMMA_PACK(LX)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d60/dmma__kernel_8h_source.html#l00148">dmma_kernel.h:148</a></div></div>
@@ -431,7 +436,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Returns true if the current device exposes the fp64 tensor cores used by the DMMA strategies and this build can actually reach them. Result is cached after the first query. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html#l00223">223</a> of file <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html">dmma_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html#l00224">224</a> of file <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html">dmma_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -451,13 +456,13 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../d3/d60/dmma__kernel_8h_a17e35a21ff230a9d6b89894ef9269a53_icgraph.png" border="0" usemap="#ad3/d60/dmma__kernel_8h_a17e35a21ff230a9d6b89894ef9269a53_icgraph" alt=""/></div>
 <map name="ad3/d60/dmma__kernel_8h_a17e35a21ff230a9d6b89894ef9269a53_icgraph" id="ad3/d60/dmma__kernel_8h_a17e35a21ff230a9d6b89894ef9269a53_icgraph">
 <area shape="rect" title=" " alt="" coords="208,80,349,105"/>
-<area shape="rect" href="../../db/d49/ax__helm_8cu.html#aae0df5f4a95a35354d029a152828ba5b" title=" " alt="" coords="57,5,108,31"/>
+<area shape="rect" href="../../db/d49/ax__helm_8cu.html#ab4687a68902932658eafcf1e3cbe7013" title=" " alt="" coords="57,5,108,31"/>
 <area shape="poly" title=" " alt="" coords="237,77,159,44,107,27,109,22,161,40,239,72"/>
-<area shape="rect" href="../../db/d49/ax__helm_8cu.html#a8523f3447370f8d687be614b3bb6d42b" title=" " alt="" coords="29,55,136,80"/>
+<area shape="rect" href="../../db/d49/ax__helm_8cu.html#a5067b6c7d22c0fa794b7d72582b72e39" title=" " alt="" coords="29,55,136,80"/>
 <area shape="poly" title=" " alt="" coords="194,84,136,77,136,72,194,79"/>
-<area shape="rect" href="../../db/d49/ax__helm_8cu.html#abbffb49aa3f17da1996ea22c8813e8bc" title=" " alt="" coords="33,104,132,129"/>
+<area shape="rect" href="../../db/d49/ax__helm_8cu.html#a406e27f1a0b961496e1d753296d41669" title=" " alt="" coords="33,104,132,129"/>
 <area shape="poly" title=" " alt="" coords="194,106,133,113,132,108,194,100"/>
-<area shape="rect" href="../../db/d49/ax__helm_8cu.html#ad87221cb89f170e1bee12c6b7e3b13f5" title=" " alt="" coords="5,153,160,179"/>
+<area shape="rect" href="../../db/d49/ax__helm_8cu.html#afc03536acb82bb517bf0abeb6980e0af" title=" " alt="" coords="5,153,160,179"/>
 <area shape="poly" title=" " alt="" coords="236,113,161,143,125,156,123,151,159,138,234,108"/>
 </map>
 </div>
@@ -487,7 +492,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html#l00206">206</a> of file <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html">dmma_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html#l00207">207</a> of file <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html">dmma_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -496,13 +501,13 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title=" " alt="" coords="397,80,564,105"/>
 <area shape="rect" href="../../d3/d60/dmma__kernel_8h.html#a17e35a21ff230a9d6b89894ef9269a53" title=" " alt="" coords="208,80,349,105"/>
 <area shape="poly" title=" " alt="" coords="384,95,349,95,349,90,384,90"/>
-<area shape="rect" href="../../db/d49/ax__helm_8cu.html#aae0df5f4a95a35354d029a152828ba5b" title=" " alt="" coords="57,5,108,31"/>
+<area shape="rect" href="../../db/d49/ax__helm_8cu.html#ab4687a68902932658eafcf1e3cbe7013" title=" " alt="" coords="57,5,108,31"/>
 <area shape="poly" title=" " alt="" coords="237,77,159,44,107,27,109,22,161,40,239,72"/>
-<area shape="rect" href="../../db/d49/ax__helm_8cu.html#a8523f3447370f8d687be614b3bb6d42b" title=" " alt="" coords="29,55,136,80"/>
+<area shape="rect" href="../../db/d49/ax__helm_8cu.html#a5067b6c7d22c0fa794b7d72582b72e39" title=" " alt="" coords="29,55,136,80"/>
 <area shape="poly" title=" " alt="" coords="194,84,136,77,136,72,194,79"/>
-<area shape="rect" href="../../db/d49/ax__helm_8cu.html#abbffb49aa3f17da1996ea22c8813e8bc" title=" " alt="" coords="33,104,132,129"/>
+<area shape="rect" href="../../db/d49/ax__helm_8cu.html#a406e27f1a0b961496e1d753296d41669" title=" " alt="" coords="33,104,132,129"/>
 <area shape="poly" title=" " alt="" coords="194,106,133,113,132,108,194,100"/>
-<area shape="rect" href="../../db/d49/ax__helm_8cu.html#ad87221cb89f170e1bee12c6b7e3b13f5" title=" " alt="" coords="5,153,160,179"/>
+<area shape="rect" href="../../db/d49/ax__helm_8cu.html#afc03536acb82bb517bf0abeb6980e0af" title=" " alt="" coords="5,153,160,179"/>
 <area shape="poly" title=" " alt="" coords="236,113,161,143,125,156,123,151,159,138,234,108"/>
 </map>
 </div>
@@ -538,7 +543,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 <p>The double precision requirement is deliberate and is NOT an oversight to be brought in line with the HIP side, which does offer both precisions. That difference is hardware: AMD's v_mfma_f32_16x16x4f32 is true IEEE fp32, so an sp build there loses nothing, while NVIDIA has no fp32 tensor path at all &ndash; only TF32, whose 11 bit significand (unit roundoff 4.9e-4, against fp32's 6e-8) is not usable for the operator inside a Krylov solve. The accuracy preserving alternative, 3xTF32 splitting, costs three MMAs to buy back precision in a kernel that is bandwidth bound with flops to spare.</p>
 <p>The empirical argument is stronger than the roofline one. AMD ran the experiment NVIDIA cannot: with a true fp32 matrix core and therefore no accuracy compromise whatsoever, MFMA still measured 4.5% BEHIND a plain 1d kernel at lx = 8, and the whole fp32 speedup over fp64 (2.05x) came from moving half the bytes at identical achieved bandwidth. A path that loses where it is free will not win where it is lossy. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html#l00272">272</a> of file <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html">dmma_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html#l00273">273</a> of file <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html">dmma_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -581,7 +586,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 <p>The vector kernel stages one element per block and does not pack, so the lower bound stays at 4: below it the padding waste that packing removes for the scalar kernel is still there, and there is nothing to gain. That is a performance argument, but the predicate is a correctness one &ndash; the tuner launches whatever it is told is supported, and an LX the vector dispatch does not specialise resolves to the no-op primary template, which times as free, wins the comparison and leaves stale values in au/av/aw. Lowering <a class="el" href="../../d3/d60/dmma__kernel_8h.html#a6bed77f19d96cd336244a70839250c89">dmma_lx_supported()</a> to 2 for the packed scalar kernel is exactly how that happened.</p>
 <p>MUST match NEKO_AX_HELM_DMMA_VECTOR_DISPATCH in ax_helm_kernel.h. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html#l00294">294</a> of file <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html">dmma_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html#l00295">295</a> of file <a class="el" href="../../d3/d60/dmma__kernel_8h_source.html">dmma_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -637,13 +642,13 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../d3/d60/dmma__kernel_8h_a2a5aab55128e30ea29e4771b305e839e_icgraph.png" border="0" usemap="#ad3/d60/dmma__kernel_8h_a2a5aab55128e30ea29e4771b305e839e_icgraph" alt=""/></div>
 <map name="ad3/d60/dmma__kernel_8h_a2a5aab55128e30ea29e4771b305e839e_icgraph" id="ad3/d60/dmma__kernel_8h_a2a5aab55128e30ea29e4771b305e839e_icgraph">
 <area shape="rect" title=" " alt="" coords="208,80,341,105"/>
-<area shape="rect" href="../../db/d49/ax__helm_8cu.html#aae0df5f4a95a35354d029a152828ba5b" title=" " alt="" coords="57,5,108,31"/>
+<area shape="rect" href="../../db/d49/ax__helm_8cu.html#ab4687a68902932658eafcf1e3cbe7013" title=" " alt="" coords="57,5,108,31"/>
 <area shape="poly" title=" " alt="" coords="233,76,159,44,107,27,109,22,161,40,236,72"/>
-<area shape="rect" href="../../db/d49/ax__helm_8cu.html#a8523f3447370f8d687be614b3bb6d42b" title=" " alt="" coords="29,55,136,80"/>
+<area shape="rect" href="../../db/d49/ax__helm_8cu.html#a5067b6c7d22c0fa794b7d72582b72e39" title=" " alt="" coords="29,55,136,80"/>
 <area shape="poly" title=" " alt="" coords="194,85,136,77,137,72,195,79"/>
-<area shape="rect" href="../../db/d49/ax__helm_8cu.html#abbffb49aa3f17da1996ea22c8813e8bc" title=" " alt="" coords="33,104,132,129"/>
+<area shape="rect" href="../../db/d49/ax__helm_8cu.html#a406e27f1a0b961496e1d753296d41669" title=" " alt="" coords="33,104,132,129"/>
 <area shape="poly" title=" " alt="" coords="194,105,133,113,132,108,194,100"/>
-<area shape="rect" href="../../db/d49/ax__helm_8cu.html#ad87221cb89f170e1bee12c6b7e3b13f5" title=" " alt="" coords="5,153,160,179"/>
+<area shape="rect" href="../../db/d49/ax__helm_8cu.html#afc03536acb82bb517bf0abeb6980e0af" title=" " alt="" coords="5,153,160,179"/>
 <area shape="poly" title=" " alt="" coords="233,113,161,143,125,156,123,151,159,138,231,109"/>
 </map>
 </div>
@@ -656,7 +661,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_4c3596ec6e7f8d381657f6ce7bbe76a2.html">cuda</a></li><li class="navelem"><a class="el" href="../../d3/d60/dmma__kernel_8h.html">dmma_kernel.h</a></li>
-    <li class="footer">Generated on Fri Aug 28 2026 06:09:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 29 2026 03:37:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

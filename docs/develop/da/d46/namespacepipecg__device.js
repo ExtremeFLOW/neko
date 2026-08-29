@@ -7,7 +7,7 @@ var namespacepipecg__device =
     [ "device_pipecg_vecops", "da/d46/namespacepipecg__device.html#a20e5112bf3c11f03f58a2bd09e8f27a0", null ],
     [ "pipecg_device_free", "da/d46/namespacepipecg__device.html#aeac2e2e47dadc8df22ea517657edae34", null ],
     [ "pipecg_device_init", "da/d46/namespacepipecg__device.html#a242ee086e10b42f00316da314e7fc94d", null ],
-    [ "pipecg_device_solve", "da/d46/namespacepipecg__device.html#af8b348213f1bde50d210f885ae0dd66a", null ],
-    [ "pipecg_device_solve_coupled", "da/d46/namespacepipecg__device.html#aaac888a7b6ef91e73d033c940ffc2217", null ],
+    [ "pipecg_device_solve", "da/d46/namespacepipecg__device.html#a7668ed15eabc2865fb0bc57ad3c1f8f5", null ],
+    [ "pipecg_device_solve_coupled", "da/d46/namespacepipecg__device.html#aafb1627a7246e2827b1dcd704c3db2b6", null ],
     [ "device_pipecg_p_space", "da/d46/namespacepipecg__device.html#aa95763092ddf10f01691e2f8c7124a5d", null ]
 ];

@@ -32,6 +32,7 @@ var structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t 
     [ "bcs_density", "d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#ab7025b8039acefdc60a5f1fbebbc3153", null ],
     [ "bcs_prs", "d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#ae7176706c8e0d55b82e4f91352120c2b", null ],
     [ "bcs_vel", "d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#aa2d769e8bed75a811894beb36f1fd5df", null ],
+    [ "bcs_vel_projector", "d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#ad505a9505864307cd0893ac9a19b3388", null ],
     [ "c_avisc_low", "d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#ab4c405029f25ba25a653acea969ccbe1", null ],
     [ "c_xh", "d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#a146e1cc1cb3d191a0c1b9707ff724f61", null ],
     [ "chkp", "d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#aa331befeee572eeeb9a24f05ae4a2226", null ],

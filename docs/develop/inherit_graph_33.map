@@ -1,21 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d3/d2c/structax__product_1_1ax__t.html" title="Base type for a matrix&#45;vector product providing ." alt="" coords="5,255,136,281"/>
-<area shape="rect" id="Node000001" href="$d1/d58/structax__helm_1_1ax__helm__t.html" title="Matrix&#45;vector product for a Helmholtz problem." alt="" coords="192,163,347,189"/>
-<area shape="poly" id="edge5_Node000000_Node000001" title=" " alt="" coords="110,247,240,186,242,191,113,252"/>
-<area shape="rect" id="Node000007" href="$d8/d81/structax__helm__full_1_1ax__helm__full__t.html" title="Matrix&#45;vector product for a Helmholtz problem." alt="" coords="184,312,355,352"/>
-<area shape="poly" id="edge11_Node000000_Node000007" title=" " alt="" coords="125,282,207,309,206,314,123,287"/>
-<area shape="rect" id="Node000002" href="$d7/d70/structax__helm__cpu_1_1ax__helm__cpu__t.html" title="CPU matrix&#45;vector product for a Helmholtz problem." alt="" coords="416,5,588,45"/>
-<area shape="poly" id="edge6_Node000001_Node000002" title=" " alt="" coords="289,151,337,103,368,77,401,55,426,43,429,48,404,60,371,82,341,107,293,155"/>
-<area shape="rect" id="Node000003" href="$d7/d68/structax__helm__device_1_1ax__helm__device__t.html" title=" " alt="" coords="426,69,578,109"/>
-<area shape="poly" id="edge7_Node000001_Node000003" title=" " alt="" coords="311,155,402,119,436,107,438,112,404,124,313,160"/>
-<area shape="rect" id="Node000004" href="$de/d9f/structax__helm__sx_1_1ax__helm__sx__t.html" title=" " alt="" coords="403,134,601,159"/>
-<area shape="poly" id="edge8_Node000001_Node000004" title=" " alt="" coords="360,162,402,157,403,162,361,167"/>
-<area shape="rect" id="Node000005" href="$db/d0b/structax__helm__template_1_1ax__helm__template__t.html" title="A scalar Helmholtz&#45;like operator. Extending ax_helm_t supplies compute_vector by applying compute to ..." alt="" coords="418,184,586,224"/>
-<area shape="poly" id="edge9_Node000001_Node000005" title=" " alt="" coords="361,184,418,191,417,197,360,190"/>
-<area shape="rect" id="Node000006" href="$d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html" title=" " alt="" coords="407,248,597,288"/>
-<area shape="poly" id="edge10_Node000001_Node000006" title=" " alt="" coords="310,192,404,234,436,245,435,250,402,238,308,197"/>
-<area shape="rect" id="Node000008" href="$db/db0/structax__helm__full__cpu_1_1ax__helm__full__cpu__t.html" title="CPU matrix&#45;vector product for a Helmholtz problem with full stress tensor." alt="" coords="422,312,582,352"/>
-<area shape="poly" id="edge12_Node000007_Node000008" title=" " alt="" coords="368,329,422,329,422,335,368,335"/>
-<area shape="rect" id="Node000009" href="$db/d3f/structax__helm__full__device_1_1ax__helm__full__device__t.html" title=" " alt="" coords="414,376,590,416"/>
-<area shape="poly" id="edge13_Node000007_Node000009" title=" " alt="" coords="357,353,429,373,428,379,355,358"/>
+<area shape="rect" id="Node000000" href="$d1/d2e/interfaceax__product_1_1ax__compute__vector.html" title="Abstract interface for computing &#160;inside a Krylov method, taking 3 components of a vector field in a ..." alt="" coords="5,5,188,45"/>
 </map>

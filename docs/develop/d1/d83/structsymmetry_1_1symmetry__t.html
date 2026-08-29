@@ -106,18 +106,18 @@ $(document).ready(function(){initNavTree('d1/d83/structsymmetry_1_1symmetry__t.h
 </div><!--header-->
 <div class="contents">
 
-<p>Mixed Dirichlet-Neumann symmetry plane condition.  
+<p>Symmetry boundary condition constraining the normal vector component.  
  <a href="../../d1/d83/structsymmetry_1_1symmetry__t.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for symmetry::symmetry_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/dfc/structsymmetry_1_1symmetry__t__inherit__graph.png" border="0" usemap="#asymmetry_1_1symmetry__t_inherit__map" alt="Inheritance graph"/></div>
 <map name="asymmetry_1_1symmetry__t_inherit__map" id="asymmetry_1_1symmetry__t_inherit__map">
-<area shape="rect" title="Mixed Dirichlet&#45;Neumann symmetry plane condition." alt="" coords="16,79,191,104"/>
-<area shape="rect" href="../../da/d18/structnon__normal_1_1non__normal__t.html" title="Dirichlet condition in non normal direction of a plane." alt="" coords="5,152,201,177"/>
-<area shape="poly" title=" " alt="" coords="106,118,106,152,101,152,101,118"/>
-<area shape="rect" href="../../d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="67,5,139,31"/>
-<area shape="poly" title=" " alt="" coords="106,44,106,79,101,79,101,44"/>
+<area shape="rect" title="Symmetry boundary condition constraining the normal vector component." alt="" coords="5,152,180,177"/>
+<area shape="rect" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html" title="Base type for mixed boundary conditions that need projector&#45;provided local&#45;basis data on the physical..." alt="" coords="9,79,176,104"/>
+<area shape="poly" title=" " alt="" coords="95,118,95,152,90,152,90,118"/>
+<area shape="rect" href="../../d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="57,5,129,31"/>
+<area shape="poly" title=" " alt="" coords="95,44,95,79,90,79,90,44"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -125,133 +125,141 @@ Collaboration diagram for symmetry::symmetry_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d67/structsymmetry_1_1symmetry__t__coll__graph.png" border="0" usemap="#asymmetry_1_1symmetry__t_coll__map" alt="Collaboration graph"/></div>
 <map name="asymmetry_1_1symmetry__t_coll__map" id="asymmetry_1_1symmetry__t_coll__map">
-<area shape="rect" title="Mixed Dirichlet&#45;Neumann symmetry plane condition." alt="" coords="2851,677,3025,702"/>
-<area shape="rect" href="../../d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="2500,675,2572,701"/>
-<area shape="poly" title=" " alt="" coords="2585,680,2596,679,2711,671,2827,673,2850,675,2850,681,2827,679,2711,676,2596,684,2586,685"/>
-<area shape="rect" href="../../d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html" title="Zero&#45;valued Dirichlet boundary condition. Used for no&#45;slip walls, but also for various auxillary cond..." alt="" coords="2621,697,2768,737"/>
-<area shape="poly" title=" " alt="" coords="2586,695,2621,701,2620,706,2585,700"/>
-<area shape="rect" href="../../d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1835,817,1977,842"/>
-<area shape="poly" title=" " alt="" coords="1991,814,2055,801,2310,743,2499,695,2500,700,2311,748,2057,807,1992,819"/>
-<area shape="rect" href="../../d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,..." alt="" coords="2313,833,2419,858"/>
-<area shape="poly" title=" " alt="" coords="1991,841,2080,851,2155,853,2231,851,2313,847,2313,852,2231,856,2155,859,2080,856,1991,846"/>
-<area shape="rect" href="../../dd/db8/structgather__scatter_1_1gs__t.html" title="Gather&#45;scatter kernel." alt="" coords="2080,1066,2231,1091"/>
-<area shape="poly" title=" " alt="" coords="1960,846,1979,859,1988,871,1993,881,2004,904,2040,952,2079,998,2143,1064,2139,1068,2075,1001,2036,956,1999,907,1988,883,1984,874,1976,863,1957,850"/>
-<area shape="rect" href="../../d7/d28/structmesh_1_1mesh__t.html" title=" " alt="" coords="1569,571,1683,597"/>
-<area shape="poly" title=" " alt="" coords="1697,581,1905,581,2367,581,2393,584,2418,592,2464,617,2501,647,2526,673,2522,677,2497,651,2461,622,2416,597,2392,589,2367,587,1905,587,1697,587"/>
-<area shape="poly" title=" " alt="" coords="1647,606,1676,643,1711,681,1758,722,1807,760,1886,814,1883,819,1804,764,1755,726,1707,685,1672,646,1643,610"/>
-<area shape="poly" title=" " alt="" coords="1679,599,1941,689,2290,814,2333,830,2332,835,2288,819,1939,694,1677,604"/>
-<area shape="rect" href="../../db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="1235,518,1343,543"/>
-<area shape="poly" title=" " alt="" coords="1357,536,1543,563,1572,569,1571,574,1542,568,1356,541"/>
-<area shape="rect" href="../../da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="847,515,964,541"/>
-<area shape="poly" title=" " alt="" coords="977,526,1234,528,1234,533,977,531"/>
-<area shape="rect" href="../../d1/d4c/structmesh_1_1mesh__element__t.html" title=" " alt="" coords="1201,571,1376,597"/>
-<area shape="poly" title=" " alt="" coords="1390,581,1568,581,1568,587,1390,587"/>
-<area shape="rect" href="../../db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="452,689,595,714"/>
-<area shape="poly" title=" " alt="" coords="608,699,754,697,945,691,1159,677,1376,655,1460,646,1497,640,1542,627,1576,612,1605,595,1607,599,1578,616,1544,632,1498,645,1461,652,1376,660,1160,683,945,696,754,702,608,704"/>
-<area shape="rect" href="../../d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="847,629,964,654"/>
-<area shape="poly" title=" " alt="" coords="608,686,846,648,847,653,609,691"/>
-<area shape="rect" href="../../d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="249,739,373,765"/>
-<area shape="poly" title=" " alt="" coords="378,734,469,712,470,717,379,739"/>
-<area shape="rect" href="../../d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="1021,735,1177,761"/>
-<area shape="poly" title=" " alt="" coords="387,749,1021,746,1021,751,387,754"/>
-<area shape="rect" href="../../da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="633,790,789,815"/>
-<area shape="poly" title=" " alt="" coords="387,764,412,768,634,794,633,799,412,773,386,769"/>
-<area shape="rect" href="../../df/da3/structhtable_1_1htable__i8__t.html" title="Integer*8 based hash table." alt="" coords="1400,1169,1543,1194"/>
-<area shape="poly" title=" " alt="" coords="317,778,331,868,345,925,364,983,391,1037,426,1081,446,1099,469,1112,494,1120,522,1123,1101,1123,1189,1127,1277,1138,1419,1166,1418,1171,1276,1144,1189,1133,1101,1128,522,1128,493,1125,467,1116,443,1103,422,1085,387,1040,360,985,340,927,326,869,312,779"/>
-<area shape="rect" href="../../d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="5,698,136,723"/>
-<area shape="poly" title=" " alt="" coords="112,726,161,741,205,748,249,750,249,756,205,753,159,747,111,731"/>
-<area shape="poly" title=" " alt="" coords="48,683,55,675,71,671,84,674,93,680,95,690,91,699,86,697,89,689,88,683,82,679,71,677,57,679,52,687"/>
-<area shape="rect" href="../../d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="235,654,388,679"/>
-<area shape="poly" title=" " alt="" coords="149,694,241,677,242,682,150,699"/>
-<area shape="poly" title=" " alt="" coords="1191,759,1271,764,1362,760,1409,753,1455,742,1499,727,1541,706,1570,682,1592,651,1618,596,1623,598,1597,654,1574,685,1544,710,1502,732,1456,747,1410,758,1362,765,1271,769,1191,764"/>
-<area shape="poly" title=" " alt="" coords="803,800,996,799,1226,792,1430,778,1501,767,1541,754,1560,738,1576,718,1599,673,1613,630,1620,597,1625,598,1618,631,1604,676,1580,721,1564,741,1544,758,1503,773,1431,784,1227,798,996,804,803,806"/>
-<area shape="rect" href="../../d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="1034,25,1165,50"/>
-<area shape="poly" title=" " alt="" coords="1179,31,1264,35,1363,51,1413,66,1461,87,1506,113,1545,148,1566,182,1583,232,1596,293,1607,359,1621,486,1627,571,1621,571,1616,487,1602,360,1591,294,1578,234,1561,184,1541,151,1502,118,1459,91,1411,71,1362,56,1264,40,1178,36"/>
-<area shape="rect" href="../../d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="255,125,367,150"/>
-<area shape="poly" title=" " alt="" coords="334,113,378,77,406,60,436,47,517,25,601,12,686,5,769,3,919,10,1034,24,1033,29,919,15,769,8,686,10,602,17,519,31,438,52,409,65,381,81,337,117"/>
-<area shape="rect" href="../../d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="451,186,595,211"/>
-<area shape="poly" title=" " alt="" coords="370,151,479,184,478,189,368,157"/>
-<area shape="rect" href="../../df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="639,275,783,301"/>
-<area shape="poly" title=" " alt="" coords="340,157,384,190,438,220,489,240,542,255,639,276,638,281,541,260,488,245,436,225,381,194,336,161"/>
-<area shape="rect" href="../../d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="446,62,601,87"/>
-<area shape="poly" title=" " alt="" coords="365,118,437,96,476,85,477,90,438,101,367,123"/>
-<area shape="rect" href="../../d4/ddd/structdistdata_1_1distdata__t.html" title=" " alt="" coords="1215,621,1363,646"/>
-<area shape="poly" title=" " alt="" coords="1376,623,1542,601,1576,594,1577,599,1543,607,1377,629"/>
-<area shape="poly" title=" " alt="" coords="588,180,633,172,910,133,1127,109,1345,98,1625,95,2368,95,2391,101,2412,117,2431,142,2448,175,2476,257,2498,353,2514,454,2526,548,2537,675,2531,675,2520,549,2509,455,2493,354,2471,258,2443,177,2426,145,2408,121,2388,105,2367,100,1625,100,1345,103,1127,114,911,138,634,177,589,186"/>
-<area shape="poly" title=" " alt="" coords="540,222,580,291,635,370,677,417,713,449,749,481,792,528,802,549,806,557,815,565,863,588,907,598,948,599,989,594,1074,582,1123,583,1178,594,1202,606,1239,618,1238,623,1200,611,1176,599,1122,588,1074,588,989,599,949,604,907,603,862,593,812,569,802,560,797,551,787,531,746,485,709,453,673,420,631,374,576,294,536,225"/>
-<area shape="rect" href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html" title=" " alt="" coords="813,247,997,273"/>
-<area shape="poly" title=" " alt="" coords="574,213,634,229,726,244,813,252,813,258,725,249,633,235,572,218"/>
-<area shape="rect" href="../../d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html" title=" " alt="" coords="1203,337,1375,377"/>
-<area shape="poly" title=" " alt="" coords="609,191,726,190,871,199,949,210,1028,226,1105,247,1178,276,1227,305,1266,335,1263,339,1224,309,1176,281,1103,253,1026,231,948,215,870,204,726,195,609,196"/>
-<area shape="poly" title=" " alt="" coords="978,639,1177,637,1214,636,1215,641,1177,643,978,645"/>
-<area shape="rect" href="../../d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="474,565,573,590"/>
-<area shape="poly" title=" " alt="" coords="587,584,790,617,847,628,846,633,789,623,586,590"/>
-<area shape="rect" href="../../dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="437,626,609,651"/>
-<area shape="poly" title=" " alt="" coords="623,637,846,638,846,644,623,642"/>
-<area shape="poly" title=" " alt="" coords="401,652,437,647,438,653,402,658"/>
-<area shape="poly" title=" " alt="" coords="1012,259,1093,264,1178,273,1279,291,1377,323,1468,356,1505,376,1545,412,1576,453,1599,498,1624,570,1619,572,1594,500,1571,455,1541,415,1502,381,1466,360,1375,328,1278,296,1177,279,1093,269,1012,264"/>
-<area shape="poly" title=" " alt="" coords="1011,272,1093,288,1178,310,1245,335,1243,340,1177,315,1092,293,1010,278"/>
-<area shape="rect" href="../../d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="460,377,587,402"/>
-<area shape="poly" title=" " alt="" coords="599,372,715,346,762,334,788,325,795,317,799,309,803,299,812,290,849,270,852,275,815,294,808,302,804,311,800,320,791,329,764,339,717,352,600,377"/>
-<area shape="poly" title=" " alt="" coords="601,384,1202,358,1202,364,601,389"/>
-<area shape="rect" href="../../d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="257,450,365,475"/>
-<area shape="poly" title=" " alt="" coords="361,443,485,400,486,405,363,448"/>
-<area shape="rect" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="644,531,779,557"/>
-<area shape="poly" title=" " alt="" coords="379,474,648,529,647,534,378,479"/>
-<area shape="poly" title=" " alt="" coords="1334,383,1544,523,1609,569,1606,574,1541,528,1331,387"/>
-<area shape="poly" title=" " alt="" coords="752,523,812,500,914,471,995,454,1076,437,1176,406,1247,375,1249,380,1178,411,1077,442,996,459,916,476,814,505,754,528"/>
-<area shape="poly" title=" " alt="" coords="780,302,790,304,814,311,918,327,1023,339,1203,351,1202,357,1022,344,917,332,813,316,789,309,779,307"/>
-<area shape="rect" href="../../dd/d69/structcurve_1_1curve__t.html" title=" " alt="" coords="848,83,963,109"/>
-<area shape="poly" title=" " alt="" coords="977,101,1100,123,1175,142,1254,168,1334,201,1412,242,1483,293,1515,322,1545,354,1564,382,1581,412,1605,474,1619,531,1626,571,1621,572,1614,532,1600,476,1576,414,1560,385,1541,358,1512,326,1480,297,1409,247,1332,206,1252,173,1174,147,1099,128,976,106"/>
-<area shape="rect" href="../../d0/d10/structstructs_1_1struct__curve__t.html" title=" " alt="" coords="440,111,607,137"/>
-<area shape="poly" title=" " alt="" coords="621,117,789,107,847,101,848,106,790,112,621,123"/>
-<area shape="poly" title=" " alt="" coords="615,77,848,90,847,96,614,82"/>
-<area shape="rect" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="1567,787,1685,813"/>
-<area shape="poly" title=" " alt="" coords="1638,774,1666,735,1686,716,1708,702,1762,679,1818,661,1875,647,1933,637,2050,627,2165,628,2271,636,2366,649,2500,676,2499,682,2365,655,2271,642,2164,633,2050,633,1934,642,1876,652,1819,666,1764,684,1711,706,1689,720,1670,739,1642,777"/>
-<area shape="poly" title=" " alt="" coords="1699,808,1710,809,1835,822,1834,827,1709,815,1699,813"/>
-<area shape="poly" title=" " alt="" coords="1699,795,1709,795,1811,795,1978,801,2163,819,2313,836,2312,841,2162,824,1977,807,1811,800,1709,800,1699,800"/>
-<area shape="rect" title=" " alt="" coords="1261,1021,1316,1046"/>
-<area shape="poly" title=" " alt="" coords="1330,1044,1401,1067,1554,1121,1621,1143,1710,1163,1798,1178,1868,1185,2027,1188,2367,1188,2386,1184,2403,1171,2419,1151,2435,1124,2462,1056,2484,975,2516,810,2531,701,2536,701,2521,811,2490,976,2467,1057,2439,1126,2424,1154,2407,1175,2388,1189,2368,1193,2027,1193,1867,1191,1797,1183,1709,1168,1620,1148,1552,1126,1399,1072,1328,1049"/>
-<area shape="poly" title=" " alt="" coords="1330,1025,1427,1008,1542,979,1612,953,1706,914,1875,840,1877,845,1708,919,1614,958,1543,984,1428,1013,1330,1030"/>
-<area shape="poly" title=" " alt="" coords="1326,1012,1399,983,1441,975,1475,975,1507,971,1523,964,1541,953,1555,932,1577,892,1616,812,1621,814,1582,895,1560,935,1545,957,1525,969,1508,976,1475,980,1441,980,1401,988,1328,1017"/>
-<area shape="poly" title=" " alt="" coords="1330,1035,1442,1043,1603,1047,1695,1046,1789,1040,1884,1029,1977,1012,2032,997,2088,979,2193,934,2282,890,2342,856,2345,861,2284,895,2196,939,2090,984,2034,1002,1978,1017,1885,1034,1790,1045,1695,1051,1603,1053,1442,1048,1330,1040"/>
-<area shape="poly" title=" " alt="" coords="1330,1039,1400,1049,1592,1065,1782,1073,2080,1077,2080,1082,1782,1078,1592,1070,1400,1055,1329,1044"/>
-<area shape="poly" title=" " alt="" coords="2392,822,2474,750,2522,699,2526,703,2478,754,2396,826"/>
-<area shape="poly" title=" " alt="" coords="2243,1066,2267,1056,2288,1042,2307,1021,2322,997,2344,944,2356,895,2361,858,2366,859,2361,896,2349,946,2327,1000,2311,1024,2291,1046,2269,1061,2245,1071"/>
-<area shape="poly" title=" " alt="" coords="1556,1173,1783,1149,1919,1130,2055,1105,2116,1089,2117,1094,2057,1111,1920,1136,1783,1155,1557,1178"/>
-<area shape="poly" title=" " alt="" coords="2782,717,2792,717,2826,717,2900,700,2901,705,2827,723,2792,723,2782,723"/>
+<area shape="rect" title="Symmetry boundary condition constraining the normal vector component." alt="" coords="2985,1096,3160,1121"/>
+<area shape="rect" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html" title="Base type for mixed boundary conditions that need projector&#45;provided local&#45;basis data on the physical..." alt="" coords="2769,1096,2936,1121"/>
+<area shape="poly" title=" " alt="" coords="2950,1106,2985,1106,2985,1111,2950,1111"/>
+<area shape="rect" href="../../d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="2648,885,2720,911"/>
+<area shape="poly" title=" " alt="" coords="2706,920,2843,1094,2839,1097,2702,923"/>
+<area shape="rect" href="../../d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1848,836,1991,861"/>
+<area shape="poly" title=" " alt="" coords="2005,851,2648,893,2648,898,2004,857"/>
+<area shape="rect" href="../../d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,..." alt="" coords="2461,784,2567,809"/>
+<area shape="poly" title=" " alt="" coords="2004,839,2461,799,2461,804,2005,844"/>
+<area shape="rect" href="../../dd/db8/structgather__scatter_1_1gs__t.html" title="Gather&#45;scatter kernel." alt="" coords="2167,625,2317,651"/>
+<area shape="poly" title=" " alt="" coords="1953,827,1989,805,2123,717,2221,649,2224,653,2126,721,1992,810,1956,831"/>
+<area shape="rect" href="../../d7/d28/structmesh_1_1mesh__t.html" title=" " alt="" coords="1569,375,1683,400"/>
+<area shape="poly" title=" " alt="" coords="1697,386,1918,387,2516,387,2556,394,2584,413,2605,443,2626,481,2640,517,2652,566,2669,687,2680,806,2685,885,2679,885,2675,806,2664,688,2647,567,2635,518,2622,483,2601,446,2580,417,2554,399,2515,393,1918,393,1697,391"/>
+<area shape="poly" title=" " alt="" coords="1646,410,1674,443,1711,473,1727,480,1742,483,1771,483,1799,485,1813,492,1826,504,1838,531,1844,567,1841,655,1838,743,1841,780,1850,806,1865,822,1884,834,1881,838,1862,826,1846,809,1836,781,1833,744,1836,655,1838,567,1833,532,1822,508,1810,496,1798,491,1771,488,1741,489,1725,485,1708,478,1670,447,1642,413"/>
+<area shape="poly" title=" " alt="" coords="1686,401,1825,443,2075,518,2183,554,2318,610,2383,637,2409,653,2439,677,2463,704,2483,733,2509,783,2505,785,2479,736,2459,707,2435,681,2406,657,2380,642,2316,615,2181,559,2073,523,1823,449,1684,406"/>
+<area shape="rect" href="../../db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="1235,392,1343,417"/>
+<area shape="poly" title=" " alt="" coords="1356,399,1568,388,1569,393,1357,404"/>
+<area shape="rect" href="../../da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="847,459,964,484"/>
+<area shape="poly" title=" " alt="" coords="977,459,1177,426,1234,414,1235,420,1178,431,978,464"/>
+<area shape="rect" href="../../d1/d4c/structmesh_1_1mesh__element__t.html" title=" " alt="" coords="1201,441,1376,467"/>
+<area shape="poly" title=" " alt="" coords="1390,443,1465,433,1542,417,1596,398,1598,403,1543,422,1466,438,1390,448"/>
+<area shape="rect" href="../../db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="452,248,595,273"/>
+<area shape="poly" title=" " alt="" coords="608,254,753,250,945,249,1160,254,1376,271,1463,278,1500,286,1544,305,1567,320,1587,338,1617,372,1613,376,1584,342,1564,324,1541,310,1498,291,1462,283,1376,277,1159,260,945,254,754,255,608,259"/>
+<area shape="rect" href="../../d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="847,345,964,371"/>
+<area shape="poly" title=" " alt="" coords="588,274,855,343,854,348,587,279"/>
+<area shape="rect" href="../../d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="249,99,373,124"/>
+<area shape="poly" title=" " alt="" coords="332,133,377,184,407,210,439,233,466,245,464,250,436,238,403,214,374,188,328,137"/>
+<area shape="rect" href="../../d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="1021,48,1177,73"/>
+<area shape="poly" title=" " alt="" coords="386,94,412,90,582,74,751,65,1021,58,1021,63,751,70,582,80,412,95,387,99"/>
+<area shape="rect" href="../../da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="633,99,789,124"/>
+<area shape="poly" title=" " alt="" coords="387,109,633,109,633,114,387,114"/>
+<area shape="rect" href="../../df/da3/structhtable_1_1htable__i8__t.html" title="Integer*8 based hash table." alt="" coords="1400,5,1543,31"/>
+<area shape="poly" title=" " alt="" coords="336,88,370,62,415,36,467,15,494,8,522,6,1101,6,1400,13,1400,18,1101,11,522,11,495,14,468,20,418,40,373,67,339,92"/>
+<area shape="rect" href="../../d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="5,255,136,280"/>
+<area shape="poly" title=" " alt="" coords="102,245,289,122,292,127,105,249"/>
+<area shape="poly" title=" " alt="" coords="48,240,55,231,71,228,84,230,93,237,95,246,91,256,86,253,89,246,88,240,82,235,71,233,57,236,52,243"/>
+<area shape="rect" href="../../d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="235,448,388,473"/>
+<area shape="poly" title=" " alt="" coords="99,287,236,401,294,446,291,450,233,405,95,291"/>
+<area shape="poly" title=" " alt="" coords="1191,55,1287,55,1391,61,1483,75,1519,86,1544,101,1561,123,1565,145,1565,168,1569,196,1623,374,1618,375,1564,197,1560,169,1560,145,1556,125,1541,105,1516,91,1482,80,1390,66,1287,60,1191,60"/>
+<area shape="poly" title=" " alt="" coords="803,103,984,98,1203,102,1311,111,1408,125,1488,147,1520,161,1544,177,1566,200,1584,225,1608,282,1621,336,1626,374,1621,375,1616,337,1603,284,1579,228,1562,203,1541,181,1517,166,1486,152,1407,130,1310,116,1203,108,984,103,803,109"/>
+<area shape="rect" href="../../d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="1034,281,1165,307"/>
+<area shape="poly" title=" " alt="" coords="1178,290,1256,292,1348,299,1447,314,1544,338,1579,354,1608,372,1605,377,1576,359,1542,343,1446,319,1348,305,1256,298,1178,295"/>
+<area shape="rect" href="../../d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="255,367,367,392"/>
+<area shape="poly" title=" " alt="" coords="356,359,437,335,605,310,772,297,921,291,1034,290,1034,296,921,296,772,302,605,316,438,341,358,364"/>
+<area shape="rect" href="../../d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="451,513,595,539"/>
+<area shape="poly" title=" " alt="" coords="348,398,390,434,402,456,406,466,414,476,444,496,476,511,474,516,441,501,410,480,401,469,397,458,386,437,344,402"/>
+<area shape="rect" href="../../df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="639,467,783,492"/>
+<area shape="poly" title=" " alt="" coords="348,396,391,416,438,434,543,458,640,471,639,476,542,463,437,439,389,421,346,401"/>
+<area shape="rect" href="../../d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="446,199,601,224"/>
+<area shape="poly" title=" " alt="" coords="325,353,370,293,401,261,436,233,459,222,462,227,439,238,404,265,374,296,329,356"/>
+<area shape="rect" href="../../d4/ddd/structdistdata_1_1distdata__t.html" title=" " alt="" coords="1215,343,1363,368"/>
+<area shape="poly" title=" " alt="" coords="1377,356,1543,370,1569,374,1568,379,1542,375,1376,362"/>
+<area shape="poly" title=" " alt="" coords="609,522,904,519,1627,519,1709,521,1824,521,2015,517,2079,513,2107,512,2143,517,2231,534,2299,554,2363,584,2439,630,2480,661,2519,695,2589,769,2643,836,2676,883,2672,886,2639,840,2585,772,2516,699,2477,665,2436,635,2360,588,2297,559,2230,540,2142,522,2107,518,2079,518,2015,522,1824,526,1709,526,1627,525,904,525,609,527"/>
+<area shape="poly" title=" " alt="" coords="548,503,586,475,633,451,865,415,1214,363,1215,369,866,420,634,457,589,480,551,507"/>
+<area shape="rect" href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html" title=" " alt="" coords="813,700,997,725"/>
+<area shape="poly" title=" " alt="" coords="538,550,553,580,575,613,602,646,635,672,665,683,710,693,813,705,813,710,709,698,664,688,632,676,598,649,570,616,549,582,533,553"/>
+<area shape="rect" href="../../d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html" title=" " alt="" coords="1203,655,1375,695"/>
+<area shape="poly" title=" " alt="" coords="582,540,689,569,814,598,1023,636,1203,662,1202,667,1023,641,813,603,688,574,581,545"/>
+<area shape="poly" title=" " alt="" coords="978,358,1021,359,1177,359,1214,358,1215,363,1177,365,1021,365,978,364"/>
+<area shape="rect" href="../../d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="474,351,573,376"/>
+<area shape="poly" title=" " alt="" coords="586,360,846,356,846,361,586,365"/>
+<area shape="rect" href="../../dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="437,400,609,425"/>
+<area shape="poly" title=" " alt="" coords="623,401,789,379,848,368,849,373,790,385,624,406"/>
+<area shape="poly" title=" " alt="" coords="381,442,466,423,467,428,382,447"/>
+<area shape="poly" title=" " alt="" coords="1011,723,1110,733,1215,738,1310,735,1347,729,1375,720,1383,713,1387,706,1398,687,1437,657,1473,641,1506,623,1541,591,1573,540,1596,485,1611,435,1620,400,1625,401,1617,437,1601,487,1578,543,1545,594,1509,627,1475,645,1440,662,1402,690,1391,708,1387,717,1377,724,1348,734,1310,740,1215,743,1109,738,1011,729"/>
+<area shape="poly" title=" " alt="" coords="1011,700,1202,681,1203,686,1011,705"/>
+<area shape="rect" href="../../d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="460,752,587,777"/>
+<area shape="poly" title=" " alt="" coords="600,752,813,722,813,728,601,757"/>
+<area shape="poly" title=" " alt="" coords="601,765,782,765,890,760,997,749,1048,740,1087,730,1177,703,1216,693,1217,698,1178,709,1089,735,1049,745,998,754,890,765,782,770,601,770"/>
+<area shape="rect" href="../../d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="257,792,365,817"/>
+<area shape="poly" title=" " alt="" coords="378,789,459,774,460,779,379,795"/>
+<area shape="rect" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="644,823,779,848"/>
+<area shape="poly" title=" " alt="" coords="379,807,644,828,644,833,379,812"/>
+<area shape="poly" title=" " alt="" coords="1324,645,1423,564,1541,463,1610,398,1613,402,1544,467,1426,568,1327,649"/>
+<area shape="poly" title=" " alt="" coords="793,840,877,842,975,835,1027,827,1079,815,1129,799,1176,777,1204,758,1230,736,1270,694,1274,697,1234,740,1207,763,1179,782,1131,804,1080,821,1028,833,976,841,877,847,793,846"/>
+<area shape="poly" title=" " alt="" coords="752,495,814,522,915,556,995,578,1076,598,1178,630,1239,653,1237,658,1176,635,1075,604,994,583,914,561,812,527,749,500"/>
+<area shape="rect" href="../../dd/d69/structcurve_1_1curve__t.html" title=" " alt="" coords="848,161,963,187"/>
+<area shape="poly" title=" " alt="" coords="977,167,1114,163,1280,165,1362,171,1437,180,1499,194,1544,214,1564,231,1580,251,1604,296,1618,340,1625,374,1620,375,1613,342,1599,298,1576,254,1560,235,1541,219,1497,199,1436,185,1362,176,1280,171,1114,169,977,173"/>
+<area shape="rect" href="../../d0/d10/structstructs_1_1struct__curve__t.html" title=" " alt="" coords="440,149,607,175"/>
+<area shape="poly" title=" " alt="" coords="621,162,848,170,848,175,620,168"/>
+<area shape="poly" title=" " alt="" coords="614,204,789,189,847,181,848,186,790,194,614,209"/>
+<area shape="rect" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="1567,956,1685,981"/>
+<area shape="poly" title=" " alt="" coords="1700,976,1803,986,1918,991,2515,991,2539,989,2563,982,2607,960,2643,933,2669,909,2672,913,2646,937,2609,965,2565,987,2540,994,2515,997,1918,997,1802,992,1699,981"/>
+<area shape="poly" title=" " alt="" coords="1659,946,1708,921,1765,900,1823,882,1885,859,1886,864,1825,887,1767,905,1710,926,1661,951"/>
+<area shape="poly" title=" " alt="" coords="1699,955,2020,900,2227,861,2437,815,2470,807,2471,812,2438,821,2228,866,2021,906,1700,960"/>
+<area shape="rect" title=" " alt="" coords="1261,1001,1316,1027"/>
+<area shape="poly" title=" " alt="" coords="1330,1020,1461,1042,1542,1052,1625,1055,2515,1055,2545,1051,2572,1038,2597,1020,2619,997,2654,949,2674,910,2679,912,2658,952,2623,1001,2601,1024,2575,1043,2547,1056,2516,1061,1625,1061,1542,1057,1460,1048,1329,1025"/>
+<area shape="poly" title=" " alt="" coords="1296,987,1310,954,1332,915,1361,878,1399,849,1424,842,1467,838,1589,836,1848,843,1848,848,1589,841,1468,844,1425,848,1401,854,1365,882,1336,918,1315,956,1301,989"/>
+<area shape="poly" title=" " alt="" coords="1330,1017,1428,1023,1485,1020,1542,1010,1577,996,1605,979,1608,984,1579,1001,1543,1015,1486,1025,1428,1028,1330,1022"/>
+<area shape="poly" title=" " alt="" coords="1295,987,1309,950,1331,906,1360,862,1398,825,1440,801,1478,792,1566,787,1648,782,1756,779,2016,780,2461,792,2461,797,2016,785,1756,784,1649,787,1567,793,1478,798,1442,806,1402,829,1364,866,1335,909,1314,952,1300,989"/>
+<area shape="poly" title=" " alt="" coords="1291,987,1301,937,1321,873,1352,807,1373,776,1398,749,1427,733,1478,713,1618,669,1761,629,1848,609,1919,604,1991,609,2167,625,2166,631,1990,614,1919,609,1848,614,1762,634,1620,674,1480,718,1429,738,1402,753,1377,780,1357,810,1326,875,1306,938,1296,988"/>
+<area shape="rect" href="../../d2/df5/structmask_1_1mask__t.html" title="Type for consistently handling masks in Neko. This type encapsulates the mask array and its associate..." alt="" coords="1709,1096,1824,1121"/>
+<area shape="poly" title=" " alt="" coords="1315,1034,1353,1064,1401,1089,1483,1109,1566,1117,1644,1117,1709,1113,1709,1118,1645,1122,1566,1122,1482,1114,1399,1094,1350,1069,1312,1038"/>
+<area shape="rect" href="../../da/d95/structmatrix_1_1matrix__t.html" title=" " alt="" coords="2015,1169,2143,1195"/>
+<area shape="poly" title=" " alt="" coords="1308,1036,1347,1081,1373,1103,1401,1121,1482,1152,1566,1175,1653,1189,1738,1196,1820,1199,1895,1197,2014,1188,2014,1193,1895,1202,1820,1204,1738,1202,1652,1194,1565,1180,1480,1158,1399,1126,1369,1108,1343,1085,1304,1040"/>
+<area shape="poly" title=" " alt="" coords="2549,814,2663,883,2660,888,2547,819"/>
+<area shape="poly" title=" " alt="" coords="2278,655,2492,782,2490,786,2275,660"/>
+<area shape="poly" title=" " alt="" coords="1507,36,1619,107,1781,218,1966,357,2058,434,2145,513,2198,574,2234,624,2230,627,2193,577,2141,517,2054,438,1963,362,1778,222,1616,111,1504,40"/>
+<area shape="poly" title=" " alt="" coords="1838,1106,2077,1106,2685,1106,2769,1106,2769,1111,2685,1111,2077,1111,1838,1111"/>
+<area shape="poly" title=" " alt="" coords="2157,1182,2388,1187,2685,1187,2730,1180,2773,1162,2809,1140,2835,1119,2839,1123,2812,1144,2775,1167,2732,1185,2686,1193,2388,1193,2157,1188"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a8c6c0e330570492df0802bb7c66b286f" id="r_a8c6c0e330570492df0802bb7c66b286f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#a8c6c0e330570492df0802bb7c66b286f">apply_scalar</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x, n, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>)</td></tr>
-<tr class="memdesc:a8c6c0e330570492df0802bb7c66b286f"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op scalar apply.  <br /></td></tr>
+<tr class="memitem:a8c6c0e330570492df0802bb7c66b286f" id="r_a8c6c0e330570492df0802bb7c66b286f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#a8c6c0e330570492df0802bb7c66b286f">apply_scalar</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x, <a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#aa9df752b0d1b76eaf1cfabe88099ed64">n</a>, time, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strong</a>)</td></tr>
+<tr class="memdesc:a8c6c0e330570492df0802bb7c66b286f"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op scalar application.  <br /></td></tr>
 <tr class="separator:a8c6c0e330570492df0802bb7c66b286f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab46887f039c597d094b696334f522dec" id="r_ab46887f039c597d094b696334f522dec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#ab46887f039c597d094b696334f522dec">apply_vector</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x, y, z, n, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>)</td></tr>
-<tr class="memdesc:ab46887f039c597d094b696334f522dec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply symmetry conditions (axis aligned)  <br /></td></tr>
+<tr class="memitem:ab46887f039c597d094b696334f522dec" id="r_ab46887f039c597d094b696334f522dec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#ab46887f039c597d094b696334f522dec">apply_vector</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x, y, z, <a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#aa9df752b0d1b76eaf1cfabe88099ed64">n</a>, time, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strong</a>)</td></tr>
+<tr class="memdesc:ab46887f039c597d094b696334f522dec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the normal component on the CPU.  <br /></td></tr>
 <tr class="separator:ab46887f039c597d094b696334f522dec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a35df66d226fd325748f3dbc08d0007" id="r_a0a35df66d226fd325748f3dbc08d0007"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#a0a35df66d226fd325748f3dbc08d0007">apply_scalar_dev</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x_d, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
-<tr class="memdesc:a0a35df66d226fd325748f3dbc08d0007"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op scalar apply (device version)  <br /></td></tr>
+<tr class="memitem:a0a35df66d226fd325748f3dbc08d0007" id="r_a0a35df66d226fd325748f3dbc08d0007"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#a0a35df66d226fd325748f3dbc08d0007">apply_scalar_dev</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x_d, time, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strong</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
+<tr class="memdesc:a0a35df66d226fd325748f3dbc08d0007"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op scalar application on the device.  <br /></td></tr>
 <tr class="separator:a0a35df66d226fd325748f3dbc08d0007"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c33fc6f429d93fcdc78ba81ae6beea3" id="r_a6c33fc6f429d93fcdc78ba81ae6beea3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#a6c33fc6f429d93fcdc78ba81ae6beea3">apply_vector_dev</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x_d, y_d, z_d, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
-<tr class="memdesc:a6c33fc6f429d93fcdc78ba81ae6beea3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply symmetry conditions (axis aligned) (device version)  <br /></td></tr>
+<tr class="memitem:a6c33fc6f429d93fcdc78ba81ae6beea3" id="r_a6c33fc6f429d93fcdc78ba81ae6beea3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#a6c33fc6f429d93fcdc78ba81ae6beea3">apply_vector_dev</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x_d, y_d, z_d, time, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strong</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
+<tr class="memdesc:a6c33fc6f429d93fcdc78ba81ae6beea3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the normal component on the device.  <br /></td></tr>
 <tr class="separator:a6c33fc6f429d93fcdc78ba81ae6beea3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2bacc011afe3358ec0bf99c46952bc81" id="r_a2bacc011afe3358ec0bf99c46952bc81"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#a2bacc011afe3358ec0bf99c46952bc81">init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a8044cfda61d692364d024558944e2fc7">coef</a>, json)</td></tr>
-<tr class="memdesc:a2bacc011afe3358ec0bf99c46952bc81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
+<tr class="memdesc:a2bacc011afe3358ec0bf99c46952bc81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct the boundary condition from JSON.  <br /></td></tr>
 <tr class="separator:a2bacc011afe3358ec0bf99c46952bc81"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8909b07baad33ae1d6ae359cc8287949" id="r_a8909b07baad33ae1d6ae359cc8287949"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#a8909b07baad33ae1d6ae359cc8287949">init_from_components</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a8044cfda61d692364d024558944e2fc7">coef</a>)</td></tr>
-<tr class="memdesc:a8909b07baad33ae1d6ae359cc8287949"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from compoenents.  <br /></td></tr>
+<tr class="memdesc:a8909b07baad33ae1d6ae359cc8287949"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct the boundary condition from its components.  <br /></td></tr>
 <tr class="separator:a8909b07baad33ae1d6ae359cc8287949"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a96c8796885eb0cbde2f5f14b08b70807" id="r_a96c8796885eb0cbde2f5f14b08b70807"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#a96c8796885eb0cbde2f5f14b08b70807">free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
-<tr class="memdesc:a96c8796885eb0cbde2f5f14b08b70807"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
+<tr class="memdesc:a96c8796885eb0cbde2f5f14b08b70807"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free the boundary condition and its mixed-bc storage.  <br /></td></tr>
 <tr class="separator:a96c8796885eb0cbde2f5f14b08b70807"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac86696b7cfeaa13c4dcdfbae15e5486" id="r_aac86696b7cfeaa13c4dcdfbae15e5486"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#aac86696b7cfeaa13c4dcdfbae15e5486">get_normal_axis</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">sx</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">sy</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">sz</a>, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a896224ab8a3c1d19a08a816447f1f8f3">facet</a>, el)</td></tr>
-<tr class="memdesc:aac86696b7cfeaa13c4dcdfbae15e5486"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the axis coressponding to the direction of the normal.  <br /></td></tr>
-<tr class="separator:aac86696b7cfeaa13c4dcdfbae15e5486"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa36c0d0672eb02ca4723393fc895d141" id="r_aa36c0d0672eb02ca4723393fc895d141"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#aa36c0d0672eb02ca4723393fc895d141">finalize</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">only_facets</a>)</td></tr>
-<tr class="memdesc:aa36c0d0672eb02ca4723393fc895d141"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize.  <br /></td></tr>
-<tr class="separator:aa36c0d0672eb02ca4723393fc895d141"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1ef8732fd027fef42223a767cc4fab6" id="r_af1ef8732fd027fef42223a767cc4fab6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#af1ef8732fd027fef42223a767cc4fab6">finalize</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:af1ef8732fd027fef42223a767cc4fab6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize the boundary condition.  <br /></td></tr>
+<tr class="separator:af1ef8732fd027fef42223a767cc4fab6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84e39024c2ab23a6fa0669eb97788d9a" id="r_a84e39024c2ab23a6fa0669eb97788d9a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#a84e39024c2ab23a6fa0669eb97788d9a">free_mixed</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a84e39024c2ab23a6fa0669eb97788d9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor for mixed-bc-specific resolved state.  <br /></td></tr>
+<tr class="separator:a84e39024c2ab23a6fa0669eb97788d9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c0c2b64280c6ff3f4fd60eab0344635" id="r_a0c0c2b64280c6ff3f4fd60eab0344635"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#a0c0c2b64280c6ff3f4fd60eab0344635">debug_output</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, field_name)</td></tr>
+<tr class="memdesc:a0c0c2b64280c6ff3f4fd60eab0344635"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write debug fields for the resolved support and normals.  <br /></td></tr>
+<tr class="separator:a0c0c2b64280c6ff3f4fd60eab0344635"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a197cb9063a580065c71a1aaf4c2ce14c" id="r_a197cb9063a580065c71a1aaf4c2ce14c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a197cb9063a580065c71a1aaf4c2ce14c">init_base</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a8044cfda61d692364d024558944e2fc7">coef</a>)</td></tr>
 <tr class="memdesc:a197cb9063a580065c71a1aaf4c2ce14c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:a197cb9063a580065c71a1aaf4c2ce14c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -267,28 +275,34 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1d1cb8e0aca1ce0abd8661f7973d9cdf" id="r_a1d1cb8e0aca1ce0abd8661f7973d9cdf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a1d1cb8e0aca1ce0abd8661f7973d9cdf">mark_zone</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bc_zone</a>)</td></tr>
 <tr class="memdesc:a1d1cb8e0aca1ce0abd8661f7973d9cdf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark all facets from a zone.  <br /></td></tr>
 <tr class="separator:a1d1cb8e0aca1ce0abd8661f7973d9cdf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aca2ef5e87ea6142ee810f802657c9002" id="r_aca2ef5e87ea6142ee810f802657c9002"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#aca2ef5e87ea6142ee810f802657c9002">finalize_base</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">only_facets</a>)</td></tr>
-<tr class="memdesc:aca2ef5e87ea6142ee810f802657c9002"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize the construction of the bc by populating the msk and facet arrays.  <br /></td></tr>
-<tr class="separator:aca2ef5e87ea6142ee810f802657c9002"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac688ded193b5e9265d838a671e1f9802" id="r_ac688ded193b5e9265d838a671e1f9802"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#ac688ded193b5e9265d838a671e1f9802">apply_scalar_generic</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
+<tr class="memitem:a0374be6297cafe12f703785c35bca424" id="r_a0374be6297cafe12f703785c35bca424"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a0374be6297cafe12f703785c35bca424">mark_labeled_zone</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">zone_index</a>)</td></tr>
+<tr class="memdesc:a0374be6297cafe12f703785c35bca424"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark all facets from a labeled zone.  <br /></td></tr>
+<tr class="separator:a0374be6297cafe12f703785c35bca424"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c6c3846f9281f789e0281ec35b3dedd" id="r_a8c6c3846f9281f789e0281ec35b3dedd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a8c6c3846f9281f789e0281ec35b3dedd">mark_labeled_zones</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a77af13b6f885bd953fff03b1afe50d0a">zone_indices</a>)</td></tr>
+<tr class="memdesc:a8c6c3846f9281f789e0281ec35b3dedd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark all facets from a list of labeled zones.  <br /></td></tr>
+<tr class="separator:a8c6c3846f9281f789e0281ec35b3dedd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ebad47c1f0a5b49629bd80a1d994c69" id="r_a8ebad47c1f0a5b49629bd80a1d994c69"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a8ebad47c1f0a5b49629bd80a1d994c69">finalize_base</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a8ebad47c1f0a5b49629bd80a1d994c69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize the construction of the bc by populating the msk and facet arrays.  <br /></td></tr>
+<tr class="separator:a8ebad47c1f0a5b49629bd80a1d994c69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac688ded193b5e9265d838a671e1f9802" id="r_ac688ded193b5e9265d838a671e1f9802"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#ac688ded193b5e9265d838a671e1f9802">apply_scalar_generic</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x, time, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strong</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
 <tr class="memdesc:ac688ded193b5e9265d838a671e1f9802"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the boundary condition to a scalar field. Dispatches to the CPU or the device version.  <br /></td></tr>
 <tr class="separator:ac688ded193b5e9265d838a671e1f9802"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0d3b6d199883ade96b750d65b3779d19" id="r_a0d3b6d199883ade96b750d65b3779d19"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a0d3b6d199883ade96b750d65b3779d19">apply_vector_generic</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x, y, z, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
+<tr class="memitem:a0d3b6d199883ade96b750d65b3779d19" id="r_a0d3b6d199883ade96b750d65b3779d19"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a0d3b6d199883ade96b750d65b3779d19">apply_vector_generic</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x, y, z, time, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strong</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
 <tr class="memdesc:a0d3b6d199883ade96b750d65b3779d19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the boundary condition to a vector field. Dispatches to the CPU or the device version.  <br /></td></tr>
 <tr class="separator:a0d3b6d199883ade96b750d65b3779d19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0050f4a5cbc2cdd21086d768a81bcc1a" id="r_a0050f4a5cbc2cdd21086d768a81bcc1a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a0050f4a5cbc2cdd21086d768a81bcc1a">debug_mask_</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">file_name</a>)</td></tr>
 <tr class="memdesc:a0050f4a5cbc2cdd21086d768a81bcc1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a field showing the mask of the bcs.  <br /></td></tr>
 <tr class="separator:a0050f4a5cbc2cdd21086d768a81bcc1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf7d3374ded3bdc6dc0bb9c438edbfd9" id="r_acf7d3374ded3bdc6dc0bb9c438edbfd9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_apply_scalar), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#acf7d3374ded3bdc6dc0bb9c438edbfd9">apply_scalar</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x, n, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>)</td></tr>
+<tr class="memitem:acf7d3374ded3bdc6dc0bb9c438edbfd9" id="r_acf7d3374ded3bdc6dc0bb9c438edbfd9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_apply_scalar), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#acf7d3374ded3bdc6dc0bb9c438edbfd9">apply_scalar</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x, <a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#aa9df752b0d1b76eaf1cfabe88099ed64">n</a>, time, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strong</a>)</td></tr>
 <tr class="memdesc:acf7d3374ded3bdc6dc0bb9c438edbfd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the boundary condition to a scalar field on the CPU.  <br /></td></tr>
 <tr class="separator:acf7d3374ded3bdc6dc0bb9c438edbfd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aca01313e3fa26077db1411a40fd3ff36" id="r_aca01313e3fa26077db1411a40fd3ff36"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_apply_vector), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#aca01313e3fa26077db1411a40fd3ff36">apply_vector</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x, y, z, n, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>)</td></tr>
+<tr class="memitem:aca01313e3fa26077db1411a40fd3ff36" id="r_aca01313e3fa26077db1411a40fd3ff36"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_apply_vector), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#aca01313e3fa26077db1411a40fd3ff36">apply_vector</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x, y, z, <a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#aa9df752b0d1b76eaf1cfabe88099ed64">n</a>, time, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strong</a>)</td></tr>
 <tr class="memdesc:aca01313e3fa26077db1411a40fd3ff36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the boundary condition to a vector field on the CPU.  <br /></td></tr>
 <tr class="separator:aca01313e3fa26077db1411a40fd3ff36"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f24bdea49ef8f519edc7169b40b0ab5" id="r_a5f24bdea49ef8f519edc7169b40b0ab5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_apply_scalar_dev), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a5f24bdea49ef8f519edc7169b40b0ab5">apply_scalar_dev</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x_d, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
+<tr class="memitem:a5f24bdea49ef8f519edc7169b40b0ab5" id="r_a5f24bdea49ef8f519edc7169b40b0ab5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_apply_scalar_dev), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a5f24bdea49ef8f519edc7169b40b0ab5">apply_scalar_dev</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x_d, time, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strong</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
 <tr class="memdesc:a5f24bdea49ef8f519edc7169b40b0ab5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device version of <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#acf7d3374ded3bdc6dc0bb9c438edbfd9">apply_scalar</a> on the device.  <br /></td></tr>
 <tr class="separator:a5f24bdea49ef8f519edc7169b40b0ab5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a53a44051829738ce6356d5d51693ebb7" id="r_a53a44051829738ce6356d5d51693ebb7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_apply_vector_dev), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a53a44051829738ce6356d5d51693ebb7">apply_vector_dev</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x_d, y_d, z_d, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
+<tr class="memitem:a53a44051829738ce6356d5d51693ebb7" id="r_a53a44051829738ce6356d5d51693ebb7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_apply_vector_dev), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a53a44051829738ce6356d5d51693ebb7">apply_vector_dev</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x_d, y_d, z_d, time, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strong</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
 <tr class="memdesc:a53a44051829738ce6356d5d51693ebb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device version of <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#aca01313e3fa26077db1411a40fd3ff36">apply_vector</a> on the device.  <br /></td></tr>
 <tr class="separator:a53a44051829738ce6356d5d51693ebb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37261adf9d55cd71683758248e0b6895" id="r_a37261adf9d55cd71683758248e0b6895"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_destructor), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a37261adf9d55cd71683758248e0b6895">free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
@@ -297,23 +311,30 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a19ee9a2eddeedeb2954f089cf38796e9" id="r_a19ee9a2eddeedeb2954f089cf38796e9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_constructor), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a19ee9a2eddeedeb2954f089cf38796e9">init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a8044cfda61d692364d024558944e2fc7">coef</a>, json)</td></tr>
 <tr class="memdesc:a19ee9a2eddeedeb2954f089cf38796e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deferred constructor.  <br /></td></tr>
 <tr class="separator:a19ee9a2eddeedeb2954f089cf38796e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a723bdd23995522630dd0b5a1adb3adc9" id="r_a723bdd23995522630dd0b5a1adb3adc9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_finalize), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a723bdd23995522630dd0b5a1adb3adc9">finalize</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">only_facets</a>)</td></tr>
-<tr class="memdesc:a723bdd23995522630dd0b5a1adb3adc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deferred finalizer.  <br /></td></tr>
-<tr class="separator:a723bdd23995522630dd0b5a1adb3adc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e52d4ad1c865a24f2c97262fccadb36" id="r_a3e52d4ad1c865a24f2c97262fccadb36"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_finalize), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3e52d4ad1c865a24f2c97262fccadb36">finalize</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a3e52d4ad1c865a24f2c97262fccadb36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deferred finalizer.  <br /></td></tr>
+<tr class="separator:a3e52d4ad1c865a24f2c97262fccadb36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:aafc7f689d0789ff40bce51eec004112b" id="r_aafc7f689d0789ff40bce51eec004112b"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html">zero_dirichlet_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#aafc7f689d0789ff40bce51eec004112b">bc_x</a></td></tr>
-<tr class="separator:aafc7f689d0789ff40bce51eec004112b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a18cf05a8fa145230b6b3efc281d78f0e" id="r_a18cf05a8fa145230b6b3efc281d78f0e"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html">zero_dirichlet_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#a18cf05a8fa145230b6b3efc281d78f0e">bc_y</a></td></tr>
-<tr class="separator:a18cf05a8fa145230b6b3efc281d78f0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a801cd33f5c460620caeebd4064f1be88" id="r_a801cd33f5c460620caeebd4064f1be88"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html">zero_dirichlet_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html#a801cd33f5c460620caeebd4064f1be88">bc_z</a></td></tr>
-<tr class="separator:a801cd33f5c460620caeebd4064f1be88"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a77861cfb4c1bbc009f783410f5f78576" id="r_a77861cfb4c1bbc009f783410f5f78576"><td class="memItemLeft" align="right" valign="top">type(mask_t)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#a77861cfb4c1bbc009f783410f5f78576">resolved_msk</a></td></tr>
+<tr class="memdesc:a77861cfb4c1bbc009f783410f5f78576"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resolved subset of local dofs where this mixed bc remains active after global boundary-condition resolution. Populated by a <code>coupled_vector_bc_projector_t</code>. Note that the resolved mask is only used for contraining vector components. For the Neumann contributions of the bc, facet_node_msk is used.  <br /></td></tr>
+<tr class="separator:a77861cfb4c1bbc009f783410f5f78576"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9df752b0d1b76eaf1cfabe88099ed64" id="r_aa9df752b0d1b76eaf1cfabe88099ed64"><td class="memItemLeft" align="right" valign="top">type(matrix_t)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#aa9df752b0d1b76eaf1cfabe88099ed64">n</a></td></tr>
+<tr class="memdesc:aa9df752b0d1b76eaf1cfabe88099ed64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local basis vectors on resolved_msk.  <br /></td></tr>
+<tr class="separator:aa9df752b0d1b76eaf1cfabe88099ed64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a264199743aeb1c5962f149d7dd04f25d" id="r_a264199743aeb1c5962f149d7dd04f25d"><td class="memItemLeft" align="right" valign="top">type(matrix_t)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#a264199743aeb1c5962f149d7dd04f25d">t1</a></td></tr>
+<tr class="separator:a264199743aeb1c5962f149d7dd04f25d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40910908ae78f79aa27e33554fec85f4" id="r_a40910908ae78f79aa27e33554fec85f4"><td class="memItemLeft" align="right" valign="top">type(matrix_t)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#a40910908ae78f79aa27e33554fec85f4">t2</a></td></tr>
+<tr class="separator:a40910908ae78f79aa27e33554fec85f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a638503614447154c642fcbc9bf5df9a6" id="r_a638503614447154c642fcbc9bf5df9a6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a638503614447154c642fcbc9bf5df9a6">msk</a></td></tr>
-<tr class="memdesc:a638503614447154c642fcbc9bf5df9a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">The linear index of each node in each boundary facet.  <br /></td></tr>
+<tr class="memdesc:a638503614447154c642fcbc9bf5df9a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">The linear index of each constrained local degree of freedom.  <br /></td></tr>
 <tr class="separator:a638503614447154c642fcbc9bf5df9a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a575dfc2eb61bb0be13a297a23c25b7c2" id="r_a575dfc2eb61bb0be13a297a23c25b7c2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a575dfc2eb61bb0be13a297a23c25b7c2">facet_node_msk</a></td></tr>
+<tr class="memdesc:a575dfc2eb61bb0be13a297a23c25b7c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">The linear index of each node on the marked boundary facets.  <br /></td></tr>
+<tr class="separator:a575dfc2eb61bb0be13a297a23c25b7c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a896224ab8a3c1d19a08a816447f1f8f3" id="r_a896224ab8a3c1d19a08a816447f1f8f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a896224ab8a3c1d19a08a816447f1f8f3">facet</a></td></tr>
-<tr class="memdesc:a896224ab8a3c1d19a08a816447f1f8f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">A list of facet ids (1 to 6), one for each element in msk.  <br /></td></tr>
+<tr class="memdesc:a896224ab8a3c1d19a08a816447f1f8f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">A list of facet ids (1 to 6), one for each entry in facet_node_msk.  <br /></td></tr>
 <tr class="separator:a896224ab8a3c1d19a08a816447f1f8f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ac479f86685364bc367d05fae6b125c" id="r_a1ac479f86685364bc367d05fae6b125c"><td class="memItemLeft" align="right" valign="top">type(dofmap_t), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a1ac479f86685364bc367d05fae6b125c">dof</a> =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td></tr>
 <tr class="memdesc:a1ac479f86685364bc367d05fae6b125c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map of degrees of freedom.  <br /></td></tr>
@@ -333,12 +354,15 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a78a0e4bbf8808775dd18c3a5e041d92e" id="r_a78a0e4bbf8808775dd18c3a5e041d92e"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a78a0e4bbf8808775dd18c3a5e041d92e">msk_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
 <tr class="memdesc:a78a0e4bbf8808775dd18c3a5e041d92e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device pointer for msk.  <br /></td></tr>
 <tr class="separator:a78a0e4bbf8808775dd18c3a5e041d92e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9637b267ad83e6b697eeb19b7aa58bfd" id="r_a9637b267ad83e6b697eeb19b7aa58bfd"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a9637b267ad83e6b697eeb19b7aa58bfd">facet_node_msk_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
+<tr class="memdesc:a9637b267ad83e6b697eeb19b7aa58bfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device pointer for facet_node_msk.  <br /></td></tr>
+<tr class="separator:a9637b267ad83e6b697eeb19b7aa58bfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1bc263e701d6fc865ca5d4a1dfdac914" id="r_a1bc263e701d6fc865ca5d4a1dfdac914"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a1bc263e701d6fc865ca5d4a1dfdac914">facet_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
 <tr class="memdesc:a1bc263e701d6fc865ca5d4a1dfdac914"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device pointer for facet.  <br /></td></tr>
 <tr class="separator:a1bc263e701d6fc865ca5d4a1dfdac914"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3942c5f5427cf551d4e3909d6e2e7e4a" id="r_a3942c5f5427cf551d4e3909d6e2e7e4a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a> = .true.</td></tr>
-<tr class="memdesc:a3942c5f5427cf551d4e3909d6e2e7e4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wether the bc is strongly enforced. Essentially valid for all Dirichlet types of bcs. These need to be masked out for solvers etc, so that values are not affected. Mixed bcs are, by convention, weak.  <br /></td></tr>
-<tr class="separator:a3942c5f5427cf551d4e3909d6e2e7e4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9aade2333de1083d4322e35402ba669" id="r_ab9aade2333de1083d4322e35402ba669"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#ab9aade2333de1083d4322e35402ba669">bc_type</a> = -1</td></tr>
+<tr class="memdesc:ab9aade2333de1083d4322e35402ba669"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of the boundary condition, from the <code>BC_*</code> constants.  <br /></td></tr>
+<tr class="separator:ab9aade2333de1083d4322e35402ba669"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acec6ac3a12e639a12be6344c9b4e3208" id="r_acec6ac3a12e639a12be6344c9b4e3208"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#acec6ac3a12e639a12be6344c9b4e3208">updated</a> = .false.</td></tr>
 <tr class="memdesc:acec6ac3a12e639a12be6344c9b4e3208"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates wether the bc has been updated, for those BCs that need additional computations.  <br /></td></tr>
 <tr class="separator:acec6ac3a12e639a12be6344c9b4e3208"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -348,7 +372,7 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a77af13b6f885bd953fff03b1afe50d0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><dl class="section warning"><dt>Warning</dt><dd>Only works for axis-aligned plane boundaries. </dd></dl>
+<div class="textblock"><p>This variant uses projector-provided local basis vectors on the resolved mixed support stored in <code>mixed_bc_t</code>. The normal component is removed while the tangential components are preserved. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00050">50</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
@@ -404,7 +428,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00117">117</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00132">132</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -423,7 +447,7 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(<a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#aa9df752b0d1b76eaf1cfabe88099ed64">n</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>x</em>, </td>
         </tr>
         <tr>
@@ -453,15 +477,15 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">x</td><td>The field for which to apply the boundary condition. </td></tr>
-    <tr><td class="paramname">n</td><td>The size of x. </td></tr>
+    <tr><td class="paramname">x</td><td>Scalar field values. </td></tr>
+    <tr><td class="paramname">n</td><td>Number of entries in <code>x</code>. </td></tr>
     <tr><td class="paramname">time</td><td>Current time state. </td></tr>
-    <tr><td class="paramname">strong</td><td>Whether we are setting a strong or a weak bc. </td></tr>
+    <tr><td class="paramname">strong</td><td>Whether to apply the strong form. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00055">55</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00053">53</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
 
 </div>
 </div>
@@ -517,7 +541,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00121">121</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00136">136</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -566,9 +590,10 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">x_d</td><td>Device pointer to the field. </td></tr>
-    <tr><td class="paramname">time</td><td>The time state. </td></tr>
-    <tr><td class="paramname">strong</td><td>Whether we are setting a strong or a weak bc. </td></tr>
+    <tr><td class="paramname">x_d</td><td>Device pointer to the scalar field. </td></tr>
+    <tr><td class="paramname">time</td><td>Current time state. </td></tr>
+    <tr><td class="paramname">strong</td><td>Whether to apply the strong form. </td></tr>
+    <tr><td class="paramname">strm</td><td>Device stream. </td></tr>
   </table>
   </dd>
 </dl>
@@ -638,7 +663,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00110">110</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00125">125</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -706,7 +731,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00119">119</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00134">134</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -725,19 +750,19 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(<a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#aa9df752b0d1b76eaf1cfabe88099ed64">n</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>x</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(<a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#aa9df752b0d1b76eaf1cfabe88099ed64">n</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>y</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(<a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html#aa9df752b0d1b76eaf1cfabe88099ed64">n</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>z</em>, </td>
         </tr>
         <tr>
@@ -765,19 +790,19 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Uses the resolved mixed-node mask together with the local normal vector provided by the coupled vector BC projector. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">x</td><td>The x comp of the field for which to apply the bc. </td></tr>
-    <tr><td class="paramname">y</td><td>The y comp of the field for which to apply the bc. </td></tr>
-    <tr><td class="paramname">z</td><td>The z comp of the field for which to apply the bc. </td></tr>
-    <tr><td class="paramname">n</td><td>The size of x, y, and z. </td></tr>
+    <tr><td class="paramname">x</td><td>x-component of the field. </td></tr>
+    <tr><td class="paramname">y</td><td>y-component of the field. </td></tr>
+    <tr><td class="paramname">z</td><td>z-component of the field. </td></tr>
+    <tr><td class="paramname">n</td><td>Number of entries in each component array. </td></tr>
     <tr><td class="paramname">time</td><td>Current time state. </td></tr>
-    <tr><td class="paramname">strong</td><td>Whether we are setting a strong or a weak bc. </td></tr>
+    <tr><td class="paramname">strong</td><td>Whether to apply the strong form. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00056">56</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00055">55</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
 
 </div>
 </div>
@@ -845,7 +870,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00123">123</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00138">138</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -904,18 +929,19 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Uses the resolved mixed-node mask together with the local basis vectors provided by the coupled vector BC projector. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">x_d</td><td>Device pointer to the values to be applied for the x comp. </td></tr>
-    <tr><td class="paramname">y_d</td><td>Device pointer to the values to be applied for the y comp. </td></tr>
-    <tr><td class="paramname">z_d</td><td>Device pointer to the values to be applied for the z comp. </td></tr>
-    <tr><td class="paramname">time</td><td>The time state. </td></tr>
-    <tr><td class="paramname">strong</td><td>Whether we are setting a strong or a weak bc. </td></tr>
+    <tr><td class="paramname">x_d</td><td>Device pointer to the x-component. </td></tr>
+    <tr><td class="paramname">y_d</td><td>Device pointer to the y-component. </td></tr>
+    <tr><td class="paramname">z_d</td><td>Device pointer to the z-component. </td></tr>
+    <tr><td class="paramname">time</td><td>Current time state. </td></tr>
+    <tr><td class="paramname">strong</td><td>Whether to apply the strong form. </td></tr>
+    <tr><td class="paramname">strm</td><td>Device stream. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00058">58</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00059">59</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
 
 </div>
 </div>
@@ -994,7 +1020,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00113">113</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00128">128</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1038,12 +1064,12 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00115">115</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00130">130</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
-<a id="a723bdd23995522630dd0b5a1adb3adc9" name="a723bdd23995522630dd0b5a1adb3adc9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a723bdd23995522630dd0b5a1adb3adc9">&#9670;&#160;</a></span>finalize() <span class="overload">[1/2]</span></h2>
+<a id="a0c0c2b64280c6ff3f4fd60eab0344635" name="a0c0c2b64280c6ff3f4fd60eab0344635"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0c0c2b64280c6ff3f4fd60eab0344635">&#9670;&#160;</a></span>debug_output()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1052,84 +1078,16 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_finalize), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a> bc::bc_t::finalize </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) mixed_bc::mixed_bc_t::debug_output </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html">mixed_bc_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">optional</a>&#160;</td>
-          <td class="paramname"><em>only_facets</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span><span class="mlabel">inherited</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00129">129</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
-
-</div>
-</div>
-<a id="aa36c0d0672eb02ca4723393fc895d141" name="aa36c0d0672eb02ca4723393fc895d141"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa36c0d0672eb02ca4723393fc895d141">&#9670;&#160;</a></span>finalize() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) symmetry::symmetry_t::finalize </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html">symmetry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
-          <td class="paramname"><em>this</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">optional</a>&#160;</td>
-          <td class="paramname"><em>only_facets</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
-
-</div>
-</div>
-<a id="aca2ef5e87ea6142ee810f802657c9002" name="aca2ef5e87ea6142ee810f802657c9002"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aca2ef5e87ea6142ee810f802657c9002">&#9670;&#160;</a></span>finalize_base()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) bc::bc_t::finalize_base </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
-          <td class="paramname"><em>this</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">optional</a>&#160;</td>
-          <td class="paramname"><em>only_facets</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">optional</a>&#160;</td>
+          <td class="paramname"><em>field_name</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1143,15 +1101,91 @@ Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Writes one field list with the resolved mask marked by <code>1</code> and the three components of the resolved normals. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">only_facets,if</td><td>the bc is only to be applied on facets. Relevant for bcs where the normal direction is important and where and shared dofs should not be included.</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">field_name</td><td>Base name for the output files. </td></tr>
   </table>
   </dd>
 </dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d10/mixed__bc_8f90_source.html#l00066">66</a> of file <a class="el" href="../../dd/d10/mixed__bc_8f90_source.html">mixed_bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="a3e52d4ad1c865a24f2c97262fccadb36" name="a3e52d4ad1c865a24f2c97262fccadb36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e52d4ad1c865a24f2c97262fccadb36">&#9670;&#160;</a></span>finalize() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(bc_finalize), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a> bc::bc_t::finalize </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00144">144</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="af1ef8732fd027fef42223a767cc4fab6" name="af1ef8732fd027fef42223a767cc4fab6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af1ef8732fd027fef42223a767cc4fab6">&#9670;&#160;</a></span>finalize() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) symmetry::symmetry_t::finalize </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html">symmetry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a8ebad47c1f0a5b49629bd80a1d994c69" name="a8ebad47c1f0a5b49629bd80a1d994c69"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ebad47c1f0a5b49629bd80a1d994c69">&#9670;&#160;</a></span>finalize_base()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) bc::bc_t::finalize_base </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 <p>This will linearize the marked facet's indicies in the msk array. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00106">106</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00121">121</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1179,7 +1213,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00125">125</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00140">140</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1199,7 +1233,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
 
 </div>
 </div>
@@ -1227,62 +1261,35 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00097">97</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00108">108</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
-<a id="aac86696b7cfeaa13c4dcdfbae15e5486" name="aac86696b7cfeaa13c4dcdfbae15e5486"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aac86696b7cfeaa13c4dcdfbae15e5486">&#9670;&#160;</a></span>get_normal_axis()</h2>
+<a id="a84e39024c2ab23a6fa0669eb97788d9a" name="a84e39024c2ab23a6fa0669eb97788d9a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84e39024c2ab23a6fa0669eb97788d9a">&#9670;&#160;</a></span>free_mixed()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) symmetry::symmetry_t::get_normal_axis </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) mixed_bc::mixed_bc_t::free_mixed </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html">symmetry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
-          <td class="paramname"><em>this</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d0/de5/structmixed__bc_1_1mixed__bc__t.html">mixed_bc_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">out</a>)&#160;</td>
-          <td class="paramname"><em>sx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">out</a>)&#160;</td>
-          <td class="paramname"><em>sy</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">out</a>)&#160;</td>
-          <td class="paramname"><em>sz</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>facet</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>el</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
-<p>The normal direction is the one for which s is 0, so e.g for a y normal, sx and sz will be unity, and sy will be 0. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d10/mixed__bc_8f90_source.html#l00064">64</a> of file <a class="el" href="../../dd/d10/mixed__bc_8f90_source.html">mixed_bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1326,7 +1333,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00127">127</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00142">142</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1369,7 +1376,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00060">60</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00061">61</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
 
 </div>
 </div>
@@ -1413,7 +1420,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00095">95</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00106">106</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1449,7 +1456,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00063">63</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
 
 </div>
 </div>
@@ -1500,7 +1507,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00099">99</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00110">110</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1544,7 +1551,95 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00101">101</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00112">112</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="a0374be6297cafe12f703785c35bca424" name="a0374be6297cafe12f703785c35bca424"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0374be6297cafe12f703785c35bca424">&#9670;&#160;</a></span>mark_labeled_zone()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) bc::bc_t::mark_labeled_zone </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>zone_index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">zone_index</td><td>The index of the labeled zone to be marked. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00116">116</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="a8c6c3846f9281f789e0281ec35b3dedd" name="a8c6c3846f9281f789e0281ec35b3dedd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c6c3846f9281f789e0281ec35b3dedd">&#9670;&#160;</a></span>mark_labeled_zones()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) bc::bc_t::mark_labeled_zones </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>zone_indices</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">zone_indices</td><td>The indices of the labeled zones to be marked. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00118">118</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1588,56 +1683,32 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00103">103</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00114">114</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a id="aafc7f689d0789ff40bce51eec004112b" name="aafc7f689d0789ff40bce51eec004112b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aafc7f689d0789ff40bce51eec004112b">&#9670;&#160;</a></span>bc_x</h2>
+<a id="ab9aade2333de1083d4322e35402ba669" name="ab9aade2333de1083d4322e35402ba669"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab9aade2333de1083d4322e35402ba669">&#9670;&#160;</a></span>bc_type</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">type(<a class="el" href="../../d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html">zero_dirichlet_t</a>) symmetry::symmetry_t::bc_x</td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> bc::bc_t::bc_type = -1</td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00051">51</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
-
-</div>
-</div>
-<a id="a18cf05a8fa145230b6b3efc281d78f0e" name="a18cf05a8fa145230b6b3efc281d78f0e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a18cf05a8fa145230b6b3efc281d78f0e">&#9670;&#160;</a></span>bc_y</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">type(<a class="el" href="../../d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html">zero_dirichlet_t</a>) symmetry::symmetry_t::bc_y</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00052">52</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
-
-</div>
-</div>
-<a id="a801cd33f5c460620caeebd4064f1be88" name="a801cd33f5c460620caeebd4064f1be88"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a801cd33f5c460620caeebd4064f1be88">&#9670;&#160;</a></span>bc_z</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">type(<a class="el" href="../../d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html">zero_dirichlet_t</a>) symmetry::symmetry_t::bc_z</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d2/d3a/symmetry_8f90_source.html#l00053">53</a> of file <a class="el" href="../../d2/d3a/symmetry_8f90_source.html">symmetry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00096">96</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1661,7 +1732,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00070">70</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00082">82</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1685,7 +1756,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00068">68</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00080">80</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1709,7 +1780,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00066">66</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00078">78</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1733,7 +1804,55 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00080">80</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00094">94</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="a575dfc2eb61bb0be13a297a23c25b7c2" name="a575dfc2eb61bb0be13a297a23c25b7c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a575dfc2eb61bb0be13a297a23c25b7c2">&#9670;&#160;</a></span>facet_node_msk</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a> bc::bc_t::facet_node_msk</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00076">76</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="a9637b267ad83e6b697eeb19b7aa58bfd" name="a9637b267ad83e6b697eeb19b7aa58bfd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9637b267ad83e6b697eeb19b7aa58bfd">&#9670;&#160;</a></span>facet_node_msk_d</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(c_ptr) bc::bc_t::facet_node_msk_d = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00092">92</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1757,7 +1876,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00076">76</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00088">88</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1781,7 +1900,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00072">72</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00084">84</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1805,7 +1924,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00064">64</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00074">74</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1829,7 +1948,31 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00078">78</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00090">90</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="aa9df752b0d1b76eaf1cfabe88099ed64" name="aa9df752b0d1b76eaf1cfabe88099ed64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9df752b0d1b76eaf1cfabe88099ed64">&#9670;&#160;</a></span>n</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(matrix_t) mixed_bc::mixed_bc_t::n</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d10/mixed__bc_8f90_source.html#l00059">59</a> of file <a class="el" href="../../dd/d10/mixed__bc_8f90_source.html">mixed_bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1853,12 +1996,12 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00090">90</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00101">101</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
-<a id="a3942c5f5427cf551d4e3909d6e2e7e4a" name="a3942c5f5427cf551d4e3909d6e2e7e4a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3942c5f5427cf551d4e3909d6e2e7e4a">&#9670;&#160;</a></span>strong</h2>
+<a id="a77861cfb4c1bbc009f783410f5f78576" name="a77861cfb4c1bbc009f783410f5f78576"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a77861cfb4c1bbc009f783410f5f78576">&#9670;&#160;</a></span>resolved_msk</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1867,7 +2010,7 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a> bc::bc_t::strong = .true.</td>
+          <td class="memname">type(mask_t) mixed_bc::mixed_bc_t::resolved_msk</td>
         </tr>
       </table>
   </td>
@@ -1877,7 +2020,55 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00085">85</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d10/mixed__bc_8f90_source.html#l00057">57</a> of file <a class="el" href="../../dd/d10/mixed__bc_8f90_source.html">mixed_bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="a264199743aeb1c5962f149d7dd04f25d" name="a264199743aeb1c5962f149d7dd04f25d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a264199743aeb1c5962f149d7dd04f25d">&#9670;&#160;</a></span>t1</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(matrix_t) mixed_bc::mixed_bc_t::t1</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d10/mixed__bc_8f90_source.html#l00060">60</a> of file <a class="el" href="../../dd/d10/mixed__bc_8f90_source.html">mixed_bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="a40910908ae78f79aa27e33554fec85f4" name="a40910908ae78f79aa27e33554fec85f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a40910908ae78f79aa27e33554fec85f4">&#9670;&#160;</a></span>t2</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(matrix_t) mixed_bc::mixed_bc_t::t2</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d10/mixed__bc_8f90_source.html#l00061">61</a> of file <a class="el" href="../../dd/d10/mixed__bc_8f90_source.html">mixed_bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1901,7 +2092,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00088">88</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00099">99</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1925,7 +2116,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00074">74</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00086">86</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1949,7 +2140,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00092">92</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00103">103</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1962,7 +2153,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d1/d70/namespacesymmetry.html">symmetry</a></li><li class="navelem"><a class="el" href="../../d1/d83/structsymmetry_1_1symmetry__t.html">symmetry_t</a></li>
-    <li class="footer">Generated on Fri Aug 28 2026 06:09:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 29 2026 03:37:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

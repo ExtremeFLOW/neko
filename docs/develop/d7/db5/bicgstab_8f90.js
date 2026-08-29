@@ -5,7 +5,7 @@ var bicgstab_8f90 =
     [ "bicgstab_free", "d7/db5/bicgstab_8f90.html#a50fc62ca44c0a20bee7c08309b2078c7", null ],
     [ "bicgstab_init", "d7/db5/bicgstab_8f90.html#a390f94becd3e71577c6d7dee81acfd31", null ],
     [ "bicgstab_product_and_norm", "d7/db5/bicgstab_8f90.html#a2a277168559b45a87721ec97194abb29", null ],
-    [ "bicgstab_solve", "d7/db5/bicgstab_8f90.html#af95e1c5813a5792173b519b09fea8270", null ],
-    [ "bicgstab_solve_coupled", "d7/db5/bicgstab_8f90.html#afa009e83cc4ee81d8ae9116e8db72521", null ],
+    [ "bicgstab_solve", "d7/db5/bicgstab_8f90.html#a522da1d2a6760edfb24c871643b421aa", null ],
+    [ "bicgstab_solve_coupled", "d7/db5/bicgstab_8f90.html#aafe92de18dad7bd28f80aea43b93189d", null ],
     [ "bicgstab_sqrt", "d7/db5/bicgstab_8f90.html#a173a4513fa6c5a632e54bff40bd47ebc", null ]
 ];

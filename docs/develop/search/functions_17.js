@@ -29,7 +29,7 @@ var searchData=
   ['wall_5fmodel_5fbc_5fapply_5fscalar_5fdev_26',['wall_model_bc_apply_scalar_dev',['../de/d2c/namespacewall__model__bc.html#a95f9ee1aefd4a8d796e20dcad5b7a48e',1,'wall_model_bc']]],
   ['wall_5fmodel_5fbc_5fapply_5fvector_27',['wall_model_bc_apply_vector',['../de/d2c/namespacewall__model__bc.html#aa6a1f60c881353667e37c21d5df8f60c',1,'wall_model_bc']]],
   ['wall_5fmodel_5fbc_5fapply_5fvector_5fdev_28',['wall_model_bc_apply_vector_dev',['../de/d2c/namespacewall__model__bc.html#aa4b69e40171d3a645ecb81f560aea3f8',1,'wall_model_bc']]],
-  ['wall_5fmodel_5fbc_5ffinalize_29',['wall_model_bc_finalize',['../de/d2c/namespacewall__model__bc.html#ad9c7e60a621228c20bbdc5d12a1b70b9',1,'wall_model_bc']]],
+  ['wall_5fmodel_5fbc_5ffinalize_29',['wall_model_bc_finalize',['../de/d2c/namespacewall__model__bc.html#aeff3bf260fc4e514fabc578968ebf075',1,'wall_model_bc']]],
   ['wall_5fmodel_5fbc_5ffree_30',['wall_model_bc_free',['../de/d2c/namespacewall__model__bc.html#ad3e7b1c164c00da285f459828735c388',1,'wall_model_bc']]],
   ['wall_5fmodel_5fbc_5finit_31',['wall_model_bc_init',['../de/d2c/namespacewall__model__bc.html#a2f923840cf64bcda15836c7a3e5a4d81',1,'wall_model_bc']]],
   ['wall_5fmodel_5fcompute_32',['wall_model_compute',['../dc/dae/interfacewall__model_1_1wall__model__compute.html#af27f0e29481fa3d03ed633bbd602f0b1',1,'wall_model::wall_model_compute']]],

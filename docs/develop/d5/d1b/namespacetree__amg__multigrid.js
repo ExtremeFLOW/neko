@@ -10,7 +10,7 @@ var namespacetree__amg__multigrid =
     [ "tamg_mg_cycle", "d5/d1b/namespacetree__amg__multigrid.html#ad8909c9e701623c78bcd446fcc2ef26a", null ],
     [ "tamg_mg_cycle_d", "d5/d1b/namespacetree__amg__multigrid.html#a160ca818a271b189feef3c98be6004a6", null ],
     [ "tamg_mg_free", "d5/d1b/namespacetree__amg__multigrid.html#a65c0c758529c9d6528b86d914f7c95f6", null ],
-    [ "tamg_mg_init", "d5/d1b/namespacetree__amg__multigrid.html#afdfe654db71422a5240a588dd522768d", null ],
+    [ "tamg_mg_init", "d5/d1b/namespacetree__amg__multigrid.html#a1c25f4c912c4d5e3cb04d6767af80a7b", null ],
     [ "tamg_mg_invalidate_eigs", "d5/d1b/namespacetree__amg__multigrid.html#a5bb1ff1d3db9eb04afc3a7010bf30d2d", null ],
     [ "tamg_mg_set_eig_refresh", "d5/d1b/namespacetree__amg__multigrid.html#a0d435a1bb5a19bbc7f9912ba9088270e", null ],
     [ "tamg_mg_solve", "d5/d1b/namespacetree__amg__multigrid.html#aceff3d75610ff13856f0687a6c1c8343", null ]

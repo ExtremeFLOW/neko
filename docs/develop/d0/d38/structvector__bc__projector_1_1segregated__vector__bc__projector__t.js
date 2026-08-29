@@ -1,0 +1,26 @@
+var structvector__bc__projector_1_1segregated__vector__bc__projector__t =
+[
+    [ "apply", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a3a8c00f592e20c2d00a1c0fa65d5b6a3", null ],
+    [ "apply", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#acc15bfd567d039ba82a14f94e655cbb2", null ],
+    [ "finalize", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a4f35c610cb60c5fcf879c3516d32215b", null ],
+    [ "finalize", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a8a185446b625522bbafdb53f97bb58f5", null ],
+    [ "free", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a65d523543f8cd0ad95af699e55a45714", null ],
+    [ "free", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a85f9b06b65ca0529479bed063793a70e", null ],
+    [ "init", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#ad9a783e4f01e83f5930950a9f538f6be", null ],
+    [ "init", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a6a132ad0170026450fdfb1e78ea595b1", null ],
+    [ "mark", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a70c6dc155a6bd4f6f4c085d547ef345f", null ],
+    [ "mark", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#ae989c5d24b57a9dea7bbf38c1f9bc282", null ],
+    [ "mark", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a168c0182398d85a888ee52aa56f7899e", null ],
+    [ "mark", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#aac39e380be771cff5a4a2a6cd2a4175f", null ],
+    [ "mark_bc", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#ae317a3f7342e4874694eedff07ec1855", null ],
+    [ "mark_bc", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#aab9d45e503880879e741325956f02ec4", null ],
+    [ "mark_bc_component", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a24743f0629ef3db699ef41be369d6c88", null ],
+    [ "mark_bc_component", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a04821ec6e9b3d0c7f7723eb5daa33fee", null ],
+    [ "mark_bc_list", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#aa274c57dfb00b64ed0ee584791f5fe0f", null ],
+    [ "mark_bc_list", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a7d348c04e9e8d18def082a82cb1a3636", null ],
+    [ "mark_bc_list_component", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a3860ae605dd65bf23ea299bda7b3ed90", null ],
+    [ "mark_bc_list_component", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#ada030a8e738b277327bb1e57e0d12165", null ],
+    [ "x", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a16012677300890d9f6b43fbbb504354f", null ],
+    [ "y", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#ac9e960e28daeb03973d2d44f02372994", null ],
+    [ "z", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html#a5532b74bf10677151b410fc69eb54569", null ]
+];

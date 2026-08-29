@@ -46,11 +46,11 @@
 <area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="471,366,382,366,382,361,471,361"/>
 <area shape="rect" id="Node000017" href="$de/df2/namespacegmres__device.html#a0a158df824f0f1613e4f18806ea3a81e" title=" " alt="" coords="251,401,415,441"/>
 <area shape="poly" id="edge16_Node000016_Node000017" title=" " alt="" coords="491,418,415,421,415,415,491,413"/>
-<area shape="rect" id="Node000018" href="$de/df2/namespacegmres__device.html#a269f2ad33b34a082f5267c088138c5a1" title="Standard GMRES solve." alt="" coords="15,401,178,441"/>
+<area shape="rect" id="Node000018" href="$de/df2/namespacegmres__device.html#acdfd846f0f2c95fed9ed788773cbc6b4" title="Standard GMRES solve." alt="" coords="15,401,178,441"/>
 <area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="237,423,178,423,178,418,237,418"/>
 <area shape="rect" id="Node000021" href="$dd/d04/namespacefusedcg__device.html#a37d7ee87c969306b6428c008592d4646" title=" " alt="" coords="246,465,421,505"/>
 <area shape="poly" id="edge20_Node000020_Node000021" title=" " alt="" coords="491,505,421,497,421,492,492,499"/>
-<area shape="rect" id="Node000022" href="$dd/d04/namespacefusedcg__device.html#abfce590eb7c6404bf4f2f3f7422cf080" title="Pipelined PCG solve." alt="" coords="5,465,188,505"/>
+<area shape="rect" id="Node000022" href="$dd/d04/namespacefusedcg__device.html#aa3a07e16519ee1e35e9571215cfed260" title="Pipelined PCG solve." alt="" coords="5,465,188,505"/>
 <area shape="poly" id="edge21_Node000021_Node000022" title=" " alt="" coords="232,487,188,487,188,482,232,482"/>
 <area shape="rect" id="Node000025" href="$de/d9b/math_8hip.html#a729a6353677f13b259b0660500cf1289" title=" " alt="" coords="292,529,375,555"/>
 <area shape="poly" id="edge24_Node000024_Node000025" title=" " alt="" coords="508,596,478,587,430,569,374,553,375,548,432,563,480,582,510,591"/>

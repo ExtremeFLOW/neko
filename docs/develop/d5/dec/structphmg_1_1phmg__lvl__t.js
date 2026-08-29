@@ -1,7 +1,7 @@
 var structphmg_1_1phmg__lvl__t =
 [
     [ "bc", "d5/dec/structphmg_1_1phmg__lvl__t.html#a249db22cb401298f5d87f25327a0b29b", null ],
-    [ "bclst", "d5/dec/structphmg_1_1phmg__lvl__t.html#a031aee71b199aafb2631cb4c790c9df3", null ],
+    [ "bc_projector", "d5/dec/structphmg_1_1phmg__lvl__t.html#a01065362d25cadbb1b93108c33d2f96e", null ],
     [ "cheby", "d5/dec/structphmg_1_1phmg__lvl__t.html#a7a293db7f9ac8df61dd079b8b5a5edb5", null ],
     [ "cheby_device", "d5/dec/structphmg_1_1phmg__lvl__t.html#aa39997738b3e77b1211a4f8de05a4774", null ],
     [ "coef", "d5/dec/structphmg_1_1phmg__lvl__t.html#aa034e3c5361f077d56a98d7d4d0f9125", null ],

@@ -1,0 +1,5 @@
+<map id="bc::bc_mark_labeled_zone" name="bc::bc_mark_labeled_zone">
+<area shape="rect" id="Node000001" title="Mark all facets from a labeled zone." alt="" coords="5,5,200,31"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="248,5,396,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,15,234,15,234,21,200,21"/>
+</map>

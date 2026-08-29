@@ -117,7 +117,7 @@ $(document).ready(function(){initNavTree('globals_n.html',''); initResizable(); 
 <li>NEKO_CHUNKS&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#aab4789eb81e0bfbeac8cc3504c92e2a7">elem_block.h</a></li>
 <li>NEKO_CHUNKS_CANDIDATES&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#a7dd9e042115b1383492628d27a9f1a60">elem_block.h</a></li>
 <li>neko_chunks_env()&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#abe18bd6491550b2229dc2d936452600e">elem_block_tune.h</a></li>
-<li>NEKO_CHUNKS_NTHRDS&#160;:&#160;<a class="el" href="d1/d1c/hip_2elem__block_8h.html#ad7356aa2983bd1331438bcf6af92ffbe">elem_block.h</a></li>
+<li>NEKO_CHUNKS_NTHRDS&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#ad7356aa2983bd1331438bcf6af92ffbe">elem_block.h</a></li>
 <li>NEKO_CHUNKS_SEL&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#afb0e5ae829cf069a85450059b52a4826">elem_block.h</a></li>
 <li>NEKO_COMM&#160;:&#160;<a class="el" href="d8/db4/comm_8h.html#a5f6af647bf5078d75f1b6b0889de43cd">comm.h</a>, <a class="el" href="d4/de4/comm__wrapper_8c.html#a5f6af647bf5078d75f1b6b0889de43cd">comm_wrapper.c</a></li>
 <li>neko_comm_wrapper_init()&#160;:&#160;<a class="el" href="d4/de4/comm__wrapper_8c.html#acac1f8dfbd4a50a78c202ccd02fa7a74">comm_wrapper.c</a></li>
@@ -132,6 +132,8 @@ $(document).ready(function(){initNavTree('globals_n.html',''); initResizable(); 
 <li>NEKO_DMMA_NW&#160;:&#160;<a class="el" href="d3/d60/dmma__kernel_8h.html#a84e249ac011f2d27e12f047fb131c317">dmma_kernel.h</a></li>
 <li>NEKO_DMMA_PACK&#160;:&#160;<a class="el" href="d3/d60/dmma__kernel_8h.html#a475a0014bdfe8c10e9efe99f5e848a75">dmma_kernel.h</a></li>
 <li>NEKO_DMMA_PPA&#160;:&#160;<a class="el" href="d3/d60/dmma__kernel_8h.html#ac783d1eeaf03e71ca0098067a347ea49">dmma_kernel.h</a></li>
+<li>NEKO_DMMA_TMA_BATCH_SMEM&#160;:&#160;<a class="el" href="dd/df9/dmma__tma__kernel_8h.html#ac236d6a59375cc2eca5c0f0bcc18b0e6">dmma_tma_kernel.h</a></li>
+<li>neko_dmma_tma_env()&#160;:&#160;<a class="el" href="dd/df9/dmma__tma__kernel_8h.html#ab534bb4f8e1c9e05416224e9a30c0690">dmma_tma_kernel.h</a></li>
 <li>NEKO_EB&#160;:&#160;<a class="el" href="d1/d1c/hip_2elem__block_8h.html#a05ed0ecdef6017474cc5410660edfa83">elem_block.h</a></li>
 <li>NEKO_EB_BOUNDS&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#a742e85b6067177d2f221ba6e09687001">elem_block.h</a></li>
 <li>NEKO_EB_CANDIDATES&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#ad2ac46012ed7f6d4c5601d06ada8ee76">elem_block.h</a></li>
@@ -142,7 +144,7 @@ $(document).ready(function(){initNavTree('globals_n.html',''); initResizable(); 
 <li>NEKO_EB_MIN_WAVES_EU&#160;:&#160;<a class="el" href="d1/d1c/hip_2elem__block_8h.html#ae3d545568a717f31f236b94a42ce3af9">elem_block.h</a></li>
 <li>NEKO_EB_NBLCKS&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#a75c9afb15557ad911b7754eb416f883a">elem_block.h</a></li>
 <li>NEKO_EB_NTHRDS&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#ae9a3e8a2d588f120eddf349dc5533752">elem_block.h</a></li>
-<li>NEKO_EB_SEL&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#ae178dd5571078a283d9e163f0601583e">elem_block.h</a></li>
+<li>NEKO_EB_SEL&#160;:&#160;<a class="el" href="d1/d1c/hip_2elem__block_8h.html#ae178dd5571078a283d9e163f0601583e">elem_block.h</a></li>
 <li>neko_eb_sweep()&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#ac8dde0b8d9ebba281727a2ecc4cc08bb">elem_block_tune.h</a></li>
 <li>NEKO_EB_SWEEP_DEFAULT&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#a037aa8de67f6f5ba208b488610efc315">elem_block_tune.h</a></li>
 <li>NEKO_EB_WAVE&#160;:&#160;<a class="el" href="d1/d1c/hip_2elem__block_8h.html#a865031c06e94d06069d5ccf352075fef">elem_block.h</a></li>
@@ -177,14 +179,18 @@ $(document).ready(function(){initNavTree('globals_n.html',''); initResizable(); 
 <li>neko_solve()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#a937491990815e3e52c66bb02f86353b9">neko.h</a></li>
 <li>neko_source_term_cb&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#a140aa32d80cbe3c4f8093e8e3b832541">neko.h</a></li>
 <li>neko_step()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#a02ef7d9d94140acc06c4e994ae456c50">neko.h</a></li>
-<li>NEKO_TUNE_BEST&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#a7ee909410fb18e18f8922d058e3815a0">elem_block_tune.h</a></li>
+<li>NEKO_TMA_TOOLKIT&#160;:&#160;<a class="el" href="dd/df9/dmma__tma__kernel_8h.html#ab7d1ab55efc5b16033b27fda37cf94bb">dmma_tma_kernel.h</a></li>
+<li>NEKO_TUNE_BEST&#160;:&#160;<a class="el" href="d7/df2/hip_2elem__block__tune_8h.html#a7ee909410fb18e18f8922d058e3815a0">elem_block_tune.h</a></li>
 <li>NEKO_TUNE_INIT&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#a646ee7c3605c0d9875e06fb0b8894d67">elem_block_tune.h</a></li>
 <li>neko_tune_iters()&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#a90ad1bd2cd38c6c82c13b8dbfbad4e63">elem_block_tune.h</a></li>
 <li>NEKO_TUNE_LOG&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#a4b5e764b94acd23308a10278cc5b1a9b">elem_block_tune.h</a></li>
 <li>NEKO_TUNE_LOG_DMMA&#160;:&#160;<a class="el" href="d3/d60/dmma__kernel_8h.html#a81ffe35af497fca9150f3fa8002a71aa">dmma_kernel.h</a></li>
+<li>NEKO_TUNE_LOG_DMMA_TMA&#160;:&#160;<a class="el" href="dd/df9/dmma__tma__kernel_8h.html#a451449478b15dc6793a743ed1871f495">dmma_tma_kernel.h</a></li>
+<li>NEKO_TUNE_LOG_DMMA_TMA_BATCH&#160;:&#160;<a class="el" href="dd/df9/dmma__tma__kernel_8h.html#a0d286985a3ef05249d03a9e4ed8cc20e">dmma_tma_kernel.h</a></li>
 <li>NEKO_TUNE_LOG_MFMA&#160;:&#160;<a class="el" href="d7/d35/mfma__kernel_8h.html#a19ab622659a236578bf45773c30bac8d">mfma_kernel.h</a></li>
 <li>neko_tune_rounds()&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#a43bb8b89362950c0edd57163c18933b1">elem_block_tune.h</a></li>
-<li>NEKO_TUNE_TIME&#160;:&#160;<a class="el" href="d7/df2/hip_2elem__block__tune_8h.html#a250188824c14b638c09e18f4909198fd">elem_block_tune.h</a></li>
+<li>NEKO_TUNE_TIME&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#a250188824c14b638c09e18f4909198fd">elem_block_tune.h</a></li>
+<li>NEKO_TUNE_US&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#a31d72213f07273d53ede6595be9d9a1e">elem_block_tune.h</a></li>
 <li>NEKO_TUNE_WARMUP&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#aed9e9add51fc2b7a20bd2f6a45468f8f">elem_block_tune.h</a></li>
 <li>neko_user_setup()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#ab61fcf82034055cbd9525439b5e73ecf">neko.h</a></li>
 <li>NEKO_WAVE_SIZE&#160;:&#160;<a class="el" href="dc/d61/wave_8h.html#a73f1e6cc21422fe71fbb14ae8f60a57d">wave.h</a></li>
@@ -203,7 +209,7 @@ $(document).ready(function(){initNavTree('globals_n.html',''); initResizable(); 
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Fri Aug 28 2026 06:09:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 29 2026 03:37:33 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

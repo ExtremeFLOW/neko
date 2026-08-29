@@ -195,7 +195,7 @@ Device code</h2>
 <li>Wrapper routines, calling the correct backend kernel, depending on the device Neko has been compiled for.</li>
 <li>Several <code>interface</code> blocks, for the backend kernels, which are essentially glue between Fortran and the actual backend code, which is called from a C routine. This is standard "C interoperability" stuff, which you can read about in books or online.</li>
 </ul>
-<p>Let's take a look at <code><a class="el" href="../../dd/d9a/device__symmetry_8F90.html">device_symmetry.F90</a></code>. It contains one subroutine, <code>device_symmetry_apply_vector</code>, that just dispatches the call to one of the backends, via the corresponding interfaces defined in the beginning of the file. If we now go back to <code><a class="el" href="../../d2/d3a/symmetry_8f90.html">symmetry.f90</a></code>, we see that it imports this routine, and calls it inside <code>symmetry_apply_vector_dev</code>.</p>
+<p>Let's take a look at <code>device_symmetry.F90</code>. It contains one subroutine, <code>device_symmetry_apply_vector</code>, that just dispatches the call to one of the backends, via the corresponding interfaces defined in the beginning of the file. If we now go back to <code><a class="el" href="../../d2/d3a/symmetry_8f90.html">symmetry.f90</a></code>, we see that it imports this routine, and calls it inside <code>symmetry_apply_vector_dev</code>.</p>
 <p>Since the <code>.F90</code>s are ordinary Fortran files, they are also added to the build system in the already specified way.</p>
 <p>Now we leave the familiar Fortran territory and look at individual backends. Generally, CUDA and HIP are very similar (in fact, even the code of the kernels is often pretty much a copy-paste), so we will look at CUDA in detail and then quickly mentioned adjustments for HIP. OpenCL is a different beast, but the pattern is still quite similar.</p>
 <h3><a class="anchor" id="autotoc_md52"></a>
@@ -244,7 +244,7 @@ OpenCL</h3>
 </ul>
 <p>Note that the <code>.c</code> files contain also the following <code>include</code> statement. </p><div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="../../d1/df7/prgm__lib_8h.html">device/opencl/prgm_lib.h</a>&gt;</span></div>
 <div class="ttc" id="aprgm__lib_8h_html"><div class="ttname"><a href="../../d1/df7/prgm__lib_8h.html">prgm_lib.h</a></div></div>
-</div><!-- fragment --><p> This is an important file, which we have to modify to register our kernel. Each OpenCL kernel has an associated <code>_program</code>, for example, if you look at <code><a class="el" href="../../d6/d04/symmetry_8c.html">symmetry.c</a></code>, you will see the variable <code>symmetry_program</code> used in a few places. This is not really important for the implementation per se, but the point is that twe have to define these <code>*_program</code> variables somewhere, and in Neko this is done in two files. One is the above mentioned <code><a class="el" href="../../d1/df7/prgm__lib_8h.html">src/device/opencl/prgm_lib.h</a></code>, where you can find </p><div class="fragment"><div class="line"> </div>
+</div><!-- fragment --><p> This is an important file, which we have to modify to register our kernel. Each OpenCL kernel has an associated <code>_program</code>, for example, if you look at <code>symmetry.c</code>, you will see the variable <code>symmetry_program</code> used in a few places. This is not really important for the implementation per se, but the point is that twe have to define these <code>*_program</code> variables somewhere, and in Neko this is done in two files. One is the above mentioned <code><a class="el" href="../../d1/df7/prgm__lib_8h.html">src/device/opencl/prgm_lib.h</a></code>, where you can find </p><div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">extern</span> <span class="keywordtype">void</span> *<a class="code hl_variable" href="../../d1/df7/prgm__lib_8h.html#ae93fd324a82c664649662c6b9ee4b5d4">symmetry_program</a>;</div>
 <div class="ttc" id="aprgm__lib_8h_html_ae93fd324a82c664649662c6b9ee4b5d4"><div class="ttname"><a href="../../d1/df7/prgm__lib_8h.html#ae93fd324a82c664649662c6b9ee4b5d4">symmetry_program</a></div><div class="ttdeci">void * symmetry_program</div></div>
 </div><!-- fragment --><p> One needs to add a similar line for the <code>_program</code> corresponding to the new kernel. The other file is very similar, but written in Fortran: <code>src/device/opencl/prh_lib.F90</code>. Here you can e.g. find</p>
@@ -292,7 +292,7 @@ Summary of build system entires</h3>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dc/d70/developer-guide.html">Developer guide</a></li>
-    <li class="footer">Generated on Fri Aug 28 2026 06:09:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 29 2026 03:37:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

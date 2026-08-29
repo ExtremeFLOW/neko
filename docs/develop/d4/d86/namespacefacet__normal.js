@@ -7,7 +7,7 @@ var namespacefacet__normal =
     [ "facet_normal_apply_surfvec_dev", "d4/d86/namespacefacet__normal.html#a93d2f3b5fd10d1a5338fc2b2712a4149", null ],
     [ "facet_normal_apply_vector", "d4/d86/namespacefacet__normal.html#ac3cb92360f87b34254c0f96f8283a804", null ],
     [ "facet_normal_apply_vector_dev", "d4/d86/namespacefacet__normal.html#a0dfb152292d34a404a140d4889b70369", null ],
-    [ "facet_normal_finalize", "d4/d86/namespacefacet__normal.html#a502236e464de9cffcb8dc3d57a90c127", null ],
+    [ "facet_normal_finalize", "d4/d86/namespacefacet__normal.html#a768766317a7dac05358d4cf78d62793f", null ],
     [ "facet_normal_free", "d4/d86/namespacefacet__normal.html#ac75a7a7cab309e146a490a1c3d1c0496", null ],
     [ "facet_normal_init", "d4/d86/namespacefacet__normal.html#a55d70216af590fcbacba5aebe1ba6b02", null ],
     [ "facet_normal_init_from_components", "d4/d86/namespacefacet__normal.html#a019c46737dca3acfe755c9ba63e04456", null ],

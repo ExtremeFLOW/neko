@@ -119,7 +119,7 @@ struct ax_helm_dmma_vector_dispatch&lt; T, LX, NW &gt;</div><p>Device kernel for
 <p>Note the padded entries of a staged cube only have to be <em>finite</em>, not zero. A padded row of the derivative matrix is zero and kills the contribution of a padded row of the cube, but 0 * NaN would not, so the cube is zeroed once before its first use and then left to carry whatever the contractions put there. That is why the component loop below re-stages only the LX^3 real points and never clears the padding again.</p>
 <p>Measured on GH200 at lx = 8 this loses to the kstep variant: holding the factors costs enough occupancy (~60 registers of metrics at nw = 4, against the scalar kernel's handful) to give back more than the access pattern wins. It is kept for the low order end, where PPT falls to 1 and the register cost with it, while the shared memory footprint stays flat. The autotuner decides. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html#l01320">1320</a> of file <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html#l01572">1572</a> of file <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a90aba570d4c5d50eb932559f22d0c772" name="a90aba570d4c5d50eb932559f22d0c772"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a90aba570d4c5d50eb932559f22d0c772">&#9670;&#160;</a></span>run()</h2>
@@ -241,7 +241,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html#l01321">1321</a> of file <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html#l01573">1573</a> of file <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 
 </div>
 </div>
@@ -254,7 +254,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/d57/structax__helm__dmma__vector__dispatch.html">ax_helm_dmma_vector_dispatch</a></li>
-    <li class="footer">Generated on Fri Aug 28 2026 06:09:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 29 2026 03:37:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,6 +1,6 @@
 <map id="device_math::device_vdot3" name="device_math::device_vdot3">
 <area shape="rect" id="Node000001" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="483,163,640,203"/>
-<area shape="rect" id="Node000002" href="$db/d3d/namespacecg__cpld__device.html#a4dd7a1a0cb377e19f6c17407064e198b" title="Standard PCG solve." alt="" coords="275,5,423,45"/>
+<area shape="rect" id="Node000002" href="$db/d3d/namespacecg__cpld__device.html#aee48cbe7ca732d6096b89bae72a0d968" title="Standard PCG solve." alt="" coords="275,5,423,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="534,154,490,106,433,60,411,48,414,43,436,55,493,102,538,150"/>
 <area shape="rect" id="Node000003" href="$d9/df7/namespaceadv__dealias.html#a4ad2c5d9b00cd1275c1786415a359ab9" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="267,69,432,109"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="508,159,434,124,405,112,407,107,436,119,510,154"/>

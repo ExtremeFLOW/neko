@@ -1,20 +1,20 @@
 <map id="device_math::device_glsc3" name="device_math::device_glsc3">
 <area shape="rect" id="Node000001" title="Weighted inner product ." alt="" coords="457,156,615,196"/>
-<area shape="rect" id="Node000002" href="$d6/d60/namespacecg__device.html#a0e61c9447cf557811c5f8d566bc6ce5d" title="Standard PCG solve." alt="" coords="245,5,405,45"/>
+<area shape="rect" id="Node000002" href="$d6/d60/namespacecg__device.html#ae0dce602ffa645c2ba6380f6ed7d6d09" title="Standard PCG solve." alt="" coords="245,5,405,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="507,148,463,103,408,60,385,48,388,43,411,55,467,99,511,144"/>
-<area shape="rect" id="Node000003" href="$d4/dc5/namespacecheby__device.html#ac74f17f6b4fa300083abdc31f3e98693" title=" " alt="" coords="246,69,405,109"/>
+<area shape="rect" id="Node000003" href="$d4/dc5/namespacecheby__device.html#a2a1c1771a60c554e2d2181b843802534" title=" " alt="" coords="246,69,405,109"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="476,153,408,124,379,112,381,107,410,119,478,148"/>
 <area shape="rect" id="Node000006" href="$d5/de6/namespacefield__math.html#ad4771a764f05b8b745e4de4a5b9573ab" title=" " alt="" coords="241,134,409,159"/>
 <area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="444,166,409,161,410,156,444,161"/>
 <area shape="rect" id="Node000007" href="$dc/d12/namespacematrix__math.html#a799a21b14e5cf9f8e45b40ecd13cd0e7" title="Global inner product of three matrices ." alt="" coords="247,184,404,224"/>
 <area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="444,191,405,196,404,191,443,186"/>
-<area shape="rect" id="Node000008" href="$da/d46/namespacepipecg__device.html#af8b348213f1bde50d210f885ae0dd66a" title="Pipelined PCG solve." alt="" coords="242,248,409,288"/>
+<area shape="rect" id="Node000008" href="$da/d46/namespacepipecg__device.html#a7668ed15eabc2865fb0bc57ad3c1f8f5" title="Pipelined PCG solve." alt="" coords="242,248,409,288"/>
 <area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="483,205,410,238,381,250,379,245,408,234,481,200"/>
 <area shape="rect" id="Node000009" href="$d3/d0d/namespacevector__math.html#a22f87d8888f31b8cadc879fd56ed03f4" title=" " alt="" coords="249,312,402,352"/>
 <area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="512,208,468,256,411,302,389,314,386,310,408,298,464,252,508,205"/>
-<area shape="rect" id="Node000004" href="$d4/dc5/namespacecheby__device.html#af7ddf3344912ba0450cd079cec7e5929" title="A chebyshev preconditioner." alt="" coords="20,37,179,77"/>
+<area shape="rect" id="Node000004" href="$d4/dc5/namespacecheby__device.html#a3adc08fbdae38be8c41c033b9a12d2ea" title="A chebyshev preconditioner." alt="" coords="20,37,179,77"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="232,79,178,71,179,66,233,74"/>
-<area shape="rect" id="Node000005" href="$d4/dc5/namespacecheby__device.html#a9e071811daf316169a425a385bf6d80c" title="A chebyshev preconditioner." alt="" coords="20,101,179,141"/>
+<area shape="rect" id="Node000005" href="$d4/dc5/namespacecheby__device.html#ac13beacf4f8644133441e750bc51c850" title="A chebyshev preconditioner." alt="" coords="20,101,179,141"/>
 <area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="233,105,179,113,178,108,232,100"/>
 <area shape="rect" id="Node000010" href="$df/dd1/namespaceboundary__data.html#a58417ef8c29bfdf59fee42c30e0afa1a" title="Flux of a vector quantity through the zones." alt="" coords="5,212,193,252"/>
 <area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="253,309,240,302,216,284,192,266,166,255,168,250,195,262,219,280,243,298,255,304"/>

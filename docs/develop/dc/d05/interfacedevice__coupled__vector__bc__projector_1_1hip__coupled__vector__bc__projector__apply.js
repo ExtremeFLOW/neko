@@ -1,0 +1,4 @@
+var interfacedevice__coupled__vector__bc__projector_1_1hip__coupled__vector__bc__projector__apply =
+[
+    [ "hip_coupled_vector_bc_projector_apply", "dc/d05/interfacedevice__coupled__vector__bc__projector_1_1hip__coupled__vector__bc__projector__apply.html#a81765533a828fb6cf8caec524f025a6e", null ]
+];

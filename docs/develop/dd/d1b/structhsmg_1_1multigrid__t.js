@@ -1,6 +1,6 @@
 var structhsmg_1_1multigrid__t =
 [
-    [ "bclst", "dd/d1b/structhsmg_1_1multigrid__t.html#af855eb8f907d4ca50016524a77ae487d", null ],
+    [ "bc_projector", "dd/d1b/structhsmg_1_1multigrid__t.html#a3f5a3992fb3ec96e4e88a1b3905c519e", null ],
     [ "coef", "dd/d1b/structhsmg_1_1multigrid__t.html#a3a99b4ffee9862ac4948601db79b4195", null ],
     [ "dof", "dd/d1b/structhsmg_1_1multigrid__t.html#a2fca618716aa271714b9f6fe96bcfbe4", null ],
     [ "e", "dd/d1b/structhsmg_1_1multigrid__t.html#a371d1b944f8a710324ae6e01e3afb33e", null ],

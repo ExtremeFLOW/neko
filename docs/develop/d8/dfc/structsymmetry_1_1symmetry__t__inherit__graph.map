@@ -1,7 +1,7 @@
 <map id="symmetry::symmetry_t" name="symmetry::symmetry_t">
-<area shape="rect" id="Node000001" title="Mixed Dirichlet&#45;Neumann symmetry plane condition." alt="" coords="16,79,191,104"/>
-<area shape="rect" id="Node000003" href="$da/d18/structnon__normal_1_1non__normal__t.html" title="Dirichlet condition in non normal direction of a plane." alt="" coords="5,152,201,177"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="106,118,106,152,101,152,101,118"/>
-<area shape="rect" id="Node000002" href="$d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="67,5,139,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,44,106,79,101,79,101,44"/>
+<area shape="rect" id="Node000001" title="Symmetry boundary condition constraining the normal vector component." alt="" coords="5,152,180,177"/>
+<area shape="rect" id="Node000002" href="$d0/de5/structmixed__bc_1_1mixed__bc__t.html" title="Base type for mixed boundary conditions that need projector&#45;provided local&#45;basis data on the physical..." alt="" coords="9,79,176,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,118,95,152,90,152,90,118"/>
+<area shape="rect" id="Node000003" href="$d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="57,5,129,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="95,44,95,79,90,79,90,44"/>
 </map>

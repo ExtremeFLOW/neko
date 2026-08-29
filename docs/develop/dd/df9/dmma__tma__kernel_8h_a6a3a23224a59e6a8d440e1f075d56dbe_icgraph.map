@@ -1,0 +1,17 @@
+<map id="tma_arch_compiled" name="tma_arch_compiled">
+<area shape="rect" id="Node000001" title=" " alt="" coords="597,86,748,111"/>
+<area shape="rect" id="Node000002" href="$dd/df9/dmma__tma__kernel_8h.html#af4d307d5aa3331f6ab58b8a854118448" title=" " alt="" coords="424,86,549,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="584,101,549,101,549,96,584,96"/>
+<area shape="rect" id="Node000003" href="$dd/df9/dmma__tma__kernel_8h.html#a3b945d51a35de34bede651e3cf7c9179" title=" " alt="" coords="208,35,376,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="423,85,341,63,342,58,424,80"/>
+<area shape="rect" id="Node000004" href="$db/d49/ax__helm_8cu.html#a406e27f1a0b961496e1d753296d41669" title=" " alt="" coords="33,11,132,36"/>
+<area shape="poly" id="edge7_Node000002_Node000004" title=" " alt="" coords="461,78,423,48,400,35,375,25,311,12,245,8,184,11,133,17,132,12,184,6,245,3,312,6,377,20,402,30,426,44,464,74"/>
+<area shape="rect" id="Node000005" href="$db/d49/ax__helm_8cu.html#afc03536acb82bb517bf0abeb6980e0af" title=" " alt="" coords="5,60,160,86"/>
+<area shape="poly" id="edge8_Node000002_Node000005" title=" " alt="" coords="410,96,160,80,160,75,411,91"/>
+<area shape="rect" id="Node000006" href="$db/d49/ax__helm_8cu.html#ab4687a68902932658eafcf1e3cbe7013" title=" " alt="" coords="267,136,317,162"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="425,117,318,145,317,140,423,112"/>
+<area shape="rect" id="Node000007" href="$db/d49/ax__helm_8cu.html#a5067b6c7d22c0fa794b7d72582b72e39" title=" " alt="" coords="239,186,345,211"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="461,122,423,150,377,177,346,188,344,184,375,172,420,146,458,118"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="194,39,132,32,133,27,195,34"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="195,62,161,66,160,61,194,57"/>
+</map>

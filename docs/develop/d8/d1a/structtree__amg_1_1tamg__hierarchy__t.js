@@ -2,7 +2,7 @@ var structtree__amg_1_1tamg__hierarchy__t =
 [
     [ "device_matvec", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a0d96163f772b2c0804305f6ac7b6ac98", null ],
     [ "free", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#ab822f319268bcc7d60bc0d76f9dd7edb", null ],
-    [ "init", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a534b63142982f44510596d33e33966f2", null ],
+    [ "init", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a8352525e26ef1573d1659e7f4eb1025f", null ],
     [ "interp_c2f", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a747c7fb7d972c9acf26d42645607ccd9", null ],
     [ "interp_c2f_d", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a7cb6607c9e2c5ad494c124a78babb630", null ],
     [ "interp_f2c", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#ae9785e6245e01bc841e6080d0c98d382", null ],
@@ -10,7 +10,7 @@ var structtree__amg_1_1tamg__hierarchy__t =
     [ "matvec", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a4bd94a4fad3154c7533bdd0226358881", null ],
     [ "matvec_impl", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a374e8ec8b01070865c9eabad7e91eab3", null ],
     [ "ax", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#adf0693c6572c5da3eabd9acabb4ac53d", null ],
-    [ "blst", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a4d39858e7d8ca3d011382fba26cdaaad", null ],
+    [ "bc_projector", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a2cc86e963bceb0579e1952565ce649c5", null ],
     [ "coef", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a88d0affa02a859175765196f0ffc2c82", null ],
     [ "gs_h", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a7fbbf6ef85b41552add8c0dacb7261b5", null ],
     [ "lvl", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a7e20908429e99bdeda884a84dc351bf0", null ],

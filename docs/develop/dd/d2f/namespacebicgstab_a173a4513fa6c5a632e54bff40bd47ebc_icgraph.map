@@ -1,5 +1,5 @@
 <map id="bicgstab::bicgstab_sqrt" name="bicgstab::bicgstab_sqrt">
 <area shape="rect" id="Node000001" title="Return the square root of a valid squared norm." alt="" coords="193,13,365,38"/>
-<area shape="rect" id="Node000002" href="$dd/d2f/namespacebicgstab.html#af95e1c5813a5792173b519b09fea8270" title="Solve a linear system with the CPU BiCGStab method." alt="" coords="5,5,145,45"/>
+<area shape="rect" id="Node000002" href="$dd/d2f/namespacebicgstab.html#a522da1d2a6760edfb24c871643b421aa" title="Solve a linear system with the CPU BiCGStab method." alt="" coords="5,5,145,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,28,146,28,146,23,180,23"/>
 </map>

@@ -1,0 +1,13 @@
+<map id="mixed_bc::mixed_bc_t" name="mixed_bc::mixed_bc_t">
+<area shape="rect" id="Node000001" title="Base type for mixed boundary conditions that need projector&#45;provided local&#45;basis data on the physical..." alt="" coords="216,79,383,104"/>
+<area shape="rect" id="Node000003" href="$da/d18/structnon__normal_1_1non__normal__t.html" title="Mixed Dirichlet condition constraining the tangential vector components." alt="" coords="5,159,201,185"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="259,112,133,162,131,157,257,107"/>
+<area shape="rect" id="Node000004" href="$df/d63/structshear__stress_1_1shear__stress__t.html" title="A shear stress boundary condition." alt="" coords="225,152,373,192"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="302,118,302,152,297,152,297,118"/>
+<area shape="rect" id="Node000006" href="$d1/d83/structsymmetry_1_1symmetry__t.html" title="Symmetry boundary condition constraining the normal vector component." alt="" coords="397,159,572,185"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="340,107,459,157,457,162,338,112"/>
+<area shape="rect" id="Node000002" href="$d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="263,5,335,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="302,44,302,79,297,79,297,44"/>
+<area shape="rect" id="Node000005" href="$d1/d49/structwall__model__bc_1_1wall__model__bc__t.html" title="A shear stress boundary condition, computing the stress values using a wall model." alt="" coords="222,240,377,280"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="302,206,302,240,297,240,297,206"/>
+</map>

@@ -18,7 +18,7 @@
 <area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="766,475,706,504,666,516,664,511,704,499,764,470"/>
 <area shape="rect" id="Node000026" href="$dc/d5e/namespacescalar__stats.html#aa5566a78671c59995c5eeb1d7fd19c5a" title="Updates all fields with a new sample." alt="" coords="531,564,677,604"/>
 <area shape="poly" id="edge26_Node000001_Node000026" title=" " alt="" coords="782,479,750,517,707,553,679,567,677,562,704,548,746,513,778,476"/>
-<area shape="rect" id="Node000027" href="$d5/d6a/namespacegmres__sx.html#ac7e8d806ad2a0c1b84f6ec357d1238ef" title="Standard PCG solve." alt="" coords="526,628,682,668"/>
+<area shape="rect" id="Node000027" href="$d5/d6a/namespacegmres__sx.html#a2d1a98d48174620274f7f1857cba2ae0" title="Standard PCG solve." alt="" coords="526,628,682,668"/>
 <area shape="poly" id="edge27_Node000001_Node000027" title=" " alt="" coords="792,480,762,549,738,586,707,618,684,632,681,628,704,614,734,583,757,546,787,478"/>
 <area shape="rect" id="Node000028" href="$dd/d6e/namespacesx__jacobi.html#a15f2370155b0cfbc9f3ca8b66c9c9054" title="The jacobi preconditioner &#160;&#160;where ." alt="" coords="528,692,680,732"/>
 <area shape="poly" id="edge28_Node000001_Node000028" title=" " alt="" coords="797,480,788,524,772,578,745,633,728,659,707,682,682,698,679,694,704,678,724,656,741,631,767,576,783,522,791,479"/>
@@ -45,7 +45,7 @@
 <area shape="poly" id="edge14_Node000008_Node000014" title=" " alt="" coords="513,333,505,340,486,366,478,392,477,418,480,444,483,471,482,499,475,527,457,555,443,568,439,564,453,552,470,525,477,498,477,471,474,445,472,418,473,391,481,364,501,337,510,329"/>
 <area shape="rect" id="Node000019" href="$dd/d30/namespaceoperators.html#ae0083f86c7db2d6aaee644b4cdcc02f6" title="Apply D^T to a scalar field, where D is the derivative matrix." alt="" coords="289,645,409,670"/>
 <area shape="poly" id="edge19_Node000018_Node000019" title=" " alt="" coords="515,548,504,554,488,573,481,593,474,614,456,634,434,646,411,654,409,649,432,641,453,630,469,611,476,591,484,570,501,550,512,543"/>
-<area shape="rect" id="Node000020" href="$d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="27,473,174,513"/>
+<area shape="rect" id="Node000020" href="$d6/d21/namespacefluid__volflow.html#a003e20288f366dbf084c6bdc75e4d4a2" title="Compute flow adjustment." alt="" coords="27,473,174,513"/>
 <area shape="poly" id="edge20_Node000019_Node000020" title=" " alt="" coords="275,651,242,634,230,621,223,607,217,580,212,553,205,540,194,527,173,513,176,509,198,523,210,537,217,551,222,579,228,605,234,618,246,630,277,647"/>
 <area shape="rect" id="Node000021" href="$d2/de4/namespacepnpn__res__cpu.html#a4ac756a5d738cc2007d3c1a638ce3a7c" title=" " alt="" coords="15,537,186,577"/>
 <area shape="poly" id="edge21_Node000019_Node000021" title=" " alt="" coords="275,647,243,634,228,624,218,613,209,602,195,592,171,580,173,575,197,587,212,598,222,609,231,620,245,630,277,642"/>

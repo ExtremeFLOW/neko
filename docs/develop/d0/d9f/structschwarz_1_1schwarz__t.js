@@ -2,8 +2,8 @@ var structschwarz_1_1schwarz__t =
 [
     [ "compute", "d0/d9f/structschwarz_1_1schwarz__t.html#a9fa624f26cb14c530f8336206d91acb9", null ],
     [ "free", "d0/d9f/structschwarz_1_1schwarz__t.html#a4a6e0c44cee55cf1b65466b84e305351", null ],
-    [ "init", "d0/d9f/structschwarz_1_1schwarz__t.html#a7600e57489d5c1837e7baf82ee867ef5", null ],
-    [ "bclst", "d0/d9f/structschwarz_1_1schwarz__t.html#a0b947c16164025427a9959492e8a72c4", null ],
+    [ "init", "d0/d9f/structschwarz_1_1schwarz__t.html#aa65aeb207038721e7e23812bd1974e72", null ],
+    [ "bc_projector", "d0/d9f/structschwarz_1_1schwarz__t.html#a75e49af7dd5919a73caa36b2346911f9", null ],
     [ "dm_schwarz", "d0/d9f/structschwarz_1_1schwarz__t.html#a09e0168acbf82e9e464d0f2fba180527", null ],
     [ "dof", "d0/d9f/structschwarz_1_1schwarz__t.html#af9388eafde4f72bad243e35df21367ce", null ],
     [ "event", "d0/d9f/structschwarz_1_1schwarz__t.html#a8aac98c8b168cd1c51222fcd724dee84", null ],

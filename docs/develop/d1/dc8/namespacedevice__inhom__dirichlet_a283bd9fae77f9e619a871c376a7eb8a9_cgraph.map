@@ -1,5 +1,5 @@
 <map id="device_inhom_dirichlet::device_inhom_dirichlet_apply_vector" name="device_inhom_dirichlet::device_inhom_dirichlet_apply_vector">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,27,187,82"/>
+<area shape="rect" id="Node000001" title="Apply an inhomogeneous Dirichlet condition to a vector field on the device." alt="" coords="5,27,187,82"/>
 <area shape="rect" id="Node000002" href="$df/df6/inhom__dirichlet_8cu.html#a1dab662da4e45a748005d4e7e7cc86d5" title=" " alt="" coords="456,5,617,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,46,442,29,442,34,187,51"/>
 <area shape="rect" id="Node000004" href="$d6/dfc/inhom__dirichlet_8c.html#ab5b81d4ccc7442b10321fef504a7a4b7" title=" " alt="" coords="235,63,408,103"/>

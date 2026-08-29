@@ -1,6 +1,6 @@
 <map id="expression_dirichlet_vector::expression_dirichlet_vector_apply_vector_dev" name="expression_dirichlet_vector::expression_dirichlet_vector_apply_vector_dev">
 <area shape="rect" id="Node000001" title="Apply the condition to a vector field (device version)." alt="" coords="5,27,215,82"/>
-<area shape="rect" id="Node000002" href="$d1/dc8/namespacedevice__inhom__dirichlet.html#a283bd9fae77f9e619a871c376a7eb8a9" title=" " alt="" coords="263,27,444,82"/>
+<area shape="rect" id="Node000002" href="$d1/dc8/namespacedevice__inhom__dirichlet.html#a283bd9fae77f9e619a871c376a7eb8a9" title="Apply an inhomogeneous Dirichlet condition to a vector field on the device." alt="" coords="263,27,444,82"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,52,249,52,249,57,215,57"/>
 <area shape="rect" id="Node000003" href="$df/df6/inhom__dirichlet_8cu.html#a1dab662da4e45a748005d4e7e7cc86d5" title=" " alt="" coords="713,5,875,45"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="444,46,699,29,700,34,445,51"/>

@@ -11,7 +11,7 @@ var fusedcg__cpld__device_8F90 =
     [ "device_fusedcg_cpld_update_x", "dc/dfd/fusedcg__cpld__device_8F90.html#a0664f41fb034c6658f5511bd8f3241f9", null ],
     [ "fusedcg_cpld_device_free", "dc/dfd/fusedcg__cpld__device_8F90.html#a57396f2309510cfbef357ad61c695ae2", null ],
     [ "fusedcg_cpld_device_init", "dc/dfd/fusedcg__cpld__device_8F90.html#a7686eabd075b75a40f7fa61d9be9ab13", null ],
-    [ "fusedcg_cpld_device_solve", "dc/dfd/fusedcg__cpld__device_8F90.html#a5685259e7e93808c6e74e300008dbb62", null ],
-    [ "fusedcg_cpld_device_solve_coupled", "dc/dfd/fusedcg__cpld__device_8F90.html#ae11b1d1184dbadc1c882e946987c371f", null ],
+    [ "fusedcg_cpld_device_solve", "dc/dfd/fusedcg__cpld__device_8F90.html#a46b6c479ff02171567ce363cfc6e2cd7", null ],
+    [ "fusedcg_cpld_device_solve_coupled", "dc/dfd/fusedcg__cpld__device_8F90.html#a39dc1f4bba3936b653a587b2ed212c59", null ],
     [ "device_fusedcg_cpld_p_space", "dc/dfd/fusedcg__cpld__device_8F90.html#ae4234a844948e6bfd78f14dcfc0f6641", null ]
 ];

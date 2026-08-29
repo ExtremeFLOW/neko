@@ -117,7 +117,7 @@ Static Public Member Functions</h2></td></tr>
 struct ax_helm_dmma_dispatch&lt; T, LX, NW &gt;</div><p>Device kernel for axhelm on the fp64 tensor cores</p>
 <p>One element per block, NW warps, and the whole element resident in shared memory as four DMMA_P^3 cubes: the staged input (reused as the output), and the three reference derivatives. Unlike the kstep variants, which stream a k plane at a time and keep the k contraction in registers, all six contractions here are full D * U GEMMs handed to <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dmma_contract()</a>, with the geometric factors applied pointwise in between. See <a class="el" href="../../d3/d60/dmma__kernel_8h.html">dmma_kernel.h</a> for the padded staging, the per axis matrix views and the arch and LX bounds. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html#l00604">604</a> of file <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html#l00605">605</a> of file <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="ac2cdcee4268d30f2381fd85715b93a7e" name="ac2cdcee4268d30f2381fd85715b93a7e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac2cdcee4268d30f2381fd85715b93a7e">&#9670;&#160;</a></span>run()</h2>
@@ -221,7 +221,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html#l00605">605</a> of file <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html#l00606">606</a> of file <a class="el" href="../../db/d6f/cuda_2ax__helm__kernel_8h_source.html">ax_helm_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -244,7 +244,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d7/dc9/structax__helm__dmma__dispatch.html">ax_helm_dmma_dispatch</a></li>
-    <li class="footer">Generated on Fri Aug 28 2026 06:09:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 29 2026 03:37:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,0 +1,13 @@
+<map id="vector_bc_projector::coupled_vector_bc_projector_rebuild_basis" name="vector_bc_projector::coupled_vector_bc_projector_rebuild_basis">
+<area shape="rect" id="Node000001" title="Rebuild the local mixed&#45;node basis." alt="" coords="5,64,185,119"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="233,5,372,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,61,232,39,251,33,253,38,234,45,173,66"/>
+<area shape="rect" id="Node000003" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="239,79,366,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,89,225,89,225,94,186,94"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="254,128,351,153"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="186,110,241,123,240,129,185,115"/>
+<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="271,80,264,70,268,60,281,54,303,52,329,56,340,64,337,68,327,60,303,57,282,59,272,64,269,70,275,77"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="420,71,572,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="366,89,406,89,406,94,366,94"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="460,72,458,62,463,53,476,47,496,45,519,48,531,55,528,59,517,53,496,50,478,52,467,57,463,63,465,70"/>
+</map>

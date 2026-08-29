@@ -275,7 +275,7 @@ $(document).ready(function(){initNavTree('da/d63/boundary__flux_8f90_source.html
 <div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keyword">call </span>this%bc%finalize()</div>
 <div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    n_pts = this%bc%msk(0)</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    n_pts = this%bc%facet_node_msk(0)</div>
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    <span class="keywordflow">if</span> (n_pts .gt. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>       <span class="keyword">call </span>this%n1%init(n_pts)</div>
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>       <span class="keyword">call </span>this%n2%init(n_pts)</div>
@@ -283,7 +283,7 @@ $(document).ready(function(){initNavTree('da/d63/boundary__flux_8f90_source.html
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>       <span class="keyword">call </span>this%surface_u%init(n_pts)</div>
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>       <span class="keyword">call </span>this%surface_v%init(n_pts)</div>
 <div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>       <span class="keyword">call </span>this%surface_w%init(n_pts)</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d0/d6f/namespacedrag__torque.html#a0c3183c7695dac7a0f04a13c5ca244f6">setup_normals</a>(this%coef, this%bc%msk, this%bc%facet, &amp;</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d0/d6f/namespacedrag__torque.html#a0c3183c7695dac7a0f04a13c5ca244f6">setup_normals</a>(this%coef, this%bc%facet_node_msk, this%bc%facet, &amp;</div>
 <div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>            this%n1, this%n2, this%n3, n_pts)</div>
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d3/d0d/namespacevector__math.html#a4b22f3cb13faa637574a1ff59e78a237">vector_cmult</a>(this%n1, -1.0_rp, n_pts)</div>
 <div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d3/d0d/namespacevector__math.html#a4b22f3cb13faa637574a1ff59e78a237">vector_cmult</a>(this%n2, -1.0_rp, n_pts)</div>
@@ -307,7 +307,7 @@ $(document).ready(function(){initNavTree('da/d63/boundary__flux_8f90_source.html
 <div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,*(I0,:,&quot;, &quot;))&#39;</span>) <span class="stringliteral">&quot;Zone indices: &quot;</span>, this%zone_indices</div>
 <div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
 <div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,I0)&#39;</span>) <span class="stringliteral">&quot;Marked boundary quadrature points: &quot;</span>, &amp;</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>         this%bc%msk(0)</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>         this%bc%facet_node_msk(0)</div>
 <div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
 <div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
 </div>
@@ -422,15 +422,15 @@ $(document).ready(function(){initNavTree('da/d63/boundary__flux_8f90_source.html
 <div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    <span class="keywordtype">character(len=12)</span> :: step_str</div>
 <div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: header_line, value_line</div>
 <div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span> </div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>    n_pts = this%bc%msk(0)</div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>    n_pts = this%bc%facet_node_msk(0)</div>
 <div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>    this%flux = 0.0_rp</div>
 <div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span> </div>
 <div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d3/d0d/namespacevector__math.html#a102c3fdd6473f46807a9cd38290910de">vector_masked_gather_copy_0</a>(this%surface_u, this%u%x, &amp;</div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>         this%bc%msk, this%u%size(), n_pts)</div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>         this%bc%facet_node_msk, this%u%size(), n_pts)</div>
 <div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d3/d0d/namespacevector__math.html#a102c3fdd6473f46807a9cd38290910de">vector_masked_gather_copy_0</a>(this%surface_v, this%v%x, &amp;</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>         this%bc%msk, this%v%size(), n_pts)</div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>         this%bc%facet_node_msk, this%v%size(), n_pts)</div>
 <div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d3/d0d/namespacevector__math.html#a102c3fdd6473f46807a9cd38290910de">vector_masked_gather_copy_0</a>(this%surface_w, this%w%x, &amp;</div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>         this%bc%msk, this%w%size(), n_pts)</div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>         this%bc%facet_node_msk, this%w%size(), n_pts)</div>
 <div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span> </div>
 <div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>    this%flux = <a class="code hl_function" href="../../d3/d0d/namespacevector__math.html#a956fad3c60febe102ee6455ad32c80f0">vector_glsc2</a>(this%surface_u, this%n1, n_pts) + &amp;</div>
 <div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>         <a class="code hl_function" href="../../d3/d0d/namespacevector__math.html#a956fad3c60febe102ee6455ad32c80f0">vector_glsc2</a>(this%surface_v, this%n2, n_pts) + &amp;</div>
@@ -537,7 +537,7 @@ $(document).ready(function(){initNavTree('da/d63/boundary__flux_8f90_source.html
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_702567638a028346607c31c39047d6bd.html">simulation_components</a></li><li class="navelem"><a class="el" href="../../da/d63/boundary__flux_8f90.html">boundary_flux.f90</a></li>
-    <li class="footer">Generated on Fri Aug 28 2026 06:09:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 29 2026 03:37:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

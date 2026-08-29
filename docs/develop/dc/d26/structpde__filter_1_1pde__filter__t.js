@@ -11,7 +11,7 @@ var structpde__filter_1_1pde__filter__t =
     [ "init_from_components", "dc/d26/structpde__filter_1_1pde__filter__t.html#aa4d24fd890a2ed8cf662c6e0395366aa", null ],
     [ "abstol_filt", "dc/d26/structpde__filter_1_1pde__filter__t.html#aabb8e596c9b2a3a84e14436da957cd00", null ],
     [ "ax", "dc/d26/structpde__filter_1_1pde__filter__t.html#a8f7328feab30a99f9bf4d5b4cb37a33f", null ],
-    [ "bclst_filt", "dc/d26/structpde__filter_1_1pde__filter__t.html#a734c01dc4bac0d39d4c94c13fcff3297", null ],
+    [ "bc_projector_filt", "dc/d26/structpde__filter_1_1pde__filter__t.html#a877b77ca0500997f9975d5919ab1ef3f", null ],
     [ "coef", "dc/d26/structpde__filter_1_1pde__filter__t.html#a707fc9ecced8b1eade8815f458c6cf2a", null ],
     [ "i", "dc/d26/structpde__filter_1_1pde__filter__t.html#a7e1a2595c91afb5bd18b35fb28da3141", null ],
     [ "ksp_filt", "dc/d26/structpde__filter_1_1pde__filter__t.html#a06e5ad4a4d0451ef6521d478f6eb7214", null ],

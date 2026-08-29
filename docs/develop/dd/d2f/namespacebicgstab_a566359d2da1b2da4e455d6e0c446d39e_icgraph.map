@@ -1,5 +1,5 @@
 <map id="bicgstab::bicgstab_check_inner_product" name="bicgstab::bicgstab_check_inner_product">
 <area shape="rect" id="Node000001" title="Check an inner product for a BiCGStab breakdown." alt="" coords="193,5,356,45"/>
-<area shape="rect" id="Node000002" href="$dd/d2f/namespacebicgstab.html#af95e1c5813a5792173b519b09fea8270" title="Solve a linear system with the CPU BiCGStab method." alt="" coords="5,5,145,45"/>
+<area shape="rect" id="Node000002" href="$dd/d2f/namespacebicgstab.html#a522da1d2a6760edfb24c871643b421aa" title="Solve a linear system with the CPU BiCGStab method." alt="" coords="5,5,145,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,28,145,28,145,23,179,23"/>
 </map>

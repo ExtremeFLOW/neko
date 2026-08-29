@@ -2,7 +2,7 @@ var searchData=
 [
   ['makebdf_5fkernel_2eh_0',['makebdf_kernel.h',['../df/d1f/cuda_2makebdf__kernel_8h.html',1,'(Global Namespace)'],['../db/d6b/hip_2makebdf__kernel_8h.html',1,'(Global Namespace)']]],
   ['makeext_5fkernel_2eh_1',['makeext_kernel.h',['../d0/d1e/cuda_2makeext__kernel_8h.html',1,'(Global Namespace)'],['../db/d20/hip_2makeext__kernel_8h.html',1,'(Global Namespace)']]],
-  ['makeoifs_5fkernel_2eh_2',['makeoifs_kernel.h',['../d2/d91/cuda_2makeoifs__kernel_8h.html',1,'(Global Namespace)'],['../d7/d2b/hip_2makeoifs__kernel_8h.html',1,'(Global Namespace)']]],
+  ['makeoifs_5fkernel_2eh_2',['makeoifs_kernel.h',['../d7/d2b/hip_2makeoifs__kernel_8h.html',1,'(Global Namespace)'],['../d2/d91/cuda_2makeoifs__kernel_8h.html',1,'(Global Namespace)']]],
   ['map_2ef90_3',['map.f90',['../d6/dd0/map_8f90.html',1,'']]],
   ['map_5f1d_2ef90_4',['map_1d.f90',['../d7/da8/map__1d_8f90.html',1,'']]],
   ['map_5f2d_2ef90_5',['map_2d.f90',['../d4/d7a/map__2d_8f90.html',1,'']]],
@@ -36,12 +36,14 @@ var searchData=
   ['metal_5fmappings_2ef90_33',['metal_mappings.f90',['../de/df0/metal__mappings_8f90.html',1,'']]],
   ['metal_5fmath_2ef90_34',['metal_math.f90',['../de/d24/metal__math_8f90.html',1,'']]],
   ['mfma_5fkernel_2eh_35',['mfma_kernel.h',['../d7/d35/mfma__kernel_8h.html',1,'']]],
-  ['most_2ecu_36',['most.cu',['../d9/dbb/most_8cu.html',1,'']]],
-  ['most_2ef90_37',['most.f90',['../dd/d2c/most_8f90.html',1,'']]],
-  ['most_2ehip_38',['most.hip',['../d3/d2d/most_8hip.html',1,'']]],
-  ['most_5fcpu_2ef90_39',['most_cpu.f90',['../df/d99/most__cpu_8f90.html',1,'']]],
-  ['most_5fdevice_2ef90_40',['most_device.F90',['../db/d29/most__device_8F90.html',1,'']]],
-  ['most_5fkernel_2eh_41',['most_kernel.h',['../d5/dde/cuda_2most__kernel_8h.html',1,'(Global Namespace)'],['../d2/d35/hip_2most__kernel_8h.html',1,'(Global Namespace)']]],
-  ['mpi_5ftypes_2ef90_42',['mpi_types.f90',['../db/de3/mpi__types_8f90.html',1,'']]],
-  ['mxm_5fwrapper_2ef90_43',['mxm_wrapper.F90',['../d8/d25/mxm__wrapper_8F90.html',1,'']]]
+  ['mixed_2dboundary_2dcondition_2dresolution_2emd_36',['mixed-boundary-condition-resolution.md',['../dc/dd1/mixed-boundary-condition-resolution_8md.html',1,'']]],
+  ['mixed_5fbc_2ef90_37',['mixed_bc.f90',['../dd/d10/mixed__bc_8f90.html',1,'']]],
+  ['most_2ecu_38',['most.cu',['../d9/dbb/most_8cu.html',1,'']]],
+  ['most_2ef90_39',['most.f90',['../dd/d2c/most_8f90.html',1,'']]],
+  ['most_2ehip_40',['most.hip',['../d3/d2d/most_8hip.html',1,'']]],
+  ['most_5fcpu_2ef90_41',['most_cpu.f90',['../df/d99/most__cpu_8f90.html',1,'']]],
+  ['most_5fdevice_2ef90_42',['most_device.F90',['../db/d29/most__device_8F90.html',1,'']]],
+  ['most_5fkernel_2eh_43',['most_kernel.h',['../d5/dde/cuda_2most__kernel_8h.html',1,'(Global Namespace)'],['../d2/d35/hip_2most__kernel_8h.html',1,'(Global Namespace)']]],
+  ['mpi_5ftypes_2ef90_44',['mpi_types.f90',['../db/de3/mpi__types_8f90.html',1,'']]],
+  ['mxm_5fwrapper_2ef90_45',['mxm_wrapper.F90',['../d8/d25/mxm__wrapper_8F90.html',1,'']]]
 ];

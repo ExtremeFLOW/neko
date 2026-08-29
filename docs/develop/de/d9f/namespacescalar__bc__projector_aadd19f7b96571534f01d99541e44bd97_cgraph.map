@@ -1,0 +1,7 @@
+<map id="scalar_bc_projector::scalar_bc_projector_debug_output" name="scalar_bc_projector::scalar_bc_projector_debug_output">
+<area shape="rect" id="Node000001" title="Write a field showing the resolved scalar BC mask." alt="" coords="5,20,161,75"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#adcea1b6eb422b5097c9241c0798631ae" title="Fill a constant to a masked vector. ." alt="" coords="223,5,353,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,34,209,27,209,32,162,39"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a7561ba2bdd6fe5d32b286d8f0f7e10b4" title="Fill a constant to a masked vector. ." alt="" coords="209,55,367,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="162,55,196,60,196,65,161,61"/>
+</map>

@@ -5,6 +5,7 @@ var cuda_2elem__block__tune_8h =
     [ "NEKO_TUNE_INIT", "db/d36/cuda_2elem__block__tune_8h.html#a646ee7c3605c0d9875e06fb0b8894d67", null ],
     [ "NEKO_TUNE_LOG", "db/d36/cuda_2elem__block__tune_8h.html#a4b5e764b94acd23308a10278cc5b1a9b", null ],
     [ "NEKO_TUNE_TIME", "db/d36/cuda_2elem__block__tune_8h.html#a250188824c14b638c09e18f4909198fd", null ],
+    [ "NEKO_TUNE_US", "db/d36/cuda_2elem__block__tune_8h.html#a31d72213f07273d53ede6595be9d9a1e", null ],
     [ "NEKO_TUNE_WARMUP", "db/d36/cuda_2elem__block__tune_8h.html#aed9e9add51fc2b7a20bd2f6a45468f8f", null ],
     [ "neko_chunks_env", "db/d36/cuda_2elem__block__tune_8h.html#abe18bd6491550b2229dc2d936452600e", null ],
     [ "neko_eb_env", "db/d36/cuda_2elem__block__tune_8h.html#a2cf6caefdfc0aaf8e5095a51672c1661", null ],

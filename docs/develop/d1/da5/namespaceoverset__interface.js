@@ -9,7 +9,7 @@ var namespaceoverset__interface =
     [ "overset_interface_apply_scalar_dev", "d1/da5/namespaceoverset__interface.html#a4f460db8f565be522f804298b7393ddd", null ],
     [ "overset_interface_apply_vector", "d1/da5/namespaceoverset__interface.html#a3c883f159a8b28bcf17eb3311b2c0a41", null ],
     [ "overset_interface_apply_vector_dev", "d1/da5/namespaceoverset__interface.html#adc15c249451d3df1eb2d36a27d43fe24", null ],
-    [ "overset_interface_finalize", "d1/da5/namespaceoverset__interface.html#a35089290ec0d80502a2d105abb3c73d9", null ],
+    [ "overset_interface_finalize", "d1/da5/namespaceoverset__interface.html#a1780910c32e936ca68c01ca9ae8d75a0", null ],
     [ "overset_interface_free", "d1/da5/namespaceoverset__interface.html#a4679dd9a149f9ae09e18da2bfad22b02", null ],
     [ "overset_interface_init", "d1/da5/namespaceoverset__interface.html#a81a463a7eaccddbb1cd23160cc38a447", null ],
     [ "overset_interface_init_from_components", "d1/da5/namespaceoverset__interface.html#af3c5c9c51383cd4d1ae15367c142db77", null ],

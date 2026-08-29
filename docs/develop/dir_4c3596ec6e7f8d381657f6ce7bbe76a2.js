@@ -10,6 +10,7 @@ var dir_4c3596ec6e7f8d381657f6ce7bbe76a2 =
     [ "convect_scalar_kernel.h", "d4/dd9/cuda_2convect__scalar__kernel_8h.html", "d4/dd9/cuda_2convect__scalar__kernel_8h" ],
     [ "cuda_math.f90", "d5/dc6/cuda__math_8f90.html", "d5/dc6/cuda__math_8f90" ],
     [ "dmma_kernel.h", "d3/d60/dmma__kernel_8h.html", "d3/d60/dmma__kernel_8h" ],
+    [ "dmma_tma_kernel.h", "dd/df9/dmma__tma__kernel_8h.html", "dd/df9/dmma__tma__kernel_8h" ],
     [ "dudxyz_kernel.h", "dc/dd2/cuda_2dudxyz__kernel_8h.html", "dc/dd2/cuda_2dudxyz__kernel_8h" ],
     [ "elem_block.h", "d9/d87/cuda_2elem__block_8h.html", "d9/d87/cuda_2elem__block_8h" ],
     [ "elem_block_tune.h", "db/d36/cuda_2elem__block__tune_8h.html", "db/d36/cuda_2elem__block__tune_8h" ],

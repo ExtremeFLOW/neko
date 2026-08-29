@@ -10,6 +10,7 @@ var searchData=
   ['nmsh_5ffile_7',['nmsh_file',['../da/dd2/namespacenmsh__file.html',1,'']]],
   ['no_5fslip_8',['no_slip',['../d1/da7/namespaceno__slip.html',1,'']]],
   ['non_5fnormal_9',['non_normal',['../d8/d74/namespacenon__normal.html',1,'']]],
-  ['num_5ftypes_10',['num_types',['../df/d48/namespacenum__types.html',1,'']]],
-  ['nvtx_11',['nvtx',['../d4/ddd/namespacenvtx.html',1,'']]]
+  ['non_5fnormal_5faligned_10',['non_normal_aligned',['../d2/d2f/namespacenon__normal__aligned.html',1,'']]],
+  ['num_5ftypes_11',['num_types',['../df/d48/namespacenum__types.html',1,'']]],
+  ['nvtx_12',['nvtx',['../d4/ddd/namespacenvtx.html',1,'']]]
 ];

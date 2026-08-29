@@ -110,8 +110,8 @@ $(document).ready(function(){initNavTree('d2/d6e/interfacekrylov_1_1ksp__method.
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ae4cd96d9de8a213443cce70e071f264e" id="r_ae4cd96d9de8a213443cce70e071f264e"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d6e/interfacekrylov_1_1ksp__method.html#ae4cd96d9de8a213443cce70e071f264e">ksp_method</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, ax, x, f, n, coef, blst, gs_h, niter)</td></tr>
-<tr class="separator:ae4cd96d9de8a213443cce70e071f264e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c6ef9ad825ce8e921ffe9e58d06119a" id="r_a7c6ef9ad825ce8e921ffe9e58d06119a"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d6e/interfacekrylov_1_1ksp__method.html#a7c6ef9ad825ce8e921ffe9e58d06119a">ksp_method</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, ax, x, f, n, coef, bc_projector, gs_h, niter)</td></tr>
+<tr class="separator:a7c6ef9ad825ce8e921ffe9e58d06119a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="params"><dt>Parameters</dt><dd>
@@ -120,17 +120,17 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">f</td><td>right hand side </td></tr>
     <tr><td class="paramname">n</td><td>integer, size of vectors </td></tr>
     <tr><td class="paramname">coef</td><td>Coefficients </td></tr>
-    <tr><td class="paramname">blst</td><td>list of boundary conditions </td></tr>
+    <tr><td class="paramname">bc_projector</td><td>boundary constraint projector </td></tr>
     <tr><td class="paramname">gs_h</td><td>Gather-scatter handle </td></tr>
     <tr><td class="paramname">niter</td><td>iteration trip count </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00136">136</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00137">137</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ae4cd96d9de8a213443cce70e071f264e" name="ae4cd96d9de8a213443cce70e071f264e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae4cd96d9de8a213443cce70e071f264e">&#9670;&#160;</a></span>ksp_method()</h2>
+<a id="a7c6ef9ad825ce8e921ffe9e58d06119a" name="a7c6ef9ad825ce8e921ffe9e58d06119a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c6ef9ad825ce8e921ffe9e58d06119a">&#9670;&#160;</a></span>ksp_method()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -177,8 +177,8 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
-          <td class="paramname"><em>blst</em>, </td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/dc1/structscalar__bc__projector_1_1scalar__bc__projector__t.html">scalar_bc_projector_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>bc_projector</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -205,7 +205,7 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00136">136</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00137">137</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -218,7 +218,7 @@ Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/d6d/namespacekrylov.html">krylov</a></li><li class="navelem"><a class="el" href="../../d2/d6e/interfacekrylov_1_1ksp__method.html">ksp_method</a></li>
-    <li class="footer">Generated on Fri Aug 28 2026 06:09:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Aug 29 2026 03:37:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

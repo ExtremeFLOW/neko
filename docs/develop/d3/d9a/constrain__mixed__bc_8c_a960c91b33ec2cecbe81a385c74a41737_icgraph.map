@@ -1,0 +1,11 @@
+<map id="opencl_constrain_mixed_bc_zero" name="opencl_constrain_mixed_bc_zero">
+<area shape="rect" id="Node000001" title=" " alt="" coords="488,99,667,139"/>
+<area shape="rect" id="Node000002" href="$d3/dd7/namespacedevice__constrain__mixed__bc.html#a45692cdee6de019c1a6ca54104a2a46a" title="Constrain mixed&#45;boundary projections by zeroing the selected local components on the device." alt="" coords="261,91,440,146"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="474,121,440,121,440,116,474,116"/>
+<area shape="rect" id="Node000003" href="$dd/d9e/interfacedevice__constrain__mixed__bc_1_1hip__constrain__mixed__bc__set__const.html#a9e1ef391f0fc581709894ad35e757082" title=" " alt="" coords="5,5,213,75"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="252,90,213,76,215,71,254,84"/>
+<area shape="rect" id="Node000004" href="$da/dea/namespaceshear__stress.html#ad597c6fd59fb8838b384a9c50535c590" title="Boundary condition apply for a generic shear_stress condition to vectors x, y and z (device version)" alt="" coords="14,99,205,139"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="248,121,205,121,205,116,248,116"/>
+<area shape="rect" id="Node000005" href="$d1/d70/namespacesymmetry.html#ac5c09ab4dff76e90fc984f2c39b7a9d4" title="Remove the normal component on the device." alt="" coords="28,163,191,203"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="249,148,186,165,185,160,247,143"/>
+</map>

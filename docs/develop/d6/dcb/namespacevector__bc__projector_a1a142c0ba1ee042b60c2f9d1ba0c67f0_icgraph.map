@@ -1,0 +1,13 @@
+<map id="vector_bc_projector::vector_bc_projector_components" name="vector_bc_projector::vector_bc_projector_components">
+<area shape="rect" id="Node000001" title="Access the component scalar projectors from a segregated vector projector." alt="" coords="237,142,396,197"/>
+<area shape="rect" id="Node000002" href="$d6/d60/namespacecg__device.html#a3397b2fd3553cf073a52cfc845ada6d9" title="Standard PCG coupled solve." alt="" coords="17,5,177,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="279,134,237,95,188,60,164,48,167,43,191,55,241,91,282,130"/>
+<area shape="rect" id="Node000003" href="$dc/d35/namespacekrylov__solver__template.html#ad5b3d004550c3ebfb5a6d3552be9d3e8" title=" " alt="" coords="5,70,189,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,142,180,127,182,122,225,137"/>
+<area shape="rect" id="Node000004" href="$d4/d31/namespacecg__sx.html#a5f108b74caf29b6bb1e547567415c889" title="Standard PCG coupled solve." alt="" coords="24,149,171,189"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="223,172,171,172,171,167,223,167"/>
+<area shape="rect" id="Node000005" href="$d5/d6a/namespacegmres__sx.html#afab14bf9302035beb6ab187e47f31cd9" title="Standard GMRES coupled solve." alt="" coords="19,213,175,253"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="225,199,167,216,166,211,223,194"/>
+<area shape="rect" id="Node000006" href="$df/d53/namespacepipecg__sx.html#ac7e35f35c146fa873a4b3e737b3d7507" title="Pipelined PCG coupled solve." alt="" coords="17,277,177,317"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="276,208,236,239,191,268,165,280,163,275,188,263,233,234,273,203"/>
+</map>

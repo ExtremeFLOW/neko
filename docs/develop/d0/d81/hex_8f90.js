@@ -8,10 +8,13 @@ var hex_8f90 =
     [ "hex_facet_id", "d0/d81/hex_8f90.html#afc2e1651a8441581371d4f6a5ad0317f", null ],
     [ "hex_facet_order", "d0/d81/hex_8f90.html#a1c7007aa704bed07148b2f176bf33d36", null ],
     [ "hex_init", "d0/d81/hex_8f90.html#adff29574b4530e274638ef9c5461b07c", null ],
-    [ "edge_nodes", "d0/d81/hex_8f90.html#acab5800cd54a7f20aa62c7ac22f75fb8", null ],
-    [ "face_nodes", "d0/d81/hex_8f90.html#a3e80e5a0d44501718c559000c578dc36", null ],
+    [ "edge_faces", "d0/d81/hex_8f90.html#a382ab2169d09908ad97951445281d2f7", null ],
+    [ "edge_nodes", "d0/d81/hex_8f90.html#ae571ea6e39b895e1f02b1ba12c2205bf", null ],
+    [ "face_nodes", "d0/d81/hex_8f90.html#a868af1b175977e48bb4fe56ca9434ab3", null ],
     [ "neko_hex_gdim", "d0/d81/hex_8f90.html#a4c769a9ee8e039a4de8273c129336c73", null ],
     [ "neko_hex_neds", "d0/d81/hex_8f90.html#a7deabac06bb32ce6f0d6f08f3935c29e", null ],
     [ "neko_hex_nfcs", "d0/d81/hex_8f90.html#a73131328f21224f720a9f35a3896ab1e", null ],
-    [ "neko_hex_npts", "d0/d81/hex_8f90.html#a581a1a6c53eeab5bd63d61a8c031122b", null ]
+    [ "neko_hex_npts", "d0/d81/hex_8f90.html#a581a1a6c53eeab5bd63d61a8c031122b", null ],
+    [ "node_edges", "d0/d81/hex_8f90.html#a31283ccfb7e4d1c29789ce22b838877a", null ],
+    [ "node_faces", "d0/d81/hex_8f90.html#adf9f25c8253a3f84adc67150e2fed63c", null ]
 ];

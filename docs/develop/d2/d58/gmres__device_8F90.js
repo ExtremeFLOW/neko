@@ -5,6 +5,6 @@ var gmres__device_8F90 =
     [ "device_gmres_part2", "d2/d58/gmres__device_8F90.html#a0a158df824f0f1613e4f18806ea3a81e", null ],
     [ "gmres_device_free", "d2/d58/gmres__device_8F90.html#ae22b087c0b4a1f8189d29fefe812cc6a", null ],
     [ "gmres_device_init", "d2/d58/gmres__device_8F90.html#a0b4548cec5c339329d7919b3870d8810", null ],
-    [ "gmres_device_solve", "d2/d58/gmres__device_8F90.html#a269f2ad33b34a082f5267c088138c5a1", null ],
-    [ "gmres_device_solve_coupled", "d2/d58/gmres__device_8F90.html#aee2cff360c660336c7675de9ac257734", null ]
+    [ "gmres_device_solve", "d2/d58/gmres__device_8F90.html#acdfd846f0f2c95fed9ed788773cbc6b4", null ],
+    [ "gmres_device_solve_coupled", "d2/d58/gmres__device_8F90.html#ab70720741aca24905cfa92c39bf25473", null ]
 ];

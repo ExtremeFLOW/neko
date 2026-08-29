@@ -5,7 +5,7 @@ var namespaceexpression__dirichlet =
     [ "expression_dirichlet_apply_scalar_dev", "db/de8/namespaceexpression__dirichlet.html#a77a37fadf5dd3f6440c55df4fc92099c", null ],
     [ "expression_dirichlet_apply_vector", "db/de8/namespaceexpression__dirichlet.html#abb89a12004843a07458d014cb5d63118", null ],
     [ "expression_dirichlet_apply_vector_dev", "db/de8/namespaceexpression__dirichlet.html#a5ebbadf22290aef538fec10501f4859e", null ],
-    [ "expression_dirichlet_finalize", "db/de8/namespaceexpression__dirichlet.html#aa2482ac65350cea5e0b4fa3eda04ad65", null ],
+    [ "expression_dirichlet_finalize", "db/de8/namespaceexpression__dirichlet.html#ade787a955e7f1fdd2232aa38430fa277", null ],
     [ "expression_dirichlet_free", "db/de8/namespaceexpression__dirichlet.html#ad6807e8a447e80c14db1d67979e20a69", null ],
     [ "expression_dirichlet_init", "db/de8/namespaceexpression__dirichlet.html#a38dfcff49115af923b109cd921e2ad22", null ],
     [ "expression_dirichlet_init_from_components", "db/de8/namespaceexpression__dirichlet.html#a7f460aead24757331b0363d606a471d6", null ],

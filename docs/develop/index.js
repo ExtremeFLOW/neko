@@ -378,6 +378,10 @@ var index =
         [ "Compressible Flows", "db/d27/governing-equations.html#autotoc_md22", null ],
         [ "Non-dimensionalisation", "db/d27/governing-equations.html#autotoc_md23", null ]
       ] ],
+      [ "Mixed boundary-condition resolution", "d9/d16/mixed-bc-resolution.html", [
+        [ "Boundary classes and priority", "d9/d16/mixed-bc-resolution.html#mixed-bc-priority", null ],
+        [ "Resolution of the nodal normal", "d9/d16/mixed-bc-resolution.html#mixed-bc-normal", null ]
+      ] ],
       [ "Neko .nmsh mesh format", "d0/d5b/nmsh-format.html", [
         [ "File overview", "d0/d5b/nmsh-format.html#autotoc_md24", null ],
         [ "Data types and portability", "d0/d5b/nmsh-format.html#autotoc_md25", null ],

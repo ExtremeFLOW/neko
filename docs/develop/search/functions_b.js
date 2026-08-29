@@ -15,12 +15,12 @@ var searchData=
   ['krylov_5fsolver_5ftemplate_5ffree_12',['krylov_solver_template_free',['../dc/d35/namespacekrylov__solver__template.html#a240f7477687c659705e2f55983c530d6',1,'krylov_solver_template']]],
   ['krylov_5fsolver_5ftemplate_5finit_13',['krylov_solver_template_init',['../dc/d35/namespacekrylov__solver__template.html#afc2fad9209b9aacf84db6c15e6a1fe2c',1,'krylov_solver_template']]],
   ['krylov_5fsolver_5ftemplate_5fregister_5ftypes_14',['krylov_solver_template_register_types',['../dc/d35/namespacekrylov__solver__template.html#a5cbe98935ec345d3f5767312cd650b29',1,'krylov_solver_template']]],
-  ['krylov_5fsolver_5ftemplate_5fsolve_15',['krylov_solver_template_solve',['../dc/d35/namespacekrylov__solver__template.html#a2aab4123ab282dafb8534e6ea4465490',1,'krylov_solver_template']]],
-  ['krylov_5fsolver_5ftemplate_5fsolve_5fcoupled_16',['krylov_solver_template_solve_coupled',['../dc/d35/namespacekrylov__solver__template.html#a159bb8bf45d03a1e86ba8c584fb838b8',1,'krylov_solver_template']]],
+  ['krylov_5fsolver_5ftemplate_5fsolve_15',['krylov_solver_template_solve',['../dc/d35/namespacekrylov__solver__template.html#a95b8ee2e2e773840f7e9316f75c66d7b',1,'krylov_solver_template']]],
+  ['krylov_5fsolver_5ftemplate_5fsolve_5fcoupled_16',['krylov_solver_template_solve_coupled',['../dc/d35/namespacekrylov__solver__template.html#ad5b3d004550c3ebfb5a6d3552be9d3e8',1,'krylov_solver_template']]],
   ['ksp_5ffree_17',['ksp_free',['../d0/d3b/structkrylov_1_1ksp__t.html#a34dae2b9d3aff8de33af53f6bb156bc4',1,'krylov::ksp_t']]],
   ['ksp_5finit_18',['ksp_init',['../d0/d3b/structkrylov_1_1ksp__t.html#aa93557061efb3f02ecd62cf8c05931c0',1,'krylov::ksp_t']]],
   ['ksp_5finit_5fintrf_19',['ksp_init_intrf',['../d0/db4/interfacekrylov_1_1ksp__init__intrf.html#a9e0063c65c30669fba511b3a8e4d3ebb',1,'krylov::ksp_init_intrf']]],
-  ['ksp_5fmethod_20',['ksp_method',['../d2/d6e/interfacekrylov_1_1ksp__method.html#ae4cd96d9de8a213443cce70e071f264e',1,'krylov::ksp_method']]],
-  ['ksp_5fmethod_5fcoupled_21',['ksp_method_coupled',['../d1/d3d/interfacekrylov_1_1ksp__method__coupled.html#a8f2933cad1cf9346b17a5eb7f6acf1ba',1,'krylov::ksp_method_coupled']]],
+  ['ksp_5fmethod_20',['ksp_method',['../d2/d6e/interfacekrylov_1_1ksp__method.html#a7c6ef9ad825ce8e921ffe9e58d06119a',1,'krylov::ksp_method']]],
+  ['ksp_5fmethod_5fcoupled_21',['ksp_method_coupled',['../d1/d3d/interfacekrylov_1_1ksp__method__coupled.html#a7662e3d3121b68909fce7f326950b296',1,'krylov::ksp_method_coupled']]],
   ['ksp_5ft_5ffree_22',['ksp_t_free',['../d6/dc8/interfacekrylov_1_1ksp__t__free.html#a441036396e3f023513ed3f6644996915',1,'krylov::ksp_t_free']]]
 ];

@@ -1,0 +1,7 @@
+<map id="scalar_bc_projector::scalar_bc_projector_t" name="scalar_bc_projector::scalar_bc_projector_t">
+<area shape="rect" id="Node000001" title="Projector for scalar boundary conditions." alt="" coords="5,181,173,221"/>
+<area shape="rect" id="Node000002" href="$d2/df5/structmask_1_1mask__t.html" title="Type for consistently handling masks in Neko. This type encapsulates the mask array and its associate..." alt="" coords="32,93,147,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,132,92,181,87,181,87,132"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="62,5,117,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="92,45,92,93,87,93,87,45"/>
+</map>

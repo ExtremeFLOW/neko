@@ -1,0 +1,5 @@
+<map id="pipecg_sx::sx_pipecg_solve_coupled" name="pipecg_sx::sx_pipecg_solve_coupled">
+<area shape="rect" id="Node000001" title="Pipelined PCG coupled solve." alt="" coords="5,13,165,53"/>
+<area shape="rect" id="Node000002" href="$d6/dcb/namespacevector__bc__projector.html#a1a142c0ba1ee042b60c2f9d1ba0c67f0" title="Access the component scalar projectors from a segregated vector projector." alt="" coords="213,5,372,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,30,199,30,199,35,166,35"/>
+</map>

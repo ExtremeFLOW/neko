@@ -6,7 +6,7 @@ var field__neumann_8f90 =
     [ "field_neumann_apply_scalar_dev", "d5/dec/field__neumann_8f90.html#a6b6d2edec7cbc3006694ec44c3c2a0e2", null ],
     [ "field_neumann_apply_vector", "d5/dec/field__neumann_8f90.html#a96e76c41e61681436ca5928f47aae621", null ],
     [ "field_neumann_apply_vector_dev", "d5/dec/field__neumann_8f90.html#a0605bee3686b258e7e766a38adb55726", null ],
-    [ "field_neumann_finalize", "d5/dec/field__neumann_8f90.html#a1c3a57b9d595cdf8d7d5f345001be532", null ],
+    [ "field_neumann_finalize", "d5/dec/field__neumann_8f90.html#a8e33f4759f0ffd235801cb6b6bdd497e", null ],
     [ "field_neumann_free", "d5/dec/field__neumann_8f90.html#a126e0ed329e78cae632d3225b19d2668", null ],
     [ "field_neumann_gather_flux", "d5/dec/field__neumann_8f90.html#a04d379b8d53d30e3d9f5ee43bbd6585b", null ],
     [ "field_neumann_init", "d5/dec/field__neumann_8f90.html#a98e98769e1b73e64c51e06cc633f87fb", null ],

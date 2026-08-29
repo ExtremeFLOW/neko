@@ -13,10 +13,16 @@ var bc_8f90 =
     [ "bc_apply_scalar_generic", "df/df6/bc_8f90.html#a9301745781e093149663a05b0dcb61c6", null ],
     [ "bc_apply_vector_generic", "df/df6/bc_8f90.html#ac4b5dd747c8962a49bcab7f999af94a1", null ],
     [ "bc_debug_mask", "df/df6/bc_8f90.html#ac725cd64024298da9e4e2122b006c546", null ],
-    [ "bc_finalize_base", "df/df6/bc_8f90.html#aaeeaa7c90eedcd2f206514d689a31a0d", null ],
+    [ "bc_finalize_base", "df/df6/bc_8f90.html#a188a14ecbdda76297e6f9462a9d4cb9f", null ],
     [ "bc_free_base", "df/df6/bc_8f90.html#a316d14014f07ae85ac25bbcc01bd2b79", null ],
     [ "bc_init_base", "df/df6/bc_8f90.html#a9070c3a5c7f39f7c99eb882077054bc2", null ],
     [ "bc_mark_facet", "df/df6/bc_8f90.html#acbbeaf2224629c4761155d34f86c8352", null ],
     [ "bc_mark_facets", "df/df6/bc_8f90.html#ad276b14294570cad93e3ca9348cb2a18", null ],
-    [ "bc_mark_zone", "df/df6/bc_8f90.html#a09216b9fa74d0d37e1cc4c54376b7afe", null ]
+    [ "bc_mark_labeled_zone", "df/df6/bc_8f90.html#a5b3ac2d9b95b25f436ae9c45a4dfe2e9", null ],
+    [ "bc_mark_labeled_zones", "df/df6/bc_8f90.html#a3a65fc0cb682babc613ef7ffa349f630", null ],
+    [ "bc_mark_zone", "df/df6/bc_8f90.html#a09216b9fa74d0d37e1cc4c54376b7afe", null ],
+    [ "bc_dirichlet", "df/df6/bc_8f90.html#aadbae891f231fe713af9d8cf0519656a", null ],
+    [ "bc_mixed_constrains_normal", "df/df6/bc_8f90.html#a4b4ff9ed1d4cee8ffc94c92ebd496c4b", null ],
+    [ "bc_mixed_constrains_tangent", "df/df6/bc_8f90.html#a2060662f3c7134d67d434bde3a19abb9", null ],
+    [ "bc_neumann", "df/df6/bc_8f90.html#afb24e817f64c803bc9a4ccfcf99a0923", null ]
 ];

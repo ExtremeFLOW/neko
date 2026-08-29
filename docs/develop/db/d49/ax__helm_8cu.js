@@ -5,6 +5,8 @@ var ax__helm_8cu =
     [ "CASE_1D_SEL", "db/d49/ax__helm_8cu.html#a3e475551735a5a09902f98f486295b71", null ],
     [ "CASE_DMMA", "db/d49/ax__helm_8cu.html#a0880481a3f13ebae638dfd70c6099f7d", null ],
     [ "CASE_DMMA_SEL", "db/d49/ax__helm_8cu.html#a1d28938bea7544a536bdf9fd93549950", null ],
+    [ "CASE_DMMA_TMA", "db/d49/ax__helm_8cu.html#ab70f59a897d70998c3df9c9f686bd3e5", null ],
+    [ "CASE_DMMA_TMA_SEL", "db/d49/ax__helm_8cu.html#a76c6c36132931113670b33c9d6acc6d3", null ],
     [ "CASE_KSTEP", "db/d49/ax__helm_8cu.html#a69fef26384bc2e62f72ce8be65485120", null ],
     [ "CASE_KSTEP_PADDED", "db/d49/ax__helm_8cu.html#af49761b2031380888166084d7bbaab28", null ],
     [ "CASE_KSTEP_PADDED_SEL", "db/d49/ax__helm_8cu.html#a6c5554ab9d61e30aae9e2711e162e3b7", null ],
@@ -15,6 +17,10 @@ var ax__helm_8cu =
     [ "CASE_VECTOR", "db/d49/ax__helm_8cu.html#a0e633116639902b6dbb336d5ffd095e0", null ],
     [ "CASE_VECTOR_DMMA", "db/d49/ax__helm_8cu.html#a0bb47884f414f1781b29e17c1680182c", null ],
     [ "CASE_VECTOR_DMMA_SEL", "db/d49/ax__helm_8cu.html#af62fb2cb312133cae431d480844333b4", null ],
+    [ "CASE_VECTOR_DMMA_TMA", "db/d49/ax__helm_8cu.html#ae9d0de52c5a733ec1f7e416620408f08", null ],
+    [ "CASE_VECTOR_DMMA_TMA_BATCH", "db/d49/ax__helm_8cu.html#aa1ff363c936685cfe087e180f3d59196", null ],
+    [ "CASE_VECTOR_DMMA_TMA_BATCH_SEL", "db/d49/ax__helm_8cu.html#af5bc098f4f1e5a8ea105e5001d2d58f4", null ],
+    [ "CASE_VECTOR_DMMA_TMA_SEL", "db/d49/ax__helm_8cu.html#ab0145f7dd0b2f5034ae676612a1359ba", null ],
     [ "CASE_VECTOR_KSTEP", "db/d49/ax__helm_8cu.html#a44876b92236ddea1e39a34f45278e905", null ],
     [ "CASE_VECTOR_KSTEP_PADDED", "db/d49/ax__helm_8cu.html#aad5a9abef830d6e2bdae0327b0be1aa0", null ],
     [ "CASE_VECTOR_KSTEP_PADDED_SEL", "db/d49/ax__helm_8cu.html#ae04b7ea2556d1ae87ccd1aa6ec03f7fc", null ],
@@ -23,8 +29,8 @@ var ax__helm_8cu =
     [ "cuda_ax_helm", "db/d49/ax__helm_8cu.html#a5003f0c1ba26809010cac4cb6eddd907", null ],
     [ "cuda_ax_helm_vector", "db/d49/ax__helm_8cu.html#a631314811fe77d6c75fb2800ec1fe68f", null ],
     [ "cuda_ax_helm_vector_part2", "db/d49/ax__helm_8cu.html#a26b268da8fda4b2f7433dc55d069a9cf", null ],
-    [ "tune", "db/d49/ax__helm_8cu.html#aae0df5f4a95a35354d029a152828ba5b", null ],
-    [ "tune_padded", "db/d49/ax__helm_8cu.html#a8523f3447370f8d687be614b3bb6d42b", null ],
-    [ "tune_vector", "db/d49/ax__helm_8cu.html#abbffb49aa3f17da1996ea22c8813e8bc", null ],
-    [ "tune_vector_padded", "db/d49/ax__helm_8cu.html#ad87221cb89f170e1bee12c6b7e3b13f5", null ]
+    [ "tune", "db/d49/ax__helm_8cu.html#ab4687a68902932658eafcf1e3cbe7013", null ],
+    [ "tune_padded", "db/d49/ax__helm_8cu.html#a5067b6c7d22c0fa794b7d72582b72e39", null ],
+    [ "tune_vector", "db/d49/ax__helm_8cu.html#a406e27f1a0b961496e1d753296d41669", null ],
+    [ "tune_vector_padded", "db/d49/ax__helm_8cu.html#afc03536acb82bb517bf0abeb6980e0af", null ]
 ];

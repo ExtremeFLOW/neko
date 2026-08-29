@@ -1,0 +1,11 @@
+<map id="vector_bc_projector::segregated_vector_bc_projector_t" name="vector_bc_projector::segregated_vector_bc_projector_t">
+<area shape="rect" id="Node000001" title="A projector for vector fields that acts component&#45;wise." alt="" coords="628,30,779,85"/>
+<area shape="rect" id="Node000002" href="$d9/d93/structvector__bc__projector_1_1vector__bc__projector__t.html" title="Abstract type for resolving vector boundary conditions." alt="" coords="396,5,567,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="581,37,628,44,627,49,580,42"/>
+<area shape="rect" id="Node000003" href="$d6/dc1/structscalar__bc__projector_1_1scalar__bc__projector__t.html" title="Projector for scalar boundary conditions." alt="" coords="397,69,565,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="579,92,604,89,633,82,634,87,604,95,580,97"/>
+<area shape="rect" id="Node000004" href="$d2/df5/structmask_1_1mask__t.html" title="Type for consistently handling masks in Neko. This type encapsulates the mask array and its associate..." alt="" coords="164,77,279,102"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="293,87,397,87,397,92,293,92"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="5,77,60,102"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="74,87,164,87,164,92,74,92"/>
+</map>

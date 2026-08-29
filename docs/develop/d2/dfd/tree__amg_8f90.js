@@ -9,7 +9,7 @@ var tree__amg_8f90 =
     [ "tamg_device_prolongation_operator", "d2/dfd/tree__amg_8f90.html#a212450d5bbb78bb0a45a04db914998d3", null ],
     [ "tamg_device_restriction_operator", "d2/dfd/tree__amg_8f90.html#ae0d38cb6f342fff2ca06575ba19cd26d", null ],
     [ "tamg_free", "d2/dfd/tree__amg_8f90.html#addffa0d50cb9a0143050683d25c9677f", null ],
-    [ "tamg_init", "d2/dfd/tree__amg_8f90.html#aed109b2113cd566e75a376dd9cd17828", null ],
+    [ "tamg_init", "d2/dfd/tree__amg_8f90.html#a00189c3079b0155fcccf83144e10cb7d", null ],
     [ "tamg_lvl_init", "d2/dfd/tree__amg_8f90.html#ad89ff7cb0a5789fa030a730c4f4260c0", null ],
     [ "tamg_matvec", "d2/dfd/tree__amg_8f90.html#ade46664fb2b37237c10f395d1f5cda07", null ],
     [ "tamg_matvec_flat_impl", "d2/dfd/tree__amg_8f90.html#af51fcb1185c2730956e13617fc5e5f40", null ],
