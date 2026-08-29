@@ -92,6 +92,7 @@
 #include <string.h>
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
+#include <device/hip/check.h>
 
 /*
  * Reports whether the device code really was compiled for a matrix core
@@ -107,7 +108,13 @@
  * rather than as an error, which is the worst way for it to fail. Checking it
  * from the device removes the guesswork.
  */
-__global__ void hip_mfma_arch_probe(int * flag) {
+/* static, not merely file scope by convention: this header is included by
+   every operator that offers an MFMA strategy -- ax_helm, dudxyz, opgrad,
+   conv1 and cdtp -- and a non-template __global__ with external linkage is
+   then defined once per translation unit, which the linker rejects as a
+   multiple definition. Internal linkage gives each unit its own copy, which
+   is what the rest of this header already relies on. */
+static __global__ void hip_mfma_arch_probe(int * flag) {
 #if defined(__gfx90a__) || defined(__gfx942__)
   *flag = 1;
 #else
@@ -146,7 +153,12 @@ static inline bool hip_have_mfma() {
             cached = flag;
           }
         }
-        hipFree(d_flag);
+        /* Unlike the queries above, a failure here is not "the strategy is
+           unavailable" -- the pointer came from a hipMalloc that succeeded, so
+           a bad free means the context is broken. Checked rather than folded
+           into cached, and checked rather than discarded: hipFree is
+           nodiscard */
+        HIP_CHECK(hipFree(d_flag));
       }
     }
   }
