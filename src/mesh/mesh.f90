@@ -2077,7 +2077,7 @@ contains
 
     if (.not. allocated(this%htp)) then
        call neko_error('get_local(point) is only valid before generate_conn, &
-            &read pt_lid(point, element) instead')
+       &read pt_lid(point, element) instead')
     end if
 
     !> @todo why do we still need to do this?
