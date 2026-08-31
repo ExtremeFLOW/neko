@@ -37,6 +37,9 @@ simulation case, use the project-level skill in
     supercomputer via a gitlab pipeline. The tests are written using
     [reframe](https://reframe-hpc.readthedocs.io/en/stable/). These are
     validation tests checking that important cases produce the expected output.
+  - *Important*: Since Neko can be run in both double and single precision,
+    numerical assertions in tests should adjust their tolerance based on the
+    kind of `rp`. 
 
 ### Unit tests with pFUnit.
 - A guideline for writing these tests is given in
