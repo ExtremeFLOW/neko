@@ -29,6 +29,7 @@ from testlib import (
 COMPONENTS = ("fluid", "scalar", "non_normal", "sponge")
 IMPORT_MODES = ("same_mesh", "embedded_mesh", "separate_mesh")
 NPROCS = 2
+INTERPOLATION_TOLERANCE = {"dp": 1.0e-8, "sp": 1.0e-4}
 VALUE_TOLERANCE = {"dp": 1.0e-8, "sp": 2.0e-4}
 
 
@@ -52,7 +53,7 @@ def _field_options(field_file, mode, mesh_field):
         options["mesh_file_name"] = str(mesh_field)
     if mode != "same_mesh":
         options["interpolation"] = {
-            "tolerance": 1.0e-8,
+            "tolerance": INTERPOLATION_TOLERANCE[conftest.RP],
             "padding": 0.05,
         }
     return options
