@@ -30,27 +30,27 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Base type for a Kirby-Sherwin SVV Helmholtz operator.
-module ax_helm_svv_KS
+module ax_helm_svv_ks
   use ax_helm, only : ax_helm_t
   use spectral_vanishing_viscosity, only : svv_t
   implicit none
   private
 
   !> Helmholtz operator carrying a non-owning Kirby-Sherwin SVV object.
-  type, public, abstract, extends(ax_helm_t) :: ax_helm_svv_KS_t
+  type, public, abstract, extends(ax_helm_t) :: ax_helm_svv_ks_t
      !> SVV coefficients used by the operator.
      type(svv_t), pointer :: svv => null()
    contains
-     procedure, pass(this) :: free => ax_helm_svv_KS_free
-  end type ax_helm_svv_KS_t
+     procedure, pass(this) :: free => ax_helm_svv_ks_free
+  end type ax_helm_svv_ks_t
 
 contains
 
   !> Sever the non-owning link to the SVV object.
   !! @param this SVV Helmholtz operator.
-  subroutine ax_helm_svv_KS_free(this)
-    class(ax_helm_svv_KS_t), intent(inout) :: this
+  subroutine ax_helm_svv_ks_free(this)
+    class(ax_helm_svv_ks_t), intent(inout) :: this
     nullify(this%svv)
-  end subroutine ax_helm_svv_KS_free
+  end subroutine ax_helm_svv_ks_free
 
-end module ax_helm_svv_KS
+end module ax_helm_svv_ks

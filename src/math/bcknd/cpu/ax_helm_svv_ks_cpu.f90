@@ -30,8 +30,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> CPU implementation of the Kirby-Sherwin SVV Helmholtz operator.
-module ax_helm_svv_KS_cpu
-  use ax_helm_svv_KS, only : ax_helm_svv_KS_t
+module ax_helm_svv_ks_cpu
+  use ax_helm_svv_ks, only : ax_helm_svv_ks_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -42,10 +42,10 @@ module ax_helm_svv_KS_cpu
   private
 
   !> CPU Kirby-Sherwin SVV Helmholtz operator.
-  type, public, extends(ax_helm_svv_KS_t) :: ax_helm_svv_KS_cpu_t
+  type, public, extends(ax_helm_svv_ks_t) :: ax_helm_svv_ks_cpu_t
    contains
-     procedure, pass(this) :: compute => ax_helm_svv_KS_compute
-  end type ax_helm_svv_KS_cpu_t
+     procedure, pass(this) :: compute => ax_helm_svv_ks_compute
+  end type ax_helm_svv_ks_cpu_t
 
 contains
 
@@ -56,15 +56,15 @@ contains
   !! @param coef SEM coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space.
-  subroutine ax_helm_svv_KS_compute(this, w, u, coef, msh, Xh)
-    class(ax_helm_svv_KS_cpu_t), intent(in) :: this
+  subroutine ax_helm_svv_ks_compute(this, w, u, coef, msh, Xh)
+    class(ax_helm_svv_ks_cpu_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    call ax_helm_svv_KS_lx(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, &
+    call ax_helm_svv_ks_lx(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, &
          Xh%dzt, coef%h1, coef%drdx, coef%drdy, coef%drdz, coef%dsdx, &
          coef%dsdy, coef%dsdz, coef%dtdx, coef%dtdy, coef%dtdz, &
          coef%jacinv, Xh%w3, this%svv%h1, this%svv%filter%fh, &
@@ -74,7 +74,7 @@ contains
     if (coef%ifh2) then
        call addcol4(w, coef%h2, coef%B, u, coef%dof%size())
     end if
-  end subroutine ax_helm_svv_KS_compute
+  end subroutine ax_helm_svv_ks_compute
 
   !> Generic CPU kernel for the Kirby-Sherwin SVV Helmholtz product.
   !! @param w Result.
@@ -104,7 +104,7 @@ contains
   !! @param ident Identity matrix.
   !! @param n Number of elements.
   !! @param lx Number of points in one element direction.
-  subroutine ax_helm_svv_KS_lx(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
+  subroutine ax_helm_svv_ks_lx(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, svv_h1, svv_F, svv_Ft, svv_direction, ident, n, lx)
     integer, intent(in) :: n, lx
@@ -254,6 +254,6 @@ contains
        end do
     end do
     !$omp end parallel do
-  end subroutine ax_helm_svv_KS_lx
+  end subroutine ax_helm_svv_ks_lx
 
-end module ax_helm_svv_KS_cpu
+end module ax_helm_svv_ks_cpu
