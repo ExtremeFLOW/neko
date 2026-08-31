@@ -39,6 +39,9 @@
 !! so the routing is the same for every gs operation and can be worked out
 !! once, here, rather than re-derived from the payload on every call.
 !!
+!! The algorithm is the crystal router of Fox et al., "Solving Problems on
+!! Concurrent Processors, Volume 1", Prentice-Hall, 1988.
+!!
 !! What this module computes is that plan: for each stage, the partner ranks,
 !! the exact word counts to send and receive, and the index lists that move
 !! the words which stay put. The runtime is then a fixed sequence of
