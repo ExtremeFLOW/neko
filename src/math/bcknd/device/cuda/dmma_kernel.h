@@ -318,6 +318,10 @@ static inline bool dmma_vector_lx_supported()
 struct dmma_idx {
   int c;                     /* offset into the padded cube */
   int g;                     /* offset into the global element arrays */
+  int l;                     /* offset within the element, i.e. g minus the
+                                element's base. Needed by the operators that
+                                also read an array shared by every element,
+                                such as opgrad's quadrature weights w3 */
   bool live;                 /* false only for a padded tail slot, PACK > 1 */
 };
 
@@ -348,6 +352,7 @@ struct dmma_pack {
 
     x.c = (qa * LX + i) + DMMA_SI * (qb * LX + j) + DMMA_SJ * (qc * LX + k);
     x.g = r + (eq < nelv ? eq : nelv - 1) * LX3;
+    x.l = r;
     x.live = (eq < nelv);
     return x;
   }
@@ -379,6 +384,7 @@ struct dmma_pack< LX, 1 > {
 
     x.c = i + DMMA_SI * j + DMMA_SJ * k;
     x.g = ebase + p;
+    x.l = p;
     x.live = true;
     return x;
   }

@@ -23,7 +23,7 @@ of the code. But can be useful for users and developers alike.
 | `NEKO_DMMA_NW`           | Warps per block candidate when `NEKO_AUTOTUNE=DMMA` (0, 1 or 2)       | 0             |
 | `NEKO_DMMA_TMA_NW`       | Warps per block candidate when `NEKO_AUTOTUNE=DMMA_TMA` or `DMMA_TMA_BATCH` (0, 1 or 2) | 0 |
 | `NEKO_MFMA_NWF`          | Wavefronts per block candidate when `NEKO_AUTOTUNE=MFMA` (0 to 3)     | 0             |
-| `NEKO_MFMA_TUNE`         | Sweep the matrix core variant of the HIP Helmholtz operator (boolean) | 1             |
+| `NEKO_MFMA_TUNE`         | Sweep the matrix core variants on the HIP backend (boolean)           | 1             |
 | `NEKO_TUNE_ROUNDS`       | Interleaved sampling rounds used by the operator auto-tuner           | 3             |
 | `NEKO_TUNE_ITERS`        | Kernel launches timed per candidate per round                        | 100           |
 | `NEKO_LOG_FILE`          | Log file name, uses `stdout` if not set.                              | Unset         |
@@ -53,25 +53,29 @@ what is measured and why the defaults differ between vendors.
   given by `NEKO_CHUNKS`.
 - `NEKO_AUTOTUNE=KSTEP` : always use the kstep variant, with the
   elements per block given by `NEKO_EB`.
-- `NEKO_AUTOTUNE=DMMA`  : always use the fp64 tensor core variant of the
-  CUDA Helmholtz operator, scalar and vector, with the warps per block
-  given by `NEKO_DMMA_NW`. Double precision only, `2 <= lx <= 8` for the
-  scalar operator and `4 <= lx <= 8` for the vector one, on an sm_80 or
-  sm_90 device. The other operators have no such variant and
-  keep tuning as usual.
+- `NEKO_AUTOTUNE=DMMA`  : always use the fp64 tensor core variant, with
+  the warps per block given by `NEKO_DMMA_NW`. Available on CUDA for the
+  Helmholtz operator `Ax` (scalar and vector), `opgrad`, `dudxyz`,
+  `conv1` and `cdtp`. Double precision only, `2 <= lx <= 8` except for
+  the vector `Ax`, which is `4 <= lx <= 8`, on an sm_80 or sm_90 device.
+  `convect_scalar` and `lambda2` have no such variant and keep tuning as
+  usual.
 - `NEKO_AUTOTUNE=DMMA_TMA` : always use the TMA staged form of that
-  variant, scalar and vector, with the warps per block given by
-  `NEKO_DMMA_TMA_NW`. Double precision and `lx = 8` only, on an sm_90
-  device, and needs a CUDA 12 or later toolkit.
+  variant, for every operator that has one, with the warps per block
+  given by `NEKO_DMMA_TMA_NW`. Double precision and `lx = 8` only, on an
+  sm_90 device, and needs a CUDA 12 or later toolkit. The `opgrad` and
+  `conv1` forms stage past 48 kB and additionally need a device that will
+  grant a block 54800 B and 71184 B respectively.
 - `NEKO_AUTOTUNE=DMMA_TMA_BATCH` : the batched form of the TMA variant,
   which stages all ten input cubes of an element at once. Same scope and
   same `NEKO_DMMA_TMA_NW` knob, but for the vector operator only --- the
   scalar operator has no such variant and reports the value as invalid.
 
 - `NEKO_AUTOTUNE=MFMA`  : the HIP counterpart of `DMMA` --- always use the
-  matrix core variant of the HIP Helmholtz operator, with the wavefronts per
-  block given by `NEKO_MFMA_NWF`. Either precision, `4 <= lx <= 12`, on a
-  gfx90a or gfx942 device, and for the scalar operator only.
+  matrix core variant, with the wavefronts per block given by
+  `NEKO_MFMA_NWF`. Available for the Helmholtz operator `Ax` (scalar only),
+  `opgrad`, `dudxyz`, `conv1` and `cdtp`. Either precision, `4 <= lx <= 12`,
+  on a gfx90a or gfx942 device.
 
 The vector Helmholtz operator has no 1d formulation, so `1D` and `KSTEP`
 both pin it to its kstep variant, and it has no matrix core variant on HIP.
@@ -83,8 +87,9 @@ cover, is reported the same way. So are `DMMA_TMA` and `DMMA_TMA_BATCH`
 on anything but an sm_90 device with a CUDA 12 toolkit, at any order but
 `lx = 8`, or when the field pointers the operator is handed are not 16
 byte aligned, which is checked per tune rather than assumed;
-`DMMA_TMA_BATCH` additionally needs a device that will grant a block the
-54800 B it stages into.
+`DMMA_TMA_BATCH`, and the `opgrad` and `conv1` forms of `DMMA_TMA`,
+additionally need a device that will grant a block the shared memory
+they stage into.
 
 `NEKO_EB_TUNE` controls whether the elements per block dimension is
 swept at all, and defaults to enabled on both backends. It was once off
@@ -94,8 +99,8 @@ tuner from ever re-testing it. Where the blocked variants do spill the
 tuner rejects them, so the cost of sweeping is tuning time rather than
 run time. Set it to `0` to skip the sweep.
 
-`NEKO_MFMA_TUNE` is the equivalent switch for the matrix core variant of
-the HIP Helmholtz operator. It defaults to enabled wherever the hardware
+`NEKO_MFMA_TUNE` is the equivalent switch for the HIP matrix core
+variants. It defaults to enabled wherever the hardware
 and the polynomial order allow the variant at all; setting it to `0`
 keeps the strategy out of the sweep while leaving
 `NEKO_AUTOTUNE=MFMA` able to pin it explicitly.
@@ -123,11 +128,12 @@ equivalent, with candidates `0` to `3` selecting 1, 2, 4 and 8 wavefronts
 per block.
 
 On HIP that count also fixes the elements per block, and the two cannot
-be set independently: `min(nwf, ceil(lx*lx/16))` wavefronts cooperate on
-one element --- that being all the wavefront-parallel work a contraction
-offers --- and the block covers `nwf` divided by that many elements. At
-`lx = 8` the top candidate is eight wavefronts on one element, at `lx = 4`
-it is eight elements with one wavefront each.
+be set independently: a contraction offers only `ceil(lx*lx/16)` column
+groups of wavefront-parallel work, so the block covers as many elements
+as that leaves wavefronts for --- rounded down to a power of two, so that
+it divides `nwf` --- and the rest cooperate on each. At `lx = 8` the top
+candidate is eight wavefronts on one element, at `lx = 4` it is eight
+elements with one wavefront each.
 
 `NEKO_TUNE_ROUNDS` and `NEKO_TUNE_ITERS` control the sampling, and
 apply to *both* sweeps --- they are not specific to the elements per
