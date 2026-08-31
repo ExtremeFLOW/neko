@@ -517,9 +517,9 @@ contains
     case (GS_COMM_MPIRMA)
        name = '     MPI RMA'
     case (GS_COMM_CRYSTAL)
-       name = '     crystal'
+       name = '     Crystal'
     case (GS_COMM_CRYSTALGPU)
-       name = '  Dev crystal'
+       name = 'Dev. Crystal'
     case default
        name = '     unknown'
        call neko_error('Unknown Gather-scatter comm. backend')
