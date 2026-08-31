@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module ax_helm_svv_ks_device
-  use ax_helm_svv_ks, only : ax_helm_svv_ks_t
+  use ax_helm_svv, only : ax_helm_svv_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -44,7 +44,7 @@ module ax_helm_svv_ks_device
   private
 
   !> Device matrix-vector product for an SVV Helmholtz problem.
-  type, public, extends(ax_helm_svv_ks_t) :: ax_helm_svv_ks_device_t
+  type, public, extends(ax_helm_svv_t) :: ax_helm_svv_ks_device_t
    contains
      !> Compute the product.
      procedure, pass(this) :: compute => ax_helm_svv_ks_device_compute

@@ -32,7 +32,7 @@
 !
 !> Device implementation of the full-stress Kirby-Sherwin SVV operator.
 module ax_helm_svv_ks_full_device
-  use ax_helm_svv_ks_full, only : ax_helm_svv_ks_full_t
+  use ax_helm_svv_full, only : ax_helm_svv_full_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -45,7 +45,7 @@ module ax_helm_svv_ks_full_device
   private
 
   !> Device Kirby-Sherwin full-stress SVV Helmholtz operator.
-  type, public, extends(ax_helm_svv_ks_full_t) :: ax_helm_svv_ks_full_device_t
+  type, public, extends(ax_helm_svv_full_t) :: ax_helm_svv_ks_full_device_t
    contains
      !> Compute the coupled vector product.
      procedure, pass(this) :: compute_vector => &

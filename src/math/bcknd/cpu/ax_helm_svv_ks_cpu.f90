@@ -31,7 +31,7 @@
 !
 !> CPU implementation of the Kirby-Sherwin SVV Helmholtz operator.
 module ax_helm_svv_ks_cpu
-  use ax_helm_svv_ks, only : ax_helm_svv_ks_t
+  use ax_helm_svv, only : ax_helm_svv_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -42,7 +42,7 @@ module ax_helm_svv_ks_cpu
   private
 
   !> CPU Kirby-Sherwin SVV Helmholtz operator.
-  type, public, extends(ax_helm_svv_ks_t) :: ax_helm_svv_ks_cpu_t
+  type, public, extends(ax_helm_svv_t) :: ax_helm_svv_ks_cpu_t
    contains
      procedure, pass(this) :: compute => ax_helm_svv_ks_compute
   end type ax_helm_svv_ks_cpu_t
