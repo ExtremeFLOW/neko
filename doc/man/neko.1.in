@@ -230,8 +230,9 @@ formulation is pinned with
 Candidates
 .BR 0 " to " 3
 are 1, 2, 4 and 8 wavefronts per block. The count also fixes the elements per
-block: min(nwf, ceil(lx*lx/16)) wavefronts cooperate on one element and the
-block covers the rest. Values outside the valid range fall back to
+block: the block covers as many elements as the ceil(lx*lx/16) column groups
+leave wavefronts for, rounded down to a power of two, and the remaining
+wavefronts cooperate on each. Values outside the valid range fall back to
 .BR 0 .
 Defaults to
 .BR 0 .

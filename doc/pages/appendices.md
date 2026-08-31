@@ -128,11 +128,12 @@ equivalent, with candidates `0` to `3` selecting 1, 2, 4 and 8 wavefronts
 per block.
 
 On HIP that count also fixes the elements per block, and the two cannot
-be set independently: `min(nwf, ceil(lx*lx/16))` wavefronts cooperate on
-one element --- that being all the wavefront-parallel work a contraction
-offers --- and the block covers `nwf` divided by that many elements. At
-`lx = 8` the top candidate is eight wavefronts on one element, at `lx = 4`
-it is eight elements with one wavefront each.
+be set independently: a contraction offers only `ceil(lx*lx/16)` column
+groups of wavefront-parallel work, so the block covers as many elements
+as that leaves wavefronts for --- rounded down to a power of two, so that
+it divides `nwf` --- and the rest cooperate on each. At `lx = 8` the top
+candidate is eight wavefronts on one element, at `lx = 4` it is eight
+elements with one wavefront each.
 
 `NEKO_TUNE_ROUNDS` and `NEKO_TUNE_ITERS` control the sampling, and
 apply to *both* sweeps --- they are not specific to the elements per

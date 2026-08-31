@@ -210,20 +210,38 @@ static inline bool mfma_lx_supported() {
  * 34.0 / 60.2 us as NWF went 1, 2, 4, 8, monotonically worse, against
  * 218 / 157 / 136.4 / 136.4 at LX = 8 where four groups exist. Rather than
  * cap the sweep, the surplus wavefronts are given their own element: NWF is
- * read as wavefronts per block, WPE = min(NWF, NGROUPS) of them cooperate on
- * one element, and the block covers EB = NWF/WPE elements. At LX = 4 with
- * eight wavefronts that is eight elements, one each, with nothing idle; at
- * LX = 12 it is one element and eight cooperating wavefronts, exactly as
- * before. This matters because p-multigrid smooths at LX = 4 and 2, so low
- * order Ax is hot rather than incidental.
+ * read as wavefronts per block, the block covers EB elements and WPE =
+ * NWF/EB wavefronts cooperate on each. At LX = 4 with eight wavefronts that
+ * is eight elements, one each, with nothing idle; at LX = 12 it is one
+ * element and eight cooperating wavefronts, exactly as before. This matters
+ * because p-multigrid smooths at LX = 4 and 2, so low order Ax is hot rather
+ * than incidental.
+ *
+ * EB is the driving quantity and WPE follows from it, not the other way
+ * round: the block is partitioned into EB equal groups, so EB has to divide
+ * NWF exactly or the leftover wavefronts address an element the block does
+ * not own -- past the end of the shared staging arrays, and past the end of
+ * global storage in the last block. EB = NWF/NGROUPS is therefore rounded
+ * down to a power of two, which divides NWF for every candidate since NWF is
+ * itself 2^C. WPE may then exceed NGROUPS -- at LX = 6, NGROUPS = 3 and four
+ * wavefronts give EB = 1, WPE = 4 -- which is harmless: mfma_contract_4x4()
+ * strides the groups with `ng = wf + gp * NWF` under `ng < NGROUPS`, so a
+ * wavefront without a group of its own simply issues no matrix core work,
+ * while still taking its share of the staging and pointwise passes. The
+ * alternative, capping WPE at NGROUPS and letting EB absorb the remainder,
+ * would grow the shared footprint (LX = 10 with eight wavefronts would want
+ * 66 kB) for no gain.
  */
 #define NEKO_MFMA_NGROUPS(LX) (((LX) * (LX) + 15) / 16)
+/* Elements per block: surplus wavefronts, rounded down to a power of two so
+   that WPE * EB == NWF exactly */
+#define NEKO_MFMA_EB_N(NWF, LX)                                               \
+  ((NWF) / NEKO_MFMA_NGROUPS(LX) >= 8 ? 8 :                                   \
+   (NWF) / NEKO_MFMA_NGROUPS(LX) >= 4 ? 4 :                                   \
+   (NWF) / NEKO_MFMA_NGROUPS(LX) >= 2 ? 2 : 1)
+#define NEKO_MFMA_EB(LX, C) NEKO_MFMA_EB_N(NEKO_MFMA_NWF(C), LX)
 /* Wavefronts cooperating on one element */
-#define NEKO_MFMA_WPE(LX, C)                                                  \
-  (NEKO_MFMA_NWF(C) < NEKO_MFMA_NGROUPS(LX) ? NEKO_MFMA_NWF(C)                \
-                                            : NEKO_MFMA_NGROUPS(LX))
-/* Elements per block */
-#define NEKO_MFMA_EB(LX, C) (NEKO_MFMA_NWF(C) / NEKO_MFMA_WPE(LX, C))
+#define NEKO_MFMA_WPE(LX, C) (NEKO_MFMA_NWF(C) / NEKO_MFMA_EB(LX, C))
 #define NEKO_MFMA_NBLCKS(NELV, LX, C)                                         \
   dim3(((NELV) + NEKO_MFMA_EB(LX, C) - 1) / NEKO_MFMA_EB(LX, C), 1, 1)
 

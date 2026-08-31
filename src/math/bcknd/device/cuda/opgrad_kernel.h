@@ -5,7 +5,7 @@
 #include "dmma_kernel.h"
 #include "dmma_tma_kernel.h"
 /*
- Copyright (c) 2021-2023, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
