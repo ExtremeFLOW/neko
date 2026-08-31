@@ -37,12 +37,12 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
-#include "ax_helm_svv_KS_full_kernel.h"
+#include "ax_helm_svv_ks_full_kernel.h"
 
 extern "C" {
 
 /** Fortran wrapper for the fused Kirby-Sherwin full-stress HIP operator. */
-void hip_ax_helm_svv_KS_full(
+void hip_ax_helm_svv_ks_full(
     void *au, void *av, void *aw, void *u, void *v, void *w,
     void *dx, void *dy, void *dz, void *h1,
     void *drdx, void *drdy, void *drdz,
@@ -60,7 +60,7 @@ void hip_ax_helm_svv_KS_full(
 #define CASE(LX)                                                               \
   case LX:                                                                     \
     hipLaunchKernelGGL(                                                        \
-        HIP_KERNEL_NAME(ax_helm_svv_KS_full_kernel<real, LX>),                   \
+        HIP_KERNEL_NAME(ax_helm_svv_ks_full_kernel<real, LX>),                   \
         blocks, threads, shared_size, (hipStream_t) glb_cmd_queue,             \
         (real *) au, (real *) av, (real *) aw,                                \
         (real *) u, (real *) v, (real *) w,                                   \

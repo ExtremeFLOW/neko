@@ -42,7 +42,7 @@
  * Helmholtz gradient and divergence.
  */
 template<typename T, const int LX>
-__global__ void ax_helm_svv_KS_kernel(
+__global__ void ax_helm_svv_ks_kernel(
     T * __restrict__ w,
     const T * __restrict__ u,
     const T * __restrict__ dx,

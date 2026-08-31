@@ -34,16 +34,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <hip/hip_runtime.h>
 #include <device/device_config.h>
-#include <device/cuda/check.h>
-#include "ax_helm_svv_KS_kernel.h"
+#include <device/hip/check.h>
+#include "ax_helm_svv_ks_kernel.h"
 
 extern "C" {
 
 /**
- * Fortran wrapper for the fused CUDA SVV Helmholtz operator.
+ * Fortran wrapper for the fused HIP SVV Helmholtz operator.
  */
-void cuda_ax_helm_svv_KS(
+void hip_ax_helm_svv_ks(
     void *w, void *u, void *dx, void *dy, void *dz, void *h1,
     void *drdx, void *drdy, void *drdz,
     void *dsdx, void *dsdy, void *dsdz,
@@ -54,14 +55,13 @@ void cuda_ax_helm_svv_KS(
 
   const dim3 threads(*lx, *lx, 1);
   const dim3 blocks(*nelv, 1, 1);
-  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
   const size_t shared_size =
       2 * (*lx) * (*lx) * (*lx) * sizeof(real);
-  static bool shared_configured[17] = {false};
 
-#define LAUNCH(LX)                                                             \
-    ax_helm_svv_KS_kernel<real, LX>                                               \
-        <<<blocks, threads, shared_size, stream>>>(                            \
+#define CASE(LX)                                                               \
+  case LX:                                                                     \
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(ax_helm_svv_ks_kernel<real, LX>),          \
+        blocks, threads, shared_size, (hipStream_t) glb_cmd_queue,             \
         (real *) w, (real *) u,                                                \
         (real *) dx, (real *) dy, (real *) dz, (real *) h1,                   \
         (real *) drdx, (real *) drdy, (real *) drdz,                          \
@@ -69,22 +69,7 @@ void cuda_ax_helm_svv_KS(
         (real *) dtdx, (real *) dtdy, (real *) dtdz,                          \
         (real *) jacinv, (real *) w3, (real *) h1_svv,                        \
         (real *) filter_r, (real *) filter_s, (real *) filter_t);             \
-    CUDA_CHECK(cudaGetLastError())
-
-#define CASE(LX)                                                               \
-  case LX:                                                                     \
-    LAUNCH(LX);                                                                \
-    break
-
-// Double precision exceeds the default 48 KiB shared-memory limit at LX >= 15.
-#define CASE_LARGE(LX)                                                         \
-  case LX:                                                                     \
-    if (!shared_configured[LX]) {                                               \
-      CUDA_CHECK(cudaFuncSetAttribute(ax_helm_svv_KS_kernel<real, LX>,            \
-          cudaFuncAttributeMaxDynamicSharedMemorySize, shared_size));          \
-      shared_configured[LX] = true;                                             \
-    }                                                                           \
-    LAUNCH(LX);                                                                \
+    HIP_CHECK(hipGetLastError());                                              \
     break
 
   switch (*lx) {
@@ -101,8 +86,8 @@ void cuda_ax_helm_svv_KS(
     CASE(12);
     CASE(13);
     CASE(14);
-    CASE_LARGE(15);
-    CASE_LARGE(16);
+    CASE(15);
+    CASE(16);
     default:
       fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
       exit(1);

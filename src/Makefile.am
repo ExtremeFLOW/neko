@@ -327,18 +327,18 @@ neko_fortran_SOURCES = \
 	math/ax_helm.f90\
 	math/ax_helm_full.f90\
 	math/spectral_vanishing_viscosity.f90\
-	math/ax_helm_svv_KS.f90\
-	math/ax_helm_svv_KS_full.f90\
+	math/ax_helm_svv_ks.f90\
+	math/ax_helm_svv_ks_full.f90\
 	math/bcknd/cpu/ax_helm_cpu.f90\
-	math/bcknd/cpu/ax_helm_svv_KS_cpu.f90\
-	math/bcknd/cpu/ax_helm_svv_KS_full_cpu.f90\
+	math/bcknd/cpu/ax_helm_svv_ks_cpu.f90\
+	math/bcknd/cpu/ax_helm_svv_ks_full_cpu.f90\
 	math/bcknd/cpu/ax_helm_vector_cpu.f90\
 	math/bcknd/cpu/ax_helm_full_cpu.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
 	math/bcknd/device/ax_helm_device.F90\
-	math/bcknd/device/ax_helm_svv_KS_device.F90\
-	math/bcknd/device/ax_helm_svv_KS_full_device.F90\
+	math/bcknd/device/ax_helm_svv_ks_device.F90\
+	math/bcknd/device/ax_helm_svv_ks_full_device.F90\
 	math/bcknd/device/ax_helm_full_device.F90\
 	common/projection.f90\
 	common/projection_vel.f90\
@@ -542,8 +542,8 @@ libneko_la_SOURCES += \
 	math/bcknd/device/hip/opr_cfl.hip\
 	math/bcknd/device/hip/opr_rotate_cyc.hip\
 	math/bcknd/device/hip/ax_helm.hip\
-	math/bcknd/device/hip/ax_helm_svv_KS.hip\
-	math/bcknd/device/hip/ax_helm_svv_KS_full.hip\
+	math/bcknd/device/hip/ax_helm_svv_ks.hip\
+	math/bcknd/device/hip/ax_helm_svv_ks_full.hip\
 	math/bcknd/device/hip/ax_helm_full.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
 	krylov/bcknd/device/hip/pipecg_aux.hip\
@@ -614,8 +614,8 @@ libneko_la_SOURCES += \
 	math/bcknd/device/cuda/opr_cfl.cu\
 	math/bcknd/device/cuda/opr_rotate_cyc.cu\
 	math/bcknd/device/cuda/ax_helm.cu\
-	math/bcknd/device/cuda/ax_helm_svv_KS.cu\
-	math/bcknd/device/cuda/ax_helm_svv_KS_full.cu\
+	math/bcknd/device/cuda/ax_helm_svv_ks.cu\
+	math/bcknd/device/cuda/ax_helm_svv_ks_full.cu\
 	math/bcknd/device/cuda/ax_helm_full.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
 	krylov/bcknd/device/cuda/pipecg_aux.cu\
@@ -1039,8 +1039,8 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/cfl_kernel.h\
 	math/bcknd/device/cuda/rotate_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
-	math/bcknd/device/cuda/ax_helm_svv_KS_kernel.h\
-	math/bcknd/device/cuda/ax_helm_svv_KS_full_kernel.h\
+	math/bcknd/device/cuda/ax_helm_svv_ks_kernel.h\
+	math/bcknd/device/cuda/ax_helm_svv_ks_full_kernel.h\
 	math/bcknd/device/cuda/ax_helm_full_kernel.h\
 	math/bcknd/device/cuda/dmma_kernel.h\
 	math/bcknd/device/cuda/dmma_tma_kernel.h\
@@ -1101,8 +1101,8 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/cfl_kernel.h\
 	math/bcknd/device/hip/rotate_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
-	math/bcknd/device/hip/ax_helm_svv_KS_kernel.h\
-	math/bcknd/device/hip/ax_helm_svv_KS_full_kernel.h\
+	math/bcknd/device/hip/ax_helm_svv_ks_kernel.h\
+	math/bcknd/device/hip/ax_helm_svv_ks_full_kernel.h\
 	math/bcknd/device/hip/ax_helm_full_kernel.h\
 	math/bcknd/device/hip/mfma_kernel.h\
 	math/bcknd/device/hip/elem_block.h\
