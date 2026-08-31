@@ -157,7 +157,6 @@ module mesh
      procedure, private, pass(this) :: add_quad => mesh_add_quad
      procedure, private, pass(this) :: add_hex => mesh_add_hex
      procedure, private, pass(this) :: add_point => mesh_add_point
-     procedure, private, pass(this) :: get_local_point => mesh_get_local_point
      procedure, pass(this) :: get_global_edge => mesh_get_global_edge
      procedure, pass(this) :: get_global_facet => mesh_get_global_facet
      procedure, pass(this) :: is_shared_point => mesh_is_shared_point
@@ -184,11 +183,6 @@ module mesh
      generic :: init => init_nelv, init_dist
      !> Add an element to the mesh
      generic :: add_element => add_quad, add_hex
-     !> Get local id for a mesh entity
-     !! @attention only valid while the mesh is being built, see
-     !! @a mesh_get_local_point
-     !! @todo Add similar mappings for element ids
-     generic :: get_local => get_local_point
   end type mesh_t
 
   abstract interface
@@ -2062,33 +2056,6 @@ contains
 
   end subroutine mesh_apply_periodic_facet
 
-  !> Return the local id of a point @a p
-  !! @attention Only valid until @a generate_conn releases the global->local
-  !! point table. There is deliberately no fallback: @a pt_lid is keyed by
-  !! element and corner, so it cannot answer this question without scanning,
-  !! and scanning @a points is not equivalent either — periodic merging
-  !! leaves two local slots carrying the same global id, and only the one
-  !! this table names is the one the connectivity was built around.
-  function mesh_get_local_point(this, p) result(local_id)
-    class(mesh_t), intent(inout) :: this
-    type(point_t), intent(inout) :: p
-    integer :: local_id
-    integer :: tmp
-
-    if (.not. allocated(this%htp)) then
-       call neko_error('get_local(point) is only valid before generate_conn, &
-       &read pt_lid(point, element) instead')
-    end if
-
-    !> @todo why do we still need to do this?
-    tmp = p%id()
-
-    if (this%htp%get(tmp, local_id) .gt. 0) then
-       call neko_error('Invalid global id (local point)')
-    end if
-
-  end function mesh_get_local_point
-
   !> Return the global id of edge @a e in element @a el
   function mesh_get_global_edge(this, el, e) result(global_id)
     class(mesh_t), intent(in) :: this
@@ -2129,6 +2096,9 @@ contains
 
 
   !> Check if the mesh has a point given its global index
+  !! @details The one way to turn a global point id into a local one; a point
+  !! carries its global id, so @a p%id() is the key for a caller holding a
+  !! point_t. For an element's own corner read @a pt_lid instead.
   !! @return The local id of the point (if present) otherwise -1
   !! @attention Only valid until @a generate_conn releases the global->local
   !! point table
