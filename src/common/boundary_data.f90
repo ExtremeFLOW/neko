@@ -184,7 +184,7 @@ contains
     allocate(this%zone_indices(size(zone_indices)))
     this%zone_indices = zone_indices
 
-    ! only_facets
+    ! The face-node mask (facet_node_msk) is used.
     call this%bc%init_base(this%coef)
     this%bc%zone_indices = this%zone_indices
     do i = 1, size(this%zone_indices)
@@ -193,7 +193,7 @@ contains
     end do
     call this%bc%finalize()
 
-    this%n_local = this%bc%msk(0)
+    this%n_local = this%bc%facet_node_msk(0)
 
     call MPI_Allreduce(this%n_local, this%n_global, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
@@ -249,26 +249,26 @@ contains
 
     n = this%coef%dof%size()
 
-    call vector_masked_gather_copy_0(this%x, this%coef%dof%x, this%bc%msk, &
-         n, this%n_local)
-    call vector_masked_gather_copy_0(this%y, this%coef%dof%y, this%bc%msk, &
-         n, this%n_local)
-    call vector_masked_gather_copy_0(this%z, this%coef%dof%z, this%bc%msk, &
-         n, this%n_local)
+    call vector_masked_gather_copy_0(this%x, this%coef%dof%x, &
+         this%bc%facet_node_msk, n, this%n_local)
+    call vector_masked_gather_copy_0(this%y, this%coef%dof%y, &
+         this%bc%facet_node_msk, n, this%n_local)
+    call vector_masked_gather_copy_0(this%z, this%coef%dof%z, &
+         this%bc%facet_node_msk, n, this%n_local)
 
     call vector_face_masked_gather_copy_0(this%n_x, this%coef%nx, &
-         this%bc%msk, this%bc%facet, this%coef%Xh%lx, this%coef%Xh%ly, &
-         this%coef%Xh%lz, this%n_local)
+         this%bc%facet_node_msk, this%bc%facet, this%coef%Xh%lx, &
+         this%coef%Xh%ly, this%coef%Xh%lz, this%n_local)
     call vector_face_masked_gather_copy_0(this%n_y, this%coef%ny, &
-         this%bc%msk, this%bc%facet, this%coef%Xh%lx, this%coef%Xh%ly, &
-         this%coef%Xh%lz, this%n_local)
+         this%bc%facet_node_msk, this%bc%facet, this%coef%Xh%lx, &
+         this%coef%Xh%ly, this%coef%Xh%lz, this%n_local)
     call vector_face_masked_gather_copy_0(this%n_z, this%coef%nz, &
-         this%bc%msk, this%bc%facet, this%coef%Xh%lx, this%coef%Xh%ly, &
-         this%coef%Xh%lz, this%n_local)
+         this%bc%facet_node_msk, this%bc%facet, this%coef%Xh%lx, &
+         this%coef%Xh%ly, this%coef%Xh%lz, this%n_local)
 
     call vector_face_masked_gather_copy_0(this%area, this%coef%area, &
-         this%bc%msk, this%bc%facet, this%coef%Xh%lx, this%coef%Xh%ly, &
-         this%coef%Xh%lz, this%n_local)
+         this%bc%facet_node_msk, this%bc%facet, this%coef%Xh%lx, &
+         this%coef%Xh%ly, this%coef%Xh%lz, this%n_local)
 
     if (this%outward_normals) then
        call vector_cmult(this%n_x, -1.0_rp)
@@ -358,7 +358,7 @@ contains
     end if
     if (this%n_local .le. 0) return
 
-    call vector_masked_gather_copy_0(v, f%x, this%bc%msk, &
+    call vector_masked_gather_copy_0(v, f%x, this%bc%facet_node_msk, &
          this%coef%dof%size(), this%n_local)
 
   end subroutine boundary_data_get_vector_by_field
@@ -388,7 +388,8 @@ contains
 
     if (clear_) call field_rzero(f)
 
-    call vector_masked_scatter_copy_0(f%x, v, this%bc%msk, n, this%n_local)
+    call vector_masked_scatter_copy_0(f%x, v, this%bc%facet_node_msk, n, &
+         this%n_local)
 
   end subroutine boundary_data_scatter_to_field_by_vector
 
