@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Fixed facet masks for some simulation components.
 - *BREAKING*, normal_outflow conditions now require specifying `value`, which
   is used to set the value of the tangential components of velocity.
 - Added fp64 tensor core (`DMMA`) and matrix core (`MFMA`) variants of the
