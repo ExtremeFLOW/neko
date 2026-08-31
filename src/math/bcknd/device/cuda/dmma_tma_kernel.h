@@ -100,6 +100,16 @@
    g13, g23, in that order */
 #define DMMA_NG 7
 
+/* opgrad stages the nine metric cubes drdx..dtdz. Its tenth factor, the
+   quadrature weight w3, is shared by every element and so is read straight
+   from global memory -- it is L2 resident after the first block and a bulk
+   copy of it per element would be pure waste */
+#define DMMA_NG_OPGRAD 9
+
+/* conv1 stages the same nine, plus the three convecting velocity components
+   and jacinv */
+#define DMMA_NG_CONV1 13
+
 /*
  * cp.async.bulk is PTX ISA 8.0, which means CUDA 12.0. Compiling for sm_90 is
  * not enough on its own: CUDA 11.8 targets sm_90 but its ptxas only speaks
@@ -206,6 +216,51 @@ static inline bool dmma_tma_vector_lx_supported()
   return (sizeof(real) == 8) && (LX == DMMA_P);
 }
 
+/**
+ * The same predicate for the derivative operator, written out for the same
+ * reason: an lx its dispatch does not specialise resolves to a no-op that
+ * times as free and wins the tuner. Note that the DMMA bound is NOT written
+ * out per operator in the same way -- dmma_lx_supported() covers every
+ * operator whose dispatch specialises 2..DMMA_P, which dudxyz does.
+ *
+ * MUST match NEKO_DUDXYZ_DMMA_TMA_DISPATCH in dudxyz_kernel.h.
+ */
+template< const int LX >
+static inline bool dmma_tma_dudxyz_lx_supported()
+{
+  return (sizeof(real) == 8) && (LX == DMMA_P);
+}
+
+/**
+ * And for opgrad and conv1. Same bound, written out per operator for the same
+ * reason as above.
+ *
+ * MUST match NEKO_OPGRAD_DMMA_TMA_DISPATCH in opgrad_kernel.h and
+ * NEKO_CONV1_DMMA_TMA_DISPATCH in conv1_kernel.h.
+ */
+template< const int LX >
+static inline bool dmma_tma_opgrad_lx_supported()
+{
+  return (sizeof(real) == 8) && (LX == DMMA_P);
+}
+
+template< const int LX >
+static inline bool dmma_tma_conv1_lx_supported()
+{
+  return (sizeof(real) == 8) && (LX == DMMA_P);
+}
+
+/**
+ * And for cdtp. Same bound, written out per operator for the same reason.
+ *
+ * MUST match NEKO_CDTP_DMMA_TMA_DISPATCH in cdtp_kernel.h.
+ */
+template< const int LX >
+static inline bool dmma_tma_cdtp_lx_supported()
+{
+  return (sizeof(real) == 8) && (LX == DMMA_P);
+}
+
 /*
  * The batched vector variant's block, as one struct in dynamic shared memory.
  *
@@ -253,7 +308,7 @@ static_assert(offsetof(dmma_tma_batch_smem, c) % 128 == 0 &&
  * explicitly opted into, and the opt-in ceiling is a device attribute rather
  * than a property of the architecture, so it is queried. Cached.
  */
-static inline bool cuda_have_tma_batch()
+static inline int cuda_tma_smem_optin()
 {
 #if NEKO_TMA_TOOLKIT
   static int cached = -1;
@@ -268,15 +323,105 @@ static inline bool cuda_have_tma_batch()
                cudaDeviceGetAttribute(&optin,
                                       cudaDevAttrMaxSharedMemoryPerBlockOptin,
                                       dev) == cudaSuccess) {
-      cached = (optin >= NEKO_DMMA_TMA_BATCH_SMEM) ? 1 : 0;
+      cached = optin;
     } else {
       cached = 0;
     }
   }
-  return cached == 1;
+  return cached;
 #else
-  return false;
+  return 0;
 #endif
+}
+
+static inline bool cuda_have_tma_batch()
+{
+  return cuda_tma_smem_optin() >= NEKO_DMMA_TMA_BATCH_SMEM;
+}
+
+/*
+ * opgrad's block, laid out the same way and for the same reason as
+ * dmma_tma_batch_smem above: thirteen cubes will not fit in the 48 kB a block
+ * gets without asking, so the allocation is dynamic and the layout lives in a
+ * struct whose sizeof() is the launch size.
+ *
+ * It comes to **exactly** the same 54800 B as the batched axhelm block -- both
+ * are thirteen cubes and three matrices -- so cuda_have_tma_batch()'s device
+ * gate covers this variant unchanged, and so does its four blocks per SM.
+ *
+ * The ten input copies are issued together, which is the arrangement the
+ * scalar axhelm variant won with and the component-at-a-time vector one lost
+ * with. The three outputs leave as ordinary coalesced stores rather than bulk
+ * ones: only 'u' is free by then, so bulk storing all three would either
+ * serialise on a single cube or cost a register hoist of rtmp/stmp/ttmp --
+ * and at 19% of the traffic the stores are not what this variant is for.
+ */
+struct opgrad_tma_smem {
+  double u[DMMA_CUBE];                  /* the input, dead after phase 1 */
+  double r[DMMA_CUBE];                  /* the reference derivatives */
+  double s[DMMA_CUBE];
+  double t[DMMA_CUBE];
+  double g[DMMA_NG_OPGRAD][DMMA_CUBE];  /* drdx, dsdx, dtdx, drdy, ... dtdz */
+  double dx[DMMA_MAT];
+  double dy[DMMA_MAT];
+  double dz[DMMA_MAT];
+  unsigned long long bar_u;             /* the input cube */
+  unsigned long long bar_g;             /* the nine metric cubes */
+};
+
+#define NEKO_OPGRAD_TMA_SMEM ((int) sizeof(opgrad_tma_smem))
+
+/*
+ * conv1's block. Four more cubes than opgrad -- the three convecting velocity
+ * components and jacinv -- because every one of them is consumed at the same
+ * pointwise step and batching all fourteen copies is the whole point.
+ *
+ * 71184 B is three blocks per SM rather than opgrad's four, which is below the
+ * batched axhelm kernel's four and is the reason this one is a genuine
+ * question rather than an expected win. It has the best bytes per contraction
+ * of any operator in the tree (20480 at lx = 8, against axhelm's 6144), so
+ * there is more memory time here to hide the staging behind than anywhere
+ * else; whether that beats losing a block is what the tuner is for. Unlike
+ * opgrad there is a single output, so 'u' is free for it and the result does
+ * leave as one bulk store.
+ */
+struct conv1_tma_smem {
+  double u[DMMA_CUBE];                  /* the input, then the output */
+  double r[DMMA_CUBE];
+  double s[DMMA_CUBE];
+  double t[DMMA_CUBE];
+  double g[DMMA_NG_CONV1][DMMA_CUBE];   /* vx, vy, vz, jacinv, drdx .. dtdz */
+  double dx[DMMA_MAT];
+  double dy[DMMA_MAT];
+  double dz[DMMA_MAT];
+  unsigned long long bar_u;
+  unsigned long long bar_g;
+};
+
+#define NEKO_CONV1_TMA_SMEM ((int) sizeof(conv1_tma_smem))
+
+static_assert(sizeof(opgrad_tma_smem) <= 227 * 1024 &&
+              sizeof(conv1_tma_smem) <= 227 * 1024,
+              "tma block exceeds the opt-in shared memory ceiling");
+static_assert(offsetof(opgrad_tma_smem, u) % 128 == 0 &&
+              offsetof(opgrad_tma_smem, g) % 128 == 0 &&
+              offsetof(conv1_tma_smem, u) % 128 == 0 &&
+              offsetof(conv1_tma_smem, g) % 128 == 0,
+              "tma bulk copy targets must stay 128 byte aligned");
+
+/**
+ * Whether the device will hand a block each of those allocations. opgrad's is
+ * byte for byte the batched axhelm one; conv1's is larger and is queried
+ * separately rather than assumed to follow.
+ */
+static inline bool cuda_have_tma_opgrad()
+{
+  return cuda_tma_smem_optin() >= NEKO_OPGRAD_TMA_SMEM;
+}
+
+static inline bool cuda_have_tma_conv1()
+{
+  return cuda_tma_smem_optin() >= NEKO_CONV1_TMA_SMEM;
 }
 
 /**
@@ -332,6 +477,77 @@ static inline bool dmma_tma_vector_aligned(const void *au, const void *av,
   return dmma_tma_aligned(au, u, h1, g11, g22, g33, g12, g13, g23) &&
          dmma_tma_ptr_aligned(av) && dmma_tma_ptr_aligned(aw) &&
          dmma_tma_ptr_aligned(v) && dmma_tma_ptr_aligned(w);
+}
+
+/* The derivative operator's six arrays, same check */
+static inline bool dmma_tma_dudxyz_aligned(const void *du, const void *u,
+                                           const void *dr, const void *ds,
+                                           const void *dt, const void *jacinv)
+{
+  return dmma_tma_ptr_aligned(du) && dmma_tma_ptr_aligned(u) &&
+         dmma_tma_ptr_aligned(dr) && dmma_tma_ptr_aligned(ds) &&
+         dmma_tma_ptr_aligned(dt) && dmma_tma_ptr_aligned(jacinv);
+}
+
+/* The nine metric cubes, which both opgrad and conv1 bulk copy */
+static inline bool dmma_tma_metrics_aligned(const void *drdx, const void *dsdx,
+                                            const void *dtdx, const void *drdy,
+                                            const void *dsdy, const void *dtdy,
+                                            const void *drdz, const void *dsdz,
+                                            const void *dtdz)
+{
+  return dmma_tma_ptr_aligned(drdx) && dmma_tma_ptr_aligned(dsdx) &&
+         dmma_tma_ptr_aligned(dtdx) && dmma_tma_ptr_aligned(drdy) &&
+         dmma_tma_ptr_aligned(dsdy) && dmma_tma_ptr_aligned(dtdy) &&
+         dmma_tma_ptr_aligned(drdz) && dmma_tma_ptr_aligned(dsdz) &&
+         dmma_tma_ptr_aligned(dtdz);
+}
+
+/*
+ * opgrad copies ten arrays in and stores three with ordinary stores, so only
+ * the ten are checked -- an ordinary store has no alignment requirement beyond
+ * the type's, and w3 is never bulk copied either.
+ */
+static inline bool dmma_tma_opgrad_aligned(const void *u,
+                                           const void *drdx, const void *dsdx,
+                                           const void *dtdx, const void *drdy,
+                                           const void *dsdy, const void *dtdy,
+                                           const void *drdz, const void *dsdz,
+                                           const void *dtdz)
+{
+  return dmma_tma_ptr_aligned(u) &&
+         dmma_tma_metrics_aligned(drdx, dsdx, dtdx, drdy, dsdy, dtdy,
+                                  drdz, dsdz, dtdz);
+}
+
+/*
+ * cdtp copies four in and bulk stores its single output. w3 is shared by every
+ * element and read straight from global, so it is not among them.
+ */
+static inline bool dmma_tma_cdtp_aligned(const void *dtx, const void *x,
+                                         const void *dr, const void *ds,
+                                         const void *dt)
+{
+  return dmma_tma_ptr_aligned(dtx) && dmma_tma_ptr_aligned(x) &&
+         dmma_tma_ptr_aligned(dr) && dmma_tma_ptr_aligned(ds) &&
+         dmma_tma_ptr_aligned(dt);
+}
+
+/* conv1 copies fourteen in and bulk stores its single output, so all fifteen */
+static inline bool dmma_tma_conv1_aligned(const void *du, const void *u,
+                                          const void *vx, const void *vy,
+                                          const void *vz, const void *jacinv,
+                                          const void *drdx, const void *dsdx,
+                                          const void *dtdx, const void *drdy,
+                                          const void *dsdy, const void *dtdy,
+                                          const void *drdz, const void *dsdz,
+                                          const void *dtdz)
+{
+  return dmma_tma_ptr_aligned(du) && dmma_tma_ptr_aligned(u) &&
+         dmma_tma_ptr_aligned(vx) && dmma_tma_ptr_aligned(vy) &&
+         dmma_tma_ptr_aligned(vz) && dmma_tma_ptr_aligned(jacinv) &&
+         dmma_tma_metrics_aligned(drdx, dsdx, dtdx, drdy, dsdy, dtdy,
+                                  drdz, dsdz, dtdz);
 }
 
 /* Forced candidate, used when NEKO_AUTOTUNE pins the DMMA_TMA variant. The

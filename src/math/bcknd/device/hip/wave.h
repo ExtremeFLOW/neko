@@ -69,8 +69,18 @@
  * bare __AMDGCN_WAVEFRONT_SIZE is the original and is what every ROCm up to
  * the 6.x series defines; __AMDGCN_WAVEFRONT_SIZE__ was added later, and ROCm
  * 6.3 deprecated both without providing a compile time replacement. They are
- * expanded here rather than at the point of use, so that a deprecation warning
- * costs one diagnostic per translation unit instead of one per reduction.
+ * expanded here rather than at the point of use, so that the whole build reads
+ * them exactly once.
+ *
+ * That one read is still a diagnostic, because the deprecation is a
+ * `#pragma clang deprecated` and fires on expansion, including inside `#if`.
+ * It is silenced immediately around the two tests and nowhere else: the
+ * replacement the deprecation points at, __builtin_amdgcn_wavefrontsize(), is
+ * folded in the backend and so cannot be seen by the preprocessor, which is
+ * the only place a value is needed here. `defined()` does not expand its
+ * operand, so the guards themselves are silent and only the value tests have
+ * to be wrapped. When a compile time replacement does appear, this whole block
+ * -- pragmas included -- is what it replaces.
  *
  * The gfx family macros are the fallback for a toolchain that defines neither.
  * gfx6 through gfx9 (GCN, Vega, CDNA) are 64 lanes; gfx10 and later (RDNA)
@@ -81,6 +91,11 @@
  * wavefront returns the lane's own value, so the reduction would quietly
  * double every partial sum instead.
  */
+#  if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-pragma"
+#  endif
+
 #  if defined(__AMDGCN_WAVEFRONT_SIZE__)
 #    if __AMDGCN_WAVEFRONT_SIZE__ == 32
 #      define NEKO_WAVE_SIZE 32
@@ -102,6 +117,10 @@
 #    error "Unknown AMD wavefront width, rebuild with -DNEKO_WAVE_SIZE=32 or 64"
 #  else
 #    define NEKO_WAVE_SIZE 64 /* host pass, see the note above */
+#  endif
+
+#  if defined(__clang__)
+#    pragma clang diagnostic pop
 #  endif
 
 /*

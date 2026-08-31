@@ -454,9 +454,10 @@ __device__ void ax_helm_mfma_elem(T * __restrict__ w,
      block covering EB elements, see the note in mfma_kernel.h. At LX = 4 the
      contraction offers one column group, so WPE is 1 and every wavefront gets
      an element of its own rather than idling. */
-  enum { NGROUPS = (LX * LX + 15) / 16,
-         WPE = (NWF < NGROUPS) ? NWF : NGROUPS,
-         EB = NWF / WPE };
+  enum { EB = NEKO_MFMA_EB_N(NWF, LX),
+         WPE = NWF / EB };
+  static_assert(WPE * EB == NWF,
+                "wavefronts per block must split evenly over the elements");
 
   __shared__ T shdx[LX * LX];
   __shared__ T shdy[LX * LX];

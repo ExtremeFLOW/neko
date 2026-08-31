@@ -1,8 +1,10 @@
 #ifndef __MATH_DUDXYZ_KERNEL_H__
 #define __MATH_DUDXYZ_KERNEL_H__
 
+#include "mfma_kernel.h"
+
 /*
- Copyright (c) 2021-2023, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -199,5 +201,193 @@ __global__ void NEKO_EB_BOUNDS(LX*LX*EB)
   }
 }
 
+
+
+/**
+ * Device kernel for the derivative on the AMD matrix cores
+ *
+ * The first half of ax_helm_mfma_elem() and nothing else: the same four LDS
+ * cubes and the same three D * U contractions handed to
+ * mfma_contract_sel, but the geometric factors turn the reference
+ * derivatives into the physical one pointwise on the way out to global
+ * memory, where axhelm contracts a second time with D^T. See mfma_kernel.h
+ * for the tiles, the lane layouts, the wavefronts-per-element scheme and the
+ * arch and LX bounds.
+ */
+
+#if defined(__gfx90a__) || defined(__gfx942__)
+
+template< typename T, const int LX, const int NWF >
+__device__ void dudxyz_mfma_elem(T * __restrict__ du,
+                                 const T * __restrict__ u,
+                                 const T * __restrict__ dr,
+                                 const T * __restrict__ ds,
+                                 const T * __restrict__ dt,
+                                 const T * __restrict__ dx,
+                                 const T * __restrict__ dy,
+                                 const T * __restrict__ dz,
+                                 const T * __restrict__ jacinv,
+                                 const int nelv) {
+  const int LX2 = LX * LX;
+  const int LX3 = LX * LX * LX;
+
+  /* NWF wavefronts per block, WPE of them cooperating on one element and the
+     block covering EB elements, see the note in mfma_kernel.h. At LX = 4 the
+     contraction offers one column group, so WPE is 1 and every wavefront gets
+     an element of its own rather than idling. */
+  enum { EB = NEKO_MFMA_EB_N(NWF, LX),
+         WPE = NWF / EB };
+  static_assert(WPE * EB == NWF,
+                "wavefronts per block must split evenly over the elements");
+
+  __shared__ T shdx[LX * LX];
+  __shared__ T shdy[LX * LX];
+  __shared__ T shdz[LX * LX];
+  __shared__ T shu[EB * LX * LX * LX];   // the staged field
+  __shared__ T shr[EB * LX * LX * LX];   // d/dr
+  __shared__ T shs[EB * LX * LX * LX];   // d/ds
+  __shared__ T sht[EB * LX * LX * LX];   // d/dt
+
+  static_assert(sizeof(shdx) + sizeof(shdy) + sizeof(shdz) +
+                sizeof(shu) + sizeof(shr) + sizeof(shs) + sizeof(sht)
+                <= NEKO_EB_MAX_LDS,
+                "mfma block exceeds the shared memory budget");
+
+  const int lane = threadIdx.x;          // 0..63 : lane within a wavefront
+  const int wf   = threadIdx.y;          // 0..NWF-1 : which wavefront
+  const int tid  = wf * 64 + lane;       // 0..NWF*64-1 : block-wide thread id
+  const int nthr = NWF * 64;
+
+  const int eb  = wf / WPE;              // which element this wavefront serves
+  const int sub = wf % WPE;              // its rank among that element's waves
+  const int gtid = sub * 64 + lane;      // thread id within the element group
+  const int gnthr = WPE * 64;
+
+  /* Threads past the last element still have to reach the block wide
+     barriers, so clamp their reads and drop their stores rather than
+     returning early. At EB == 1 the grid covers nelv exactly and this is
+     constant folded away */
+  const int e_blk = blockIdx.x * EB + eb;
+  const bool active = (EB == 1) ? true : (e_blk < nelv);
+  const int e = active ? e_blk : (nelv - 1);
+  const int ele = e * LX3;
+  const int sh = eb * LX3;
+
+  /* Reference derivative matrices, one copy shared by every element */
+  for (int p = tid; p < LX2; p += nthr) {
+    shdx[p] = dx[p];
+    shdy[p] = dy[p];
+    shdz[p] = dz[p];
+  }
+  /* Element-local field, staged by the wavefronts that own it */
+  for (int p = gtid; p < LX3; p += gnthr)
+    shu[sh + p] = u[p + ele];
+
+  __syncthreads();
+
+  /* Reference space derivatives ur, us, ut, striped across the cooperating
+     wavefronts by mfma_contract_sel */
+  mfma_contract_sel<T, LX, 0, false, false, WPE>::run(shr + sh, shdx,
+                                                      shu + sh, lane, sub);
+  mfma_contract_sel<T, LX, 1, false, false, WPE>::run(shs + sh, shdy,
+                                                      shu + sh, lane, sub);
+  mfma_contract_sel<T, LX, 2, false, false, WPE>::run(sht + sh, shdz,
+                                                      shu + sh, lane, sub);
+
+  __syncthreads();
+
+  if (active) {
+    for (int p = gtid; p < LX3; p += gnthr) {
+      const int gp = p + ele;
+
+      du[gp] = jacinv[gp] * (shr[sh + p] * dr[gp]
+                             + shs[sh + p] * ds[gp]
+                             + sht[sh + p] * dt[gp]);
+    }
+  }
+}
+
+#endif // __gfx90a__ || __gfx942__
+
+/*
+ * Compile-time dispatch onto the MFMA element kernel. The launch macros in
+ * opr_dudxyz.hip are written for every LX the operator dispatches and for
+ * whatever `real` is, so every combination has to compile; the ones the
+ * strategy does not cover -- LX outside the supported range, a build without
+ * a matrix-core arch -- resolve to this no-op. The autotuner never selects
+ * the strategy for them, so the no-op is unreachable at runtime, see
+ * mfma_lx_supported() and hip_have_mfma() in mfma_kernel.h.
+ */
+template< typename T, const int LX, const int NWF >
+struct dudxyz_mfma_dispatch {
+  __device__ static void run(T *, const T *, const T *, const T *, const T *,
+                             const T *, const T *, const T *, const T *,
+                             const int) {}
+};
+
+#if defined(__gfx90a__) || defined(__gfx942__)
+
+/* Keep in sync with mfma_lx_supported() in mfma_kernel.h */
+#define NEKO_DUDXYZ_MFMA_DISPATCH(TYPE, LXV)                                  \
+  template< const int NWF >                                                   \
+  struct dudxyz_mfma_dispatch< TYPE, LXV, NWF > {                             \
+    __device__ static void run(TYPE * du,                                     \
+                               const TYPE * u,                                \
+                               const TYPE * dr,                               \
+                               const TYPE * ds,                               \
+                               const TYPE * dt,                               \
+                               const TYPE * dx,                               \
+                               const TYPE * dy,                               \
+                               const TYPE * dz,                               \
+                               const TYPE * jacinv,                           \
+                               const int nelv) {                              \
+      dudxyz_mfma_elem< TYPE, LXV, NWF >(du, u, dr, ds, dt, dx, dy, dz,       \
+                                         jacinv, nelv);                       \
+    }                                                                         \
+  }
+
+NEKO_DUDXYZ_MFMA_DISPATCH(double, 4);
+NEKO_DUDXYZ_MFMA_DISPATCH(double, 5);
+NEKO_DUDXYZ_MFMA_DISPATCH(double, 6);
+NEKO_DUDXYZ_MFMA_DISPATCH(double, 7);
+NEKO_DUDXYZ_MFMA_DISPATCH(double, 8);
+NEKO_DUDXYZ_MFMA_DISPATCH(double, 9);
+NEKO_DUDXYZ_MFMA_DISPATCH(double, 10);
+NEKO_DUDXYZ_MFMA_DISPATCH(double, 11);
+NEKO_DUDXYZ_MFMA_DISPATCH(double, 12);
+
+NEKO_DUDXYZ_MFMA_DISPATCH(float, 4);
+NEKO_DUDXYZ_MFMA_DISPATCH(float, 5);
+NEKO_DUDXYZ_MFMA_DISPATCH(float, 6);
+NEKO_DUDXYZ_MFMA_DISPATCH(float, 7);
+NEKO_DUDXYZ_MFMA_DISPATCH(float, 8);
+NEKO_DUDXYZ_MFMA_DISPATCH(float, 9);
+NEKO_DUDXYZ_MFMA_DISPATCH(float, 10);
+NEKO_DUDXYZ_MFMA_DISPATCH(float, 11);
+NEKO_DUDXYZ_MFMA_DISPATCH(float, 12);
+
+#endif // __gfx90a__ || __gfx942__
+
+/*
+ * Note the bare __launch_bounds__ rather than NEKO_EB_BOUNDS, matching
+ * ax_helm_kernel_mfma: the kstep kernels ask for three waves per SIMD, and
+ * the matrix core kernels were validated without that constraint.
+ */
+template< typename T, const int LX, const int NWF >
+__global__ void __launch_bounds__(64 * NWF)
+dudxyz_kernel_mfma(T * __restrict__ du,
+                   const T * __restrict__ u,
+                   const T * __restrict__ dr,
+                   const T * __restrict__ ds,
+                   const T * __restrict__ dt,
+                   const T * __restrict__ dx,
+                   const T * __restrict__ dy,
+                   const T * __restrict__ dz,
+                   const T * __restrict__ jacinv,
+                   const int nelv) {
+
+  dudxyz_mfma_dispatch< T, LX, NWF >::run(du, u, dr, ds, dt, dx, dy, dz,
+                                          jacinv, nelv);
+}
 
 #endif // __MATH_DUDXYZ_KERNEL_H__
