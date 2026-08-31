@@ -32,7 +32,7 @@
 !
 !> CPU implementation of the full-stress Kirby-Sherwin SVV Helmholtz operator.
 module ax_helm_svv_ks_full_cpu
-  use ax_helm_svv_ks_full, only : ax_helm_svv_ks_full_t
+  use ax_helm_svv_full, only : ax_helm_svv_full_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -44,7 +44,7 @@ module ax_helm_svv_ks_full_cpu
   private
 
   !> CPU matrix-vector product for a Helmholtz problem.
-  type, public, extends(ax_helm_svv_ks_full_t) :: ax_helm_svv_ks_full_cpu_t
+  type, public, extends(ax_helm_svv_full_t) :: ax_helm_svv_ks_full_cpu_t
    contains
      !> Compute the product.
      procedure, pass(this) :: compute_vector => &

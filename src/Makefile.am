@@ -327,8 +327,8 @@ neko_fortran_SOURCES = \
 	math/ax_helm.f90\
 	math/ax_helm_full.f90\
 	math/spectral_vanishing_viscosity.f90\
-	math/ax_helm_svv_ks.f90\
-	math/ax_helm_svv_ks_full.f90\
+	math/ax_helm_svv.f90\
+	math/ax_helm_svv_full.f90\
 	math/bcknd/cpu/ax_helm_cpu.f90\
 	math/bcknd/cpu/ax_helm_svv_ks_cpu.f90\
 	math/bcknd/cpu/ax_helm_svv_ks_full_cpu.f90\
