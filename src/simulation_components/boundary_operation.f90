@@ -228,13 +228,13 @@ contains
     end do
     call this%bc%finalize()
 
-    n_pts = this%bc%msk(0)
+    n_pts = this%bc%facet_node_msk(0)
     if (n_pts .gt. 0) then
        call this%areas%init(n_pts)
        call this%surface_values%init(n_pts)
        call vector_face_masked_gather_copy_0(this%areas, this%coef%area, &
-            this%bc%msk, this%bc%facet, this%coef%Xh%lx, this%coef%Xh%ly, &
-            this%coef%Xh%lz, n_pts)
+            this%bc%facet_node_msk, this%bc%facet, this%coef%Xh%lx, &
+            this%coef%Xh%ly, this%coef%Xh%lz, n_pts)
     end if
 
     if (present(output_filename)) then
@@ -261,7 +261,7 @@ contains
     write(log_buf, '(A,*(I0,:,", "))') "Zone indices: ", this%zone_indices
     call neko_log%message(log_buf)
     write(log_buf, '(A,I0)') "Marked boundary quadrature points: ", &
-         this%bc%msk(0)
+         this%bc%facet_node_msk(0)
     call neko_log%message(log_buf)
     call neko_log%end_section()
   end subroutine boundary_operation_init_common
@@ -398,7 +398,7 @@ contains
     character(len=:), allocatable :: section_title, header_line, value_line
     integer :: output_col
 
-    n_pts = this%bc%msk(0)
+    n_pts = this%bc%facet_node_msk(0)
 
     this%integral = 0.0_rp
     this%average = 0.0_rp
@@ -407,7 +407,7 @@ contains
     area = 0.0_rp
 
     call vector_masked_gather_copy_0(this%surface_values, &
-         this%field%x, this%bc%msk, this%field%size(), n_pts)
+         this%field%x, this%bc%facet_node_msk, this%field%size(), n_pts)
 
     if (this%compute_integral .or. this%compute_average) then
        this%integral = vector_glsc2(this%surface_values, this%areas, n_pts)

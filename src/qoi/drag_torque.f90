@@ -479,7 +479,7 @@ contains
        fid = facets(i)
        if ( (fid .lt. 1) .or. (fid .gt. 6)) then
           call neko_error('setup_normals: invalid facet id. ' // &
-               'Finalize the bc with only_facets = .true.')
+               'Pass bc%facet_node_msk, not bc%msk.')
        end if
        idx = nonlinear_index(mask(i), coef%Xh%lx, coef%Xh%lx, coef%Xh%lx)
        normal = coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
