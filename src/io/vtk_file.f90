@@ -41,6 +41,7 @@ module vtk_file
   use dofmap, only : dofmap_t
   use mesh_field, only : mesh_fld_t
   use tet_mesh, only : tet_mesh_t
+  use htable, only : htable_i4_t
   use tri_mesh, only : tri_mesh_t
   use logger, only : neko_log
   use comm, only : pe_size, pe_rank
@@ -157,6 +158,11 @@ contains
     integer :: i, j, vtk_type
     integer, dimension(8), parameter :: vcyc_to_sym = [1, 2, 4, 3, &
          5, 6, 8, 7]
+    ! pt_lid only exists on a mesh whose connectivity was generated
+    if (.not. allocated(msh%pt_lid)) then
+       call neko_error('VTK output requires a mesh with generated connectivity')
+    end if
+
     ! Dump coordinates
     write(unit, fmt = '(A,I8,A)') 'POINTS', msh%mpts, ' double'
     do i = 1, msh%mpts
@@ -168,8 +174,7 @@ contains
     j = 0
     do i = 1, msh%nelv
        write(unit, fmt = '(I8,8I8)') msh%npts, &
-            (msh%get_local(msh%elements(i)%e%pts(vcyc_to_sym(j))%p) - 1, &
-            j = 1, msh%npts)
+            (msh%pt_lid(vcyc_to_sym(j), i) - 1, j = 1, msh%npts)
     end do
 
     ! Dump cell type for each element
@@ -221,11 +226,15 @@ contains
     lx = fld%Xh%lx
     ly = fld%Xh%ly
     lz = fld%Xh%lz
+    if (.not. allocated(fld%msh%pt_lid)) then
+       call neko_error('VTK output requires a mesh with generated connectivity')
+    end if
+
     allocate(point_data(fld%msh%mpts))
 
     do i = 1, fld%msh%nelv
        do j = 1, fld%msh%npts
-          id(j) = fld%msh%get_local(fld%msh%elements(i)%e%pts(j)%p)
+          id(j) = fld%msh%pt_lid(j, i)
        end do
 
        point_data(id(1)) = real(fld%x(1, 1, 1, i), dp)
@@ -322,6 +331,9 @@ contains
     type(tet_mesh_t), intent(inout) :: tet_msh
     integer, parameter :: npts = 4
     integer :: i, j, vtk_type
+    integer :: pt_id, pt_lid
+    integer :: tet_pts(npts)
+    type(htable_i4_t) :: lid
 
     ! Dump coordinates
     write(unit, fmt = '(A,I8,A)') 'POINTS', tet_msh%msh%mpts, ' double'
@@ -330,14 +342,34 @@ contains
             real(tet_msh%msh%points(i)%x, dp)
     end do
 
+    ! A tetrahedron's vertices point into the hexahedral mesh's point list but
+    ! carry no element and corner of their own, so unlike the other writers
+    ! this one cannot read pt_lid and needs its own global->local table.
+    ! @note Periodic meshes hold the merged id twice, once per side; the first
+    ! occurrence wins here, as it did in the mesh's own table
+    call lid%init(tet_msh%msh%mpts, i)
+    do i = 1, tet_msh%msh%mpts
+       pt_id = tet_msh%msh%points(i)%id()
+       if (lid%get(pt_id, pt_lid) .gt. 0) then
+          pt_lid = i
+          call lid%set(pt_id, pt_lid)
+       end if
+    end do
+
     ! Dump cells
     write(unit, fmt = '(A,I8,I8)') 'CELLS', tet_msh%nelv, tet_msh%nelv*(npts+1)
-    j = 0
     do i = 1, tet_msh%nelv
-       write(unit, fmt = '(I8,8I8)') npts, &
-            (tet_msh%msh%get_local(tet_msh%el(i)%pts(j)%p) - 1, &
-            j = 1, npts)
+       do j = 1, npts
+          pt_id = tet_msh%el(i)%pts(j)%p%id()
+          if (lid%get(pt_id, pt_lid) .gt. 0) then
+             call neko_error('Tetrahedron vertex is not a mesh point')
+          end if
+          tet_pts(j) = pt_lid - 1
+       end do
+       write(unit, fmt = '(I8,8I8)') npts, (tet_pts(j), j = 1, npts)
     end do
+
+    call lid%free()
 
     ! Dump cell type for each element
     write(unit, fmt = '(A,I8)') 'CELL_TYPES', tet_msh%nelv
