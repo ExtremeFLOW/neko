@@ -1,0 +1,36 @@
+USEMPI=YES
+ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
+include @PFUNIT_DIR@/include/PFUNIT.mk
+endif
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) @NEKO_PKG_FCFLAGS@ -I@top_builddir@/src
+FC = @FC@
+
+%.o : %.F90
+	$(FC) -c $(FFLAGS) $<
+
+../fixtures/mesh_fixture.o : ../fixtures/mesh_fixture.f90
+	$(FC) -c $(FFLAGS) -o $@ $<
+
+
+check: bc_projector_suite
+
+
+bc_projector_suite_TESTS := test_bc_projector.pf\
+    test_coupled_bc_projector.pf
+bc_projector_suite_OTHER_SOURCES = ../fixtures/mesh_fixture.f90
+bc_projector_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
+$(eval $(call make_pfunit_test,bc_projector_suite))
+bc_projector_suite.inc: Makefile
+test_bc_projector.o: ../fixtures/mesh_fixture.o
+test_coupled_bc_projector.o: ../fixtures/mesh_fixture.o
+
+distclean:
+clean:
+	$(RM) *.o *.mod *.a *.inc *.F90 bc_projector_suite ../fixtures/mesh_fixture.o
+
+
+
+all:
+html:
+install:
+distdir:

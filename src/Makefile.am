@@ -196,7 +196,10 @@ neko_fortran_SOURCES = \
 	io/mean_field_output.f90\
 	common/profiler.F90\
 	common/craypat.F90\
+	bc/scalar_bc_projector.f90\
+	bc/vector_bc_projector.f90\
 	bc/bc.f90\
+	bc/mixed_bc.f90\
 	bc/bc_list.f90\
 	bc/dirichlet.f90\
 	bc/neumann.f90\
@@ -214,6 +217,8 @@ neko_fortran_SOURCES = \
 	bc/overset_interface_vector.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
+	bc/symmetry_aligned.f90\
+	bc/non_normal_aligned.f90\
 	bc/non_normal.f90\
 	bc/blasius.f90\
 	bc/wall_model_bc.f90\
@@ -357,11 +362,13 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_dirichlet.F90\
 	bc/bcknd/device/device_inflow.F90\
 	bc/bcknd/device/device_zero_dirichlet.F90\
-	bc/bcknd/device/device_symmetry.F90\
+	bc/bcknd/device/device_symmetry_aligned.F90\
 	bc/bcknd/device/device_facet_normal.F90\
 	bc/bcknd/device/device_neumann.F90\
 	bc/bcknd/device/device_inhom_dirichlet.F90\
 	bc/bcknd/device/device_dong_outflow.F90\
+	bc/bcknd/device/device_constrain_mixed_bc.F90\
+	bc/bcknd/device/device_coupled_vector_bc_projector.F90\
 	scalar/bcknd/device/scalar_residual_device.F90\
 	scalar/scalar_scheme.f90\
 	scalar/scalar_scheme_fctry.f90\
@@ -538,7 +545,9 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/hip/dirichlet.hip\
 	bc/bcknd/device/hip/inflow.hip\
 	bc/bcknd/device/hip/zero_dirichlet.hip\
-	bc/bcknd/device/hip/symmetry.hip\
+	bc/bcknd/device/hip/symmetry_aligned.hip\
+	bc/bcknd/device/hip/constrain_mixed_bc.hip\
+	bc/bcknd/device/hip/coupled_vector_bc_projector.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
 	bc/bcknd/device/hip/neumann.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
@@ -606,11 +615,13 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
 	bc/bcknd/device/cuda/zero_dirichlet.cu\
-	bc/bcknd/device/cuda/symmetry.cu\
+	bc/bcknd/device/cuda/symmetry_aligned.cu\
 	bc/bcknd/device/cuda/facet_normal.cu\
 	bc/bcknd/device/cuda/neumann.cu\
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
 	bc/bcknd/device/cuda/dong_outflow.cu\
+	bc/bcknd/device/cuda/constrain_mixed_bc.cu\
+	bc/bcknd/device/cuda/coupled_vector_bc_projector.cu\
 	common/bcknd/device/cuda/rhs_maker.cu\
 	common/bcknd/device/cuda/projection.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
@@ -710,7 +721,9 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
 	bc/bcknd/device/opencl/zero_dirichlet.c\
-	bc/bcknd/device/opencl/symmetry.c\
+	bc/bcknd/device/opencl/symmetry_aligned.c\
+	bc/bcknd/device/opencl/constrain_mixed_bc.c\
+	bc/bcknd/device/opencl/coupled_vector_bc_projector.c\
 	bc/bcknd/device/opencl/facet_normal.c\
 	bc/bcknd/device/opencl/neumann.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
@@ -787,7 +800,8 @@ METAL_OBJS = \
 	bc/bcknd/device/metal/facet_normal.lo\
 	bc/bcknd/device/metal/neumann.lo\
 	bc/bcknd/device/metal/inhom_dirichlet.lo\
-	bc/bcknd/device/metal/dong_outflow.lo
+	bc/bcknd/device/metal/dong_outflow.lo\
+	bc/bcknd/device/metal/coupled_vector_bc_projector.lo
 
 libneko_la_LIBADD += $(METAL_OBJS)
 
@@ -832,7 +846,8 @@ dist_noinst_DATA = \
 	bc/bcknd/device/metal/facet_normal.m\
 	bc/bcknd/device/metal/neumann.m\
 	bc/bcknd/device/metal/inhom_dirichlet.m\
-	bc/bcknd/device/metal/dong_outflow.m
+	bc/bcknd/device/metal/dong_outflow.m\
+	bc/bcknd/device/metal/coupled_vector_bc_projector.m
 
 METAL_KERNELS = \
 	math/bcknd/device/metal/math_kernel.metal\
@@ -874,7 +889,8 @@ METAL_KERNELS = \
 	bc/bcknd/device/metal/facet_normal_kernel.metal\
 	bc/bcknd/device/metal/neumann_kernel.metal\
 	bc/bcknd/device/metal/inhom_dirichlet_kernel.metal\
-	bc/bcknd/device/metal/dong_outflow_kernel.metal
+	bc/bcknd/device/metal/dong_outflow_kernel.metal\
+	bc/bcknd/device/metal/coupled_vector_bc_projector_kernel.metal
 
 device/metal/neko_kernels.metallib: $(METAL_KERNELS)
 	$(MKDIR_P) device/metal
@@ -987,12 +1003,14 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
 	bc/bcknd/device/cuda/zero_dirichlet_kernel.h\
-	bc/bcknd/device/cuda/symmetry_kernel.h\
+	bc/bcknd/device/cuda/symmetry_aligned_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
 	bc/bcknd/device/cuda/neumann_kernel.h\
 	bc/bcknd/device/cuda/bc_utils.h\
 	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
 	bc/bcknd/device/cuda/dong_outflow_kernel.h\
+	bc/bcknd/device/cuda/constrain_mixed_bc_kernel.h\
+	bc/bcknd/device/cuda/coupled_vector_bc_projector_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	gs/bcknd/device/cuda/gs_nvshmem_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
@@ -1012,6 +1030,7 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/ax_helm_kernel.h\
 	math/bcknd/device/cuda/ax_helm_full_kernel.h\
 	math/bcknd/device/cuda/dmma_kernel.h\
+	math/bcknd/device/cuda/dmma_tma_kernel.h\
 	math/bcknd/device/cuda/elem_block.h\
 	math/bcknd/device/cuda/elem_block_tune.h\
 	common/bcknd/device/cuda/sumab_kernel.h\
@@ -1045,7 +1064,9 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/zero_dirichlet_kernel.h\
-	bc/bcknd/device/hip/symmetry_kernel.h\
+	bc/bcknd/device/hip/symmetry_aligned_kernel.h\
+	bc/bcknd/device/hip/constrain_mixed_bc_kernel.h\
+	bc/bcknd/device/hip/coupled_vector_bc_projector_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
 	bc/bcknd/device/hip/neumann_kernel.h\
 	bc/bcknd/device/hip/bc_utils.h\
@@ -1110,7 +1131,9 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
 	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
-	bc/bcknd/device/opencl/symmetry_kernel.cl\
+	bc/bcknd/device/opencl/symmetry_aligned_kernel.cl\
+	bc/bcknd/device/opencl/constrain_mixed_bc_kernel.cl\
+	bc/bcknd/device/opencl/coupled_vector_bc_projector_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
 	bc/bcknd/device/opencl/neumann_kernel.cl\
 	bc/bcknd/device/opencl/bc_utils.h\
@@ -1195,6 +1218,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/metal/neumann_kernel.metal\
 	bc/bcknd/device/metal/inhom_dirichlet_kernel.metal\
 	bc/bcknd/device/metal/dong_outflow_kernel.metal\
+	bc/bcknd/device/metal/coupled_vector_bc_projector_kernel.metal\
 	bc/bcknd/device/metal/bc_utils.h\
 	bc/bcknd/device/metal/bc_shader_utils.h\
 	device/metal/check.h\
