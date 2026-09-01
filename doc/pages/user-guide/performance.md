@@ -504,6 +504,8 @@ build supports, picked by the autotuner described in
 | `NEIGHBOUR` | MPI neighbourhood collective (`gs_neighbour`) | None (MPI-3) | CPU runs where one collective per gs beats many point-to-point messages (e.g. Fugaku / Tofu) |
 | `UTOFU` | Native Tofu RDMA (`gs_utofu`) | `--with-utofu` (Tofu-D, e.g. Fugaku) | CPU runs on Fugaku/Tofu; native RDMA, a faster successor to CAF |
 | `MPIRMA` (or `RMA`) | MPI one-sided (`gs_mpi_rma`) | None (MPI-3) | CPU runs on systems with no OpenSHMEM, coarray or uTofu support, where one-sided is still worth trying; needs an MPI whose RMA progresses in hardware (see below) |
+| `CRYSTAL` | Crystal router (`gs_crystal`) | None | CPU runs where the halo is many tiny messages: few elements per rank, coarse multigrid levels, or an MPI that handles many concurrent peers badly (see below) |
+| `CRYSTALGPU` | Crystal router on the device (`gs_device_crystal`) | GPU-aware MPI, GPU build | The same, on GPU runs; the halo never leaves the device |
 
 @note `MPIGPU` and `NCCL` require Neko to be built with GPU support
 and the corresponding optional dependency. `SHMEM` picks the device
@@ -513,10 +515,38 @@ which of NVSHMEM / OpenSHMEM is present at configure time.
 The backend can also be selected programmatically by passing the
 `comm_bcknd` argument to `gs%init`, using the constants `GS_COMM_MPI`,
 `GS_COMM_MPIGPU`, `GS_COMM_NCCL`, `GS_COMM_NVSHMEM`,
-`GS_COMM_OPENSHMEM`, `GS_COMM_CAF`, `GS_COMM_NEIGHBOUR`, `GS_COMM_UTOFU`
-or `GS_COMM_MPIRMA`
+`GS_COMM_OPENSHMEM`, `GS_COMM_CAF`, `GS_COMM_NEIGHBOUR`, `GS_COMM_UTOFU`,
+`GS_COMM_MPIRMA`, `GS_COMM_CRYSTAL` or `GS_COMM_CRYSTALGPU`
 exposed by the `gather_scatter` module. The environment variable wins when
 both are present.
+
+#### The crystal router backends {#performance-gs-crystal}
+
+`CRYSTAL` and `CRYSTALGPU` do not send one message per peer. They route
+the halo to its destinations in recursive-bisection stages, keeping the
+records already on the right side of the split and handing the rest to a
+single partner, so one gather-scatter costs at most one message per stage
+whatever the peer count is.
+
+Because the schedule is fixed, the routing is worked out once at
+initialisation: the partner ranks, the exact word counts and the index
+lists that move the words which stay are all known before the first
+exchange, so the runtime never scans destinations, negotiates sizes or
+allocates. Stages with nothing to send or receive are dropped outright,
+and since a partition's peers are close in rank index most of them are,
+which leaves the number of stages set by the largest rank distance among
+the peers rather than by @f$ \log_2 P @f$.
+
+What it costs is store and forward. A word bound several stages away
+crosses the network once per stage it survives and is copied locally each
+time, and the stages are dependent, so only the first one overlaps the
+local gather-scatter. This is a trade of bandwidth and latency for message
+count: it pays where per-message overhead dominates and loses where the
+halo is already large enough to be bandwidth bound. `CRYSTAL` is
+benchmarked by the autotuning like any other host candidate, which is the
+intended way to find out which regime a given run is in;
+`NEKO_GS_TUNE=-CRYSTAL` drops it. `CRYSTALGPU` is not autotuned and has to
+be asked for by name.
 
 #### Runtime autotuning of the host backend {#performance-gs-autotuning}
 
@@ -531,8 +561,8 @@ synchronisation strategy (`NEKO_GS_STRTGY`) already done on
 accelerator builds.
 
 By default the candidates are every host backend the build supports
-except `CAF`: `MPI`, `NEIGHBOUR` and `MPIRMA`, which need nothing but
-MPI-3, plus `SHMEM` (OpenSHMEM) and `UTOFU` when the corresponding
+except `CAF`: `MPI`, `NEIGHBOUR`, `MPIRMA` and `CRYSTAL`, which need
+nothing but MPI-3, plus `SHMEM` (OpenSHMEM) and `UTOFU` when the corresponding
 support was built in -- a backend whose support is missing aborts in
 its `init`, so it is left out of the list rather than tried. `SHMEM`
 and `CAF` are additionally skipped when `NEKO_COMM` does not span every
@@ -559,6 +589,7 @@ matched case insensitively:
 | unset | every supported host backend but `CAF` |
 | `+CAF` | the default set, plus the coarray backend |
 | `-MPIRMA` | the default set, without the MPI one-sided backend |
+| `-CRYSTAL` | the default set, without the crystal router backend |
 | `-SHMEM` | the default set, without OpenSHMEM |
 | `+CAF,-SHMEM` | both deltas applied to the default set |
 | `MPI,NEIGHBOUR` | exactly those two, whatever the build supports |
