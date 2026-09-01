@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import shutil
 from pathlib import Path
 
@@ -34,6 +35,7 @@ PREPARED_INPUTS = (
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     FIG.mkdir(parents=True, exist_ok=True)
+    skip_figures = os.environ.get("SODERMALM_SKIP_FIGURES", "0") == "1"
 
     base.OUT = OUT
     base.FIG = FIG
@@ -80,38 +82,39 @@ def main() -> None:
         radius,
     )
 
-    base.render_mesh(FIG / f"sodermalm_cylinder_{TAG}_mesh_topdown.png", nodes, quads, radius, shoreline, center)
-    base.render_mesh(FIG / f"sodermalm_cylinder_{TAG}_mesh_topdown_notext.png", nodes, quads, radius, shoreline, center)
-    base.render_terrain_mesh_3d(
-        FIG / f"sodermalm_cylinder_{TAG}_mesh_3d.png",
-        nodes,
-        quads,
-        lines,
-        samples,
-        water_level,
-        shoreline,
-        center,
-        radius,
-    )
-    base.render_terrain_only(
-        FIG / f"sodermalm_terrain_height_contours_{TAG}_notext.png",
-        shoreline,
-        OUT / "sodermalm_cylinder_contours.geojson",
-        center,
-        radius,
-        samples,
-        water_level,
-        annotate=False,
-    )
-    base.render_3d_scene(
-        FIG / f"sodermalm_cylinder_{TAG}_3d_buildings.png",
-        shoreline,
-        OUT / "sodermalm_buildings.geojson",
-        center,
-        radius,
-        samples,
-        water_level,
-    )
+    if not skip_figures:
+        base.render_mesh(FIG / f"sodermalm_cylinder_{TAG}_mesh_topdown.png", nodes, quads, radius, shoreline, center)
+        base.render_mesh(FIG / f"sodermalm_cylinder_{TAG}_mesh_topdown_notext.png", nodes, quads, radius, shoreline, center)
+        base.render_terrain_mesh_3d(
+            FIG / f"sodermalm_cylinder_{TAG}_mesh_3d.png",
+            nodes,
+            quads,
+            lines,
+            samples,
+            water_level,
+            shoreline,
+            center,
+            radius,
+        )
+        base.render_terrain_only(
+            FIG / f"sodermalm_terrain_height_contours_{TAG}_notext.png",
+            shoreline,
+            OUT / "sodermalm_cylinder_contours.geojson",
+            center,
+            radius,
+            samples,
+            water_level,
+            annotate=False,
+        )
+        base.render_3d_scene(
+            FIG / f"sodermalm_cylinder_{TAG}_3d_buildings.png",
+            shoreline,
+            OUT / "sodermalm_buildings.geojson",
+            center,
+            radius,
+            samples,
+            water_level,
+        )
     checker_output = base.run_mesh_checker(mesh_path)
 
     metadata = {
@@ -129,10 +132,12 @@ def main() -> None:
         "shoreline_simplify_m": base.SHORELINE_SIMPLIFY_M,
         "inflow_from_degrees": base.INFLOW_FROM_DEG,
         "inflow_arc_width_degrees": base.INFLOW_ARC_WIDTH_DEG,
+        "outflow_arc_width_degrees": base.OUTFLOW_ARC_WIDTH_DEG,
         "inflow_angle_convention": "meteorological: north is 0/360 degrees, clockwise positive; direction is where wind comes from",
         "zones": {
             "1": "inlet_arc",
-            "2": "remaining_cylindrical_side",
+            "2": "downstream_outlet_arc",
+            "3": "lateral_open_side_arcs",
             "5": "terrain_or_water_bottom",
             "6": "top",
         },

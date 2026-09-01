@@ -58,6 +58,10 @@
                     "zone_indices": [ 2 ]
                 },
                 {
+                    "type": "outflow+dong",
+                    "zone_indices": [ 3 ]
+                },
+                {
                     "type": "normal_outflow",
                     "zone_indices": [ 6 ]
                 },

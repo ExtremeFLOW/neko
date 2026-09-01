@@ -34,12 +34,13 @@
 module brinkman_source_term
   use aabb, only : aabb_t, get_aabb
   use coefs, only : coef_t
-  use device, only : HOST_TO_DEVICE
+  use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
   use field, only : field_t
   use field_list, only : field_list_t
   use math, only : cfill_mask, copy
   use device_math, only : device_cfill_mask
-  use field_math, only : field_pwmax2, field_subcol3, field_copy
+  use field_math, only : field_pwmax2, field_subcol3, field_copy, &
+       field_cmult, field_cfill
   use registry, only : neko_registry
   use scratch_registry, only : neko_scratch_registry
   use mappings, only : smooth_step_field, step_function_field, &
@@ -83,6 +84,8 @@ module brinkman_source_term
      type(field_t), pointer :: indicator => null()
      !> Brinkman permeability field.
      type(field_t), pointer :: brinkman => null()
+     !> Smooth ramp time for introducing the Brinkman force.
+     real(kind=rp) :: ramp_time = 0.0_rp
      !> Filter
      class(filter_t), allocatable :: filter
 
@@ -153,6 +156,8 @@ contains
     ! Mandatory fields for the general source term
     call json_get_or_lookup_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_lookup_or_default(json, "end_time", end_time, huge(0.0_rp))
+    call json_get_or_lookup_or_default(json, "ramp_time", &
+         this%ramp_time, 0.0_rp)
 
     ! Output settings
     call json_get_or_default(json, 'output.enable', output_enable, .false.)
@@ -278,6 +283,14 @@ contains
           call neko_log%message('  3: Unfiltered Indicator')
        end if
 
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call this%indicator%copy_from(DEVICE_TO_HOST, sync = .false.)
+          call this%brinkman%copy_from(DEVICE_TO_HOST, sync = .true.)
+          if (associated(this%unfiltered)) then
+             call this%unfiltered%copy_from(DEVICE_TO_HOST, sync = .true.)
+          end if
+       end if
+
        call output%write(output_fields)
 
        call output%free()
@@ -309,7 +322,10 @@ contains
     class(brinkman_source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: u, v, w, fu, fv, fw
+    type(field_t), pointer :: ramped_brinkman
+    real(kind=rp) :: ramp
     integer :: n
+    integer :: temp_idx
 
     n = this%fields%item_size(1)
 
@@ -321,11 +337,45 @@ contains
     fv => this%fields%get(2)
     fw => this%fields%get(3)
 
-    call field_subcol3(fu, u, this%brinkman, n)
-    call field_subcol3(fv, v, this%brinkman, n)
-    call field_subcol3(fw, w, this%brinkman, n)
+    ramp = brinkman_source_term_ramp(time%t, this%start_time, &
+         this%ramp_time)
+
+    if (ramp <= 0.0_rp) then
+       call field_cfill(fu, 0.0_rp, n)
+       call field_cfill(fv, 0.0_rp, n)
+       call field_cfill(fw, 0.0_rp, n)
+       return
+    else if (ramp >= 1.0_rp) then
+       call field_subcol3(fu, u, this%brinkman, n)
+       call field_subcol3(fv, v, this%brinkman, n)
+       call field_subcol3(fw, w, this%brinkman, n)
+    else
+       call neko_scratch_registry%request_field(ramped_brinkman, &
+            temp_idx, .true.)
+       call field_copy(ramped_brinkman, this%brinkman, n)
+       call field_cmult(ramped_brinkman, ramp, n)
+       call field_subcol3(fu, u, ramped_brinkman, n)
+       call field_subcol3(fv, v, ramped_brinkman, n)
+       call field_subcol3(fw, w, ramped_brinkman, n)
+       call neko_scratch_registry%relinquish(temp_idx)
+    end if
 
   end subroutine brinkman_source_term_compute
+
+  function brinkman_source_term_ramp(t, start_time, ramp_time) result(ramp)
+    real(kind=rp), intent(in) :: t
+    real(kind=rp), intent(in) :: start_time
+    real(kind=rp), intent(in) :: ramp_time
+    real(kind=rp) :: ramp
+    real(kind=rp) :: s
+
+    if (ramp_time <= 0.0_rp) then
+       ramp = 1.0_rp
+    else
+       s = min(max((t - start_time) / ramp_time, 0.0_rp), 1.0_rp)
+       ramp = s * s * (3.0_rp - 2.0_rp * s)
+    end if
+  end function brinkman_source_term_ramp
 
   ! ========================================================================== !
   ! Private methods
@@ -565,6 +615,7 @@ contains
     character(len=:), allocatable :: file_name, field_name, tmp_str
     character(len=80) :: suffix
     integer :: file_idx, temp_idx
+    logical :: temp_field_on_device
 
     call json_get(json, 'file_name', file_name)
     call json_get_or_default(json, 'field_name', field_name, &
@@ -575,6 +626,7 @@ contains
 
     call file%init(file_name)
     call file%set_counter(file_idx)
+    temp_field_on_device = .false.
 
     call filename_suffix(file_name, suffix)
     select case (trim(suffix))
@@ -588,15 +640,35 @@ contains
          call file%read(fld_data)
          select case (field_name(1:1))
          case ('p')
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call fld_data%p%copy_from(HOST_TO_DEVICE, sync = .true.)
+            end if
             call fld_data%import_fields(p = temp_field)
+            temp_field_on_device = (NEKO_BCKND_DEVICE .eq. 1)
          case ('u')
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call fld_data%u%copy_from(HOST_TO_DEVICE, sync = .true.)
+            end if
             call fld_data%import_fields(u = temp_field)
+            temp_field_on_device = (NEKO_BCKND_DEVICE .eq. 1)
          case ('v')
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call fld_data%v%copy_from(HOST_TO_DEVICE, sync = .true.)
+            end if
             call fld_data%import_fields(v = temp_field)
+            temp_field_on_device = (NEKO_BCKND_DEVICE .eq. 1)
          case ('w')
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call fld_data%w%copy_from(HOST_TO_DEVICE, sync = .true.)
+            end if
             call fld_data%import_fields(w = temp_field)
+            temp_field_on_device = (NEKO_BCKND_DEVICE .eq. 1)
          case ('t')
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call fld_data%t%copy_from(HOST_TO_DEVICE, sync = .true.)
+            end if
             call fld_data%import_fields(t = temp_field)
+            temp_field_on_device = (NEKO_BCKND_DEVICE .eq. 1)
          case ('s')
 
             if (len_trim(field_name) .eq. 3) then
@@ -612,8 +684,13 @@ contains
             call fld_fields%init(1)
             call fld_fields%assign(1, temp_field)
 
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call fld_data%s(idx(1))%copy_from(HOST_TO_DEVICE, &
+                    sync = .true.)
+            end if
             call fld_data%import_fields(s_target_list = fld_fields, &
                  s_index_list = idx)
+            temp_field_on_device = (NEKO_BCKND_DEVICE .eq. 1)
 
             call fld_fields%free()
          case default
@@ -638,7 +715,7 @@ contains
        call neko_error("Brinkman cannot read file: " // trim(file_name))
     end select
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. temp_field_on_device) then
        call temp_field%copy_from(HOST_TO_DEVICE, sync = .true.)
     end if
 

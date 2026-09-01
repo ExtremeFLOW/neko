@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw
 
 
 HERE = Path(__file__).resolve().parent
@@ -17,17 +16,22 @@ CASE_ROOT = HERE.parent
 GENERATED = Path(os.environ.get("GENERATED_PATH", CASE_ROOT / "generated_2x_xy"))
 FIELD = Path(os.environ.get("FIELD_PATH", HERE / "fields" / "field0.f00000"))
 GEOMETRY_FIELD = Path(os.environ.get("GEOMETRY_FIELD", HERE / "fields" / "field0.f00000"))
+MASK_FIELD = os.environ.get("MASK_FIELD_PATH")
+MASK_THRESHOLD = float(os.environ.get("MASK_THRESHOLD", "0.1"))
 OUT = Path(os.environ.get("OUT_PATH", HERE / "renders" / "sodermalm_velocity_terrain_plus10.png"))
 NPZ_OUT = os.environ.get("NPZ_OUT")
+SAMPLE_ONLY = os.environ.get("SAMPLE_ONLY", "0") == "1"
 SHOW_STREAMLINES = os.environ.get("SHOW_STREAMLINES", "1") != "0"
 VMAX_OVERRIDE = os.environ.get("VMAX")
 VMIN_OVERRIDE = os.environ.get("VMIN")
 COLOR_SCALE = os.environ.get("COLOR_SCALE", "linear")
+COLORMAP_STYLE = os.environ.get("COLORMAP_STYLE", "urban_flow")
 LOG_VREF = float(os.environ.get("LOG_VREF", "0.08"))
 BUILDING_ALPHA = int(os.environ.get("BUILDING_ALPHA", "185"))
 GRID_N = 420
-LIFT_M = 10.0
+LIFT_M = float(os.environ.get("LIFT_M", "10.0"))
 SAMPLE_Z = os.environ.get("SAMPLE_Z")
+SAMPLE_TERRAIN_FROM_GEOJSON = os.environ.get("SAMPLE_TERRAIN_FROM_GEOJSON", "0") == "1"
 CHUNK_ELEMS = 16000
 STREAMLINE_MIN_SPEED = 0.06
 STREAMLINE_STEP_M = 24.0
@@ -39,6 +43,8 @@ from build_sodermalm_cylinder import (  # noqa: E402
     load_geojson,
     polygon_boundary_rings,
     polygon_rings,
+    terrain_height,
+    terrain_samples,
 )
 
 
@@ -124,6 +130,35 @@ def update_best(flat, score, u, v, w, best_score, best_u, best_v, best_w) -> Non
     best_w[flat] = w[replace]
 
 
+def update_best_scalar(flat, score, value, best_score, best_value) -> None:
+    keep = np.isfinite(score) & np.isfinite(value)
+    if not np.any(keep):
+        return
+    flat = flat[keep]
+    score = score[keep]
+    value = value[keep]
+    local = np.full_like(best_score, np.inf)
+    np.minimum.at(local, flat, score)
+    winners = score <= local[flat]
+    flat = flat[winners]
+    score = score[winners]
+    value = value[winners]
+    replace = score < best_score[flat]
+    flat = flat[replace]
+    best_score[flat] = score[replace]
+    best_value[flat] = value[replace]
+
+
+def read_vector_chunk(handle, offset, start, ne, nelv, npts, dtype, bytes_elem) -> np.ndarray:
+    handle.seek(offset + start * 3 * bytes_elem)
+    return np.fromfile(handle, dtype=dtype, count=ne * 3 * npts).reshape(ne, 3, npts)
+
+
+def read_scalar_chunk(handle, offset, scalar_index, start, ne, nelv, npts, dtype, bytes_elem) -> np.ndarray:
+    handle.seek(offset + scalar_index * nelv * bytes_elem + start * bytes_elem)
+    return np.fromfile(handle, dtype=dtype, count=ne * npts)
+
+
 def fill_missing_nearest(grid: np.ndarray, valid_mask: np.ndarray) -> np.ndarray:
     if not np.any(valid_mask):
         return np.zeros_like(grid)
@@ -185,19 +220,35 @@ def velocity_fraction(speed: np.ndarray, vmin: float, vmax: float) -> np.ndarray
 
 
 def color_velocity(speed: np.ndarray, vmin: float, vmax: float) -> np.ndarray:
-    # A restrained viridis-like ramp, kept readable without saturating the whole map.
-    stops = np.array(
-        [
-            [39, 35, 74],
-            [48, 103, 141],
-            [53, 157, 139],
-            [128, 198, 97],
-            [235, 220, 77],
-            [246, 146, 54],
-            [166, 37, 41],
-        ],
-        dtype=np.float32,
-    )
+    if COLORMAP_STYLE == "urban_flow":
+        # Blue-to-red ramp tuned for weak urban-flow variations near 0-6 m/s.
+        stops = np.array(
+            [
+                [54, 44, 133],
+                [39, 91, 190],
+                [39, 169, 212],
+                [53, 207, 161],
+                [142, 216, 101],
+                [229, 218, 77],
+                [241, 152, 55],
+                [194, 51, 45],
+            ],
+            dtype=np.float32,
+        )
+    else:
+        # A restrained viridis-like ramp, kept readable without saturating the whole map.
+        stops = np.array(
+            [
+                [39, 35, 74],
+                [48, 103, 141],
+                [53, 157, 139],
+                [128, 198, 97],
+                [235, 220, 77],
+                [246, 146, 54],
+                [166, 37, 41],
+            ],
+            dtype=np.float32,
+        )
     t = np.clip(velocity_fraction(speed, vmin, vmax), 0.0, 1.0)
     pos = t * (len(stops) - 1)
     idx = np.floor(pos).astype(np.int32)
@@ -351,16 +402,19 @@ def render_overlay(
     vmax: float,
     time: float,
 ) -> Image.Image:
+    from PIL import Image, ImageDraw
+
     img = Image.fromarray(rgb, "RGB")
     yy, xx = np.mgrid[0:GRID_N, 0:GRID_N]
     x = -radius + (xx + 0.5) * (2 * radius / GRID_N)
     y = radius - (yy + 0.5) * (2 * radius / GRID_N)
     outside = x * x + y * y > radius * radius
     rgb[outside] = np.array([166, 213, 232], dtype=np.uint8)
+    rgb[(~valid) & (~outside)] = np.array([226, 228, 225], dtype=np.uint8)
     img = Image.fromarray(rgb, "RGB")
     draw = ImageDraw.Draw(img, "RGBA")
     if SHOW_STREAMLINES:
-        draw_streamlines(draw, u, v, speed, disk, center, radius)
+        draw_streamlines(draw, u, v, speed, disk & valid, center, radius)
 
     for ring in shoreline:
         draw_polyline(draw, ring, center, radius, GRID_N, (20, 29, 34, 215), width=2)
@@ -408,6 +462,8 @@ def render_overlay(
 def main() -> None:
     meta_path = GENERATED / "sodermalm_cylinder_2x_xy_metadata.json"
     if not meta_path.exists():
+        meta_path = GENERATED / "sodermalm_cylinder_shallow_debug_metadata.json"
+    if not meta_path.exists():
         meta_path = GENERATED / "sodermalm_cylinder_metadata.json"
     if not meta_path.exists():
         meta_path = GENERATED / "sodermalm_cylinder_lumi_coarse_metadata.json"
@@ -418,6 +474,10 @@ def main() -> None:
     arc_width_deg = float(meta.get("inflow_arc_width_degrees", 90.0))
     land_geometry = load_geojson(GENERATED / "sodermalm_osm_island_epsg3006.geojson")["features"][0]["geometry"]
     shoreline = polygon_boundary_rings(land_geometry)
+    terrain_sample_rows = None
+    water_level = None
+    if SAMPLE_TERRAIN_FROM_GEOJSON:
+        terrain_sample_rows, water_level = terrain_samples(GENERATED / "sodermalm_cylinder_contours.geojson", center)
 
     header = parse_fld_header(FIELD)
     offsets = field_offsets(header)
@@ -447,8 +507,7 @@ def main() -> None:
         for start in range(0, nelv, CHUNK_ELEMS):
             stop = min(start + CHUNK_ELEMS, nelv)
             ne = stop - start
-            handle.seek(geometry_offsets["X"] + start * 3 * geometry_bytes_elem)
-            xyz = np.fromfile(handle, dtype=geometry_dtype, count=ne * 3 * npts).reshape(ne, 3, npts)
+            xyz = read_vector_chunk(handle, geometry_offsets["X"], start, ne, nelv, npts, geometry_dtype, geometry_bytes_elem)
             x = xyz[:, 0, :].ravel()
             y = xyz[:, 1, :].ravel()
             z = xyz[:, 2, :].ravel()
@@ -465,7 +524,24 @@ def main() -> None:
     xg = -radius + (xx + 0.5) * (2 * radius / GRID_N)
     yg = radius - (yy + 0.5) * (2 * radius / GRID_N)
     disk = xg * xg + yg * yg <= radius * radius
-    if SAMPLE_Z is None:
+    if SAMPLE_Z is None and SAMPLE_TERRAIN_FROM_GEOJSON:
+        terrain = np.full_like(xg, np.nan, dtype=np.float32)
+        assert terrain_sample_rows is not None and water_level is not None
+        for iy in range(GRID_N):
+            for ix in range(GRID_N):
+                if disk[iy, ix]:
+                    terrain[iy, ix] = terrain_height(
+                        float(xg[iy, ix]),
+                        float(yg[iy, ix]),
+                        terrain_sample_rows,
+                        water_level,
+                        shoreline,
+                        center,
+                        radius,
+                    )
+        target = np.where(disk & (terrain >= bottom - 1.0), terrain + LIFT_M, np.nan).astype(np.float32)
+        sample_label = f"GIS terrain + {LIFT_M:g} m"
+    elif SAMPLE_Z is None:
         target = np.where(disk, bottom + LIFT_M, np.nan).astype(np.float32)
         sample_label = f"terrain + {LIFT_M:g} m"
     else:
@@ -483,10 +559,8 @@ def main() -> None:
         for start in range(0, nelv, CHUNK_ELEMS):
             stop = min(start + CHUNK_ELEMS, nelv)
             ne = stop - start
-            geometry_handle.seek(geometry_offsets["X"] + start * 3 * geometry_bytes_elem)
-            xyz = np.fromfile(geometry_handle, dtype=geometry_dtype, count=ne * 3 * npts).reshape(ne, 3, npts)
-            field_handle.seek(offsets["U"] + start * 3 * bytes_elem)
-            uvw = np.fromfile(field_handle, dtype=dtype, count=ne * 3 * npts).reshape(ne, 3, npts)
+            xyz = read_vector_chunk(geometry_handle, geometry_offsets["X"], start, ne, nelv, npts, geometry_dtype, geometry_bytes_elem)
+            uvw = read_vector_chunk(field_handle, offsets["U"], start, ne, nelv, npts, dtype, bytes_elem)
             x = xyz[:, 0, :].ravel()
             y = xyz[:, 1, :].ravel()
             z = xyz[:, 2, :].ravel()
@@ -501,10 +575,48 @@ def main() -> None:
             print(f"sampled {stop}/{nelv}", flush=True)
 
     valid = np.isfinite(best_u).reshape(GRID_N, GRID_N)
+    mask_grid = None
+    if MASK_FIELD:
+        mask_path = Path(MASK_FIELD)
+        mask_header = parse_fld_header(mask_path)
+        mask_offsets = field_offsets(mask_header)
+        if "S" not in mask_offsets:
+            raise RuntimeError(f"Mask field does not contain S block; rdcode={mask_header['rdcode']!r}")
+        for key in ("lx", "ly", "lz", "nelv"):
+            if mask_header[key] != geometry_header[key]:
+                raise RuntimeError(
+                    f"Mask field {mask_path} is incompatible with {geometry_field}: "
+                    f"{key}={mask_header[key]} vs {geometry_header[key]}"
+                )
+        mask_dtype = np.dtype(mask_header["endian"] + ("f4" if mask_header["wdsz"] == 4 else "f8"))
+        mask_bytes_elem = npts * mask_header["wdsz"]
+        best_mask_score = np.full(cells, np.inf, dtype=np.float32)
+        best_mask = np.full(cells, np.nan, dtype=np.float32)
+        with geometry_field.open("rb") as geometry_handle, mask_path.open("rb") as mask_handle:
+            for start in range(0, nelv, CHUNK_ELEMS):
+                stop = min(start + CHUNK_ELEMS, nelv)
+                ne = stop - start
+                xyz = read_vector_chunk(geometry_handle, geometry_offsets["X"], start, ne, nelv, npts, geometry_dtype, geometry_bytes_elem)
+                scalar = read_scalar_chunk(mask_handle, mask_offsets["S"], 0, start, ne, nelv, npts, mask_dtype, mask_bytes_elem)
+                x = xyz[:, 0, :].ravel()
+                y = xyz[:, 1, :].ravel()
+                z = xyz[:, 2, :].ravel()
+                ix = np.floor((x + radius) / (2 * radius) * GRID_N).astype(np.int32)
+                iy = np.floor((radius - y) / (2 * radius) * GRID_N).astype(np.int32)
+                inside = (ix >= 0) & (ix < GRID_N) & (iy >= 0) & (iy < GRID_N)
+                if not np.any(inside):
+                    continue
+                flat = iy[inside] * GRID_N + ix[inside]
+                score = np.abs(z[inside] - target_flat[flat]).astype(np.float32)
+                update_best_scalar(flat, score, scalar[inside], best_mask_score, best_mask)
+                print(f"sampled mask {stop}/{nelv}", flush=True)
+        mask_grid = fill_missing_nearest(best_mask.reshape(GRID_N, GRID_N), np.isfinite(best_mask).reshape(GRID_N, GRID_N))
+        valid &= mask_grid < MASK_THRESHOLD
     u = fill_missing_nearest(best_u.reshape(GRID_N, GRID_N), valid)
     v = fill_missing_nearest(best_v.reshape(GRID_N, GRID_N), valid)
     w = fill_missing_nearest(best_w.reshape(GRID_N, GRID_N), valid)
     speed = blur3(np.sqrt(u * u + v * v + w * w), passes=1)
+    speed[~valid] = np.nan
     if NPZ_OUT:
         Path(NPZ_OUT).parent.mkdir(parents=True, exist_ok=True)
         np.savez_compressed(
@@ -515,14 +627,21 @@ def main() -> None:
             w=w,
             disk=disk,
             valid=valid,
+            mask=mask_grid if mask_grid is not None else np.full_like(speed, np.nan, dtype=np.float32),
             x=xg,
             y=yg,
             time=header["time"],
         )
+        if SAMPLE_ONLY:
+            print(f"Wrote {NPZ_OUT}")
+            return
     vmin = float(VMIN_OVERRIDE) if VMIN_OVERRIDE else 0.0
-    vmax = float(VMAX_OVERRIDE) if VMAX_OVERRIDE else float(np.nanpercentile(speed[disk], 99.0))
+    plot_values = speed[disk & valid]
+    if plot_values.size == 0:
+        raise RuntimeError("No valid fluid samples after applying the mask threshold")
+    vmax = float(VMAX_OVERRIDE) if VMAX_OVERRIDE else float(np.nanpercentile(plot_values, 99.0))
     vmax = max(vmax, vmin + 1.0e-6)
-    rgb = color_velocity(speed, vmin, vmax)
+    rgb = color_velocity(np.nan_to_num(speed, nan=vmin), vmin, vmax)
 
     building_rings = []
     for feature in load_geojson(GENERATED / "sodermalm_buildings.geojson")["features"]:

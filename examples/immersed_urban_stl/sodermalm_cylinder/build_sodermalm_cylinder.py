@@ -26,10 +26,10 @@ INPUT_GPKG = HERE / "input" / "inner_stockholm_15km_layers_clipped.gpkg"
 OUT = HERE / "generated"
 FIG = HERE / "figures"
 
-OGR2OGR = "/opt/homebrew/bin/ogr2ogr"
-GMSH = "/opt/homebrew/bin/gmsh"
-RSVG = "/opt/homebrew/bin/rsvg-convert"
-OSGEO_PYTHON = "/opt/homebrew/bin/python3"
+OGR2OGR = os.environ.get("OGR2OGR", shutil.which("ogr2ogr") or "/opt/homebrew/bin/ogr2ogr")
+GMSH = os.environ.get("GMSH", shutil.which("gmsh") or "/opt/homebrew/bin/gmsh")
+RSVG = os.environ.get("RSVG", shutil.which("rsvg-convert") or "/opt/homebrew/bin/rsvg-convert")
+OSGEO_PYTHON = os.environ.get("OSGEO_PYTHON", shutil.which("python3") or "/opt/homebrew/bin/python3")
 REPO_MESH_CHECKER = HERE.parents[2] / ".codex_build" / "cpu_install" / "bin" / "mesh_checker"
 MESH_CHECKER = str(REPO_MESH_CHECKER) if REPO_MESH_CHECKER.exists() else (shutil.which("mesh_checker") or "/usr/local/bin/mesh_checker")
 
@@ -44,6 +44,7 @@ SHORELINE_SIMPLIFY_M = 20.0
 SHORE_BLEND_M = 180.0
 INFLOW_FROM_DEG = 225.0
 INFLOW_ARC_WIDTH_DEG = 180.0
+OUTFLOW_ARC_WIDTH_DEG = 90.0
 CIRCLE_ARC_STEP_DEG = 45.0
 BUILDING_MIN_TERRAIN_ABOVE_WATER_M = 0.75
 BUILDING_BASE_CLEARANCE_M = 0.5
@@ -266,6 +267,19 @@ def is_inflow_bearing(bearing: float) -> bool:
     return circular_distance_deg(bearing, INFLOW_FROM_DEG) <= 0.5 * INFLOW_ARC_WIDTH_DEG + 1e-9
 
 
+def is_outflow_bearing(bearing: float) -> bool:
+    flow_to_deg = (INFLOW_FROM_DEG + 180.0) % 360.0
+    return circular_distance_deg(bearing, flow_to_deg) <= 0.5 * OUTFLOW_ARC_WIDTH_DEG + 1e-9
+
+
+def cylindrical_side_zone(bearing: float) -> int:
+    if is_inflow_bearing(bearing):
+        return 1
+    if is_outflow_bearing(bearing):
+        return 2
+    return 3
+
+
 def circle_point(angle_deg: float, radius: float) -> tuple[float, float]:
     angle = math.radians(angle_deg)
     return radius * math.cos(angle), radius * math.sin(angle)
@@ -295,8 +309,7 @@ def write_gmsh_geo(path: Path, radius: float, shoreline: list[list[tuple[float, 
         raise ValueError("CIRCLE_ARC_STEP_DEG must divide 360 degrees exactly")
     n_arcs = int(round(360.0 / CIRCLE_ARC_STEP_DEG))
     circle_points = [circle_point(i * CIRCLE_ARC_STEP_DEG, radius) for i in range(n_arcs)]
-    inlet_curves: list[int] = []
-    outlet_curves: list[int] = []
+    side_curves: dict[int, list[int]] = {1: [], 2: [], 3: []}
 
     lines: list[str] = [
         'SetFactory("OpenCASCADE");',
@@ -318,10 +331,7 @@ def write_gmsh_geo(path: Path, radius: float, shoreline: list[list[tuple[float, 
         lines.append(f"Circle({curve_id}) = {{{start}, 1, {end}}};")
         mid_angle = (i + 0.5) * CIRCLE_ARC_STEP_DEG
         mx, my = circle_point(mid_angle, 1.0)
-        if is_inflow_bearing(compass_bearing_deg(mx, my)):
-            inlet_curves.append(curve_id)
-        else:
-            outlet_curves.append(curve_id)
+        side_curves[cylindrical_side_zone(compass_bearing_deg(mx, my))].append(curve_id)
     lines.append(f"Curve Loop(1) = {{{', '.join(str(i + 1) for i in range(n_arcs))}}};")
 
     next_point = 100
@@ -374,8 +384,8 @@ def write_gmsh_geo(path: Path, radius: float, shoreline: list[list[tuple[float, 
         next_surface += 1
 
     lines.append(f"Recombine Surface {{{', '.join(str(s) for s in surfaces)}}};")
-    lines.append(f"Physical Curve(1) = {{{', '.join(str(c) for c in inlet_curves)}}};")
-    lines.append(f"Physical Curve(2) = {{{', '.join(str(c) for c in outlet_curves)}}};")
+    for zone in (1, 2, 3):
+        lines.append(f"Physical Curve({zone}) = {{{', '.join(str(c) for c in side_curves[zone])}}};")
     lines.append(f"Physical Surface(10) = {{{', '.join(str(s) for s in surfaces)}}};")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -497,7 +507,7 @@ def write_nmsh(
         if edge not in edge_face:
             continue
         qid, face = edge_face[edge]
-        zone_label = 1 if label == 1 else 2
+        zone_label = label if label in (1, 2, 3) else 2
         for ez in range(NZ):
             side_zones.append((1 + qid + len(fixed_quads) * ez, face, zone_label))
 
@@ -1384,10 +1394,12 @@ def main() -> None:
         "shore_blend_m": SHORE_BLEND_M,
         "inflow_from_degrees": INFLOW_FROM_DEG,
         "inflow_arc_width_degrees": INFLOW_ARC_WIDTH_DEG,
+        "outflow_arc_width_degrees": OUTFLOW_ARC_WIDTH_DEG,
         "inflow_angle_convention": "meteorological: north is 0/360 degrees, clockwise positive; direction is where wind comes from",
         "zones": {
             "1": "inlet_arc",
-            "2": "remaining_cylindrical_side",
+            "2": "downstream_outlet_arc",
+            "3": "lateral_open_side_arcs",
             "5": "terrain_or_water_bottom",
             "6": "top",
         },

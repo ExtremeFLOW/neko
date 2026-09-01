@@ -340,8 +340,14 @@ def read_template_coordinates(path: Path) -> Tuple[Dict[str, object], np.ndarray
         coords = np.fromfile(handle, dtype=dtype, count=3 * count).astype(np.float64, copy=False)
     if element_ids.size != header["nelv"] or coords.size != 3 * count:
         raise RuntimeError(f"Template field {path} is truncated")
-    coords = coords.reshape(3, count)
-    return header, element_ids, coords[0], coords[1], coords[2]
+    coords = coords.reshape(header["nelv"], 3, npts)
+    return (
+        header,
+        element_ids,
+        coords[:, 0, :].reshape(count),
+        coords[:, 1, :].reshape(count),
+        coords[:, 2, :].reshape(count),
+    )
 
 
 def point_segment_distance_xy(
@@ -395,8 +401,8 @@ def smooth_step(distance: np.ndarray, width: float) -> np.ndarray:
     return t**3 * (t * (6.0 * t - 15.0) + 10.0)
 
 
-def building_parts(generated: Path) -> Tuple[List[Dict[str, object]], float]:
-    metadata_candidates = sorted(generated.glob("*_metadata.json"))
+def prepared_geometry(generated: Path) -> Tuple[Dict[str, object], Tuple[float, float], float, np.ndarray, List[List[Tuple[float, float]]]]:
+    metadata_candidates = sorted(p for p in generated.glob("*_metadata.json") if not p.name.startswith("._"))
     if not metadata_candidates:
         raise RuntimeError(f"No metadata JSON found in {generated}")
     metadata = json.loads(metadata_candidates[0].read_text(encoding="utf-8"))
@@ -411,6 +417,13 @@ def building_parts(generated: Path) -> Tuple[List[Dict[str, object]], float]:
 
     samples, water_level = terrain_samples(contours, center)
     shoreline = polygon_boundary_rings(load_geojson(land)["features"][0]["geometry"])
+    return metadata, center, radius, samples, shoreline
+
+
+def building_parts(generated: Path) -> Tuple[List[Dict[str, object]], float]:
+    _, center, radius, samples, shoreline = prepared_geometry(generated)
+    water_level = float(np.min(samples[:, 2]))
+    buildings = generated / "sodermalm_buildings.geojson"
 
     parts = []
     skipped = 0
@@ -466,7 +479,8 @@ def building_parts(generated: Path) -> Tuple[List[Dict[str, object]], float]:
         "Building filter: "
         f"kept={len(parts)} skipped={skipped} "
         f"small={skipped_small} skinny={skipped_skinny} "
-        f"min_area={BUILDING_MIN_FOOTPRINT_AREA_M2} min_edge={BUILDING_MIN_EDGE_M} simplify={BUILDING_SIMPLIFY_M}"
+        f"min_area={BUILDING_MIN_FOOTPRINT_AREA_M2} min_edge={BUILDING_MIN_EDGE_M} "
+        f"simplify={BUILDING_SIMPLIFY_M} max_height={BUILDING_MAX_HEIGHT_M}"
     )
     return parts, water_level
 
@@ -509,6 +523,21 @@ def compute_indicator(
     return indicator, touched
 
 
+def land_mask_for_points(
+    x: np.ndarray,
+    y: np.ndarray,
+    center: Tuple[float, float],
+    shoreline: List[List[Tuple[float, float]]],
+) -> np.ndarray:
+    xy_rows = np.column_stack((np.round(x, 6), np.round(y, 6)))
+    unique_xy, inverse = np.unique(xy_rows, axis=0, return_inverse=True)
+    global_xy = unique_xy + np.array(center, dtype=np.float64)
+    inside = np.zeros(unique_xy.shape[0], dtype=bool)
+    for ring in shoreline:
+        inside ^= inside_polygon_xy(global_xy[:, 0], global_xy[:, 1], ring)
+    return inside[inverse]
+
+
 def write_cache(prefix: Path, header: Dict[str, object], element_ids: np.ndarray, x: np.ndarray, y: np.ndarray, z: np.ndarray, s01: np.ndarray) -> None:
     prefix.parent.mkdir(parents=True, exist_ok=True)
     data_path = prefix.parent / f"{prefix.name}0.f00000"
@@ -527,8 +556,14 @@ def write_cache(prefix: Path, header: Dict[str, object], element_ids: np.ndarray
         handle.write(header_bytes.ljust(HEADER_SIZE, b" "))
         handle.write(struct.pack("<f", 6.54321))
         element_ids.astype("<i4", copy=False).tofile(handle)
-        for values in (x, y, z, s01):
-            values.astype("<f8", copy=False).tofile(handle)
+        x_el = x.reshape(nelv, lx * ly * lz)
+        y_el = y.reshape(nelv, lx * ly * lz)
+        z_el = z.reshape(nelv, lx * ly * lz)
+        for el in range(nelv):
+            x_el[el].astype("<f8", copy=False).tofile(handle)
+            y_el[el].astype("<f8", copy=False).tofile(handle)
+            z_el[el].astype("<f8", copy=False).tofile(handle)
+        s01.astype("<f8", copy=False).tofile(handle)
     index_path.write_text(
         f"filetemplate:         {prefix.name}%01d.f%05d\n"
         "firsttimestep:     0\n"
@@ -538,6 +573,9 @@ def write_cache(prefix: Path, header: Dict[str, object], element_ids: np.ndarray
 
 
 def main() -> None:
+    global BUILDING_MIN_FOOTPRINT_AREA_M2, BUILDING_MIN_EDGE_M
+    global BUILDING_SIMPLIFY_M, BUILDING_MAX_HEIGHT_M
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--generated", type=Path, required=True)
     parser.add_argument("--template-field", type=Path, required=True)
@@ -546,21 +584,27 @@ def main() -> None:
     parser.add_argument("--min-footprint-area", type=float, default=0.0)
     parser.add_argument("--min-edge", type=float, default=0.0)
     parser.add_argument("--simplify", type=float, default=0.0)
+    parser.add_argument("--max-height", type=float, default=BUILDING_MAX_HEIGHT_M)
     args = parser.parse_args()
 
-    global BUILDING_MIN_FOOTPRINT_AREA_M2, BUILDING_MIN_EDGE_M, BUILDING_SIMPLIFY_M
     BUILDING_MIN_FOOTPRINT_AREA_M2 = args.min_footprint_area
     BUILDING_MIN_EDGE_M = args.min_edge
     BUILDING_SIMPLIFY_M = args.simplify
+    BUILDING_MAX_HEIGHT_M = args.max_height
 
+    _, center, _, _, shoreline = prepared_geometry(args.generated)
     header, element_ids, x, y, z = read_template_coordinates(args.template_field)
     parts, _ = building_parts(args.generated)
     indicator, touched = compute_indicator(x, y, z, parts, args.smooth_width)
+    land_xy = land_mask_for_points(x, y, center, shoreline)
+    clipped_outside_land = int(np.count_nonzero(indicator[~land_xy] > 0.0))
+    indicator[~land_xy] = 0.0
     write_cache(args.cache_prefix, header, element_ids, x, y, z, indicator)
 
     solid = int(np.count_nonzero(indicator >= 0.5))
     print(f"Building parts: {len(parts)}")
     print(f"Candidate updates: {touched}")
+    print(f"Clipped outside land: {clipped_outside_land}")
     print(f"Solid fraction >= 0.5: {solid / indicator.size:.6f}")
     print(f"Wrote {args.cache_prefix}0.f00000")
 
