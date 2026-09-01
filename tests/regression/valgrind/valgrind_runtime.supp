@@ -275,3 +275,62 @@
    fun:call_init*
    fun:_dl_init
 }
+
+{
+   jsonfortran_all_leaks
+   Memcheck:Leak
+   match-leak-kinds: definite,indirect,possible,reachable
+   fun:malloc
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}
+
+{
+   jsonfortran_all_leaks_any_allocator
+   Memcheck:Leak
+   match-leak-kinds: definite,indirect,possible,reachable
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}
+
+{
+   jsonfortran_value_errors
+   Memcheck:Value8
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}
+
+{
+   jsonfortran_value_errors_4
+   Memcheck:Value4
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}
+
+{
+   jsonfortran_conditional_warnings
+   Memcheck:Cond
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}
+
+{
+   jsonfortran_invalid_read_8
+   Memcheck:Addr8
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}
+
+{
+   jsonfortran_invalid_read_4
+   Memcheck:Addr4
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}

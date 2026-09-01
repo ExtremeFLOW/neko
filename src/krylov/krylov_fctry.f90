@@ -50,8 +50,8 @@ submodule (krylov) krylov_fctry
   use gmres_device, only : gmres_device_t
   use num_Types, only : rp
   use precon, only : pc_t
-  use utils, only : neko_type_error
-  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_OPENCL
+  use utils, only : neko_type_error, neko_type_registration_error
+  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_OPENCL, NEKO_BCKND_METAL
   implicit none
 
   ! List of all possible types created by the factory routine
@@ -86,6 +86,20 @@ contains
     class(pc_t), optional, intent(in), target :: M
     logical, optional, intent(in) :: monitor
 
+    call krylov_solver_allocator(object, type_name)
+
+    call object%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+
+  end subroutine krylov_solver_factory
+
+  !> Krylov solver allocator.
+  !! @param object The object to be allocated.
+  !! @param type_name The name of the solver type.
+  module subroutine krylov_solver_allocator(object, type_name)
+    class(ksp_t), allocatable, intent(inout) :: object
+    character(len=*), intent(in) :: type_name
+    integer :: i
+
     if (allocated(object)) then
        call object%free()
        deallocate(object)
@@ -112,8 +126,8 @@ contains
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_pipecg_t::object)
        else if (NEKO_BCKND_DEVICE .eq. 1) then
-          if (NEKO_BCKND_OPENCL .eq. 1) then
-             call neko_error('PipeCG not supported for OpenCL')
+          if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
+             call neko_error('PipeCG not supported for OpenCL/Metal')
           end if
           allocate(pipecg_device_t::object)
        else
@@ -122,8 +136,8 @@ contains
 
     case ('fused_cg')
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          if (NEKO_BCKND_OPENCL .eq. 1) then
-             call neko_error('FusedCG not supported for OpenCL')
+          if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
+             call neko_error('FusedCG not supported for OpenCL/Metal')
           end if
           allocate(fusedcg_device_t::object)
        else
@@ -132,8 +146,8 @@ contains
 
     case ('fused_coupled_cg')
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          if (NEKO_BCKND_OPENCL .eq. 1) then
-             call neko_error('Coupled FusedCG not supported for OpenCL')
+          if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
+             call neko_error('Coupled FusedCG not supported for OpenCL/Metal')
           end if
           allocate(fusedcg_cpld_device_t::object)
        else
@@ -163,11 +177,54 @@ contains
        allocate(bicgstab_t::object)
 
     case default
+       do i = 1, krylov_registry_size
+          if (trim(type_name) .eq. trim(krylov_registry(i)%type_name)) then
+             call krylov_registry(i)%allocator(object)
+             return
+          end if
+       end do
+
        call neko_type_error('Krylov solver', type_name, KSP_KNOWN_TYPES)
     end select
 
-    call object%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+  end subroutine krylov_solver_allocator
 
-  end subroutine krylov_solver_factory
+  !> Register a custom Krylov solver allocator.
+  !! Called in custom user modules inside the `module_name_register_types`
+  !! routine to add a custom type allocator to the registry.
+  !! @param type_name The name of the type to allocate.
+  !! @param allocator The allocator for the custom user type.
+  module subroutine register_krylov(type_name, allocator)
+    character(len=*), intent(in) :: type_name
+    procedure(krylov_allocate), pointer, intent(in) :: allocator
+    type(krylov_allocator_entry), allocatable :: temp(:)
+    integer :: i
+
+    do i = 1, size(KSP_KNOWN_TYPES)
+       if (trim(type_name) .eq. trim(KSP_KNOWN_TYPES(i))) then
+          call neko_type_registration_error("Krylov solver", type_name, &
+               .true.)
+       end if
+    end do
+
+    do i = 1, krylov_registry_size
+       if (trim(type_name) .eq. trim(krylov_registry(i)%type_name)) then
+          call neko_type_registration_error("Krylov solver", type_name, &
+               .false.)
+       end if
+    end do
+
+    if (krylov_registry_size .eq. 0) then
+       allocate(krylov_registry(1))
+    else
+       allocate(temp(krylov_registry_size + 1))
+       temp(1:krylov_registry_size) = krylov_registry
+       call move_alloc(temp, krylov_registry)
+    end if
+
+    krylov_registry_size = krylov_registry_size + 1
+    krylov_registry(krylov_registry_size)%type_name = type_name
+    krylov_registry(krylov_registry_size)%allocator => allocator
+  end subroutine register_krylov
 
 end submodule krylov_fctry

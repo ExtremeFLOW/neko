@@ -9,6 +9,7 @@ module test_mesh_parallel
   use point
   use tuple
   use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   implicit none
 
 contains
@@ -19,7 +20,7 @@ contains
     type(mesh_t) :: m
     integer :: ierr, gdim, nelv, expected
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call comm_init_test(this%getMpiCommunicator())
 
     do gdim = 2, 3
        nelv = 42
@@ -38,6 +39,7 @@ contains
        @MPIassertEqual(expected, m%glb_nelv)
     end do
 
+    call comm_free_test()
   end subroutine test_mesh_init_nelv
 
   @test(npes=[1,2])
@@ -47,7 +49,7 @@ contains
     type(linear_dist_t) :: dist
     integer :: ierr, gdim
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call comm_init_test(this%getMpiCommunicator())
 
     dist = linear_dist_t(42, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -66,6 +68,7 @@ contains
        @MPIassertEqual(dist%num_global(), m%glb_nelv)
     end do
 
+    call comm_free_test()
   end subroutine test_mesh_init_dist
 
   @test(npes=[1,2])
@@ -78,10 +81,7 @@ contains
     integer :: ierr, i
     integer, parameter :: gdim = 2
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
+    call comm_init_test(this%getMpiCommunicator())
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -106,7 +106,7 @@ contains
 
        call m%add_element(2, 2, p(2), p(5), p(4), p(6))
 
-       @assertEqual(6, m%htp%num_entries())
+       @assertEqual(6, m%mpts)
 
        call m%elements(1)%e%facet_id(t, 1)
        @assertEqual(t%x(1), p(1)%id())
@@ -129,7 +129,7 @@ contains
 
           call m%add_element(1, 1, p(1), p(2), p(3), p(4))
 
-          @assertEqual(4, m%htp%num_entries())
+          @assertEqual(4, m%mpts)
 
           call m%elements(1)%e%facet_id(t, 1)
           @assertEqual(t%x(1), p(1)%id())
@@ -143,7 +143,7 @@ contains
 
           call m%add_element(1, 1, p(2), p(5), p(4), p(6))
 
-          @assertEqual(4, m%htp%num_entries())
+          @assertEqual(4, m%mpts)
 
           call m%elements(1)%e%facet_id(t, 1)
           @assertEqual(t%x(1), p(2)%id())
@@ -156,6 +156,7 @@ contains
        end if
     end if
 
+    call comm_free_test()
   end subroutine test_mesh_add_element_quad
 
   @test(npes=[1,2])
@@ -168,7 +169,7 @@ contains
     integer :: ierr, i
     integer, parameter :: gdim = 3
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call comm_init_test(this%getMpiCommunicator())
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -209,7 +210,7 @@ contains
        call m%add_element(2, 2, p(2), p(5), p(4), p(6), &
             p(8), p(11), p(9), p(12))
 
-       @assertEqual(12, m%htp%num_entries())
+       @assertEqual(12, m%mpts)
 
        call m%elements(1)%e%facet_id(t, 1)
        @assertEqual(t%x(1), p(1)%id())
@@ -241,7 +242,7 @@ contains
           call m%add_element(1, 1, p(1), p(2), p(3), p(4), &
                p(7), p(8), p(10), p(9))
 
-          @assertEqual(8, m%htp%num_entries())
+          @assertEqual(8, m%mpts)
 
           call m%elements(1)%e%facet_id(t, 1)
           @assertEqual(t%x(1), p(1)%id())
@@ -260,7 +261,7 @@ contains
           call m%add_element(1, 1, p(2), p(5), p(4), p(6), &
                p(8), p(11), p(9), p(12))
 
-          @assertEqual(8, m%htp%num_entries())
+          @assertEqual(8, m%mpts)
 
           call m%elements(1)%e%facet_id(t, 1)
           @assertEqual(t%x(1), p(2)%id())
@@ -276,6 +277,7 @@ contains
        end if
     end if
 
+    call comm_free_test()
   end subroutine test_mesh_add_element_hex
 
   @test(npes=[1,2])
@@ -288,10 +290,7 @@ contains
     integer :: ierr, i, p_local_idx
     integer, parameter :: gdim = 2
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
+    call comm_init_test(this%getMpiCommunicator())
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -318,21 +317,23 @@ contains
 
        call m%generate_conn()
 
-       @assertEqual(7, m%hte%num_entries())
+       @assertEqual(7, m%meds)
 
 
-       p_local_idx = m%get_local(m%points(p(1)%id()))
+       ! p(3) and p(4) carry ids 4 and 3, so point ids are deliberately not
+       ! in array order here; index by element and corner, never by id
+       p_local_idx = m%pt_lid(1, 1)
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(m%points(p(4)%id()))
+       p_local_idx = m%pt_lid(3, 1)
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(m%points(p(6)%id()))
+       p_local_idx = m%pt_lid(4, 2)
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(m%points(p(5)%id()))
+       p_local_idx = m%pt_lid(2, 2)
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
 
-       p_local_idx = m%get_local(m%points(p(3)%id()))
+       p_local_idx = m%pt_lid(4, 1)
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(m%points(p(2)%id()))
+       p_local_idx = m%pt_lid(2, 1)
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
        @assertEqual(0, m%facet_neigh(1, 1))
@@ -351,17 +352,17 @@ contains
 
           call m%generate_conn()
 
-          @assertEqual(4, m%hte%num_entries())
+          @assertEqual(4, m%meds)
           @MPIassertEqual(2, m%glb_nelv)
 
 
-          p_local_idx = m%get_local(p(1))
+          p_local_idx = m%pt_lid(1, 1)
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(2))
+          p_local_idx = m%pt_lid(2, 1)
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(3))
+          p_local_idx = m%pt_lid(3, 1)
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(4))
+          p_local_idx = m%pt_lid(4, 1)
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
           @assertEqual(0, m%facet_neigh(1, 1))
@@ -375,16 +376,16 @@ contains
 
           call m%generate_conn()
 
-          @assertEqual(4, m%hte%num_entries())
+          @assertEqual(4, m%meds)
           @MPIassertEqual(2, m%glb_nelv)
 
-          p_local_idx = m%get_local(p(2))
+          p_local_idx = m%pt_lid(1, 1)
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(5))
+          p_local_idx = m%pt_lid(2, 1)
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(6))
+          p_local_idx = m%pt_lid(4, 1)
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(4))
+          p_local_idx = m%pt_lid(3, 1)
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
           @assertEqual(-1, m%facet_neigh(1, 1))
@@ -395,6 +396,7 @@ contains
        end if
     end if
 
+    call comm_free_test()
   end subroutine test_mesh_quad_conn
 
   @test(npes=[1,2])
@@ -403,14 +405,10 @@ contains
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
     type(point_t) :: p(12)
-    type(tuple4_i4_t) :: t
     integer :: ierr, i, p_local_idx
     integer, parameter :: gdim = 3
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
+    call comm_init_test(this%getMpiCommunicator())
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -456,43 +454,43 @@ contains
        @MPIassertEqual(11, m%glb_mfcs)
        @MPIassertEqual(20, m%glb_meds)
 
-       p_local_idx = m%get_local(p(1))
+       p_local_idx = m%pt_lid(1, 1)
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(p(2))
+       p_local_idx = m%pt_lid(2, 1)
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(p(3))
+       p_local_idx = m%pt_lid(3, 1)
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(p(4))
-       @assertEqual(2, m%point_neigh(p_local_idx)%size())
-
-       p_local_idx = m%get_local(p(7))
-       @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(p(8))
-       @assertEqual(2, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(p(9))
-       @assertEqual(2, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(p(10))
-       @assertEqual(1, m%point_neigh(p_local_idx)%size())
-
-       p_local_idx = m%get_local(p(2))
-       @assertEqual(2, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(p(5))
-       @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(p(6))
-       @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(p(4))
+       p_local_idx = m%pt_lid(4, 1)
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
-       p_local_idx = m%get_local(p(8))
+       p_local_idx = m%pt_lid(5, 1)
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%pt_lid(6, 1)
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(p(11))
+       p_local_idx = m%pt_lid(8, 1)
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%pt_lid(7, 1)
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(p(12))
+
+       p_local_idx = m%pt_lid(2, 1)
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%pt_lid(2, 2)
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = m%get_local(p(9))
+       p_local_idx = m%pt_lid(4, 2)
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%pt_lid(4, 1)
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
-       @assertEqual(11, m%htf%num_entries())
+       p_local_idx = m%pt_lid(6, 1)
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%pt_lid(6, 2)
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%pt_lid(8, 2)
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%pt_lid(8, 1)
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+
+       @assertEqual(11, m%mfcs)
 
        @assertEqual(0, m%facet_neigh(1, 1))
        @assertEqual(2, m%facet_neigh(2, 1))
@@ -508,14 +506,10 @@ contains
        @assertEqual(0, m%facet_neigh(5, 2))
        @assertEqual(0, m%facet_neigh(6, 2))
 
-       call m%elements(1)%e%facet_id(t, 1)
-       @assertFalse(m%is_shared(t))
-       call m%elements(1)%e%facet_id(t, 2)
-       @assertFalse(m%is_shared(t))
-       call m%elements(2)%e%facet_id(t, 1)
-       @assertFalse(m%is_shared(t))
-       call m%elements(2)%e%facet_id(t, 2)
-       @assertFalse(m%is_shared(t))
+       @assertFalse(m%is_shared_facet(1, 1))
+       @assertFalse(m%is_shared_facet(1, 2))
+       @assertFalse(m%is_shared_facet(2, 1))
+       @assertFalse(m%is_shared_facet(2, 2))
 
 
     else
@@ -526,27 +520,27 @@ contains
 
           call m%generate_conn()
 
-          @assertEqual(6, m%htf%num_entries())
+          @assertEqual(6, m%mfcs)
           @MPIassertEqual(2, m%glb_nelv)
           @MPIassertEqual(11, m%glb_mfcs)
           @MPIassertEqual(20, m%glb_meds)
 
-          p_local_idx = m%get_local(p(1))
+          p_local_idx = m%pt_lid(1, 1)
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(2))
+          p_local_idx = m%pt_lid(2, 1)
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(3))
+          p_local_idx = m%pt_lid(3, 1)
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(4))
+          p_local_idx = m%pt_lid(4, 1)
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
-          p_local_idx = m%get_local(p(7))
+          p_local_idx = m%pt_lid(5, 1)
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(8))
+          p_local_idx = m%pt_lid(6, 1)
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(9))
+          p_local_idx = m%pt_lid(8, 1)
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(10))
+          p_local_idx = m%pt_lid(7, 1)
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
 
           @assertEqual(0, m%facet_neigh(1, 1))
@@ -556,10 +550,8 @@ contains
           @assertEqual(0, m%facet_neigh(5, 1))
           @assertEqual(0, m%facet_neigh(6, 1))
 
-          call m%elements(1)%e%facet_id(t, 1)
-          @assertFalse(m%is_shared(t))
-          call m%elements(1)%e%facet_id(t, 2)
-          @assertTrue(m%is_shared(t))
+          @assertFalse(m%is_shared_facet(1, 1))
+          @assertTrue(m%is_shared_facet(1, 2))
 
        else
 
@@ -568,27 +560,27 @@ contains
 
           call m%generate_conn()
 
-          @assertEqual(6, m%htf%num_entries())
+          @assertEqual(6, m%mfcs)
           @MPIassertEqual(2, m%glb_nelv)
           @MPIassertEqual(11, m%glb_mfcs)
           @MPIassertEqual(20, m%glb_meds)
 
-          p_local_idx = m%get_local(p(2))
+          p_local_idx = m%pt_lid(1, 1)
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(5))
+          p_local_idx = m%pt_lid(2, 1)
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(6))
+          p_local_idx = m%pt_lid(4, 1)
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(4))
+          p_local_idx = m%pt_lid(3, 1)
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
-          p_local_idx = m%get_local(p(8))
+          p_local_idx = m%pt_lid(5, 1)
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(11))
+          p_local_idx = m%pt_lid(6, 1)
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(12))
+          p_local_idx = m%pt_lid(8, 1)
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = m%get_local(p(9))
+          p_local_idx = m%pt_lid(7, 1)
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
           @assertEqual(-1, m%facet_neigh(1, 1))
@@ -598,14 +590,13 @@ contains
           @assertEqual(0, m%facet_neigh(5, 1))
           @assertEqual(0, m%facet_neigh(6, 1))
 
-          call m%elements(1)%e%facet_id(t, 1)
-          @assertTrue(m%is_shared(t))
-          call m%elements(1)%e%facet_id(t, 2)
-          @assertFalse(m%is_shared(t))
+          @assertTrue(m%is_shared_facet(1, 1))
+          @assertFalse(m%is_shared_facet(1, 2))
 
        end if
     end if
 
+    call comm_free_test()
   end subroutine test_mesh_hex_conn
 
   @test

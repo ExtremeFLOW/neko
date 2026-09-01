@@ -80,8 +80,7 @@ extern "C" {
   }
 
   void scalar_rhs_maker_ext_hip(void *fs_lag, void *fs_laglag, void *fs,
-                                real *rho, real *ext1, real *ext2, real *ext3,
-                                int *n) {
+                                real *ext1, real *ext2, real *ext3, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
@@ -89,7 +88,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME( scalar_makeext_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) fs_lag, (real *) fs_laglag, (real *) fs,
-                       *rho, *ext1, *ext2, *ext3, *n);
+                       *ext1, *ext2, *ext3, *n);
     HIP_CHECK(hipGetLastError());
   }
 
@@ -97,6 +96,7 @@ extern "C" {
                          void *vlag2, void *wlag1, void *wlag2,
                          void *bfx, void *bfy, void *bfz,
                          void *u, void *v, void *w, void *B,
+                         void *Blag, void *Blaglag,
                          real *rho, real *dt, real *bd2,
                          real *bd3, real *bd4, int *nbd, int *n) {
 
@@ -109,12 +109,13 @@ extern "C" {
                        (real *) vlag2, (real *) wlag1, (real *) wlag2,
                        (real *) bfx, (real *) bfy, (real *) bfz,
                        (real *) u, (real *) v, (real *) w, (real *) B,
-                       *rho, *dt, *bd2, *bd3, *bd4, *nbd,  *n);
+                       (real *) Blag, (real *) Blaglag,
+                       *rho, *dt, *bd2, *bd3, *bd4, *nbd, *n);
     HIP_CHECK(hipGetLastError());
   }
 
   void scalar_rhs_maker_bdf_hip(void *s_lag, void *s_laglag, void *fs,
-                                void *s, void *B, real *rho, real *dt,
+                                void *s, void *B, void *rho_cp, real *dt,
                                 real *bd2, real *bd3, real *bd4,
                                 int *nbd, int *n) {
 
@@ -124,8 +125,8 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME( scalar_makebdf_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) s_lag, (real *) s_laglag, (real *) fs,
-                       (real *) s, (real *) B, *rho, *dt, *bd2, *bd3,
-                       *bd4, *nbd,  *n);
+                       (real *) s, (real *) B, (real *) rho_cp, *dt,
+                       *bd2, *bd3, *bd4, *nbd, *n);
     HIP_CHECK(hipGetLastError());
   }
 
@@ -145,7 +146,7 @@ extern "C" {
   }
 
   void scalar_rhs_maker_oifs_hip(void *phi_s, void *bf_s,
-                                 real *rho, real *dt, int *n) {
+                                 void *rho_cp, real *dt, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
@@ -153,8 +154,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME( scalar_makeoifs_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) phi_s, (real *) bf_s,
-                       *rho, *dt, *n);
+                       (real *) rho_cp, *dt, *n);
     HIP_CHECK(hipGetLastError());
   }
 }
-

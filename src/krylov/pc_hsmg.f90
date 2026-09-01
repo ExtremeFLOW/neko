@@ -63,24 +63,26 @@ module hsmg
   use num_types, only : rp
   use math, only : copy, col2, add2
   use utils, only : neko_error
-  use precon, only : pc_t, precon_factory, precon_destroy
-  use ax_product, only : ax_t, ax_helm_factory
+  use precon, only : pc_t, precon_allocator, precon_destroy
+  use ax_product, only : ax_t, ax_helm_allocator
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
-  use bc, only: bc_t
+  use bc, only : bc_t
   use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use dirichlet, only : dirichlet_t
   use schwarz, only : schwarz_t
   use jacobi, only : jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
-  use device
+  use device, only : device_map, device_event_create, device_unmap, &
+       device_event_destroy, device_get_ptr, device_event_sync
   use device_math, only : device_copy, device_col2, device_add2
   use profiler, only : profiler_start_region, profiler_end_region
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
   use field, only : field_t
-  use coefs, only : coef_t
+  use coefs, only : coef_t, COEF_OPERATOR
   use mesh, only : mesh_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
@@ -100,7 +102,7 @@ module hsmg
      type(gs_t), pointer :: gs_h => null()
      type(space_t), pointer :: Xh => null()
      type(coef_t), pointer :: coef => null()
-     type(bc_list_t), pointer :: bclst => null()
+     type(scalar_bc_projector_t), pointer :: bc_projector => null()
      type(schwarz_t), pointer :: schwarz => null()
      type(field_t), pointer :: e => null()
   end type multigrid_t
@@ -114,8 +116,10 @@ module hsmg
      type(dofmap_t) :: dm_crs, dm_mg
      type(coef_t) :: c_crs, c_mg
      type(zero_dirichlet_t) :: bc_crs, bc_mg, bc_reg
-     type(bc_list_t) :: bclst_crs, bclst_mg, bclst_reg
-     type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
+     type(scalar_bc_projector_t) :: bc_projector_crs, bc_projector_mg, &
+          bc_projector_reg
+     type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz
+     !! decompositions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
      type(field_t) :: wf !< Work fields
      class(ksp_t), allocatable :: crs_solver !< Solver for course problem
@@ -201,7 +205,8 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     call this%free()
-    !> @note I do not think we actually use the same grids as they do in the original!
+    !> @note I do not think we actually use the same grids as they do
+    !! in the original!
     this%nlvls = 3
     lx_crs = 2
     if (coef%Xh%lx .lt. 5) then
@@ -269,16 +274,18 @@ contains
     call this%dm_crs%init(coef%msh, this%Xh_crs)
     call this%gs_crs%init(this%dm_crs)
     call this%e_crs%init(this%dm_crs, 'work crs')
-    call this%c_crs%init(this%gs_crs)
+    ! Both coarse levels read G_ij, h1, h2, B and mult and nothing else, and
+    ! hsmg never rebuilds their geometry, so the rest is dead weight.
+    call this%c_crs%init(this%gs_crs, COEF_OPERATOR)
 
     call this%Xh_mg%init(GLL, lx_mid, lx_mid, lx_mid)
     call this%dm_mg%init(coef%msh, this%Xh_mg)
     call this%gs_mg%init(this%dm_mg)
     call this%e_mg%init(this%dm_mg, 'work midl')
-    call this%c_mg%init(this%gs_mg)
+    call this%c_mg%init(this%gs_mg, COEF_OPERATOR)
 
     ! Create backend specific Ax operator
-    call ax_helm_factory(this%ax, full_formulation = .false.)
+    call ax_helm_allocator(this%ax, type_name = "standard")
 
     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)
@@ -297,29 +304,24 @@ contains
     call this%bc_crs%finalize()
     call this%bc_mg%finalize()
 
-    call this%bclst_reg%init()
-    call this%bclst_crs%init()
-    call this%bclst_mg%init()
-
-    call this%bclst_reg%append(this%bc_reg)
-    call this%bclst_crs%append(this%bc_crs)
-    call this%bclst_mg%append(this%bc_mg)
+    call this%bc_projector_reg%mark(this%bc_reg)
+    call this%bc_projector_crs%mark(this%bc_crs)
+    call this%bc_projector_mg%mark(this%bc_mg)
 
     call this%schwarz%init(coef%Xh, coef%dof, coef%gs_h, &
-         this%bclst_reg, coef%msh)
+         this%bc_projector_reg, coef%msh)
     call this%schwarz_mg%init(this%Xh_mg, this%dm_mg, this%gs_mg,&
-         this%bclst_mg, coef%msh)
+         this%bc_projector_mg, coef%msh)
 
     call this%interp_fine_mid%init(coef%Xh, this%Xh_mg)
     call this%interp_mid_crs%init(this%Xh_mg, this%Xh_crs)
 
     call hsmg_fill_grid(coef%dof, coef%gs_h, coef%Xh, coef, &
-         this%bclst_reg, this%schwarz, this%e, this%grids, 3)
+         this%bc_projector_reg, this%schwarz, this%e, this%grids, 3)
     call hsmg_fill_grid(this%dm_mg, this%gs_mg, this%Xh_mg, this%c_mg, &
-         this%bclst_mg, this%schwarz_mg, this%e_mg, &
-         this%grids, 2)
+         this%bc_projector_mg, this%schwarz_mg, this%e_mg, this%grids, 2)
     call hsmg_fill_grid(this%dm_crs, this%gs_crs, this%Xh_crs, &
-         this%c_crs, this%bclst_crs, this%schwarz_crs, &
+         this%c_crs, this%bc_projector_crs, this%schwarz_crs, &
          this%e_crs, this%grids, 1)
 
     call hsmg_set_h(this)
@@ -338,10 +340,10 @@ contains
        allocate(this%amg_solver)
        call this%amg_solver%init(this%ax, this%grids(1)%e%Xh, &
             this%grids(1)%coef, this%msh, this%grids(1)%gs_h, crs_tamg_lvls, &
-            this%grids(1)%bclst, crs_tamg_itrs, crs_tamg_cheby_degree)
+            this%grids(1)%bc_projector, crs_tamg_itrs, crs_tamg_cheby_degree)
     else
        ! Create a backend specific preconditioner
-       call precon_factory(this%pc_crs, crs_pc)
+       call precon_allocator(this%pc_crs, crs_pc)
 
        select type (pc => this%pc_crs)
        type is (jacobi_t)
@@ -376,12 +378,12 @@ contains
   end subroutine hsmg_set_h
 
 
-  subroutine hsmg_fill_grid(dof, gs_h, Xh, coef, bclst, schwarz, e, grids, l)
+  subroutine hsmg_fill_grid(dof, gs_h, Xh, coef, bc_projector, schwarz, e, grids, l)
     type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(in) :: gs_h
     type(space_t), target, intent(in) :: Xh
     type(coef_t), target, intent(in) :: coef
-    type(bc_list_t), target, intent(in) :: bclst
+    type(scalar_bc_projector_t), target, intent(in) :: bc_projector
     type(schwarz_t), target, intent(in) :: schwarz
     type(field_t), target, intent(in) :: e
     integer, intent(in) :: l
@@ -392,7 +394,7 @@ contains
     grids(l)%gs_h => gs_h
     grids(l)%Xh => Xh
     grids(l)%coef => coef
-    grids(l)%bclst => bclst
+    grids(l)%bc_projector => bc_projector
     grids(l)%schwarz => schwarz
     grids(l)%e => e
 
@@ -442,13 +444,18 @@ contains
     call this%bc_mg%free()
     call this%bc_reg%free()
 
-    call this%bclst_reg%free()
-    call this%bclst_crs%free()
-    call this%bclst_mg%free()
+    call this%bc_projector_reg%free()
+    call this%bc_projector_crs%free()
+    call this%bc_projector_mg%free()
 
     if (allocated(this%crs_solver)) then
        call this%crs_solver%free()
        deallocate(this%crs_solver)
+    end if
+
+    if (allocated(this%amg_solver)) then
+       call this%amg_solver%free()
+       deallocate(this%amg_solver)
     end if
 
     if (allocated(this%pc_crs)) then
@@ -485,7 +492,7 @@ contains
        r_d = device_get_ptr(r)
        !We should not work with the input
        call device_copy(this%r_d, r_d, n)
-       call this%bclst_reg%apply_scalar(this%r, n)
+       call this%bc_projector_reg%apply(this%r, n)
 
        !OVERLAPPING Schwarz exchange and solve
        !! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
@@ -499,9 +506,9 @@ contains
        call device_event_sync(this%gs_event)
        !This should probably be double checked again
        call device_copy(this%r_d, r_d, n)
-       call this%bclst_reg%apply_scalar(this%r, n)
+       call this%bc_projector_reg%apply(this%r, n)
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
-       call this%bclst_mg%apply_scalar(this%w, this%grids(2)%dof%size())
+       call this%bc_projector_mg%apply(this%w, this%grids(2)%dof%size())
        !OVERLAPPING Schwarz exchange and solve
        call device_col2(this%w_d, this%grids(2)%coef%mult_d, &
             this%grids(2)%dof%size())
@@ -510,7 +517,7 @@ contains
             this%grids(1)%Xh)
        !Crs solve
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
-       call this%bclst_mg%apply_scalar(this%w, this%grids(2)%dof%size())
+       call this%bc_projector_mg%apply(this%w, this%grids(2)%dof%size())
 
        !$omp parallel private(thrdid, nthrds)
 
@@ -530,7 +537,7 @@ contains
           call this%grids(1)%gs_h%op(this%wf%x, &
                this%grids(1)%dof%size(), GS_OP_ADD, this%gs_event)
           call device_event_sync(this%gs_event)
-          call this%grids(1)%bclst%apply_scalar(this%wf%x, &
+          call this%grids(1)%bc_projector%apply(this%wf%x, &
                this%grids(1)%dof%size())
           call profiler_start_region('HSMG_coarse_solve', 11)
           if (allocated(this%amg_solver)) then
@@ -541,11 +548,11 @@ contains
                   this%wf%x, &
                   this%grids(1)%dof%size(), &
                   this%grids(1)%coef, &
-                  this%grids(1)%bclst, &
+                  this%grids(1)%bc_projector, &
                   this%grids(1)%gs_h, this%niter)
           end if
           call profiler_end_region('HSMG_coarse_solve', 11)
-          call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x,&
+          call this%grids(1)%bc_projector%apply(this%grids(1)%e%x,&
                this%grids(1)%dof%size())
           call profiler_end_region('HSMG_coarse_grid', 10)
        end if
@@ -585,7 +592,7 @@ contains
        !Crs solve
 
        call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), GS_OP_ADD)
-       call this%grids(1)%bclst%apply(this%r, this%grids(1)%dof%size())
+       call this%grids(1)%bc_projector%apply(this%r, this%grids(1)%dof%size())
 
        call profiler_start_region('HSMG_coarse-solve', 11)
        if (allocated(this%amg_solver)) then
@@ -595,12 +602,12 @@ contains
           crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
                this%grids(1)%dof%size(), &
                this%grids(1)%coef, &
-               this%grids(1)%bclst, &
+               this%grids(1)%bc_projector, &
                this%grids(1)%gs_h, this%niter)
        end if
        call profiler_end_region('HSMG_coarse-solve', 11)
 
-       call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x, &
+       call this%grids(1)%bc_projector%apply(this%grids(1)%e%x, &
             this%grids(1)%dof%size())
 
 

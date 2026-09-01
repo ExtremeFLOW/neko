@@ -87,12 +87,16 @@ module most_cpu
 
   ! These will point to the correct functions
   ! depending on stability regime and bc_type.
+  !! @note These are reassigned per node inside the compute loop, so every
+  !! thread needs its own copy. They are always set before being used.
   procedure(slaw_m_interface), pointer :: slaw_m_ptr => null()
   procedure(slaw_h_interface), pointer :: slaw_h_ptr => null()
   procedure(corr_m_interface), pointer :: corr_m_ptr => null()
   procedure(corr_h_interface), pointer :: corr_h_ptr => null()
   procedure(f_interface), pointer :: f_ptr => null()
   procedure(dfdl_interface), pointer :: dfdl_ptr => null()
+  !$omp threadprivate(slaw_m_ptr, slaw_h_ptr, corr_m_ptr, corr_h_ptr, &
+  !$omp& f_ptr, dfdl_ptr)
 
 contains
 
@@ -115,12 +119,14 @@ contains
        f_ptr => f_dirichlet
        dfdl_ptr => dfdl_dirichlet
     case default
-       call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
+       call neko_error("Invalid specified temperature b.c. type " // &
+            "('neumann' or 'dirichlet'?)")
     end select
   end subroutine select_bc_operators
 
   !> Computes the Richardson number.
-  subroutine compute_Ri_b(bc_type, g_dot_n, hi, ti, ts, magu, kappa, q, Pr, Ri_b)
+  subroutine compute_Ri_b(bc_type, g_dot_n, hi, ti, ts, magu, kappa, q, &
+       Pr, Ri_b)
     character(len=*), intent(in) :: bc_type
     real(kind=rp), intent(in) :: hi, ti, ts, Pr
     real(kind=rp), intent(in) :: magu, kappa, g_dot_n
@@ -132,11 +138,13 @@ contains
     case ("dirichlet")
        Ri_b = g_dot_n*hi/ti*(ti - ts)/magu**2
     case default
-       call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
+       call neko_error("Invalid specified temperature b.c. type " // &
+            "('neumann' or 'dirichlet'?)")
     end select
   end subroutine compute_Ri_b
 
-  !> Sets the stability regime based on the Richardson number value (quite arbitrary).
+  !> Sets the stability regime based on the Richardson number value
+  !! (quite arbitrary).
   subroutine set_stability_regime(Ri_b, Ri_threshold)
     real(kind=rp), intent(in) :: Ri_b, Ri_threshold
 
@@ -158,14 +166,13 @@ contains
 
   !> Main routine to compute the surface stresses based on MOST.
   !! @param tstep The current time-step
-  subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
-       n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
+  subroutine most_compute_cpu(u, v, w, temp, temp_w, &
+       n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, &
        kappa, mu_w, rho_w, g_vec, Pr, z0, z0h_in, bc_type, bc_value, tstep, &
        Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, ts_diagn,&
-       q_diagn, h_x_idx, h_y_idx, h_z_idx)
-    integer, intent(in) :: n_nodes, lx, nelv, tstep
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
-    integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
+       q_diagn)
+    integer, intent(in) :: n_nodes, tstep
+    real(kind=rp), dimension(n_nodes), intent(in) :: u, v, w, temp, temp_w
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
     real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value, Pr
     real(kind=rp), dimension(3), intent(in) :: g_vec
@@ -188,16 +195,16 @@ contains
     real(kind=rp), dimension(n_nodes), intent(inout) :: utau_diagn, magu_diagn
     real(kind=rp), dimension(n_nodes), intent(inout) :: ti_diagn, ts_diagn
     real(kind=rp), dimension(n_nodes), intent(inout) :: q_diagn
-    integer, dimension(n_nodes), intent(in) :: h_x_idx
-    integer, dimension(n_nodes), intent(in) :: h_y_idx
-    integer, dimension(n_nodes), intent(in) :: h_z_idx
 
+    !$omp parallel do private(i, ui, vi, wi, hi, rho, mu, normu, z0h, &
+    !$omp& L_upper, L_lower, L_old, f, dfdl, fd_h, L_new, L_sign, count, &
+    !$omp& utau, Ri_b, L_ob, magu, q, ti, ts, g_dot_n)
     do i=1, n_nodes
        ! Sample the variables
-       ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       ti = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       ui = u(i)
+       vi = v(i)
+       wi = w(i)
+       ti = temp(i)
        hi = h(i)
        rho = rho_w(i)
        mu = mu_w(i)
@@ -223,7 +230,8 @@ contains
 
        ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
        ! Maybe redundant, but needed to initialise Rib
-       call select_bc_operators(bc_type, bc_value, q, ts, ti, kappa, utau, z0h, hi, Pr)
+       call select_bc_operators(bc_type, bc_value, q, ts, ti, kappa, &
+            utau, z0h, hi, Pr)
 
        ! Compute g along the normal (generalisation for hills and similar)
        g_dot_n = abs(g_vec(1)*n_x(i) + g_vec(2)*n_y(i) + g_vec(3)*n_z(i))
@@ -249,8 +257,10 @@ contains
           count = 0
 
           ! Find Obukhov length
-          do while ((abs(L_old - L_ob)/abs(L_ob) > tol) .and. (count < max_count))
-             ! Switch between stable and convective based on bulk Richardson (Ri_b)
+          do while ((abs(L_old - L_ob) / abs(L_ob) > tol) .and. &
+               (count < max_count))
+             ! Switch between stable and convective based on bulk
+             ! Richardson (Ri_b)
              L_old = L_ob
              count = count + 1
              fd_h = NR_step*L_ob
@@ -261,7 +271,9 @@ contains
              f = f_ptr(Ri_b, hi, z0, z0h, Pr, L_ob, slaw_m_ptr, slaw_h_ptr)
              dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, Pr, L_ob, &
                   slaw_m_ptr, slaw_h_ptr, fd_h)
-             if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
+             if (abs(dfdl) < 1.0e-12_rp) then
+                call neko_error("Division by zero in dfdl")
+             end if
              L_new = L_ob - f/dfdl
              ! Avoid regime crossing during Newton iter (otherwise crash)
              if (L_new*L_sign <= 0.0_rp) then
@@ -275,7 +287,10 @@ contains
 
           if (abs(L_ob) > 5e5_rp .or. abs(L_ob) < 1e-6_rp) then
              count = max_count
-             call neko_warning("Obukhov length did not converge (MOST wall model)")
+             !$omp critical
+             call neko_warning("Obukhov length did not converge " // &
+                  "(MOST wall model)")
+             !$omp end critical
           end if
 
           if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
@@ -294,10 +309,12 @@ contains
           ! and compute q from here
           q = kappa/Pr*utau*(ts - ti)/slaw_h_ptr(hi, L_ob, z0h)
        case default
-          call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
+          call neko_error("Invalid specified temperature b.c. type " // &
+               "('neumann' or 'dirichlet'?)")
        end select
 
-       ! Distribute according to the velocity vector and bound magu to avoid 0 division
+       ! Distribute according to the velocity vector and bound magu
+       ! to avoid 0 division
        magu = max(magu, 1.0e-6_rp)
        tau_x(i) = -rho * utau**2 * ui / magu
        tau_y(i) = -rho * utau**2 * vi / magu
@@ -308,17 +325,19 @@ contains
        utau_diagn(i) = utau
        magu_diagn(i) = magu
        ti_diagn(i) = ti
-       ts_diagn(i) = temp(ind_r(i)-h_x_idx(i), ind_s(i)-h_y_idx(i), ind_t(i)-h_z_idx(i), ind_e(i))
+       ts_diagn(i) = temp_w(i)
        q_diagn(i) = q
     end do
+    !$omp end parallel do
   end subroutine most_compute_cpu
 
 !> Similarity laws and corrections for the STABLE regime:
   !> REFERENCE: Holtslag, A. A. M., & De Bruin, H. A. R. (1988).
   !> Applied Modeling of the Nighttime Surface Energy Balance over Land.
   !> Journal of Applied Meteorology, 27(6), 689–704.
-  !> NOTE: This formulation is chosen for its superior behavior in very stable conditions (large z/L),
-  !> avoiding the numerical decoupling found in older linear functions (e.g., Dyer).
+  !> NOTE: This formulation is chosen for its superior behaviour in
+  !! very stable conditions (large z/L), avoiding the numerical
+  !! decoupling found in older linear functions (e.g., Dyer).
   function slaw_m_stable(z, L_ob, z0) result(slaw)
     real(kind=rp), intent(in) :: z, L_ob, z0
     real(kind=rp) :: slaw
@@ -359,14 +378,18 @@ contains
     b = 2.0_rp/3.0_rp
     c = 5.0_rp
     d = 0.35_rp
-    corr = -b * (zeta-c/d)*exp(-d*zeta)-(1.0_rp+ 2.0_rp/3.0_rp * a * zeta)**1.5_rp-b*c/d + 1.0_rp
+    corr = -b * (zeta - c / d) * exp(-d * zeta) - &
+         (1.0_rp + 2.0_rp / 3.0_rp * a * zeta)**1.5_rp - b * c / d + &
+         1.0_rp
   end function corr_h_stable
 
   !> Similarity laws and corrections for the UNSTABLE (convective) regime:
   !> REFERENCE: Dyer, A. J. (1974), A review of flux-profile relationships,
   !> Bound.-Layer Meteorol., 7, 363-372.
-  !> INTEGRATION: Paulson, C. A. (1970), The mathematical representation of wind speed and
-  !> temperature profiles in the unstable atmospheric surface layer, J. Appl. Meteorol., 9, 857-861.
+  !> INTEGRATION: Paulson, C. A. (1970), The mathematical
+  !! representation of wind speed and temperature profiles in the
+  !! unstable atmospheric surface layer, J. Appl. Meteorol., 9,
+  !! 857-861.
   function slaw_m_convective(z, L_ob, z0) result(slaw)
     real(kind=rp), intent(in) :: z, L_ob, z0
     real(kind=rp) :: slaw
@@ -378,7 +401,8 @@ contains
     real(kind=rp), intent(in) :: z, L_ob, z0h
     real(kind=rp) :: slaw
 
-    slaw = log(z/z0h) - corr_h_convective(z, L_ob) + corr_h_convective(z0h, L_ob)
+    slaw = log(z / z0h) - corr_h_convective(z, L_ob) + &
+         corr_h_convective(z0h, L_ob)
   end function slaw_h_convective
 
   function corr_m_convective(z, L_ob) result(corr)
@@ -458,8 +482,10 @@ contains
     procedure(slaw_h_interface) :: slaw_h
     real(kind=rp) :: dfdl
 
-    dfdl = (-z/l_upper*slaw_h(z, l_upper, z0h)/slaw_m(z, l_upper, z0)**2) ! conv
-    dfdl = dfdl + (z/l_lower*slaw_h(z, l_lower, z0h)/slaw_m(z, l_lower, z0)**2) ! conv
+    dfdl = (-z / l_upper * slaw_h(z, l_upper, z0h) / &
+         slaw_m(z, l_upper, z0)**2) ! conv
+    dfdl = dfdl + (z / l_lower * slaw_h(z, l_lower, z0h) / &
+         slaw_m(z, l_lower, z0)**2) ! conv
     dfdl = Pr*dfdl/(2*fd_h)
   end function dfdl_dirichlet
 

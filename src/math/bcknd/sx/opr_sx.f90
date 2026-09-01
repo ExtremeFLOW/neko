@@ -2,7 +2,7 @@
 module opr_sx
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use space, only : space_t
   use coefs, only : coef_t
   use math, only : sub3, copy, rzero
@@ -74,9 +74,9 @@ module opr_sx
        type(space_t), intent(in) :: Xh
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: nelv
-       real(kind=rp), intent(in) :: dt
+       real(kind=dp), intent(in) :: dt
        real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u, v, w
-       real(kind=rp) :: cfl
+       real(kind=dp) :: cfl
      end function opr_sx_cfl
 
      module subroutine opr_sx_lambda2(lambda2, u, v, w, coef)
@@ -147,9 +147,7 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call opcolv(w1, w2, w3, c_Xh%B, gdim, n)
-    call c_Xh%gs_h%op(w1, n, GS_OP_ADD)
-    call c_Xh%gs_h%op(w2, n, GS_OP_ADD)
-    call c_Xh%gs_h%op(w3, n, GS_OP_ADD)
+    call c_Xh%gs_h%op(w1, w2, w3, n, GS_OP_ADD)
     call opcolv(w1, w2, w3, c_Xh%Binv, gdim, n)
 
   end subroutine opr_sx_curl

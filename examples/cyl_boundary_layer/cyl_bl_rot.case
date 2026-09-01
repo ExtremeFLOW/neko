@@ -21,10 +21,6 @@
             "initial_condition": {
                 "type": "user",
             },
-            "outflow_condition": {
-                "delta": 0.01,
-                "velocity_scale": 1.0
-            },
             "velocity_solver": {
                 "type": "cg",
                 "preconditioner": {
@@ -63,10 +59,12 @@
                 },
                 {
                     "type": "normal_outflow",
+                    "value": [ 1.0, 0.0, 0.0 ],
                     "zone_indices": [ 5 ]
                 },
                 {
                     "type": "normal_outflow+dong",
+                    "value": [ 1.0, 0.0, 0.0 ],
                     "zone_indices": [ 6 ]
                 },
                 {
@@ -75,7 +73,7 @@
                 }
             ],
             "output_control": "nsamples",
-            "output_value": 400.0
+            "output_value": 400
         }
     }
 }

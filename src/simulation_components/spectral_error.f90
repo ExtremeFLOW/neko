@@ -32,7 +32,7 @@
 !
 !> Implements type spectral_error_t.
 module spectral_error
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field, only : field_t
   use coefs, only : coef_t
   use field_list, only : field_list_t
@@ -42,7 +42,7 @@ module spectral_error
   use tensor, only : tnsr3d
   use device_math, only : device_copy
   use neko_config, only : NEKO_BCKND_HIP, NEKO_BCKND_CUDA, NEKO_BCKND_OPENCL, &
-       NEKO_BCKND_DEVICE
+       NEKO_BCKND_METAL, NEKO_BCKND_DEVICE
   use logger, only : neko_log
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE, device_memcpy
   use comm, only : pe_rank
@@ -292,7 +292,7 @@ contains
 
     !> Copy field to working array
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+         (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_METAL .eq. 1)) then
        call device_copy(wk%x_d, u%x_d, n)
     else
        call copy(wk%x, u%x, n)
@@ -311,7 +311,7 @@ contains
 
     ! Synchronize
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+         (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_METAL .eq. 1)) then
 
        call device_memcpy(u_hat%x, u_hat%x_d, n, &
             DEVICE_TO_HOST, sync = .true.)
@@ -348,7 +348,7 @@ contains
   !! @param t Current simulation time.
   subroutine spectral_error_write(this, t)
     class(spectral_error_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
 
     integer i, e
     integer lx, ly, lz, nelv

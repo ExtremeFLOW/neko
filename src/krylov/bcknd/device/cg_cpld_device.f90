@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,16 +32,18 @@
 !
 !> Defines a coupled  Conjugate Gradient methods for accelerators
 module cg_cpld_device
-  use num_types, only: rp
+  use num_types, only : rp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t
   use math, only : abscmp
-  use device
+  use device, only : device_map, device_event_create, device_unmap, &
+       device_event_destroy, device_get_ptr, device_event_sync
   use device_math, only : device_rzero, device_copy, &
        device_add2s1, device_vdot3, device_glsc2
   use device_mathops, only : device_opadd2cm
@@ -49,6 +51,7 @@ module cg_cpld_device
   use operators, only : rotate_cyc
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
+  private
 
   !> Device based coupled preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_cpld_device_t
@@ -96,7 +99,8 @@ module cg_cpld_device
 contains
 
   !> Initialise a device based PCG solver
-  subroutine cg_cpld_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+  subroutine cg_cpld_device_init(this, n, max_iter, M, rel_tol, abs_tol, &
+       monitor)
     class(cg_cpld_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
@@ -265,15 +269,15 @@ contains
 
   end subroutine cg_cpld_device_free
 
-  function cg_cpld_device_nop(this, Ax, x, f, n, coef, blst, gs_h, niter) &
-       result(ksp_results)
+  function cg_cpld_device_nop(this, Ax, x, f, n, coef, bc_projector, gs_h, &
+       niter) result(ksp_results)
     class(cg_cpld_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -287,7 +291,7 @@ contains
 
   !> Standard PCG solve
   function cg_cpld_device_solve(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(cg_cpld_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -298,9 +302,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -350,7 +352,7 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) then
+      if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
          return
       end if
@@ -376,17 +378,12 @@ contains
               this%p1, this%p2, this%p3, coef, x%msh, x%Xh)
 
          call rotate_cyc(w1_d, w2_d, w3_d, 1, coef)
-         call gs_h%op(this%w1, n, GS_OP_ADD, this%gs_event)
-         call device_event_sync(this%gs_event)
-         call gs_h%op(this%w2, n, GS_OP_ADD, this%gs_event)
-         call device_event_sync(this%gs_event)
-         call gs_h%op(this%w3, n, GS_OP_ADD, this%gs_event)
+         call gs_h%op(this%w1, this%w2, this%w3, n, GS_OP_ADD, &
+              this%gs_event)
          call device_event_sync(this%gs_event)
          call rotate_cyc(w1_d, w2_d, w3_d, 0, coef)
 
-         call blstx%apply(this%w1, n)
-         call blsty%apply(this%w2, n)
-         call blstz%apply(this%w3, n)
+         call bc_projector%apply(this%w1, this%w2, this%w3, n)
 
          call device_vdot3(tmp_d, w1_d, w2_d, w3_d, p1_d, p2_d, p3_d, n)
 

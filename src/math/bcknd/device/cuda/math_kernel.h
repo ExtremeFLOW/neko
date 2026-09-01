@@ -34,6 +34,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <device/device_config.h>
+
 /**
  * Device kernel for cmult
  */
@@ -185,6 +187,9 @@ __global__ void masked_scatter_copy_aligned_kernel(T * __restrict__ a,
   }
 }
 
+#if __CUDA_ARCH__ < 600
+#include <cassert>
+#endif
 
 /**
  * Device kernel for masked atomic update
@@ -199,18 +204,20 @@ __global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  for (int i = idx; i < m; i += str) {
 #if __CUDA_ARCH__ >= 600
+  for (int i = idx; i < m; i += str) 
     atomicAdd( &(a[mask[i+1]-1]), b[i]);
+#else
+  if (idx == 0) 
+    assert(0 && "masked_atomic_reduction_kernel requires compute capability 6.0 or higher.");
 #endif
-  }
 }
 
 /**
- * Device kernel for masked copy
+ * Device kernel for masked copy with BC style mask
  */
 template< typename T >
-__global__ void masked_copy_kernel(T * __restrict__ a,
+__global__ void masked_copy_kernel_0(T * __restrict__ a,
                                    T * __restrict__ b,
                                    int * __restrict__ mask,
                                    const int n,
@@ -221,6 +228,24 @@ __global__ void masked_copy_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n_mask; i += str) {
     a[mask[i+1]-1] = b[mask[i+1]-1];
+  }
+}
+
+/**
+ * Device kernel for masked copy with point zone style mask
+ */
+template< typename T >
+__global__ void masked_copy_kernel_aligned(T * __restrict__ a,
+                                   T * __restrict__ b,
+                                   int * __restrict__ mask,
+                                   const int n,
+                                   const int n_mask) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n_mask; i += str) {
+    a[mask[i]] = b[mask[i]];
   }
 }
 
@@ -338,6 +363,38 @@ __global__ void cwrap_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = min_val + fmod(fmod(a[i] - min_val, l) + l, l);
+  }
+}
+
+/**
+ * Device kernel for sqrt_inplace
+ */
+template< typename T >
+__global__ void sqrt_inplace_kernel(T * __restrict__ a,
+                                    const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = sqrt(a[i]);
+  }
+}
+
+/**
+ * Device kernel for power
+ */
+template< typename T >
+__global__ void power_kernel(T * __restrict__ ap,
+                             const T * __restrict__ a,
+                             const T p,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    ap[i] = pow(a[i], p);
   }
 }
 
@@ -918,12 +975,12 @@ __global__ void reduce_min_kernel(T * bufred, const T pinf, const int n) {
  * Reduction kernel for glsc3
  */
 
-template< typename T >
-__global__ void glsc3_reduce_kernel( T * bufred,
-                                    const int n,
-                                    const int j
+template< typename T_acc >
+__global__ void glsc3_reduce_kernel( T_acc * bufred,
+                                     const int n,
+                                     const int j
                                    ) {
-   __shared__ T buf[1024] ;
+   __shared__ T_acc buf[1024] ;
    const int idx = threadIdx.x;
    const int y= blockIdx.x;
    const int step = blockDim.x;
@@ -951,10 +1008,10 @@ __global__ void glsc3_reduce_kernel( T * bufred,
 
 
 /**
- * Device kernel for glsc3
+ * Device kernel for vlsc3
  */
 template< typename T >
-__global__ void glsc3_kernel(const T * a,
+__global__ void vlsc3_kernel(const T * a,
                              const T * b,
                              const T * c,
                              T * buf_h,
@@ -986,13 +1043,48 @@ __global__ void glsc3_kernel(const T * a,
 }
 
 /**
+ * Device kernel for glsc3
+ */
+template< typename T, typename T_acc >
+__global__ void glsc3_kernel(const T * a,
+                             const T * b,
+                             const T * c,
+                             T_acc * buf_h,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+
+  __shared__ T_acc shared[32];
+  T_acc sum = 0.0;
+  for (int i = idx; i < n; i+= str) {
+    sum += static_cast<T_acc>(a[i] * b[i] * c[i]);
+  }
+
+  sum = reduce_warp<T_acc>(sum);
+  if (lane == 0)
+    shared[wid] = sum;
+  __syncthreads();
+
+  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    sum = reduce_warp<T_acc>(sum);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = sum;
+}
+
+/**
  * Device kernel for glsc3 many
  */
-template< typename T >
+template< typename T, typename T_acc >
 __global__ void glsc3_many_kernel(const T * a,
                                   const T ** b,
                                   const T * c,
-                                  T * buf_h,
+                                  T_acc * buf_h,
                                   const int j,
                                   const int n) {
 
@@ -1000,11 +1092,11 @@ __global__ void glsc3_many_kernel(const T * a,
   const int str = blockDim.y * gridDim.x;
   const int y = threadIdx.x;
 
-  __shared__ T buf[1024];
-  T tmp = 0;
+  __shared__ T_acc buf[1024];
+  T_acc tmp = 0;
   if(y < j){
     for (int i = idx; i < n; i+= str) {
-      tmp += a[i] * b[threadIdx.x][i] * c[i];
+      tmp += static_cast<T_acc>(a[i] * b[threadIdx.x][i] * c[i]);
     }
   }
 
@@ -1029,10 +1121,10 @@ __global__ void glsc3_many_kernel(const T * a,
 /**
  * Device kernel for glsc2
  */
-template< typename T >
+template< typename T, typename T_acc >
 __global__ void glsc2_kernel(const T * a,
                              const T * b,
-                             T * buf_h,
+                             T_acc * buf_h,
                              const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1041,20 +1133,20 @@ __global__ void glsc2_kernel(const T * a,
   const unsigned int lane = threadIdx.x % warpSize;
   const unsigned int wid = threadIdx.x / warpSize;
 
-  __shared__ T shared[32];
-  T sum = 0.0;
+  __shared__ T_acc shared[32];
+  T_acc sum = 0.0;
   for (int i = idx; i < n; i+= str) {
-    sum += a[i] * b[i];
+    sum += static_cast<T_acc>(a[i] * b[i]);
   }
 
-  sum = reduce_warp<T>(sum);
+  sum = reduce_warp<T_acc>(sum);
   if (lane == 0)
     shared[wid] = sum;
   __syncthreads();
 
   sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
   if (wid == 0)
-    sum = reduce_warp<T>(sum);
+    sum = reduce_warp<T_acc>(sum);
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;
@@ -1064,11 +1156,11 @@ __global__ void glsc2_kernel(const T * a,
 /**
  * Device kernel for glsubnorm2
  */
-template< typename T >
+template< typename T, typename T_acc >
 __global__ void glsubnorm2_kernel(const T * a,
-                             const T * b,
-                             T * buf_h,
-                             const int n) {
+                                  const T * b,
+                                  T_acc * buf_h,
+                                  const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -1076,20 +1168,20 @@ __global__ void glsubnorm2_kernel(const T * a,
   const unsigned int lane = threadIdx.x % warpSize;
   const unsigned int wid = threadIdx.x / warpSize;
 
-  __shared__ T shared[32];
-  T sum = 0.0;
+  __shared__ T_acc shared[32];
+  T_acc sum = 0.0;
   for (int i = idx; i < n; i+= str) {
-    sum += pow(a[i] - b[i], 2.0);
+    sum += static_cast<T_acc>(pow(a[i] - b[i], 2.0));
   }
 
-  sum = reduce_warp<T>(sum);
+  sum = reduce_warp<T_acc>(sum);
   if (lane == 0)
     shared[wid] = sum;
   __syncthreads();
 
   sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
   if (wid == 0)
-    sum = reduce_warp<T>(sum);
+    sum = reduce_warp<T_acc>(sum);
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;
@@ -1099,9 +1191,9 @@ __global__ void glsubnorm2_kernel(const T * a,
 /**
  * Device kernel for glsum
  */
-template< typename T >
+template< typename T, typename T_acc >
 __global__ void glsum_kernel(const T * a,
-                             T * buf_h,
+                             T_acc * buf_h,
                              const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1110,21 +1202,21 @@ __global__ void glsum_kernel(const T * a,
   const unsigned int lane = threadIdx.x % warpSize;
   const unsigned int wid = threadIdx.x / warpSize;
 
-  __shared__ T shared[32];
-  T sum = 0;
+  __shared__ T_acc shared[32];
+  T_acc sum = 0;
   for (int i = idx; i<n ; i += str)
   {
-    sum += a[i];
+    sum += static_cast<T_acc>(a[i]);
   }
 
-  sum = reduce_warp<T>(sum);
+  sum = reduce_warp<T_acc>(sum);
   if (lane == 0)
     shared[wid] = sum;
   __syncthreads();
 
   sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
   if (wid == 0)
-    sum = reduce_warp<T>(sum);
+    sum = reduce_warp<T_acc>(sum);
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;

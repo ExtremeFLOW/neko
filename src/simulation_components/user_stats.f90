@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2025, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -41,23 +41,24 @@ module user_stats
   use field, only : field_t
   use case, only : case_t
   use mean_field_output, only : mean_field_output_t
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, &
+       json_get_or_lookup_or_default
   use mean_field, only : mean_field_t
   use coefs, only : coef_t
   use time_state, only : time_state_t
   use time_based_controller, only : time_based_controller_t
-  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
-       NEKO_VARNAME_LEN
+  use utils, only : NEKO_FNAME_LEN, filename_suffix, NEKO_VARNAME_LEN
   implicit none
   private
 
-  !> A simulation component that computes the averages of fields in the registry.
+  !> A simulation component that computes the averages of fields in
+  !! the registry.
   type, public, extends(simulation_component_t) :: user_stats_t
 
      !> When to start averaging.
-     real(kind=rp) :: start_time
+     real(kind=dp) :: start_time
      !> Current time. Uses to compute time delta since last run of compute.
-     real(kind=rp) :: time
+     real(kind=dp) :: time
      !> The averaged fields.
      type(mean_field_t), allocatable :: mean_fields(:)
      !> Number of fields to average.
@@ -66,7 +67,8 @@ module user_stats
      character(len=NEKO_VARNAME_LEN), allocatable :: field_names(:)
      !> Output writer.
      type(mean_field_output_t), private :: output
-     logical :: default_fname = .true.
+     !> Output filename stem without the run counter.
+     character(len=:), allocatable :: base_filename
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -109,7 +111,8 @@ contains
     !> Get the number of stat fields and their names
     call json%info('fields', n_children = this%n_avg_fields)
     call json_get(json, 'fields', this%field_names)
-    call json_get_or_default(json, 'start_time', this%start_time, 0.0_rp)
+    call json_get_or_lookup_or_default(json, 'start_time', this%start_time, &
+         0.0_dp)
     call json_get_or_default(json, 'avg_direction', avg_dir, 'none')
 
     if (json%valid_path('output_filename')) then
@@ -128,27 +131,19 @@ contains
     type(time_state_t), intent(in) :: time
     character(len=NEKO_FNAME_LEN) :: fname
     character(len=5) :: prefix, suffix
-    integer :: last_slash_pos
     real(kind=rp) :: t
+
     t = time%t
     if (t .gt. this%time) this%time = t
-    if (this%default_fname) then
-       fname = this%output%file_%get_base_fname()
-       write (prefix, '(I5)') &
-            this%output%file_%file_type%get_start_counter()
-       call filename_suffix(fname, suffix)
-       last_slash_pos = &
-            filename_tslash_pos(fname)
-       if (last_slash_pos .ne. 0) then
-          fname = &
-               trim(fname(1:last_slash_pos))// &
-               "user_stats"//trim(adjustl(prefix))//"."//suffix
-       else
-          fname = "user_stats"// &
-               trim(adjustl(prefix))//"."//suffix
-       end if
-       call this%output%init_base(fname)
-    end if
+
+    fname = this%output%file_%get_base_fname()
+    write (prefix, '(I0)') &
+         this%output%file_%file_type%get_start_counter()
+    call filename_suffix(fname, suffix)
+    fname = trim(this%case%output_directory) // &
+         trim(this%base_filename) // trim(prefix) // "." // trim(suffix)
+    call this%output%init_base(fname)
+
   end subroutine user_stats_restart
 
   !> Constructor from components, passing controllers.
@@ -174,7 +169,7 @@ contains
     type(time_based_controller_t), intent(in) :: preprocess_controller
     type(time_based_controller_t), intent(in) :: compute_controller
     type(time_based_controller_t), intent(in) :: output_controller
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
     character(len=*), intent(in) :: avg_dir
     type(coef_t), intent(inout) :: coef
     character(len=*), intent(in), optional :: filename
@@ -213,12 +208,12 @@ contains
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: start_time
     character(len=*), intent(in) :: avg_dir
     type(coef_t), intent(inout) :: coef
     character(len=*), intent(in), optional :: filename
@@ -243,14 +238,14 @@ contains
     character(len=*), intent(in) :: name
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
     character(len=*), intent(in) :: avg_dir
     type(coef_t), intent(inout) :: coef
     integer :: i
     type(field_t), pointer :: field_to_avg
     character(len=NEKO_FNAME_LEN) :: stats_fname
-
     character(len=1024) :: unique_name
+
     unique_name = name // "/"
 
     this%name = name
@@ -258,12 +253,11 @@ contains
     this%time = start_time
 
     if (present(filename)) then
-       this%default_fname = .false.
-       stats_fname = filename
+       this%base_filename = filename
     else
-       stats_fname = "user_stats0"
-       this%default_fname = .true.
+       this%base_filename = "user_stats"
     end if
+    stats_fname = trim(this%base_filename) // "0"
 
     !> Allocate and initialize the mean fields
     allocate(this%mean_fields(this%n_avg_fields))
@@ -274,10 +268,14 @@ contains
     end do
 
     call this%output%init(this%mean_fields, this%n_avg_fields, &
-         this%start_time, coef, avg_dir, name = filename)
+         this%start_time, coef, avg_dir, name = stats_fname, &
+         path = this%case%output_directory)
     call this%case%output_controller%add(this%output, &
          this%output_controller%control_value, &
          this%output_controller%control_mode)
+
+    nullify(field_to_avg)
+
   end subroutine user_stats_init_common
 
   !> Destructor.
@@ -310,7 +308,7 @@ contains
     !> Update the running average of the fields
     if (time%t .ge. this%start_time) then
        do i = 1, this%n_avg_fields
-          call this%mean_fields(i)%update(time%t - this%time)
+          call this%mean_fields(i)%update( real(time%t - this%time, kind=rp) )
        end do
        this%time = time%t
     end if

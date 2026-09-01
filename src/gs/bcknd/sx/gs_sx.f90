@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,9 @@
 !
 !> Generic Gather-scatter backend for NEC Vector Engines
 module gs_sx
-  use num_types
-  use gs_bcknd
-  use gs_ops
+  use num_types, only : rp
+  use gs_bcknd, only : gs_bcknd_t
+  use gs_ops, only : GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -189,6 +189,7 @@ contains
     integer :: i
     real(kind=rp) :: tmp
 
+    v = 1d0
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
     end do
@@ -226,6 +227,7 @@ contains
     integer :: i
     real(kind=rp) :: tmp
 
+    v = huge(0.0_rp)
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
     end do
@@ -263,6 +265,7 @@ contains
     integer :: i
     real(kind=rp) :: tmp
 
+    v = -huge(0.0_rp)
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
     end do

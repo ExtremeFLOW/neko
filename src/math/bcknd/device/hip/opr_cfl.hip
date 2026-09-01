@@ -36,6 +36,7 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
+#include <device/hip/buffer.h>
 #include "cfl_kernel.h"
 
 extern "C" {
@@ -49,14 +50,16 @@ extern "C" {
 #endif
 
   /**
-   * @todo Make sure that this gets deleted at some point...
+   * Device-only work buffer for the CFL reduction, owned by the
+   * device layer and released on device teardown
+   * (hip_buffer_free_all in hip_finalize)
    */
-  real *cfl_d = NULL;
-  
+  hip_buffer_t cfl_buf = HIP_BUFFER_INIT_DEV;
+
   /** 
    * Fortran wrapper for device hip CFL
    */
-  real hip_cfl(real *dt, void *u, void *v, void *w,
+  double hip_cfl(double *dt, void *u, void *v, void *w,
 	       void *drdx, void *dsdx, void *dtdx,
 	       void *drdy, void *dsdy, void *dtdy,
 	       void *drdz, void *dsdz, void *dtdz,
@@ -66,20 +69,19 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
   
-    if (cfl_d == NULL) {
-      HIP_CHECK(hipMalloc(&cfl_d, (*nel) * sizeof(real)));
-    }
+    hip_buffer_reserve(&cfl_buf, (*nel) * sizeof(double));
+    double *cfl_d = (double *) cfl_buf.dev;
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \
-        hipLaunchKernelGGL(HIP_KERNEL_NAME( cfl_kernel<real, LX, 1024> ),       \
+        hipLaunchKernelGGL(HIP_KERNEL_NAME( cfl_kernel<double, real, LX, 1024> ),       \
                            nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,      \
                            *dt, (real *) u, (real *) v, (real *) w,             \
                            (real *) drdx, (real *) dsdx, (real *) dtdx,         \
                            (real *) drdy, (real *) dsdy, (real *) dtdy,         \
                            (real *) drdz, (real *) dsdz, (real *) dtdz,         \
                            (real *) dr_inv, (real *) ds_inv, (real *) dt_inv,   \
-                           (real *) jacinv, (real *) cfl_d);                    \
+                           (real *) jacinv, (double *) cfl_d);                    \
       HIP_CHECK(hipGetLastError());                                             \
       break
       
@@ -103,24 +105,24 @@ extern "C" {
     }
 
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(cfl_reduce_kernel<real>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cfl_reduce_kernel<double>),
                        1, 1024, 0, (hipStream_t) glb_cmd_queue,
                        cfl_d, (*nel));
     HIP_CHECK(hipGetLastError());
 
-    real cfl = 0.0;
+    double cfl = 0.0;
 #ifdef HAVE_RCCL
-    device_nccl_allreduce(cfl_d, cfl_d, 1, sizeof(real),
+    device_nccl_allreduce(cfl_d, cfl_d, 1, sizeof(double),
                           DEVICE_NCCL_MAX, glb_cmd_queue);
-    HIP_CHECK(hipMemcpyAsync(&cfl, cfl_d, sizeof(real),
+    HIP_CHECK(hipMemcpyAsync(&cfl, cfl_d, sizeof(double),
                              hipMemcpyDeviceToHost,
                              (hipStream_t) glb_cmd_queue));
     HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
 #elif HAVE_DEVICE_MPI
     HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
-    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real), DEVICE_MPI_MAX);
+    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(double), DEVICE_MPI_MAX);
 #else
-    HIP_CHECK(hipMemcpyAsync(&cfl, cfl_d, sizeof(real),
+    HIP_CHECK(hipMemcpyAsync(&cfl, cfl_d, sizeof(double),
                              hipMemcpyDeviceToHost,
                              (hipStream_t) glb_cmd_queue));
     HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));

@@ -94,6 +94,31 @@ module user_intf
      end subroutine user_mesh_setup_intf
   end interface
 
+  !> Abstract interface for user-defined GLL sampling for wall models.
+  !! @param bc_name Name of the wall-model boundary condition.
+  !! @param msk Linear indices of local wall nodes.
+  !! @param indices GLL indices with shape `(n_samples, n_nodes)`.
+  abstract interface
+     subroutine user_wall_sampling_gll_intf(bc_name, msk, indices)
+       character(len=*), intent(in) :: bc_name
+       integer, intent(in) :: msk(:)
+       integer, intent(out) :: indices(:,:)
+     end subroutine user_wall_sampling_gll_intf
+  end interface
+
+  !> Abstract interface for user-defined physical-distance for wall models.
+  !! @param bc_name Name of the wall-model boundary condition.
+  !! @param msk Linear indices of local wall nodes.
+  !! @param distances Positive distances with shape `(n_samples, n_nodes)`.
+  abstract interface
+     subroutine user_wall_sampling_distance_intf(bc_name, msk, distances)
+       import rp
+       character(len=*), intent(in) :: bc_name
+       integer, intent(in) :: msk(:)
+       real(kind=rp), intent(out) :: distances(:,:)
+     end subroutine user_wall_sampling_distance_intf
+  end interface
+
   !> Abstract interface for user defined check functions
   !! @param time The time state.
   abstract interface
@@ -204,6 +229,12 @@ module user_intf
      procedure(user_initial_conditions_intf), nopass, pointer :: &
           initial_conditions => null()
      procedure(user_mesh_setup_intf), nopass, pointer :: mesh_setup => null()
+     !> Set GLL wall-sampling indices for user-configured wall models.
+     procedure(user_wall_sampling_gll_intf), nopass, pointer :: &
+          wall_sampling_gll => null()
+     !> Set physical wall-sampling distances for user-configured wall models.
+     procedure(user_wall_sampling_distance_intf), nopass, pointer :: &
+          wall_sampling_distance => null()
      !> Run at the start of each time-step in the time loop.
      procedure(user_compute_intf), nopass, pointer :: preprocess => null()
      !> Run at the end of each time-step in the time loop, right before field
@@ -216,8 +247,7 @@ module user_intf
      !> User source term interface.
      procedure(user_source_term_intf), nopass, pointer :: &
           source_term => null()
-     !> User boundary condition for the fluid or the scalar, field interface
-     !! (much more powerful than pointwise in terms of what can be done).
+     !> User boundary condition for the fluid or the scalar, field interface.
      procedure(field_dirichlet_update), nopass, pointer :: &
           dirichlet_conditions => null()
      !> User neumann condition for scalar problems, field interface.
@@ -226,10 +256,13 @@ module user_intf
      !> Routine to set material properties.
      procedure(user_material_properties_intf), nopass, pointer :: &
           material_properties => null()
+     !> User routine to modify ALE mesh velocity arrays.
      procedure(user_ale_mesh_velocity_intf), nopass, pointer :: &
           ale_mesh_velocity => null()
+     !> User routine to set ALE rigid body kinematics.
      procedure(user_ale_rigid_kinematics_intf), nopass, pointer :: &
           ale_rigid_kinematics => null()
+     !> User routine to set ALE base shapes (smooth blending functions).
      procedure(user_ale_base_shapes_intf), nopass, pointer :: &
           ale_base_shapes => null()
      !> User routine to morph the overset interface
@@ -251,14 +284,17 @@ module user_intf
        user_material_properties_intf, user_finalize_intf, &
        user_startup_intf, user_source_term_intf, &
        user_ale_mesh_velocity_intf, user_ale_base_shapes_intf, &
-       user_ale_rigid_kinematics_intf, morph_overset_interface
+       user_ale_rigid_kinematics_intf, &
+       dummy_user_ale_mesh_velocity, dummy_user_ale_base_shapes, &
+       dummy_user_ale_rigid_kinematics, morph_overset_interface, &
+       user_wall_sampling_gll_intf, user_wall_sampling_distance_intf
 contains
 
   !> Constructor.
   subroutine user_intf_init(this)
     class(user_t), intent(inout) :: this
     logical :: user_extended = .false.
-    character(len=256), dimension(14) :: extensions
+    character(len=256), dimension(20) :: extensions
     integer :: i, n
 
     n = 0
@@ -310,6 +346,22 @@ contains
        write(extensions(n), '(A)') '- Mesh setup'
     end if
 
+    if (.not. associated(this%wall_sampling_gll)) then
+       this%wall_sampling_gll => dummy_user_wall_sampling_gll
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- GLL wall sampling'
+    end if
+
+    if (.not. associated(this%wall_sampling_distance)) then
+       this%wall_sampling_distance => dummy_user_wall_sampling_distance
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Distance wall sampling'
+    end if
+
     if (.not. associated(this%compute)) then
        this%compute => dummy_user_compute
     else
@@ -350,19 +402,25 @@ contains
        write(extensions(n), '(A)') '- Material properties'
     end if
 
-    if (associated(this%ale_mesh_velocity)) then
+    if (.not. associated(this%ale_mesh_velocity)) then
+       this%ale_mesh_velocity => dummy_user_ale_mesh_velocity
+    else
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- ALE mesh velocity'
     end if
 
-    if (associated(this%ale_rigid_kinematics)) then
+    if (.not. associated(this%ale_rigid_kinematics)) then
+       this%ale_rigid_kinematics => dummy_user_ale_rigid_kinematics
+    else
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- ALE kinematics'
     end if
 
-    if (associated(this%ale_base_shapes)) then
+    if (.not. associated(this%ale_base_shapes)) then
+       this%ale_base_shapes => dummy_user_ale_base_shapes
+    else
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- ALE base shapes'
@@ -421,6 +479,32 @@ contains
     type(time_state_t), intent(in) :: time
   end subroutine dummy_user_mesh_setup
 
+  !> Dummy user-defined GLL wall-sampling callback.
+  !! @param bc_name Name of the wall-model boundary condition.
+  !! @param msk Linear indices of local wall nodes.
+  !! @param indices GLL indices with shape `(n_samples, n_nodes)`.
+  subroutine dummy_user_wall_sampling_gll(bc_name, msk, indices)
+    character(len=*), intent(in) :: bc_name
+    integer, intent(in) :: msk(:)
+    integer, intent(out) :: indices(:,:)
+
+    call neko_error('Wall sampling for '//trim(bc_name)// &
+         ' is configured as user, but wall_sampling_gll is not set')
+  end subroutine dummy_user_wall_sampling_gll
+
+  !> Dummy user-defined physical-distance wall-sampling callback.
+  !! @param bc_name Name of the wall-model boundary condition.
+  !! @param msk Linear indices of local wall nodes.
+  !! @param distances Positive distances with shape `(n_samples, n_nodes)`.
+  subroutine dummy_user_wall_sampling_distance(bc_name, msk, distances)
+    character(len=*), intent(in) :: bc_name
+    integer, intent(in) :: msk(:)
+    real(kind=rp), intent(out) :: distances(:,:)
+
+    call neko_error('Wall sampling for '//trim(bc_name)// &
+         ' is configured as user, but wall_sampling_distance is not set')
+  end subroutine dummy_user_wall_sampling_distance
+
   !> Dummy user compute
   subroutine dummy_user_compute(time)
     type(time_state_t), intent(in) :: time
@@ -462,5 +546,25 @@ contains
     character(len=*), intent(in) :: bc_name
     logical, intent(inout) :: find_interface
   end subroutine dummy_morph_overset_interface
+
+  subroutine dummy_user_ale_mesh_velocity(wm_x, wm_y, wm_z, coef, &
+       x_ref, y_ref, z_ref, base_shapes, time)
+    type(field_t), intent(inout) :: wm_x, wm_y, wm_z
+    type(coef_t), intent(in) :: coef
+    type(field_t), intent(in) :: x_ref, y_ref, z_ref
+    type(field_t), intent(in) :: base_shapes(:)
+    type(time_state_t), intent(in) :: time
+  end subroutine dummy_user_ale_mesh_velocity
+
+  subroutine dummy_user_ale_base_shapes(base_shapes)
+    type(field_t), intent(inout) :: base_shapes(:)
+  end subroutine dummy_user_ale_base_shapes
+
+  subroutine dummy_user_ale_rigid_kinematics(body_id, time, vel_trans, vel_ang)
+    integer, intent(in) :: body_id
+    type(time_state_t), intent(in) :: time
+    real(kind=rp), intent(inout) :: vel_trans(3)
+    real(kind=rp), intent(inout) :: vel_ang(3)
+  end subroutine dummy_user_ale_rigid_kinematics
 
 end module user_intf

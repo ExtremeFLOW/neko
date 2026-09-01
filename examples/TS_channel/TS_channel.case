@@ -7,7 +7,7 @@
         "output_checkpoints": false,
         "output_precision": "double",
         "checkpoint_control": "simulationtime",
-        "checkpoint_value": 100,
+        "checkpoint_value": 100.0,
         "time": {
             "end_time": 200.0,
             "timestep": 0.02,

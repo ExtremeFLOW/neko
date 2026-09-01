@@ -26,6 +26,13 @@ module opencl_prgm_lib
   !> Device Symmetry kernels
   type(c_ptr), public, bind(c) :: symmetry_program = C_NULL_PTR
 
+  !> Device mixed BC constraint kernels
+  type(c_ptr), public, bind(c) :: constrain_mixed_bc_program = C_NULL_PTR
+
+  !> Device coupled vector BC projector kernels
+  type(c_ptr), public, bind(c) :: coupled_vector_bc_projector_program = &
+       C_NULL_PTR
+
   !> Device Facet normal kernels
   type(c_ptr), public, bind(c) :: facet_normal_program = C_NULL_PTR
 
@@ -80,8 +87,8 @@ module opencl_prgm_lib
   !> Device pnpn residual kernels (stress formulation)
   type(c_ptr), public, bind(c) :: pnpn_stress_res_program = C_NULL_PTR
 
-  !> Device euler residual kernels
-  type(c_ptr), public, bind(c) :: euler_res_program = C_NULL_PTR
+  !> Device compressible residual kernels
+  type(c_ptr), public, bind(c) :: compressible_res_program = C_NULL_PTR
 
   !> Device compressible ops kernels
   type(c_ptr), public, bind(c) :: &
@@ -172,6 +179,21 @@ contains
           call neko_error('Failed to release program')
        end if
        symmetry_program = C_NULL_PTR
+    end if
+
+    if (c_associated(constrain_mixed_bc_program)) then
+       if (clReleaseProgram(constrain_mixed_bc_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       constrain_mixed_bc_program = C_NULL_PTR
+    end if
+
+    if (c_associated(coupled_vector_bc_projector_program)) then
+       if (clReleaseProgram(coupled_vector_bc_projector_program) .ne. &
+            CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       coupled_vector_bc_projector_program = C_NULL_PTR
     end if
 
     if (c_associated(facet_normal_program)) then
@@ -279,11 +301,11 @@ contains
        pnpn_stress_res_program = C_NULL_PTR
     end if
 
-    if (c_associated(euler_res_program)) then
-       if (clReleaseProgram(euler_res_program) .ne. CL_SUCCESS) then
+    if (c_associated(compressible_res_program)) then
+       if (clReleaseProgram(compressible_res_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
-       euler_res_program = C_NULL_PTR
+       compressible_res_program = C_NULL_PTR
     end if
 
     if (c_associated(compressible_ops_compute_max_wave_speed_program)) then

@@ -61,11 +61,12 @@
                 },
                 {
                     "type": "normal_outflow",
+                    "value": [ 1.0, 0.0, 0.0 ],
                     "zone_indices": [ 5, 6 ]
                 }
             ],
             "output_control": "nsamples",
-            "output_value": 400.0
+            "output_value": 400
         }
     }
 }

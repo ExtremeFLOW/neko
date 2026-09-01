@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2025, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -133,8 +133,7 @@ contains
     this%name = name
     this%u => neko_registry%get_field_by_name(trim(field_name))
 
-    this%du => neko_registry%get_field_by_name(&
-         "d" // field_name // "_d" // direction)
+    this%du => neko_registry%get_field_by_name(trim(computed_field))
 
     if (direction .eq. "x") then
        this%dr => this%case%fluid%c_Xh%drdx
@@ -222,11 +221,11 @@ contains
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: output_value
     character(len=*) :: field_name
     character(len=*) :: computed_field
     character(len=*) :: direction

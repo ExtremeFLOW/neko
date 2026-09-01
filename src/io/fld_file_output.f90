@@ -32,7 +32,7 @@
 !
 !> Implements `fld_file_output_t`.
 module fld_file_output
-  use num_types, only : rp
+  use num_types, only : dp
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, DEVICE_TO_HOST
@@ -93,7 +93,7 @@ contains
   !! @param t The time value.
   subroutine fld_file_output_sample(this, t)
     class(fld_file_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
     integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

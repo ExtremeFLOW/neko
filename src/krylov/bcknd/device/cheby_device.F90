@@ -36,17 +36,22 @@ module cheby_device
   use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only : rp, c_rp
+  use profiler, only : profiler_start_region, profiler_end_region
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use space, only : space_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       vector_bc_projector_components
   use schwarz, only : schwarz_t
   use device_math, only : device_cmult2, device_sub2, &
        device_add2s1, device_add2s2, device_glsc3, device_copy, &
        device_sub3, device_cmult, device_add2
-  use device
+  use device, only : glb_cmd_queue, device_map, device_event_create, &
+       device_unmap, device_event_destroy, device_memcpy, HOST_TO_DEVICE, &
+       device_get_ptr
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, &
        C_NULL_PTR, c_associated
   implicit none
@@ -63,6 +68,15 @@ module cheby_device
      type(c_ptr) :: gs_event = C_NULL_PTR
      real(kind=rp) :: tha, dlt
      integer :: power_its = 150
+     !> Iterations to use when restarting from ev
+     integer :: power_its_refresh = 20
+     !> Restart the power method from ev instead of a random vector
+     logical :: warm_start_eigs = .false.
+     !> Whether ev holds a usable eigenvector yet
+     logical :: eigs_computed = .false.
+     !> Saved eigenvector, for restarting after a small operator change
+     real(kind=rp), allocatable :: ev(:)
+     type(c_ptr) :: ev_d = C_NULL_PTR
      logical :: recompute_eigs = .true.
      logical :: zero_initial_guess = .false.
      type(schwarz_t), pointer :: schwarz => null() !< Schwarz decompostions
@@ -121,6 +135,30 @@ module cheby_device
        integer(c_int) :: n
      end subroutine cuda_cheby_device_part2
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_cheby_device_part1(d_d, x_d, inv_tha, n, strm) &
+          bind(c, name = 'metal_cheby_part1')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: d_d, x_d, strm
+       real(c_rp) :: inv_tha
+       integer(c_int) :: n
+     end subroutine metal_cheby_device_part1
+  end interface
+
+  interface
+     subroutine metal_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, strm) &
+          bind(c, name = 'metal_cheby_part2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: d_d, w_d, x_d, strm
+       real(c_rp) :: tmp1, tmp2
+       integer(c_int) :: n
+     end subroutine metal_cheby_device_part2
+  end interface
 #endif
 
 contains
@@ -132,6 +170,8 @@ contains
     call hip_cheby_device_part1(d_d, x_d, inv_tha, n, glb_cmd_queue)
 #elif HAVE_CUDA
     call cuda_cheby_device_part1(d_d, x_d, inv_tha, n, glb_cmd_queue)
+#elif HAVE_METAL
+    call metal_cheby_device_part1(d_d, x_d, inv_tha, n, glb_cmd_queue)
 #else !Fallback to device_math for missing device kernels
     call device_cmult( d_d, inv_tha, n)
     call device_add2( x_d, d_d, n)
@@ -148,6 +188,8 @@ contains
     call hip_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, glb_cmd_queue)
 #elif HAVE_CUDA
     call cuda_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, glb_cmd_queue)
+#elif HAVE_METAL
+    call metal_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, glb_cmd_queue)
 #else !Fallback to device_math for missing device kernels
     call device_cmult( d_d, tmp1, n)
     call device_add2s2( d_d, w_d, tmp2, n)
@@ -226,6 +268,13 @@ contains
        deallocate(this%r)
     end if
 
+    if (allocated(this%ev)) then
+       if (c_associated(this%ev_d)) then
+          call device_unmap(this%ev, this%ev_d)
+       end if
+       deallocate(this%ev)
+    end if
+
     nullify(this%M)
 
     if (c_associated(this%gs_event)) then
@@ -234,37 +283,59 @@ contains
 
   end subroutine cheby_device_free
 
-  subroutine cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
+  subroutine cheby_device_power(this, Ax, x, n, coef, bc_projector, gs_h)
     class(cheby_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp) :: lam, b, a, rn
     real(kind=rp) :: boost = 1.1_rp
     real(kind=rp) :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
-    integer :: i
+    integer, allocatable :: fixed_seed(:), saved_seed(:)
+    integer :: i, rnd_n, its
+    logical :: warm
 
+    call profiler_start_region('cheby_power')
+    warm = this%warm_start_eigs .and. this%eigs_computed .and. &
+         c_associated(this%ev_d)
     associate(w => this%w, w_d => this%w_d, d => this%d, d_d => this%d_d)
 
-      do i = 1, n
-         !TODO: replace with a better way to initialize power method
-         call random_number(rn)
-         d(i) = rn + 10.0_rp
-      end do
-      call device_memcpy(d, d_d, n, HOST_TO_DEVICE, sync = .true.)
+      if (warm) then
+         its = this%power_its_refresh
+         call device_copy(d_d, this%ev_d, n)
+      else
+         its = this%power_its
 
-      call gs_h%op(d, n, GS_OP_ADD, this%gs_event)
-      call blst%apply(d, n)
+         ! Save current random seed and set a fixed seed
+         call random_seed(size = rnd_n)
+         allocate(saved_seed(rnd_n))
+         allocate(fixed_seed(rnd_n))
+         fixed_seed = 3901
+         call random_seed(get = saved_seed)
+         call random_seed(put = fixed_seed)
 
-      !Power method to get lamba max
-      do i = 1, this%power_its
+         do i = 1, n
+            call random_number(rn)
+            d(i) = rn + 10.0_rp
+         end do
+         call device_memcpy(d, d_d, n, HOST_TO_DEVICE, sync = .true.)
+
+         ! Restore saved random seed
+         call random_seed(put = saved_seed)
+
+         call gs_h%op(d, n, GS_OP_ADD, this%gs_event)
+         call bc_projector%apply(d, n)
+      end if
+
+      !Power method to get lambda max
+      do i = 1, its
          call ax%compute(w, d, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-         call blst%apply(w, n)
+         call bc_projector%apply(w, n)
          if (associated(this%schwarz)) then
             call this%schwarz%compute(this%r, w)
             call device_copy(w_d, this%r_d, n)
@@ -275,12 +346,12 @@ contains
 
          wtw = device_glsc3(w_d, coef%mult_d, w_d, n)
          call device_cmult2(d_d, w_d, 1.0_rp/sqrt(wtw), n)
-         call blst%apply(d, n)
+         call bc_projector%apply(d, n)
       end do
 
       call ax%compute(w, d, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call blst%apply(w, n)
+      call bc_projector%apply(w, n)
       if (associated(this%schwarz)) then
          call this%schwarz%compute(this%r, w)
          call device_copy(w_d, this%r_d, n)
@@ -297,20 +368,30 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
+      if (this%warm_start_eigs) then
+         if (.not. c_associated(this%ev_d)) then
+            allocate(this%ev(size(this%d)))
+            call device_map(this%ev, this%ev_d, size(this%d))
+         end if
+         call device_copy(this%ev_d, d_d, n)
+      end if
+      this%eigs_computed = .true.
+
       this%recompute_eigs = .false.
     end associate
+    call profiler_end_region('cheby_power')
   end subroutine cheby_device_power
 
   !> A chebyshev preconditioner
-  function cheby_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
-       result(ksp_results)
+  function cheby_device_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, &
+       niter) result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -321,7 +402,7 @@ contains
     f_d = device_get_ptr(f)
 
     if (this%recompute_eigs) then
-       call cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
+       call cheby_device_power(this, Ax, x, n, coef, bc_projector, gs_h)
     end if
 
     if (present(niter)) then
@@ -337,7 +418,7 @@ contains
       call device_copy(r_d, f_d, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call blst%apply(w, n)
+      call bc_projector%apply(w, n)
       call device_sub2(r_d, w_d, n)
 
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
@@ -358,7 +439,7 @@ contains
          call device_copy(r_d, f_d, n)
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-         call blst%apply(w, n)
+         call bc_projector%apply(w, n)
          call device_sub2(r_d, w_d, n)
 
          call this%M%solve(w, r, n)
@@ -378,7 +459,7 @@ contains
       call device_copy(r_d, f_d, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call blst%apply(w, n)
+      call bc_projector%apply(w, n)
       call device_sub2(r_d, w_d, n)
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
       rnorm = sqrt(rtr) * norm_fac
@@ -391,15 +472,15 @@ contains
   end function cheby_device_solve
 
   !> A chebyshev preconditioner
-  function cheby_device_impl(this, Ax, x, f, n, coef, blst, gs_h, niter) &
-       result(ksp_results)
+  function cheby_device_impl(this, Ax, x, f, n, coef, bc_projector, gs_h, &
+       niter) result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -411,7 +492,7 @@ contains
     f_d = device_get_ptr(f)
 
     if (this%recompute_eigs) then
-       call cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
+       call cheby_device_power(this, Ax, x, n, coef, bc_projector, gs_h)
     end if
 
     if (present(niter)) then
@@ -427,7 +508,7 @@ contains
       if (.not.this%zero_initial_guess) then
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-         call blst%apply(w, n)
+         call bc_projector%apply(w, n)
          call device_sub3(r_d, f_d, w_d, n)
       else
          call device_copy(r_d, f_d, n)
@@ -456,7 +537,7 @@ contains
          ! calculate residual
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-         call blst%apply(w, n)
+         call bc_projector%apply(w, n)
          call device_sub3(r_d, f_d, w_d, n)
 
          if (associated(this%schwarz)) then
@@ -474,7 +555,7 @@ contains
 
   !> Standard Cheby_Deviceshev coupled solve
   function cheby_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -485,16 +566,16 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(scalar_bc_projector_t), pointer :: bc_x, bc_y, bc_z
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    call vector_bc_projector_components(bc_projector, bc_x, bc_y, bc_z)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_x, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_y, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_z, gs_h, niter)
 
   end function cheby_device_solve_coupled
 

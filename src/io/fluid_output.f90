@@ -32,14 +32,14 @@
 !
 !> Defines an output for a fluid
 module fluid_output
-  use num_types, only : rp
+  use num_types, only : dp
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use fluid_scheme_compressible, only : fluid_scheme_compressible_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device
+  use device, only : device_memcpy, DEVICE_TO_HOST
   use output, only : output_t
   use scalars, only : scalars_t
   use registry, only : neko_registry
@@ -182,7 +182,7 @@ contains
   !> Sample a fluid solution at time @a t
   subroutine fluid_output_sample(this, t)
     class(fluid_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
     integer :: i
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
@@ -203,6 +203,18 @@ contains
        ft%skip_velocity = .false.
        ft%skip_temperature = .false.
        ft%write_mesh = this%always_write_mesh
+       if (ft%write_mesh) then
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             associate(mesh => this%fluid%items(2)%ptr%dof)
+               call device_memcpy(mesh%x, mesh%x_d, mesh%size(), &
+                    DEVICE_TO_HOST, sync = .false.)
+               call device_memcpy(mesh%y, mesh%y_d, mesh%size(), &
+                    DEVICE_TO_HOST, sync = .false.)
+               call device_memcpy(mesh%z, mesh%z_d, mesh%size(), &
+                    DEVICE_TO_HOST, sync = .true.)
+             end associate
+          end if
+       end if
        call ft%write(this%fluid, t)
     class default
        call ft%write(this%fluid, t)

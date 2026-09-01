@@ -15,6 +15,24 @@ idea of how a case file looks.
 The table below provides a complete reference for all possible configuration
 choices.
 
+An initial JSON Schema for the case file is available in
+`doc/schemas/`.
+The schema is split logically by case-object substructure (see below), with dedicated files
+for `time`, `numerics`, `fluid`, `scalar`, `source_terms`, `point_zones`, and
+`simulation_components`, plus a shared `doc/schemas/common.schema.json` for
+reusable definitions. The simulation-component schema is further split into
+per-component files under `doc/schemas/simcomps/`.
+The helper `contrib/validate_case_schema.py` can be used to validate case
+files against that schema.
+Since some shipped example files use `//` comments and trailing commas, the
+helper parses the input using a JSON5-compatible frontend before applying the
+schema.
+Neko distinguishes JSON integers such as `10` from JSON reals such as `10.0`,
+even though the JSON Schema specification considers both to be numbers and
+considers `10.0` to satisfy the `integer` type. The schemas mark real-only
+values with the Neko-specific `x-neko-real` annotation, and the validation
+helper enforces both that annotation and strict JSON integer encoding.
+
 ## High-level structure
 The current high-level structure of the case file is shown below.
 
@@ -54,9 +72,11 @@ The frequency is controlled by two parameters, ending with `_control` and
 The latter name is perhaps not ideal, but it is somewhat difficult to come up
 with a good one, suggestions are welcome.
 
-The `_value` parameter is a *real* number, that defines the output frequency,
-but the interpretation of that number depends on the choice of `_control`. The
-three following options are possible.
+The `_value` parameter defines the output frequency, but both its JSON type and
+interpretation depend on the choice of `_control`. Neko requires an integer
+literal for `tsteps` and `nsamples`, and a real literal for `simulationtime`.
+For example, use `10` for ten time steps but `10.0` for ten simulation-time
+units. The following options are possible.
 1. `simulationtime`, then `_value` is the time interval between the outputs.
 2. `tsteps`, then `_value` is the number of time steps between the outputs.
 3. `nsamples`, then `_value` is the total number of outputs that will be
@@ -75,7 +95,6 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `mesh_file`           | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
 | `output_boundary`     | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
 | `output_directory`    | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
-| `output_format`       | The file format of field data.                                                                        | `nek5000`, `adios2`, or `vtkhdf`                | `nek5000`     |
 | `output_precision`    | Whether to output snapshots in single or double precision                                             | `single` or `double`                            | `single`      |
 | `output_layout`       | Data layout for `adios2` files. (Choose `2` or `3` for ADIOS2 supported compressors BigWhoop or ZFP.) | Positive integer `1`, `2`, `3`                  | `1`           |
 | `load_balancing`      | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
@@ -180,6 +199,52 @@ Under the hood, Neko stores the constants in an object called
 `neko_const_registry`, which is of the type `registry_t` (same as
 `neko_registry`). The object is accessible in the [user file](@ref user-file).
 
+### Expressions {#case-file_expressions}
+Some parameters accept a mathematical expression, written as a string, instead
+of a number. The expression is evaluated in every point where the parameter is
+needed, which makes it possible to prescribe a spatially varying profile
+without writing a [user file](@ref user-file).
+
+```json
+{
+  "constants":
+  [
+    { "name": "U_b", "value": 1.0 },
+    { "name": "H", "value": 2.0 }
+  ],
+  "fluid":
+  {
+    "initial_condition":
+    {
+      "type": "expression",
+      "value": ["6*U_b*y*(H - y)/H^2", "0", "0"]
+    }
+  }
+}
+```
+
+The following can be used in an expression.
+
+| Kind        | Available                                                                                                                     |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Coordinates | `x`, `y`, `z`                                                                                                                 |
+| Time        | `t`, `dt`, where the parameter is evaluated during the simulation                                                             |
+| Constants   | `pi`, and any scalar declared under `case.constants`                                                                          |
+| Operators   | `+`, `-`, `*`, `/`, `^` (also written `**`), parentheses                                                                      |
+| Functions   | `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `exp`, `log`, `log10`, `sqrt`, `abs`, `erf`, `erfc`, `step` |
+|             | `atan2(y, x)`, `min(a, b)`, `max(a, b)`, `mod(a, b)`                                                                          |
+
+`step(a)` is `0` for `a < 0` and `1` otherwise. Precedence and associativity
+follow Fortran, so `-x^2` is `-(x^2)` and `2^3^2` is `2^(3^2)`.
+
+Constants are read when the expression is compiled, at setup, and multiplication
+must always be written out, so `2*x` is valid whereas `2x` is not. An expression
+that refers to an unknown name is reported as an error at setup, rather than
+during the simulation. An expression that does not evaluate to a finite value
+everywhere, typically because of a division by zero or the square root of a
+negative number, is also reported as an error, at setup if it does not depend on
+time and otherwise every time it is evaluated.
+
 ### Time control
 The `time` object is used to define the time-stepping of the simulation,
 including the time-step size, the start and end time, and the variables related
@@ -189,20 +254,18 @@ smallest of `timestep` and the value calculated from the target CFL number.
 
 | Name                       | Description                                                                                 | Admissible values                 | Default value |
 | -------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
-| `start_time`               | Start time at which the simulation is initiated.                                            | Positive reals                    | `0.0`         |
+| `start_time`               | Start time at which the simulation is initiated.                                            | Non-negative reals                | `0.0`         |
 | `end_time`                 | Final time after which the simulation is stopped.                                           | Positive reals                    | -             |
 | `timestep`                 | Time-step size                                                                              | Positive reals                    | -             |
 | `variable_timestep`        | Whether to use variable dt                                                                  | `true` or `false`                 | `false`       |
 | `max_timestep`             | Maximum time-step size when variable time step is activated                                 | Positive reals                    | `huge`        |
-| `min_timestep`             | Minimum time-step size when variable time step is activated                                 | Positive reals                    | `0.0`         |
+| `min_timestep`             | Minimum time-step size when variable time step is activated                                 | Non-negative reals                | `0.0`         |
 | `target_cfl`               | The desired CFL number                                                                      | Positive real                     | `0.4`         |
-| `max_update_frequency`     | The minimum interval between two time-step-updating steps in terms of time steps            | Integer                           | `0`           |
-| `min_update_frequency`     | The maximum interval between two time-step-updating steps in terms of time steps            | Integer                           | `huge`        |
-| `running_avg_coeff`        | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
+| `max_update_frequency`     | Minimum number of time steps between two time-step updates triggered by CFL deviation       | Non-negative integer              | `0`           |
+| `min_update_frequency`     | Maximum number of time steps before forcing a time-step update                              | Non-negative integer              | `huge`        |
 | `max_dt_increase_factor`   | The maximum scaling factor to increase time step                                            | Positive real greater than `1`    | `1.2`         |
 | `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                            | Positive real less than `1`       | `0.5`         |
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                   | Positive real less than `1`       | `0.2`         |
-| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps            | Integer                           | `0`           |
 | `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
 
 ### Restarts and joblimit
@@ -250,7 +313,7 @@ Used to define the properties of the numerical discretization.
 
 | Name                         | Description                                                                                                     | Admissible values          | Default value                   |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------- |
-| `polynomial_order`           | The order of the polynomial basis.                                                                              | Integers, typically 5 to 9 | -                               |
+| `polynomial_order`           | The order of the polynomial basis.                                                                              | Integers >= 3 for `pnpn`; integers >= 1 for `compressible` (typically 5 to 9) | -                               |
 | `time_order`                 | The order of the time integration scheme. Refer to the `time_scheme_controller` type documentation for details. | 1, 2, 3                    | -                               |
 | `dealias`                    | Whether to apply dealiasing to advection terms.                                                                 | `true` or `false`          | `false`                         |
 | `dealiased_polynomial order` | The polynomial order in the higher-order space used in the dealising.                                           | Integer                    | `3/2(polynomial_order + 1) - 1` |
@@ -298,15 +361,17 @@ by the user by setting `full_stress_formulation` to true.
 
 Neko supports compressible flow simulations via the compressible solver.
 To enable compressible flow, set `"scheme": "compressible"` in the fluid
-configuration. This solver integrates the compressible Euler equations (full
-Navier-Stokes will be enabled in upcoming updates) using a Runge-Kutta time
-integration scheme with artificial viscosity for stability.
+configuration. This solver integrates the compressible Navier-Stokes equations
+using a Runge-Kutta time integration scheme with artificial viscosity for
+stability.
 
-The compressible solver requires the following parameters:
+The compressible solver accepts the following parameters:
 
-| Name    | Description                           | Admissible values | Default value |
-| ------- | ------------------------------------- | ----------------- | ------------- |
-| `gamma` | Ratio of specific heats for ideal gas | Positive reals    | `1.4`         |
+| Name    | Description                                      | Admissible values | Default value |
+| ------- | ------------------------------------------------ | ----------------- | ------------- |
+| `gamma` | Ratio of specific heats for ideal gas            | Positive reals    | `1.4`         |
+| `mu`    | Constant physical dynamic viscosity              | Non-negative real | `0.0`         |
+| `kappa` | Constant physical thermal conductivity           | Non-negative real | `0.0`         |
 
 Additional numerics parameters specific to compressible flows:
 
@@ -318,6 +383,19 @@ Additional numerics parameters specific to compressible flows:
 The compressible solver uses variable time-stepping controlled by the CFL
 number. Set `variable_timestep` to `true` and specify `target_cfl` in the time
 control object.
+
+Constant physical viscosity and thermal conductivity can be specified as `mu`
+and `kappa` in the fluid section of the case file. Alternatively, they can be
+set via the `material_properties` user interface in the user file, which also
+allows spatially or temporally varying values. When a user material-properties
+routine is provided, it takes precedence over the constant JSON values.
+Stabilization uses the existing Laplacian artificial viscosity, computed as the
+minimum of entropy-based and low-order viscosities. When `fluid_mu` or
+`fluid_kappa` are nonzero, the solver also applies the compressible
+Navier-Stokes viscous stress flux and conductive energy flux. If neither
+property is provided, both default to zero and no physical viscous flux is added.
+See the user file documentation for details on implementing
+`material_properties`.
 
 Example configuration:
 ~~~~~~~~~~~~~~~{.json}
@@ -367,6 +445,7 @@ The compressible solver supports the following boundary conditions:
 | density_value      | Dirichlet condition for density           |
 | pressure_value     | Dirichlet condition for pressure          |
 | no_slip            | Zero velocity wall                        |
+| slip               | A slip wall                               |
 | symmetry           | Symmetry plane                            |
 | outflow            | Pressure outlet (zero gradient)           |
 | normal_outflow     | Normal outflow condition                  |
@@ -443,36 +522,36 @@ It is possible to assign specific names to the boundary conditions through the
 `name` keyword. Boundary conditions can then be retireved in the code by using
 the name or the `zone_index` where it is applied.
 
-The default name of the boundary conditions is given by the `<variable>_bc_<zone_index>`
-pattern. i.e., the pressure boundary condition that applies in zone index 5 can be
-retrieved by the `pressure_bc_5` name.
+The default name of the boundary conditions is given by the
+`<variable>_bc_<zone_index>` pattern. i.e., the pressure boundary condition that
+applies in zone index 5 can be retrieved by the `pressure_bc_5` name.
 
 #### Available conditions
 The conditions to apply is specified by `type` keyword inside each of the JSON
 objects. The full list of possible conditions for the fluid is specified in the
 table below.
 
-| Boundary Condition  | Description                                                                                                                                            |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| symmetry            | A symmetry plane. Must be axis-aligned.                                                                                                                |
-| velocity_value      | A Dirichlet condition for velocity.                                                                                                                    |
-| no_slip             | A no-slip wall. It can be stationary or moving.                                                                                                        |
-| outflow             | A pressure outlet.                                                                                                                                     |
-| normal_outflow      | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned. |
-| outflow+user        | Same as `outflow` but with user-specified pressure.                                                                                                    |
-| normal_outflow+user | Same as `normal_outflow` but with user-specified pressure.                                                                                             |
-| outflow+dong        | A pressure outlet with the Dong condition applied.                                                                                                     |
-| normal_outflow+dong | The `normal_outflow` with the Dong condition applied. Must be axis-aligned.                                                                            |
-| shear_stress        | Prescribed wall shear stress. Must be axis-aligned.                                                                                                    |
-| wall_model          | Shear stress condition based on a wall model for large-eddy simulation.                                                                                |
-| blasius_profile     | A Blasius velocity profile.                                                                                                                            |
-| user_velocity       | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                                          |
-| user_pressure       | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                                                 |
-| overset_interface   | A Dirichlet condition that prescribes values from another neko simulation running concurrently.                                                        |
+| Boundary Condition  | Description                                                                                                                      |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------|
+| symmetry            | A symmetry plane. Must be axis-aligned.                                                                                          |
+| velocity_value      | A Dirichlet condition for velocity.                                                                                              |
+| no_slip             | A no-slip wall. Either stationary or moving.                                                                                     |
+| outflow             | A pressure outlet.                                                                                                               |
+| normal_outflow      | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. |
+| outflow+user        | Same as `outflow` but with user-specified pressure.                                                                              |
+| normal_outflow+user | Same as `normal_outflow` but with user-specified pressure.                                                                       |
+| outflow+dong        | A pressure outlet with the Dong condition applied.                                                                               |
+| normal_outflow+dong | The `normal_outflow` with the Dong condition applied.                                                                            |
+| shear_stress        | Prescribed wall shear stress.                                                                                                    |
+| wall_model          | Shear stress condition based on a wall model for large-eddy simulation.                                                          |
+| blasius_profile     | A Blasius velocity profile.                                                                                                      |
+| user_velocity       | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                    |
+| user_pressure       | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                           |
+| overset_interface   | A Dirichlet condition that prescribes values from another Neko simulation running concurrently.                                  |
 
 A more detailed description of each boundary condition is provided below.
 
-* `symmetry`. A symmetry plane that must be axis-aligned. Sets the
+* `symmetry`. A symmetry plane. Sets the
   surface-normal velocity to 0 and applies a homogenous Neumann condition to the
   surface-parallel components. Requires no additional keywords.
   ```json
@@ -490,6 +569,33 @@ A more detailed description of each boundary condition is provided below.
     "type": "velocity_value",
     "value": ["1, 0, 0"],
     "zone_indices": [1, 2]
+  }
+  ```
+* `expression_velocity`. A Dirichlet condition for velocity, where the `value`
+  keyword holds an array of three strings, one mathematical expression per
+  component. See [expressions](@ref case-file_expressions) for the syntax.
+  This covers inlet profiles and time varying inlets without a user file.
+
+  ```json
+  {
+    "type": "expression_velocity",
+    "value": ["6*U_b*y*(H - y)/H^2", "0", "0.05*sin(2*pi*f*t)"],
+    "zone_indices": [1]
+  }
+  ```
+
+  The expressions are evaluated in the boundary points only. An expression
+  that uses neither `t` nor `dt` is evaluated once, at setup, and then costs
+  nothing more than `velocity_value` at runtime; one that uses either of them
+  is re-evaluated once per timestep.
+* `expression_pressure`. The same, for pressure, where `value` is a single
+  string.
+
+  ```json
+  {
+    "type": "expression_pressure",
+    "value": "p_0*(1 - x/L)",
+    "zone_indices": [3]
   }
   ```
 * `no_slip`. A standard no-slip wall, which sets velocity to zero relative to the wall. For moving walls, setting the optional argument `"moving": true` is required. This also requires setting up the ALE module separately. further details can be found in [ALE user guide](#case-file_fluid-ale). For stationary walls, no additional keyword is needed.
@@ -511,14 +617,54 @@ A more detailed description of each boundary condition is provided below.
 * `normal_outflow`. The condition lets the flow escape through the boundary by
   setting a homogeneous Neumann condition for the surface-normal velocity
   component, but fixes the values of the surface-parallel components. The latter
-  values are not prescribed in the boundary condition's JSON, but are instead
-  taken from the initial conditions. The boundary must be axis-aligned.
+  values are prescribed in the boundary condition's JSON. There are two
+  alternative ways to do the tangential components. One is to simply provide a
+  `value` vector. This vector is defined in global Cartesian coordinates and
+  internally a projection onto the local basis is performed. Afterwards, the
+  local tangential values are enforced. This works both in the axis-aligned and
+  in the fully general mixed-boundary implementation.
+
   ```json
   {
     "type": "normal_outflow",
+    "value": [1.0, 0.0, 0.0],
     "zone_indices": [1, 2]
   }
   ```
+
+  The second option is to provide the values through a field file using the
+  `file_name` keyword. This is currently supported only by the axis-aligned
+  implementation. The file must contain a three-component vector field in global
+  Cartesian coordinates. Internally, only the tangential components are enforced
+  on the boundary. The `file_name` and `mesh_file_name` values use Neko's
+  field-sample naming convention, for example `field0.f00000`. The
+  `mesh_file_name` is an optional field sample containing the source mesh
+  coordinates; it can be omitted when the source field contains its own
+  coordinates. Optional interpolation settings are the same as for other
+  field-imported data:
+
+  * `interpolate`. Logical flag controlling whether interpolation is used.
+  * `mesh_file_name`. Optional sampled field containing the source mesh
+    coordinates when the source field is defined on a different mesh.
+  * `interpolation.tolerance`. Tolerance for the interpolation search.
+  * `interpolation.padding`. Padding used in the interpolation search.
+
+  ```json
+  {
+    "type": "normal_outflow",
+    "file_name": "outlet_velocity0.f00000",
+    "interpolate": true,
+    "mesh_file_name": "coarse_box0.f00000",
+    "interpolation": {
+      "tolerance": 1.0e-8,
+      "padding": 0.01
+    },
+    "zone_indices": [1, 2]
+  }
+  ```
+
+  Exactly one of `value` or `file_name` must be provided. If `value` is used,
+  it must be an array of three reals.
 * `outflow+user`. Same as `outflow`, but with user-specified
   pressure. The pressure is specified via the same interface as `user_pressure`,
   see the
@@ -527,9 +673,17 @@ A more detailed description of each boundary condition is provided below.
 * `normal_outflow+user`. Same as `normal_outflow`, but with user-specified
   pressure. The pressure profile is specified via the same interface as
   `user_pressure`, see
-  the [relevant section](#user-file_field-dirichlet-update) for more information.
-  Note that, similarly to `normal_outflow`, surface-parallel velocity components
-  are taken from the initial conditions.
+  the [relevant section](#user-file_field-dirichlet-update) for more
+  information. The tangential velocity values are prescribed exactly as for
+  `normal_outflow`, i.e. using either `value` or `file_name`.
+
+  ```json
+  {
+    "type": "normal_outflow+user",
+    "value": [1.0, 0.0, 0.0],
+    "zone_indices": [1, 2]
+  }
+  ```
 
 * `outflow+dong`. Same as `outflow`, but additionally applies the Dong boundary
   condition on the pressure. This is a way to prevent backflow and therefore
@@ -537,8 +691,17 @@ A more detailed description of each boundary condition is provided below.
   outlet.
 
 * `normal_outflow+dong`. Same as `normal_outflow`, but additionally applies the
-  Dong boundary condition for the pressure to prevent backflow. Must be
-  axis-aligned.
+  Dong boundary condition for the pressure to prevent backflow. The tangential
+  velocity values are prescribed exactly as for `normal_outflow`, i.e. using
+  either `value` or `file_name`.
+
+  ```json
+  {
+    "type": "normal_outflow+dong",
+    "value": [1.0, 0.0, 0.0],
+    "zone_indices": [1, 2]
+  }
+  ```
 
 * `shear_stress`. Non-penetration condition combined with a set shear stress
    vector. Only works with axis-aligned boundaries. The stress value is
@@ -553,7 +716,7 @@ A more detailed description of each boundary condition is provided below.
   }
   ```
 
-* `wall_model`. A shear stress condition, where the values is computed by a wall
+* `wall_model`. A shear stress condition where the values are computed by a wall
    model. Meant to be used for wall-modelled large-eddy simulation. Only works
    with axis-aligned boundaries. The model is selected using the `model`
    keyword. Additional configuration depends on the model selected.
@@ -576,16 +739,33 @@ A more detailed description of each boundary condition is provided below.
 
    * The `richardson` model is similar to the `most` model, but it assesses the stability dependence based on the Richardson number instead of the Obukhov length. More details and required keywords are given [below](#richardson-wall-model).
 
-    For all wall models, the distance to the sampling point has to be specified
-    based on the off-wall index in the wall-normal direction. Thus, the sampling
-    is currently from a GLL node and arbitrary distances are not yet supported.
-    The index is set by the `h_index` keyword, with 1 being the minimal value, and
-    the polynomial order + 1 being the maximum.
+    All wall models specify their sampling strategy with a `sampling` object.
+    Its `type` is either `gll`, for sampling at an off-wall GLL node, or
+    `distance`, for sampling at a physical wall-normal distance using global
+    interpolation. The `value` entry specifies the GLL index or distance,
+    respectively. It may be a scalar or an array. Current wall models require
+    exactly one sampling point per wall node, so use the scalar form. GLL
+    indices start at 1 and may not exceed the polynomial order plus 1.
+    Distances must be positive. If `sampling` is omitted, the legacy `h_index`
+    keyword remains available for GLL sampling.
+
+    The optional `output_h` entry in `sampling` controls whether Neko writes a
+    diagnostic field containing the resolved wall-normal sampling distance. It
+    defaults to `true`. The output uses the base name `wall_model_h_<bc_name>`,
+    where `<bc_name>` is the boundary-condition name. The field is zero away
+    from the wall boundary and contains the sampling distance at wall nodes.
+
+    To set sampling values separately for every wall node, set `value` to
+    `"user"` and provide `n_samples`. It specifies the number of samples per
+    wall node and must currently be `1`. Neko then calls the corresponding user
+    sampling routine once during setup; see [user wall
+    sampling](user-file.md#user-file_wall-sampling). The user routine receives
+    the boundary-condition name, so descriptive names are helpful when there
+    are multiple wall-modelled boundaries.
 
     A 3D field with the name `tau` will be registered in the field registry. At
     the boundary it will store the magnitude of the predicted stress. This can
-    be used to post-process the predictions. Additionally, the sampling points
-    are marked with values -1 in this field, for verification purposes.
+    be used to post-process the predictions.
   ```json
   {
     "type": "wall_model",
@@ -593,7 +773,10 @@ A more detailed description of each boundary condition is provided below.
     "kappa": 0.41,
     "B": 5.2,
     "zone_indices": [1, 2],
-    "h_index": 1
+    "sampling": {
+      "type": "gll",
+      "value": 1
+    }
   }
   ```
 * `user_velocity`, a Dirichlet boundary for more complex velocity profiles. This boundary
@@ -730,7 +913,10 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
     "scalar_field": "temperature",
     "time_dependent_temp_bc": "false",
     "zone_indices": [5],
-    "h_index": 1
+    "sampling": {
+      "type": "gll",
+      "value": 1
+    }
   }
   ```
 
@@ -748,7 +934,7 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
   Zilitinkevich, S. S., 1995: Non-local turbulent transport: Pollution dispersion aspects of coherent structure of convective flows. Air Pollution III, H. Power, N. Moussiopoulos, and C. A. Brebbia, Eds., Vol. 1, Air Pollution Theory and Simulation, Computational Mechanics Publications, 53–60.
 </details>
 
-### Richardson wall model {#richardson-wall-model}
+#### Richardson wall model {#richardson-wall-model}
 This Richardson-number based wall model is conceptually similar to the more well-known MOST-based wall model, but it computes the effect of the temperature stratification based on the bulk Richardson number instead of the Obukhov length.
 
 In the convective regime, the surface shear stress, \f$\tau\f$, and surface heat flux, \f$\overline{u'\theta'}\f$ are computed using the formulations of Louis 1979:
@@ -788,7 +974,18 @@ The means of prescribing the values are controlled via the `type` keyword:
 file documentation.
 2. `uniform`, the value is a constant vector, looked up under the `value`
    keyword.
-3. `blasius`, a Blasius profile is prescribed. The boundary cannot be tilted
+3. `expression`, the `value` keyword holds an array of three strings, one
+   mathematical expression per velocity component. See
+   [expressions](@ref case-file_expressions) for the syntax. For example
+   ~~~~~~~~~~~~~~~{.json}
+   {
+     "type": "expression",
+     "value": ["6*U_b*y*(H - y)/H^2", "0", "0"]
+   }
+   ~~~~~~~~~~~~~~~
+   The expressions are evaluated in every GLL point of the mesh, so unlike
+   `uniform` they can describe an arbitrary profile without a user file.
+4. `blasius`, a Blasius profile is prescribed. The boundary cannot be tilted
   with respect to the coordinate axes.
    It requires the following parameters:
    1. `delta`, the thickness of the boundary layer.
@@ -800,11 +997,11 @@ file documentation.
       - `quartic`, quartic approximation.
       - `sin`, sine function approximation.
       - `tanh`, hyperbolic tangent approximation of Savaş (2012). In this case `delta` is the 99\% thickness.
-4. `point_zone`, the values are set to a constant base value, supplied under the
+5. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
-   point zone is specified by the `name` keyword, and should be defined in the
+   point zone is specified by the `zone_name` keyword, and should be defined in the
    `case.point_zones` object. See more about [point zones](@ref point-zones).
-5. `field`, where the initial condition is retrieved from a field file.
+6. `field`, where the initial condition is retrieved from a field file.
    The following keywords can be used:
    | Name                      | Description                                                                                        | Admissible values            | Default value  |
    | ------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | -------------- |
@@ -1340,7 +1537,7 @@ The parameters for the sponge source term are summarized in the table below:
 ### Arbitrary Lagrangian-Eulerian Framework {#case-file_fluid-ale}
 Neko supports the simulation of moving walls through the Arbitrary Lagrangian-Eulerian (ALE) framework. The current implementation allows for an arbitrary number of individually moving or deformable walls, collectively referred to as bodies.
 
-@note Currently, only the CPU backend of the ALE framework is supported. GPU acceleration for ALE computations will be available in future updates.
+@note Currently, the ALE framework supports CPU backend, as well as HIP and CUDA backends for GPU acceleration.
 
 The `"ale"` block in case file is part of the `"fluid"` object, and has the following high-level structure:
 
@@ -1425,6 +1622,7 @@ Within the `"solver"` block, the parameters of the linear solver used to solve t
 | `monitor`             | Monitor residuals in the linear solver                                    | `true` or `false`              | `false`       |
 | `output_base_shape`   | Enables output of the base shape field \f$ \phi \f$                       | `true` or `false`              | `true`        |
 | `output_stiffness`    | Enables output of the computed mesh stiffness field \f$ h(\mathbf{x}) \f$ | `true` or `false`              | `false`       |
+| `import_base_shape`   | Whether to import \f$ \phi \f$ fields from file                       | `true` or `false`                | `false`       |
 
 ##### Output Files and Diagnostics
 If the output flags are enabled, Neko will generate `.fld` files during the initialization phase. These files are highly useful for verifying that the mesh deformation fields and stiffness regions are configured correctly before running the simulation:
@@ -1433,11 +1631,12 @@ If the output flags are enabled, Neko will generate `.fld` files during the init
 * `phi_total0.f00000`: Generated if `"output_base_shape": true` **and** there is more than one body registered. Contains the sum of all base shapes (\f$ \phi_{total} = \sum \phi_i \f$).
 * `stiffness0.f00000`: Generated if `"output_stiffness": true`. Contains the global spatial mesh stiffness field \f$ h(\mathbf{x}) \f$.
 
-@attention Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \f$ \phi_{total} \f$ is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's `absolute_tolerance` is set appropriately.
+@note Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \f$ \phi_{total} \f$ is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's `absolute_tolerance` is set appropriately.
 
 
-@note It is also possible to provide a custom base shape \f$ \phi \f$ using a `user_ale_base_shapes` user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting `"output_base_shape": true` will still write your custom user shapes to `.fld` files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found [here](#user-file_ale-base-shapes).
+@attention It is also possible to provide a custom base shape \f$ \phi \f$ using a `user_ale_base_shapes` user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting `"output_base_shape": true` will still write your custom user shapes to `.fld` files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found [here](#user-file_ale-base-shapes).
 
+@note If the option `import_base_shape` is set to `true`, the Laplace solve will be skipped entirely, and the \f$ \phi \f$ fields are instead loaded from previously computed `.fld` files. When this feature is enabled, the file to be loaded for each body must be specified using the `base_shape_import_file` keyword within the `"bodies"` block.
 
 #### Mesh preview
 
@@ -1474,10 +1673,14 @@ Each individual body object accepts the following general keywords and base kine
 | `rotation`     | Sub-object defining the rotational kinematics applied to the body | JSON object                | -                  |
 | `pivot`        | Sub-object defining the center point for rotational kinematics    | JSON object                | -                  |
 | `stiff_geom`   | Sub-object defining the mesh stiffness region                     | JSON object                | -                  |
+| `base_shape_import_file` | Name of the \f$ \phi \f$ field file to import           | String ending with `f00000` | -                  |
 
-@attention The body_ID for ALE bodies is defined based on the order in which they are added to the `"bodies"` array, not based on their `"zone_indices"`.
+@note The body_ID for ALE bodies is defined based on the order in which they are added to the `"bodies"` array, not based on their `"zone_indices"`.
 
-@note If multiple moving `no_slip` zone IDs are assigned to `"zone_indices"` of a single ALE body, the code will treat all those boundaries as a unified rigid body.
+@attention If multiple moving `no_slip` zone IDs are assigned to `"zone_indices"` of a single ALE body, the code will treat all those boundaries as a unified rigid body.
+
+@note The `base_shape_import_file` keyword is only mandatory if the solver option `"ale.solver.import_base_shape"` is set to `true`. In this case, this keyword should be provided for **every** single registered body.
+
 
 ##### Oscillation
 
@@ -1668,9 +1871,14 @@ For a given coordinate \f$ \mathbf{x} = (x, y, z) \f$, the raw distance \f$ r \f
 
 #### Restarting ALE simulations
 
-Neko supports checkpointing and restarting for ALE simulations. No additional parameters need to be set apart from the usual configuration for saving `.chkp` files.
+Neko supports checkpointing and restarting for ALE simulations from `.chkp` files. No additional parameters need to be set apart from the usual configuration for saving these files.
 
-@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
+**Restart Capabilities:**
+* **Exact Restart:** Restarting from the same mesh and the same polynomial order is an exact restart.
+* **Different Polynomial Order:** Restarting from the same mesh but a different polynomial order is supported for ALE. In this case, the mass matrix at the time of the restart will be used for the lagged mass matrices required in `BDF2` and `BDF3` time integration schemes. It is the user's responsibility to decide whether the resulting initial transient error due to this is acceptable for a given case.
+* **Different Mesh:** Restarting from a different mesh is not yet supported for ALE simulations.
+
+@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used as `"restart_file"` to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to
@@ -1751,6 +1959,23 @@ For `phmg`, the following keywords are used:
 | `coarse_grid.iterations`   | Number of linear solver iterations for coarse grid solver               | An integer                    | 1             |
 | `coarse_grid.cheby_degree` | Degree of the Chebyshev based AMG smoother                              | An integer                    | 4             |
 
+#### Updating phmg when the mesh changes
+The coarse levels of `phmg` are built once, and are otherwise left at the geometry they were built from. If the mesh changes during the simulation, they can be updated with an `update` block under `preconditioner`.
+
+| Name                             | Description                                                     | Admissible values                 | Default value |
+| -------------------------------- | --------------------------------------------------------------- | --------------------------------- | ------------- |
+| `update.enabled`                 | Update the coarse levels when the mesh changes                 | `true` or `false`                 | `false`       |
+| `update.eigs.enabled`            | Re-estimate the Chebyshev eigenvalues on an update              | `true` or `false`                 | `true`        |
+| `update.eigs.frequency`          | Re-estimate the eigenvalues every N-th update                   | An integer                        | 20             |
+| `update.eigs.warm_start`         | Start the estimation from the previous eigenvector              | `true` or `false`                 | `true`        |
+| `update.eigs.warm_start_iterations` | Power iterations used for a warm started estimation          | An integer                        | 20            |
+
+The geometry and the smoother are updated on every mesh change. The `eigs` keywords only control the eigenvalue re-estimation, which is the expensive part.
+
+The smoother accelerator is only rebuilt for `smoother_cheby_acc` set to `jacobi`, where the Jacobi diagonal is recomputed from the new geometry. With `schwarz` the local solves are left at the initial geometry. The coarse geometry and the eigenvalues are updated either way.
+
+The PHMG update (as for now) also assumes that the mesh connectivity does not change.
+
 
 ### Flow rate forcing
 The optional `flow_rate_force` object can be used to force a particular flow
@@ -1782,17 +2007,19 @@ concisely directly in the table.
 | `nut_field`                                        | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                                   | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                                     | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
+| `output_format`                                    | The file format of field data.                                                                    | `nek5000`, `adios2`, or `vtkhdf`                            | `nek5000`     |
 | `output_mesh_in_all_files`                         | Indicates if the mesh should be written in every output fld file.                                 | `true` or `false`                                           | `false`       |
 | `output_filename`                                  | The output filename.                                                                              | String                                                      | `field`       |
 | `output_subdivide`                                 | Whether to subdivide spectral elements into linear sub-cells for VTKHDF output.                   | `true` or `false`                                           | `false`       |
 | `inflow_condition.type`                            | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
 | `inflow_condition.value`                           | Value of the inflow velocity.                                                                     | Vector of 3 reals                                           | -             |
-| `initial_condition.type`                           | Initial condition type.                                                                           | `user`, `uniform`, `blasius`, `field`                       | -             |
-| `initial_condition.value`                          | Value of the velocity initial condition.                                                          | Vector of 3 reals                                           | -             |
-| `initial_condition.file_name`                      | If `"type" = "field"`, the path to the field file to read from.                                   | String ending with `.fld`, `.chkp`, `.nek5000` or `f*****`. | -             |
-| `initial_condition.sample_index`                   | If `"type" = "field"`, and file type is `fld` or `nek5000`, the index of the file to sampled.     | Positive integer.                                           | -1            |
-| `initial_condition.previous_mesh`                  | If `"type" = "field"`, and file type is `chkp`, the previous mesh from which to interpolate.      | String ending with `.nmsh`.                                 | -             |
-| `initial_condition.tolerance`                      | If `"type" = "field"`, and file type is `chkp`, tolerance to use for mesh interpolation.          | Positive real.                                              | 1e-6          |
+| `initial_condition.type`                           | Initial condition type.                                                                           | `user`, `uniform`, `expression`, `blasius`, `point_zone`, `field` | -       |
+| `initial_condition.value`                          | Value of the velocity initial condition.                                                          | Vector of 3 reals, or of 3 strings if `"type" = "expression"` | -             |
+| `initial_condition.file_name`                      | If `"type"="field"`, the name of the field file to use (e.g. `myfield0.f00034`).                  | String ending with `f*****`                                 | -             |
+| `initial_condition.interpolate`                    | If `"type"="field"`, whether to enable interpolation on the current mesh.                         | `true` or `false`                                           | `false`       |
+| `initial_condition.mesh_file_name`                 | If `"type"="field"` and interpolation is enabled, the name of the field file that contains the mesh coordinates.       | Strings ending with `f*****`                                | `file_name`   |
+| `initial_condition.interpolation.tolerance`        | If `"type"="field"` and interpolation is enabled, the tolerance for the point search.             | Positive real.                                              | `NEKO_EPS*1e3`|
+| `initial_condition.interpolation.padding`          | If `"type"="field"` and interpolation is enabled, the padding for the point search.               | Positive real.                                              | `1e-2`        |
 | `blasius.delta`                                    | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                               | -             |
 | `blasius.freestream_velocity`                      | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                           | -             |
 | `blasius.approximation`                            | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin`, `tanh`    | -             |
@@ -1879,13 +2106,23 @@ user could set it up by the following manner to include an eddy diffusivity fiel
 The boundary conditions for the scalar are specified through the
 `boundary_conditions` keyword, which follows the same format as the fluid, for
 specifying the type of the condition and where it is applied.
-Four types of conditions are available for the scalar:
+The following types of conditions are available for the scalar:
 
 * `dirichlet`. Sets the value of the scalar, controlled by the `value` keyword.
   ```json
   {
     "type": "dirichlet",
     "value": 1,
+    "zone_indices": [1, 2]
+  }
+  ```
+* `expression_dirichlet`. Sets the value of the scalar from a mathematical
+  expression, given as a string under the `value` keyword. See
+  [expressions](@ref case-file_expressions) for the syntax.
+  ```json
+  {
+    "type": "expression_dirichlet",
+    "value": "T_wall + dT*tanh((x - x0)/L)",
     "zone_indices": [1, 2]
   }
   ```
@@ -1916,11 +2153,20 @@ The means of prescribing the values are controlled via the `type` keyword:
 file documentation.
 2. `uniform`, the value is a constant scalar, looked up under the `value`
    keyword.
-3. `point_zone`, the values are set to a constant base value, supplied under the
+3. `expression`, the `value` keyword holds a single string, a mathematical
+   expression prescribing the initial value. See
+   [expressions](@ref case-file_expressions) for the syntax. For example
+   ~~~~~~~~~~~~~~~{.json}
+   {
+     "type": "expression",
+     "value": "T_hot + dT*tanh((z - z0)/L)"
+   }
+   ~~~~~~~~~~~~~~~
+4. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
-   point zone is specified by the `name` keyword, and should be defined in the
+   point zone is specified by the `zone_name` keyword, and should be defined in the
    `case.point_zones` object. See more about [point zones](@ref point-zones).
-4. `field`, where the initial condition is retrieved from a field file. Works
+5. `field`, where the initial condition is retrieved from a field file. Works
    in the same way as for the fluid. See the
    [fluid section](@ref case-file_fluid-ic) for detailed explanations.
 
@@ -1950,8 +2196,8 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `alphat.nut_field`             | Name of the turbulent kinematic viscosity field.                      | String                                      | Empty string  |
 | `alphat.Pr_t`                  | Turbulent Prandtl number                                              | Positive real                               | -             |
 | `boundary_types`               | Boundary types/conditions labels.                                     | Array of strings                            | -             |
-| `initial_condition.type`       | Initial condition type.                                               | `user`, `uniform`, `point_zone`             | -             |
-| `initial_condition.value`      | Value of the velocity initial condition.                              | Real                                        | -             |
+| `initial_condition.type`       | Initial condition type.                                               | `user`, `uniform`, `expression`, `point_zone`, `field` | -           |
+| `initial_condition.value`      | Value of the scalar initial condition.                                | Real, or a string if `"type" = "expression"` | -             |
 | `source_terms`                 | Array of JSON objects, defining additional source terms.              | See list of source terms above              | -             |
 | `gradient_jump_penalty`        | Array of JSON objects, defining additional gradient jump penalty.     | See list of gradient jump penalty above     | -             |
 | `advection`                    | Whether to compute the advetion term.                                 | `true` or `false`                           | `true`        |
@@ -1973,8 +2219,8 @@ A more detailed description as well as a  full list of available components and
 
 ## Point zones
 Point zones enable the user to select GLL points in the computational domain
-according to some geometric criterion. Two predefined geometric shapes are
-selectable from the case file, boxes and spheres.
+according to some geometric criterion. Three predefined geometric shapes are
+selectable from the case file: boxes, spheres, and cylinders.
 
 A point zone object defined in the case file can be retrieved from the point
 zone registry, `neko_point_zone_registry`, and can be used to perform any

@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.99.3])
+AC_INIT([neko],[1.99.9])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -8,6 +8,8 @@ AC_LANG([Fortran])
 AC_PROG_INSTALL
 AC_PROG_SED
 AC_PROG_MAKE_SET
+AC_PROG_CC
+AC_PROG_CXX
 AC_LANG_PUSH([C])
 LT_INIT([disable-shared])
 AC_LANG_POP([C])
@@ -33,10 +35,10 @@ AC_ARG_ENABLE(device-mpi,
           AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
           [enable_device_mpi=${enableval}], [enable_device_mpi=no])
 
-AC_ARG_ENABLE(openmp, AC_HELP_STRING([--enable-openmp], [Enable OpenMP]),
+AC_ARG_ENABLE(openmp, AS_HELP_STRING([--enable-openmp], [Enable OpenMP]),
               [enable_openmp=${enableval}], [enable_openmp=no])
 
-AC_ARG_ENABLE(python, AC_HELP_STRING([--enable-python],
+AC_ARG_ENABLE(python, AS_HELP_STRING([--enable-python],
               [Install Python modules, requires a Python interpreter]),
               [enable_python=${enableval}],[enable_python=no])
 
@@ -156,7 +158,7 @@ fi
 
 if test "x${have_darshan}" != xyes; then
     AX_DARSHAN
-    if test "x${ax_darshan_ok}" != xno; then
+    if test -n "${DARSHAN_LIBS}"; then
         LIBS="$DARSHAN_LIBS $LIBS"
         have_darshan=yes
     else
@@ -264,8 +266,30 @@ else
   AX_CUDA
 fi
 
+# CUDA >= 13 no longer implicitly links the host C++ runtime, so the
+# device object files fail to link with e.g. an undefined reference to
+# __cxa_guard_acquire. Link libstdc++ explicitly for CUDA >= 13, unless
+# the Cray compiler (CCE/PrgEnv-cray) is used, which provides its own C++
+# runtime. Note that PrgEnv-gnu still needs it, even though it is driven
+# through the Cray compiler wrappers (ftn/cc/CC).
+if (test "x${have_cuda}" = xyes &&
+    test "x$ax_cv_fc_compiler_vendor" != xcray); then
+   AC_MSG_CHECKING([CUDA major version])
+   cuda_version_major=`$NVCC --version 2>/dev/null | \
+                       $SED -n 's/.*release \(@<:@0-9@:>@*\).*/\1/p'`
+   AS_IF([test -n "$cuda_version_major"],
+         [AC_MSG_RESULT([$cuda_version_major])],
+         [AC_MSG_RESULT([unknown])])
+   AS_IF([test -n "$cuda_version_major" && test "$cuda_version_major" -ge 13],
+         [AC_MSG_NOTICE([Linking libstdc++ for CUDA >= 13])
+          LIBS="$LIBS -lstdc++"])
+fi
+
 # Checks for OpenCL backend
 AX_OPENCL
+
+# Checks for Metal backend
+AX_METAL
 
 # Set the NEKO_BCKND variable
 if test "x${have_cuda}" = xyes; then
@@ -274,6 +298,8 @@ elif test "x${have_hip}" = xyes; then
    AC_SUBST(NEKO_BCKND, "HIP")
 elif test "x${have_opencl}" = xyes; then
    AC_SUBST(NEKO_BCKND, "OpenCL")
+elif test "x${have_metal}" = xyes; then
+   AC_SUBST(NEKO_BCKND, "Metal")
 elif test "x${is_sx}" = x1; then
    AC_SUBST(NEKO_BCKND, "SX-Aurora")
 else
@@ -297,8 +323,11 @@ if (test "x${have_cuda}" = xyes ||
       if test "x${have_cuda}" = xyes; then
          CUDA_CFLAGS="$CUDA_CFLAGS -DHAVE_DEVICE_MPI=1"
 
-         # Make sure we have support for atomicAdd
-           AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])
+         # Device-aware MPI needs atomicAdd (>= sm_60), and picking the
+         # wrong architecture for the target GPU silently hurts performance
+         # rather than failing to build -- worse than a clear error.
+         AS_IF([test -z "$CUDA_ARCH"],
+               [AC_MSG_ERROR([CUDA_ARCH must be set explicitly to a value >= sm_60 for device-aware MPI])])
       fi
 
       if  test "x${have_hip}" = xyes; then
@@ -320,6 +349,9 @@ AX_RCCL
 # Checks for NVSHMEM backend
 AX_NVSHMEM
 
+# Checks for uTofu (native Tofu) gather-scatter backend
+AX_UTOFU
+
 # Checks for NVTX profiling
 AX_NVTX
 
@@ -336,6 +368,8 @@ fi
 # Checks for OpenSHMEM
 if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
    AX_CRAY_SHMEM
+else
+   AX_SHMEM
 fi
 
 
@@ -351,8 +385,10 @@ AM_CONDITIONAL([ENABLE_ADIOS2_FORTRAN], [test "x${have_adios2_fortran}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
+AM_CONDITIONAL([ENABLE_METAL], [test "x${have_metal}" = xyes])
 AM_CONDITIONAL([ENABLE_CONTRIB], [test "x${enable_contrib}" = xyes])
 AM_CONDITIONAL([ENABLE_NVSHMEM], [test "x${have_nvshmem}" = xyes])
+AM_CONDITIONAL([ENABLE_UTOFU], [test "x${have_utofu}" = xyes])
 AM_CONDITIONAL([ENABLE_HDF5], [test "x${have_hdf5}" = xyes])
 
 # Set device dependent flags
@@ -363,7 +399,8 @@ AC_SUBST(HIP_HIPCC_FLAGS)
 # Set device backend if requested (and found)
 if (test "x${have_cuda}" = xyes ||
     test "x${have_hip}" = xyes  ||
-    test "x${have_opencl}" = xyes); then
+    test "x${have_opencl}" = xyes ||
+    test "x${have_metal}" = xyes); then
     AC_SUBST(device_bcknd, "1")
 else
     AC_SUBST(device_bcknd, "0")
@@ -385,11 +422,15 @@ AM_CONDITIONAL([ENABLE_PYTHON], [test "x${found_python}" = xyes])
 AC_SUBST(NEKO_PKG_FCFLAGS)
 FCFLAGS="$FCFLAGS $NEKO_PKG_FCFLAGS"
 
+# Date stamp for generated manual pages
+AC_SUBST(MAN_DATE, [`date +%Y-%m-%d`])
+
 AC_CONFIG_FILES([Makefile\
         src/Makefile\
         src/python/Makefile\
         tests/unit/Makefile\
         src/comm/comm.F90\
+        src/comm/pfunit_comm_utils.F90\
         src/config/neko_config.f90\
         src/config/num_types.f90\
         src/device/device_config.h\
@@ -397,7 +438,9 @@ AC_CONFIG_FILES([Makefile\
         src/scripts/cltostring.sh\
         src/api/neko.h\
         makeneko\
-        neko.pc])
+        neko.pc\
+        doc/man/neko.1\
+        doc/man/makeneko.1])
 
 # Config tests/unit
 AC_CONFIG_FILES([tests/unit/stack/Makefile\
@@ -417,6 +460,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/global_interpolation/Makefile\
         tests/unit/mean_field/Makefile\
         tests/unit/gather_scatter/Makefile\
+        tests/unit/ax/Makefile\
         tests/unit/krylov/Makefile\
         tests/unit/bc/Makefile\
         tests/unit/signal/Makefile\
@@ -440,9 +484,12 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/time_based_controller/Makefile\
         tests/unit/json_utils/Makefile\
         tests/unit/utils/Makefile\
+        tests/unit/expression/Makefile\
         tests/unit/point_interpolation/Makefile\
         tests/unit/templates/parallel/Makefile\
+        tests/unit/bc_projector/Makefile\
         tests/unit/boundary_operation/Makefile\
+        tests/unit/wall_sampling/Makefile\
         tests/unit/templates/serial/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
@@ -458,9 +505,192 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/mesh_checker/Makefile\
 		    contrib/prepart/Makefile\
 		    contrib/adios2_to_nek5000/Makefile\
-		    contrib/psnr/Makefile])
+		    contrib/psnr/Makefile\
+		    contrib/rea2nbin/rea2nbin.1\
+		    contrib/prepart/prepart.1])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
 
 AC_OUTPUT
+
+# ---------------------------------------------------------------------
+# Configuration summary
+#
+# neko_dep <label> <option variable> <found>
+#
+# Prints one entry of the summary of optional dependencies, where
+# <option variable> is the name (not the value) of the variable holding
+# the corresponding --with-*/--enable-* option, or "auto" for
+# dependencies that are always checked for, and <found> the outcome of
+# the check. Anything requested but not found is collected in
+# neko_missing and reported at the end.
+#
+# neko_feature <label> <value>
+#
+# Prints one entry of the summary of (auto detected) compiler features.
+# ---------------------------------------------------------------------
+neko_missing=""
+
+neko_yesno () {
+   neko_val=$1
+   if test "x$neko_val" = x || test "x$neko_val" = xno ||
+      test "x$neko_val" = x0 || test "x$neko_val" = x.false.; then
+      neko_val="no"
+   else
+      neko_val="yes"
+   fi
+}
+
+neko_dep () {
+   if test "x$2" = xauto; then
+      neko_req="auto"
+   else
+      # Anything but an unset variable (option not given) or an explicit
+      # no (--without-foo) counts as requested, including an empty value
+      # as given by e.g. --with-foo= or --with-foo=$UNSET_VARIABLE
+      eval "neko_given=\${$2+set}"
+      eval "neko_reqval=\${$2-}"
+      if test "x$neko_given" != xset || test "x$neko_reqval" = xno; then
+         neko_req="no"
+      else
+         neko_req="yes"
+      fi
+   fi
+
+   neko_yesno "$3"
+   neko_found=$neko_val
+
+   if test "x$neko_req" = xno; then
+      neko_found="-"
+   elif test "x$neko_req" = xyes && test "x$neko_found" = xno; then
+      neko_missing="$neko_missing $1"
+   fi
+
+   printf '    %-30s %-11s %s\n' "$1" "$neko_req" "$neko_found"
+}
+
+neko_feature () {
+   neko_yesno "$2"
+   printf '    %-30s %s\n' "$1" "$neko_val"
+}
+
+# Collect the outcome of checks performed by more than one macro
+neko_hdf5=$have_hdf5
+test "x$have_cray_hdf5" = xyes && neko_hdf5=yes
+
+neko_shmem=$have_openshmem
+test "x$have_cray_shmem" = xyes && neko_shmem=yes
+
+neko_blas=`echo $LAPACK_LIBS $BLAS_LIBS`
+test "x$have_cray_libsci" = xyes && neko_blas="Cray LibSci"
+test -z "$neko_blas" && neko_blas="found in the default libraries"
+
+neko_json=""
+test -n "$PKG_CONFIG" && neko_json=`$PKG_CONFIG --modversion json-fortran 2>/dev/null`
+test -z "$neko_json" && neko_json="yes"
+
+neko_prefix=$prefix
+test "x$neko_prefix" = xNONE && neko_prefix=$ac_default_prefix
+
+# Centre the title inside the horizontal rule, in the style of the
+# section headers printed by Neko itself (see src/common/log.f90)
+neko_width=79
+neko_rule=`printf "%${neko_width}s" "" | tr " " "-"`
+neko_title="Configuration of Neko $PACKAGE_VERSION"
+neko_npre=$(( (neko_width - ${#neko_title} - 2) / 2 ))
+neko_npost=$(( neko_width - neko_npre - ${#neko_title} - 2 ))
+if test $neko_npre -lt 1 || test $neko_npost -lt 1; then
+   neko_head="- $neko_title -"
+else
+   neko_pre=`printf "%${neko_npre}s" "" | tr " " "-"`
+   neko_post=`printf "%${neko_npost}s" "" | tr " " "-"`
+   neko_head="$neko_pre $neko_title $neko_post"
+fi
+
+AS_ECHO([""])
+AS_ECHO(["$neko_head"])
+AS_ECHO([""])
+printf '  %-12s %s\n' "Prefix:" "'$neko_prefix'"
+printf '  %-12s %s\n' "Host:" "$host ($ax_cv_fc_compiler_vendor)"
+printf '  %-12s %s\n' "Fortran:" "$FC${FCFLAGS:+ $FCFLAGS}"
+printf '  %-12s %s\n' "C:" "$CC${CPPFLAGS:+ $CPPFLAGS}${CFLAGS:+ $CFLAGS}"
+printf '  %-12s %s\n' "C++:" "$CXX${CPPFLAGS:+ $CPPFLAGS}${CXXFLAGS:+ $CXXFLAGS}"
+printf '  %-12s %s\n' "Libs:" "${LDFLAGS:+$LDFLAGS }$LIBS"
+AS_ECHO([""])
+AS_ECHO(["  Build configuration:"])
+AS_ECHO([""])
+printf '    %-30s %s\n' "Working precision:" \
+       "$enable_real (rp = $NEKO_REAL_TYPE, xp = $NEKO_XREAL_TYPE)"
+printf '    %-30s %s\n' "Fast memory size (blk_size):" "$blk_size"
+printf '    %-30s %s\n' "Backend:" "$NEKO_BCKND"
+printf '    %-30s %s\n' "Contrib tools:" "$enable_contrib"
+AS_ECHO([""])
+AS_ECHO(["  Compiler and MPI features:"])
+AS_ECHO([""])
+neko_feature "Coarray Fortran:" "$ax_coarray"
+neko_feature "Coarray events:" "$ax_coarray_events"
+neko_feature "MPI Fortran 2008 module:" "$ax_mpif08"
+neko_feature "MPI parameter datatypes:" "$ax_mpi_const_dtype"
+neko_feature "Derived type I/O:" "$ax_dtype_io"
+neko_feature "REAL128:" "$have_real128"
+AS_ECHO([""])
+AS_ECHO(["  Required dependencies:"])
+AS_ECHO([""])
+printf '    %-30s %s\n' "BLAS/LAPACK:" "$neko_blas"
+printf '    %-30s %s\n' "JSON-Fortran:" "$neko_json"
+AS_ECHO([""])
+AS_ECHO(["  Python bindings:"])
+AS_ECHO([""])
+printf '    %-30s %s\n' "Enabled:" "$found_python"
+if test "x${found_python}" = xyes; then
+   printf '    %-30s %s\n' "Interpreter:" "$PYTHON${PYTHON_VERSION:+ ($PYTHON_VERSION)}"
+   # pythondir is expressed in terms of ${PYTHON_PREFIX}, which in turn
+   # is expressed in terms of ${prefix}, hence the repeated expansion
+   neko_pydir=`prefix=$neko_prefix; exec_prefix=$neko_prefix; eval eval echo \"$pythondir\"`
+   printf '    %-30s %s\n' "Install path:" "$neko_pydir"
+fi
+AS_ECHO([""])
+printf '  %-32s %-11s %s\n' "Optional dependencies:" "requested" "found"
+AS_ECHO([""])
+AS_ECHO(["  Parallelism and communication"])
+neko_dep "OpenMP" enable_openmp "$have_openmp"
+neko_dep "Device-aware MPI" enable_device_mpi "$device_mpi"
+neko_dep "NCCL" with_nccl "$have_nccl"
+neko_dep "RCCL" with_rccl "$have_rccl"
+neko_dep "NVSHMEM" with_nvshmem "$have_nvshmem"
+neko_dep "uTofu" with_utofu "$have_utofu"
+neko_dep "OpenSHMEM" with_openshmem "$neko_shmem"
+AS_ECHO([""])
+AS_ECHO(["  Math and partitioning"])
+neko_dep "libxsmm" with_libxsmm "$have_libxsmm"
+neko_dep "ParMETIS" with_parmetis "$found_domain_decomp"
+AS_ECHO([""])
+AS_ECHO(["  I/O and profiling"])
+neko_dep "ADIOS2" with_adios2 "$have_adios2"
+neko_dep "ADIOS2 (Fortran)" with_adios2_fortran "$have_adios2_fortran"
+neko_dep "HDF5" with_hdf5 "$neko_hdf5"
+neko_dep "Darshan" with_darshan_libdir "$have_darshan"
+neko_dep "NVTX" with_nvtx "$have_nvtx"
+neko_dep "ROCTX" with_roctx "$have_roctx"
+AS_ECHO([""])
+AS_ECHO(["  Development tools"])
+neko_dep "pFUnit" auto "$have_pfunit"
+neko_dep "Doxygen" auto "$DOXYGEN"
+neko_dep "graphviz (dot)" auto "$DOXYGEN_DEPS"
+neko_dep "makedepf90" auto "$MAKEDEPF90"
+
+if test -n "$neko_missing"; then
+   AS_ECHO([""])
+   AS_ECHO(["  WARNING: requested but not found:$neko_missing"])
+fi
+
+AS_ECHO([""])
+AS_ECHO(["$neko_rule"])
+AS_ECHO([""])
+
+# Let the caller (e.g. a build script) see that something requested
+# was missing, the warning above says what
+if test -n "$neko_missing"; then
+   AS_EXIT([1])
+fi

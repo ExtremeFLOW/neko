@@ -40,22 +40,23 @@ module scalar_pnpn
   use scalar_scheme, only : scalar_scheme_t
   use checkpoint, only : chkp_t
   use field, only : field_t
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use mesh, only : mesh_t
   use coefs, only : coef_t
   use device, only : HOST_TO_DEVICE, device_memcpy, glb_cmd_event, &
        device_event_sync
   use gather_scatter, only : gs_t, GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator
   use field_series, only : field_series_t
-  use registry, only : neko_registry
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
   use device_math, only : device_add2s2, device_col2
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use math, only : glsc2, col2, add2s2
+  use field_math, only : field_col2, field_col3
+  use scratch_registry, only : neko_scratch_registry
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
@@ -63,10 +64,9 @@ module scalar_pnpn
   use json_module, only : json_file, json_core, json_value
   use user_intf, only : user_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller, only : time_step_controller_t
   use time_state, only : time_state_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
@@ -87,16 +87,8 @@ module scalar_pnpn
      !> Solution projection.
      type(projection_t) :: proj_s
 
-     !> Dirichlet conditions for the residual
-     !! Collects all the Dirichlet condition facets into one bc and applies 0,
-     !! Since the values never change there during the solve.
-     type(zero_dirichlet_t) :: bc_res
-
-     !> A bc list for the bc_res. Contains only that, essentially just to wrap
-     !! the if statement determining whether to apply on the device or CPU.
-     !! Also needed since a bc_list is the type that is sent to, e.g. solvers,
-     !! cannot just send `bc_res` on its own.
-     type(bc_list_t) :: bclst_ds
+     !> Projector for the scalar increment constraints.
+     type(scalar_bc_projector_t) :: bc_projector
 
      !> Advection operator.
      class(advection_t), allocatable :: adv
@@ -121,6 +113,11 @@ module scalar_pnpn
 
      !> Lag arrays
      type(field_t) :: abx1, abx2
+
+     !> Fluid velocity histories used by OIFS scalar advection.
+     type(field_series_t), pointer :: ulag => null()
+     type(field_series_t), pointer :: vlag => null()
+     type(field_series_t), pointer :: wlag => null()
 
    contains
      !> Constructor.
@@ -149,7 +146,7 @@ module scalar_pnpn
        class(bc_t), pointer, intent(inout) :: object
        type(scalar_pnpn_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
-       type(coef_t), intent(in) :: coef
+       type(coef_t), target, intent(in) :: coef
        type(user_t), intent(in) :: user
      end subroutine bc_factory
   end interface
@@ -192,7 +189,7 @@ contains
     call this%scheme_init(msh, coef, gs, params, scheme, user, rho)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%ax, full_formulation = .false.)
+    call ax_helm_allocator(this%ax, type_name = "standard")
 
     ! Setup backend dependent scalar residual routines
     call scalar_residual_factory(this%res)
@@ -213,12 +210,8 @@ contains
       call this%s_res%init(dm_Xh, "s_res")
 
       call this%abx1%init(dm_Xh, trim(this%name) // "_abx1")
-      call neko_registry%add_field(dm_Xh, trim(this%name) // "_abx1", &
-           ignore_existing = .true.)
 
       call this%abx2%init(dm_Xh, trim(this%name) // "_abx2")
-      call neko_registry%add_field(dm_Xh, trim(this%name) // "_abx2", &
-           ignore_existing = .true.)
 
       call this%advs%init(dm_Xh, "advs")
 
@@ -229,32 +222,30 @@ contains
     ! Set up boundary conditions
     call this%setup_bcs_(user)
 
-    ! Initialize dirichlet bcs for scalar residual
-    call this%bc_res%init(this%c_Xh, params)
     do i = 1, this%bcs%size()
-       if (this%bcs%strong(i)) then
+       if (this%bcs%bc_type(i) .eq. BC_DIRICHLET) then
           bc_i => this%bcs%get(i)
-          call this%bc_res%mark_facets(bc_i%marked_facet)
+          call this%bc_projector%mark(bc_i)
        end if
     end do
-
-!    call this%bc_res%mark_zones_from_list('d_s', this%bc_labels)
-    call this%bc_res%finalize()
-
-    call this%bclst_ds%init()
-    call this%bclst_ds%append(this%bc_res)
-
 
     ! Initialize projection space
     call this%proj_s%init(this%dm_Xh%size(), this%projection_dim, &
          this%projection_activ_step)
 
     ! Determine the time-interpolation scheme
-    call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
+    call json_get_or_default(numerics_params, 'oifs', this%oifs, .false.)
     ! Point to case checkpoint
     this%chkp => chkp
     ! Initialize advection factory
     call json_get_or_default(params, 'advection', advection, .true.)
+    ! OIFS integrates the advection term. With advection disabled, fall back to
+    ! the standard BDF history assembly.
+    this%oifs = this%oifs .and. advection
+
+    this%ulag => ulag
+    this%vlag => vlag
+    this%wlag => wlag
 
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
          ulag, vlag, wlag, this%chkp%dtlag, &
@@ -306,8 +297,7 @@ contains
     !Deallocate scalar field
     call this%scheme_free()
 
-    call this%bc_res%free()
-    call this%bclst_ds%free()
+    call this%bc_projector%free()
     call this%proj_s%free()
 
     call this%s_res%free()
@@ -323,6 +313,10 @@ contains
        call this%adv%free()
        deallocate(this%adv)
     end if
+
+    nullify(this%ulag)
+    nullify(this%vlag)
+    nullify(this%wlag)
 
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
@@ -353,12 +347,15 @@ contains
     type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
     type(ksp_monitor_t), intent(inout) :: ksp_results
+    type(field_t), pointer :: rho_cp
+    integer :: rho_cp_index
     ! Number of degrees of freedom
     integer :: n
 
     if (this%freeze) return
 
     n = this%dm_Xh%size()
+    call neko_scratch_registry%request_field(rho_cp, rho_cp_index, .false.)
 
     call profiler_start_region(trim(this%name), 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
@@ -375,37 +372,46 @@ contains
 
       ! Logs extra information the log level is NEKO_LOG_DEBUG or above.
       call print_debug(this)
+
+      ! Update material properties and their pointwise product.
+      call this%update_material_properties(time)
+      call field_col3(rho_cp, rho, cp, n)
+
       ! Compute the source terms
       call this%source_term%compute(time)
 
-      ! Apply weak boundary conditions, that contribute to the source terms.
-      call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), time, .false.)
-
       if (oifs) then
-         ! Add the advection operators to the right-hans-side.
-         call this%adv%compute_scalar(u, v, w, s, this%advs, &
+         ! The fluid step has already advanced u, v, and w to the new time.
+         ! Its first lag fields contain the velocity at tlag(1), which is the
+         ! latest time represented by the OIFS interpolation history.
+         call this%adv%compute_scalar(this%ulag%lf(1), this%vlag%lf(1), &
+              this%wlag%lf(1), s, this%advs, &
               Xh, this%c_Xh, dm_Xh%size())
-
-         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
-
-         call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho%x(1,1,1,1), dt,&
-              n)
       else
-         ! Add the advection operators to the right-hans-side.
+         ! Add the advection operators to the right-hand side.
          call this%adv%compute_scalar(u, v, w, s, f_Xh, &
               Xh, this%c_Xh, dm_Xh%size())
+      end if
 
-         ! At this point the RHS contains the sum of the advection operator,
-         ! Neumann boundary sources and additional source terms, evaluated using
-         ! the scalar field from the previous time-step. Now, this value is used in
-         ! the explicit time scheme to advance these terms in time.
-         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
+      ! Scale the volumetric source and advection terms by rho * cp.
+      call field_col2(f_Xh, rho_cp, n)
+
+      ! Add weak boundary fluxes without scaling them by rho * cp.
+      call this%bcs%apply_scalar(f_Xh%x, n, time, .false.)
+
+      ! Extrapolate the already scaled explicit right-hand side.
+      call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
+           ext_bdf%advection_coeffs%x, n)
+
+      if (oifs) then
+         call makeoifs%compute_scalar(this%advs%x, f_Xh%x, &
+              rho_cp, real(dt, kind=rp), n)
+      else
 
          ! Add the RHS contributions coming from the BDF scheme.
-         call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho%x(1,1,1,1), &
-              dt, ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
+         call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, &
+              rho_cp, real(dt, kind=rp), ext_bdf%diffusion_coeffs%x, &
+              ext_bdf%ndiff, n)
       end if
 
       call slag%update()
@@ -413,19 +419,16 @@ contains
       !> Apply strong boundary conditions.
       call this%apply_strong_bcs(time)
 
-      ! Update material properties if necessary
-      call this%update_material_properties(time)
-
       ! Compute scalar residual.
       call profiler_start_region(trim(this%name) // '_residual', 20)
       call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_tot, &
-           rho%x(1,1,1,1)*cp%x(1,1,1,1), ext_bdf%diffusion_coeffs%x(1), dt, &
-           dm_Xh%size())
+           rho_cp, ext_bdf%diffusion_coeffs%x(1), &
+           real(dt, kind=rp), dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 
-      ! Apply a 0-valued Dirichlet boundary conditions on the ds.
-      call this%bclst_ds%apply_scalar(s_res%x, dm_Xh%size())
+      ! Zero-out residual at Dirichlet nodes before solving.
+      call this%bc_projector%apply(s_res%x, dm_Xh%size())
 
       call profiler_end_region(trim(this%name) // '_residual', 20)
 
@@ -434,11 +437,11 @@ contains
       call this%pc%update()
       call profiler_start_region(trim(this%name) // '_solve', 21)
       ksp_results = this%ksp%solve(Ax, ds, s_res%x, n, &
-           c_Xh, this%bclst_ds, gs_Xh)
+           c_Xh, this%bc_projector, gs_Xh)
       ksp_results%name = trim(this%name)
       call profiler_end_region(trim(this%name) // '_solve', 21)
 
-      call this%proj_s%post_solving(ds%x, Ax, c_Xh, this%bclst_ds, gs_Xh, &
+      call this%proj_s%post_solving(ds%x, Ax, c_Xh, this%bc_projector, gs_Xh, &
            n, tstep, dt_controller)
 
       ! Update the solution
@@ -449,6 +452,7 @@ contains
       end if
 
     end associate
+    call neko_scratch_registry%relinquish_field(rho_cp_index)
     call profiler_end_region(trim(this%name), 2)
   end subroutine scalar_pnpn_step
 
@@ -473,7 +477,7 @@ contains
   !> Initialize boundary conditions
   !! @param user The user object binding the user-defined routines.
   subroutine scalar_pnpn_setup_bcs_(this, user)
-    class(scalar_pnpn_t), intent(inout) :: this
+    class(scalar_pnpn_t), target, intent(inout) :: this
     type(user_t), target, intent(in) :: user
     integer :: i, j, n_bcs, zone_size, global_zone_size, ierr
     type(json_core) :: core

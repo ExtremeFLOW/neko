@@ -100,14 +100,16 @@ contains
   end subroutine neko_api_registry_free
 
   !> Initialise a Neko scratch registry
-  subroutine neko_api_scratch_registry_init() bind(c, name="neko_scratch_registry_init")
+  subroutine neko_api_scratch_registry_init() &
+       bind(c, name="neko_scratch_registry_init")
 
     call neko_scratch_registry%init()
 
   end subroutine neko_api_scratch_registry_init
 
   !> Destroy a Neko scratch registry
-  subroutine neko_api_scratch_registry_free() bind(c, name="neko_scratch_registry_free")
+  subroutine neko_api_scratch_registry_free() &
+       bind(c, name="neko_scratch_registry_free")
 
     call neko_scratch_registry%free()
 
@@ -740,6 +742,8 @@ contains
     f2 => neko_api_user_cb_get_field(trim(name(1:len)))
 
     same_name = trim(f1%name) .eq. trim(f2%name)
+
+    nullify(f1, f2)
 
   end function neko_api_user_cb_field_name_at_index
 

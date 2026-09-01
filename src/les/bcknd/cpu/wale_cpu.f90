@@ -148,6 +148,7 @@ contains
     do e = 1, coef%msh%nelv
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
+       !DIR$ IVDEP
        !GCC$ ivdep
        do i = 1, coef%Xh%lxyz
           ! gij^2 = g_ik * g_kj

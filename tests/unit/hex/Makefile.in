@@ -12,7 +12,7 @@ check: hex_test
 
 
 hex_test_TESTS := test_hex.pf
-hex_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs/ -lneko
+hex_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs/ -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,hex_test))
 hex_test.inc: Makefile
 

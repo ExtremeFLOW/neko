@@ -77,7 +77,7 @@ contains
     ! Write the initial logging message
     call neko_log%section('Starting simulation')
     write(log_buf, '(A, E15.7,A,E15.7,A)') &
-         'T  : [', C%time%t, ',', C%time%end_time, ']'
+         'T  : [', C%time%t, ', ', C%time%end_time, ']'
     call neko_log%message(log_buf)
     if (.not. dt_controller%is_variable_dt) then
        write(log_buf, '(A, E15.7)') 'dt :  ', C%time%dt
@@ -88,9 +88,9 @@ contains
 
     ! Execute outputs and user-init before time loop
     call neko_log%section('Preprocessing')
+    call C%user%initialize(C%time)
     call C%output_controller%execute(C%time)
 
-    call C%user%initialize(C%time)
     call neko_log%end_section()
     call neko_log%newline()
 
@@ -123,7 +123,7 @@ contains
     type(time_step_controller_t), intent(inout) :: dt_controller
     real(kind=dp), optional, intent(in) :: tstep_loop_start_time
     real(kind=dp) :: start_time, end_time, tstep_start_time
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     character(len=LOG_SIZE) :: log_buf
 
     ! Setup the time step, and start time
@@ -209,20 +209,22 @@ contains
     type(time_scheme_controller_t), intent(inout), allocatable :: ext_bdf
     integer :: i
 
-    if (allocated(ext_bdf)) then
-       do i = 10, 2, -1
-          time%tlag(i) = time%tlag(i-1)
-          time%dtlag(i) = time%dtlag(i-1)
-       end do
+    ! Always shift the time lag arrays (needed by entropy viscosity etc.)
+    do i = 10, 2, -1
+       time%tlag(i) = time%tlag(i-1)
+       time%dtlag(i) = time%dtlag(i-1)
+    end do
 
-       time%dtlag(1) = time%dt
-       time%tlag(1) = time%t
+    time%dtlag(1) = time%dt
+    time%tlag(1) = time%t
+
+    if (allocated(ext_bdf)) then
        if (ext_bdf%ndiff .eq. 0) then
           time%dtlag(2) = time%dt
           time%tlag(2) = time%t
        end if
 
-       call ext_bdf%set_coeffs(time%dtlag)
+       call ext_bdf%set_coeffs(real(time%dtlag, kind=rp))
     end if
 
     time%tstep = time%tstep + 1
@@ -281,7 +283,7 @@ contains
     ! Restart the time state and BDF coefficients
     call chkp%set_time_state(C%time)
     do i = 1, size(C%time%dtlag)
-       call C%fluid%ext_bdf%set_coeffs(C%time%dtlag)
+       call C%fluid%ext_bdf%set_coeffs(real(C%time%dtlag, kind=rp))
     end do
 
     ! Restart the fluid and scalars
@@ -299,7 +301,7 @@ contains
   !> Write a checkpoint at joblimit
   subroutine simulation_joblimit_chkp(C, t)
     type(case_t), intent(inout) :: C
-    real(kind=rp), intent(inout) :: t
+    real(kind=dp), intent(inout) :: t
     type(file_t) :: chkpf
     character(len=:), allocatable :: chkp_format
     character(len=LOG_SIZE) :: log_buf

@@ -32,20 +32,24 @@
 !
 !> Defines various Conjugate Gradient methods for accelerators
 module cg_device
-  use num_types, only: rp
+  use num_types, only : rp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       vector_bc_projector_components
   use math, only : abscmp
-  use device
+  use device, only : device_map, device_event_create, device_unmap, &
+       device_event_destroy, device_get_ptr, device_event_sync
   use device_math, only : device_rzero, device_copy, device_glsc3, &
        device_add2s2, device_add2s1
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
+  private
 
   !> Device based preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_device_t
@@ -157,14 +161,15 @@ contains
   end subroutine cg_device_free
 
   !> Standard PCG solve
-  function cg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function cg_device_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
+       result(ksp_results)
     class(cg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -194,7 +199,7 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-    if(abscmp(rnorm, zero)) then
+    if (abscmp(rnorm, zero)) then
        ksp_results%converged = .true.
        return
     end if
@@ -210,7 +215,7 @@ contains
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
        call gs_h%op(this%w, n, GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
-       call blst%apply(this%w, n)
+       call bc_projector%apply(this%w, n)
 
        pap = device_glsc3(this%w_d, coef%mult_d, this%p_d, n)
 
@@ -236,7 +241,7 @@ contains
 
   !> Standard PCG coupled solve
   function cg_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(cg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -247,16 +252,16 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(scalar_bc_projector_t), pointer :: bc_x, bc_y, bc_z
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    call vector_bc_projector_components(bc_projector, bc_x, bc_y, bc_z)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_x, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_y, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_z, gs_h, niter)
 
   end function cg_device_solve_coupled
 

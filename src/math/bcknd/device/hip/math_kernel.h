@@ -1,7 +1,7 @@
 #ifndef __MATH_MATH_KERNEL_H__
 #define __MATH_MATH_KERNEL_H__
 /*
- Copyright (c) 2021-2023, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,8 @@
  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 */
+
+#include "wave.h"
 
 /**
  * Device kernel for cmult
@@ -203,10 +205,10 @@ __global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
 }
 
 /**
- * Device kernel for masked copy
+ * Device kernel for masked copy with BC style mask
  */
 template< typename T >
-__global__ void masked_copy_kernel(T * __restrict__ a,
+__global__ void masked_copy_kernel_0(T * __restrict__ a,
                                    T * __restrict__ b,
                                    int * __restrict__ mask,
                                    const int n,
@@ -217,6 +219,24 @@ __global__ void masked_copy_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n_mask; i += str) {
     a[mask[i+1]-1] = b[mask[i+1]-1];
+  }
+}
+
+/**
+ * Device kernel for masked copy with point zone style mask
+ */
+template< typename T >
+__global__ void masked_copy_kernel_aligned(T * __restrict__ a,
+                                   T * __restrict__ b,
+                                   int * __restrict__ mask,
+                                   const int n,
+                                   const int n_mask) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n_mask; i += str) {
+    a[mask[i]] = b[mask[i]];
   }
 }
 
@@ -338,6 +358,38 @@ __global__ void cwrap_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for sqrt_inplace
+ */
+template< typename T >
+__global__ void sqrt_inplace_kernel(T * __restrict__ a,
+                                    const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = sqrt(a[i]);
+  }
+}
+
+/**
+ * Device kernel for power
+ */
+template< typename T >
+__global__ void power_kernel(T * __restrict__ ap,
+                             const T * __restrict__ a,
+                             const T p,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    ap[i] = pow(a[i], p);
+  }
+}
+
+/**
  * Device kernel for cmult
  */
 template< typename T >
@@ -350,6 +402,22 @@ __global__ void cfill_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = c;
+  }
+}
+
+/**
+ * Device kernel for copy
+ */
+template< typename T >
+__global__ void copy_kernel(T * __restrict__ a,
+                            const T * __restrict__ b,
+                            const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = b[i];
   }
 }
 
@@ -778,10 +846,18 @@ __global__ void vcross_kernel(T * __restrict__ u1,
 
 /**
  * Warp shuffle reduction
+ *
+ * The ladder is stepped down from NEKO_WAVE_SIZE/2, so the leading half wave
+ * shuffle is only emitted on a 64 lane wavefront. At wave64 this preprocesses
+ * to exactly the sequence it always has; at wave32 the 32 step would have
+ * shuffled past the end of the wave, where __shfl_down returns the lane's own
+ * value and the reduction silently doubles it.
  */
 template< typename T>
 __inline__ __device__ T reduce_warp(T val) {
+#if NEKO_WAVE_SIZE == 64
   val += __shfl_down(val, 32);
+#endif
   val += __shfl_down(val, 16);
   val += __shfl_down(val, 8);
   val += __shfl_down(val, 4);
@@ -795,7 +871,9 @@ __inline__ __device__ T reduce_warp(T val) {
  */
 template< typename T>
 __inline__ __device__ T reduce_max_warp(T val) {
+#if NEKO_WAVE_SIZE == 64
   val = max(val, __shfl_down(val, 32));
+#endif
   val = max(val, __shfl_down(val, 16));
   val = max(val, __shfl_down(val, 8));
   val = max(val, __shfl_down(val, 4));
@@ -809,7 +887,9 @@ __inline__ __device__ T reduce_max_warp(T val) {
  */
 template< typename T>
 __inline__ __device__ T reduce_min_warp(T val) {
+#if NEKO_WAVE_SIZE == 64
   val = min(val, __shfl_down(val, 32));
+#endif
   val = min(val, __shfl_down(val, 16));
   val = min(val, __shfl_down(val, 8));
   val = min(val, __shfl_down(val, 4));
@@ -833,15 +913,15 @@ __global__ void reduce_kernel(T * bufred, const int n) {
   }
 
   __shared__ T shared[64];
-  unsigned int lane = threadIdx.x % warpSize;
-  unsigned int wid = threadIdx.x / warpSize;
+  unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
 
   sum = reduce_warp<T>(sum);
   if (lane == 0)
     shared[wid] = sum;
   __syncthreads();
 
-  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  sum = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : 0;
   if (wid == 0)
     sum = reduce_warp<T>(sum);
 
@@ -864,15 +944,15 @@ __global__ void reduce_max_kernel(T * bufred, const T ninf, const int n) {
   }
 
   __shared__ T shared[64];
-  unsigned int lane = threadIdx.x % warpSize;
-  unsigned int wid = threadIdx.x / warpSize;
+  unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
 
   max_val = reduce_max_warp<T>(max_val);
   if (lane == 0)
     shared[wid] = max_val;
   __syncthreads();
 
-  max_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : ninf;
+  max_val = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : ninf;
   if (wid == 0)
     max_val = reduce_max_warp<T>(max_val);
 
@@ -895,15 +975,15 @@ __global__ void reduce_min_kernel(T * bufred, const T pinf, const int n) {
   }
 
   __shared__ T shared[64];
-  unsigned int lane = threadIdx.x % warpSize;
-  unsigned int wid = threadIdx.x / warpSize;
+  unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
 
   min_val = reduce_min_warp<T>(min_val);
   if (lane == 0)
     shared[wid] = min_val;
   __syncthreads();
 
-  min_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : pinf;
+  min_val = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : pinf;
   if (wid == 0)
     min_val = reduce_min_warp<T>(min_val);
 
@@ -915,12 +995,12 @@ __global__ void reduce_min_kernel(T * bufred, const T pinf, const int n) {
  * Reduction kernel for glsc3
  */
 
-template< typename T >
-__global__ void glsc3_reduce_kernel( T * bufred,
-                                    const int n,
-                                    const int j
+template< typename T_acc >
+__global__ void glsc3_reduce_kernel( T_acc * bufred,
+                                     const int n,
+                                     const int j
                                    ) {
-   __shared__ T buf[1024] ;
+   __shared__ T_acc buf[1024] ;
    const int idx = threadIdx.x;
    const int y= blockIdx.x;
    const int step = blockDim.x;
@@ -947,10 +1027,10 @@ __global__ void glsc3_reduce_kernel( T * bufred,
 }
 
 /**
- * Device kernel for glsc3
+ * Device kernel for vlsc3
  */
 template< typename T >
-__global__ void glsc3_kernel(const T * a,
+__global__ void vlsc3_kernel(const T * a,
                              const T * b,
                              const T * c,
                              T * buf_h,
@@ -959,8 +1039,8 @@ __global__ void glsc3_kernel(const T * a,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  const unsigned int lane = threadIdx.x % warpSize;
-  const unsigned int wid = threadIdx.x / warpSize;
+  const unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  const unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
 
   __shared__ T shared[64];
   T sum = 0.0;
@@ -973,7 +1053,7 @@ __global__ void glsc3_kernel(const T * a,
     shared[wid] = sum;
   __syncthreads();
 
-  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  sum = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : 0;
   if (wid == 0)
     sum = reduce_warp<T>(sum);
 
@@ -982,13 +1062,48 @@ __global__ void glsc3_kernel(const T * a,
 }
 
 /**
+ * Device kernel for glsc3
+ */
+template< typename T, typename T_acc >
+__global__ void glsc3_kernel(const T * a,
+                             const T * b,
+                             const T * c,
+                             T_acc * buf_h,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  const unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
+
+  __shared__ T_acc shared[64];
+  T_acc sum = 0.0;
+  for (int i = idx; i < n; i+= str) {
+    sum += static_cast<T_acc>(a[i] * b[i] * c[i]);
+  }
+
+  sum = reduce_warp<T_acc>(sum);
+  if (lane == 0)
+    shared[wid] = sum;
+  __syncthreads();
+
+  sum = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : 0;
+  if (wid == 0)
+    sum = reduce_warp<T_acc>(sum);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = sum;
+}
+
+/**
  * Device kernel for glsc3 many
  */
-template< typename T >
+template< typename T, typename T_acc >
 __global__ void glsc3_many_kernel(const T * a,
                                   const T ** b,
                                   const T * c,
-                                  T * buf_h,
+                                  T_acc * buf_h,
                                   const int j,
                                   const int n) {
 
@@ -996,11 +1111,11 @@ __global__ void glsc3_many_kernel(const T * a,
   const int str = blockDim.y * gridDim.x;
   const int y = threadIdx.x;
 
-  __shared__ T buf[1024];
-  T tmp = 0;
+  __shared__ T_acc buf[1024];
+  T_acc tmp = 0;
   if(y < j){
     for (int i = idx; i < n; i+= str) {
-      tmp += a[i] * b[threadIdx.x][i] * c[i];
+      tmp += static_cast<T_acc>(a[i] * b[threadIdx.x][i] * c[i]);
     }
   }
 
@@ -1025,32 +1140,32 @@ __global__ void glsc3_many_kernel(const T * a,
 /**
  * Device kernel for glsc2
  */
-template< typename T >
+template< typename T, typename T_acc >
 __global__ void glsc2_kernel(const T * a,
                              const T * b,
-                             T * buf_h,
+                             T_acc * buf_h,
                              const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  const unsigned int lane = threadIdx.x % warpSize;
-  const unsigned int wid = threadIdx.x / warpSize;
+  const unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  const unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
 
-  __shared__ T shared[64];
-  T sum = 0.0;
+  __shared__ T_acc shared[64];
+  T_acc sum = 0.0;
   for (int i = idx; i < n; i+= str) {
-    sum += a[i] * b[i];
+    sum += static_cast<T_acc>(a[i] * b[i]);
   }
 
-  sum = reduce_warp<T>(sum);
+  sum = reduce_warp<T_acc>(sum);
   if (lane == 0)
     shared[wid] = sum;
   __syncthreads();
 
-  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  sum = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : 0;
   if (wid == 0)
-    sum = reduce_warp<T>(sum);
+    sum = reduce_warp<T_acc>(sum);
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;
@@ -1060,32 +1175,32 @@ __global__ void glsc2_kernel(const T * a,
 /**
  * Device kernel for glsubnorm
  */
-template< typename T >
+template< typename T, typename T_acc >
 __global__ void glsubnorm2_kernel(const T * a,
-                             const T * b,
-                             T * buf_h,
-                             const int n) {
+                                  const T * b,
+                                  T_acc * buf_h,
+                                  const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  const unsigned int lane = threadIdx.x % warpSize;
-  const unsigned int wid = threadIdx.x / warpSize;
+  const unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  const unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
 
-  __shared__ T shared[64];
-  T sum = 0.0;
+  __shared__ T_acc shared[64];
+  T_acc sum = 0.0;
   for (int i = idx; i < n; i+= str) {
-    sum += pow(a[i] - b[i], 2.0);
+    sum += static_cast<T_acc>(pow(a[i] - b[i], 2.0));
   }
 
-  sum = reduce_warp<T>(sum);
+  sum = reduce_warp<T_acc>(sum);
   if (lane == 0)
     shared[wid] = sum;
   __syncthreads();
 
-  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  sum = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : 0;
   if (wid == 0)
-    sum = reduce_warp<T>(sum);
+    sum = reduce_warp<T_acc>(sum);
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;
@@ -1095,32 +1210,32 @@ __global__ void glsubnorm2_kernel(const T * a,
 /**
  * Device kernel for glsum
  */
-template< typename T >
+template< typename T, typename T_acc >
 __global__ void glsum_kernel(const T * a,
-                             T * buf_h,
+                             T_acc * buf_h,
                              const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  const unsigned int lane = threadIdx.x % warpSize;
-  const unsigned int wid = threadIdx.x / warpSize;
+  const unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  const unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
 
-  __shared__ T shared[64];
-  T sum = 0;
+  __shared__ T_acc shared[64];
+  T_acc sum = 0;
   for (int i = idx; i<n ; i += str)
   {
-    sum += a[i];
+    sum += static_cast<T_acc>(a[i]);
   }
 
-  sum = reduce_warp<T>(sum);
+  sum = reduce_warp<T_acc>(sum);
   if (lane == 0)
     shared[wid] = sum;
   __syncthreads();
 
-  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  sum = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : 0;
   if (wid == 0)
-    sum = reduce_warp<T>(sum);
+    sum = reduce_warp<T_acc>(sum);
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;
@@ -1139,8 +1254,8 @@ __global__ void glmax_kernel(const T * a,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  const unsigned int lane = threadIdx.x % warpSize;
-  const unsigned int wid = threadIdx.x / warpSize;
+  const unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  const unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
 
   __shared__ T shared[64];
   T max_val = ninf;
@@ -1154,7 +1269,7 @@ __global__ void glmax_kernel(const T * a,
     shared[wid] = max_val;
   __syncthreads();
 
-  max_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : ninf;
+  max_val = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : ninf;
   if (wid == 0)
     max_val = reduce_max_warp<T>(max_val);
 
@@ -1175,8 +1290,8 @@ __global__ void glmin_kernel(const T * a,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  const unsigned int lane = threadIdx.x % warpSize;
-  const unsigned int wid = threadIdx.x / warpSize;
+  const unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  const unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
 
   __shared__ T shared[64];
   T min_val = pinf;
@@ -1190,7 +1305,7 @@ __global__ void glmin_kernel(const T * a,
     shared[wid] = min_val;
   __syncthreads();
 
-  min_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : pinf;
+  min_val = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : pinf;
   if (wid == 0)
     min_val = reduce_min_warp<T>(min_val);
 

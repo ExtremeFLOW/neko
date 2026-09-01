@@ -234,11 +234,11 @@ contains
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: output_value
     character(len=*), intent(in) :: fluid_name
     character(len=*), intent(in) :: zone_name
     integer, intent(in) :: zone_id
@@ -321,7 +321,7 @@ contains
     call this%bc%init_base(this%coef)
     call this%bc%mark_zone(this%case%msh%labeled_zones(this%zone_id))
     call this%bc%finalize()
-    n_pts = this%bc%msk(0)
+    n_pts = this%bc%facet_node_msk(0)
     if (n_pts .gt. 0) then
        call this%n1%init(n_pts)
        call this%n2%init(n_pts)
@@ -345,14 +345,14 @@ contains
        call this%mu_msk%init(n_pts)
     end if
 
-    call setup_normals(this%coef, this%bc%msk, this%bc%facet, &
-         this%n1%x, this%n2%x, this%n3%x, n_pts)
-    call masked_gather_copy_0(this%r1%x, this%coef%dof%x, this%bc%msk, &
-         this%u%size(), n_pts)
-    call masked_gather_copy_0(this%r2%x, this%coef%dof%y, this%bc%msk, &
-         this%u%size(), n_pts)
-    call masked_gather_copy_0(this%r3%x, this%coef%dof%z, this%bc%msk, &
-         this%u%size(), n_pts)
+    call setup_normals(this%coef, this%bc%facet_node_msk, this%bc%facet, &
+         this%n1, this%n2, this%n3, n_pts)
+    call masked_gather_copy_0(this%r1%x, this%coef%dof%x, &
+         this%bc%facet_node_msk, this%u%size(), n_pts)
+    call masked_gather_copy_0(this%r2%x, this%coef%dof%y, &
+         this%bc%facet_node_msk, this%u%size(), n_pts)
+    call masked_gather_copy_0(this%r3%x, this%coef%dof%z, &
+         this%bc%facet_node_msk, this%u%size(), n_pts)
 
     call MPI_Allreduce(n_pts, glb_n_pts, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
@@ -399,12 +399,6 @@ contains
     call cadd(this%r2%x, -this%center(2), n_pts)
     call cadd(this%r3%x, -this%center(3), n_pts)
     if (NEKO_BCKND_DEVICE .eq. 1 .and. n_pts .gt. 0) then
-       call device_memcpy(this%n1%x, this%n1%x_d, n_pts, HOST_TO_DEVICE, &
-            .false.)
-       call device_memcpy(this%n2%x, this%n2%x_d, n_pts, HOST_TO_DEVICE, &
-            .false.)
-       call device_memcpy(this%n3%x, this%n3%x_d, n_pts, HOST_TO_DEVICE, &
-            .true.)
        call device_memcpy(this%r1%x, this%r1%x_d, n_pts, HOST_TO_DEVICE, &
             .false.)
        call device_memcpy(this%r2%x, this%r2%x_d, n_pts, HOST_TO_DEVICE, &
@@ -459,13 +453,14 @@ contains
   subroutine force_torque_compute(this, time)
     class(force_torque_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-
-    real(kind=rp) :: dgtq(12) = 0.0_rp
+    real(kind=rp) :: dgtq(12)
     integer :: n_pts, temp_indices(6)
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
     character(len=1000) :: log_buf
     real(kind=rp) :: rot_offset(3)
-    n_pts = this%bc%msk(0)
+
+    dgtq = 0.0_rp
+    n_pts = this%bc%facet_node_msk(0)
 
 
     ! body_attached
@@ -481,40 +476,36 @@ contains
           rot_offset(3) = this%body_R(3,1)*this%local_offset(1) + &
                this%body_R(3,2)*this%local_offset(2) + &
                this%body_R(3,3)*this%local_offset(3)
-
           this%center = this%body_P + rot_offset
        end if
     end if
 
     if (this%update_normals) then
+       call setup_normals(this%coef, this%bc%facet_node_msk, this%bc%facet, &
+            this%n1, this%n2, this%n3, n_pts)
 
-       call setup_normals(this%coef, this%bc%msk, this%bc%facet, &
-            this%n1%x, this%n2%x, this%n3%x, n_pts)
+       if ((NEKO_BCKND_DEVICE .eq. 1) .and. (n_pts .gt. 0)) then
+          call device_masked_gather_copy_0(this%r1%x_d, this%coef%dof%x_d, &
+               this%bc%facet_node_msk_d, this%u%size(), n_pts)
+          call device_masked_gather_copy_0(this%r2%x_d, this%coef%dof%y_d, &
+               this%bc%facet_node_msk_d, this%u%size(), n_pts)
+          call device_masked_gather_copy_0(this%r3%x_d, this%coef%dof%z_d, &
+               this%bc%facet_node_msk_d, this%u%size(), n_pts)
 
-       call masked_gather_copy_0(this%r1%x, this%coef%dof%x, this%bc%msk, &
-            this%u%size(), n_pts)
-       call masked_gather_copy_0(this%r2%x, this%coef%dof%y, this%bc%msk, &
-            this%u%size(), n_pts)
-       call masked_gather_copy_0(this%r3%x, this%coef%dof%z, this%bc%msk, &
-            this%u%size(), n_pts)
+          call device_cadd(this%r1%x_d, -this%center(1), n_pts)
+          call device_cadd(this%r2%x_d, -this%center(2), n_pts)
+          call device_cadd(this%r3%x_d, -this%center(3), n_pts)
+       else
+          call masked_gather_copy_0(this%r1%x, this%coef%dof%x, &
+               this%bc%facet_node_msk, this%u%size(), n_pts)
+          call masked_gather_copy_0(this%r2%x, this%coef%dof%y, &
+               this%bc%facet_node_msk, this%u%size(), n_pts)
+          call masked_gather_copy_0(this%r3%x, this%coef%dof%z, &
+               this%bc%facet_node_msk, this%u%size(), n_pts)
 
-       call cadd(this%r1%x, -this%center(1), n_pts)
-       call cadd(this%r2%x, -this%center(2), n_pts)
-       call cadd(this%r3%x, -this%center(3), n_pts)
-
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. n_pts .gt. 0) then
-          call device_memcpy(this%n1%x, this%n1%x_d, n_pts, &
-               HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%n2%x, this%n2%x_d, n_pts, &
-               HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%n3%x, this%n3%x_d, n_pts, &
-               HOST_TO_DEVICE, .true.)
-          call device_memcpy(this%r1%x, this%r1%x_d, n_pts, &
-               HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%r2%x, this%r2%x_d, n_pts, &
-               HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%r3%x, this%r3%x_d, n_pts, &
-               HOST_TO_DEVICE, .true.)
+          call cadd(this%r1%x, -this%center(1), n_pts)
+          call cadd(this%r2%x, -this%center(2), n_pts)
+          call cadd(this%r3%x, -this%center(3), n_pts)
        end if
     end if
 
@@ -530,22 +521,22 @@ contains
 
     ! On the CPU we can actually just use the original subroutines...
     if (NEKO_BCKND_DEVICE .eq. 0) then
-       call masked_gather_copy_0(this%s11msk%x, s11%x, this%bc%msk, &
+       call masked_gather_copy_0(this%s11msk%x, s11%x, this%bc%facet_node_msk, &
             this%u%size(), n_pts)
-       call masked_gather_copy_0(this%s22msk%x, s22%x, this%bc%msk, &
+       call masked_gather_copy_0(this%s22msk%x, s22%x, this%bc%facet_node_msk, &
             this%u%size(), n_pts)
-       call masked_gather_copy_0(this%s33msk%x, s33%x, this%bc%msk, &
+       call masked_gather_copy_0(this%s33msk%x, s33%x, this%bc%facet_node_msk, &
             this%u%size(), n_pts)
-       call masked_gather_copy_0(this%s12msk%x, s12%x, this%bc%msk, &
+       call masked_gather_copy_0(this%s12msk%x, s12%x, this%bc%facet_node_msk, &
             this%u%size(), n_pts)
-       call masked_gather_copy_0(this%s13msk%x, s13%x, this%bc%msk, &
+       call masked_gather_copy_0(this%s13msk%x, s13%x, this%bc%facet_node_msk, &
             this%u%size(), n_pts)
-       call masked_gather_copy_0(this%s23msk%x, s23%x, this%bc%msk, &
+       call masked_gather_copy_0(this%s23msk%x, s23%x, this%bc%facet_node_msk, &
             this%u%size(), n_pts)
-       call masked_gather_copy_0(this%pmsk%x, this%p%x, this%bc%msk, &
-            this%u%size(), n_pts)
-       call masked_gather_copy_0(this%mu_msk%x, this%mu%x, this%bc%msk, &
-            this%u%size(), n_pts)
+       call masked_gather_copy_0(this%pmsk%x, this%p%x, &
+            this%bc%facet_node_msk, this%u%size(), n_pts)
+       call masked_gather_copy_0(this%mu_msk%x, this%mu%x, &
+            this%bc%facet_node_msk, this%u%size(), n_pts)
        call calc_force_array(this%force1%x, this%force2%x, this%force3%x, &
             this%force4%x, this%force5%x, this%force6%x, &
             this%s11msk%x, &
@@ -582,21 +573,21 @@ contains
     else
        if (n_pts .gt. 0) then
           call device_masked_gather_copy_0(this%s11msk%x_d, s11%x_d, &
-               this%bc%msk_d, this%u%size(), n_pts)
+               this%bc%facet_node_msk_d, this%u%size(), n_pts)
           call device_masked_gather_copy_0(this%s22msk%x_d, s22%x_d, &
-               this%bc%msk_d, this%u%size(), n_pts)
+               this%bc%facet_node_msk_d, this%u%size(), n_pts)
           call device_masked_gather_copy_0(this%s33msk%x_d, s33%x_d, &
-               this%bc%msk_d, this%u%size(), n_pts)
+               this%bc%facet_node_msk_d, this%u%size(), n_pts)
           call device_masked_gather_copy_0(this%s12msk%x_d, s12%x_d, &
-               this%bc%msk_d, this%u%size(), n_pts)
+               this%bc%facet_node_msk_d, this%u%size(), n_pts)
           call device_masked_gather_copy_0(this%s13msk%x_d, s13%x_d, &
-               this%bc%msk_d, this%u%size(), n_pts)
+               this%bc%facet_node_msk_d, this%u%size(), n_pts)
           call device_masked_gather_copy_0(this%s23msk%x_d, s23%x_d, &
-               this%bc%msk_d, this%u%size(), n_pts)
+               this%bc%facet_node_msk_d, this%u%size(), n_pts)
           call device_masked_gather_copy_0(this%pmsk%x_d, this%p%x_d, &
-               this%bc%msk_d, this%u%size(), n_pts)
+               this%bc%facet_node_msk_d, this%u%size(), n_pts)
           call device_masked_gather_copy_0(this%mu_msk%x_d, this%mu%x_d, &
-               this%bc%msk_d, this%u%size(), n_pts)
+               this%bc%facet_node_msk_d, this%u%size(), n_pts)
 
           call device_calc_force_array(this%force1%x_d, this%force2%x_d, &
                this%force3%x_d, &
@@ -725,7 +716,8 @@ contains
                          else
                             ! Detached from pivot -->
                             ! offset = JSON_Input - Initial_Pivot
-                            ! Note: we assume center_in is the Time=0 global coord
+                            ! Note: we assume center_in is the
+                            ! Time=0 global coord
                             this%local_offset = center_in - &
                                  neko_ale%config%bodies(i)%rot_center
                             ! Set initial position for init_common

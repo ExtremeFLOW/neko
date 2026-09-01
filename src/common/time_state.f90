@@ -32,7 +32,7 @@
 
 !> Module with things related to the simulation time
 module time_state
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
   use json_module, only : json_file
   use json_utils, only : json_get_or_lookup, json_get_or_default, &
@@ -42,12 +42,12 @@ module time_state
 
   !> A struct that contains all info about the time, expand as needed
   type, public :: time_state_t
-     real(kind=rp), dimension(10) :: tlag = 0.0_rp !< Old times
-     real(kind=rp), dimension(10) :: dtlag = 0.0_rp !< Old dts
-     real(kind=rp) :: t = 0.0_rp !< Current time
-     real(kind=rp) :: dt = 0.0_rp !< Current dt
-     real(kind=rp) :: start_time = 0.0_rp !< Start time
-     real(kind=rp) :: end_time = 0.0_rp !< End time
+     real(kind=dp), dimension(10) :: tlag = 0.0_dp !< Old times
+     real(kind=dp), dimension(10) :: dtlag = 0.0_dp !< Old dts
+     real(kind=dp) :: t = 0.0_dp !< Current time
+     real(kind=dp) :: dt = 0.0_dp !< Current dt
+     real(kind=dp) :: start_time = 0.0_dp !< Start time
+     real(kind=dp) :: end_time = 0.0_dp !< End time
      integer :: tstep = 0 !< Current timestep
 
    contains
@@ -67,19 +67,19 @@ contains
     class(time_state_t), intent(inout) :: this
     type(json_file), intent(inout) :: params
 
-    real(kind=rp) :: time_step
-    real(kind=rp) :: start_time
-    real(kind=rp) :: end_time
+    real(kind=dp) :: time_step
+    real(kind=dp) :: start_time
+    real(kind=dp) :: end_time
     logical :: is_variable
 
-    call json_get_or_lookup_or_default(params, 'start_time', start_time, 0.0_rp)
+    call json_get_or_lookup_or_default(params, 'start_time', start_time, 0.0_dp)
     call json_get_or_lookup(params, 'end_time', end_time)
     call json_get_or_default(params, 'variable_timestep', is_variable, .false.)
     if (.not. is_variable) then
        call json_get_or_lookup(params, 'timestep', time_step)
     else
        ! randomly set an initial dt to get cfl when dt is variable
-       time_step = 1.0_rp
+       time_step = 1.0_dp
     end if
 
     call this%init_from_components(start_time, end_time, time_step)
@@ -89,12 +89,12 @@ contains
   !> Initialize time state
   subroutine time_state_init_from_components(this, start_time, end_time, dt)
     class(time_state_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: start_time
-    real(kind=rp), intent(in) :: end_time
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: end_time
+    real(kind=dp), intent(in) :: dt
 
-    if (dt .gt. 0.0_rp .and. start_time .gt. end_time .or. &
-         dt .lt. 0.0_rp .and. start_time .lt. end_time) then
+    if (dt .gt. 0.0_dp .and. start_time .gt. end_time .or. &
+         dt .lt. 0.0_dp .and. start_time .lt. end_time) then
        call neko_log%error('Time step size must match direction of time.')
     end if
 
@@ -125,10 +125,10 @@ contains
     class(time_state_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf
     character(len=64) :: log_fmt
-    real(kind=rp) :: t_prog
+    real(kind=dp) :: t_prog
     integer :: time_digits, time_width, pad_width
 
-    t_prog = 100.0_rp * (this%t - this%start_time) / &
+    t_prog = 100.0_dp * (this%t - this%start_time) / &
          (this%end_time - this%start_time)
 
     time_digits = precision(this%t)

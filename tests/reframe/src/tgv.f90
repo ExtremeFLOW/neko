@@ -66,6 +66,9 @@ contains
     end do
 
     call field_rzero(p)
+
+    nullify(dof, u, v, w, p)
+
   end subroutine initial_conditions
 
   function tgv_ic(x, y, z) result(uvw)
@@ -92,6 +95,8 @@ contains
     ! call usercheck and vorticity simcomp also for tstep=0
     call neko_simcomps%simcomps(1)%simcomp%compute(time)
     call user_calc_quantities(time)
+
+    nullify(u)
 
   end subroutine user_initialize
 
@@ -165,6 +170,8 @@ contains
        write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
             'POST: t:', time%t, ' Ekin:', e1, ' enst:', e2
     end if
+
+    nullify(omega_x, omega_y, omega_z, u, v, w, coef)
 
   end subroutine user_calc_quantities
 

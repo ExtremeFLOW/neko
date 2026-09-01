@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2025, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -41,13 +41,14 @@ module tree_amg_smoother
        device_cmult2, device_sub2, device_add2, device_add3s2, &
        device_copy
   use krylov, only : ksp_monitor_t
-  use bc_list, only: bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
+  use profiler, only : profiler_start_region, profiler_end_region
   use device, only: device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   use device_tree_amg_smoother, only : amg_device_cheby_solve_part1, &
        amg_device_cheby_solve_part2
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -77,10 +78,20 @@ module tree_amg_smoother
      type(c_ptr) :: w_d = C_NULL_PTR
      real(kind=rp), allocatable :: r(:)
      type(c_ptr) :: r_d = C_NULL_PTR
+     !> Saved eigenvector, to restart the power method after a small
+     !> operator change. Allocated only if warm_start_eigs.
+     real(kind=rp), allocatable :: ev(:)
+     type(c_ptr) :: ev_d = C_NULL_PTR
      real(kind=rp) :: tha, dlt
      integer :: lvl
      integer :: n
      integer :: power_its = 250
+     !> Iterations to use when restarting from ev
+     integer :: power_its_refresh = 20
+     !> Restart the power method from ev instead of a random vector
+     logical :: warm_start_eigs = .false.
+     !> Whether ev holds a usable eigenvector yet
+     logical :: eigs_computed = .false.
      integer :: max_iter = 10
      logical :: recompute_eigs = .true.
    contains
@@ -96,7 +107,8 @@ contains
 
   !> Initialization of chebyshev
   !! @param n Number of dofs
-  !! @param lvl The tamg hierarchy level on which the iterations are to be applied
+  !! @param lvl The tamg hierarchy level on which the iterations are
+  !! to be applied
   !! @param max_iter The number of iterations (chebyshev degree)
   subroutine amg_cheby_init(this, n, lvl, max_iter)
     class(amg_cheby_t), intent(inout), target :: this
@@ -142,6 +154,12 @@ contains
        end if
        deallocate(this%r)
     end if
+    if (allocated(this%ev)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%ev_d)) then
+          call device_unmap(this%ev, this%ev_d)
+       end if
+       deallocate(this%ev)
+    end if
   end subroutine amg_cheby_free
 
 
@@ -156,21 +174,45 @@ contains
     real(kind=rp), parameter :: boost = 1.1_rp
     real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
-    integer :: i
-    associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
-         msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
+    integer, allocatable :: fixed_seed(:), saved_seed(:)
+    integer :: i, rnd_n, its
+    logical :: warm
 
-      do i = 1, n
-         !call random_number(rn)
-         !d(i) = rn + 10.0_rp
-         d(i) = sin(real(i))
-      end do
-      if (this%lvl .eq. 0) then
-         call gs_h%op(d, n, GS_OP_ADD)!TODO
-         call blst%apply(d, n)
+    call profiler_start_region('AMG_cheby_power')
+    warm = this%warm_start_eigs .and. this%eigs_computed .and. &
+         allocated(this%ev)
+    associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
+         msh => amg%msh, Xh => amg%Xh, bc_projector => amg%bc_projector)
+
+      if (warm) then
+         its = this%power_its_refresh
+         call copy(d, this%ev, n)
+      else
+         its = this%power_its
+
+         ! Save current random seed and set a fixed seed
+         call random_seed(size = rnd_n)
+         allocate(saved_seed(rnd_n))
+         allocate(fixed_seed(rnd_n))
+         fixed_seed = 3901
+         call random_seed(get = saved_seed)
+         call random_seed(put = fixed_seed)
+
+         do i = 1, n
+            call random_number(rn)
+            d(i) = rn + 10.0_rp
+         end do
+
+         ! Restore saved random seed
+         call random_seed(put = saved_seed)
+
+         if (this%lvl .eq. 0) then
+            call gs_h%op(d, n, GS_OP_ADD)!TODO
+            call bc_projector%apply(d, n)
+         end if
       end if
       !Power method to get lamba max
-      do i = 1, this%power_its
+      do i = 1, its
          call amg%matvec(w, d, this%lvl)
 
          if (this%lvl .eq. 0) then
@@ -197,9 +239,18 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
+      if (this%warm_start_eigs) then
+         if (.not. allocated(this%ev)) then
+            allocate(this%ev(this%n))
+         end if
+         call copy(this%ev, d, n)
+      end if
+      this%eigs_computed = .true.
+
       this%recompute_eigs = .false.
       call amg_cheby_monitor(this%lvl, lam)
     end associate
+    call profiler_end_region('AMG_cheby_power')
   end subroutine amg_cheby_power
 
   !> Chebyshev smoother
@@ -231,7 +282,8 @@ contains
     end if
     max_iter = this%max_iter
 
-    associate( w => this%w, r => this%r, d => this%d, blst => amg%blst)
+    associate(w => this%w, r => this%r, d => this%d, &
+         bc_projector => amg%bc_projector)
       call copy(r, f, n)
       if (.not. zero_initial_guess) then
          call amg%matvec(w, x, this%lvl)
@@ -244,10 +296,16 @@ contains
       rhok = 1.0_rp / s1
 
       ! First iteration
-      do concurrent (i = 1:n)
+      !OCL NORECURRENCE, NOVREC, NOALIAS
+      !DIR$ CONCURRENT
+      !DIR$ IVDEP
+      !GCC$ ivdep
+      !$omp parallel do
+      do i = 1, n
          d(i) = 1.0_rp/thet * r(i)
          x(i) = x(i) + d(i)
       end do
+      !$omp end parallel do
 
       ! Rest of iterations
       do iter = 2, max_iter
@@ -258,12 +316,19 @@ contains
          tmp2 = 2.0_rp * rhokp1 / delt
          rhok = rhokp1
 
-         do concurrent (i = 1:n)
+         !$omp parallel private(i)
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !DIR$ IVDEP
+         !GCC$ ivdep
+         !$omp do
+         do i = 1, n
             r(i) = r(i) - w(i)
             d(i) = tmp1 * d(i) + tmp2 * r(i)
             x(i) = x(i) + d(i)
          end do
-
+         !$omp end do
+         !$omp end parallel
       end do
     end associate
   end subroutine amg_cheby_solve
@@ -279,19 +344,45 @@ contains
     real(kind=rp), parameter :: boost = 1.1_rp
     real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
-    integer :: i
+    integer, allocatable :: fixed_seed(:), saved_seed(:)
+    integer :: i, rnd_n, its
+    logical :: warm
+
+    call profiler_start_region('AMG_cheby_power')
+    warm = this%warm_start_eigs .and. this%eigs_computed .and. &
+         c_associated(this%ev_d)
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
-         msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
-      do i = 1, n
-         !TODO: replace with a better way to initialize power method
-         d(i) = sin(real(i))
-      end do
-      call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
-      if (this%lvl .eq. 0) then
-         call gs_h%op(d, n, GS_OP_ADD)!TODO
-         call blst%apply(d, n)
+         msh => amg%msh, Xh => amg%Xh, bc_projector => amg%bc_projector)
+
+      if (warm) then
+         its = this%power_its_refresh
+         call device_copy(this%d_d, this%ev_d, n)
+      else
+         its = this%power_its
+
+         ! Save current random seed and set a fixed seed
+         call random_seed(size = rnd_n)
+         allocate(saved_seed(rnd_n))
+         allocate(fixed_seed(rnd_n))
+         fixed_seed = 3901
+         call random_seed(get = saved_seed)
+         call random_seed(put = fixed_seed)
+
+         do i = 1, n
+            call random_number(rn)
+            d(i) = rn + 10.0_rp
+         end do
+         call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
+
+         ! Restore saved random seed
+         call random_seed(put = saved_seed)
+
+         if (this%lvl .eq. 0) then
+            call gs_h%op(d, n, GS_OP_ADD)!TODO
+            call bc_projector%apply(d, n)
+         end if
       end if
-      do i = 1, this%power_its
+      do i = 1, its
          call amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)
 
          if (this%lvl .eq. 0) then
@@ -318,9 +409,19 @@ contains
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
+      if (this%warm_start_eigs) then
+         if (.not. c_associated(this%ev_d)) then
+            allocate(this%ev(this%n))
+            call device_map(this%ev, this%ev_d, this%n)
+         end if
+         call device_copy(this%ev_d, this%d_d, n)
+      end if
+      this%eigs_computed = .true.
+
       this%recompute_eigs = .false.
       call amg_cheby_monitor(this%lvl, lam)
     end associate
+    call profiler_end_region('AMG_cheby_power')
   end subroutine amg_device_cheby_power
 
   !> Chebyshev smoother
@@ -354,8 +455,7 @@ contains
     end if
     max_iter = this%max_iter
 
-    associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d, &
-         blst => amg%blst)
+    associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d )
 
       if (.not. zero_initial_guess) then
          call amg%device_matvec(this%w, x, w_d, x_d, this%lvl)
@@ -387,7 +487,8 @@ contains
 
   !> Initialization of Jacobi (this is expensive...)
   !! @param n Number of dofs
-  !! @param lvl The tamg hierarchy level on which the iterations are to be applied
+  !! @param lvl The tamg hierarchy level on which the iterations are
+  !! to be applied
   !! @param max_iter The number of iterations
   subroutine amg_jacobi_init(this, n, lvl, max_iter)
     class(amg_jacobi_t), intent(inout), target :: this
@@ -468,13 +569,26 @@ contains
          w = 0.0_rp
          !> w = A x
          call amg%matvec(w, x, this%lvl)
+         !$omp parallel private(i)
          !> r = f - Ax
-         call copy(r, f, n)
-         call sub2(r, w, n)
+         !$omp do
+         do i = 1, n
+            r(i) = f(i) - w(i)
+         end do
+         !$omp end do
          !> r = Dinv * (f - Ax)
-         call col2(r, d, n)
+         !$omp do
+         do i = 1, n
+            r(i) = r(i) * d(i)
+         end do
+         !$omp end do
          !> x = x + omega * Dinv * (f - Ax)
-         call add2s2(x, r, this%omega, n)
+         !$omp do
+         do i = 1, n
+            x(i) = x(i) + this%omega * r(i)
+         end do
+         !$omp end do
+         !$omp end parallel
       end do
     end associate
   end subroutine amg_jacobi_solve
