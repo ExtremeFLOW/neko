@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Added probes support for moving mesh (ALE) simulations, with `fixed`
+  and `body_attached` modes.
 - Fixed facet masks for some simulation components.
 - *BREAKING*, normal_outflow conditions now require specifying `value`, which
   is used to set the value of the tangential components of velocity.
