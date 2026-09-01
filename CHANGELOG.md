@@ -2,6 +2,14 @@
 
 ## Develop
 
+- Added crystal router gather-scatter communication backends,
+  `NEKO_GS_COMM=CRYSTAL` on the host and `CRYSTALGPU` on the device. They
+  route the halo in recursive-bisection stages instead of sending one message
+  per peer, trading forwarded volume for message count, which pays where
+  per-message overhead dominates. The routing is worked out once at
+  initialisation, so the exchange itself neither negotiates sizes nor
+  allocates. `CRYSTAL` is a candidate in the host comm. autotuning
+  (`NEKO_GS_TUNE=-CRYSTAL` drops it); `CRYSTALGPU` is selected by name.
 - Fixed facet masks for some simulation components.
 - *BREAKING*, normal_outflow conditions now require specifying `value`, which
   is used to set the value of the tangential components of velocity.

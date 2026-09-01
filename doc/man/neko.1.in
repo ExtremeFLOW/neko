@@ -254,16 +254,21 @@ noisier measurements. Defaults to
 .B NEKO_GS_COMM
 Selects the communication backend used by the gather\-scatter kernel.
 Accepted values are
-.BR MPI ", " MPIGPU ", " NCCL ", " SHMEM ", " CAF ", " UTOFU ", " NEIGHBOUR " and " MPIRMA ,
+.BR MPI ", " MPIGPU ", " NCCL ", " SHMEM ", " CAF ", " UTOFU ", " NEIGHBOUR ", " MPIRMA ", " CRYSTAL " and " CRYSTALGPU ,
 where
 .B UTOFU
 is native one\-sided communication over the Tofu interconnect,
 .B NEIGHBOUR
 is host MPI using an
 .B MPI_Ineighbor_alltoallv
-neighbourhood collective and
+neighbourhood collective,
 .B MPIRMA
-is host MPI one\-sided communication into a passive\-target window.
+is host MPI one\-sided communication into a passive\-target window and
+.B CRYSTAL
+routes the halo as a crystal router, one message per routing stage rather
+than one per peer, with
+.B CRYSTALGPU
+as its device\-aware variant.
 When unset, a device\-aware variant is used
 on accelerator builds; otherwise the host backends selected by
 .B NEKO_GS_TUNE
