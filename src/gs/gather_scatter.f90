@@ -138,7 +138,7 @@ module gather_scatter
 
   ! These routines (used by the gs_tune submodule) have to be public
   ! since gfortran gives a private module procedure internal linkage
-  public :: gs_comm_t, gs_comm_alloc, gs_comm_name
+  public :: gs_comm_t, gs_comm_alloc, gs_comm_name, gs_comm_on_device
 
   !> Number of timed (and untimed, warm-up) gather-scatter operations per
   !! candidate in the runtime autotuning of comm. backends and device
@@ -168,6 +168,20 @@ module gather_scatter
        integer, intent(in) :: n
        integer, intent(in) :: comm_bcknd
      end subroutine gs_tune_comm
+
+     !> Bind the non-blocking synchronisation strategy of the device MPI
+     !! comm. backend held by @a gs, benchmarking the strategies unless
+     !! NEKO_GS_STRTGY names one
+     module subroutine gs_tune_dev_strtgy(gs, n)
+       type(gs_t), intent(inout) :: gs
+       integer, intent(in) :: n
+     end subroutine gs_tune_dev_strtgy
+
+     !> Whether the autotuning has been asked for explicitly, i.e. whether
+     !! NEKO_GS_TUNE is set
+     module function gs_tune_requested() result(requested)
+       logical :: requested
+     end function gs_tune_requested
   end interface
 
 contains
@@ -182,7 +196,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
     character(len=20) :: bcknd_str
     integer, optional :: bcknd, comm_bcknd
-    integer :: i, ierr, bcknd_, comm_bcknd_
+    integer :: ierr, bcknd_, comm_bcknd_
     integer(i8) :: glb_nshared, glb_nlocal
     logical :: use_device_mpi, use_device_nccl, use_device_shmem, use_host_mpi
     logical :: use_host_shmem
@@ -192,12 +206,8 @@ contains
     logical :: use_mpi_rma
     logical :: use_host_crystal, use_device_crystal
     logical :: tune_comm
-    real(kind=rp), allocatable :: tmp(:)
-    type(c_ptr) :: tmp_d = C_NULL_PTR
-    integer :: strtgy(4) = [int(B'00'), int(B'01'), int(B'10'), int(B'11')]
-    integer :: avg_strtgy, env_len
-    character(len=255) :: env_strtgy, env_gscomm
-    real(kind=dp) :: strtgy_time(4)
+    integer :: env_len
+    character(len=255) :: env_gscomm
 
     call gs%free()
 
@@ -278,16 +288,23 @@ contains
        comm_bcknd_ = GS_COMM_CRYSTAL
     else if (use_device_crystal) then
        comm_bcknd_ = GS_COMM_CRYSTALGPU
+    else if (NEKO_DEVICE_MPI) then
+       ! A build with device-aware MPI has a defensible default and device
+       ! MPI is it: where it has been measured it beat the host backends by
+       ! 3-5x, which is not worth re-deriving at every startup. Setting
+       ! NEKO_GS_TUNE asks for the comparison anyway, which is how a new
+       ! machine gets its open question answered -- NCCL against device MPI,
+       ! or a GPU-aware MPI that turns out to be nominal
+       comm_bcknd_ = GS_COMM_MPIGPU
+       tune_comm = gs_tune_requested() .and. (pe_size .gt. 1)
     else
-       if (NEKO_DEVICE_MPI) then
-          comm_bcknd_ = GS_COMM_MPIGPU
-          use_device_mpi = .true.
-       else
-          ! No backend requested, benchmark the host backends once the
-          ! schedule is known and keep the fastest one (see gs_tune_comm)
-          comm_bcknd_ = GS_COMM_MPI
-          tune_comm = (pe_size .gt. 1)
-       end if
+       ! No backend requested and no obvious default: benchmark the
+       ! candidates once the schedule is known and keep the fastest one (see
+       ! gs_tune_comm). The schedule is built with the host MPI backend,
+       ! which every build can drive, and handed over to each candidate in
+       ! turn
+       comm_bcknd_ = GS_COMM_MPI
+       tune_comm = (pe_size .gt. 1)
     end if
 
     call gs_comm_alloc(gs%comm, comm_bcknd_)
@@ -378,69 +395,20 @@ contains
 
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
 
-    ! Plain base-type assignment; setting this through a
-    ! select type (gs_device_t) miscompiles with CCE 21 at -O2/-O3,
-    ! silently leaving shared points on the host so that the scatter
-    ! overwrites the unpacked halo data with the stale host buffer
-    if (use_device_mpi .or. use_device_nccl .or. use_device_shmem .or. &
-         use_device_crystal) then
-       gs%bcknd%shared_on_host = .false.
+    ! Leave the gathered shared dofs where the comm. backend expects them:
+    ! in the host mirror of the shared buffer for a host backend, in device
+    ! memory for a device-resident one
+    gs%bcknd%shared_on_host = .not. gs_comm_on_device(comm_bcknd_)
+
+    ! Bind the device MPI synchronisation strategy. When the backends are
+    ! benchmarked below this is done there instead, as part of benchmarking
+    ! the device MPI candidate, so do not sweep it twice
+    if (comm_bcknd_ .eq. GS_COMM_MPIGPU .and. .not. tune_comm .and. &
+         pe_size .gt. 1) then
+       call gs_tune_dev_strtgy(gs, dofmap%size())
     end if
 
-    if (use_device_mpi) then
-       if (pe_size .gt. 1) then
-          ! Select fastest device MPI strategy at runtime
-          select type (c => gs%comm)
-          type is (gs_device_mpi_t)
-             call get_environment_variable("NEKO_GS_STRTGY", env_strtgy, &
-                  env_len)
-             if (env_len .eq. 0) then
-                allocate(tmp(dofmap%size()))
-                call device_map(tmp, tmp_d, dofmap%size())
-                tmp = 1.0_rp
-                call device_memcpy(tmp, tmp_d, dofmap%size(), &
-                     HOST_TO_DEVICE, sync = .false.)
-
-                do i = 1, size(strtgy)
-                   c%nb_strtgy = strtgy(i)
-                   strtgy_time(i) = gs_time_ops(gs, tmp, dofmap%size(), &
-                        GS_OP_ADD, GS_TUNE_NTRIALS)
-                end do
-
-                call device_unmap(tmp, tmp_d)
-                deallocate(tmp)
-
-                c%nb_strtgy = strtgy(minloc(strtgy_time, 1))
-
-                avg_strtgy = minloc(strtgy_time, 1)
-                call MPI_Allreduce(MPI_IN_PLACE, avg_strtgy, 1, &
-                     MPI_INTEGER, MPI_SUM, NEKO_COMM)
-                avg_strtgy = avg_strtgy / pe_size
-
-                write(log_buf, '(A,B0.2,A)') 'Avg. strtgy  :         [', &
-                     strtgy(avg_strtgy), ']'
-
-             else
-                read(env_strtgy(1:env_len), *) i
-
-                if (i .lt. 1 .or. i .gt. 4) then
-                   call neko_error('Invalid gs sync strtgy')
-                end if
-
-                c%nb_strtgy = strtgy(i)
-                avg_strtgy = i
-
-                write(log_buf, '(A,B0.2,A)') 'Env. strtgy  :         [', &
-                     strtgy(avg_strtgy), ']'
-             end if
-
-             call neko_log%message(log_buf)
-
-          end select
-       end if
-    end if
-
-    ! Select the fastest host comm. backend at runtime
+    ! Select the fastest comm. backend at runtime
     if (tune_comm) then
        call gs_tune_comm(gs, dofmap%size(), comm_bcknd_)
     end if
@@ -526,6 +494,27 @@ contains
     end select
 
   end function gs_comm_name
+
+  !> Whether the comm. backend @a comm_bcknd exchanges the shared dofs
+  !! straight out of device memory rather than out of the host mirror of the
+  !! shared buffer, which is what decides where the gather-scatter backend
+  !! leaves them (gs_bcknd_t%shared_on_host). A host backend on a device
+  !! build is not device-resident: it drives the exchange from the mirror,
+  !! at the price of a copy in each direction.
+  !! @param comm_bcknd comm. backend to check, one of the GS_COMM_* constants
+  !! @return whether the backend is device-resident
+  function gs_comm_on_device(comm_bcknd) result(on_device)
+    integer, intent(in) :: comm_bcknd
+    logical :: on_device
+
+    select case (comm_bcknd)
+    case (GS_COMM_MPIGPU, GS_COMM_NCCL, GS_COMM_NVSHMEM, GS_COMM_CRYSTALGPU)
+       on_device = .true.
+    case default
+       on_device = .false.
+    end select
+
+  end function gs_comm_on_device
 
   !> Deallocate a gather-scatter kernel
   subroutine gs_free(gs)

@@ -2,14 +2,38 @@
 
 ## Develop
 
+- The gather-scatter comm. backend autotuning can now benchmark the
+  device-resident backends. `MPIGPU`, `NCCL` and `CRYSTALGPU` join the
+  candidates on CUDA and HIP builds (`NVSHMEM` only when asked for), measured
+  against the host backends, which on such a build are measured staging the
+  halo through the host as they actually run there. A build configured with
+  `--enable-device-mpi` keeps its existing default of `MPIGPU` and benchmarks
+  nothing, tuning only the synchronisation strategy as before; setting
+  `NEKO_GS_TUNE` asks for the comparison there, which is how a question with
+  no built-in answer -- `NCCL` against device MPI, or a GPU-aware MPI that
+  turns out to be nominal -- gets settled on a new machine. A CUDA or HIP
+  build *without* device-aware MPI has no such default and benchmarks as it
+  already did, now with `NCCL` among the candidates when it was built in.
+- The device MPI synchronisation strategy (`NEKO_GS_STRTGY`) is benchmarked
+  as part of measuring the `MPIGPU` candidate, so the backend is compared on
+  its best strategy's time rather than the default strategy's.
+- `NEKO_GS_TUNE` accepts the device backend names `MPIGPU`, `NCCL`,
+  `CRYSTALGPU` and `NVSHMEM`. `SHMEM` there always names the host OpenSHMEM
+  backend and `NVSHMEM` the device one, since a GPU build can have both as
+  candidates, unlike `NEKO_GS_COMM` where `SHMEM` picks one by build.
+- Fixed the gather-scatter halo staging (`gs_bcknd_t%shared_on_host`) being
+  derived from `NEKO_GS_COMM` rather than from the comm. backend actually
+  selected, which left the halo on the host when a device backend was
+  requested through the `comm_bcknd` argument of `gs%init`.
 - Added crystal router gather-scatter communication backends,
   `NEKO_GS_COMM=CRYSTAL` on the host and `CRYSTALGPU` on the device. They
   route the halo in recursive-bisection stages instead of sending one message
   per peer, trading forwarded volume for message count, which pays where
   per-message overhead dominates. The routing is worked out once at
   initialisation, so the exchange itself neither negotiates sizes nor
-  allocates. `CRYSTAL` is a candidate in the host comm. autotuning
-  (`NEKO_GS_TUNE=-CRYSTAL` drops it); `CRYSTALGPU` is selected by name.
+  allocates. `CRYSTAL` is a default candidate in the comm. autotuning
+  (`NEKO_GS_TUNE=-CRYSTAL` drops it); `CRYSTALGPU` is a candidate whenever a
+  device build runs the comparison.
 - Fixed facet masks for some simulation components.
 - *BREAKING*, normal_outflow conditions now require specifying `value`, which
   is used to set the value of the tangential components of velocity.
