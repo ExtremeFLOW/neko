@@ -1,0 +1,13 @@
+<map id="cuda_have_tma_opgrad" name="cuda_have_tma_opgrad">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,62,183,87"/>
+<area shape="rect" id="Node000002" href="$dd/df9/dmma__tma__kernel_8h.html#a852c1fc1e94dbebf2b22f31de8985ce7" title=" " alt="" coords="231,62,405,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,72,217,72,217,77,183,77"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="627,29,779,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="405,66,613,53,613,58,406,72"/>
+<area shape="rect" id="Node000004" href="$dd/df9/dmma__tma__kernel_8h.html#af4d307d5aa3331f6ab58b8a854118448" title=" " alt="" coords="453,87,579,113"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="406,83,440,88,439,93,405,88"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="667,30,665,20,671,11,684,5,703,3,725,6,737,13,734,17,723,11,703,8,685,10,674,15,670,21,672,28"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="563,85,615,70,616,76,564,90"/>
+<area shape="rect" id="Node000005" href="$dd/df9/dmma__tma__kernel_8h.html#a6a3a23224a59e6a8d440e1f075d56dbe" title=" " alt="" coords="627,94,778,119"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="579,100,614,101,614,106,579,105"/>
+</map>

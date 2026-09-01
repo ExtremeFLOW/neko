@@ -1,0 +1,11 @@
+<map id="cuda_tma_smem_optin" name="cuda_tma_smem_optin">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,62,180,87"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="401,29,553,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,66,388,53,388,58,180,72"/>
+<area shape="rect" id="Node000003" href="$dd/df9/dmma__tma__kernel_8h.html#af4d307d5aa3331f6ab58b8a854118448" title=" " alt="" coords="228,87,353,113"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="181,83,215,88,214,93,180,88"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="442,30,440,20,446,11,458,5,477,3,499,6,511,13,509,17,498,11,477,8,460,10,449,15,445,21,447,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="338,85,389,70,391,76,339,90"/>
+<area shape="rect" id="Node000004" href="$dd/df9/dmma__tma__kernel_8h.html#a6a3a23224a59e6a8d440e1f075d56dbe" title=" " alt="" coords="402,94,553,119"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="354,100,388,101,388,106,354,105"/>
+</map>

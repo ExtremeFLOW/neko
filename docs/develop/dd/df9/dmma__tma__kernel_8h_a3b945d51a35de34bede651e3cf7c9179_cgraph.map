@@ -1,11 +1,13 @@
 <map id="cuda_have_tma_batch" name="cuda_have_tma_batch">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,62,173,87"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="395,29,547,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,66,381,53,381,58,174,72"/>
-<area shape="rect" id="Node000003" href="$dd/df9/dmma__tma__kernel_8h.html#af4d307d5aa3331f6ab58b8a854118448" title=" " alt="" coords="221,87,347,113"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="174,83,208,87,207,93,173,88"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="435,30,433,20,439,11,452,5,471,3,493,6,505,13,502,17,491,11,471,8,453,10,442,15,438,21,440,28"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="331,85,383,70,384,76,332,90"/>
-<area shape="rect" id="Node000004" href="$dd/df9/dmma__tma__kernel_8h.html#a6a3a23224a59e6a8d440e1f075d56dbe" title=" " alt="" coords="395,94,546,119"/>
-<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="347,100,382,101,382,106,347,105"/>
+<area shape="rect" id="Node000002" href="$dd/df9/dmma__tma__kernel_8h.html#a852c1fc1e94dbebf2b22f31de8985ce7" title=" " alt="" coords="221,62,396,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,72,208,72,208,77,174,77"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="617,29,769,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="396,66,604,53,604,58,396,72"/>
+<area shape="rect" id="Node000004" href="$dd/df9/dmma__tma__kernel_8h.html#af4d307d5aa3331f6ab58b8a854118448" title=" " alt="" coords="444,87,569,113"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="397,83,431,88,430,93,396,88"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="658,30,656,20,662,11,674,5,693,3,715,6,727,13,725,17,714,11,693,8,676,10,665,15,661,21,663,28"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="554,85,605,70,607,76,555,90"/>
+<area shape="rect" id="Node000005" href="$dd/df9/dmma__tma__kernel_8h.html#a6a3a23224a59e6a8d440e1f075d56dbe" title=" " alt="" coords="618,94,769,119"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="570,100,604,101,604,106,570,105"/>
 </map>

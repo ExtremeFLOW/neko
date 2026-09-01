@@ -1,0 +1,5 @@
+<map id="mesh::mesh_generate_edge_lid" name="mesh::mesh_generate_edge_lid">
+<area shape="rect" id="Node000001" title="Enumerate the unique edges of the local mesh." alt="" coords="5,5,172,45"/>
+<area shape="rect" id="Node000002" href="$db/dfc/namespacemesh.html#a124bca50d5092d38bb63883cf359bd51" title="Add a unique edge represented as a 2&#45;tuple to the mesh." alt="" coords="220,13,392,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,23,206,23,206,28,172,28"/>
+</map>

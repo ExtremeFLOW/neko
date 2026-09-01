@@ -72,11 +72,15 @@ var searchData=
   ['opencl_5fvdot3_69',['opencl_vdot3',['../dc/dd1/interfaceopencl__math_1_1opencl__vdot3.html',1,'opencl_math']]],
   ['operator_28_2eeq_2e_29_70',['operator(.eq.)',['../d2/d73/interfacespace_1_1operator_07_8eq_8_08.html',1,'space']]],
   ['operator_28_2ene_2e_29_71',['operator(.ne.)',['../de/d17/interfacespace_1_1operator_07_8ne_8_08.html',1,'space']]],
-  ['output_5fcontroller_5ft_72',['output_controller_t',['../d4/d3d/structoutput__controller_1_1output__controller__t.html',1,'output_controller']]],
-  ['output_5ffree_73',['output_free',['../d0/d5c/interfaceoutput_1_1output__free.html',1,'output']]],
-  ['output_5fptr_5ft_74',['output_ptr_t',['../dc/d4d/structoutput_1_1output__ptr__t.html',1,'output']]],
-  ['output_5fsample_75',['output_sample',['../dd/df1/interfaceoutput_1_1output__sample.html',1,'output']]],
-  ['output_5ft_76',['output_t',['../dd/d5f/structoutput_1_1output__t.html',1,'output']]],
-  ['overset_5finterface_5ft_77',['overset_interface_t',['../d9/db1/structoverset__interface_1_1overset__interface__t.html',1,'overset_interface']]],
-  ['overset_5finterface_5fvector_5ft_78',['overset_interface_vector_t',['../d5/d64/structoverset__interface__vector_1_1overset__interface__vector__t.html',1,'overset_interface_vector']]]
+  ['opgrad_5fdmma_5fdispatch_72',['opgrad_dmma_dispatch',['../df/d08/structopgrad__dmma__dispatch.html',1,'']]],
+  ['opgrad_5fdmma_5ftma_5fdispatch_73',['opgrad_dmma_tma_dispatch',['../d6/d17/structopgrad__dmma__tma__dispatch.html',1,'']]],
+  ['opgrad_5fmfma_5fdispatch_74',['opgrad_mfma_dispatch',['../d9/d6d/structopgrad__mfma__dispatch.html',1,'']]],
+  ['opgrad_5ftma_5fsmem_75',['opgrad_tma_smem',['../d5/d46/structopgrad__tma__smem.html',1,'']]],
+  ['output_5fcontroller_5ft_76',['output_controller_t',['../d4/d3d/structoutput__controller_1_1output__controller__t.html',1,'output_controller']]],
+  ['output_5ffree_77',['output_free',['../d0/d5c/interfaceoutput_1_1output__free.html',1,'output']]],
+  ['output_5fptr_5ft_78',['output_ptr_t',['../dc/d4d/structoutput_1_1output__ptr__t.html',1,'output']]],
+  ['output_5fsample_79',['output_sample',['../dd/df1/interfaceoutput_1_1output__sample.html',1,'output']]],
+  ['output_5ft_80',['output_t',['../dd/d5f/structoutput_1_1output__t.html',1,'output']]],
+  ['overset_5finterface_5ft_81',['overset_interface_t',['../d9/db1/structoverset__interface_1_1overset__interface__t.html',1,'overset_interface']]],
+  ['overset_5finterface_5fvector_5ft_82',['overset_interface_vector_t',['../d5/d64/structoverset__interface__vector_1_1overset__interface__vector__t.html',1,'overset_interface_vector']]]
 ];

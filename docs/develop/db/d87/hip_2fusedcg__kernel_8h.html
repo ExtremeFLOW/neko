@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.8</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.9</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -104,16 +104,18 @@ $(document).ready(function(){initNavTree('db/d87/hip_2fusedcg__kernel_8h.html','
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;<a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math/bcknd/device/hip/math_kernel.h</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="../../dc/d61/wave_8h_source.html">math/bcknd/device/hip/wave.h</a>&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for fusedcg_kernel.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d4/d44/hip_2fusedcg__kernel_8h__incl.png" border="0" usemap="#a_2home_2runner_2work_2neko_2neko_2src_2krylov_2bcknd_2device_2hip_2fusedcg__kernel_8h" alt=""/></div>
 <map name="a_2home_2runner_2work_2neko_2neko_2src_2krylov_2bcknd_2device_2hip_2fusedcg__kernel_8h" id="a_2home_2runner_2work_2neko_2neko_2src_2krylov_2bcknd_2device_2hip_2fusedcg__kernel_8h">
-<area shape="rect" title=" " alt="" coords="5,5,212,60"/>
-<area shape="rect" href="../../d8/d17/hip_2math__kernel_8h.html" title=" " alt="" coords="23,108,194,148"/>
-<area shape="poly" title=" " alt="" coords="111,60,111,94,106,94,106,60"/>
-<area shape="rect" href="../../dc/d61/wave_8h.html" title=" " alt="" coords="74,196,143,221"/>
-<area shape="poly" title=" " alt="" coords="111,148,111,182,106,182,106,148"/>
+<area shape="rect" title=" " alt="" coords="49,5,255,60"/>
+<area shape="rect" href="../../d8/d17/hip_2math__kernel_8h.html" title=" " alt="" coords="5,108,176,148"/>
+<area shape="poly" title=" " alt="" coords="137,62,113,98,108,95,132,59"/>
+<area shape="rect" href="../../dc/d61/wave_8h.html" title=" " alt="" coords="117,196,187,221"/>
+<area shape="poly" title=" " alt="" coords="172,59,189,101,193,125,191,149,172,186,167,184,185,147,188,125,184,102,167,61"/>
+<area shape="poly" title=" " alt="" coords="108,147,137,183,132,187,103,150"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -135,7 +137,7 @@ Functions</h2></td></tr>
 <tr class="memitem:a11412f070fecd1f34ae9f908e2bbd02d"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h.html#a11412f070fecd1f34ae9f908e2bbd02d">fusedcg_update_p_kernel</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> p, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> z, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">po</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> beta, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n)</td></tr>
 <tr class="separator:a11412f070fecd1f34ae9f908e2bbd02d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf021f8c375f6f77ef105f81e78a0616" id="r_adf021f8c375f6f77ef105f81e78a0616"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> &gt; </td></tr>
-<tr class="memitem:adf021f8c375f6f77ef105f81e78a0616"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h.html#adf021f8c375f6f77ef105f81e78a0616">fusedcg_update_x_kernel</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a3b35a10334f641ae16ea1c310523d458">x</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> **p, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> alpha, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">p_cur</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n)</td></tr>
+<tr class="memitem:adf021f8c375f6f77ef105f81e78a0616"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h.html#adf021f8c375f6f77ef105f81e78a0616">fusedcg_update_x_kernel</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a892a4ba8dea47d2d4a9d3051fe899cd9">x</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> **p, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> alpha, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">p_cur</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n)</td></tr>
 <tr class="separator:adf021f8c375f6f77ef105f81e78a0616"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11b8204f669769d54d9a84cc326896d7" id="r_a11b8204f669769d54d9a84cc326896d7"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> &gt; </td></tr>
 <tr class="memitem:a11b8204f669769d54d9a84cc326896d7"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h.html#a11b8204f669769d54d9a84cc326896d7">fusedcg_part2_kernel</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">a</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> b, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> c, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> alpha, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">buf_h</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n)</td></tr>
@@ -195,7 +197,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for fusedcg_part2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h_source.html#l00085">85</a> of file <a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h_source.html">fusedcg_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h_source.html#l00086">86</a> of file <a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h_source.html">fusedcg_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -259,7 +261,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Kernel for update of p </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h_source.html#l00043">43</a> of file <a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h_source.html">fusedcg_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h_source.html#l00044">44</a> of file <a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h_source.html">fusedcg_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -321,7 +323,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Kernel for update of x </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h_source.html#l00062">62</a> of file <a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h_source.html">fusedcg_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h_source.html#l00063">63</a> of file <a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h_source.html">fusedcg_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -342,7 +344,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../dir_579bd9dcbaa72a162125f0b560cd82ab.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_5b344269ce3b5a4183603946c5547674.html">device</a></li><li class="navelem"><a class="el" href="../../dir_edaefd6da295fdc8f67d2bf8b2e26cee.html">hip</a></li><li class="navelem"><a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h.html">fusedcg_kernel.h</a></li>
-    <li class="footer">Generated on Mon Aug 31 2026 03:42:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 1 2026 03:42:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,0 +1,11 @@
+<map id="dmma_tma_metrics_aligned" name="dmma_tma_metrics_aligned">
+<area shape="rect" id="Node000001" title=" " alt="" coords="408,31,616,56"/>
+<area shape="rect" id="Node000002" href="$dd/df9/dmma__tma__kernel_8h.html#add4d19ff3ac51af6e36aea3af4f54d18" title=" " alt="" coords="159,5,357,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="394,34,357,31,358,25,395,29"/>
+<area shape="rect" id="Node000004" href="$dd/df9/dmma__tma__kernel_8h.html#ac7eeac5560886b1a90deadca187d45f2" title=" " alt="" coords="156,55,360,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="395,57,360,60,360,55,394,52"/>
+<area shape="rect" id="Node000003" href="$d2/d79/opr__conv1_8cu.html#acc04f92291e81d9fbe0a55336da2d082" title=" " alt="" coords="8,5,105,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="145,21,106,21,106,15,145,15"/>
+<area shape="rect" id="Node000005" href="$d6/d68/opr__opgrad_8cu.html#a4043b6da359a9fb309fdf700acf7473c" title=" " alt="" coords="5,55,108,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="142,70,108,70,108,65,142,65"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="mesh::mesh_generate_face_lid" name="mesh::mesh_generate_face_lid">
+<area shape="rect" id="Node000001" title="Enumerate the unique faces of the local mesh." alt="" coords="5,5,172,45"/>
+<area shape="rect" id="Node000002" href="$db/dfc/namespacemesh.html#a93f13da2d15f0978e5c8167d91725d64" title="Add a unique face represented as a 4&#45;tuple to the mesh." alt="" coords="220,13,388,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,23,207,23,207,28,172,28"/>
+</map>

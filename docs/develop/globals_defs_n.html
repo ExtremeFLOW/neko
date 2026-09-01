@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.8</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.9</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -105,6 +105,7 @@ $(document).ready(function(){initNavTree('globals_defs_n.html',''); initResizabl
 <li>NEKO_CHUNKS_CANDIDATES&#160;:&#160;<a class="el" href="d1/d1c/hip_2elem__block_8h.html#a7dd9e042115b1383492628d27a9f1a60">elem_block.h</a></li>
 <li>NEKO_CHUNKS_NTHRDS&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#ad7356aa2983bd1331438bcf6af92ffbe">elem_block.h</a></li>
 <li>NEKO_CHUNKS_SEL&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#afb0e5ae829cf069a85450059b52a4826">elem_block.h</a></li>
+<li>NEKO_CONV1_TMA_SMEM&#160;:&#160;<a class="el" href="dd/df9/dmma__tma__kernel_8h.html#a6d96bc694899fde998748fa26d7ad958">dmma_tma_kernel.h</a></li>
 <li>NEKO_DMMA_CANDIDATES&#160;:&#160;<a class="el" href="d3/d60/dmma__kernel_8h.html#a02a4033dd0a495bc120bdbe60d10d7fc">dmma_kernel.h</a></li>
 <li>NEKO_DMMA_NBLCKS&#160;:&#160;<a class="el" href="d3/d60/dmma__kernel_8h.html#aa12b377cc8056da84b4e81e76403fe77">dmma_kernel.h</a></li>
 <li>NEKO_DMMA_NTHRDS&#160;:&#160;<a class="el" href="d3/d60/dmma__kernel_8h.html#ae8f84550511f449d5ca1737b8edb045e">dmma_kernel.h</a></li>
@@ -121,17 +122,19 @@ $(document).ready(function(){initNavTree('globals_defs_n.html',''); initResizabl
 <li>NEKO_EB_MIN_WAVES_EU&#160;:&#160;<a class="el" href="d1/d1c/hip_2elem__block_8h.html#ae3d545568a717f31f236b94a42ce3af9">elem_block.h</a></li>
 <li>NEKO_EB_NBLCKS&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#a75c9afb15557ad911b7754eb416f883a">elem_block.h</a></li>
 <li>NEKO_EB_NTHRDS&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#ae9a3e8a2d588f120eddf349dc5533752">elem_block.h</a></li>
-<li>NEKO_EB_SEL&#160;:&#160;<a class="el" href="d1/d1c/hip_2elem__block_8h.html#ae178dd5571078a283d9e163f0601583e">elem_block.h</a></li>
+<li>NEKO_EB_SEL&#160;:&#160;<a class="el" href="d9/d87/cuda_2elem__block_8h.html#ae178dd5571078a283d9e163f0601583e">elem_block.h</a></li>
 <li>NEKO_EB_SWEEP_DEFAULT&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#a037aa8de67f6f5ba208b488610efc315">elem_block_tune.h</a></li>
 <li>NEKO_EB_WAVE&#160;:&#160;<a class="el" href="d1/d1c/hip_2elem__block_8h.html#a865031c06e94d06069d5ccf352075fef">elem_block.h</a></li>
 <li>neko_idx&#160;:&#160;<a class="el" href="d1/d66/parmetis_8F90.html#ab95dd4228bd87fd0840df645d082fd2f">parmetis.F90</a></li>
 <li>NEKO_MFMA_CANDIDATES&#160;:&#160;<a class="el" href="d7/d35/mfma__kernel_8h.html#a6cfd568deb2842ed2fea9af7588fa812">mfma_kernel.h</a></li>
 <li>NEKO_MFMA_EB&#160;:&#160;<a class="el" href="d7/d35/mfma__kernel_8h.html#ab0e4c27779bfa845a8201024b50c0f32">mfma_kernel.h</a></li>
+<li>NEKO_MFMA_EB_N&#160;:&#160;<a class="el" href="d7/d35/mfma__kernel_8h.html#a8146f07362abad6170512824f68e5f55">mfma_kernel.h</a></li>
 <li>NEKO_MFMA_NBLCKS&#160;:&#160;<a class="el" href="d7/d35/mfma__kernel_8h.html#aee576a10ad1ef6007c97cc99414b3599">mfma_kernel.h</a></li>
 <li>NEKO_MFMA_NGROUPS&#160;:&#160;<a class="el" href="d7/d35/mfma__kernel_8h.html#a60a3596e739fc2f84ecd307270f4772b">mfma_kernel.h</a></li>
 <li>NEKO_MFMA_NTHRDS&#160;:&#160;<a class="el" href="d7/d35/mfma__kernel_8h.html#ab0774fcbbcd6fd5434e09ecc51978f8b">mfma_kernel.h</a></li>
 <li>NEKO_MFMA_NWF&#160;:&#160;<a class="el" href="d7/d35/mfma__kernel_8h.html#aabe54c7b9f09c67de00a86971a760f06">mfma_kernel.h</a></li>
 <li>NEKO_MFMA_WPE&#160;:&#160;<a class="el" href="d7/d35/mfma__kernel_8h.html#ac51cd08e9a945fba854981a43e8b40b6">mfma_kernel.h</a></li>
+<li>NEKO_OPGRAD_TMA_SMEM&#160;:&#160;<a class="el" href="dd/df9/dmma__tma__kernel_8h.html#a593374f5d0b973088c15ade285cdbd52">dmma_tma_kernel.h</a></li>
 <li>NEKO_TMA_TOOLKIT&#160;:&#160;<a class="el" href="dd/df9/dmma__tma__kernel_8h.html#ab7d1ab55efc5b16033b27fda37cf94bb">dmma_tma_kernel.h</a></li>
 <li>NEKO_TUNE_BEST&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#a7ee909410fb18e18f8922d058e3815a0">elem_block_tune.h</a></li>
 <li>NEKO_TUNE_INIT&#160;:&#160;<a class="el" href="db/d36/cuda_2elem__block__tune_8h.html#a646ee7c3605c0d9875e06fb0b8894d67">elem_block_tune.h</a></li>
@@ -151,7 +154,7 @@ $(document).ready(function(){initNavTree('globals_defs_n.html',''); initResizabl
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Mon Aug 31 2026 03:42:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 1 2026 03:42:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

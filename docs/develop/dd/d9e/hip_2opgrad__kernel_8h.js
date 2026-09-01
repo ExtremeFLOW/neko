@@ -1,6 +1,8 @@
 var hip_2opgrad__kernel_8h =
 [
+    [ "opgrad_mfma_dispatch< T, LX, NWF >", "d9/d6d/structopgrad__mfma__dispatch.html", "d9/d6d/structopgrad__mfma__dispatch" ],
     [ "__launch_bounds__", "dd/d9e/hip_2opgrad__kernel_8h.html#aa342c2cd0a8d9e1d3ff09dcdee2939ec", null ],
+    [ "__launch_bounds__", "dd/d9e/hip_2opgrad__kernel_8h.html#a1f37674d6fea866923fe0653f2148e6d", null ],
     [ "__syncthreads", "dd/d9e/hip_2opgrad__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],
     [ "for", "dd/d9e/hip_2opgrad__kernel_8h.html#a705bedcd4be856669ef2b973a02fa044", null ],
     [ "if", "dd/d9e/hip_2opgrad__kernel_8h.html#adf142115b93071739e1781f314da00cb", null ],

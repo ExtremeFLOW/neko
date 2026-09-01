@@ -1,6 +1,8 @@
 var hip_2dudxyz__kernel_8h =
 [
+    [ "dudxyz_mfma_dispatch< T, LX, NWF >", "d7/d85/structdudxyz__mfma__dispatch.html", "d7/d85/structdudxyz__mfma__dispatch" ],
     [ "__launch_bounds__", "dd/dd4/hip_2dudxyz__kernel_8h.html#a3a1e0fe040c28713a04e43373a24836f", null ],
+    [ "__launch_bounds__", "dd/dd4/hip_2dudxyz__kernel_8h.html#a54b13cd548a7c430103a10c13e841a94", null ],
     [ "__syncthreads", "dd/dd4/hip_2dudxyz__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],
     [ "dudxyz_kernel_1d", "dd/dd4/hip_2dudxyz__kernel_8h.html#ab60cf1112e291150cf08942b003648fd", null ],
     [ "for", "dd/dd4/hip_2dudxyz__kernel_8h.html#a705bedcd4be856669ef2b973a02fa044", null ],

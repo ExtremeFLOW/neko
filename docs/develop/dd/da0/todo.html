@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.8</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.9</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -105,13 +105,13 @@ $(document).ready(function(){initNavTree('dd/da0/todo.html','../../'); initResiz
 <dt>Subprogram <a class="el" href="../../d0/dc0/namespacebc.html#a188a14ecbdda76297e6f9462a9d4cb9f">bc::bc_finalize_base</a>  (this)</dt>
 <dd><a class="anchor" id="_todo000002"></a>add 2D case  </dd>
 <dt>Subprogram <a class="el" href="../../d6/dbe/namespacecoefs.html#af4bc052c7d759da9d20f84872216f462">coefs::coef_generate_mass</a>  (c)</dt>
-<dd><a class="anchor" id="_todo000037"></a>cleanup once we have device math in place  </dd>
+<dd><a class="anchor" id="_todo000033"></a>cleanup once we have device math in place  </dd>
 <dt>Subprogram <a class="el" href="../../d6/dbe/namespacecoefs.html#a4fd6fc1c4fc98d7fa254f37aedf70f92">coefs::coef_init_all</a>  (this, gs_h, scope)</dt>
-<dd><a class="anchor" id="_todo000036"></a>Be clever and try to avoid allocating zeroed geom. factors  </dd>
+<dd><a class="anchor" id="_todo000032"></a>Be clever and try to avoid allocating zeroed geom. factors  </dd>
 <dt>Subprogram <a class="el" href="../../dd/dd2/namespacedofmap.html#ab00433635f8523e38ff52650bdbe62c0">dofmap::dofmap_init</a>  (this, msh, xh)</dt>
-<dd><a class="anchor" id="_todo000038"></a>implement for 2d elements  </dd>
+<dd><a class="anchor" id="_todo000034"></a>implement for 2d elements  </dd>
 <dt>Subprogram <a class="el" href="../../dd/dd2/namespacedofmap.html#ae20a989ae35a240199117fd84e0b1615">dofmap::dofmap_number_faces</a>  (this)</dt>
-<dd><a class="anchor" id="_todo000039"></a>don't assume lx = ly = lz  </dd>
+<dd><a class="anchor" id="_todo000035"></a>don't assume lx = ly = lz  </dd>
 <dt>Subprogram <a class="el" href="../../d9/d41/namespacefld__file.html#af728bdd7026bc222996b4eef04e0f2a7">fld_file::fld_file_write</a>  (this, data, t)</dt>
 <dd><a class="anchor" id="_todo000011"></a>fix support for single precision output?  </dd>
 <dt>Subprogram <a class="el" href="../../d9/d41/namespacefld__file.html#aa564624d15abe1c717f6cb6d25814f58">fld_file::fld_file_write_masked</a>  (this, data, mask, t)</dt>
@@ -143,30 +143,22 @@ $(document).ready(function(){initNavTree('dd/da0/todo.html','../../'); initResiz
 <dt>Subprogram <a class="el" href="../../dc/da2/namespacemap__file.html#afc264685c906324d1805e75ac3373146">map_file::map_file_read</a>  (this, data)</dt>
 <dd><a class="anchor" id="_todo000015"></a>Check if neli matches mapnel  </dd>
 <dt>Subprogram <a class="el" href="../../db/dfc/namespacemesh.html#adda9934c988fca3015a777470bbf43ba">mesh::mesh_generate_conn</a>  (this)</dt>
-<dd><a class="anchor" id="_todo000027"></a>These loop nests needs a lot of love...  </dd>
+<dd><a class="anchor" id="_todo000024"></a>These loop nests needs a lot of love...  </dd>
 <dt>Subprogram <a class="el" href="../../db/dfc/namespacemesh.html#a35d97ddb7d486cd79f3c1e4ee4ea2cfc">mesh::mesh_generate_edge_conn</a>  (this)</dt>
-<dd><a class="anchor" id="_todo000028"></a>move this into distdata  </dd>
+<dd><a class="anchor" id="_todo000025"></a>move this into distdata  </dd>
 <dt>Subprogram <a class="el" href="../../db/dfc/namespacemesh.html#a18664cc50a3043167f74ea0da7291237">mesh::mesh_generate_facet_numbering</a>  (this)</dt>
-<dd><p class="startdd"><a class="anchor" id="_todo000031"></a>Since we now the neigh. we can actually do p2p here... </p>
-<p class="interdd"><a class="anchor" id="_todo000030"></a>Move this into distdata as a method... </p>
-<p class="enddd"><a class="anchor" id="_todo000029"></a>move this into distdata  </p>
+<dd><p class="startdd"><a class="anchor" id="_todo000026"></a>move this into distdata </p>
+<p class="interdd"><a class="anchor" id="_todo000027"></a>Move this into distdata as a method... </p>
+<p class="enddd"><a class="anchor" id="_todo000028"></a>Since we now the neigh. we can actually do p2p here...  </p>
 </dd>
-<dt>Subprogram <a class="el" href="../../db/dfc/namespacemesh.html#af31c563c205299189102ba77fafcb229">mesh::mesh_get_local_point</a>  (this, p)</dt>
-<dd><a class="anchor" id="_todo000032"></a>why do we still need to do this?  </dd>
 <dt>Subprogram <a class="el" href="../../db/dfc/namespacemesh.html#aab81a33ee12092f3d0d825d2010de3d1">mesh::mesh_have_point_glb_idx</a>  (this, index)</dt>
-<dd><a class="anchor" id="_todo000033"></a>Consider moving this to distdata  </dd>
+<dd><a class="anchor" id="_todo000029"></a>Consider moving this to distdata  </dd>
 <dt>Subprogram <a class="el" href="../../db/dfc/namespacemesh.html#a84fb89799d74a310f3612f5334cf5b74">mesh::mesh_init_common</a>  (this)</dt>
-<dd><p class="startdd"><a class="anchor" id="_todo000026"></a>resize onces final size is known Only init if we generate connectivity </p>
-<p class="enddd"><a class="anchor" id="_todo000025"></a>resize onces final size is known  </p>
-</dd>
-<dt>Subprogram <a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html#a6cc19cc32c4145c5571a2e5f0e7cbd05">mesh::mesh_t::get_global</a>  (this, e)</dt>
-<dd><a class="anchor" id="_todo000024"></a>Add similar mappings for element ids  </dd>
-<dt>Subprogram <a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html#a84f7e63265f9f819c9f944a258933f3d">mesh::mesh_t::get_local</a>  (this, p)</dt>
-<dd><a class="anchor" id="_todo000023"></a>Add similar mappings for element ids  </dd>
+<dd><a class="anchor" id="_todo000023"></a>resize onces final size is known  </dd>
 <dt>Struct <a class="el" href="../../d6/db2/structmesh__field_1_1mesh__fld__t.html">mesh_field::mesh_fld_t</a>  </dt>
 <dd><a class="anchor" id="_todo000003"></a>Add support for different data types  </dd>
 <dt>Subprogram <a class="el" href="../../d1/da7/namespacequad.html#ab67bfac6fdce727380ff83163b9c47ff">quad::quad_facet_id</a>  (this, t, side)</dt>
-<dd><a class="anchor" id="_todo000034"></a>sort this  </dd>
+<dd><a class="anchor" id="_todo000030"></a>sort this  </dd>
 <dt>Subprogram <a class="el" href="../../df/d9e/namespacere2__file.html#a1ad91a0a25277baa07002b8876c517dc">re2_file::re2_file_read</a>  (this, data)</dt>
 <dd><a class="anchor" id="_todo000016"></a>Add support for curved side data Skip curved side data  </dd>
 <dt>Subprogram <a class="el" href="../../df/d9e/namespacere2__file.html#a83f78b1bd3723662d8f8f30fc1470b2e">re2_file::re2_file_read_bcs</a>  (msh, nbcs, dist, fh, mpi_offset, v2_format)</dt>
@@ -176,17 +168,17 @@ $(document).ready(function(){initNavTree('dd/da0/todo.html','../../'); initResiz
 <dt>Struct <a class="el" href="../../d1/db3/structrea_1_1rea__t.html">rea::rea_t</a>  </dt>
 <dd><a class="anchor" id="_todo000014"></a>add missing data fields  </dd>
 <dt>Subprogram <a class="el" href="../../dd/df0/namespacespeclib.html#ac3838666020ca4150da3b691fe5f9c93">speclib::endw1</a>  (n, alpha, beta)</dt>
-<dd><a class="anchor" id="_todo000040"></a>document ENDW1  </dd>
+<dd><a class="anchor" id="_todo000036"></a>document ENDW1  </dd>
 <dt>Subprogram <a class="el" href="../../dd/df0/namespacespeclib.html#ae4d2f7c4f8ec88a4c0b11d7fb67b87ad">speclib::endw2</a>  (n, alpha, beta)</dt>
-<dd><a class="anchor" id="_todo000041"></a>document ENDW2  </dd>
+<dd><a class="anchor" id="_todo000037"></a>document ENDW2  </dd>
 <dt>Subprogram <a class="el" href="../../dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294">speclib::gammaf</a>  (x)</dt>
-<dd><a class="anchor" id="_todo000042"></a>document GAMMAF  </dd>
+<dd><a class="anchor" id="_todo000038"></a>document GAMMAF  </dd>
 <dt>Subprogram <a class="el" href="../../dd/df0/namespacespeclib.html#a3d3ffb215920d3ac2599832211842480">speclib::pnormj</a>  (n, alpha, beta)</dt>
-<dd><a class="anchor" id="_todo000043"></a>document PNORMJ  </dd>
+<dd><a class="anchor" id="_todo000039"></a>document PNORMJ  </dd>
 <dt>Subprogram <a class="el" href="../../dd/d8c/namespacetensor.html#ac922512260dbb68bbfaf9cfca3f564e7">tensor::tensr3</a>  (v, nv, u, nu, a, bt, ct, w)</dt>
 <dd><a class="anchor" id="_todo000020"></a>Add 2d case  </dd>
 <dt>Subprogram <a class="el" href="../../df/d69/namespacetri.html#a8b5ec5b4522a4c520efa8b47a766cc91">tri::tri_facet_id</a>  (this, t, side)</dt>
-<dd><a class="anchor" id="_todo000035"></a>sort this </dd>
+<dd><a class="anchor" id="_todo000031"></a>sort this </dd>
 </dl>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
@@ -194,7 +186,7 @@ $(document).ready(function(){initNavTree('dd/da0/todo.html','../../'); initResiz
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Mon Aug 31 2026 03:42:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 1 2026 03:42:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,0 +1,8 @@
+<map id="dmma_tma_metrics_aligned" name="dmma_tma_metrics_aligned">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,213,62"/>
+<area shape="rect" id="Node000002" href="$dd/df9/dmma__tma__kernel_8h.html#afe43953b23e59568c252cfc78e3d2cfc" title=" " alt="" coords="261,37,439,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,47,248,47,248,52,214,52"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="487,29,639,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="439,47,473,47,473,52,439,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="523,30,521,20,527,10,541,5,563,3,587,6,601,13,598,18,586,11,563,8,542,10,530,15,526,21,528,28"/>
+</map>

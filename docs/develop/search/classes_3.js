@@ -34,5 +34,8 @@ var searchData=
   ['dofmap_5ft_31',['dofmap_t',['../d0/df0/structdofmap_1_1dofmap__t.html',1,'dofmap']]],
   ['dong_5foutflow_5ft_32',['dong_outflow_t',['../d0/d88/structdong__outflow_1_1dong__outflow__t.html',1,'dong_outflow']]],
   ['dudxyz_33',['dudxyz',['../db/d5a/interfaceoperators_1_1dudxyz.html',1,'operators']]],
-  ['dynamic_5fsmagorinsky_5ft_34',['dynamic_smagorinsky_t',['../d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html',1,'dynamic_smagorinsky']]]
+  ['dudxyz_5fdmma_5fdispatch_34',['dudxyz_dmma_dispatch',['../d5/dd1/structdudxyz__dmma__dispatch.html',1,'']]],
+  ['dudxyz_5fdmma_5ftma_5fdispatch_35',['dudxyz_dmma_tma_dispatch',['../d3/d63/structdudxyz__dmma__tma__dispatch.html',1,'']]],
+  ['dudxyz_5fmfma_5fdispatch_36',['dudxyz_mfma_dispatch',['../d7/d85/structdudxyz__mfma__dispatch.html',1,'']]],
+  ['dynamic_5fsmagorinsky_5ft_37',['dynamic_smagorinsky_t',['../d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html',1,'dynamic_smagorinsky']]]
 ];

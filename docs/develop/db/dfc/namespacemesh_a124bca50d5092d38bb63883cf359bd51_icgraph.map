@@ -1,0 +1,9 @@
+<map id="mesh::mesh_add_edge" name="mesh::mesh_add_edge">
+<area shape="rect" id="Node000001" title="Add a unique edge represented as a 2&#45;tuple to the mesh." alt="" coords="677,13,849,38"/>
+<area shape="rect" id="Node000002" href="$db/dfc/namespacemesh.html#a7e6dc9442c9b730ac2d1bde72e2598d8" title="Enumerate the unique edges of the local mesh." alt="" coords="463,5,629,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="664,28,629,28,629,23,664,23"/>
+<area shape="rect" id="Node000003" href="$db/dfc/namespacemesh.html#adda9934c988fca3015a777470bbf43ba" title="Generate element&#45;to&#45;element connectivity." alt="" coords="209,13,415,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="449,28,415,28,415,23,449,23"/>
+<area shape="rect" id="Node000004" href="$db/dfc/namespacemesh.html#ac2946fce1b2dd0901137b5d74e1d641a" title=" " alt="" coords="5,13,161,38"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="195,28,161,28,161,23,195,23"/>
+</map>

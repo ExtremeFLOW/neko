@@ -1,17 +1,20 @@
 var cuda_2cdtp__kernel_8h =
 [
+    [ "cdtp_dmma_dispatch< T, LX, NW >", "d4/dbf/structcdtp__dmma__dispatch.html", "d4/dbf/structcdtp__dmma__dispatch" ],
+    [ "cdtp_dmma_tma_dispatch< T, LX, NW >", "df/de3/structcdtp__dmma__tma__dispatch.html", "df/de3/structcdtp__dmma__tma__dispatch" ],
+    [ "__launch_bounds__", "d3/dd9/cuda_2cdtp__kernel_8h.html#a994082a96d93f12248f8fb3e40484b23", null ],
     [ "__launch_bounds__", "d3/dd9/cuda_2cdtp__kernel_8h.html#a9a3322ef71ea8136f44ed419b5f53270", null ],
     [ "__syncthreads", "d3/dd9/cuda_2cdtp__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],
     [ "cdtp_kernel_1d", "d3/dd9/cuda_2cdtp__kernel_8h.html#ae383d5862e0214ef164f9cc34d9f574b", null ],
     [ "for", "d3/dd9/cuda_2cdtp__kernel_8h.html#a705bedcd4be856669ef2b973a02fa044", null ],
     [ "if", "d3/dd9/cuda_2cdtp__kernel_8h.html#adf142115b93071739e1781f314da00cb", null ],
     [ "active", "d3/dd9/cuda_2cdtp__kernel_8h.html#a003d2af368daeb41cd4f5f4f7373843e", null ],
-    [ "dr", "d3/dd9/cuda_2cdtp__kernel_8h.html#a17859a85b9bd6c55edc5d8cb73d0937f", null ],
-    [ "ds", "d3/dd9/cuda_2cdtp__kernel_8h.html#a2cfa915b570e0c40a7cefc12cfa2b698", null ],
-    [ "dt", "d3/dd9/cuda_2cdtp__kernel_8h.html#a3e11a80408df26c616ebd9ac3c50da66", null ],
-    [ "dxt", "d3/dd9/cuda_2cdtp__kernel_8h.html#affe49acdcc940652feb93cb3438eaa9c", null ],
-    [ "dyt", "d3/dd9/cuda_2cdtp__kernel_8h.html#af4dfdc19ce423df0d0e277a211ee34a8", null ],
-    [ "dzt", "d3/dd9/cuda_2cdtp__kernel_8h.html#ac074100bc8161312918795a55ed1fd6a", null ],
+    [ "dr", "d3/dd9/cuda_2cdtp__kernel_8h.html#a9c52c88489b42fc34dc21647b8932bfd", null ],
+    [ "ds", "d3/dd9/cuda_2cdtp__kernel_8h.html#a318706fa0be02b1efb42ba8fbfe7630a", null ],
+    [ "dt", "d3/dd9/cuda_2cdtp__kernel_8h.html#ad519bd443b2b8cced1f8ec5408b28fdf", null ],
+    [ "dxt", "d3/dd9/cuda_2cdtp__kernel_8h.html#aef47fb330522fa439ae986e39c13d655", null ],
+    [ "dyt", "d3/dd9/cuda_2cdtp__kernel_8h.html#a12dbffb905977c90cba84790384690d4", null ],
+    [ "dzt", "d3/dd9/cuda_2cdtp__kernel_8h.html#a6515c52af831ee96da82c0bc26f8e435", null ],
     [ "e", "d3/dd9/cuda_2cdtp__kernel_8h.html#a83e52139e060d0c1ba0475539f657304", null ],
     [ "e_blk", "d3/dd9/cuda_2cdtp__kernel_8h.html#a9fecd33d4b9c96d5cbc1d9d27afe2a30", null ],
     [ "eb", "d3/dd9/cuda_2cdtp__kernel_8h.html#a306082d89dde4824cbe1848162a06a37", null ],
@@ -28,6 +31,6 @@ var cuda_2cdtp__kernel_8h =
     [ "shdzt", "d3/dd9/cuda_2cdtp__kernel_8h.html#a4b9a7b88bf8d17feba53bbbe75c621a7", null ],
     [ "shtar", "d3/dd9/cuda_2cdtp__kernel_8h.html#ac85186947f6b6b28eef6d1cab826f852", null ],
     [ "shtas", "d3/dd9/cuda_2cdtp__kernel_8h.html#ad99b0f014abc2792ca039ae8aa34459a", null ],
-    [ "w3", "d3/dd9/cuda_2cdtp__kernel_8h.html#a97bfa79c186ff7f943a8d8865fc31df8", null ],
-    [ "x", "d3/dd9/cuda_2cdtp__kernel_8h.html#a3b35a10334f641ae16ea1c310523d458", null ]
+    [ "w3", "d3/dd9/cuda_2cdtp__kernel_8h.html#af0e456136a67676a41f4bbc9e761cb60", null ],
+    [ "x", "d3/dd9/cuda_2cdtp__kernel_8h.html#a892a4ba8dea47d2d4a9d3051fe899cd9", null ]
 ];

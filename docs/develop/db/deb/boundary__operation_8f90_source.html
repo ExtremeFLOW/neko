@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.8</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.9</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -301,13 +301,13 @@ $(document).ready(function(){initNavTree('db/deb/boundary__operation_8f90_source
 <div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>    <span class="keyword">call </span>this%bc%finalize()</div>
 <div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span> </div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    n_pts = this%bc%msk(0)</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    n_pts = this%bc%facet_node_msk(0)</div>
 <div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keywordflow">if</span> (n_pts .gt. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>       <span class="keyword">call </span>this%areas%init(n_pts)</div>
 <div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>       <span class="keyword">call </span>this%surface_values%init(n_pts)</div>
 <div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d3/d0d/namespacevector__math.html#a599a173c753f9f87a1c1eb7ea7e30da1">vector_face_masked_gather_copy_0</a>(this%areas, this%coef%area, &amp;</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>            this%bc%msk, this%bc%facet, this%coef%Xh%lx, this%coef%Xh%ly, &amp;</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>            this%coef%Xh%lz, n_pts)</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>            this%bc%facet_node_msk, this%bc%facet, this%coef%Xh%lx, &amp;</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>            this%coef%Xh%ly, this%coef%Xh%lz, n_pts)</div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span> </div>
 <div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(output_filename)) <span class="keywordflow">then</span></div>
@@ -334,7 +334,7 @@ $(document).ready(function(){initNavTree('db/deb/boundary__operation_8f90_source
 <div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,*(I0,:,&quot;, &quot;))&#39;</span>) <span class="stringliteral">&quot;Zone indices: &quot;</span>, this%zone_indices</div>
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
 <div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,I0)&#39;</span>) <span class="stringliteral">&quot;Marked boundary quadrature points: &quot;</span>, &amp;</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>         this%bc%msk(0)</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>         this%bc%facet_node_msk(0)</div>
 <div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
 </div>
@@ -449,7 +449,7 @@ $(document).ready(function(){initNavTree('db/deb/boundary__operation_8f90_source
 <div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: section_title, header_line, value_line</div>
 <div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>    <span class="keywordtype">integer</span> :: output_col</div>
 <div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span> </div>
-<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>    n_pts = this%bc%msk(0)</div>
+<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>    n_pts = this%bc%facet_node_msk(0)</div>
 <div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span> </div>
 <div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>    this%integral = 0.0_rp</div>
 <div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>    this%average = 0.0_rp</div>
@@ -458,7 +458,7 @@ $(document).ready(function(){initNavTree('db/deb/boundary__operation_8f90_source
 <div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>    area = 0.0_rp</div>
 <div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span> </div>
 <div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d3/d0d/namespacevector__math.html#a102c3fdd6473f46807a9cd38290910de">vector_masked_gather_copy_0</a>(this%surface_values, &amp;</div>
-<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>         this%field%x, this%bc%msk, this%field%size(), n_pts)</div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>         this%field%x, this%bc%facet_node_msk, this%field%size(), n_pts)</div>
 <div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span> </div>
 <div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>    <span class="keywordflow">if</span> (this%compute_integral .or. this%compute_average) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>       this%integral = <a class="code hl_function" href="../../d3/d0d/namespacevector__math.html#a956fad3c60febe102ee6455ad32c80f0">vector_glsc2</a>(this%surface_values, this%areas, n_pts)</div>
@@ -613,7 +613,7 @@ $(document).ready(function(){initNavTree('db/deb/boundary__operation_8f90_source
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_702567638a028346607c31c39047d6bd.html">simulation_components</a></li><li class="navelem"><a class="el" href="../../db/deb/boundary__operation_8f90.html">boundary_operation.f90</a></li>
-    <li class="footer">Generated on Mon Aug 31 2026 03:42:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 1 2026 03:42:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

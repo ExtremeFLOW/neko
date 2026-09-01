@@ -1,9 +1,13 @@
 var cuda_2opgrad__kernel_8h =
 [
+    [ "opgrad_dmma_dispatch< T, LX, NW >", "df/d08/structopgrad__dmma__dispatch.html", "df/d08/structopgrad__dmma__dispatch" ],
+    [ "opgrad_dmma_tma_dispatch< T, LX, NW >", "d6/d17/structopgrad__dmma__tma__dispatch.html", "d6/d17/structopgrad__dmma__tma__dispatch" ],
+    [ "__launch_bounds__", "da/da7/cuda_2opgrad__kernel_8h.html#a9d9f655ab69da127f348638540bb87f3", null ],
     [ "__launch_bounds__", "da/da7/cuda_2opgrad__kernel_8h.html#af71e8f51d35de826e85e40da364f6fed", null ],
     [ "__syncthreads", "da/da7/cuda_2opgrad__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],
     [ "for", "da/da7/cuda_2opgrad__kernel_8h.html#a705bedcd4be856669ef2b973a02fa044", null ],
     [ "if", "da/da7/cuda_2opgrad__kernel_8h.html#adf142115b93071739e1781f314da00cb", null ],
+    [ "opgrad_dmma_tma_optin", "da/da7/cuda_2opgrad__kernel_8h.html#a69823838b4c650b3b0e0a8194ba4ca85", null ],
     [ "opgrad_kernel_1d", "da/da7/cuda_2opgrad__kernel_8h.html#a1705282bd017319d01976fb074aa3b7f", null ],
     [ "active", "da/da7/cuda_2opgrad__kernel_8h.html#a003d2af368daeb41cd4f5f4f7373843e", null ],
     [ "drdx", "da/da7/cuda_2opgrad__kernel_8h.html#a9a09163c03e802b5b0c84d6a1bb15cd9", null ],
@@ -32,7 +36,7 @@ var cuda_2opgrad__kernel_8h =
     [ "shdy", "da/da7/cuda_2opgrad__kernel_8h.html#a362652cfa567dd2c7c927fe3c07a8a7e", null ],
     [ "shdz", "da/da7/cuda_2opgrad__kernel_8h.html#a9c574b33626816c1ac20db5ace762537", null ],
     [ "u", "da/da7/cuda_2opgrad__kernel_8h.html#ac316a04a72dfe603113a67b4681e6e9f", null ],
-    [ "uy", "da/da7/cuda_2opgrad__kernel_8h.html#a1523564f879623f524acfdd0796beebb", null ],
-    [ "uz", "da/da7/cuda_2opgrad__kernel_8h.html#a261a67a5e2fc67c022c42cad5d9e7252", null ],
+    [ "uy", "da/da7/cuda_2opgrad__kernel_8h.html#a1e310fc0cb4c192d4b5abe24ddbefb8b", null ],
+    [ "uz", "da/da7/cuda_2opgrad__kernel_8h.html#af5d4ce0069c8a7a298ae44e3fcfec6fb", null ],
     [ "w3", "da/da7/cuda_2opgrad__kernel_8h.html#ad51fa9d59d246dc9d32b5e26a24f80a4", null ]
 ];
