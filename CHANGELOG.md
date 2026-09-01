@@ -2,9 +2,47 @@
 
 ## 1.1.99 [develop]
 
+- Fixed the `log` option of the overset interface boundary conditions, which
+  was read into the component itself instead of the local variable passed on
+  to `init_from_components`, and therefore had no effect.
+- Fixed the loop determining `uniform_0` in `neumann_finalize`, which was
+  hardcoded to three components instead of the size of the flux array.
 - Fixed a data race in openMP block in `adv_dealias` for scalar and ALE.
 - Updated simulation_components documentation to mirror the latest codebase.
+- Documented zero-copy mapping in the `neko` man page, including the
+  `NEKO_HIP_ZEROCOPY` and `NEKO_METAL_ZEROCOPY` environment variables and the
+  synchronisation requirement it puts on host code.
+- Removed the device memcpy of `mu` and `kappa` after `material_properties`
+  in the compressible solver. Constant properties are filled directly on the
+  device by `field_cfill` and were then overwritten by the copy from the host,
+  silently reducing Navier-Stokes to Euler on devices. Non-constant properties
+  computed in the user file can now also be set with `device_math` directly,
+  without a copy.
 - Fixed stale accumulator in the SX gather-scatter backend (min/max/mul).
+- Fixed a race in the OpenCL local interpolation kernel when the work group is
+  wider than the SIMD group width.
+- Fixed truncated global reductions in the Metal backend, which silently
+  dropped data for `n > 1048576`, making every global reduction wrong on
+  meshes above ~1M points.
+- Silenced the obsolete autoconf macro warnings emitted by `autoreconf`
+  (`AC_TRY_COMPILE`, `AC_HELP_STRING` and the expansion order of `AC_PROG_CXX`
+  relative to `LT_INIT`), so that `autoconf -Wall` is clean. The generated
+  `configure` is unchanged in behaviour.
+- Fixed the OIFS selection for scalars, which looked for `case.numerics.oifs`
+  in the scalar's own json object rather than `oifs` in the numerics one, and
+  thus always selected the standard time-integration scheme.
+- Fixed the turbulent viscosity computed by `sigma_cpu`, which used the
+  multiplicity of the first element for all elements.
+- Reworked the workaround for the Fujitsu Fortran runtime memory leak. It is
+  now applied by `sh patches/fujitsu_memleak.sh` instead of `git apply`, with
+  the hook in `neko_init` and the entry in `src/.depends` inserted by pattern,
+  so that the workaround survives unrelated changes to the surrounding code.
+  The script is idempotent.
+- Fixed the output file names reported in the log, which were printed before
+  the write routine had incremented the file counter. Each file type now
+  reports the name of the next output via `get_next_output_fname`. Also fixed
+  `user_stats` ignoring `output_directory`, and the counter of the `.bp`
+  output starting at -1.
 ## 1.1.0 [2026-07-21]
 - Added opt-in zero-copy unified memory mapping for the HIP backend on AMD
   MI300A APUs: with `NEKO_HIP_ZEROCOPY=1` (and `HSA_XNACK=1`), mapped arrays
