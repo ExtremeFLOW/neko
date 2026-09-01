@@ -78,6 +78,9 @@ module opencl_prgm_lib
   !> Device jacobi kernels
   type(c_ptr), public, bind(c) :: jacobi_program = C_NULL_PTR
 
+  !> Device BiCGStab kernels
+  type(c_ptr), public, bind(c) :: bicgstab_program = C_NULL_PTR
+
   !> Device rhs_maker kernels
   type(c_ptr), public, bind(c) :: rhs_maker_program = C_NULL_PTR
 
@@ -278,6 +281,13 @@ contains
           call neko_error('Failed to release program')
        end if
        jacobi_program = C_NULL_PTR
+    end if
+
+    if (c_associated(bicgstab_program)) then
+       if (clReleaseProgram(bicgstab_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       bicgstab_program = C_NULL_PTR
     end if
 
     if (c_associated(rhs_maker_program)) then
