@@ -73,6 +73,8 @@ module fluid_scheme_compressible_ns
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use regularization, only : regularization_t, regularization_factory
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       coupled_vector_bc_projector_t
   implicit none
   private
 
@@ -90,7 +92,9 @@ module fluid_scheme_compressible_ns
 
      class(regularization_t), allocatable :: regularization
 
-     ! List of boundary conditions for velocity
+     !> Boundary conditions projector for velocity constraints.
+     type(coupled_vector_bc_projector_t):: bcs_vel_projector
+     !> List of boundary conditions for density.
      type(bc_list_t) :: bcs_density
 
    contains
@@ -224,6 +228,10 @@ contains
     call ax_helm_allocator(this%Ax, type_name = "standard")
     call ax_helm_allocator(this%Ax_stress, type_name = "full")
 
+    ! Initialize the velocity BC projector. The coupled projector builds the
+    ! local bases required by non-axis aligned mixed velocity conditions.
+    call this%bcs_vel_projector%init(this%c_Xh)
+
     ! Compute h
     call this%compute_h()
 
@@ -282,6 +290,7 @@ contains
        end if
     end do
     call this%bcs_density%free()
+    call this%bcs_vel_projector%free()
 
   end subroutine fluid_scheme_compressible_ns_free
 
@@ -478,6 +487,7 @@ contains
 
           ! Add to appropriate lists
           if (associated(bc_i)) then
+             call this%bcs_vel_projector%mark(bc_i)
              call this%bcs_vel%append(bc_i)
           end if
        end do
@@ -532,6 +542,8 @@ contains
        call this%bcs_density%init()
 
     end if
+
+    call this%bcs_vel_projector%finalize(rebuild_mask = .true.)
   end subroutine fluid_scheme_compressible_ns_setup_bcs
 
   !> Copied from les_model_compute_delta in les_model.f90

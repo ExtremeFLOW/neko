@@ -92,6 +92,7 @@
 #include <string.h>
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
+#include <device/hip/check.h>
 
 /*
  * Reports whether the device code really was compiled for a matrix core
@@ -107,7 +108,13 @@
  * rather than as an error, which is the worst way for it to fail. Checking it
  * from the device removes the guesswork.
  */
-__global__ void hip_mfma_arch_probe(int * flag) {
+/* static, not merely file scope by convention: this header is included by
+   every operator that offers an MFMA strategy -- ax_helm, dudxyz, opgrad,
+   conv1 and cdtp -- and a non-template __global__ with external linkage is
+   then defined once per translation unit, which the linker rejects as a
+   multiple definition. Internal linkage gives each unit its own copy, which
+   is what the rest of this header already relies on. */
+static __global__ void hip_mfma_arch_probe(int * flag) {
 #if defined(__gfx90a__) || defined(__gfx942__)
   *flag = 1;
 #else
@@ -146,7 +153,12 @@ static inline bool hip_have_mfma() {
             cached = flag;
           }
         }
-        hipFree(d_flag);
+        /* Unlike the queries above, a failure here is not "the strategy is
+           unavailable" -- the pointer came from a hipMalloc that succeeded, so
+           a bad free means the context is broken. Checked rather than folded
+           into cached, and checked rather than discarded: hipFree is
+           nodiscard */
+        HIP_CHECK(hipFree(d_flag));
       }
     }
   }
@@ -198,20 +210,38 @@ static inline bool mfma_lx_supported() {
  * 34.0 / 60.2 us as NWF went 1, 2, 4, 8, monotonically worse, against
  * 218 / 157 / 136.4 / 136.4 at LX = 8 where four groups exist. Rather than
  * cap the sweep, the surplus wavefronts are given their own element: NWF is
- * read as wavefronts per block, WPE = min(NWF, NGROUPS) of them cooperate on
- * one element, and the block covers EB = NWF/WPE elements. At LX = 4 with
- * eight wavefronts that is eight elements, one each, with nothing idle; at
- * LX = 12 it is one element and eight cooperating wavefronts, exactly as
- * before. This matters because p-multigrid smooths at LX = 4 and 2, so low
- * order Ax is hot rather than incidental.
+ * read as wavefronts per block, the block covers EB elements and WPE =
+ * NWF/EB wavefronts cooperate on each. At LX = 4 with eight wavefronts that
+ * is eight elements, one each, with nothing idle; at LX = 12 it is one
+ * element and eight cooperating wavefronts, exactly as before. This matters
+ * because p-multigrid smooths at LX = 4 and 2, so low order Ax is hot rather
+ * than incidental.
+ *
+ * EB is the driving quantity and WPE follows from it, not the other way
+ * round: the block is partitioned into EB equal groups, so EB has to divide
+ * NWF exactly or the leftover wavefronts address an element the block does
+ * not own -- past the end of the shared staging arrays, and past the end of
+ * global storage in the last block. EB = NWF/NGROUPS is therefore rounded
+ * down to a power of two, which divides NWF for every candidate since NWF is
+ * itself 2^C. WPE may then exceed NGROUPS -- at LX = 6, NGROUPS = 3 and four
+ * wavefronts give EB = 1, WPE = 4 -- which is harmless: mfma_contract_4x4()
+ * strides the groups with `ng = wf + gp * NWF` under `ng < NGROUPS`, so a
+ * wavefront without a group of its own simply issues no matrix core work,
+ * while still taking its share of the staging and pointwise passes. The
+ * alternative, capping WPE at NGROUPS and letting EB absorb the remainder,
+ * would grow the shared footprint (LX = 10 with eight wavefronts would want
+ * 66 kB) for no gain.
  */
 #define NEKO_MFMA_NGROUPS(LX) (((LX) * (LX) + 15) / 16)
+/* Elements per block: surplus wavefronts, rounded down to a power of two so
+   that WPE * EB == NWF exactly */
+#define NEKO_MFMA_EB_N(NWF, LX)                                               \
+  ((NWF) / NEKO_MFMA_NGROUPS(LX) >= 8 ? 8 :                                   \
+   (NWF) / NEKO_MFMA_NGROUPS(LX) >= 4 ? 4 :                                   \
+   (NWF) / NEKO_MFMA_NGROUPS(LX) >= 2 ? 2 : 1)
+#define NEKO_MFMA_EB(LX, C) NEKO_MFMA_EB_N(NEKO_MFMA_NWF(C), LX)
 /* Wavefronts cooperating on one element */
-#define NEKO_MFMA_WPE(LX, C)                                                  \
-  (NEKO_MFMA_NWF(C) < NEKO_MFMA_NGROUPS(LX) ? NEKO_MFMA_NWF(C)                \
-                                            : NEKO_MFMA_NGROUPS(LX))
-/* Elements per block */
-#define NEKO_MFMA_EB(LX, C) (NEKO_MFMA_NWF(C) / NEKO_MFMA_WPE(LX, C))
+#define NEKO_MFMA_WPE(LX, C) (NEKO_MFMA_NWF(C) / NEKO_MFMA_EB(LX, C))
 #define NEKO_MFMA_NBLCKS(NELV, LX, C)                                         \
   dim3(((NELV) + NEKO_MFMA_EB(LX, C) - 1) / NEKO_MFMA_EB(LX, C), 1, 1)
 
@@ -257,7 +287,8 @@ static int neko_mfma_env()
     for (int c = 0; c < NEKO_MFMA_CANDIDATES; c++) {                          \
       if ((T3)[c] >= NEKO_TUNE_INIT) { continue; }                            \
       sprintf(neko_log_buf, "MFMA  %dwf %-2de: %9.2f us/call",                \
-              NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c), (T3)[c] * 10.0);         \
+              NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c),                          \
+              NEKO_TUNE_US((T3)[c], iters));                                  \
       log_message(neko_log_buf);                                              \
     }                                                                         \
   } while (0)

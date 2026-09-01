@@ -182,9 +182,7 @@
             "type": {
               "enum": [
                 "outflow",
-                "outflow+user",
-                "normal_outflow",
-                "normal_outflow+user"
+                "outflow+user"
               ]
             },
             "zone_indices": {
@@ -205,11 +203,34 @@
             "type",
             "zone_indices"
           ],
+          "oneOf": [
+            {
+              "required": [
+                "value"
+              ]
+            },
+            {
+              "required": [
+                "file_name"
+              ]
+            }
+          ],
+          "dependentRequired": {
+            "interpolate": [
+              "file_name"
+            ],
+            "mesh_file_name": [
+              "file_name"
+            ],
+            "interpolation": [
+              "file_name"
+            ]
+          },
           "properties": {
             "type": {
               "enum": [
-                "outflow+dong",
-                "normal_outflow+dong"
+                "normal_outflow",
+                "normal_outflow+user"
               ]
             },
             "zone_indices": {
@@ -220,6 +241,135 @@
             },
             "value": {
               "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+            },
+            "file_name": {
+              "type": "string",
+              "pattern": "\\.f[0-9]{5}$"
+            },
+            "interpolate": {
+              "type": "boolean"
+            },
+            "mesh_file_name": {
+              "type": "string",
+              "pattern": "\\.f[0-9]{5}$"
+            },
+            "interpolation": {
+              "type": "object",
+              "properties": {
+                "tolerance": {
+                  "type": "number",
+                  "x-neko-real": true,
+                  "exclusiveMinimum": 0
+                },
+                "padding": {
+                  "type": "number",
+                  "x-neko-real": true,
+                  "exclusiveMinimum": 0
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "outflow+dong"
+              ]
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "value": {
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+            },
+            "delta": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "velocity_scale": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "oneOf": [
+            {
+              "required": [
+                "value"
+              ]
+            },
+            {
+              "required": [
+                "file_name"
+              ]
+            }
+          ],
+          "dependentRequired": {
+            "interpolate": [
+              "file_name"
+            ],
+            "mesh_file_name": [
+              "file_name"
+            ],
+            "interpolation": [
+              "file_name"
+            ]
+          },
+          "properties": {
+            "type": {
+              "const": "normal_outflow+dong"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "value": {
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+            },
+            "file_name": {
+              "type": "string",
+              "pattern": "\\.f[0-9]{5}$"
+            },
+            "interpolate": {
+              "type": "boolean"
+            },
+            "mesh_file_name": {
+              "type": "string",
+              "pattern": "\\.f[0-9]{5}$"
+            },
+            "interpolation": {
+              "type": "object",
+              "properties": {
+                "tolerance": {
+                  "type": "number",
+                  "x-neko-real": true,
+                  "exclusiveMinimum": 0
+                },
+                "padding": {
+                  "type": "number",
+                  "x-neko-real": true,
+                  "exclusiveMinimum": 0
+                }
+              },
+              "additionalProperties": false
             },
             "delta": {
               "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
