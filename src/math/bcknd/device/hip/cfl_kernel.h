@@ -71,15 +71,15 @@ __global__ void cfl_reduce_kernel(T * bufred, const int n) {
   }
 
   __shared__ T shared[64];
-  unsigned int lane = threadIdx.x % warpSize;
-  unsigned int wid = threadIdx.x / warpSize;
+  unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
 
   cfl = cfl_reduce_warp<T>(cfl);
   if (lane == 0)
     shared[wid] = cfl;
   __syncthreads();
 
-  cfl = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  cfl = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : 0;
   if (wid == 0)
     cfl = cfl_reduce_warp<T>(cfl);
 
@@ -116,8 +116,8 @@ __global__ void cfl_kernel(const D dt,
   const int e = blockIdx.x;
   const int iii = threadIdx.x;
   const int nchunks = (LX * LX * LX - 1) / CHUNKS + 1;
-  const unsigned int lane = threadIdx.x % warpSize;
-  const unsigned int wid = threadIdx.x / warpSize;
+  const unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  const unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
   
   __shared__ T shu[LX * LX * LX];
   __shared__ T shv[LX * LX * LX];
@@ -181,7 +181,7 @@ __global__ void cfl_kernel(const D dt,
     shared[wid] = cfl_tmp;
   __syncthreads();
   
-  cfl_tmp = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  cfl_tmp = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : 0;
   if (wid == 0)
     cfl_tmp = cfl_reduce_warp<D>(cfl_tmp);
 

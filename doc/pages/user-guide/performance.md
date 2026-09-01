@@ -108,11 +108,12 @@ provided (see #case-file).
 On the CUDA and HIP backends the spectral element operators --- the
 Helmholtz operator `Ax`, and `opgrad`, `dudxyz`, `cdtp`, `conv1`,
 `convect_scalar` and `lambda2` --- each ship two kernel formulations,
-and `Ax` a third, and the best one depends on the polynomial order, 
-the element count and the hardware. Rather than fix a choice at 
-build time, Neko benchmarks them on the first call of each operator, 
-using the real element count of the running case, and caches 
-the winner for the rest of the run.
+and most of them a third --- with a fourth on Hopper, and a fifth for
+the vector `Ax` --- and the best one depends on the polynomial order,
+the element count and the hardware. Rather than fix a choice at build
+time, Neko benchmarks them on the first call of each operator, using the
+real element count of the running case, and caches the winner for the
+rest of the run.
 
 The two formulations are:
 
@@ -122,9 +123,12 @@ The two formulations are:
   element and marches it in the third direction, holding the column in
   registers.
 
-The Helmholtz operator `Ax` ships a third on both backends, which hands
-the six tensor contractions of an element to the matrix units of the
-device rather than to the ordinary FMA pipes:
+Five operators ship a third, which hands the tensor contractions of an
+element to the matrix units of the device rather than to the ordinary
+FMA pipes: on CUDA `Ax` (scalar and vector), `opgrad`, `dudxyz`, `conv1`
+and `cdtp`; on HIP the same five less the vector `Ax`, which has no matrix
+core kernel. `convect_scalar` and `lambda2` have no such variant on either
+backend and keep tuning the two.
 
 - the **dmma** variant on CUDA, which stages a cube in shared memory
   padded to `8^3` and issues each contraction on the fp64 tensor cores as
@@ -154,21 +158,100 @@ divide 8 and keep one element and the old waste. The packing is aimed at
 p-multigrid, which smooths at `lx = 4` and `lx = 2`, so low order `Ax` is
 hot rather than incidental.
 
+The four operators beyond `Ax` reuse that machinery unchanged on both
+backends and differ only in what surrounds the contractions. `dudxyz`,
+`opgrad` and `conv1` are the first half of `Ax` --- stage the field,
+contract it three ways, and turn the result into the physical quantity
+pointwise on the way out, with no second contraction --- so they stage
+four cubes, 17.5 kB, exactly as the scalar `Ax` does. `cdtp` is the
+other half: it forms three weighted fields first and then *accumulates*
+three transposed contractions into a single output, the only one here
+whose contractions follow its pointwise work rather than precede it.
+
 The mfma variant has no padding to fill, but it meets the same imbalance
 from the other side: a contraction offers only `ceil(lx^2/16)` column
 groups of wavefront-parallel work --- one at `lx = 4`, four at `lx = 8`,
-nine at `lx = 12` --- so a wavefront beyond that count has no matrix core
-work left on the element. Rather than cap the sweep there, the surplus
-wavefronts are given an element of their own: `wpe = min(nwf,
-ceil(lx^2/16))` wavefronts cooperate on one element and the block covers
-`nwf / wpe` elements, the staging, geometry and write-back passes
-parallelising over the whole block either way. At `lx = 4` with eight
-wavefronts that is eight elements, one each, with nothing idle; at
-`lx = 12` it is one element and eight cooperating wavefronts.
+nine at `lx = 12` --- so a wavefront beyond that count has no matrix
+core work left on the element. Rather than cap the sweep there, the
+surplus wavefronts are given an element of their own: the block covers
+`eb` elements, as many as the `ceil(lx^2/16)` groups leave wavefronts
+for and rounded down to a power of two so that it divides `nwf`, and
+`wpe = nwf / eb` wavefronts cooperate on each, the staging, geometry and
+write-back passes parallelising over the whole block either way. At
+`lx = 4` with eight wavefronts that is eight elements, one each, with
+nothing idle; at `lx = 12` it is one element and eight cooperating
+wavefronts.
+
+On Hopper the dmma variant has two further forms, which differ from it
+only in how an element reaches shared memory. The staging is nearly the
+whole kernel --- at `lx = 8` an element is nine cubes of 4 kB, of which
+the seven geometric factors alone are 78% of the read traffic --- and
+plain dmma reads it with ordinary loads that nothing overlaps:
+
+- the **dmma_tma** variant, which issues that traffic up front as bulk
+  asynchronous copies on the Tensor Memory Accelerator, on two
+  mbarriers: the cube of `u` on one, waited on immediately, and the
+  seven geometric factor cubes on the other, waited on only at the
+  pointwise step, so they are in flight underneath the first three
+  contractions. The result cube goes back out as one bulk store rather
+  than as scalar ones. Every operator that has a dmma variant has this
+  one too, with its own set of cubes.
+- the **dmma_tma_batch** variant, for the vector operator only, which
+  stages all ten input cubes of an element --- the three components and
+  the seven factors --- in a single batch of copies, each component
+  keeping its own cube, in and then out, so that no load ever waits on a
+  store. That is thirteen cubes, 54800 B, past the 48 kB a block gets
+  without asking, so the allocation is dynamic and opted into once.
+
+Neither buys the overlap for free. The seven extra cubes take the scalar
+block from 17.5 kB to 45.5 kB, five resident blocks per multiprocessor
+instead of eight, and the bet is that copies in flight replace the memory
+level parallelism the lost warps were providing --- generated by one
+thread per block rather than by thousands of loads. What that costs
+differs per operator, because what has to stay resident does:
+
+| operator              | copies batched | block   | blocks/SM |
+| --------------------- | -------------- | ------- | --------- |
+| `cdtp`                | 4              | 21.5 kB | 10        |
+| `dudxyz`              | 5              | 33.5 kB | 6         |
+| `Ax` scalar           | 8              | 45.5 kB | 5         |
+| `opgrad`              | 10             | 53.5 kB | 4         |
+| `Ax` vector (batched) | 10             | 53.5 kB | 4         |
+| `conv1`               | 14             | 69.5 kB | 3         |
+
+Anything past 48 kB is dynamic shared memory that the kernel opts into
+once before its first launch, and the device is asked whether it will
+grant it rather than assumed to. `cdtp` is the odd one out: it needs its
+field *and* a factor before it can form anything, so a single wait would
+leave the copies overlapping nothing, and its four are instead waited in
+two stages, with half the factor traffic flying under the first
+contraction.
+
+On GH200 at `lx = 8` this measures out about 2% ahead of plain dmma for
+the scalar `Ax`, while the batched vector form comes in some 6% ahead of
+the component-at-a-time one, which only brings it level with the vector
+dmma variant. For the gradient-type operators the margins are smaller
+still: `dudxyz` picks dmma_tma, but by 0.8% over kstep, and `conv1` keeps
+its 1d kernel with dmma_tma 0.7% behind it. Both of those are ties within
+run-to-run drift. All of them are tuner candidates like every other one
+and none is assumed to win.
+
+@note Do not tune these by occupancy. Measured on GH200 at `lx = 8`, the
+`dudxyz` and `conv1` TMA variants are flat to within 0.3% across the
+whole 2, 4, 8 warp sweep --- for `conv1` that spans 6 to 24 warps per
+multiprocessor, and its 6 warp configuration lands within 0.7% of a
+1024 thread 1d kernel. The traffic is generated by one thread per block
+regardless of how many warps exist, so once an operator is at its
+bandwidth roof the block geometry stops mattering; the dmma variants
+improve monotonically from 2 to 8 warps only because 8 is the first
+candidate that fills the multiprocessor, and there is nothing beyond it
+--- a contraction has eight tiles, so a sixteenth warp would have no
+work.
 
 @note The dmma variant only exists where the fp64 tensor cores do: a
-double precision build, `2 <= lx <= 8` for the scalar operator and
-`4 <= lx <= 8` for the vector one, which does not pack, and an sm_80
+double precision build, `2 <= lx <= 8` for the scalar `Ax`, `dudxyz`,
+`opgrad`, `conv1` and `cdtp`, `4 <= lx <= 8` for the vector `Ax`, which
+does not pack, and an sm_80
 (A100) or sm_90 (H100 / GH200) device that the binary was actually
 compiled for. Both the compile time guard and the runtime check
 allow-list those two architectures rather than testing for "at least
@@ -179,15 +262,35 @@ offers no fp32 tensor path, only TF32, whose 11 bit significand (unit
 roundoff `4.9e-4`, against fp32's `6e-8`) is not usable for the operator
 inside a Krylov solve.
 
+@note The TMA variants need more than the tensor cores. The bulk copy
+instructions are PTX 8.0, so a CUDA 12 or later toolkit is required, and
+the architecture allow-list is sm_90 exactly --- sm_100 and later move
+the bulk copy semantics and would have to be measured before being let
+in. The order bound is `lx = 8` alone, because only there is a staged
+cube the element's own contiguous chunk of global memory, which is what
+lets a bulk copy address it with nothing but a base pointer and a length.
+Every smaller order either strides into the padded cube or scatters
+packed sub-cubes across it, which needs a tensor map re-encoded on the
+host for every `Ax` call --- `u` and `w` are Krylov vectors and change on
+each one --- and those are exactly the orders where dmma already measures
+behind kstep. A bulk copy also requires 16 byte aligned addresses and
+gives no diagnostic when it does not get them, so every pointer one will
+touch is checked at tuning time rather than assumed: nine for the scalar
+`Ax`, thirteen for the vector one, six for `dudxyz`, ten for `opgrad`,
+fifteen for `conv1` and five for `cdtp`. The variants that stage past
+48 kB additionally check that the device will grant a block the shared
+memory they need.
+
 @note The mfma variant covers `4 <= lx <= 12` in *both* precisions, on
-gfx90a (MI250X) and gfx942 (MI300A / MI300X), and only for the scalar
-operator --- there is no vector mfma kernel. `v_mfma_f32_16x16x4f32` is
-true IEEE fp32, so a single precision build loses nothing in accuracy
-there; the upper order bound is the LDS needed to keep the staged cubes
-resident, not the instruction. Availability is confirmed by launching a
-probe kernel that reports whether the device pass really was compiled for
-a matrix core architecture, rather than by reading the device properties:
-a code object selected from a fat binary built for something else would
+gfx90a (MI250X) and gfx942 (MI300A / MI300X), for the scalar `Ax`,
+`opgrad`, `dudxyz`, `conv1` and `cdtp` --- there is no vector mfma
+kernel. `v_mfma_f32_16x16x4f32` is true IEEE fp32, so a single precision
+build loses nothing in accuracy there; the upper order bound is the LDS
+needed to keep the staged cubes resident, not the instruction.
+Availability is confirmed by launching a probe kernel that reports
+whether the device pass really was compiled for a matrix core
+architecture, rather than by reading the device properties: a code
+object selected from a fat binary built for something else would
 otherwise turn the strategy into a silent no-op, launching, writing
 nothing, and leaving stale values in the output.
 
@@ -200,22 +303,22 @@ matrix core, and therefore no accuracy compromise whatsoever, mfma still
 measured 4.5% *behind* a plain 1d kernel at `lx = 8`. Whether either pays
 on a given part is exactly what the tuner measures.
 
-The vector (three component) Helmholtz operator runs its own two-way
-search, reported as a separate `Autotune Ax vector` section: the elements
-per block of its kstep variant against, on CUDA, the warp counts of a
-vector dmma variant. It has no 1d formulation, so `NEKO_AUTOTUNE=1D`
-selects kstep there, and no matrix core variant on HIP, where the vector
-search is the elements per block sweep alone. Blocking is not expected
-to pay much for the vector kernels --- they sit at 254-255 registers,
-where a wider block changes threads per block but not registers per
-thread, so it only saves the derivative matrix loads --- but it is swept
-rather than assumed. Because the three components share
-one set of geometric factors, the dmma variant reads them once into
-registers and runs the components through the same staged cubes rather
-than staging twelve of them. On GH200 at `lx = 8` that loses narrowly to
-kstep --- holding the factors costs occupancy --- so it is there for the
-low order end, where the register cost falls away and the shared memory
-footprint does not.
+The vector (three component) Helmholtz operator runs its own search,
+reported as a separate `Autotune Ax vector` section: the elements per
+block of its kstep variant against, on CUDA, the warp counts of a vector
+dmma variant and of the two TMA staged forms of it. It has no 1d
+formulation, so `NEKO_AUTOTUNE=1D` selects kstep there, and no matrix
+core variant on HIP, where the vector search is the elements per block
+sweep alone. Blocking is not expected to pay much for the vector kernels
+--- they sit at 254-255 registers, where a wider block changes threads
+per block but not registers per thread, so it only saves the derivative
+matrix loads --- but it is swept rather than assumed. Because the three
+components share one set of geometric factors, the dmma variant reads
+them once into registers and runs the components through the same staged
+cubes rather than staging twelve of them. On GH200 at `lx = 8` that
+loses narrowly to kstep --- holding the factors costs occupancy --- so
+it is there for the low order end, where the register cost falls away
+and the shared memory footprint does not.
 
 Within each formulation the tuner also sweeps a geometry parameter. For
 the kstep kernels this is the number of *elements per thread block*: a
@@ -230,7 +333,8 @@ Four sizes are measured (1024, 512, 256, 128), with any that would be
 smaller than one derivative matrix falling back to 1024.
 
 The tuner reports every candidate it measured, so the margins are
-visible rather than implied:
+visible rather than implied. On a build or a device without the tensor
+core variants that is the two formulations and their geometries:
 
 ```
 ---Autotune opgrad (lx: 4)----
@@ -247,8 +351,8 @@ visible rather than implied:
 The chosen line reports only the geometry that applies to the winning
 formulation: an elements-per-block count when kstep wins, a chunk size
 when the 1d variant does, and a warp or wavefront count when a matrix
-core variant does, which for `Ax` on a part that has one adds lines of
-the form
+core variant does, which on a part that has one adds lines of the
+form
 
 ```
   DMMA  2w 8e  :     10.94 us/call
@@ -266,6 +370,43 @@ on HIP, where it is the elements per block that the wavefront count
 implies. The chosen line names the same pair, as
 `Chose        : 3 (DMMA, 2 warps, 8 elem/blk)` or
 `Chose        : 3 (MFMA, 4 wf, 1 elem/block)`.
+
+At `lx = 8` on Hopper the TMA staged variants add lines of their own,
+which carry no element count --- they stage a single element by
+construction:
+
+```
+  TMA   2w     :     92.44 us/call
+  TMA   4w     :     89.68 us/call
+  TMAB  4w     :     89.61 us/call
+```
+
+`TMAB` is the batched vector form, so it appears in the
+`Autotune Ax vector` section only, and the chosen line names them as
+`Chose        : 4 (DMMA_TMA, 4 warps)` or
+`Chose        : 5 (DMMA_TMA_BATCH, 4 warps)`.
+
+A full section for one of the gradient-type operators, measured on GH200,
+looks like this --- and is a fair illustration of how narrow the margins
+between formulations can be once an operator is bandwidth bound:
+
+```
+----Autotune dudxyz (lx: 8)----
+  1D    ch=1024:    233.25 us/call
+  1D    ch=512 :    140.06 us/call
+  1D    ch=256 :    147.39 us/call
+  1D    ch=128 :    157.37 us/call
+  KSTEP eb=1   :    112.70 us/call
+  KSTEP eb=2   :    114.54 us/call
+  KSTEP eb=4   :    123.90 us/call
+  DMMA  2w 1e  :    119.13 us/call
+  DMMA  4w 1e  :    115.52 us/call
+  DMMA  8w 1e  :    113.11 us/call
+  TMA   2w     :    112.18 us/call
+  TMA   4w     :    111.82 us/call
+  TMA   8w     :    112.06 us/call
+  Chose        : 4 (DMMA_TMA, 4 warps)
+```
 
 @note The chunk sweep measures all four sizes rather than predicting a
 best one. Thread utilisation alone suggests the smallest valid block,
@@ -296,8 +437,8 @@ The tuning behaviour is controlled by the environment variables
 described in the @ref appendices_env-var reference: `NEKO_AUTOTUNE`
 pins a formulation and skips the search entirely, `NEKO_EB_TUNE` and
 `NEKO_MFMA_TUNE` enable or disable the elements per block and matrix
-core sweeps, `NEKO_EB`, `NEKO_CHUNKS`, `NEKO_DMMA_NW` and
-`NEKO_MFMA_NWF` force a particular geometry when a
+core sweeps, `NEKO_EB`, `NEKO_CHUNKS`, `NEKO_DMMA_NW`,
+`NEKO_DMMA_TMA_NW` and `NEKO_MFMA_NWF` force a particular geometry when a
 formulation is pinned, and
 `NEKO_TUNE_ROUNDS` / `NEKO_TUNE_ITERS` control the sampling of both
 sweeps. All

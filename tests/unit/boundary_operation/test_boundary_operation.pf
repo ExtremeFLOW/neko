@@ -78,7 +78,7 @@ contains
     type(time_state_t) :: time
 
     call build_single_hex_fixture(msh, Xh, dof, gs, coef)
-    call label_x_faces(msh)
+    call label_adjacent_faces(msh)
 
     call fld%init(dof, "xcoord")
     fld%x = dof%x
@@ -93,8 +93,10 @@ contains
     time%t = 0.1_dp
     call simcomp%compute_(time)
 
-    @assertEqual(sqrt(2.0_rp), simcomp%integral, tolerance = 1.0e-6_rp)
-    @assertEqual(0.5_rp, simcomp%average, tolerance = 1.0e-6_rp)
+    ! Shared edge nodes are counted once per facet: 2 * lx**2.
+    @assertEqual(2 * (lx_test**2), simcomp%bc%facet_node_msk(0))
+    @assertEqual(0.5_rp, simcomp%integral, tolerance = 1.0e-6_rp)
+    @assertEqual(0.25_rp, simcomp%average, tolerance = 1.0e-6_rp)
     @assertEqual(0.0_rp, simcomp%minimum, tolerance = 1.0e-6_rp)
     @assertEqual(1.0_rp, simcomp%maximum, tolerance = 1.0e-6_rp)
 
@@ -126,7 +128,7 @@ contains
     type is (fluid_pnpn_t)
        call build_single_hex_fixture(msh, Xh, dof, gs, fluid%c_Xh)
     end select
-    call label_x_faces(msh)
+    call label_adjacent_faces(msh)
 
     call neko_registry%init()
     call neko_registry%add_field(dof, "u")
@@ -159,8 +161,8 @@ contains
     @assertEqual(zone_indices(2), simcomp%zone_indices(2))
     @assertEqual("integral", trim(simcomp%operations(1)))
     @assertEqual("max", trim(simcomp%operations(2)))
-    @assertEqual(simcomp%bc%msk(0), simcomp%areas%size())
-    @assertEqual(simcomp%bc%msk(0), simcomp%surface_values%size())
+    @assertEqual(simcomp%bc%facet_node_msk(0), simcomp%areas%size())
+    @assertEqual(simcomp%bc%facet_node_msk(0), simcomp%surface_values%size())
 
     call simcomp%free()
     select type(fluid => test_case%fluid)
@@ -209,13 +211,15 @@ contains
     end do
     call simcomp%bc%finalize()
 
-    n_pts = simcomp%bc%msk(0)
+    n_pts = simcomp%bc%facet_node_msk(0)
     if (n_pts .gt. 0) then
        call simcomp%areas%init(n_pts)
        call simcomp%surface_values%init(n_pts)
-       call vector_face_masked_gather_copy_0(simcomp%areas, simcomp%coef%area, &
-            simcomp%bc%msk, simcomp%bc%facet, simcomp%coef%Xh%lx, &
-            simcomp%coef%Xh%ly, simcomp%coef%Xh%lz, n_pts)
+       call vector_face_masked_gather_copy_0(simcomp%areas, &
+            simcomp%coef%area, &
+            simcomp%bc%facet_node_msk, simcomp%bc%facet, &
+            simcomp%coef%Xh%lx, simcomp%coef%Xh%ly, simcomp%coef%Xh%lz, &
+            n_pts)
     end if
   end subroutine init_boundary_operation_for_compute_test
 
@@ -245,8 +249,8 @@ contains
     call p(8)%set_id(8)
 
     call msh%init(3, 1)
-    call msh%add_element(1, 1, p(1), p(2), p(4), p(3), &
-         p(5), p(6), p(7), p(8))
+    call msh%add_element(1, 1, p(1), p(2), p(3), p(4), &
+         p(5), p(6), p(8), p(7))
     call msh%generate_conn()
 
     call Xh%init(GLL, lx_test, lx_test, lx_test)
@@ -255,13 +259,14 @@ contains
     call coef%init(gs)
   end subroutine build_single_hex_fixture
 
-  subroutine label_x_faces(msh)
+  !> Mark the x = 0 (facet 1) and y = 0 (facet 3) faces, which share an edge.
+  subroutine label_adjacent_faces(msh)
     type(mesh_t), intent(inout) :: msh
 
     call msh%mark_labeled_facet(1, 1, 1)
-    call msh%mark_labeled_facet(2, 1, 2)
+    call msh%mark_labeled_facet(3, 1, 2)
     call msh%labeled_zones(1)%finalize()
     call msh%labeled_zones(2)%finalize()
-  end subroutine label_x_faces
+  end subroutine label_adjacent_faces
 
 end module test_boundary_operation

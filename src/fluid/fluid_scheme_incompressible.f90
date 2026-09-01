@@ -51,7 +51,7 @@ module fluid_scheme_incompressible
   use phmg, only : phmg_t
   use precon, only : pc_t, precon_allocator, precon_destroy
   use fluid_stats, only : fluid_stats_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
   use math, only : glsum
@@ -472,7 +472,6 @@ contains
     logical, intent(in) :: strong
     integer :: i
     class(bc_t), pointer :: b
-    b => null()
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
@@ -486,9 +485,14 @@ contains
     call device_event_sync(glb_cmd_event)
     call rotate_cyc(this%u, this%v, this%w, 0, this%c_Xh)
 
-
-    call this%bcs_vel%apply_vector(&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
+    ! Double pass for Dirichlet bcs only.
+    b => null()
+    do i = 1, this%bcs_vel%size()
+       b => this%bcs_vel%get(i)
+       if (b%bc_type .eq. BC_DIRICHLET) then
+          call b%apply_vector_generic(this%u, this%v, this%w,time, strong)
+       end if
+    end do
 
     call rotate_cyc(this%u, this%v, this%w, 1, this%c_Xh)
     call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)

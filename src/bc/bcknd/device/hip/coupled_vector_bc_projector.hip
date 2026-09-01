@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,40 +32,41 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_SYMETRY_KERNEL__
-#define __BC_SYMETRY_KERNEL__
+#include <hip/hip_runtime.h>
+#include <device/device_config.h>
+#include <device/hip/check.h>
 
-/**
- * Device kernel for vector apply for a symmetry condition
- */
-template< typename T >
-__global__ void symmetry_apply_vector_kernel(const int * __restrict__ xmsk,
-					     const int * __restrict__ ymsk,
-					     const int * __restrict__ zmsk,
-					     T * __restrict__ x,
-					     T * __restrict__ y,
-					     T * __restrict__ z,
-					     const int m,
-					     const int n,
-					     const int l) {
+#include "coupled_vector_bc_projector_kernel.h"
 
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+extern "C" {
 
-  for (int i = idx; i < m; i += str) {
-    const int k = (xmsk[i+1] - 1);
-    x[k] = 0.0;
+  void hip_coupled_vector_bc_projector_apply(void *mixed_msk, void *x, void *y,
+                                            void *z, void *constraint_n,
+                                            void *constraint_t1,
+                                            void *constraint_t2, void *n,
+                                            void *t1, void *t2, int *m,
+                                            hipStream_t strm) {
+
+    if (*m <= 0)
+      return;
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m) + 1024 - 1) / 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(coupled_vector_bc_projector_apply_kernel<real>),
+                       nblcks, nthrds, 0, strm,
+                       (const int *) mixed_msk,
+                       (real *) x,
+                       (real *) y,
+                       (real *) z,
+                       (const int *) constraint_n,
+                       (const int *) constraint_t1,
+                       (const int *) constraint_t2,
+                       (const real *) n,
+                       (const real *) t1,
+                       (const real *) t2,
+                       *m);
+    HIP_CHECK(hipGetLastError());
   }
 
-  for (int i = idx ; i < n; i += str) {
-    const int k = (ymsk[i+1] - 1);
-    y[k] = 0.0;
-  }
-
-  for (int i = idx; i < l; i += str) {
-    const int k = (zmsk[i+1] - 1);
-    z[k] = 0.0;
-  }
 }
-
-#endif // __BC_SYMETRY_KERNEL__

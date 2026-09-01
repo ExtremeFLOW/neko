@@ -112,7 +112,7 @@ contains
 
     maxiter = 100
 
-    do k=1, maxiter
+    do k = 1, maxiter
        up = u / utau
        yp = y * utau / nu
        niter = k
@@ -133,14 +133,14 @@ contains
 
        if (error < 1e-3) then
           exit
-       endif
+       end if
 
-    enddo
+    end do
 
     if (niter .eq. maxiter) then
        ! Called from inside an OpenMP loop, so serialise the log write.
        !$omp critical
-       write(log_msg, *) "Newton not converged", error, f, utau, old, guess
+       write(log_msg, *) "Newton not converged", error, f, utau
        call neko_log%message(log_msg, NEKO_LOG_DEBUG)
        !$omp end critical
     end if

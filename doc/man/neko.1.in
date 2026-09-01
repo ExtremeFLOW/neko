@@ -122,16 +122,36 @@ Indentation width used by the logger.
 Pins the kernel formulation used by the spectral element operators on the
 CUDA and HIP backends, skipping the auto-tuning search that otherwise runs
 on the first call of each operator. Accepted values are
-.BR 1D ", " KSTEP ", " DMMA " and " MFMA .
+.BR 1D ", " KSTEP ", " DMMA ", " DMMA_TMA ", " DMMA_TMA_BATCH " and " MFMA .
 .B DMMA
-applies to the CUDA Helmholtz operator only, scalar and vector, and needs a
-double precision build, a polynomial order with
-.BR 2 " <= " lx " <= " 8
-for the scalar operator or
+is a CUDA only variant, available for the Helmholtz operator
+.BR Ax " (scalar and vector), " opgrad ", " dudxyz ", " conv1 " and " cdtp ,
+and needs a double precision build, an sm_80 or sm_90 device the binary was
+compiled for, and a polynomial order with
+.BR 2 " <= " lx " <= " 8 ,
+or
 .BR 4 " <= " lx " <= " 8
-for the vector one, and an sm_80 or sm_90 device the binary was compiled for.
+for the vector
+.BR Ax .
+.BR convect_scalar " and " lambda2
+have no such variant.
+.B DMMA_TMA
+is the same variant with its staging issued as bulk asynchronous copies on
+the Tensor Memory Accelerator, for every operator that has a
+.B DMMA
+form, and narrows the scope to
+.BR lx " = " 8
+on an sm_90 device, with a CUDA 12 or later toolkit. The
+.BR opgrad " and " conv1
+forms stage past the 48 kB a block gets for free and additionally need a
+device that will grant them the rest.
+.B DMMA_TMA_BATCH
+is the batched form of it, which stages all ten input cubes of an element at
+once, for the vector operator only.
 .B MFMA
-is its HIP counterpart for the scalar operator, for
+is its HIP counterpart, available for the same operators less the vector
+.BR Ax ,
+which has no matrix core kernel, for
 .BR 4 " <= " lx " <= " 12
 on a gfx90a or gfx942 device, in either precision.
 When unset, each operator benchmarks every formulation it has, and the
@@ -146,8 +166,8 @@ and rejects them. Set to
 to skip the sweep.
 .TP
 .B NEKO_MFMA_TUNE
-Controls whether the auto-tuner sweeps the matrix core variant of the HIP
-Helmholtz operator. Enabled by default wherever the device and the polynomial
+Controls whether the auto-tuner sweeps the matrix core variants on the HIP
+backend. Enabled by default wherever the device and the polynomial
 order support it. Set to
 .BR 0
 to keep it out of the sweep;
@@ -189,6 +209,20 @@ are 2, 4 and 8 warps per block. Values outside the valid range fall back to
 Defaults to
 .BR 0 .
 .TP
+.B NEKO_DMMA_TMA_NW
+Selects the warps-per-block candidate used when a TMA staged tensor core
+formulation is pinned with
+.BR NEKO_AUTOTUNE=DMMA_TMA " or " NEKO_AUTOTUNE=DMMA_TMA_BATCH .
+Candidates
+.BR 0 ", " 1 " and " 2
+are 2, 4 and 8 warps per block, as for
+.BR NEKO_DMMA_NW ,
+and both variants read this one variable. Values outside the valid range fall
+back to
+.BR 0 .
+Defaults to
+.BR 0 .
+.TP
 .B NEKO_MFMA_NWF
 Selects the wavefronts-per-block candidate used when the matrix core
 formulation is pinned with
@@ -196,8 +230,9 @@ formulation is pinned with
 Candidates
 .BR 0 " to " 3
 are 1, 2, 4 and 8 wavefronts per block. The count also fixes the elements per
-block: min(nwf, ceil(lx*lx/16)) wavefronts cooperate on one element and the
-block covers the rest. Values outside the valid range fall back to
+block: the block covers as many elements as the ceil(lx*lx/16) column groups
+leave wavefronts for, rounded down to a power of two, and the remaining
+wavefronts cooperate on each. Values outside the valid range fall back to
 .BR 0 .
 Defaults to
 .BR 0 .
