@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022-2024, The Neko Authors
+ Copyright (c) 2022-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@
 /**
  * Fortran wrapper for device OpenCL convective terms
  */
-double opencl_cfl(double *dt, void *u, void *v, void *w,
+real_xp opencl_cfl(real_xp *dt, void *u, void *v, void *w,
 		void *drdx, void *dsdx, void *dtdx,
 		void *drdy, void *dsdy, void *dtdy,
 		void *drdz, void *dsdz, void *dtdz,
@@ -66,9 +66,9 @@ double opencl_cfl(double *dt, void *u, void *v, void *w,
   const size_t global_item_size = 256 * (*nel);
   const size_t local_item_size = 256;
 
-  double * cfl = (double *) malloc((*nel) * sizeof(double));
+  real_xp * cfl = (real_xp *) malloc((*nel) * sizeof(real_xp));
   cl_mem cfl_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
-                                (*nel) * sizeof(double), NULL, &err);
+                                (*nel) * sizeof(real_xp), NULL, &err);
   CL_CHECK(err);
   cl_kernel kernel;
 
@@ -79,7 +79,7 @@ double opencl_cfl(double *dt, void *u, void *v, void *w,
       kernel = clCreateKernel(cfl_program, STR(cfl_kernel_lx##LX), &err);       \
       CL_CHECK(err);                                                            \
                                                                                 \
-      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(double), dt));                    \
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(real_xp), dt));                 \
       CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &u));         \
       CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &v));         \
       CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &w));         \
@@ -124,10 +124,10 @@ double opencl_cfl(double *dt, void *u, void *v, void *w,
   }
 
   CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue,
-			       cfl_d, CL_TRUE, 0, (*nel) * sizeof(double),
+			       cfl_d, CL_TRUE, 0, (*nel) * sizeof(real_xp),
 			       cfl, 1, &kern_wait, NULL));
 
-  double cfl_max = 0.0;
+  real_xp cfl_max = 0.0;
   for (i = 0; i < (*nel); i++) {
     cfl_max = fmax(cfl_max, cfl[i]);
   }
