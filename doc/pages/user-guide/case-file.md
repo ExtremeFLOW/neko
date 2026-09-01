@@ -634,25 +634,31 @@ A more detailed description of each boundary condition is provided below.
 
   The second option is to provide the values through a field file using the
   `file_name` keyword. This is currently supported only by the axis-aligned
-  implementation. The file must contain a three-component vector field in
-  global Cartesian coordinates. Internally, only the tangential components are
-  enforced on the boundary. Optional interpolation settings are the same as for
-  other field-imported data:
+  implementation. The file must contain a three-component vector field in global
+  Cartesian coordinates. Internally, only the tangential components are enforced
+  on the boundary. The `file_name` and `mesh_file_name` values use Neko's
+  field-sample naming convention, for example `field0.f00000`. The
+  `mesh_file_name` is an optional field sample containing the source mesh
+  coordinates; it can be omitted when the source field contains its own
+  coordinates. Optional interpolation settings are the same as for other
+  field-imported data:
 
   * `interpolate`. Logical flag controlling whether interpolation is used.
-  * `mesh_file_name`. Mesh file used for interpolation when the source field is
-    defined on a different mesh.
+  * `mesh_file_name`. Optional sampled field containing the source mesh
+    coordinates when the source field is defined on a different mesh.
   * `interpolation.tolerance`. Tolerance for the interpolation search.
   * `interpolation.padding`. Padding used in the interpolation search.
 
   ```json
   {
     "type": "normal_outflow",
-    "file_name": "outlet_velocity.fld",
+    "file_name": "outlet_velocity0.f00000",
     "interpolate": true,
-    "mesh_file_name": "coarse_box.nmsh",
-    "interpolation.tolerance": 1.0e-8,
-    "interpolation.padding": 0.01,
+    "mesh_file_name": "coarse_box0.f00000",
+    "interpolation": {
+      "tolerance": 1.0e-8,
+      "padding": 0.01
+    },
     "zone_indices": [1, 2]
   }
   ```
