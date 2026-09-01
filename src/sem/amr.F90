@@ -267,6 +267,10 @@ contains
     ! reconstruct SEM module
     call this%sem%amr_restart(this%reconstruct, this%counter, time)
 
+    ! Start with scratch arrays, as they can be used during restart
+    call neko_scratch_registry%amr_restart(this%reconstruct, this%counter, &
+         time)
+
     ! restart components
     if (allocated(this%components)) then
        do il = 1, this%ncomponents
@@ -276,10 +280,8 @@ contains
        end do
     end if
 
-    ! registries
+    ! rest of registries
     call neko_registry%amr_restart(this%reconstruct, this%counter, time)
-    call neko_scratch_registry%amr_restart(this%reconstruct, this%counter, &
-         time)
 
     ! let user reconstruct fields
     write(log_buf, '(a)') 'Restarting user space'

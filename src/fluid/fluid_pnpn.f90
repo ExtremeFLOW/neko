@@ -1426,7 +1426,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_error('fluid reconstruction; nothing done for device; 1')
     else
-       ntot = this%dm_Xh%size()
+       ntot = this%dm_Xh%Xh%lxyz * reconstruct%nold
        do concurrent (il = 1: ntot)
           this%abx1%x(il, 1, 1, 1) = this%abx1%x(il, 1, 1, 1) / &
                this%c_Xh%B(il, 1, 1, 1)
