@@ -35,7 +35,7 @@
 #ifdef __APPLE__
 #include "bc_utils.h"
 
-void metal_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
+void metal_symmetry_aligned_apply_vector(void *xmsk, void *ymsk, void *zmsk,
                                  void *x, void *y, void *z,
                                  int *m, int *n, int *l, void *strm) {
     int max_len = *m;
@@ -45,7 +45,7 @@ void metal_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
 
     id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)(strm);
     int fm = *m, fn = *n, fl = *l;
-    bc_dispatch_1d(q, bc_get_pipeline(@"symmetry_apply_vector_kernel"),
+    bc_dispatch_1d(q, bc_get_pipeline(@"symmetry_aligned_apply_vector_kernel"),
         ^(id<MTLComputeCommandEncoder> enc) {
             [enc setBuffer:(__bridge id<MTLBuffer>)(xmsk) offset:0 atIndex:0];
             [enc setBuffer:(__bridge id<MTLBuffer>)(ymsk) offset:0 atIndex:1];

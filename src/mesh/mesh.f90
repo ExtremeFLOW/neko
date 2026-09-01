@@ -40,10 +40,10 @@ module mesh
   use quad, only : quad_t, NEKO_QUAD_NEDS, NEKO_QUAD_NPTS
   use utils, only : neko_error, neko_warning, nonlinear_index
   use mask, only : mask_t
-  use stack, only : stack_i4_t, stack_i8_t, stack_i4t4_t, stack_i4t2_t
+  use stack, only : stack_i4_t, stack_i8_t
   use tuple, only : tuple_i4_t, tuple4_i4_t
   use htable, only : htable_t, htable_i8_t, htable_i4_t, htable_i4t4_t,&
-       htable_i4t2_t, htable_iter_i4t2_t, htable_iter_i4t4_t
+       htable_i4t2_t
   use datadist, only : linear_dist_t
   use distdata, only : distdata_t
   use comm, only : pe_size, pe_rank, NEKO_COMM
@@ -90,10 +90,37 @@ module mesh
      type(mesh_element_t), allocatable :: elements(:) !< List of elements
      logical, allocatable :: dfrmd_el(:) !< List of elements
 
-     type(htable_i4_t) :: htp !< Table of unique points (global->local)
-     type(htable_i4t4_t) :: htf !< Table of unique faces (facet->local id)
-     type(htable_i4t2_t) :: hte !< Table of unique edges (edge->local id)
+     !> Table of unique points (global->local)
+     !! @details Construction-only scratch: it is what deduplicates points as
+     !! elements are added, and is released at the end of @a generate_conn,
+     !! by which point every local id still needed lives in @a pt_lid.
+     !! @a allocated(htp) is therefore the test for "the mesh is still
+     !! being built".
+     type(htable_i4_t), private, allocatable :: htp
      type(htable_i4_t) :: htel !< Table of unique elements (global->local)
+
+     !> Local point id of each element's points \f$ (point, element) \f$
+     !! @details Lets the point->local id hash table be released once the
+     !! connectivity has been generated, see @a edge_lid
+     integer, allocatable :: pt_lid(:,:)
+
+     !> Local edge id of each element's edges \f$ (edge, element) \f$
+     integer, allocatable :: edge_lid(:,:)
+
+     !> Local facet id of each element's facets \f$ (facet, element) \f$
+     !! @attention only allocated for gdim .eq. 3, in two dimensions the
+     !! facets of an element are its edges
+     integer, allocatable :: face_lid(:,:)
+
+     !> Endpoints (global point ids) of each unique local edge \f$ (2, meds) \f$
+     !! @details Only valid while the connectivity is generated, released at
+     !! the end of @a generate_conn.
+     integer, private, allocatable :: edge_pts(:,:)
+
+     !> Points (global point ids) of each unique local face \f$ (4, mfcs) \f$
+     !! @details Only valid while the connectivity is generated, released at
+     !! the end of @a generate_conn.
+     integer, private, allocatable :: face_pts(:,:)
 
 
      integer, allocatable :: facet_neigh(:,:) !< Facet to neigh. element table
@@ -129,17 +156,12 @@ module mesh
      procedure, private, pass(this) :: init_dist => mesh_init_dist
      procedure, private, pass(this) :: add_quad => mesh_add_quad
      procedure, private, pass(this) :: add_hex => mesh_add_hex
-     procedure, private, pass(this) :: add_edge => mesh_add_edge
-     procedure, private, pass(this) :: add_face => mesh_add_face
      procedure, private, pass(this) :: add_point => mesh_add_point
-     procedure, private, pass(this) :: get_local_point => mesh_get_local_point
-     procedure, private, pass(this) :: get_local_edge => mesh_get_local_edge
-     procedure, private, pass(this) :: get_local_facet => mesh_get_local_facet
-     procedure, private, pass(this) :: get_global_edge => mesh_get_global_edge
-     procedure, private, pass(this) :: get_global_facet => mesh_get_global_facet
-     procedure, private, pass(this) :: is_shared_point => mesh_is_shared_point
-     procedure, private, pass(this) :: is_shared_edge => mesh_is_shared_edge
-     procedure, private, pass(this) :: is_shared_facet => mesh_is_shared_facet
+     procedure, pass(this) :: get_global_edge => mesh_get_global_edge
+     procedure, pass(this) :: get_global_facet => mesh_get_global_facet
+     procedure, pass(this) :: is_shared_point => mesh_is_shared_point
+     procedure, pass(this) :: is_shared_edge => mesh_is_shared_edge
+     procedure, pass(this) :: is_shared_facet => mesh_is_shared_facet
      procedure, pass(this) :: free => mesh_free
      procedure, pass(this) :: finalize => mesh_finalize
      procedure, pass(this) :: mark_periodic_facet => mesh_mark_periodic_facet
@@ -161,14 +183,6 @@ module mesh
      generic :: init => init_nelv, init_dist
      !> Add an element to the mesh
      generic :: add_element => add_quad, add_hex
-     !> Get local id for a mesh entity
-     !! @todo Add similar mappings for element ids
-     generic :: get_local => get_local_point, get_local_edge, get_local_facet
-     !> Get global id for a mesh entity
-     !! @todo Add similar mappings for element ids
-     generic :: get_global => get_global_edge, get_global_facet
-     !> Check if a mesh entity is shared
-     generic :: is_shared => is_shared_point, is_shared_edge, is_shared_facet
   end type mesh_t
 
   abstract interface
@@ -275,8 +289,8 @@ contains
 
           allocate(this%facet_neigh(NEKO_HEX_NFCS, this%nelv))
 
-          call this%htf%init(this%nelv * NEKO_HEX_NFCS, i)
-          call this%hte%init(this%nelv * NEKO_HEX_NEDS, i)
+          allocate(this%edge_lid(NEKO_HEX_NEDS, this%nelv))
+          allocate(this%face_lid(NEKO_HEX_NFCS, this%nelv))
        end if
     else if (this%gdim .eq. 2) then
        do i = 1, this%nelv
@@ -292,7 +306,7 @@ contains
 
           allocate(this%facet_neigh(NEKO_QUAD_NEDS, this%nelv))
 
-          call this%hte%init(this%nelv * NEKO_QUAD_NEDS, i)
+          allocate(this%edge_lid(NEKO_QUAD_NEDS, this%nelv))
        end if
     else
        call neko_error("Invalid dimension")
@@ -301,22 +315,16 @@ contains
     !> @todo resize onces final size is known
     allocate(this%points(this%npts*this%nelv))
 
-    !> @todo resize onces final size is known
-    !! Only init if we generate connectivity
+    ! Only init if we generate connectivity; point_neigh is sized and
+    ! allocated by generate_conn, once the number of unique points is known
     if (this%lgenc) then
-       ! Temporary workaround to avoid long vacations with Cray Fortran
-       if (allocated(this%point_neigh)) then
-          deallocate(this%point_neigh)
-       end if
-       allocate(this%point_neigh(this%gdim*this%npts*this%nelv))
-       do i = 1, this%gdim*this%npts*this%nelv
-          call this%point_neigh(i)%init(size = 4)
-       end do
+       allocate(this%pt_lid(this%npts, this%nelv))
     end if
 
     allocate(this%facet_type(2 * this%gdim, this%nelv))
     this%facet_type = 0
 
+    allocate(this%htp)
     call this%htp%init(this%npts*this%nelv, i)
     call this%htel%init(this%nelv, i)
 
@@ -345,12 +353,33 @@ contains
     class(mesh_t), intent(inout) :: this
     integer :: i
 
-    call this%htp%free()
-    call this%htf%free()
-    call this%hte%free()
+    if (allocated(this%htp)) then
+       call this%htp%free()
+       deallocate(this%htp)
+    end if
     call this%htel%free()
     call this%ddata%free()
     call this%curve%free()
+
+    if (allocated(this%pt_lid)) then
+       deallocate(this%pt_lid)
+    end if
+
+    if (allocated(this%edge_lid)) then
+       deallocate(this%edge_lid)
+    end if
+
+    if (allocated(this%face_lid)) then
+       deallocate(this%face_lid)
+    end if
+
+    if (allocated(this%edge_pts)) then
+       deallocate(this%edge_pts)
+    end if
+
+    if (allocated(this%face_pts)) then
+       deallocate(this%face_pts)
+    end if
 
     if (allocated(this%dfrmd_el)) then
        deallocate(this%dfrmd_el)
@@ -379,7 +408,7 @@ contains
     end if
 
     if (allocated(this%point_neigh)) then
-       do i = 1, this%gdim * this%npts * this%nelv
+       do i = 1, size(this%point_neigh)
           call this%point_neigh(i)%free()
        end do
        ! This causes Cray Fortran to take a long vacation
@@ -480,8 +509,6 @@ contains
     type(tuple_i4_t) :: facet_data
     type(stack_i4_t) :: neigh_order
     class(element_t), pointer :: ep
-    type(tuple_i4_t) :: e
-    type(tuple4_i4_t) :: f
     integer :: p_local_idx
     integer :: el, id
     integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes, src, dst
@@ -491,43 +518,43 @@ contains
     if (.not. this%lgenc) return
 
     !If we generate connectivity, we do that here.
+    !
+    ! Register every point first; add_point hands back the local id directly,
+    ! and once all of them are in, mpts is the exact size of point_neigh
     do el = 1, this%nelv
        ep => this%elements(el)%e
-       select type(ep)
-       type is (hex_t)
-          do i = 1, NEKO_HEX_NPTS
-             !Only for getting the id
-             call this%add_point(ep%pts(i)%p, id)
-             p_local_idx = this%get_local(this%points(id))
-             !should stack have inout on what we push? would be neat with in
-             id = ep%id()
-             call this%point_neigh(p_local_idx)%push(id)
-          end do
-          do i = 1, NEKO_HEX_NFCS
-             call ep%facet_id(f, i)
-             call this%add_face(f)
-          end do
-
-          do i = 1, NEKO_HEX_NEDS
-             call ep%edge_id(e, i)
-             call this%add_edge(e)
-          end do
-       type is (quad_t)
-          do i = 1, NEKO_QUAD_NPTS
-             !Only for getting the id
-             call this%add_point(ep%pts(i)%p, id)
-             p_local_idx = this%get_local(this%points(id))
-             !should stack have inout on what we push? would be neat with in
-             id = ep%id()
-             call this%point_neigh(p_local_idx)%push(id)
-          end do
-
-          do i = 1, NEKO_QUAD_NEDS
-             call ep%facet_id(e, i)
-             call this%add_edge(e)
-          end do
-       end select
+       do i = 1, this%npts
+          call this%add_point(ep%pts(i)%p, p_local_idx)
+          this%pt_lid(i, el) = p_local_idx
+       end do
     end do
+
+    ! Temporary workaround to avoid long vacations with Cray Fortran
+    if (allocated(this%point_neigh)) then
+       deallocate(this%point_neigh)
+    end if
+    allocate(this%point_neigh(this%mpts))
+    do i = 1, this%mpts
+       call this%point_neigh(i)%init(size = 4)
+    end do
+
+    do el = 1, this%nelv
+       !should stack have inout on what we push? would be neat with in
+       id = this%elements(el)%e%id()
+       do i = 1, this%npts
+          call this%point_neigh(this%pt_lid(i, el))%push(id)
+       end do
+    end do
+
+    !
+    ! Enumerate the unique edges and faces of the local mesh
+    ! (Note it needs to be called after all points have been added)
+    !
+    call mesh_generate_edge_lid(this)
+
+    if (this%gdim .eq. 3) then
+       call mesh_generate_face_lid(this)
+    end if
 
 
     if (this%gdim .eq. 2) then
@@ -682,9 +709,114 @@ contains
 
     call mesh_generate_facet_numbering(this)
 
+    ! The endpoints are only needed while the numbering is generated, from
+    ! here on an edge or a face is addressed by its element and local number
+    deallocate(this%edge_pts)
+    if (allocated(this%face_pts)) then
+       deallocate(this%face_pts)
+    end if
+
+    ! The global->local point table has served its purpose; every local id
+    ! needed from here on is in pt_lid, edge_lid and face_lid
+    call this%htp%free()
+    deallocate(this%htp)
+
     this%lconn = .true.
 
   end subroutine mesh_generate_conn
+
+  !> Enumerate the unique edges of the local mesh
+  !! @details Assigns a local id to each distinct edge, stored per element
+  !! and local edge number in @a edge_lid, and collects the endpoints of
+  !! every unique edge in @a edge_pts. Edges are deduplicated by chaining
+  !! them on the local id of their lowest numbered endpoint; the chains hold
+  !! only the edges meeting at a point, so a lookup scans a handful of
+  !! entries. Ids are handed out in first seen order, matching the numbering
+  !! the previously used hash table produced.
+  !! @attention Requires all points to have been added to the mesh
+  subroutine mesh_generate_edge_lid(this)
+    type(mesh_t), target, intent(inout) :: this
+    type(tuple_i4_t) :: e
+    class(element_t), pointer :: ep
+    integer, allocatable :: chain(:), head(:)
+    integer :: el, i, id, n_eds
+
+    if (this%gdim .eq. 3) then
+       n_eds = NEKO_HEX_NEDS
+    else
+       n_eds = NEKO_QUAD_NEDS
+    end if
+
+    allocate(this%edge_pts(2, n_eds * this%nelv))
+    allocate(chain(n_eds * this%nelv))
+
+    ! Chains are indexed by local point id, bounded by the number of points
+    allocate(head(this%npts * this%nelv))
+    head = 0
+
+    this%meds = 0
+    do el = 1, this%nelv
+       ep => this%elements(el)%e
+       select type (ep)
+       type is (hex_t)
+          do i = 1, NEKO_HEX_NEDS
+             call ep%edge_id(e, i)
+             call mesh_add_edge(this, e, head, chain, id)
+             this%edge_lid(i, el) = id
+          end do
+       type is (quad_t)
+          do i = 1, NEKO_QUAD_NEDS
+             call ep%facet_id(e, i)
+             call mesh_add_edge(this, e, head, chain, id)
+             this%edge_lid(i, el) = id
+          end do
+       end select
+    end do
+
+    deallocate(chain)
+    deallocate(head)
+
+  end subroutine mesh_generate_edge_lid
+
+  !> Enumerate the unique faces of the local mesh
+  !! @details Assigns a local id to each distinct face, stored per element
+  !! and local facet number in @a face_lid, and collects the points of every
+  !! unique face in @a face_pts. Faces are deduplicated with the same point
+  !! chaining as @a mesh_generate_edge_lid, and ids are handed out in first
+  !! seen order, matching the numbering the previously used hash table
+  !! produced.
+  !! @attention Requires all points to have been added to the mesh
+  subroutine mesh_generate_face_lid(this)
+    type(mesh_t), target, intent(inout) :: this
+    type(tuple4_i4_t) :: f
+    class(element_t), pointer :: ep
+    integer, allocatable :: chain(:), head(:)
+    integer :: el, i, id
+
+    allocate(this%face_pts(4, NEKO_HEX_NFCS * this%nelv))
+    allocate(chain(NEKO_HEX_NFCS * this%nelv))
+
+    ! Chains are indexed by local point id, bounded by the number of points
+    allocate(head(this%npts * this%nelv))
+    head = 0
+
+    this%mfcs = 0
+    do el = 1, this%nelv
+       ep => this%elements(el)%e
+       select type (ep)
+       type is (hex_t)
+          do i = 1, NEKO_HEX_NFCS
+             call ep%facet_id(f, i)
+             call mesh_add_face(this, f, head, chain, id)
+             this%face_lid(i, el) = id
+          end do
+       end select
+    end do
+
+    deallocate(chain)
+    deallocate(head)
+
+  end subroutine mesh_generate_face_lid
 
   !> Generate element-element connectivity via facets between PEs
   subroutine mesh_generate_external_facet_conn(this)
@@ -792,11 +924,8 @@ contains
 
                    call this%ddata%set_shared_el_facet(element, facet)
 
-                   if (this%hte%get(edge, facet) .eq. 0) then
-                      call this%ddata%set_shared_facet(facet)
-                   else
-                      call neko_error("Invalid shared edge")
-                   end if
+                   call this%ddata%set_shared_facet( &
+                        this%edge_lid(facet, element))
 
                 end if
 
@@ -831,12 +960,8 @@ contains
 
                    call this%ddata%set_shared_el_facet(element, facet)
 
-                   if (this%htf%get(face, facet) .eq. 0) then
-                      call this%ddata%set_shared_facet(facet)
-                   else
-                      call neko_error("Invalid shared face")
-                   end if
-
+                   call this%ddata%set_shared_facet( &
+                        this%face_lid(facet, element))
 
                 end if
 
@@ -1003,20 +1128,19 @@ contains
   !! @attention only for elements where facet .ne. edges
   subroutine mesh_generate_edge_conn(this)
     type(mesh_t), target, intent(inout) :: this
-    type(htable_iter_i4t2_t) :: it
-    type(tuple_i4_t), pointer :: edge
+    integer, allocatable :: edge_lp(:,:)
+    logical, allocatable :: shared_edges(:)
     type(uset_i8_t), target :: edge_idx, ghost, owner
     type(stack_i8_t), target :: send_buff
     type(htable_i8_t) :: glb_to_loc
     type(MPI_Status) :: status
     type(MPI_Request) :: send_req, recv_req
     integer, contiguous, pointer :: p1(:), p2(:), ns_id(:)
-    integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
+    integer :: i, j, id, lid, ierr, num_edge_glb, edge_offset, num_edge_loc
     integer :: k, l , shared_offset, glb_nshared, n_glb_id
     integer(kind=i8) :: C, glb_max, glb_id
     integer(kind=i8), pointer :: glb_ptr
     integer(kind=i8), allocatable :: recv_buff(:)
-    logical :: shared_edge
     type(stack_i4_t), target :: non_shared_edges
     integer :: max_recv, src, dst, n_recv
 
@@ -1024,9 +1148,9 @@ contains
     !>@todo move this into distdata
     allocate(this%ddata%local_to_global_edge(this%meds))
 
-    call edge_idx%init(this%hte%num_entries())
-    call send_buff%init(this%hte%num_entries())
-    call owner%init(this%hte%num_entries())
+    call edge_idx%init(this%meds)
+    call send_buff%init(this%meds)
+    call owner%init(this%meds)
 
     call glb_to_loc%init(32, i)
 
@@ -1042,36 +1166,58 @@ contains
 
     glb_max = int(num_edge_glb, i8)
 
-    call non_shared_edges%init(this%hte%num_entries())
+    call non_shared_edges%init(this%meds)
 
-    call it%init(this%hte)
-    do while(it%next())
-       edge => it%key()
-       call it%data(id)
+    ! Resolve both endpoints of every edge to a local point id up front, so
+    ! that the neighbour search below reads nothing but plain arrays
+    allocate(edge_lp(2, this%meds))
+    do lid = 1, this%meds
+       id = this%edge_pts(1, lid)
+       edge_lp(1, lid) = this%have_point_glb_idx(id)
+       id = this%edge_pts(2, lid)
+       edge_lp(2, lid) = this%have_point_glb_idx(id)
+    end do
 
-       k = this%have_point_glb_idx(edge%x(1))
-       l = this%have_point_glb_idx(edge%x(2))
+    !
+    ! An edge is shared when both of its endpoints see the same remote
+    ! element. Every iteration writes only its own flag, so this search,
+    ! the expensive part of the numbering, is the part that threads
+    !
+    allocate(shared_edges(this%meds))
+    !$omp parallel do private(lid, k, l, p1, p2, i, j)
+    do lid = 1, this%meds
+       k = edge_lp(1, lid)
+       l = edge_lp(2, lid)
        p1 => this%point_neigh(k)%array()
        p2 => this%point_neigh(l)%array()
 
-       shared_edge = .false.
+       shared_edges(lid) = .false.
 
        ! Find edge neighbor from point neighbors
        do i = 1, this%point_neigh(k)%size()
           do j = 1, this%point_neigh(l)%size()
              if ((p1(i) .eq. p2(j)) .and. &
                   (p1(i) .lt. 0) .and. (p2(j) .lt. 0)) then
-                call this%ddata%set_shared_edge(id)
-                shared_edge = .true.
+                shared_edges(lid) = .true.
              end if
           end do
        end do
+    end do
+    !$omp end parallel do
+    deallocate(edge_lp)
+
+    ! The bookkeeping stays ordered; the order the ids are pushed in is what
+    ! the global numbering below is built from
+    do lid = 1, this%meds
+       id = lid
 
        ! Generate a unique id for the shared edge as,
        ! ((e1 * C) + e2 )) + glb_max if e1 > e2
        ! ((e2 * C) + e1 )) + glb_max if e2 > e1
-       if (shared_edge) then
-          glb_id = ((int(edge%x(1), i8)) + int(edge%x(2), i8)*C) + glb_max
+       if (shared_edges(id)) then
+          call this%ddata%set_shared_edge(id)
+          glb_id = ((int(this%edge_pts(1, id), i8)) + &
+               int(this%edge_pts(2, id), i8)*C) + glb_max
           call glb_to_loc%set(glb_id, id)
           call edge_idx%add(glb_id)
           call owner%add(glb_id) ! Always assume the PE is the owner
@@ -1080,6 +1226,7 @@ contains
           call non_shared_edges%push(id)
        end if
     end do
+    deallocate(shared_edges)
 
     ! Determine start offset for global numbering of locally owned edges
     edge_offset = 0
@@ -1252,23 +1399,22 @@ contains
   !> Generate a unique facet numbering
   subroutine mesh_generate_facet_numbering(this)
     type(mesh_t), target, intent(inout) :: this
-    type(htable_iter_i4t4_t), target :: face_it
-    type(htable_iter_i4t2_t), target :: edge_it
-    type(tuple4_i4_t), pointer :: face, fd(:)
-    type(tuple_i4_t), pointer :: edge, ed(:)
+    integer, contiguous, pointer :: fd(:), ed(:)
+    type(tuple4_i4_t) :: face
+    type(tuple_i4_t) :: edge
     type(tuple_i4_t) :: facet_data
     type(tuple4_i4_t) :: recv_face
     type(tuple_i4_t) :: recv_edge
-    type(stack_i4t4_t) :: face_owner
+    type(stack_i4_t) :: face_owner
     type(htable_i4t4_t) :: face_ghost
-    type(stack_i4t2_t) :: edge_owner
+    type(stack_i4_t) :: edge_owner
     type(htable_i4t2_t) :: edge_ghost
     type(stack_i4_t) :: send_buff
     type(MPI_Status) :: status
     type(MPI_Request) :: send_req, recv_req
     integer, allocatable :: recv_buff(:)
     integer :: non_shared_facets, shared_facets, facet_offset
-    integer :: id, glb_nshared, shared_offset, owned_facets
+    integer :: id, lid, glb_nshared, shared_offset, owned_facets
     integer :: i, j, ierr, max_recv, src, dst, n_recv
 
     shared_facets = this%ddata%shared_facet%size()
@@ -1278,12 +1424,12 @@ contains
        allocate(this%ddata%local_to_global_facet(this%meds))
        call edge_owner%init(this%meds)
        call edge_ghost%init(64, i)
-       non_shared_facets = this%hte%num_entries() - shared_facets
+       non_shared_facets = this%meds - shared_facets
     else
        allocate(this%ddata%local_to_global_facet(this%mfcs))
        call face_owner%init(this%mfcs)
        call face_ghost%init(64, i)
-       non_shared_facets = this%htf%num_entries() - shared_facets
+       non_shared_facets = this%mfcs - shared_facets
     end if
 
     !> @todo Move this into distdata as a method...
@@ -1295,14 +1441,13 @@ contains
 
     ! Determine ownership of shared facets
     if (this%gdim .eq. 2) then
-       call edge_it%init(this%hte)
-       do while (edge_it%next())
-          call edge_it%data(id)
-          edge => edge_it%key()
+       do lid = 1, this%meds
+          id = lid
           if (.not. this%ddata%shared_facet%element(id)) then
              call this%ddata%set_local_to_global_facet(id, facet_offset)
              facet_offset = facet_offset + 1
           else
+             edge%x = this%edge_pts(:, id)
              select type(fmp => this%facet_map)
              type is(htable_i4t2_t)
                 if (fmp%get(edge, facet_data) .eq. 0) then
@@ -1310,7 +1455,7 @@ contains
                       if (abs(facet_data%x(2)) .lt. (this%offset_el + 1)) then
                          call edge_ghost%set(edge, id)
                       else
-                         call edge_owner%push(edge)
+                         call edge_owner%push(id)
                       end if
                    else
                       call neko_error("Invalid edge neigh.")
@@ -1321,14 +1466,13 @@ contains
        end do
        owned_facets = edge_owner%size()
     else
-       call face_it%init(this%htf)
-       do while (face_it%next())
-          call face_it%data(id)
-          face => face_it%key()
+       do lid = 1, this%mfcs
+          id = lid
           if (.not. this%ddata%shared_facet%element(id)) then
              call this%ddata%set_local_to_global_facet(id, facet_offset)
              facet_offset = facet_offset + 1
           else
+             face%x = this%face_pts(:, id)
              select type(fmp => this%facet_map)
              type is(htable_i4t4_t)
                 if (fmp%get(face, facet_data) .eq. 0) then
@@ -1336,7 +1480,7 @@ contains
                       if (abs(facet_data%x(2)) .lt. (this%offset_el + 1)) then
                          call face_ghost%set(face, id)
                       else
-                         call face_owner%push(face)
+                         call face_owner%push(id)
                       end if
                    else
                       call neko_error("Invalid face neigh.")
@@ -1368,19 +1512,19 @@ contains
 
        ed => edge_owner%array()
        do i = 1, edge_owner%size()
-          if (this%hte%get(ed(i), id) .eq. 0) then
-             call this%ddata%set_local_to_global_facet(id, shared_offset)
+          id = ed(i)
+          call this%ddata%set_local_to_global_facet(id, shared_offset)
 
-             ! Add new number to send buffer
-             ! [edge id1 ... edge idn new_glb_id]
-             do j = 1, 2
-                call send_buff%push(ed(i)%x(j))
-             end do
-             call send_buff%push(shared_offset)
+          ! Add new number to send buffer
+          ! [edge id1 ... edge idn new_glb_id]
+          do j = 1, 2
+             call send_buff%push(this%edge_pts(j, id))
+          end do
+          call send_buff%push(shared_offset)
 
-             shared_offset = shared_offset + 1
-          end if
+          shared_offset = shared_offset + 1
        end do
+       nullify(ed)
 
     else
 
@@ -1392,18 +1536,17 @@ contains
 
        fd => face_owner%array()
        do i = 1, face_owner%size()
-          if (this%htf%get(fd(i), id) .eq. 0) then
-             call this%ddata%set_local_to_global_facet(id, shared_offset)
+          id = fd(i)
+          call this%ddata%set_local_to_global_facet(id, shared_offset)
 
-             ! Add new number to send buffer
-             ! [face id1 ... face idn new_glb_id]
-             do j = 1, 4
-                call send_buff%push(fd(i)%x(j))
-             end do
-             call send_buff%push(shared_offset)
+          ! Add new number to send buffer
+          ! [face id1 ... face idn new_glb_id]
+          do j = 1, 4
+             call send_buff%push(this%face_pts(j, id))
+          end do
+          call send_buff%push(shared_offset)
 
-             shared_offset = shared_offset + 1
-          end if
+          shared_offset = shared_offset + 1
        end do
        nullify(fd)
 
@@ -1587,28 +1730,74 @@ contains
   end subroutine mesh_add_point
 
   !> Add a unique face represented as a 4-tuple to the mesh
-  subroutine mesh_add_face(this, f)
-    class(mesh_t), intent(inout) :: this
+  !! @details Returns the local id of @a f in @a idx, adding it to the set of
+  !! unique faces if it has not been seen before. @a head and @a chain hold
+  !! the lookup chains described in @a mesh_generate_face_lid
+  subroutine mesh_add_face(this, f, head, chain, idx)
+    type(mesh_t), intent(inout) :: this
     type(tuple4_i4_t), intent(inout) :: f
-    integer :: idx
+    integer, intent(inout) :: head(:)
+    integer, intent(inout) :: chain(:)
+    integer, intent(out) :: idx
+    integer :: lp
 
-    if (this%htf%get(f, idx) .gt. 0) then
-       this%mfcs = this%mfcs + 1
-       call this%htf%set(f, this%mfcs)
+    ! The tuple is ordered, so chaining on the first point leaves any two
+    ! faces in the same chain differing in their remaining points
+    lp = this%have_point_glb_idx(f%x(1))
+    if (lp .lt. 1) then
+       call neko_error('Invalid face point')
     end if
+
+    idx = head(lp)
+    do while (idx .gt. 0)
+       if ((this%face_pts(2, idx) .eq. f%x(2)) .and. &
+            (this%face_pts(3, idx) .eq. f%x(3)) .and. &
+            (this%face_pts(4, idx) .eq. f%x(4))) return
+       idx = chain(idx)
+    end do
+
+    this%mfcs = this%mfcs + 1
+    idx = this%mfcs
+    this%face_pts(1, idx) = f%x(1)
+    this%face_pts(2, idx) = f%x(2)
+    this%face_pts(3, idx) = f%x(3)
+    this%face_pts(4, idx) = f%x(4)
+    chain(idx) = head(lp)
+    head(lp) = idx
 
   end subroutine mesh_add_face
 
   !> Add a unique edge represented as a 2-tuple to the mesh
-  subroutine mesh_add_edge(this, e)
-    class(mesh_t), intent(inout) :: this
+  !! @details Returns the local id of @a e in @a idx, adding it to the set of
+  !! unique edges if it has not been seen before. @a head and @a chain hold
+  !! the lookup chains described in @a mesh_generate_edge_lid
+  subroutine mesh_add_edge(this, e, head, chain, idx)
+    type(mesh_t), intent(inout) :: this
     type(tuple_i4_t), intent(inout) :: e
-    integer :: idx
+    integer, intent(inout) :: head(:)
+    integer, intent(inout) :: chain(:)
+    integer, intent(out) :: idx
+    integer :: lp
 
-    if (this%hte%get(e, idx) .gt. 0) then
-       this%meds = this%meds + 1
-       call this%hte%set(e, this%meds)
+    ! The tuple is ordered, so chaining on the first point leaves any two
+    ! edges in the same chain differing in their second point
+    lp = this%have_point_glb_idx(e%x(1))
+    if (lp .lt. 1) then
+       call neko_error('Invalid edge endpoint')
     end if
+
+    idx = head(lp)
+    do while (idx .gt. 0)
+       if (this%edge_pts(2, idx) .eq. e%x(2)) return
+       idx = chain(idx)
+    end do
+
+    this%meds = this%meds + 1
+    idx = this%meds
+    this%edge_pts(1, idx) = e%x(1)
+    this%edge_pts(2, idx) = e%x(2)
+    chain(idx) = head(lp)
+    head(lp) = idx
 
   end subroutine mesh_add_edge
 
@@ -1748,7 +1937,7 @@ contains
     integer, intent(in) :: pe
     type(point_t), pointer :: pi, pj
     real(kind=dp) :: L(3)
-    integer :: i, j, id, p_local_idx, match
+    integer :: i, j, id, match
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
     integer :: envvar_len
@@ -1795,7 +1984,6 @@ contains
                    id = min(pi%id(), pj%id())
                    call pi%set_id(id)
                    call pj%set_id(id)
-                   p_local_idx = this%get_local(this%points(id))
                    match = match + 1
                 end if
              end do
@@ -1824,7 +2012,6 @@ contains
                    id = min(pi%id(), pj%id())
                    call pi%set_id(id)
                    call pj%set_id(id)
-                   p_local_idx = this%get_local(this%points(id))
                 end if
              end do
           end do
@@ -1842,7 +2029,7 @@ contains
     integer, intent(in) :: pe
     integer, intent(inout) :: pids(4)
     type(point_t), pointer :: pi
-    integer :: i, id, p_local_idx
+    integer :: i, id
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
     integer, dimension(4, 6) :: face_nodes = reshape([&
@@ -1858,61 +2045,25 @@ contains
        do i = 1, 4
           pi => ele%pts(face_nodes(i,f))%p
           call pi%set_id(pids(i))
-          call this%add_point(pi, id)
-          p_local_idx = this%get_local(this%points(id))
+          ! Only register the point while the mesh is being built; once the
+          ! connectivity is generated the periodic ids are already known and
+          ! the global->local table has been released
+          if (allocated(this%htp)) then
+             call this%add_point(pi, id)
+          end if
        end do
     end select
 
   end subroutine mesh_apply_periodic_facet
 
-  !> Return the local id of a point @a p
-  function mesh_get_local_point(this, p) result(local_id)
-    class(mesh_t), intent(inout) :: this
-    type(point_t), intent(inout) :: p
-    integer :: local_id
-    integer :: tmp
-
-    !> @todo why do we still need to do this?
-    tmp = p%id()
-
-    if (this%htp%get(tmp, local_id) .gt. 0) then
-       call neko_error('Invalid global id (local point)')
-    end if
-
-  end function mesh_get_local_point
-
-  !> Return the local id of an edge @a e
-  !! @attention only defined for gdim .ne. 2
-  function mesh_get_local_edge(this, e) result(local_id)
-    class(mesh_t), intent(inout) :: this
-    type(tuple_i4_t), intent(inout) :: e
-    integer :: local_id
-
-    if (this%hte%get(e, local_id) .gt. 0) then
-       call neko_error('Invalid global id (local edge)')
-    end if
-
-  end function mesh_get_local_edge
-
-  !> Return the local id of a face @a f
-  function mesh_get_local_facet(this, f) result(local_id)
-    class(mesh_t), intent(inout) :: this
-    type(tuple4_i4_t), intent(inout) :: f
-    integer :: local_id
-
-    if (this%htf%get(f, local_id) .gt. 0) then
-       call neko_error('Invalid global id (local facet)')
-    end if
-
-  end function mesh_get_local_facet
-
-  !> Return the global id of an edge @a e
-  function mesh_get_global_edge(this, e) result(global_id)
-    class(mesh_t), intent(inout) :: this
-    type(tuple_i4_t), intent(inout) :: e
+  !> Return the global id of edge @a e in element @a el
+  function mesh_get_global_edge(this, el, e) result(global_id)
+    class(mesh_t), intent(in) :: this
+    integer, intent(in) :: el !< Local element id
+    integer, intent(in) :: e !< Local edge number of the element
     integer :: global_id
 
-    global_id = this%get_local(e)
+    global_id = this%edge_lid(e, el)
 
     if (this%gdim .eq. 2) then
        if (pe_size .gt. 1) then
@@ -1926,13 +2077,16 @@ contains
 
   end function mesh_get_global_edge
 
-  !> Return the local id of a face @a f
-  function mesh_get_global_facet(this, f) result(global_id)
-    class(mesh_t), intent(inout) :: this
-    type(tuple4_i4_t), intent(inout) :: f
+  !> Return the global id of facet @a f in element @a el
+  !! @attention only defined for gdim .eq. 3, in two dimensions the facets
+  !! of an element are its edges, see @a mesh_get_global_edge
+  function mesh_get_global_facet(this, el, f) result(global_id)
+    class(mesh_t), intent(in) :: this
+    integer, intent(in) :: el !< Local element id
+    integer, intent(in) :: f !< Local facet number of the element
     integer :: global_id
 
-    global_id = this%get_local_facet(f)
+    global_id = this%face_lid(f, el)
 
     if (pe_size .gt. 1) then
        global_id = this%ddata%local_to_global_facet(global_id)
@@ -1942,12 +2096,21 @@ contains
 
 
   !> Check if the mesh has a point given its global index
+  !! @details The one way to turn a global point id into a local one; a point
+  !! carries its global id, so @a p%id() is the key for a caller holding a
+  !! point_t. For an element's own corner read @a pt_lid instead.
   !! @return The local id of the point (if present) otherwise -1
+  !! @attention Only valid until @a generate_conn releases the global->local
+  !! point table
   !! @todo Consider moving this to distdata
   function mesh_have_point_glb_idx(this, index) result(local_id)
     class(mesh_t), intent(inout) :: this
     integer, intent(inout) :: index !< Global index
     integer :: local_id
+
+    if (.not. allocated(this%htp)) then
+       call neko_error('have_point_glb_idx is only valid before generate_conn')
+    end if
 
     if (this%htp%get(index, local_id) .eq. 1) then
        local_id = -1
@@ -1956,27 +2119,28 @@ contains
   end function mesh_have_point_glb_idx
 
 
-  !> Check if a point is shared
-  function mesh_is_shared_point(this, p) result(shared)
+  !> Check if point @a p in element @a el is shared
+  function mesh_is_shared_point(this, el, p) result(shared)
     class(mesh_t), intent(inout) :: this
-    type(point_t), intent(inout) :: p
+    integer, intent(in) :: el !< Local element id
+    integer, intent(in) :: p !< Local point number of the element
     integer :: local_index
     logical shared
 
-    local_index = this%get_local(p)
+    local_index = this%pt_lid(p, el)
     shared = this%ddata%shared_point%element(local_index)
 
   end function mesh_is_shared_point
 
 
-  !> Check if an edge is shared
-  !! @attention only defined for gdim .ne. 2
-  function mesh_is_shared_edge(this, e) result(shared)
+  !> Check if edge @a e in element @a el is shared
+  function mesh_is_shared_edge(this, el, e) result(shared)
     class(mesh_t), intent(inout) :: this
-    type(tuple_i4_t), intent(inout) :: e
+    integer, intent(in) :: el !< Local element id
+    integer, intent(in) :: e !< Local edge number of the element
     integer :: local_index
     logical shared
-    local_index = this%get_local(e)
+    local_index = this%edge_lid(e, el)
     if (this%gdim .eq. 2) then
        shared = this%ddata%shared_facet%element(local_index)
     else
@@ -1984,14 +2148,17 @@ contains
     end if
   end function mesh_is_shared_edge
 
-  !> Check if a facet is shared
-  function mesh_is_shared_facet(this, f) result(shared)
+  !> Check if facet @a f in element @a el is shared
+  !! @attention only defined for gdim .eq. 3, in two dimensions the facets
+  !! of an element are its edges, see @a mesh_is_shared_edge
+  function mesh_is_shared_facet(this, el, f) result(shared)
     class(mesh_t), intent(inout) :: this
-    type(tuple4_i4_t), intent(inout) :: f
+    integer, intent(in) :: el !< Local element id
+    integer, intent(in) :: f !< Local facet number of the element
     integer :: local_index
     logical shared
 
-    local_index = this%get_local(f)
+    local_index = this%face_lid(f, el)
     shared = this%ddata%shared_facet%element(local_index)
 
   end function mesh_is_shared_facet

@@ -48,13 +48,31 @@ template < const int>
 int tune(void *w, void *u, void *dx, void *dy, void *dz,
          void *dxt, void *dyt, void *dzt, void *h1,
          void *g11, void *g22, void *g33, void *g12,
-         void *g13, void *g23, int *nelv, int *lx, int *eb_sel, int *ch_sel);
+         void *g13, void *g23, int *nelv, int *lx,
+         int *eb_sel, int *ch_sel, int *nw_sel, int *tw_sel);
 
 template < const int>
 int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
                 void *dxt, void *dyt, void *dzt, void *h1,
                 void *g11, void *g22, void *g33, void *g12,
-                void *g13, void *g23, int *nelv, int *lx, int *eb_sel, int *ch_sel);
+                void *g13, void *g23, int *nelv, int *lx,
+                int *eb_sel, int *ch_sel, int *nw_sel, int *tw_sel);
+
+template < const int>
+int tune_vector(void *au, void *av, void *aw, void *u, void *v, void *w,
+                void *dx, void *dy, void *dz, void *h1,
+                void *g11, void *g22, void *g33, void *g12,
+                void *g13, void *g23, int *nelv, int *lx,
+                int *eb_sel, int *nw_sel, int *tw_sel,
+                int *bw_sel);
+
+template < const int>
+int tune_vector_padded(void *au, void *av, void *aw, void *u, void *v, void *w,
+                       void *dx, void *dy, void *dz, void *h1,
+                       void *g11, void *g22, void *g33, void *g12,
+                       void *g13, void *g23, int *nelv, int *lx,
+                int *eb_sel, int *nw_sel, int *tw_sel,
+                int *bw_sel);
 
 extern "C" {
 
@@ -72,8 +90,11 @@ extern "C" {
     static int autotune_eb[17] = { 0 };
     /* chunk candidate chosen for the 1d variant */
     static int autotune_ch[17] = { 0 };
+    /* warps per block candidate chosen for the dmma variant */
+    static int autotune_nw[17] = { 0 };
+    /* warps per block candidate chosen for the tma staged dmma variant */
+    static int autotune_tw[17] = { 0 };
 
-    const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nblcks_1d((*nelv), 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
@@ -129,6 +150,46 @@ extern "C" {
     default: CASE_KSTEP_PADDED(LX, 2); break;                                   \
     }
 
+#define CASE_DMMA(LX, C)                                                        \
+    ax_helm_kernel_dmma<real, LX, NEKO_DMMA_NW(C)>                              \
+      <<<NEKO_DMMA_NBLCKS(*nelv, LX), NEKO_DMMA_NTHRDS(C), 0, stream>>>         \
+                          ((real *) w, (real *) u,                              \
+                           (real *) dx, (real *) dy, (real *) dz, (real *) h1,  \
+                           (real *) g11, (real *) g22, (real *) g33,            \
+                           (real *) g12, (real *) g13, (real *) g23, *nelv);    \
+      CUDA_CHECK(cudaGetLastError());
+
+/* Runtime dispatch onto the tuned warps per block candidate */
+#define CASE_DMMA_SEL(LX, SEL)                                                  \
+    switch (SEL) {                                                              \
+    case 0:  CASE_DMMA(LX, 0); break;                                           \
+    case 1:  CASE_DMMA(LX, 1); break;                                           \
+    default: CASE_DMMA(LX, 2); break;                                           \
+    }
+
+/*
+ * The TMA staged dmma variant. Same grid and the same warps per block
+ * candidates as CASE_DMMA -- at the one lx it supports NEKO_DMMA_PACK is 1,
+ * so the grid is nelv blocks -- but it takes no nelv: there is no packed tail
+ * to clamp when a block is exactly an element. See dmma_tma_kernel.h.
+ */
+#define CASE_DMMA_TMA(LX, C)                                                    \
+    ax_helm_kernel_dmma_tma<real, LX, NEKO_DMMA_NW(C)>                          \
+      <<<NEKO_DMMA_NBLCKS(*nelv, LX), NEKO_DMMA_NTHRDS(C), 0, stream>>>         \
+                          ((real *) w, (real *) u,                              \
+                           (real *) dx, (real *) dy, (real *) dz, (real *) h1,  \
+                           (real *) g11, (real *) g22, (real *) g33,            \
+                           (real *) g12, (real *) g13, (real *) g23);           \
+      CUDA_CHECK(cudaGetLastError());
+
+/* Runtime dispatch onto the tuned warps per block candidate */
+#define CASE_DMMA_TMA_SEL(LX, SEL)                                              \
+    switch (SEL) {                                                              \
+    case 0:  CASE_DMMA_TMA(LX, 0); break;                                       \
+    case 1:  CASE_DMMA_TMA(LX, 1); break;                                       \
+    default: CASE_DMMA_TMA(LX, 2); break;                                       \
+    }
+
 #define CASE(LX)                                                                \
     case LX:                                                                    \
       if(autotune[LX] == 0 ) {                                                  \
@@ -137,11 +198,16 @@ extern "C" {
                                dxt, dyt, dzt,h1,                                \
                                g11, g22, g33,                                   \
                                g12, g13, g23, nelv, lx,                         \
-                               &autotune_eb[LX], &autotune_ch[LX]);             \
+                               &autotune_eb[LX], &autotune_ch[LX],              \
+                               &autotune_nw[LX], &autotune_tw[LX]);             \
       } else if (autotune[LX] == 1 ) {                                          \
         CASE_1D_SEL(LX, autotune_ch[LX]);                                       \
       } else if (autotune[LX] == 2 ) {                                          \
         CASE_KSTEP_SEL(LX, autotune_eb[LX]);                                    \
+      } else if (autotune[LX] == 3 ) {                                          \
+        CASE_DMMA_SEL(LX, autotune_nw[LX]);                                     \
+      } else if (autotune[LX] == 4 ) {                                          \
+        CASE_DMMA_TMA_SEL(LX, autotune_tw[LX]);                                 \
       }                                                                         \
       break
 
@@ -153,11 +219,16 @@ extern "C" {
                                      dxt, dyt, dzt,h1,                          \
                                      g11, g22, g33,                             \
                                      g12, g13, g23,nelv,lx,                     \
-                                     &autotune_eb[LX], &autotune_ch[LX]);       \
+                                     &autotune_eb[LX], &autotune_ch[LX],        \
+                                     &autotune_nw[LX], &autotune_tw[LX]);       \
       } else if (autotune[LX] == 1 ) {                                          \
         CASE_1D_SEL(LX, autotune_ch[LX]);                                       \
       } else if (autotune[LX] == 2 ) {                                          \
         CASE_KSTEP_PADDED_SEL(LX, autotune_eb[LX]);                             \
+      } else if (autotune[LX] == 3 ) {                                          \
+        CASE_DMMA_SEL(LX, autotune_nw[LX]);                                     \
+      } else if (autotune[LX] == 4 ) {                                          \
+        CASE_DMMA_TMA_SEL(LX, autotune_tw[LX]);                                 \
       }                                                                         \
       break
 
@@ -222,20 +293,35 @@ extern "C" {
                            void *g33, void *g12, void *g13,
                            void *g23, int *nelv, int *lx) {
 
+    /* Strategy chosen by the autotuner: 2 kstep, 3 dmma */
+    static int autotune_vec[17] = { 0 };
+    /* elements per block candidate chosen for the kstep variant */
+    static int autotune_vec_eb[17] = { 0 };
+    /* warps per block candidate chosen for the dmma variant */
+    static int autotune_vec_nw[17] = { 0 };
+    /* warps per block candidate chosen for the tma staged dmma variant */
+    static int autotune_vec_tw[17] = { 0 };
+    /* warps per block candidate chosen for the batched tma variant */
+    static int autotune_vec_bw[17] = { 0 };
+
+    const dim3 nblcks_dmma((*nelv), 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
 /*
- * The vector kernels are not swept by the autotuner, see the note on
- * NEKO_AX_HELM_VECTOR_EB_C in ax_helm_kernel.h
+ * The vector kstep variant sweeps the same elements per block candidates as
+ * the scalar one, and the tuner picks between it and the dmma variant. The
+ * vector kernels hold three times the register blocked state -- six T[LX]
+ * arrays rather than two -- and measure at 254-255 registers on sm_90 for
+ * every lx from 8 up, spilling at 10, 12, 14 and 16, so blocking is not
+ * expected to buy much here: it does not change registers per thread, only
+ * threads per block, so it saves the derivative matrix loads and nothing
+ * else. It is swept rather than assumed because that is a measurement, and
+ * because elem_block<>'s thread clamp already keeps every candidate inside
+ * the shared memory budget at every lx.
  */
-#define AX_VEC_EB(LX) (elem_block<LX, NEKO_AX_HELM_VECTOR_EB_C>::value)
-#define AX_VEC_NTHRDS(LX) dim3((LX), (LX), AX_VEC_EB(LX))
-#define AX_VEC_NBLCKS(LX)                                                      \
-    dim3(((*nelv) + AX_VEC_EB(LX) - 1)/AX_VEC_EB(LX), 1, 1)
-
-#define CASE_VECTOR_KSTEP(LX)                                                  \
-    ax_helm_kernel_vector_kstep<real, LX, AX_VEC_EB(LX)>                       \
-    <<<AX_VEC_NBLCKS(LX), AX_VEC_NTHRDS(LX), 0, stream>>>                      \
+#define CASE_VECTOR_KSTEP(LX, C)                                               \
+    ax_helm_kernel_vector_kstep<real, LX, NEKO_EB(LX, C)>                      \
+    <<<NEKO_EB_NBLCKS(*nelv, LX, C), NEKO_EB_NTHRDS(LX, C), 0, stream>>>       \
                                     ((real *) au, (real *) av, (real *) aw,    \
                                      (real *) u, (real *) v, (real *) w,       \
                                      (real *) dx, (real *) dy, (real *) dz,    \
@@ -244,9 +330,9 @@ extern "C" {
                                      (real *) g23, *nelv);                     \
     CUDA_CHECK(cudaGetLastError());
 
-#define CASE_VECTOR_KSTEP_PADDED(LX)                                           \
-    ax_helm_kernel_vector_kstep_padded<real, LX, AX_VEC_EB(LX)>                \
-    <<<AX_VEC_NBLCKS(LX), AX_VEC_NTHRDS(LX), 0, stream>>>                      \
+#define CASE_VECTOR_KSTEP_PADDED(LX, C)                                        \
+    ax_helm_kernel_vector_kstep_padded<real, LX, NEKO_EB(LX, C)>               \
+    <<<NEKO_EB_NBLCKS(*nelv, LX, C), NEKO_EB_NTHRDS(LX, C), 0, stream>>>       \
                                     ((real *) au, (real *) av, (real *) aw,    \
                                      (real *) u, (real *) v, (real *) w,       \
                                      (real *) dx, (real *) dy, (real *) dz,    \
@@ -254,15 +340,131 @@ extern "C" {
                                      (real *) g33, (real *) g12, (real *) g13, \
                                      (real *) g23, *nelv);                     \
     CUDA_CHECK(cudaGetLastError());
+
+/* Runtime dispatch onto the tuned elements per block candidate */
+#define CASE_VECTOR_KSTEP_SEL(LX, SEL)                                         \
+    switch (SEL) {                                                             \
+    case 0:  CASE_VECTOR_KSTEP(LX, 0); break;                                  \
+    case 1:  CASE_VECTOR_KSTEP(LX, 1); break;                                  \
+    default: CASE_VECTOR_KSTEP(LX, 2); break;                                  \
+    }
+
+#define CASE_VECTOR_KSTEP_PADDED_SEL(LX, SEL)                                  \
+    switch (SEL) {                                                             \
+    case 0:  CASE_VECTOR_KSTEP_PADDED(LX, 0); break;                           \
+    case 1:  CASE_VECTOR_KSTEP_PADDED(LX, 1); break;                           \
+    default: CASE_VECTOR_KSTEP_PADDED(LX, 2); break;                           \
+    }
+
+#define CASE_VECTOR_DMMA(LX, C)                                                \
+    ax_helm_kernel_dmma_vector<real, LX, NEKO_DMMA_NW(C)>                      \
+    <<<nblcks_dmma, NEKO_DMMA_NTHRDS(C), 0, stream>>>                          \
+                                    ((real *) au, (real *) av, (real *) aw,    \
+                                     (real *) u, (real *) v, (real *) w,       \
+                                     (real *) dx, (real *) dy, (real *) dz,    \
+                                     (real *) h1, (real *) g11, (real *) g22,  \
+                                     (real *) g33, (real *) g12, (real *) g13, \
+                                     (real *) g23);                            \
+    CUDA_CHECK(cudaGetLastError());
+
+/* Runtime dispatch onto the tuned warps per block candidate */
+#define CASE_VECTOR_DMMA_SEL(LX, SEL)                                          \
+    switch (SEL) {                                                             \
+    case 0:  CASE_VECTOR_DMMA(LX, 0); break;                                   \
+    case 1:  CASE_VECTOR_DMMA(LX, 1); break;                                   \
+    default: CASE_VECTOR_DMMA(LX, 2); break;                                   \
+    }
+
+/* The TMA staged vector variant, same grid and candidates as
+   CASE_VECTOR_DMMA; see dmma_tma_kernel.h */
+#define CASE_VECTOR_DMMA_TMA(LX, C)                                            \
+    ax_helm_kernel_dmma_tma_vector<real, LX, NEKO_DMMA_NW(C)>                  \
+    <<<nblcks_dmma, NEKO_DMMA_NTHRDS(C), 0, stream>>>                          \
+                                    ((real *) au, (real *) av, (real *) aw,    \
+                                     (real *) u, (real *) v, (real *) w,       \
+                                     (real *) dx, (real *) dy, (real *) dz,    \
+                                     (real *) h1, (real *) g11, (real *) g22,  \
+                                     (real *) g33, (real *) g12, (real *) g13, \
+                                     (real *) g23);                            \
+    CUDA_CHECK(cudaGetLastError());
+
+/* Runtime dispatch onto the tuned warps per block candidate */
+#define CASE_VECTOR_DMMA_TMA_SEL(LX, SEL)                                      \
+    switch (SEL) {                                                             \
+    case 0:  CASE_VECTOR_DMMA_TMA(LX, 0); break;                               \
+    case 1:  CASE_VECTOR_DMMA_TMA(LX, 1); break;                               \
+    default: CASE_VECTOR_DMMA_TMA(LX, 2); break;                               \
+    }
+
+/*
+ * The batched TMA variant. Unlike every other launch here it carries a dynamic
+ * shared memory allocation -- 54800 B, past the 48 kB a block gets for free --
+ * which the kernel has to opt into once before its first launch; see
+ * ax_helm_dmma_tma_batch_optin(), which is a predictable branch after that.
+ */
+#define CASE_VECTOR_DMMA_TMA_BATCH(LX, C)                                      \
+    (void) ax_helm_dmma_tma_batch_optin<real, LX, NEKO_DMMA_NW(C)>();          \
+    ax_helm_kernel_dmma_tma_batch<real, LX, NEKO_DMMA_NW(C)>                   \
+    <<<nblcks_dmma, NEKO_DMMA_NTHRDS(C),                                       \
+       NEKO_DMMA_TMA_BATCH_SMEM, stream>>>                                     \
+                                    ((real *) au, (real *) av, (real *) aw,    \
+                                     (real *) u, (real *) v, (real *) w,       \
+                                     (real *) dx, (real *) dy, (real *) dz,    \
+                                     (real *) h1, (real *) g11, (real *) g22,  \
+                                     (real *) g33, (real *) g12, (real *) g13, \
+                                     (real *) g23);                            \
+    CUDA_CHECK(cudaGetLastError());
+
+/* Runtime dispatch onto the tuned warps per block candidate */
+#define CASE_VECTOR_DMMA_TMA_BATCH_SEL(LX, SEL)                                \
+    switch (SEL) {                                                             \
+    case 0:  CASE_VECTOR_DMMA_TMA_BATCH(LX, 0); break;                         \
+    case 1:  CASE_VECTOR_DMMA_TMA_BATCH(LX, 1); break;                         \
+    default: CASE_VECTOR_DMMA_TMA_BATCH(LX, 2); break;                         \
+    }
 
 #define CASE_VECTOR(LX)                                                        \
     case LX:                                                                   \
-      CASE_VECTOR_KSTEP(LX);                                                   \
+      if (autotune_vec[LX] == 0 ) {                                            \
+        autotune_vec[LX] = tune_vector<LX>(au, av, aw, u, v, w,                \
+                                           dx, dy, dz, h1,                     \
+                                           g11, g22, g33, g12, g13, g23,       \
+                                           nelv, lx, &autotune_vec_eb[LX],     \
+                                           &autotune_vec_nw[LX],               \
+                                           &autotune_vec_tw[LX],               \
+                                           &autotune_vec_bw[LX]);              \
+      } else if (autotune_vec[LX] == 2 ) {                                     \
+        CASE_VECTOR_KSTEP_SEL(LX, autotune_vec_eb[LX]);                        \
+      } else if (autotune_vec[LX] == 3 ) {                                     \
+        CASE_VECTOR_DMMA_SEL(LX, autotune_vec_nw[LX]);                         \
+      } else if (autotune_vec[LX] == 4 ) {                                     \
+        CASE_VECTOR_DMMA_TMA_SEL(LX, autotune_vec_tw[LX]);                     \
+      } else if (autotune_vec[LX] == 5 ) {                                     \
+        CASE_VECTOR_DMMA_TMA_BATCH_SEL(LX, autotune_vec_bw[LX]);               \
+      }                                                                        \
        break
 
 #define CASE_VECTOR_PADDED(LX)                                                 \
     case LX:                                                                   \
-      CASE_VECTOR_KSTEP_PADDED(LX);                                            \
+      if (autotune_vec[LX] == 0 ) {                                            \
+        autotune_vec[LX] = tune_vector_padded<LX>(au, av, aw, u, v, w,         \
+                                                  dx, dy, dz, h1,              \
+                                                  g11, g22, g33,               \
+                                                  g12, g13, g23,               \
+                                                  nelv, lx,                    \
+                                                  &autotune_vec_eb[LX],        \
+                                                  &autotune_vec_nw[LX],        \
+                                                  &autotune_vec_tw[LX],        \
+                                                  &autotune_vec_bw[LX]);       \
+      } else if (autotune_vec[LX] == 2 ) {                                     \
+        CASE_VECTOR_KSTEP_PADDED_SEL(LX, autotune_vec_eb[LX]);                 \
+      } else if (autotune_vec[LX] == 3 ) {                                     \
+        CASE_VECTOR_DMMA_SEL(LX, autotune_vec_nw[LX]);                         \
+      } else if (autotune_vec[LX] == 4 ) {                                     \
+        CASE_VECTOR_DMMA_TMA_SEL(LX, autotune_vec_tw[LX]);                     \
+      } else if (autotune_vec[LX] == 5 ) {                                     \
+        CASE_VECTOR_DMMA_TMA_BATCH_SEL(LX, autotune_vec_bw[LX]);               \
+      }                                                                        \
        break
 
     switch(*lx) {
@@ -311,14 +513,25 @@ template < const int LX >
 int tune(void *w, void *u, void *dx, void *dy, void *dz,
          void *dxt, void *dyt, void *dzt, void *h1,
          void *g11, void *g22, void *g33, void *g12,
-         void *g13, void *g23, int *nelv, int *lx, int *eb_sel, int *ch_sel) {
+         void *g13, void *g23, int *nelv, int *lx,
+         int *eb_sel, int *ch_sel, int *nw_sel, int *tw_sel) {
   cudaEvent_t start,stop;
   float time1[NEKO_CHUNKS_CANDIDATES];
   int best1 = 0;
   float time2[NEKO_EB_CANDIDATES];
+  float time3[NEKO_DMMA_CANDIDATES];
+  int best3 = 0;
+  float time4[NEKO_DMMA_CANDIDATES];
+  int best4 = 0;
   const int rounds = neko_tune_rounds();
   const int iters = neko_tune_iters();
   const int sweep = neko_eb_sweep();
+  const bool dmma = dmma_lx_supported<LX>() && cuda_have_dmma();
+  /* Whether the pointers are bulk copy aligned is a property of this call
+     rather than of the kernel, so it is checked rather than assumed, see
+     dmma_tma_aligned() in dmma_tma_kernel.h */
+  const bool tma = dmma_tma_lx_supported<LX>() && cuda_have_tma() &&
+                   dmma_tma_aligned(w, u, h1, g11, g22, g33, g12, g13, g23);
   int best = 0;
   int retval;
 
@@ -328,8 +541,11 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   for (int c = 0; c < NEKO_CHUNKS_CANDIDATES; c++) {
     time1[c] = NEKO_TUNE_INIT;
   }
+  for (int c = 0; c < NEKO_DMMA_CANDIDATES; c++) {
+    time3[c] = NEKO_TUNE_INIT;
+    time4[c] = NEKO_TUNE_INIT;
+  }
 
-  const dim3 nthrds_1d(1024, 1, 1);
   const dim3 nblcks_1d((*nelv), 1, 1);
   const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
@@ -343,6 +559,7 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
 
   *eb_sel = 0;
   *ch_sel = 0;
+  *tw_sel = 0;
 
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
@@ -362,6 +579,35 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
       log_message(neko_log_buf);
       log_end_section();
       return 2;
+    } else if( !strcmp(env_value,"DMMA") ) {
+      if (dmma) {
+        const int c = neko_dmma_env();
+        *nw_sel = c;
+        CASE_DMMA_SEL(LX, c);
+        sprintf(neko_log_buf,"Set by env   : 3 (DMMA, %d warps)",
+                NEKO_DMMA_NW(c));
+        log_message(neko_log_buf);
+        log_end_section();
+        return 3;
+      } else {
+        sprintf(neko_log_buf, "DMMA strategy not available for this config");
+        log_error(neko_log_buf);
+      }
+    } else if( !strcmp(env_value,"DMMA_TMA") ) {
+      if (tma) {
+        const int c = neko_dmma_tma_env();
+        *tw_sel = c;
+        CASE_DMMA_TMA_SEL(LX, c);
+        sprintf(neko_log_buf,"Set by env   : 4 (DMMA_TMA, %d warps)",
+                NEKO_DMMA_NW(c));
+        log_message(neko_log_buf);
+        log_end_section();
+        return 4;
+      } else {
+        sprintf(neko_log_buf,
+                "DMMA_TMA strategy not available for this config");
+        log_error(neko_log_buf);
+      }
     } else {
        sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
        log_error(neko_log_buf);
@@ -384,6 +630,16 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
       CASE_KSTEP(LX, 1);
       CASE_KSTEP(LX, 2);
     }
+    if (dmma) {
+      CASE_DMMA(LX, 0);
+      CASE_DMMA(LX, 1);
+      CASE_DMMA(LX, 2);
+    }
+    if (tma) {
+      CASE_DMMA_TMA(LX, 0);
+      CASE_DMMA_TMA(LX, 1);
+      CASE_DMMA_TMA(LX, 2);
+    }
   }
 
   /* Interleaved rounds, best time per variant: timing them one after another
@@ -398,19 +654,47 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
       NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 1, iters);
       NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 2, iters);
     }
+    if (dmma) {
+      NEKO_TUNE_TIME(time3, CASE_DMMA, LX, 0, iters);
+      NEKO_TUNE_TIME(time3, CASE_DMMA, LX, 1, iters);
+      NEKO_TUNE_TIME(time3, CASE_DMMA, LX, 2, iters);
+    }
+    if (tma) {
+      NEKO_TUNE_TIME(time4, CASE_DMMA_TMA, LX, 0, iters);
+      NEKO_TUNE_TIME(time4, CASE_DMMA_TMA, LX, 1, iters);
+      NEKO_TUNE_TIME(time4, CASE_DMMA_TMA, LX, 2, iters);
+    }
   }
 
   NEKO_TUNE_LOG(LX, time1, time2);
+  NEKO_TUNE_LOG_DMMA(LX, time3);
+  NEKO_TUNE_LOG_DMMA_TMA(LX, time4);
 
   NEKO_TUNE_BEST(time1, best1, NEKO_CHUNKS_CANDIDATES);
   NEKO_TUNE_BEST(time2, best, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_BEST(time3, best3, NEKO_DMMA_CANDIDATES);
+  NEKO_TUNE_BEST(time4, best4, NEKO_DMMA_CANDIDATES);
   *eb_sel = best;
   *ch_sel = best1;
+  *nw_sel = best3;
+  *tw_sel = best4;
 
   if (time1[best1] < time2[best]) {
-     retval = 1;
+    retval = 1;
   } else {
     retval = 2;
+  }
+
+  /* The dmma variants join the comparison only where they exist, their
+     candidates are left at NEKO_TUNE_INIT otherwise */
+  float tbest = (retval == 1) ? time1[best1] : time2[best];
+
+  if (time3[best3] < tbest) {
+    retval = 3;
+    tbest = time3[best3];
+  }
+  if (time4[best4] < tbest) {
+    retval = 4;
   }
 
   cudaEventDestroy(start);
@@ -420,16 +704,26 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
      sum in the same order, so leave the output of the chosen kernel in w */
   if (retval == 1) {
     CASE_1D_SEL(LX, best1);
-  } else {
+  } else if (retval == 2) {
     CASE_KSTEP_SEL(LX, best);
+  } else if (retval == 3) {
+    CASE_DMMA_SEL(LX, best3);
+  } else {
+    CASE_DMMA_TMA_SEL(LX, best4);
   }
 
   if (retval == 1) {
     sprintf(neko_log_buf, "Chose        : 1 (1D, %d chunk)",
             NEKO_CHUNKS_SEL(LX, best1));
-  } else {
+  } else if (retval == 2) {
     sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
             NEKO_EB_SEL(LX, best));
+  } else if (retval == 3) {
+    sprintf(neko_log_buf, "Chose        : 3 (DMMA, %d warps, %d elem/blk)",
+            NEKO_DMMA_NW(best3), NEKO_DMMA_PACK(LX));
+  } else {
+    sprintf(neko_log_buf, "Chose        : 4 (DMMA_TMA, %d warps)",
+            NEKO_DMMA_NW(best4));
   }
   log_message(neko_log_buf);
   log_end_section();
@@ -440,14 +734,25 @@ template < const int LX >
 int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
                 void *dxt, void *dyt, void *dzt, void *h1,
                 void *g11, void *g22, void *g33, void *g12,
-                void *g13, void *g23, int *nelv, int *lx, int *eb_sel, int *ch_sel) {
+                void *g13, void *g23, int *nelv, int *lx,
+                int *eb_sel, int *ch_sel, int *nw_sel, int *tw_sel) {
   cudaEvent_t start, stop;
   float time1[NEKO_CHUNKS_CANDIDATES];
   int best1 = 0;
   float time2[NEKO_EB_CANDIDATES];
+  float time3[NEKO_DMMA_CANDIDATES];
+  int best3 = 0;
+  float time4[NEKO_DMMA_CANDIDATES];
+  int best4 = 0;
   const int rounds = neko_tune_rounds();
   const int iters = neko_tune_iters();
   const int sweep = neko_eb_sweep();
+  const bool dmma = dmma_lx_supported<LX>() && cuda_have_dmma();
+  /* Whether the pointers are bulk copy aligned is a property of this call
+     rather than of the kernel, so it is checked rather than assumed, see
+     dmma_tma_aligned() in dmma_tma_kernel.h */
+  const bool tma = dmma_tma_lx_supported<LX>() && cuda_have_tma() &&
+                   dmma_tma_aligned(w, u, h1, g11, g22, g33, g12, g13, g23);
   int best = 0;
   int retval;
 
@@ -457,8 +762,11 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   for (int c = 0; c < NEKO_CHUNKS_CANDIDATES; c++) {
     time1[c] = NEKO_TUNE_INIT;
   }
+  for (int c = 0; c < NEKO_DMMA_CANDIDATES; c++) {
+    time3[c] = NEKO_TUNE_INIT;
+    time4[c] = NEKO_TUNE_INIT;
+  }
 
-  const dim3 nthrds_1d(1024, 1, 1);
   const dim3 nblcks_1d((*nelv), 1, 1);
   const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
@@ -472,6 +780,7 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
 
   *eb_sel = 0;
   *ch_sel = 0;
+  *tw_sel = 0;
 
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
@@ -491,6 +800,35 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
       log_message(neko_log_buf);
       log_end_section();
       return 2;
+    } else if( !strcmp(env_value,"DMMA") ) {
+      if (dmma) {
+        const int c = neko_dmma_env();
+        *nw_sel = c;
+        CASE_DMMA_SEL(LX, c);
+        sprintf(neko_log_buf,"Set by env   : 3 (DMMA, %d warps)",
+                NEKO_DMMA_NW(c));
+        log_message(neko_log_buf);
+        log_end_section();
+        return 3;
+      } else {
+        sprintf(neko_log_buf, "DMMA strategy not available for this config");
+        log_error(neko_log_buf);
+      }
+    } else if( !strcmp(env_value,"DMMA_TMA") ) {
+      if (tma) {
+        const int c = neko_dmma_tma_env();
+        *tw_sel = c;
+        CASE_DMMA_TMA_SEL(LX, c);
+        sprintf(neko_log_buf,"Set by env   : 4 (DMMA_TMA, %d warps)",
+                NEKO_DMMA_NW(c));
+        log_message(neko_log_buf);
+        log_end_section();
+        return 4;
+      } else {
+        sprintf(neko_log_buf,
+                "DMMA_TMA strategy not available for this config");
+        log_error(neko_log_buf);
+      }
     } else {
       sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
       log_error(neko_log_buf);
@@ -513,6 +851,16 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
       CASE_KSTEP_PADDED(LX, 1);
       CASE_KSTEP_PADDED(LX, 2);
     }
+    if (dmma) {
+      CASE_DMMA(LX, 0);
+      CASE_DMMA(LX, 1);
+      CASE_DMMA(LX, 2);
+    }
+    if (tma) {
+      CASE_DMMA_TMA(LX, 0);
+      CASE_DMMA_TMA(LX, 1);
+      CASE_DMMA_TMA(LX, 2);
+    }
   }
 
   /* Interleaved rounds, best time per variant: timing them one after another
@@ -527,19 +875,47 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
       NEKO_TUNE_TIME(time2, CASE_KSTEP_PADDED, LX, 1, iters);
       NEKO_TUNE_TIME(time2, CASE_KSTEP_PADDED, LX, 2, iters);
     }
+    if (dmma) {
+      NEKO_TUNE_TIME(time3, CASE_DMMA, LX, 0, iters);
+      NEKO_TUNE_TIME(time3, CASE_DMMA, LX, 1, iters);
+      NEKO_TUNE_TIME(time3, CASE_DMMA, LX, 2, iters);
+    }
+    if (tma) {
+      NEKO_TUNE_TIME(time4, CASE_DMMA_TMA, LX, 0, iters);
+      NEKO_TUNE_TIME(time4, CASE_DMMA_TMA, LX, 1, iters);
+      NEKO_TUNE_TIME(time4, CASE_DMMA_TMA, LX, 2, iters);
+    }
   }
 
   NEKO_TUNE_LOG(LX, time1, time2);
+  NEKO_TUNE_LOG_DMMA(LX, time3);
+  NEKO_TUNE_LOG_DMMA_TMA(LX, time4);
 
   NEKO_TUNE_BEST(time1, best1, NEKO_CHUNKS_CANDIDATES);
   NEKO_TUNE_BEST(time2, best, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_BEST(time3, best3, NEKO_DMMA_CANDIDATES);
+  NEKO_TUNE_BEST(time4, best4, NEKO_DMMA_CANDIDATES);
   *eb_sel = best;
   *ch_sel = best1;
+  *nw_sel = best3;
+  *tw_sel = best4;
 
   if (time1[best1] < time2[best]) {
-    retval=1;
+    retval = 1;
   } else {
-    retval=2;
+    retval = 2;
+  }
+
+  /* The dmma variants join the comparison only where they exist, their
+     candidates are left at NEKO_TUNE_INIT otherwise */
+  float tbest = (retval == 1) ? time1[best1] : time2[best];
+
+  if (time3[best3] < tbest) {
+    retval = 3;
+    tbest = time3[best3];
+  }
+  if (time4[best4] < tbest) {
+    retval = 4;
   }
 
   cudaEventDestroy(start);
@@ -548,16 +924,489 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   /* Leave the output of the chosen kernel in w, see tune() */
   if (retval == 1) {
     CASE_1D_SEL(LX, best1);
-  } else {
+  } else if (retval == 2) {
     CASE_KSTEP_PADDED_SEL(LX, best);
+  } else if (retval == 3) {
+    CASE_DMMA_SEL(LX, best3);
+  } else {
+    CASE_DMMA_TMA_SEL(LX, best4);
   }
 
   if (retval == 1) {
     sprintf(neko_log_buf, "Chose        : 1 (1D, %d chunk)",
             NEKO_CHUNKS_SEL(LX, best1));
-  } else {
+  } else if (retval == 2) {
     sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
             NEKO_EB_SEL(LX, best));
+  } else if (retval == 3) {
+    sprintf(neko_log_buf, "Chose        : 3 (DMMA, %d warps, %d elem/blk)",
+            NEKO_DMMA_NW(best3), NEKO_DMMA_PACK(LX));
+  } else {
+    sprintf(neko_log_buf, "Chose        : 4 (DMMA_TMA, %d warps)",
+            NEKO_DMMA_NW(best4));
+  }
+  log_message(neko_log_buf);
+  log_end_section();
+  return retval;
+}
+
+
+/*
+ * Autotuner for the vector Ax
+ *
+ * The vector operator has no 1d variant, so the sweep is the elements per
+ * block candidates of the kstep variant against the warps per block
+ * candidates of the dmma variant -- the same two dimensions the scalar tuner
+ * sweeps, and the same shape as the HIP vector tuner. See the note at the top
+ * of ax_helm_kernel.h for why blocking is not expected to pay here, and why
+ * it is measured rather than assumed. Sampling follows the scalar tuner:
+ * interleaved rounds, best round per candidate.
+ *
+ * @note The section title has to fit the 30 character header field in
+ * log_section(), which truncates rather than wraps -- hence "Ax vector"
+ * rather than the "Ax helm vector" it reads as.
+ */
+template < const int LX >
+int tune_vector(void *au, void *av, void *aw, void *u, void *v, void *w,
+                void *dx, void *dy, void *dz, void *h1,
+                void *g11, void *g22, void *g33, void *g12,
+                void *g13, void *g23, int *nelv, int *lx,
+                int *eb_sel, int *nw_sel, int *tw_sel,
+                int *bw_sel) {
+  cudaEvent_t start, stop;
+  float time2[NEKO_EB_CANDIDATES];
+  int best2 = 0;
+  float time3[NEKO_DMMA_CANDIDATES];
+  int best3 = 0;
+  float time4[NEKO_DMMA_CANDIDATES];
+  int best4 = 0;
+  float time5[NEKO_DMMA_CANDIDATES];
+  int best5 = 0;
+  const int rounds = neko_tune_rounds();
+  const int iters = neko_tune_iters();
+  const int sweep = neko_eb_sweep();
+  const bool dmma = dmma_vector_lx_supported<LX>() && cuda_have_dmma();
+  /* Whether the pointers are bulk copy aligned is a property of this call
+     rather than of the kernel, see dmma_tma_vector_aligned() */
+  const bool tma = dmma_tma_vector_lx_supported<LX>() && cuda_have_tma() &&
+                   dmma_tma_vector_aligned(au, av, aw, u, v, w, h1,
+                                           g11, g22, g33, g12, g13, g23);
+  /* Same pointers, and additionally the device has to grant the block the
+     dynamic allocation, see cuda_have_tma_batch() */
+  const bool batch = dmma_tma_batch_lx_supported<LX>() && cuda_have_tma_batch()
+                     && dmma_tma_vector_aligned(au, av, aw, u, v, w, h1,
+                                                g11, g22, g33,
+                                                g12, g13, g23);
+  int retval;
+
+  for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
+    time2[c] = NEKO_TUNE_INIT;
+  }
+  for (int c = 0; c < NEKO_DMMA_CANDIDATES; c++) {
+    time3[c] = NEKO_TUNE_INIT;
+    time4[c] = NEKO_TUNE_INIT;
+    time5[c] = NEKO_TUNE_INIT;
+  }
+
+  const dim3 nblcks_dmma((*nelv), 1, 1);
+  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+  char *env_value = NULL;
+  char neko_log_buf[80];
+
+  env_value=getenv("NEKO_AUTOTUNE");
+
+  sprintf(neko_log_buf, "Autotune Ax vector (lx: %d)", *lx);
+  log_section(neko_log_buf);
+
+  *nw_sel = 0;
+  *tw_sel = 0;
+  *bw_sel = 0;
+
+  if(env_value) {
+    if( !strcmp(env_value,"KSTEP") || !strcmp(env_value,"1D") ) {
+      /* No 1d variant here, so either pin lands on kstep */
+      const int c = neko_eb_env();
+      *eb_sel = c;
+      CASE_VECTOR_KSTEP_SEL(LX, c);
+      sprintf(neko_log_buf,"Set by env   : 2 (KSTEP, %d elem/block)",
+              NEKO_EB_SEL(LX, c));
+      log_message(neko_log_buf);
+      log_end_section();
+      return 2;
+    } else if( !strcmp(env_value,"DMMA") ) {
+      if (dmma) {
+        const int c = neko_dmma_env();
+        *nw_sel = c;
+        CASE_VECTOR_DMMA_SEL(LX, c);
+        sprintf(neko_log_buf,"Set by env   : 3 (DMMA, %d warps)",
+                NEKO_DMMA_NW(c));
+        log_message(neko_log_buf);
+        log_end_section();
+        return 3;
+      } else {
+        sprintf(neko_log_buf, "DMMA strategy not available for this config");
+        log_error(neko_log_buf);
+      }
+    } else if( !strcmp(env_value,"DMMA_TMA") ) {
+      if (tma) {
+        const int c = neko_dmma_tma_env();
+        *tw_sel = c;
+        CASE_VECTOR_DMMA_TMA_SEL(LX, c);
+        sprintf(neko_log_buf,"Set by env   : 4 (DMMA_TMA, %d warps)",
+                NEKO_DMMA_NW(c));
+        log_message(neko_log_buf);
+        log_end_section();
+        return 4;
+      } else {
+        sprintf(neko_log_buf,
+                "DMMA_TMA strategy not available for this config");
+        log_error(neko_log_buf);
+      }
+    } else if( !strcmp(env_value,"DMMA_TMA_BATCH") ) {
+      if (batch) {
+        const int c = neko_dmma_tma_env();
+        *bw_sel = c;
+        CASE_VECTOR_DMMA_TMA_BATCH_SEL(LX, c);
+        sprintf(neko_log_buf,"Set by env   : 5 (DMMA_TMA_BATCH, %d warps)",
+                NEKO_DMMA_NW(c));
+        log_message(neko_log_buf);
+        log_end_section();
+        return 5;
+      } else {
+        sprintf(neko_log_buf,
+                "DMMA_TMA_BATCH strategy not available for this config");
+        log_error(neko_log_buf);
+      }
+    } else {
+      sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
+      log_error(neko_log_buf);
+    }
+  }
+
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+
+  /* Warm every variant before timing anything, see tune() */
+  for (int i = 0; i < NEKO_TUNE_WARMUP; i++) {
+    CASE_VECTOR_KSTEP(LX, 0);
+    if (sweep) {
+      CASE_VECTOR_KSTEP(LX, 1);
+      CASE_VECTOR_KSTEP(LX, 2);
+    }
+    if (dmma) {
+      CASE_VECTOR_DMMA(LX, 0);
+      CASE_VECTOR_DMMA(LX, 1);
+      CASE_VECTOR_DMMA(LX, 2);
+    }
+    if (tma) {
+      CASE_VECTOR_DMMA_TMA(LX, 0);
+      CASE_VECTOR_DMMA_TMA(LX, 1);
+      CASE_VECTOR_DMMA_TMA(LX, 2);
+    }
+    if (batch) {
+      CASE_VECTOR_DMMA_TMA_BATCH(LX, 0);
+      CASE_VECTOR_DMMA_TMA_BATCH(LX, 1);
+      CASE_VECTOR_DMMA_TMA_BATCH(LX, 2);
+    }
+  }
+
+  for (int r = 0; r < rounds; r++) {
+    NEKO_TUNE_TIME(time2, CASE_VECTOR_KSTEP, LX, 0, iters);
+    if (sweep) {
+      NEKO_TUNE_TIME(time2, CASE_VECTOR_KSTEP, LX, 1, iters);
+      NEKO_TUNE_TIME(time2, CASE_VECTOR_KSTEP, LX, 2, iters);
+    }
+    if (dmma) {
+      NEKO_TUNE_TIME(time3, CASE_VECTOR_DMMA, LX, 0, iters);
+      NEKO_TUNE_TIME(time3, CASE_VECTOR_DMMA, LX, 1, iters);
+      NEKO_TUNE_TIME(time3, CASE_VECTOR_DMMA, LX, 2, iters);
+    }
+    if (tma) {
+      NEKO_TUNE_TIME(time4, CASE_VECTOR_DMMA_TMA, LX, 0, iters);
+      NEKO_TUNE_TIME(time4, CASE_VECTOR_DMMA_TMA, LX, 1, iters);
+      NEKO_TUNE_TIME(time4, CASE_VECTOR_DMMA_TMA, LX, 2, iters);
+    }
+    if (batch) {
+      NEKO_TUNE_TIME(time5, CASE_VECTOR_DMMA_TMA_BATCH, LX, 0, iters);
+      NEKO_TUNE_TIME(time5, CASE_VECTOR_DMMA_TMA_BATCH, LX, 1, iters);
+      NEKO_TUNE_TIME(time5, CASE_VECTOR_DMMA_TMA_BATCH, LX, 2, iters);
+    }
+  }
+
+  for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
+    if (time2[c] >= NEKO_TUNE_INIT) { continue; }
+    sprintf(neko_log_buf, "KSTEP eb=%-4d: %9.2f us/call",
+            NEKO_EB_SEL(LX, c), NEKO_TUNE_US(time2[c], iters));
+    log_message(neko_log_buf);
+  }
+  NEKO_TUNE_LOG_DMMA(LX, time3);
+  NEKO_TUNE_LOG_DMMA_TMA(LX, time4);
+  NEKO_TUNE_LOG_DMMA_TMA_BATCH(LX, time5);
+
+  NEKO_TUNE_BEST(time2, best2, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_BEST(time3, best3, NEKO_DMMA_CANDIDATES);
+  NEKO_TUNE_BEST(time4, best4, NEKO_DMMA_CANDIDATES);
+  NEKO_TUNE_BEST(time5, best5, NEKO_DMMA_CANDIDATES);
+  *eb_sel = best2;
+  *nw_sel = best3;
+  *tw_sel = best4;
+  *bw_sel = best5;
+
+  /* The dmma variants join the comparison only where they exist, their
+     candidates are left at NEKO_TUNE_INIT otherwise */
+  float tbest = time2[best2];
+
+  retval = 2;
+  if (time3[best3] < tbest) { retval = 3; tbest = time3[best3]; }
+  if (time4[best4] < tbest) { retval = 4; tbest = time4[best4]; }
+  if (time5[best5] < tbest) { retval = 5; }
+
+  cudaEventDestroy(start);
+  cudaEventDestroy(stop);
+
+  /* The tuner stands in for a real Ax evaluation, and the variants do not
+     sum in the same order, so leave the output of the chosen kernel in
+     au, av and aw */
+  if (retval == 2) {
+    CASE_VECTOR_KSTEP_SEL(LX, best2);
+    sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
+            NEKO_EB_SEL(LX, best2));
+  } else if (retval == 3) {
+    CASE_VECTOR_DMMA_SEL(LX, best3);
+    sprintf(neko_log_buf, "Chose        : 3 (DMMA, %d warps, %d elem/blk)",
+            NEKO_DMMA_NW(best3), NEKO_DMMA_PACK(LX));
+  } else if (retval == 4) {
+    CASE_VECTOR_DMMA_TMA_SEL(LX, best4);
+    sprintf(neko_log_buf, "Chose        : 4 (DMMA_TMA, %d warps)",
+            NEKO_DMMA_NW(best4));
+  } else {
+    CASE_VECTOR_DMMA_TMA_BATCH_SEL(LX, best5);
+    sprintf(neko_log_buf, "Chose        : 5 (DMMA_TMA_BATCH, %d warps)",
+            NEKO_DMMA_NW(best5));
+  }
+  log_message(neko_log_buf);
+  log_end_section();
+  return retval;
+}
+
+/* Padded variant of tune_vector(), see the note on bank conflicts above */
+template < const int LX >
+int tune_vector_padded(void *au, void *av, void *aw, void *u, void *v, void *w,
+                       void *dx, void *dy, void *dz, void *h1,
+                       void *g11, void *g22, void *g33, void *g12,
+                       void *g13, void *g23, int *nelv, int *lx,
+                int *eb_sel, int *nw_sel, int *tw_sel,
+                int *bw_sel) {
+  cudaEvent_t start, stop;
+  float time2[NEKO_EB_CANDIDATES];
+  int best2 = 0;
+  float time3[NEKO_DMMA_CANDIDATES];
+  int best3 = 0;
+  float time4[NEKO_DMMA_CANDIDATES];
+  int best4 = 0;
+  float time5[NEKO_DMMA_CANDIDATES];
+  int best5 = 0;
+  const int rounds = neko_tune_rounds();
+  const int iters = neko_tune_iters();
+  const int sweep = neko_eb_sweep();
+  const bool dmma = dmma_vector_lx_supported<LX>() && cuda_have_dmma();
+  /* Whether the pointers are bulk copy aligned is a property of this call
+     rather than of the kernel, see dmma_tma_vector_aligned() */
+  const bool tma = dmma_tma_vector_lx_supported<LX>() && cuda_have_tma() &&
+                   dmma_tma_vector_aligned(au, av, aw, u, v, w, h1,
+                                           g11, g22, g33, g12, g13, g23);
+  /* Same pointers, and additionally the device has to grant the block the
+     dynamic allocation, see cuda_have_tma_batch() */
+  const bool batch = dmma_tma_batch_lx_supported<LX>() && cuda_have_tma_batch()
+                     && dmma_tma_vector_aligned(au, av, aw, u, v, w, h1,
+                                                g11, g22, g33,
+                                                g12, g13, g23);
+  int retval;
+
+  for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
+    time2[c] = NEKO_TUNE_INIT;
+  }
+  for (int c = 0; c < NEKO_DMMA_CANDIDATES; c++) {
+    time3[c] = NEKO_TUNE_INIT;
+    time4[c] = NEKO_TUNE_INIT;
+    time5[c] = NEKO_TUNE_INIT;
+  }
+
+  const dim3 nblcks_dmma((*nelv), 1, 1);
+  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+  char *env_value = NULL;
+  char neko_log_buf[80];
+
+  env_value=getenv("NEKO_AUTOTUNE");
+
+  sprintf(neko_log_buf, "Autotune Ax vector (lx: %d)", *lx);
+  log_section(neko_log_buf);
+
+  *nw_sel = 0;
+  *tw_sel = 0;
+  *bw_sel = 0;
+
+  if(env_value) {
+    if( !strcmp(env_value,"KSTEP") || !strcmp(env_value,"1D") ) {
+      /* No 1d variant here, so either pin lands on kstep */
+      const int c = neko_eb_env();
+      *eb_sel = c;
+      CASE_VECTOR_KSTEP_PADDED_SEL(LX, c);
+      sprintf(neko_log_buf,"Set by env   : 2 (KSTEP, %d elem/block)",
+              NEKO_EB_SEL(LX, c));
+      log_message(neko_log_buf);
+      log_end_section();
+      return 2;
+    } else if( !strcmp(env_value,"DMMA") ) {
+      if (dmma) {
+        const int c = neko_dmma_env();
+        *nw_sel = c;
+        CASE_VECTOR_DMMA_SEL(LX, c);
+        sprintf(neko_log_buf,"Set by env   : 3 (DMMA, %d warps)",
+                NEKO_DMMA_NW(c));
+        log_message(neko_log_buf);
+        log_end_section();
+        return 3;
+      } else {
+        sprintf(neko_log_buf, "DMMA strategy not available for this config");
+        log_error(neko_log_buf);
+      }
+    } else if( !strcmp(env_value,"DMMA_TMA") ) {
+      if (tma) {
+        const int c = neko_dmma_tma_env();
+        *tw_sel = c;
+        CASE_VECTOR_DMMA_TMA_SEL(LX, c);
+        sprintf(neko_log_buf,"Set by env   : 4 (DMMA_TMA, %d warps)",
+                NEKO_DMMA_NW(c));
+        log_message(neko_log_buf);
+        log_end_section();
+        return 4;
+      } else {
+        sprintf(neko_log_buf,
+                "DMMA_TMA strategy not available for this config");
+        log_error(neko_log_buf);
+      }
+    } else if( !strcmp(env_value,"DMMA_TMA_BATCH") ) {
+      if (batch) {
+        const int c = neko_dmma_tma_env();
+        *bw_sel = c;
+        CASE_VECTOR_DMMA_TMA_BATCH_SEL(LX, c);
+        sprintf(neko_log_buf,"Set by env   : 5 (DMMA_TMA_BATCH, %d warps)",
+                NEKO_DMMA_NW(c));
+        log_message(neko_log_buf);
+        log_end_section();
+        return 5;
+      } else {
+        sprintf(neko_log_buf,
+                "DMMA_TMA_BATCH strategy not available for this config");
+        log_error(neko_log_buf);
+      }
+    } else {
+      sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
+      log_error(neko_log_buf);
+    }
+  }
+
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+
+  /* Warm every variant before timing anything, see tune() */
+  for (int i = 0; i < NEKO_TUNE_WARMUP; i++) {
+    CASE_VECTOR_KSTEP_PADDED(LX, 0);
+    if (sweep) {
+      CASE_VECTOR_KSTEP_PADDED(LX, 1);
+      CASE_VECTOR_KSTEP_PADDED(LX, 2);
+    }
+    if (dmma) {
+      CASE_VECTOR_DMMA(LX, 0);
+      CASE_VECTOR_DMMA(LX, 1);
+      CASE_VECTOR_DMMA(LX, 2);
+    }
+    if (tma) {
+      CASE_VECTOR_DMMA_TMA(LX, 0);
+      CASE_VECTOR_DMMA_TMA(LX, 1);
+      CASE_VECTOR_DMMA_TMA(LX, 2);
+    }
+    if (batch) {
+      CASE_VECTOR_DMMA_TMA_BATCH(LX, 0);
+      CASE_VECTOR_DMMA_TMA_BATCH(LX, 1);
+      CASE_VECTOR_DMMA_TMA_BATCH(LX, 2);
+    }
+  }
+
+  for (int r = 0; r < rounds; r++) {
+    NEKO_TUNE_TIME(time2, CASE_VECTOR_KSTEP_PADDED, LX, 0, iters);
+    if (sweep) {
+      NEKO_TUNE_TIME(time2, CASE_VECTOR_KSTEP_PADDED, LX, 1, iters);
+      NEKO_TUNE_TIME(time2, CASE_VECTOR_KSTEP_PADDED, LX, 2, iters);
+    }
+    if (dmma) {
+      NEKO_TUNE_TIME(time3, CASE_VECTOR_DMMA, LX, 0, iters);
+      NEKO_TUNE_TIME(time3, CASE_VECTOR_DMMA, LX, 1, iters);
+      NEKO_TUNE_TIME(time3, CASE_VECTOR_DMMA, LX, 2, iters);
+    }
+    if (tma) {
+      NEKO_TUNE_TIME(time4, CASE_VECTOR_DMMA_TMA, LX, 0, iters);
+      NEKO_TUNE_TIME(time4, CASE_VECTOR_DMMA_TMA, LX, 1, iters);
+      NEKO_TUNE_TIME(time4, CASE_VECTOR_DMMA_TMA, LX, 2, iters);
+    }
+    if (batch) {
+      NEKO_TUNE_TIME(time5, CASE_VECTOR_DMMA_TMA_BATCH, LX, 0, iters);
+      NEKO_TUNE_TIME(time5, CASE_VECTOR_DMMA_TMA_BATCH, LX, 1, iters);
+      NEKO_TUNE_TIME(time5, CASE_VECTOR_DMMA_TMA_BATCH, LX, 2, iters);
+    }
+  }
+
+  for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
+    if (time2[c] >= NEKO_TUNE_INIT) { continue; }
+    sprintf(neko_log_buf, "KSTEP eb=%-4d: %9.2f us/call",
+            NEKO_EB_SEL(LX, c), NEKO_TUNE_US(time2[c], iters));
+    log_message(neko_log_buf);
+  }
+  NEKO_TUNE_LOG_DMMA(LX, time3);
+  NEKO_TUNE_LOG_DMMA_TMA(LX, time4);
+  NEKO_TUNE_LOG_DMMA_TMA_BATCH(LX, time5);
+
+  NEKO_TUNE_BEST(time2, best2, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_BEST(time3, best3, NEKO_DMMA_CANDIDATES);
+  NEKO_TUNE_BEST(time4, best4, NEKO_DMMA_CANDIDATES);
+  NEKO_TUNE_BEST(time5, best5, NEKO_DMMA_CANDIDATES);
+  *eb_sel = best2;
+  *nw_sel = best3;
+  *tw_sel = best4;
+  *bw_sel = best5;
+
+  /* The dmma variants join the comparison only where they exist, their
+     candidates are left at NEKO_TUNE_INIT otherwise */
+  float tbest = time2[best2];
+
+  retval = 2;
+  if (time3[best3] < tbest) { retval = 3; tbest = time3[best3]; }
+  if (time4[best4] < tbest) { retval = 4; tbest = time4[best4]; }
+  if (time5[best5] < tbest) { retval = 5; }
+
+  cudaEventDestroy(start);
+  cudaEventDestroy(stop);
+
+  /* Leave the output of the chosen kernel in au, av and aw, see tune() */
+  if (retval == 2) {
+    CASE_VECTOR_KSTEP_PADDED_SEL(LX, best2);
+    sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
+            NEKO_EB_SEL(LX, best2));
+  } else if (retval == 3) {
+    CASE_VECTOR_DMMA_SEL(LX, best3);
+    sprintf(neko_log_buf, "Chose        : 3 (DMMA, %d warps, %d elem/blk)",
+            NEKO_DMMA_NW(best3), NEKO_DMMA_PACK(LX));
+  } else if (retval == 4) {
+    CASE_VECTOR_DMMA_TMA_SEL(LX, best4);
+    sprintf(neko_log_buf, "Chose        : 4 (DMMA_TMA, %d warps)",
+            NEKO_DMMA_NW(best4));
+  } else {
+    CASE_VECTOR_DMMA_TMA_BATCH_SEL(LX, best5);
+    sprintf(neko_log_buf, "Chose        : 5 (DMMA_TMA_BATCH, %d warps)",
+            NEKO_DMMA_NW(best5));
   }
   log_message(neko_log_buf);
   log_end_section();

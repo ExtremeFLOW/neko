@@ -33,9 +33,11 @@ supports this. Here is a list of things you can implement.
 - Point zones (`point_zone_t` descendants).
 - Preconditioners (`pc_t` descendants).
 - Krylov solvers (`ksp_t` descendants).
+- Matrix-vector products (`ax_t` descendants).
+- Scalar schemes (`scalar_scheme_t` descendants).
 
-This list will hopefully be extended later. Notable omissions are scalar and
-fluid schemes.
+This list will hopefully be extended later. Fluid schemes are a notable
+omission.
 
 To implement a new type, the easiest thing is to start by copying over the
 `.f90` of an already existing type, renaming things inside and then adding the

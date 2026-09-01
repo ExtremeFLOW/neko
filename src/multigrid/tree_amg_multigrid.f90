@@ -42,18 +42,18 @@
 !>  call amg_solver%solve(x%x, f, n)
 !>
 module tree_amg_multigrid
-  use num_types, only: rp
+  use num_types, only : rp
   use utils, only : neko_error, neko_warning
   use math, only : add2, rzero, glsc2, col2, copy, add2s1
   use device_math, only : device_rzero, device_col2, device_add2, device_sub3, &
        device_glsc2, device_copy
   use comm
-  use mpi_f08, only: MPI_Allreduce, MPI_MIN, MPI_IN_PLACE, MPI_INTEGER
+  use mpi_f08, only : MPI_Allreduce, MPI_MIN, MPI_IN_PLACE, MPI_INTEGER
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use space, only : space_t
-  use ax_product, only: ax_t
-  use bc_list, only : bc_list_t
+  use ax_product, only : ax_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use tree_amg, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
   use tree_amg_aggregate, only : aggregate_finest_level, aggregate_greedy, &
@@ -61,9 +61,9 @@ module tree_amg_multigrid
   use tree_amg_smoother, only : amg_cheby_t
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_unmap, device_memcpy, HOST_TO_DEVICE, &
+  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE, &
        device_get_ptr
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   !$ use omp_lib, only : omp_get_max_threads
   implicit none
@@ -106,9 +106,9 @@ contains
   !! @param msh Finest level mesh information
   !! @param gs_h Finest level gather scatter operator
   !! @param nlvls Number of levels for the TreeAMG hierarchy
-  !! @param blst Finest level BC list
+  !! @param bc_projector Finest level BC projector
   !! @param max_iter Number of AMG iterations
-  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls, blst, &
+  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls, bc_projector, &
        max_iter, cheby_degree)
     class(tamg_solver_t), intent(inout), target :: this
     class(ax_t), target, intent(in) :: ax
@@ -116,7 +116,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     type(mesh_t), target, intent(in) :: msh
     type(gs_t), target, intent(in) :: gs_h
-    type(bc_list_t), target, intent(in) :: blst
+    type(scalar_bc_projector_t), target, intent(in) :: bc_projector
     integer, intent(in) :: nlvls
     integer, intent(in) :: max_iter
     integer, intent(in) :: cheby_degree
@@ -133,7 +133,7 @@ contains
     call neko_log%message(log_buf)
 
     allocate( this%amg )
-    call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, blst)
+    call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, bc_projector)
 
     ! Aggregation
     use_greedy_agg = .true.

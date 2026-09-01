@@ -44,10 +44,9 @@ contains
   !! @param u The sampled x-velocity field.
   !! @param v The sampled y-velocity field.
   !! @param w The sampled z-velocity field.
-  !! @param ind_r The r-index array for sampled GLL points.
-  !! @param ind_s The s-index array for sampled GLL points.
-  !! @param ind_t The t-index array for sampled GLL points.
-  !! @param ind_e The element-index array for sampled GLL points.
+  !! @param u Sampled x velocity.
+  !! @param v Sampled y velocity.
+  !! @param w Sampled z velocity.
   !! @param n_x The x-component of the wall normals.
   !! @param n_y The y-component of the wall normals.
   !! @param n_z The z-component of the wall normals.
@@ -64,13 +63,11 @@ contains
   !! @param B The log-law intercept.
   !! @param p The blending exponent.
   !! @param s The blending scale.
-  subroutine cai_sagaut_model_ii_compute_cpu(u, v, w, ind_r, ind_s, ind_t, &
-       ind_e, n_x, n_y, n_z, nu, rho_w, h, tau_x, tau_y, tau_z, n_nodes, &
-       lx, nelv, kappa, B, p, s)
-    integer, intent(in) :: n_nodes, lx, nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w
+  subroutine cai_sagaut_model_ii_compute_cpu(u, v, w, n_x, n_y, n_z, nu, &
+       rho_w, h, tau_x, tau_y, tau_z, n_nodes, kappa, B, p, s)
+    integer, intent(in) :: n_nodes
+    real(kind=rp), dimension(n_nodes), intent(in) :: u, v, w
     real(kind=rp), dimension(n_nodes), intent(in) :: rho_w
-    integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h, nu
     real(kind=rp), dimension(n_nodes), intent(out) :: tau_x, tau_y, tau_z
     real(kind=rp), intent(in) :: kappa, B, p, s
@@ -80,10 +77,12 @@ contains
 
     e_const = exp(kappa * B)
 
+    !$omp parallel do private(i, ui, vi, wi, magu, utau, normu, rho, &
+    !$omp& rey, blend, up, warg)
     do i = 1, n_nodes
-       ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       ui = u(i)
+       vi = v(i)
+       wi = w(i)
        rho = rho_w(i)
 
        normu = ui * n_x(i) + vi * n_y(i) + wi * n_z(i)
@@ -111,6 +110,7 @@ contains
        tau_y(i) = -rho * utau**2 * vi / (magu + NEKO_EPS)
        tau_z(i) = -rho * utau**2 * wi / (magu + NEKO_EPS)
     end do
+    !$omp end parallel do
   end subroutine cai_sagaut_model_ii_compute_cpu
 
 end module cai_sagaut_model_ii_cpu

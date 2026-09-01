@@ -58,7 +58,7 @@ void opencl_set_convect_rst(void *cr, void *cs, void *ct,
                             void *w3, int *nel, int *lx) {
   cl_int err;
 
-  if (opgrad_program == NULL)
+  if (set_convect_rst_program == NULL)
     opencl_kernel_jit(set_convect_rst_kernel, (cl_program *) &set_convect_rst_program);
 
   const size_t global_item_size = 256 * (*nel);
@@ -75,19 +75,19 @@ void opencl_set_convect_rst(void *cr, void *cs, void *ct,
       CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &cr));        \
       CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &cs));        \
       CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &ct));        \
-      CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &cx));        \
-      CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &cy));        \
-      CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &cz));        \
-      CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &drdx));      \
-      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &dsdx));      \
-      CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &dtdx));      \
-      CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &drdy));     \
-      CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &dsdy));     \
-      CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &dtdy));     \
-      CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &drdz));     \
-      CL_CHECK(clSetKernelArg(kernel, 14, sizeof(cl_mem), (void *) &dsdz));     \
-      CL_CHECK(clSetKernelArg(kernel, 15, sizeof(cl_mem), (void *) &dtdz));     \
-      CL_CHECK(clSetKernelArg(kernel, 16, sizeof(cl_mem), (void *) &w3));       \
+      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &cx));        \
+      CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &cy));        \
+      CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &cz));        \
+      CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &drdx));      \
+      CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dsdx));      \
+      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &dtdx));      \
+      CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &drdy));      \
+      CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &dsdy));     \
+      CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &dtdy));     \
+      CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &drdz));     \
+      CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &dsdz));     \
+      CL_CHECK(clSetKernelArg(kernel, 14, sizeof(cl_mem), (void *) &dtdz));     \
+      CL_CHECK(clSetKernelArg(kernel, 15, sizeof(cl_mem), (void *) &w3));       \
                                                                                 \
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         \
                                       kernel, 1, NULL, &global_item_size,       \

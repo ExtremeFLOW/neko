@@ -32,7 +32,7 @@
 !
 !> Output for spatially averaged fields.
 module spatial_average_output
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field, only : field_t
   use field_list, only : field_list_t
   use fld_file_data, only : fld_file_data_t
@@ -127,7 +127,7 @@ contains
   !! @param t The current time value.
   subroutine spatial_average_output_sample(this, t)
     class(spatial_average_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
     type(fld_file_data_t) :: output_2d
     type(matrix_t) :: output_1d
     type(field_list_t) :: temp_fields

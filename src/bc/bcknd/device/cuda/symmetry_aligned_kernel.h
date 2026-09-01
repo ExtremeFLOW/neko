@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2025, The Neko Authors
+ Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,32 +32,41 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <hip/hip_runtime.h>
-#include <algorithm>
-#include <device/device_config.h>
-#include <device/hip/check.h>
-#include "symmetry_kernel.h"
+#ifndef __BC_SYMMETRY_ALIGNED_KERNEL__
+#define __BC_SYMMETRY_ALIGNED_KERNEL__
 
-extern "C" {
+/**
+ * Device kernel for vector apply for an axis-aligned symmetry condition
+ */
+template< typename T >
+__global__ void symmetry_aligned_apply_vector_kernel(
+    const int * __restrict__ xmsk,
+    const int * __restrict__ ymsk,
+    const int * __restrict__ zmsk,
+    T * __restrict__ x,
+    T * __restrict__ y,
+    T * __restrict__ z,
+    const int m,
+    const int n,
+    const int l) {
 
-  /** 
-   * Fortran wrapper for device symmetry apply vector
-   */
-  void hip_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
-				 void *x, void *y, void *z,
-				 int *m, int *n, int *l,
-                                 hipStream_t strm) {
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
 
-    const int max_len = std::max(std::max(*m, *n), *l);
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((max_len) + 1024 - 1)/ 1024, 1, 1);
-
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(symmetry_apply_vector_kernel<real>),
-		       nblcks, nthrds, 0, strm,
-		       (int *) xmsk, (int *) ymsk, (int *) zmsk,
-		       (real *) x, (real *) y, (real *) z,
-		       *m, *n, *l);
-    HIP_CHECK(hipGetLastError());
+  for (int i = idx; i < m; i += str) {
+    const int k = (xmsk[i+1] - 1);
+    x[k] = 0.0;
   }
- 
+
+  for (int i = idx ; i < n; i += str) {
+    const int k = (ymsk[i+1] - 1);
+    y[k] = 0.0;
+  }
+
+  for (int i = idx; i < l; i += str) {
+    const int k = (zmsk[i+1] - 1);
+    z[k] = 0.0;
+  }
 }
+
+#endif // __BC_SYMMETRY_ALIGNED_KERNEL__
