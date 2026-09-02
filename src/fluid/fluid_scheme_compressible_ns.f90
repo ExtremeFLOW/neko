@@ -81,7 +81,6 @@ module fluid_scheme_compressible_ns
        :: fluid_scheme_compressible_ns_t
      type(field_t) :: rho_res, m_x_res, m_y_res, m_z_res, m_E_res
      type(field_t) :: drho, dm_x, dm_y, dm_z, dE
-     real(kind=rp) :: c_avisc_low
      class(advection_t), allocatable :: adv
      class(ax_t), allocatable :: Ax
      class(ax_t), allocatable :: Ax_stress
@@ -318,7 +317,7 @@ contains
          dm_z => this%dm_z, dE => this%dE, &
          compressible_rhs => this%compressible_rhs, &
          t => time%t, tstep => time%tstep, dt => time%dt, &
-         c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
+         rk_scheme => this%rk_scheme)
 
       !> Update artificial viscosity
       if (allocated(this%viscous_regularization)) then

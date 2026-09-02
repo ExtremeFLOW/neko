@@ -13,13 +13,15 @@
         },
         "numerics": {
             "time_order": 3,
-            "polynomial_order": 3,
-            "c_avisc_low": 0.5,
-            "c_avisc_entropy": 0.5
+            "polynomial_order": 3
         },
         "fluid": {
             "scheme": "compressible",
             "gamma": 1.4,
+            "viscous_regularization": {
+                "type": "artificial_viscosity",
+                "reg_coeff_name": "entropy_viscosity"
+            },
             "Re": 1000.0,
             "Pr": 0.73,
             "initial_condition": {
@@ -39,6 +41,12 @@
             "output_value": 100
         },
         "simulation_components": [
+            {
+                "type": "artificial_viscosity_model",
+                "model": "entropy_viscosity",
+                "c_avisc_low": 0.5,
+                "c_avisc_entropy": 0.5
+            },
             {
                 "type": "field_writer",
                 "fields": ["fluid_rho", "S", "artificial_visc"],

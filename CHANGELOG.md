@@ -1,9 +1,11 @@
 # Changelog
 
 ## Develop
-- Modularized the entropy viscosity in the compressible Navier-Stokes solver
-  by computing it in simcomp as an `artificial viscosity model` and
-  applying it via a new object `viscous_regularization`.
+- *BREAKING* Modularized entropy viscosity in the compressible Navier-Stokes
+  solver. The obsolete `case.numerics.c_avisc_low` and
+  `case.numerics.c_avisc_entropy` options are now rejected. Configure an
+  `artificial_viscosity_model` simulation component with those coefficients
+  and enable its field through the fluid `viscous_regularization` object.
 
 - *BREAKING*, normal_outflow conditions now require specifying `value`, which
   is used to set the value of the tangential components of velocity.
