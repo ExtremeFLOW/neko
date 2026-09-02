@@ -132,7 +132,7 @@ contains
 
   end subroutine cg_free
 
-  !> Solve a linear system with the CPU PCG method.
+  !> Solve a linear system with the Standard PCG method.
   function cg_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
        result(ksp_results)
     class(cg_t), intent(inout) :: this
