@@ -409,8 +409,8 @@ contains
     class(entropy_viscosity_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call this%compute_entropy()
     call this%S_lag%update()
+    call this%compute_entropy()
 
 
   end subroutine entropy_viscosity_update_lag
