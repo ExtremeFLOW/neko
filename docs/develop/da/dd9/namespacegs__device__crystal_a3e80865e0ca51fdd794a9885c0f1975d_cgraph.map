@@ -1,0 +1,8 @@
+<map id="gs_device_crystal::cr_gather" name="gs_device_crystal::cr_gather">
+<area shape="rect" id="Node000001" title="Gather n words of src into dst through the 1&#45;based index list idx_d, i.e. dst(j) = src(idx(j))" alt="" coords="5,29,152,69"/>
+<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#a7ce5d7eddaca70d46e33391af8561115" title=" " alt="" coords="200,37,313,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,47,186,47,186,52,152,52"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="361,29,513,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="313,47,347,47,347,52,313,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="403,30,401,20,407,11,419,5,437,3,459,6,470,13,467,17,457,11,437,8,420,10,410,15,407,21,409,28"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="gs_device_crystal::gs_device_crystal_nbsend_vec" name="gs_device_crystal::gs_device_crystal_nbsend_vec">
+<area shape="rect" id="Node000001" title="Pack the shared vector and post the send of the first routing stage, fused nc&#45;component." alt="" coords="5,29,228,69"/>
+<area shape="rect" id="Node000002" href="$da/dd9/namespacegs__device__crystal.html#a8de110eaf7662b606bd479c2cd04a231" title="Gather n positions of the component&#45;outer src (stride ns) into the interleaved dst." alt="" coords="276,29,423,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="228,47,262,47,262,52,228,52"/>
+<area shape="rect" id="Node000003" href="$de/df6/gs_8cu.html#abbdfc79a5ca52e6d7e0af8c53fcc0fe6" title=" " alt="" coords="471,37,613,62"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="423,47,457,47,457,52,423,52"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="661,29,813,69"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="613,47,648,47,648,52,613,52"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="701,30,698,20,704,11,717,5,737,3,760,6,773,13,770,17,759,11,737,8,719,10,708,15,704,21,706,28"/>
+</map>

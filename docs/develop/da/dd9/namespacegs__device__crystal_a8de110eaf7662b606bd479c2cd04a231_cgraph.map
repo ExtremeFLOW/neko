@@ -1,0 +1,8 @@
+<map id="gs_device_crystal::cr_gather_vec" name="gs_device_crystal::cr_gather_vec">
+<area shape="rect" id="Node000001" title="Gather n positions of the component&#45;outer src (stride ns) into the interleaved dst." alt="" coords="5,29,152,69"/>
+<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#abbdfc79a5ca52e6d7e0af8c53fcc0fe6" title=" " alt="" coords="200,37,343,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,47,186,47,186,52,152,52"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="391,29,543,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="343,47,377,47,377,52,343,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="430,30,428,20,434,11,447,5,467,3,490,6,502,13,499,17,488,11,467,8,448,10,437,15,433,21,435,28"/>
+</map>

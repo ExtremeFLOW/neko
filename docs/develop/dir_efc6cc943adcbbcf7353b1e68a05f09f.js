@@ -5,6 +5,8 @@ var dir_efc6cc943adcbbcf7353b1e68a05f09f =
     [ "gs_bcknd.f90", "d4/daa/gs__bcknd_8f90.html", "d4/daa/gs__bcknd_8f90" ],
     [ "gs_caf.F90", "db/df1/gs__caf_8F90.html", "db/df1/gs__caf_8F90" ],
     [ "gs_comm.f90", "d6/d75/gs__comm_8f90.html", "d6/d75/gs__comm_8f90" ],
+    [ "gs_crystal.f90", "d9/dc5/gs__crystal_8f90.html", "d9/dc5/gs__crystal_8f90" ],
+    [ "gs_crystal_plan.f90", "d2/d50/gs__crystal__plan_8f90.html", "d2/d50/gs__crystal__plan_8f90" ],
     [ "gs_mpi.f90", "d6/ddf/gs__mpi_8f90.html", "d6/ddf/gs__mpi_8f90" ],
     [ "gs_mpi_rma.f90", "d7/d7c/gs__mpi__rma_8f90.html", "d7/d7c/gs__mpi__rma_8f90" ],
     [ "gs_neighbour.f90", "d1/db8/gs__neighbour_8f90.html", "d1/db8/gs__neighbour_8f90" ],

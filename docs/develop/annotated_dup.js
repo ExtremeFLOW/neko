@@ -768,10 +768,29 @@ var annotated_dup =
     [ "gs_cpu", "d5/d22/namespacegs__cpu.html", [
       [ "gs_cpu_t", "da/dc2/structgs__cpu_1_1gs__cpu__t.html", "da/dc2/structgs__cpu_1_1gs__cpu__t" ]
     ] ],
+    [ "gs_crystal", "d6/d99/namespacegs__crystal.html", [
+      [ "gs_crystal_t", "d7/db2/structgs__crystal_1_1gs__crystal__t.html", "d7/db2/structgs__crystal_1_1gs__crystal__t" ]
+    ] ],
+    [ "gs_crystal_plan", "da/d8c/namespacegs__crystal__plan.html", [
+      [ "gs_crystal_plan_t", "d2/dfb/structgs__crystal__plan_1_1gs__crystal__plan__t.html", "d2/dfb/structgs__crystal__plan_1_1gs__crystal__plan__t" ],
+      [ "gs_crystal_stage_t", "d7/d5d/structgs__crystal__plan_1_1gs__crystal__stage__t.html", "d7/d5d/structgs__crystal__plan_1_1gs__crystal__stage__t" ]
+    ] ],
     [ "gs_device", "d8/dcd/namespacegs__device.html", [
       [ "gs_device_t", "db/df2/structgs__device_1_1gs__device__t.html", "db/df2/structgs__device_1_1gs__device__t" ],
       [ "hip_gather_kernel", "d4/d78/interfacegs__device_1_1hip__gather__kernel.html", "d4/d78/interfacegs__device_1_1hip__gather__kernel" ],
       [ "hip_scatter_kernel", "de/d8b/interfacegs__device_1_1hip__scatter__kernel.html", "de/d8b/interfacegs__device_1_1hip__scatter__kernel" ]
+    ] ],
+    [ "gs_device_crystal", "da/dd9/namespacegs__device__crystal.html", [
+      [ "device_mpi_free_reqs", "dd/d0e/interfacegs__device__crystal_1_1device__mpi__free__reqs.html", "dd/d0e/interfacegs__device__crystal_1_1device__mpi__free__reqs" ],
+      [ "device_mpi_init_reqs", "df/d08/interfacegs__device__crystal_1_1device__mpi__init__reqs.html", "df/d08/interfacegs__device__crystal_1_1device__mpi__init__reqs" ],
+      [ "device_mpi_irecv", "d7/d53/interfacegs__device__crystal_1_1device__mpi__irecv.html", "d7/d53/interfacegs__device__crystal_1_1device__mpi__irecv" ],
+      [ "device_mpi_isend", "d6/dde/interfacegs__device__crystal_1_1device__mpi__isend.html", "d6/dde/interfacegs__device__crystal_1_1device__mpi__isend" ],
+      [ "device_mpi_waitall", "df/d5d/interfacegs__device__crystal_1_1device__mpi__waitall.html", "df/d5d/interfacegs__device__crystal_1_1device__mpi__waitall" ],
+      [ "gs_device_crystal_t", "de/df3/structgs__device__crystal_1_1gs__device__crystal__t.html", "de/df3/structgs__device__crystal_1_1gs__device__crystal__t" ],
+      [ "hip_gs_pack", "d6/de4/interfacegs__device__crystal_1_1hip__gs__pack.html", "d6/de4/interfacegs__device__crystal_1_1hip__gs__pack" ],
+      [ "hip_gs_pack_vec", "de/dcc/interfacegs__device__crystal_1_1hip__gs__pack__vec.html", "de/dcc/interfacegs__device__crystal_1_1hip__gs__pack__vec" ],
+      [ "hip_gs_unpack", "d3/d4b/interfacegs__device__crystal_1_1hip__gs__unpack.html", "d3/d4b/interfacegs__device__crystal_1_1hip__gs__unpack" ],
+      [ "hip_gs_unpack_vec", "d9/deb/interfacegs__device__crystal_1_1hip__gs__unpack__vec.html", "d9/deb/interfacegs__device__crystal_1_1hip__gs__unpack__vec" ]
     ] ],
     [ "gs_device_mpi", "d9/dfa/namespacegs__device__mpi.html", [
       [ "device_mpi_free_reqs", "d1/d45/interfacegs__device__mpi_1_1device__mpi__free__reqs.html", "d1/d45/interfacegs__device__mpi_1_1device__mpi__free__reqs" ],

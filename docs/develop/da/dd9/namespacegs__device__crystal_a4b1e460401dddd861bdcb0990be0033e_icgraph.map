@@ -1,0 +1,5 @@
+<map id="gs_device_crystal::cr_vec_index" name="gs_device_crystal::cr_vec_index">
+<area shape="rect" id="Node000001" title="Build the per&#45;stage index lists of the fused vector exchange, which address the same words as the sca..." alt="" coords="272,5,419,45"/>
+<area shape="rect" id="Node000002" href="$da/dd9/namespacegs__device__crystal.html#a57e489ecb0c5974a2d24eb73652a68e7" title="Post the receives of the first routing stage, fused nc&#45;component." alt="" coords="5,5,224,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="258,28,224,28,224,23,258,23"/>
+</map>

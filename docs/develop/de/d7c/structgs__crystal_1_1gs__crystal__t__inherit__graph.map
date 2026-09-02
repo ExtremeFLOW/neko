@@ -1,0 +1,5 @@
+<map id="gs_crystal::gs_crystal_t" name="gs_crystal::gs_crystal_t">
+<area shape="rect" id="Node000001" title="Gather&#45;scatter communication using a crystal router." alt="" coords="5,79,180,104"/>
+<area shape="rect" id="Node000002" href="$d5/d1c/structgs__comm_1_1gs__comm__t.html" title="Gather&#45;scatter communication method." alt="" coords="9,5,177,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,44,95,79,90,79,90,44"/>
+</map>

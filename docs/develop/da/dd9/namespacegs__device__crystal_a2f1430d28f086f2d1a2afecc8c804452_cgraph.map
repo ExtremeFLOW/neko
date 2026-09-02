@@ -1,0 +1,7 @@
+<map id="gs_device_crystal::gs_device_crystal_free" name="gs_device_crystal::gs_device_crystal_free">
+<area shape="rect" id="Node000001" title="Deallocate crystal router based device communication." alt="" coords="5,35,176,75"/>
+<area shape="rect" id="Node000002" href="$da/dd9/namespacegs__device__crystal.html#ae9d849db03fb9054ac2ed3c19348ef1e" title="Release a list of device pointers, leaving them null." alt="" coords="225,5,372,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,40,211,35,212,40,176,45"/>
+<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="224,70,373,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="176,63,210,68,210,73,176,69"/>
+</map>

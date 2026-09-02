@@ -217,6 +217,7 @@ Gather-scatter communication backend details</h2>
 <li><code>NEKO_GS_COMM=NEIGHBOUR</code> : Host MPI using an <code>MPI_Ineighbor_alltoallv</code> neighbourhood collective (<code>NEIGHBOR</code> is also accepted; MPI-3, host only)</li>
 <li><code>NEKO_GS_COMM=UTOFU</code> : Native Tofu interconnect (uTofu) one-sided RDMA (Fugaku and other Tofu-D systems; requires building with <code>--with-utofu</code>)</li>
 <li><code>NEKO_GS_COMM=MPIRMA</code> : Host MPI one-sided puts into a passive-target window (<code>RMA</code> is also accepted; MPI-3, host only). Assumes an MPI whose RMA progresses without the target entering MPI, as the hardware-driven one-sided components do (Open MPI <code>osc/rdma</code> and <code>osc/ucx</code>, Cray MPICH over libfabric); <code>NEKO_GS_TUNE=-MPIRMA</code> drops it from the autotuning on systems where that does not hold</li>
+<li><code>NEKO_GS_COMM=CRYSTAL</code> : Host MPI routed as a crystal router, one message per routing stage instead of one per peer (host only). <code>CRYSTALGPU</code> is the device-aware variant, which keeps the halo on the GPU</li>
 </ul>
 <p>When <code>NEKO_GS_COMM</code> is unset and the build has no device-aware MPI, the host backends are benchmarked at initialisation and the fastest one is kept (see <a class="el" href="../../dc/d3c/performance.html#performance-gs-autotuning">Runtime autotuning of the host backend</a>). Which ones take part is set by <code>NEKO_GS_TUNE</code>, a list of backend names spelled as for <code>NEKO_GS_COMM</code> (comma or space separated, case insensitive). Unset, it means every host backend the build supports except <code>CAF</code>, which a compiler can accept at configure time while still giving the job a single image the coarray backend cannot use.</p>
 <ul>
@@ -276,7 +277,7 @@ uTofu injection details</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Tue Sep 1 2026 03:42:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Sep 2 2026 03:40:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -597,19 +597,21 @@ Available conditions</h3>
 <div class="line">  &quot;value&quot;: [1.0, 0.0, 0.0],</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
-</div><!-- fragment --><p class="startli">The second option is to provide the values through a field file using the <code>file_name</code> keyword. This is currently supported only by the axis-aligned implementation. The file must contain a three-component vector field in global Cartesian coordinates. Internally, only the tangential components are enforced on the boundary. Optional interpolation settings are the same as for other field-imported data:</p><ul>
+</div><!-- fragment --><p class="startli">The second option is to provide the values through a field file using the <code>file_name</code> keyword. This is currently supported only by the axis-aligned implementation. The file must contain a three-component vector field in global Cartesian coordinates. Internally, only the tangential components are enforced on the boundary. The <code>file_name</code> and <code>mesh_file_name</code> values use Neko's field-sample naming convention, for example <code>field0.f00000</code>. The <code>mesh_file_name</code> is an optional field sample containing the source mesh coordinates; it can be omitted when the source field contains its own coordinates. Optional interpolation settings are the same as for other field-imported data:</p><ul>
 <li><code>interpolate</code>. Logical flag controlling whether interpolation is used.</li>
-<li><code>mesh_file_name</code>. Mesh file used for interpolation when the source field is defined on a different mesh.</li>
+<li><code>mesh_file_name</code>. Optional sampled field containing the source mesh coordinates when the source field is defined on a different mesh.</li>
 <li><code>interpolation.tolerance</code>. Tolerance for the interpolation search.</li>
 <li><code>interpolation.padding</code>. Padding used in the interpolation search.</li>
 </ul>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;normal_outflow&quot;,</div>
-<div class="line">  &quot;file_name&quot;: &quot;outlet_velocity.fld&quot;,</div>
+<div class="line">  &quot;file_name&quot;: &quot;outlet_velocity0.f00000&quot;,</div>
 <div class="line">  &quot;interpolate&quot;: true,</div>
-<div class="line">  &quot;mesh_file_name&quot;: &quot;coarse_box.nmsh&quot;,</div>
-<div class="line">  &quot;interpolation.tolerance&quot;: 1.0e-8,</div>
-<div class="line">  &quot;interpolation.padding&quot;: 0.01,</div>
+<div class="line">  &quot;mesh_file_name&quot;: &quot;coarse_box0.f00000&quot;,</div>
+<div class="line">  &quot;interpolation&quot;: {</div>
+<div class="line">    &quot;tolerance&quot;: 1.0e-8,</div>
+<div class="line">    &quot;padding&quot;: 0.01</div>
+<div class="line">  },</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
 </div><!-- fragment --><p class="startli">Exactly one of <code>value</code> or <code>file_name</code> must be provided. If <code>value</code> is used, it must be an array of three reals.</p>
@@ -1935,7 +1937,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Tue Sep 1 2026 03:42:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Sep 2 2026 03:40:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

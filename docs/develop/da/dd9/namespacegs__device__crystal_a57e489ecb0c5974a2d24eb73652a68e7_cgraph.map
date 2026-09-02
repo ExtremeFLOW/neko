@@ -1,0 +1,11 @@
+<map id="gs_device_crystal::gs_device_crystal_nbrecv_vec" name="gs_device_crystal::gs_device_crystal_nbrecv_vec">
+<area shape="rect" id="Node000001" title="Post the receives of the first routing stage, fused nc&#45;component." alt="" coords="5,69,224,109"/>
+<area shape="rect" id="Node000002" href="$da/dd9/namespacegs__device__crystal.html#a4b1e460401dddd861bdcb0990be0033e" title="Build the per&#45;stage index lists of the fused vector exchange, which address the same words as the sca..." alt="" coords="272,69,419,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,87,258,87,258,92,224,92"/>
+<area shape="rect" id="Node000003" href="$da/dd9/namespacegs__device__crystal.html#af909a05a716c67e433da5e5c07f695c5" title="Spell out the components of the 1&#45;based index list idx over nc." alt="" coords="467,5,613,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="406,67,465,47,466,52,408,72"/>
+<area shape="rect" id="Node000004" href="$da/dd9/namespacegs__device__crystal.html#ae9d849db03fb9054ac2ed3c19348ef1e" title="Release a list of device pointers, leaving them null." alt="" coords="467,69,613,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="419,87,453,87,453,92,419,92"/>
+<area shape="rect" id="Node000005" href="$da/dd9/namespacegs__device__crystal.html#a7eade6e88139513a033f546646045b26" title="Copy the first n entries of an index list to the device, leaving ptr null when there are none." alt="" coords="467,133,613,173"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="408,107,466,126,465,131,406,112"/>
+</map>

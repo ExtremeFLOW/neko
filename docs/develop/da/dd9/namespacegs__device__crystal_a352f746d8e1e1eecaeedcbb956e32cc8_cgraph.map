@@ -1,0 +1,15 @@
+<map id="gs_device_crystal::gs_device_crystal_nbwait_vec" name="gs_device_crystal::gs_device_crystal_nbwait_vec">
+<area shape="rect" id="Node000001" title="Drive the remaining routing stages and reduce what is delivered into the shared vector,..." alt="" coords="5,37,224,77"/>
+<area shape="rect" id="Node000002" href="$da/dd9/namespacegs__device__crystal.html#a3e80865e0ca51fdd794a9885c0f1975d" title="Gather n words of src into dst through the 1&#45;based index list idx_d, i.e. dst(j) = src(idx(j))" alt="" coords="272,5,419,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,39,258,35,259,40,225,45"/>
+<area shape="rect" id="Node000005" href="$da/dd9/namespacegs__device__crystal.html#ae3660cf75165daf9fcf3ddb97affefc7" title="Reduce n delivered positions into the component&#45;outer shared vector." alt="" coords="272,69,419,109"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="225,70,259,75,258,80,224,75"/>
+<area shape="rect" id="Node000003" href="$de/df6/gs_8cu.html#a7ce5d7eddaca70d46e33391af8561115" title=" " alt="" coords="489,17,603,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="419,24,475,25,475,31,419,29"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="673,39,825,79"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="603,35,660,43,660,48,602,40"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="711,39,709,29,715,20,729,14,749,12,773,15,786,22,783,27,771,20,749,17,730,19,718,24,714,30,716,38"/>
+<area shape="rect" id="Node000006" href="$de/df6/gs_8cu.html#acd0089231c4a794722be2218d9efa789" title=" " alt="" coords="467,70,625,95"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="419,84,453,83,453,88,419,90"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="625,71,659,67,660,72,626,76"/>
+</map>

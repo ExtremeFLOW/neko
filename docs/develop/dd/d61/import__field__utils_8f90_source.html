@@ -202,7 +202,7 @@ $(document).ready(function(){initNavTree('dd/d61/import__field__utils_8f90_sourc
 <div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: padding</div>
 <div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span> </div>
 <div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: log_buf</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <span class="keywordtype">integer</span> :: sample_idx, sample_mesh_idx, i</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span> </div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    <span class="keywordtype">logical</span> :: interpolate_</div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
@@ -220,104 +220,111 @@ $(document).ready(function(){initNavTree('dd/d61/import__field__utils_8f90_sourc
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="comment">! Read fld file and mesh file if specified</span></div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(mesh_fname)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(<span class="stringliteral">&quot;Mesh file     : &quot;</span> // trim(mesh_fname))</div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d3/d9f/namespaceimport__field__utils.html#ae47e67c9d2387fd9e01374afa19ceeba">read_fld_file</a>(mesh_fname, fld_data)</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span> </div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d3/d9f/namespaceimport__field__utils.html#ae47e67c9d2387fd9e01374afa19ceeba">read_fld_file</a>(fname, fld_data)</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span> </div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="comment">! Copy all field data to device (GPU) since everything is read on the CPU</span></div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(u)) <span class="keyword">call </span>fld_data%u%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(v)) <span class="keyword">call </span>fld_data%v%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(w)) <span class="keyword">call </span>fld_data%w%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(p)) <span class="keyword">call </span>fld_data%p%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(t)) <span class="keyword">call </span>fld_data%t%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(s_target_list)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>       <span class="keywordflow">if</span> (<span class="keyword">present</span>(s_index_list)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>          <span class="keywordflow">if</span> (<span class="keyword">size</span>(s_index_list) .ne. s_target_list%size()) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Scalar lists must have same size!&quot;</span>)</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span> </div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>          <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(s_index_list)</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>             <span class="comment">! Take care that if we set i=0 we want temperature</span></div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>             <span class="keywordflow">if</span> (s_index_list(i) .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>                <span class="keyword">call </span>fld_data%t%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>             <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>                <span class="comment">! For scalar fields, require indices in 1:this%n_scalars</span></div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>                <span class="keywordflow">if</span> (s_index_list(i) .lt. 1 .or. &amp;</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>                     s_index_list(i) .gt. fld_data%n_scalars) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>                   <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;s_index_list entry out of bounds&quot;</span>)</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span><span class="keywordflow">                end if</span></div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>                <span class="keyword">call </span>fld_data%s(s_index_list(i))%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, &amp;</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>                     .true.)</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span><span class="keywordflow">             end if</span></div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>       <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>          <span class="keywordflow">do</span> i = 1, s_target_list%size()</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>             <span class="keyword">call </span>fld_data%s(i)%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="keywordflow">       end if</span> <span class="comment">! if present s_index_list</span></div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="keywordflow">    end if</span> <span class="comment">! present s_tgt</span></div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span> </div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="comment">! Sync coordinates to device for the interpolation</span></div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    <span class="comment">! NOTE: this will not throw an error if x,y,z are not allocated.</span></div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    <span class="keywordflow">if</span> (interpolate_) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>       <span class="keyword">call </span>fld_data%x%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .false.)</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>       <span class="keyword">call </span>fld_data%y%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .false.)</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>       <span class="keyword">call </span>fld_data%z%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span> </div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="comment">! Call the import of fields</span></div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keyword">call </span>fld_data%import_fields(u, v, w, p, t, s_target_list, s_index_list, &amp;</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>         interpolate_, tolerance = tolerance, padding = padding)</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span> </div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    <span class="keyword">call </span>fld_data%free()</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="comment">! Read the mesh field only when interpolation is enabled and a separate</span></div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="comment">! mesh field was specified. The mesh file is optional; when omitted, the</span></div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    <span class="comment">! coordinates are read from the field file itself.</span></div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    <span class="keywordflow">if</span> (interpolate_) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>       <span class="keywordflow">if</span> (<span class="keyword">present</span>(mesh_fname)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>          <span class="comment">! For scalar IC. TODO: stop using the &quot;none&quot; fill info in scalar.</span></div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>          <span class="keywordflow">if</span> (trim(mesh_fname) .ne. <span class="stringliteral">&quot;none&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>             <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(<span class="stringliteral">&quot;Mesh file     : &quot;</span> // trim(mesh_fname))</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>             <span class="keyword">call </span><a class="code hl_function" href="../../d3/d9f/namespaceimport__field__utils.html#ae47e67c9d2387fd9e01374afa19ceeba">read_fld_file</a>(mesh_fname, fld_data)</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d3/d9f/namespaceimport__field__utils.html#ae47e67c9d2387fd9e01374afa19ceeba">read_fld_file</a>(fname, fld_data)</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <span class="comment">! Copy all field data to device (GPU) since everything is read on the CPU</span></div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(u)) <span class="keyword">call </span>fld_data%u%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(v)) <span class="keyword">call </span>fld_data%v%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(w)) <span class="keyword">call </span>fld_data%w%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(p)) <span class="keyword">call </span>fld_data%p%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(t)) <span class="keyword">call </span>fld_data%t%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(s_target_list)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>       <span class="keywordflow">if</span> (<span class="keyword">present</span>(s_index_list)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>          <span class="keywordflow">if</span> (<span class="keyword">size</span>(s_index_list) .ne. s_target_list%size()) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Scalar lists must have same size!&quot;</span>)</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>          <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(s_index_list)</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>             <span class="comment">! Take care that if we set i=0 we want temperature</span></div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>             <span class="keywordflow">if</span> (s_index_list(i) .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>                <span class="keyword">call </span>fld_data%t%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>             <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>                <span class="comment">! For scalar fields, require indices in 1:this%n_scalars</span></div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>                <span class="keywordflow">if</span> (s_index_list(i) .lt. 1 .or. &amp;</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>                     s_index_list(i) .gt. fld_data%n_scalars) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>                   <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;s_index_list entry out of bounds&quot;</span>)</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span><span class="keywordflow">                end if</span></div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>                <span class="keyword">call </span>fld_data%s(s_index_list(i))%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, &amp;</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>                     .true.)</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span><span class="keywordflow">             end if</span></div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>       <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>          <span class="keywordflow">do</span> i = 1, s_target_list%size()</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>             <span class="keyword">call </span>fld_data%s(i)%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span><span class="keywordflow">       end if</span> <span class="comment">! if present s_index_list</span></div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span> </div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span><span class="keywordflow">    end if</span> <span class="comment">! present s_tgt</span></div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    <span class="comment">! Sync coordinates to device for the interpolation</span></div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="comment">! NOTE: this will not throw an error if x,y,z are not allocated.</span></div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keywordflow">if</span> (interpolate_) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>       <span class="keyword">call </span>fld_data%x%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .false.)</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>       <span class="keyword">call </span>fld_data%y%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .false.)</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>       <span class="keyword">call </span>fld_data%z%copy_from(<a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, .true.)</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span> </div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    <span class="comment">! Call the import of fields</span></div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    <span class="keyword">call </span>fld_data%import_fields(u, v, w, p, t, s_target_list, s_index_list, &amp;</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>         interpolate_, tolerance = tolerance, padding = padding)</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span> </div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="keyword">call </span>fld_data%free()</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
 </div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d9f/namespaceimport__field__utils.html#adfb80fba803f7a8fb424272589df9ba8">import_fields_from_params</a></div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
-<div class="foldopen" id="foldopen00244" data-start="" data-end="">
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno"><a class="line" href="../../d3/d9f/namespaceimport__field__utils.html#ae47e67c9d2387fd9e01374afa19ceeba">  244</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d9f/namespaceimport__field__utils.html#ae47e67c9d2387fd9e01374afa19ceeba">read_fld_file</a>(file_name, data)</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: file_name</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/da1/structfld__file__data_1_1fld__file__data__t.html">fld_file_data_t</a>), <span class="keywordtype">intent(inout)</span> :: data</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span> </div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/dae/structfile_1_1file__t.html">file_t</a>) :: f</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="keywordtype">integer</span> :: sample_idx</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="keywordtype">character(len=NEKO_FNAME_LEN)</span> :: fname_</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span> </div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="comment">! Extract sample index from the file name</span></div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    sample_idx = <a class="code hl_function" href="../../d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0">extract_fld_file_index</a>(file_name, -1)</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d9f/namespaceimport__field__utils.html#adfb80fba803f7a8fb424272589df9ba8">import_fields_from_params</a></div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span> </div>
+<div class="foldopen" id="foldopen00251" data-start="" data-end="">
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno"><a class="line" href="../../d3/d9f/namespaceimport__field__utils.html#ae47e67c9d2387fd9e01374afa19ceeba">  251</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d9f/namespaceimport__field__utils.html#ae47e67c9d2387fd9e01374afa19ceeba">read_fld_file</a>(file_name, data)</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: file_name</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/da1/structfld__file__data_1_1fld__file__data__t.html">fld_file_data_t</a>), <span class="keywordtype">intent(inout)</span> :: data</div>
 <div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    <span class="keywordflow">if</span> (sample_idx .eq. -1) &amp;</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>         <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Invalid file name. The file format must be e.g. &quot;</span> // &amp;</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>         <span class="stringliteral">&quot;&#39;mean0.f00001&#39;&quot;</span>)</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/dae/structfile_1_1file__t.html">file_t</a>) :: f</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>    <span class="keywordtype">integer</span> :: sample_idx</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    <span class="keywordtype">character(len=NEKO_FNAME_LEN)</span> :: fname_</div>
 <div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span> </div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="comment">! Change from &quot;field0.f000*&quot; to &quot;field0.fld&quot; for the fld reader</span></div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#a94a1b10b4fd0d52a2bbd0bdfbac01692">filename_chsuffix</a>(file_name, fname_, <span class="stringliteral">&#39;fld&#39;</span>)</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="comment">! Extract sample index from the file name</span></div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    sample_idx = <a class="code hl_function" href="../../d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0">extract_fld_file_index</a>(file_name, -1)</div>
 <div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span> </div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    <span class="comment">! Initialize file object and set the desired sample</span></div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keyword">call </span>f%init(trim(fname_))</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keyword">call </span>f%set_counter(sample_idx)</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    <span class="keywordflow">if</span> (sample_idx .eq. -1) &amp;</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>         <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Invalid file name. The file format must be e.g. &quot;</span> // &amp;</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>         <span class="stringliteral">&quot;&#39;mean0.f00001&#39;&quot;</span>)</div>
 <div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span> </div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="comment">! Read data and load into fld_file_data</span></div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keyword">call </span>f%read(data)</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="comment">! Change from &quot;field0.f000*&quot; to &quot;field0.fld&quot; for the fld reader</span></div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#a94a1b10b4fd0d52a2bbd0bdfbac01692">filename_chsuffix</a>(file_name, fname_, <span class="stringliteral">&#39;fld&#39;</span>)</div>
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="keyword">call </span><a class="code hl_function" href="../../da/d16/namespacefile.html#aa1b75b689ccaf533d011ac92fb6e8d5b">file_free</a>(f)</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
-</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d9f/namespaceimport__field__utils.html#ae47e67c9d2387fd9e01374afa19ceeba">read_fld_file</a></div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="comment">! Initialize file object and set the desired sample</span></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keyword">call </span>f%init(trim(fname_))</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="keyword">call </span>f%set_counter(sample_idx)</div>
 <div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d9f/namespaceimport__field__utils.html">import_field_utils</a></div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="comment">! Read data and load into fld_file_data</span></div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="keyword">call </span>f%read(data)</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keyword">call </span><a class="code hl_function" href="../../da/d16/namespacefile.html#aa1b75b689ccaf533d011ac92fb6e8d5b">file_free</a>(f)</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span> </div>
+</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d9f/namespaceimport__field__utils.html#ae47e67c9d2387fd9e01374afa19ceeba">read_fld_file</a></div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span> </div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d9f/namespaceimport__field__utils.html">import_field_utils</a></div>
 <div class="ttc" id="ainterfaceimport__field__utils_1_1import__fields_html"><div class="ttname"><a href="../../d8/dde/interfaceimport__field__utils_1_1import__fields.html">import_field_utils::import_fields</a></div><div class="ttdef"><b>Definition</b> <a href="../../dd/d61/import__field__utils_8f90_source.html#l00054">import_field_utils.f90:54</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get__or__default_html"><div class="ttname"><a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_utils::json_get_or_default</a></div><div class="ttdoc">Retrieves a parameter by name or assigns a provided default value. In the latter case also adds the m...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00068">json_utils.f90:68</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00045">utils.f90:45</a></div></div>
@@ -334,7 +341,7 @@ $(document).ready(function(){initNavTree('dd/d61/import__field__utils_8f90_sourc
 <div class="ttc" id="anamespaceimport__field__utils_html"><div class="ttname"><a href="../../d3/d9f/namespaceimport__field__utils.html">import_field_utils</a></div><div class="ttdoc">Importation of fields from fld files.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d61/import__field__utils_8f90_source.html#l00036">import_field_utils.f90:36</a></div></div>
 <div class="ttc" id="anamespaceimport__field__utils_html_a4fdaedf42456f83c1acb05897877c219"><div class="ttname"><a href="../../d3/d9f/namespaceimport__field__utils.html#a4fdaedf42456f83c1acb05897877c219">import_field_utils::import_fields_from_json</a></div><div class="ttdeci">subroutine import_fields_from_json(fname, global_interp_subdict, mesh_fname, u, v, w, p, t, s_target_list, s_index_list, interpolate)</div><div class="ttdoc">Imports fields from an fld file, potentially with interpolation, with parameters provided in a JSON s...</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d61/import__field__utils_8f90_source.html#l00091">import_field_utils.f90:93</a></div></div>
 <div class="ttc" id="anamespaceimport__field__utils_html_adfb80fba803f7a8fb424272589df9ba8"><div class="ttname"><a href="../../d3/d9f/namespaceimport__field__utils.html#adfb80fba803f7a8fb424272589df9ba8">import_field_utils::import_fields_from_params</a></div><div class="ttdeci">subroutine import_fields_from_params(fname, mesh_fname, u, v, w, p, t, s_target_list, s_index_list, interpolate, tolerance, padding)</div><div class="ttdoc">Imports fields from an fld file, potentially with interpolation.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d61/import__field__utils_8f90_source.html#l00147">import_field_utils.f90:149</a></div></div>
-<div class="ttc" id="anamespaceimport__field__utils_html_ae47e67c9d2387fd9e01374afa19ceeba"><div class="ttname"><a href="../../d3/d9f/namespaceimport__field__utils.html#ae47e67c9d2387fd9e01374afa19ceeba">import_field_utils::read_fld_file</a></div><div class="ttdeci">subroutine read_fld_file(file_name, data)</div><div class="ttdoc">Wrapper around the fld file reader. Translates a file name specified as &quot;field0.f00132&quot; into &quot;field0....</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d61/import__field__utils_8f90_source.html#l00244">import_field_utils.f90:245</a></div></div>
+<div class="ttc" id="anamespaceimport__field__utils_html_ae47e67c9d2387fd9e01374afa19ceeba"><div class="ttname"><a href="../../d3/d9f/namespaceimport__field__utils.html#ae47e67c9d2387fd9e01374afa19ceeba">import_field_utils::read_fld_file</a></div><div class="ttdeci">subroutine read_fld_file(file_name, data)</div><div class="ttdoc">Wrapper around the fld file reader. Translates a file name specified as &quot;field0.f00132&quot; into &quot;field0....</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d61/import__field__utils_8f90_source.html#l00251">import_field_utils.f90:252</a></div></div>
 <div class="ttc" id="anamespacejson__utils_html"><div class="ttname"><a href="../../d8/da8/namespacejson__utils.html">json_utils</a></div><div class="ttdoc">Utilities for retrieving parameters from the case files.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00044">json_utils.f90:44</a></div></div>
 <div class="ttc" id="anamespacelogger_html"><div class="ttname"><a href="../../d8/da0/namespacelogger.html">logger</a></div><div class="ttdoc">Logging routines.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00034">log.f90:34</a></div></div>
 <div class="ttc" id="anamespacelogger_html_ad728b3400b2e5dfa9ee65757c599c9ce"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">logger::neko_log</a></div><div class="ttdeci">type(log_t), public neko_log</div><div class="ttdoc">Global log stream.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00080">log.f90:80</a></div></div>
@@ -356,7 +363,7 @@ $(document).ready(function(){initNavTree('dd/d61/import__field__utils_8f90_sourc
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../dd/d61/import__field__utils_8f90.html">import_field_utils.f90</a></li>
-    <li class="footer">Generated on Tue Sep 1 2026 03:42:15 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Sep 2 2026 03:40:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

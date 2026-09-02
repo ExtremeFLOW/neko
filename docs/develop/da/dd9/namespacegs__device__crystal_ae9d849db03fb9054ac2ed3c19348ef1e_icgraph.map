@@ -1,0 +1,9 @@
+<map id="gs_device_crystal::cr_free_ptrs" name="gs_device_crystal::cr_free_ptrs">
+<area shape="rect" id="Node000001" title="Release a list of device pointers, leaving them null." alt="" coords="491,37,637,77"/>
+<area shape="rect" id="Node000002" href="$da/dd9/namespacegs__device__crystal.html#a4b1e460401dddd861bdcb0990be0033e" title="Build the per&#45;stage index lists of the fused vector exchange, which address the same words as the sca..." alt="" coords="284,5,431,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="476,47,431,39,431,34,477,41"/>
+<area shape="rect" id="Node000004" href="$da/dd9/namespacegs__device__crystal.html#a2f1430d28f086f2d1a2afecc8c804452" title="Deallocate crystal router based device communication." alt="" coords="272,69,443,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="477,73,443,79,442,74,476,68"/>
+<area shape="rect" id="Node000003" href="$da/dd9/namespacegs__device__crystal.html#a57e489ecb0c5974a2d24eb73652a68e7" title="Post the receives of the first routing stage, fused nc&#45;component." alt="" coords="5,5,224,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="271,28,224,28,224,23,271,23"/>
+</map>

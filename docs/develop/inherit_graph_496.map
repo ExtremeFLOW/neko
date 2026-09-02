@@ -1,3 +1,17 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d6/daf/structmap__1d_1_1map__1d__t.html" title="Map every GLL point in the mesh to a level in one physical direction. Can be used to average across t..." alt="" coords="5,5,152,31"/>
+<area shape="rect" id="Node000000" href="$df/d6c/structles__model_1_1les__model__t.html" title="Base abstract type for LES models based on the Boussinesq approximation." alt="" coords="5,184,181,209"/>
+<area shape="rect" id="Node000001" href="$dd/dcd/structdeardorff_1_1deardorff__t.html" title="Implements the deardorff LES model." alt="" coords="253,5,413,31"/>
+<area shape="poly" id="edge116_Node000000_Node000001" title=" " alt="" coords="107,170,155,105,189,70,228,41,256,28,258,33,231,46,193,74,159,109,112,173"/>
+<area shape="rect" id="Node000002" href="$d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html" title="Implements the dynamic Smagorinsky LES model." alt="" coords="239,55,427,95"/>
+<area shape="poly" id="edge117_Node000000_Node000002" title=" " alt="" coords="120,173,169,139,228,105,257,93,259,98,231,110,172,143,123,178"/>
+<area shape="rect" id="Node000003" href="$d7/d2e/structles__model__template_1_1les__model__template__t.html" title=" " alt="" coords="245,119,420,159"/>
+<area shape="poly" id="edge118_Node000000_Node000003" title=" " alt="" coords="160,178,248,157,249,162,161,183"/>
+<area shape="rect" id="Node000004" href="$d2/dae/structsigma_1_1sigma__t.html" title="Implements the Sigma LES model." alt="" coords="271,184,394,209"/>
+<area shape="poly" id="edge119_Node000000_Node000004" title=" " alt="" coords="195,194,271,194,271,199,195,199"/>
+<area shape="rect" id="Node000005" href="$d7/d8f/structsmagorinsky_1_1smagorinsky__t.html" title="Implements the smagorinsky LES model." alt="" coords="229,233,436,259"/>
+<area shape="poly" id="edge120_Node000000_Node000005" title=" " alt="" coords="169,210,271,231,270,236,168,215"/>
+<area shape="rect" id="Node000006" href="$de/d91/structvreman_1_1vreman__t.html" title="Implements the Vreman LES model." alt="" coords="261,283,404,308"/>
+<area shape="poly" id="edge121_Node000000_Node000006" title=" " alt="" coords="127,214,175,242,230,268,270,280,268,285,228,272,173,246,125,219"/>
+<area shape="rect" id="Node000007" href="$db/d6d/structwale_1_1wale__t.html" title="Implements the Wale LES model." alt="" coords="281,332,385,357"/>
+<area shape="poly" id="edge122_Node000000_Node000007" title=" " alt="" coords="116,218,165,269,196,295,231,317,255,327,281,335,280,340,253,332,228,322,193,299,161,273,112,222"/>
 </map>

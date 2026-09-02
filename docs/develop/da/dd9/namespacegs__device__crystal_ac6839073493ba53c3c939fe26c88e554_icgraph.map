@@ -1,0 +1,5 @@
+<map id="gs_device_crystal::cr_mark_dupes" name="gs_device_crystal::cr_mark_dupes">
+<area shape="rect" id="Node000001" title="Copy dof into out, negating every index that appears more than once so that the unpack kernel reduces..." alt="" coords="220,5,367,45"/>
+<area shape="rect" id="Node000002" href="$da/dd9/namespacegs__device__crystal.html#adf347376b55732f0328d416cc179b8a4" title="Initialise crystal router based device communication See gs_comm.f90 for details." alt="" coords="5,5,172,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
+</map>

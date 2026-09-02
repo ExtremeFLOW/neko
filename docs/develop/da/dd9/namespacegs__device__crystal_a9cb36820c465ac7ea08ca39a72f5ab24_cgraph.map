@@ -1,0 +1,15 @@
+<map id="gs_device_crystal::gs_device_crystal_nbwait" name="gs_device_crystal::gs_device_crystal_nbwait">
+<area shape="rect" id="Node000001" title="Drive the remaining routing stages and reduce what is delivered into the shared vector." alt="" coords="5,37,195,77"/>
+<area shape="rect" id="Node000002" href="$da/dd9/namespacegs__device__crystal.html#a3e80865e0ca51fdd794a9885c0f1975d" title="Gather n words of src into dst through the 1&#45;based index list idx_d, i.e. dst(j) = src(idx(j))" alt="" coords="243,5,389,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,41,228,36,229,41,195,46"/>
+<area shape="rect" id="Node000005" href="$da/dd9/namespacegs__device__crystal.html#a9032b45f197584ebf9ae325acf142d43" title="Reduce n delivered words into the shared vector under op." alt="" coords="243,69,389,109"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="195,69,229,74,228,79,195,74"/>
+<area shape="rect" id="Node000003" href="$de/df6/gs_8cu.html#a7ce5d7eddaca70d46e33391af8561115" title=" " alt="" coords="445,17,559,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="390,24,432,25,432,30,390,30"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="615,39,767,79"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="560,36,601,42,601,47,559,41"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="655,39,653,29,659,20,672,14,691,12,713,15,725,22,722,27,711,20,691,17,673,19,662,24,658,30,660,38"/>
+<area shape="rect" id="Node000006" href="$de/df6/gs_8cu.html#a18fd2b312917f32020b2915f9eacafa3" title=" " alt="" coords="437,70,567,95"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="390,84,423,83,424,88,390,89"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="566,72,601,67,601,73,567,77"/>
+</map>

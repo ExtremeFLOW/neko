@@ -1,0 +1,9 @@
+<map id="gs_device_crystal::cr_gather" name="gs_device_crystal::cr_gather">
+<area shape="rect" id="Node000001" title="Gather n words of src into dst through the 1&#45;based index list idx_d, i.e. dst(j) = src(idx(j))" alt="" coords="272,69,419,109"/>
+<area shape="rect" id="Node000002" href="$da/dd9/namespacegs__device__crystal.html#ae4a8e74a66c3c6371d57d17b30c23acb" title="Pack the shared vector and post the send of the first routing stage." alt="" coords="19,5,211,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="259,68,187,48,188,43,260,63"/>
+<area shape="rect" id="Node000003" href="$da/dd9/namespacegs__device__crystal.html#a9cb36820c465ac7ea08ca39a72f5ab24" title="Drive the remaining routing stages and reduce what is delivered into the shared vector." alt="" coords="20,69,209,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,92,209,92,209,87,258,87"/>
+<area shape="rect" id="Node000004" href="$da/dd9/namespacegs__device__crystal.html#a352f746d8e1e1eecaeedcbb956e32cc8" title="Drive the remaining routing stages and reduce what is delivered into the shared vector,..." alt="" coords="5,133,224,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="260,116,188,136,187,131,259,110"/>
+</map>

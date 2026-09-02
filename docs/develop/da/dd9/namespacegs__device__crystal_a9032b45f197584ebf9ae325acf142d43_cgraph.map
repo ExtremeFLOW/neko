@@ -1,0 +1,8 @@
+<map id="gs_device_crystal::cr_scatter" name="gs_device_crystal::cr_scatter">
+<area shape="rect" id="Node000001" title="Reduce n delivered words into the shared vector under op." alt="" coords="5,29,152,69"/>
+<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#a18fd2b312917f32020b2915f9eacafa3" title=" " alt="" coords="200,37,329,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,47,186,47,186,52,152,52"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="377,29,529,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="329,47,364,47,364,52,329,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="418,30,416,20,422,11,434,5,453,3,475,6,487,13,485,17,474,11,453,8,436,10,425,15,421,21,423,28"/>
+</map>

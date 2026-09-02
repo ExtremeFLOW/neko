@@ -168,7 +168,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a98abc85fb536fb1abf5f8c3e67fd5ec1" id="r_a98abc85fb536fb1abf5f8c3e67fd5ec1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/namespacedevice.html#a98abc85fb536fb1abf5f8c3e67fd5ec1">device_memcpy_r4</a> (x, x_d, n, dir, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">sync</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
 <tr class="memdesc:a98abc85fb536fb1abf5f8c3e67fd5ec1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy data between host and device (rank 4 arrays)  <br /></td></tr>
 <tr class="separator:a98abc85fb536fb1abf5f8c3e67fd5ec1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81f988e9ec44109ae0e522585588e79a" id="r_a81f988e9ec44109ae0e522585588e79a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/namespacedevice.html#a81f988e9ec44109ae0e522585588e79a">device_memcpy_cptr</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dst</a>, src, s, dir, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">sync</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
+<tr class="memitem:a81f988e9ec44109ae0e522585588e79a" id="r_a81f988e9ec44109ae0e522585588e79a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/namespacedevice.html#a81f988e9ec44109ae0e522585588e79a">device_memcpy_cptr</a> (dst, src, s, dir, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">sync</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
 <tr class="memdesc:a81f988e9ec44109ae0e522585588e79a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy data between host and device (or device and device) (c-pointers)  <br /></td></tr>
 <tr class="separator:a81f988e9ec44109ae0e522585588e79a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a85af1f962f38ba29ddfbf1d9f500c153" id="r_a85af1f962f38ba29ddfbf1d9f500c153"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/namespacedevice.html#a85af1f962f38ba29ddfbf1d9f500c153">device_memcpy_common</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ptr_h</a>, x_d, s, dir, sync_device, stream)</td></tr>
@@ -349,27 +349,29 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/dbe/namespacedevice_a87905d572ea607609a71d54effdb0ab9_icgraph.png" border="0" usemap="#ad0/dbe/namespacedevice_a87905d572ea607609a71d54effdb0ab9_icgraph" alt=""/></div>
 <map name="ad0/dbe/namespacedevice_a87905d572ea607609a71d54effdb0ab9_icgraph" id="ad0/dbe/namespacedevice_a87905d572ea607609a71d54effdb0ab9_icgraph">
-<area shape="rect" title="Allocate memory on the device." alt="" coords="447,333,601,358"/>
+<area shape="rect" title="Allocate memory on the device." alt="" coords="447,365,601,390"/>
 <area shape="rect" href="../../d2/d01/namespacedevice__array.html#adf26d8a839ac0c923d6456c51ccb19bc" title="Allocate a device array (used by init and assignment)." alt="" coords="224,37,380,77"/>
-<area shape="poly" title=" " alt="" coords="515,320,501,271,478,210,444,146,422,117,397,91,379,79,382,75,400,87,426,114,448,143,483,208,506,270,520,319"/>
+<area shape="poly" title=" " alt="" coords="516,351,504,297,482,227,447,154,424,121,397,91,379,79,382,74,400,87,428,118,452,152,487,225,509,296,521,350"/>
 <area shape="rect" href="../../d0/dbe/namespacedevice.html#ad2f98c7b11d8090b03353ff9fa9e20a2" title="Allocate device memory backing a mapped host array." alt="" coords="226,101,378,141"/>
-<area shape="poly" title=" " alt="" coords="510,321,493,284,469,239,437,194,397,155,377,143,380,139,400,151,441,191,473,237,498,282,515,319"/>
+<area shape="poly" title=" " alt="" coords="513,352,498,309,473,257,440,202,420,177,397,155,377,142,380,138,400,151,424,174,444,199,478,254,502,307,518,351"/>
 <area shape="rect" href="../../d5/d79/namespacedong__outflow.html#a18049cc2bff964c7cf8d6fd77cdc9984" title="Finalize." alt="" coords="228,165,376,205"/>
-<area shape="poly" title=" " alt="" coords="503,323,459,271,429,244,397,220,375,208,377,203,400,215,433,239,463,267,507,320"/>
+<area shape="poly" title=" " alt="" coords="507,354,464,287,433,251,397,220,375,207,378,202,400,215,437,247,468,284,512,351"/>
 <area shape="rect" href="../../d3/dbc/namespacefusedcg__cpld__device.html#a7686eabd075b75a40f7fa61d9be9ab13" title="Initialise a fused PCG solver." alt="" coords="205,229,399,269"/>
-<area shape="poly" title=" " alt="" coords="487,328,398,284,366,272,368,267,400,279,490,323"/>
-<area shape="rect" href="../../d9/dfa/namespacegs__device__mpi.html#a1ffb2ff8429c63efe7920436e7fd21d6" title=" " alt="" coords="206,293,398,333"/>
-<area shape="poly" title=" " alt="" coords="433,335,398,330,399,325,434,330"/>
-<area shape="rect" href="../../de/dcf/namespacegs__device__nccl.html#a7fd02aded867f9843400ccda5550adf1" title=" " alt="" coords="221,357,383,397"/>
-<area shape="poly" title=" " alt="" coords="434,361,383,368,383,363,433,356"/>
-<area shape="rect" href="../../d0/d2a/namespacegs__device__shmem.html#a698a0df01a06f66177f8d7e9204edce8" title=" " alt="" coords="210,421,394,461"/>
-<area shape="poly" title=" " alt="" coords="490,367,400,412,368,424,366,419,398,407,487,362"/>
-<area shape="rect" href="../../da/d46/namespacepipecg__device.html#a242ee086e10b42f00316da314e7fc94d" title="Initialise a pipelined PCG solver." alt="" coords="219,485,385,525"/>
-<area shape="poly" title=" " alt="" coords="507,371,463,423,433,451,400,476,377,488,375,483,397,471,429,447,459,420,503,367"/>
-<area shape="rect" href="../../d3/d06/namespaceprojection.html#a4f59953f23c62ff8b9bdcede183b6f00" title=" " alt="" coords="208,550,396,575"/>
-<area shape="poly" title=" " alt="" coords="516,372,499,410,474,455,441,501,400,539,376,552,374,547,397,535,437,497,470,452,494,408,511,370"/>
-<area shape="rect" href="../../d2/d37/namespaceschwarz.html#a811a6ece396faecfd5528196ece1d231" title=" " alt="" coords="220,599,384,625"/>
-<area shape="poly" title=" " alt="" coords="519,373,506,420,482,479,448,539,426,566,400,590,381,602,378,597,397,586,422,563,443,536,477,476,501,418,514,371"/>
+<area shape="poly" title=" " alt="" coords="497,357,452,320,397,284,371,272,373,267,400,279,456,316,500,353"/>
+<area shape="rect" href="../../da/dd9/namespacegs__device__crystal.html#adf347376b55732f0328d416cc179b8a4" title="Initialise crystal router based device communication See gs_comm.f90 for details." alt="" coords="219,293,385,333"/>
+<area shape="poly" title=" " alt="" coords="465,363,371,336,373,331,466,358"/>
+<area shape="rect" href="../../d9/dfa/namespacegs__device__mpi.html#a1ffb2ff8429c63efe7920436e7fd21d6" title=" " alt="" coords="206,357,398,397"/>
+<area shape="poly" title=" " alt="" coords="433,380,398,380,398,375,433,375"/>
+<area shape="rect" href="../../de/dcf/namespacegs__device__nccl.html#a7fd02aded867f9843400ccda5550adf1" title=" " alt="" coords="221,421,383,461"/>
+<area shape="poly" title=" " alt="" coords="466,397,373,424,371,419,465,391"/>
+<area shape="rect" href="../../d0/d2a/namespacegs__device__shmem.html#a698a0df01a06f66177f8d7e9204edce8" title=" " alt="" coords="210,485,394,525"/>
+<area shape="poly" title=" " alt="" coords="500,402,456,439,400,476,373,488,371,483,397,471,452,435,497,398"/>
+<area shape="rect" href="../../da/d46/namespacepipecg__device.html#a242ee086e10b42f00316da314e7fc94d" title="Initialise a pipelined PCG solver." alt="" coords="219,549,385,589"/>
+<area shape="poly" title=" " alt="" coords="512,404,468,471,437,508,400,540,379,552,376,547,397,535,433,504,464,468,507,401"/>
+<area shape="rect" href="../../d3/d06/namespaceprojection.html#a4f59953f23c62ff8b9bdcede183b6f00" title=" " alt="" coords="208,614,396,639"/>
+<area shape="poly" title=" " alt="" coords="518,405,503,448,479,502,445,557,424,582,400,603,378,616,375,612,397,599,420,578,441,554,474,499,498,446,513,403"/>
+<area shape="rect" href="../../d2/d37/namespaceschwarz.html#a811a6ece396faecfd5528196ece1d231" title=" " alt="" coords="220,663,384,689"/>
+<area shape="poly" title=" " alt="" coords="521,404,509,457,487,524,452,594,428,626,400,654,382,665,379,661,397,650,424,623,447,592,482,522,504,455,516,403"/>
 <area shape="rect" href="../../da/db0/interfacedevice_1_1device__map.html#ab1886d1a491a6a865722981bb1672493" title="Map a Fortran rank 1 array to a device (allocate and associate)" alt="" coords="5,5,157,45"/>
 <area shape="poly" title=" " alt="" coords="220,99,204,92,180,76,156,60,132,48,134,43,159,55,183,71,207,87,222,94"/>
 <area shape="rect" href="../../da/db0/interfacedevice_1_1device__map.html#aea9502d8994e14383cbaa31e5f69ba91" title="Map a Fortran rank 2 array to a device (allocate and associate)" alt="" coords="5,69,157,109"/>
@@ -1122,37 +1124,39 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/dbe/namespacedevice_a79e3ce634472f542b8d135571f7a36e0_icgraph.png" border="0" usemap="#ad0/dbe/namespacedevice_a79e3ce634472f542b8d135571f7a36e0_icgraph" alt=""/></div>
 <map name="ad0/dbe/namespacedevice_a79e3ce634472f542b8d135571f7a36e0_icgraph" id="ad0/dbe/namespacedevice_a79e3ce634472f542b8d135571f7a36e0_icgraph">
-<area shape="rect" title="Deallocate memory on the device." alt="" coords="252,447,401,472"/>
+<area shape="rect" title="Deallocate memory on the device." alt="" coords="252,479,401,504"/>
 <area shape="rect" href="../../de/da4/namespaceblasius.html#ad870c19602eeb17380eeba2452eaca92" title=" " alt="" coords="27,5,182,31"/>
-<area shape="poly" title=" " alt="" coords="323,433,320,357,315,307,305,252,290,196,268,141,239,90,202,45,181,31,184,27,206,41,244,87,273,139,295,195,310,251,320,306,326,357,329,433"/>
+<area shape="poly" title=" " alt="" coords="319,465,304,371,279,245,262,181,244,124,224,77,202,45,181,31,184,27,206,41,229,74,249,122,268,180,284,244,309,370,324,464"/>
 <area shape="rect" href="../../d2/d01/namespacedevice__array.html#ad7c5503f7f1ef820870dcf46ffb4de1f" title="Free a device array." alt="" coords="27,55,183,95"/>
-<area shape="poly" title=" " alt="" coords="321,433,314,368,295,281,279,235,259,189,234,147,202,109,181,95,184,90,206,105,238,144,264,187,284,233,300,280,319,367,327,432"/>
+<area shape="poly" title=" " alt="" coords="322,465,317,395,299,300,284,248,263,198,236,151,202,109,181,94,185,90,206,105,240,148,268,196,289,247,304,298,322,394,328,465"/>
 <area shape="rect" href="../../db/d56/interfacedevice_1_1device__unmap.html#af92302d3a31c5f59cb316d777f3be259" title="Unmap a Fortran rank 1 array from a device (deassociate and free)" alt="" coords="21,119,189,159"/>
-<area shape="poly" title=" " alt="" coords="319,433,308,379,286,309,252,236,229,203,202,173,186,162,189,157,206,169,233,199,257,234,291,307,313,378,324,432"/>
+<area shape="poly" title=" " alt="" coords="320,465,311,405,291,327,275,285,256,245,231,207,202,173,186,162,190,157,206,169,236,204,260,242,280,283,296,325,316,404,326,464"/>
 <area shape="rect" href="../../db/d56/interfacedevice_1_1device__unmap.html#a0723d5a8eba200de538ea0f0b0824fb5" title="Unmap a Fortran rank 2 array from a device (deassociate and free)" alt="" coords="21,183,189,223"/>
-<area shape="poly" title=" " alt="" coords="316,434,301,391,278,338,245,284,225,259,202,237,184,226,187,221,206,233,229,256,249,281,283,336,306,389,321,433"/>
+<area shape="poly" title=" " alt="" coords="318,466,305,417,282,356,249,292,227,263,202,237,185,226,188,221,206,233,231,260,253,289,287,354,310,416,323,465"/>
 <area shape="rect" href="../../db/d56/interfacedevice_1_1device__unmap.html#a022b7da177f8b1ddcd4b6da463097aa2" title="Unmap a Fortran rank 3 array from a device (deassociate and free)" alt="" coords="21,247,189,287"/>
-<area shape="poly" title=" " alt="" coords="311,436,268,369,238,333,202,302,182,290,184,285,206,297,242,329,273,366,315,433"/>
+<area shape="poly" title=" " alt="" coords="313,467,297,430,273,385,241,340,202,301,183,290,186,285,206,297,246,337,278,383,302,427,318,465"/>
 <area shape="rect" href="../../db/d56/interfacedevice_1_1device__unmap.html#acf7ed0c7992d53e6f6b47ca9a89d0a8a" title="Unmap a Fortran rank 4 array from a device (deassociate and free)" alt="" coords="21,311,189,351"/>
-<area shape="poly" title=" " alt="" coords="300,439,257,402,203,366,177,354,179,349,205,361,260,397,304,435"/>
+<area shape="poly" title=" " alt="" coords="307,469,263,417,234,389,203,366,180,354,182,349,205,361,238,385,267,413,311,466"/>
 <area shape="rect" href="../../d5/d79/namespacedong__outflow.html#acd1b8298e1fa9d489b6a4e481653faf0" title="Destructor." alt="" coords="31,375,179,415"/>
-<area shape="poly" title=" " alt="" coords="268,445,174,418,176,413,269,440"/>
+<area shape="poly" title=" " alt="" coords="291,474,203,430,172,418,173,413,205,425,294,470"/>
 <area shape="rect" href="../../d3/dbc/namespacefusedcg__cpld__device.html#a57396f2309510cfbef357ad61c695ae2" title="Deallocate a pipelined PCG solver." alt="" coords="5,439,204,479"/>
-<area shape="poly" title=" " alt="" coords="238,462,204,462,204,457,238,457"/>
-<area shape="rect" href="../../d8/dcd/namespacegs__device.html#acb55cb0b9872ab64f6a6465b793176df" title="Dummy backend deallocation." alt="" coords="8,504,201,529"/>
-<area shape="poly" title=" " alt="" coords="265,478,205,494,156,507,155,501,203,489,264,473"/>
-<area shape="rect" href="../../d9/dfa/namespacegs__device__mpi.html#abb045b3b7a92b5de7ffeed36d4da2a26" title=" " alt="" coords="9,554,201,594"/>
-<area shape="poly" title=" " alt="" coords="300,482,257,513,205,543,174,556,172,551,203,538,254,508,297,478"/>
-<area shape="rect" href="../../de/dcf/namespacegs__device__nccl.html#aefc2ac685c287cff92cd6de2cde7bc0f" title=" " alt="" coords="21,618,188,658"/>
-<area shape="poly" title=" " alt="" coords="313,485,270,547,240,580,205,608,184,620,181,616,203,604,236,576,266,543,309,482"/>
-<area shape="rect" href="../../d0/d2a/namespacegs__device__shmem.html#ad4f3bfd3b1bc42e19c6703bbc1f17ef1" title=" " alt="" coords="10,682,199,722"/>
-<area shape="poly" title=" " alt="" coords="320,487,304,527,280,577,248,628,206,672,187,684,184,680,202,668,243,625,276,574,299,525,315,485"/>
-<area shape="rect" href="../../da/d46/namespacepipecg__device.html#aeac2e2e47dadc8df22ea517657edae34" title="Deallocate a pipelined PCG solver." alt="" coords="21,746,188,786"/>
-<area shape="poly" title=" " alt="" coords="324,486,312,539,290,606,255,675,232,708,206,736,189,748,186,744,202,732,228,704,251,673,285,604,307,537,318,485"/>
-<area shape="rect" href="../../d3/d06/namespaceprojection.html#a1b1f6be35bcc16036da6a95e6e5bd3eb" title=" " alt="" coords="8,811,201,836"/>
-<area shape="poly" title=" " alt="" coords="327,486,319,550,300,634,284,679,264,723,238,764,206,800,187,813,184,808,202,796,234,761,259,721,279,677,295,633,314,549,321,485"/>
-<area shape="rect" href="../../d2/d37/namespaceschwarz.html#aed04e84332557d214a95921525db8443" title=" " alt="" coords="20,860,189,885"/>
-<area shape="poly" title=" " alt="" coords="328,486,323,558,306,656,291,708,270,760,242,807,206,849,187,862,184,858,202,845,237,804,265,757,286,707,301,655,318,558,323,486"/>
+<area shape="poly" title=" " alt="" coords="238,481,204,476,205,471,239,476"/>
+<area shape="rect" href="../../da/dd9/namespacegs__device__crystal.html#a2f1430d28f086f2d1a2afecc8c804452" title="Deallocate crystal router based device communication." alt="" coords="19,503,190,543"/>
+<area shape="poly" title=" " alt="" coords="239,507,190,514,190,508,238,501"/>
+<area shape="rect" href="../../d8/dcd/namespacegs__device.html#acb55cb0b9872ab64f6a6465b793176df" title="Dummy backend deallocation." alt="" coords="8,568,201,593"/>
+<area shape="poly" title=" " alt="" coords="294,513,253,536,205,558,165,571,163,565,203,553,250,531,292,509"/>
+<area shape="rect" href="../../d9/dfa/namespacegs__device__mpi.html#abb045b3b7a92b5de7ffeed36d4da2a26" title=" " alt="" coords="9,618,201,658"/>
+<area shape="poly" title=" " alt="" coords="308,516,264,562,236,586,205,607,178,620,176,615,203,602,233,582,260,558,304,512"/>
+<area shape="rect" href="../../de/dcf/namespacegs__device__nccl.html#aefc2ac685c287cff92cd6de2cde7bc0f" title=" " alt="" coords="21,682,188,722"/>
+<area shape="poly" title=" " alt="" coords="317,518,300,553,275,594,244,636,206,672,186,684,183,679,202,668,240,632,271,591,295,550,312,516"/>
+<area shape="rect" href="../../d0/d2a/namespacegs__device__shmem.html#ad4f3bfd3b1bc42e19c6703bbc1f17ef1" title=" " alt="" coords="10,746,199,786"/>
+<area shape="poly" title=" " alt="" coords="322,518,308,565,285,623,252,684,230,711,206,736,188,748,185,744,202,732,226,708,247,681,280,621,303,563,317,517"/>
+<area shape="rect" href="../../da/d46/namespacepipecg__device.html#aeac2e2e47dadc8df22ea517657edae34" title="Deallocate a pipelined PCG solver." alt="" coords="21,810,188,850"/>
+<area shape="poly" title=" " alt="" coords="325,518,315,576,294,652,278,692,259,731,235,768,206,800,189,812,186,808,202,796,231,764,254,728,274,689,289,650,310,575,320,518"/>
+<area shape="rect" href="../../d3/d06/namespaceprojection.html#a1b1f6be35bcc16036da6a95e6e5bd3eb" title=" " alt="" coords="8,875,201,900"/>
+<area shape="poly" title=" " alt="" coords="328,518,322,587,304,680,289,730,268,779,240,824,206,864,187,877,184,872,202,860,236,821,263,776,284,728,299,679,316,586,322,518"/>
+<area shape="rect" href="../../d2/d37/namespaceschwarz.html#aed04e84332557d214a95921525db8443" title=" " alt="" coords="20,924,189,949"/>
+<area shape="poly" title=" " alt="" coords="329,518,326,595,320,646,310,701,295,759,273,815,244,867,206,913,187,926,184,922,202,909,240,864,269,812,290,757,305,700,315,645,321,595,323,518"/>
 </map>
 </div>
 
@@ -2762,7 +2766,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/dbe/namespacedevice.html">device</a></li>
-    <li class="footer">Generated on Tue Sep 1 2026 03:42:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Sep 2 2026 03:40:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

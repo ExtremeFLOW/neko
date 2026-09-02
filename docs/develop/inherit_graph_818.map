@@ -1,3 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$df/d8a/interfaceshmem_1_1shmem__calloc.html" title=" " alt="" coords="5,5,179,31"/>
+<area shape="rect" id="Node000000" href="$dd/ded/structscalar__scheme_1_1scalar__scheme__t.html" title="Base type for a scalar advection&#45;diffusion solver." alt="" coords="5,37,172,77"/>
+<area shape="rect" id="Node000001" href="$d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html" title=" " alt="" coords="249,5,396,45"/>
+<area shape="poly" id="edge180_Node000000_Node000001" title=" " alt="" coords="186,41,249,33,249,38,186,47"/>
+<area shape="rect" id="Node000002" href="$dd/df3/structscalar__scheme__template_1_1scalar__scheme__template__t.html" title=" " alt="" coords="220,69,425,109"/>
+<area shape="poly" id="edge181_Node000000_Node000002" title=" " alt="" coords="186,68,220,73,220,78,185,73"/>
 </map>

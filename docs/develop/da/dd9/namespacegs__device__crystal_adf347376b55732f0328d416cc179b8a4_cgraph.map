@@ -1,0 +1,9 @@
+<map id="gs_device_crystal::gs_device_crystal_init" name="gs_device_crystal::gs_device_crystal_init">
+<area shape="rect" id="Node000001" title="Initialise crystal router based device communication See gs_comm.f90 for details." alt="" coords="5,69,172,109"/>
+<area shape="rect" id="Node000002" href="$da/dd9/namespacegs__device__crystal.html#ac6839073493ba53c3c939fe26c88e554" title="Copy dof into out, negating every index that appears more than once so that the unpack kernel reduces..." alt="" coords="224,5,371,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,67,218,47,219,52,155,72"/>
+<area shape="rect" id="Node000003" href="$da/dd9/namespacegs__device__crystal.html#a7eade6e88139513a033f546646045b26" title="Copy the first n entries of an index list to the device, leaving ptr null when there are none." alt="" coords="224,69,371,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="172,87,210,87,210,92,172,92"/>
+<area shape="rect" id="Node000004" href="$d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="220,134,375,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="163,107,238,128,236,133,161,112"/>
+</map>
