@@ -42,6 +42,8 @@ module bicgstab
   use scalar_bc_projector, only : scalar_bc_projector_t
   use vector_bc_projector, only : vector_bc_projector_t, &
        vector_bc_projector_components
+  use host_array, only : host_array_t
+  use scratch_registry, only : neko_scratch_registry
   use math, only : glsc3, copy, NEKO_EPS, add2s2, p_update
   use utils, only : neko_error
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
@@ -56,20 +58,6 @@ module bicgstab
   !! provided by [ksp_t](#krylov::ksp_t). The coupled interface solves the
   !! three components independently and does not apply a coupled operator.
   type, public, extends(ksp_t) :: bicgstab_t
-     !> Search direction \f$p\f$.
-     real(kind=rp), allocatable :: p(:)
-     !> Preconditioned search direction \f$\hat{p} = M^{-1}p\f$.
-     real(kind=rp), allocatable :: p_hat(:)
-     !> Residual \f$r\f$.
-     real(kind=rp), allocatable :: r(:)
-     !> Intermediate residual \f$s = r - \alpha v\f$.
-     real(kind=rp), allocatable :: s(:)
-     !> Preconditioned intermediate residual \f$\hat{s} = M^{-1}s\f$.
-     real(kind=rp), allocatable :: s_hat(:)
-     !> Operator action \f$t = A\hat{s}\f$.
-     real(kind=rp), allocatable :: t(:)
-     !> Operator action \f$v = A\hat{p}\f$.
-     real(kind=rp), allocatable :: v(:)
    contains
      !> Initialise a CPU BiCGStab solver.
      procedure, pass(this) :: init => bicgstab_init
@@ -103,13 +91,6 @@ contains
 
     call this%free()
 
-    allocate(this%p(n))
-    allocate(this%p_hat(n))
-    allocate(this%r(n))
-    allocate(this%s(n))
-    allocate(this%s_hat(n))
-    allocate(this%t(n))
-    allocate(this%v(n))
     if (present(M)) then
        this%M => M
     end if
@@ -139,34 +120,6 @@ contains
     class(bicgstab_t), intent(inout) :: this
 
     call this%ksp_free()
-
-    if (allocated(this%v)) then
-       deallocate(this%v)
-    end if
-
-    if (allocated(this%r)) then
-       deallocate(this%r)
-    end if
-
-    if (allocated(this%t)) then
-       deallocate(this%t)
-    end if
-
-    if (allocated(this%p)) then
-       deallocate(this%p)
-    end if
-
-    if (allocated(this%p_hat)) then
-       deallocate(this%p_hat)
-    end if
-
-    if (allocated(this%s)) then
-       deallocate(this%s)
-    end if
-
-    if (allocated(this%s_hat)) then
-       deallocate(this%s_hat)
-    end if
 
     nullify(this%M)
 
@@ -214,8 +167,31 @@ contains
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
-    associate(r => this%r, t => this%t, s => this%s, v => this%v, &
-         p => this%p, s_hat => this%s_hat, p_hat => this%p_hat)
+    block
+      type(host_array_t), pointer :: p_tmp, p_hat_tmp, r_tmp
+      type(host_array_t), pointer :: s_hat_tmp, t_tmp, v_tmp
+      real(kind=rp), pointer :: p(:), p_hat(:), r(:), s_hat(:), t(:), v(:)
+      integer :: temp_indices(6)
+
+      call neko_scratch_registry%request_host_array(p_tmp, temp_indices(1), &
+           n, .false.)
+      call neko_scratch_registry%request_host_array(p_hat_tmp, &
+           temp_indices(2), n, .false.)
+      call neko_scratch_registry%request_host_array(r_tmp, temp_indices(3), &
+           n, .false.)
+      call neko_scratch_registry%request_host_array(s_hat_tmp, &
+           temp_indices(4), n, .false.)
+      call neko_scratch_registry%request_host_array(t_tmp, temp_indices(5), &
+           n, .false.)
+      call neko_scratch_registry%request_host_array(v_tmp, temp_indices(6), &
+           n, .false.)
+
+      p => p_tmp%x
+      p_hat => p_hat_tmp%x
+      r => r_tmp%x
+      s_hat => s_hat_tmp%x
+      t => t_tmp%x
+      v => v_tmp%x
 
       res_sum = 0.0_xp
       !$omp parallel do reduction(+:res_sum)
@@ -246,6 +222,7 @@ contains
       if (r_norm .le. 0.0_rp .or. rnorm .lt. this%abs_tol .or. &
            rnorm .lt. gamma) then
          ksp_results%converged = .true.
+         call neko_scratch_registry%relinquish_host_array(temp_indices)
          return
       end if
 
@@ -288,11 +265,13 @@ contains
             call neko_error('BiCGStab failure: non-finite alpha')
          end if
 
+         ! The previous residual is no longer needed after p has been formed,
+         ! so store the intermediate residual in r.
          res_sum = 0.0_xp
          !$omp parallel do reduction(+:res_sum)
          do i = 1, n
-            s(i) = r(i) - alpha * v(i)
-            res_sum = res_sum + s(i) * coef%mult(i,1,1,1) * s(i)
+            r(i) = r(i) - alpha * v(i)
+            res_sum = res_sum + r(i) * coef%mult(i,1,1,1) * r(i)
          end do
          !$omp end parallel do
 
@@ -308,12 +287,12 @@ contains
             exit
          end if
 
-         call this%M%solve(s_hat, s, n)
+         call this%M%solve(s_hat, r, n)
          call Ax%compute(t, s_hat, coef, x%msh, x%Xh)
          call gs_h%op(t, n, GS_OP_ADD)
          call bc_projector%apply(t, n)
 
-         call bicgstab_product_and_norm(stt, ttt, s, t, coef%mult, n)
+         call bicgstab_product_and_norm(stt, ttt, r, t, coef%mult, n)
          t_norm = bicgstab_sqrt(ttt, 'operator result t')
          if (t_norm .le. 0.0_rp) then
             call neko_error('BiCGStab breakdown: zero omega denominator')
@@ -330,7 +309,7 @@ contains
          !$omp parallel do reduction(+:res_sum)
          do i = 1, n
             x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * p_hat(i) + omega * s_hat(i)
-            r(i) = s(i) - omega * t(i)
+            r(i) = r(i) - omega * t(i)
             res_sum = res_sum + r(i) * coef%mult(i,1,1,1) * r(i)
          end do
          !$omp end parallel do
@@ -354,11 +333,12 @@ contains
          rho_2 = rho_1
 
       end do
-    end associate
-    call this%monitor_stop()
-    ksp_results%res_final = rnorm
-    ksp_results%iter = iter
-    ksp_results%converged = this%is_converged(iter, rnorm)
+      call this%monitor_stop()
+      ksp_results%res_final = rnorm
+      ksp_results%iter = iter
+      ksp_results%converged = this%is_converged(iter, rnorm)
+      call neko_scratch_registry%relinquish_host_array(temp_indices)
+    end block
   end function bicgstab_solve
 
   !> Check an inner product for a BiCGStab breakdown.
