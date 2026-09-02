@@ -39,7 +39,10 @@ module bicgstab_cpld
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t
+  use host_array, only : host_array_t
+  use scratch_registry, only : neko_scratch_registry
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   use operators, only : rotate_cyc
@@ -51,25 +54,10 @@ module bicgstab_cpld
 
   !> Coupled right-preconditioned CPU BiCGStab method.
   !!
-  !! Each work array stores the three vector components in its second
-  !! dimension. The method uses a single Krylov recurrence and combined inner
-  !! products over all components. The scalar preconditioner is applied to
-  !! each component independently.
+  !! The method uses a single Krylov recurrence and combined inner products
+  !! over all components. The scalar preconditioner is applied to each
+  !! component independently.
   type, public, extends(ksp_t) :: bicgstab_cpld_t
-     !> Three-component search direction \f$p\f$.
-     real(kind=rp), allocatable :: p(:, :)
-     !> Preconditioned search direction \f$\hat{p} = M^{-1}p\f$.
-     real(kind=rp), allocatable :: p_hat(:, :)
-     !> Three-component residual \f$r\f$.
-     real(kind=rp), allocatable :: r(:, :)
-     !> Intermediate residual \f$s = r - \alpha v\f$.
-     real(kind=rp), allocatable :: s(:, :)
-     !> Preconditioned intermediate residual \f$\hat{s} = M^{-1}s\f$.
-     real(kind=rp), allocatable :: s_hat(:, :)
-     !> Coupled operator action \f$t = A\hat{s}\f$.
-     real(kind=rp), allocatable :: t(:, :)
-     !> Coupled operator action \f$v = A\hat{p}\f$.
-     real(kind=rp), allocatable :: v(:, :)
    contains
      !> Initialise a coupled CPU BiCGStab solver.
      procedure, pass(this) :: init => bicgstab_cpld_init
@@ -103,14 +91,6 @@ contains
 
     call this%free()
 
-    allocate(this%p(n, 3))
-    allocate(this%p_hat(n, 3))
-    allocate(this%r(n, 3))
-    allocate(this%s(n, 3))
-    allocate(this%s_hat(n, 3))
-    allocate(this%t(n, 3))
-    allocate(this%v(n, 3))
-
     if (present(M)) then
        this%M => M
     end if
@@ -141,28 +121,6 @@ contains
 
     call this%ksp_free()
 
-    if (allocated(this%p)) then
-       deallocate(this%p)
-    end if
-    if (allocated(this%p_hat)) then
-       deallocate(this%p_hat)
-    end if
-    if (allocated(this%r)) then
-       deallocate(this%r)
-    end if
-    if (allocated(this%s)) then
-       deallocate(this%s)
-    end if
-    if (allocated(this%s_hat)) then
-       deallocate(this%s_hat)
-    end if
-    if (allocated(this%t)) then
-       deallocate(this%t)
-    end if
-    if (allocated(this%v)) then
-       deallocate(this%v)
-    end if
-
     nullify(this%M)
 
   end subroutine bicgstab_cpld_free
@@ -173,19 +131,19 @@ contains
   !! @param f Right-hand side.
   !! @param n Number of degrees of freedom.
   !! @param coef Spectral element coefficients and multiplicity weights.
-  !! @param blst Boundary conditions applied to the operator result.
+  !! @param bc_projector Projector for Dirichlet boundary nodes.
   !! @param gs_h Gather-scatter handle used to assemble the operator result.
   !! @param niter Optional maximum number of iterations.
   !! @return Unused convergence information.
-  function bicgstab_cpld_solve_scalar(this, Ax, x, f, n, coef, blst, gs_h, &
-       niter) result(ksp_results)
+  function bicgstab_cpld_solve_scalar(this, Ax, x, f, n, coef, &
+       bc_projector, gs_h, niter) result(ksp_results)
     class(bicgstab_cpld_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     integer, optional, intent(in) :: niter
     type(ksp_monitor_t) :: ksp_results
@@ -213,15 +171,13 @@ contains
   !! @param fz Right-hand side for the third component.
   !! @param n Number of degrees of freedom per component.
   !! @param coef Spectral element coefficients and multiplicity weights.
-  !! @param blstx Boundary conditions for the first component.
-  !! @param blsty Boundary conditions for the second component.
-  !! @param blstz Boundary conditions for the third component.
+  !! @param bc_projector Projector for vector Dirichlet boundary nodes.
   !! @param gs_h Gather-scatter handle used to assemble operator results.
   !! @param niter Optional maximum number of iterations, overriding the
   !! configured value.
   !! @return Identical combined convergence information for all components.
   function bicgstab_cpld_solve(this, Ax, x, y, z, fx, fy, fz, n, coef, &
-       blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       bc_projector, gs_h, niter) result(ksp_results)
     class(bicgstab_cpld_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -232,9 +188,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     integer, optional, intent(in) :: niter
     type(ksp_monitor_t), dimension(3) :: ksp_results
@@ -253,8 +207,32 @@ contains
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
-    associate(p => this%p, p_hat => this%p_hat, r => this%r, &
-         s => this%s, s_hat => this%s_hat, t => this%t, v => this%v)
+    block
+      type(host_array_t), pointer :: p_tmp, p_hat_tmp, r_tmp
+      type(host_array_t), pointer :: s_hat_tmp, t_tmp, v_tmp
+      real(kind=rp), pointer :: p(:, :), p_hat(:, :), r(:, :)
+      real(kind=rp), pointer :: s_hat(:, :), t(:, :), v(:, :)
+      integer :: temp_indices(6)
+
+      call neko_scratch_registry%request_host_array(p_tmp, temp_indices(1), &
+           3 * n, .false.)
+      call neko_scratch_registry%request_host_array(p_hat_tmp, &
+           temp_indices(2), 3 * n, .false.)
+      call neko_scratch_registry%request_host_array(r_tmp, temp_indices(3), &
+           3 * n, .false.)
+      call neko_scratch_registry%request_host_array(s_hat_tmp, &
+           temp_indices(4), 3 * n, .false.)
+      call neko_scratch_registry%request_host_array(t_tmp, temp_indices(5), &
+           3 * n, .false.)
+      call neko_scratch_registry%request_host_array(v_tmp, temp_indices(6), &
+           3 * n, .false.)
+
+      p(1:n, 1:3) => p_tmp%x
+      p_hat(1:n, 1:3) => p_hat_tmp%x
+      r(1:n, 1:3) => r_tmp%x
+      s_hat(1:n, 1:3) => s_hat_tmp%x
+      t(1:n, 1:3) => t_tmp%x
+      v(1:n, 1:3) => v_tmp%x
 
       ! BiCGStab starts from zero. The right-hand side is consequently both
       ! the initial residual and the fixed shadow residual.
@@ -288,6 +266,7 @@ contains
       if (r_norm .le. 0.0_rp .or. rnorm .lt. this%abs_tol .or. &
            rnorm .lt. gamma) then
          ksp_results%converged = .true.
+         call neko_scratch_registry%relinquish_host_array(temp_indices)
          return
       end if
 
@@ -335,7 +314,7 @@ contains
 
          call Ax%compute_vector(v(:, 1), v(:, 2), v(:, 3), p_hat(:, 1), &
               p_hat(:, 2), p_hat(:, 3), coef, x%msh, x%Xh)
-         call bicgstab_cpld_assemble(v, n, coef, blstx, blsty, blstz, gs_h)
+         call bicgstab_cpld_assemble(v, n, coef, bc_projector, gs_h)
 
          ! Compute f^T v and v^T v in a single global reduction. The latter
          ! supplies the scale for the alpha-denominator breakdown check.
@@ -349,15 +328,17 @@ contains
             call neko_error('Coupled BiCGStab failure: non-finite alpha')
          end if
 
-         ! Form the intermediate residual and its combined norm in one pass.
+         ! Store the intermediate residual in r and compute its combined norm
+         ! in the same pass. The previous residual is no longer needed after
+         ! p has been formed.
          norm_sum = 0.0_xp
          !$omp parallel do reduction(+:norm_sum)
          do i = 1, n
-            s(i, 1) = r(i, 1) - alpha * v(i, 1)
-            s(i, 2) = r(i, 2) - alpha * v(i, 2)
-            s(i, 3) = r(i, 3) - alpha * v(i, 3)
+            r(i, 1) = r(i, 1) - alpha * v(i, 1)
+            r(i, 2) = r(i, 2) - alpha * v(i, 2)
+            r(i, 3) = r(i, 3) - alpha * v(i, 3)
             norm_sum = norm_sum + coef%mult(i, 1, 1, 1) * &
-                 (s(i, 1)**2 + s(i, 2)**2 + s(i, 3)**2)
+                 (r(i, 1)**2 + r(i, 2)**2 + r(i, 3)**2)
          end do
          !$omp end parallel do
          call MPI_Allreduce(MPI_IN_PLACE, norm_sum, 1, MPI_EXTRA_PRECISION, &
@@ -378,17 +359,17 @@ contains
             exit
          end if
 
-         call this%M%solve(s_hat(:, 1), s(:, 1), n)
-         call this%M%solve(s_hat(:, 2), s(:, 2), n)
-         call this%M%solve(s_hat(:, 3), s(:, 3), n)
+         call this%M%solve(s_hat(:, 1), r(:, 1), n)
+         call this%M%solve(s_hat(:, 2), r(:, 2), n)
+         call this%M%solve(s_hat(:, 3), r(:, 3), n)
 
          call Ax%compute_vector(t(:, 1), t(:, 2), t(:, 3), s_hat(:, 1), &
               s_hat(:, 2), s_hat(:, 3), coef, x%msh, x%Xh)
-         call bicgstab_cpld_assemble(t, n, coef, blstx, blsty, blstz, gs_h)
+         call bicgstab_cpld_assemble(t, n, coef, bc_projector, gs_h)
 
          ! The numerator and denominator of omega share one reduction.
-         call bicgstab_cpld_product_and_norm(stt, ttt, s(:, 1), s(:, 2), &
-              s(:, 3), t(:, 1), t(:, 2), t(:, 3), coef%mult, n)
+         call bicgstab_cpld_product_and_norm(stt, ttt, r(:, 1), r(:, 2), &
+              r(:, 3), t(:, 1), t(:, 2), t(:, 3), coef%mult, n)
          t_norm = bicgstab_cpld_sqrt(ttt, 'operator result t')
          if (t_norm .le. 0.0_rp) then
             call neko_error(&
@@ -414,9 +395,9 @@ contains
                  omega * s_hat(i, 2)
             z%x(i, 1, 1, 1) = z%x(i, 1, 1, 1) + alpha * p_hat(i, 3) + &
                  omega * s_hat(i, 3)
-            r(i, 1) = s(i, 1) - omega * t(i, 1)
-            r(i, 2) = s(i, 2) - omega * t(i, 2)
-            r(i, 3) = s(i, 3) - omega * t(i, 3)
+            r(i, 1) = r(i, 1) - omega * t(i, 1)
+            r(i, 2) = r(i, 2) - omega * t(i, 2)
+            r(i, 3) = r(i, 3) - omega * t(i, 3)
             norm_sum = norm_sum + coef%mult(i, 1, 1, 1) * &
                  (r(i, 1)**2 + r(i, 2)**2 + r(i, 3)**2)
          end do
@@ -438,12 +419,13 @@ contains
               'omega numerator')
          rho_2 = rho_1
       end do
-    end associate
 
-    call this%monitor_stop()
-    ksp_results%res_final = rnorm
-    ksp_results%iter = iter
-    ksp_results%converged = this%is_converged(iter, rnorm)
+      call this%monitor_stop()
+      ksp_results%res_final = rnorm
+      ksp_results%iter = iter
+      ksp_results%converged = this%is_converged(iter, rnorm)
+      call neko_scratch_registry%relinquish_host_array(temp_indices)
+    end block
 
   end function bicgstab_cpld_solve
 
@@ -493,22 +475,17 @@ contains
 
   end function bicgstab_cpld_sqrt
 
-  !> Assemble a coupled operator result and apply component boundary data.
+  !> Assemble a coupled operator result and project its boundary data.
   !! @param vector Three-component operator result.
   !! @param n Number of degrees of freedom per component.
   !! @param coef Spectral element coefficients used for cyclic rotation.
-  !! @param blstx Boundary conditions for the first component.
-  !! @param blsty Boundary conditions for the second component.
-  !! @param blstz Boundary conditions for the third component.
+  !! @param bc_projector Projector for vector Dirichlet boundary nodes.
   !! @param gs_h Gather-scatter handle used to assemble the vector.
-  subroutine bicgstab_cpld_assemble(vector, n, coef, blstx, blsty, blstz, &
-       gs_h)
+  subroutine bicgstab_cpld_assemble(vector, n, coef, bc_projector, gs_h)
     integer, intent(in) :: n
     real(kind=rp), dimension(n, 3), intent(inout) :: vector
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
 
     ! Cyclic faces must be expressed in their common coordinate system while
@@ -517,9 +494,7 @@ contains
     call gs_h%op(vector(:, 1), vector(:, 2), vector(:, 3), n, GS_OP_ADD)
     call rotate_cyc(vector(:, 1), vector(:, 2), vector(:, 3), 0, coef)
 
-    call blstx%apply_scalar(vector(:, 1), n)
-    call blsty%apply_scalar(vector(:, 2), n)
-    call blstz%apply_scalar(vector(:, 3), n)
+    call bc_projector%apply(vector(:, 1), vector(:, 2), vector(:, 3), n)
 
   end subroutine bicgstab_cpld_assemble
 
