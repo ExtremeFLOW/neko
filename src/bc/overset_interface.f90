@@ -40,7 +40,7 @@ module overset_interface
   use global_interpolation, only : global_interpolation_t, &
        global_interpolation_settings_t
   use mask, only : mask_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use field_list, only : field_list_t
   use math, only : masked_copy_0, copy
   use device_math, only : device_masked_copy_0, device_copy
@@ -204,6 +204,7 @@ contains
     character(len=256) :: log_buf
 
     call this%init_base(coef)
+    this%bc_type = BC_DIRICHLET
 
     if (present(tol)) then
        if (tol .gt. 0.0_rp) then
@@ -374,21 +375,13 @@ contains
   end subroutine overset_interface_apply_vector_dev
 
   !> Finalize by building the mask arrays and preparing interpolation data.
-  subroutine overset_interface_finalize(this, only_facets)
+  subroutine overset_interface_finalize(this)
     class(overset_interface_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
 
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
 
     call this%bc_s%mark_facets(this%marked_facet)
-    call this%bc_s%finalize(only_facets_)
+    call this%bc_s%finalize()
 
     call this%build_masks_()
 
@@ -463,7 +456,8 @@ contains
        call this%s_interface_lag%update()
 
        nhist = min(time%tstep, this%iextm_order)
-       call time_scheme%compute_coeffs(iextm_coeffs, time%dtlag, nhist)
+       call time_scheme%compute_coeffs(iextm_coeffs, &
+            real(time%dtlag, kind=rp), nhist)
 
        call vector_cmult2(this%s_interface, this%s_interface_lag%lv(1), &
             iextm_coeffs(1))

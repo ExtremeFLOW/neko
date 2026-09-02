@@ -32,14 +32,15 @@
 !
 !> Defines a coupled Conjugate Gradient methods
 module cg_cpld
-  use num_types, only: rp, xp
+  use num_types, only : rp, xp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t
   use math, only : abscmp
   use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
@@ -178,7 +179,7 @@ contains
 
   end subroutine cg_cpld_free
 
-  function cg_cpld_nop(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function cg_cpld_nop(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
        result(ksp_results)
     class(cg_cpld_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -186,7 +187,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -200,7 +201,7 @@ contains
 
   !> Coupled PCG solve
   function cg_cpld_solve(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(cg_cpld_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -211,9 +212,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -302,9 +301,7 @@ contains
          call gs_h%op(w1, w2, w3, n, GS_OP_ADD)
          call rotate_cyc(w1, w2, w3, 0, coef)
 
-         call blstx%apply_scalar(w1, n)
-         call blsty%apply_scalar(w2, n)
-         call blstz%apply_scalar(w3, n)
+         call bc_projector%apply(w1, w2, w3, n)
 
          tmp_xp = 0.0_xp
          !$omp parallel do reduction(+:tmp_xp)

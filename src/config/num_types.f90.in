@@ -6,7 +6,9 @@ module num_types
   integer, public, parameter :: i4 = INT32
   integer, public, parameter :: i8 = INT64
   integer, public, parameter :: sp = REAL32
+  integer, public, parameter :: c_sp = c_float
   integer, public, parameter :: dp = REAL64
+  integer, public, parameter :: c_dp = c_double
   integer, public, parameter :: qp = @NEKO_REAL128_TYPE@
   !> Global precision used in computations
   integer, public, parameter :: rp = @NEKO_REAL_TYPE@

@@ -175,6 +175,8 @@ def test_allows_dong_outflow_parameters(tmp_path, boundary_type):
 
     boundary = data["case"]["fluid"]["boundary_conditions"][1]
     boundary["type"] = boundary_type
+    if boundary_type == "normal_outflow+dong":
+        boundary["value"] = [1.0, 0.0, 0.0]
     boundary["delta"] = 0.01
     boundary["velocity_scale"] = 1.0
 

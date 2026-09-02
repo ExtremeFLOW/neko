@@ -51,11 +51,11 @@ module neko_api_user
   abstract interface
      subroutine api_bc_callback(msk, msk_size, t, tstep) bind(c)
        use, intrinsic :: iso_c_binding
-       import c_rp
+       import c_dp
        implicit none
        type(c_ptr), value :: msk
        integer(c_int), value :: msk_size
-       real(kind=c_rp), value :: t
+       real(kind=c_dp), value :: t
        integer(c_int), value :: tstep
      end subroutine api_bc_callback
   end interface
@@ -65,11 +65,11 @@ module neko_api_user
   abstract interface
      subroutine api_ft_callback(scheme_name, scheme_name_len, t, tstep) bind(c)
        use, intrinsic :: iso_c_binding
-       import c_rp
+       import c_dp
        implicit none
        character(kind=c_char), dimension(*) :: scheme_name
        integer(c_int), value :: scheme_name_len
-       real(kind=c_rp), value :: t
+       real(kind=c_dp), value :: t
        integer(c_int), value :: tstep
      end subroutine api_ft_callback
   end interface
@@ -79,9 +79,9 @@ module neko_api_user
   abstract interface
      subroutine api_gn_callback(t, tstep) bind(c)
        use, intrinsic :: iso_c_binding
-       import c_rp
+       import c_dp
        implicit none
-       real(kind=c_rp), value :: t
+       real(kind=c_dp), value :: t
        integer(c_int), value :: tstep
      end subroutine api_gn_callback
   end interface

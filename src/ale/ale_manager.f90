@@ -38,7 +38,7 @@ module ale_manager
   use field, only : field_t
   use coefs, only : coef_t
   use space, only : space_t
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
   use precon, only : pc_t, precon_allocator, precon_destroy
   use bc_list, only : bc_list_t
@@ -80,6 +80,8 @@ module ale_manager
   use device_math, only : device_glmin, device_copy
   use field_math, only : field_rzero, field_add2, &
        field_cmult
+  use scalar_bc_projector, only : scalar_bc_projector_t
+
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST, device_sync
   use operators, only : rotate_cyc
   use fld_file_output, only : fld_file_output_t
@@ -403,7 +405,7 @@ contains
              this%config%bodies(i)%name = tmp_str
           else
              write(this%config%bodies(i)%name, '(A,I0)') 'body_', i
-          endif
+          end if
 
           if (body_sub%valid_path('zone_indices')) then
              call json_get(body_sub, 'zone_indices', zone_indices)
@@ -412,7 +414,7 @@ contains
              call neko_error("ALE: body " // &
                   trim(this%config%bodies(i)%name) // &
                   " must have 'zone_indices'")
-          endif
+          end if
 
           ! Oscillation
           this%config%bodies(i)%osc_amp = 0.0_rp
@@ -874,8 +876,8 @@ contains
     real(kind=rp), allocatable :: h2_restore(:, :, :, :)
     type(zero_dirichlet_t) :: bc_active_body
     type(zero_dirichlet_t) :: bc_inactive_body
-    type(bc_list_t) :: bcloc
-    type(bc_list_t) :: bcloc_zeros_only
+    type(scalar_bc_projector_t) :: bc_projector
+    type(scalar_bc_projector_t) :: bc_projector_zeros_only
     type(json_file) :: body_sub
     character(len=256) :: phi_fname
     character(len=:), allocatable :: tmp_str
@@ -916,7 +918,7 @@ contains
     call neko_log%message("Starting base mesh motion solve ...")
     n = coef%dof%size()
 
-    call ax_helm_factory(Ax, full_formulation = .false.)
+    call ax_helm_allocator(Ax, type_name = "standard")
     call krylov_solver_factory(ksp, n, ksp_solver, &
          ksp_max_iter, abstol, monitor = res_monitor)
     call ale_precon_factory(pc, ksp, coef, coef%dof, &
@@ -1021,15 +1023,13 @@ contains
           call bc_inactive_body%finalize()
 
           ! The Full list for the solver (Freeze everything to 0 correction)
-          call bcloc%init()
-          call bcloc%append(this%bc_fixed)
-          call bcloc%append(bc_active_body)
-          call bcloc%append(bc_inactive_body)
+          call bc_projector%mark(this%bc_fixed)
+          call bc_projector%mark(bc_active_body)
+          call bc_projector%mark(bc_inactive_body)
 
           ! The "Zeros Only" list for the field (Reset other boundaries)
-          call bcloc_zeros_only%init()
-          call bcloc_zeros_only%append(this%bc_fixed)
-          call bcloc_zeros_only%append(bc_inactive_body)
+          call bc_projector_zeros_only%mark(this%bc_fixed)
+          call bc_projector_zeros_only%mark(bc_inactive_body)
 
           call field_rzero(this%base_shapes(body_idx))
           this%base_shapes(body_idx)%x = 0.0_rp
@@ -1055,7 +1055,7 @@ contains
           ! Apply Zeros to others.
           ! This ensures fixed walls and other bodies are 0.0,
           ! even if they share grid with a moving wall.
-          call bcloc_zeros_only%apply_scalar(this%base_shapes(body_idx)%x, n)
+          call bc_projector_zeros_only%apply(this%base_shapes(body_idx)%x, n)
 
           ! Compute RHS: RHS = -A * Phi_lifted.
           ! The following is motivated by implementation in Nek5000.
@@ -1065,14 +1065,14 @@ contains
 
           ! Here we use the FULL list to apply zero Dirichlet BC
           ! on all boundaries.
-          call bcloc%apply_scalar(rhs_field%x, n)
+          call bc_projector%apply(rhs_field%x, n)
           call coef%gs_h%op(rhs_field, GS_OP_ADD)
 
           ! Solve
           call field_rzero(corr_field)
           call pc%update()
           monitor(1) = ksp%solve(Ax, corr_field, &
-               rhs_field%x, n, coef, bcloc, coef%gs_h)
+               rhs_field%x, n, coef, bc_projector, coef%gs_h)
 
           ! phi = phi_lifted + phi_corr
           call field_add2(this%base_shapes(body_idx), corr_field, n)
@@ -1094,8 +1094,8 @@ contains
 
           call bc_active_body%free()
           call bc_inactive_body%free()
-          call bcloc%free()
-          call bcloc_zeros_only%free()
+          call bc_projector%free()
+          call bc_projector_zeros_only%free()
 
           ! We let the host to also have the base_shapes so in
           ! user_ale_mesh_vel
@@ -2091,7 +2091,7 @@ contains
           idx = i
        end if
 
-       R = this%body_rot_matrices(:,:,idx)
+       R = this%body_rot_matrices(:, :, idx)
 
        ! Angles
        yaw_deg = atan2(R(2,1), R(1,1)) * rad_to_deg

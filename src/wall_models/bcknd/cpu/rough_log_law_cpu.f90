@@ -41,12 +41,11 @@ module rough_log_law_cpu
 contains
   !> Compute the wall shear stress on CPU using the rough log-law model.
   !! @param tstep The current time-step.
-  subroutine rough_log_law_compute_cpu(u, v, w, ind_r, ind_s, ind_t, ind_e, &
-       n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
+  subroutine rough_log_law_compute_cpu(u, v, w, &
+       n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, &
        kappa, rho_w, B, z0, tstep)
-    integer, intent(in) :: n_nodes, lx, nelv, tstep
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w
-    integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
+    integer, intent(in) :: n_nodes, tstep
+    real(kind=rp), dimension(n_nodes), intent(in) :: u, v, w
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
     real(kind=rp), dimension(n_nodes), intent(in) :: rho_w
     real(kind=rp), intent(in) :: kappa, B, z0
@@ -54,11 +53,12 @@ contains
     integer :: i
     real(kind=rp) :: ui, vi, wi, magu, utau, normu, rho
 
+    !$omp parallel do private(i, ui, vi, wi, magu, utau, normu, rho)
     do i=1, n_nodes
-       ! Sample the velocity
-       ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       ! Load the sampled velocity
+       ui = u(i)
+       vi = v(i)
+       wi = w(i)
        rho = rho_w(i)
 
        ! Project on tangential direction
@@ -82,6 +82,7 @@ contains
        tau_y(i) = -rho*utau**2 * vi / magu
        tau_z(i) = -rho*utau**2 * wi / magu
     end do
+    !$omp end parallel do
 
   end subroutine rough_log_law_compute_cpu
 

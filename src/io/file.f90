@@ -33,7 +33,7 @@
 !> Module for file I/O operations.
 module file
   use utils, only : neko_error, neko_warning, filename_suffix
-  use num_types, only : rp
+  use num_types, only : dp
   use generic_file, only : generic_file_t
   use nmsh_file, only : nmsh_file_t
   use chkp_file, only : chkp_file_t
@@ -170,7 +170,7 @@ contains
   subroutine file_write(this, data, t)
     class(file_t), intent(inout) :: this
     class(*), intent(inout) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
 
     call this%file_type%write(data, t = t)
 

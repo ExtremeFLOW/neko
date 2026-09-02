@@ -15,6 +15,7 @@ SUBDIRS = tuple\
 	  global_interpolation\
 	  mean_field\
 	  gather_scatter\
+	  ax\
 	  krylov\
 	  bc\
 	  signal\
@@ -40,7 +41,9 @@ SUBDIRS = tuple\
 	  expression\
 	  point_interpolation\
 	  templates/parallel\
+	  bc_projector\
 	  boundary_operation\
+	  wall_sampling\
 	  templates/serial
 
 TESTS = device/device_test\
@@ -62,6 +65,7 @@ TESTS = device/device_test\
 	global_interpolation/global_interpolation_test\
 	mean_field/mean_field_test\
 	gather_scatter/gather_scatter_test\
+	ax/ax_test\
 	krylov/krylov_test\
 	bc/bc_test\
 	signal/signal_test\
@@ -85,7 +89,9 @@ TESTS = device/device_test\
 	expression/expression_test\
 	point_interpolation/point_interpolation_test\
 	templates/parallel/parallel_test\
+	bc_projector/bc_projector_test\
 	boundary_operation/boundary_operation_test\
+	wall_sampling/wall_sampling_test\
 	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
@@ -93,11 +99,13 @@ EXTRA_DIST = \
 	mesh/test_mesh_parallel.pf\
 	quad/test_quad.pf\
 	gather_scatter/test_gather_scatter_parallel.pf\
+	ax/test_ax_factory.pf\
 	krylov/test_krylov.pf\
 	hex/test_hex.pf\
 	tet/test_tet.pf\
 	tri/test_tri.pf\
 	bc/test_bc.pf\
+	bc/bc_test\
 	tuple/test_tuple.pf\
 	point/test_point.pf\
 	signal/test_signal.pf\
@@ -168,8 +176,15 @@ EXTRA_DIST = \
 	expression/test_expression.pf\
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
+	bc_projector/bc_projector_test\
 	point_interpolation/point_interpolation_test\
+	bc_projector/test_bc_projector.pf\
+	bc_projector/test_coupled_bc_projector.pf\
 	boundary_operation/test_boundary_operation.pf\
+	wall_sampling/test_base.pf\
+	wall_sampling/test_gll.pf\
+	wall_sampling/test_distance.pf\
+	wall_sampling/wall_sampling_test\
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\
 	templates/serial/test_serial.pf

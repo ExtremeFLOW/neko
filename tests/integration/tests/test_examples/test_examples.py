@@ -16,6 +16,7 @@ turboneko = get_neko()
 class NekoTestCase:
     case_file: str = None
     user_file: str = None
+    user_files: tuple[str, ...] = None
     mesh_file: str = None
 
 examples_dir = join(neko_dir, "examples")
@@ -122,6 +123,21 @@ examples = {
     "programming_user_file_template": NekoTestCase(
         user_file=join(examples_dir, "programming", "user_file_template.f90")
     ),
+    "programming_user_type_templates": NekoTestCase(
+        user_files=tuple(
+            join(examples_dir, "programming", "user_type_templates", filename)
+            for filename in (
+                "source_term_template.f90",
+                "point_zone_template.f90",
+                "simulation_component_template.f90",
+                "les_model_template.f90",
+                "wall_model_template.f90",
+                "preconditioner_template.f90",
+                "krylov_solver_template.f90",
+                "scalar_scheme_template.f90",
+            )
+        )
+    ),
 }
 
 
@@ -196,7 +212,10 @@ def test_example_smoke(example, launcher_script, request, log_file, tmp_path):
     ), f"neko process failed with exit code {result.returncode}"
 
 
-@pytest.mark.parametrize("example", [key for key in examples.keys() if examples[key].user_file])
+@pytest.mark.parametrize(
+    "example",
+    [key for key in examples.keys() if examples[key].user_file or examples[key].user_files],
+)
 def test_example_compile(example, log_file):
     """Compile all examples that have a user file.
 
@@ -204,9 +223,10 @@ def test_example_compile(example, log_file):
 
     makeneko = get_makeneko()
 
+    user_files = examples[example].user_files or (examples[example].user_file,)
     with open(log_file, "w") as f:
         result = subprocess.run(
-            [makeneko, examples[example].user_file],
+            [makeneko, *user_files],
             stdout=f,
             stderr=subprocess.STDOUT,
             text=True)

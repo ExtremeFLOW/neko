@@ -96,7 +96,10 @@
                     "zone_indices": [
                         5
                     ],
-                    "h_index": 1
+                    "sampling": {
+                        "type": "gll",
+                        "value": 1
+                    }
                 }
             ]
         },

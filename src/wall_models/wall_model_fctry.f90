@@ -57,7 +57,6 @@ contains
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
   module subroutine wall_model_factory(object, scheme_name, coef, msk, facet, &
        json)
@@ -68,16 +67,13 @@ contains
     integer, intent(in) :: facet(:)
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_name
-    character(len=:), allocatable :: type_string
-    integer :: h_index
 
     call json_get(json, "model", type_name)
-    call json_get(json, "h_index", h_index)
 
     call wall_model_allocator(object, type_name)
 
-    ! Initialize
-    call object%init(scheme_name, coef, msk, facet, h_index, json)
+    call object%partial_init(coef, scheme_name, json)
+    call object%finalize(msk, facet)
 
   end subroutine wall_model_factory
 

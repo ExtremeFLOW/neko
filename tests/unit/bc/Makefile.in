@@ -1,3 +1,4 @@
+USEMPI=YES
 ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
 include @PFUNIT_DIR@/include/PFUNIT.mk
 endif
@@ -7,18 +8,24 @@ FC = @FC@
 %.o : %.F90
 	$(FC) -c $(FFLAGS) $<
 
+mesh_fixture.o : ../fixtures/mesh_fixture.f90
+	$(FC) -c $(FFLAGS) -o mesh_fixture.o $<
+mesh_fixture.mod : mesh_fixture.o
 
-check: bc_test
+
+check: bc_suite
 
 
-bc_test_TESTS := test_bc.pf
-bc_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
-$(eval $(call make_pfunit_test,bc_test))
-bc_test.inc: Makefile
+bc_suite_TESTS := test_bc.pf
+bc_suite_OTHER_LIBRARIES = mesh_fixture.o -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
+$(eval $(call make_pfunit_test,bc_suite))
+bc_suite.inc: Makefile
+test_bc.o: mesh_fixture.o
+bc_suite: mesh_fixture.o
 
 distclean:
 clean:
-	$(RM) *.o *.mod *.a  *.inc *.F90 bc_test
+	$(RM) *.o *.mod *.a  *.inc *.F90 bc_suite
 
 
 

@@ -45,22 +45,26 @@
  * iterations removes.
  *
  * A tune function using these macros is expected to have `start`, `stop` and
- * `stream` in scope, plus a CASE_1D(LX) macro and a kstep launch macro taking
- * (LX, C).
+ * `stream` in scope --- and `iters` for the reporting macros --- plus a
+ * CASE_1D(LX) macro and a kstep launch macro taking (LX, C).
  */
 
 #include <stdlib.h>
 
 /* Sweep the elements per block candidates?
-   Measured a LOSS on MI250X and MI300A
-   (the blocked variants spill), hence off by default here; the CUDA copy
-   defaults on, where it measures a 1.6x win
+   On by default, as on CUDA. It was off here because the blocked variants
+   measured a loss on MI250X and MI300A, where they spill -- but baking that
+   in also stopped the tuner from ever re-testing it, and the kstep family has
+   since measured badly enough on gfx90a (788 us/call at lx = 8 against 268
+   for the 1d variant) that its geometry is worth measuring per case rather
+   than assuming. Where the blocked variants still spill the tuner simply
+   rejects them; the cost is tuning time, not run time.
 
    Note NEKO_TUNE_ROUNDS and NEKO_TUNE_ITERS below are not specific to
    this sweep: they control the sampling of every candidate the tuner
    times, chunk sizes included. */
 #ifndef NEKO_EB_SWEEP_DEFAULT
-#define NEKO_EB_SWEEP_DEFAULT 0
+#define NEKO_EB_SWEEP_DEFAULT 1
 #endif
 
 #define NEKO_TUNE_INIT 1.0e30f
@@ -128,6 +132,17 @@ static int neko_tune_iters()
     if (t_ < (T)[C]) { (T)[C] = t_; }                                         \
   } while (0)
 
+/*
+ * Elapsed time (ms, over ITERS launches) as microseconds per call.
+ *
+ * A division rather than a constant because ITERS is NEKO_TUNE_ITERS, which
+ * is settable: the factor of 10 this used to carry is only correct at the
+ * default of 100 and silently rescales every reported time otherwise. The
+ * ranking never moves, every candidate sharing the divisor, but the number
+ * the log prints does.
+ */
+#define NEKO_TUNE_US(T, ITERS) ((T) * 1000.0 / (double) (ITERS))
+
 #define NEKO_TUNE_BEST(T, BEST, N)                                              \
   do {                                                                        \
     for (int c = 1; c < (N); c++) {                                           \
@@ -141,13 +156,13 @@ static int neko_tune_iters()
     for (int c = 0; c < NEKO_CHUNKS_CANDIDATES; c++) {                        \
       if ((T1)[c] >= NEKO_TUNE_INIT) { continue; }                         \
       sprintf(neko_log_buf, "1D    ch=%-4d: %9.2f us/call",                   \
-              NEKO_CHUNKS_SEL(LX, c), (T1)[c] * 10.0);                        \
+              NEKO_CHUNKS_SEL(LX, c), NEKO_TUNE_US((T1)[c], iters));          \
       log_message(neko_log_buf);                                              \
     }                                                                         \
     for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {                            \
       if ((T2)[c] >= NEKO_TUNE_INIT) { continue; }                         \
       sprintf(neko_log_buf, "KSTEP eb=%-4d: %9.2f us/call",                   \
-              NEKO_EB_SEL(LX, c), (T2)[c] * 10.0);                            \
+              NEKO_EB_SEL(LX, c), NEKO_TUNE_US((T2)[c], iters));              \
       log_message(neko_log_buf);                                              \
     }                                                                         \
   } while (0)

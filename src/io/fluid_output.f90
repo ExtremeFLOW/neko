@@ -32,7 +32,7 @@
 !
 !> Defines an output for a fluid
 module fluid_output
-  use num_types, only : rp
+  use num_types, only : dp
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use fluid_scheme_compressible, only : fluid_scheme_compressible_t
   use fluid_scheme_base, only : fluid_scheme_base_t
@@ -182,7 +182,7 @@ contains
   !> Sample a fluid solution at time @a t
   subroutine fluid_output_sample(this, t)
     class(fluid_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
     integer :: i
     if (NEKO_BCKND_DEVICE .eq. 1) then
 

@@ -22,12 +22,11 @@ AC_DEFUN([AX_ADIOS2_FORTRAN],[
 
 	      ADIOS2_FORTRAN_LIBS=`adios2-config --fortran-libs`
 	      LIBS="$ADIOS2_FORTRAN_LIBS $LIBS"
-              with_adios2_fortran=yes
 	      have_adios2_fortran=yes
 	      AC_SUBST(have_adios2_fortran)
               AC_DEFINE(HAVE_ADIOS2_FORTRAN,1,[Define if you want to use ADIOS2 with Fortran bindings.])
 	    else
-	      with_adios2_fortran=no
+	      have_adios2_fortran=no
 	    fi
             PATH="$PATH_SAVED"
 

@@ -50,10 +50,9 @@
  * @param u_d The sampled x-velocity field.
  * @param v_d The sampled y-velocity field.
  * @param w_d The sampled z-velocity field.
- * @param ind_r_d The r-index array for sampled GLL points.
- * @param ind_s_d The s-index array for sampled GLL points.
- * @param ind_t_d The t-index array for sampled GLL points.
- * @param ind_e_d The element-index array for sampled GLL points.
+ * @param u_d Sampled x velocity.
+ * @param v_d Sampled y velocity.
+ * @param w_d Sampled z velocity.
  * @param n_x_d The x-component of the wall normals.
  * @param n_y_d The y-component of the wall normals.
  * @param n_z_d The z-component of the wall normals.
@@ -71,12 +70,10 @@
  * @param s The blending scale.
  */
 void opencl_cai_sagaut_model_ii_compute(void *u_d, void *v_d, void *w_d,
-                                       void *ind_r_d, void *ind_s_d,
-                                       void *ind_t_d, void *ind_e_d,
                                        void *n_x_d, void *n_y_d, void *n_z_d,
                                        void *nu_d, void *rho_w_d, void *h_d,
                                        void *tau_x_d, void *tau_y_d,
-                                       void *tau_z_d, int *n_nodes, int *lx,
+                                       void *tau_z_d, int *n_nodes,
                                        real *kappa, real *B, real *p,
                                        real *s) {
   cl_int err;
@@ -94,25 +91,20 @@ void opencl_cai_sagaut_model_ii_compute(void *u_d, void *v_d, void *w_d,
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &u_d));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &v_d));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &w_d));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ind_r_d));
-  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &ind_s_d));
-  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &ind_t_d));
-  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &ind_e_d));
-  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &n_x_d));
-  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &n_y_d));
-  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &n_z_d));
-  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &nu_d));
-  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &rho_w_d));
-  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &h_d));
-  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &tau_x_d));
-  CL_CHECK(clSetKernelArg(kernel, 14, sizeof(cl_mem), (void *) &tau_y_d));
-  CL_CHECK(clSetKernelArg(kernel, 15, sizeof(cl_mem), (void *) &tau_z_d));
-  CL_CHECK(clSetKernelArg(kernel, 16, sizeof(int), n_nodes));
-  CL_CHECK(clSetKernelArg(kernel, 17, sizeof(int), lx));
-  CL_CHECK(clSetKernelArg(kernel, 18, sizeof(real), kappa));
-  CL_CHECK(clSetKernelArg(kernel, 19, sizeof(real), B));
-  CL_CHECK(clSetKernelArg(kernel, 20, sizeof(real), p));
-  CL_CHECK(clSetKernelArg(kernel, 21, sizeof(real), s));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &n_x_d));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &n_y_d));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &n_z_d));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &nu_d));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &rho_w_d));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &h_d));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &tau_x_d));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &tau_y_d));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &tau_z_d));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(int), n_nodes));
+  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(real), kappa));
+  CL_CHECK(clSetKernelArg(kernel, 14, sizeof(real), B));
+  CL_CHECK(clSetKernelArg(kernel, 15, sizeof(real), p));
+  CL_CHECK(clSetKernelArg(kernel, 16, sizeof(real), s));
 
   if (*n_nodes > 0) {
     const int nb = ((*n_nodes) + 256 - 1) / 256;
