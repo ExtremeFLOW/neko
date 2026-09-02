@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Added a coupled CPU BiCGStab solver for three-component vector systems.
 - Added crystal router gather-scatter communication backends,
   `NEKO_GS_COMM=CRYSTAL` on the host and `CRYSTALGPU` on the device. They
   route the halo in recursive-bisection stages instead of sending one message
