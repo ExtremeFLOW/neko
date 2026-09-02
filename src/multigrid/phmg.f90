@@ -100,6 +100,7 @@ module phmg
      class(ax_t), allocatable :: ax
      type(interpolator_t), allocatable :: intrp(:)
      type(mesh_t), pointer :: msh
+     type(bc_list_t), pointer :: bclst_ext => null()
    contains
      procedure, pass(this) :: init => phmg_init
      procedure, pass(this) :: init_from_components => &
@@ -174,6 +175,8 @@ contains
     use_cheby = .true.
 
     this%msh => coef%msh
+
+    this%bclst_ext => bclst
 
     this%nlvls = size(pcrs_sched) + 1
     allocate(lx_lvls(0:this%nlvls - 1))
@@ -350,6 +353,13 @@ contains
 
   subroutine phmg_update(this)
     class(phmg_t), intent(inout) :: this
+    integer :: i
+    do i = 1, this%nlvls - 1
+       this%phmg_hrchy%lvl(i)%coef%ifh2 = .false.
+       call copy(this%phmg_hrchy%lvl(i)%coef%h1, &
+            this%phmg_hrchy%lvl(0)%coef%h1, &
+            this%phmg_hrchy%lvl(i)%dm_Xh%size())
+    end do
   end subroutine phmg_update
 
 
@@ -375,12 +385,13 @@ contains
                    mg(lvl)%coef, mg(lvl)%bclst, &
                    mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
            else
-              mg(lvl)%cheby%zero_initial_guess = .true.
+              mg(lvl)%cheby%zero_initial_guess = .false.
               ksp_results = mg(lvl)%cheby%solve(Ax, z, &
                    r%x, mg(lvl)%dm_Xh%size(), &
                    mg(lvl)%coef, mg(lvl)%bclst, &
                    mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
            end if
+           if (allocated(mg(lvl)%gs_h%interp)) call mg(lvl)%gs_h%op_h1(z%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
 
            !------------!
            !  Residual  !
@@ -431,6 +442,8 @@ contains
       call this%amg_solver%solve(mg(this%nlvls-1)%z%x, &
            mg(this%nlvls-1)%r%x, &
            mg(this%nlvls-1)%dm_Xh%size())
+      lvl = this%nlvls-1
+      if (allocated(mg(lvl)%gs_h%interp)) call mg(lvl)%gs_h%op_h1(mg(this%nlvls-1)%z%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
       call profiler_end_region( 'PHMG_coarse-solve' )
 
       do lvl = (this%nlvls-2), 0, -1
@@ -474,6 +487,7 @@ contains
                    mg(lvl)%coef, mg(lvl)%bclst, &
                    mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
            end if
+           if (allocated(mg(lvl)%gs_h%interp)) call mg(lvl)%gs_h%op_h1(z%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
          end associate
          call profiler_end_region( "PHMG_level_" // trim(lvl_name))
       end do
@@ -615,13 +629,67 @@ contains
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
     type(time_state_t), intent(in) :: time
+    integer :: j, i
+    integer :: crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree
+    class(bc_t), pointer :: bc_j
 
-    call neko_error('PHMG: nothing done for AMR reconstruction')
+    !call neko_error('PHMG: nothing done for AMR reconstruction')
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter
+
+    ! Compute all elements as if they are deformed
+    call this%msh%all_deformed()
+
+    ! reconstruct coarse levels; dofmap, gs, coef, field
+    do i = 0, this%nlvls - 1
+      !!!call this%phmg_hrchy%lvl(i)%Xh%amr_restart(reconstruct, counter, tstep)
+      call this%phmg_hrchy%lvl(i)%dm_Xh%amr_restart(reconstruct, counter, time)
+      call this%phmg_hrchy%lvl(i)%gs_h%amr_restart(reconstruct, counter, time)
+      call this%phmg_hrchy%lvl(i)%coef%amr_restart(reconstruct, counter, time)
+
+      call this%phmg_hrchy%lvl(i)%r%amr_restart(reconstruct, counter, time)
+      call this%phmg_hrchy%lvl(i)%w%amr_restart(reconstruct, counter, time)
+      call this%phmg_hrchy%lvl(i)%z%amr_restart(reconstruct, counter, time)
+
+      if (this%bclst_ext%size() .gt. 0) then
+         call this%phmg_hrchy%lvl(i)%bc%amr_restart(reconstruct, counter, time)
+         do j = 1, this%bclst_ext%size()
+           bc_j => this%bclst_ext%get(j)
+           call this%phmg_hrchy%lvl(i)%bc%mark_facets(bc_j%marked_facet)
+         end do
+         if (.not. this%phmg_hrchy%lvl(i)%bc%iffinalised) then
+           call this%phmg_hrchy%lvl(i)%bc%finalize()
+         else
+           call neko_error('Level bc; already finalised')
+         end if
+      end if
+
+    end do
+
+    ! ax does not require restarting
+
+    ! interpolator does not require restarting
+
+    ! lazy amg free and reinit
+    crs_tamg_lvls = this%amg_solver%nlvls+1!TODO: want to be able to have more levels after refinement but still controlled by user
+    crs_tamg_itrs = this%amg_solver%max_iter
+    crs_tamg_cheby_degree = this%amg_solver%smoo(0)%max_iter
+
+    call this%amg_solver%free()
+
+    call this%amg_solver%init(this%ax, this%phmg_hrchy%lvl(this%nlvls -1)%Xh, &
+         this%phmg_hrchy%lvl(this%nlvls -1)%coef, this%msh, &
+         this%phmg_hrchy%lvl(this%nlvls -1)%gs_h, crs_tamg_lvls, &
+         this%phmg_hrchy%lvl(this%nlvls -1)%bclst, &
+         crs_tamg_itrs, crs_tamg_cheby_degree)
+
+    do i = 0, this%nlvls - 1
+      call this%phmg_hrchy%lvl(i)%cheby%amr_restart(reconstruct, counter, time)
+      call this%phmg_hrchy%lvl(i)%jacobi%amr_restart(reconstruct, counter, time)
+    end do
 
   end subroutine phmg_amr_restart
 

@@ -162,6 +162,7 @@ contains
             call copy(w, r, n)
          else
             call this%M%solve(r, w, n)
+            if (allocated(gs_h%interp)) call gs_h%op_h1(r, n, GS_OP_ADD)
             call copy(w, r, n)
          end if
 
@@ -178,6 +179,7 @@ contains
          call copy(w, r, n)
       else
          call this%M%solve(r, w, n)
+         if (allocated(gs_h%interp)) call gs_h%op_h1(r, n, GS_OP_ADD)
          call copy(w, r, n)
       end if
 
@@ -321,6 +323,7 @@ contains
          call this%schwarz%compute(d, r)
       else
          call this%M%solve(d, r, n)
+         if (allocated(gs_h%interp)) call gs_h%op_h1(d, n, GS_OP_ADD)
       end if
 
       do concurrent (i = 1:n)
@@ -347,6 +350,7 @@ contains
             call this%schwarz%compute(w, r)
          else
             call this%M%solve(w, r, n)
+            if (allocated(gs_h%interp)) call gs_h%op_h1(w, n, GS_OP_ADD)
          end if
          do concurrent (i = 1:n)
             d(i) = tmp1 * d(i) + tmp2 * w(i)
@@ -392,13 +396,27 @@ contains
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
     type(time_state_t), intent(in) :: time
+    integer :: ntot
 
-    call neko_error('CHEBY: nothing done for AMR reconstruction')
+    !call neko_error('CHEBY: nothing done for AMR reconstruction')
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter
+
+    ntot = reconstruct%nnew * reconstruct%lxyz
+
+    ! reallocate arrays
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%d)) deallocate(this%d)
+       if (allocated(this%w)) deallocate(this%w)
+       if (allocated(this%r)) deallocate(this%r)
+       allocate(this%d(ntot), this%w(ntot), this%r(ntot))
+    end if
+
+    ! Recompute eigenvalue estimates
+    this%recompute_eigs = .true.
 
   end subroutine cheby_amr_restart
 

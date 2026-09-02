@@ -364,8 +364,10 @@ contains
        call neko_error("For now, can only use greedy agg after elms " // &
             "have been aggregated to points (level 1)")
     else if (lvl_id .eq. 2) then
-       n_facet = 6 ! NEKO elements are hexes, thus have 6 face neighbors
-       offset_el = tamg%msh%offset_el
+!       n_facet = 6 ! NEKO elements are hexes, thus have 6 face neighbors
+!       offset_el = tamg%msh%offset_el
+       n_facet = size(facet_neigh, 1)
+       offset_el = 0!tamg%msh%offset_el
     else
        n_facet = size(facet_neigh, 1)
        offset_el = 0
@@ -706,5 +708,71 @@ contains
     deallocate( is_aggregated )
     deallocate( aggregate_size )
   end subroutine aggregate_pairs
+
+  !> Find nhbr from msh
+  !! @param tamg TreeAMG hierarchy data structure being aggregated
+  !! @param msh Mesh data structure
+  subroutine agg_get_nhbr_from_msh(tamg, msh, agg_nhbr)
+    type(tamg_hierarchy_t), intent(inout) :: tamg
+    type(mesh_t), intent(in) :: msh
+    integer, allocatable, intent(inout) :: agg_nhbr(:,:)
+    integer :: elm, i, j, k, j_st, j_ed, n_nhbr, nhbr_elm, iv
+    integer, allocatable :: my_vrt(:)
+    logical :: add_to_list
+    ! vmap uses symmetric vertex notation with (r,s,t) being a local
+    ! counterpart of (x,y,z):
+    !             3+--------+4    ^ s
+    !             /        /|     |
+    !            /        / |     |
+    !           /        /  |     |
+    !         7+--------+8  +2    +----> r
+    !          |        |  /     /
+    !          |        | /     /
+    !          |        |/     /
+    !         5+--------+6    t
+    ! We will find adjacent neighbors by mapping
+    ! an element to its vertecies and then mapping
+    ! each vertex back to all elements that contain
+    ! that vertex.
+    ! On a 3D Cartesian grid, should give the 3x3x3 element cube
+    ! around a specified element
+    associate( vrt => msh%conn%fcs )
+      allocate( my_vrt(vrt%nobj) )
+
+      do elm = 1, vrt%nel
+         agg_nhbr(1, elm) = elm
+         n_nhbr = 1
+         my_vrt(:) = vrt%map(:, elm)
+         ! Loop over each vrt
+         do i = 1, vrt%nobj
+            iv = my_vrt(i)
+            ! Loop over each elm that shares vrt
+            j_st = vrt%lmapoff(iv)
+            j_ed = vrt%lmapoff(iv+1)-1
+            do j = j_st, j_ed
+               nhbr_elm = vrt%lmap( 1, j)
+
+               if (nhbr_elm .gt. 0) then
+                  ! Check to see if nhbr_elm is already in nhbr list
+                  add_to_list = .true.
+                  do k = 1, n_nhbr
+                     if (nhbr_elm .eq. agg_nhbr(k, elm)) then
+                        add_to_list = .false.
+                     end if
+                  end do
+
+                  ! Add to nhbr list if not already there
+                  if (add_to_list) then
+                     n_nhbr = n_nhbr + 1
+                     agg_nhbr(n_nhbr, elm) = nhbr_elm
+                  end if
+               end if
+            end do
+         end do
+      end do
+
+      deallocate( my_vrt )
+    end associate
+  end subroutine agg_get_nhbr_from_msh
 
 end module tree_amg_aggregate

@@ -57,7 +57,7 @@ module tree_amg_multigrid
   use gather_scatter, only : gs_t, GS_OP_ADD
   use tree_amg, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
   use tree_amg_aggregate, only : aggregate_finest_level, aggregate_greedy, &
-       aggregate_end, aggregate_pairs
+       aggregate_end, aggregate_pairs, agg_get_nhbr_from_msh
   use tree_amg_smoother, only : amg_cheby_t
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : neko_log, LOG_SIZE
@@ -138,7 +138,10 @@ contains
     call aggregate_finest_level(this%amg, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
     ! Create the remaining levels
-    allocate( agg_nhbr, SOURCE = msh%facet_neigh )
+    !allocate( agg_nhbr, SOURCE = msh%facet_neigh )
+    !allocate( agg_nhbr(57, size(msh%facet_neigh, 2)), SOURCE = -1)
+    allocate( agg_nhbr(57, msh%conn%fcs%nel), SOURCE = -1)
+    call agg_get_nhbr_from_msh(this%amg, msh, agg_nhbr)
     do mlvl = 2, nlvls-1
        ! estimate number of aggregates
        if (use_greedy_agg) then
@@ -252,6 +255,7 @@ contains
              deallocate(this%wrk(i)%x)
           end if
        end do
+       deallocate(this%wrk)
     end if
   end subroutine tamg_mg_free
 
