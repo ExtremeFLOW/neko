@@ -48,6 +48,22 @@ from build_sodermalm_cylinder import (  # noqa: E402
 )
 
 
+def metadata_path(generated: Path) -> Path:
+    preferred = [
+        generated / "sodermalm_cylinder_2x_xy_metadata.json",
+        generated / "sodermalm_cylinder_shallow_debug_metadata.json",
+        generated / "sodermalm_cylinder_metadata.json",
+        generated / "sodermalm_cylinder_lumi_coarse_metadata.json",
+    ]
+    for path in preferred:
+        if path.exists():
+            return path
+    matches = sorted(p for p in generated.glob("*metadata.json") if not p.name.startswith("._"))
+    if matches:
+        return matches[0]
+    raise FileNotFoundError(f"No metadata JSON found in {generated}")
+
+
 def parse_fld_header(path: Path) -> dict:
     with path.open("rb") as handle:
         raw = handle.read(132)
@@ -460,13 +476,7 @@ def render_overlay(
 
 
 def main() -> None:
-    meta_path = GENERATED / "sodermalm_cylinder_2x_xy_metadata.json"
-    if not meta_path.exists():
-        meta_path = GENERATED / "sodermalm_cylinder_shallow_debug_metadata.json"
-    if not meta_path.exists():
-        meta_path = GENERATED / "sodermalm_cylinder_metadata.json"
-    if not meta_path.exists():
-        meta_path = GENERATED / "sodermalm_cylinder_lumi_coarse_metadata.json"
+    meta_path = metadata_path(GENERATED)
     meta = json.loads(meta_path.read_text())
     center = tuple(float(v) for v in meta["center_epsg3006"])
     radius = float(meta["radius_m"])

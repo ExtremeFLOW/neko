@@ -16,6 +16,9 @@ module user
   real(kind=rp) :: initial_wind_scale = 1.0_rp
   real(kind=rp) :: inlet_taper_deg = 20.0_rp
   real(kind=rp) :: inlet_arc_width_deg = 180.0_rp
+  real(kind=rp) :: sponge_radius_m = 2536.52_rp
+  real(kind=rp) :: sponge_thickness_m = 800.0_rp
+  real(kind=rp) :: sponge_rise_m = 500.0_rp
   character(len=256) :: initial_field = ""
 
 contains
@@ -27,8 +30,12 @@ contains
     initial_wind_scale = read_env_real("SODERMALM_INITIAL_WIND_SCALE", 1.0_rp)
     inlet_taper_deg = read_env_real("SODERMALM_INLET_TAPER_DEG", 20.0_rp)
     inlet_arc_width_deg = read_env_real("SODERMALM_INLET_ARC_WIDTH_DEG", 180.0_rp)
+    sponge_radius_m = read_env_real("SODERMALM_SPONGE_RADIUS_M", 2536.52_rp)
+    sponge_thickness_m = read_env_real("SODERMALM_SPONGE_THICKNESS_M", 800.0_rp)
+    sponge_rise_m = read_env_real("SODERMALM_SPONGE_RISE_M", 500.0_rp)
     call get_environment_variable("SODERMALM_INITIAL_FIELD", initial_field)
 
+    user%initialize => user_initialize
     user%initial_conditions => initial_conditions
     user%dirichlet_conditions => dirichlet_conditions
   end subroutine user_setup
@@ -85,6 +92,56 @@ contains
     x = min(max(s, 0.0_rp), 1.0_rp)
     value = x * x * (3.0_rp - 2.0_rp * x)
   end function smooth01
+
+  subroutine user_initialize(time)
+    type(time_state_t), intent(in) :: time
+    type(field_t), pointer :: u, fringe, ubf, vbf, wbf
+    integer :: i
+    real(kind=rp) :: x, y, z, downstream, dist_from_upstream_edge, rise
+
+    u => neko_registry%get_field("u")
+    call neko_registry%add_field(u%dof, "sponge_fringe")
+    call neko_registry%add_field(u%dof, "sponge_bf_u")
+    call neko_registry%add_field(u%dof, "sponge_bf_v")
+    call neko_registry%add_field(u%dof, "sponge_bf_w")
+    fringe => neko_registry%get_field("sponge_fringe")
+    ubf => neko_registry%get_field("sponge_bf_u")
+    vbf => neko_registry%get_field("sponge_bf_v")
+    wbf => neko_registry%get_field("sponge_bf_w")
+
+    fringe%x = 0.0_rp
+    rise = max(sponge_rise_m, 1.0_rp)
+    do i = 1, fringe%size()
+       x = fringe%dof%x(i, 1, 1, 1)
+       y = fringe%dof%y(i, 1, 1, 1)
+       z = fringe%dof%z(i, 1, 1, 1)
+       downstream = x * wind_x + y * wind_y
+       dist_from_upstream_edge = downstream + sponge_radius_m
+
+       if (dist_from_upstream_edge >= 0.0_rp .and. &
+            dist_from_upstream_edge <= sponge_thickness_m) then
+          fringe%x(i, 1, 1, 1) = smooth01( &
+               (sponge_thickness_m - dist_from_upstream_edge) / rise)
+       end if
+
+       ubf%x(i, 1, 1, 1) = wind_speed(z) * wind_x
+       vbf%x(i, 1, 1, 1) = wind_speed(z) * wind_y
+       wbf%x(i, 1, 1, 1) = 0.0_rp
+    end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call fringe%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call ubf%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call vbf%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call wbf%copy_from(HOST_TO_DEVICE, sync = .true.)
+    end if
+
+    nullify(u)
+    nullify(fringe)
+    nullify(ubf)
+    nullify(vbf)
+    nullify(wbf)
+  end subroutine user_initialize
 
   function inlet_edge_ramp(x, y) result(scale)
     real(kind=rp), intent(in) :: x, y

@@ -20,9 +20,10 @@ import build_sodermalm_cylinder as base
 
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE / "input" / "prepared"
-OUT = HERE / "generated_2x_xy"
-FIG = HERE / "figures_2x_xy"
-TAG = "2x_xy"
+SUFFIX = os.environ.get("SODERMALM_OUTPUT_SUFFIX", "2x_xy")
+OUT = HERE / f"generated_{SUFFIX}"
+FIG = HERE / f"figures_{SUFFIX}"
+TAG = SUFFIX
 
 PREPARED_INPUTS = (
     "sodermalm_osm_island_epsg3006.geojson",
@@ -46,6 +47,9 @@ def main() -> None:
     base.WATER_MESH_SIZE_M = 225.0
     base.SHORELINE_SIMPLIFY_M = 35.0
     base.SHORE_BLEND_M = 180.0
+    base.INFLOW_ARC_WIDTH_DEG = float(os.environ.get("SODERMALM_INFLOW_ARC_WIDTH_DEG", base.INFLOW_ARC_WIDTH_DEG))
+    base.OUTFLOW_ARC_WIDTH_DEG = float(os.environ.get("SODERMALM_OUTFLOW_ARC_WIDTH_DEG", base.OUTFLOW_ARC_WIDTH_DEG))
+    base.CIRCLE_ARC_STEP_DEG = float(os.environ.get("SODERMALM_CIRCLE_ARC_STEP_DEG", base.CIRCLE_ARC_STEP_DEG))
 
     missing = [name for name in PREPARED_INPUTS if not (SOURCE / name).exists()]
     if missing:
