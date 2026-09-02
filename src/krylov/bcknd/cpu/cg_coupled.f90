@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines a coupled Conjugate Gradient methods
+!> Defines a coupled Conjugate Gradient method.
 module cg_cpld
   use num_types, only : rp, xp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
@@ -41,6 +41,8 @@ module cg_cpld
   use gather_scatter, only : gs_t, GS_OP_ADD
   use scalar_bc_projector, only : scalar_bc_projector_t
   use vector_bc_projector, only : vector_bc_projector_t
+  use host_array, only : host_array_t
+  use scratch_registry, only : neko_scratch_registry
   use math, only : abscmp
   use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
@@ -49,30 +51,58 @@ module cg_cpld
   implicit none
   private
 
-  !> Coupled preconditioned conjugate gradient method
+  !> CPU implementation of the coupled preconditioned conjugate gradient
+  !! method.
+  !!
+  !! Workspace pointers are associated with host arrays from the scratch
+  !! registry only for the duration of a solve. The method uses a single
+  !! Krylov recurrence and combined inner products over all three components.
   type, public, extends(ksp_t) :: cg_cpld_t
-     real(kind=rp), allocatable :: w1(:)
-     real(kind=rp), allocatable :: w2(:)
-     real(kind=rp), allocatable :: w3(:)
-     real(kind=rp), allocatable :: r1(:)
-     real(kind=rp), allocatable :: r2(:)
-     real(kind=rp), allocatable :: r3(:)
-     real(kind=rp), allocatable :: p1(:)
-     real(kind=rp), allocatable :: p2(:)
-     real(kind=rp), allocatable :: p3(:)
-     real(kind=rp), allocatable :: z1(:)
-     real(kind=rp), allocatable :: z2(:)
-     real(kind=rp), allocatable :: z3(:)
+     !> First component of the operator action \f$w = A p\f$.
+     real(kind=rp), pointer :: w1(:) => null()
+     !> Second component of the operator action \f$w = A p\f$.
+     real(kind=rp), pointer :: w2(:) => null()
+     !> Third component of the operator action \f$w = A p\f$.
+     real(kind=rp), pointer :: w3(:) => null()
+     !> First component of the residual \f$r = f - A x\f$.
+     real(kind=rp), pointer :: r1(:) => null()
+     !> Second component of the residual \f$r = f - A x\f$.
+     real(kind=rp), pointer :: r2(:) => null()
+     !> Third component of the residual \f$r = f - A x\f$.
+     real(kind=rp), pointer :: r3(:) => null()
+     !> First component of the search direction \f$p\f$.
+     real(kind=rp), pointer :: p1(:) => null()
+     !> Second component of the search direction \f$p\f$.
+     real(kind=rp), pointer :: p2(:) => null()
+     !> Third component of the search direction \f$p\f$.
+     real(kind=rp), pointer :: p3(:) => null()
+     !> First component of the preconditioned residual \f$z = M^{-1}r\f$.
+     real(kind=rp), pointer :: z1(:) => null()
+     !> Second component of the preconditioned residual \f$z = M^{-1}r\f$.
+     real(kind=rp), pointer :: z2(:) => null()
+     !> Third component of the preconditioned residual \f$z = M^{-1}r\f$.
+     real(kind=rp), pointer :: z3(:) => null()
    contains
+     !> Initialise a coupled CPU PCG solver.
      procedure, pass(this) :: init => cg_cpld_init
+     !> Free a coupled CPU PCG solver.
      procedure, pass(this) :: free => cg_cpld_free
+     !> Reject scalar solves, which are not supported by this type.
      procedure, pass(this) :: solve => cg_cpld_nop
+     !> Solve a three-component coupled system with the CPU PCG method.
      procedure, pass(this) :: solve_coupled => cg_cpld_solve
   end type cg_cpld_t
 
 contains
 
-  !> Initialise a coupled PCG solver
+  !> Initialise a coupled CPU PCG solver.
+  !! @param n Number of degrees of freedom per component.
+  !! @param max_iter Maximum number of iterations.
+  !! @param M Optional preconditioner. An identity preconditioner is used if
+  !! absent.
+  !! @param rel_tol Optional relative convergence tolerance.
+  !! @param abs_tol Optional absolute convergence tolerance.
+  !! @param monitor Optional switch for logging the residual at each iteration.
   subroutine cg_cpld_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(cg_cpld_t), target, intent(inout) :: this
     integer, intent(in) :: max_iter
@@ -83,19 +113,6 @@ contains
     logical, optional, intent(in) :: monitor
 
     call this%free()
-
-    allocate(this%w1(n))
-    allocate(this%w2(n))
-    allocate(this%w3(n))
-    allocate(this%r1(n))
-    allocate(this%r2(n))
-    allocate(this%r3(n))
-    allocate(this%p1(n))
-    allocate(this%p2(n))
-    allocate(this%p3(n))
-    allocate(this%z1(n))
-    allocate(this%z2(n))
-    allocate(this%z3(n))
 
     if (present(M)) then
        this%M => M
@@ -121,64 +138,31 @@ contains
 
   end subroutine cg_cpld_init
 
-  !> Deallocate a coupled PCG solver
+  !> Free a coupled CPU PCG solver.
   subroutine cg_cpld_free(this)
     class(cg_cpld_t), intent(inout) :: this
 
     call this%ksp_free()
 
-    if (allocated(this%w1)) then
-       deallocate(this%w1)
-    end if
-
-    if (allocated(this%w2)) then
-       deallocate(this%w2)
-    end if
-
-    if (allocated(this%w3)) then
-       deallocate(this%w3)
-    end if
-
-    if (allocated(this%r1)) then
-       deallocate(this%r1)
-    end if
-
-    if (allocated(this%r2)) then
-       deallocate(this%r2)
-    end if
-
-    if (allocated(this%r3)) then
-       deallocate(this%r3)
-    end if
-
-    if (allocated(this%p1)) then
-       deallocate(this%p1)
-    end if
-
-    if (allocated(this%p2)) then
-       deallocate(this%p2)
-    end if
-
-    if (allocated(this%p3)) then
-       deallocate(this%p3)
-    end if
-
-    if (allocated(this%z1)) then
-       deallocate(this%z1)
-    end if
-
-    if (allocated(this%z2)) then
-       deallocate(this%z2)
-    end if
-
-    if (allocated(this%z3)) then
-       deallocate(this%z3)
-    end if
+    nullify(this%w1, this%w2, this%w3)
+    nullify(this%r1, this%r2, this%r3)
+    nullify(this%p1, this%p2, this%p3)
+    nullify(this%z1, this%z2, this%z3)
 
     nullify(this%M)
 
   end subroutine cg_cpld_free
 
+  !> Reject scalar solves, which are not supported by this type.
+  !! @param Ax Linear operator.
+  !! @param x Solution field.
+  !! @param f Right-hand side.
+  !! @param n Number of degrees of freedom.
+  !! @param coef Spectral element coefficients and multiplicity weights.
+  !! @param bc_projector Projector for Dirichlet boundary nodes.
+  !! @param gs_h Gather-scatter handle used to assemble the operator result.
+  !! @param niter Optional maximum number of iterations.
+  !! @return Unused convergence information.
   function cg_cpld_nop(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
        result(ksp_results)
     class(cg_cpld_t), intent(inout) :: this
@@ -192,14 +176,31 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ! Throw and error
     call neko_error('The cpldcg solver is only defined for coupled solves')
 
     ksp_results%res_final = 0.0
     ksp_results%iter = 0
   end function cg_cpld_nop
 
-  !> Coupled PCG solve
+  !> Solve a three-component coupled system with the CPU PCG method.
+  !!
+  !! The initial guesses are discarded. All inner products combine the three
+  !! components, so the method advances one Krylov recurrence for the complete
+  !! coupled system.
+  !! @param Ax Coupled linear operator.
+  !! @param x Solution field for the first component.
+  !! @param y Solution field for the second component.
+  !! @param z Solution field for the third component.
+  !! @param fx Right-hand side for the first component.
+  !! @param fy Right-hand side for the second component.
+  !! @param fz Right-hand side for the third component.
+  !! @param n Number of degrees of freedom per component.
+  !! @param coef Spectral element coefficients and multiplicity weights.
+  !! @param bc_projector Projector for vector boundary nodes.
+  !! @param gs_h Gather-scatter handle used to assemble operator results.
+  !! @param niter Optional maximum number of iterations, overriding the
+  !! configured value.
+  !! @return Identical combined convergence information for all components.
   function cg_cpld_solve(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(cg_cpld_t), intent(inout) :: this
@@ -220,6 +221,8 @@ contains
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=rp) :: beta, pap, alpha, norm_fac
     real(kind=xp) :: tmp_xp, r1_xp, r2_xp, r3_xp, mult_xp
+    type(host_array_t), pointer :: w_tmp, r_tmp, p_tmp, z_tmp
+    integer :: temp_indices(4)
 
     if (present(niter)) then
        max_iter = niter
@@ -227,6 +230,28 @@ contains
        max_iter = this%max_iter
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
+
+    call neko_scratch_registry%request_host_array(w_tmp, temp_indices(1), &
+         3 * n, .false.)
+    call neko_scratch_registry%request_host_array(r_tmp, temp_indices(2), &
+         3 * n, .false.)
+    call neko_scratch_registry%request_host_array(p_tmp, temp_indices(3), &
+         3 * n, .false.)
+    call neko_scratch_registry%request_host_array(z_tmp, temp_indices(4), &
+         3 * n, .false.)
+
+    this%w1 => w_tmp%x(1:n)
+    this%w2 => w_tmp%x(n+1:2*n)
+    this%w3 => w_tmp%x(2*n+1:3*n)
+    this%r1 => r_tmp%x(1:n)
+    this%r2 => r_tmp%x(n+1:2*n)
+    this%r3 => r_tmp%x(2*n+1:3*n)
+    this%p1 => p_tmp%x(1:n)
+    this%p2 => p_tmp%x(n+1:2*n)
+    this%p3 => p_tmp%x(2*n+1:3*n)
+    this%z1 => z_tmp%x(1:n)
+    this%z2 => z_tmp%x(n+1:2*n)
+    this%z3 => z_tmp%x(2*n+1:3*n)
 
     associate (p1 => this%p1, p2 => this%p2, p3 => this%p3, z1 => this%z1, &
          z2 => this%z2, z3 => this%z3, r1 => this%r1, r2 => this%r2, &
@@ -262,6 +287,11 @@ contains
       ksp_results%iter = 0
       if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
+         nullify(this%w1, this%w2, this%w3)
+         nullify(this%r1, this%r2, this%r3)
+         nullify(this%p1, this%p2, this%p3)
+         nullify(this%z1, this%z2, this%z3)
+         call neko_scratch_registry%relinquish_host_array(temp_indices)
          return
       end if
 
@@ -355,6 +385,11 @@ contains
          end if
       end do
     end associate
+    nullify(this%w1, this%w2, this%w3)
+    nullify(this%r1, this%r2, this%r3)
+    nullify(this%p1, this%p2, this%p3)
+    nullify(this%z1, this%z2, this%z3)
+    call neko_scratch_registry%relinquish_host_array(temp_indices)
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter

@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Changed the CPU CG, coupled CG and GMRES solvers to obtain their large work
+  arrays from the scratch registry for each solve instead of retaining
+  dedicated storage.
 - Added crystal router gather-scatter communication backends,
   `NEKO_GS_COMM=CRYSTAL` on the host and `CRYSTALGPU` on the device. They
   route the halo in recursive-bisection stages instead of sending one message

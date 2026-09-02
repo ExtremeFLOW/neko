@@ -43,6 +43,8 @@ module cg
   use scalar_bc_projector, only : scalar_bc_projector_t
   use vector_bc_projector, only : vector_bc_projector_t, &
        vector_bc_projector_components
+  use host_array, only : host_array_t
+  use scratch_registry, only : neko_scratch_registry
   use math, only : glsc3, abscmp
   use comm, only : MPI_EXTRA_PRECISION, MPI_REAL_PRECISION, NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
@@ -51,23 +53,35 @@ module cg
 
   integer, parameter :: CG_P_SPACE = 7
 
-  !> Standard preconditioned conjugate gradient method
+  !> CPU implementation of the preconditioned conjugate gradient method.
+  !!
+  !! Workspace pointers are associated with host arrays from the scratch
+  !! registry only for the duration of a solve.
   type, public, extends(ksp_t) :: cg_t
-     real(kind=rp), allocatable :: w(:)
-     real(kind=rp), allocatable :: r(:)
-     real(kind=rp), allocatable :: p(:,:)
-     real(kind=rp), allocatable :: z(:)
-     real(kind=rp), allocatable :: alpha(:)
+     !> Operator action \f$w = A p\f$.
+     real(kind=rp), pointer :: w(:) => null()
+     !> Residual \f$r = f - A x\f$.
+     real(kind=rp), pointer :: r(:) => null()
+     !> Rolling space of search directions \f$p\f$.
+     real(kind=rp), pointer :: p(:,:) => null()
+     !> Preconditioned residual \f$z = M^{-1} r\f$.
+     real(kind=rp), pointer :: z(:) => null()
+     !> Step lengths associated with the stored search directions.
+     real(kind=rp), pointer :: alpha(:) => null()
    contains
+     !> Initialise a CPU PCG solver.
      procedure, pass(this) :: init => cg_init
+     !> Free a CPU PCG solver.
      procedure, pass(this) :: free => cg_free
+     !> Solve a linear system with the CPU PCG method.
      procedure, pass(this) :: solve => cg_solve
+     !> Solve three independent systems with the CPU PCG method.
      procedure, pass(this) :: solve_coupled => cg_solve_coupled
   end type cg_t
 
 contains
 
-  !> Initialise a standard PCG solver
+  !> Initialise a CPU PCG solver.
   subroutine cg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(cg_t), intent(inout), target :: this
     integer, intent(in) :: max_iter
@@ -78,12 +92,6 @@ contains
     logical, optional, intent(in) :: monitor
 
     call this%free()
-
-    allocate(this%w(n))
-    allocate(this%r(n))
-    allocate(this%p(n, CG_P_SPACE))
-    allocate(this%z(n))
-    allocate(this%alpha(CG_P_SPACE))
 
     if (present(M)) then
        this%M => M
@@ -108,37 +116,23 @@ contains
 
   end subroutine cg_init
 
-  !> Deallocate a standard PCG solver
+  !> Free a CPU PCG solver.
   subroutine cg_free(this)
     class(cg_t), intent(inout) :: this
 
     call this%ksp_free()
 
-    if (allocated(this%w)) then
-       deallocate(this%w)
-    end if
-
-    if (allocated(this%r)) then
-       deallocate(this%r)
-    end if
-
-    if (allocated(this%p)) then
-       deallocate(this%p)
-    end if
-
-    if (allocated(this%z)) then
-       deallocate(this%z)
-    end if
-
-    if (allocated(this%alpha)) then
-       deallocate(this%alpha)
-    end if
+    nullify(this%w)
+    nullify(this%r)
+    nullify(this%p)
+    nullify(this%z)
+    nullify(this%alpha)
 
     nullify(this%M)
 
   end subroutine cg_free
 
-  !> Standard PCG solve
+  !> Solve a linear system with the CPU PCG method.
   function cg_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
        result(ksp_results)
     class(cg_t), intent(inout) :: this
@@ -154,6 +148,8 @@ contains
     integer :: iter, max_iter, i, j, k, p_cur, p_prev, ierr
     real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(NEKO_BLK_SIZE)
     real(kind=rp) :: beta, pap, norm_fac, tmp
+    type(host_array_t), pointer :: w_tmp, r_tmp, p_tmp, z_tmp, alpha_tmp
+    integer :: temp_indices(5)
 
     if (present(niter)) then
        max_iter = niter
@@ -161,6 +157,23 @@ contains
        max_iter = this%max_iter
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
+
+    call neko_scratch_registry%request_host_array(w_tmp, temp_indices(1), &
+         n, .false.)
+    call neko_scratch_registry%request_host_array(r_tmp, temp_indices(2), &
+         n, .false.)
+    call neko_scratch_registry%request_host_array(p_tmp, temp_indices(3), &
+         n * CG_P_SPACE, .false.)
+    call neko_scratch_registry%request_host_array(z_tmp, temp_indices(4), &
+         n, .false.)
+    call neko_scratch_registry%request_host_array(alpha_tmp, &
+         temp_indices(5), CG_P_SPACE, .false.)
+
+    this%w => w_tmp%x
+    this%r => r_tmp%x
+    this%p(1:n, 1:CG_P_SPACE) => p_tmp%x
+    this%z => z_tmp%x
+    this%alpha => alpha_tmp%x
 
     associate(w => this%w, r => this%r, p => this%p, &
          z => this%z, alpha => this%alpha)
@@ -185,6 +198,8 @@ contains
       ksp_results%iter = 0
       if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
+         nullify(this%w, this%r, this%p, this%z, this%alpha)
+         call neko_scratch_registry%relinquish_host_array(temp_indices)
          return
       end if
 
@@ -254,6 +269,8 @@ contains
          end if
       end do
     end associate
+    nullify(this%w, this%r, this%p, this%z, this%alpha)
+    call neko_scratch_registry%relinquish_host_array(temp_indices)
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
@@ -280,7 +297,7 @@ contains
 
   end subroutine second_cg_part
 
-  !> Standard PCG coupled solve
+  !> Solve three independent systems with the CPU PCG method.
   function cg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(cg_t), intent(inout) :: this
