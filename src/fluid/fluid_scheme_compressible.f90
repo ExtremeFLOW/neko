@@ -474,7 +474,6 @@ contains
     integer, intent(in) :: lx
     character(len=LOG_SIZE) :: log_buf
     logical :: logical_val
-    real(kind=rp) :: real_val
     integer :: integer_val
 
     call neko_log%section('Fluid')
@@ -501,12 +500,6 @@ contains
 
     ! Material properties
     write(log_buf, '(A,ES13.6)') 'gamma      :', this%gamma
-    call neko_log%message(log_buf)
-
-    ! Compressible-specific parameters
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', real_val, &
-         0.5_rp)
-    write(log_buf, '(A,ES13.6)') 'c_avisc_low:', real_val
     call neko_log%message(log_buf)
 
     call json_get_or_default(params, 'case.numerics.time_order', integer_val, 4)
