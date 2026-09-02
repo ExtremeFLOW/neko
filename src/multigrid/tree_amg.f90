@@ -379,6 +379,7 @@ contains
        call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
        call this%gs_h%op(vec_out, n, GS_OP_ADD)
        call this%blst%apply(vec_out, n)
+       if (allocated(this%gs_h%interp)) call this%gs_h%op_h1(vec_out, n, GS_OP_ADD)
     else !> pass down through hierarchy
        associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
          !> Map input level to finest level
@@ -398,6 +399,7 @@ contains
          call this%blst%apply(wrk_out, n)
 
          call col2(wrk_out, this%coef%mult, n)
+         if (allocated(this%gs_h%interp)) call this%gs_h%op_h1(wrk_out, n, GS_OP_ADD)
 
          !> Map finest level matvec back to output level
          call rzero(vec_out, this%lvl(lvl)%nnodes)
