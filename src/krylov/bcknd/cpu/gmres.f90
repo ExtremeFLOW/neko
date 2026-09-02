@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines various GMRES methods
+!> Implements `gmres_t`.
 module gmres
   !$ use omp_lib
   use krylov, only : ksp_t, ksp_monitor_t
@@ -52,7 +52,7 @@ module gmres
   implicit none
   private
 
-  !> CPU implementation of the preconditioned GMRES method.
+  !> CPU implementation of the preconditioned standard GMRES method.
   !!
   !! The large working vectors are associated with host arrays from the
   !! scratch registry only for the duration of a solve. The small
@@ -79,19 +79,19 @@ module gmres
      !> Per-thread inner-product buffer in extra precision.
      real(kind=xp), allocatable :: hp(:,:)
    contains
-     !> Initialise a CPU GMRES solver.
+     !> Initialise a standard GMRES solver.
      procedure, pass(this) :: init => gmres_init
-     !> Free a CPU GMRES solver.
+     !> Free a standard GMRES solver.
      procedure, pass(this) :: free => gmres_free
-     !> Solve a linear system with the CPU GMRES method.
+     !> Solve a linear system with the standard GMRES method.
      procedure, pass(this) :: solve => gmres_solve
-     !> Solve three independent systems with the CPU GMRES method.
+     !> Solve three independent systems with the standard GMRES method.
      procedure, pass(this) :: solve_coupled => gmres_solve_coupled
   end type gmres_t
 
 contains
 
-  !> Initialise a CPU GMRES solver.
+  !> Initialise a standard GMRES solver.
   subroutine gmres_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(gmres_t), target, intent(inout) :: this
     integer, intent(in) :: n
@@ -138,7 +138,7 @@ contains
 
   end subroutine gmres_init
 
-  !> Free a CPU GMRES solver.
+  !> Free a standard GMRES solver.
   subroutine gmres_free(this)
     class(gmres_t), intent(inout) :: this
 
@@ -176,7 +176,7 @@ contains
 
   end subroutine gmres_free
 
-  !> Solve a linear system with the CPU GMRES method.
+  !> Solve a linear system with the standard GMRES method.
   function gmres_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
        result(ksp_results)
     class(gmres_t), intent(inout) :: this
@@ -433,7 +433,7 @@ contains
 
   end function gmres_solve
 
-  !> Solve three independent systems with the CPU GMRES method.
+  !> Solve three independent systems with the standard GMRES method.
   function gmres_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(gmres_t), intent(inout) :: this
