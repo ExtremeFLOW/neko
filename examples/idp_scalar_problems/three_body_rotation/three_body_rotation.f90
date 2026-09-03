@@ -1,12 +1,13 @@
 ! Three-body rigid-rotation density transport for the Euler IDP solver.
 !
 ! This is an Euler proxy for the scalar benchmark in Nazarov (2026). The
-! density is one plus the scalar profile. After every Euler step, momentum and
-! energy are projected back to the prescribed rigid-rotation velocity and a
-! constant pressure. Thus, this case tests density transport and the IDP
-! machinery; it is not an unforced solution of the Euler equations.
+! density is one plus the scalar profile. After every Euler step, momentum is
+! reset to the scalar profile times the prescribed rigid-rotation velocity,
+! while energy is reset to a constant pressure. Thus, this case tests density
+! transport and the IDP machinery; it is not an unforced Euler solution.
 module user
   use neko
+  use entropy_viscosity, only : entropy_viscosity_t
   use fluid_scheme_compressible_ns, only : fluid_scheme_compressible_ns_t
   implicit none
 
@@ -36,7 +37,7 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
     type(field_t), pointer :: rho, u, v, w, p
-    real(kind=rp) :: x, y
+    real(kind=rp) :: profile, rho_value, u_value, v_value, x, y
     integer :: i
 
     if (trim(scheme_name) .ne. 'fluid') return
@@ -50,9 +51,13 @@ contains
     do i = 1, rho%size()
        x = rho%dof%x(i, 1, 1, 1)
        y = rho%dof%y(i, 1, 1, 1)
-       rho%x(i, 1, 1, 1) = density_background + body_profile(x, y)
-       u%x(i, 1, 1, 1) = -2.0_rp * pi * y
-       v%x(i, 1, 1, 1) = 2.0_rp * pi * x
+       profile = body_profile(x, y)
+       rho_value = density_background + profile
+       u_value = -2.0_rp * pi * y
+       v_value = 2.0_rp * pi * x
+       rho%x(i, 1, 1, 1) = rho_value
+       u%x(i, 1, 1, 1) = profile * u_value / rho_value
+       v%x(i, 1, 1, 1) = profile * v_value / rho_value
        w%x(i, 1, 1, 1) = 0.0_rp
        p%x(i, 1, 1, 1) = pressure_ref
     end do
@@ -73,7 +78,7 @@ contains
   subroutine enforce_rotation(time)
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: rho, m_x, m_y, m_z, energy
-    real(kind=rp) :: kinetic_energy, u_value, v_value, x, y
+    real(kind=rp) :: kinetic_energy, scalar_value, u_value, v_value, x, y
     integer :: i
 
     rho => neko_registry%get_field('fluid_rho')
@@ -89,27 +94,37 @@ contains
           y = rho%dof%y(i, 1, 1, 1)
           u_value = -2.0_rp * pi * y
           v_value = 2.0_rp * pi * x
-          kinetic_energy = 0.5_rp * rho%x(i, 1, 1, 1) * &
-               (u_value**2 + v_value**2)
+          scalar_value = rho%x(i, 1, 1, 1) - density_background
 
-          m_x%x(i, 1, 1, 1) = rho%x(i, 1, 1, 1) * u_value
-          m_y%x(i, 1, 1, 1) = rho%x(i, 1, 1, 1) * v_value
+          m_x%x(i, 1, 1, 1) = scalar_value * u_value
+          m_y%x(i, 1, 1, 1) = scalar_value * v_value
           m_z%x(i, 1, 1, 1) = 0.0_rp
+          kinetic_energy = 0.5_rp * &
+               (m_x%x(i, 1, 1, 1)**2 + m_y%x(i, 1, 1, 1)**2) / &
+               rho%x(i, 1, 1, 1)
           energy%x(i, 1, 1, 1) = pressure_ref / (gamma_ref - 1.0_rp) + &
                kinetic_energy
-          fluid%u%x(i, 1, 1, 1) = u_value
-          fluid%v%x(i, 1, 1, 1) = v_value
+          fluid%u%x(i, 1, 1, 1) = m_x%x(i, 1, 1, 1) / &
+               rho%x(i, 1, 1, 1)
+          fluid%v%x(i, 1, 1, 1) = m_y%x(i, 1, 1, 1) / &
+               rho%x(i, 1, 1, 1)
           fluid%w%x(i, 1, 1, 1) = 0.0_rp
           fluid%p%x(i, 1, 1, 1) = pressure_ref
           fluid%temperature%x(i, 1, 1, 1) = pressure_ref / &
                (rho%x(i, 1, 1, 1) * (gamma_ref - 1.0_rp))
-          fluid%S%x(i, 1, 1, 1) = 0.5_rp * &
-               rho%x(i, 1, 1, 1)**2
+          fluid%S%x(i, 1, 1, 1) = 0.5_rp * scalar_value**2
        end do
 
        call fluid%compute_max_wave_speed()
-       call fluid%euler_idp_cpu%update_graph_viscosity(rho, m_x, m_y, &
-            m_z, energy, fluid%gs_Xh, gamma_ref)
+       select type (reg => fluid%regularization)
+       type is (entropy_viscosity_t)
+          call reg%evaluate_user_entropy_pair(time)
+          call fluid%euler_idp_cpu%update_graph_viscosity(rho, m_x, m_y, &
+               m_z, energy, fluid%gs_Xh, gamma_ref, &
+               reg%entropy_wave_speed)
+       class default
+          call neko_error('Rotation requires entropy viscosity regularization')
+       end select
        minimum_limiter = min(minimum_limiter, &
             fluid%euler_idp_diagnostics%min_limiter)
        maximum_limited_fraction = max(maximum_limited_fraction, &
@@ -129,7 +144,7 @@ contains
     type(field_t), intent(inout) :: wave_speed
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: rho
-    real(kind=rp) :: entropy_value, u_value, v_value, x, y
+    real(kind=rp) :: entropy_value, scalar_value, u_value, v_value, x, y
     integer :: i
 
     rho => neko_registry%get_field('fluid_rho')
@@ -138,7 +153,8 @@ contains
        y = rho%dof%y(i, 1, 1, 1)
        u_value = -2.0_rp * pi * y
        v_value = 2.0_rp * pi * x
-       entropy_value = 0.5_rp * rho%x(i, 1, 1, 1)**2
+       scalar_value = rho%x(i, 1, 1, 1) - density_background
+       entropy_value = 0.5_rp * scalar_value**2
        entropy%x(i, 1, 1, 1) = entropy_value
        flux_x%x(i, 1, 1, 1) = u_value * entropy_value
        flux_y%x(i, 1, 1, 1) = v_value * entropy_value

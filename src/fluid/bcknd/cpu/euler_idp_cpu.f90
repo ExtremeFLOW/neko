@@ -67,6 +67,9 @@ module euler_idp_cpu
      logical :: periodic_graph = .false.
      logical :: low_order_only = .false.
      logical :: relax_density_bounds = .false.
+     logical :: limit_internal_energy = .true.
+     logical :: limit_entropy = .true.
+     real(kind=rp) :: density_bound_relaxation_factor = 1.0_rp
      real(kind=rp) :: correction_tolerance = 1.0e-10_rp
      type(euler_gll_graph_t) :: graph
      type(field_t) :: local_residual(EULER_IDP_NCOMP)
@@ -200,6 +203,9 @@ contains
     this%maximum_floor_timestep = huge(1.0_rp)
     this%limiter_weight_error = 0.0_rp
     this%low_order_only = .false.
+    this%limit_internal_energy = .true.
+    this%limit_entropy = .true.
+    this%density_bound_relaxation_factor = 1.0_rp
     do component = 1, 3
        call this%stage_diagnostics(component)%reset()
     end do
@@ -208,11 +214,14 @@ contains
 
   !> Initialise the sparse GLL graph after coefficients are available.
   subroutine euler_idp_cpu_init_graph(this, coef, gs, relax_density_bounds, &
-       low_order_only)
+       low_order_only, limit_internal_energy, limit_entropy, &
+       density_bound_relaxation_factor)
     class(euler_idp_cpu_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     logical, intent(in), optional :: relax_density_bounds, low_order_only
+    logical, intent(in), optional :: limit_internal_energy, limit_entropy
+    real(kind=rp), intent(in), optional :: density_bound_relaxation_factor
     real(kind=rp) :: local_error, global_error
     real(kind=rp) :: local_mass, global_mass
     integer :: direction, edge, ierr
@@ -223,10 +232,21 @@ contains
     this%correction_tolerance = 1.0e-10_rp
     this%relax_density_bounds = .false.
     this%low_order_only = .false.
+    this%limit_internal_energy = .true.
+    this%limit_entropy = .true.
+    this%density_bound_relaxation_factor = 1.0_rp
     if (present(relax_density_bounds)) then
        this%relax_density_bounds = relax_density_bounds
     end if
     if (present(low_order_only)) this%low_order_only = low_order_only
+    if (present(limit_internal_energy)) then
+       this%limit_internal_energy = limit_internal_energy
+    end if
+    if (present(limit_entropy)) this%limit_entropy = limit_entropy
+    if (present(density_bound_relaxation_factor)) then
+       this%density_bound_relaxation_factor = &
+            density_bound_relaxation_factor
+    end if
     if (allocated(this%edge_viscosity)) deallocate(this%edge_viscosity)
     if (allocated(this%edge_entropy_diffusion)) then
        deallocate(this%edge_entropy_diffusion)
@@ -369,6 +389,9 @@ contains
     this%periodic_graph = .false.
     this%low_order_only = .false.
     this%relax_density_bounds = .false.
+    this%limit_internal_energy = .true.
+    this%limit_entropy = .true.
+    this%density_bound_relaxation_factor = 1.0_rp
     this%correction_tolerance = 1.0e-10_rp
     this%max_graph_rate = 0.0_rp
     this%domain_volume = 0.0_rp
@@ -381,7 +404,7 @@ contains
   !> Evaluate the mass-weighted high-order residual.
   subroutine euler_idp_cpu_evaluate_high_order(this, rho, m_x, m_y, m_z, &
        energy, coef, gs, gamma, internal_energy_floor, &
-       diagnostics, entropy_viscosity_fraction)
+       diagnostics, entropy_viscosity_fraction, graph_wave_speed)
     class(euler_idp_cpu_t), intent(inout) :: this
     type(field_t), intent(in) :: rho, m_x, m_y, m_z, energy
     type(coef_t), intent(inout) :: coef
@@ -389,6 +412,7 @@ contains
     real(kind=rp), intent(in) :: gamma, internal_energy_floor
     type(euler_idp_diagnostics_t), intent(inout) :: diagnostics
     type(field_t), intent(in), optional :: entropy_viscosity_fraction
+    type(field_t), intent(in), optional :: graph_wave_speed
     real(kind=rp) :: edge_diffusion, edge_fraction
     integer :: component, edge
 
@@ -403,7 +427,7 @@ contains
     if (present(entropy_viscosity_fraction)) then
        diagnostics%entropy_viscosity_enabled = .true.
        call this%update_graph_viscosity(rho, m_x, m_y, m_z, energy, gs, &
-            gamma)
+            gamma, graph_wave_speed)
        do edge = 1, this%graph%n_edges
           associate(a => this%graph%left(:,edge), &
                b => this%graph%right(:,edge))
@@ -436,17 +460,19 @@ contains
 
   !> Update symmetric graph viscosity, bar states, and the graph CFL rate.
   subroutine euler_idp_cpu_update_graph_viscosity(this, rho, m_x, m_y, m_z, &
-       energy, gs, gamma)
+       energy, gs, gamma, graph_wave_speed)
     class(euler_idp_cpu_t), intent(inout) :: this
     type(field_t), intent(in) :: rho, m_x, m_y, m_z, energy
     type(gs_t), intent(inout) :: gs
     real(kind=rp), intent(in) :: gamma
+    type(field_t), intent(in), optional :: graph_wave_speed
     real(kind=rp) :: left_state(EULER_IDP_NCOMP)
     real(kind=rp) :: right_state(EULER_IDP_NCOMP)
     real(kind=rp) :: left_flux(EULER_IDP_NCOMP)
     real(kind=rp) :: right_flux(EULER_IDP_NCOMP)
-    real(kind=rp) :: normal(3), coefficient_norm
+    real(kind=rp) :: normal(3), coefficient_norm, flux_scale
     real(kind=rp) :: local_rate, global_rate
+    real(kind=rp) :: left_wave_speed, right_wave_speed
     integer :: edge, ierr
 
     if (.not. this%graph%initialized) then
@@ -470,22 +496,49 @@ contains
               energy%x(b(1),b(2),b(3),b(4))]
          coefficient_norm = sqrt(dot_product(coefficient, coefficient))
          normal = coefficient / coefficient_norm
-         this%edge_wave_speed(edge) = euler_idp_maximum_wave_speed( &
-              left_state, right_state, normal, gamma)
+         if (present(graph_wave_speed)) then
+            left_wave_speed = graph_wave_speed%x(a(1),a(2),a(3),a(4))
+            right_wave_speed = graph_wave_speed%x(b(1),b(2),b(3),b(4))
+            if (.not. ieee_is_finite(left_wave_speed) .or. &
+                 .not. ieee_is_finite(right_wave_speed) .or. &
+                 left_wave_speed .lt. 0.0_rp .or. &
+                 right_wave_speed .lt. 0.0_rp) then
+               call neko_error('User graph wave speed must be finite and ' // &
+                    'nonnegative')
+            end if
+            this%edge_wave_speed(edge) = max(left_wave_speed, &
+                 right_wave_speed)
+         else
+            this%edge_wave_speed(edge) = euler_idp_maximum_wave_speed( &
+                 left_state, right_state, normal, gamma)
+         end if
          this%edge_viscosity(edge) = coefficient_norm * &
               this%edge_wave_speed(edge)
          call euler_idp_flux_dot_vector(left_state, coefficient, gamma, &
               left_flux)
          call euler_idp_flux_dot_vector(right_state, coefficient, gamma, &
               right_flux)
+         if (this%edge_viscosity(edge) .le. tiny(1.0_rp)) then
+            flux_scale = max(1.0_rp, maxval(abs(left_flux)), &
+                 maxval(abs(right_flux)))
+            if (maxval(abs(right_flux - left_flux)) .gt. &
+                 128.0_rp * epsilon(1.0_rp) * flux_scale) then
+               call neko_error('Zero graph viscosity has a nonzero ' // &
+                    'projected flux jump')
+            end if
+         end if
          call euler_idp_bar_state(left_state, right_state, &
               right_flux - left_flux, this%edge_viscosity(edge), &
               this%bar_state(:,edge))
-         if (this%bar_state(1,edge) .le. 0.0_rp .or. &
+         if (this%bar_state(1,edge) .le. 0.0_rp) then
+            call neko_error('Euler IDP graph viscosity produced a bar ' // &
+                 'state with nonpositive density')
+         end if
+         if ((this%limit_internal_energy .or. this%limit_entropy) .and. &
               euler_idp_internal_energy(this%bar_state(:,edge)) .le. &
               0.0_rp) then
-            call neko_error('Euler IDP graph viscosity produced an ' // &
-                 'inadmissible bar state')
+            call neko_error('Euler IDP graph viscosity produced a bar ' // &
+                 'state with nonpositive internal energy')
          end if
          this%viscosity_sum%x(a(1),a(2),a(3),a(4)) = &
               this%viscosity_sum%x(a(1),a(2),a(3),a(4)) + &
@@ -515,7 +568,7 @@ contains
   !> Evaluate the conservative low-order graph residual.
   subroutine euler_idp_cpu_evaluate_low_order(this, rho, m_x, m_y, m_z, &
        energy, coef, gs, gamma, internal_energy_floor, &
-       diagnostics, graph_viscosity_current)
+       diagnostics, graph_viscosity_current, graph_wave_speed)
     class(euler_idp_cpu_t), intent(inout) :: this
     type(field_t), intent(in) :: rho, m_x, m_y, m_z, energy
     type(coef_t), intent(in) :: coef
@@ -523,6 +576,7 @@ contains
     real(kind=rp), intent(in) :: gamma, internal_energy_floor
     type(euler_idp_diagnostics_t), intent(inout) :: diagnostics
     logical, intent(in), optional :: graph_viscosity_current
+    type(field_t), intent(in), optional :: graph_wave_speed
     real(kind=rp) :: difference, left_value, right_value
     integer :: component, edge
 
@@ -530,10 +584,10 @@ contains
          gamma, internal_energy_floor, 'low-order state')
     if (.not. present(graph_viscosity_current)) then
        call this%update_graph_viscosity(rho, m_x, m_y, m_z, energy, gs, &
-            gamma)
+            gamma, graph_wave_speed)
     else if (.not. graph_viscosity_current) then
        call this%update_graph_viscosity(rho, m_x, m_y, m_z, energy, gs, &
-            gamma)
+            gamma, graph_wave_speed)
     end if
 
     do component = 1, EULER_IDP_NCOMP
@@ -705,23 +759,25 @@ contains
             'bar-state bounds')
     end if
 
-    local_entropy_excess = 0.0_rp
-    do i = 1, rho%size()
-       state = [this%low_candidate(1)%x(i,1,1,1), &
-            this%low_candidate(2)%x(i,1,1,1), &
-            this%low_candidate(3)%x(i,1,1,1), &
-            this%low_candidate(4)%x(i,1,1,1), &
-            this%low_candidate(5)%x(i,1,1,1)]
-       entropy = euler_idp_specific_entropy(state, gamma)
-       difference = this%entropy_lower_bound%x(i,1,1,1) - entropy
-       entropy_tolerance = euler_idp_entropy_tolerance(state, &
-            this%entropy_lower_bound%x(i,1,1,1))
-       local_entropy_excess = max(local_entropy_excess, &
-            difference - entropy_tolerance)
-    end do
-    if (local_entropy_excess .gt. 0.0_rp) then
-       call neko_error('Euler IDP low-order state violates its local ' // &
-            'minimum entropy bound')
+    if (this%limit_entropy) then
+       local_entropy_excess = 0.0_rp
+       do i = 1, rho%size()
+          state = [this%low_candidate(1)%x(i,1,1,1), &
+               this%low_candidate(2)%x(i,1,1,1), &
+               this%low_candidate(3)%x(i,1,1,1), &
+               this%low_candidate(4)%x(i,1,1,1), &
+               this%low_candidate(5)%x(i,1,1,1)]
+          entropy = euler_idp_specific_entropy(state, gamma)
+          difference = this%entropy_lower_bound%x(i,1,1,1) - entropy
+          entropy_tolerance = euler_idp_entropy_tolerance(state, &
+               this%entropy_lower_bound%x(i,1,1,1))
+          local_entropy_excess = max(local_entropy_excess, &
+               difference - entropy_tolerance)
+       end do
+       if (local_entropy_excess .gt. 0.0_rp) then
+          call neko_error('Euler IDP low-order state violates its local ' // &
+               'minimum entropy bound')
+       end if
     end if
 
     if (this%relax_density_bounds) then
@@ -760,6 +816,7 @@ contains
           strict_upper = this%density_upper_bound%x(i,1,1,1)
           call euler_idp_relax_density_bounds(strict_lower, strict_upper, &
                this%density_second_difference_average%x(i,1,1,1), &
+               this%density_bound_relaxation_factor, &
                this%density_relaxation_mass, this%domain_volume, &
                this%graph%n_directions, relaxed_lower, relaxed_upper)
           this%density_lower_bound%x(i,1,1,1) = relaxed_lower
@@ -772,7 +829,7 @@ contains
   subroutine euler_idp_cpu_forward_euler(this, rho, m_x, m_y, m_z, energy, &
        coef, gs, density_bcs, velocity_bcs, pressure_bcs, gamma, &
        internal_energy_floor, dt, time, diagnostics, stage, &
-       entropy_viscosity_fraction)
+       entropy_viscosity_fraction, graph_wave_speed)
     class(euler_idp_cpu_t), intent(inout) :: this
     type(field_t), intent(in) :: rho, m_x, m_y, m_z, energy
     type(coef_t), intent(inout) :: coef
@@ -784,6 +841,7 @@ contains
     type(euler_idp_diagnostics_t), intent(inout) :: diagnostics
     integer, intent(in), optional :: stage
     type(field_t), intent(in), optional :: entropy_viscosity_fraction
+    type(field_t), intent(in), optional :: graph_wave_speed
     real(kind=rp) :: local_change(EULER_IDP_NCOMP)
     real(kind=rp) :: local_minimum(4), global_minimum(4)
     real(kind=rp) :: state(EULER_IDP_NCOMP), residual(EULER_IDP_NCOMP)
@@ -795,15 +853,18 @@ contains
     real(kind=rp) :: directional_error_local(EULER_IDP_NCOMP)
     character(len=2 * LOG_SIZE) :: message
     integer :: component, edge, i, ierr
+    logical :: scalar_density_mode
 
     call diagnostics%reset()
     if (present(stage)) diagnostics%stage = stage
+    scalar_density_mode = present(graph_wave_speed) .and. &
+         .not. this%limit_internal_energy .and. .not. this%limit_entropy
     call this%evaluate_high_order(rho, m_x, m_y, m_z, energy, coef, gs, &
          gamma, internal_energy_floor, diagnostics, &
-         entropy_viscosity_fraction)
+         entropy_viscosity_fraction, graph_wave_speed)
     call this%evaluate_low_order(rho, m_x, m_y, m_z, energy, coef, gs, &
          gamma, internal_energy_floor, diagnostics, &
-         present(entropy_viscosity_fraction))
+         present(entropy_viscosity_fraction), graph_wave_speed)
 
     diagnostics%max_graph_cfl = this%graph_cfl(dt)
     diagnostics%min_convex_weight = 1.0_rp - diagnostics%max_graph_cfl
@@ -823,23 +884,28 @@ contains
        call neko_error(trim(message))
     end if
 
-    local_floor_timestep = this%maximum_graph_timestep
-    do i = 1, rho%size()
-       state = [rho%x(i,1,1,1), m_x%x(i,1,1,1), m_y%x(i,1,1,1), &
-            m_z%x(i,1,1,1), energy%x(i,1,1,1)]
-       do component = 1, EULER_IDP_NCOMP
-          residual(component) = &
-               this%low_assembled_residual(component)%x(i,1,1,1)
+    if (this%limit_internal_energy) then
+       local_floor_timestep = this%maximum_graph_timestep
+       do i = 1, rho%size()
+          state = [rho%x(i,1,1,1), m_x%x(i,1,1,1), m_y%x(i,1,1,1), &
+               m_z%x(i,1,1,1), energy%x(i,1,1,1)]
+          do component = 1, EULER_IDP_NCOMP
+             residual(component) = &
+                  this%low_assembled_residual(component)%x(i,1,1,1)
+          end do
+          local_floor_timestep = min(local_floor_timestep, &
+               euler_idp_internal_energy_timestep(state, residual, &
+               internal_energy_floor, this%maximum_graph_timestep))
        end do
-       local_floor_timestep = min(local_floor_timestep, &
-            euler_idp_internal_energy_timestep(state, residual, &
-            internal_energy_floor, this%maximum_graph_timestep))
-    end do
-    call MPI_Allreduce(local_floor_timestep, global_floor_timestep, 1, &
-         MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+       call MPI_Allreduce(local_floor_timestep, global_floor_timestep, 1, &
+            MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+    else
+       global_floor_timestep = this%maximum_graph_timestep
+    end if
     this%maximum_floor_timestep = global_floor_timestep
     diagnostics%maximum_floor_timestep = global_floor_timestep
-    if (dt .gt. global_floor_timestep * (1.0_rp + 32.0_rp * &
+    if (this%limit_internal_energy .and. &
+         dt .gt. global_floor_timestep * (1.0_rp + 32.0_rp * &
          epsilon(1.0_rp))) then
        if (diagnostics%stage .gt. 0) then
           write(message, '(A,I0,A,ES13.6,A,ES13.6)') &
@@ -864,6 +930,15 @@ contains
          this%low_assembled_residual(4)%x
     this%low_candidate(5)%x = energy%x - dt * &
          this%low_assembled_residual(5)%x
+    if (scalar_density_mode) then
+       ! User-defined scalar problems are embedded in density. The remaining
+       ! conservative fields only carry the prescribed scalar flux and are
+       ! projected by the user routine after each complete step.
+       this%low_candidate(2)%x = m_x%x
+       this%low_candidate(3)%x = m_y%x
+       this%low_candidate(4)%x = m_z%x
+       this%low_candidate(5)%x = energy%x
+    end if
 
     call this%compute_bounds(rho, m_x, m_y, m_z, energy, gs, gamma, &
          diagnostics)
@@ -942,6 +1017,9 @@ contains
           this%correction_flux(component,edge) = high_order_fraction * &
                this%correction_flux(component,edge)
        end do
+       if (scalar_density_mode .and. component .gt. 1) then
+          this%correction_flux(component,:) = 0.0_rp
+       end if
        call this%graph%incidence(this%flux_x%x, &
             this%correction_flux(component,:))
        call gs%op(this%flux_x, GS_OP_ADD)
@@ -975,10 +1053,20 @@ contains
     ! The low-order candidate is the base state for every edge correction.
     ! Validate it after the stage-state fluxes have been reconstructed so its
     ! primitive conversion does not need to be undone.
-    call euler_idp_cpu_primitives(this, this%low_candidate(1), &
-         this%low_candidate(2), this%low_candidate(3), &
-         this%low_candidate(4), this%low_candidate(5), gamma, &
-         internal_energy_floor, 'low-order candidate')
+    if (scalar_density_mode) then
+       if (any(.not. ieee_is_finite(this%low_candidate(1)%x)) .or. &
+            minval(this%low_candidate(1)%x) .le. 0.0_rp) then
+          write(message, '(A,ES13.6)') &
+               'Scalar IDP low-order candidate has invalid density: ', &
+               minval(this%low_candidate(1)%x)
+          call neko_error(trim(message))
+       end if
+    else
+       call euler_idp_cpu_primitives(this, this%low_candidate(1), &
+            this%low_candidate(2), this%low_candidate(3), &
+            this%low_candidate(4), this%low_candidate(5), gamma, &
+            internal_energy_floor, 'low-order candidate')
+    end if
 
     diagnostics%limiter_weight_error = this%limiter_weight_error
     call this%compute_limiter(gamma, internal_energy_floor, diagnostics)
@@ -1009,27 +1097,29 @@ contains
        call neko_error('Euler IDP limited density violates its local bounds')
     end if
 
-    local_entropy_violation = 0.0_rp
-    local_entropy_excess = 0.0_rp
-    do i = 1, rho%size()
-       state = [this%limited_candidate(1)%x(i,1,1,1), &
-            this%limited_candidate(2)%x(i,1,1,1), &
-            this%limited_candidate(3)%x(i,1,1,1), &
-            this%limited_candidate(4)%x(i,1,1,1), &
-            this%limited_candidate(5)%x(i,1,1,1)]
-       entropy = euler_idp_specific_entropy(state, gamma)
-       local_entropy_violation = max(local_entropy_violation, &
-            this%entropy_lower_bound%x(i,1,1,1) - entropy)
-       entropy_tolerance = euler_idp_entropy_tolerance(state, &
-            this%entropy_lower_bound%x(i,1,1,1))
-       local_entropy_excess = max(local_entropy_excess, &
-            this%entropy_lower_bound%x(i,1,1,1) - entropy - &
-            entropy_tolerance)
-    end do
-    diagnostics%max_entropy_lower_violation = local_entropy_violation
-    if (local_entropy_excess .gt. 0.0_rp) then
-       call neko_error('Euler IDP limited state violates its local ' // &
-            'minimum entropy bound')
+    if (this%limit_entropy) then
+       local_entropy_violation = 0.0_rp
+       local_entropy_excess = 0.0_rp
+       do i = 1, rho%size()
+          state = [this%limited_candidate(1)%x(i,1,1,1), &
+               this%limited_candidate(2)%x(i,1,1,1), &
+               this%limited_candidate(3)%x(i,1,1,1), &
+               this%limited_candidate(4)%x(i,1,1,1), &
+               this%limited_candidate(5)%x(i,1,1,1)]
+          entropy = euler_idp_specific_entropy(state, gamma)
+          local_entropy_violation = max(local_entropy_violation, &
+               this%entropy_lower_bound%x(i,1,1,1) - entropy)
+          entropy_tolerance = euler_idp_entropy_tolerance(state, &
+               this%entropy_lower_bound%x(i,1,1,1))
+          local_entropy_excess = max(local_entropy_excess, &
+               this%entropy_lower_bound%x(i,1,1,1) - entropy - &
+               entropy_tolerance)
+       end do
+       diagnostics%max_entropy_lower_violation = local_entropy_violation
+       if (local_entropy_excess .gt. 0.0_rp) then
+          call neko_error('Euler IDP limited state violates its local ' // &
+               'minimum entropy bound')
+       end if
     end if
 
     local_minimum = huge(1.0_rp)
@@ -1058,7 +1148,7 @@ contains
   subroutine euler_idp_cpu_advance(this, rho, m_x, m_y, m_z, energy, coef, &
        gs, density_bcs, velocity_bcs, pressure_bcs, gamma, &
        internal_energy_floor, dt, order, time, diagnostics, &
-       entropy_viscosity_fraction)
+       entropy_viscosity_fraction, graph_wave_speed)
     class(euler_idp_cpu_t), intent(inout) :: this
     type(field_t), intent(inout) :: rho, m_x, m_y, m_z, energy
     type(coef_t), intent(inout) :: coef
@@ -1070,6 +1160,7 @@ contains
     type(time_state_t), intent(in) :: time
     type(euler_idp_diagnostics_t), intent(out) :: diagnostics
     type(field_t), intent(in), optional :: entropy_viscosity_fraction
+    type(field_t), intent(in), optional :: graph_wave_speed
     integer :: component
 
     if (order .ne. 1 .and. order .ne. 3) then
@@ -1093,7 +1184,7 @@ contains
     call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, &
          density_bcs, velocity_bcs, pressure_bcs, gamma, &
          internal_energy_floor, dt, time, this%stage_diagnostics(1), 1, &
-         entropy_viscosity_fraction)
+         entropy_viscosity_fraction, graph_wave_speed)
     if (order .eq. 1) then
        call this%commit(rho, m_x, m_y, m_z, energy)
        diagnostics = this%stage_diagnostics(1)
@@ -1105,7 +1196,7 @@ contains
     call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, &
          density_bcs, velocity_bcs, pressure_bcs, gamma, &
          internal_energy_floor, dt, time, this%stage_diagnostics(2), 2, &
-         entropy_viscosity_fraction)
+         entropy_viscosity_fraction, graph_wave_speed)
 
     ! U(2) = 3/4 U(n) + 1/4 FE(U(1)).
     rho%x = 0.75_rp * this%saved_state(1)%x + &
@@ -1125,7 +1216,7 @@ contains
     call this%forward_euler(rho, m_x, m_y, m_z, energy, coef, gs, &
          density_bcs, velocity_bcs, pressure_bcs, gamma, &
          internal_energy_floor, dt, time, this%stage_diagnostics(3), 3, &
-         entropy_viscosity_fraction)
+         entropy_viscosity_fraction, graph_wave_speed)
 
     ! U(n+1) = 1/3 U(n) + 2/3 FE(U(2)).
     rho%x = this%saved_state(1)%x / 3.0_rp + &
@@ -1193,7 +1284,8 @@ contains
               this%entropy_lower_bound%x(a(1),a(2),a(3),a(4)), &
               this%entropy_lower_bound%x(b(1),b(2),b(3),b(4)), gamma, &
               internal_energy_floor, this%edge_limiter(edge), &
-              density_limited, energy_limited, entropy_limited)
+              density_limited, energy_limited, entropy_limited, &
+              this%limit_internal_energy, this%limit_entropy)
        end associate
        if (.not. ieee_is_finite(this%edge_limiter(edge)) .or. &
             this%edge_limiter(edge) .lt. 0.0_rp .or. &

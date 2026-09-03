@@ -46,6 +46,9 @@ module euler_idp
      logical :: enabled = .false.
      logical :: low_order_only = .false.
      logical :: relax_density_bounds = .false.
+     logical :: limit_internal_energy = .true.
+     logical :: limit_entropy = .true.
+     real(kind=rp) :: density_bound_relaxation_factor = 1.0_rp
      real(kind=rp) :: internal_energy_floor = 1.0e-12_rp
    contains
      procedure, pass(this) :: init => euler_idp_config_init
@@ -116,6 +119,9 @@ contains
     this%enabled = .false.
     this%low_order_only = .false.
     this%relax_density_bounds = .false.
+    this%limit_internal_energy = .true.
+    this%limit_entropy = .true.
+    this%density_bound_relaxation_factor = 1.0_rp
     this%internal_energy_floor = 1.0e-12_rp
 
     if (.not. params%valid_path("case.numerics.euler_idp")) return
@@ -125,6 +131,13 @@ contains
          this%low_order_only, .false.)
     call json_get_or_default(params, root // "relax_density_bounds", &
          this%relax_density_bounds, .false.)
+    call json_get_or_default(params, root // "limit_internal_energy", &
+         this%limit_internal_energy, .true.)
+    call json_get_or_default(params, root // "limit_entropy", &
+         this%limit_entropy, .true.)
+    call json_get_or_default(params, &
+         root // "density_bound_relaxation_factor", &
+         this%density_bound_relaxation_factor, 1.0_rp)
     call json_get_or_default(params, root // "internal_energy_floor", &
          this%internal_energy_floor, 1.0e-12_rp)
   end subroutine euler_idp_config_init
@@ -140,6 +153,11 @@ contains
     if (.not. ieee_is_finite(this%internal_energy_floor) .or. &
          this%internal_energy_floor .le. 0.0_rp) then
        message = "internal_energy_floor must be finite and positive"
+       return
+    end if
+    if (.not. ieee_is_finite(this%density_bound_relaxation_factor) .or. &
+         this%density_bound_relaxation_factor .le. 0.0_rp) then
+       message = "density_bound_relaxation_factor must be finite and positive"
        return
     end if
     valid = .true.

@@ -2,6 +2,25 @@ module test_euler_idp_limiter
 contains
 
 @test
+subroutine test_zero_viscosity_bar_state()
+  use pfunit
+  use num_types, only : rp
+  use euler_idp_low_order, only : euler_idp_bar_state
+  implicit none
+
+  real(kind=rp) :: left(5), right(5), flux_difference(5), bar_state(5)
+
+  left = [1.0_rp, 2.0_rp, 3.0_rp, 4.0_rp, 5.0_rp]
+  right = [2.0_rp, 4.0_rp, 6.0_rp, 8.0_rp, 10.0_rp]
+  flux_difference = 0.0_rp
+
+  call euler_idp_bar_state(left, right, flux_difference, 0.0_rp, &
+       bar_state)
+
+  @assertEqual(0.5_rp * (left + right), bar_state)
+end subroutine test_zero_viscosity_bar_state
+
+@test
 subroutine test_specific_entropy()
   use pfunit
   use num_types, only : rp
@@ -76,6 +95,22 @@ subroutine test_local_entropy_bounds_are_edge_order_independent()
   @assertEqual(expected, reverse_bounds(:,1,1,1))
   @assertEqual(forward_bounds, reverse_bounds)
 end subroutine test_local_entropy_bounds_are_edge_order_independent
+
+@test
+subroutine test_density_bound_relaxation_factor()
+  use pfunit
+  use num_types, only : rp
+  use euler_idp_limiter, only : euler_idp_relax_density_bounds
+  implicit none
+
+  real(kind=rp) :: relaxed_lower, relaxed_upper
+
+  call euler_idp_relax_density_bounds(1.0_rp, 2.0_rp, 0.05_rp, &
+       2.0_rp, 0.25_rp, 1.0_rp, 2, relaxed_lower, relaxed_upper)
+
+  @assertEqual(0.9_rp, relaxed_lower, tolerance=1.0e-6_rp)
+  @assertEqual(2.1_rp, relaxed_upper, tolerance=1.0e-6_rp)
+end subroutine test_density_bound_relaxation_factor
 
 @test
 subroutine test_entropy_endpoint_limit()
@@ -278,6 +313,79 @@ subroutine test_symmetric_edge_entropy_limit()
   @assertEqual(2.0_rp / 3.0_rp, limit, tolerance=1.0e-12_rp)
   @assertTrue(entropy_limited)
 end subroutine test_symmetric_edge_entropy_limit
+
+@test
+subroutine test_optional_internal_energy_constraint()
+  use pfunit
+  use num_types, only : rp
+  use euler_idp_limiter, only : euler_idp_limit_endpoint
+  implicit none
+
+  real(kind=rp), parameter :: gamma = 1.4_rp
+  real(kind=rp) :: base(5), correction(5), limit
+  logical :: density_limited, energy_limited, entropy_limited
+
+  base = make_state(1.0_rp, 0.0_rp, 1.0_rp, gamma)
+  correction = 0.0_rp
+  correction(2) = 3.0_rp
+  call euler_idp_limit_endpoint(base, correction, 0.5_rp, 1.5_rp, &
+       -100.0_rp, gamma, 1.0e-12_rp, limit, density_limited, &
+       energy_limited, entropy_limited, enforce_internal_energy = .false., &
+       enforce_entropy = .false.)
+
+  @assertEqual(1.0_rp, limit, tolerance=1.0e-14_rp)
+  @assertFalse(energy_limited)
+  @assertFalse(entropy_limited)
+end subroutine test_optional_internal_energy_constraint
+
+@test
+subroutine test_optional_internal_energy_constraint_on_base()
+  use pfunit
+  use num_types, only : rp
+  use euler_idp_limiter, only : euler_idp_limit_endpoint
+  implicit none
+
+  real(kind=rp), parameter :: gamma = 1.4_rp
+  real(kind=rp) :: base(5), correction(5), limit
+  logical :: density_limited, energy_limited, entropy_limited
+
+  base = make_state(1.0_rp, 0.0_rp, 1.0_rp, gamma)
+  base(5) = -1.0_rp
+  correction = 0.0_rp
+  call euler_idp_limit_endpoint(base, correction, 0.5_rp, 1.5_rp, &
+       -100.0_rp, gamma, 1.0e-12_rp, limit, density_limited, &
+       energy_limited, entropy_limited, enforce_internal_energy = .false., &
+       enforce_entropy = .false.)
+
+  @assertEqual(1.0_rp, limit, tolerance=1.0e-14_rp)
+  @assertFalse(density_limited)
+  @assertFalse(energy_limited)
+  @assertFalse(entropy_limited)
+end subroutine test_optional_internal_energy_constraint_on_base
+
+@test
+subroutine test_optional_entropy_constraint()
+  use pfunit
+  use num_types, only : rp
+  use euler_idp_limiter, only : euler_idp_limit_endpoint
+  implicit none
+
+  real(kind=rp), parameter :: gamma = 1.4_rp
+  real(kind=rp) :: base(5), target(5), correction(5), limit
+  logical :: density_limited, energy_limited, entropy_limited
+
+  base = make_state(1.0_rp, 0.0_rp, 1.0_rp, gamma)
+  target = make_state(1.0_rp, 0.0_rp, 0.25_rp, gamma)
+  correction = target - base
+  call euler_idp_limit_endpoint(base, correction, 0.5_rp, 1.5_rp, &
+       log(0.5_rp), gamma, 1.0e-12_rp, limit, density_limited, &
+       energy_limited, entropy_limited, enforce_internal_energy = .true., &
+       enforce_entropy = .false.)
+
+  @assertEqual(1.0_rp, limit, tolerance=1.0e-14_rp)
+  @assertFalse(energy_limited)
+  @assertFalse(entropy_limited)
+end subroutine test_optional_entropy_constraint
 
 pure function make_state(rho, velocity, pressure, gamma) result(state)
   use num_types, only : rp

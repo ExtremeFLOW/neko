@@ -49,6 +49,40 @@
         },
         "c_avisc_entropy": {
           "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+        },
+        "entropy_pair_type": {
+          "type": "string",
+          "enum": [
+            "euler",
+            "user"
+          ]
+        },
+        "euler_idp": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "low_order_only": {
+              "type": "boolean"
+            },
+            "relax_density_bounds": {
+              "type": "boolean"
+            },
+            "density_bound_relaxation_factor": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "limit_internal_energy": {
+              "type": "boolean"
+            },
+            "limit_entropy": {
+              "type": "boolean"
+            },
+            "internal_energy_floor": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false

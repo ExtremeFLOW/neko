@@ -7,6 +7,7 @@
 ! harness for density transport and limiting, not an unforced Euler flow.
 module user
   use neko
+  use entropy_viscosity, only : entropy_viscosity_t
   use fluid_scheme_compressible_ns, only : fluid_scheme_compressible_ns_t
   implicit none
 
@@ -109,12 +110,19 @@ contains
           fluid%p%x(i, 1, 1, 1) = pressure_ref
           fluid%temperature%x(i, 1, 1, 1) = pressure_ref / &
                (rho_value * (gamma_ref - 1.0_rp))
-          fluid%S%x(i, 1, 1, 1) = 0.5_rp * scalar_value**2
+          fluid%S%x(i, 1, 1, 1) = scalar_value
        end do
 
        call fluid%compute_max_wave_speed()
-       call fluid%euler_idp_cpu%update_graph_viscosity(rho, m_x, m_y, &
-            m_z, energy, fluid%gs_Xh, gamma_ref)
+       select type (reg => fluid%regularization)
+       type is (entropy_viscosity_t)
+          call reg%evaluate_user_entropy_pair(time)
+          call fluid%euler_idp_cpu%update_graph_viscosity(rho, m_x, m_y, &
+               m_z, energy, fluid%gs_Xh, gamma_ref, &
+               reg%entropy_wave_speed)
+       class default
+          call neko_error('Burgers requires entropy viscosity regularization')
+       end select
        minimum_limiter = min(minimum_limiter, &
             fluid%euler_idp_diagnostics%min_limiter)
        maximum_limited_fraction = max(maximum_limited_fraction, &
@@ -126,7 +134,7 @@ contains
     end select
   end subroutine enforce_burgers_flux
 
-  !> Evaluate the quadratic entropy pair for the shifted Burgers scalar.
+  !> Evaluate the conservation residual and the exact Burgers wave speed.
   subroutine user_entropy_pair(entropy, flux_x, flux_y, flux_z, &
        wave_speed, time)
     type(field_t), intent(inout) :: entropy
@@ -140,9 +148,9 @@ contains
     rho => neko_registry%get_field('fluid_rho')
     do i = 1, rho%size()
        scalar_value = rho%x(i, 1, 1, 1) - density_shift
-       entropy%x(i, 1, 1, 1) = 0.5_rp * scalar_value**2
-       flux_x%x(i, 1, 1, 1) = scalar_value**3 / 3.0_rp
-       flux_y%x(i, 1, 1, 1) = scalar_value**3 / 3.0_rp
+       entropy%x(i, 1, 1, 1) = scalar_value
+       flux_x%x(i, 1, 1, 1) = 0.5_rp * scalar_value**2
+       flux_y%x(i, 1, 1, 1) = 0.5_rp * scalar_value**2
        flux_z%x(i, 1, 1, 1) = 0.0_rp
        wave_speed%x(i, 1, 1, 1) = sqrt(2.0_rp) * abs(scalar_value)
     end do
@@ -196,12 +204,12 @@ contains
     close(output_unit)
   end subroutine finalize
 
-  !> Initial scalar from section 6.3 of Nazarov (2026).
+  !> Initial scalar obtained from the exact solution at t = 0.
   pure real(kind=rp) function burgers_initial_scalar(x, y) result(value)
     real(kind=rp), intent(in) :: x, y
 
-    if (abs(x - 0.5_rp) .le. 1.0_rp .and. &
-         abs(y - 0.5_rp) .le. 1.0_rp) then
+    if (abs(x - 1.0_rp) .le. 0.5_rp .and. &
+         abs(y - 1.0_rp) .le. 0.5_rp) then
        value = scalar_maximum
     else
        value = scalar_minimum

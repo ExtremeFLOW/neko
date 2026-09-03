@@ -15,11 +15,14 @@
             "time_order": 1,
             "polynomial_order": 5,
             "c_avisc_low": 0.5,
-            "c_avisc_entropy": 0.1,
+            "c_avisc_entropy": 0.5,
             "entropy_pair_type": "user",
             "euler_idp": {
                 "enabled": true,
                 "relax_density_bounds": true,
+                "density_bound_relaxation_factor": 5.0,
+                "limit_internal_energy": false,
+                "limit_entropy": false,
                 "internal_energy_floor": 1e-10
             }
         },

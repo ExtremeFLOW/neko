@@ -3,7 +3,9 @@
 This case adapts the scalar three-body rotation benchmark from section 6.2 of
 Nazarov (2026) to exercise Neko's experimental Euler IDP path. The scalar
 profile is stored as `rho - 1`, and the paper's rigid-rotation velocity
-`(-2 pi y, 2 pi x)` is imposed after every complete Forward-Euler timestep.
+`beta = (-2 pi y, 2 pi x)` defines its flux. The momenta are reset to
+`(rho - 1) beta` after every complete Forward-Euler timestep, so the constant
+density shift is not transported.
 
 This velocity projection is an explicit test harness. It also resets total
 energy to a constant pressure, so the calculation is not an unforced Euler
@@ -22,14 +24,17 @@ mpirun -np 4 ./neko three_body_rotation.case
 ```
 
 The default case uses polynomial degree 5, Forward Euler, target CFL 0.3,
-entropy-viscosity coefficient `C_R = 0.1`, and relaxed local density bounds.
+entropy-viscosity coefficient `C_R = 0.5`, and relaxed local density bounds
+with `C_rel(P5) = 5`. The relaxation factor follows Nazarov's benchmark;
+`C_R = 0.5` gives a less diffusive solution while suppressing the visible
+element-scale ripples.
 
 The case selects `entropy_pair_type = user`. For the transported scalar
-`rho`, its callback supplies
+`s = rho - 1`, its callback supplies
 
 ```text
-eta(rho) = rho^2/2,
-q(rho,x,y) = (-2 pi y eta, 2 pi x eta),
+eta(s) = s^2/2,
+q(s,x,y) = (-2 pi y eta, 2 pi x eta),
 lambda(x,y) = 2 pi sqrt(x^2 + y^2).
 ```
 
@@ -45,7 +50,6 @@ Forward Euler is intentional: projecting only after a complete SSPRK3 step
 does not constrain its internal stage velocities. A faithful SSPRK3 version
 would need to apply the prescribed-velocity projection inside every IDP stage.
 
-The Euler limiter enforces positive density and internal energy together with
-relaxed local density bounds. This benchmark remains a diagnostic proxy rather
-than a direct reproduction of the paper's scalar discretization because the
-profile is transported through the Euler density equation.
+The user wave speed drives the graph viscosity, and the correction is limited
+only by relaxed local density bounds. The Euler internal-energy and entropy
+constraints are disabled for this scalar proxy.

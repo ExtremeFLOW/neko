@@ -236,7 +236,10 @@ contains
        call this%euler_idp_cpu%init(this%dm_Xh)
        call this%euler_idp_cpu%init_graph(this%c_Xh, this%gs_Xh, &
             this%euler_idp%relax_density_bounds, &
-            this%euler_idp%low_order_only)
+            this%euler_idp%low_order_only, &
+            this%euler_idp%limit_internal_energy, &
+            this%euler_idp%limit_entropy, &
+            this%euler_idp%density_bound_relaxation_factor)
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -513,15 +516,24 @@ contains
              entropy_fraction%x(i,1,1,1) = 0.0_rp
           end if
        end do
+       if (reg%use_user_entropy_pair) then
+          call this%euler_idp_cpu%advance(this%rho, this%m_x, this%m_y, &
+               this%m_z, this%E, this%c_Xh, this%gs_Xh, this%bcs_density, &
+               this%bcs_vel, this%bcs_prs, this%gamma, &
+               this%euler_idp%internal_energy_floor, time%dt, &
+               this%rk_scheme%order, time, this%euler_idp_diagnostics, &
+               entropy_fraction, reg%entropy_wave_speed)
+       else
+          call this%euler_idp_cpu%advance(this%rho, this%m_x, this%m_y, &
+               this%m_z, this%E, this%c_Xh, this%gs_Xh, this%bcs_density, &
+               this%bcs_vel, this%bcs_prs, this%gamma, &
+               this%euler_idp%internal_energy_floor, time%dt, &
+               this%rk_scheme%order, time, this%euler_idp_diagnostics, &
+               entropy_fraction)
+       end if
     class default
        call neko_error('Euler IDP requires entropy viscosity regularization')
     end select
-    call this%euler_idp_cpu%advance(this%rho, this%m_x, this%m_y, &
-         this%m_z, this%E, this%c_Xh, this%gs_Xh, this%bcs_density, &
-         this%bcs_vel, this%bcs_prs, this%gamma, &
-         this%euler_idp%internal_energy_floor, time%dt, &
-         this%rk_scheme%order, time, this%euler_idp_diagnostics, &
-         entropy_fraction)
     call this%log_euler_idp_diagnostics(time)
     call neko_scratch_registry%relinquish_field(temp_indices)
 
@@ -545,8 +557,20 @@ contains
     end select
     if (.not. user_entropy_pair) call this%compute_entropy()
     call this%compute_max_wave_speed()
-    call this%euler_idp_cpu%update_graph_viscosity(this%rho, this%m_x, &
-         this%m_y, this%m_z, this%E, this%gs_Xh, this%gamma)
+    select type (reg => this%regularization)
+    type is (entropy_viscosity_t)
+       if (reg%use_user_entropy_pair) then
+          call this%euler_idp_cpu%update_graph_viscosity(this%rho, &
+               this%m_x, this%m_y, this%m_z, this%E, this%gs_Xh, &
+               this%gamma, reg%entropy_wave_speed)
+       else
+          call this%euler_idp_cpu%update_graph_viscosity(this%rho, &
+               this%m_x, this%m_y, this%m_z, this%E, this%gs_Xh, &
+               this%gamma)
+       end if
+    class default
+       call neko_error('Euler IDP requires entropy viscosity regularization')
+    end select
     do i = 1, this%bcs_vel%size()
        b => this%bcs_vel%get(i)
        b%updated = .false.

@@ -6,6 +6,7 @@
 ! harness for the density transport and limiter, not an unforced Euler flow.
 module user
   use neko
+  use entropy_viscosity, only : entropy_viscosity_t
   use fluid_scheme_compressible_ns, only : fluid_scheme_compressible_ns_t
   implicit none
 
@@ -109,8 +110,15 @@ contains
        end do
 
        call fluid%compute_max_wave_speed()
-       call fluid%euler_idp_cpu%update_graph_viscosity(rho, m_x, m_y, &
-            m_z, energy, fluid%gs_Xh, gamma_ref)
+       select type (reg => fluid%regularization)
+       type is (entropy_viscosity_t)
+          call reg%evaluate_user_entropy_pair(time)
+          call fluid%euler_idp_cpu%update_graph_viscosity(rho, m_x, m_y, &
+               m_z, energy, fluid%gs_Xh, gamma_ref, &
+               reg%entropy_wave_speed)
+       class default
+          call neko_error('KPP requires entropy viscosity regularization')
+       end select
        minimum_limiter = min(minimum_limiter, &
             fluid%euler_idp_diagnostics%min_limiter)
        maximum_limited_fraction = max(maximum_limited_fraction, &

@@ -82,8 +82,12 @@ contains
     real(kind=rp), intent(in) :: viscosity
     real(kind=rp), intent(out) :: bar_state(EULER_IDP_NCOMP)
 
-    bar_state = 0.5_rp * (left + right) - &
-         flux_difference / (2.0_rp * viscosity)
+    if (abs(viscosity) .le. tiny(1.0_rp)) then
+       bar_state = 0.5_rp * (left + right)
+    else
+       bar_state = 0.5_rp * (left + right) - &
+            flux_difference / (2.0_rp * viscosity)
+    end if
   end subroutine euler_idp_bar_state
 
   !> Internal-energy density of one conserved Euler state.
@@ -136,7 +140,8 @@ contains
     dt_limit = lower
   end function euler_idp_internal_energy_timestep
 
-  !> Non-iterative Guermond-Popov upper bound for ordered Riemann data.
+  !> Non-iterative Guermond-Popov wave-speed estimate for ordered Riemann data.
+  !! The estimate is a guaranteed upper bound for 1 < gamma <= 5/3.
   pure real(kind=rp) function euler_idp_ordered_wave_speed(left, right, &
        normal, gamma) result(speed)
     real(kind=rp), intent(in) :: left(EULER_IDP_NCOMP)

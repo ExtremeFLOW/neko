@@ -17,11 +17,11 @@ Consequently, the density residual at the next step has the KPP flux. This is
 an explicit test harness for nonlinear density transport and the IDP limiter;
 it is not an unforced Euler solution.
 
-The local density bounds are built from Euler bar states. They preserve the
-Euler invariant set but do not reduce to the scalar maximum-principle interval
-`[pi/4, 3.5 pi]`. The proxy may therefore leave the initial scalar range even
-when density-bound relaxation is disabled. The final diagnostic reports these
-global excursions explicitly.
+The user callback supplies the scalar wave-speed bound used by the graph
+viscosity. The limiter applies strict local density bounds and disables the
+Euler internal-energy and entropy constraints on the correction. Its density
+update therefore follows the scalar maximum-principle construction. The final
+diagnostic reports any global excursion from `[pi/4, 3.5 pi]`.
 
 The standard KPP benchmark holds the exterior state at the physical boundary.
 The current Euler IDP implementation instead requires a fully periodic affine
@@ -39,7 +39,7 @@ mpirun -np 4 ./neko kpp.case
 ```
 
 The default case uses polynomial degree 5, Forward Euler, target CFL 0.5,
-entropy-viscosity coefficient `C_R = 10`, and relaxed local density bounds.
+entropy-viscosity coefficient `C_R = 10`, and strict local density bounds.
 Forward Euler is required because the prescribed nonlinear flux is reset only
 after a complete timestep; an SSPRK method would need the reset inside every
 IDP stage.
@@ -53,9 +53,10 @@ q(u) = (u sin(u) + cos(u), u cos(u) - sin(u)),
 lambda(u) = max(|cos(u)|, |sin(u)|) <= 1.
 ```
 
-The implementation uses the safe constant bound `lambda = 1`. Neko forms the
-BDF entropy residual and its normalization from these fields; the user routine
-does not reproduce the entropy-viscosity algorithm itself.
+The implementation uses the safe constant bound `lambda = 1` for both the
+scalar graph viscosity and the entropy-viscosity normalization. Neko forms the
+BDF entropy residual from these fields; the user routine does not reproduce
+the entropy-viscosity algorithm itself.
 
 At the end, the user routine prints density extrema, mass drift, violations of
 the initial global scalar bounds, and accumulated IDP diagnostics. It writes
