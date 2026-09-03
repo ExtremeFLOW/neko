@@ -45,7 +45,7 @@ contains
     integer :: ierr
 
     call v%init(n,m)
-    @assertTrue(allocated(v%x))
+    @assertTrue(v%is_allocated())
     @assertEqual(size(v%x), n*m)
     @assertEqual(v%size(), n*m)
     @assertEqual(v%get_nrows(), n)
@@ -69,7 +69,7 @@ contains
 
     call v%init(n, m)
     call v%free()
-    @assertFalse(allocated(v%x))
+    @assertFalse(v%is_allocated())
     @assertEqual(v%size(), 0)
     @assertEqual(v%get_nrows(), 0)
     @assertEqual(v%get_ncols(), 0)
@@ -87,27 +87,21 @@ contains
     integer, parameter :: m = 4711
     type(matrix_t) :: v, w
 
-    call w%init(n,m)
-    v = w
-    @assertEqual(v%size(), w%size())
-    @assertEqual(v%get_nrows(), n)
-    @assertEqual(v%get_ncols(), m)
-    @assertEqual(v%get_nrows(), w%get_nrows())
-    @assertEqual(v%get_ncols(), w%get_ncols())
-    @assertEqual(v%size(), n*m)
-    @assertTrue(allocated(v%x))
+    call v%init(n, m)
+    call w%init(n, m)
 
+    v%x(10, 321) = 32.0_rp
+
+    @assertEqual(v%x(10, 321), 32.0_rp)
+    @assertEqual(w%x(10, 321), 0.0_rp)
+
+    w = v
+
+    @assertEqual(v%x(10, 321), 32.0_rp)
+    @assertEqual(w%x(10, 321), 32.0_rp)
+
+    call v%free()
     call w%free()
-    call w%init(m,n)
-
-    v = w
-    @assertEqual(v%size(), w%size())
-    @assertEqual(v%get_nrows(), m)
-    @assertEqual(v%get_ncols(), n)
-    @assertEqual(v%get_nrows(), w%get_nrows())
-    @assertEqual(v%get_ncols(), w%get_ncols())
-    @assertEqual(v%size(), m*n)
-    @assertTrue(allocated(v%x))
 
   end subroutine test_matrix_assign_matrix
 
