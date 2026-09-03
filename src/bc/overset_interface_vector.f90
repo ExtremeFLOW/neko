@@ -55,7 +55,7 @@ module overset_interface_vector
   use vector_series, only : vector_series_t
   use vector_math, only : vector_masked_gather_copy, &
        vector_masked_scatter_copy, vector_add2s2, &
-       vector_cmult2, vector_glsc2
+       vector_cmult, vector_cmult2, vector_glsc2
   use math, only : copy
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use vector_math, only : vector_copy
@@ -99,6 +99,8 @@ module overset_interface_vector
      type(vector_t) :: u_interface, v_interface, w_interface
      type(vector_series_t) :: u_interface_lag, v_interface_lag, w_interface_lag
      integer :: iextm_order = 1
+     !> Under-relaxation factor for updated interface values.
+     real(kind=rp) :: relaxation = 1.0_rp
      integer :: last_tstep = -1
      type(vector_list_t) :: interface_dof, interface_field
      !> Interpolation settings.
@@ -148,6 +150,9 @@ module overset_interface_vector
      !> Log interface interpolation error diagnostics.
      procedure, pass(this), private :: log_interface_error_ => &
           log_interface_error_
+     !> Under-relax the new interface values with the previously applied ones.
+     procedure, pass(this), private :: relax_interface_values_ => &
+          relax_interface_values_
   end type overset_interface_vector_t
 
 contains
@@ -159,7 +164,7 @@ contains
     class(overset_interface_vector_t), intent(inout), target :: this
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
-    real(kind=rp) :: tol, pad
+    real(kind=rp) :: tol, pad, relaxation
     logical :: log
 
     !> Parse the interpolation settings
@@ -171,9 +176,13 @@ contains
     if (this%iextm_order .lt. 1 .or. this%iextm_order .gt. 3) then
        call neko_error("The order of the IEXTm time scheme must be 1 to 3.")
     end if
+    call json_get_or_default(json, "relaxation", relaxation, 1.0_rp)
+    if (relaxation .le. 0.0_rp .or. relaxation .gt. 1.0_rp) then
+       call neko_error("The overset relaxation factor must be in (0, 1].")
+    end if
     call json_get_or_default(json, "log", log, .false.)
 
-    call this%init_from_components(coef, tol, pad, log)
+    call this%init_from_components(coef, tol, pad, log, relaxation)
 
   end subroutine overset_interface_vector_init
 
@@ -182,16 +191,19 @@ contains
   !! @param[in] tol The tolerance for the interpolation.
   !! @param[in] pad The padding for the interpolation.
   !! @param[in] log Whether to log the interpolation.
-  subroutine overset_interface_vector_init_from_components(this, coef, tol, pad, log)
+  !! @param[in] relaxation Under-relaxation factor for interface updates.
+  subroutine overset_interface_vector_init_from_components(this, coef, tol, &
+       pad, log, relaxation)
     class(overset_interface_vector_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
-    real(kind=rp), intent(in), optional :: tol, pad
+    real(kind=rp), intent(in), optional :: tol, pad, relaxation
     logical, intent(in), optional :: log
 
     !> This initializes coef, dof, msh, and Xh pointers
     call this%init_base(coef)
 
     this%bc_type = BC_DIRICHLET
+    this%relaxation = 1.0_rp
 
     !> Set the interpolation settings
     if (present(tol)) then
@@ -202,6 +214,12 @@ contains
     end if
     if (present(log)) then
        this%log = log
+    end if
+    if (present(relaxation)) then
+       if (relaxation .le. 0.0_rp .or. relaxation .gt. 1.0_rp) then
+          call neko_error("The overset relaxation factor must be in (0, 1].")
+       end if
+       this%relaxation = relaxation
     end if
 
     call this%bc_u%init_from_components(coef, "u")
@@ -452,6 +470,7 @@ contains
     type(iextm_time_scheme_t) :: time_scheme
     integer :: nhist, ihist
     real(kind=rp) :: iextm_coeffs(4)
+    logical :: new_tstep
 
 
     !> Change the coordinates of the interface if set up by the user
@@ -498,8 +517,10 @@ contains
     end if
 
 
+    new_tstep = time%tstep .ne. this%last_tstep
+
     !> If this is the first substep, then we do the extrapolation
-    if (time%tstep .ne. this%last_tstep) then
+    if (new_tstep) then
        ! Update the last steps
        this%last_tstep = time%tstep
 
@@ -531,6 +552,9 @@ contains
 
     end if
 
+    ! Preserve the IEXT prediction on the first pass of every physical
+    ! timestep. Relax only subsequent Schwarz corrections at the same tstep.
+    if (.not. new_tstep) call this%relax_interface_values_()
 
     !> Scatter them to the bc fields
     call vector_masked_scatter_copy(this%bc_u%field_bc%x(:,1,1,1), &
@@ -545,6 +569,51 @@ contains
 
 
   end subroutine overset_interface_update
+
+  !> Under-relax a Schwarz correction using the previously applied interface.
+  !! For each velocity component, blend the new donor value `g_new` with the
+  !! preceding Schwarz iterate `g_old` as
+  !! `g = relaxation * g_new + (1 - relaxation) * g_old`.
+  !! The caller skips this routine on the first pass of every physical
+  !! timestep, preserving the temporal accuracy of the IEXT prediction.
+  subroutine relax_interface_values_(this)
+    class(overset_interface_vector_t), intent(inout) :: this
+    type(vector_t), pointer :: previous
+    integer :: ind(1)
+    logical :: clear_scratch = .false.
+
+    ! A factor of one recovers the original, unrelaxed Schwarz iteration.
+    if (this%relaxation .ge. 1.0_rp) return
+
+    ! Reuse one scratch vector to hold the preceding iterate component.
+    call neko_scratch_registry%request_vector(previous, ind(1), &
+         this%u_interface%size(), clear_scratch)
+
+    ! Relax the new x-velocity donor data against the preceding iterate.
+    call vector_masked_gather_copy(previous, this%bc_u%field_bc%x(:,1,1,1), &
+         this%interface_dof_mask, this%bc_u%dof%size())
+    call vector_cmult(this%u_interface, this%relaxation)
+    call vector_add2s2(this%u_interface, previous, &
+         1.0_rp - this%relaxation)
+
+    ! Relax the new y-velocity donor data against the preceding iterate.
+    call vector_masked_gather_copy(previous, this%bc_v%field_bc%x(:,1,1,1), &
+         this%interface_dof_mask, this%bc_v%dof%size())
+    call vector_cmult(this%v_interface, this%relaxation)
+    call vector_add2s2(this%v_interface, previous, &
+         1.0_rp - this%relaxation)
+
+    ! Relax the new z-velocity donor data against the preceding iterate.
+    call vector_masked_gather_copy(previous, this%bc_w%field_bc%x(:,1,1,1), &
+         this%interface_dof_mask, this%bc_w%dof%size())
+    call vector_cmult(this%w_interface, this%relaxation)
+    call vector_add2s2(this%w_interface, previous, &
+         1.0_rp - this%relaxation)
+
+    ! Return the temporary storage to the scratch registry.
+    call neko_scratch_registry%relinquish(ind)
+
+  end subroutine relax_interface_values_
 
   !> Log interface RMSE for each vector component.
   subroutine log_interface_error_(this, u, v, w)

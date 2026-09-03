@@ -48,7 +48,8 @@ module overset_interface
   use vector_series, only : vector_series_t
   use vector_list, only : vector_list_t
   use vector_math, only : vector_masked_gather_copy, &
-       vector_masked_scatter_copy, vector_add2s2, vector_cmult2, vector_glsc2
+       vector_masked_scatter_copy, vector_add2s2, vector_cmult, vector_cmult2, &
+       vector_glsc2
   use device, only : DEVICE_TO_HOST
   use field_dirichlet, only : field_dirichlet_t
   use iextm_time_scheme, only : iextm_time_scheme_t
@@ -85,6 +86,8 @@ module overset_interface
      type(vector_t) :: s_interface
      type(vector_series_t) :: s_interface_lag
      integer :: iextm_order = 1
+     !> Under-relaxation factor for updated interface values.
+     real(kind=rp) :: relaxation = 1.0_rp
      integer :: last_tstep = -1
      type(vector_list_t) :: interface_dof, interface_field
      !> Interpolation settings.
@@ -132,6 +135,9 @@ module overset_interface
      !> Log interface interpolation error diagnostics.
      procedure, pass(this), private :: log_interface_error_ => &
           log_interface_error_
+     !> Under-relax the new interface value with the previously applied one.
+     procedure, pass(this), private :: relax_interface_value_ => &
+          relax_interface_value_
   end type overset_interface_t
 
   abstract interface
@@ -175,7 +181,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: field_name
-    real(kind=rp) :: tol, pad
+    real(kind=rp) :: tol, pad, relaxation
     logical :: log
 
     call json_get(json, "field_name", field_name)
@@ -185,26 +191,32 @@ contains
     if (this%iextm_order .lt. 1 .or. this%iextm_order .gt. 3) then
        call neko_error("The order of the IEXTm time scheme must be 1 to 3.")
     end if
+    call json_get_or_default(json, "relaxation", relaxation, 1.0_rp)
+    if (relaxation .le. 0.0_rp .or. relaxation .gt. 1.0_rp) then
+       call neko_error("The overset relaxation factor must be in (0, 1].")
+    end if
     call json_get_or_default(json, "log", log, .false.)
 
-    call this%init_from_components(coef, field_name, tol, pad, log)
+    call this%init_from_components(coef, field_name, tol, pad, log, relaxation)
     if (allocated(field_name)) deallocate(field_name)
 
   end subroutine overset_interface_init
 
   !> Constructor from components
   !! @param[in] coef The SEM coefficients.
+  !! @param[in] relaxation Under-relaxation factor for interface updates.
   subroutine overset_interface_init_from_components(this, coef, field_name, &
-       tol, pad, log)
+       tol, pad, log, relaxation)
     class(overset_interface_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     character(len=*), intent(in) :: field_name
-    real(kind=rp), intent(in), optional :: tol, pad
+    real(kind=rp), intent(in), optional :: tol, pad, relaxation
     logical, intent(in), optional :: log
     character(len=256) :: log_buf
 
     call this%init_base(coef)
     this%bc_type = BC_DIRICHLET
+    this%relaxation = 1.0_rp
 
     if (present(tol)) then
        if (tol .gt. 0.0_rp) then
@@ -220,6 +232,13 @@ contains
 
     if (present(log)) then
        this%log = log
+    end if
+
+    if (present(relaxation)) then
+       if (relaxation .le. 0.0_rp .or. relaxation .gt. 1.0_rp) then
+          call neko_error("The overset relaxation factor must be in (0, 1].")
+       end if
+       this%relaxation = relaxation
     end if
 
     this%field_name = field_name
@@ -420,6 +439,7 @@ contains
     type(iextm_time_scheme_t) :: time_scheme
     integer :: nhist, ihist
     real(kind=rp) :: iextm_coeffs(4)
+    logical :: new_tstep
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &
@@ -450,7 +470,9 @@ contains
        call this%log_interface_error_(s)
     end if
 
-    if (time%tstep .ne. this%last_tstep) then
+    new_tstep = time%tstep .ne. this%last_tstep
+
+    if (new_tstep) then
        this%last_tstep = time%tstep
 
        call this%s_interface_lag%update()
@@ -467,12 +489,47 @@ contains
        end do
     end if
 
+    ! Preserve the IEXT prediction on the first pass of every physical
+    ! timestep. Relax only subsequent Schwarz corrections at the same tstep.
+    if (.not. new_tstep) call this%relax_interface_value_()
+
     call vector_masked_scatter_copy(this%bc_s%field_bc%x(:,1,1,1), &
          this%s_interface, this%interface_dof_mask, this%bc_s%dof%size())
 
     nullify(s)
 
   end subroutine overset_interface_update
+
+  !> Under-relax a Schwarz correction using the previously applied interface.
+  !! Blend the new donor value `g_new` with the preceding Schwarz iterate
+  !! `g_old` as
+  !! `g = relaxation * g_new + (1 - relaxation) * g_old`.
+  !! The caller skips this routine on the first pass of every physical
+  !! timestep, preserving the temporal accuracy of the IEXT prediction.
+  subroutine relax_interface_value_(this)
+    class(overset_interface_t), intent(inout) :: this
+    type(vector_t), pointer :: previous
+    integer :: ind(1)
+    logical :: clear_scratch = .false.
+
+    ! A factor of one recovers the original, unrelaxed Schwarz iteration.
+    if (this%relaxation .ge. 1.0_rp) return
+
+    ! Gather the preceding scalar iterate into reusable temporary storage.
+    call neko_scratch_registry%request_vector(previous, ind(1), &
+         this%s_interface%size(), clear_scratch)
+    call vector_masked_gather_copy(previous, this%bc_s%field_bc%x(:,1,1,1), &
+         this%interface_dof_mask, this%bc_s%dof%size())
+
+    ! Relax the new scalar donor data against the preceding iterate.
+    call vector_cmult(this%s_interface, this%relaxation)
+    call vector_add2s2(this%s_interface, previous, &
+         1.0_rp - this%relaxation)
+
+    ! Return the temporary storage to the scratch registry.
+    call neko_scratch_registry%relinquish(ind)
+
+  end subroutine relax_interface_value_
 
   !> Log interface RMSE for the scalar field.
   subroutine log_interface_error_(this, s)

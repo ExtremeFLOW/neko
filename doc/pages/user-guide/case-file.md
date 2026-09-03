@@ -796,35 +796,66 @@ A more detailed description of each boundary condition is provided below.
     "zone_indices": [1, 2]
   }
   ```
+@anchor case-file_overset-interface
 * `overset_interface`, a Dirichlet boundary condition that retrieves values
-  from another simulation with an overlapping domain. For this case, it is
-  recommended that all zone indices that need to be considered as an overset
-  interface are included in one boundary. This avoids repeated calls to
-  interpolation routines.
+  from another simulation with an overlapping domain. All zone indices that
+  belong to the same overset interface should normally be included in one
+  boundary object, avoiding repeated calls to the interpolation routines.
 
-  As a note, both meshes must be overlapping with at least one element.
+  The meshes must overlap by at least one element. Since the donor values come
+  from another concurrent simulation, Neko must be executed in
+  [multiple-program-multiple-data (MPMD)](#user-file_tips_mpmd) mode. The
+  simulations otherwise remain independent. They must use the same fixed
+  timestep; variable timesteps are not currently supported for overset
+  coupling.
 
-  Since this requires another concurrent simulation, you must execute neko in
-  [multiple-program-multiple-data (MPMD)](#user-file_tips_mpmd) mode. Note that both simulations are otherwise
-  independent, therefore the rest of the user case can be modified as seen fit.
+  The available inputs are:
 
-  The *time-step* must be the same between the simulations. A variable time-step is not
-  supported at the moment.
+  | Name | Description | Admissible values | Default |
+  | ---- | ----------- | ----------------- | ------- |
+  | `zone_indices` | Face zones comprising the overset interface. | Integer array. | Required |
+  | `name` | Name assigned to the boundary condition. | Non-empty string. | Generated from the first zone index. |
+  | `couple_pressure` | Also interpolate and impose pressure from the overlapping simulation. | `true` or `false`. | `false` |
+  | `order` | Order of the IEXT temporal extrapolation applied on the first interface update of each timestep. | Integer from 1 to 3. | `1` |
+  | `relaxation` | Under-relaxation factor for subsequent Schwarz corrections within the same timestep. | Real in \f$(0,1]\f$. | `1.0` |
+  | `interpolation.tolerance` | Tolerance used by the global point search. | Positive real. | `NEKO_EPS*1e3` |
+  | `interpolation.padding` | Padding used by the global point search. | Positive real. | `1e-2` |
+  | `log` | Log the interface RMSE between the current receiver trace and newly interpolated donor data. | `true` or `false`. | `false` |
 
-  The keyword `couple_pressure` is `false` by default and controls whether the pressure BC is also set from
-  the coupled simulation. This should, for the time being, be left as `false`.
+  Pressure coupling is supported and uses the scalar overset implementation.
+  Setting `couple_pressure` to `true` applies the same interpolation, IEXT
+  order, relaxation factor, and logging controls to pressure.
 
-  The keyword `order` is `1` by default and defines the interface extrapolation scheme order at every timestep.
-  Generally, you want to keep the order of the extrapolation consistent with your time integration scheme,
-  however, note that a higher order might need help with stabilization, specifically by increasing the number
-  of `Schwarz-like` iterations.
+  In the first interface update of every physical timestep, the IEXT prediction
+  is applied without relaxation. On subsequent Schwarz iterations at the same
+  timestep, the new donor value \f$\hat{g}^{k+1}\f$ is blended with the
+  previously applied interface value \f$g^k\f$ according to
+
+  \f[
+  g^{k+1} = (1 - \omega)g^k + \omega\hat{g}^{k+1},
+  \qquad 0 < \omega \leq 1,
+  \f]
+
+  where `relaxation` is \f$\omega\f$. Thus, relaxation does not filter data
+  between physical timesteps and does not affect a case with zero Schwarz
+  iterations. A value of `1.0` recovers the original unrelaxed behavior. Lower
+  values can stabilize an oscillatory Schwarz iteration, but may slow an
+  already contractive iteration. The IEXT `order` should generally be
+  consistent with the time-integration scheme; higher-order extrapolation may
+  require more Schwarz iterations for stability.
 
   ```json
   {
     "type": "overset_interface",
     "zone_indices": [1, 2],
-    "couple_pressure" : false,
-    "order" : 3
+    "couple_pressure": false,
+    "order": 3,
+    "relaxation": 1.0,
+    "interpolation": {
+      "tolerance": 1.0e-12,
+      "padding": 0.01
+    },
+    "log": true
   }
   ```
 
@@ -2134,11 +2165,40 @@ The following types of conditions are available for the scalar:
     "zone_indices": [1, 2]
   }
   ```
-* `user`. User boundary condition, see [further documentation](#user-file_field-dirichlet-update).
+* `user_dirichlet`. User-defined scalar value, see
+  [further documentation](#user-file_field-dirichlet-update).
   ```json
   {
-    "type": "user",
+    "type": "user_dirichlet",
     "zone_indices": [1, 2]
+  }
+  ```
+* `user_neumann`. User-defined scalar flux, configured through the
+  [user-file Neumann callback](@ref user-file_field-neumann-update).
+  ```json
+  {
+    "type": "user_neumann",
+    "zone_indices": [1, 2]
+  }
+  ```
+* `overset_interface`. Retrieves scalar Dirichlet data from another concurrent
+  Neko simulation on an overlapping domain. It accepts `name`, `order`,
+  `relaxation`, `interpolation.tolerance`, `interpolation.padding`, and `log`
+  with the same meanings and defaults as the
+  [fluid overset interface](@ref case-file_overset-interface). The first IEXT
+  update of each physical timestep is unrelaxed; relaxation is applied only if
+  the boundary is updated again at the same timestep.
+  ```json
+  {
+    "type": "overset_interface",
+    "zone_indices": [1, 2],
+    "order": 3,
+    "relaxation": 0.7,
+    "interpolation": {
+      "tolerance": 1.0e-8,
+      "padding": 0.01
+    },
+    "log": false
   }
   ```
 
