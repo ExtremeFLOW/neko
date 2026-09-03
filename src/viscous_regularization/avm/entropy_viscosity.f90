@@ -33,6 +33,7 @@
 module entropy_viscosity
   use num_types, only : rp
   use case, only : case_t
+  use utils, only : neko_error
   use registry, only : neko_registry
   use artificial_viscosity_model, only : avm_t
   use json_module, only : json_file
@@ -120,6 +121,16 @@ contains
     character(len=:), allocatable :: reg_coeff_name
 
     call this%free()
+
+    select type (fluid => case%fluid)
+    class is (fluid_scheme_compressible_t)
+       call this%set_fields(fluid%p, fluid%rho, fluid%u, fluid%v, &
+            fluid%w, fluid%max_wave_speed, fluid%msh, fluid%Xh, fluid%gs_Xh, &
+            fluid%gamma)
+    class default
+       call neko_error('Entropy viscosity requires a compressible fluid scheme')
+    end select
+
     call json_get_or_default(json, 'field_name', &
          reg_coeff_name, "entropy_viscosity")
     call this%init_base(case%fluid%dm_Xh, case%fluid%c_Xh, trim(reg_coeff_name))
@@ -130,13 +141,6 @@ contains
          this%c_avisc_entropy, 1.0_rp)
 
     call this%entropy_residual%init(this%dof, 'entropy_residual')
-
-    select type (fluid => case%fluid)
-    class is (fluid_scheme_compressible_t)
-       call this%set_fields(fluid%p, fluid%rho, fluid%u, fluid%v, &
-            fluid%w, fluid%max_wave_speed, fluid%msh, fluid%Xh, fluid%gs_Xh, &
-            fluid%gamma)
-    end select
 
     call neko_registry%add_field(this%dof, 'S', .true.)
     this%S => neko_registry%get_field('S')
