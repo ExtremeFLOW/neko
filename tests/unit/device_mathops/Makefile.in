@@ -4,11 +4,25 @@ endif
 FFLAGS += $(PFUNIT_EXTRA_FFLAGS) @NEKO_PKG_FCFLAGS@ -I@top_builddir@/src
 FC = @FC@
 
-%.o : %.F90
+# The pFUnit rules below only track the .pf sources, so a test object
+# compiled against an older layout of a Neko derived type would be kept
+# and linked against the rebuilt library, which is undefined behaviour.
+# Depend on the library so the test objects follow any change to Neko.
+NEKO_LIB := $(wildcard @top_builddir@/src/libneko.la)
+
+%.o : %.F90 $(NEKO_LIB)
 	$(FC) -c $(FFLAGS) $<
 
 
 check: device_mathops_test
+
+# Regenerate this Makefile from Makefile.in via config.status
+# whenever it changes, so an already-configured build tree picks up
+# fixes to this file (e.g. the NEKO_LIB dependency above) without
+# requiring a full reconfigure.
+Makefile: Makefile.in @top_builddir@/config.status
+	cd @top_builddir@ && \
+	    $(SHELL) ./config.status tests/unit/device_mathops/Makefile
 
 
 device_mathops_test_TESTS := test_device_mathops.pf
