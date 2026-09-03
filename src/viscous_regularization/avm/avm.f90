@@ -67,6 +67,8 @@ module artificial_viscosity_model
      procedure(avm_preprocess), pass(this), deferred :: preprocess
      !> Perform artificial viscosity related computations after the time step.
      procedure(avm_compute), pass(this), deferred :: compute
+     !> Restore model state after loading a checkpoint.
+     procedure, pass(this) :: restart => avm_restart
   end type avm_t
 
   abstract interface
@@ -197,6 +199,17 @@ contains
     this%dof => dof
 
   end subroutine avm_init_base
+
+  !> Restore model state after loading a checkpoint.
+  !! Models with additional history should override this method.
+  !! @param time The restored time state.
+  subroutine avm_restart(this, time)
+    class(avm_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    call this%compute(time)
+
+  end subroutine avm_restart
 
   !> Destructor for the avm_t (base) class.
   subroutine avm_free_base(this)
