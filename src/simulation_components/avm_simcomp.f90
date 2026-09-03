@@ -135,7 +135,7 @@ contains
     class(avm_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call this%avm%compute(time)
+    call this%avm%restart(time)
   end subroutine avm_simcomp_restart
 
 end module avm_simcomp

@@ -93,6 +93,7 @@ module entropy_viscosity
      procedure, pass(this) :: free => entropy_viscosity_free
      procedure, pass(this) :: preprocess => entropy_viscosity_preprocess
      procedure, pass(this) :: compute => entropy_viscosity_update_lag
+     procedure, pass(this) :: restart => entropy_viscosity_restart
      procedure, pass(this) :: compute_h => entropy_viscosity_compute_h
      procedure, pass(this) :: set_fields => entropy_viscosity_set_fields
      procedure, pass(this) :: compute_entropy => &
@@ -404,6 +405,16 @@ contains
     end if
 
   end subroutine entropy_viscosity_compute_entropy
+
+  !> Reinitialize entropy history from a restarted flow state.
+  subroutine entropy_viscosity_restart(this, time)
+    class(entropy_viscosity_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    call this%compute_entropy()
+    call this%S_lag%set(this%S)
+
+  end subroutine entropy_viscosity_restart
 
   subroutine entropy_viscosity_update_lag(this, time)
     class(entropy_viscosity_t), intent(inout) :: this
