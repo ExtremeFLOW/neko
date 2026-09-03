@@ -43,20 +43,20 @@ module array
   implicit none
   private
 
-  type, public :: array_t
+  type, abstract, public :: array_t
      !> Name of the array
      character(len=NEKO_VARNAME_LEN) :: name = ""
      !> Array entries.
      real(kind=rp), allocatable :: data(:)
      !> Device pointer.
-     type(c_ptr) :: data_d = C_NULL_PTR
+     type(c_ptr) :: x_d = C_NULL_PTR
      !> Size of array.
      integer, private :: n = 0
    contains
-     !> Initialise a array of size `n`.
-     procedure, pass(this) :: init => array_init
+     !> Initialise a array of size `n` and optional name.
+     procedure, pass(this) :: init_base => array_init
      !> Deallocate a array.
-     procedure, pass(this) :: free => array_free
+     procedure, pass(this) :: free_base => array_free
      !> Copy data between host and device
      procedure, pass(this) :: copy_from => array_copy_from
      !> Returns the number of entries in the array.
@@ -67,11 +67,12 @@ module array
      !> Assignments
      generic :: assignment(=) => array_assign_array, &
           array_assign_scalar, array_assign_real
-     !> Assignment \f$ v = w \f$
+
+     !> Assignment \f$ v = array type \f$
      procedure, pass(this) :: array_assign_array
-     !> Assignment \f$ v = s \f$.
+     !> Assignment \f$ v = scalar real \f$.
      procedure, pass(this) :: array_assign_scalar
-     !> Assignment \f$ v = array \f$.
+     !> Assignment \f$ v = array of reals \f$.
      procedure, pass(this) :: array_assign_real
 
      ! Private interfaces
@@ -92,7 +93,7 @@ contains
        ! Zero the device side first: under zero-copy the device then
        ! faults the pages (device first touch), which gives contiguous
        ! physical mappings and thus better GPU TLB utilisation
-       call device_cfill(this%data_d, 0.0_rp, n)
+       call device_cfill(this%x_d, 0.0_rp, n)
        call device_sync()
     end if
     call cfill(this%data, 0.0_rp, n)
@@ -109,12 +110,12 @@ contains
     integer, intent(in) :: n
 
     if (this%n .eq. n) return
-    call this%free()
+    call this%free_base()
 
     this%n = n
     allocate(this%data(n))
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%data, this%data_d, n)
+       call device_map(this%data, this%x_d, n)
     end if
 
   end subroutine array_allocate
@@ -125,7 +126,7 @@ contains
 
     if (allocated(this%data)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%data, this%data_d)
+          call device_unmap(this%data, this%x_d)
        end if
        deallocate(this%data)
     end if
@@ -152,7 +153,7 @@ contains
     logical, intent(in) :: sync
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%data, this%data_d, this%size(), memdir, sync)
+       call device_memcpy(this%data, this%x_d, this%size(), memdir, sync)
     end if
 
   end subroutine array_copy_from
@@ -174,7 +175,7 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_copy(this%data_d, w%data_d, this%size())
+       call device_copy(this%x_d, w%x_d, this%size())
     else
        call copy(this%data, w%data, this%size())
     end if
@@ -187,7 +188,7 @@ contains
     real(kind=rp), intent(in) :: s
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(this%data_d, s, this%size())
+       call device_cfill(this%x_d, s, this%size())
     else
        call cfill(this%data, s, this%size())
     end if

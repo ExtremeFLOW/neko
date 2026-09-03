@@ -39,10 +39,8 @@ module vector
   private
 
   type, public, extends(array_t) :: vector_t
-     !> Vector entries.
+     !> Vector shaped pointer.
      real(kind=rp), pointer, dimension(:) :: x => null()
-     !> Device pointer.
-     type(c_ptr) :: x_d = C_NULL_PTR
    contains
      !> Initialise a vector of size `n`.
      procedure, pass(this) :: init => vector_init
@@ -68,10 +66,9 @@ contains
     integer, intent(in) :: n
     character(len=*), intent(in), optional :: name
 
-    call this%array_t%init(n, name)
+    call this%init_base(n, name)
 
     this%x => this%data(:)
-    this%x_d = this%data_d
 
   end subroutine vector_init
 
@@ -79,9 +76,9 @@ contains
   subroutine vector_free(this)
     class(vector_t), intent(inout) :: this
 
-    call this%array_t%free()
+    call this%free_base()
     nullify(this%x)
-    this%x_d = C_NULL_PTR
+
   end subroutine vector_free
 
   ! ========================================================================== !
