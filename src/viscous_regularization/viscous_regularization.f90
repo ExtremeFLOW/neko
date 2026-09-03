@@ -108,6 +108,8 @@ contains
   subroutine viscous_regularization_free_base(this)
     class(viscous_regularization_t), intent(inout) :: this
 
+    nullify(this%reg_coeff)
+    if (allocated(this%reg_coeff_name)) deallocate(this%reg_coeff_name)
     nullify(this%coef)
     nullify(this%dof)
 
