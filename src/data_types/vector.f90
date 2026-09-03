@@ -46,7 +46,6 @@ module vector
      procedure, pass(this) :: init => vector_init
      !> Free the vector
      procedure, pass(this) :: free => vector_free
-
   end type vector_t
 
   type, public :: vector_ptr_t
@@ -68,7 +67,7 @@ contains
 
     call this%init_base(n, name)
 
-    this%x => this%data(:)
+    this%x => this%data
 
   end subroutine vector_init
 
