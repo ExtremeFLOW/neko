@@ -218,9 +218,9 @@ contains
     integer, intent(in) :: n4
     character(len=*), intent(in), optional :: name
 
-    call neko_error('field_t must be initialised via init(msh, space, &
-         &name) or init(dof, name), not the inherited tensor4 dimension &
-         &initialiser')
+    call neko_error('field_t must be initialised via init(msh, space, ' // &
+         'name) or init(dof, name), not the inherited tensor4 dimension ' // &
+         'initialiser')
 
   end subroutine field_init_dims_seal
 
@@ -231,8 +231,8 @@ contains
     class(field_t), intent(inout) :: t
     type(tensor4_t), intent(in) :: w
 
-    call neko_error('field_t must be assigned from another field_t, not &
-         &a bare tensor4_t')
+    call neko_error('field_t must be assigned from another field_t, not ' // &
+         'a bare tensor4_t')
 
   end subroutine field_assign_tensor4_seal
 
