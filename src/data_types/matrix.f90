@@ -86,9 +86,10 @@ contains
     class(matrix_t), intent(inout), target :: this
     integer, intent(in) :: nrows, ncols
     character(len=*), intent(in), optional :: name
-    this%dims = [nrows, ncols]
 
     call this%init_base(nrows*ncols, name)
+
+    this%dims = [nrows, ncols]
     this%x(1:nrows, 1:ncols) => this%data(:)
 
   end subroutine matrix_init
@@ -115,13 +116,7 @@ contains
     class(matrix_t), intent(in) :: this
     integer, intent(in) :: dim
     integer :: d
-    if (dim .eq. 1) then
-       d = this%dims(1)
-    else if (dim .eq. 2) then
-       d = this%dims(2)
-    else
-       call neko_error("matrix_dim: invalid dimension requested")
-    end if
+    d = this%dims(dim)
   end function matrix_dim
 
   !> Returns the number of rows in the matrix.
