@@ -49,13 +49,20 @@ module artificial_viscosity
   !> The handler for the artificial viscosity.
   type, public, extends(viscous_regularization_t) :: artificial_viscosity_t
    contains
+     !> Initialize the artificial viscosity regularization.
      procedure, pass(this) :: init => artificial_viscosity_init_from_json
+     !> Free the artificial viscosity regularization.
      procedure, pass(this) :: free => artificial_viscosity_free
+     !> Update the effective viscosity field.
      procedure, pass(this) :: update => artificial_viscosity_update
   end type artificial_viscosity_t
 
 contains
-  !> Constructor
+  !> Construct an artificial viscosity regularization from JSON.
+  !! @param this The artificial viscosity regularization.
+  !! @param json The regularization configuration.
+  !! @param coef The SEM coefficients.
+  !! @param dof The SEM map of degrees of freedom.
   subroutine artificial_viscosity_init_from_json(this, json, coef, dof)
     class(artificial_viscosity_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
@@ -73,7 +80,8 @@ contains
 
   end subroutine artificial_viscosity_init_from_json
 
-  !> Destructor
+  !> Free an artificial viscosity regularization.
+  !! @param this The artificial viscosity regularization.
   subroutine artificial_viscosity_free(this)
     class(artificial_viscosity_t), intent(inout) :: this
 
@@ -82,7 +90,10 @@ contains
 
   end subroutine artificial_viscosity_free
 
-  !> Update of the artificial viscosity
+  !> Update the effective viscosity with artificial and physical viscosity.
+  !! @param this The artificial viscosity regularization.
+  !! @param effective_visc The effective viscosity field to update.
+  !! @param mu The optional physical viscosity field.
   subroutine artificial_viscosity_update(this, effective_visc, mu)
     class(artificial_viscosity_t), intent(inout) :: this
     type(field_t), intent(inout) :: effective_visc

@@ -30,13 +30,14 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
+!> Implements the artificial viscosity model factory and allocator.
 submodule (artificial_viscosity_model) artificial_viscosity_model_fctry
   use case, only : case_t
   use entropy_viscosity, only : entropy_viscosity_t
   use utils, only : neko_type_error, neko_type_registration_error
   implicit none
 
-  ! List of all possible types created by the factory routine
+  !> List of all built-in artificial viscosity model types. created by the factory routine
   character(len=20) :: AVM_KNOWN_TYPES(1) = [character(len=20) :: &
        "entropy_viscosity"]
 

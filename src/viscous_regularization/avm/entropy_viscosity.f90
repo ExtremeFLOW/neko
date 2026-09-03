@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
+!> Implements the entropy-based artificial viscosity model.
 module entropy_viscosity
   use num_types, only : rp
   use case, only : case_t
@@ -73,47 +74,81 @@ module entropy_viscosity
   implicit none
   private
 
+  !> Entropy-based artificial viscosity model for compressible flow.
   type, public, extends(avm_t) :: entropy_viscosity_t
+     !> Entropy viscosity coefficient.
      real(kind=rp) :: c_avisc_entropy
+     !> Low-order viscosity coefficient.
      real(kind=rp) :: c_avisc_low
+     !> Ratio of specific heats.
      real(kind=rp) :: gamma
+     !> Entropy residual field.
      type(field_t) :: entropy_residual
+     !> Entropy history used by the BDF residual.
      type(field_series_t) :: S_lag
+     !> Current entropy field.
      type(field_t), pointer :: S => null()
+     !> Pressure field.
      type(field_t), pointer :: p => null()
+     !> Density field.
      type(field_t), pointer :: rho => null()
+     !> First velocity component.
      type(field_t), pointer :: u => null()
+     !> Second velocity component.
      type(field_t), pointer :: v => null()
+     !> Third velocity component.
      type(field_t), pointer :: w => null()
+     !> Local characteristic mesh size.
      type(field_t) :: h
+     !> Maximum local characteristic wave speed.
      type(field_t), pointer :: max_wave_speed => null()
+     !> Computational mesh.
      type(mesh_t), pointer :: msh => null()
+     !> Function space.
      type(space_t), pointer :: Xh => null()
+     !> Gather-scatter operator for the function space.
      type(gs_t), pointer :: gs => null()
    contains
+     !> Initialize the entropy viscosity model.
      procedure, pass(this) :: init => entropy_viscosity_init
+     !> Free the entropy viscosity model.
      procedure, pass(this) :: free => entropy_viscosity_free
+     !> Compute viscosity before advancing the time step.
      procedure, pass(this) :: preprocess => entropy_viscosity_preprocess
+     !> Advance the entropy history after the time step.
      procedure, pass(this) :: compute => entropy_viscosity_update_lag
+     !> Reconstruct entropy history after restart.
      procedure, pass(this) :: restart => entropy_viscosity_restart
+     !> Compute the local characteristic mesh size.
      procedure, pass(this) :: compute_h => entropy_viscosity_compute_h
+     !> Associate the compressible flow fields.
      procedure, pass(this) :: set_fields => entropy_viscosity_set_fields
+     !> Compute entropy from pressure and density.
      procedure, pass(this) :: compute_entropy => &
           entropy_viscosity_compute_entropy
+     !> Compute the entropy residual.
      procedure, pass(this), private :: compute_residual => &
           entropy_viscosity_compute_residual
+     !> Compute the entropy viscosity coefficient.
      procedure, pass(this), private :: compute_viscosity => &
           entropy_viscosity_compute_viscosity
+     !> Smooth viscosity across element interfaces.
      procedure, pass(this), private :: smooth_viscosity => &
           entropy_viscosity_smooth_viscosity
+     !> Replace nodal values by each element maximum.
      procedure, pass(this), private :: apply_element_max => &
           entropy_viscosity_apply_element_max
+     !> Evaluate the low-order viscosity at a point.
      procedure, pass(this), private :: low_order_viscosity => &
           entropy_viscosity_low_order
   end type entropy_viscosity_t
 
 contains
 
+  !> Initialize the entropy viscosity model from a case and JSON parameters.
+  !! @param this The entropy viscosity model.
+  !! @param case The compressible-flow case.
+  !! @param json The model configuration.
   subroutine entropy_viscosity_init(this, case, json)
     class(entropy_viscosity_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
@@ -152,6 +187,8 @@ contains
 
   end subroutine entropy_viscosity_init
 
+  !> Free the entropy viscosity model.
+  !! @param this The entropy viscosity model.
   subroutine entropy_viscosity_free(this)
     class(entropy_viscosity_t), intent(inout) :: this
 
@@ -173,6 +210,9 @@ contains
 
   end subroutine entropy_viscosity_free
 
+  !> Compute the artificial viscosity before a time step.
+  !! @param this The entropy viscosity model.
+  !! @param time The current time state.
   subroutine entropy_viscosity_preprocess(this, time)
     class(entropy_viscosity_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -185,6 +225,11 @@ contains
 
   end subroutine entropy_viscosity_preprocess
 
+  !> Compute the BDF entropy residual.
+  !! @param this The entropy viscosity model.
+  !! @param tstep The current time-step index.
+  !! @param dt The current time-step size.
+  !! @param dt_lag Previous time-step sizes.
   subroutine entropy_viscosity_compute_residual(this, tstep, dt, dt_lag)
     class(entropy_viscosity_t), intent(inout) :: this
     integer, intent(in) :: tstep
@@ -258,6 +303,9 @@ contains
 
   end subroutine entropy_viscosity_compute_residual
 
+  !> Compute and limit the entropy viscosity coefficient.
+  !! @param this The entropy viscosity model.
+  !! @param tstep The current time-step index.
   subroutine entropy_viscosity_compute_viscosity(this, tstep)
     class(entropy_viscosity_t), intent(inout) :: this
     integer, intent(in) :: tstep
@@ -328,6 +376,7 @@ contains
 
   !> Cross-element smoothing via gather-scatter averaging.
   !! Averages viscosity values at shared nodes between elements.
+  !! @param this The entropy viscosity model.
   subroutine entropy_viscosity_smooth_viscosity(this)
     class(entropy_viscosity_t), intent(inout) :: this
     integer :: n
@@ -359,6 +408,8 @@ contains
 
   end subroutine entropy_viscosity_smooth_viscosity
 
+  !> Replace nodal viscosity values by the maximum in each element.
+  !! @param this The entropy viscosity model.
   subroutine entropy_viscosity_apply_element_max(this)
     class(entropy_viscosity_t), intent(inout) :: this
     integer :: lx
@@ -375,6 +426,18 @@ contains
 
   end subroutine entropy_viscosity_apply_element_max
 
+  !> Associate the fields and discretization used by the model.
+  !! @param this The entropy viscosity model.
+  !! @param p The pressure field.
+  !! @param rho The density field.
+  !! @param u The first velocity component.
+  !! @param v The second velocity component.
+  !! @param w The third velocity component.
+  !! @param max_wave_speed The maximum characteristic wave speed.
+  !! @param msh The computational mesh.
+  !! @param Xh The function space.
+  !! @param gs The gather-scatter operator.
+  !! @param gamma The ratio of specific heats.
   subroutine entropy_viscosity_set_fields(this, p, rho, u, v, w, &
        max_wave_speed, msh, Xh, gs, gamma)
     class(entropy_viscosity_t), intent(inout) :: this
@@ -397,6 +460,8 @@ contains
 
   end subroutine entropy_viscosity_set_fields
 
+  !> Compute entropy from the current pressure and density.
+  !! @param this The entropy viscosity model.
   subroutine entropy_viscosity_compute_entropy(this)
     class(entropy_viscosity_t), intent(inout) :: this
     integer :: n
@@ -414,6 +479,8 @@ contains
   end subroutine entropy_viscosity_compute_entropy
 
   !> Reinitialize entropy history from a restarted flow state.
+  !! @param this The entropy viscosity model.
+  !! @param time The restored time state.
   subroutine entropy_viscosity_restart(this, time)
     class(entropy_viscosity_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -423,6 +490,9 @@ contains
 
   end subroutine entropy_viscosity_restart
 
+  !> Shift the entropy history and compute the new entropy.
+  !! @param this The entropy viscosity model.
+  !! @param time The current time state.
   subroutine entropy_viscosity_update_lag(this, time)
     class(entropy_viscosity_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -433,6 +503,15 @@ contains
 
   end subroutine entropy_viscosity_update_lag
 
+  !> Multiply each velocity component by entropy on the CPU.
+  !! @param us Entropy-weighted first velocity component.
+  !! @param vs Entropy-weighted second velocity component.
+  !! @param ws Entropy-weighted third velocity component.
+  !! @param u The first velocity component.
+  !! @param v The second velocity component.
+  !! @param w The third velocity component.
+  !! @param S The entropy field.
+  !! @param n Number of field entries.
   subroutine entropy_viscosity_col3_vector_cpu(us, vs, ws, u, v, w, S, n)
     integer, intent(in) :: n
     real(kind=rp), intent(out) :: us(n), vs(n), ws(n)
@@ -452,6 +531,10 @@ contains
     !$omp end parallel do simd
   end subroutine entropy_viscosity_col3_vector_cpu
 
+  !> Add the flux divergence to the residual and take its absolute value.
+  !! @param entropy_residual The entropy residual to update.
+  !! @param div_field The entropy-flux divergence.
+  !! @param n Number of field entries.
   subroutine entropy_viscosity_abs_add_cpu(entropy_residual, div_field, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: entropy_residual(n)
@@ -469,7 +552,10 @@ contains
     !$omp end parallel do simd
   end subroutine entropy_viscosity_abs_add_cpu
 
-  !> Compute low-order viscosity at point i: c_avisc_low * h * max_wave_speed
+  !> Compute low-order viscosity at one point.
+  !! @param this The entropy viscosity model.
+  !! @param i The point index.
+  !! @return The low-order viscosity.
   pure function entropy_viscosity_low_order(this, i) result(visc)
     class(entropy_viscosity_t), intent(in) :: this
     integer, intent(in) :: i
@@ -480,10 +566,10 @@ contains
   end function entropy_viscosity_low_order
 
 
-  !> Copied from les_model_compute_delta in les_model.f90
-  !> TODO: move to a separate module
-  !> Compute characteristic mesh size h
-  !> @param this The fluid scheme object
+  !> Compute the characteristic mesh size.
+  !! Adapted from `les_model_compute_delta` in `les_model.f90`.
+  !! @todo Move this operation to a shared module.
+  !! @param this The entropy viscosity model.
   subroutine entropy_viscosity_compute_h(this)
     class(entropy_viscosity_t), intent(inout) :: this
     integer :: e, i, j, k
