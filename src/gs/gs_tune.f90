@@ -43,14 +43,15 @@ submodule (gather_scatter) gs_tune
   !> The host comm. backends the runtime autotuning can benchmark, in the
   !! order they are benchmarked and reported. The device backends are not
   !! among them: the autotuning only runs on host builds (see gs_init).
-  integer, parameter :: GS_TUNE_BCKND(6) = [GS_COMM_MPI, GS_COMM_NEIGHBOUR, &
-       GS_COMM_MPIRMA, GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_UTOFU]
+  integer, parameter :: GS_TUNE_BCKND(7) = [GS_COMM_MPI, GS_COMM_NEIGHBOUR, &
+       GS_COMM_MPIRMA, GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_UTOFU, &
+       GS_COMM_CRYSTAL]
 
   !> Which of GS_TUNE_BCKND are benchmarked when NEKO_GS_TUNE is unset: all
   !! of them the build supports but CAF, which has to be asked for (see
   !! gs_tune_select).
-  logical, parameter :: GS_TUNE_DEFAULT(6) = [.true., .true., .true., &
-       .true., .false., .true.]
+  logical, parameter :: GS_TUNE_DEFAULT(7) = [.true., .true., .true., &
+       .true., .false., .true., .true.]
 
   !> Whether the coarray signaling mode has already been selected by the
   !! autotuner (NEKO_GS_CAF_SIGNALING=auto). The mode is a program-wide
@@ -113,6 +114,13 @@ contains
 
     select case (comm_bcknd)
     case (GS_COMM_MPI, GS_COMM_NEIGHBOUR)
+       tunable = .true.
+    case (GS_COMM_CRYSTAL)
+       ! Nothing beyond MPI-1, and it addresses its partners by their rank
+       ! in NEKO_COMM, so a communicator split does not rule it out either.
+       ! It aggregates the halo into one message per routing stage instead
+       ! of one per peer, which is a win only where per-message overhead
+       ! dominates; the benchmark is what decides that
        tunable = .true.
     case (GS_COMM_MPIRMA)
        ! Nothing beyond MPI-3, and it addresses its peers by their rank in
@@ -251,6 +259,8 @@ contains
        bcknd = GS_COMM_UTOFU
     case ('MPIRMA', 'RMA')
        bcknd = GS_COMM_MPIRMA
+    case ('CRYSTAL')
+       bcknd = GS_COMM_CRYSTAL
     case default
        bcknd = 0
     end select

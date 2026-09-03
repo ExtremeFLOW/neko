@@ -173,6 +173,9 @@ A number of gather-scatter backends are supported.
   one-sided components do (Open MPI `osc/rdma` and `osc/ucx`, Cray MPICH
   over libfabric); `NEKO_GS_TUNE=-MPIRMA` drops it from the autotuning on
   systems where that does not hold
+- `NEKO_GS_COMM=CRYSTAL` : Host MPI routed as a crystal router, one message
+  per routing stage instead of one per peer (host only). `CRYSTALGPU` is the
+  device-aware variant, which keeps the halo on the GPU
 
 When `NEKO_GS_COMM` is unset and the build has no device-aware MPI,
 the host backends are benchmarked at initialisation and the fastest

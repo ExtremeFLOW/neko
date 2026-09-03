@@ -33,7 +33,7 @@
 !> Operators accelerator backends
 module opr_device
   use gather_scatter, only : GS_OP_ADD
-  use num_types, only : rp, c_rp, i8, dp, c_dp
+  use num_types, only : rp, c_rp, i8, dp, c_dp, xp, c_xp
   use device, only : device_get_ptr, device_event_sync, device_map, device_unmap
   use space, only : space_t
   use coefs, only : coef_t
@@ -380,17 +380,17 @@ module opr_device
   end interface
 
   interface
-     real(c_dp) function opencl_cfl(dt, u_d, v_d, w_d, &
+     real(c_xp) function opencl_cfl(dt, u_d, v_d, w_d, &
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
           jacinv_d, nel, lx) &
           bind(c, name = 'opencl_cfl')
        use, intrinsic :: iso_c_binding
-       import c_dp
+       import c_xp
        type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
        type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
        type(c_ptr), value :: dr_inv_d, ds_inv_d, dt_inv_d, jacinv_d
-       real(c_dp) :: dt
+       real(c_xp) :: dt
        integer(c_int) :: nel, lx
      end function opencl_cfl
   end interface
@@ -1018,6 +1018,7 @@ contains
     type(c_ptr), intent(in) :: u_d, v_d, w_d
     real(kind=dp) :: cfl
     real(kind=rp) :: cfl_rp
+    real(kind=xp) :: cfl_xp
 
 #ifdef HAVE_HIP
     cfl = hip_cfl(dt, u_d, v_d, w_d, &
@@ -1034,12 +1035,13 @@ contains
          Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
          coef%jacinv_d, nelv, Xh%lx)
 #elif HAVE_OPENCL
-    cfl = opencl_cfl(dt, u_d, v_d, w_d, &
+    cfl_xp = opencl_cfl(real(dt, kind=xp), u_d, v_d, w_d, &
          coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
          coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
          coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
          Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
          coef%jacinv_d, nelv, Xh%lx)
+    cfl = real(cfl_xp, kind=dp)
 #elif HAVE_METAL
     cfl_rp = metal_cfl(real(dt, kind=rp), u_d, v_d, w_d, &
          coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
