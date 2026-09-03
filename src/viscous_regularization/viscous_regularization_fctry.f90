@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
+!> Implements the viscous regularization factory.
 submodule(viscous_regularization) viscous_regularization_fctry
   use artificial_viscosity, only : artificial_viscosity_t
   use utils, only : neko_error
@@ -37,6 +38,12 @@ submodule(viscous_regularization) viscous_regularization_fctry
 
 contains
 
+  !> Allocate and initialize a viscous regularization method.
+  !! @param object The regularization object to allocate.
+  !! @param type_name The regularization type name.
+  !! @param json The regularization configuration.
+  !! @param coef The SEM coefficients.
+  !! @param dof The SEM map of degrees of freedom.
   module subroutine viscous_regularization_factory(object, type_name, json, &
        coef, dof)
     class(viscous_regularization_t), allocatable, intent(inout) :: object

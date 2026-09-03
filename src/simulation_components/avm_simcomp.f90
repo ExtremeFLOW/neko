@@ -69,6 +69,9 @@ module avm_simcomp
 contains
 
   !> Constructor from json.
+  !! @param this The artificial viscosity simulation component.
+  !! @param json The simulation component configuration.
+  !! @param case The case being initialized.
   subroutine avm_simcomp_init_from_json(this, json, case)
     class(avm_simcomp_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
@@ -100,6 +103,7 @@ contains
   end subroutine avm_simcomp_init_from_json
 
   !> Destructor.
+  !! @param this The artificial viscosity simulation component.
   subroutine avm_simcomp_free(this)
     class(avm_simcomp_t), intent(inout) :: this
     call this%free_base()
@@ -112,6 +116,7 @@ contains
   end subroutine avm_simcomp_free
 
   !> Compute the avm_simcomp field.
+  !! @param this The artificial viscosity simulation component.
   !! @param time The current time info
   subroutine avm_simcomp_preprocess(this, time)
     class(avm_simcomp_t), intent(inout) :: this
@@ -121,6 +126,7 @@ contains
   end subroutine avm_simcomp_preprocess
 
   !> Compute the avm_simcomp field.
+  !! @param this The artificial viscosity simulation component.
   !! @param time The current time info
   subroutine avm_simcomp_compute(this, time)
     class(avm_simcomp_t), intent(inout) :: this
@@ -130,6 +136,7 @@ contains
   end subroutine avm_simcomp_compute
 
   !> Compute the avm_simcomp field when restart.
+  !! @param this The artificial viscosity simulation component.
   !! @param time The current time info
   subroutine avm_simcomp_restart(this, time)
     class(avm_simcomp_t), intent(inout) :: this
