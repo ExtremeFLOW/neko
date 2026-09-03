@@ -33,6 +33,7 @@ common/expression.lo : common/expression.f90 registries/registry.lo common/utils
 common/system.lo : common/system.f90 
 common/runtime_statistics.lo : common/runtime_statistics.f90 comm/comm.lo common/utils.lo data_types/matrix.lo io/file.lo common/json_utils.lo config/num_types.lo adt/tuple.lo adt/stack.lo common/log.lo 
 common/user_access_singleton.lo : common/user_access_singleton.f90 case.lo 
+data_types/array.lo : data_types/array.f90 common/utils.lo math/bcknd/device/device_math.lo math/math.lo device/device.lo config/neko_config.lo config/num_types.lo 
 data_types/host_array.lo : data_types/host_array.f90 math/math.lo config/num_types.lo 
 data_types/device_array.lo : data_types/device_array.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/neko_config.lo config/num_types.lo 
 data_types/vector.lo : data_types/vector.f90 common/utils.lo math/bcknd/device/device_math.lo math/math.lo device/device.lo config/num_types.lo config/neko_config.lo 
