@@ -64,15 +64,13 @@ contains
     call point_zone_allocator(object, type_name)
 
     if (present(dof)) then
-       call object%init(json, dof%size())
-       call object%map(dof)
-       call object%finalize()
+       call object%init(json, dof%size(), dof)
     else
        ! This is for initializing zones inside a combine point zone,
        ! as they don't need to be mapped
        call object%init(json, 1)
-       call object%finalize()
     end if
+    call object%finalize()
   end subroutine point_zone_factory
 
   module subroutine point_zone_allocator(object, type_name)

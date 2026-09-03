@@ -40,12 +40,16 @@ module point_zone
   use neko_config, only: NEKO_BCKND_DEVICE
   use mask, only: mask_t
   use device, only: device_map, device_memcpy, device_free
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated
   implicit none
   private
 
   !> Base abstract type for point zones.
-  type, public, abstract :: point_zone_t
+  type, public, abstract, extends(amr_restart_component_t) :: point_zone_t
      !> List of linear indices of the GLL points in the zone.
      type(mask_t) :: mask
      !> Scratch stack of integers to build the list mask.
@@ -62,6 +66,9 @@ module point_zone
      !> If we select to mark all points in the element containing points that
      !! satisfy the criterion
      logical :: full_elements = .false.
+
+     ! Variables needed for point zone restart
+     type(dofmap_t), pointer :: dof => null()
    contains
      !> Constructor for the point_zone_t base type.
      procedure, pass(this) :: init_base => point_zone_init_base
@@ -80,6 +87,8 @@ module point_zone
      procedure(point_zone_free), pass(this), deferred :: free
      !> Defines the criterion of selection of a GLL point to the point_zone.
      procedure(point_zone_criterion), pass(this), deferred :: criterion
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => point_zone_amr_restart
   end type point_zone_t
 
   !> A helper type to build a list of polymorphic point_zones.
@@ -121,13 +130,15 @@ module point_zone
      !> The common constructor using a JSON object.
      !! @param json Json object for the point zone.
      !! @param size Size with which to initialize the stack
-     subroutine point_zone_init(this, json, size)
+     !! @param dof Dofmap of points to go through.
+     subroutine point_zone_init(this, json, size, dof)
        import :: point_zone_t
        import :: json_file
        import :: dofmap_t
        class(point_zone_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
        integer, intent(in) :: size
+       type(dofmap_t), target, optional, intent(in) :: dof
      end subroutine point_zone_init
   end interface
 
@@ -209,14 +220,17 @@ contains
   !! of points.
   !! @param full_elements Whether to mark all points in the element containing
   !! points that satisfy the criterion.
-  subroutine point_zone_init_base(this, size, name, invert, full_elements)
+  subroutine point_zone_init_base(this, size, name, invert, full_elements, dof)
     class(point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
     logical, intent(in) :: invert
     logical, intent(in) :: full_elements
+    type(dofmap_t), target, optional, intent(in) :: dof
 
     call point_zone_free_base(this)
+
+    if (present(dof)) this%dof => dof
 
     if (present(size)) then
        call this%scratch%init(size)
@@ -237,8 +251,11 @@ contains
     this%finalized = .false.
     this%size = 0
 
+    nullify(this%dof)
     call this%scratch%free()
     call this%mask%free()
+
+    call this%free_amr_base()
 
   end subroutine point_zone_free_base
 
@@ -246,6 +263,9 @@ contains
   subroutine point_zone_finalize(this)
     class(point_zone_t), intent(inout) :: this
     integer, pointer :: tp(:)
+
+    ! map the points
+    call this%map()
 
     if (.not. this%finalized) then
 
@@ -290,50 +310,82 @@ contains
 
   !> Maps the GLL points that verify a point_zone's `criterion` by adding
   !! them to the stack.
-  !! @param dof Dofmap of points to go through.
-  subroutine point_zone_map(this, dof)
+  subroutine point_zone_map(this)
     class(point_zone_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dof
 
     integer :: i, ix, iy, iz, ie, nlindex(4), lx, idx
     real(kind=rp) :: x, y, z
 
-    lx = dof%Xh%lx
+    if (associated(this%dof)) then
+       lx = this%dof%Xh%lx
 
-    i = 1
-    do while (i <= dof%size())
-       nlindex = nonlinear_index(i, lx, lx, lx)
-       x = dof%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
-       y = dof%y(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
-       z = dof%z(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
-       ix = nlindex(1)
-       iy = nlindex(2)
-       iz = nlindex(3)
-       ie = nlindex(4)
+       i = 1
+       do while (i <= this%dof%size())
+          nlindex = nonlinear_index(i, lx, lx, lx)
+          x = this%dof%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
+          y = this%dof%y(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
+          z = this%dof%z(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
+          ix = nlindex(1)
+          iy = nlindex(2)
+          iz = nlindex(3)
+          ie = nlindex(4)
 
-       if (this%invert .neqv. this%criterion(x, y, z, ix, iy, iz, ie)) then
+          if (this%invert .neqv. this%criterion(x, y, z, ix, iy, iz, ie)) then
 
-          if (.not. this%full_elements) then
-             idx = i
-             call this%add(idx)
-             i = i + 1
-          else
-             do iz = 1, lx
-                do iy = 1, lx
-                   do ix = 1, lx
-                      idx = linear_index(ix, iy, iz, ie, lx, lx, lx)
-                      call this%add(idx)
+             if (.not. this%full_elements) then
+                idx = i
+                call this%add(idx)
+                i = i + 1
+             else
+                do iz = 1, lx
+                   do iy = 1, lx
+                      do ix = 1, lx
+                         idx = linear_index(ix, iy, iz, ie, lx, lx, lx)
+                         call this%add(idx)
+                      end do
                    end do
                 end do
-             end do
-             i = idx + 1
-          end if
-       else
-          i = i + 1
+                i = idx + 1
+             end if
+          else
+             i = i + 1
 
-       end if
-    end do
+          end if
+       end do
+    end if
 
   end subroutine point_zone_map
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine point_zone_amr_restart(this, reconstruct, counter, time)
+    class(point_zone_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il, jl
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Point zone: '//trim(this%name)
+    call neko_log%message(log_buf)
+
+    ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    call this%dof%amr_restart(reconstruct, counter, time)
+
+    ! reconstruct point zone
+    this%finalized = .false.
+    call this%scratch%clear()
+    call this%mask%free()
+    call this%finalize()
+
+  end subroutine point_zone_amr_restart
 
 end module point_zone

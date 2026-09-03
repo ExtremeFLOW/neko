@@ -37,6 +37,7 @@ module cylinder_point_zone
   use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
   use json_module, only: json_file
   use utils, only: neko_error
+  use dofmap, only : dofmap_t
   implicit none
   private
 
@@ -64,10 +65,12 @@ contains
   !> Constructor from json object file.
   !! @param json Json object file.
   !! @param size Size with which to initialize the stack
-  subroutine cylinder_point_zone_init_from_json(this, json, size)
+  !! @param dof Dofmap of points to go through.
+  subroutine cylinder_point_zone_init_from_json(this, json, size, dof)
     class(cylinder_point_zone_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     integer, intent(in) :: size
+    type(dofmap_t), target, optional, intent(in) :: dof
 
     character(len=:), allocatable :: name
     real(kind=rp), dimension(:), allocatable :: p0, p1
@@ -96,8 +99,13 @@ contains
     call json_get_or_default(json, "invert", invert, .false.)
     call json_get_or_default(json, "full_elements", full_elements, .false.)
 
-    call cylinder_point_zone_init_common(this, size, trim(name), invert, full_elements, &
-         p0, p1, radius)
+    if (present(dof)) then
+       call cylinder_point_zone_init_common(this, size, trim(name), invert, &
+            full_elements, p0, p1, radius, dof)
+    else
+       call cylinder_point_zone_init_common(this, size, trim(name), invert, &
+            full_elements, p0, p1, radius)
+    end if
 
   end subroutine cylinder_point_zone_init_from_json
 
@@ -109,8 +117,9 @@ contains
   !! @param p0 Coordinates of the first endpoint.
   !! @param p1 Coordinates of the second endpoint.
   !! @param radius Sphere radius.
-  subroutine cylinder_point_zone_init_common(this, size, name, invert, full_elements, &
-       p0, p1, radius)
+  !! @param dof Dofmap of points to go through.
+  subroutine cylinder_point_zone_init_common(this, size, name, invert, &
+       full_elements, p0, p1, radius, dof)
     class(cylinder_point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
@@ -119,9 +128,13 @@ contains
     real(kind=rp), intent(in), dimension(3) :: p0
     real(kind=rp), intent(in), dimension(3) :: p1
     real(kind=rp), intent(in) :: radius
+    type(dofmap_t), target, optional, intent(in) :: dof
 
-
-    call this%init_base(size, name, invert, full_elements)
+    if (present(dof)) then
+       call this%init_base(size, name, invert, full_elements, dof)
+    else
+       call this%init_base(size, name, invert, full_elements)
+    end if
 
     this%p0 = p0
     this%p1 = p1

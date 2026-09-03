@@ -37,6 +37,7 @@ module box_point_zone
   use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
   use json_module, only: json_file
   use math, only: abscmp
+  use dofmap, only : dofmap_t
   implicit none
   private
 
@@ -65,10 +66,12 @@ contains
   !> Constructor from json object file.
   !! @param json Json object file.
   !! @param size Size with which to initialize the stack
-  subroutine box_point_zone_init_from_json(this, json, size)
+  !! @param dof Dofmap of points to go through.
+  subroutine box_point_zone_init_from_json(this, json, size, dof)
     class(box_point_zone_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     integer, intent(in) :: size
+    type(dofmap_t), target, optional, intent(in) :: dof
 
     character(len=:), allocatable :: str_read
     real(kind=rp), allocatable :: values(:)
@@ -91,8 +94,13 @@ contains
     call json_get_or_default(json, "invert", invert, .false.)
     call json_get_or_default(json, "full_elements", full_elements, .false.)
 
-    call box_point_zone_init_common(this, size, trim(str_read), invert, full_elements, &
-         xmin, xmax, ymin, ymax, zmin, zmax)
+    if (present(dof)) then
+       call box_point_zone_init_common(this, size, trim(str_read), invert, &
+            full_elements, xmin, xmax, ymin, ymax, zmin, zmax, dof)
+    else
+       call box_point_zone_init_common(this, size, trim(str_read), invert, &
+            full_elements, xmin, xmax, ymin, ymax, zmin, zmax)
+    end if
 
   end subroutine box_point_zone_init_from_json
 
@@ -107,8 +115,9 @@ contains
   !! @param ymax Upper y-bound of the box coordinates.
   !! @param zmin Lower z-bound of the box coordinates.
   !! @param zmax Upper z-bound of the box coordinates.
-  subroutine box_point_zone_init_common(this, size, name, invert, full_elements, xmin, xmax, &
-       ymin, ymax, zmin, zmax)
+  !! @param dof Dofmap of points to go through.
+  subroutine box_point_zone_init_common(this, size, name, invert, &
+       full_elements, xmin, xmax, ymin, ymax, zmin, zmax, dof)
     class(box_point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
@@ -120,8 +129,13 @@ contains
     real(kind=rp), intent(in) :: ymax
     real(kind=rp), intent(in) :: zmin
     real(kind=rp), intent(in) :: zmax
+    type(dofmap_t), target, optional, intent(in) :: dof
 
-    call this%init_base(size, name, invert, full_elements)
+    if (present(dof)) then
+       call this%init_base(size, name, invert, full_elements, dof)
+    else
+       call this%init_base(size, name, invert, full_elements)
+    end if
 
     this%xmin = xmin
     this%xmax = xmax

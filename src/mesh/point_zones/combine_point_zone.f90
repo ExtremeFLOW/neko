@@ -42,6 +42,7 @@ module combine_point_zone
   use json_module, only : json_file, json_core, json_value
   use utils, only : neko_error, concat_string_array
   use logger, only : neko_log
+  use dofmap, only : dofmap_t
   implicit none
   private
 
@@ -77,10 +78,12 @@ contains
   !> Constructor from json object file. Reads.
   !! @param json Json object file.
   !! @param size Size with which to initialize the stack
-  subroutine combine_point_zone_init_from_json(this, json, size)
+  !! @param dof Dofmap of points to go through.
+  subroutine combine_point_zone_init_from_json(this, json, size, dof)
     class(combine_point_zone_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     integer, intent(in) :: size
+    type(dofmap_t), target, optional, intent(in) :: dof
 
     ! Json low-level manipulator.
     type(json_core) :: core
@@ -97,10 +100,14 @@ contains
     integer :: i, n_zones, i_internal, i_external
     logical :: found, invert, full_elements
 
+    if (.not. present(dof)) then
+       call neko_error("Combined point zone requires dofmap.")
+    end if
+
     call json_get(json, "name", str_read)
     call json_get_or_default(json, "invert", invert, .false.)
     call json_get_or_default(json, "full_elements", full_elements, .false.)
-    call this%init_base(size, trim(str_read), invert, full_elements)
+    call this%init_base(size, trim(str_read), invert, full_elements, dof)
 
     call json%get_core(core)
     call json%get('subsets', source_object, found)

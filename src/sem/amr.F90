@@ -45,6 +45,7 @@ module amr
   use checkpoint, only: chkp_t
   use registry, only : neko_registry
   use scratch_registry, only : neko_scratch_registry
+  use point_zone_registry, only: neko_point_zone_registry
   use mesh, only : mesh_t
   use mesh_manager_transfer_p4est, only : mesh_manager_transfer_p4est_t
   use mesh_manager, only : mesh_manager_t
@@ -267,8 +268,12 @@ contains
     ! reconstruct SEM module
     call this%sem%amr_restart(this%reconstruct, this%counter, time)
 
-    ! Start with scratch arrays, as they can be used during restart
+    ! Start with registries. Especially important for scratch arrays,
+    ! as they can be used during other components restart
     call neko_scratch_registry%amr_restart(this%reconstruct, this%counter, &
+         time)
+    call neko_registry%amr_restart(this%reconstruct, this%counter, time)
+    call neko_point_zone_registry%amr_restart(this%reconstruct, this%counter, &
          time)
 
     ! restart components
@@ -279,9 +284,6 @@ contains
                this%counter, time)
        end do
     end if
-
-    ! rest of registries
-    call neko_registry%amr_restart(this%reconstruct, this%counter, time)
 
     ! let user reconstruct fields
     write(log_buf, '(a)') 'Restarting user space'

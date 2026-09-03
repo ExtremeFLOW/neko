@@ -37,6 +37,7 @@ module sphere_point_zone
   use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
   use json_module, only: json_file
   use math, only: abscmp
+  use dofmap, only : dofmap_t
   implicit none
   private
 
@@ -64,10 +65,12 @@ contains
   !> Constructor from json object file.
   !! @param json Json object file.
   !! @param size Size with which to initialize the stack
-  subroutine sphere_point_zone_init_from_json(this, json, size)
+  !! @param dof Dofmap of points to go through.
+  subroutine sphere_point_zone_init_from_json(this, json, size, dof)
     class(sphere_point_zone_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     integer, intent(in) :: size
+    type(dofmap_t), target, optional, intent(in) :: dof
 
     character(len=:), allocatable :: str_read
     real(kind=rp), allocatable :: values(:)
@@ -87,8 +90,13 @@ contains
     call json_get_or_default(json, "invert", invert, .false.)
     call json_get_or_default(json, "full_elements", full_elements, .false.)
 
-    call sphere_point_zone_init_common(this, size, trim(str_read), invert, full_elements, &
-         x0, y0, z0, radius)
+    if (present(dof)) then
+       call sphere_point_zone_init_common(this, size, trim(str_read), invert, &
+            full_elements, x0, y0, z0, radius, dof)
+    else
+       call sphere_point_zone_init_common(this, size, trim(str_read), invert, &
+            full_elements, x0, y0, z0, radius)
+    end if
 
   end subroutine sphere_point_zone_init_from_json
 
@@ -101,8 +109,9 @@ contains
   !! @param y0 Sphere center's y-coordinate.
   !! @param z0 Sphere center's z-coordinate.
   !! @param radius Sphere radius.
-  subroutine sphere_point_zone_init_common(this, size, name, invert, full_elements, &
-       x0, y0, z0, radius)
+  !! @param dof Dofmap of points to go through.
+  subroutine sphere_point_zone_init_common(this, size, name, invert, &
+       full_elements, x0, y0, z0, radius, dof)
     class(sphere_point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
@@ -112,8 +121,13 @@ contains
     real(kind=rp), intent(in) :: y0
     real(kind=rp), intent(in) :: z0
     real(kind=rp), intent(in) :: radius
+    type(dofmap_t), target, optional, intent(in) :: dof
 
-    call this%init_base(size, name, invert, full_elements)
+    if (present(dof)) then
+       call this%init_base(size, name, invert, full_elements, dof)
+    else
+       call this%init_base(size, name, invert, full_elements)
+    end if
 
     this%x0 = x0
     this%y0 = y0

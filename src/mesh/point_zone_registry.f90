@@ -41,16 +41,24 @@ module point_zone_registry
   use utils, only : neko_error
   use json_utils, only : json_get, json_get_or_lookup
   use json_module, only : json_file, json_core, json_value
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   implicit none
   private
 
-  type :: point_zone_registry_t
+  type, extends(amr_restart_component_t) :: point_zone_registry_t
      !> List of point_zones stored.
      type(point_zone_wrapper_t), allocatable :: point_zones(:)
      !> Number of registered point_zones.
      integer, private :: n = 0
      !> The size the point_zones array is increased by upon reallocation.
      integer, private :: expansion_size
+
+     ! Variables needed for point zone restart
+     type(space_t) :: Xh
+     type(dofmap_t) :: dof
    contains
      !> Expand the point_zones array so as to accomodate more point_zones.
      procedure, private, pass(this) :: expand
@@ -78,6 +86,8 @@ module point_zone_registry
      generic :: get_point_zone => get_point_zone_by_index, &
           get_point_zone_by_name
      generic :: add_point_zone => add_point_zone_from_json
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => point_zone_registry_amr_restart
   end type point_zone_registry_t
 
   !> Global point_zone registry
@@ -113,21 +123,18 @@ contains
 
     ! Parameters used to setup the GLL space.
     integer :: order
-    type(space_t), target :: Xh
-    type(dofmap_t) :: dof
 
+    call this%free()
 
     call json_get_or_lookup(json, 'case.numerics.polynomial_order', order)
     order = order + 1 ! add 1 to get poly order
 
     if (msh%gdim .eq. 2) then
-       call Xh%init(GLL, order, order)
+       call this%Xh%init(GLL, order, order)
     else
-       call Xh%init(GLL, order, order, order)
+       call this%Xh%init(GLL, order, order, order)
     end if
-    call dof%init(msh, Xh)
-
-    call this%free()
+    call this%dof%init(msh, this%Xh)
 
     if (present(expansion_size)) then
        this%expansion_size = expansion_size
@@ -162,7 +169,7 @@ contains
           call json_get(source_subdict, "geometry", type_name)
           if (trim(type_name) .ne. "combine") then
              call point_zone_factory(this%point_zones(izone)%pz, &
-                  source_subdict, dof)
+                  source_subdict, this%dof)
              izone = izone + 1
           end if
        end do
@@ -178,15 +185,12 @@ contains
           call json_get(source_subdict, "geometry", type_name)
           if (trim(type_name) .eq. "combine") then
              call build_combine_point_zone(this%point_zones(izone)%pz, &
-                  source_subdict, dof)
+                  source_subdict, this%dof)
              izone = izone + 1
           end if
        end do
 
     end if
-
-    call Xh%free()
-    call dof%free()
 
   end subroutine point_zone_registry_init
 
@@ -199,7 +203,7 @@ contains
   subroutine build_combine_point_zone(object, json, dof)
     class(point_zone_t), allocatable, target, intent(inout) :: object
     type(json_file), intent(inout) :: json
-    type(dofmap_t), intent(inout) :: dof
+    type(dofmap_t), target, intent(inout) :: dof
 
     type(combine_point_zone_t), pointer :: cpz
     integer :: i, i_external
@@ -207,7 +211,7 @@ contains
     allocate(combine_point_zone_t::object)
 
     ! Here we initialize all the names of the zones to combine
-    call object%init(json, dof%size())
+    call object%init(json, dof%size(), dof)
 
     select type (object)
     type is (combine_point_zone_t)
@@ -222,7 +226,6 @@ contains
             neko_point_zone_registry%get_point_zone(cpz%names(i_external))
     end do
 
-    call object%map(dof)
     call object%finalize()
 
   end subroutine build_combine_point_zone
@@ -231,6 +234,9 @@ contains
   subroutine point_zone_registry_free(this)
     class(point_zone_registry_t), intent(inout) :: this
     integer :: i
+
+    call this%Xh%free()
+    call this%dof%free()
 
     if (allocated(this%point_zones)) then
 
@@ -244,6 +250,9 @@ contains
 
     this%n = 0
     this%expansion_size = 0
+
+    call this%free_amr_base()
+
   end subroutine point_zone_registry_free
 
   !> Expand the point_zones array so as to accomodate more point_zones.
@@ -388,5 +397,38 @@ contains
        end if
     end do
   end function point_zone_exists
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine point_zone_registry_amr_restart(this, reconstruct, counter, time)
+    class(point_zone_registry_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Point zone registry'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    call this%dof%amr_restart(reconstruct, counter, time)
+
+    ! reconstruct zones; no need to distinguish between primitive and combined
+    do il = 1, this%n
+       call this%point_zones(il)%pz%amr_restart(reconstruct, counter, time)
+    end do
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine point_zone_registry_amr_restart
 
 end module point_zone_registry
