@@ -42,7 +42,9 @@ module cheby
   use mesh, only : mesh_t
   use space, only : space_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       vector_bc_projector_components
   use schwarz, only : schwarz_t
   use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp, glsc2, &
        add2s1, add2s2, sub3, cmult, add2
@@ -133,13 +135,13 @@ contains
     end if
   end subroutine cheby_free
 
-  subroutine cheby_power(this, Ax, x, n, coef, blst, gs_h)
+  subroutine cheby_power(this, Ax, x, n, coef, bc_projector, gs_h)
     class(cheby_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp) :: lam, b, a, rn
     real(kind=rp) :: boost = 1.1_rp
@@ -177,14 +179,14 @@ contains
          call random_seed(put = saved_seed)
 
          call gs_h%op(d, n, GS_OP_ADD)
-         call blst%apply(d, n)
+         call bc_projector%apply(d, n)
       end if
 
       !Power method to get lambda max
       do i = 1, its
          call ax%compute(w, d, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
-         call blst%apply(w, n)
+         call bc_projector%apply(w, n)
          if (associated(this%schwarz)) then
             call this%schwarz%compute(r, w)
             call copy(w, r, n)
@@ -195,12 +197,12 @@ contains
 
          wtw = glsc3(w, coef%mult, w, n)
          call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
-         call blst%apply(d, n)
+         call bc_projector%apply(d, n)
       end do
 
       call ax%compute(w, d, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
-      call blst%apply(w, n)
+      call bc_projector%apply(w, n)
       if (associated(this%schwarz)) then
          call this%schwarz%compute(r, w)
          call copy(w, r, n)
@@ -231,7 +233,7 @@ contains
   end subroutine cheby_power
 
   !> A chebyshev preconditioner
-  function cheby_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function cheby_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
        result(ksp_results)
     class(cheby_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -239,7 +241,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -247,7 +249,7 @@ contains
     real(kind=rp) :: a, b, rtr, rnorm, norm_fac
 
     if (this%recompute_eigs) then
-       call cheby_power(this, Ax, x, n, coef, blst, gs_h)
+       call cheby_power(this, Ax, x, n, coef, bc_projector, gs_h)
     end if
 
     if (present(niter)) then
@@ -262,7 +264,7 @@ contains
       call copy(r, f, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
-      call blst%apply(w, n)
+      call bc_projector%apply(w, n)
       call sub2(r, w, n)
 
       rtr = glsc3(r, coef%mult, r, n)
@@ -283,7 +285,7 @@ contains
          call copy(r, f, n)
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
-         call blst%apply(w, n)
+         call bc_projector%apply(w, n)
          call sub2(r, w, n)
 
          call this%M%solve(w, r, n)
@@ -303,7 +305,7 @@ contains
       call copy(r, f, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
-      call blst%apply(w, n)
+      call bc_projector%apply(w, n)
       call sub2(r, w, n)
       rtr = glsc3(r, coef%mult, r, n)
       rnorm = sqrt(rtr) * norm_fac
@@ -314,7 +316,7 @@ contains
   end function cheby_solve
 
   !> A chebyshev preconditioner
-  function cheby_impl(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function cheby_impl(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
        result(ksp_results)
     class(cheby_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -322,7 +324,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -331,7 +333,7 @@ contains
     real(kind=rp) :: rhok, rhokp1, sig1, tmp1, tmp2, inv_tha
 
     if (this%recompute_eigs) then
-       call cheby_power(this, Ax, x, n, coef, blst, gs_h)
+       call cheby_power(this, Ax, x, n, coef, bc_projector, gs_h)
     end if
 
     if (present(niter)) then
@@ -346,7 +348,7 @@ contains
       if (.not.this%zero_initial_guess) then
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
-         call blst%apply(w, n)
+         call bc_projector%apply(w, n)
          call sub3(r, f, w, n)
       else
          call copy(r, f, n)
@@ -384,7 +386,7 @@ contains
          ! calculate residual
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
-         call blst%apply(w, n)
+         call bc_projector%apply(w, n)
          call sub3(r, f, w, n)
 
          if (associated(this%schwarz)) then
@@ -409,7 +411,7 @@ contains
 
   !> Standard Chebyshev coupled solve
   function cheby_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(cheby_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -420,16 +422,16 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(scalar_bc_projector_t), pointer :: bc_x, bc_y, bc_z
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    call vector_bc_projector_components(bc_projector, bc_x, bc_y, bc_z)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_x, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_y, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_z, gs_h, niter)
 
   end function cheby_solve_coupled
 

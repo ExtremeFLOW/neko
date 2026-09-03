@@ -41,14 +41,14 @@ module tree_amg_smoother
        device_cmult2, device_sub2, device_add2, device_add3s2, &
        device_copy
   use krylov, only : ksp_monitor_t
-  use bc_list, only: bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
   use profiler, only : profiler_start_region, profiler_end_region
   use device, only: device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   use device_tree_amg_smoother, only : amg_device_cheby_solve_part1, &
        amg_device_cheby_solve_part2
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -182,7 +182,7 @@ contains
     warm = this%warm_start_eigs .and. this%eigs_computed .and. &
          allocated(this%ev)
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
-         msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
+         msh => amg%msh, Xh => amg%Xh, bc_projector => amg%bc_projector)
 
       if (warm) then
          its = this%power_its_refresh
@@ -208,7 +208,7 @@ contains
 
          if (this%lvl .eq. 0) then
             call gs_h%op(d, n, GS_OP_ADD)!TODO
-            call blst%apply(d, n)
+            call bc_projector%apply(d, n)
          end if
       end if
       !Power method to get lamba max
@@ -282,7 +282,8 @@ contains
     end if
     max_iter = this%max_iter
 
-    associate( w => this%w, r => this%r, d => this%d, blst => amg%blst)
+    associate(w => this%w, r => this%r, d => this%d, &
+         bc_projector => amg%bc_projector)
       call copy(r, f, n)
       if (.not. zero_initial_guess) then
          call amg%matvec(w, x, this%lvl)
@@ -351,7 +352,7 @@ contains
     warm = this%warm_start_eigs .and. this%eigs_computed .and. &
          c_associated(this%ev_d)
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
-         msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
+         msh => amg%msh, Xh => amg%Xh, bc_projector => amg%bc_projector)
 
       if (warm) then
          its = this%power_its_refresh
@@ -378,7 +379,7 @@ contains
 
          if (this%lvl .eq. 0) then
             call gs_h%op(d, n, GS_OP_ADD)!TODO
-            call blst%apply(d, n)
+            call bc_projector%apply(d, n)
          end if
       end if
       do i = 1, its
@@ -454,8 +455,7 @@ contains
     end if
     max_iter = this%max_iter
 
-    associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d, &
-         blst => amg%blst)
+    associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d )
 
       if (.not. zero_initial_guess) then
          call amg%device_matvec(this%w, x, w_d, x_d, this%lvl)

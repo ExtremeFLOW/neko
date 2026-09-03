@@ -32,7 +32,7 @@
 !
 !> Master module
 module neko
-  use num_types, only : rp, sp, dp, qp, c_rp
+  use num_types, only : rp, sp, dp, qp, c_rp, c_dp
   use comm
   use utils
   use logger
@@ -65,11 +65,17 @@ module neko
   use gather_scatter
   use krylov
   use coefs, only : coef_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET, BC_MIXED_CONSTRAINS_NORMAL, &
+       BC_MIXED_CONSTRAINS_TANGENT, BC_NEUMANN
+  use mixed_bc, only : mixed_bc_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : segregated_vector_bc_projector_t, &
+       coupled_vector_bc_projector_t
   use zero_dirichlet, only : zero_dirichlet_t
   use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator, ax_helm_allocate, &
+       register_ax_helm
   use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
   use neko_config
   use case, only : case_t

@@ -41,8 +41,10 @@ module gather_scatter
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, &
        GS_COMM_NVSHMEM, GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_NEIGHBOUR, &
-       GS_COMM_UTOFU, GS_COMM_MPIRMA, GS_VEC_NC
+       GS_COMM_UTOFU, GS_COMM_MPIRMA, GS_COMM_CRYSTAL, GS_COMM_CRYSTALGPU, &
+       GS_VEC_NC
   use gs_mpi, only : gs_mpi_t
+  use gs_crystal, only : gs_crystal_t
   use gs_mpi_rma, only : gs_mpi_rma_t
   use gs_neighbour, only : gs_neighbour_t
   ! Only the backend types are needed here; what tells whether a backend can
@@ -52,6 +54,7 @@ module gather_scatter
   use gs_caf, only : gs_caf_t
   use gs_utofu, only : gs_utofu_t
   use gs_device_mpi, only : gs_device_mpi_t
+  use gs_device_crystal, only : gs_device_crystal_t
   use gs_device_nccl, only : gs_device_nccl_t
   use gs_device_shmem, only : gs_device_shmem_t
   use mesh, only : mesh_t
@@ -131,7 +134,7 @@ module gather_scatter
   ! Expose available gather-scatter comm. backends
   public :: GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, GS_COMM_NVSHMEM, &
        GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_NEIGHBOUR, GS_COMM_UTOFU, &
-       GS_COMM_MPIRMA
+       GS_COMM_MPIRMA, GS_COMM_CRYSTAL, GS_COMM_CRYSTALGPU
 
   ! These routines (used by the gs_tune submodule) have to be public
   ! since gfortran gives a private module procedure internal linkage
@@ -187,6 +190,7 @@ contains
     logical :: use_neighbour
     logical :: use_utofu
     logical :: use_mpi_rma
+    logical :: use_host_crystal, use_device_crystal
     logical :: tune_comm
     real(kind=rp), allocatable :: tmp(:)
     type(c_ptr) :: tmp_d = C_NULL_PTR
@@ -211,6 +215,8 @@ contains
     use_neighbour = .false.
     use_utofu = .false.
     use_mpi_rma = .false.
+    use_host_crystal = .false.
+    use_device_crystal = .false.
     tune_comm = .false.
 
     ! Check if a comm-backend is requested via env. variables
@@ -238,6 +244,10 @@ contains
        else if (env_gscomm(1:env_len) .eq. "MPIRMA" .or. &
             env_gscomm(1:env_len) .eq. "RMA") then
           use_mpi_rma = .true.
+       else if (env_gscomm(1:env_len) .eq. "CRYSTAL") then
+          use_host_crystal = .true.
+       else if (env_gscomm(1:env_len) .eq. "CRYSTALGPU") then
+          use_device_crystal = .true.
        else
           call neko_error('Unknown Gather-scatter comm. backend')
        end if
@@ -264,6 +274,10 @@ contains
        comm_bcknd_ = GS_COMM_UTOFU
     else if (use_mpi_rma) then
        comm_bcknd_ = GS_COMM_MPIRMA
+    else if (use_host_crystal) then
+       comm_bcknd_ = GS_COMM_CRYSTAL
+    else if (use_device_crystal) then
+       comm_bcknd_ = GS_COMM_CRYSTALGPU
     else
        if (NEKO_DEVICE_MPI) then
           comm_bcknd_ = GS_COMM_MPIGPU
@@ -368,7 +382,8 @@ contains
     ! select type (gs_device_t) miscompiles with CCE 21 at -O2/-O3,
     ! silently leaving shared points on the host so that the scatter
     ! overwrites the unpacked halo data with the stale host buffer
-    if (use_device_mpi .or. use_device_nccl .or. use_device_shmem) then
+    if (use_device_mpi .or. use_device_nccl .or. use_device_shmem .or. &
+         use_device_crystal) then
        gs%bcknd%shared_on_host = .false.
     end if
 
@@ -465,6 +480,10 @@ contains
        allocate(gs_utofu_t::comm)
     case (GS_COMM_MPIRMA)
        allocate(gs_mpi_rma_t::comm)
+    case (GS_COMM_CRYSTAL)
+       allocate(gs_crystal_t::comm)
+    case (GS_COMM_CRYSTALGPU)
+       allocate(gs_device_crystal_t::comm)
     case default
        call neko_error('Unknown Gather-scatter comm. backend')
     end select
@@ -497,6 +516,10 @@ contains
        name = '       uTofu'
     case (GS_COMM_MPIRMA)
        name = '     MPI RMA'
+    case (GS_COMM_CRYSTAL)
+       name = '     Crystal'
+    case (GS_COMM_CRYSTALGPU)
+       name = 'Dev. Crystal'
     case default
        name = '     unknown'
        call neko_error('Unknown Gather-scatter comm. backend')

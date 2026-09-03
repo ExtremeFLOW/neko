@@ -56,10 +56,12 @@
                 },
                 {
                     "type": "normal_outflow",
+                    "value": [1.0, 0.0, 0.0],
                     "zone_indices": [ 5 ]
                 },
                 {
                     "type": "normal_outflow",
+                    "value": [1.0, 0.0, 0.0],
                     "zone_indices": [ 6 ]
                 },
                 {

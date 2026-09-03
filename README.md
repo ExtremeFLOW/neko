@@ -71,7 +71,7 @@ This example only uses built-in functions and does not need a compiled user file
 ## Preferred citation for Neko
 
 When using Neko in a scientific publication, please add a citation to the following publication (see also [CITATION.cff](https://github.com/ExtremeFLOW/neko/blob/develop/CITATION.cff)):
-* Jansson, N., Karp, M., Podobas, A., Markidis, S. and Schlatter, P., 2024. *Neko: A modern, portable, and scalable framework for high-fidelity computational fluid dynamics*. Computer & Fluids, 275. [https://doi.org/10.1016/j.compfluid.2024.106243](https://doi.org/10.1016/j.compfluid.2024.106243)
+* Jansson, N., Karp, M., Podobas, A., Markidis, S. and Schlatter, P., 2024. *Neko: A modern, portable, and scalable framework for high-fidelity computational fluid dynamics*. Computers & Fluids, 275. [https://doi.org/10.1016/j.compfluid.2024.106243](https://doi.org/10.1016/j.compfluid.2024.106243)
 
 ## Publications using Neko
 ### Computer science
@@ -80,7 +80,7 @@ When using Neko in a scientific publication, please add a citation to the follow
 * Karp, M., Jansson, N., Podobas, A., Schlatter, P., and Markidis, S., 2022. *Reducing Communication in the Conjugate Gradient Method: A Case Study on High-Order Finite Elements*. In proc. PASC 2022.
 * Karp, M., Massaro, D., Jansson, N., Hart, A., Wahlgren, J., Schlatter, P., and Markidis, S., 2023. *Large-Scale Direct Numerical Simulations of Turbulence Using GPUs and Modern Fortran*. The International Journal of High Performance Computing Applications, 37, 5.
 * Jansson, N., Karp, M., Perez, A., Mukha, T., Ju, Y., Liu, J., Páll, S., Laure, E., Weinkauf, T., Schumacher, J., Schlatter, P., Markidis, S., 2023. *Exploring the Ultimate Regime of Turbulent Rayleigh–Bénard Convection Through Unprecedented Spectral-Element Simulations*. SC '23: Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis.
-* Jansson, N., Karp, M., Podobas, A., Markidis, S. and Schlatter, P., 2024. *Neko: A modern, portable, and scalable framework for high-fidelity computational fluid dynamics*. Computer & Fluids, 275.
+* Jansson, N., Karp, M., Podobas, A., Markidis, S. and Schlatter, P., 2024. *Neko: A modern, portable, and scalable framework for high-fidelity computational fluid dynamics*. Computers & Fluids, 275.
 * Karp, M., 2024. *Direct Numerical Simulation of Turbulence on Heterogenous Computer Systems : Architectures, Algorithms, and Applications*, PhD dissertation, KTH Royal Institute of Technology, Stockholm, Sweden.
 * Karp, M., Stanly, R., Mukha, T., Galimberti, L., Toosi, S., Song, H., Dalcin,
   L., Rezaeiravesh, S., Jansson, N., Markidis, S., Parsani, M., Bose, S., Lele,
@@ -98,6 +98,7 @@ When using Neko in a scientific publication, please add a citation to the follow
 * Baconnet, V., 2025. *Numerical Investigations of Secondary Flows in Low-Pressure Turbines*, Licentiate dissertation, KTH Royal Institute of Technology, Stockholm, Sweden.
 * Stanly, R., Bagheri, E., Mukha, T., Schlatter, P., 2026. *Influence of turbulence inflow conditions on aeroacoustics of wall-bounded flows*. International Journal of Heat and Fluid Flow, 118, 110216. [https://doi.org/10.1016/j.ijheatfluidflow.2025.110216](https://doi.org/10.1016/j.ijheatfluidflow.2025.110216)
 * Du, S., Münsch, M., Jansson, N., Schlatter, P., 2026. *Assessment of the gradient jump penalisation in large-eddy simulations of turbulence*. Acta Mechanica. [https://doi.org/10.1007/s00707-025-04607-z](https://doi.org/10.1007/s00707-025-04607-z)
+* Morse, N., Jansson, N., Bode, M., Lingwood, R. J., Alfredsson, P. H., Mihaescu, M., Örlü, R., Schlatter, P., 2026. *Direct numerical simulation of the rotating disk turbulent boundary layer*. Proceedings of the 14th International Symposium on Turbulence and Shear Flow Phenomena (TSFP14).
 
 ## Acknowledgments
 The development of Neko was supported by the European Commission Horizon 2020 project grant *EPiGRAM-HS: Exascale Programming Models for Heterogeneous Systems* (grant reference 801039), the European High Performance Computing Joint Unertaking (JU) and Sweden, Germany, Spain, Greece and Denmark under grant "CEEC - Centre of Excellence for Exascale CFD" (grant agreement No 101093393), the Swedish Research Council project grant *Efficient Algorithms for Exascale Computational Fluid Dynamics* (grant reference 2019-04723) and the SeRC Exascale Simulation Software Initiative (SESSI). The Neko logo was designed by Robert Hansen Jagrelius.

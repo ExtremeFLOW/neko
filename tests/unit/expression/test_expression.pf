@@ -1,6 +1,6 @@
 module test_expression
   use pfunit
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use math, only : NEKO_EPS
   use expression, only : expression_t, expression_eval_static
   use registry, only : neko_const_registry
@@ -13,7 +13,7 @@ contains
   function eval1(str, x, y, z, t) result(res)
     character(len=*), intent(in) :: str
     real(kind=rp), intent(in) :: x, y, z
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     real(kind=rp) :: res
     type(expression_t) :: e
     real(kind=rp) :: xa(1), ya(1), za(1), ra(1)
@@ -150,7 +150,7 @@ contains
     @assertTrue(e%time_dependent)
     call e%free()
 
-    @assertEqual(2.0_rp, eval1('2*t', zero, zero, zero, 1.0_rp), NEKO_EPS)
+    @assertEqual(2.0_rp, eval1('2*t', zero, zero, zero, 1.0_dp), NEKO_EPS)
   end subroutine test_time_dependence
 
   !> Constants declared in the case file are folded into the expression when
