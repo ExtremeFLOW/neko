@@ -42,8 +42,9 @@ module vector
      !> Vector shaped pointer.
      real(kind=rp), pointer, dimension(:) :: x => null()
    contains
+     generic :: init => init_vector
      !> Initialise a vector of size `n`.
-     procedure, pass(this) :: init => vector_init
+     procedure, pass(this), private :: init_vector => vector_init
      !> Free the vector
      procedure, pass(this) :: free => vector_free
   end type vector_t

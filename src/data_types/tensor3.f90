@@ -30,51 +30,34 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines a rank-3 tensor
+!> Defines a tensor3
 module tensor3
+  use array, only : array_t
+  use num_types, only : rp, xp
   use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
-  use device, only : device_map, device_unmap, device_memcpy, &
-       device_sync
-  use device_math, only : device_copy, device_cfill
-  use utils, only : neko_error, NEKO_VARNAME_LEN
-  use, intrinsic :: iso_c_binding
+  use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
+  use utils, only : neko_warning, neko_error
   implicit none
   private
 
-  type, public :: tensor3_t
-     real(kind=rp), allocatable :: x(:,:,:) !< Tensor entries.
-     character(len=NEKO_VARNAME_LEN) :: name = "" !< Name of the tensor
-     type(c_ptr) :: x_d = C_NULL_PTR !< Device pointer.
-     integer, private :: n1 = 0 !< Size of the first dimension.
-     integer, private :: n2 = 0 !< Size of the second dimension.
-     integer, private :: n3 = 0 !< Size of the third dimension.
-     integer, private :: n = 0 !< Total size n1*n2*n3.
+  type, public, extends(array_t) :: tensor3_t
+     !> tensor3 shaped pointer.
+     real(kind=rp), pointer, dimension(:,:,:) :: x => null()
+     !> Number of tensor3 dimensions.
+     integer, dimension(3), private :: dims = [0, 0, 0]
+
    contains
-     !> Initialise a tensor of size `n1*n2*n3`.
-     procedure, pass(t) :: init => tensor3_init
-     !> Deallocate a tensor.
-     procedure, pass(t) :: free => tensor3_free
-     !> Returns the number of entries in the tensor.
-     procedure, pass(t) :: size => tensor3_size
-     !> Copy between host and device
-     procedure, pass(t) :: copy_from => tensor3_copy_from
-     !> Returns the size of the first dimension.
-     procedure, pass(t) :: get_n1 => tensor3_n1
-     !> Returns the size of the second dimension.
-     procedure, pass(t) :: get_n2 => tensor3_n2
-     !> Returns the size of the third dimension.
-     procedure, pass(t) :: get_n3 => tensor3_n3
-     !> Assignment \f$ t = w \f$
-     procedure, pass(t) :: tensor3_assign_tensor3
-     !> Assignment \f$ t = s \f$.
-     procedure, pass(t) :: tensor3_assign_scalar
+     generic :: init => init_tensor3
+     !> Initialise a tensor3 of size `n1*n2*n3`.
+     procedure, pass(this) :: init_tensor3 => tensor3_init
+     !> Deallocate a tensor3.
+     procedure, pass(this) :: free => tensor3_free
 
-     generic :: assignment(=) => tensor3_assign_tensor3, &
-          tensor3_assign_scalar
+     !> Returns the dimensions of the tensor3.
+     procedure, pass(this) :: get_dims => tensor3_dims
+     !> Return the specific dimension of the tensor3.
+     procedure, pass(this) :: get_dim => tensor3_dim
 
-     !> Allocate a tensor of size `n1*n2*n3`.
-     procedure, pass(t), private :: alloc => tensor3_allocate
   end type tensor3_t
 
   type, public :: tensor3_ptr_t
@@ -94,174 +77,44 @@ contains
   !! @param n2 Size of the second dimension.
   !! @param n3 Size of the third dimension.
   !! @param name Optional name of the tensor.
-  subroutine tensor3_init(t, n1, n2, n3, name)
-    class(tensor3_t), intent(inout) :: t
+  subroutine tensor3_init(this, n1, n2, n3, name)
+    class(tensor3_t), intent(inout), target :: this
     integer, intent(in) :: n1
     integer, intent(in) :: n2
     integer, intent(in) :: n3
     character(len=*), intent(in), optional :: name
 
-    ! t%alloc zeroes the device side (and synchronizes) before any
-    ! host-side touch: under zero-copy the device then faults the
-    ! pages first (device first touch), which gives contiguous
-    ! physical mappings and thus better GPU TLB utilisation; rewriting
-    ! the zeros on the host afterwards is benign.
-    call t%alloc(n1, n2, n3)
-    t%x = 0.0_rp
+    call this%init_base(n1*n2*n3, name)
 
-    if (present(name)) then
-       t%name = name
-    end if
+    this%dims = [n1, n2, n3]
+    this%x(1:n1, 1:n2, 1:n3) => this%data(:)
 
   end subroutine tensor3_init
 
-  !> Allocate a tensor of size `n1*n2*n3`.
-  !! @param t Tensor to allocate.
-  !! @param n1 Size of the first dimension.
-  !! @param n2 Size of the second dimension.
-  !! @param n3 Size of the third dimension.
-  subroutine tensor3_allocate(t, n1, n2, n3)
-    class(tensor3_t), intent(inout) :: t
-    integer, intent(in) :: n1
-    integer, intent(in) :: n2
-    integer, intent(in) :: n3
+  !> Deallocate a tensor3.
+  subroutine tensor3_free(this)
+    class(tensor3_t), intent(inout) :: this
 
-    call t%free()
-
-    allocate(t%x(n1, n2, n3))
-    t%n1 = n1
-    t%n2 = n2
-    t%n3 = n3
-    t%n = n1*n2*n3
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(t%x, t%x_d, t%n)
-       call device_cfill(t%x_d, 0.0_rp, t%n)
-       call device_sync()
-    end if
-
-  end subroutine tensor3_allocate
-
-  !> Deallocate a tensor.
-  !! @param t Tensor to deallocate.
-  subroutine tensor3_free(t)
-    class(tensor3_t), intent(inout) :: t
-
-    if (allocated(t%x)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(t%x, t%x_d)
-       end if
-       deallocate(t%x)
-    end if
-
-    t%n1 = 0
-    t%n2 = 0
-    t%n3 = 0
-    t%n = 0
-    t%name = ""
+    call this%free_base()
+    this%dims = [0, 0, 0]
+    nullify(this%x)
 
   end subroutine tensor3_free
 
-  !> Returns the number of entries in the tensor.
-  !! @param t Tensor to query.
-  pure function tensor3_size(t) result(s)
-    class(tensor3_t), intent(in) :: t
-    integer :: s
-    s = t%n
-  end function tensor3_size
+  !> Returns the dimensions of the tensor3.
+  pure function tensor3_dims(this) result(dims)
+    class(tensor3_t), intent(in) :: this
+    integer :: dims(3)
+    dims = this%dims
+  end function tensor3_dims
 
-  !> Easy way to copy between host and device.
-  !! @param t Tensor to copy to/from device/host.
-  !! @param memdir Direction to copy (HOST_TO_DEVICE or DEVICE_TO_HOST).
-  !! @param sync Whether the memcopy is to be blocking or not.
-  subroutine tensor3_copy_from(t, memdir, sync)
-    class(tensor3_t), intent(inout) :: t
-    integer, intent(in) :: memdir
-    logical, intent(in) :: sync
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(t%x, t%x_d, t%n, memdir, sync)
-    end if
-
-  end subroutine tensor3_copy_from
-
-  !> Returns the size of the first dimension.
-  !! @param t Tensor to query.
-  pure function tensor3_n1(t) result(n1)
-    class(tensor3_t), intent(in) :: t
-    integer :: n1
-    n1 = t%n1
-  end function tensor3_n1
-
-  !> Returns the size of the second dimension.
-  !! @param t Tensor to query.
-  pure function tensor3_n2(t) result(n2)
-    class(tensor3_t), intent(in) :: t
-    integer :: n2
-    n2 = t%n2
-  end function tensor3_n2
-
-  !> Returns the size of the third dimension.
-  !! @param t Tensor to query.
-  pure function tensor3_n3(t) result(n3)
-    class(tensor3_t), intent(in) :: t
-    integer :: n3
-    n3 = t%n3
-  end function tensor3_n3
-
-  !> Assignment \f$ t = w \f$
-  !! @param t Tensor to assign to.
-  !! @param w Tensor to assign from.
-  subroutine tensor3_assign_tensor3(t, w)
-    class(tensor3_t), intent(inout) :: t
-    type(tensor3_t), intent(in) :: w
-
-    if (allocated(t%x)) then
-       call t%free()
-    end if
-
-    if (.not. allocated(t%x)) then
-
-       t%n1 = w%n1
-       t%n2 = w%n2
-       t%n3 = w%n3
-       t%n = w%n
-       allocate(t%x(t%n1, t%n2, t%n3))
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(t%x, t%x_d, t%n)
-       end if
-
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_copy(t%x_d, w%x_d, t%n)
-    else
-       t%x = w%x
-    end if
-
-    t%name = w%name
-
-  end subroutine tensor3_assign_tensor3
-
-  !> Assignment \f$ t = s \f$.
-  !! @param t Tensor to assign to.
-  !! @param s Scalar to fill the tensor with.
-  subroutine tensor3_assign_scalar(t, s)
-    class(tensor3_t), intent(inout) :: t
-    real(kind=rp), intent(in) :: s
-
-    if (.not. allocated(t%x)) then
-       call neko_error('tensor3 not allocated')
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(t%x_d, s, t%n)
-    else
-       t%x = s
-    end if
-
-  end subroutine tensor3_assign_scalar
+  !> Return the specific dimension of the tensor3.
+  function tensor3_dim(this, dim) result(d)
+    class(tensor3_t), intent(in) :: this
+    integer, intent(in) :: dim
+    integer :: d
+    d = this%dims(dim)
+  end function tensor3_dim
 
   ! ========================================================================== !
   ! tensor3 pointer type subroutines

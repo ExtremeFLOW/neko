@@ -53,10 +53,13 @@ module array
      !> Size of array.
      integer, private :: n = 0
    contains
+     !> All array types must implement the free method.
+     procedure(array_free), pass(this), deferred :: free
+
      !> Initialise a array of size `n` and optional name.
-     procedure, pass(this) :: init_base => array_init
+     procedure, pass(this) :: init_base => array_init_base
      !> Deallocate a array.
-     procedure, pass(this) :: free_base => array_free
+     procedure, pass(this) :: free_base => array_free_base
      !> Copy data between host and device
      procedure, pass(this) :: copy_from => array_copy_from
      !> Returns the number of entries in the array.
@@ -80,10 +83,18 @@ module array
 
   end type array_t
 
+  ! Define the abstract interfaces for the deferred procedures
+  abstract interface
+     subroutine array_free(this)
+       import array_t
+       class(array_t), intent(inout) :: this
+     end subroutine array_free
+  end interface
+
 contains
 
   !> Initialise a array of size @a n.
-  subroutine array_init(this, n, name)
+  subroutine array_init_base(this, n, name)
     class(array_t), intent(inout), target :: this
     integer, intent(in) :: n
     character(len=*), intent(in), optional :: name
@@ -102,7 +113,7 @@ contains
        this%name = name
     end if
 
-  end subroutine array_init
+  end subroutine array_init_base
 
   !> Vector allocation without initialisation.
   subroutine array_allocate(this, n)
@@ -121,7 +132,7 @@ contains
   end subroutine array_allocate
 
   !> Deallocate a array.
-  subroutine array_free(this)
+  subroutine array_free_base(this)
     class(array_t), intent(inout) :: this
 
     if (allocated(this%data)) then
@@ -134,7 +145,7 @@ contains
     this%n = 0
     this%name = ""
 
-  end subroutine array_free
+  end subroutine array_free_base
 
   !> Return the number of entries in the array.
   pure function array_size(this) result(s)
@@ -168,7 +179,7 @@ contains
   !> Assignment \f$ this = w \f$.
   subroutine array_assign_array(this, w)
     class(array_t), intent(inout) :: this
-    class(array_t), intent(in) :: w
+    type(array_t), intent(in) :: w
 
     if (this%size() .ne. w%size()) then
        call neko_error('Error in array assignment: incompatible size')

@@ -47,8 +47,9 @@ module matrix
      integer, dimension(2), private :: dims = [0, 0]
 
    contains
+     generic :: init => init_matrix
      !> Initialise a matrix of size `nrows*ncols`.
-     procedure, pass(this) :: init => matrix_init
+     procedure, pass(this), private :: init_matrix => matrix_init
      !> Deallocate a matrix.
      procedure, pass(this) :: free => matrix_free
 
