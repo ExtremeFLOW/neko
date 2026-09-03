@@ -45,7 +45,7 @@ contains
     integer :: ierr
 
     call v%init(n)
-    @assertTrue(allocated(v%x))
+    @assertTrue(v%is_allocated())
     @assertEqual(size(v%x), n)
     @assertEqual(v%size(), n)
     @assertEqual(maxval(v%x), 0d0)
@@ -67,9 +67,10 @@ contains
 
     call v%init(n)
     call v%free()
-    @assertFalse(allocated(v%x))
+    @assertFalse(v%is_allocated())
     @assertEqual(v%size(), 0)
 
+    @assertFalse(associated(v%x))
     if (NEKO_BCKND_DEVICE .eq. 1) then
        @assertFalse(c_associated(v%x_d))
     end if
@@ -80,20 +81,23 @@ contains
   subroutine test_vector_assign_vector(this)
     class (test_vector), intent(inout) :: this
     integer, parameter :: n = 42
-    integer, parameter :: m = 4711
     type(vector_t) :: v, w
 
+    call v%init(n)
     call w%init(n)
-    v = w
-    @assertEqual(v%size(), w%size())
-    @assertTrue(allocated(v%x))
 
+    v%x(10) = 32.0_rp
+
+    @assertEqual(v%x(10), 32.0_rp)
+    @assertEqual(w%x(10), 0.0_rp)
+
+    w = v
+
+    @assertEqual(v%x(10), 32.0_rp)
+    @assertEqual(w%x(10), 32.0_rp)
+
+    call v%free()
     call w%free()
-    call w%init(m)
-
-    v = w
-    @assertEqual(v%size(), w%size())
-    @assertTrue(allocated(v%x))
 
   end subroutine test_vector_assign_vector
 
@@ -145,7 +149,7 @@ contains
     call vector_add3(u, v, w)
 
     @assertEqual(u%size(), v%size())
-    @assertTrue(allocated(u%x))
+    @assertTrue(u%is_allocated())
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST, sync=.true.)
@@ -207,7 +211,7 @@ contains
 
     @assertEqual(u%size(), v%size())
     @assertEqual(u%size(), w%size())
-    @assertTrue(allocated(u%x))
+    @assertTrue(u%is_allocated())
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST, sync=.true.)
@@ -243,7 +247,7 @@ contains
     call vector_cmult2(u, v, s)
 
     @assertEqual(u%size(), v%size())
-    @assertTrue(allocated(u%x))
+    @assertTrue(u%is_allocated())
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST, sync=.true.)

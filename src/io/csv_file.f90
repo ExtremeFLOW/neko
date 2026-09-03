@@ -77,7 +77,7 @@ contains
 
     select type (data)
     type is (vector_t)
-       if (.not. allocated(data%x)) then
+       if (.not. data%is_allocated()) then
           call neko_error("Vector is not allocated. Use &
           &vector%init() to associate your array &
           &with a vector_t object")
@@ -214,7 +214,7 @@ contains
     select type (data)
     type is (vector_t)
        vec => data
-       if (.not. allocated(data%x)) then
+       if (.not. data%is_allocated()) then
           call neko_error("Vector is not allocated. Use &
           &vector%init() to associate your array &
           &with a vector_t object")

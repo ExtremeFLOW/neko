@@ -32,49 +32,22 @@
 !
 !> Defines a vector
 module vector
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use array, only : array_t
   use num_types, only : rp
-  use device, only : device_map, device_unmap, &
-       device_memcpy, device_sync, HOST_TO_DEVICE
-  use math, only : cfill, copy
-  use device_math, only : device_copy, device_cfill, device_cmult, &
-       device_sub3, device_cmult2, device_add3, device_cadd2, device_col3, &
-       device_col2, device_invcol3, device_cdiv2
-  use utils, only : neko_error, NEKO_VARNAME_LEN
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
-  type, public :: vector_t
+  type, public, extends(array_t) :: vector_t
      !> Vector entries.
-     real(kind=rp), allocatable :: x(:)
-     character(len=NEKO_VARNAME_LEN) :: name = "" !< Name of the vector
+     real(kind=rp), pointer, dimension(:) :: x => null()
      !> Device pointer.
      type(c_ptr) :: x_d = C_NULL_PTR
-     !> Size of vector.
-     integer, private :: n = 0
    contains
      !> Initialise a vector of size `n`.
-     procedure, pass(v) :: init => vector_init
-     !> Deallocate a vector.
-     procedure, pass(v) :: free => vector_free
-     !> Copy data between host and device
-     procedure, pass(v) :: copy_from => vector_copy_from
-     !> Returns the number of entries in the vector.
-     procedure, pass(v) :: size => vector_size
-     !> Assignment \f$ v = w \f$
-     procedure, pass(v) :: vector_assign_vector
-     !> Assignment \f$ v = s \f$.
-     procedure, pass(v) :: vector_assign_scalar
-     !> Assignment \f$ v = array \f$.
-     procedure, pass(v) :: vector_assign_array
-
-     !> Assignments
-     generic :: assignment(=) => vector_assign_vector, &
-          vector_assign_scalar, vector_assign_array
-
-     ! Private interfaces
-     procedure, pass(a), private :: alloc => vector_allocate
+     procedure, pass(this) :: init => vector_init
+     !> Free the vector
+     procedure, pass(this) :: free => vector_free
 
   end type vector_t
 
@@ -90,125 +63,26 @@ module vector
 contains
 
   !> Initialise a vector of size @a n.
-  subroutine vector_init(v, n, name)
-    class(vector_t), intent(inout) :: v
+  subroutine vector_init(this, n, name)
+    class(vector_t), intent(inout), target :: this
     integer, intent(in) :: n
     character(len=*), intent(in), optional :: name
 
-    call v%alloc(n)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       ! Zero the device side first: under zero-copy the device then
-       ! faults the pages (device first touch), which gives contiguous
-       ! physical mappings and thus better GPU TLB utilisation
-       call device_cfill(v%x_d, 0.0_rp, n)
-       call device_sync()
-    end if
-    call cfill(v%x, 0.0_rp, n)
+    call this%array_t%init(n, name)
 
-    if (present(name)) then
-       v%name = name
-    end if
+    this%x => this%data(:)
+    this%x_d = this%data_d
 
   end subroutine vector_init
 
-  !> Vector allocation without initialisation.
-  subroutine vector_allocate(a, n)
-    class(vector_t), intent(inout) :: a
-    integer, intent(in) :: n
+  !> Free the vector
+  subroutine vector_free(this)
+    class(vector_t), intent(inout) :: this
 
-
-    if (a%n .eq. n) return
-    call a%free()
-
-    a%n = n
-    allocate(a%x(n))
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(a%x, a%x_d, n)
-    end if
-
-  end subroutine vector_allocate
-
-  !> Deallocate a vector.
-  subroutine vector_free(v)
-    class(vector_t), intent(inout) :: v
-
-    if (allocated(v%x)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(v%x, v%x_d)
-       end if
-       deallocate(v%x)
-    end if
-
-    v%n = 0
-    v%name = ""
-
+    call this%array_t%free()
+    nullify(this%x)
+    this%x_d = C_NULL_PTR
   end subroutine vector_free
-
-  !> Return the number of entries in the vector.
-  pure function vector_size(v) result(s)
-    class(vector_t), intent(in) :: v
-    integer :: s
-    s = v%n
-  end function vector_size
-
-  !> Easy way to copy between host and device.
-  !! @param v vector to copy to/from device/host
-  !! @memdir direction to copy (HOST_TO_DEVICE or DEVICE_TO_HOST)
-  !! @sync whether the memcopy to be blocking or not
-  subroutine vector_copy_from(v, memdir, sync)
-    class(vector_t), intent(inout) :: v
-    integer, intent(in) :: memdir
-    logical, intent(in) :: sync
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(v%x, v%x_d, v%n, memdir, sync)
-    end if
-
-  end subroutine vector_copy_from
-
-
-  !> Assignment \f$ v = w \f$.
-  subroutine vector_assign_vector(v, w)
-    class(vector_t), intent(inout) :: v
-    type(vector_t), intent(in) :: w
-
-    call v%alloc(w%n)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_copy(v%x_d, w%x_d, v%n)
-    else
-       call copy(v%x, w%x, v%n)
-    end if
-
-    v%name = w%name
-
-  end subroutine vector_assign_vector
-
-  !> Assignment \f$ v = s \f$.
-  subroutine vector_assign_scalar(v, s)
-    class(vector_t), intent(inout) :: v
-    real(kind=rp), intent(in) :: s
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(v%x_d, s, v%n)
-    else
-       call cfill(v%x, s, v%n)
-    end if
-
-  end subroutine vector_assign_scalar
-
-  !> Assignment \f$ v = array \f$.
-  subroutine vector_assign_array(v, array)
-    class(vector_t), intent(inout) :: v
-    real(kind=rp), intent(in) :: array(:)
-
-    call v%alloc(size(array))
-    v%x = array
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call v%copy_from(HOST_TO_DEVICE, .true.)
-    end if
-
-  end subroutine vector_assign_array
 
   ! ========================================================================== !
   ! vector pointer type subroutines
