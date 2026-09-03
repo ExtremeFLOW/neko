@@ -422,7 +422,14 @@ Example configuration:
     ],
     "output_control": "nsamples",
     "output_value": 20
-  }
+  },
+  "simulation_components": [
+    {
+      "type": "artificial_viscosity_model",
+      "model": "entropy_viscosity",
+      "field_name": "entropy_viscosity"
+    }
+  ]
 }
 ~~~~~~~~~~~~~~~
 
@@ -2228,7 +2235,7 @@ currently supports 50 regions, with id 1..25 being reserved for internal use.
 | `enabled`        | Whether to enable gathering of runtime statistics           | `true` or `false` | `false`       |
 | `output_profile` | Whether to output all gathered profiling data as a CSV file | `true` or `false` | `false`       |
 
-## Viscous regularization
+## Viscous regularization {#case-file_viscous-regularization}
 
 Users can use the viscous regularization object to enhance the smoothness or 
 the numerical stability of the solution via a diffusion term. For example, 
@@ -2244,11 +2251,26 @@ can be set up with the following options:
 * `reg_coeff_name`, name of the $\mu_\mathrm{artificial}$ field, usually 
 computed by a simulation component.
 
-This object can perform regularization on scalar or fluid equations by using
-the following solver configuration:
-```json
-"viscous_regularization":{
-    "type": "artificial_viscosity",
-    "reg_coeff_name": "entropy_viscosity"
+Viscous regularization is currently supported by the compressible fluid
+solver. Artificial viscosity requires both the regularization object that
+consumes the coefficient and a simulation component that computes it. The
+`reg_coeff_name` and `field_name` values must match:
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "fluid": {
+    "scheme": "compressible",
+    "viscous_regularization": {
+      "type": "artificial_viscosity",
+      "reg_coeff_name": "entropy_viscosity"
+    }
+  },
+  "simulation_components": [
+    {
+      "type": "artificial_viscosity_model",
+      "model": "entropy_viscosity",
+      "field_name": "entropy_viscosity"
+    }
+  ]
 }
-```
+~~~~~~~~~~~~~~~

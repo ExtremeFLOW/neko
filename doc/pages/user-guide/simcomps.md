@@ -939,10 +939,10 @@ keywords used by the latter can also be specified, with the exception of
 ### artificial_viscosity_model {#simcomp_avm}
 Computes an artificial viscosity field using a particular model. **Note:** The simcomp
 *only* computes the artificial viscosity field. You have to select the 
-corresponding `reg_coeff_name` in the `viscous_regularization` JSON object in the
-fluid and/or scalar JSON object to actually enable artificial viscosity, see
-the corresponding documentation. The simcomp is controlled by the following
-keywords:
+corresponding `reg_coeff_name` in the compressible fluid solver's
+`viscous_regularization` JSON object to actually enable artificial viscosity;
+see @ref case-file_viscous-regularization. The simcomp is controlled by the
+following keywords:
 
 - `model`: Selects the artificial viscosity model. Currently available models are:
   - `entropy_viscosity`: An entropy-based viscosity aimed at shock capturing;
@@ -954,8 +954,8 @@ keywords:
 
 - `field_name`: The name of the artificial viscosity field added to the registry.
   Defaults to the model name.
-  This allows two different artificial viscosity models to be active and saved
-  to different fields, for example one for the scalar and one for the fluid.
+  It must match the `reg_coeff_name` selected by the consuming regularization
+  object.
 
  ~~~~~~~~~~~~~~~{.json}
  {

@@ -52,7 +52,7 @@ module artificial_viscosity_model
      type(coef_t), pointer :: coef => null()
      !> SEM dofmap.
      type(dofmap_t), pointer :: dof => null()
-     !> The size of the `les_model_registry`
+     !> Number of custom artificial viscosity model allocators.
      integer :: les_model_registry_size = 0
    contains
      !> Constructor for the avm_t (base) class.
@@ -73,6 +73,7 @@ module artificial_viscosity_model
 
   abstract interface
      !> Perform artificial viscosity related computations before the time step.
+     !! @param this The artificial viscosity model.
      !! @param time The time state.
      subroutine avm_preprocess(this, time)
        import avm_t, time_state_t
@@ -83,6 +84,7 @@ module artificial_viscosity_model
 
   abstract interface
      !> Perform artificial viscosity related computations after the time step.
+     !! @param this The artificial viscosity model.
      !! @param time The time state.
      subroutine avm_compute(this, time)
        import avm_t, time_state_t
@@ -93,6 +95,7 @@ module artificial_viscosity_model
 
   abstract interface
      !> Common constructor.
+     !! @param this The artificial viscosity model.
      !! @param case The case_t object.
      !! @param json A dictionary with parameters.
      subroutine avm_init(this, case, json)
@@ -105,6 +108,7 @@ module artificial_viscosity_model
 
   abstract interface
      !> Destructor.
+     !! @param this The artificial viscosity model.
      subroutine avm_free(this)
        import avm_t
        class(avm_t), intent(inout) :: this
@@ -129,6 +133,8 @@ module artificial_viscosity_model
   !! Implemented in the user modules, should allocate the `obj` to the custom
   !! user type.
   abstract interface
+     !> Allocate a custom artificial viscosity model.
+     !! @param obj The object to allocate.
      subroutine avm_allocate(obj)
        import avm_t
        class(avm_t), allocatable, intent(inout) :: obj
@@ -137,16 +143,20 @@ module artificial_viscosity_model
 
   interface
      !> Called in user modules to add an allocator for custom types.
+     !! @param type_name The custom model type name.
+     !! @param allocator The custom model allocator.
      module subroutine register_avm(type_name, allocator)
        character(len=*), intent(in) :: type_name
        procedure(avm_allocate), pointer, intent(in) :: allocator
      end subroutine register_avm
   end interface
 
-  ! A name-allocator pair for user-defined types. A helper type to define a
-  ! registry of custom allocators.
+  !> A name-allocator pair for user-defined types. A helper type to define a
+  !! registry of custom allocators.
   type allocator_entry
+     !> Registered model type name.
      character(len=20) :: type_name
+     !> Allocator associated with the model type.
      procedure(avm_allocate), pointer, nopass :: allocator
   end type allocator_entry
 
@@ -164,8 +174,6 @@ module artificial_viscosity_model
      !! @param object The object to be allocated.
      !! @param type_name The name of the artificial viscosity model.
      !! @param case The case_t object.
-     !! @param dofmap SEM map of degrees of freedom.
-     !! @param coef SEM coefficients.
      !! @param json A dictionary with parameters.
      module subroutine avm_factory(object, type_name, case, json)
        class(avm_t), allocatable, intent(inout) :: object
@@ -181,6 +189,7 @@ module artificial_viscosity_model
 
 contains
   !> Constructor for the avm_t (base) class.
+  !! @param this The artificial viscosity model.
   !! @param dof Map of degrees of freedom.
   !! @param coef The SEM coefficients.
   !! @param reg_coeff_name The name of the artificial viscosity field.
@@ -202,6 +211,7 @@ contains
 
   !> Restore model state after loading a checkpoint.
   !! Models with additional history should override this method.
+  !! @param this The artificial viscosity model.
   !! @param time The restored time state.
   subroutine avm_restart(this, time)
     class(avm_t), intent(inout) :: this
@@ -212,6 +222,7 @@ contains
   end subroutine avm_restart
 
   !> Destructor for the avm_t (base) class.
+  !! @param this The artificial viscosity model.
   subroutine avm_free_base(this)
     class(avm_t), intent(inout) :: this
 
