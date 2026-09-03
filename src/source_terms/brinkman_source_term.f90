@@ -460,7 +460,12 @@ contains
     integer, intent(in) :: counter
     type(time_state_t), intent(in) :: time
 
-    write(*, *) "Nothing done for point zone"
+    ! Point zones should be already restarted, but in any case run the restart.
+    ! It is safe to call it here, as AMR restart prevents recursive
+    ! reconstructions
+    if (associated(this%zone)) call this%zone%amr_restart(reconstruct, &
+         counter, time)
+
   end subroutine point_object_amr_restart
 
   !> Field object initialisation
@@ -509,6 +514,8 @@ contains
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
     type(time_state_t), intent(in) :: time
+
+    ! It is dangerous to simply refine the field, so it shouldn't be done
   end subroutine field_object_amr_restart
 
   !> File object initialisation
@@ -626,6 +633,8 @@ contains
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
     type(time_state_t), intent(in) :: time
+
+    ! It is dangerous to simply refine the field, so it shouldn't be done
   end subroutine file_object_amr_restart
 
   ! ========================================================================== !
@@ -739,28 +748,6 @@ contains
     do i = 1, n_objects
        if (allocated(this%objects(i)%obj)) &
             call this%objects(i)%obj%get(this%indicator)
-    end do
-
-    do i = 1, n_objects
-       call json_extract_item(json, "objects", i, object_settings)
-       call json_get(object_settings, 'type', object_type)
-
-       select case (object_type)
-       case ('boundary_mesh')
-!          call this%add_boundary_mesh(object_settings)
-       case ('point_zone')
-!          call this%add_point_zone(object_settings)
-       case ('field')
-!          call this%add_field(object_settings)
-       case ('file')
-!          call this%add_file(object_settings)
-
-       case default
-          write(error_msg, '(A,I0,A,A)') 'Brinkman object: ', i, &
-               ' unknown type: ', trim(object_type)
-          call neko_error(trim(error_msg))
-       end select
-
     end do
 
     ! ------------------------------------------------------------------------ !
@@ -1258,31 +1245,9 @@ contains
     do il = 1, this%n_objects
        if (allocated(this%objects(il)%obj)) then
           call this%objects(il)%obj%amr_restart(reconstruct, counter, time)
-!          call this%objects(il)%obj%get(this%indicator)
+          call this%objects(il)%obj%get(this%indicator)
        end if
     end do
-    
-    ! testing
-    block
-      integer :: lx, il, jl, kl, el
-      real(kind=rp) :: x, y, z
-      lx = this%coef%dof%Xh%lx
-      do el = 1, reconstruct%nnew
-         do kl = 1, lx
-            do jl = 1, lx
-               do il = 1, lx
-                  x = this%coef%dof%x(il, jl, kl, el)
-                  y = this%coef%dof%y(il, jl, kl, el)
-                  z = this%coef%dof%z(il, jl, kl, el)
-                  if (sqrt((x - 1.0_rp)**2 + (y - 0.5_rp)**2 + &
-                       (z - 0.5_rp)**2) .lt. 0.1) &
-                       this%indicator%x(il, jl, kl, el) = 1.0_rp
-               end do
-            end do
-         end do
-      end do
-    end block
-    
 
     ! Perform filtering
     if (allocated(this%filter)) then
@@ -1326,7 +1291,6 @@ contains
 
       write(*,*) "TESTfilterPDE", allocated(this%filter), &
            associated(this%unfiltered)
-      call neko_log%message('Working on brinkman')
     end block
     
 
