@@ -33,6 +33,7 @@
 module entropy_viscosity
   use num_types, only : rp
   use case, only : case_t
+  use registry, only : neko_registry
   use artificial_viscosity_model, only : avm_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
@@ -77,7 +78,7 @@ module entropy_viscosity
      real(kind=rp) :: gamma
      type(field_t) :: entropy_residual
      type(field_series_t) :: S_lag
-     type(field_t) :: S
+     type(field_t), pointer :: S => null()
      type(field_t), pointer :: p => null()
      type(field_t), pointer :: rho => null()
      type(field_t), pointer :: u => null()
@@ -136,7 +137,8 @@ contains
             fluid%gamma)
     end select
 
-    call this%S%init(this%dof, 'entropy_viscosity_S')
+    call neko_registry%add_field(this%dof, 'S', .true.)
+    this%S => neko_registry%get_field('S')
     call this%compute_entropy()
     call this%S_lag%init(this%S, 3)
 
@@ -151,9 +153,9 @@ contains
     call this%free_base()
     call this%entropy_residual%free()
     call this%S_lag%free()
-    call this%S%free()
     call this%h%free()
 
+    nullify(this%S)
     nullify(this%p)
     nullify(this%rho)
     nullify(this%u)
