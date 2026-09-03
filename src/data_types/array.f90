@@ -179,7 +179,7 @@ contains
   !> Assignment \f$ this = w \f$.
   subroutine array_assign_array(this, w)
     class(array_t), intent(inout) :: this
-    type(array_t), intent(in) :: w
+    class(array_t), intent(in) :: w
 
     if (this%size() .ne. w%size()) then
        call neko_error('Error in array assignment: incompatible size')

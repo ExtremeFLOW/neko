@@ -38,8 +38,8 @@ data_types/host_array.lo : data_types/host_array.f90 math/math.lo config/num_typ
 data_types/device_array.lo : data_types/device_array.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/neko_config.lo config/num_types.lo 
 data_types/vector.lo : data_types/vector.f90 config/num_types.lo data_types/array.lo 
 data_types/matrix.lo : data_types/matrix.f90 common/utils.lo device/device.lo config/neko_config.lo config/num_types.lo data_types/array.lo 
-data_types/tensor3.lo : data_types/tensor3.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo config/neko_config.lo 
-data_types/tensor4.lo : data_types/tensor4.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo config/neko_config.lo 
+data_types/tensor3.lo : data_types/tensor3.f90 common/utils.lo device/device.lo config/neko_config.lo config/num_types.lo data_types/array.lo 
+data_types/tensor4.lo : data_types/tensor4.f90 common/utils.lo device/device.lo config/neko_config.lo config/num_types.lo data_types/array.lo 
 math/mxm_wrapper.lo : math/mxm_wrapper.F90 common/utils.lo config/num_types.lo 
 sem/speclib.lo : sem/speclib.f90 common/utils.lo math/math.lo config/num_types.lo 
 qoi/drag_torque.lo : qoi/drag_torque.f90 comm/comm.lo math/bcknd/device/device_math.lo device/device.lo config/neko_config.lo common/utils.lo config/num_types.lo sem/space.lo math/math.lo mesh/facet_zone.lo data_types/vector.lo sem/coef.lo field/field.lo 
