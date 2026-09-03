@@ -20,10 +20,13 @@ check: boundary_operation_suite
 # Regenerate this Makefile from Makefile.in via config.status
 # whenever it changes, so an already-configured build tree picks up
 # fixes to this file (e.g. the NEKO_LIB dependency above) without
-# requiring a full reconfigure.
+# requiring a full reconfigure. The subdirectory is derived rather
+# than spelled out, so this block is identical in every test
+# directory and stays correct if one is copied to make a new test.
+SUBDIR := $(patsubst $(abspath @top_builddir@)/%,%,$(CURDIR))
+
 Makefile: Makefile.in @top_builddir@/config.status
-	cd @top_builddir@ && \
-	    $(SHELL) ./config.status tests/unit/boundary_operation/Makefile
+	cd @top_builddir@ && $(SHELL) ./config.status $(SUBDIR)/Makefile
 
 
 boundary_operation_suite_TESTS := test_boundary_operation.pf
