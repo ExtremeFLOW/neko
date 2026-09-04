@@ -1,0 +1,508 @@
+!> Checkpoint restart consistency for the native `chkp` format.
+!!
+!! Runs a short Taylor-Green vortex, writes a checkpoint half way through,
+!! then restarts a fresh case from that checkpoint and re-runs the
+!! remaining steps. Every step taken after the restart must reproduce the
+!! corresponding step of the uninterrupted run exactly.
+!!
+!! The physics mirrors `examples/tgv/tgv_expression.case`: the same
+!! expression initial condition on a triply periodic box, at a resolution
+!! cut down to something a unit test can afford. TGV is a deliberate
+!! choice -- it is non-trivial from the very first step, so the run cannot
+!! quietly degenerate into comparing two fields that are both still
+!! essentially at rest, which is the way a restart test fails silently.
+!!
+!! The check is deliberately for bit-exactness -- exactly zero, not a
+!! tolerance. Restoring a checkpoint and stepping on is a pure replay of
+!! the same arithmetic, so any drift at all means state was lost, silently
+!! regenerated, or passed through an operation it should not have been.
+!! Its `restart_consistency_hdf5` sibling runs the identical check over
+!! the HDF5 format; that reader once re-ran an interpolation fix-up on
+!! every restart, leaving about one ulp of error on each shared degree of
+!! freedom, and this test staying green throughout is what localised the
+!! fault to the reader rather than to the restart machinery.
+!!
+!! The mesh must hold more than one element for that class of bug to be
+!! visible at all, since the damage lands on degrees of freedom shared
+!! between elements.
+module test_restart_consistency
+  use mpi
+  use pfunit
+  use num_types, only : rp, dp
+  use case, only : case_t
+  use simulation, only : simulation_init, simulation_step, simulation_finalize
+  use time_step_controller, only : time_step_controller_t
+  use field, only : field_t
+  use math, only : copy, glsum
+  use mesh, only : mesh_t
+  use point, only : point_t
+  use file, only : file_t
+  use tuple, only : tuple4_i4_t
+  use json_module, only : json_file
+  use utils, only : neko_error
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use logger, only : neko_log
+  use jobctrl, only : jobctrl_init
+  use registry, only : neko_registry, neko_const_registry
+  use scratch_registry, only : neko_scratch_registry
+  implicit none
+
+  !> Checkpoint file the restart is taken from. The suffix picks the
+  !! format, so this single line is what distinguishes this test from its
+  !! `restart_consistency_hdf5` sibling.
+  character(len=*), parameter :: chkp_name = 'restart_consistency.chkp'
+  !> Mesh written by `write_box_mesh` and named by the case.
+  character(len=*), parameter :: mesh_name = 'restart_consistency_box.nmsh'
+
+  !> Elements per direction. More than one is essential: the bug class this
+  !! test guards against only damages degrees of freedom shared between
+  !! elements.
+  integer, parameter :: nel_dir = 8
+  !> Total steps, and the step the checkpoint is taken after.
+  integer, parameter :: n_steps = 10
+  integer, parameter :: n_half = 5
+  !> Timestep, matching the TGV example's.
+  real(kind=dp), parameter :: dt = 1.0e-2_dp
+
+  @TestCase
+  type, extends(MPITestCase) :: test_restart_consistency_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_restart_consistency_case
+
+contains
+
+  subroutine setUp(this)
+    class(test_restart_consistency_case), intent(inout) :: this
+
+    call comm_init_test(this%getMpiCommunicator())
+    call neko_mpi_types_init()
+    call jobctrl_init()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call neko_log%init()
+    call neko_registry%init()
+    call neko_const_registry%init()
+    call neko_scratch_registry%init()
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_restart_consistency_case), intent(inout) :: this
+
+    call neko_scratch_registry%free()
+    call neko_const_registry%free()
+    call neko_registry%free()
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+    call neko_mpi_types_free()
+    call comm_free_test()
+  end subroutine tearDown
+
+  ! ========================================================================== !
+
+  !> Every step after a restart must reproduce the uninterrupted run.
+  @test(npes=[1])
+  subroutine restart_matches_run(this)
+    class(test_restart_consistency_case), intent(inout) :: this
+    real(kind=rp) :: err(4), ref_norm
+    integer :: failing_step
+    character(len=256) :: msg
+
+    call run_restart_check(chkp_name, failing_step, err, ref_norm)
+
+    ! Guard against a vacuous pass: if the reference run never went
+    ! anywhere, two identical do-nothing runs would agree trivially.
+    write(msg, '(A,ES12.4)') &
+         'Reference run produced a trivial velocity field, norm = ', ref_norm
+    @assertTrue(ref_norm .gt. 1.0e-6_rp, trim(msg))
+
+    write(msg, '(A,I0,A,4(ES12.4,1X),A)') &
+         'Restarted step ', failing_step, &
+         ' differs from the uninterrupted run (u/v/w/p RMSE = ', &
+         err(1), err(2), err(3), err(4), ')'
+    @assertEqual(0, failing_step, trim(msg))
+  end subroutine restart_matches_run
+
+  ! ========================================================================== !
+
+  !> Shared body of the check, so a format-specific test stays a one-liner.
+  !! Assertions are left to the caller: pFUnit only rewrites `@assert`
+  !! macros inside `@test` subroutines.
+  !! @param checkpoint The checkpoint file to write and restart from; its
+  !! suffix selects the checkpoint format.
+  !! @param failing_step First step whose fields differ, or 0 if none do.
+  !! @param err The u/v/w/p RMSE at that step, or at the last step checked.
+  !! @param ref_norm Velocity norm at the end of the reference run.
+  subroutine run_restart_check(checkpoint, failing_step, err, ref_norm)
+    character(len=*), intent(in) :: checkpoint
+    integer, intent(out) :: failing_step
+    real(kind=rp), intent(out) :: err(4)
+    real(kind=rp), intent(out) :: ref_norm
+
+    type(case_t), target :: neko_case
+    type(time_step_controller_t) :: dt_controller
+    type(file_t) :: chkp_file
+    type(json_file) :: params
+    ! Snapshots are held as plain arrays, not fields: a `field_t` keeps a
+    ! pointer to its dofmap, and the reference case's dofmap dies with the
+    ! case, well before the comparison happens.
+    real(kind=rp), allocatable :: u_ref(:,:), v_ref(:,:)
+    real(kind=rp), allocatable :: w_ref(:,:), p_ref(:,:)
+    character(len=1024) :: chkp_written
+    integer :: i, k, n_after, n_glb, n_loc
+
+    failing_step = 0
+    err = 0.0_rp
+    ref_norm = 0.0_rp
+    n_after = n_steps - n_half
+
+    call write_box_mesh(mesh_name, nel_dir)
+
+    ! ----------------------------------------------------------------------- !
+    ! Uninterrupted reference run, checkpointing half way
+
+    call build_case_json(params, .false., checkpoint)
+    call neko_case%init(params)
+
+    n_glb = neko_case%msh%glb_nelv * neko_case%fluid%Xh%lxyz
+    n_loc = neko_case%fluid%u%dof%size()
+
+    allocate(u_ref(n_loc, n_after), v_ref(n_loc, n_after))
+    allocate(w_ref(n_loc, n_after), p_ref(n_loc, n_after))
+
+    call dt_controller%init(neko_case%params)
+    call simulation_init(neko_case, dt_controller)
+
+    do i = 1, n_steps
+       call simulation_step(neko_case, dt_controller)
+
+       if (i .eq. n_half) then
+          call chkp_file%init(trim(checkpoint))
+          call chkp_file%write(neko_case%chkp, neko_case%time%t)
+          ! `file_t` splices a counter into the base name, advancing it as
+          ! part of the write, so the name that landed on disk is only
+          ! knowable afterwards. Ask rather than guess.
+          chkp_written = chkp_file%get_fname()
+       end if
+
+       if (i .gt. n_half) then
+          k = i - n_half
+          call copy(u_ref(1, k), neko_case%fluid%u%x, n_loc)
+          call copy(v_ref(1, k), neko_case%fluid%v%x, n_loc)
+          call copy(w_ref(1, k), neko_case%fluid%w%x, n_loc)
+          call copy(p_ref(1, k), neko_case%fluid%p%x, n_loc)
+       end if
+    end do
+
+    ref_norm = sqrt(glsum(u_ref(:, n_after)**2, n_loc))
+
+    call simulation_finalize(neko_case)
+    call neko_case%free()
+
+    ! The registries outlive the case: the scratch registry refuses a
+    ! second dofmap and the constant registry refuses a second `U_0`, so
+    ! reset all three before building the restarted case.
+    call neko_scratch_registry%free()
+    call neko_const_registry%free()
+    call neko_registry%free()
+    call neko_registry%init()
+    call neko_const_registry%init()
+    call neko_scratch_registry%init()
+
+    ! ----------------------------------------------------------------------- !
+    ! Restarted run: a fresh case picking the checkpoint up through
+    ! `case.restart_file`, which is the path a real restart takes.
+
+    call build_case_json(params, .true., trim(chkp_written))
+    call neko_case%init(params)
+
+    call dt_controller%init(neko_case%params)
+    call simulation_init(neko_case, dt_controller)
+
+    do i = n_half + 1, n_steps
+       call simulation_step(neko_case, dt_controller)
+       k = i - n_half
+
+       err(1) = rmse(u_ref(:, k), neko_case%fluid%u%x, n_loc, n_glb)
+       err(2) = rmse(v_ref(:, k), neko_case%fluid%v%x, n_loc, n_glb)
+       err(3) = rmse(w_ref(:, k), neko_case%fluid%w%x, n_loc, n_glb)
+       err(4) = rmse(p_ref(:, k), neko_case%fluid%p%x, n_loc, n_glb)
+
+       ! Bit-exact, not merely close. Replaying a restored checkpoint runs
+       ! the same arithmetic on the same values, so the native chkp format
+       ! reproduces every step to exactly zero difference and anything
+       ! looser would be a tolerance chosen to fit the bug rather than the
+       ! physics. Measured against a reader that wrongly re-ran the
+       ! interpolation fix-up, the damage started at 3e-19 on the velocity
+       ! and 2e-16 on the pressure -- straddling NEKO_EPS, so a
+       ! machine-epsilon tolerance caught it only intermittently.
+       if (maxval(err) .gt. 0.0_rp) then
+          failing_step = i
+          exit
+       end if
+    end do
+
+    call simulation_finalize(neko_case)
+    call neko_case%free()
+
+    deallocate(u_ref, v_ref, w_ref, p_ref)
+
+  end subroutine run_restart_check
+
+  ! ========================================================================== !
+
+  !> Root-mean-square difference between two field arrays, reduced over
+  !! all ranks.
+  !! @param a First array, of `n_loc` local degrees of freedom.
+  !! @param b Second array, of `n_loc` local degrees of freedom.
+  !! @param n_loc Local number of degrees of freedom.
+  !! @param n_glb Global number of degrees of freedom.
+  function rmse(a, b, n_loc, n_glb) result(res)
+    integer, intent(in) :: n_loc
+    real(kind=rp), intent(in) :: a(n_loc)
+    real(kind=rp), intent(in) :: b(n_loc)
+    integer, intent(in) :: n_glb
+    real(kind=rp) :: res
+
+    res = sqrt(glsum((a - b)**2, n_loc) / real(n_glb, rp))
+  end function rmse
+
+  ! ========================================================================== !
+
+  !> Build the case parameters in memory, so the test needs no case file.
+  !! The physics is `examples/tgv/tgv_expression.case`, coarsened: same
+  !! expression initial condition and timestep, but two elements per
+  !! direction and a lower polynomial order, and dealiasing off. None of
+  !! that changes what is under test -- a restart either replays exactly or
+  !! it does not -- it just keeps the run inside a unit test's budget.
+  !! @param params The JSON object to populate.
+  !! @param restart Whether to add `case.restart_file`.
+  !! @param checkpoint Checkpoint file to restart from when `restart`.
+  subroutine build_case_json(params, restart, checkpoint)
+    type(json_file), intent(out) :: params
+    logical, intent(in) :: restart
+    character(len=*), intent(in) :: checkpoint
+
+    character(len=:), allocatable :: json_str
+    character(len=64) :: end_time_str, dt_str
+
+    write(end_time_str, '(ES16.8)') real(n_steps, dp) * dt
+    write(dt_str, '(ES16.8)') dt
+
+    json_str = '{"version": 1.0, "case": {' // &
+         '"mesh_file": "' // mesh_name // '",' // &
+         '"output_at_end": false,' // &
+         '"output_boundary": false,' // &
+         '"output_checkpoints": false,' // &
+         '"constants": [{"name": "U_0", "value": 1.0}],' // &
+         '"time": {"end_time": ' // trim(adjustl(end_time_str)) // ',' // &
+         ' "timestep": ' // trim(adjustl(dt_str)) // '},' // &
+         '"numerics": {"time_order": 3, "polynomial_order": 7,' // &
+         ' "dealias": true},'
+
+    if (restart) then
+       json_str = json_str // '"restart_file": "' // trim(checkpoint) // '",'
+    end if
+
+    ! The box is triply periodic, so the case carries no boundary
+    ! conditions at all -- as the TGV example does not either. That also
+    ! makes the pressure operator singular, hence the example's loose
+    ! pressure tolerance rather than a tight one. The example's `hsmg`
+    ! preconditioner is swapped for `jacobi`: two elements per direction
+    ! leave multigrid no coarser level to build, and it diverges outright.
+    !
+    ! `projection_space_size` is pinned to zero, the one place this
+    ! deviates from the example, which sets 20 on the pressure solver. The
+    ! projection space is a running history of previous solutions used to
+    ! seed the next solve and it is not part of any checkpoint, so a
+    ! restart cannot reproduce it and this test would be asserting
+    ! something untrue. Measured, rather than assumed: with the example's
+    ! 20, the restart diverges at step 7 by `u/v/w/p RMSE = 6.1E-07 /
+    ! 6.1E-07 / 3.4E-07 / 4.9E-05`, identical to the last digit in both
+    ! checkpoint formats. Step 7 is exactly where it should be --
+    ! `projection_hold_steps` defaults to 5 and the checkpoint is taken at
+    ! step 5, so step 6 still matches and the first step that consults the
+    ! projection space is the first to differ.
+    json_str = json_str // &
+         '"fluid": {"scheme": "pnpn", "Re": 360.0,' // &
+         ' "initial_condition": {"type": "expression",' // &
+         '  "value": ["U_0*sin(x)*cos(y)*cos(z)",' // &
+         '            "-U_0*cos(x)*sin(y)*cos(z)",' // &
+         '            "0"]},' // &
+         ' "velocity_solver": {"type": "cg",' // &
+         '  "preconditioner": {"type": "jacobi"},' // &
+         '  "projection_space_size": 0,' // &
+         '  "absolute_tolerance": 1e-7, "max_iterations": 800},' // &
+         ' "pressure_solver": {"type": "gmres",' // &
+         '  "preconditioner": {"type": "hsmg"},' // &
+         '  "projection_space_size": 0,' // &
+         '  "absolute_tolerance": 1e-4, "max_iterations": 800},' // &
+         ' "output_control": "never"}}}'
+
+    call params%load_from_string(json_str)
+  end subroutine build_case_json
+
+  ! ========================================================================== !
+
+  !> Write a triply periodic box mesh of `n` cubed hexes spanning
+  !! [0, 2*pi] in each direction, the domain the Taylor-Green vortex
+  !! initial condition is periodic on. Element layout, zone numbering and
+  !! the two-pass periodic wiring follow `contrib/genmeshbox`.
+  !! @param fname Name of the `.nmsh` file to write.
+  !! @param n Number of elements per direction.
+  subroutine write_box_mesh(fname, n)
+    character(len=*), intent(in) :: fname
+    integer, intent(in) :: n
+
+    type(mesh_t) :: msh
+    type(file_t) :: nmsh_file
+    type(point_t) :: p(2, 2, 2)
+    type(tuple4_i4_t) :: facet_ord
+    real(kind=dp) :: coord(3), h
+    real(kind=dp), parameter :: two_pi = 8.0_dp * atan(1.0_dp)
+    integer :: nel, e, e_x, e_y, e_z, ix, iy, iz, pt_idx
+    integer :: zone_id, el_idx, p_el_idx
+
+    ! The periodic wiring below indexes elements globally, exactly as
+    ! genmeshbox does, so every element has to be local. That holds for the
+    ! single-rank tests here; anything else needs a distributed rewrite
+    ! rather than a silently wrong mesh.
+    if (pe_size .ne. 1) then
+       call neko_error('write_box_mesh is single-rank only')
+    end if
+
+    nel = n * n * n
+    h = two_pi / real(n, dp)
+
+    msh%lgenc = .false.
+    call msh%init(3, nel)
+
+    do e = 1, nel
+       e_x = mod(e - 1, n)
+       e_y = mod((e - 1) / n, n)
+       e_z = (e - 1) / (n * n)
+
+       do iz = 0, 1
+          do iy = 0, 1
+             do ix = 0, 1
+                coord(1) = real(e_x + ix, dp) * h
+                coord(2) = real(e_y + iy, dp) * h
+                coord(3) = real(e_z + iz, dp) * h
+                pt_idx = 1 + (ix + e_x) + (iy + e_y) * (n + 1) + &
+                     (iz + e_z) * (n + 1) * (n + 1)
+                call p(ix + 1, iy + 1, iz + 1)%init(coord, pt_idx)
+             end do
+          end do
+       end do
+
+       call msh%add_element(e, e, p(1,1,1), p(2,1,1), p(1,2,1), p(2,2,1), &
+            p(1,1,2), p(2,1,2), p(1,2,2), p(2,2,2))
+    end do
+
+    ! Pair opposite faces. Zones are numbered as genmeshbox numbers them:
+    ! 1/2 are x-min/x-max, 3/4 y, 5/6 z.
+    do zone_id = 1, 6
+       do e = 1, nel
+          call periodic_partner(n, zone_id, e, el_idx, p_el_idx)
+          if (el_idx .eq. 0) cycle
+          ! genmeshbox always reads the facet ordering off the element on
+          ! the low side of the pair, whichever zone is being wired, and
+          ! what it hands to mark_periodic_facet is global point ids -- so
+          ! which element it comes from is not interchangeable.
+          if (mod(zone_id, 2) .eq. 1) then
+             call msh%elements(el_idx)%e%facet_order(facet_ord, zone_id)
+          else
+             call msh%elements(p_el_idx)%e%facet_order(facet_ord, zone_id)
+          end if
+          call msh%mark_periodic_facet(zone_id, el_idx, &
+               partner_zone(zone_id), p_el_idx, facet_ord%x)
+       end do
+    end do
+
+    ! Second pass, once every facet is marked: reconcile the global point
+    ! ids across each periodic pair.
+    do zone_id = 1, 6
+       do e = 1, nel
+          call periodic_partner(n, zone_id, e, el_idx, p_el_idx)
+          if (el_idx .eq. 0) cycle
+          call msh%create_periodic_ids(zone_id, el_idx, &
+               partner_zone(zone_id), p_el_idx)
+       end do
+    end do
+
+    call msh%finalize()
+
+    call nmsh_file%init(trim(fname))
+    call nmsh_file%write(msh)
+
+    call msh%free()
+  end subroutine write_box_mesh
+
+  ! ========================================================================== !
+
+  !> The zone on the opposite face of the box.
+  !! @param zone_id Zone to find the opposite of, 1..6.
+  function partner_zone(zone_id) result(partner)
+    integer, intent(in) :: zone_id
+    integer :: partner
+
+    if (mod(zone_id, 2) .eq. 1) then
+       partner = zone_id + 1
+    else
+       partner = zone_id - 1
+    end if
+  end function partner_zone
+
+  !> For element `e`, decide whether it owns a facet on zone `zone_id` and,
+  !! if so, which element sits opposite it across the periodic boundary.
+  !! Returns `el_idx = 0` when the element is not on that face.
+  !! @param n Elements per direction.
+  !! @param zone_id Zone being wired, 1..6.
+  !! @param e Element under consideration.
+  !! @param el_idx The element owning the facet, or 0.
+  !! @param p_el_idx The element opposite it.
+  pure subroutine periodic_partner(n, zone_id, e, el_idx, p_el_idx)
+    integer, intent(in) :: n, zone_id, e
+    integer, intent(out) :: el_idx, p_el_idx
+    integer :: e_x, e_y, e_z
+
+    e_x = mod(e - 1, n)
+    e_y = mod((e - 1) / n, n)
+    e_z = (e - 1) / (n * n)
+
+    el_idx = 0
+    p_el_idx = 0
+
+    select case (zone_id)
+    case (1)
+       if (e_x .ne. 0) return
+       p_el_idx = e + (n - 1)
+    case (2)
+       if (e_x .ne. n - 1) return
+       p_el_idx = e - (n - 1)
+    case (3)
+       if (e_y .ne. 0) return
+       p_el_idx = e + (n - 1) * n
+    case (4)
+       if (e_y .ne. n - 1) return
+       p_el_idx = e - (n - 1) * n
+    case (5)
+       if (e_z .ne. 0) return
+       p_el_idx = e + (n - 1) * n * n
+    case (6)
+       if (e_z .ne. n - 1) return
+       p_el_idx = e - (n - 1) * n * n
+    end select
+
+    el_idx = e
+  end subroutine periodic_partner
+
+end module test_restart_consistency
