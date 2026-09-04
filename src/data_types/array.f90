@@ -53,8 +53,15 @@ module array
      !> Size of array.
      integer, private :: n = 0
    contains
+
+     ! ----------------------------------------------------------------------- !
+     ! Deferred methods
+
      !> All array types must implement the free method.
      procedure(array_free), pass(this), deferred :: free
+
+     ! ----------------------------------------------------------------------- !
+     ! Shared interfaces
 
      !> Initialise a array of size `n` and optional name.
      procedure, pass(this) :: init_base => array_init_base
@@ -67,18 +74,10 @@ module array
      !> Determine if the array has been allocated.
      procedure, pass(this) :: is_allocated => array_is_allocated
 
-     !> Assignments
-     generic :: assignment(=) => array_assign_array, &
-          array_assign_scalar, array_assign_real
-
-     !> Assignment \f$ v = array type \f$
-     procedure, pass(this) :: array_assign_array
-     !> Assignment \f$ v = scalar real \f$.
-     procedure, pass(this) :: array_assign_scalar
-     !> Assignment \f$ v = array of reals \f$.
-     procedure, pass(this) :: array_assign_real
-
+     ! ----------------------------------------------------------------------- !
      ! Private interfaces
+
+     !> Allocation of the array, without initialisation.
      procedure, pass(this), private :: alloc => array_allocate
 
   end type array_t

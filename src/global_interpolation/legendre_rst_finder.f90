@@ -40,6 +40,8 @@ module legendre_rst_finder
   use vector, only: vector_t
   use matrix, only: matrix_t
   use math, only: NEKO_EPS, matinv39
+  use vector_math, only: vector_cfill
+  use matrix_math, only: matrix_cfill
   use tensor_cpu, only: tnsr3d_cpu, tnsr3d_el_cpu
   use device_local_interpolation, only: device_find_rst_legendre
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
@@ -156,7 +158,7 @@ contains
     !> Find the elements that contain the points
     if (n_point_cand .lt. 1) return
 
-    rst_local_cand = 0.0_rp
+    call matrix_cfill(rst_local_cand, 0.0_rp)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        el_cands_d = device_get_ptr(el_cands)
@@ -197,7 +199,7 @@ contains
 
     call conv_pts%init(n_pts)
 
-    conv_pts = 1.0_rp
+    call vector_cfill(conv_pts, 1.0_rp)
 
     iter = 0
     converged = .false.

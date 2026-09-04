@@ -625,7 +625,7 @@ contains
     integer :: n_sendbuf
     integer :: n_recvbuf
 
-    if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
+    if (n_particles_old .le. 0 .or. n_local .le. 0) return
 
     n_sendbuf = max(1, n_particles_old)
     n_recvbuf = max(1, n_local)
@@ -633,9 +633,9 @@ contains
     allocate(recvbuf(n_recvbuf))
     sendbuf = 0.0_rp
     recvbuf = 0.0_rp
-    if (n_particles_old .gt. 0) sendbuf = real(ids_old, rp)
+    sendbuf = real(ids_old, rp)
     call migrate_comm%sendrecv(sendbuf, recvbuf, n_sendbuf, n_recvbuf)
-    if (n_local .gt. 0) particle_ids_local = nint(recvbuf(1:n_local))
+    particle_ids_local = nint(recvbuf(1:n_local))
     if (allocated(sendbuf)) deallocate(sendbuf)
     if (allocated(recvbuf)) deallocate(recvbuf)
   end subroutine migrate_particle_ids
@@ -659,19 +659,25 @@ contains
     integer :: n_sendbuf
     integer :: n_recvbuf
 
-    if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
+    if (n_particles_old .le. 0 .or. n_local .le. 0) return
 
-    n_sendbuf = max(1, n_particles_old)
-    n_recvbuf = max(1, n_local)
+    n_sendbuf = n_particles_old
+    n_recvbuf = n_local
     allocate(sendbuf(n_sendbuf))
     allocate(recvbuf(n_recvbuf))
     sendbuf = 0.0_rp
     recvbuf = 0.0_rp
     call scalar_old%copy_from(DEVICE_TO_HOST, .true.)
-    if (n_particles_old .gt. 0) sendbuf = scalar_old%x
+    sendbuf = scalar_old%x
+
     call migrate_comm%sendrecv(sendbuf, recvbuf, n_sendbuf, n_recvbuf)
+
+    if (n_local .ne. scalar_local%size()) then
+       call scalar_local%init(n_local)
+    end if
+    scalar_local%x = recvbuf(1:n_local)
     call scalar_local%copy_from(HOST_TO_DEVICE, .true.)
-    if (n_local .gt. 0) scalar_local = recvbuf(1:n_local)
+
     if (allocated(sendbuf)) deallocate(sendbuf)
     if (allocated(recvbuf)) deallocate(recvbuf)
   end subroutine migrate_particle_scalar

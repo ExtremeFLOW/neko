@@ -45,7 +45,7 @@ contains
     integer :: ierr
 
     call v%init(n)
-    @assertTrue(v%is_allocated())
+    @assertTrue(associated(v%x))
     @assertEqual(size(v%x), n)
     @assertEqual(v%size(), n)
     @assertEqual(maxval(v%x), 0d0)
@@ -67,7 +67,7 @@ contains
 
     call v%init(n)
     call v%free()
-    @assertFalse(v%is_allocated())
+    @assertFalse(associated(v%x))
     @assertEqual(v%size(), 0)
 
     @assertFalse(associated(v%x))
@@ -76,51 +76,6 @@ contains
     end if
 
   end subroutine test_vector_free
-
-  @test(npes=[1])
-  subroutine test_vector_assign_vector(this)
-    class (test_vector), intent(inout) :: this
-    integer, parameter :: n = 42
-    type(vector_t) :: v, w
-
-    call v%init(n)
-    call w%init(n)
-
-    v%x(10) = 32.0_rp
-
-    @assertEqual(v%x(10), 32.0_rp)
-    @assertEqual(w%x(10), 0.0_rp)
-
-    w = v
-
-    @assertEqual(v%x(10), 32.0_rp)
-    @assertEqual(w%x(10), 32.0_rp)
-
-    call v%free()
-    call w%free()
-
-  end subroutine test_vector_assign_vector
-
-  @test(npes[1])
-  subroutine test_vector_assign_scalar(this)
-    class (test_vector), intent(inout) :: this
-    integer, parameter :: n = 4711
-    real(kind=rp), parameter :: s =42.0_rp
-    type(vector_t) :: v
-    integer :: i
-
-    call v%init(n)
-    v = s
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(v%x, v%x_d, n, DEVICE_TO_HOST, sync=.true.)
-    end if
-
-    do i = 1, n
-       @assertEqual(42.0_rp, v%x(i), tolerance=NEKO_EPS)
-    end do
-
-  end subroutine test_vector_assign_scalar
 
   @test(npes=[1])
   subroutine test_vector_add_vector(this)
@@ -133,8 +88,8 @@ contains
     call v%init(n)
     call u%init(n)
 
-    w = 1.0_rp
-    v = 3.0_rp
+    call vector_cfill(w, 1.0_rp)
+    call vector_cfill(v, 3.0_rp)
 
     call vector_add2(v, w)
 
@@ -149,7 +104,7 @@ contains
     call vector_add3(u, v, w)
 
     @assertEqual(u%size(), v%size())
-    @assertTrue(u%is_allocated())
+    @assertTrue(associated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST, sync=.true.)
@@ -170,7 +125,7 @@ contains
     integer :: i
 
     call v%init(n)
-    v = 2.0_rp
+    call vector_cfill(v, 2.0_rp)
     call vector_cadd(v, s)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -194,8 +149,8 @@ contains
     call v%init(n)
     call u%init(n)
 
-    v = 3.0_rp
-    w = 1.0_rp
+    call vector_cfill(v, 3.0_rp)
+    call vector_cfill(w, 1.0_rp)
 
     call vector_sub2(v, w)
 
@@ -210,8 +165,9 @@ contains
     call vector_sub3(u, v, w)
 
     @assertEqual(u%size(), v%size())
+    @assertTrue(associated(u%x))
     @assertEqual(u%size(), w%size())
-    @assertTrue(u%is_allocated())
+    @assertTrue(associated(w%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST, sync=.true.)
@@ -227,13 +183,13 @@ contains
   subroutine test_vector_cmult_scalar(this)
     class (test_vector), intent(inout) :: this
     integer, parameter :: n = 4711
-    real(kind=rp), parameter :: s =42.0_rp
+    real(kind=rp), parameter :: s = 42.0_rp
     type(vector_t) :: v, u
     integer :: i
 
     call v%init(n)
     call u%init(n)
-    v = 2.0_rp
+    call vector_cfill(v, 2.0_rp)
     call vector_cmult(v, s)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

@@ -38,8 +38,8 @@ data_types/host_array.lo : data_types/host_array.f90 math/math.lo config/num_typ
 data_types/device_array.lo : data_types/device_array.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/neko_config.lo config/num_types.lo 
 data_types/vector.lo : data_types/vector.f90 config/num_types.lo data_types/array.lo 
 data_types/matrix.lo : data_types/matrix.f90 math/bcknd/cpu/cpu_matrix_math.lo common/utils.lo device/device.lo config/neko_config.lo config/num_types.lo data_types/array.lo 
-data_types/tensor3.lo : data_types/tensor3.f90 common/utils.lo device/device.lo config/neko_config.lo config/num_types.lo data_types/array.lo 
-data_types/tensor4.lo : data_types/tensor4.f90 common/utils.lo device/device.lo config/neko_config.lo config/num_types.lo data_types/array.lo 
+data_types/tensor3.lo : data_types/tensor3.f90 config/num_types.lo data_types/array.lo 
+data_types/tensor4.lo : data_types/tensor4.f90 config/num_types.lo data_types/array.lo 
 math/mxm_wrapper.lo : math/mxm_wrapper.F90 common/utils.lo config/num_types.lo 
 sem/speclib.lo : sem/speclib.f90 common/utils.lo math/math.lo config/num_types.lo 
 qoi/drag_torque.lo : qoi/drag_torque.f90 comm/comm.lo math/bcknd/device/device_math.lo device/device.lo config/neko_config.lo common/utils.lo config/num_types.lo sem/space.lo math/math.lo mesh/facet_zone.lo data_types/vector.lo sem/coef.lo field/field.lo 
@@ -48,7 +48,7 @@ math/math.lo : math/math.f90 common/utils.lo comm/comm.lo config/num_types.lo
 math/mathops.lo : math/mathops.f90 config/num_types.lo 
 math/fast3d.lo : math/fast3d.f90 math/math.lo sem/speclib.lo config/num_types.lo 
 sem/space.lo : sem/space.f90 math/math.lo math/mxm_wrapper.lo math/tensor.lo math/fast3d.lo common/utils.lo data_types/matrix.lo device/device.lo sem/speclib.lo config/num_types.lo config/neko_config.lo 
-sem/map_1d.lo : sem/map_1d.f90 math/math.lo common/utils.lo data_types/vector.lo data_types/matrix.lo field/field_list.lo sem/coef.lo comm/comm.lo device/device.lo mesh/mesh.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo config/num_types.lo config/neko_config.lo 
+sem/map_1d.lo : sem/map_1d.f90 math/matrix_math.lo math/math.lo common/utils.lo data_types/vector.lo data_types/matrix.lo field/field_list.lo sem/coef.lo comm/comm.lo device/device.lo mesh/mesh.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo config/num_types.lo config/neko_config.lo 
 sem/map_2d.lo : sem/map_2d.f90 io/fld_file_data.lo comm/comm.lo device/device.lo field/field.lo math/math.lo common/utils.lo data_types/vector.lo sem/coef.lo field/field_list.lo mesh/mesh.lo gs/gather_scatter.lo sem/map_1d.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo 
 sem/dofmap.lo : sem/dofmap.f90 sem/interpolation.lo mesh/hex.lo mesh/quad.lo mesh/element.lo math/bcknd/device/device_math.lo math/math.lo device/device.lo math/tensor.lo math/fast3d.lo common/utils.lo config/num_types.lo adt/tuple.lo sem/space.lo common/mask.lo mesh/mesh.lo config/neko_config.lo 
 sem/coef.lo : sem/coef.f90 comm/comm.lo common/utils.lo device/device.lo math/mxm_wrapper.lo sem/bcknd/device/device_coef.lo math/bcknd/device/device_math.lo mesh/mesh.lo common/log.lo math/math.lo sem/space.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo gs/gs_ops.lo gs/gather_scatter.lo 
@@ -119,6 +119,7 @@ math/bcknd/cpu/cpu_dudxyz.lo : math/bcknd/cpu/cpu_dudxyz.f90 math/bcknd/cpu/opr_
 math/bcknd/cpu/cpu_opgrad.lo : math/bcknd/cpu/cpu_opgrad.f90 math/bcknd/cpu/opr_cpu.lo 
 math/bcknd/cpu/convect_scalar.lo : math/bcknd/cpu/convect_scalar.f90 math/math.lo math/bcknd/cpu/opr_cpu.lo 
 math/bcknd/cpu/set_convect_rst.lo : math/bcknd/cpu/set_convect_rst.f90 math/bcknd/cpu/opr_cpu.lo 
+math/bcknd/cpu/cpu_matrix_math.lo : math/bcknd/cpu/cpu_matrix_math.f90 common/utils.lo config/num_types.lo 
 math/bcknd/sx/sx_cdtp.lo : math/bcknd/sx/sx_cdtp.f90 math/math.lo math/bcknd/sx/opr_sx.lo 
 math/bcknd/sx/sx_conv1.lo : math/bcknd/sx/sx_conv1.f90 math/bcknd/sx/opr_sx.lo 
 math/bcknd/sx/sx_dudxyz.lo : math/bcknd/sx/sx_dudxyz.f90 math/math.lo math/bcknd/sx/opr_sx.lo 
@@ -141,7 +142,7 @@ math/bcknd/cpu/fdm_cpu.lo : math/bcknd/cpu/fdm_cpu.f90 math/bcknd/cpu/tensor_cpu
 math/bcknd/sx/fdm_sx.lo : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.lo config/num_types.lo 
 math/bcknd/xsmm/fdm_xsmm.lo : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.lo config/num_types.lo 
 math/schwarz.lo : math/schwarz.f90 bc/scalar_bc_projector.lo config/neko_config.lo device/device.lo math/fdm.lo math/bcknd/device/device_math.lo math/bcknd/device/device_schwarz.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo config/num_types.lo 
-common/particles.lo : common/particles.f90 common/utils.lo data_types/vector.lo config/num_types.lo 
+common/particles.lo : common/particles.f90 device/device.lo common/utils.lo data_types/vector.lo config/num_types.lo 
 math/vector_series.lo : math/vector_series.f90 data_types/vector.lo 
 math/vector_list.lo : math/vector_list.f90 comm/comm.lo common/utils.lo config/num_types.lo data_types/vector.lo 
 math/vector_math.lo : math/vector_math.f90 math/bcknd/device/device_math.lo math/math.lo common/utils.lo device/device.lo common/mask.lo data_types/vector.lo config/num_types.lo config/neko_config.lo 
@@ -187,7 +188,7 @@ io/scalar_sgs_stats_output.lo : io/scalar_sgs_stats_output.f90 io/fld_file.lo da
 io/spatial_average_output.lo : io/spatial_average_output.f90 common/utils.lo registries/scratch_registry.lo registries/registry.lo io/output.lo data_types/matrix.lo math/field_math.lo device/device.lo sem/coef.lo sem/map_2d.lo sem/map_1d.lo io/fld_file_data.lo field/field_list.lo field/field.lo config/num_types.lo 
 io/data_streamer.lo : io/data_streamer.F90 common/log.lo comm/comm.lo common/utils.lo sem/coef.lo sem/space.lo mesh/mesh.lo config/num_types.lo 
 io/output_controller.lo : io/output_controller.f90 common/time_based_controller.lo config/num_types.lo common/profiler.lo common/utils.lo common/log.lo common/time_state.lo comm/comm.lo io/fld_file.lo io/output.lo 
-global_interpolation/global_interpolation.lo : global_interpolation/global_interpolation.f90 common/structs.lo common/mask.lo math/math.lo data_types/matrix.lo math/vector_math.lo data_types/vector.lo global_interpolation/global_interpolation_comm.lo comm/comm.lo global_interpolation/pe_finder.lo global_interpolation/el_finder.lo global_interpolation/legendre_rst_finder.lo global_interpolation/cartesian_pe_finder.lo global_interpolation/cartesian_el_finder.lo global_interpolation/aabb_el_finder.lo global_interpolation/aabb_pe_finder.lo device/device.lo sem/local_interpolation.lo common/utils.lo common/json_utils.lo common/log.lo sem/dofmap.lo adt/stack.lo sem/space.lo config/neko_config.lo config/num_types.lo 
+global_interpolation/global_interpolation.lo : global_interpolation/global_interpolation.f90 common/structs.lo common/mask.lo math/math.lo math/matrix_math.lo data_types/matrix.lo math/vector_math.lo data_types/vector.lo global_interpolation/global_interpolation_comm.lo comm/comm.lo global_interpolation/pe_finder.lo global_interpolation/el_finder.lo global_interpolation/legendre_rst_finder.lo global_interpolation/cartesian_pe_finder.lo global_interpolation/cartesian_el_finder.lo global_interpolation/aabb_el_finder.lo global_interpolation/aabb_pe_finder.lo device/device.lo sem/local_interpolation.lo common/utils.lo common/json_utils.lo common/log.lo sem/dofmap.lo adt/stack.lo sem/space.lo config/neko_config.lo config/num_types.lo 
 global_interpolation/global_interpolation_comm.lo : global_interpolation/global_interpolation_comm.f90 adt/stack.lo comm/comm.lo config/num_types.lo 
 global_interpolation/aabb_pe_finder.lo : global_interpolation/aabb_pe_finder.f90 math/math.lo mesh/aabb_tree.lo mesh/search_tree/aabb.lo comm/comm.lo mesh/point.lo adt/htable.lo adt/tuple.lo common/utils.lo adt/stack.lo global_interpolation/pe_finder.lo sem/space.lo config/neko_config.lo config/num_types.lo 
 global_interpolation/aabb_el_finder.lo : global_interpolation/aabb_el_finder.f90 mesh/aabb_tree.lo mesh/search_tree/aabb.lo mesh/point.lo adt/tuple.lo adt/stack.lo sem/space.lo global_interpolation/el_finder.lo config/neko_config.lo config/num_types.lo 
@@ -195,7 +196,7 @@ global_interpolation/cartesian_el_finder.lo : global_interpolation/cartesian_el_
 global_interpolation/cartesian_pe_finder.lo : global_interpolation/cartesian_pe_finder.f90 comm/comm.lo mesh/point.lo adt/htable.lo common/utils.lo adt/stack.lo global_interpolation/pe_finder.lo sem/space.lo config/neko_config.lo config/num_types.lo 
 global_interpolation/el_finder.lo : global_interpolation/el_finder.f90 mesh/point.lo adt/stack.lo config/num_types.lo 
 global_interpolation/pe_finder.lo : global_interpolation/pe_finder.f90 mesh/point.lo adt/stack.lo config/num_types.lo 
-global_interpolation/legendre_rst_finder.lo : global_interpolation/legendre_rst_finder.f90 math/bcknd/device/device_math.lo sem/bcknd/device/device_local_interpolation.lo math/bcknd/cpu/tensor_cpu.lo math/math.lo data_types/matrix.lo data_types/vector.lo common/utils.lo sem/space.lo device/device.lo config/neko_config.lo config/num_types.lo 
+global_interpolation/legendre_rst_finder.lo : global_interpolation/legendre_rst_finder.f90 math/bcknd/device/device_math.lo sem/bcknd/device/device_local_interpolation.lo math/bcknd/cpu/tensor_cpu.lo math/matrix_math.lo math/vector_math.lo math/math.lo data_types/matrix.lo data_types/vector.lo common/utils.lo sem/space.lo device/device.lo config/neko_config.lo config/num_types.lo 
 io/mean_field_output.lo : io/mean_field_output.f90 io/fld_file.lo data_types/matrix.lo io/output.lo field/mean_field.lo device/device.lo sem/coef.lo sem/map_1d.lo sem/map_2d.lo io/fld_file_data.lo config/neko_config.lo field/field_list.lo config/num_types.lo 
 common/profiler.lo : common/profiler.F90 common/runtime_statistics.lo common/craypat.lo device/hip/roctx.lo device/cuda/nvtx.lo device/device.lo config/neko_config.lo 
 common/craypat.lo : common/craypat.F90 
@@ -205,7 +206,7 @@ bc/bc.lo : bc/bc.f90 io/file.lo common/time_state.lo common/log.lo common/utils.
 bc/mixed_bc.lo : bc/mixed_bc.f90 math/field_math.lo math/bcknd/device/device_math.lo math/math.lo registries/scratch_registry.lo io/fld_file.lo field/field_list.lo field/field.lo data_types/matrix.lo common/mask.lo device/device.lo config/num_types.lo config/neko_config.lo bc/bc.lo 
 bc/bc_list.lo : bc/bc_list.f90 common/time_state.lo bc/bc.lo common/utils.lo device/device.lo field/field.lo config/num_types.lo config/neko_config.lo 
 bc/dirichlet.lo : bc/dirichlet.f90 common/time_state.lo common/json_utils.lo sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_dirichlet.lo 
-bc/neumann.lo : bc/neumann.f90 common/time_state.lo bc/bcknd/device/device_neumann.lo device/device.lo math/bcknd/device/device_math.lo config/neko_config.lo data_types/vector.lo math/math.lo common/json_utils.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
+bc/neumann.lo : bc/neumann.f90 common/time_state.lo bc/bcknd/device/device_neumann.lo device/device.lo math/vector_math.lo math/bcknd/device/device_math.lo config/neko_config.lo data_types/vector.lo math/math.lo common/json_utils.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
 bc/no_slip.lo : bc/no_slip.f90 registries/registry.lo common/utils.lo math/bcknd/device/device_math.lo math/math.lo common/time_state.lo common/json_utils.lo bc/zero_dirichlet.lo field/field.lo sem/coef.lo config/num_types.lo 
 bc/shear_stress.lo : bc/shear_stress.f90 common/time_state.lo data_types/vector.lo common/json_utils.lo bc/neumann.lo sem/coef.lo common/utils.lo bc/bcknd/device/device_constrain_mixed_bc.lo bc/mixed_bc.lo bc/bc.lo config/num_types.lo 
 bc/dong_outflow.lo : bc/dong_outflow.f90 common/time_state.lo common/json_utils.lo registries/registry.lo bc/bcknd/device/device_dong_outflow.lo common/utils.lo sem/coef.lo sem/dofmap.lo field/field.lo bc/bc.lo config/num_types.lo device/device.lo bc/dirichlet.lo config/neko_config.lo 
