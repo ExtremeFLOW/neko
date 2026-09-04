@@ -40,7 +40,8 @@ module legendre_rst_finder
   use vector, only: vector_t
   use matrix, only: matrix_t
   use math, only: NEKO_EPS, matinv39
-  use tensor_cpu, only: tnsr3d_cpu, tnsr3d_el_cpu
+  use tensor_cpu, only: tnsr3d_el_cpu, tnsr3d_cpu
+  use tensor_device, only: tnsr3d_device
   use device_local_interpolation, only: device_find_rst_legendre
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
   use device, only: device_alloc, device_free, device_memcpy, &
@@ -72,6 +73,7 @@ contains
     real(kind=rp), intent(in), dimension(nelv*Xh%lxyz) :: x, y, z
     real(kind=dp), intent(in), optional :: tol
     integer, intent(in), optional :: max_iter
+    type(c_ptr) :: x_d, y_d, z_d
 
     call this%free()
 
@@ -100,20 +102,27 @@ contains
     call this%y_hat%init(nelv*Xh%lxyz)
     call this%z_hat%init(nelv*Xh%lxyz)
 
-    call tnsr3d_cpu(this%x_hat%x, Xh%lx, x, &
-         Xh%lx, Xh%vinv, &
-         Xh%vinvt, Xh%vinvt, nelv)
-    call tnsr3d_cpu(this%y_hat%x, Xh%lx, y, &
-         Xh%lx, Xh%vinv, &
-         Xh%vinvt, Xh%vinvt, nelv)
-    call tnsr3d_cpu(this%z_hat%x, Xh%lx, z, &
-         Xh%lx, Xh%vinv, &
-         Xh%vinvt, Xh%vinvt, nelv)
-
-    !> Copy the data to the device (if device exists)
-    call this%x_hat%copy_from(HOST_TO_DEVICE, .false.)
-    call this%y_hat%copy_from(HOST_TO_DEVICE, .false.)
-    call this%z_hat%copy_from(HOST_TO_DEVICE, .false.)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       x_d = device_get_ptr(x)
+       y_d = device_get_ptr(y)
+       z_d = device_get_ptr(z)
+       call tnsr3d_device(this%x_hat%x_d, Xh%lx, x_d, Xh%lx, &
+            Xh%vinv_d, Xh%vinvt_d, Xh%vinvt_d, nelv)
+       call tnsr3d_device(this%y_hat%x_d, Xh%lx, y_d, Xh%lx, &
+            Xh%vinv_d, Xh%vinvt_d, Xh%vinvt_d, nelv)
+       call tnsr3d_device(this%z_hat%x_d, Xh%lx, z_d, Xh%lx, &
+            Xh%vinv_d, Xh%vinvt_d, Xh%vinvt_d, nelv)
+    else
+       call tnsr3d_cpu(this%x_hat%x, Xh%lx, x, &
+            Xh%lx, Xh%vinv, &
+            Xh%vinvt, Xh%vinvt, nelv)
+       call tnsr3d_cpu(this%y_hat%x, Xh%lx, y, &
+            Xh%lx, Xh%vinv, &
+            Xh%vinvt, Xh%vinvt, nelv)
+       call tnsr3d_cpu(this%z_hat%x, Xh%lx, z, &
+            Xh%lx, Xh%vinv, &
+            Xh%vinvt, Xh%vinvt, nelv)
+    end if
 
   end subroutine legendre_rst_finder_init
 
@@ -192,6 +201,7 @@ contains
     integer :: iter
     logical :: converged
     real(kind=rp) :: conv_sum
+    character(len=128) :: warn_buf
 
     if (n_pts .eq. 0) return
 
@@ -215,6 +225,14 @@ contains
        !print *, conv_sum
        if( iter .ge. this%max_iter) converged = .true.
     end do
+
+    ! A nonzero count here means max_iter cut the iteration off.
+    if (nint(conv_sum) .gt. 0) then
+       write(warn_buf, '(I0,A,I0,A,I0,A)') nint(conv_sum), ' of ', n_pts, &
+            ' points did not converge in ', this%max_iter, &
+            ' Newton iterations (rst finder, device)'
+       call neko_warning(trim(warn_buf))
+    end if
 
     call conv_pts%free()
   end subroutine find_rst_legendre_device
@@ -248,12 +266,13 @@ contains
     integer :: conv_pts
     logical :: converged
     integer :: i, j, e, iter, lx
-
-
+    integer :: n_unconv
+    character(len=128) :: warn_buf
 
     lx = this%Xh%lx
     if (n_pts .lt. 1) return
 
+    n_unconv = 0
     rst = 0.0_rp
     ! If performance critical we should do multiple points at the time
     ! Currently we do one point at the time
@@ -353,6 +372,15 @@ contains
           converged = conv_pts .eq. 1
           if (iter .ge. this%max_iter) converged = .true.
        end do
+       if (conv_pts .ne. 1) n_unconv = n_unconv + 1
     end do
+
+    if (n_unconv .gt. 0) then
+       write(warn_buf, '(I0,A,I0,A,I0,A)') n_unconv, ' of ', n_pts, &
+            ' points did not converge in ', this%max_iter, &
+            ' Newton iterations (rst finder)'
+       call neko_warning(trim(warn_buf))
+    end if
+
   end subroutine find_rst_legendre_cpu
 end module legendre_rst_finder

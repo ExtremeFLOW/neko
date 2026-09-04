@@ -2,6 +2,10 @@
 
 ## Develop
 
+- Modified `legendre_rst_finder_init` to apply the `tnsr3d` operation
+  on device, when running on device. Exposed `max_iterations` to case file
+  for the Newton iterations in `global_interpolation`, and prints warning when 
+  it does not converge within `max_iterations`.
 - The gather-scatter comm. backend autotuning now covers the device-resident
   backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks
   `MPIGPU`, `NCCL` and `CRYSTALGPU` (`NVSHMEM` only when asked for) alongside
