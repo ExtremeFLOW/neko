@@ -74,6 +74,9 @@ extern void *ax_helm_full_program;
 /** Device jacobi kernels */
 extern void *jacobi_program;
 
+/** Device BiCGStab kernels */
+extern void *bicgstab_program;
+
 /** Device rhs_maker kernels */
 extern void *rhs_maker_program;
 
