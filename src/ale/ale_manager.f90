@@ -1154,7 +1154,10 @@ contains
 
     if (allocated(h1_restore)) deallocate(h1_restore)
     if (allocated(h2_restore)) deallocate(h2_restore)
-    if (allocated(Ax)) deallocate(Ax)
+    if (allocated(Ax)) then
+       call Ax%free()
+       deallocate(Ax)
+    end if
     if (allocated(ksp)) then
        call ksp%free()
        deallocate(ksp)

@@ -59,6 +59,8 @@ module fluid_pnpn
   use json_utils, only : json_get, json_get_or_default, json_extract_item, &
        json_get_or_lookup, json_get_or_lookup_or_default
   use ax_product, only : ax_t, ax_helm_allocator
+  use ax_helm_svv, only : ax_helm_svv_t
+  use ax_helm_svv_full, only : ax_helm_svv_full_t
   use field, only : field_t
   use dirichlet, only : dirichlet_t
   use shear_stress, only : shear_stress_t
@@ -282,10 +284,10 @@ contains
          .false.)
     call this%c_Xh%generate_cyclic_bc()
 
-    if (this%full_stress_formulation) then
-       ! Setup backend dependent Ax routines
-       call ax_helm_allocator(this%Ax_vel, type_name = "full")
+    ! Setup backend dependent Ax routines for the velocity
+    call fluid_pnpn_ax_vel_factory(this)
 
+    if (this%full_stress_formulation) then
        ! Setup backend dependent prs residual routines
        call pnpn_prs_res_stress_factory(this%prs_res)
 
@@ -295,9 +297,6 @@ contains
        ! Allocate coupled projector for velocity boundary conditions
        allocate(coupled_vector_bc_projector_t :: this%bcs_vel_projector)
     else
-       ! Setup backend dependent Ax routines
-       call ax_helm_allocator(this%Ax_vel, type_name = "standard")
-
        ! Setup backend dependent prs residual routines
        call pnpn_prs_res_factory(this%prs_res)
 
@@ -449,6 +448,35 @@ contains
 
   end subroutine fluid_pnpn_init
 
+  !> Allocate and configure the Helmholtz matrix-vector product for the
+  !! velocity, `this%Ax_vel`.
+  subroutine fluid_pnpn_ax_vel_factory(this)
+    class(fluid_pnpn_t), target, intent(inout) :: this
+
+    if (this%full_stress_formulation) then
+       if (this%svv_enabled) then
+          call ax_helm_allocator(this%Ax_vel, type_name = "full_svv")
+          select type (operator => this%Ax_vel)
+          class is (ax_helm_svv_full_t)
+             operator%svv => this%svv
+          end select
+       else
+          call ax_helm_allocator(this%Ax_vel, type_name = "full")
+       end if
+    else
+       if (this%svv_enabled) then
+          call ax_helm_allocator(this%Ax_vel, type_name = "standard_svv")
+          select type (operator => this%Ax_vel)
+          class is (ax_helm_svv_t)
+             operator%svv => this%svv
+          end select
+       else
+          call ax_helm_allocator(this%Ax_vel, type_name = "standard")
+       end if
+    end if
+
+  end subroutine fluid_pnpn_ax_vel_factory
+
   subroutine fluid_pnpn_restart(this, chkp)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
@@ -565,6 +593,16 @@ contains
   subroutine fluid_pnpn_free(this)
     class(fluid_pnpn_t), intent(inout) :: this
 
+    if (allocated(this%Ax_vel)) then
+       call this%Ax_vel%free()
+       deallocate(this%Ax_vel)
+    end if
+
+    if (allocated(this%Ax_prs)) then
+       call this%Ax_prs%free()
+       deallocate(this%Ax_prs)
+    end if
+
     !Deallocate velocity and pressure fields
     call this%scheme_free()
 
@@ -610,14 +648,6 @@ contains
     if (allocated(this%adv)) then
        call this%adv%free()
        deallocate(this%adv)
-    end if
-
-    if (allocated(this%Ax_vel)) then
-       deallocate(this%Ax_vel)
-    end if
-
-    if (allocated(this%Ax_prs)) then
-       deallocate(this%Ax_prs)
     end if
 
     if (allocated(this%prs_res)) then
@@ -791,6 +821,11 @@ contains
 
       ! Update material properties if necessary
       call this%update_material_properties(time)
+
+      ! Update the SVV coefficient if necessary
+      if (this%svv_enabled) then
+         call this%svv%update(rho, tstep)
+      end if
 
       do iter = 1, 1 + this%schwarz_iterations
 

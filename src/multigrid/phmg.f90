@@ -404,6 +404,7 @@ contains
     end if
 
     if (allocated(this%ax)) then
+       call this%ax%free()
        deallocate(this%ax)
     end if
 

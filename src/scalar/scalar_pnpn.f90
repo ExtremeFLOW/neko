@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2024, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,7 @@ module scalar_pnpn
   use gather_scatter, only : gs_t, GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_allocator
+  use ax_helm_svv, only : ax_helm_svv_t
   use field_series, only : field_series_t
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
@@ -189,7 +190,15 @@ contains
     call this%scheme_init(msh, coef, gs, params, scheme, user, rho)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_allocator(this%ax, type_name = "standard")
+    if (this%svv_enabled) then
+       call ax_helm_allocator(this%ax, type_name = "standard_svv")
+       select type (operator => this%ax)
+       class is (ax_helm_svv_t)
+          operator%svv => this%svv
+       end select
+    else
+       call ax_helm_allocator(this%ax, type_name = "standard")
+    end if
 
     ! Setup backend dependent scalar residual routines
     call scalar_residual_factory(this%res)
@@ -294,6 +303,12 @@ contains
   subroutine scalar_pnpn_free(this)
     class(scalar_pnpn_t), intent(inout) :: this
 
+    ! Release operator references before scheme_free deallocates their targets.
+    if (allocated(this%Ax)) then
+       call this%Ax%free()
+       deallocate(this%Ax)
+    end if
+
     !Deallocate scalar field
     call this%scheme_free()
 
@@ -317,10 +332,6 @@ contains
     nullify(this%ulag)
     nullify(this%vlag)
     nullify(this%wlag)
-
-    if (allocated(this%Ax)) then
-       deallocate(this%Ax)
-    end if
 
     if (allocated(this%res)) then
        deallocate(this%res)
@@ -376,6 +387,11 @@ contains
       ! Update material properties and their pointwise product.
       call this%update_material_properties(time)
       call field_col3(rho_cp, rho, cp, n)
+
+      ! Update the SVV coefficient if SVV is enabled.
+      if (this%svv_enabled) then
+         call this%svv%update(rho_cp, tstep)
+      end if
 
       ! Compute the source terms
       call this%source_term%compute(time)

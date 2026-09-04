@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2026, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,26 +30,29 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm_full
+!> Defines the full-stress SVV Helmholtz operator.
+module ax_helm_svv_full
   use ax_product, only : ax_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
   use mesh, only : mesh_t
   use math, only : addcol4
+  use spectral_vanishing_viscosity, only : svv_t
   use utils, only : neko_error
   implicit none
   private
 
   !> Matrix-vector product for a Helmholtz problem.
-  type, public, abstract, extends(ax_t) :: ax_helm_full_t
+  type, public, abstract, extends(ax_t) :: ax_helm_svv_full_t
+     !> Pointer to the SVV object.
+     type(svv_t), pointer :: svv => null()
    contains
-     !> Compute the product for 3 fields.
-     procedure, pass(this) :: compute => ax_helm_full_compute
-  end type ax_helm_full_t
+     procedure, pass(this) :: compute => ax_helm_svv_full_compute
+     procedure, pass(this) :: free => ax_helm_svv_full_free
+  end type ax_helm_svv_full_t
 
 contains
-
   !> Compute the product for a single vector. Not implemented for the full
   !! stress formulation.
   !! @param w Vector of size @a (lx,ly,lz,nelv).
@@ -57,19 +60,26 @@ contains
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
-  subroutine ax_helm_full_compute(this, w, u, coef, msh, Xh)
-    class(ax_helm_full_t), intent(in) :: this
+  subroutine ax_helm_svv_full_compute(this, w, u, coef, msh, Xh)
+    class(ax_helm_svv_full_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    call neko_error("The full Helmholtz operators cannot be applied to a " // &
-         "single field. This error is common when turbulence modelling " // &
-         "or variable material properties are on, but a velocity solver " // &
-         "not supporting a coupled solve is selected. Fixed by setting " // &
-         "the solver type to e.g. coupledcg.")
-  end subroutine ax_helm_full_compute
+    call neko_error("The full Helmholtz operator cannot be applied to a " // &
+         "single field. This error commonly occurs when turbulence " // &
+         "modelling or variable material properties are enabled, but " // &
+         "the selected velocity solver does not support coupled solves. " // &
+         "Set the solver type to, for example, coupled_cg.")
+  end subroutine ax_helm_svv_full_compute
 
-end module ax_helm_full
+  !> Sever the non-owning link to the SVV object.
+  subroutine ax_helm_svv_full_free(this)
+    class(ax_helm_svv_full_t), intent(inout) :: this
+
+    nullify(this%svv)
+  end subroutine ax_helm_svv_full_free
+
+end module ax_helm_svv_full

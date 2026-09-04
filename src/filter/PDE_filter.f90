@@ -174,6 +174,7 @@ contains
     class(PDE_filter_t), intent(inout) :: this
 
     if (allocated(this%Ax)) then
+       call this%Ax%free()
        deallocate(this%Ax)
     end if
 
