@@ -60,7 +60,7 @@ module logger
      integer, private :: section_id_ = 0
      integer, private :: tab_size_ = 1
      integer, private :: level_ = NEKO_LOG_INFO
-     integer, private :: unit_ = -1
+     integer, private :: unit_ = stdout
 
      character(len=LOG_SIZE), private :: section_header = ""
 
@@ -156,7 +156,7 @@ contains
     this%section_id_ = 0
     this%tab_size_ = 1
     this%level_ = NEKO_LOG_INFO
-    this%unit_ = -1
+    this%unit_ = stdout
 
     if (allocated(deprecated_list)) then
        deallocate(deprecated_list)
@@ -173,7 +173,7 @@ contains
     ! The unit is compared against the sentinel value set by `log_free`, and
     ! not simply tested for being positive, since NEWUNIT-assigned units
     ! (used for NEKO_LOG_FILE) are always negative
-    if (pe_rank .eq. 0 .and. this%unit_ .ne. -1) then
+    if (pe_rank .eq. 0) then
        flush(this%unit_)
     end if
 
