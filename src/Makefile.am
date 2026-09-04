@@ -122,6 +122,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/cpu/cpu_opgrad.f90\
 	math/bcknd/cpu/convect_scalar.f90\
 	math/bcknd/cpu/set_convect_rst.f90\
+	math/bcknd/cpu/cpu_matrix_math.f90\
 	math/bcknd/sx/sx_cdtp.f90\
 	math/bcknd/sx/sx_conv1.f90\
 	math/bcknd/sx/sx_dudxyz.f90\

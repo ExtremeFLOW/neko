@@ -37,7 +37,7 @@ data_types/array.lo : data_types/array.f90 common/utils.lo math/bcknd/device/dev
 data_types/host_array.lo : data_types/host_array.f90 math/math.lo config/num_types.lo 
 data_types/device_array.lo : data_types/device_array.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/neko_config.lo config/num_types.lo 
 data_types/vector.lo : data_types/vector.f90 config/num_types.lo data_types/array.lo 
-data_types/matrix.lo : data_types/matrix.f90 common/utils.lo device/device.lo config/neko_config.lo config/num_types.lo data_types/array.lo 
+data_types/matrix.lo : data_types/matrix.f90 math/bcknd/cpu/cpu_matrix_math.lo common/utils.lo device/device.lo config/neko_config.lo config/num_types.lo data_types/array.lo 
 data_types/tensor3.lo : data_types/tensor3.f90 common/utils.lo device/device.lo config/neko_config.lo config/num_types.lo data_types/array.lo 
 data_types/tensor4.lo : data_types/tensor4.f90 common/utils.lo device/device.lo config/neko_config.lo config/num_types.lo data_types/array.lo 
 math/mxm_wrapper.lo : math/mxm_wrapper.F90 common/utils.lo config/num_types.lo 

@@ -33,10 +33,11 @@
 !> Defines a matrix
 module matrix
   use array, only : array_t
-  use num_types, only : rp, xp
+  use num_types, only : rp
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
+  use cpu_matrix_math, only : cpu_matrix_inverse
   implicit none
   private
 
@@ -63,9 +64,10 @@ module matrix
      !> Returns the number of columns in the matrix.
      procedure, pass(this) :: get_ncols => matrix_ncols
 
-     !> Inverse a matrix.
+     !> Invert a matrix.
      procedure, pass(this) :: inverse => matrix_inverse
-     procedure, pass(this) :: inverse_on_host => cpu_matrix_inverse
+     !> Invert a matrix on the host.
+     procedure, pass(this) :: inverse_on_host => matrix_inverse_on_host
 
   end type matrix_t
 
@@ -156,122 +158,42 @@ contains
   end subroutine matrix_ptr_free
 
   ! ========================================================================== !
-  ! Matrix inversion subroutines
+  ! Matrix Specific extensions
 
   !> Compute the inverse of the matrix.
+  !! @details Invert the current matrix. If the optional argument `bcknd` is
+  !! provided, then we expect the user have supplied a matrix which is ready to
+  !! execute on the specified backend. Otherwise, we will call the appropriate
+  !! backend based on the current configuration.
   subroutine matrix_inverse(this, bcknd)
     class(matrix_t), intent(inout) :: this
     integer, optional :: bcknd
-    integer :: bcknd_val
 
-    if (present(bcknd)) bcknd_val = bcknd
-    if (.not. present(bcknd)) bcknd_val = NEKO_BCKND_DEVICE
-
-    if (bcknd_val .eq. 0 .and. NEKO_BCKND_DEVICE .eq. 1) then
+    if (present(bcknd)) then
+       if (bcknd .eq. 1) then
+          call neko_error("matrix_inverse: GPU backend not implemented yet.")
+       else if (bcknd .eq. 0) then
+          call cpu_matrix_inverse(this%x, this%dims(1), this%dims(2))
+       else
+          call neko_error("matrix_inverse: Invalid backend specified. " // &
+               "Use 0 for CPU or 1 for GPU.")
+       end if
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_warning("matrix_inverse: GPU backend not implemented yet. " // &
+            "Falling back to CPU.")
        call this%copy_from(DEVICE_TO_HOST, .true.)
-       call this%inverse_on_host()
+       call cpu_matrix_inverse(this%x, this%dims(1), this%dims(2))
        call this%copy_from(HOST_TO_DEVICE, .true.)
-    else if (bcknd_val .eq. 0) then
-       call this%inverse_on_host()
-    else if (bcknd_val .eq. 1) then
-       call neko_error("matrix_inverse: GPU backend not implemented yet.")
     else
-       call neko_error("matrix_inverse: invalid backend specified.")
+       call cpu_matrix_inverse(this%x, this%dims(1), this%dims(2))
     end if
 
   end subroutine matrix_inverse
 
-  subroutine cpu_matrix_inverse(this)
-    ! Gauss-Jordan matrix inversion with full pivoting
-    ! Num. Rec. p. 30, 2nd Ed., Fortran
-    ! this%x     is an square matrix
-    ! rmult is this  work array of length nrows = ncols
+  !> Compute the inverse of the matrix on the host.
+  subroutine matrix_inverse_on_host(this)
     class(matrix_t), intent(inout) :: this
-    integer :: indr(this%dims(1)), indc(this%dims(2)), ipiv(this%dims(2))
-    real(kind=xp) :: rmult(this%dims(1)), amx, tmp, piv, eps
-    integer :: i, j, k, ir, jc
-
-    if (.not. (this%dims(2) .eq. this%dims(1))) then
-       call neko_error("Fatal error: trying to invert this matrix that is not &
-       &square")
-    end if
-
-    eps = 1e-9_rp
-    ipiv = 0
-
-    do k = 1, this%dims(1)
-       amx = 0.0_rp
-       do i = 1, this%dims(1) ! Pivot search
-          if (ipiv(i) .ne. 1) then
-             do j = 1, this%dims(1)
-                if (ipiv(j) .eq. 0) then
-                   if (abs(this%x(i, j)) .ge. amx) then
-                      amx = abs(this%x(i, j))
-                      ir = i
-                      jc = j
-                   end if
-                else if (ipiv(j) .gt. 1) then
-                   return
-                end if
-             end do
-          end if
-       end do
-       ipiv(jc) = ipiv(jc) + 1
-
-       !  Swap rows
-       if (ir .ne. jc) then
-          do j = 1, this%dims(2)
-             tmp = this%x(ir, j)
-             this%x(ir, j) = this%x(jc, j)
-             this%x(jc, j) = tmp
-          end do
-       end if
-       indr(k) = ir
-       indc(k) = jc
-
-       if (abs(this%x(jc, jc)) .lt. eps) then
-          call neko_error("matrix_inverse error: small Gauss Jordan Piv")
-       end if
-       piv = 1.0_xp/this%x(jc, jc)
-       this%x(jc, jc) = 1.0_xp
-       do j = 1, this%dims(2)
-          this%x(jc, j) = this%x(jc, j)*piv
-       end do
-
-       do j = 1, this%dims(2)
-          tmp = this%x(jc, j)
-          this%x(jc, j) = this%x(1 , j)
-          this%x(1 , j) = tmp
-       end do
-       do i = 2, this%dims(1)
-          rmult(i) = this%x(i, jc)
-          this%x(i, jc) = 0.0_rp
-       end do
-
-       do j = 1, this%dims(2)
-          do i = 2, this%dims(1)
-             this%x(i, j) = this%x(i, j) - rmult(i)*this%x(1, j)
-          end do
-       end do
-
-       do j = 1, this%dims(2)
-          tmp = this%x(jc, j)
-          this%x(jc, j) = this%x(1 , j)
-          this%x(1 , j) = tmp
-       end do
-    end do
-
-    ! Unscramble matrix
-    do j = this%dims(1), 1, -1
-       if (indr(j) .ne. indc(j)) then
-          do i = 1, this%dims(1)
-             tmp = this%x(i, indr(j))
-             this%x(i, indr(j)) = this%x(i, indc(j))
-             this%x(i, indc(j)) = tmp
-          end do
-       end if
-    end do
-
-  end subroutine cpu_matrix_inverse
+    call cpu_matrix_inverse(this%x, this%dims(1), this%dims(2))
+  end subroutine matrix_inverse_on_host
 
 end module matrix
