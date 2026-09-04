@@ -2,14 +2,35 @@
 
 ## Develop
 
+- The gather-scatter comm. backend autotuning now covers the device-resident
+  backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks
+  `MPIGPU`, `NCCL` and `CRYSTALGPU` (`NVSHMEM` only when asked for) alongside
+  the host backends and keeps the fastest, instead of defaulting to device
+  MPI whenever the build had it. The host backends stay in the comparison and
+  are measured staging the halo through the host, which is how they run on
+  such a build.
+- The device MPI synchronisation strategy (`NEKO_GS_STRTGY`) is benchmarked
+  as part of measuring the `MPIGPU` candidate, so the backend is compared on
+  its best strategy's time rather than the default strategy's, and the
+  strategy is reported on that candidate's line of the comparison rather than
+  above it. Pinning device MPI with `NEKO_GS_COMM=MPIGPU` benchmarks no
+  backends and keeps the `Avg. strtgy` / `Env. strtgy` line as before.
+- `NEKO_GS_TUNE` accepts the device backend names `MPIGPU`, `NCCL`,
+  `CRYSTALGPU` and `NVSHMEM`. `SHMEM` there always names the host OpenSHMEM
+  backend and `NVSHMEM` the device one, since a GPU build can have both as
+  candidates, unlike `NEKO_GS_COMM` where `SHMEM` picks one by build.
+- Fixed the gather-scatter halo staging (`gs_bcknd_t%shared_on_host`) being
+  derived from `NEKO_GS_COMM` rather than from the comm. backend actually
+  selected, which left the halo on the host when a device backend was
+  requested through the `comm_bcknd` argument of `gs%init`.
 - Added crystal router gather-scatter communication backends,
   `NEKO_GS_COMM=CRYSTAL` on the host and `CRYSTALGPU` on the device. They
   route the halo in recursive-bisection stages instead of sending one message
   per peer, trading forwarded volume for message count, which pays where
   per-message overhead dominates. The routing is worked out once at
   initialisation, so the exchange itself neither negotiates sizes nor
-  allocates. `CRYSTAL` is a candidate in the host comm. autotuning
-  (`NEKO_GS_TUNE=-CRYSTAL` drops it); `CRYSTALGPU` is selected by name.
+  allocates. Both are default candidates in the comm. autotuning
+  (`NEKO_GS_TUNE=-CRYSTAL` and `-CRYSTALGPU` drop them).
 - Fixed facet masks for some simulation components.
 - *BREAKING*, normal_outflow conditions now require specifying `value`, which
   is used to set the value of the tangential components of velocity.

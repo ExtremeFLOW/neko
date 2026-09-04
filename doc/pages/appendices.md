@@ -31,7 +31,7 @@ of the code. But can be useful for users and developers alike.
 | `NEKO_LOG_LEVEL`         | Log verbosity level (integer > 0, default: 1)                         | Unset         |
 | `NEKO_GS_STRTGY`         | Gather-scatter device MPI sync. strategy (0 < integer < 5 )           | Unset         |
 | `NEKO_GS_COMM`           | Gather-scatter communication backend                                  | Unset         |
-| `NEKO_GS_TUNE`           | Comm. backends the gather-scatter autotuning benchmarks (list)        | Unset (all but `CAF`) |
+| `NEKO_GS_TUNE`           | Comm. backends the gather-scatter autotuning benchmarks (list)        | Unset (all but `CAF`, `NVSHMEM`) |
 | `NEKO_GS_CAF_SIGNALING`  | Coarray Fortran gather-scatter signaling mode                         | Unset         |
 | `NEKO_GS_RMA_FLUSH_ALL`  | Batch the MPI RMA gather-scatter payload flush (boolean)              | 1             |
 | `NEKO_COMM_ID`           | Communicator id for this process (non-negative integer)               | 0             |
@@ -177,14 +177,18 @@ A number of gather-scatter backends are supported.
   per routing stage instead of one per peer (host only). `CRYSTALGPU` is the
   device-aware variant, which keeps the halo on the GPU
 
-When `NEKO_GS_COMM` is unset and the build has no device-aware MPI,
-the host backends are benchmarked at initialisation and the fastest
-one is kept (see @ref performance-gs-autotuning). Which ones take part
-is set by `NEKO_GS_TUNE`, a list of backend names spelled as for
-`NEKO_GS_COMM` (comma or space separated, case insensitive). Unset, it
-means every host backend the build supports except `CAF`, which a
+When `NEKO_GS_COMM` is unset, the backends are benchmarked at
+initialisation and the fastest one is kept (see
+@ref performance-gs-autotuning). Which ones take part is set by
+`NEKO_GS_TUNE`, a list of backend names spelled as for `NEKO_GS_COMM`
+(comma or space separated, case insensitive). Unset, it means every
+backend the build supports except `CAF`, which a
 compiler can accept at configure time while still giving the job a
-single image the coarray backend cannot use.
+single image the coarray backend cannot use, and `NVSHMEM`, which aborts
+unless the peer lists come out symmetric and aligned. On a CUDA or HIP
+build the device-resident backends (`MPIGPU`, `CRYSTALGPU` and `NCCL`)
+are candidates alongside the host ones, which are then measured staging
+the halo through the host as they actually run there.
 
 - `NEKO_GS_TUNE=+CAF` adds the coarray backend to that default set,
   `NEKO_GS_TUNE=-SHMEM` removes a backend from it, and the two can be
@@ -192,8 +196,10 @@ single image the coarray backend cannot use.
 - Plain names replace the set outright: `NEKO_GS_TUNE=MPI,NEIGHBOUR`
   benchmarks those two and nothing else. A single name pins that
   backend without benchmarking anything.
-- The two forms cannot be mixed, and a name that is not a host
-  gather-scatter backend is an error.
+- The two forms cannot be mixed, and a name that is not a
+  gather-scatter backend is an error. `SHMEM` here always names the host
+  OpenSHMEM backend and `NVSHMEM` the device one, since a GPU build can
+  have both as candidates.
 
 Backends that are selected but cannot run in this build or run are
 dropped; those named explicitly are reported in the log as
