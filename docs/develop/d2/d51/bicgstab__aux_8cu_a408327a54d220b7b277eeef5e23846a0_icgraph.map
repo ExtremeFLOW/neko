@@ -1,0 +1,19 @@
+<map id="bicgstab_reduce" name="bicgstab_reduce">
+<area shape="rect" id="Node000001" title=" " alt="" coords="723,77,851,102"/>
+<area shape="rect" id="Node000002" href="$d2/d51/bicgstab__aux_8cu.html#a94ea61e45499ce9ea948a2382d1291e8" title=" " alt="" coords="511,21,667,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="727,75,634,49,636,44,729,70"/>
+<area shape="rect" id="Node000005" href="$d2/d51/bicgstab__aux_8cu.html#a732c162bd2b7a7708beb01e1c5dc8613" title=" " alt="" coords="511,77,667,102"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="709,92,667,92,667,87,709,87"/>
+<area shape="rect" id="Node000007" href="$d2/d51/bicgstab__aux_8cu.html#a32c81bb9a77f185af15d67a7f8e9656f" title=" " alt="" coords="504,129,675,169"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="732,109,656,132,655,127,730,104"/>
+<area shape="rect" id="Node000003" href="$df/dba/namespacebicgstab__device.html#aa1cbdd9c60c254cc84da0412e9d89fc2" title="BiCGStab part 1, ." alt="" coords="261,5,439,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="497,33,440,31,440,26,498,28"/>
+<area shape="rect" id="Node000004" href="$df/dba/namespacebicgstab__device.html#a66bd7792eb80d9a99f3f135c45672ba7" title="Solve a linear system with the device BiCGStab method." alt="" coords="5,69,196,109"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="259,51,180,72,178,67,258,46"/>
+<area shape="rect" id="Node000006" href="$df/dba/namespacebicgstab__device.html#af3de60528edac39791dd35faa10146fb" title="BiCGStab part 2, &#160;and ." alt="" coords="261,69,439,109"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="498,92,440,92,440,87,498,87"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="247,92,196,92,196,87,247,87"/>
+<area shape="rect" id="Node000008" href="$df/dba/namespacebicgstab__device.html#a8bfe8ea73df4da522a959da4da165df7" title="Weighted inner product and squared norm in one reduction." alt="" coords="244,133,456,173"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="490,154,456,154,456,149,490,148"/>
+<area shape="poly" id="edge9_Node000008_Node000004" title=" " alt="" coords="258,132,178,112,180,107,259,127"/>
+</map>

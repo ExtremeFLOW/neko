@@ -114,6 +114,13 @@ var annotated_dup =
     [ "bicgstab", "dd/d2f/namespacebicgstab.html", [
       [ "bicgstab_t", "dc/dd5/structbicgstab_1_1bicgstab__t.html", "dc/dd5/structbicgstab_1_1bicgstab__t" ]
     ] ],
+    [ "bicgstab_device", "df/dba/namespacebicgstab__device.html", [
+      [ "bicgstab_device_t", "d2/d20/structbicgstab__device_1_1bicgstab__device__t.html", "d2/d20/structbicgstab__device_1_1bicgstab__device__t" ],
+      [ "hip_bicgstab_part1", "dc/dc2/interfacebicgstab__device_1_1hip__bicgstab__part1.html", "dc/dc2/interfacebicgstab__device_1_1hip__bicgstab__part1" ],
+      [ "hip_bicgstab_part2", "da/ddb/interfacebicgstab__device_1_1hip__bicgstab__part2.html", "da/ddb/interfacebicgstab__device_1_1hip__bicgstab__part2" ],
+      [ "hip_bicgstab_product_and_norm", "da/d0c/interfacebicgstab__device_1_1hip__bicgstab__product__and__norm.html", "da/d0c/interfacebicgstab__device_1_1hip__bicgstab__product__and__norm" ],
+      [ "hip_bicgstab_update_p", "d8/d25/interfacebicgstab__device_1_1hip__bicgstab__update__p.html", "d8/d25/interfacebicgstab__device_1_1hip__bicgstab__update__p" ]
+    ] ],
     [ "blasius", "de/da4/namespaceblasius.html", [
       [ "blasius_t", "d0/dca/structblasius_1_1blasius__t.html", "d0/dca/structblasius_1_1blasius__t" ]
     ] ],

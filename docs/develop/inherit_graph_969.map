@@ -1,3 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$da/d57/structwall__model_1_1allocator__entry.html" title="Called in user modules to add an allocator for custom types." alt="" coords="5,5,168,45"/>
+<area shape="rect" id="Node000000" href="$d9/d93/structvector__bc__projector_1_1vector__bc__projector__t.html" title="Abstract type for resolving vector boundary conditions." alt="" coords="5,53,176,93"/>
+<area shape="rect" id="Node000001" href="$db/d93/structvector__bc__projector_1_1coupled__vector__bc__projector__t.html" title="A coupled projector for vector fields, suitable for mixed boundary conditions." alt="" coords="224,5,375,60"/>
+<area shape="poly" id="edge254_Node000000_Node000001" title=" " alt="" coords="189,51,223,44,224,50,190,56"/>
+<area shape="rect" id="Node000002" href="$d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html" title="A projector for vector fields that acts component&#45;wise." alt="" coords="224,84,375,139"/>
+<area shape="poly" id="edge255_Node000000_Node000002" title=" " alt="" coords="190,88,224,95,223,100,189,94"/>
 </map>

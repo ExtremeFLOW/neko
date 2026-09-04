@@ -1,0 +1,7 @@
+<map id="opencl_bicgstab_part1" name="opencl_bicgstab_part1">
+<area shape="rect" id="Node000001" title=" " alt="" coords="471,13,639,38"/>
+<area shape="rect" id="Node000002" href="$df/dba/namespacebicgstab__device.html#aa1cbdd9c60c254cc84da0412e9d89fc2" title="BiCGStab part 1, ." alt="" coords="244,5,423,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="457,28,423,28,423,23,457,23"/>
+<area shape="rect" id="Node000003" href="$df/dba/namespacebicgstab__device.html#a66bd7792eb80d9a99f3f135c45672ba7" title="Solve a linear system with the device BiCGStab method." alt="" coords="5,5,196,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="230,28,196,28,196,23,230,23"/>
+</map>

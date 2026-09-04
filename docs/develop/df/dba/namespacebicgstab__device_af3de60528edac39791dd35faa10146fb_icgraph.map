@@ -1,0 +1,5 @@
+<map id="bicgstab_device::device_bicgstab_part2" name="bicgstab_device::device_bicgstab_part2">
+<area shape="rect" id="Node000001" title="BiCGStab part 2, &#160;and ." alt="" coords="244,5,423,45"/>
+<area shape="rect" id="Node000002" href="$df/dba/namespacebicgstab__device.html#a66bd7792eb80d9a99f3f135c45672ba7" title="Solve a linear system with the device BiCGStab method." alt="" coords="5,5,196,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,28,196,28,196,23,230,23"/>
+</map>

@@ -2,6 +2,7 @@ var prgm__lib_8h =
 [
     [ "ax_helm_full_program", "d1/df7/prgm__lib_8h.html#aa05bcd3f01900308b0e3e888b1726edd", null ],
     [ "ax_helm_program", "d1/df7/prgm__lib_8h.html#a019f4acfa0dc3631cddf0f87527516fe", null ],
+    [ "bicgstab_program", "d1/df7/prgm__lib_8h.html#a07d06aac94d7d44ea108e1a9d5ae1829", null ],
     [ "cai_sagaut_model_ii_program", "d1/df7/prgm__lib_8h.html#a9e77d3fbb39b88e720493ddc0bfb9d0b", null ],
     [ "cdtp_program", "d1/df7/prgm__lib_8h.html#a37f6c2e61ea310ec9a9ff504a80576c9", null ],
     [ "cfl_program", "d1/df7/prgm__lib_8h.html#a8e327ed72eae8007fe873ee55f3542b8", null ],

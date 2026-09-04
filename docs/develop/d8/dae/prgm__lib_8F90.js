@@ -3,6 +3,7 @@ var prgm__lib_8F90 =
     [ "opencl_prgm_lib_release", "d8/dae/prgm__lib_8F90.html#a78c01ae7f526303f5064048ada2d1529", null ],
     [ "ax_helm_full_program", "d8/dae/prgm__lib_8F90.html#a3419a6dedabdc69207a8c54cd65e3fda", null ],
     [ "ax_helm_program", "d8/dae/prgm__lib_8F90.html#a61cd844e7945c7a835ccfa0ead333084", null ],
+    [ "bicgstab_program", "d8/dae/prgm__lib_8F90.html#ac56d1df06535c5c682ba352ffbf9149c", null ],
     [ "cai_sagaut_model_ii_program", "d8/dae/prgm__lib_8F90.html#a6926742f1918c0006b2a3d1d5828593e", null ],
     [ "cdtp_program", "d8/dae/prgm__lib_8F90.html#a6f01705bed523e0db70af79c37bfdb1f", null ],
     [ "cfl_program", "d8/dae/prgm__lib_8F90.html#a964fd76652aacc6fdf755f7a99243e29", null ],

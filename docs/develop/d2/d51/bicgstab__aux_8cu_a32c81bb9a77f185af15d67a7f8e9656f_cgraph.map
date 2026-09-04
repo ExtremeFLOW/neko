@@ -1,0 +1,18 @@
+<map id="cuda_bicgstab_product_and_norm" name="cuda_bicgstab_product_and_norm">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,43,176,83"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="640,43,792,83"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,41,255,23,361,8,477,3,535,6,593,14,628,23,662,35,660,40,626,28,591,19,535,12,477,9,362,14,256,28,169,46"/>
+<area shape="rect" id="Node000003" href="$d2/d51/bicgstab__aux_8cu.html#a408327a54d220b7b277eeef5e23846a0" title=" " alt="" coords="237,50,365,76"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="176,60,223,60,223,66,176,66"/>
+<area shape="rect" id="Node000006" href="$db/d39/buffer_8cu.html#aaa1a142ea69ca4455d49ef718c8a72b6" title=" " alt="" coords="224,125,379,150"/>
+<area shape="poly" id="edge9_Node000001_Node000006" title=" " alt="" coords="149,81,253,118,251,123,147,86"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="677,43,675,33,681,24,695,19,716,16,740,19,753,27,751,31,738,24,716,22,696,24,685,28,680,34,682,42"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="353,48,426,35,509,30,592,35,627,40,626,45,592,40,509,35,427,40,353,53"/>
+<area shape="rect" id="Node000004" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="427,50,591,76"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="365,60,413,60,413,66,365,66"/>
+<area shape="rect" id="Node000005" href="$d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="427,100,592,125"/>
+<area shape="poly" id="edge7_Node000003_Node000005" title=" " alt="" coords="356,73,442,94,441,99,355,78"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="592,60,626,60,626,66,592,66"/>
+<area shape="poly" id="edge8_Node000005_Node000002" title=" " alt="" coords="563,97,626,82,627,87,564,102"/>
+<area shape="poly" id="edge10_Node000006_Node000002" title=" " alt="" coords="379,146,481,150,537,146,591,135,638,115,679,89,681,94,641,120,593,140,538,151,482,156,379,152"/>
+</map>

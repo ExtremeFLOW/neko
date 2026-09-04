@@ -184,6 +184,9 @@ Variables</h2></td></tr>
 <tr class="memitem:a02472d156b25a5ef51b9a5fba956845b" id="r_a02472d156b25a5ef51b9a5fba956845b"><td class="memItemLeft" align="right" valign="top">type(c_ptr), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bind</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespaceopencl__prgm__lib.html#a02472d156b25a5ef51b9a5fba956845b">jacobi_program</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
 <tr class="memdesc:a02472d156b25a5ef51b9a5fba956845b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device jacobi kernels.  <br /></td></tr>
 <tr class="separator:a02472d156b25a5ef51b9a5fba956845b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac56d1df06535c5c682ba352ffbf9149c" id="r_ac56d1df06535c5c682ba352ffbf9149c"><td class="memItemLeft" align="right" valign="top">type(c_ptr), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bind</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespaceopencl__prgm__lib.html#ac56d1df06535c5c682ba352ffbf9149c">bicgstab_program</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
+<tr class="memdesc:ac56d1df06535c5c682ba352ffbf9149c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device BiCGStab kernels.  <br /></td></tr>
+<tr class="separator:ac56d1df06535c5c682ba352ffbf9149c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab6176c9407c4650ec0b77425b7706086" id="r_ab6176c9407c4650ec0b77425b7706086"><td class="memItemLeft" align="right" valign="top">type(c_ptr), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bind</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespaceopencl__prgm__lib.html#ab6176c9407c4650ec0b77425b7706086">rhs_maker_program</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
 <tr class="memdesc:ab6176c9407c4650ec0b77425b7706086"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device <a class="el" href="../../db/d98/namespacerhs__maker.html" title="Routines to generate the right-hand sides for the convection-diffusion equation. Employs the EXT/BDF ...">rhs_maker</a> kernels.  <br /></td></tr>
 <tr class="separator:ab6176c9407c4650ec0b77425b7706086"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -253,7 +256,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00140">140</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00143">143</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -302,6 +305,22 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a id="ac56d1df06535c5c682ba352ffbf9149c" name="ac56d1df06535c5c682ba352ffbf9149c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac56d1df06535c5c682ba352ffbf9149c">&#9670;&#160;</a></span>bicgstab_program</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(c_ptr), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bind</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> opencl_prgm_lib::bicgstab_program = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00082">82</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+
+</div>
+</div>
 <a id="a6926742f1918c0006b2a3d1d5828593e" name="a6926742f1918c0006b2a3d1d5828593e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6926742f1918c0006b2a3d1d5828593e">&#9670;&#160;</a></span>cai_sagaut_model_ii_program</h2>
 
@@ -314,7 +333,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00113">113</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00116">116</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -362,7 +381,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00116">116</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00119">119</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -378,7 +397,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00096">96</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00099">99</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -394,7 +413,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00094">94</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00097">97</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -410,7 +429,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00098">98</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00101">101</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -426,7 +445,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00091">91</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00094">94</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -442,7 +461,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00125">125</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00128">128</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -538,7 +557,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00110">110</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00113">113</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -570,7 +589,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00134">134</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00137">137</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -602,7 +621,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00101">101</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00104">104</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -618,7 +637,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00131">131</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00134">134</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -698,7 +717,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00122">122</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00125">125</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -714,7 +733,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00128">128</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00131">131</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -794,7 +813,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00085">85</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00088">88</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -810,7 +829,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00088">88</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00091">91</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -826,7 +845,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00082">82</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00085">85</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -858,7 +877,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00119">119</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00122">122</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -874,7 +893,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00107">107</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00110">110</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -922,7 +941,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00104">104</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html#l00107">107</a> of file <a class="el" href="../../d8/dae/prgm__lib_8F90_source.html">prgm_lib.F90</a>.</p>
 
 </div>
 </div>
@@ -948,7 +967,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/dc0/namespaceopencl__prgm__lib.html">opencl_prgm_lib</a></li>
-    <li class="footer">Generated on Thu Sep 3 2026 04:59:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Sep 4 2026 03:40:35 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

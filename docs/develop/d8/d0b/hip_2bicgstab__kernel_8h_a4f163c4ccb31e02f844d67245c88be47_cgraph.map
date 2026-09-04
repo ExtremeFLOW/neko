@@ -1,0 +1,8 @@
+<map id="bicgstab_product_and_norm_kernel" name="bicgstab_product_and_norm_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,169,79"/>
+<area shape="rect" id="Node000002" href="$d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="236,5,351,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,40,222,30,223,35,170,45"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="217,79,369,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,73,205,79,203,85,169,78"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="255,80,252,70,259,61,272,55,293,53,317,56,331,63,328,68,316,61,293,58,274,60,262,65,258,71,260,78"/>
+</map>

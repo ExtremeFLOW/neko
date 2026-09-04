@@ -451,6 +451,10 @@ var hierarchy =
     [ "ax_helm_full_device::hip_ax_helm_stress_vector_part2", "da/de5/interfaceax__helm__full__device_1_1hip__ax__helm__stress__vector__part2.html", null ],
     [ "ax_helm_device::hip_ax_helm_vector", "d1/d0f/interfaceax__helm__device_1_1hip__ax__helm__vector.html", null ],
     [ "ax_helm_device::hip_ax_helm_vector_part2", "d2/dae/interfaceax__helm__device_1_1hip__ax__helm__vector__part2.html", null ],
+    [ "bicgstab_device::hip_bicgstab_part1", "dc/dc2/interfacebicgstab__device_1_1hip__bicgstab__part1.html", null ],
+    [ "bicgstab_device::hip_bicgstab_part2", "da/ddb/interfacebicgstab__device_1_1hip__bicgstab__part2.html", null ],
+    [ "bicgstab_device::hip_bicgstab_product_and_norm", "da/d0c/interfacebicgstab__device_1_1hip__bicgstab__product__and__norm.html", null ],
+    [ "bicgstab_device::hip_bicgstab_update_p", "d8/d25/interfacebicgstab__device_1_1hip__bicgstab__update__p.html", null ],
     [ "hip_buffer", "d3/d16/structhip__buffer.html", null ],
     [ "hip_intf::hip_buffer_free_all", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all.html", null ],
     [ "hip_math::hip_cadd2", "d3/da8/interfacehip__math_1_1hip__cadd2.html", null ],
@@ -672,6 +676,7 @@ var hierarchy =
     [ "krylov::ksp_monitor_t", "d4/d33/structkrylov_1_1ksp__monitor__t.html", null ],
     [ "krylov::ksp_t", "d0/d3b/structkrylov_1_1ksp__t.html", [
       [ "bicgstab::bicgstab_t", "dc/dd5/structbicgstab_1_1bicgstab__t.html", null ],
+      [ "bicgstab_device::bicgstab_device_t", "d2/d20/structbicgstab__device_1_1bicgstab__device__t.html", null ],
       [ "cacg::cacg_t", "de/d56/structcacg_1_1cacg__t.html", null ],
       [ "cg::cg_t", "db/d98/structcg_1_1cg__t.html", null ],
       [ "cg_cpld::cg_cpld_t", "d7/d45/structcg__cpld_1_1cg__cpld__t.html", null ],

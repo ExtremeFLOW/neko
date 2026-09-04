@@ -1,0 +1,12 @@
+<map id="opencl_bicgstab_product_and_norm" name="opencl_bicgstab_product_and_norm">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,188,69"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="451,29,603,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,28,236,21,319,16,403,21,437,26,437,32,402,27,319,21,236,27,189,33"/>
+<area shape="rect" id="Node000003" href="$d3/d8b/buffer_8c.html#aba09ed2cd695ac30f3e89bf3065f19f9" title=" " alt="" coords="236,37,403,62"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="188,47,222,47,222,52,188,52"/>
+<area shape="rect" id="Node000004" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="253,86,385,111"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="188,67,249,80,248,86,187,72"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="488,30,486,20,492,11,506,5,527,3,551,6,564,13,561,18,549,11,527,8,507,10,495,15,491,21,493,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="403,47,437,47,437,52,403,52"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="373,83,436,68,438,73,374,89"/>
+</map>

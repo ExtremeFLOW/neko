@@ -1,5 +1,7 @@
 var dir_edaefd6da295fdc8f67d2bf8b2e26cee =
 [
+    [ "bicgstab_aux.hip", "d9/d13/bicgstab__aux_8hip.html", "d9/d13/bicgstab__aux_8hip" ],
+    [ "bicgstab_kernel.h", "d8/d0b/hip_2bicgstab__kernel_8h.html", "d8/d0b/hip_2bicgstab__kernel_8h" ],
     [ "cheby_aux.hip", "d5/deb/cheby__aux_8hip.html", "d5/deb/cheby__aux_8hip" ],
     [ "fusedcg_aux.hip", "db/df7/fusedcg__aux_8hip.html", "db/df7/fusedcg__aux_8hip" ],
     [ "fusedcg_cpld_aux.hip", "d4/dc3/fusedcg__cpld__aux_8hip.html", "d4/dc3/fusedcg__cpld__aux_8hip" ],

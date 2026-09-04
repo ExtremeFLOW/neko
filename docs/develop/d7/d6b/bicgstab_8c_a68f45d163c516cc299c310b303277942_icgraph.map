@@ -1,0 +1,7 @@
+<map id="opencl_bicgstab_product_and_norm" name="opencl_bicgstab_product_and_norm">
+<area shape="rect" id="Node000001" title=" " alt="" coords="504,5,687,45"/>
+<area shape="rect" id="Node000002" href="$df/dba/namespacebicgstab__device.html#a8bfe8ea73df4da522a959da4da165df7" title="Weighted inner product and squared norm in one reduction." alt="" coords="244,5,456,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="490,28,456,28,456,23,490,23"/>
+<area shape="rect" id="Node000003" href="$df/dba/namespacebicgstab__device.html#a66bd7792eb80d9a99f3f135c45672ba7" title="Solve a linear system with the device BiCGStab method." alt="" coords="5,5,196,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="230,28,196,28,196,23,230,23"/>
+</map>
