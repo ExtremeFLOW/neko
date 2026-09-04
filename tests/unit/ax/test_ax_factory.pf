@@ -1,0 +1,138 @@
+module test_ax_factory
+  use pfunit
+  use ax_product, only : ax_t, ax_helm_allocate, ax_helm_allocator, &
+       register_ax_helm
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  implicit none
+
+  type, extends(ax_t) :: test_ax_t
+   contains
+     procedure, nopass :: compute => test_ax_compute
+     procedure, pass(this) :: compute_vector => test_ax_compute_vector
+  end type test_ax_t
+
+contains
+
+  @test
+  subroutine test_builtin_standard()
+    use ax_helm_cpu, only : ax_helm_cpu_t
+    use ax_helm_device, only : ax_helm_device_t
+    use ax_helm_sx, only : ax_helm_sx_t
+    use ax_helm_xsmm, only : ax_helm_xsmm_t
+    use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, &
+         NEKO_BCKND_XSMM
+    class(ax_t), allocatable :: object
+    logical :: correct_type
+
+    call ax_helm_allocator(object, "standard")
+
+    correct_type = .false.
+    if (NEKO_BCKND_SX .eq. 1) then
+       select type (object)
+       type is (ax_helm_sx_t)
+          correct_type = .true.
+       end select
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       select type (object)
+       type is (ax_helm_xsmm_t)
+          correct_type = .true.
+       end select
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
+       select type (object)
+       type is (ax_helm_device_t)
+          correct_type = .true.
+       end select
+    else
+       select type (object)
+       type is (ax_helm_cpu_t)
+          correct_type = .true.
+       end select
+    end if
+
+    @assertTrue(correct_type)
+  end subroutine test_builtin_standard
+
+  @test
+  subroutine test_builtin_full()
+    use ax_helm_full_cpu, only : ax_helm_full_cpu_t
+    use ax_helm_full_device, only : ax_helm_full_device_t
+    use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, &
+         NEKO_BCKND_XSMM
+    class(ax_t), allocatable :: object
+    logical :: correct_type
+
+    if (NEKO_BCKND_SX .eq. 1 .or. NEKO_BCKND_XSMM .eq. 1) return
+
+    call ax_helm_allocator(object, "full")
+
+    correct_type = .false.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       select type (object)
+       type is (ax_helm_full_device_t)
+          correct_type = .true.
+       end select
+    else
+       select type (object)
+       type is (ax_helm_full_cpu_t)
+          correct_type = .true.
+       end select
+    end if
+
+    @assertTrue(correct_type)
+  end subroutine test_builtin_full
+
+  @test
+  subroutine test_registered_ax_type()
+    class(ax_t), allocatable :: object
+    procedure(ax_helm_allocate), pointer :: allocator
+    logical :: correct_type
+
+    allocator => test_ax_allocate
+    call register_ax_helm("test_ax", allocator)
+
+    ! Verify that the allocator can replace an existing built-in object.
+    call ax_helm_allocator(object, "standard")
+    call ax_helm_allocator(object, "test_ax")
+
+    correct_type = .false.
+    select type (object)
+    type is (test_ax_t)
+       correct_type = .true.
+    end select
+
+    @assertTrue(correct_type)
+  end subroutine test_registered_ax_type
+
+  subroutine test_ax_allocate(obj)
+    class(ax_t), allocatable, intent(inout) :: obj
+
+    allocate(test_ax_t::obj)
+  end subroutine test_ax_allocate
+
+  subroutine test_ax_compute(w, u, coef, msh, Xh)
+    type(space_t), intent(in) :: Xh
+    type(mesh_t), intent(in) :: msh
+    type(coef_t), intent(in) :: coef
+    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+
+  end subroutine test_ax_compute
+
+  subroutine test_ax_compute_vector(this, au, av, aw, u, v, w, coef, msh, Xh)
+    class(test_ax_t), intent(in) :: this
+    type(space_t), intent(in) :: Xh
+    type(mesh_t), intent(in) :: msh
+    type(coef_t), intent(in) :: coef
+    real(kind=rp), intent(inout) :: au(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: av(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: v(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+
+  end subroutine test_ax_compute_vector
+
+end module test_ax_factory

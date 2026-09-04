@@ -76,9 +76,10 @@ module fluid_volflow
   use device_mathops, only : device_opchsign
   use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
+  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup
   use scratch_registry, only : neko_scratch_registry
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t
   use ax_product, only : ax_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
@@ -153,7 +154,7 @@ contains
   !! (Tombo splitting scheme).
   subroutine fluid_vol_flow_compute(this, u_res, v_res, w_res, p_res, &
        ext_bdf, gs_Xh, c_Xh, rho, mu, bd, dt, &
-       bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
+       dp_projector, vel_projector, &
        Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
        vel_max_iter)
     class(fluid_volflow_t), intent(inout) :: this
@@ -161,8 +162,8 @@ contains
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(in) :: ext_bdf
-    type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
-    type(bc_list_t), intent(inout) :: bclst_vel_res
+    type(scalar_bc_projector_t), intent(inout) :: dp_projector
+    class(vector_bc_projector_t), intent(inout) :: vel_projector
     class(ax_t), intent(in) :: Ax_vel
     class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
@@ -208,10 +209,16 @@ contains
          call device_cfill(c_Xh%h1_d, 1.0_rp/rho, n)
          call device_rzero(c_Xh%h2_d, n)
       else
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !DIR$ IVDEP
+         !GCC$ ivdep
+         !$omp parallel do
          do i = 1, n
             c_Xh%h1(i,1,1,1) = 1.0_rp / rho
             c_Xh%h2(i,1,1,1) = 0.0_rp
          end do
+         !$omp end parallel do
       end if
       c_Xh%ifh2 = .false.
 
@@ -230,10 +237,10 @@ contains
       end if
 
       call gs_Xh%op(p_res, GS_OP_ADD)
-      call bclst_dp%apply_scalar(p_res%x, n)
+      call dp_projector%apply(p_res%x, n)
       call pc_prs%update()
       ksp_results(1) = ksp_prs%solve(Ax_prs, p_vol, p_res%x, n, &
-           c_Xh, bclst_dp, gs_Xh, prs_max_iter)
+           c_Xh, dp_projector, gs_Xh, prs_max_iter)
 
       !   Compute velocity
 
@@ -250,7 +257,7 @@ contains
          call copy(ta2%x, c_Xh%B, n)
          call copy(ta3%x, c_Xh%B, n)
       end if
-      call bclst_vel_res%apply_vector(ta1%x, ta2%x, ta3%x, n)
+      call vel_projector%apply(ta1%x, ta2%x, ta3%x, n)
 
       ! add forcing
 
@@ -285,14 +292,14 @@ contains
       call gs_Xh%op(u_res%x, v_res%x, w_res%x, n, GS_OP_ADD)
       call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 
-      call bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, n)
+      call vel_projector%apply(u_res%x, v_res%x, w_res%x, n)
       call pc_vel%update()
 
       ksp_results(2:4) = ksp_vel%solve_coupled(Ax_vel, &
            u_vol, v_vol, w_vol, &
            u_res%x, v_res%x, w_res%x, &
            n, c_Xh, &
-           bclst_du, bclst_dv, bclst_dw, &
+           vel_projector, &
            gs_Xh, vel_max_iter)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -339,7 +346,7 @@ contains
   !! pff 6/28/98
   subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, &
        c_Xh, gs_Xh, ext_bdf, rho, mu, dt, time, &
-       bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
+       dp_projector, vel_projector, &
        Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
        vel_max_iter)
 
@@ -352,8 +359,8 @@ contains
     type(time_state_t), intent(in) :: time
     real(kind=rp), intent(in) :: rho, dt
     type(field_t) :: mu
-    type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
-    type(bc_list_t), intent(inout) :: bclst_vel_res
+    type(scalar_bc_projector_t), intent(inout) :: dp_projector
+    class(vector_bc_projector_t), intent(inout) :: vel_projector
     class(ax_t), intent(in) :: Ax_vel
     class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
@@ -391,7 +398,7 @@ contains
       if (ifcomp .gt. 0d0) then
          call this%compute(u_res, v_res, w_res, p_res, &
               ext_bdf, gs_Xh, c_Xh, rho, mu, ext_bdf%diffusion_coeffs%x(1), dt, &
-              bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
+              dp_projector, vel_projector, &
               Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
               vel_max_iter)
       end if
@@ -453,12 +460,18 @@ contains
          call device_add2s2(w%x_d, w_vol%x_d, scale, n)
          call device_add2s2(p%x_d, p_vol%x_d, scale, n)
       else
-         do concurrent (i = 1: n)
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !DIR$ IVDEP
+         !GCC$ ivdep
+         !$omp parallel do
+         do i = 1, n
             u%x(i,1,1,1) = u%x(i,1,1,1) + scale * u_vol%x(i,1,1,1)
             v%x(i,1,1,1) = v%x(i,1,1,1) + scale * v_vol%x(i,1,1,1)
             w%x(i,1,1,1) = w%x(i,1,1,1) + scale * w_vol%x(i,1,1,1)
             p%x(i,1,1,1) = p%x(i,1,1,1) + scale * p_vol%x(i,1,1,1)
          end do
+         !$omp end parallel do
       end if
     end associate
 

@@ -61,4 +61,6 @@ information that is not directly related to the usage of the code.
 - \subpage appendices
   - [Environmental variable reference](@ref appendices_env-var)
   - [Governing Equations](@ref governing-equations) used in our solvers.
+  - [Mixed boundary-condition resolution](@ref mixed-bc-resolution) describes
+    how constraints are selected where boundary faces meet.
   - [Publications](@ref publications)

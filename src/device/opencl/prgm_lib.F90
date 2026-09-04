@@ -26,6 +26,13 @@ module opencl_prgm_lib
   !> Device Symmetry kernels
   type(c_ptr), public, bind(c) :: symmetry_program = C_NULL_PTR
 
+  !> Device mixed BC constraint kernels
+  type(c_ptr), public, bind(c) :: constrain_mixed_bc_program = C_NULL_PTR
+
+  !> Device coupled vector BC projector kernels
+  type(c_ptr), public, bind(c) :: coupled_vector_bc_projector_program = &
+       C_NULL_PTR
+
   !> Device Facet normal kernels
   type(c_ptr), public, bind(c) :: facet_normal_program = C_NULL_PTR
 
@@ -70,6 +77,9 @@ module opencl_prgm_lib
 
   !> Device jacobi kernels
   type(c_ptr), public, bind(c) :: jacobi_program = C_NULL_PTR
+
+  !> Device BiCGStab kernels
+  type(c_ptr), public, bind(c) :: bicgstab_program = C_NULL_PTR
 
   !> Device rhs_maker kernels
   type(c_ptr), public, bind(c) :: rhs_maker_program = C_NULL_PTR
@@ -174,6 +184,21 @@ contains
        symmetry_program = C_NULL_PTR
     end if
 
+    if (c_associated(constrain_mixed_bc_program)) then
+       if (clReleaseProgram(constrain_mixed_bc_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       constrain_mixed_bc_program = C_NULL_PTR
+    end if
+
+    if (c_associated(coupled_vector_bc_projector_program)) then
+       if (clReleaseProgram(coupled_vector_bc_projector_program) .ne. &
+            CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       coupled_vector_bc_projector_program = C_NULL_PTR
+    end if
+
     if (c_associated(facet_normal_program)) then
        if (clReleaseProgram(facet_normal_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
@@ -256,6 +281,13 @@ contains
           call neko_error('Failed to release program')
        end if
        jacobi_program = C_NULL_PTR
+    end if
+
+    if (c_associated(bicgstab_program)) then
+       if (clReleaseProgram(bicgstab_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       bicgstab_program = C_NULL_PTR
     end if
 
     if (c_associated(rhs_maker_program)) then

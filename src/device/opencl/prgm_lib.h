@@ -23,6 +23,12 @@ extern void *zero_dirichlet_program;
 /** Device Symmetry kernels */
 extern void *symmetry_program;
 
+/** Device mixed BC constraint kernels */
+extern void *constrain_mixed_bc_program;
+
+/** Device coupled vector BC projector kernels */
+extern void *coupled_vector_bc_projector_program;
+
 /** Device Facet normal kernels */
 extern void *facet_normal_program;
 
@@ -67,6 +73,9 @@ extern void *ax_helm_full_program;
 
 /** Device jacobi kernels */
 extern void *jacobi_program;
+
+/** Device BiCGStab kernels */
+extern void *bicgstab_program;
 
 /** Device rhs_maker kernels */
 extern void *rhs_maker_program;

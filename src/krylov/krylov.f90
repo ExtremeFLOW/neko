@@ -34,13 +34,14 @@
 module krylov
   use gather_scatter, only : gs_t, GS_OP_ADD
   use ax_product, only : ax_t
-  use num_types, only: rp, c_rp
+  use num_types, only : rp, c_rp
   use precon, only : pc_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use field, only : field_t
   use utils, only : neko_error, neko_warning
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t
   use identity, only : ident_t
   use device_identity, only : device_ident_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -129,13 +130,13 @@ module krylov
   !! @param f right hand side
   !! @param n integer, size of vectors
   !! @param coef Coefficients
-  !! @param blst list of  boundary conditions
+  !! @param bc_projector boundary constraint projector
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
-     function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+     function ksp_method(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
           result(ksp_results)
-       import :: bc_list_t
+       import :: scalar_bc_projector_t
        import :: field_t
        import :: ksp_t
        import :: coef_t
@@ -150,7 +151,7 @@ module krylov
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(in) :: f
        type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(inout) :: blst
+       class(scalar_bc_projector_t), intent(inout) :: bc_projector
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t) :: ksp_results
@@ -167,13 +168,13 @@ module krylov
   !! @param fz right hand side
   !! @param n integer, size of vectors
   !! @param coef Coefficients
-  !! @param blst list of boundary conditions
+  !! @param bc_projector boundary constraint projector
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
      function ksp_method_coupled(this, Ax, x, y, z, fx, fy, fz, &
-          n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
-       import :: bc_list_t
+          n, coef, bc_projector, gs_h, niter) result(ksp_results)
+       import :: vector_bc_projector_t
        import :: field_t
        import :: ksp_t
        import :: coef_t
@@ -192,9 +193,7 @@ module krylov
        real(kind=rp), dimension(n), intent(in) :: fy
        real(kind=rp), dimension(n), intent(in) :: fz
        type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(inout) :: blstx
-       type(bc_list_t), intent(inout) :: blsty
-       type(bc_list_t), intent(inout) :: blstz
+       class(vector_bc_projector_t), intent(inout) :: bc_projector
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t), dimension(3) :: ksp_results
@@ -231,7 +230,52 @@ module krylov
 
   end interface
 
-  public :: krylov_solver_factory
+  interface
+     !> Krylov solver allocator.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the solver type.
+     module subroutine krylov_solver_allocator(object, type_name)
+       class(ksp_t), allocatable, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+     end subroutine krylov_solver_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for a Krylov solver allocator.
+  !! Implemented in user modules, should allocate `obj` to the custom user
+  !! type.
+  abstract interface
+     subroutine krylov_allocate(obj)
+       import ksp_t
+       class(ksp_t), allocatable, intent(inout) :: obj
+     end subroutine krylov_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_krylov(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(krylov_allocate), pointer, intent(in) :: allocator
+     end subroutine register_krylov
+  end interface
+
+  !> A name-allocator pair for user-defined Krylov solver types.
+  type krylov_allocator_entry
+     character(len=20) :: type_name
+     procedure(krylov_allocate), pointer, nopass :: allocator
+  end type krylov_allocator_entry
+
+  !> Registry of allocators for user-defined Krylov solver types.
+  type(krylov_allocator_entry), allocatable :: krylov_registry(:)
+
+  !> The size of the `krylov_registry`.
+  integer :: krylov_registry_size = 0
+
+  public :: krylov_solver_factory, krylov_solver_allocator, register_krylov, &
+       krylov_allocate
 contains
 
   !> Constructor for the base type.

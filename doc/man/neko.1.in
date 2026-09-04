@@ -72,6 +72,20 @@ exec "$@"
 Launching more ranks per node than there are devices, without restricting the
 visible devices per rank, oversubscribes the GPUs and is generally not
 supported.
+.SS Zero\-copy mapping
+On hardware with unified physical memory \(em Apple silicon (Metal) and
+APUs such as the AMD Instinct MI300A with XNACK enabled (HIP) \(em mapped
+arrays can alias the host allocation instead of keeping a separate
+replicated device buffer, so host\-device transfers become no\-ops and the
+memory footprint of mapped data is roughly halved. See
+.B NEKO_METAL_ZEROCOPY
+and
+.B NEKO_HIP_ZEROCOPY
+below; it is enabled by default on Apple silicon and opt\-in on HIP.
+.PP
+Since host and device then operate on the same allocation, host code
+(e.g. user routines) must not write to a mapped array while device work
+touching it may still be in flight; synchronize first.
 .SH ARGUMENTS
 .TP
 .I case-file
@@ -104,21 +118,222 @@ treated as fatal errors. If unset, they are reported as warnings.
 .B NEKO_LOG_TAB_SIZE
 Indentation width used by the logger.
 .TP
+.B NEKO_AUTOTUNE
+Pins the kernel formulation used by the spectral element operators on the
+CUDA and HIP backends, skipping the auto-tuning search that otherwise runs
+on the first call of each operator. Accepted values are
+.BR 1D ", " KSTEP ", " DMMA ", " DMMA_TMA ", " DMMA_TMA_BATCH " and " MFMA .
+.B DMMA
+is a CUDA only variant, available for the Helmholtz operator
+.BR Ax " (scalar and vector), " opgrad ", " dudxyz ", " conv1 " and " cdtp ,
+and needs a double precision build, an sm_80 or sm_90 device the binary was
+compiled for, and a polynomial order with
+.BR 2 " <= " lx " <= " 8 ,
+or
+.BR 4 " <= " lx " <= " 8
+for the vector
+.BR Ax .
+.BR convect_scalar " and " lambda2
+have no such variant.
+.B DMMA_TMA
+is the same variant with its staging issued as bulk asynchronous copies on
+the Tensor Memory Accelerator, for every operator that has a
+.B DMMA
+form, and narrows the scope to
+.BR lx " = " 8
+on an sm_90 device, with a CUDA 12 or later toolkit. The
+.BR opgrad " and " conv1
+forms stage past the 48 kB a block gets for free and additionally need a
+device that will grant them the rest.
+.B DMMA_TMA_BATCH
+is the batched form of it, which stages all ten input cubes of an element at
+once, for the vector operator only.
+.B MFMA
+is its HIP counterpart, available for the same operators less the vector
+.BR Ax ,
+which has no matrix core kernel, for
+.BR 4 " <= " lx " <= " 12
+on a gfx90a or gfx942 device, in either precision.
+When unset, each operator benchmarks every formulation it has, and the
+geometry parameter of each, against the running case and caches the winner.
+.TP
+.B NEKO_EB_TUNE
+Controls whether the auto-tuner sweeps the number of elements per thread
+block for the kstep kernels. Enabled by default on both backends; where the
+blocked variants exceed the register budget and spill, the tuner measures that
+and rejects them. Set to
+.BR 0
+to skip the sweep.
+.TP
+.B NEKO_MFMA_TUNE
+Controls whether the auto-tuner sweeps the matrix core variants on the HIP
+backend. Enabled by default wherever the device and the polynomial
+order support it. Set to
+.BR 0
+to keep it out of the sweep;
+.B NEKO_AUTOTUNE=MFMA
+still pins it explicitly.
+.TP
+.B NEKO_EB
+Selects the elements-per-block candidate used when the kstep formulation
+is pinned with
+.BR NEKO_AUTOTUNE=KSTEP .
+Candidate
+.B 0
+is one element per block, i.e. the unblocked geometry. Values outside the
+valid range fall back to
+.BR 0 .
+Defaults to
+.BR 0 .
+.TP
+.B NEKO_CHUNKS
+Selects the chunk size candidate used when the 1d formulation is pinned
+with
+.BR NEKO_AUTOTUNE=1D .
+Candidates
+.BR 0 " to " 3
+are 1024, 512, 256 and 128 threads per block; candidate
+.B 0
+is the historical value. A candidate smaller than one derivative matrix
+is invalid and falls back to 1024. Defaults to
+.BR 0 .
+.TP
+.B NEKO_DMMA_NW
+Selects the warps-per-block candidate used when the fp64 tensor core
+formulation is pinned with
+.BR NEKO_AUTOTUNE=DMMA .
+Candidates
+.BR 0 ", " 1 " and " 2
+are 2, 4 and 8 warps per block. Values outside the valid range fall back to
+.BR 0 .
+Defaults to
+.BR 0 .
+.TP
+.B NEKO_DMMA_TMA_NW
+Selects the warps-per-block candidate used when a TMA staged tensor core
+formulation is pinned with
+.BR NEKO_AUTOTUNE=DMMA_TMA " or " NEKO_AUTOTUNE=DMMA_TMA_BATCH .
+Candidates
+.BR 0 ", " 1 " and " 2
+are 2, 4 and 8 warps per block, as for
+.BR NEKO_DMMA_NW ,
+and both variants read this one variable. Values outside the valid range fall
+back to
+.BR 0 .
+Defaults to
+.BR 0 .
+.TP
+.B NEKO_MFMA_NWF
+Selects the wavefronts-per-block candidate used when the matrix core
+formulation is pinned with
+.BR NEKO_AUTOTUNE=MFMA .
+Candidates
+.BR 0 " to " 3
+are 1, 2, 4 and 8 wavefronts per block. The count also fixes the elements per
+block: the block covers as many elements as the ceil(lx*lx/16) column groups
+leave wavefronts for, rounded down to a power of two, and the remaining
+wavefronts cooperate on each. Values outside the valid range fall back to
+.BR 0 .
+Defaults to
+.BR 0 .
+.TP
+.B NEKO_TUNE_ROUNDS
+Number of interleaved sampling rounds used by the operator auto-tuner. Each
+round times every candidate once \(em chunk sizes and elements per block
+alike \(em and the best round per candidate is kept, so raising this guards
+against transients and clock drift during the sweep. Defaults to
+.BR 3 .
+.TP
+.B NEKO_TUNE_ITERS
+Number of kernel launches timed per candidate per round, for both
+sweeps. Lowering it
+shortens startup on cases with very large element counts, at the cost of
+noisier measurements. Defaults to
+.BR 100 .
+.TP
 .B NEKO_GS_COMM
 Selects the communication backend used by the gather\-scatter kernel.
 Accepted values are
-.BR MPI ", " MPIGPU ", " NCCL ", " SHMEM ", " CAF ", " UTOFU " and " NEIGHBOUR ,
+.BR MPI ", " MPIGPU ", " NCCL ", " SHMEM ", " CAF ", " UTOFU ", " NEIGHBOUR ", " MPIRMA ", " CRYSTAL " and " CRYSTALGPU ,
 where
 .B UTOFU
-is native one\-sided communication over the Tofu interconnect and
+is native one\-sided communication over the Tofu interconnect,
 .B NEIGHBOUR
 is host MPI using an
 .B MPI_Ineighbor_alltoallv
-neighbourhood collective. When unset, a device\-aware variant is used
-on accelerator builds and host MPI otherwise.
+neighbourhood collective,
+.B MPIRMA
+is host MPI one\-sided communication into a passive\-target window and
+.B CRYSTAL
+routes the halo as a crystal router, one message per routing stage rather
+than one per peer, with
+.B CRYSTALGPU
+as its device\-aware variant.
+When unset, a device\-aware variant is used
+on accelerator builds; otherwise the host backends selected by
+.B NEKO_GS_TUNE
+are benchmarked at startup and the fastest one is used.
 .TP
 .B NEKO_GS_STRTGY
 Selects the gather\-scatter strategy.
+.TP
+.B NEKO_GS_TUNE
+Selects which communication backends are benchmarked at startup when
+.B NEKO_GS_COMM
+is unset. Takes a list of backend names, spelled as for
+.BR NEKO_GS_COMM ,
+separated by commas or spaces and matched case insensitively. Names
+prefixed with
+.B +
+or
+.B \-
+are added to and removed from the default set, plain names replace it
+altogether, and the two forms cannot be mixed. When unset, the default set
+is every host backend the build supports except
+.BR CAF ,
+which has to be asked for with
+.B NEKO_GS_TUNE=+CAF
+since a compiler may accept coarrays at configure time and still give each
+process a single image, which the coarray backend cannot communicate over.
+.B MPIRMA
+is benchmarked by default, but assumes the MPI implementation makes
+one\-sided progress without the target entering MPI, which holds for
+hardware\-driven components (Open MPI
+.BR osc/rdma ", " osc/ucx ,
+Cray MPICH over libfabric) but not for
+.BR osc/pt2pt ;
+skip it with
+.B NEKO_GS_TUNE=\-MPIRMA
+where it is known to be slow.
+A list leaving a single candidate pins that backend without benchmarking.
+Selecting a backend outright with
+.B NEKO_GS_COMM
+ignores this variable;
+.B NEKO_GS_COMM=CAF
+fails with an error if the run does not provide one image per rank.
+.TP
+.B NEKO_GS_CAF_SIGNALING
+Selects the per\-pair synchronisation used by the coarray gather\-scatter
+backend
+.RB ( NEKO_GS_COMM=CAF ).
+Accepted values are
+.BR sync " (the default), " atomic ", " event " and " auto ,
+where
+.B auto
+benchmarks the modes the build supports and binds the fastest one. The mode
+is bound on the first gather\-scatter initialisation and cannot change
+thereafter, so
+.B auto
+only takes effect when the communication backend is autotuned as well, that
+is when
+.B NEKO_GS_COMM
+is unset and
+.B CAF
+is among the backends selected by
+.BR NEKO_GS_TUNE ;
+it falls back to
+.B sync
+otherwise.
 .TP
 .B NEKO_GS_UTOFU_NTNI
 Number of Tofu network interfaces (TNIs) that the per\-thread injection
@@ -151,12 +366,46 @@ When set to
 disables the uTofu backend's fused vector (multi\-component) exchange;
 multi\-component gather\-scatter falls back to independent scalar rounds.
 .TP
+.B NEKO_GS_RMA_FLUSH_ALL
+When set to
+.BR 0 ,
+the MPI one\-sided gather\-scatter backend
+.RB ( NEKO_GS_COMM=MPIRMA )
+completes each peer's put with its own
+.B MPI_Win_flush
+instead of a single
+.B MPI_Win_flush_all
+for all of them (an A/B reference). Per\-peer flushing announces each
+receiver as soon as its own put lands, at the cost of one flush call per
+peer; it measured slower on Cray MPICH over Slingshot, hence the batched
+default, but the balance depends on how cheaply the implementation scopes
+a flush to one target.
+.TP
 .B NEKO_GLOBAL_INTERP_EL_FINDER
 Selects the element search algorithm used by the global interpolation
 routines.
 .TP
 .B NEKO_GLOBAL_INTERP_PE_FINDER
 Selects the rank search algorithm used by the global interpolation routines.
+.TP
+.B NEKO_HIP_ZEROCOPY
+When set to a non\-zero value, enables zero\-copy mapping of arrays in the
+HIP backend: host and device share a single allocation instead of keeping
+replicated copies, and host\-device transfers become no\-ops. This roughly
+halves the memory footprint of mapped data, but is currently slower per
+step than replicated buffers on MI300A, so it is an opt\-in capacity mode
+for running larger cases rather than a speedup. Zero\-copy is only used on
+an APU with unified physical memory and XNACK enabled
+.RB ( HSA_XNACK=1 );
+on a discrete GPU (e.g. MI250X, MI300X) a warning is printed and
+replicated buffers are used. Disabled by default.
+.TP
+.B NEKO_METAL_ZEROCOPY
+When set to
+.BR 0 ,
+disables zero\-copy mapping of arrays in the Metal backend. Enabled by
+default on Apple silicon; on discrete GPUs without unified memory
+replicated buffers are always used.
 .TP
 .B NEKO_MPI_THREAD_LEVEL
 Overrides the MPI (and SHMEM) thread support level requested at startup.

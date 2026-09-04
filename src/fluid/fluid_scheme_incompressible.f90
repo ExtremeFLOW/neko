@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2025, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ module fluid_scheme_incompressible
   use gather_scatter, only : gs_t, GS_OP_MIN, GS_OP_MAX
   use neko_config, only : NEKO_BCKND_DEVICE
   use checkpoint, only : chkp_t
-  use num_types, only : rp, i8
+  use num_types, only : rp, i8, dp
   use fluid_source_term, only : fluid_source_term_t
   use field, only : field_t
   use space, only : GLL
@@ -49,9 +49,9 @@ module fluid_scheme_incompressible
   use device_jacobi, only : device_jacobi_t
   use hsmg, only : hsmg_t
   use phmg, only : phmg_t
-  use precon, only : pc_t, precon_factory, precon_destroy
+  use precon, only : pc_t, precon_allocator, precon_destroy
   use fluid_stats, only : fluid_stats_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
   use math, only : glsum
@@ -472,7 +472,6 @@ contains
     logical, intent(in) :: strong
     integer :: i
     class(bc_t), pointer :: b
-    b => null()
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
@@ -486,9 +485,14 @@ contains
     call device_event_sync(glb_cmd_event)
     call rotate_cyc(this%u, this%v, this%w, 0, this%c_Xh)
 
-
-    call this%bcs_vel%apply_vector(&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
+    ! Double pass for Dirichlet bcs only.
+    b => null()
+    do i = 1, this%bcs_vel%size()
+       b => this%bcs_vel%get(i)
+       if (b%bc_type .eq. BC_DIRICHLET) then
+          call b%apply_vector_generic(this%u, this%v, this%w,time, strong)
+       end if
+    end do
 
     call rotate_cyc(this%u, this%v, this%w, 1, this%c_Xh)
     call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
@@ -562,7 +566,7 @@ contains
     character(len=*) :: pctype
     type(json_file), intent(inout) :: pcparams
 
-    call precon_factory(pc, pctype)
+    call precon_allocator(pc, pctype)
 
     select type (pcp => pc)
     type is (jacobi_t)
@@ -584,8 +588,8 @@ contains
   !> Compute CFL
   function fluid_compute_cfl(this, dt) result(c)
     class(fluid_scheme_incompressible_t), intent(in) :: this
-    real(kind=rp), intent(in) :: dt
-    real(kind=rp) :: c
+    real(kind=dp), intent(in) :: dt
+    real(kind=dp) :: c
 
     c = cfl(dt, this%u, this%v, this%w, &
          this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)

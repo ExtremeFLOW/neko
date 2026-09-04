@@ -13,6 +13,8 @@ test-suite.log
 !device_math/device_math_test
 !gather_scatter/gather_scatter_test
 !jobctrl/jobctrl_test
+!bc/bc_test
+!bc_projector/bc_projector_test
 !matrix/matrix_test
 !math/math_test
 !mean_field/mean_field_test
@@ -25,17 +27,19 @@ test-suite.log
 # Processed files
 **.inc
 **.F90
+**.smod
 !fixtures/*.f90
 **.log
 **.trs
 
-bc/bc_test
+bc/bc_suite
 case_file_utils/case_file_utils_test
 device/device_test
 data_types/data_types_test
 device_math/device_math_suite
 device_mathops/device_mathops_test
 dofmap/dofmap_suite
+dofmap/test_dofmap_2d_curve_extrusion.nmsh
 field/field_suite
 global_interpolation/global_interpolation_suite
 hex/hex_test
@@ -58,6 +62,7 @@ math/math_suite
 mean_field/mean_field_suite
 mesh/mesh_suite
 gather_scatter/gather_scatter_suite
+ax/ax_test
 jobctrl/jobctrl_suite
 scratch_registry/scratch_registry_test
 vector_scratch_registry/vector_scratch_registry_test
@@ -67,9 +72,12 @@ time_scheme/time_scheme_test
 time_scheme_controller/time_scheme_controller_test
 time_based_controller/time_based_controller_test
 json_utils/json_utils_test
+expression/expression_test
 point_interpolation/point_interpolation_suite
 **/test_write_*.vtkhdf
 **/test_write_*.data/*.h5
 templates/parallel/parallel_suite
 templates/serial/serial_test
+bc_projector/bc_projector_suite
 boundary_operation/boundary_operation_suite
+wall_sampling/wall_sampling_suite

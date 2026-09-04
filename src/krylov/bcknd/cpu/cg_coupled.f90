@@ -32,15 +32,16 @@
 !
 !> Defines a coupled Conjugate Gradient methods
 module cg_cpld
-  use num_types, only: rp, xp
+  use num_types, only : rp, xp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
-  use math, only : glsc2, abscmp
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t
+  use math, only : abscmp
   use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   use utils, only : neko_error
@@ -62,7 +63,6 @@ module cg_cpld
      real(kind=rp), allocatable :: z1(:)
      real(kind=rp), allocatable :: z2(:)
      real(kind=rp), allocatable :: z3(:)
-     real(kind=rp), allocatable :: tmp(:)
    contains
      procedure, pass(this) :: init => cg_cpld_init
      procedure, pass(this) :: free => cg_cpld_free
@@ -96,7 +96,6 @@ contains
     allocate(this%z1(n))
     allocate(this%z2(n))
     allocate(this%z3(n))
-    allocate(this%tmp(n))
 
     if (present(M)) then
        this%M => M
@@ -176,15 +175,11 @@ contains
        deallocate(this%z3)
     end if
 
-    if (allocated(this%tmp)) then
-       deallocate(this%tmp)
-    end if
-
     nullify(this%M)
 
   end subroutine cg_cpld_free
 
-  function cg_cpld_nop(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function cg_cpld_nop(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
        result(ksp_results)
     class(cg_cpld_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -192,7 +187,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -206,7 +201,7 @@ contains
 
   !> Coupled PCG solve
   function cg_cpld_solve(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(cg_cpld_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -217,9 +212,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -237,11 +230,11 @@ contains
 
     associate (p1 => this%p1, p2 => this%p2, p3 => this%p3, z1 => this%z1, &
          z2 => this%z2, z3 => this%z3, r1 => this%r1, r2 => this%r2, &
-         r3 => this%r3, tmp => this%tmp, w1 => this%w1, w2 => this%w2, &
-         w3 => this%w3)
+         r3 => this%r3, w1 => this%w1, w2 => this%w2, w3 => this%w3)
 
       rtz1 = 1.0_rp
-      !$omp parallel do
+      tmp_xp = 0.0_xp
+      !$omp parallel do reduction(+:tmp_xp)
       do i = 1, n
          x%x(i,1,1,1) = 0.0_rp
          y%x(i,1,1,1) = 0.0_rp
@@ -255,11 +248,14 @@ contains
          r1(i) = fx(i)
          r2(i) = fy(i)
          r3(i) = fz(i)
-         tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
+         tmp_xp = tmp_xp + (r1(i)**2 + r2(i)**2 + r3(i)**2) &
+              * coef%mult(i,1,1,1)
       end do
       !$omp end parallel do
 
-      rtr = glsc2(tmp, coef%mult, n)
+      call MPI_Allreduce(MPI_IN_PLACE, tmp_xp, 1, MPI_EXTRA_PRECISION, &
+           MPI_SUM, NEKO_COMM, ierr)
+      rtr = tmp_xp
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
@@ -276,15 +272,18 @@ contains
          call this%M%solve(z3, this%r3, n)
          rtz2 = rtz1
 
-         !$omp parallel do
+         tmp_xp = 0.0_xp
+         !$omp parallel do reduction(+:tmp_xp)
          do i = 1, n
-            this%tmp(i) = z1(i) * r1(i) &
+            tmp_xp = tmp_xp + (z1(i) * r1(i) &
                  + z2(i) * r2(i) &
-                 + z3(i) * r3(i)
+                 + z3(i) * r3(i)) * coef%mult(i,1,1,1)
          end do
          !$omp end parallel do
 
-         rtz1 = glsc2(tmp, coef%mult, n)
+         call MPI_Allreduce(MPI_IN_PLACE, tmp_xp, 1, MPI_EXTRA_PRECISION, &
+              MPI_SUM, NEKO_COMM, ierr)
+         rtz1 = tmp_xp
 
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
@@ -302,19 +301,20 @@ contains
          call gs_h%op(w1, w2, w3, n, GS_OP_ADD)
          call rotate_cyc(w1, w2, w3, 0, coef)
 
-         call blstx%apply_scalar(w1, n)
-         call blsty%apply_scalar(w2, n)
-         call blstz%apply_scalar(w3, n)
+         call bc_projector%apply(w1, w2, w3, n)
 
-         !$omp parallel do
+         tmp_xp = 0.0_xp
+         !$omp parallel do reduction(+:tmp_xp)
          do i = 1, n
-            tmp(i) = w1(i) * p1(i) &
+            tmp_xp = tmp_xp + (w1(i) * p1(i) &
                  + w2(i) * p2(i) &
-                 + w3(i) * p3(i)
+                 + w3(i) * p3(i)) * coef%mult(i,1,1,1)
          end do
          !$omp end parallel do
 
-         pap = glsc2(tmp, coef%mult, n)
+         call MPI_Allreduce(MPI_IN_PLACE, tmp_xp, 1, MPI_EXTRA_PRECISION, &
+              MPI_SUM, NEKO_COMM, ierr)
+         pap = tmp_xp
 
          alpha = rtz1 / pap
          tmp_xp = 0.0_xp

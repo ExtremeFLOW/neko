@@ -32,7 +32,7 @@
 !
 !> Master module
 module neko
-  use num_types, only : rp, sp, dp, qp, c_rp
+  use num_types, only : rp, sp, dp, qp, c_rp, c_dp
   use comm
   use utils
   use logger
@@ -65,11 +65,17 @@ module neko
   use gather_scatter
   use krylov
   use coefs, only : coef_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET, BC_MIXED_CONSTRAINS_NORMAL, &
+       BC_MIXED_CONSTRAINS_TANGENT, BC_NEUMANN
+  use mixed_bc, only : mixed_bc_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : segregated_vector_bc_projector_t, &
+       coupled_vector_bc_projector_t
   use zero_dirichlet, only : zero_dirichlet_t
   use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator, ax_helm_allocate, &
+       register_ax_helm
   use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
   use neko_config
   use case, only : case_t
@@ -111,6 +117,7 @@ module neko
        register_simulation_component
   use boundary_operation, only : boundary_operation_t
   use boundary_flux, only : boundary_flux_t
+  use boundary_data, only : boundary_data_t
   use probes, only : probes_t
   use spectral_error, only : spectral_error_t
   use profiler, only : profiler_start, profiler_stop, &
@@ -151,6 +158,7 @@ module neko
        register_source_term, source_term_factory, source_term_allocator
   use user_access_singleton, only : neko_user_access
   use ale_manager, only : neko_ale
+  use hdf5_session, only : hdf5_session_init, hdf5_session_finalize
   use, intrinsic :: iso_fortran_env
   use mpi_f08
   !$ use omp_lib
@@ -175,6 +183,7 @@ contains
     call neko_mpi_types_init
     call jobctrl_init
     call device_init
+    call hdf5_session_init
 
     call neko_log%init()
     call neko_registry%init()
@@ -285,6 +294,8 @@ contains
     call neko_registry%free()
     call neko_user_access%free()
     call neko_log%free()
+
+    call hdf5_session_finalize
 
     call neko_mpi_types_free
     call comm_free

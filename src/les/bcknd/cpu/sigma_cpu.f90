@@ -271,7 +271,7 @@ contains
           ! estimate turbulent viscosity
 
           nut%x(i,1,1,e) = (c*delta%x(i,1,1,e))**2 * Dsigma &
-               * coef%mult(i,1,1,1)
+               * coef%mult(i,1,1,e)
 
        end do
     end do

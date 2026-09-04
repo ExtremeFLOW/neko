@@ -40,53 +40,50 @@ module cai_sagaut_model_ii_device
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_cai_sagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, &
-          ind_s_d, ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, &
-          h_d, tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s) &
+     subroutine hip_cai_sagaut_model_ii_compute(u_d, v_d, w_d, n_x_d, &
+          n_y_d, n_z_d, nu_d, rho_w_d, h_d, tau_x_d, tau_y_d, tau_z_d, &
+          n_nodes, kappa, B, p, s) &
           bind(c, name = 'hip_cai_sagaut_model_ii_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
        implicit none
        type(c_ptr), value :: u_d, v_d, w_d, rho_w_d
-       type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d, nu_d
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        real(c_rp) :: kappa, B, p, s
-       integer(c_int) :: n_nodes, lx
+       integer(c_int) :: n_nodes
      end subroutine hip_cai_sagaut_model_ii_compute
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_cai_sagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, &
-          ind_s_d, ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, &
-          h_d, tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s) &
+     subroutine cuda_cai_sagaut_model_ii_compute(u_d, v_d, w_d, n_x_d, &
+          n_y_d, n_z_d, nu_d, rho_w_d, h_d, tau_x_d, tau_y_d, tau_z_d, &
+          n_nodes, kappa, B, p, s) &
           bind(c, name = 'cuda_cai_sagaut_model_ii_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
        implicit none
        type(c_ptr), value :: u_d, v_d, w_d, rho_w_d
-       type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d, nu_d
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        real(c_rp) :: kappa, B, p, s
-       integer(c_int) :: n_nodes, lx
+       integer(c_int) :: n_nodes
      end subroutine cuda_cai_sagaut_model_ii_compute
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_cai_sagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, &
-          ind_s_d, ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, &
-          h_d, tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s) &
+     subroutine opencl_cai_sagaut_model_ii_compute(u_d, v_d, w_d, n_x_d, &
+          n_y_d, n_z_d, nu_d, rho_w_d, h_d, tau_x_d, tau_y_d, tau_z_d, &
+          n_nodes, kappa, B, p, s) &
           bind(c, name = 'opencl_cai_sagaut_model_ii_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
        implicit none
        type(c_ptr), value :: u_d, v_d, w_d, rho_w_d
-       type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d, nu_d
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        real(c_rp) :: kappa, B, p, s
-       integer(c_int) :: n_nodes, lx
+       integer(c_int) :: n_nodes
      end subroutine opencl_cai_sagaut_model_ii_compute
   end interface
 #endif
@@ -97,10 +94,9 @@ contains
   !! @param u_d The sampled x-velocity field on the device.
   !! @param v_d The sampled y-velocity field on the device.
   !! @param w_d The sampled z-velocity field on the device.
-  !! @param ind_r_d The r-index array for sampled GLL points.
-  !! @param ind_s_d The s-index array for sampled GLL points.
-  !! @param ind_t_d The t-index array for sampled GLL points.
-  !! @param ind_e_d The element-index array for sampled GLL points.
+  !! @param u_d Sampled x velocity.
+  !! @param v_d Sampled y velocity.
+  !! @param w_d Sampled z velocity.
   !! @param n_x_d The x-component of the wall normals.
   !! @param n_y_d The y-component of the wall normals.
   !! @param n_z_d The z-component of the wall normals.
@@ -116,28 +112,27 @@ contains
   !! @param B The log-law intercept.
   !! @param p The blending exponent.
   !! @param s The blending scale.
-  subroutine cai_sagaut_model_ii_compute_device(u_d, v_d, w_d, ind_r_d, &
-       ind_s_d, ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, &
-       tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s)
-    integer, intent(in) :: n_nodes, lx
+  subroutine cai_sagaut_model_ii_compute_device(u_d, v_d, w_d, n_x_d, &
+       n_y_d, n_z_d, nu_d, rho_w_d, h_d, tau_x_d, tau_y_d, tau_z_d, &
+       n_nodes, kappa, B, p, s)
+    integer, intent(in) :: n_nodes
     type(c_ptr), intent(in) :: u_d, v_d, w_d, rho_w_d
-    type(c_ptr), intent(in) :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
     type(c_ptr), intent(in) :: n_x_d, n_y_d, n_z_d, h_d, nu_d
     type(c_ptr), intent(inout) :: tau_x_d, tau_y_d, tau_z_d
     real(kind=rp), intent(in) :: kappa, B, p, s
 
 #if HAVE_HIP
-    call hip_cai_sagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, ind_s_d, &
-         ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, &
-         tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s)
+    call hip_cai_sagaut_model_ii_compute(u_d, v_d, w_d, n_x_d, n_y_d, &
+         n_z_d, nu_d, rho_w_d, h_d, tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+         kappa, B, p, s)
 #elif HAVE_CUDA
-    call cuda_cai_sagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, ind_s_d, &
-         ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, &
-         tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s)
+    call cuda_cai_sagaut_model_ii_compute(u_d, v_d, w_d, n_x_d, n_y_d, &
+         n_z_d, nu_d, rho_w_d, h_d, tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+         kappa, B, p, s)
 #elif HAVE_OPENCL
-    call opencl_cai_sagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, ind_s_d, &
-         ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, &
-         tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s)
+    call opencl_cai_sagaut_model_ii_compute(u_d, v_d, w_d, n_x_d, n_y_d, &
+         n_z_d, nu_d, rho_w_d, h_d, tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+         kappa, B, p, s)
 #else
     call neko_error('No device backend configured')
 #endif

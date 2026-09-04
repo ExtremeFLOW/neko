@@ -67,7 +67,7 @@ module drag_torque
   use math, only : rzero, col3, vdot3, col2
   use space, only : space_t
   use num_types, only : rp
-  use utils, only : nonlinear_index
+  use utils, only : nonlinear_index, neko_error
   use iso_c_binding, only : c_ptr
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : HOST_TO_DEVICE
@@ -75,7 +75,6 @@ module drag_torque
        device_col3, device_vdot3, device_rzero
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_ALLREDUCE, MPI_IN_PLACE, MPI_SUM
-  use utils, only : neko_error
   implicit none
   private
   !> Some functions to calculate the lift/drag and torque
@@ -471,17 +470,23 @@ contains
     integer :: n_pts
     type(vector_t), intent(inout) :: n1, n2, n3
     integer :: mask(0:n_pts), facets(0:n_pts), fid, idx(4)
-    real(kind=rp) :: normal(3), area(3)
+    real(kind=rp) :: normal(3), area
     integer :: i
+
+    call coef%require_facets('drag_torque')
 
     do i = 1, n_pts
        fid = facets(i)
+       if ( (fid .lt. 1) .or. (fid .gt. 6)) then
+          call neko_error('setup_normals: invalid facet id. ' // &
+               'Pass bc%facet_node_msk, not bc%msk.')
+       end if
        idx = nonlinear_index(mask(i), coef%Xh%lx, coef%Xh%lx, coef%Xh%lx)
        normal = coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
        area = coef%get_area(idx(1), idx(2), idx(3), idx(4), fid)
-       n1%x(i) = normal(1)*area(1)
-       n2%x(i) = normal(2)*area(2)
-       n3%x(i) = normal(3)*area(3)
+       n1%x(i) = normal(1)*area
+       n2%x(i) = normal(2)*area
+       n3%x(i) = normal(3)*area
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

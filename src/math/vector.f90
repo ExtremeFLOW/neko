@@ -96,11 +96,14 @@ contains
     character(len=*), intent(in), optional :: name
 
     call v%alloc(n)
-    call cfill(v%x, 0.0_rp, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       ! Zero the device side first: under zero-copy the device then
+       ! faults the pages (device first touch), which gives contiguous
+       ! physical mappings and thus better GPU TLB utilisation
        call device_cfill(v%x_d, 0.0_rp, n)
        call device_sync()
     end if
+    call cfill(v%x, 0.0_rp, n)
 
     if (present(name)) then
        v%name = name
