@@ -31,7 +31,7 @@ of the code. But can be useful for users and developers alike.
 | `NEKO_LOG_LEVEL`         | Log verbosity level (integer > 0, default: 1)                         | Unset         |
 | `NEKO_GS_STRTGY`         | Gather-scatter device MPI sync. strategy (0 < integer < 5 )           | Unset         |
 | `NEKO_GS_COMM`           | Gather-scatter communication backend                                  | Unset         |
-| `NEKO_GS_TUNE`           | Comm. backends the gather-scatter autotuning benchmarks (list); also what asks for a comparison on a device-aware MPI build | Unset (all but `CAF`, `NVSHMEM`) |
+| `NEKO_GS_TUNE`           | Comm. backends the gather-scatter autotuning benchmarks (list)        | Unset (all but `CAF`, `NVSHMEM`) |
 | `NEKO_GS_CAF_SIGNALING`  | Coarray Fortran gather-scatter signaling mode                         | Unset         |
 | `NEKO_GS_RMA_FLUSH_ALL`  | Batch the MPI RMA gather-scatter payload flush (boolean)              | 1             |
 | `NEKO_COMM_ID`           | Communicator id for this process (non-negative integer)               | 0             |
@@ -179,12 +179,10 @@ A number of gather-scatter backends are supported.
 
 When `NEKO_GS_COMM` is unset, the backends are benchmarked at
 initialisation and the fastest one is kept (see
-@ref performance-gs-autotuning) -- except on a build configured with
-`--enable-device-mpi`, which uses `MPIGPU` without benchmarking, and
-compares only when `NEKO_GS_TUNE` is set. Which backends take part is
-set by `NEKO_GS_TUNE`, a list of backend names spelled as for
-`NEKO_GS_COMM` (comma or space separated, case insensitive). Naming
-none, it means every backend the build supports except `CAF`, which a
+@ref performance-gs-autotuning). Which ones take part is set by
+`NEKO_GS_TUNE`, a list of backend names spelled as for `NEKO_GS_COMM`
+(comma or space separated, case insensitive). Unset, it means every
+backend the build supports except `CAF`, which a
 compiler can accept at configure time while still giving the job a
 single image the coarray backend cannot use, and `NVSHMEM`, which aborts
 unless the peer lists come out symmetric and aligned. On a CUDA or HIP

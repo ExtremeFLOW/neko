@@ -33,7 +33,7 @@
 !> Gather-scatter
 module gather_scatter
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_HIP, &
-       NEKO_BCKND_CUDA, NEKO_BCKND_OPENCL, NEKO_BCKND_METAL, NEKO_DEVICE_MPI
+       NEKO_BCKND_CUDA, NEKO_BCKND_OPENCL, NEKO_BCKND_METAL
   use gs_bcknd, only : gs_bcknd_t, GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
   use gs_device, only : gs_device_t
   use gs_sx, only : gs_sx_t
@@ -176,12 +176,6 @@ module gather_scatter
        type(gs_t), intent(inout) :: gs
        integer, intent(in) :: n
      end subroutine gs_tune_dev_strtgy
-
-     !> Whether the autotuning has been asked for explicitly, i.e. whether
-     !! NEKO_GS_TUNE is set
-     module function gs_tune_requested() result(requested)
-       logical :: requested
-     end function gs_tune_requested
   end interface
 
 contains
@@ -288,21 +282,11 @@ contains
        comm_bcknd_ = GS_COMM_CRYSTAL
     else if (use_device_crystal) then
        comm_bcknd_ = GS_COMM_CRYSTALGPU
-    else if (NEKO_DEVICE_MPI) then
-       ! A build with device-aware MPI has a defensible default and device
-       ! MPI is it: where it has been measured it beat the host backends by
-       ! 3-5x, which is not worth re-deriving at every startup. Setting
-       ! NEKO_GS_TUNE asks for the comparison anyway, which is how a new
-       ! machine gets its open question answered -- NCCL against device MPI,
-       ! or a GPU-aware MPI that turns out to be nominal
-       comm_bcknd_ = GS_COMM_MPIGPU
-       tune_comm = gs_tune_requested() .and. (pe_size .gt. 1)
     else
-       ! No backend requested and no obvious default: benchmark the
-       ! candidates once the schedule is known and keep the fastest one (see
-       ! gs_tune_comm). The schedule is built with the host MPI backend,
-       ! which every build can drive, and handed over to each candidate in
-       ! turn
+       ! No backend requested, benchmark the candidates once the schedule is
+       ! known and keep the fastest one (see gs_tune_comm). The schedule is
+       ! built with the host MPI backend, which every build can drive, and
+       ! handed over to each candidate in turn
        comm_bcknd_ = GS_COMM_MPI
        tune_comm = (pe_size .gt. 1)
     end if
@@ -400,11 +384,11 @@ contains
     ! memory for a device-resident one
     gs%bcknd%shared_on_host = .not. gs_comm_on_device(comm_bcknd_)
 
-    ! Bind the device MPI synchronisation strategy. When the backends are
-    ! benchmarked below this is done there instead, as part of benchmarking
-    ! the device MPI candidate, so do not sweep it twice
-    if (comm_bcknd_ .eq. GS_COMM_MPIGPU .and. .not. tune_comm .and. &
-         pe_size .gt. 1) then
+    ! Bind the device MPI synchronisation strategy for a run that pinned
+    ! device MPI. When the comm. backend is left to the autotuning below,
+    ! this is done there instead, as part of benchmarking the device MPI
+    ! candidate
+    if (comm_bcknd_ .eq. GS_COMM_MPIGPU .and. pe_size .gt. 1) then
        call gs_tune_dev_strtgy(gs, dofmap%size())
     end if
 

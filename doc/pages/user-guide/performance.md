@@ -488,9 +488,9 @@ implementations of the off-process gs exchange, and the right choice
 depends on the host/accelerator combination and the interconnect.
 
 The active backend can be selected at runtime via the `NEKO_GS_COMM`
-environment variable. If the variable is unset, a build with device-aware
-MPI uses `MPIGPU`; every other build picks by measurement, benchmarking
-the backends it supports at initialisation and keeping the fastest, see
+environment variable. If the variable is unset, the backend is picked by
+measurement: every backend the build supports is benchmarked at
+initialisation and the fastest one is kept, see
 @ref performance-gs-autotuning. The supported values are:
 
 | `NEKO_GS_COMM` | Backend | Requirement | Typical use |
@@ -544,28 +544,21 @@ count: it pays where per-message overhead dominates and loses where the
 halo is already large enough to be bandwidth bound. Benchmarking is the
 intended way to find out which regime a given run is in: `CRYSTAL` is a
 default candidate in the autotuning (`NEKO_GS_TUNE=-CRYSTAL` drops it),
-and `CRYSTALGPU` is one whenever a device build runs the comparison --
-which on a `--enable-device-mpi` build means when `NEKO_GS_TUNE` is set.
+and `CRYSTALGPU` is one on any device build that can drive it
+(`NEKO_GS_TUNE=-CRYSTALGPU` drops it).
 
 #### Runtime autotuning of the comm. backend {#performance-gs-autotuning}
 
 Which backend wins depends on the MPI implementation, the
-interconnect and the halo of the particular decomposition, and on most
-builds there is no defensible built-in rule, so the choice is made by
-measurement. When `NEKO_GS_COMM` is unset, no `comm_bcknd` argument is
-passed to `gs%init` and the run has more than one rank, each `gs_t`
-instance benchmarks the available backends at initialisation and keeps
-the fastest one. A candidate with a sub-choice of its own has that
-benchmarked too and contributes the winning variant's time: the device
-MPI synchronisation strategy (`NEKO_GS_STRTGY`), and the coarray
-signaling mode.
-
-The exception is a build configured with `--enable-device-mpi`, which
-does have a defensible default: `MPIGPU`. Where it has been measured it
-beat the host backends by 3-5x, so that build uses it without
-benchmarking anything, and tunes only the synchronisation strategy as it
-always has. Setting `NEKO_GS_TUNE` to anything turns the full comparison
-on there as well -- see below.
+interconnect and the halo of the particular decomposition, so the
+choice is made by measurement rather than by a built-in rule. When
+`NEKO_GS_COMM` is unset, no `comm_bcknd` argument is passed to
+`gs%init` and the run has more than one rank, each `gs_t` instance
+benchmarks the available backends at initialisation and keeps the
+fastest one. A candidate with a sub-choice of its own has that
+benchmarked too and contributes the winning variant's time, reported on
+that candidate's own line: the device MPI synchronisation strategy
+(`NEKO_GS_STRTGY`), and the coarray signaling mode.
 
 By default the candidates are every backend the build supports except
 `CAF` and `NVSHMEM`: `MPI`, `NEIGHBOUR`, `MPIRMA` and `CRYSTAL`, which
@@ -577,7 +570,7 @@ every process (`NEKO_COMM_ID`), since they address their peers by global
 PE / image number; `UTOFU` and `MPIRMA` exchange their addresses over
 `NEKO_COMM` itself and are kept in that case.
 
-On a CUDA or HIP build the device-resident backends are candidates too:
+On a CUDA or HIP build the device-resident backends join the comparison:
 `MPIGPU` and `CRYSTALGPU` when the build was configured with
 `--enable-device-mpi`, and `NCCL` when NCCL or RCCL was built in. `NCCL`
 carries the same restriction as the PE-addressed host backends and is
@@ -608,12 +601,7 @@ outright on such a system.
 
 ##### Choosing the candidates
 
-`NEKO_GS_TUNE` overrides that set, and on a `--enable-device-mpi` build
-setting it at all is what asks for a comparison in the first place:
-`NEKO_GS_TUNE=MPIGPU,NCCL` measures those two against each other, and
-`NEKO_GS_TUNE=+CAF` measures the whole default set (device backends
-included, so the incumbent defends its place) plus the coarray backend.
-It takes a list of backend names,
+`NEKO_GS_TUNE` overrides that set. It takes a list of backend names,
 spelled as for `NEKO_GS_COMM`, separated by commas or spaces and
 matched case insensitively:
 
@@ -683,20 +671,26 @@ backend that was kept:
  Tuned comm   :          MPI
 ```
 
-When a GPU build is asked for a comparison, the device candidates appear
-in the same table, below the host ones, and the strategy bound for
-`MPIGPU` is reported as part of measuring it:
+On a GPU build the device candidates appear in the same table, below the
+host ones. The device MPI row names the synchronisation strategy it was
+measured under, the way the `CAF` row names its signaling mode, since
+that is part of what was measured and is what the run goes on to use;
+`(env)` marks a strategy that came from `NEKO_GS_STRTGY` rather than from
+the benchmark:
 
 ```
  Comm         :         auto
  ...
- Avg. strtgy  :         [01]
  MPI          :  8.031E-05 s
- Device MPI   :  3.412E-05 s
+ Dev. MPI [01]:  3.412E-05 s
  NCCL         :  2.984E-05 s
  Dev. Crystal :  4.755E-05 s
  Tuned comm   :         NCCL
 ```
+
+Pinning device MPI with `NEKO_GS_COMM=MPIGPU` benchmarks no backends, so
+there the strategy keeps the line of its own it has always had,
+`Avg. strtgy` or `Env. strtgy`.
 
 Tuning is skipped, keeping the host MPI backend, if any rank holds
 zero dofs: such a rank skips the halo exchange entirely, which would

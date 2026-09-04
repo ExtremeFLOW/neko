@@ -2,21 +2,19 @@
 
 ## Develop
 
-- The gather-scatter comm. backend autotuning can now benchmark the
-  device-resident backends. `MPIGPU`, `NCCL` and `CRYSTALGPU` join the
-  candidates on CUDA and HIP builds (`NVSHMEM` only when asked for), measured
-  against the host backends, which on such a build are measured staging the
-  halo through the host as they actually run there. A build configured with
-  `--enable-device-mpi` keeps its existing default of `MPIGPU` and benchmarks
-  nothing, tuning only the synchronisation strategy as before; setting
-  `NEKO_GS_TUNE` asks for the comparison there, which is how a question with
-  no built-in answer -- `NCCL` against device MPI, or a GPU-aware MPI that
-  turns out to be nominal -- gets settled on a new machine. A CUDA or HIP
-  build *without* device-aware MPI has no such default and benchmarks as it
-  already did, now with `NCCL` among the candidates when it was built in.
+- The gather-scatter comm. backend autotuning now covers the device-resident
+  backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks
+  `MPIGPU`, `NCCL` and `CRYSTALGPU` (`NVSHMEM` only when asked for) alongside
+  the host backends and keeps the fastest, instead of defaulting to device
+  MPI whenever the build had it. The host backends stay in the comparison and
+  are measured staging the halo through the host, which is how they run on
+  such a build.
 - The device MPI synchronisation strategy (`NEKO_GS_STRTGY`) is benchmarked
   as part of measuring the `MPIGPU` candidate, so the backend is compared on
-  its best strategy's time rather than the default strategy's.
+  its best strategy's time rather than the default strategy's, and the
+  strategy is reported on that candidate's line of the comparison rather than
+  above it. Pinning device MPI with `NEKO_GS_COMM=MPIGPU` benchmarks no
+  backends and keeps the `Avg. strtgy` / `Env. strtgy` line as before.
 - `NEKO_GS_TUNE` accepts the device backend names `MPIGPU`, `NCCL`,
   `CRYSTALGPU` and `NVSHMEM`. `SHMEM` there always names the host OpenSHMEM
   backend and `NVSHMEM` the device one, since a GPU build can have both as
@@ -31,9 +29,8 @@
   per peer, trading forwarded volume for message count, which pays where
   per-message overhead dominates. The routing is worked out once at
   initialisation, so the exchange itself neither negotiates sizes nor
-  allocates. `CRYSTAL` is a default candidate in the comm. autotuning
-  (`NEKO_GS_TUNE=-CRYSTAL` drops it); `CRYSTALGPU` is a candidate whenever a
-  device build runs the comparison.
+  allocates. Both are default candidates in the comm. autotuning
+  (`NEKO_GS_TUNE=-CRYSTAL` and `-CRYSTALGPU` drop them).
 - Fixed facet masks for some simulation components.
 - *BREAKING*, normal_outflow conditions now require specifying `value`, which
   is used to set the value of the tangential components of velocity.

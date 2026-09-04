@@ -53,17 +53,10 @@ submodule (gather_scatter) gs_tune
        GS_COMM_CRYSTAL, GS_COMM_MPIGPU, GS_COMM_NCCL, GS_COMM_CRYSTALGPU, &
        GS_COMM_NVSHMEM]
 
-  !> Which of GS_TUNE_BCKND are benchmarked when NEKO_GS_TUNE names no
-  !! candidates of its own: all of them this build and run supports but CAF
-  !! and NVSHMEM, which have to be asked for (see gs_tune_select). A host
-  !! build drops every device backend in gs_comm_tunable, so the one set
-  !! serves both.
-  !!
-  !! @note This is the set a comparison starts from, not a statement that a
-  !! comparison happens. On a build with device-aware MPI none does unless
-  !! NEKO_GS_TUNE is set at all (see gs_tune_requested and gs_init); the
-  !! device backends are in the set so that device MPI, the default there,
-  !! defends its place once a comparison is asked for.
+  !> Which of GS_TUNE_BCKND are benchmarked when NEKO_GS_TUNE is unset: all
+  !! of them this build and run supports but CAF and NVSHMEM, which have to
+  !! be asked for (see gs_tune_select). A host build drops every device
+  !! backend in gs_comm_tunable, so the one set serves both.
   logical, parameter :: GS_TUNE_DEFAULT(11) = [.true., .true., .true., &
        .true., .false., .true., .true., .true., .true., .true., .false.]
 
@@ -83,22 +76,6 @@ submodule (gather_scatter) gs_tune
   logical, save :: caf_signal_tuned = .false.
 
 contains
-
-  !> Whether the autotuning has been asked for explicitly, that is whether
-  !! NEKO_GS_TUNE is set to anything at all. What it is set to selects the
-  !! candidates (see gs_tune_select); merely being set is what turns the
-  !! benchmark on where benchmarking is not the default, namely on a build
-  !! with device-aware MPI (see gs_init).
-  !! @return whether NEKO_GS_TUNE is set
-  module function gs_tune_requested() result(requested)
-    logical :: requested
-    character(len=255) :: env_val
-    integer :: env_len
-
-    call get_environment_variable("NEKO_GS_TUNE", env_val, env_len)
-    requested = (env_len .gt. 0)
-
-  end function gs_tune_requested
 
   !> Comm. backends to benchmark in the runtime autotuning: the ones
   !! selected by NEKO_GS_TUNE (see gs_tune_select) that this build and run
@@ -456,11 +433,13 @@ contains
     integer, intent(in) :: comm_bcknd
     character(len=LOG_SIZE) :: log_buf
     character(len=13) :: label
+    character(len=6) :: strtgy_str
     integer, allocatable :: cand(:)
     real(kind=dp), allocatable :: cand_time(:)
     real(kind=rp), allocatable :: tmp(:)
     type(c_ptr) :: tmp_d
-    integer :: i, best, nmin, cur, dev_strtgy
+    integer :: i, best, nmin, cur, dev_strtgy, dev_strtgy_avg
+    logical :: dev_strtgy_env
 
     allocate(cand, source = gs_comm_cand())
 
@@ -503,6 +482,8 @@ contains
     ! GS_OP_MIN leaves the working vector untouched, so the benchmark can
     ! run for any number of trials without the values growing out of range
     dev_strtgy = -1
+    dev_strtgy_avg = -1
+    dev_strtgy_env = .false.
     do i = 1, size(cand)
        if (cand(i) .eq. GS_COMM_CAF .and. gs_caf_signal_auto() .and. &
             .not. caf_signal_tuned) then
@@ -516,7 +497,8 @@ contains
              ! Benchmark the synchronisation strategies as well; this leaves
              ! the fastest one bound, and it has to be remembered in case the
              ! sweep switches away from device MPI and back again
-             call gs_tune_strtgy(gs, tmp, n, cand_time(i))
+             call gs_tune_strtgy(gs, tmp, n, dev_strtgy_avg, dev_strtgy_env, &
+                  cand_time(i))
              dev_strtgy = gs_get_strtgy(gs)
           else
              cand_time(i) = gs_time_ops(gs, tmp, n, GS_OP_MIN, &
@@ -543,9 +525,22 @@ contains
           label = 'CAF (' // &
                trim(adjustl(gs_caf_mode_name(gs_caf_mode_get()))) // ')'
        end if
+       ! Device MPI is likewise only as fast as the synchronisation strategy
+       ! it ran under, and that strategy is what the run goes on to use, so
+       ! name it on the line it was measured on rather than above the
+       ! comparison. 'Dev. MPI [xx]' is exactly the width of the label
+       ! field, so the column is unaffected
+       strtgy_str = ''
+       if (cand(i) .eq. GS_COMM_MPIGPU .and. dev_strtgy_avg .ge. 0) then
+          write(label, '(A,B0.2,A)') 'Dev. MPI [', dev_strtgy_avg, ']'
+          ! A strategy that was named rather than measured is not a property
+          ! of this comparison, so it is flagged instead of quietly shown
+          if (dev_strtgy_env) strtgy_str = ' (env)'
+       end if
        ! ES10.3 + ' s' fills the same 12 columns as the right-adjusted
        ! backend names, so the unit lines up with their last letter
-       write(log_buf, '(A,A,ES10.3,A)') label, ': ', cand_time(i), ' s'
+       write(log_buf, '(A,A,ES10.3,A,A)') label, ': ', cand_time(i), ' s', &
+            trim(strtgy_str)
        call neko_log%message(log_buf)
     end do
 
@@ -574,8 +569,11 @@ contains
   module subroutine gs_tune_dev_strtgy(gs, n)
     type(gs_t), intent(inout) :: gs
     integer, intent(in) :: n
+    character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: tmp(:)
     type(c_ptr) :: tmp_d
+    integer :: strtgy_avg
+    logical :: from_env
 
     tmp_d = C_NULL_PTR
     allocate(tmp(n))
@@ -583,16 +581,26 @@ contains
     call device_map(tmp, tmp_d, n)
     call device_memcpy(tmp, tmp_d, n, HOST_TO_DEVICE, sync = .false.)
 
-    call gs_tune_strtgy(gs, tmp, n)
+    call gs_tune_strtgy(gs, tmp, n, strtgy_avg, from_env)
 
     call device_unmap(tmp, tmp_d)
     deallocate(tmp)
 
+    ! Nothing else was tuned, so the strategy gets the line to itself
+    if (from_env) then
+       write(log_buf, '(A,B0.2,A)') 'Env. strtgy  :         [', strtgy_avg, ']'
+    else
+       write(log_buf, '(A,B0.2,A)') 'Avg. strtgy  :         [', strtgy_avg, ']'
+    end if
+    call neko_log%message(log_buf)
+
   end subroutine gs_tune_dev_strtgy
 
   !> Bind the non-blocking synchronisation strategy of the device MPI comm.
-  !! backend held by @a gs, and optionally return the average time per
-  !! gather-scatter operation under it.
+  !! backend held by @a gs, reporting the bound strategy back to the caller
+  !! rather than to the log: where it is one candidate among several it
+  !! belongs on that candidate's line, and where it is the only thing being
+  !! tuned it gets a line of its own (see gs_tune_dev_strtgy).
   !!
   !! The strategy is the pair of independent choices of packing the halo per
   !! peer or in one go, and of waiting for the incoming messages one by one
@@ -602,22 +610,28 @@ contains
   !!
   !! Unlike the comm. backend itself this is a rank-local choice -- it
   !! changes how a rank drives its own streams, not what goes on the wire --
-  !! so every rank keeps its own winner and only the reported strategy is
-  !! averaged over the ranks.
+  !! so every rank keeps its own winner. @a strtgy_avg is the average of
+  !! those winners, the same treatment the candidate timings get, so that
+  !! what is reported describes the run rather than rank 0.
   !!
   !! @param gs gather-scatter kernel to tune, holding a device MPI comm.
   !! backend. Doing this to any other backend binds nothing and simply times
   !! it four times over
   !! @param u working vector to operate on
   !! @param n length of @a u
+  !! @param strtgy_avg the bound strategy averaged over the ranks, as the
+  !! two bit mask to report (not an index into the strategy list)
+  !! @param from_env whether NEKO_GS_STRTGY named the strategy, rather than
+  !! it having been benchmarked
   !! @param t the average wall time (s) per operation under the bound
   !! strategy
-  subroutine gs_tune_strtgy(gs, u, n, t)
+  subroutine gs_tune_strtgy(gs, u, n, strtgy_avg, from_env, t)
     type(gs_t), intent(inout) :: gs
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
+    integer, intent(out) :: strtgy_avg
+    logical, intent(out) :: from_env
     real(kind=dp), intent(out), optional :: t
-    character(len=LOG_SIZE) :: log_buf
     integer, parameter :: strtgy(4) = [int(B'00'), int(B'01'), int(B'10'), &
          int(B'11')]
     real(kind=dp) :: strtgy_time(size(strtgy))
@@ -625,8 +639,9 @@ contains
     integer :: i, env_len, best, avg
 
     call get_environment_variable("NEKO_GS_STRTGY", env_strtgy, env_len)
+    from_env = (env_len .gt. 0)
 
-    if (env_len .eq. 0) then
+    if (.not. from_env) then
        do i = 1, size(strtgy)
           call gs_set_strtgy(gs, strtgy(i))
           strtgy_time(i) = gs_time_ops(gs, u, n, GS_OP_MIN, GS_TUNE_NTRIALS)
@@ -636,15 +651,10 @@ contains
        call gs_set_strtgy(gs, strtgy(best))
        if (present(t)) t = strtgy_time(best)
 
-       ! Each rank picked for itself, so report the average of what they
-       ! picked rather than rank 0's own choice
        avg = best
        call MPI_Allreduce(MPI_IN_PLACE, avg, 1, MPI_INTEGER, MPI_SUM, &
             NEKO_COMM)
        avg = avg / pe_size
-
-       write(log_buf, '(A,B0.2,A)') 'Avg. strtgy  :         [', &
-            strtgy(avg), ']'
     else
        read(env_strtgy(1:env_len), *) best
 
@@ -657,11 +667,11 @@ contains
           t = gs_time_ops(gs, u, n, GS_OP_MIN, GS_TUNE_NTRIALS)
        end if
 
-       write(log_buf, '(A,B0.2,A)') 'Env. strtgy  :         [', &
-            strtgy(best), ']'
+       ! Every rank was given the same one, so there is nothing to average
+       avg = best
     end if
 
-    call neko_log%message(log_buf)
+    strtgy_avg = strtgy(avg)
 
   end subroutine gs_tune_strtgy
 
