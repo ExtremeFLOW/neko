@@ -49,10 +49,10 @@ module vtkhdf_file
        MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
        MPI_Barrier, MPI_Bcast, MPI_LOGICAL
   use vtk, only : vtk_ordering
+  use hdf5_session, only : hdf5_session_init, hdf5_session_finalize
 #ifdef HAVE_HDF5
   use hdf5, only : &
        hid_t, hsize_t, size_t, &
-       h5open_f, h5close_f, &
        h5fcreate_f, h5fopen_f, h5fclose_f, h5fflush_f, h5fget_obj_count_f, &
        H5F_OBJ_ALL_F, H5F_SCOPE_GLOBAL_F, &
        h5gcreate_f, h5gopen_f, h5gclose_f, &
@@ -233,7 +233,7 @@ contains
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
 
-    call h5open_f(ierr)
+    call hdf5_session_init()
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
     call h5pset_fapl_mpio_f(plist_id, mpi_comm, mpi_info, ierr)
 
@@ -314,7 +314,7 @@ contains
     end block
     call h5fflush_f(file_id, H5F_SCOPE_GLOBAL_F, ierr)
     call h5fclose_f(file_id, ierr)
-    call h5close_f(ierr)
+    call hdf5_session_finalize()
 
     call fields%free()
 
@@ -1518,7 +1518,7 @@ contains
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
 
-    call h5open_f(ierr)
+    call hdf5_session_init()
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
     call h5pset_fapl_mpio_f(plist_id, mpi_comm, mpi_info, ierr)
 
@@ -1555,7 +1555,7 @@ contains
     call h5gclose_f(vtkhdf_grp, ierr)
     call h5fclose_f(file_id, ierr)
     call h5pclose_f(plist_id, ierr)
-    call h5close_f(ierr)
+    call hdf5_session_finalize()
 
     call fields%free()
 
