@@ -44,6 +44,7 @@ SUBDIRS = tuple\
 	  bc_projector\
 	  boundary_operation\
 	  wall_sampling\
+	  restart_consistency\
 	  templates/serial
 
 TESTS = device/device_test\
@@ -92,6 +93,7 @@ TESTS = device/device_test\
 	bc_projector/bc_projector_test\
 	boundary_operation/boundary_operation_test\
 	wall_sampling/wall_sampling_test\
+	restart_consistency/restart_consistency_test\
 	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
@@ -185,14 +187,19 @@ EXTRA_DIST = \
 	wall_sampling/test_gll.pf\
 	wall_sampling/test_distance.pf\
 	wall_sampling/wall_sampling_test\
+	restart_consistency/test_restart_consistency.pf\
+	restart_consistency/restart_consistency_test\
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\
 	templates/serial/test_serial.pf
 
 if ENABLE_HDF5
-SUBDIRS += vtkhdf
-TESTS += vtkhdf/vtkhdf_test
-EXTRA_DIST += vtkhdf/vtkhdf_parallel.pf
+SUBDIRS += vtkhdf restart_consistency_hdf5
+TESTS += vtkhdf/vtkhdf_test \
+	restart_consistency_hdf5/restart_consistency_hdf5_test
+EXTRA_DIST += vtkhdf/vtkhdf_parallel.pf \
+	restart_consistency_hdf5/test_restart_consistency_hdf5.pf \
+	restart_consistency_hdf5/restart_consistency_hdf5_test
 endif
 
 UNIT_TEST_MAKEFILES = Makefile $(SUBDIRS:%=%/Makefile)

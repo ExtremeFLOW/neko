@@ -444,6 +444,8 @@ AC_CONFIG_FILES([Makefile\
 
 # Config tests/unit
 AC_CONFIG_FILES([tests/unit/stack/Makefile\
+        tests/unit/restart_consistency/Makefile\
+        tests/unit/restart_consistency_hdf5/Makefile\
         tests/unit/tuple/Makefile\
         tests/unit/point/Makefile\
         tests/unit/htable/Makefile\
