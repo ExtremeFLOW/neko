@@ -48,6 +48,13 @@ module logger
   !> Length of the section header
   integer, public, parameter :: SEC_HEAD_SIZE = 30
 
+  ! Possible levels of logging
+  integer, public, parameter :: NEKO_LOG_QUIET = 0 !< Always
+  integer, public, parameter :: NEKO_LOG_INFO = 1 !< Default
+  integer, public, parameter :: NEKO_LOG_VERBOSE = 2 !< Verbose
+  integer, public, parameter :: NEKO_LOG_DEPRECATION = 5 !< Deprecation
+  integer, public, parameter :: NEKO_LOG_DEBUG = 10 !< Debug
+
   type, public :: log_t
      integer, private :: indent_ = 0
      integer, private :: section_id_ = 0
@@ -79,16 +86,6 @@ module logger
 
   !> Global log stream
   type(log_t), public :: neko_log
-  !> Always logged
-  integer, public, parameter :: NEKO_LOG_QUIET = 0
-  !> Default log level
-  integer, public, parameter :: NEKO_LOG_INFO = 1
-  !> Verbose log level
-  integer, public, parameter :: NEKO_LOG_VERBOSE = 2
-  !> Deprecation log level
-  integer, public, parameter :: NEKO_LOG_DEPRECATION = 5
-  !> Debug log level
-  integer, public, parameter :: NEKO_LOG_DEBUG = 10
 
   !> List of already logged deprecated features
   character(len=50), dimension(:), allocatable :: deprecated_list
