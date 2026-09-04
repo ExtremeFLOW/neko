@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Added runtime registration of user-defined scalar boundary-condition types
+  through `register_scalar_pnpn_bc`.
 - Added crystal router gather-scatter communication backends,
   `NEKO_GS_COMM=CRYSTAL` on the host and `CRYSTALGPU` on the device. They
   route the halo in recursive-bisection stages instead of sending one message

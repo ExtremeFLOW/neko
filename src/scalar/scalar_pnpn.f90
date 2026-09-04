@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2024, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -67,6 +67,7 @@ module scalar_pnpn
   use time_step_controller, only : time_step_controller_t
   use time_state, only : time_state_t
   use bc, only : bc_t, BC_DIRICHLET
+  use utils, only : NEKO_VARNAME_LEN
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
@@ -142,14 +143,65 @@ module scalar_pnpn
      !! @param[in] scheme The `scalar_pnpn` scheme.
      !! @param[inout] json JSON object for initializing the bc.
      !! @param[in] coef SEM coefficients.
-     module subroutine bc_factory(object, scheme, json, coef, user)
+     !! @param[in] user The user interface.
+     module subroutine scalar_pnpn_bc_factory(object, scheme, json, coef, user)
        class(bc_t), pointer, intent(inout) :: object
        type(scalar_pnpn_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), target, intent(in) :: coef
        type(user_t), intent(in) :: user
-     end subroutine bc_factory
+     end subroutine scalar_pnpn_bc_factory
   end interface
+
+  interface
+     !> Scalar Pn/Pn boundary condition allocator.
+     !! @param[inout] object The object to be allocated.
+     !! @param[in] type_name The name of the boundary condition type.
+     module subroutine scalar_pnpn_bc_allocator(object, type_name)
+       class(bc_t), pointer, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+     end subroutine scalar_pnpn_bc_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for a scalar Pn/Pn boundary condition allocator.
+  !! Implemented in user modules, it should allocate `obj` to the custom user
+  !! type.
+  abstract interface
+     subroutine scalar_pnpn_bc_allocate(obj)
+       import bc_t
+       class(bc_t), pointer, intent(inout) :: obj
+     end subroutine scalar_pnpn_bc_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     !! @param[in] type_name The name of the boundary condition type.
+     !! @param[in] allocator The allocator for the custom user type.
+     module subroutine register_scalar_pnpn_bc(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(scalar_pnpn_bc_allocate), pointer, intent(in) :: allocator
+     end subroutine register_scalar_pnpn_bc
+  end interface
+
+  !> A name-allocator pair for user-defined scalar Pn/Pn boundary conditions.
+  type scalar_pnpn_bc_allocator_entry
+     character(len=NEKO_VARNAME_LEN) :: type_name
+     procedure(scalar_pnpn_bc_allocate), pointer, nopass :: allocator => null()
+  end type scalar_pnpn_bc_allocator_entry
+
+  !> Registry of scalar Pn/Pn boundary condition allocators.
+  type(scalar_pnpn_bc_allocator_entry), allocatable, private :: &
+       scalar_pnpn_bc_registry(:)
+
+  !> The size of `scalar_pnpn_bc_registry`.
+  integer, private :: scalar_pnpn_bc_registry_size = 0
+
+  public :: scalar_pnpn_bc_allocator, scalar_pnpn_bc_allocate, &
+       register_scalar_pnpn_bc
 
 contains
 
@@ -538,7 +590,7 @@ contains
 
           bc_i => null()
 
-          call bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
+          call scalar_pnpn_bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
           call this%bcs%append(bc_i)
        end do
 
