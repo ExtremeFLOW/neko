@@ -39,11 +39,11 @@ module hdf5_session
   implicit none
   private
 
-  public :: hdf5_session_init, hdf5_session_finalize, hdf5_session_is_active
+  public :: hdf5_session_init, hdf5_session_finalize
 
   !> Whether a session currently holds the library open. The file backends
   !! consult this so they do not close the library out from under it.
-  integer, save :: session_active = 0
+  integer :: session_active = 0
 
 contains
 
