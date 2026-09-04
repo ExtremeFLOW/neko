@@ -43,7 +43,7 @@ module gs_comm
   integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2, &
        GS_COMM_NCCL = 3, GS_COMM_NVSHMEM = 4, GS_COMM_OPENSHMEM = 5, &
        GS_COMM_CAF = 6, GS_COMM_NEIGHBOUR = 7, GS_COMM_UTOFU = 8, &
-       GS_COMM_MPIRMA = 9
+       GS_COMM_MPIRMA = 9, GS_COMM_CRYSTAL = 10, GS_COMM_CRYSTALGPU = 11
 
   !> Maximum number of components handled by the fused vector (multi-component)
   !! halo exchange used by gs_op_r3. Sizes the backend vector buffers.
