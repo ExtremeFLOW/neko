@@ -36,8 +36,13 @@ neko_fortran_SOURCES = \
 	common/system.f90\
 	common/runtime_statistics.f90\
 	common/user_access_singleton.f90\
+	data_types/array.f90\
 	data_types/host_array.f90\
 	data_types/device_array.f90\
+	data_types/vector.f90\
+	data_types/matrix.f90\
+	data_types/tensor3.f90\
+	data_types/tensor4.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
 	qoi/drag_torque.f90\
@@ -117,6 +122,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/cpu/cpu_opgrad.f90\
 	math/bcknd/cpu/convect_scalar.f90\
 	math/bcknd/cpu/set_convect_rst.f90\
+	math/bcknd/cpu/cpu_matrix_math.f90\
 	math/bcknd/sx/sx_cdtp.f90\
 	math/bcknd/sx/sx_conv1.f90\
 	math/bcknd/sx/sx_dudxyz.f90\
@@ -139,7 +145,6 @@ neko_fortran_SOURCES = \
 	math/bcknd/sx/fdm_sx.f90\
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
-	math/vector.f90\
 	common/particles.f90\
 	math/vector_series.f90\
 	math/vector_list.f90\
@@ -147,7 +152,6 @@ neko_fortran_SOURCES = \
 	registries/registry.f90\
 	registries/registry_entry.f90\
 	registries/scratch_registry.f90\
-	math/matrix.f90\
 	math/matrix_math.f90\
 	math/signed_distance.f90\
 	multigrid/tree_amg.f90\
