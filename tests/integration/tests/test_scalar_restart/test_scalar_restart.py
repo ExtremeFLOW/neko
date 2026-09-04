@@ -5,6 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 
 from conftest import BACKEND, RP
@@ -63,7 +64,11 @@ def _compare_with_reference(actual, reference):
     assert np.all(actual["tracer_final_residual"] <= SCALAR_TOLERANCE)
 
 
-def test_scalar_restart(launcher_script, request, tmp_path):
+# Both checkpoint formats have to support a restart identically. The
+# reference data is physics, not format, so the same references apply to
+# each: if either format loses or garbles state, its part2 stops matching.
+@pytest.mark.parametrize("checkpoint_format", ["chkp", "hdf5"])
+def test_scalar_restart(launcher_script, request, tmp_path, checkpoint_format):
     """Check scalar residuals and continuity across a checkpoint restart."""
     neko = get_neko()
     neko_dir = Path(get_neko_dir()).resolve()
@@ -73,7 +78,7 @@ def test_scalar_restart(launcher_script, request, tmp_path):
     nprocs = configure_nprocs(1)
     # Keep the restart path short enough for Neko's fixed-size log buffer.
     checkpoint_dir_context = TemporaryDirectory(
-        prefix="neko-scalar-", dir="/tmp"
+        prefix=f"neko-scalar-{checkpoint_format}-", dir="/tmp"
     )
     request.addfinalizer(checkpoint_dir_context.cleanup)
     checkpoint_dir = Path(checkpoint_dir_context.name)
@@ -87,6 +92,9 @@ def test_scalar_restart(launcher_script, request, tmp_path):
         neko_dir / "tests" / "integration" / "meshes" / "small_test_cyl.nmsh"
     )
     case["case"]["output_directory"] = str(checkpoint_dir)
+    case["case"]["checkpoint_format"] = checkpoint_format
+    # `chkp_output` maps the format onto the suffix it writes.
+    suffix = ".h5" if checkpoint_format == "hdf5" else ".chkp"
 
     part1_case = tmp_path / "scalar_restart_part1.case"
     with part1_case.open("w", encoding="utf-8") as stream:
@@ -106,7 +114,7 @@ def test_scalar_restart(launcher_script, request, tmp_path):
     )
     _compare_with_reference(part1_data, part1_reference)
 
-    checkpoints = sorted(checkpoint_dir.glob("scalar_restart*.chkp"))
+    checkpoints = sorted(checkpoint_dir.glob(f"scalar_restart*{suffix}"))
     assert len(checkpoints) == 3, (
         "Expected initial, t=0.05, and t=0.10 checkpoints, "
         f"found {checkpoints}"
