@@ -33,10 +33,7 @@
 !> Defines a tensor3
 module tensor3
   use array, only : array_t
-  use num_types, only : rp, xp
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
-  use utils, only : neko_warning, neko_error
+  use num_types, only : rp
   implicit none
   private
 
@@ -47,9 +44,10 @@ module tensor3
      integer, dimension(3), private :: dims = [0, 0, 0]
 
    contains
+     !> Generic init method. Calls the tensor3 specific init method.
      generic :: init => init_tensor3
      !> Initialise a tensor3 of size `n1*n2*n3`.
-     procedure, pass(this) :: init_tensor3 => tensor3_init
+     procedure, pass(this), private :: init_tensor3 => tensor3_init
      !> Deallocate a tensor3.
      procedure, pass(this) :: free => tensor3_free
 

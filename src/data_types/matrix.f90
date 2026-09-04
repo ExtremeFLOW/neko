@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ module matrix
   use num_types, only : rp, xp
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
-  use utils, only : neko_warning, neko_error
+  use utils, only : neko_error
   implicit none
   private
 
@@ -47,6 +47,7 @@ module matrix
      integer, dimension(2), private :: dims = [0, 0]
 
    contains
+     !> Generic init method. Calls the matrix specific init method.
      generic :: init => init_matrix
      !> Initialise a matrix of size `nrows*ncols`.
      procedure, pass(this), private :: init_matrix => matrix_init
@@ -134,15 +135,48 @@ contains
     nc = this%dims(2)
   end function matrix_ncols
 
+  ! ========================================================================== !
+  ! matrix pointer type subroutines
+
+  subroutine matrix_ptr_init(this, ptr)
+    class(matrix_ptr_t), intent(inout) :: this
+    type(matrix_t), target, intent(in) :: ptr
+
+    call this%free()
+    this%ptr => ptr
+  end subroutine matrix_ptr_init
+
+  subroutine matrix_ptr_free(this)
+    class(matrix_ptr_t), intent(inout) :: this
+
+    if (associated(this%ptr)) then
+       nullify(this%ptr)
+    end if
+
+  end subroutine matrix_ptr_free
+
+  ! ========================================================================== !
+  ! Matrix inversion subroutines
+
   !> Compute the inverse of the matrix.
   subroutine matrix_inverse(this, bcknd)
     class(matrix_t), intent(inout) :: this
     integer, optional :: bcknd
+    integer :: bcknd_val
 
-    if (NEKO_BCKND_DEVICE .eq. 1 .and. bcknd .eq. NEKO_BCKND_DEVICE) then
-       call neko_error("matrix_bcknd_inverse not implemented on accelarators.")
-    else
+    if (present(bcknd)) bcknd_val = bcknd
+    if (.not. present(bcknd)) bcknd_val = NEKO_BCKND_DEVICE
+
+    if (bcknd_val .eq. 0 .and. NEKO_BCKND_DEVICE .eq. 1) then
+       call this%copy_from(DEVICE_TO_HOST, .true.)
        call this%inverse_on_host()
+       call this%copy_from(HOST_TO_DEVICE, .true.)
+    else if (bcknd_val .eq. 0) then
+       call this%inverse_on_host()
+    else if (bcknd_val .eq. 1) then
+       call neko_error("matrix_inverse: GPU backend not implemented yet.")
+    else
+       call neko_error("matrix_inverse: invalid backend specified.")
     end if
 
   end subroutine matrix_inverse
@@ -239,25 +273,5 @@ contains
     end do
 
   end subroutine cpu_matrix_inverse
-
-  ! ========================================================================== !
-  ! matrix pointer type subroutines
-
-  subroutine matrix_ptr_init(this, ptr)
-    class(matrix_ptr_t), intent(inout) :: this
-    type(matrix_t), target, intent(in) :: ptr
-
-    call this%free()
-    this%ptr => ptr
-  end subroutine matrix_ptr_init
-
-  subroutine matrix_ptr_free(this)
-    class(matrix_ptr_t), intent(inout) :: this
-
-    if (associated(this%ptr)) then
-       nullify(this%ptr)
-    end if
-
-  end subroutine matrix_ptr_free
 
 end module matrix

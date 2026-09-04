@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2025, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@
 module vector
   use array, only : array_t
   use num_types, only : rp
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -42,6 +41,7 @@ module vector
      !> Vector shaped pointer.
      real(kind=rp), pointer, dimension(:) :: x => null()
    contains
+     !> Generic init method. Calls the vector specific init method.
      generic :: init => init_vector
      !> Initialise a vector of size `n`.
      procedure, pass(this), private :: init_vector => vector_init

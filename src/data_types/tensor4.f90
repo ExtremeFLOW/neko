@@ -33,10 +33,7 @@
 !> Defines a tensor4
 module tensor4
   use array, only : array_t
-  use num_types, only : rp, xp
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
-  use utils, only : neko_warning, neko_error
+  use num_types, only : rp
   implicit none
   private
 
@@ -47,9 +44,10 @@ module tensor4
      integer, dimension(4), private :: dims = [0, 0, 0, 0]
 
    contains
+     !> Generic init method. Calls the tensor4 specific init method.
      generic :: init => init_tensor4
      !> Initialise a tensor4 of size `n1*n2*n3*n4`.
-     procedure, pass(this) :: init_tensor4 => tensor4_init
+     procedure, pass(this), private :: init_tensor4 => tensor4_init
      !> Deallocate a tensor4.
      procedure, pass(this) :: free => tensor4_free
 
