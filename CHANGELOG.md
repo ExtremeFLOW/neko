@@ -1,6 +1,11 @@
 # Changelog
 
 ## Develop
+- *BREAKING* Modularized entropy viscosity in the compressible Navier-Stokes
+  solver. The obsolete `case.numerics.c_avisc_low` and
+  `case.numerics.c_avisc_entropy` options are now rejected. Configure an
+  `artificial_viscosity_model` simulation component with those coefficients
+  and enable its field through the fluid `viscous_regularization` object.
 
 - Added crystal router gather-scatter communication backends,
   `NEKO_GS_COMM=CRYSTAL` on the host and `CRYSTALGPU` on the device. They
@@ -166,6 +171,9 @@
 - Added `host_array_t` and `device_array_t` temporary array types and support
   for requesting these through `scratch_registry_t`.
 - Added the `cai_sagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL.
+- Modularized `entropy_viscosity` into two steps: 1. Calculate the
+  artificial viscosity field in a simcomp; 2. Apply the artificial 
+  viscosity though a viscous regularization object.
 - Added the `create_periodic_zones` contrib utility for converting pairs of
   labeled zones in an existing `.nmsh` mesh into periodic zones.
   backends. This model is based on the work of [Cai and Sagaut (PoF,
