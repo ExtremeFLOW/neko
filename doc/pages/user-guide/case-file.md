@@ -2101,7 +2101,7 @@ user could set it up by the following manner to include an eddy diffusivity fiel
 }
 ```
 
-### Boundary conditions
+### Boundary conditions {#case-file_scalar-boundary-conditions}
 
 The boundary conditions for the scalar are specified through the
 `boundary_conditions` keyword, which follows the same format as the fluid, for
@@ -2134,10 +2134,19 @@ The following types of conditions are available for the scalar:
     "zone_indices": [1, 2]
   }
   ```
-* `user`. User boundary condition, see [further documentation](#user-file_field-dirichlet-update).
+* `user_dirichlet`. User-updated Dirichlet boundary condition, see the
+  [user-file documentation](@ref user-file_field-dirichlet-update).
   ```json
   {
-    "type": "user",
+    "type": "user_dirichlet",
+    "zone_indices": [1, 2]
+  }
+  ```
+* `user_neumann`. User-updated Neumann boundary condition, see the
+  [user-file documentation](@ref user-file_field-neumann-update).
+  ```json
+  {
+    "type": "user_neumann",
     "zone_indices": [1, 2]
   }
   ```
