@@ -244,6 +244,7 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
 	krylov/bcknd/device/cg_device.f90\
 	krylov/bcknd/device/cg_cpld_device.f90\
+	krylov/bcknd/device/bicgstab_device.F90\
 	krylov/bcknd/device/cheby_device.F90\
 	krylov/bcknd/device/pipecg_device.F90\
 	krylov/bcknd/device/fusedcg_device.F90\
@@ -539,6 +540,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/hip/opr_rotate_cyc.hip\
 	math/bcknd/device/hip/ax_helm.hip\
 	math/bcknd/device/hip/ax_helm_full.hip\
+	krylov/bcknd/device/hip/bicgstab_aux.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
 	krylov/bcknd/device/hip/pipecg_aux.hip\
 	krylov/bcknd/device/hip/fusedcg_aux.hip\
@@ -609,6 +611,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/cuda/opr_rotate_cyc.cu\
 	math/bcknd/device/cuda/ax_helm.cu\
 	math/bcknd/device/cuda/ax_helm_full.cu\
+	krylov/bcknd/device/cuda/bicgstab_aux.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
 	krylov/bcknd/device/cuda/pipecg_aux.cu\
 	krylov/bcknd/device/cuda/fusedcg_aux.cu\
@@ -719,6 +722,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/opencl/opr_rotate_cyc.c\
 	math/bcknd/device/opencl/ax_helm.c\
 	math/bcknd/device/opencl/ax_helm_full.c\
+	krylov/bcknd/device/opencl/bicgstab.c\
 	krylov/bcknd/device/opencl/pc_jacobi.c\
 	gs/bcknd/device/opencl/gs.c\
 	bc/bcknd/device/opencl/dirichlet.c\
@@ -780,6 +784,7 @@ METAL_OBJS = \
 	math/bcknd/device/metal/schwarz.lo\
 	math/bcknd/device/metal/fdm.lo\
 	multigrid/bcknd/device/metal/amg_cheby.lo\
+	krylov/bcknd/device/metal/bicgstab.lo\
 	krylov/bcknd/device/metal/cheby.lo\
 	krylov/bcknd/device/metal/pc_jacobi.lo\
 	scalar/bcknd/device/metal/scalar_residual.lo\
@@ -827,6 +832,7 @@ dist_noinst_DATA = \
 	math/bcknd/device/metal/fdm.m\
 	multigrid/bcknd/device/metal/amg_cheby.m\
 	krylov/bcknd/device/metal/pc_jacobi.m\
+	krylov/bcknd/device/metal/bicgstab.m\
 	krylov/bcknd/device/metal/cheby.m\
 	scalar/bcknd/device/metal/scalar_residual.m\
 	math/bcknd/device/metal/mathops.m\
@@ -870,6 +876,7 @@ METAL_KERNELS = \
 	math/bcknd/device/metal/fdm_kernel.metal\
 	multigrid/bcknd/device/metal/amg_cheby_kernel.metal\
 	krylov/bcknd/device/metal/pc_jacobi_kernel.metal\
+	krylov/bcknd/device/metal/bicgstab_kernel.metal\
 	krylov/bcknd/device/metal/cheby_kernel.metal\
 	scalar/bcknd/device/metal/scalar_residual_update_kernel.metal\
 	math/bcknd/device/metal/mathops_kernel.metal\
@@ -1108,6 +1115,8 @@ EXTRA_DIST = \
 	fluid/regularization/bcknd/device/hip/entropy_viscosity_kernel.h\
 	fluid/stress_formulation/bcknd/device/hip/prs_stress_res_kernel.h\
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
+	krylov/bcknd/device/cuda/bicgstab_kernel.h\
+	krylov/bcknd/device/hip/bicgstab_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
 	krylov/bcknd/device/hip/pipecg_kernel.h\
 	krylov/bcknd/device/cuda/fusedcg_kernel.h\
@@ -1169,6 +1178,7 @@ EXTRA_DIST = \
 	fluid/regularization/bcknd/device/opencl/entropy_viscosity_kernel.cl\
 	scalar/bcknd/device/opencl/scalar_residual_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
+	krylov/bcknd/device/opencl/bicgstab_kernel.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	sem/bcknd/device/opencl/local_interpolation_kernel.cl\
@@ -1197,6 +1207,7 @@ EXTRA_DIST = \
 	math/bcknd/device/metal/schwarz_kernel.metal\
 	math/bcknd/device/metal/fdm_kernel.metal\
 	multigrid/bcknd/device/metal/amg_cheby_kernel.metal\
+	krylov/bcknd/device/metal/bicgstab_kernel.metal\
 	krylov/bcknd/device/metal/cheby_kernel.metal\
 	krylov/bcknd/device/metal/pc_jacobi_kernel.metal\
 	scalar/bcknd/device/metal/scalar_residual_update_kernel.metal\
