@@ -49,11 +49,11 @@ module logger
   integer, public, parameter :: SEC_HEAD_SIZE = 30
 
   type, public :: log_t
-     integer, private :: indent_
-     integer, private :: section_id_
-     integer, private :: tab_size_
-     integer, private :: level_
-     integer, private :: unit_
+     integer, private :: indent_ = 0
+     integer, private :: section_id_ = 0
+     integer, private :: tab_size_ = 1
+     integer, private :: level_ = NEKO_LOG_INFO
+     integer, private :: unit_ = -1
 
      character(len=LOG_SIZE), private :: section_header = ""
 
@@ -135,6 +135,9 @@ contains
     class(log_t), intent(inout) :: this
     integer :: i
 
+    ! Flush the log before closing off.
+    call this%flush()
+
     if (this%section_id_ .ne. 0) then
        call neko_error("Log is unbalanced")
     end if
@@ -153,6 +156,8 @@ contains
     end if
 
     this%indent_ = 0
+    this%section_id_ = 0
+    this%tab_size_ = 1
     this%level_ = NEKO_LOG_INFO
     this%unit_ = -1
 
@@ -292,12 +297,9 @@ contains
     character(len=*), intent(in) :: msg
 
     if (pe_rank .eq. 0) then
-       ! Flush buffered log output first, such that it appears before the
-       ! error message in a combined stdout/stderr stream
        call this%flush()
        call this%indent()
-       write(stderr, '(A,A,A)') '*** ERROR: ', trim(msg), '  ***'
-       flush(stderr)
+       call neko_error(trim(msg))
     end if
 
   end subroutine log_error
@@ -310,7 +312,7 @@ contains
     if (pe_rank .eq. 0) then
        call this%indent()
        write(this%unit_, '(A,A,A)') '*** WARNING: ', trim(msg), '  ***'
-       flush(this%unit_)
+       call this%flush()
     end if
 
   end subroutine log_warning
@@ -438,7 +440,6 @@ contains
        call this%indent()
        write(this%unit_, '(A)') trim(this%section_header)
        this%section_header = ""
-
     end if
 
   end subroutine log_print_section_header
@@ -525,7 +526,7 @@ contains
        call neko_log%indent()
        write(neko_log%unit_, '(A,A,A)') &
             '*** WARNING: ', trim(msg(1:len)), '  ***'
-       flush(neko_log%unit_)
+       call neko_log%flush()
     end if
 
   end subroutine log_warning_c

@@ -204,7 +204,6 @@ contains
 
           if (argc .lt. 1) then
              if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko <case file>'
-             flush(output_unit)
              stop
           end if
 
@@ -263,6 +262,7 @@ contains
 
     call C%time%reset()
     call simulation_init(C, dt_controller)
+    call neko_log%flush()
 
     call profiler_start
     tstep_loop_start_time = MPI_WTIME()
@@ -272,6 +272,7 @@ contains
     end do
     call profiler_stop
 
+    call neko_log%flush()
     call simulation_finalize(C)
 
   end subroutine neko_solve

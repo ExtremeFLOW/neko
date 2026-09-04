@@ -32,7 +32,6 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
-  use, intrinsic :: iso_fortran_env, only : error_unit, output_unit
   use coefs, only : coef_t
   use registry, only : neko_registry
   use logger, only : neko_log, LOG_SIZE
@@ -960,6 +959,7 @@ contains
     ! Monitor which boundary zones have been marked
     logical, allocatable :: marked_zones(:)
     integer, allocatable :: zone_indices(:)
+    character(len=256) :: error_msg
 
     ! For ALE, we set a flag while reading the BCs
     character(len=:), allocatable :: bc_type_str
@@ -1012,22 +1012,22 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
+                write(error_msg, '(A, I0, A, A, I0, A)') &
                      "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
                      "is not in the mesh. Check fluid boundary condition ", &
                      i, "."
-                call neko_error(error_unit)
+                call neko_error(error_msg)
              end if
 
              if (marked_zones(zone_indices(j))) then
-                write(error_unit, '(A, A, I0, A, A, A, A)') "*** ERROR ***: ", &
+                write(error_msg, '(A, I0, A, A, A, A)') &
                      "Zone with index ", zone_indices(j), &
                      " has already been assigned a boundary condition. ", &
                      "Please check your boundary_conditions entry for the ", &
                      "fluid and make sure that each zone index appears only ", &
                      "in a single boundary condition."
-                call neko_error(error_unit)
+                call neko_error(error_msg)
              else
                 marked_zones(zone_indices(j)) = .true.
              end if
@@ -1114,9 +1114,9 @@ contains
        do i = 1, size(this%msh%labeled_zones)
           if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
                (.not. marked_zones(i))) then
-             write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
+             write(error_msg, '(A, I0)') &
                   "No fluid boundary condition assigned to zone ", i
-             call neko_error(error_unit)
+             call neko_error(error_msg)
           end if
        end do
 
