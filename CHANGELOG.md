@@ -2,71 +2,52 @@
 
 ## Develop
 
-- Reworked when outputs are written. The times at which an output is written
-  are now a schedule fixed by the case rather than derived from how many
-  writes have been performed so far. `check` is idempotent within a time
-  step, and a restart moves the cursor to the first scheduled time not yet
-  reached, using the same predicate the schedule itself uses. This fixes
-  several ways in which output could go missing or be written twice, listed
-  in the entries below.
-- Fixed the write forced at the end of a run by `output_at_end` duplicating a
-  scheduled write that lands on the same time step, which produced two files
-  for the same output time and, for the statistics, a second file with
-  nothing but zeros in it
+- Reworked when outputs are written: the times are now a schedule fixed by
+  the case rather than derived from how many writes have been performed so
+  far. The entries below are what that fixes.
+- `output_at_end` no longer duplicates a scheduled write that lands on the
+  last time step, which gave two files for one output time and, for the
+  statistics, a second file of zeros
   ([#2278](https://github.com/ExtremeFLOW/neko/issues/2278)).
-- Fixed a restart silently skipping the next scheduled write. The tolerance
-  used when reconstructing the write counter was `0.1 * dt`, but with a
-  variable time step `dt` at that point is the placeholder the run starts
-  from, so everything scheduled within `0.1` time units after the restart was
-  consumed without having been written. The tolerance now uses the size of
-  the step that produced the checkpoint.
-- Checkpoints are no longer written at the start of a simulation, where they
-  hold nothing that the initial condition does not. The same holds for the
-  statistics, whose first sample used to be an average over an interval of
-  zero length, i.e. zeros
+- Fixed a restart skipping everything scheduled within `0.1` time units of
+  it. The write counter was reconstructed with a tolerance of `0.1 * dt`,
+  where `dt` is the placeholder a variable time step run starts from; it now
+  uses the step that wrote the checkpoint.
+- Checkpoints and statistics are no longer written at the start of a
+  simulation, where a checkpoint holds nothing the initial condition does not
+  and an average has nothing to average over
   ([#2378](https://github.com/ExtremeFLOW/neko/issues/2378)). The fluid and
-  the simulation components still write the initial state.
-- Fixed the last scheduled write being dropped when the final time step
-  overshoots `end_time`, which it does whenever the time step does not divide
-  the simulated interval. The condition is now on the scheduled time rather
-  than on the time of the step performing it.
-- A `simulationtime` schedule is anchored at zero, so that the writes land on
-  whole multiples of the output interval whatever time the simulation was
-  started from. Starting from a field at t = 10.5 and writing every 1.0 now
-  gives files at 10.5 (the initial state), 11.0, 12.0, ... instead of 11.5,
-  12.5, ... `nsamples` still divides the simulated interval, so it stays
-  anchored at the start time and its last sample still falls on `end_time`.
-- Added `case.output_at_start`, which decides whether the initial state of
-  the simulation is written. It defaults to `true`, except when the fluid
-  initial condition is read from a field file, where writing the initial
-  state only copies the file the simulation was started from. Checkpoints and
-  statistics never write the initial state.
-- Fixed an output whose start time lies beyond the end of the simulation
-  taking the direction of time from its own window rather than from the
-  simulation, which made it write when `output_at_end` forced a write.
-- Neko warns at a restart when the first file an output is about to write
-  already exists, which happens when a run repeats an interval it has already
-  covered, or when the output frequency was changed at the restart: the file
-  numbering follows the schedule, so the same numbers then stand for
-  different times.
+  the simulation components still write it.
+- Fixed the write scheduled for `end_time` being dropped when the last time
+  step overshoots it, which it does whenever the step does not divide the
+  simulated interval.
+- A `simulationtime` schedule is anchored at zero, so its writes land on
+  whole multiples of the interval whatever time the run started from:
+  starting at t = 10.5 and writing every 1.0 now gives 11.0, 12.0, ... rather
+  than 11.5, 12.5, ... `nsamples` still divides the simulated interval.
+- Added `case.output_at_start`, whether the initial state of the simulation
+  is written. It defaults to `true`, and to `false` when the fluid initial
+  condition is a field file, where it would only copy that file.
+- Fixed an output starting after the end of the simulation taking its
+  direction of time from its own window, which let `output_at_end` force a
+  write out of it.
+- A restart warns when the first file an output is about to write already
+  exists, which happens when a run repeats an interval or the output
+  frequency was changed at the restart.
 - Fixed the `start_time` of an output having no effect: the condition meant
-  to gate it cancelled out algebraically, so an output configured to start
-  later was written from the beginning of the run. It now both gates the
-  output. The first write is then the first scheduled time at or after it.
+  to gate it cancelled out algebraically, so the output was written from the
+  beginning of the run.
 - Fixed an output with an interval smaller than the time step building up a
-  backlog of writes instead of skipping the scheduled times that the step
-  jumped over, which left the file counter behind the simulation time.
-- Made the `user_stats` integration test compare the average of a random
-  field against a two-sided tolerance that covers its sampling noise; the
-  one-sided 1e-4 it used passed or failed roughly at random.
-- A step based (`tsteps`) output no longer writes at the step a simulation
-  restarts from, which duplicated the file the checkpoint was taken with.
-  The phase of such a schedule still cannot survive a restart, since the
-  checkpoint does not store the time step index.
-- Fixed `time_state_t%is_done` taking one more time step than asked for when
-  the accumulated time landed a few ulps short of `end_time`, overshooting it
-  by almost a full step, and never terminating a simulation marching
-  backwards in time.
+  backlog of writes instead of skipping the times the step jumped over.
+- A `tsteps` output no longer writes at the step a restart resumes from. Its
+  phase still cannot survive a restart, as the checkpoint does not store the
+  time step index.
+- Fixed `time_state_t%is_done` taking one time step more than asked for when
+  the accumulated time fell a few ulps short of `end_time`, and never ending
+  a simulation marching backwards in time.
+- Made the `user_stats` integration test compare its average of a random
+  field against a two-sided tolerance that covers the sampling noise; the
+  one-sided `1e-4` passed or failed roughly at random.
 
 - The gather-scatter comm. backend autotuning now covers the device-resident
   backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks

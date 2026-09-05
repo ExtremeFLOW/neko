@@ -487,14 +487,10 @@ The general recommendation is to always use weighted averages to analyse the
 statistics.
 
 Every sample in the `stats0` files covers the interval between two writes.
-The first one covers the interval from `start_time` to the first scheduled
-output time after it, which is shorter than the rest unless `start_time`
-falls on a multiple of the output interval. No sample is written at
-`start_time` itself, where the average would have nothing to average over
-(this used to produce a zero filled first sample, see
-[#2378](https://github.com/ExtremeFLOW/neko/issues/2378)). Likewise, the
-write performed at the end of the run because of `output_at_end` is skipped
-when the last time step has already written a sample of its own, so a run
-whose `"end_time"` is an exact multiple of its `"output_value"` ends with one
-sample and not with a zero filled duplicate of it (see
-[#2278](https://github.com/ExtremeFLOW/neko/issues/2278)).
+The first covers only from `start_time` to the first scheduled output after
+it, and nothing is written at `start_time` itself, where the average would be
+empty ([#2378](https://github.com/ExtremeFLOW/neko/issues/2378)). The write
+forced at the end of a run is skipped when the last time step has written a
+sample already, so a run whose `"end_time"` is a multiple of its
+`"output_value"` ends with one sample rather than a zero filled duplicate of
+it ([#2278](https://github.com/ExtremeFLOW/neko/issues/2278)).
