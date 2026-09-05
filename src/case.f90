@@ -148,6 +148,7 @@ contains
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part, parts
     logical :: found, logical_val, load_balance
+    logical :: write_at_start
     logical :: temperature_found = .false.
     integer :: integer_val, var_type
     real(kind=rp) :: real_val
@@ -544,8 +545,19 @@ contains
          tmp_feature, .false.)
     if (tmp_feature) logical_val = .true.
 
+    !
+    ! Whether the initial state of the simulation is written. Starting from a
+    ! field file, it is the file the simulation was started from, so there is
+    ! nothing to write.
+    !
+    call json_get_or_default(this%params, &
+         'case.fluid.initial_condition.type', string_val, "")
+    logical_val = trim(string_val) .ne. 'field'
+    call json_get_or_default(this%params, 'case.output_at_start', &
+         write_at_start, logical_val)
+
     call this%output_controller%init(this%time%end_time, &
-         time_start = this%time%start_time)
+         time_start = this%time%start_time, write_at_start = write_at_start)
     if (scalar) then
        call this%f_out%init(precision, this%fluid, this%scalars, name = name, &
             path = trim(this%output_directory), &

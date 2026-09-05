@@ -109,9 +109,12 @@ The initial state is written for the fluid and for the outputs of the
 simulation components, since the initial condition is usually worth having.
 It is written at `start_time` itself, on top of the scheduled times, so
 starting a simulation at 10.5 and writing every 1.0 gives files at 10.5, 11.0,
-12.0 and so on. The initial state is not written for checkpoints, for which it
-holds nothing that the initial condition does not, nor for the statistics,
-whose average over an interval of zero length is empty.
+12.0 and so on. It is not written when the initial condition is read from a
+field file, where it would only be a copy of the file the simulation was
+started from, and `output_at_start` overrides that either way. The initial
+state is never written for checkpoints, for which it holds nothing that the
+initial condition does not, nor for the statistics, whose average over an
+interval of zero length is empty.
 
 @note A statistics file covers the interval between two writes, which for the
 first one is the interval from the start of the averaging to the first
@@ -145,6 +148,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `mesh2mesh_tolerance` | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
 | `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as [[[DD-]HH:]MM:]SS           | No limit      |
 | `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
+| `output_at_start`     | Whether to write the initial state of the simulation. Checkpoints and statistics never do.            | `true` or `false`                               | `true`, `false` for a field initial condition |
 
 Some additional practical comments are provided regarding the output triggered
 by `job_timelimit` and `output_at_end` keywords.
@@ -158,6 +162,15 @@ under which an output lands on the last step anyway (e.g. `end_time: 5`,
 at the end of the run and not two. `output_at_end` does override a `never`
 control, which is the way to ask for an output that is written once, at the
 end of the run, and never in between.
+
+The file numbering of an output follows its schedule: the k-th file of a run
+is the k-th scheduled write. Restarting resumes the numbering where the
+schedule says the run has got to, so a run continued from its last checkpoint
+carries on with the next number. It follows that repeating an interval that
+has already been covered, or changing the output frequency at a restart,
+writes over the files of the earlier run, since the same numbers then stand
+for different times. Neko warns at the restart when the first file it is
+about to write already exists.
 
 The purpose of `job_timelimit` is to gracefully stop the simulation in a typical
 supercomputer environment, where your runtime is limited. When Neko detects that

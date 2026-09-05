@@ -117,3 +117,30 @@ def test_output_schedule(launcher_script, request, tmp_path):
         f"Unexpected checkpoints after the restart: "
         f"{_files(part2_dir, 'chkp*.chkp')}"
     )
+
+    #
+    # Part 3, the same run with the initial state switched off
+    #
+    part3_dir = work_dir / "part3"
+    part3_dir.mkdir()
+    case_no_start = json.loads(json.dumps(case))
+    case_no_start["case"]["output_at_start"] = False
+    part3_case = _write_case(
+        tmp_path / "part3.case", case_no_start, part3_dir, mesh
+    )
+    part3_log = log_dir / f"{request.node.name}_part3.log"
+    result = run_neko(
+        launcher_script, nprocs, str(part3_case), neko, str(part3_log)
+    )
+    assert result.returncode == 0, (
+        f"neko process failed with exit code {result.returncode}"
+    )
+
+    # The fields are then written at t = 0.05 and 0.1 only.
+    assert _files(part3_dir, "field0.f*") == [
+        "field0.f00000",
+        "field0.f00001",
+    ], (
+        f"Unexpected field files without the initial state: "
+        f"{_files(part3_dir, 'field0.f*')}"
+    )

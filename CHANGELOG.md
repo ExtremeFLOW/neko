@@ -36,6 +36,19 @@
   gives files at 10.5 (the initial state), 11.0, 12.0, ... instead of 11.5,
   12.5, ... `nsamples` still divides the simulated interval, so it stays
   anchored at the start time and its last sample still falls on `end_time`.
+- Added `case.output_at_start`, which decides whether the initial state of
+  the simulation is written. It defaults to `true`, except when the fluid
+  initial condition is read from a field file, where writing the initial
+  state only copies the file the simulation was started from. Checkpoints and
+  statistics never write the initial state.
+- Fixed an output whose start time lies beyond the end of the simulation
+  taking the direction of time from its own window rather than from the
+  simulation, which made it write when `output_at_end` forced a write.
+- Neko warns at a restart when the first file an output is about to write
+  already exists, which happens when a run repeats an interval it has already
+  covered, or when the output frequency was changed at the restart: the file
+  numbering follows the schedule, so the same numbers then stand for
+  different times.
 - Fixed the `start_time` of an output having no effect: the condition meant
   to gate it cancelled out algebraically, so an output configured to start
   later was written from the beginning of the run. It now both gates the

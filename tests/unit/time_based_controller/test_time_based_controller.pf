@@ -451,6 +451,30 @@ contains
     @assertEqual(t_out(2), 0.2_dp, tolerance=1e-8_dp)
   end subroutine test_restart_variable_timestep
 
+  !> An output that only starts after the simulation has ended never
+  !! executes, not even when an execution is forced.
+  @test
+  subroutine test_start_time_after_the_end()
+    type(time_based_controller_t) ctrl
+    type(time_state_t) :: time
+    real(kind=dp) :: t_out(64)
+    integer :: n
+
+    ! the direction of time is that of the simulation, not the one from the
+    ! start of the output to the end of the run
+    call ctrl%init(5.0_dp, 1.0_dp, "simulationtime", 0.1_dp, .true., &
+         direction = 1.0_dp)
+    @assertEqual(ctrl%direction, 1.0_dp, tolerance=1e-12_dp)
+
+    call collect(ctrl, 0.0_dp, 1.0_dp, 0.01_dp, .true., t_out, n)
+    @assertEqual(n, 0)
+
+    time%t = 1.0_dp
+    time%dt = 0.01_dp
+    time%tstep = 100
+    @assertFalse(ctrl%check(time, .true.))
+  end subroutine test_start_time_after_the_end
+
   !> A time step larger than the output interval writes once per step and
   !! does not build up a backlog of executions.
   @test

@@ -177,8 +177,14 @@ contains
   !! @param anchor_time The time the schedule is anchored to. Optional,
   !! defaults to zero for `simulationtime` and to `start_time` for
   !! `nsamples`, which divides the simulated interval rather than tiling it.
+  !! @param direction The direction of time of the simulation, +1 forwards
+  !! and -1 backwards. Optional, defaults to the direction from `start_time`
+  !! to `end_time`, which is the direction of the simulation whenever the
+  !! output covers the whole of it. Pass it for an output that starts later,
+  !! since the two directions differ when its start time lies beyond the end
+  !! of the simulation.
   subroutine time_based_controller_init(this, start_time, end_time, &
-       control_mode, control_value, write_at_start, anchor_time)
+       control_mode, control_value, write_at_start, anchor_time, direction)
     class(time_based_controller_t), intent(inout) :: this
     real(kind=dp), intent(in) :: start_time
     real(kind=dp), intent(in) :: end_time
@@ -186,6 +192,7 @@ contains
     real(kind=dp), intent(in) :: control_value
     logical, intent(in), optional :: write_at_start
     real(kind=dp), intent(in), optional :: anchor_time
+    real(kind=dp), intent(in), optional :: direction
     real(kind=dp) :: span, offset
 
     call this%free()
@@ -201,11 +208,15 @@ contains
        this%write_at_start = .true.
     end if
 
-    ! The schedule is expressed in terms of the progress made since
-    ! `start_time`, which is positive also for a simulation marching
-    ! backwards in time.
-    this%direction = sign(1.0_dp, end_time - start_time)
-    span = abs(end_time - start_time)
+    ! The schedule is expressed in terms of the progress made in the
+    ! direction the simulation marches in, which is positive also for a
+    ! simulation marching backwards in time.
+    if (present(direction)) then
+       this%direction = sign(1.0_dp, direction)
+    else
+       this%direction = sign(1.0_dp, end_time - start_time)
+    end if
+    span = this%direction * (end_time - start_time)
 
     if (trim(control_mode) .eq. 'simulationtime') then
        if (control_value .le. 0.0_dp) then
@@ -219,8 +230,8 @@ contains
           call neko_error("nsamples must be positive")
        end if
        if (span .le. 0.0_dp) then
-          call neko_error("nsamples requires end_time to differ from the &
-          &start time of the output")
+          call neko_error("nsamples requires the output to start before the &
+          &end of the simulation")
        end if
 
        this%frequency = control_value / span
