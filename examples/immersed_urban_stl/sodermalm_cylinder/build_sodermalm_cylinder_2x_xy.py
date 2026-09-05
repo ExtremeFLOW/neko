@@ -40,13 +40,13 @@ def main() -> None:
 
     base.OUT = OUT
     base.FIG = FIG
-    base.NZ = 5
-    base.DOMAIN_HEIGHT_ABOVE_LOWEST_M = 350.0
-    base.VERTICAL_STRETCH = 2.0
-    base.LAND_MESH_SIZE_M = 110.0
-    base.WATER_MESH_SIZE_M = 225.0
-    base.SHORELINE_SIMPLIFY_M = 35.0
-    base.SHORE_BLEND_M = 180.0
+    base.NZ = int(os.environ.get("SODERMALM_NZ", "5"))
+    base.DOMAIN_HEIGHT_ABOVE_LOWEST_M = float(os.environ.get("SODERMALM_DOMAIN_HEIGHT_M", "350.0"))
+    base.VERTICAL_STRETCH = float(os.environ.get("SODERMALM_VERTICAL_STRETCH", "2.0"))
+    base.LAND_MESH_SIZE_M = float(os.environ.get("SODERMALM_LAND_MESH_SIZE_M", "110.0"))
+    base.WATER_MESH_SIZE_M = float(os.environ.get("SODERMALM_WATER_MESH_SIZE_M", "225.0"))
+    base.SHORELINE_SIMPLIFY_M = float(os.environ.get("SODERMALM_SHORELINE_SIMPLIFY_M", "35.0"))
+    base.SHORE_BLEND_M = float(os.environ.get("SODERMALM_SHORE_BLEND_M", "180.0"))
     base.INFLOW_ARC_WIDTH_DEG = float(os.environ.get("SODERMALM_INFLOW_ARC_WIDTH_DEG", base.INFLOW_ARC_WIDTH_DEG))
     base.OUTFLOW_ARC_WIDTH_DEG = float(os.environ.get("SODERMALM_OUTFLOW_ARC_WIDTH_DEG", base.OUTFLOW_ARC_WIDTH_DEG))
     base.CIRCLE_ARC_STEP_DEG = float(os.environ.get("SODERMALM_CIRCLE_ARC_STEP_DEG", base.CIRCLE_ARC_STEP_DEG))
@@ -122,7 +122,7 @@ def main() -> None:
     checker_output = base.run_mesh_checker(mesh_path)
 
     metadata = {
-        "target": "2x finer horizontal local p2 run, same vertical setup",
+        "target": os.environ.get("SODERMALM_TARGET_LABEL", "2x finer horizontal local p2 run, same vertical setup"),
         "center_epsg3006": center,
         "radius_m": radius,
         "buffer_m": base.BUFFER_M,

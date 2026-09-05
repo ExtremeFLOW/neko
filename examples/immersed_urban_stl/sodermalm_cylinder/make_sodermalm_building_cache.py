@@ -494,19 +494,24 @@ def compute_indicator(
 ) -> Tuple[np.ndarray, int]:
     indicator = np.zeros(x.shape, dtype=np.float64)
     touched = 0
+    x_order = np.argsort(x)
+    x_sorted = x[x_order]
     for part in parts:
         xmin, ymin, xmax, ymax = part["bounds"]
+        lo = int(np.searchsorted(x_sorted, xmin - smooth_width, side="left"))
+        hi = int(np.searchsorted(x_sorted, xmax + smooth_width, side="right"))
+        if hi <= lo:
+            continue
+        candidates = x_order[lo:hi]
         in_box = (
-            (x >= xmin - smooth_width)
-            & (x <= xmax + smooth_width)
-            & (y >= ymin - smooth_width)
-            & (y <= ymax + smooth_width)
-            & (z >= part["base_z"] - smooth_width)
-            & (z <= part["top_z"] + smooth_width)
+            (y[candidates] >= ymin - smooth_width)
+            & (y[candidates] <= ymax + smooth_width)
+            & (z[candidates] >= part["base_z"] - smooth_width)
+            & (z[candidates] <= part["top_z"] + smooth_width)
         )
         if not np.any(in_box):
             continue
-        ids = np.flatnonzero(in_box)
+        ids = candidates[in_box]
         xx = x[ids]
         yy = y[ids]
         zz = z[ids]

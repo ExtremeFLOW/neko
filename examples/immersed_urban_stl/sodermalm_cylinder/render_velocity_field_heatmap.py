@@ -150,8 +150,13 @@ def main() -> None:
     field, mask = upscale_field(speed, disk, valid)
 
     vmin = float(os.environ.get("VMIN", "0.0"))
-    vmax = float(os.environ.get("VMAX", "6.0"))
-    rgb = color_velocity(np.clip(field, vmin, vmax), vmin, vmax)
+    vmax_override = os.environ.get("VMAX")
+    visible_values = field[mask > 0.5]
+    if visible_values.size == 0:
+        raise RuntimeError("No visible velocity samples to render")
+    vmax = float(vmax_override) if vmax_override else float(np.nanmax(visible_values))
+    vmax = max(vmax, vmin + 1.0e-6)
+    rgb = color_velocity(field, vmin, vmax)
     alpha = np.clip(mask * 255.0, 0, 255).astype(np.uint8)
 
     water = np.array([205, 226, 236], dtype=np.uint8)

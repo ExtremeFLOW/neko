@@ -34,11 +34,13 @@ def read_nmsh(path: Path) -> tuple[np.ndarray, np.ndarray]:
 
 
 def gll_nodes(order: int) -> np.ndarray:
+    if order < 1:
+        raise RuntimeError("Polynomial order must be at least 1.")
     if order == 1:
         return np.array([-1.0, 1.0], dtype=np.float64)
-    if order == 2:
-        return np.array([-1.0, 0.0, 1.0], dtype=np.float64)
-    raise RuntimeError("Only polynomial orders 1 and 2 are implemented here.")
+    poly = np.polynomial.legendre.Legendre.basis(order)
+    interior = poly.deriv().roots()
+    return np.concatenate(([-1.0], np.sort(interior), [1.0])).astype(np.float64)
 
 
 def trilinear_hex_points(vertices: np.ndarray, order: int) -> np.ndarray:

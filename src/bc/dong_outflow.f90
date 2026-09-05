@@ -165,12 +165,12 @@ contains
        strong_ = .true.
     end if
 
-    if (strong_ .and. this%msk(0) .gt. 0) then
-       call device_dong_outflow_apply_scalar(this%msk_d, x_d, &
+    if (strong_ .and. this%facet_node_msk(0) .gt. 0) then
+       call device_dong_outflow_apply_scalar(this%facet_node_msk_d, x_d, &
             this%normal_x_d, this%normal_y_d, this%normal_z_d, &
             this%u%x_d, this%v%x_d, this%w%x_d, &
             this%uinf, this%delta, &
-            this%msk(0), strm)
+            this%facet_node_msk(0), strm)
     end if
 
   end subroutine dong_outflow_apply_scalar_dev

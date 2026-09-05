@@ -48,13 +48,14 @@ distance search in every solver job.
 ```sh
 python3 make_sodermalm_building_cache.py \
   --generated generated_2x_xy \
-  --field fields/field0.f00000 \
-  --out fields/sodermalm_buildings_2x_clean50_area25_distance_cache0.f00000 \
-  --smooth-step 50 \
-  --min-footprint-area 25 \
-  --min-edge 2 \
-  --simplify 2
+  --template-field fields/field0.f00000 \
+  --cache-prefix fields/sodermalm_buildings_2x_allbuildings_sw50_h65_distance_cache \
+  --smooth-width 50
 ```
+
+By default the cache builder keeps every land-valid building footprint. Do not
+apply area/edge filters unless a specific mesh-resolution diagnostic proves
+that unresolved footprint fragments are causing instability.
 
 ## Run Neko Locally
 
