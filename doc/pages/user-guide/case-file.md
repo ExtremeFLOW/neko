@@ -83,6 +83,33 @@ units. The following options are possible.
    performed in the course of the simulation.
 4. `never`, then `_value` is ignored and output is never performed.
 
+The times at which an output is written are a property of the case, not of
+the run. With `simulationtime` they are the whole multiples of
+\f$ \Delta t_{out} \f$, so a case asking for an output every 1.0 writes at
+11.0, 12.0, 13.0 whether it started from 0, from 10.5, or from a checkpoint
+in between. With `nsamples` the samples divide the simulated interval instead,
+\f$ t_k = t_{start} + k (t_{end} - t_{start}) / n \f$, and the last one falls
+on `end_time`. Only the times inside the interval where the output is active
+are written, and since the schedule does not depend on when the run was
+started, restarting neither skips nor repeats an output and the file numbering
+carries on.
+
+Each of those times is written at the first step to reach it, at most one file
+per output per step, so a time step longer than the interval writes once and
+moves on rather than building up a backlog. The write scheduled for `end_time`
+still happens when the last step overshoots it.
+
+The initial state is written on top of the scheduled times, unless
+`output_at_start` says otherwise or the initial condition is read from a field
+file, where it would only copy that file. Checkpoints and statistics never
+write it: a checkpoint holds nothing the initial condition does not, and an
+average over an interval of zero length is empty.
+
+@note A statistics file covers the interval between two writes, and the first
+one covers only the interval from the start of the averaging to the first
+scheduled time, which is shorter than the rest unless the two coincide. One
+more reason to use the weighted averages when post-processing.
+
 
 ## The case object
 
@@ -109,22 +136,26 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `mesh2mesh_tolerance` | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
 | `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as [[[DD-]HH:]MM:]SS           | No limit      |
 | `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
+| `output_at_start`     | Whether to write the initial state of the simulation. Checkpoints and statistics never do.            | `true` or `false`                               | `true`, `false` for a field initial condition |
 
 Some additional practical comments are provided regarding the output triggered
 by `job_timelimit` and `output_at_end` keywords.
 
-If `output_at_end` is set to `true`, an additional write is performed after the
-execution of the simulation time-loop is finished. This triggers most outputs,
-like the fluid solvers, the checkpoint, etc. Note that if your case settings are
-such that a particular output is written at the last time step regardless of
-`output_at_end` (e.g. `end_time: 5`, `checkpoint_value: 5`,
- `checkpoint_control: simulationtime` ) you will get two outputs with the same
-values: one from your ordinary write and one triggered by `output_at_end`.
+If `output_at_end` is set to `true`, a write is performed after the execution
+of the simulation time-loop is finished. This triggers most outputs, like the
+fluid solvers, the checkpoint, etc. An output that has already been written at
+the last time step of the run is not written a second time, so case settings
+under which an output lands on the last step anyway (e.g. `end_time: 5`,
+`checkpoint_value: 5`, `checkpoint_control: simulationtime`) produce one file
+at the end of the run and not two. `output_at_end` does override a `never`
+control, which is the way to ask for an output that is written once, at the
+end of the run, and never in between.
 
-@note This has a rather detrimental effect on outputs from various
-statistics-related [simulation components](@ref simcomps). Since the collected
-statistics are reset on write, the data written by `output_at_end` will be just
-zeroes.
+The file numbering follows the schedule: the k-th file is the k-th scheduled
+write, and a restart resumes where the schedule says the run has got to. A run
+that repeats an interval it has already covered, or that changes the output
+frequency at the restart, therefore writes over the files of the earlier run,
+and Neko warns when the first file it is about to write already exists.
 
 The purpose of `job_timelimit` is to gracefully stop the simulation in a typical
 supercomputer environment, where your runtime is limited. When Neko detects that

@@ -59,6 +59,10 @@ module output_controller
      integer :: n
      !> Number of entries in the list.
      integer :: size
+     !> Start time of the simulation, the default anchor of the schedules.
+     real(kind=dp) :: time_start
+     !> Whether outputs write the initial state of the simulation by default.
+     logical :: write_at_start = .true.
      !> Final time of the simulation.
      real(kind=dp) :: time_end
    contains
@@ -80,10 +84,19 @@ contains
   !! @param time_end The end time of the simulation.
   !! @param size The number of controllers to allocate for. Optional, defaults
   !! to 1.
-  subroutine output_controller_init(this, time_end, size)
+  !! @param time_start The start time of the simulation. Outputs that do not
+  !! have a start time of their own do not write before it. Optional, defaults
+  !! to 0.
+  !! @param write_at_start Whether outputs write the initial state of the
+  !! simulation. The default for the outputs added afterwards, which each of
+  !! them can override. Optional, defaults to `.true.`.
+  subroutine output_controller_init(this, time_end, size, time_start, &
+       write_at_start)
     class(output_controller_t), intent(inout) :: this
     integer, intent(in), optional :: size
     real(kind=dp), intent(in) :: time_end
+    real(kind=dp), intent(in), optional :: time_start
+    logical, intent(in), optional :: write_at_start
     character(len=LOG_SIZE) :: log_buf
     integer :: n, i
 
@@ -105,6 +118,18 @@ contains
     this%size = n
     this%n = 0
     this%time_end = time_end
+
+    if (present(time_start)) then
+       this%time_start = time_start
+    else
+       this%time_start = 0.0_dp
+    end if
+
+    if (present(write_at_start)) then
+       this%write_at_start = write_at_start
+    else
+       this%write_at_start = .true.
+    end if
 
   end subroutine output_controller_init
 
@@ -130,15 +155,23 @@ contains
   !! `write_control`.
   !! @param write_control Determines the meaning of `write_par`. Accepts the
   !! usual list of control options.
-  !! @param start_time When to start writing the output
+  !! @param start_time When to start writing the output. Also the time the
+  !! output schedule is anchored to. Optional, defaults to the start time of
+  !! the simulation.
+  !! @param write_at_start Whether to write at `start_time` itself. Should be
+  !! `.false.` for outputs for which a write at the very first time step is
+  !! meaningless, such as checkpoints and running statistics. Optional,
+  !! defaults to what the controller was constructed with.
   subroutine output_controller_add(this, out, write_par, write_control, &
-       start_time)
+       start_time, write_at_start)
     class(output_controller_t), intent(inout) :: this
     class(output_t), intent(inout), target :: out
     real(kind=dp), intent(in) :: write_par
     character(len=*), intent(in) :: write_control
     real(kind=dp), optional, intent(in) :: start_time
+    logical, optional, intent(in) :: write_at_start
     real(kind=dp) :: start_time_
+    logical :: write_at_start_
     type(output_ptr_t), allocatable :: tmp(:)
     type(time_based_controller_t), allocatable :: tmp_ctrl(:)
     character(len=LOG_SIZE) :: log_buf
@@ -148,7 +181,13 @@ contains
     if (present(start_time)) then
        start_time_ = start_time
     else
-       start_time_ = 0.0_dp
+       start_time_ = this%time_start
+    end if
+
+    if (present(write_at_start)) then
+       write_at_start_ = write_at_start
+    else
+       write_at_start_ = this%write_at_start
     end if
 
 
@@ -173,7 +212,8 @@ contains
        this%controllers(n) = this%controllers(1)
     else
        call this%controllers(n)%init(start_time_, this%time_end, &
-            write_control, write_par)
+            write_control, write_par, write_at_start_, &
+            direction = this%time_end - this%time_start)
     end if
 
     ! The code below only prints to console
@@ -181,6 +221,11 @@ contains
     call neko_log%message('File name        : '// &
          trim(this%output_list(this%n)%ptr%file_%file_type%get_fname()))
     call neko_log%message('Write control    : '//trim(write_control))
+    if (.not. this%controllers(n)%never) then
+       write(log_buf, '(A,ES13.6)') 'First write at   : ', &
+            this%controllers(n)%next_time()
+       if (trim(write_control) .ne. 'tsteps') call neko_log%message(log_buf)
+    end if
 
     ! Show the output precision if we are outputting an fld file
     select type (ft => out%file_%file_type)
@@ -285,7 +330,7 @@ contains
 
              call samp%output_list(i)%ptr%sample(time%t)
 
-             call this%controllers(i)%register_execution()
+             call this%controllers(i)%register_execution(time)
           end if
        end do
     class default
@@ -310,15 +355,36 @@ contains
   subroutine output_controller_set_counter(this, time)
     class(output_controller_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+    character(len=1024) :: output_fname
     integer :: i, nexecutions
-
+    logical :: file_exists
 
     do i = 1, this%n
+       call this%controllers(i)%set_counter(time)
+       ! A step based schedule cannot be reconstructed from the time alone,
+       ! so the file counter of such an output is left alone.
        if (this%controllers(i)%nsteps .eq. 0) then
-          call this%controllers(i)%set_counter(time)
           nexecutions = this%controllers(i)%nexecutions
           call this%output_list(i)%ptr%set_counter(-1)
           call this%output_list(i)%ptr%set_start_counter(nexecutions)
+       end if
+
+       ! The file counter is where the schedule says the run has got to, so
+       ! it points past the files the previous run wrote. It does not when
+       ! the run is repeating an interval it has already covered, or when the
+       ! output frequency was changed, and the files of the previous run are
+       ! then written over.
+       if (this%controllers(i)%never) cycle
+       file_exists = .false.
+       output_fname = &
+            this%output_list(i)%ptr%file_%file_type%get_next_output_fname()
+       if (pe_rank .eq. 0) then
+          inquire(file = trim(output_fname), exist = file_exists)
+       end if
+       if (file_exists) then
+          write(log_buf, '(A,A)') 'Overwriting from: ', trim(output_fname)
+          call neko_log%warning(log_buf)
        end if
     end do
 

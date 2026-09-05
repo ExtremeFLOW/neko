@@ -2,6 +2,53 @@
 
 ## Develop
 
+- Reworked when outputs are written: the times are now a schedule fixed by
+  the case rather than derived from how many writes have been performed so
+  far. The entries below are what that fixes.
+- `output_at_end` no longer duplicates a scheduled write that lands on the
+  last time step, which gave two files for one output time and, for the
+  statistics, a second file of zeros
+  ([#2278](https://github.com/ExtremeFLOW/neko/issues/2278)).
+- Fixed a restart skipping everything scheduled within `0.1` time units of
+  it. The write counter was reconstructed with a tolerance of `0.1 * dt`,
+  where `dt` is the placeholder a variable time step run starts from; it now
+  uses the step that wrote the checkpoint.
+- Checkpoints and statistics are no longer written at the start of a
+  simulation, where a checkpoint holds nothing the initial condition does not
+  and an average has nothing to average over
+  ([#2378](https://github.com/ExtremeFLOW/neko/issues/2378)). The fluid and
+  the simulation components still write it.
+- Fixed the write scheduled for `end_time` being dropped when the last time
+  step overshoots it, which it does whenever the step does not divide the
+  simulated interval.
+- A `simulationtime` schedule is anchored at zero, so its writes land on
+  whole multiples of the interval whatever time the run started from:
+  starting at t = 10.5 and writing every 1.0 now gives 11.0, 12.0, ... rather
+  than 11.5, 12.5, ... `nsamples` still divides the simulated interval.
+- Added `case.output_at_start`, whether the initial state of the simulation
+  is written. It defaults to `true`, and to `false` when the fluid initial
+  condition is a field file, where it would only copy that file.
+- Fixed an output starting after the end of the simulation taking its
+  direction of time from its own window, which let `output_at_end` force a
+  write out of it.
+- A restart warns when the first file an output is about to write already
+  exists, which happens when a run repeats an interval or the output
+  frequency was changed at the restart.
+- Fixed the `start_time` of an output having no effect: the condition meant
+  to gate it cancelled out algebraically, so the output was written from the
+  beginning of the run.
+- Fixed an output with an interval smaller than the time step building up a
+  backlog of writes instead of skipping the times the step jumped over.
+- A `tsteps` output no longer writes at the step a restart resumes from. Its
+  phase still cannot survive a restart, as the checkpoint does not store the
+  time step index.
+- Fixed `time_state_t%is_done` taking one time step more than asked for when
+  the accumulated time fell a few ulps short of `end_time`, and never ending
+  a simulation marching backwards in time.
+- Made the `user_stats` integration test compare its average of a random
+  field against a two-sided tolerance that covers the sampling noise; the
+  one-sided `1e-4` passed or failed roughly at random.
+
 - The gather-scatter comm. backend autotuning now covers the device-resident
   backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks
   `MPIGPU`, `NCCL` and `CRYSTALGPU` (`NVSHMEM` only when asked for) alongside

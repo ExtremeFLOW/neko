@@ -148,11 +148,21 @@ contains
   end subroutine time_state_status
 
   !> Check if the simulation is done
+  !! @note The comparison is made on the progress since the start time, so
+  !! that it also holds for a simulation marching backwards in time. A
+  !! round-off sized tolerance keeps a time that lands a few ulps short of
+  !! the end time from buying a whole additional time step, which would
+  !! overshoot the end time by almost `dt` and produce an output past it.
   pure function time_state_is_done(this) result(is_done)
     class(time_state_t), intent(in) :: this
     logical :: is_done
+    real(kind=dp) :: span, tol
 
-    is_done = this%t - this%start_time .ge. this%end_time - this%start_time &
+    span = abs(this%end_time - this%start_time)
+    tol = 1.0e-9_dp * max(span, abs(this%dt))
+
+    is_done = sign(1.0_dp, this%end_time - this%start_time) * &
+         (this%t - this%start_time) .ge. span - tol &
          .and. this%tstep .gt. 0
 
   end function time_state_is_done

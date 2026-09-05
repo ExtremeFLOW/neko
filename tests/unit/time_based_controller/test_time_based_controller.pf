@@ -1,173 +1,495 @@
 module test_time_based_controller
+  use pfunit
+  use time_based_controller, only : time_based_controller_t
+  use time_state, only : time_state_t
+  use num_types, only : rp, dp
+  implicit none
+
 contains
-!> Test the constructor
-@test
-subroutine test_init()
-  use pfunit
-  use time_based_controller, only : time_based_controller_t
-  use time_state, only : time_state_t
-  use num_types, only : rp, dp
-  implicit none
 
-  type(time_based_controller_t) ctrl
+  !> Advance the time state by one step.
+  subroutine step(time)
+    type(time_state_t), intent(inout) :: time
+    time%tstep = time%tstep + 1
+    time%dtlag(1) = time%dt
+    time%t = time%t + time%dt
+  end subroutine step
 
-  call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 10.0_dp)
-  @assertEqual(ctrl%start_time, 0.0_dp, tolerance=1e-6_dp)
-  @assertEqual(ctrl%end_time, 1.0_dp, tolerance=1e-6_dp)
-  @assertEqual(ctrl%time_interval, 10.0_dp, tolerance=1e-6_dp)
-  @assertEqual(ctrl%frequency, 0.1_dp, tolerance=1e-6_dp)
-  @assertEqual(ctrl%nsteps, 0)
+  !> Run a controller over a time interval and collect the times at which it
+  !! executes, mimicking what the simulation does: one check before the loop,
+  !! one after each step, and a final, possibly forced, one.
+  subroutine collect(ctrl, t_begin, t_end, dt, force_at_end, t_out, n_out)
+    type(time_based_controller_t), intent(inout) :: ctrl
+    real(kind=dp), intent(in) :: t_begin, t_end, dt
+    logical, intent(in) :: force_at_end
+    real(kind=dp), intent(out) :: t_out(:)
+    integer, intent(out) :: n_out
+    type(time_state_t) :: time
 
-  call ctrl%init(0.0_dp, 1.0_dp, "nsamples", 10.0_dp)
-  @assertEqual(ctrl%start_time, 0.0_dp, tolerance=1e-6_dp)
-  @assertEqual(ctrl%end_time, 1.0_dp, tolerance=1e-6_dp)
-  @assertEqual(ctrl%time_interval, 0.1_dp, tolerance=1e-6_dp)
-  @assertEqual(ctrl%frequency, 10.0_dp, tolerance=1e-6_dp)
-  @assertEqual(ctrl%nsteps, 0)
+    time%start_time = t_begin
+    time%end_time = t_end
+    time%t = t_begin
+    time%dt = dt
+    time%tstep = 0
+    time%dtlag = 0.0_dp
 
-  call ctrl%init(0.0_dp, 1.0_dp, "tsteps", 10.0_dp)
-  @assertEqual(ctrl%start_time, 0.0_dp, tolerance=1e-6_dp)
-  @assertEqual(ctrl%end_time, 1.0_dp, tolerance=1e-6_dp)
-  @assertEqual(ctrl%time_interval, 0.0_dp, tolerance=1e-6_dp)
-  @assertEqual(ctrl%frequency, 0.0_dp, tolerance=1e-6_dp)
-  @assertEqual(ctrl%nsteps, 10)
-end subroutine test_init
+    n_out = 0
+    call sample(ctrl, time, .false., t_out, n_out)
+    do while (.not. time%is_done())
+       call step(time)
+       call sample(ctrl, time, .false., t_out, n_out)
+       if (n_out .ge. size(t_out)) exit
+    end do
+    call sample(ctrl, time, force_at_end, t_out, n_out)
 
-!> Test assignment
-@test
-subroutine test_assign()
-  use pfunit
-  use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp, dp
-  implicit none
+  end subroutine collect
 
-  type(time_based_controller_t) ctrl1
-  type(time_based_controller_t) ctrl2
+  subroutine sample(ctrl, time, force, t_out, n_out)
+    type(time_based_controller_t), intent(inout) :: ctrl
+    type(time_state_t), intent(in) :: time
+    logical, intent(in) :: force
+    real(kind=dp), intent(inout) :: t_out(:)
+    integer, intent(inout) :: n_out
 
-  call ctrl1%init(0.0_dp, 1.0_dp, "simulationtime", 10.0_dp)
-  ctrl2 = ctrl1
-  @assertEqual(ctrl1%end_time, ctrl2%end_time, tolerance=1e-6_dp)
-  @assertEqual(ctrl1%time_interval, ctrl2%time_interval, tolerance=1e-6_dp)
-  @assertEqual(ctrl1%frequency, ctrl2%frequency, tolerance=1e-6_dp)
-  @assertEqual(ctrl1%nsteps, ctrl2%nsteps)
-  @assertEqual(ctrl1%nexecutions, ctrl2%nexecutions)
-  @assertEqual(ctrl1%control_value, ctrl2%control_value)
-  @assertEqual(ctrl1%control_mode, ctrl2%control_mode)
+    if (ctrl%check(time, force)) then
+       n_out = n_out + 1
+       t_out(n_out) = time%t
+       call ctrl%register_execution(time)
+    end if
+  end subroutine sample
 
-end subroutine test_assign
+  !> Test the constructor
+  @test
+  subroutine test_init()
+    type(time_based_controller_t) ctrl
 
-!> Test check simulationtime
-@test
-subroutine test_check_simulationtime()
-  use pfunit
-  use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp, dp
-  use time_state, only : time_state_t
-  implicit none
+    call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 10.0_dp)
+    @assertEqual(ctrl%start_time, 0.0_dp, tolerance=1e-6_dp)
+    @assertEqual(ctrl%end_time, 1.0_dp, tolerance=1e-6_dp)
+    @assertEqual(ctrl%time_interval, 10.0_dp, tolerance=1e-6_dp)
+    @assertEqual(ctrl%frequency, 0.1_dp, tolerance=1e-6_dp)
+    @assertEqual(ctrl%nsteps, 0)
+    @assertEqual(ctrl%next_index, 0)
+    @assertTrue(ctrl%write_at_start)
 
-  type(time_based_controller_t) ctrl
-  type(time_state_t) :: time
+    call ctrl%init(0.0_dp, 1.0_dp, "nsamples", 10.0_dp)
+    @assertEqual(ctrl%start_time, 0.0_dp, tolerance=1e-6_dp)
+    @assertEqual(ctrl%end_time, 1.0_dp, tolerance=1e-6_dp)
+    @assertEqual(ctrl%time_interval, 0.1_dp, tolerance=1e-6_dp)
+    @assertEqual(ctrl%frequency, 10.0_dp, tolerance=1e-6_dp)
+    @assertEqual(ctrl%nsteps, 0)
 
-  call ctrl%init(0.0_dp, 10.0_dp, "simulationtime", 1.0_dp)
-  time%t = 0.0_dp
-  time%tstep = 0
-  time%dt = 0.0_dp
+    call ctrl%init(0.0_dp, 1.0_dp, "tsteps", 10.0_dp)
+    @assertEqual(ctrl%start_time, 0.0_dp, tolerance=1e-6_dp)
+    @assertEqual(ctrl%end_time, 1.0_dp, tolerance=1e-6_dp)
+    @assertEqual(ctrl%time_interval, 0.0_dp, tolerance=1e-6_dp)
+    @assertEqual(ctrl%frequency, 0.0_dp, tolerance=1e-6_dp)
+    @assertEqual(ctrl%nsteps, 10)
 
-  ! Expect true on first execution
-  @assertEqual(ctrl%check(time), .true.)
-  call ctrl%register_execution()
-  time%t = 1.1_dp
+    ! Skipping the execution at the start moves the first scheduled one
+    call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.1_dp, .false.)
+    @assertEqual(int(ctrl%first_index), 1)
+    @assertEqual(ctrl%next_index, 0)
+    @assertFalse(ctrl%write_at_start)
+    @assertFalse(ctrl%start_pending)
+  end subroutine test_init
 
-  @assertEqual(ctrl%check(time), .true.)
-  call ctrl%register_execution()
-  time%t = 1.5_dp
+  !> Test assignment
+  @test
+  subroutine test_assign()
+    type(time_based_controller_t) ctrl1
+    type(time_based_controller_t) ctrl2
 
-  @assertEqual(ctrl%check(time), .false.)
-  time%t = 1.99_dp
-  time%dt = 0.5_dp
+    call ctrl1%init(0.0_dp, 1.0_dp, "simulationtime", 10.0_dp, .false.)
+    ctrl2 = ctrl1
+    @assertEqual(ctrl1%start_time, ctrl2%start_time, tolerance=1e-6_dp)
+    @assertEqual(ctrl1%end_time, ctrl2%end_time, tolerance=1e-6_dp)
+    @assertEqual(ctrl1%time_interval, ctrl2%time_interval, tolerance=1e-6_dp)
+    @assertEqual(ctrl1%frequency, ctrl2%frequency, tolerance=1e-6_dp)
+    @assertEqual(ctrl1%nsteps, ctrl2%nsteps)
+    @assertEqual(ctrl1%nexecutions, ctrl2%nexecutions)
+    @assertEqual(ctrl1%control_value, ctrl2%control_value)
+    @assertEqual(ctrl1%control_mode, ctrl2%control_mode)
+    @assertEqual(ctrl1%next_index, ctrl2%next_index)
+    @assertTrue(ctrl1%write_at_start .eqv. ctrl2%write_at_start)
 
-  @assertEqual(ctrl%check(time), .true.)
-  call ctrl%register_execution()
-  time%t = 2.01_dp
-  time%dt = 0.5_dp
-  @assertEqual(ctrl%check(time), .false.)
+    ! A copy of a controller that never executes must never execute either
+    call ctrl1%init(0.0_dp, 1.0_dp, "never", 0.0_dp)
+    ctrl2 = ctrl1
+    @assertTrue(ctrl2%never)
+  end subroutine test_assign
 
-  time%t = 3.01_dp
-  @assertEqual(ctrl%check(time), .true.)
-  call ctrl%register_execution()
+  !> Test check simulationtime
+  @test
+  subroutine test_check_simulationtime()
+    type(time_based_controller_t) ctrl
+    real(kind=dp) :: t_out(64)
+    integer :: n
 
-end subroutine test_check_simulationtime
+    call ctrl%init(0.0_dp, 3.0_dp, "simulationtime", 1.0_dp)
+    call collect(ctrl, 0.0_dp, 3.0_dp, 0.1_dp, .false., t_out, n)
 
-!> Test check nsamples
-@test
-subroutine test_check_nsamples()
-  use pfunit
-  use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp, dp
-  use time_state, only : time_state_t
-  implicit none
+    @assertEqual(n, 4)
+    @assertEqual(t_out(1), 0.0_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(2), 1.0_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(3), 2.0_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(4), 3.0_dp, tolerance=1e-8_dp)
+    @assertEqual(ctrl%nexecutions, 4)
+  end subroutine test_check_simulationtime
 
-  type(time_based_controller_t) ctrl
-  type(time_state_t) :: time
+  !> A time step that does not divide the output interval writes at the first
+  !! step at or after each scheduled time, and never twice for the same one.
+  @test
+  subroutine test_check_uneven_timestep()
+    type(time_based_controller_t) ctrl
+    real(kind=dp) :: t_out(64)
+    integer :: n, i
 
-  call ctrl%init(0.0_dp, 10.0_dp, "nsamples", 10.0_dp)
+    call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.25_dp, .false.)
+    call collect(ctrl, 0.0_dp, 1.0_dp, 0.03_dp, .false., t_out, n)
 
-  time%t = 0.0_dp
-  ! Expect true on first execution
-  @assertEqual(ctrl%check(time), .true.)
-  call ctrl%register_execution()
-  time%t = 1.1_dp
+    @assertEqual(n, 4)
+    do i = 1, n
+       @assertTrue(t_out(i) .ge. real(i, dp) * 0.25_dp - 0.003_dp)
+       @assertTrue(t_out(i) .lt. real(i, dp) * 0.25_dp + 0.03_dp)
+    end do
+  end subroutine test_check_uneven_timestep
 
-  @assertEqual(ctrl%check(time), .true.)
-  call ctrl%register_execution()
-  time%t = 1.5_dp
+  !> Test check nsamples
+  @test
+  subroutine test_check_nsamples()
+    type(time_based_controller_t) ctrl
+    real(kind=dp) :: t_out(64)
+    integer :: n
 
-  @assertEqual(ctrl%check(time), .false.)
+    ! n samples, the last one at the end of the simulation
+    call ctrl%init(0.0_dp, 1.0_dp, "nsamples", 10.0_dp, .false.)
+    call collect(ctrl, 0.0_dp, 1.0_dp, 0.01_dp, .false., t_out, n)
+    @assertEqual(n, 10)
+    @assertEqual(t_out(1), 0.1_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(10), 1.0_dp, tolerance=1e-8_dp)
 
-end subroutine test_check_nsamples
+    ! and one more when the initial state is included
+    call ctrl%init(0.0_dp, 1.0_dp, "nsamples", 10.0_dp, .true.)
+    call collect(ctrl, 0.0_dp, 1.0_dp, 0.01_dp, .false., t_out, n)
+    @assertEqual(n, 11)
+    @assertEqual(t_out(1), 0.0_dp, tolerance=1e-8_dp)
+  end subroutine test_check_nsamples
 
-!> Test check tsteps
-@test
-subroutine test_check_tsteps()
-  use pfunit
-  use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp, dp
-  use time_state, only : time_state_t
-  implicit none
+  !> Test check tsteps
+  @test
+  subroutine test_check_tsteps()
+    type(time_based_controller_t) ctrl
+    type(time_state_t) :: time
 
-  type(time_based_controller_t) ctrl
-  type(time_state_t) :: time
+    call ctrl%init(0.0_dp, 10.0_dp, "tsteps", 10.0_dp)
+    time%end_time = 10.0_dp
+    time%dt = 0.1_dp
+    time%tstep = 0
 
-  call ctrl%init(0.0_dp, 10.0_dp, "tsteps", 10.0_dp)
-  time%tstep = 0
+    ! Expect true on first execution
+    @assertTrue(ctrl%check(time))
+    call ctrl%register_execution(time)
 
-  ! Expect true on first execution
-  @assertEqual(ctrl%check(time), .true.)
-  call ctrl%register_execution()
+    time%tstep = 10
+    time%t = 1.0_dp
+    @assertTrue(ctrl%check(time))
+    call ctrl%register_execution(time)
 
-  time%tstep = 10
-  @assertEqual(ctrl%check(time), .true.)
-  call ctrl%register_execution()
+    time%tstep = 15
+    time%t = 1.5_dp
+    @assertFalse(ctrl%check(time))
+  end subroutine test_check_tsteps
 
-  time%tstep = 15
-  @assertEqual(ctrl%check(time), .false.)
+  !> Test register
+  @test
+  subroutine test_register()
+    type(time_based_controller_t) ctrl
 
-end subroutine test_check_tsteps
+    call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 10.0_dp)
+    call ctrl%register_execution()
+    @assertEqual(ctrl%nexecutions, 1)
+  end subroutine test_register
 
-!> Test register
-@test
-subroutine test_register()
-  use pfunit
-  use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp, dp
-  implicit none
+  !> `check` must be callable several times per step without changing its
+  !! answer, and must not execute twice in the same step.
+  @test
+  subroutine test_idempotent_within_a_step()
+    type(time_based_controller_t) ctrl
+    type(time_state_t) :: time
 
-  type(time_based_controller_t) ctrl
+    call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.1_dp)
+    time%end_time = 1.0_dp
+    time%dt = 0.1_dp
+    time%tstep = 3
+    time%t = 0.3_dp
+    call ctrl%set_counter(time)
 
-  call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 10.0_dp)
-  call ctrl%register_execution()
-  @assertEqual(ctrl%nexecutions, 1)
+    time%tstep = 4
+    time%t = 0.4_dp
+    @assertTrue(ctrl%check(time))
+    @assertTrue(ctrl%check(time))
+    call ctrl%register_execution(time)
+    @assertFalse(ctrl%check(time))
+    ! not even when forced, which is what keeps the final write of a
+    ! simulation from duplicating the scheduled one on the same step
+    @assertFalse(ctrl%check(time, .true.))
+  end subroutine test_idempotent_within_a_step
 
-end subroutine test_register
+  !> The write forced at the end of a simulation must not duplicate the
+  !! scheduled write that lands on the very last step.
+  @test
+  subroutine test_no_duplicate_at_the_end()
+    type(time_based_controller_t) ctrl
+    real(kind=dp) :: t_out(64)
+    integer :: n
+
+    call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.5_dp, .false.)
+    call collect(ctrl, 0.0_dp, 1.0_dp, 0.1_dp, .true., t_out, n)
+    @assertEqual(n, 2)
+    @assertEqual(t_out(1), 0.5_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(2), 1.0_dp, tolerance=1e-8_dp)
+  end subroutine test_no_duplicate_at_the_end
+
+  !> A last step overshooting the end time still performs the execution
+  !! scheduled for the end time.
+  @test
+  subroutine test_execution_at_the_end_time()
+    type(time_based_controller_t) ctrl
+    real(kind=dp) :: t_out(64)
+    integer :: n
+
+    ! 0.03 does not divide 1.0, so the last step lands at 1.02
+    call ctrl%init(0.0_dp, 1.0_dp, "nsamples", 5.0_dp, .false.)
+    call collect(ctrl, 0.0_dp, 1.0_dp, 0.03_dp, .false., t_out, n)
+    @assertEqual(n, 5)
+    @assertTrue(t_out(5) .gt. 1.0_dp)
+  end subroutine test_execution_at_the_end_time
+
+  !> A `never` controller schedules nothing, but can still be forced, which
+  !! is how `output_at_end` writes an output that is never written otherwise.
+  @test
+  subroutine test_never()
+    type(time_based_controller_t) ctrl
+    type(time_state_t) :: time
+    real(kind=dp) :: t_out(64)
+    integer :: n
+
+    call ctrl%init(0.0_dp, 1.0_dp, "never", 0.0_dp)
+    call collect(ctrl, 0.0_dp, 1.0_dp, 0.1_dp, .false., t_out, n)
+    @assertEqual(n, 0)
+
+    call ctrl%init(0.0_dp, 1.0_dp, "never", 0.0_dp)
+    call collect(ctrl, 0.0_dp, 1.0_dp, 0.1_dp, .true., t_out, n)
+    @assertEqual(n, 1)
+    @assertEqual(t_out(1), 1.0_dp, tolerance=1e-8_dp)
+
+    ! and `set_counter` must leave it alone rather than divide by zero
+    call ctrl%init(0.0_dp, 1.0_dp, "never", 0.0_dp)
+    time%dt = 0.1_dp
+    time%t = 0.5_dp
+    time%tstep = 5
+    call ctrl%set_counter(time)
+    @assertEqual(ctrl%nexecutions, 0)
+    @assertFalse(ctrl%check(time))
+  end subroutine test_never
+
+  !> An output with a start time of its own does not execute before it, and
+  !! picks up the schedule at the first scheduled time after it.
+  @test
+  subroutine test_start_time()
+    type(time_based_controller_t) ctrl
+    real(kind=dp) :: t_out(64)
+    integer :: n
+
+    call ctrl%init(0.3_dp, 1.0_dp, "simulationtime", 0.2_dp, .false.)
+    call collect(ctrl, 0.0_dp, 1.0_dp, 0.01_dp, .false., t_out, n)
+    @assertEqual(n, 4)
+    @assertEqual(t_out(1), 0.4_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(2), 0.6_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(3), 0.8_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(4), 1.0_dp, tolerance=1e-8_dp)
+  end subroutine test_start_time
+
+  !> The schedule of a `simulationtime` output is anchored at zero, so that
+  !! its executions land on whole multiples of the interval whatever time the
+  !! simulation starts from.
+  @test
+  subroutine test_anchored_at_whole_multiples()
+    type(time_based_controller_t) ctrl
+    type(time_state_t) :: time
+    real(kind=dp) :: t_out(64)
+    integer :: n
+
+    ! Starting from a field at t = 10.5, writing every time unit: the
+    ! initial state, then 11, 12, 13, 14.
+    call ctrl%init(10.5_dp, 14.0_dp, "simulationtime", 1.0_dp, .true.)
+    call collect(ctrl, 10.5_dp, 14.0_dp, 0.01_dp, .false., t_out, n)
+    @assertEqual(n, 5)
+    @assertEqual(t_out(1), 10.5_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(2), 11.0_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(5), 14.0_dp, tolerance=1e-8_dp)
+
+    ! Without the initial state, the schedule is the whole multiples alone.
+    call ctrl%init(10.5_dp, 14.0_dp, "simulationtime", 1.0_dp, .false.)
+    call collect(ctrl, 10.5_dp, 14.0_dp, 0.01_dp, .false., t_out, n)
+    @assertEqual(n, 4)
+    @assertEqual(t_out(1), 11.0_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(4), 14.0_dp, tolerance=1e-8_dp)
+
+    ! And a restart lands on the same times, with the counter carried over.
+    call ctrl%init(10.5_dp, 14.0_dp, "simulationtime", 1.0_dp, .false.)
+    time%start_time = 10.5_dp
+    time%end_time = 14.0_dp
+    time%t = 12.3_dp
+    time%dt = 0.01_dp
+    time%dtlag = 0.01_dp
+    time%tstep = 0
+    call ctrl%set_counter(time)
+    @assertEqual(ctrl%nexecutions, 2)
+
+    n = 0
+    call sample(ctrl, time, .false., t_out, n)
+    do while (.not. time%is_done())
+       call step(time)
+       call sample(ctrl, time, .false., t_out, n)
+    end do
+    @assertEqual(n, 2)
+    @assertEqual(t_out(1), 13.0_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(2), 14.0_dp, tolerance=1e-8_dp)
+    @assertEqual(ctrl%nexecutions, 4)
+  end subroutine test_anchored_at_whole_multiples
+
+  !> `nsamples` divides the simulated interval instead, so it is anchored at
+  !! the start time however odd that is.
+  @test
+  subroutine test_nsamples_anchored_at_the_start()
+    type(time_based_controller_t) ctrl
+    real(kind=dp) :: t_out(64)
+    integer :: n
+
+    call ctrl%init(10.5_dp, 14.5_dp, "nsamples", 4.0_dp, .false.)
+    call collect(ctrl, 10.5_dp, 14.5_dp, 0.01_dp, .false., t_out, n)
+    @assertEqual(n, 4)
+    @assertEqual(t_out(1), 11.5_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(4), 14.5_dp, tolerance=1e-8_dp)
+  end subroutine test_nsamples_anchored_at_the_start
+
+  !> Restarting must neither skip nor repeat an execution, whatever time the
+  !! restart happens at.
+  @test
+  subroutine test_restart_continuity()
+    type(time_based_controller_t) ctrl
+    type(time_state_t) :: time
+    real(kind=dp) :: t_out(256), t_ref(256), t_rest(256)
+    integer :: n_ref, n, n_rest, i, k
+
+    call ctrl%init(0.0_dp, 2.0_dp, "simulationtime", 0.1_dp, .false.)
+    call collect(ctrl, 0.0_dp, 2.0_dp, 0.01_dp, .false., t_ref, n_ref)
+
+    ! restart from every one of the 200 steps of the run
+    do k = 1, 199
+       time%start_time = 0.0_dp
+       time%end_time = 2.0_dp
+       time%dt = 0.01_dp
+       time%t = real(k, dp) * 0.01_dp
+       time%dtlag = 0.01_dp
+       time%tstep = 0
+
+       call ctrl%init(0.0_dp, 2.0_dp, "simulationtime", 0.1_dp, .false.)
+       call ctrl%set_counter(time)
+
+       n = 0
+       call sample(ctrl, time, .false., t_out, n)
+       do while (.not. time%is_done())
+          call step(time)
+          call sample(ctrl, time, .false., t_out, n)
+       end do
+       call sample(ctrl, time, .false., t_out, n)
+
+       ! together the two runs perform exactly the executions of the
+       ! uninterrupted run, and the restarted one writes its tail
+       @assertEqual(ctrl%nexecutions, n_ref)
+       do i = 1, n
+          @assertEqual(t_out(i), t_ref(n_ref - n + i), tolerance=1e-8_dp)
+       end do
+    end do
+  end subroutine test_restart_continuity
+
+  !> The restart must use the time step of the run that wrote the
+  !! checkpoint, which is the one stored in the checkpoint, and not the
+  !! placeholder a variable time step run starts from.
+  @test
+  subroutine test_restart_variable_timestep()
+    type(time_based_controller_t) ctrl
+    type(time_state_t) :: time
+    real(kind=dp) :: t_out(64)
+    integer :: n
+
+    call ctrl%init(0.0_dp, 0.2_dp, "simulationtime", 0.05_dp, .false.)
+
+    time%start_time = 0.0_dp
+    time%end_time = 0.2_dp
+    time%t = 0.1_dp
+    time%tstep = 0
+    ! the placeholder used before the first step of a variable dt run
+    time%dt = 1.0_dp
+    ! the real size of the step that wrote the checkpoint
+    time%dtlag = 0.01_dp
+    call ctrl%set_counter(time)
+    @assertEqual(ctrl%nexecutions, 2)
+
+    time%dt = 0.01_dp
+    n = 0
+    call sample(ctrl, time, .false., t_out, n)
+    do while (.not. time%is_done())
+       call step(time)
+       call sample(ctrl, time, .false., t_out, n)
+    end do
+    @assertEqual(n, 2)
+    @assertEqual(t_out(1), 0.15_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(2), 0.2_dp, tolerance=1e-8_dp)
+  end subroutine test_restart_variable_timestep
+
+  !> An output that only starts after the simulation has ended never
+  !! executes, not even when an execution is forced.
+  @test
+  subroutine test_start_time_after_the_end()
+    type(time_based_controller_t) ctrl
+    type(time_state_t) :: time
+    real(kind=dp) :: t_out(64)
+    integer :: n
+
+    ! the direction of time is that of the simulation, not the one from the
+    ! start of the output to the end of the run
+    call ctrl%init(5.0_dp, 1.0_dp, "simulationtime", 0.1_dp, .true., &
+         direction = 1.0_dp)
+    @assertEqual(ctrl%direction, 1.0_dp, tolerance=1e-12_dp)
+
+    call collect(ctrl, 0.0_dp, 1.0_dp, 0.01_dp, .true., t_out, n)
+    @assertEqual(n, 0)
+
+    time%t = 1.0_dp
+    time%dt = 0.01_dp
+    time%tstep = 100
+    @assertFalse(ctrl%check(time, .true.))
+  end subroutine test_start_time_after_the_end
+
+  !> A time step larger than the output interval writes once per step and
+  !! does not build up a backlog of executions.
+  @test
+  subroutine test_timestep_larger_than_interval()
+    type(time_based_controller_t) ctrl
+    real(kind=dp) :: t_out(64)
+    integer :: n
+
+    call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.01_dp, .false.)
+    call collect(ctrl, 0.0_dp, 1.0_dp, 0.25_dp, .false., t_out, n)
+    @assertEqual(n, 4)
+    @assertEqual(t_out(1), 0.25_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(4), 1.0_dp, tolerance=1e-8_dp)
+    ! the cursor tracks the time instead of lagging behind it
+    @assertEqual(ctrl%next_index, 100)
+  end subroutine test_timestep_larger_than_interval
 
 end module test_time_based_controller
