@@ -100,7 +100,8 @@ $(document).ready(function(){initNavTree('d0/d2a/namespacegs__device__shmem.html
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Types</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">gs_device_shmem Module Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -165,6 +166,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ab57da66aa50b1dbeb2cbaeecae4a3e52" id="r_ab57da66aa50b1dbeb2cbaeecae4a3e52"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d2a/namespacegs__device__shmem.html#ab57da66aa50b1dbeb2cbaeecae4a3e52">gs_device_shmem_nbwait_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>, op, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
 <tr class="memdesc:ab57da66aa50b1dbeb2cbaeecae4a3e52"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fused nc-component push + unpack (the pack happens in nbsend_vec).  <br /></td></tr>
 <tr class="separator:ab57da66aa50b1dbeb2cbaeecae4a3e52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a9d74c9fb62a1b69ae57b3f2f491d6b38" id="r_a9d74c9fb62a1b69ae57b3f2f491d6b38"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d2a/namespacegs__device__shmem.html#a9d74c9fb62a1b69ae57b3f2f491d6b38">gs_device_shmem_avail</a> = .false.</td></tr>
+<tr class="memdesc:a9d74c9fb62a1b69ae57b3f2f491d6b38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether NVSHMEM was built into this Neko (&ndash;with-nvshmem). Lets callers (e.g. the gs comm. autotuner) skip the backend rather than exchanging nothing on builds without it.  <br /></td></tr>
+<tr class="separator:a9d74c9fb62a1b69ae57b3f2f491d6b38"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="ad4f3bfd3b1bc42e19c6703bbc1f17ef1" name="ad4f3bfd3b1bc42e19c6703bbc1f17ef1"></a>
@@ -191,7 +198,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00287">287</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00296">296</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -263,7 +270,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00204">204</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00213">213</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -301,7 +308,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00389">389</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00398">398</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -357,7 +364,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00304">304</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00313">313</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -407,7 +414,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00489">489</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00498">498</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -451,7 +458,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00588">588</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00597">597</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -513,7 +520,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00435">435</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00444">444</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -593,7 +600,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00553">553</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00562">562</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -661,7 +668,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00499">499</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00508">508</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -735,7 +742,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00594">594</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00603">603</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -751,13 +758,30 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a9d74c9fb62a1b69ae57b3f2f491d6b38" name="a9d74c9fb62a1b69ae57b3f2f491d6b38"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d74c9fb62a1b69ae57b3f2f491d6b38">&#9670;&#160;</a></span>gs_device_shmem_avail</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> gs_device_shmem::gs_device_shmem_avail = .false.</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00057">57</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d2a/namespacegs__device__shmem.html">gs_device_shmem</a></li>
-    <li class="footer">Generated on Fri Sep 4 2026 03:40:35 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 5 2026 03:39:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

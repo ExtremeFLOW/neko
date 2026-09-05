@@ -26,7 +26,7 @@ var searchData=
   ['of_20field_20output_23',['Compression of field output',['../d7/d7f/io.html#autotoc_md167',1,'']]],
   ['of_20fields_20in_20output_20files_24',['of fields in output files',['../df/d8f/statistics-guide.html#autotoc_md203',1,'List of fields in output files'],['../df/d8f/statistics-guide.html#autotoc_md200',1,'List of fields in output files'],['../df/d8f/statistics-guide.html#autotoc_md207',1,'List of fields in output files'],['../df/d8f/statistics-guide.html#autotoc_md205',1,'List of fields in output files']]],
   ['of_20simulation_20components_25',['List of simulation components',['../d3/d84/simcomps.html#autotoc_md192',1,'']]],
-  ['of_20the_20host_20backend_26',['Runtime autotuning of the host backend',['../dc/d3c/performance.html#performance-gs-autotuning',1,'']]],
+  ['of_20the_20comm_20backend_26',['Runtime autotuning of the comm. backend',['../dc/d3c/performance.html#performance-gs-autotuning',1,'']]],
   ['of_20the_20manual_27',['Structure of the Manual',['../index.html#autotoc_md74',1,'']]],
   ['of_20the_20nodal_20normal_28',['Resolution of the nodal normal',['../d9/d16/mixed-bc-resolution.html#mixed-bc-normal',1,'']]],
   ['offload_20work_29',['Offload work',['../de/d06/accelerators.html#accelerators_offload-work',1,'']]],

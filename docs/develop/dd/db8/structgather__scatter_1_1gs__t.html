@@ -635,7 +635,7 @@ Private Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Time <em>ntrials</em> gather-scatter operations on <em>u</em>, returning the average wall time (s) per operation on this rank Benchmark the candidate comm. backends and leave <em>gs</em> holding the fastest one Initialize a gather-scatter kernel </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Time <em>ntrials</em> gather-scatter operations on <em>u</em>, returning the average wall time (s) per operation on this rank Benchmark the candidate comm. backends and leave <em>gs</em> holding the fastest one Bind the non-blocking synchronisation strategy of the device MPI comm. backend held by <em>gs</em>, benchmarking the strategies unless NEKO_GS_STRTGY names one Initialize a gather-scatter kernel </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dofmap,global</td><td>numbering of points and connectivity to base gs on </td></tr>
     <tr><td class="paramname">bcknd,backend</td><td>for executing the <a class="el" href="../../dd/d18/namespacegs__ops.html" title="Defines Gather-scatter operations.">gs_ops</a> </td></tr>
@@ -788,27 +788,29 @@ Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/db8/structgather__scatter_1_1gs__t_a4f76ff0582ea573bf30d49a8aa5cd66a_cgraph.png" border="0" usemap="#add/db8/structgather__scatter_1_1gs__t_a4f76ff0582ea573bf30d49a8aa5cd66a_cgraph" alt=""/></div>
 <map name="add/db8/structgather__scatter_1_1gs__t_a4f76ff0582ea573bf30d49a8aa5cd66a_cgraph" id="add/db8/structgather__scatter_1_1gs__t_a4f76ff0582ea573bf30d49a8aa5cd66a_cgraph">
-<area shape="rect" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="5,197,144,237"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a9b9332334df914926a792ad727274072" title="Allocate a gather&#45;scatter comm. backend of type comm_bcknd." alt="" coords="192,5,331,45"/>
-<area shape="poly" title=" " alt="" coords="84,196,125,129,155,90,190,55,197,50,200,55,194,59,159,93,129,132,89,199"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a2b48358c6972e008ed587c5d301915b2" title="Name of the gather&#45;scatter comm. backend comm_bcknd, right&#45;adjusted for the log." alt="" coords="192,69,331,109"/>
-<area shape="poly" title=" " alt="" coords="95,195,138,158,191,119,200,114,202,118,193,124,141,162,99,199"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="192,133,331,173"/>
-<area shape="poly" title=" " alt="" coords="133,195,189,175,191,180,135,200"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ae43657febcc9273f7327ad60e4e381be" title="Gather&#45;scatter operation on a 3&#45;component vector of rank&#45;4 arrays (u1, u2, u3) with op op; see gs_op_..." alt="" coords="192,197,331,237"/>
-<area shape="poly" title=" " alt="" coords="145,215,178,215,178,220,145,220"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a9add4a7c59c01d0c077e39fcdba63b23" title="Gather&#45;scatter operation on a rank 4 array." alt="" coords="192,261,331,301"/>
-<area shape="poly" title=" " alt="" coords="135,235,191,254,189,259,133,240"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="192,389,331,429"/>
-<area shape="poly" title=" " alt="" coords="89,236,129,303,159,341,194,375,200,380,197,384,190,379,155,345,125,306,84,239"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#aac2a59847cf00bf8f06355ebbda60679" title="Gather&#45;scatter operation on a 3&#45;component vector (u1, u2, u3) with op op. When the comm backend suppo..." alt="" coords="192,325,331,365"/>
-<area shape="poly" title=" " alt="" coords="99,235,141,273,193,311,202,316,200,321,191,316,138,277,95,239"/>
-<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="379,325,501,365"/>
-<area shape="poly" title=" " alt="" coords="317,387,370,367,372,372,319,392"/>
-<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="379,389,501,429"/>
-<area shape="poly" title=" " alt="" coords="331,407,365,407,365,412,331,412"/>
-<area shape="poly" title=" " alt="" coords="331,343,365,343,365,348,331,348"/>
-<area shape="poly" title=" " alt="" coords="319,363,372,382,370,387,317,368"/>
+<area shape="rect" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="5,229,144,269"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a9b9332334df914926a792ad727274072" title="Allocate a gather&#45;scatter comm. backend of type comm_bcknd." alt="" coords="194,5,333,45"/>
+<area shape="poly" title=" " alt="" coords="81,228,96,192,120,146,151,98,190,55,196,51,199,55,194,59,156,102,125,149,101,194,86,230"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a2b48358c6972e008ed587c5d301915b2" title="Name of the gather&#45;scatter comm. backend comm_bcknd, right&#45;adjusted for the log." alt="" coords="194,69,333,109"/>
+<area shape="poly" title=" " alt="" coords="88,228,130,175,159,146,190,119,198,114,201,118,194,123,163,150,134,179,92,231"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a6a03d1d7c335cfcdcfe68156a139466c" title="Whether the comm. backend comm_bcknd exchanges the shared dofs straight out of device memory rather t..." alt="" coords="192,133,335,173"/>
+<area shape="poly" title=" " alt="" coords="109,227,191,183,203,177,205,182,193,188,112,232"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="194,197,333,237"/>
+<area shape="poly" title=" " alt="" coords="144,235,180,229,181,234,145,240"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ae43657febcc9273f7327ad60e4e381be" title="Gather&#45;scatter operation on a 3&#45;component vector of rank&#45;4 arrays (u1, u2, u3) with op op; see gs_op_..." alt="" coords="194,261,333,301"/>
+<area shape="poly" title=" " alt="" coords="145,258,181,265,180,270,144,264"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a9add4a7c59c01d0c077e39fcdba63b23" title="Gather&#45;scatter operation on a rank 4 array." alt="" coords="194,325,333,365"/>
+<area shape="poly" title=" " alt="" coords="112,267,193,311,205,317,203,322,191,316,109,272"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="194,389,333,429"/>
+<area shape="poly" title=" " alt="" coords="92,268,134,320,163,349,194,375,201,380,198,385,190,379,159,353,130,324,88,271"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#aac2a59847cf00bf8f06355ebbda60679" title="Gather&#45;scatter operation on a 3&#45;component vector (u1, u2, u3) with op op. When the comm backend suppo..." alt="" coords="194,453,333,493"/>
+<area shape="poly" title=" " alt="" coords="86,268,101,304,125,350,156,397,194,439,199,444,196,448,190,443,151,400,120,352,96,306,81,270"/>
+<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="383,389,505,429"/>
+<area shape="poly" title=" " alt="" coords="333,407,369,407,369,412,333,412"/>
+<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="383,453,505,493"/>
+<area shape="poly" title=" " alt="" coords="321,427,375,446,373,451,320,432"/>
+<area shape="poly" title=" " alt="" coords="320,451,373,431,375,436,321,456"/>
+<area shape="poly" title=" " alt="" coords="333,471,369,471,369,476,333,476"/>
 </map>
 </div>
 
@@ -1296,7 +1298,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d78/namespacegather__scatter.html">gather_scatter</a></li><li class="navelem"><a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a></li>
-    <li class="footer">Generated on Fri Sep 4 2026 03:40:35 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 5 2026 03:39:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

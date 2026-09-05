@@ -132,6 +132,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a2b48358c6972e008ed587c5d301915b2" id="r_a2b48358c6972e008ed587c5d301915b2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=12) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a2b48358c6972e008ed587c5d301915b2">gather_scatter::gs_comm_name</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">comm_bcknd</a>)</td></tr>
 <tr class="memdesc:a2b48358c6972e008ed587c5d301915b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name of the gather-scatter comm. backend <em>comm_bcknd</em>, right-adjusted for the log.  <br /></td></tr>
 <tr class="separator:a2b48358c6972e008ed587c5d301915b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a03d1d7c335cfcdcfe68156a139466c" id="r_a6a03d1d7c335cfcdcfe68156a139466c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a6a03d1d7c335cfcdcfe68156a139466c">gather_scatter::gs_comm_on_device</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">comm_bcknd</a>)</td></tr>
+<tr class="memdesc:a6a03d1d7c335cfcdcfe68156a139466c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the comm. backend <em>comm_bcknd</em> exchanges the shared dofs straight out of device memory rather than out of the host mirror of the shared buffer, which is what decides where the gather-scatter backend leaves them (gs_bcknd_tshared_on_host). A host backend on a device build is not device-resident: it drives the exchange from the mirror, at the price of a copy in each direction.  <br /></td></tr>
+<tr class="separator:a6a03d1d7c335cfcdcfe68156a139466c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b932fc67f24ee664f40c41bc61487c1" id="r_a7b932fc67f24ee664f40c41bc61487c1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a7b932fc67f24ee664f40c41bc61487c1">gather_scatter::gs_free</a> (gs)</td></tr>
 <tr class="memdesc:a7b932fc67f24ee664f40c41bc61487c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a gather-scatter kernel.  <br /></td></tr>
 <tr class="separator:a7b932fc67f24ee664f40c41bc61487c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -239,7 +242,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01456">1456</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01429">1429</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -301,7 +304,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01399">1399</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01372">1372</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -367,7 +370,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01414">1414</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01387">1387</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -397,7 +400,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_efc6cc943adcbbcf7353b1e68a05f09f.html">gs</a></li><li class="navelem"><a class="el" href="../../d5/d7e/gather__scatter_8f90.html">gather_scatter.f90</a></li>
-    <li class="footer">Generated on Fri Sep 4 2026 03:40:33 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 5 2026 03:39:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

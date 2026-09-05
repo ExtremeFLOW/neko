@@ -248,7 +248,7 @@ var index =
         [ "Running a simulation", "dc/d3c/performance.html#autotoc_md177", [
           [ "Gather-scatter communication backends", "dc/d3c/performance.html#autotoc_md178", [
             [ "The crystal router backends", "dc/d3c/performance.html#performance-gs-crystal", null ],
-            [ "Runtime autotuning of the host backend", "dc/d3c/performance.html#performance-gs-autotuning", [
+            [ "Runtime autotuning of the comm. backend", "dc/d3c/performance.html#performance-gs-autotuning", [
               [ "Choosing the candidates", "dc/d3c/performance.html#autotoc_md179", null ]
             ] ],
             [ "MPI neighbourhood collective backend", "dc/d3c/performance.html#performance-neighbour-backend", null ],

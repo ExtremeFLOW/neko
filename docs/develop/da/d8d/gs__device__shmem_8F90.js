@@ -20,5 +20,6 @@ var gs__device__shmem_8F90 =
     [ "gs_device_shmem_nbsend", "da/d8d/gs__device__shmem_8F90.html#a923449b8518caaac424023af2285c23a", null ],
     [ "gs_device_shmem_nbsend_vec", "da/d8d/gs__device__shmem_8F90.html#a81ffed1b2d8b4d2027af9a8a342e3c5f", null ],
     [ "gs_device_shmem_nbwait", "da/d8d/gs__device__shmem_8F90.html#a6beab26e24a8a58b8b0237f6260d7c40", null ],
-    [ "gs_device_shmem_nbwait_vec", "da/d8d/gs__device__shmem_8F90.html#ab57da66aa50b1dbeb2cbaeecae4a3e52", null ]
+    [ "gs_device_shmem_nbwait_vec", "da/d8d/gs__device__shmem_8F90.html#ab57da66aa50b1dbeb2cbaeecae4a3e52", null ],
+    [ "gs_device_shmem_avail", "da/d8d/gs__device__shmem_8F90.html#a9d74c9fb62a1b69ae57b3f2f491d6b38", null ]
 ];

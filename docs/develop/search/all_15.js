@@ -454,7 +454,7 @@ var searchData=
   ['running_20in_20multiple_20program_20multiple_20data_20mpmd_20mode_451',['Running in multiple program multiple data (MPMD) mode',['../d6/def/user-file.html#user-file_tips_mpmd',1,'']]],
   ['running_20on_20gpus_452',['Running on GPUs',['../d6/def/user-file.html#user-file_tips_running-on-gpus',1,'']]],
   ['running_20the_20tests_453',['Running the tests',['../d5/d75/testing.html#autotoc_md72',1,'']]],
-  ['runtime_20autotuning_20of_20the_20host_20backend_454',['Runtime autotuning of the host backend',['../dc/d3c/performance.html#performance-gs-autotuning',1,'']]],
+  ['runtime_20autotuning_20of_20the_20comm_20backend_454',['Runtime autotuning of the comm. backend',['../dc/d3c/performance.html#performance-gs-autotuning',1,'']]],
   ['runtime_20interaction_20with_20the_20json_20case_20file_455',['Runtime interaction with the JSON case file',['../d5/db5/programming-examples.html#autotoc_md217',1,'']]],
   ['runtime_20mesh_20deformation_456',['Runtime mesh deformation',['../d6/def/user-file.html#user-file_user-mesh-setup',1,'']]],
   ['runtime_20statistics_457',['Runtime statistics',['../dd/d33/case-file.html#autotoc_md116',1,'']]],

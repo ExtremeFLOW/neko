@@ -3,6 +3,7 @@ var namespacegather__scatter =
     [ "gs_t", "dd/db8/structgather__scatter_1_1gs__t.html", "dd/db8/structgather__scatter_1_1gs__t" ],
     [ "gs_comm_alloc", "d0/d78/namespacegather__scatter.html#a9b9332334df914926a792ad727274072", null ],
     [ "gs_comm_name", "d0/d78/namespacegather__scatter.html#a2b48358c6972e008ed587c5d301915b2", null ],
+    [ "gs_comm_on_device", "d0/d78/namespacegather__scatter.html#a6a03d1d7c335cfcdcfe68156a139466c", null ],
     [ "gs_free", "d0/d78/namespacegather__scatter.html#a7b932fc67f24ee664f40c41bc61487c1", null ],
     [ "gs_init", "d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347", null ],
     [ "gs_init_mapping", "d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566", null ],

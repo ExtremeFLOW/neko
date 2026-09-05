@@ -417,7 +417,7 @@ var searchData=
   ['autotune_5fconv1_414',['autotune_conv1',['../d1/dc1/opr__conv1_8c.html#a900ffa790a718fa5229e8fd135e1998a',1,'opr_conv1.c']]],
   ['autotune_5fdudxyz_415',['autotune_dudxyz',['../d1/d28/opr__dudxyz_8c.html#ab3efd511fb28f95eeb57ce1afe6bb9cc',1,'opr_dudxyz.c']]],
   ['autotune_5fopgrad_416',['autotune_opgrad',['../d0/d82/opr__opgrad_8c.html#a0907418355d10fd82e6594f5dba44364',1,'opr_opgrad.c']]],
-  ['autotuning_20of_20the_20host_20backend_417',['Runtime autotuning of the host backend',['../dc/d3c/performance.html#performance-gs-autotuning',1,'']]],
+  ['autotuning_20of_20the_20comm_20backend_417',['Runtime autotuning of the comm. backend',['../dc/d3c/performance.html#performance-gs-autotuning',1,'']]],
   ['aux_5fcmd_5fqueue_418',['aux_cmd_queue',['../d0/dbe/namespacedevice.html#acabcf9f5f596cf930af83acf10897857',1,'device']]],
   ['av_419',['av',['../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a8a6d6766590077039475e3b382141e55',1,'av:&#160;ax_helm_full_kernel.h'],['../db/d6f/cuda_2ax__helm__kernel_8h.html#a221d80acc66fbb22ea2c1b8258847997',1,'av:&#160;ax_helm_kernel.h'],['../df/d1b/hip_2ax__helm__full__kernel_8h.html#a221d80acc66fbb22ea2c1b8258847997',1,'av:&#160;ax_helm_full_kernel.h'],['../d6/da8/hip_2ax__helm__kernel_8h.html#a221d80acc66fbb22ea2c1b8258847997',1,'av:&#160;ax_helm_kernel.h']]],
   ['available_20conditions_420',['Available conditions',['../dd/d33/case-file.html#autotoc_md92',1,'']]],

@@ -16,5 +16,6 @@ var gs__device__nccl_8F90 =
     [ "gs_device_nccl_nbsend", "d8/da1/gs__device__nccl_8F90.html#a4a698ddba8ad717a48415e7611189407", null ],
     [ "gs_device_nccl_nbsend_vec", "d8/da1/gs__device__nccl_8F90.html#a0b15d59b84aa2d8d7d9253229a894678", null ],
     [ "gs_device_nccl_nbwait", "d8/da1/gs__device__nccl_8F90.html#a6ce3a7bef43ec31cbe113f8073b40abc", null ],
-    [ "gs_device_nccl_nbwait_vec", "d8/da1/gs__device__nccl_8F90.html#ad2efc97538f12f659e7d4b532c2a0a22", null ]
+    [ "gs_device_nccl_nbwait_vec", "d8/da1/gs__device__nccl_8F90.html#ad2efc97538f12f659e7d4b532c2a0a22", null ],
+    [ "gs_device_nccl_avail", "d8/da1/gs__device__nccl_8F90.html#ab5b50ef58c53d68ebd363974a235b83c", null ]
 ];

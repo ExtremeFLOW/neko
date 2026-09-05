@@ -126,6 +126,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a2b48358c6972e008ed587c5d301915b2" id="r_a2b48358c6972e008ed587c5d301915b2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=12) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a2b48358c6972e008ed587c5d301915b2">gs_comm_name</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">comm_bcknd</a>)</td></tr>
 <tr class="memdesc:a2b48358c6972e008ed587c5d301915b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name of the gather-scatter comm. backend <em>comm_bcknd</em>, right-adjusted for the log.  <br /></td></tr>
 <tr class="separator:a2b48358c6972e008ed587c5d301915b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a03d1d7c335cfcdcfe68156a139466c" id="r_a6a03d1d7c335cfcdcfe68156a139466c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a6a03d1d7c335cfcdcfe68156a139466c">gs_comm_on_device</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">comm_bcknd</a>)</td></tr>
+<tr class="memdesc:a6a03d1d7c335cfcdcfe68156a139466c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the comm. backend <em>comm_bcknd</em> exchanges the shared dofs straight out of device memory rather than out of the host mirror of the shared buffer, which is what decides where the gather-scatter backend leaves them (gs_bcknd_tshared_on_host). A host backend on a device build is not device-resident: it drives the exchange from the mirror, at the price of a copy in each direction.  <br /></td></tr>
+<tr class="separator:a6a03d1d7c335cfcdcfe68156a139466c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b932fc67f24ee664f40c41bc61487c1" id="r_a7b932fc67f24ee664f40c41bc61487c1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a7b932fc67f24ee664f40c41bc61487c1">gs_free</a> (gs)</td></tr>
 <tr class="memdesc:a7b932fc67f24ee664f40c41bc61487c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a gather-scatter kernel.  <br /></td></tr>
 <tr class="separator:a7b932fc67f24ee664f40c41bc61487c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -199,7 +202,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00460">460</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00412">412</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -235,13 +238,50 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00496">496</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00448">448</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d78/namespacegather__scatter_a2b48358c6972e008ed587c5d301915b2_icgraph.png" border="0" usemap="#ad0/d78/namespacegather__scatter_a2b48358c6972e008ed587c5d301915b2_icgraph" alt=""/></div>
 <map name="ad0/d78/namespacegather__scatter_a2b48358c6972e008ed587c5d301915b2_icgraph" id="ad0/d78/namespacegather__scatter_a2b48358c6972e008ed587c5d301915b2_icgraph">
 <area shape="rect" title="Name of the gather&#45;scatter comm. backend comm_bcknd, right&#45;adjusted for the log." alt="" coords="192,5,331,45"/>
+<area shape="rect" href="../../dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="5,5,144,45"/>
+<area shape="poly" title=" " alt="" coords="178,28,145,28,145,23,178,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a6a03d1d7c335cfcdcfe68156a139466c" name="a6a03d1d7c335cfcdcfe68156a139466c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a03d1d7c335cfcdcfe68156a139466c">&#9670;&#160;</a></span>gs_comm_on_device()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> gather_scatter::gs_comm_on_device </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>comm_bcknd</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">comm_bcknd</td><td>comm. backend to check, one of the GS_COMM_* constants </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>whether the backend is device-resident </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00490">490</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/d78/namespacegather__scatter_a6a03d1d7c335cfcdcfe68156a139466c_icgraph.png" border="0" usemap="#ad0/d78/namespacegather__scatter_a6a03d1d7c335cfcdcfe68156a139466c_icgraph" alt=""/></div>
+<map name="ad0/d78/namespacegather__scatter_a6a03d1d7c335cfcdcfe68156a139466c_icgraph" id="ad0/d78/namespacegather__scatter_a6a03d1d7c335cfcdcfe68156a139466c_icgraph">
+<area shape="rect" title="Whether the comm. backend comm_bcknd exchanges the shared dofs straight out of device memory rather t..." alt="" coords="192,5,335,45"/>
 <area shape="rect" href="../../dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="5,5,144,45"/>
 <area shape="poly" title=" " alt="" coords="178,28,145,28,145,23,178,23"/>
 </map>
@@ -273,7 +313,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00531">531</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00504">504</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -322,7 +362,7 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Time <em>ntrials</em> gather-scatter operations on <em>u</em>, returning the average wall time (s) per operation on this rank Benchmark the candidate comm. backends and leave <em>gs</em> holding the fastest one Initialize a gather-scatter kernel </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Time <em>ntrials</em> gather-scatter operations on <em>u</em>, returning the average wall time (s) per operation on this rank Benchmark the candidate comm. backends and leave <em>gs</em> holding the fastest one Bind the non-blocking synchronisation strategy of the device MPI comm. backend held by <em>gs</em>, benchmarking the strategies unless NEKO_GS_STRTGY names one Initialize a gather-scatter kernel </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dofmap,global</td><td>numbering of points and connectivity to base gs on </td></tr>
     <tr><td class="paramname">bcknd,backend</td><td>for executing the <a class="el" href="../../dd/d18/namespacegs__ops.html" title="Defines Gather-scatter operations.">gs_ops</a> </td></tr>
@@ -331,7 +371,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00179">179</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00187">187</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -360,7 +400,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>this might be a bit overkill, but having many collisions makes the init take too long. This is really critical to performance of the init</dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00636">636</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00609">609</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -427,7 +467,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01704">1704</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01677">1677</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -505,7 +545,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01809">1809</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01782">1782</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -619,7 +659,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01948">1948</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01921">1921</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -685,7 +725,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01720">1720</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01693">1693</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -751,7 +791,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01736">1736</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01709">1709</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -841,7 +881,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01833">1833</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01806">1806</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -892,7 +932,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>Discovers, for every shared dof, the set of ranks that also hold it, using a canonical-owner rendezvous routed through the crystal router instead of the previous O(P) shifted neighbour exchange. Each dof global id is hashed to an owner rank, <code>mod(gid, P)</code>; the owner gathers all holders and reflects, to each holder, the other holders. Each holder then registers the dof for both send and receive with every peer. The per-peer dof lists are ordered by dof global id, which gives the same ordering on both ranks of a pair (the matching invariant the gather-scatter exchange relies on) without ever transmitting a single sequenced key list. Scales to &gt;1e5 ranks without O(P) buffers or unexpected-message buffer exhaustion. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01511">1511</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01484">1484</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -958,7 +998,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01651">1651</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01624">1624</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
@@ -1009,7 +1049,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d78/namespacegather__scatter.html">gather_scatter</a></li>
-    <li class="footer">Generated on Fri Sep 4 2026 03:40:35 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 5 2026 03:39:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
