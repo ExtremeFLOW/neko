@@ -32,7 +32,7 @@
 !
 !> Contains the `time_based_controller_t` type.
 module time_based_controller
-  use num_types, only : dp
+  use num_types, only : dp, i8
   use utils, only : neko_error
   use time_state, only : time_state_t
   implicit none
@@ -55,6 +55,12 @@ module time_based_controller
   !! absorb round-off in `k * time_interval`.
   real(kind=dp), public, parameter :: SPAN_TOL = 1.0e-9_dp
 
+  !> Largest number of intervals between the anchor of a schedule and the
+  !! start of the simulation for which anchoring is still meaningful. Beyond
+  !! it the interval is comparable to the resolution of the time itself, and
+  !! the schedule is anchored to the start of the simulation instead.
+  real(kind=dp), public, parameter :: MAX_ANCHOR_INDEX = 1.0e15_dp
+
   !> A utility type for determining whether an action should be executed based
   !! on the current time value. Used to e.g. control whether we should write a
   !! file or execute a simcomp.
@@ -63,10 +69,15 @@ module time_based_controller
   !! The controller defines a *schedule*: the sequence of times (or time
   !! steps) at which the action should be performed. For the time based
   !! control modes the schedule is
-  !! \f$ t_k = t_{start} + k \Delta t_{out}, \quad k = k_0, k_0+1, \ldots \f$
-  !! with \f$ k_0 = 0 \f$ if `write_at_start` is true and \f$ k_0 = 1 \f$
-  !! otherwise, and only the \f$ t_k \f$ that fall inside
-  !! \f$ [t_{start}, t_{end}] \f$ are part of the schedule.
+  !! \f$ t_k = t_{anchor} + k \Delta t_{out} \f$, restricted to the
+  !! \f$ t_k \f$ that fall inside \f$ [t_{start}, t_{end}] \f$, plus, if
+  !! `write_at_start` is set, one execution at \f$ t_{start} \f$ itself.
+  !!
+  !! A `simulationtime` schedule is anchored at zero, so that an output asked
+  !! for every \f$ \Delta t_{out} \f$ lands on whole multiples of it no
+  !! matter what time the simulation was started from. An `nsamples` schedule
+  !! divides the simulated interval instead, and is therefore anchored at
+  !! \f$ t_{start} \f$.
   !!
   !! The schedule is an absolute property of the case: it does not depend on
   !! how many executions have been performed, nor on when the run was
@@ -100,12 +111,22 @@ module time_based_controller
      character(len=:), allocatable :: control_mode
      !> Defines the frequency of writes.
      real(kind=dp) :: control_value = 0.0_dp
-     !> Whether the first point of the schedule, i.e. the start time of the
-     !! simulation, is part of it. Should be `.false.` for outputs for which
-     !! an execution at the very first time step is meaningless, such as
-     !! checkpoints and running statistics.
+     !> Time the schedule is anchored to. Zero for `simulationtime`, so that
+     !! the executions land on whole multiples of the interval, and the start
+     !! time for `nsamples`, which divides the simulated interval.
+     real(kind=dp) :: anchor_time = 0.0_dp
+     !> Whether an execution is scheduled at the start time itself, on top of
+     !! the ones the anchored schedule prescribes. Should be `.false.` for
+     !! outputs for which an execution at the very first time step is
+     !! meaningless, such as checkpoints and running statistics.
      logical :: write_at_start = .true.
-     !> Index of the next scheduled execution.
+     !> Index, relative to the anchor, of the first scheduled execution.
+     integer(kind=i8) :: first_index = 0
+     !> Whether the start time is itself one of the anchored schedule times.
+     logical :: start_is_scheduled = .false.
+     !> Whether the execution at the start time is still to be performed.
+     logical :: start_pending = .false.
+     !> Index of the next scheduled execution, counted from `first_index`.
      integer :: next_index = 0
      !> Direction of time, +1 for a forward and -1 for a backward run.
      real(kind=dp) :: direction = 1.0_dp
@@ -151,16 +172,21 @@ contains
   !! @param control_mode The way to interpret the `control_value` parameter.
   !! @param control_value The value defining the execution frequency.
   !! @param write_at_start Whether an execution is scheduled at `start_time`
-  !! itself. Optional, defaults to `.true.`.
+  !! itself, on top of the ones the anchored schedule prescribes. Optional,
+  !! defaults to `.true.`.
+  !! @param anchor_time The time the schedule is anchored to. Optional,
+  !! defaults to zero for `simulationtime` and to `start_time` for
+  !! `nsamples`, which divides the simulated interval rather than tiling it.
   subroutine time_based_controller_init(this, start_time, end_time, &
-       control_mode, control_value, write_at_start)
+       control_mode, control_value, write_at_start, anchor_time)
     class(time_based_controller_t), intent(inout) :: this
     real(kind=dp), intent(in) :: start_time
     real(kind=dp), intent(in) :: end_time
     character(len=*), intent(in) :: control_mode
     real(kind=dp), intent(in) :: control_value
     logical, intent(in), optional :: write_at_start
-    real(kind=dp) :: span
+    real(kind=dp), intent(in), optional :: anchor_time
+    real(kind=dp) :: span, offset
 
     call this%free()
 
@@ -200,6 +226,9 @@ contains
        this%frequency = control_value / span
        this%time_interval = 1.0_dp / this%frequency
        this%nsteps = 0
+       ! The samples divide the simulated interval, so they are counted from
+       ! its start rather than from a global grid.
+       this%anchor_time = start_time
     else if (trim(control_mode) .eq. 'tsteps') then
        if (control_value .lt. 1.0_dp) then
           call neko_error("The output interval in time steps must be at &
@@ -216,11 +245,39 @@ contains
        & tsteps, or never, but received "//trim(control_mode))
     end if
 
-    ! Point the cursor at the first scheduled execution.
-    if (this%write_at_start) then
-       this%next_index = 0
-    else
+    if (present(anchor_time)) this%anchor_time = anchor_time
+
+    ! Point the cursor at the first scheduled execution, and work out whether
+    ! the start time is one of the scheduled times or a point of its own.
+    this%first_index = 0
+    this%start_is_scheduled = .true.
+    this%start_pending = .false.
+
+    if (this%time_interval .gt. 0.0_dp) then
+       offset = this%direction * (start_time - this%anchor_time) / &
+            this%time_interval
+       if (abs(offset) .gt. MAX_ANCHOR_INDEX) then
+          ! The interval is too fine to resolve against this anchor.
+          this%anchor_time = start_time
+          offset = 0.0_dp
+       end if
+       this%first_index = ceiling(offset - SPAN_TOL * max(1.0_dp, &
+            abs(offset)), kind = i8)
+       this%start_is_scheduled = abs(real(this%first_index, dp) - offset) &
+            .le. SPAN_TOL * max(1.0_dp, abs(offset))
+       if (this%start_is_scheduled .and. .not. this%write_at_start) then
+          this%first_index = this%first_index + 1_i8
+       end if
+       this%start_pending = this%write_at_start .and. &
+            .not. this%start_is_scheduled
+    end if
+
+    if (this%nsteps .gt. 0 .and. .not. this%write_at_start) then
+       ! A step based schedule is anchored at the first step of the run,
+       ! which is the counterpart of the start time here.
        this%next_index = 1
+    else
+       this%next_index = 0
     end if
 
   end subroutine time_based_controller_init
@@ -242,6 +299,10 @@ contains
     this%never = .false.
     this%control_value = 0.0_dp
     this%write_at_start = .true.
+    this%anchor_time = 0.0_dp
+    this%first_index = 0
+    this%start_is_scheduled = .false.
+    this%start_pending = .false.
     this%next_index = 0
     this%direction = 1.0_dp
     this%tstep_offset = 0
@@ -268,7 +329,7 @@ contains
     logical, intent(in), optional :: force
     logical :: check
     logical :: ifforce
-    real(kind=dp) :: progress, tol, t_next, span
+    real(kind=dp) :: progress, tol, t_next, t_start, t_end
     integer :: nstep
 
     if (present(force)) then
@@ -285,24 +346,31 @@ contains
     ! Nothing is scheduled, but an execution can still be forced.
     if (this%never .and. .not. ifforce) return
 
-    progress = this%direction * (time%t - this%start_time)
+    progress = this%direction * (time%t - this%anchor_time)
+    t_start = this%direction * (this%start_time - this%anchor_time)
     tol = this%tolerance(time%dt)
 
     ! Nothing is ever executed before the start of the schedule.
-    if (progress .lt. -tol) return
+    if (progress .lt. t_start - tol) return
 
     if (ifforce) then
        check = .true.
     else if (this%nsteps .gt. 0) then
        nstep = time%tstep - this%tstep_offset
        check = nstep .ge. this%next_index * this%nsteps
+    else if (this%start_pending) then
+       ! The execution at the start time, which the anchored schedule does
+       ! not prescribe by itself.
+       check = .true.
     else
-       span = abs(this%end_time - this%start_time)
-       t_next = real(this%next_index, dp) * this%time_interval
+       t_end = this%direction * (this%end_time - this%anchor_time)
+       t_next = real(this%first_index + this%next_index, dp) * &
+            this%time_interval
        ! The schedule stops at end_time. Note that this is a condition on the
        ! *scheduled* time and not on the current time: a step that overshoots
        ! end_time still performs the execution scheduled for end_time.
-       if (t_next .gt. span + SPAN_TOL * max(span, this%time_interval)) return
+       if (t_next .gt. t_end + SPAN_TOL * max(abs(t_end), &
+            this%time_interval)) return
        check = progress .ge. t_next - tol
     end if
 
@@ -323,20 +391,14 @@ contains
     type(time_state_t), intent(in) :: time
     integer :: index
     real(kind=dp) :: progress, tol
-    integer :: k_first
-
-    if (this%write_at_start) then
-       k_first = 0
-    else
-       k_first = 1
-    end if
 
     if (this%nsteps .gt. 0) then
        index = (time%tstep - this%tstep_offset) / this%nsteps + 1
     else if (this%time_interval .gt. 0.0_dp) then
-       progress = this%direction * (time%t - this%start_time)
+       progress = this%direction * (time%t - this%anchor_time)
        tol = this%tolerance(time%dt)
-       index = floor((progress + tol) / this%time_interval) + 1
+       index = int(floor((progress + tol) / this%time_interval, kind = i8) &
+            - this%first_index) + 1
     else
        ! Nothing is scheduled, so there is nothing to move past.
        index = this%next_index
@@ -346,7 +408,7 @@ contains
     ! execution always yields an index larger than the current one, while a
     ! forced execution that happens before the next scheduled time must
     ! leave the schedule untouched.
-    index = max(index, k_first)
+    index = max(index, 0)
 
   end function next_index_after
 
@@ -359,6 +421,7 @@ contains
     type(time_state_t), intent(in), optional :: time
 
     this%nexecutions = this%nexecutions + 1
+    this%start_pending = .false.
 
     if (present(time)) then
        this%next_index = next_index_after(this, time)
@@ -386,16 +449,10 @@ contains
   subroutine time_based_controller_set_counter(this, time)
     class(time_based_controller_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    real(kind=dp) :: progress, tol, dt
-    integer :: k_first, n_passed
+    real(kind=dp) :: progress, tol, dt, t_start
+    integer :: n_passed
 
     if (this%never) return
-
-    if (this%write_at_start) then
-       k_first = 0
-    else
-       k_first = 1
-    end if
 
     if (this%nsteps .gt. 0) then
        ! `tstep` is not stored in the checkpoint, so a step based schedule
@@ -403,6 +460,7 @@ contains
        ! without executing at the restart step itself.
        this%tstep_offset = time%tstep
        this%next_index = 1
+       this%start_pending = .false.
        this%last_tstep = time%tstep
        return
     end if
@@ -412,19 +470,25 @@ contains
     dt = time%dt
     if (abs(time%dtlag(1)) .gt. 0.0_dp) dt = time%dtlag(1)
 
-    progress = this%direction * (time%t - this%start_time)
+    progress = this%direction * (time%t - this%anchor_time)
+    t_start = this%direction * (this%start_time - this%anchor_time)
     tol = this%tolerance(dt)
 
-    if (progress .lt. -tol) then
-       ! The schedule has not started yet.
-       n_passed = k_first
+    if (progress .lt. t_start - tol) then
+       ! The schedule has not started yet, so neither has the run.
+       this%next_index = 0
+       this%nexecutions = 0
     else
-       n_passed = floor((progress + tol) / this%time_interval) + 1
-       n_passed = max(n_passed, k_first)
+       n_passed = int(floor((progress + tol) / this%time_interval, &
+            kind = i8) - this%first_index) + 1
+       this%next_index = max(n_passed, 0)
+       ! The execution at the start time, where the schedule prescribes one
+       ! of its own, was performed by the run that reached this time.
+       this%nexecutions = this%next_index
+       if (this%start_pending) this%nexecutions = this%nexecutions + 1
+       this%start_pending = .false.
     end if
 
-    this%next_index = n_passed
-    this%nexecutions = n_passed - k_first
     ! Whatever was scheduled for the restart time has been done by the run
     ! that wrote the checkpoint.
     this%last_tstep = time%tstep
@@ -455,9 +519,11 @@ contains
 
     if (this%never .or. this%nsteps .gt. 0) then
        t = this%end_time
+    else if (this%start_pending) then
+       t = this%start_time
     else
-       t = this%start_time + this%direction * &
-            real(this%next_index, dp) * this%time_interval
+       t = this%anchor_time + this%direction * &
+            real(this%first_index + this%next_index, dp) * this%time_interval
     end if
 
   end function time_based_controller_next_time

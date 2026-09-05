@@ -73,8 +73,10 @@ def test_user_stats(launcher_script, request, log_file, tmp_path):
         f"Expected a single sample in {stats_file}, got times {csv[:, 0]}"
     )
     mean = np.mean(csv[:, 2])
-    error = (mean - 0.5) / 0.5
+    error = abs(mean - 0.5) / 0.5
 
+    # The scalar is filled with random numbers, so the tolerance has to cover
+    # the sampling noise of the average rather than a round-off error.
     assert (
-         error < 1e-4
+         error < 5e-3
     ), f"Error exceeded tolerance: {error}"

@@ -3,12 +3,12 @@
 ## Develop
 
 - Reworked when outputs are written. The times at which an output is written
-  are now a schedule fixed by the case, `t_k = start_time + k * interval`,
-  instead of being derived from how many writes have been performed so far.
-  `check` is idempotent within a time step, and a restart moves the cursor to
-  the first scheduled time not yet reached using the same predicate the
-  schedule itself uses. This fixes several ways in which output could go
-  missing or be written twice, listed in the entries below.
+  are now a schedule fixed by the case rather than derived from how many
+  writes have been performed so far. `check` is idempotent within a time
+  step, and a restart moves the cursor to the first scheduled time not yet
+  reached, using the same predicate the schedule itself uses. This fixes
+  several ways in which output could go missing or be written twice, listed
+  in the entries below.
 - Fixed the write forced at the end of a run by `output_at_end` duplicating a
   scheduled write that lands on the same time step, which produced two files
   for the same output time and, for the statistics, a second file with
@@ -30,14 +30,22 @@
   overshoots `end_time`, which it does whenever the time step does not divide
   the simulated interval. The condition is now on the scheduled time rather
   than on the time of the step performing it.
+- A `simulationtime` schedule is anchored at zero, so that the writes land on
+  whole multiples of the output interval whatever time the simulation was
+  started from. Starting from a field at t = 10.5 and writing every 1.0 now
+  gives files at 10.5 (the initial state), 11.0, 12.0, ... instead of 11.5,
+  12.5, ... `nsamples` still divides the simulated interval, so it stays
+  anchored at the start time and its last sample still falls on `end_time`.
 - Fixed the `start_time` of an output having no effect: the condition meant
   to gate it cancelled out algebraically, so an output configured to start
   later was written from the beginning of the run. It now both gates the
-  output and anchors its schedule. Statistics outputs are anchored to the
-  start of their averaging.
+  output. The first write is then the first scheduled time at or after it.
 - Fixed an output with an interval smaller than the time step building up a
   backlog of writes instead of skipping the scheduled times that the step
   jumped over, which left the file counter behind the simulation time.
+- Made the `user_stats` integration test compare the average of a random
+  field against a two-sided tolerance that covers its sampling noise; the
+  one-sided 1e-4 it used passed or failed roughly at random.
 - A step based (`tsteps`) output no longer writes at the step a simulation
   restarts from, which duplicated the file the checkpoint was taken with.
   The phase of such a schedule still cannot survive a restart, since the

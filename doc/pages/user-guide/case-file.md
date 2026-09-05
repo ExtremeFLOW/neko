@@ -84,14 +84,17 @@ units. The following options are possible.
 4. `never`, then `_value` is ignored and output is never performed.
 
 The times at which an output is written are a property of the case and not of
-the run: for the time based controls they are
-\f$ t_k = t_{start} + k \Delta t_{out} \f$, where \f$ t_{start} \f$ is the
-start time of the simulation (or of the output itself, where it has one of its
-own, such as the statistics) and \f$ \Delta t_{out} \f$ follows from
-`_control` and `_value`. Only the \f$ t_k \f$ that fall inside the simulated
-interval are written. Since the schedule does not depend on when the run was
-started, restarting a simulation neither skips nor repeats an output, and the
-file numbering carries on where the previous run left off.
+the run. With `simulationtime` they are the whole multiples of
+\f$ \Delta t_{out} \f$, \f$ t_k = k \Delta t_{out} \f$, so that a case
+asking for an output every 1.0 writes at 11.0, 12.0, 13.0 whether it was
+started from 0, from 10.5, or from a checkpoint somewhere in between. With
+`nsamples` the requested number of samples divides the simulated interval
+instead, so there the schedule is
+\f$ t_k = t_{start} + k (t_{end} - t_{start}) / n \f$ and the last sample
+falls on `end_time`. Either way, only the \f$ t_k \f$ inside the interval
+where the output is active are written, and since the schedule does not depend
+on when the run was started, restarting a simulation neither skips nor repeats
+an output, and the file numbering carries on where the previous run left off.
 
 An output is written at the first time step that reaches its scheduled time,
 which for a time step that does not divide \f$ \Delta t_{out} \f$ is the
@@ -104,10 +107,17 @@ the simulated interval.
 
 The initial state is written for the fluid and for the outputs of the
 simulation components, since the initial condition is usually worth having.
-It is not written for checkpoints, for which it holds nothing that the
-initial condition does not, nor for the statistics, whose average over an
-interval of zero length is empty. For these, the first write is one interval
-after the start.
+It is written at `start_time` itself, on top of the scheduled times, so
+starting a simulation at 10.5 and writing every 1.0 gives files at 10.5, 11.0,
+12.0 and so on. The initial state is not written for checkpoints, for which it
+holds nothing that the initial condition does not, nor for the statistics,
+whose average over an interval of zero length is empty.
+
+@note A statistics file covers the interval between two writes, which for the
+first one is the interval from the start of the averaging to the first
+scheduled time. That first interval is shorter than the rest unless the start
+of the averaging happens to fall on a multiple of the output interval, one
+more reason to use the weighted averages when post-processing.
 
 
 ## The case object

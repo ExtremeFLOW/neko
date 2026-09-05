@@ -86,10 +86,12 @@ contains
     @assertEqual(ctrl%frequency, 0.0_dp, tolerance=1e-6_dp)
     @assertEqual(ctrl%nsteps, 10)
 
-    ! Skipping the first point of the schedule moves the cursor
+    ! Skipping the execution at the start moves the first scheduled one
     call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.1_dp, .false.)
-    @assertEqual(ctrl%next_index, 1)
+    @assertEqual(int(ctrl%first_index), 1)
+    @assertEqual(ctrl%next_index, 0)
     @assertFalse(ctrl%write_at_start)
+    @assertFalse(ctrl%start_pending)
   end subroutine test_init
 
   !> Test assignment
@@ -293,7 +295,7 @@ contains
   end subroutine test_never
 
   !> An output with a start time of its own does not execute before it, and
-  !! is anchored to it.
+  !! picks up the schedule at the first scheduled time after it.
   @test
   subroutine test_start_time()
     type(time_based_controller_t) ctrl
@@ -302,11 +304,76 @@ contains
 
     call ctrl%init(0.3_dp, 1.0_dp, "simulationtime", 0.2_dp, .false.)
     call collect(ctrl, 0.0_dp, 1.0_dp, 0.01_dp, .false., t_out, n)
-    @assertEqual(n, 3)
-    @assertEqual(t_out(1), 0.5_dp, tolerance=1e-8_dp)
-    @assertEqual(t_out(2), 0.7_dp, tolerance=1e-8_dp)
-    @assertEqual(t_out(3), 0.9_dp, tolerance=1e-8_dp)
+    @assertEqual(n, 4)
+    @assertEqual(t_out(1), 0.4_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(2), 0.6_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(3), 0.8_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(4), 1.0_dp, tolerance=1e-8_dp)
   end subroutine test_start_time
+
+  !> The schedule of a `simulationtime` output is anchored at zero, so that
+  !! its executions land on whole multiples of the interval whatever time the
+  !! simulation starts from.
+  @test
+  subroutine test_anchored_at_whole_multiples()
+    type(time_based_controller_t) ctrl
+    type(time_state_t) :: time
+    real(kind=dp) :: t_out(64)
+    integer :: n
+
+    ! Starting from a field at t = 10.5, writing every time unit: the
+    ! initial state, then 11, 12, 13, 14.
+    call ctrl%init(10.5_dp, 14.0_dp, "simulationtime", 1.0_dp, .true.)
+    call collect(ctrl, 10.5_dp, 14.0_dp, 0.01_dp, .false., t_out, n)
+    @assertEqual(n, 5)
+    @assertEqual(t_out(1), 10.5_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(2), 11.0_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(5), 14.0_dp, tolerance=1e-8_dp)
+
+    ! Without the initial state, the schedule is the whole multiples alone.
+    call ctrl%init(10.5_dp, 14.0_dp, "simulationtime", 1.0_dp, .false.)
+    call collect(ctrl, 10.5_dp, 14.0_dp, 0.01_dp, .false., t_out, n)
+    @assertEqual(n, 4)
+    @assertEqual(t_out(1), 11.0_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(4), 14.0_dp, tolerance=1e-8_dp)
+
+    ! And a restart lands on the same times, with the counter carried over.
+    call ctrl%init(10.5_dp, 14.0_dp, "simulationtime", 1.0_dp, .false.)
+    time%start_time = 10.5_dp
+    time%end_time = 14.0_dp
+    time%t = 12.3_dp
+    time%dt = 0.01_dp
+    time%dtlag = 0.01_dp
+    time%tstep = 0
+    call ctrl%set_counter(time)
+    @assertEqual(ctrl%nexecutions, 2)
+
+    n = 0
+    call sample(ctrl, time, .false., t_out, n)
+    do while (.not. time%is_done())
+       call step(time)
+       call sample(ctrl, time, .false., t_out, n)
+    end do
+    @assertEqual(n, 2)
+    @assertEqual(t_out(1), 13.0_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(2), 14.0_dp, tolerance=1e-8_dp)
+    @assertEqual(ctrl%nexecutions, 4)
+  end subroutine test_anchored_at_whole_multiples
+
+  !> `nsamples` divides the simulated interval instead, so it is anchored at
+  !! the start time however odd that is.
+  @test
+  subroutine test_nsamples_anchored_at_the_start()
+    type(time_based_controller_t) ctrl
+    real(kind=dp) :: t_out(64)
+    integer :: n
+
+    call ctrl%init(10.5_dp, 14.5_dp, "nsamples", 4.0_dp, .false.)
+    call collect(ctrl, 10.5_dp, 14.5_dp, 0.01_dp, .false., t_out, n)
+    @assertEqual(n, 4)
+    @assertEqual(t_out(1), 11.5_dp, tolerance=1e-8_dp)
+    @assertEqual(t_out(4), 14.5_dp, tolerance=1e-8_dp)
+  end subroutine test_nsamples_anchored_at_the_start
 
   !> Restarting must neither skip nor repeat an execution, whatever time the
   !! restart happens at.
@@ -398,7 +465,7 @@ contains
     @assertEqual(t_out(1), 0.25_dp, tolerance=1e-8_dp)
     @assertEqual(t_out(4), 1.0_dp, tolerance=1e-8_dp)
     ! the cursor tracks the time instead of lagging behind it
-    @assertEqual(ctrl%next_index, 101)
+    @assertEqual(ctrl%next_index, 100)
   end subroutine test_timestep_larger_than_interval
 
 end module test_time_based_controller
