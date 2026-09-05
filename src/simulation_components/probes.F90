@@ -862,7 +862,7 @@ contains
        end select
 
        !! Register the execution of the activity
-       call this%output_controller%register_execution()
+       call this%output_controller%register_execution(time)
     end if
 
   end subroutine probes_evaluate_and_write

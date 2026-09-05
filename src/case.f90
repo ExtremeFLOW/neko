@@ -47,7 +47,6 @@ module case
   use file, only : file_t
   use utils, only : neko_error, mkdir, filename_split, NEKO_FNAME_LEN
   use mesh, only : mesh_t
-  use math, only : NEKO_EPS_DP
   use checkpoint, only: chkp_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, NEKO_LOG_QUIET
@@ -545,7 +544,8 @@ contains
          tmp_feature, .false.)
     if (tmp_feature) logical_val = .true.
 
-    call this%output_controller%init(this%time%end_time)
+    call this%output_controller%init(this%time%end_time, &
+         time_start = this%time%start_time)
     if (scalar) then
        call this%f_out%init(precision, this%fluid, this%scalars, name = name, &
             path = trim(this%output_directory), &
@@ -611,8 +611,10 @@ contains
           double_val = 0.0_rp
        end if
 
+       ! A checkpoint of the initial condition is of no use, so the first
+       ! point of the schedule is skipped.
        call this%output_controller%add(this%chkp_out, double_val, string_val, &
-            NEKO_EPS_DP)
+            write_at_start = .false.)
     end if
 
     !

@@ -38,33 +38,90 @@ module time_based_controller
   implicit none
   private
 
+  !> Tolerance used when comparing the simulation time to a scheduled
+  !! execution time, as a fraction of the current time-step size (or of the
+  !! output interval, whichever is smaller).
+  !! A scheduled execution is performed at the first time step for which
+  !! `t >= t_scheduled - TIME_TOL * dt`, so that a step landing a hair short
+  !! of the scheduled time (round-off in the accumulation of `t`) still
+  !! triggers it, instead of postponing it by a full step. Capping the
+  !! tolerance by the output interval keeps a time step that is much larger
+  !! than the interval from dragging the first scheduled execution to before
+  !! the start of the simulation.
+  real(kind=dp), public, parameter :: TIME_TOL = 0.1_dp
+
+  !> Relative tolerance used when deciding whether a scheduled time still
+  !! falls inside the interval covered by the controller. Only meant to
+  !! absorb round-off in `k * time_interval`.
+  real(kind=dp), public, parameter :: SPAN_TOL = 1.0e-9_dp
+
   !> A utility type for determining whether an action should be executed based
   !! on the current time value. Used to e.g. control whether we should write a
   !! file or execute a simcomp.
-  !! Note that the nexecutions variable should be incremented externally by
-  !! calling the `register_execution` procedure.
-  !! This is to allow running the the `check` multiple times at the same time
-  !! step.
+  !!
+  !! @details
+  !! The controller defines a *schedule*: the sequence of times (or time
+  !! steps) at which the action should be performed. For the time based
+  !! control modes the schedule is
+  !! \f$ t_k = t_{start} + k \Delta t_{out}, \quad k = k_0, k_0+1, \ldots \f$
+  !! with \f$ k_0 = 0 \f$ if `write_at_start` is true and \f$ k_0 = 1 \f$
+  !! otherwise, and only the \f$ t_k \f$ that fall inside
+  !! \f$ [t_{start}, t_{end}] \f$ are part of the schedule.
+  !!
+  !! The schedule is an absolute property of the case: it does not depend on
+  !! how many executions have been performed, nor on when the run was
+  !! started. This is what makes it possible to restart a simulation without
+  !! either losing or duplicating an output: `set_counter` simply moves the
+  !! cursor to the first scheduled time that has not been reached yet, using
+  !! exactly the same predicate that `check` uses.
+  !!
+  !! `check` is free of observable side effects and idempotent within a time
+  !! step: it may be called any number of times per step, and returns
+  !! `.false.` once an execution has been registered for the current step.
+  !! The `nexecutions` counter is incremented externally by calling
+  !! `register_execution`.
   type, public :: time_based_controller_t
      !> Frequency of execution.
      real(kind=dp) :: frequency = 0.0_dp
-     !> Time interval between executions.
+     !> Time interval between executions. Always positive.
      real(kind=dp) :: time_interval = 0.0_dp
      !> Number of time steps in between executions.
      integer :: nsteps = 0
-     !> Simulation start time.
+     !> Time at which the schedule starts (and which it is anchored to).
      real(kind=dp) :: start_time = 0.0_dp
-     !> Simulation end time.
+     !> Time after which nothing is scheduled anymore.
      real(kind=dp) :: end_time = 0.0_dp
      !> Number of times already executed.
      integer :: nexecutions = 0
-     !> Whether to never output.
+     !> Whether to never execute.
      logical :: never = .false.
      !> Control mode defining the meaning of `control_value`.
      !> Can be `simulationtime`, `tsteps`, `nsamples` or `never`.
      character(len=:), allocatable :: control_mode
      !> Defines the frequency of writes.
-     real(kind=dp) :: control_value
+     real(kind=dp) :: control_value = 0.0_dp
+     !> Whether the first point of the schedule, i.e. the start time of the
+     !! simulation, is part of it. Should be `.false.` for outputs for which
+     !! an execution at the very first time step is meaningless, such as
+     !! checkpoints and running statistics.
+     logical :: write_at_start = .true.
+     !> Index of the next scheduled execution.
+     integer :: next_index = 0
+     !> Direction of time, +1 for a forward and -1 for a backward run.
+     real(kind=dp) :: direction = 1.0_dp
+     !> Value of `tstep` at which the current run started. Only used by the
+     !! `tsteps` control mode, for which the schedule cannot be anchored in
+     !! absolute time.
+     integer :: tstep_offset = 0
+     !> Time step at which an execution was last registered, -1 if none.
+     !! Guarantees that at most one execution is performed per time step,
+     !! also when a forced execution coincides with a scheduled one.
+     integer :: last_tstep = -1
+     !> Index the cursor is moved to when the pending execution is
+     !! registered, together with the time step it was computed for.
+     !! @note Private handshake between `check` and `register_execution`.
+     integer :: pending_index = -1
+     integer :: pending_tstep = -1
 
    contains
      !> Constructor.
@@ -73,61 +130,99 @@ module time_based_controller
      procedure, pass(this) :: free => time_based_controller_free
      !> Check if the execution should be performed.
      procedure, pass(this) :: check => time_based_controller_check
-     !> Increment `nexectutions`.
+     !> Increment `nexecutions` and advance the schedule.
      procedure, pass(this) :: register_execution => &
           time_based_controller_register_execution
-     !> Set the counter based on a time (for restarts)
+     !> Move the schedule cursor to the current time (for restarts).
      procedure, pass(this) :: set_counter => &
           time_based_controller_set_counter
-
+     !> The time of the next scheduled execution.
+     procedure, pass(this) :: next_time => time_based_controller_next_time
+     !> The tolerance used when comparing times.
+     procedure, pass(this) :: tolerance => time_based_controller_tolerance
   end type time_based_controller_t
-
-  interface assignment(=)
-     module procedure time_based_controller_assignment
-  end interface assignment(=)
 
 contains
 
   !> Constructor.
+  !! @param start_time The time at which the schedule starts. Both the first
+  !! possible execution time and the anchor of the schedule.
   !! @param end_time The final simulation time.
   !! @param control_mode The way to interpret the `control_value` parameter.
   !! @param control_value The value defining the execution frequency.
+  !! @param write_at_start Whether an execution is scheduled at `start_time`
+  !! itself. Optional, defaults to `.true.`.
   subroutine time_based_controller_init(this, start_time, end_time, &
-       control_mode, control_value)
+       control_mode, control_value, write_at_start)
     class(time_based_controller_t), intent(inout) :: this
     real(kind=dp), intent(in) :: start_time
     real(kind=dp), intent(in) :: end_time
     character(len=*), intent(in) :: control_mode
     real(kind=dp), intent(in) :: control_value
+    logical, intent(in), optional :: write_at_start
+    real(kind=dp) :: span
+
+    call this%free()
 
     this%start_time = start_time
     this%end_time = end_time
     this%control_mode = control_mode
     this%control_value = control_value
 
+    if (present(write_at_start)) then
+       this%write_at_start = write_at_start
+    else
+       this%write_at_start = .true.
+    end if
+
+    ! The schedule is expressed in terms of the progress made since
+    ! `start_time`, which is positive also for a simulation marching
+    ! backwards in time.
+    this%direction = sign(1.0_dp, end_time - start_time)
+    span = abs(end_time - start_time)
+
     if (trim(control_mode) .eq. 'simulationtime') then
+       if (control_value .le. 0.0_dp) then
+          call neko_error("The output interval must be positive")
+       end if
        this%time_interval = control_value
-       this%frequency = 1/this%time_interval
+       this%frequency = 1.0_dp / this%time_interval
        this%nsteps = 0
     else if (trim(control_mode) .eq. 'nsamples') then
-       if (control_value .le. 0) then
+       if (control_value .le. 0.0_dp) then
           call neko_error("nsamples must be positive")
        end if
+       if (span .le. 0.0_dp) then
+          call neko_error("nsamples requires end_time to differ from the &
+          &start time of the output")
+       end if
 
-       this%frequency = control_value / (end_time - start_time)
+       this%frequency = control_value / span
        this%time_interval = 1.0_dp / this%frequency
        this%nsteps = 0
     else if (trim(control_mode) .eq. 'tsteps') then
-       this%nsteps = control_value
+       if (control_value .lt. 1.0_dp) then
+          call neko_error("The output interval in time steps must be at &
+          &least 1")
+       end if
+       this%nsteps = int(control_value)
        ! if the timestep will be variable, we cannot compute these.
-       this%frequency = 0
-       this%time_interval = 0
+       this%frequency = 0.0_dp
+       this%time_interval = 0.0_dp
     else if (trim(control_mode) .eq. 'never') then
        this%never = .true.
     else
        call neko_error("The control parameter must be simulationtime, nsamples&
        & tsteps, or never, but received "//trim(control_mode))
     end if
+
+    ! Point the cursor at the first scheduled execution.
+    if (this%write_at_start) then
+       this%next_index = 0
+    else
+       this%next_index = 1
+    end if
+
   end subroutine time_based_controller_init
 
   !> Destructor.
@@ -145,30 +240,36 @@ contains
     this%end_time = 0.0_dp
     this%nexecutions = 0
     this%never = .false.
+    this%control_value = 0.0_dp
+    this%write_at_start = .true.
+    this%next_index = 0
+    this%direction = 1.0_dp
+    this%tstep_offset = 0
+    this%last_tstep = -1
+    this%pending_index = -1
+    this%pending_tstep = -1
   end subroutine time_based_controller_free
 
   !> Check if the execution should be performed.
-  !! @param t Time value.
-  !! @param tstep Current timestep.
-  !! @param dt Timestep size.
-  !! @param force Whether to force returning true. Optional.
-  !! @note In the logic, `nsteps` being zero corresponds to us not knowing the
-  !! number of time-steps between executions and thus having to rely on
-  !! `nexecutions`. This is done in anticipation of having a variable timestep.
-  !! A fraction of the time step (10 percent) is used as a tolerance.
+  !! @param time The current time state.
+  !! @param force Whether to execute irrespective of the schedule. Optional,
+  !! defaults to `.false.`.
+  !! @details The result is `.true.` at the first time step at which the next
+  !! scheduled time has been reached, up to a tolerance of `TIME_TOL * dt`.
+  !! A forced execution is performed unless the simulation has not reached the
+  !! start time of the schedule, or an execution has already been registered
+  !! for the current time step. The latter is what keeps the final, forced,
+  !! execution of a simulation from duplicating a scheduled one that lands on
+  !! the very same step. Forcing does override a `never` control, which is
+  !! how `output_at_end` writes an output that is otherwise never written.
   function time_based_controller_check(this, time, force) result(check)
     class(time_based_controller_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     logical, intent(in), optional :: force
-    real(kind=dp) :: t
-    integer :: tstep
-    real(kind=dp) :: dt
     logical :: check
     logical :: ifforce
-
-    t = time%t - time%start_time
-    dt = time%dt
-    tstep = time%tstep
+    real(kind=dp) :: progress, tol, t_next, span
+    integer :: nstep
 
     if (present(force)) then
        ifforce = force
@@ -177,57 +278,188 @@ contains
     end if
 
     check = .false.
+
+    ! At most one execution per time step.
+    if (this%last_tstep .eq. time%tstep) return
+
+    ! Nothing is scheduled, but an execution can still be forced.
+    if (this%never .and. .not. ifforce) return
+
+    progress = this%direction * (time%t - this%start_time)
+    tol = this%tolerance(time%dt)
+
+    ! Nothing is ever executed before the start of the schedule.
+    if (progress .lt. -tol) return
+
     if (ifforce) then
        check = .true.
-    else if (this%never) then
-       check = .false.
-    else if (time%t - this%start_time .gt. this%end_time - this%start_time) then
-       check = .false.
-    else if ( (this%nsteps .eq. 0) .and. &
-         (t .ge. this%nexecutions * this%time_interval - 0.1_dp * dt) ) then
-       check = .true.
     else if (this%nsteps .gt. 0) then
-       if (mod(tstep, this%nsteps) .eq. 0) then
-          check = .true.
-       end if
+       nstep = time%tstep - this%tstep_offset
+       check = nstep .ge. this%next_index * this%nsteps
+    else
+       span = abs(this%end_time - this%start_time)
+       t_next = real(this%next_index, dp) * this%time_interval
+       ! The schedule stops at end_time. Note that this is a condition on the
+       ! *scheduled* time and not on the current time: a step that overshoots
+       ! end_time still performs the execution scheduled for end_time.
+       if (t_next .gt. span + SPAN_TOL * max(span, this%time_interval)) return
+       check = progress .ge. t_next - tol
     end if
+
+    if (check) then
+       this%pending_index = next_index_after(this, time)
+       this%pending_tstep = time%tstep
+    end if
+
   end function time_based_controller_check
 
-  !> Assignment operator. Simply copies attribute values.
-  !! @param ctrl1 Left-hand side.
-  !! @param ctrl2 Right-hand side.
-  subroutine time_based_controller_assignment(ctrl1, ctrl2)
-    type(time_based_controller_t), intent(inout) :: ctrl1
-    type(time_based_controller_t), intent(in) :: ctrl2
+  !> The index of the first scheduled execution that lies strictly ahead of
+  !! the current time state.
+  !! @note All scheduled times that have already been reached are skipped, so
+  !! that a run using a time step larger than the output interval does not
+  !! accumulate a backlog of executions.
+  pure function next_index_after(this, time) result(index)
+    class(time_based_controller_t), intent(in) :: this
+    type(time_state_t), intent(in) :: time
+    integer :: index
+    real(kind=dp) :: progress, tol
+    integer :: k_first
 
-    ctrl1%end_time = ctrl2%end_time
-    ctrl1%frequency = ctrl2%frequency
-    ctrl1%nsteps = ctrl2%nsteps
-    ctrl1%time_interval = ctrl2%time_interval
-    ctrl1%nexecutions = ctrl2%nexecutions
+    if (this%write_at_start) then
+       k_first = 0
+    else
+       k_first = 1
+    end if
 
-  end subroutine time_based_controller_assignment
+    if (this%nsteps .gt. 0) then
+       index = (time%tstep - this%tstep_offset) / this%nsteps + 1
+    else if (this%time_interval .gt. 0.0_dp) then
+       progress = this%direction * (time%t - this%start_time)
+       tol = this%tolerance(time%dt)
+       index = floor((progress + tol) / this%time_interval) + 1
+    else
+       ! Nothing is scheduled, so there is nothing to move past.
+       index = this%next_index
+    end if
 
-  !> Increment `nexectutions`.
-  subroutine time_based_controller_register_execution(this)
+    ! No clamping against `next_index` is done on purpose: a scheduled
+    ! execution always yields an index larger than the current one, while a
+    ! forced execution that happens before the next scheduled time must
+    ! leave the schedule untouched.
+    index = max(index, k_first)
+
+  end function next_index_after
+
+  !> Increment `nexecutions` and advance the schedule past the current time.
+  !! @param time The current time state. Optional, but should be passed
+  !! whenever it is available: without it the controller falls back on the
+  !! state recorded by the preceding call to `check`.
+  subroutine time_based_controller_register_execution(this, time)
     class(time_based_controller_t), intent(inout) :: this
+    type(time_state_t), intent(in), optional :: time
 
     this%nexecutions = this%nexecutions + 1
 
+    if (present(time)) then
+       this%next_index = next_index_after(this, time)
+       this%last_tstep = time%tstep
+    else if (this%pending_tstep .ge. 0) then
+       this%next_index = this%pending_index
+       this%last_tstep = this%pending_tstep
+    else
+       this%next_index = this%next_index + 1
+    end if
+
+    this%pending_index = -1
+    this%pending_tstep = -1
+
   end subroutine time_based_controller_register_execution
 
-  !> Set the counter based on a time (for restarts)
-  !! @param time Current time.
+  !> Move the schedule cursor to the current time, and set `nexecutions` to
+  !! the number of executions that the schedule has already prescribed.
+  !! Called when restarting a simulation.
+  !! @param time The current time.
+  !! @details The predicate used here is exactly the one used by `check`, so
+  !! that the executions performed by the run that wrote the checkpoint are
+  !! the ones considered done: nothing is repeated and, more importantly,
+  !! nothing is skipped.
   subroutine time_based_controller_set_counter(this, time)
     class(time_based_controller_t), intent(inout) :: this
-    type(time_state_t) :: time
+    type(time_state_t), intent(in) :: time
+    real(kind=dp) :: progress, tol, dt
+    integer :: k_first, n_passed
 
-    if (this%nsteps .eq. 0) then
-       this%nexecutions = int(((time%t - time%start_time) + 0.1_dp*time%dt) &
-            / this%time_interval) + 1
+    if (this%never) return
+
+    if (this%write_at_start) then
+       k_first = 0
+    else
+       k_first = 1
     end if
+
+    if (this%nsteps .gt. 0) then
+       ! `tstep` is not stored in the checkpoint, so a step based schedule
+       ! cannot be reconstructed. Restart the cadence from the restart step,
+       ! without executing at the restart step itself.
+       this%tstep_offset = time%tstep
+       this%next_index = 1
+       this%last_tstep = time%tstep
+       return
+    end if
+
+    ! The size of the step that produced the checkpoint, which is the one
+    ! `check` would have used, and not necessarily the one of the new run.
+    dt = time%dt
+    if (abs(time%dtlag(1)) .gt. 0.0_dp) dt = time%dtlag(1)
+
+    progress = this%direction * (time%t - this%start_time)
+    tol = this%tolerance(dt)
+
+    if (progress .lt. -tol) then
+       ! The schedule has not started yet.
+       n_passed = k_first
+    else
+       n_passed = floor((progress + tol) / this%time_interval) + 1
+       n_passed = max(n_passed, k_first)
+    end if
+
+    this%next_index = n_passed
+    this%nexecutions = n_passed - k_first
+    ! Whatever was scheduled for the restart time has been done by the run
+    ! that wrote the checkpoint.
+    this%last_tstep = time%tstep
 
   end subroutine time_based_controller_set_counter
 
+  !> The tolerance used when comparing the simulation time to a scheduled
+  !! execution time.
+  !! @param dt The size of the time step under consideration.
+  pure function time_based_controller_tolerance(this, dt) result(tol)
+    class(time_based_controller_t), intent(in) :: this
+    real(kind=dp), intent(in) :: dt
+    real(kind=dp) :: tol
+
+    tol = TIME_TOL * abs(dt)
+    if (this%time_interval .gt. 0.0_dp) then
+       tol = min(tol, TIME_TOL * this%time_interval)
+    end if
+
+  end function time_based_controller_tolerance
+
+  !> The time of the next scheduled execution.
+  !! @note Meaningless for the `tsteps` and `never` control modes, for which
+  !! the end time of the simulation is returned.
+  pure function time_based_controller_next_time(this) result(t)
+    class(time_based_controller_t), intent(in) :: this
+    real(kind=dp) :: t
+
+    if (this%never .or. this%nsteps .gt. 0) then
+       t = this%end_time
+    else
+       t = this%start_time + this%direction * &
+            real(this%next_index, dp) * this%time_interval
+    end if
+
+  end function time_based_controller_next_time
 
 end module time_based_controller

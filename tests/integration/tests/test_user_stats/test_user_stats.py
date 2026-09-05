@@ -67,7 +67,12 @@ def test_user_stats(launcher_script, request, log_file, tmp_path):
     )
 
     csv = np.genfromtxt(stats_file, delimiter=",")
-    mean = np.mean(csv[12:25, 2])
+    # One sample only: the average over an interval of zero length at the
+    # start of the run is not written.
+    assert np.all(csv[:, 0] == csv[-1, 0]), (
+        f"Expected a single sample in {stats_file}, got times {csv[:, 0]}"
+    )
+    mean = np.mean(csv[:, 2])
     error = (mean - 0.5) / 0.5
 
     assert (

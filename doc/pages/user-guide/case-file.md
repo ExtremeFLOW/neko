@@ -83,6 +83,32 @@ units. The following options are possible.
    performed in the course of the simulation.
 4. `never`, then `_value` is ignored and output is never performed.
 
+The times at which an output is written are a property of the case and not of
+the run: for the time based controls they are
+\f$ t_k = t_{start} + k \Delta t_{out} \f$, where \f$ t_{start} \f$ is the
+start time of the simulation (or of the output itself, where it has one of its
+own, such as the statistics) and \f$ \Delta t_{out} \f$ follows from
+`_control` and `_value`. Only the \f$ t_k \f$ that fall inside the simulated
+interval are written. Since the schedule does not depend on when the run was
+started, restarting a simulation neither skips nor repeats an output, and the
+file numbering carries on where the previous run left off.
+
+An output is written at the first time step that reaches its scheduled time,
+which for a time step that does not divide \f$ \Delta t_{out} \f$ is the
+first step at or just after it. At most one write per output is performed per
+time step: when several scheduled times fall inside a single time step, one
+file is written and the schedule moves on, rather than a backlog being built
+up. The last scheduled write is performed also when the final time step
+overshoots `end_time`, which it does whenever the time step does not divide
+the simulated interval.
+
+The initial state is written for the fluid and for the outputs of the
+simulation components, since the initial condition is usually worth having.
+It is not written for checkpoints, for which it holds nothing that the
+initial condition does not, nor for the statistics, whose average over an
+interval of zero length is empty. For these, the first write is one interval
+after the start.
+
 
 ## The case object
 
@@ -113,18 +139,15 @@ but also defines several parameters that pertain to the simulation as a whole.
 Some additional practical comments are provided regarding the output triggered
 by `job_timelimit` and `output_at_end` keywords.
 
-If `output_at_end` is set to `true`, an additional write is performed after the
-execution of the simulation time-loop is finished. This triggers most outputs,
-like the fluid solvers, the checkpoint, etc. Note that if your case settings are
-such that a particular output is written at the last time step regardless of
-`output_at_end` (e.g. `end_time: 5`, `checkpoint_value: 5`,
- `checkpoint_control: simulationtime` ) you will get two outputs with the same
-values: one from your ordinary write and one triggered by `output_at_end`.
-
-@note This has a rather detrimental effect on outputs from various
-statistics-related [simulation components](@ref simcomps). Since the collected
-statistics are reset on write, the data written by `output_at_end` will be just
-zeroes.
+If `output_at_end` is set to `true`, a write is performed after the execution
+of the simulation time-loop is finished. This triggers most outputs, like the
+fluid solvers, the checkpoint, etc. An output that has already been written at
+the last time step of the run is not written a second time, so case settings
+under which an output lands on the last step anyway (e.g. `end_time: 5`,
+`checkpoint_value: 5`, `checkpoint_control: simulationtime`) produce one file
+at the end of the run and not two. `output_at_end` does override a `never`
+control, which is the way to ask for an output that is written once, at the
+end of the run, and never in between.
 
 The purpose of `job_timelimit` is to gracefully stop the simulation in a typical
 supercomputer environment, where your runtime is limited. When Neko detects that
