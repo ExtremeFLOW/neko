@@ -63,7 +63,8 @@ contains
        scale = 1.0_rp
     else
        s = min(max(t / ramp_time, 0.0_rp), 1.0_rp)
-       scale = s * s * (3.0_rp - 2.0_rp * s)
+       scale = initial_wind_scale + (1.0_rp - initial_wind_scale) * &
+            s * s * (3.0_rp - 2.0_rp * s)
     end if
   end function wind_ramp
 
