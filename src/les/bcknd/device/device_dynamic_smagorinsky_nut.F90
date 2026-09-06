@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_dynamic_smagorinsky_nut
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-  use num_types, only: rp, c_rp
-  use utils, only: neko_error
-  use comm, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
-  use mpi_f08, only: MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  use num_types, only : rp, c_rp
+  use utils, only : neko_error
+  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
 
   implicit none
   private
@@ -46,7 +46,7 @@ module device_dynamic_smagorinsky_nut
           s12_d, s13_d, s23_d, &
           n) &
           bind(c, name = 'hip_s_abs_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: s_abs_d, s11_d, s22_d, s33_d, &
             s12_d, s13_d, s23_d
@@ -61,7 +61,7 @@ module device_dynamic_smagorinsky_nut
           fuu_d, fvv_d, fww_d, &
           fuv_d, fuw_d, fvw_d, n) &
           bind(c, name = 'hip_lij_compute_part1')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
             u_d, v_d, w_d, fu_d, fv_d, fw_d, &
@@ -75,7 +75,7 @@ module device_dynamic_smagorinsky_nut
           fuu_d, fvv_d, fww_d, &
           fuv_d, fuw_d, fvw_d, n) &
           bind(c, name = 'hip_lij_compute_part2')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
             fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
@@ -93,7 +93,7 @@ module device_dynamic_smagorinsky_nut
           fsabss12_d, fsabss13_d, fsabss23_d, &
           delta_ratio2, n) &
           bind(c, name = 'hip_mij_compute_part1')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: m11_d, m22_d, m33_d, &
             m12_d, m13_d, m23_d, &
@@ -117,7 +117,7 @@ module device_dynamic_smagorinsky_nut
           num_d, den_d, c_dyn_d, delta_d, &
           s_abs_d, nut_d, alpha, n) &
           bind(c, name = 'hip_mij_nut_compute_part2')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: m11_d, m22_d, m33_d, &
             m12_d, m13_d, m23_d, &
@@ -136,7 +136,7 @@ module device_dynamic_smagorinsky_nut
           s12_d, s13_d, s23_d, &
           n) &
           bind(c, name = 'cuda_s_abs_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: s_abs_d, s11_d, s22_d, s33_d, &
             s12_d, s13_d, s23_d
@@ -151,7 +151,7 @@ module device_dynamic_smagorinsky_nut
           fuu_d, fvv_d, fww_d, &
           fuv_d, fuw_d, fvw_d, n) &
           bind(c, name = 'cuda_lij_compute_part1')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
             u_d, v_d, w_d, fu_d, fv_d, fw_d, &
@@ -165,7 +165,7 @@ module device_dynamic_smagorinsky_nut
           fuu_d, fvv_d, fww_d, &
           fuv_d, fuw_d, fvw_d, n) &
           bind(c, name = 'cuda_lij_compute_part2')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
             fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
@@ -183,7 +183,7 @@ module device_dynamic_smagorinsky_nut
           fsabss12_d, fsabss13_d, fsabss23_d, &
           delta_ratio2, n) &
           bind(c, name = 'cuda_mij_compute_part1')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: m11_d, m22_d, m33_d, &
             m12_d, m13_d, m23_d, &
@@ -207,7 +207,7 @@ module device_dynamic_smagorinsky_nut
           num_d, den_d, c_dyn_d, delta_d, &
           s_abs_d, nut_d, alpha, n) &
           bind(c, name = 'cuda_mij_nut_compute_part2')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: m11_d, m22_d, m33_d, &
             m12_d, m13_d, m23_d, &
@@ -226,7 +226,7 @@ module device_dynamic_smagorinsky_nut
           s12_d, s13_d, s23_d, &
           n) &
           bind(c, name = 'opencl_s_abs_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: s_abs_d, s11_d, s22_d, s33_d, &
             s12_d, s13_d, s23_d
@@ -241,7 +241,7 @@ module device_dynamic_smagorinsky_nut
           fuu_d, fvv_d, fww_d, &
           fuv_d, fuw_d, fvw_d, n) &
           bind(c, name = 'opencl_lij_compute_part1')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
             u_d, v_d, w_d, fu_d, fv_d, fw_d, &
@@ -255,7 +255,7 @@ module device_dynamic_smagorinsky_nut
           fuu_d, fvv_d, fww_d, &
           fuv_d, fuw_d, fvw_d, n) &
           bind(c, name = 'opencl_lij_compute_part2')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
             fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
@@ -273,7 +273,7 @@ module device_dynamic_smagorinsky_nut
           fsabss12_d, fsabss13_d, fsabss23_d, &
           delta_ratio2, n) &
           bind(c, name = 'opencl_mij_compute_part1')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: m11_d, m22_d, m33_d, &
             m12_d, m13_d, m23_d, &
@@ -297,7 +297,7 @@ module device_dynamic_smagorinsky_nut
           num_d, den_d, c_dyn_d, delta_d, &
           s_abs_d, nut_d, alpha, n) &
           bind(c, name = 'opencl_mij_nut_compute_part2')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: m11_d, m22_d, m33_d, &
             m12_d, m13_d, m23_d, &
@@ -316,7 +316,7 @@ module device_dynamic_smagorinsky_nut
           s12_d, s13_d, s23_d, &
           n) &
           bind(c, name = 'metal_s_abs_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: s_abs_d, s11_d, s22_d, s33_d, &
             s12_d, s13_d, s23_d
@@ -331,7 +331,7 @@ module device_dynamic_smagorinsky_nut
           fuu_d, fvv_d, fww_d, &
           fuv_d, fuw_d, fvw_d, n) &
           bind(c, name = 'metal_lij_compute_part1')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
             u_d, v_d, w_d, fu_d, fv_d, fw_d, &
@@ -345,7 +345,7 @@ module device_dynamic_smagorinsky_nut
           fuu_d, fvv_d, fww_d, &
           fuv_d, fuw_d, fvw_d, n) &
           bind(c, name = 'metal_lij_compute_part2')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
             fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
@@ -363,7 +363,7 @@ module device_dynamic_smagorinsky_nut
           fsabss12_d, fsabss13_d, fsabss23_d, &
           delta_ratio2, n) &
           bind(c, name = 'metal_mij_compute_part1')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: m11_d, m22_d, m33_d, &
             m12_d, m13_d, m23_d, &
@@ -387,7 +387,7 @@ module device_dynamic_smagorinsky_nut
           num_d, den_d, c_dyn_d, delta_d, &
           s_abs_d, nut_d, alpha, n) &
           bind(c, name = 'metal_mij_nut_compute_part2')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: m11_d, m22_d, m33_d, &
             m12_d, m13_d, m23_d, &

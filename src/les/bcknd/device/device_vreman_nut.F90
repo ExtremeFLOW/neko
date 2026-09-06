@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_vreman_nut
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-  use num_types, only: rp, c_rp
-  use utils, only: neko_error
-  use comm, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
-  use mpi_f08, only: MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  use num_types, only : rp, c_rp
+  use utils, only : neko_error
+  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
 
   implicit none
   private
@@ -47,7 +47,7 @@ module device_vreman_nut
           a31_d, a32_d, a33_d, &
           delta_d, nut_d, mult_d, c, eps, n) &
           bind(c, name = 'hip_vreman_nut_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
             a21_d, a22_d, a23_d, &
@@ -64,7 +64,7 @@ module device_vreman_nut
           delta_d, nut_d, mult_d, c, eps, n, &
           dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp) &
           bind(c, name = 'hip_vreman_nut_compute_buoy')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
             a21_d, a22_d, a23_d, &
@@ -85,7 +85,7 @@ module device_vreman_nut
           a31_d, a32_d, a33_d, &
           delta_d, nut_d, mult_d, c, eps, n) &
           bind(c, name = 'cuda_vreman_nut_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
             a21_d, a22_d, a23_d, &
@@ -102,7 +102,7 @@ module device_vreman_nut
           delta_d, nut_d, mult_d, c, eps, n, &
           dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp) &
           bind(c, name = 'cuda_vreman_nut_compute_buoy')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
             a21_d, a22_d, a23_d, &
@@ -123,7 +123,7 @@ module device_vreman_nut
           a31_d, a32_d, a33_d, &
           delta_d, nut_d, mult_d, c, eps, n) &
           bind(c, name = 'opencl_vreman_nut_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
             a21_d, a22_d, a23_d, &
@@ -140,7 +140,7 @@ module device_vreman_nut
           delta_d, nut_d, mult_d, c, eps, n, &
           dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp) &
           bind(c, name = 'opencl_vreman_nut_compute_buoy')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
             a21_d, a22_d, a23_d, &
@@ -161,7 +161,7 @@ module device_vreman_nut
           a31_d, a32_d, a33_d, &
           delta_d, nut_d, mult_d, c, eps, n) &
           bind(c, name = 'metal_vreman_nut_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
             a21_d, a22_d, a23_d, &
@@ -178,7 +178,7 @@ module device_vreman_nut
           delta_d, nut_d, mult_d, c, eps, n, &
           dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp) &
           bind(c, name = 'metal_vreman_nut_compute_buoy')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
             a21_d, a22_d, a23_d, &

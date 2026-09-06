@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_smagorinsky_nut
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-  use num_types, only: rp, c_rp
-  use utils, only: neko_error
-  use comm, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
-  use mpi_f08, only: MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  use num_types, only : rp, c_rp
+  use utils, only : neko_error
+  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
 
   implicit none
   private
@@ -46,7 +46,7 @@ module device_smagorinsky_nut
                               s12_d, s13_d, s23_d, &
                               delta_d, nut_d, mult_d, c_s, n) &
           bind(c, name = 'hip_smagorinsky_nut_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: s11_d, s22_d, s33_d, &
                              s12_d, s13_d, s23_d, &
@@ -61,7 +61,7 @@ module device_smagorinsky_nut
                               s12_d, s13_d, s23_d, &
                               delta_d, nut_d, mult_d, c_s, n) &
           bind(c, name = 'cuda_smagorinsky_nut_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: s11_d, s22_d, s33_d, &
                              s12_d, s13_d, s23_d, &
@@ -76,7 +76,7 @@ module device_smagorinsky_nut
                               s12_d, s13_d, s23_d, &
                               delta_d, nut_d, mult_d, c_s, n) &
           bind(c, name = 'opencl_smagorinsky_nut_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: s11_d, s22_d, s33_d, &
                              s12_d, s13_d, s23_d, &
@@ -91,7 +91,7 @@ module device_smagorinsky_nut
                               s12_d, s13_d, s23_d, &
                               delta_d, nut_d, mult_d, c_s, n) &
           bind(c, name = 'metal_smagorinsky_nut_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: s11_d, s22_d, s33_d, &
                              s12_d, s13_d, s23_d, &

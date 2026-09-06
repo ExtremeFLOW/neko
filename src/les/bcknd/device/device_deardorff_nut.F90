@@ -33,11 +33,11 @@
 !> Device kernel wrapper for computing Deardorff SGS quantities.
 
 module device_deardorff_nut
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-  use num_types, only: rp, c_rp
-  use utils, only: neko_error
-  use comm, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
-  use mpi_f08, only: MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  use num_types, only : rp, c_rp
+  use utils, only : neko_error
+  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
 
   implicit none
   private
@@ -51,8 +51,9 @@ module device_deardorff_nut
           a31_d, a32_d, a33_d, &
           delta_d, nut_d, temperature_alphat, TKE_alphat, TKE_source, &
           c_k, T0, g1, g2, g3, &
-          eps, n) bind(C,name="hip_deardorff_nut_compute")
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+          eps, n) &
+          bind(c, name = 'hip_deardorff_nut_compute')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: TKE_d, &
             dTdx_d, dTdy_d, dTdz_d, &
@@ -76,7 +77,7 @@ module device_deardorff_nut
           c_k, T0, g1, g2, g3, &
           eps, n) &
           bind(c, name = 'cuda_deardorff_nut_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: TKE_d, &
             dTdx_d, dTdy_d, dTdz_d, &
@@ -100,7 +101,7 @@ module device_deardorff_nut
           c_k, T0, g1, g2, g3, &
           eps, n) &
           bind(c, name = 'opencl_deardorff_nut_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: TKE_d, &
             dTdx_d, dTdy_d, dTdz_d, &
@@ -124,7 +125,7 @@ module device_deardorff_nut
           c_k, T0, g1, g2, g3, &
           eps, n) &
           bind(c, name = 'metal_deardorff_nut_compute')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: TKE_d, &
             dTdx_d, dTdy_d, dTdz_d, &
