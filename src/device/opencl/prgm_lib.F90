@@ -1,8 +1,6 @@
 !> OpenCL JIT program library
 module opencl_prgm_lib
-#ifdef HAVE_OPENCL
-  use opencl_intf, only : clReleaseProgram, CL_SUCCESS
-#endif
+  use opencl_intf
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_associated, C_NULL_PTR
   implicit none
