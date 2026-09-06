@@ -4,7 +4,7 @@ module opencl_prgm_lib
   use opencl_intf, only : clReleaseProgram, CL_SUCCESS
 #endif
   use utils, only : neko_error
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_associated, C_NULL_PTR
   implicit none
   private
 
