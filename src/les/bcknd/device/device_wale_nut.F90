@@ -75,6 +75,39 @@ module device_wale_nut
      end subroutine cuda_wale_nut_compute
   end interface
 #elif HAVE_OPENCL
+  interface
+     subroutine opencl_wale_nut_compute(g11_d, g12_d, g13_d, &
+          g21_d, g22_d, g23_d, &
+          g31_d, g32_d, g33_d, &
+          delta_d, nut_d, mult_d, c, eps, n) &
+          bind(c, name = 'opencl_wale_nut_compute')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: g11_d, g12_d, g13_d, &
+            g21_d, g22_d, g23_d, &
+            g31_d, g32_d, g33_d, &
+            delta_d, nut_d, mult_d
+       integer(c_int) :: n
+       real(c_rp) :: c, eps
+     end subroutine opencl_wale_nut_compute
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_wale_nut_compute(g11_d, g12_d, g13_d, &
+          g21_d, g22_d, g23_d, &
+          g31_d, g32_d, g33_d, &
+          delta_d, nut_d, mult_d, c, eps, n) &
+          bind(c, name = 'metal_wale_nut_compute')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: g11_d, g12_d, g13_d, &
+            g21_d, g22_d, g23_d, &
+            g31_d, g32_d, g33_d, &
+            delta_d, nut_d, mult_d
+       integer(c_int) :: n
+       real(c_rp) :: c, eps
+     end subroutine metal_wale_nut_compute
+  end interface
 #endif
 
   public :: device_wale_nut_compute
@@ -103,7 +136,15 @@ contains
          g31_d, g32_d, g33_d, &
          delta_d, nut_d, mult_d, c, eps, n)
 #elif HAVE_OPENCL
-    call neko_error('opencl backend is not supported for device_wale_nut')
+    call opencl_wale_nut_compute(g11_d, g12_d, g13_d, &
+         g21_d, g22_d, g23_d, &
+         g31_d, g32_d, g33_d, &
+         delta_d, nut_d, mult_d, c, eps, n)
+#elif HAVE_METAL
+    call metal_wale_nut_compute(g11_d, g12_d, g13_d, &
+         g21_d, g22_d, g23_d, &
+         g31_d, g32_d, g33_d, &
+         delta_d, nut_d, mult_d, c, eps, n)
 #else
     call neko_error('no device backend configured')
 #endif

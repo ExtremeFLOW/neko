@@ -71,6 +71,35 @@ module device_smagorinsky_nut
      end subroutine cuda_smagorinsky_nut_compute
   end interface
 #elif HAVE_OPENCL
+  interface
+     subroutine opencl_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
+                              s12_d, s13_d, s23_d, &
+                              delta_d, nut_d, mult_d, c_s, n) &
+          bind(c, name = 'opencl_smagorinsky_nut_compute')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: s11_d, s22_d, s33_d, &
+                             s12_d, s13_d, s23_d, &
+                             delta_d, nut_d, mult_d
+       integer(c_int) :: n
+       real(c_rp) :: c_s
+     end subroutine opencl_smagorinsky_nut_compute
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
+                              s12_d, s13_d, s23_d, &
+                              delta_d, nut_d, mult_d, c_s, n) &
+          bind(c, name = 'metal_smagorinsky_nut_compute')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: s11_d, s22_d, s33_d, &
+                             s12_d, s13_d, s23_d, &
+                             delta_d, nut_d, mult_d
+       integer(c_int) :: n
+       real(c_rp) :: c_s
+     end subroutine metal_smagorinsky_nut_compute
+  end interface
 #endif
 
   public :: device_smagorinsky_nut_compute
@@ -95,7 +124,13 @@ contains
                               s12_d, s13_d, s23_d, &
                               delta_d, nut_d, mult_d, c_s, n)
 #elif HAVE_OPENCL
-    call neko_error('opencl backend is not supported for device_smagorinsky_nut')
+    call opencl_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
+                              s12_d, s13_d, s23_d, &
+                              delta_d, nut_d, mult_d, c_s, n)
+#elif HAVE_METAL
+    call metal_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
+                              s12_d, s13_d, s23_d, &
+                              delta_d, nut_d, mult_d, c_s, n)
 #else
     call neko_error('no device backend configured')
 #endif

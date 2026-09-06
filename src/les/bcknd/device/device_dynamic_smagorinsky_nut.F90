@@ -221,6 +221,185 @@ module device_dynamic_smagorinsky_nut
      end subroutine cuda_mij_nut_compute_part2
   end interface
 #elif HAVE_OPENCL
+  interface
+     subroutine opencl_s_abs_compute(s_abs_d, s11_d, s22_d, s33_d, &
+          s12_d, s13_d, s23_d, &
+          n) &
+          bind(c, name = 'opencl_s_abs_compute')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: s_abs_d, s11_d, s22_d, s33_d, &
+            s12_d, s13_d, s23_d
+       integer(c_int) :: n
+     end subroutine opencl_s_abs_compute
+  end interface
+  interface
+     subroutine opencl_lij_compute_part1(l11_d, l22_d, l33_d, &
+          l12_d, l13_d, l23_d, &
+          u_d, v_d, w_d, &
+          fu_d, fv_d, fw_d, &
+          fuu_d, fvv_d, fww_d, &
+          fuv_d, fuw_d, fvw_d, n) &
+          bind(c, name = 'opencl_lij_compute_part1')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
+            u_d, v_d, w_d, fu_d, fv_d, fw_d, &
+            fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
+       integer(c_int) :: n
+     end subroutine opencl_lij_compute_part1
+  end interface
+  interface
+     subroutine opencl_lij_compute_part2(l11_d, l22_d, l33_d, &
+          l12_d, l13_d, l23_d, &
+          fuu_d, fvv_d, fww_d, &
+          fuv_d, fuw_d, fvw_d, n) &
+          bind(c, name = 'opencl_lij_compute_part2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
+            fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
+       integer(c_int) :: n
+     end subroutine opencl_lij_compute_part2
+  end interface
+  interface
+     subroutine opencl_mij_compute_part1(m11_d, m22_d, m33_d, &
+          m12_d, m13_d, m23_d, &
+          s_abs_d, s11_d, s22_d, s33_d, &
+          s12_d, s13_d, s23_d, &
+          fs_abs_d, fs11_d, fs22_d, fs33_d, &
+          fs12_d, fs13_d, fs23_d, &
+          fsabss11_d, fsabss22_d, fsabss33_d, &
+          fsabss12_d, fsabss13_d, fsabss23_d, &
+          delta_ratio2, n) &
+          bind(c, name = 'opencl_mij_compute_part1')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: m11_d, m22_d, m33_d, &
+            m12_d, m13_d, m23_d, &
+            s_abs_d, s11_d, s22_d, s33_d, &
+            s12_d, s13_d, s23_d, &
+            fs_abs_d, fs11_d, fs22_d, fs33_d, &
+            fs12_d, fs13_d, fs23_d, &
+            fsabss11_d, fsabss22_d, fsabss33_d, &
+            fsabss12_d, fsabss13_d, fsabss23_d
+       real(c_rp) :: delta_ratio2
+       integer(c_int) :: n
+     end subroutine opencl_mij_compute_part1
+  end interface
+  interface
+     subroutine opencl_mij_nut_compute_part2(m11_d, m22_d, m33_d, &
+          m12_d, m13_d, m23_d, &
+          l11_d, l22_d, l33_d, &
+          l12_d, l13_d, l23_d, &
+          fsabss11_d, fsabss22_d, fsabss33_d, &
+          fsabss12_d, fsabss13_d, fsabss23_d, &
+          num_d, den_d, c_dyn_d, delta_d, &
+          s_abs_d, nut_d, alpha, n) &
+          bind(c, name = 'opencl_mij_nut_compute_part2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: m11_d, m22_d, m33_d, &
+            m12_d, m13_d, m23_d, &
+            l11_d, l22_d, l33_d, &
+            l12_d, l13_d, l23_d, &
+            fsabss11_d, fsabss22_d, fsabss33_d, &
+            fsabss12_d, fsabss13_d, fsabss23_d, &
+            num_d, den_d, c_dyn_d, delta_d, s_abs_d, nut_d
+       real(c_rp) :: alpha
+       integer(c_int) :: n
+     end subroutine opencl_mij_nut_compute_part2
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_s_abs_compute(s_abs_d, s11_d, s22_d, s33_d, &
+          s12_d, s13_d, s23_d, &
+          n) &
+          bind(c, name = 'metal_s_abs_compute')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: s_abs_d, s11_d, s22_d, s33_d, &
+            s12_d, s13_d, s23_d
+       integer(c_int) :: n
+     end subroutine metal_s_abs_compute
+  end interface
+  interface
+     subroutine metal_lij_compute_part1(l11_d, l22_d, l33_d, &
+          l12_d, l13_d, l23_d, &
+          u_d, v_d, w_d, &
+          fu_d, fv_d, fw_d, &
+          fuu_d, fvv_d, fww_d, &
+          fuv_d, fuw_d, fvw_d, n) &
+          bind(c, name = 'metal_lij_compute_part1')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
+            u_d, v_d, w_d, fu_d, fv_d, fw_d, &
+            fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
+       integer(c_int) :: n
+     end subroutine metal_lij_compute_part1
+  end interface
+  interface
+     subroutine metal_lij_compute_part2(l11_d, l22_d, l33_d, &
+          l12_d, l13_d, l23_d, &
+          fuu_d, fvv_d, fww_d, &
+          fuv_d, fuw_d, fvw_d, n) &
+          bind(c, name = 'metal_lij_compute_part2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
+            fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
+       integer(c_int) :: n
+     end subroutine metal_lij_compute_part2
+  end interface
+  interface
+     subroutine metal_mij_compute_part1(m11_d, m22_d, m33_d, &
+          m12_d, m13_d, m23_d, &
+          s_abs_d, s11_d, s22_d, s33_d, &
+          s12_d, s13_d, s23_d, &
+          fs_abs_d, fs11_d, fs22_d, fs33_d, &
+          fs12_d, fs13_d, fs23_d, &
+          fsabss11_d, fsabss22_d, fsabss33_d, &
+          fsabss12_d, fsabss13_d, fsabss23_d, &
+          delta_ratio2, n) &
+          bind(c, name = 'metal_mij_compute_part1')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: m11_d, m22_d, m33_d, &
+            m12_d, m13_d, m23_d, &
+            s_abs_d, s11_d, s22_d, s33_d, &
+            s12_d, s13_d, s23_d, &
+            fs_abs_d, fs11_d, fs22_d, fs33_d, &
+            fs12_d, fs13_d, fs23_d, &
+            fsabss11_d, fsabss22_d, fsabss33_d, &
+            fsabss12_d, fsabss13_d, fsabss23_d
+       real(c_rp) :: delta_ratio2
+       integer(c_int) :: n
+     end subroutine metal_mij_compute_part1
+  end interface
+  interface
+     subroutine metal_mij_nut_compute_part2(m11_d, m22_d, m33_d, &
+          m12_d, m13_d, m23_d, &
+          l11_d, l22_d, l33_d, &
+          l12_d, l13_d, l23_d, &
+          fsabss11_d, fsabss22_d, fsabss33_d, &
+          fsabss12_d, fsabss13_d, fsabss23_d, &
+          num_d, den_d, c_dyn_d, delta_d, &
+          s_abs_d, nut_d, alpha, n) &
+          bind(c, name = 'metal_mij_nut_compute_part2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: m11_d, m22_d, m33_d, &
+            m12_d, m13_d, m23_d, &
+            l11_d, l22_d, l33_d, &
+            l12_d, l13_d, l23_d, &
+            fsabss11_d, fsabss22_d, fsabss33_d, &
+            fsabss12_d, fsabss13_d, fsabss23_d, &
+            num_d, den_d, c_dyn_d, delta_d, s_abs_d, nut_d
+       real(c_rp) :: alpha
+       integer(c_int) :: n
+     end subroutine metal_mij_nut_compute_part2
+  end interface
 #endif
 
   public :: device_s_abs_compute, device_lij_compute_part1, &
@@ -244,7 +423,13 @@ contains
          s12_d, s13_d, s23_d, &
          n)
 #elif HAVE_OPENCL
-    call neko_error('opencl backend is not supported for device_s_abs_compute')
+    call opencl_s_abs_compute(s_abs_d, s11_d, s22_d, s33_d, &
+         s12_d, s13_d, s23_d, &
+         n)
+#elif HAVE_METAL
+    call metal_s_abs_compute(s_abs_d, s11_d, s22_d, s33_d, &
+         s12_d, s13_d, s23_d, &
+         n)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -276,8 +461,19 @@ contains
          fuu_d, fvv_d, fww_d, &
          fuv_d, fuw_d, fvw_d, n)
 #elif HAVE_OPENCL
-    call neko_error('opencl backend is not supported &
-    &for device_lij_compute_part1')
+    call opencl_lij_compute_part1(l11_d, l22_d, l33_d, &
+         l12_d, l13_d, l23_d, &
+         u_d, v_d, w_d, &
+         fu_d, fv_d, fw_d, &
+         fuu_d, fvv_d, fww_d, &
+         fuv_d, fuw_d, fvw_d, n)
+#elif HAVE_METAL
+    call metal_lij_compute_part1(l11_d, l22_d, l33_d, &
+         l12_d, l13_d, l23_d, &
+         u_d, v_d, w_d, &
+         fu_d, fv_d, fw_d, &
+         fuu_d, fvv_d, fww_d, &
+         fuv_d, fuw_d, fvw_d, n)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -302,8 +498,15 @@ contains
          fuu_d, fvv_d, fww_d, &
          fuv_d, fuw_d, fvw_d, n)
 #elif HAVE_OPENCL
-    call neko_error('opencl backend is not supported &
-    &for device_lij_compute_part2')
+    call opencl_lij_compute_part2(l11_d, l22_d, l33_d, &
+         l12_d, l13_d, l23_d, &
+         fuu_d, fvv_d, fww_d, &
+         fuv_d, fuw_d, fvw_d, n)
+#elif HAVE_METAL
+    call metal_lij_compute_part2(l11_d, l22_d, l33_d, &
+         l12_d, l13_d, l23_d, &
+         fuu_d, fvv_d, fww_d, &
+         fuv_d, fuw_d, fvw_d, n)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -351,8 +554,25 @@ contains
          fsabss12_d, fsabss13_d, fsabss23_d, &
          delta_ratio2, n)
 #elif HAVE_OPENCL
-    call neko_error('opencl backend is not supported for &
-    &device_mij_compute_part1')
+    call opencl_mij_compute_part1(m11_d, m22_d, m33_d, &
+         m12_d, m13_d, m23_d, &
+         s_abs_d, s11_d, s22_d, s33_d, &
+         s12_d, s13_d, s23_d, &
+         fs_abs_d, fs11_d, fs22_d, fs33_d, &
+         fs12_d, fs13_d, fs23_d, &
+         fsabss11_d, fsabss22_d, fsabss33_d, &
+         fsabss12_d, fsabss13_d, fsabss23_d, &
+         delta_ratio2, n)
+#elif HAVE_METAL
+    call metal_mij_compute_part1(m11_d, m22_d, m33_d, &
+         m12_d, m13_d, m23_d, &
+         s_abs_d, s11_d, s22_d, s33_d, &
+         s12_d, s13_d, s23_d, &
+         fs_abs_d, fs11_d, fs22_d, fs33_d, &
+         fs12_d, fs13_d, fs23_d, &
+         fsabss11_d, fsabss22_d, fsabss33_d, &
+         fsabss12_d, fsabss13_d, fsabss23_d, &
+         delta_ratio2, n)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -396,8 +616,23 @@ contains
          num_d, den_d, c_dyn_d, delta_d, &
          s_abs_d, nut_d, alpha, n)
 #elif HAVE_OPENCL
-    call neko_error('opencl backend is not supported for &
-    &device_mij_nut_compute_part2')
+    call opencl_mij_nut_compute_part2(m11_d, m22_d, m33_d, &
+         m12_d, m13_d, m23_d, &
+         l11_d, l22_d, l33_d, &
+         l12_d, l13_d, l23_d, &
+         fsabss11_d, fsabss22_d, fsabss33_d, &
+         fsabss12_d, fsabss13_d, fsabss23_d, &
+         num_d, den_d, c_dyn_d, delta_d, &
+         s_abs_d, nut_d, alpha, n)
+#elif HAVE_METAL
+    call metal_mij_nut_compute_part2(m11_d, m22_d, m33_d, &
+         m12_d, m13_d, m23_d, &
+         l11_d, l22_d, l33_d, &
+         l12_d, l13_d, l23_d, &
+         fsabss11_d, fsabss22_d, fsabss33_d, &
+         fsabss12_d, fsabss13_d, fsabss23_d, &
+         num_d, den_d, c_dyn_d, delta_d, &
+         s_abs_d, nut_d, alpha, n)
 #else
     call neko_error('no device backend configured')
 #endif

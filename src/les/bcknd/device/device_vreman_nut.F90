@@ -117,6 +117,81 @@ module device_vreman_nut
 
   end interface
 #elif HAVE_OPENCL
+  interface
+     subroutine opencl_vreman_nut_compute(a11_d, a12_d, a13_d, &
+          a21_d, a22_d, a23_d, &
+          a31_d, a32_d, a33_d, &
+          delta_d, nut_d, mult_d, c, eps, n) &
+          bind(c, name = 'opencl_vreman_nut_compute')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a11_d, a12_d, a13_d, &
+            a21_d, a22_d, a23_d, &
+            a31_d, a32_d, a33_d, &
+            delta_d, nut_d, mult_d
+       integer(c_int) :: n
+       real(c_rp) :: c, eps
+     end subroutine opencl_vreman_nut_compute
+
+
+     subroutine opencl_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+          a21_d, a22_d, a23_d, &
+          a31_d, a32_d, a33_d, &
+          delta_d, nut_d, mult_d, c, eps, n, &
+          dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp) &
+          bind(c, name = 'opencl_vreman_nut_compute_buoy')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a11_d, a12_d, a13_d, &
+            a21_d, a22_d, a23_d, &
+            a31_d, a32_d, a33_d, &
+            delta_d, nut_d, mult_d
+       integer(c_int) :: n
+       real(c_rp) :: c, eps
+       type(c_ptr), value :: dTdx_d, dTdy_d, dTdz_d
+       real(c_rp) :: g(3)
+       real(c_rp) :: ri_c, ref_temp
+     end subroutine opencl_vreman_nut_compute_buoy
+
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_vreman_nut_compute(a11_d, a12_d, a13_d, &
+          a21_d, a22_d, a23_d, &
+          a31_d, a32_d, a33_d, &
+          delta_d, nut_d, mult_d, c, eps, n) &
+          bind(c, name = 'metal_vreman_nut_compute')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a11_d, a12_d, a13_d, &
+            a21_d, a22_d, a23_d, &
+            a31_d, a32_d, a33_d, &
+            delta_d, nut_d, mult_d
+       integer(c_int) :: n
+       real(c_rp) :: c, eps
+     end subroutine metal_vreman_nut_compute
+
+
+     subroutine metal_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+          a21_d, a22_d, a23_d, &
+          a31_d, a32_d, a33_d, &
+          delta_d, nut_d, mult_d, c, eps, n, &
+          dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp) &
+          bind(c, name = 'metal_vreman_nut_compute_buoy')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a11_d, a12_d, a13_d, &
+            a21_d, a22_d, a23_d, &
+            a31_d, a32_d, a33_d, &
+            delta_d, nut_d, mult_d
+       integer(c_int) :: n
+       real(c_rp) :: c, eps
+       type(c_ptr), value :: dTdx_d, dTdy_d, dTdz_d
+       real(c_rp) :: g(3)
+       real(c_rp) :: ri_c, ref_temp
+     end subroutine metal_vreman_nut_compute_buoy
+
+  end interface
 #endif
 
   public :: device_vreman_nut_compute
@@ -146,7 +221,15 @@ contains
          a31_d, a32_d, a33_d, &
          delta_d, nut_d, mult_d, c, eps, n)
 #elif HAVE_OPENCL
-    call neko_error('opencl backend is not supported for device_vreman_nut')
+    call opencl_vreman_nut_compute(a11_d, a12_d, a13_d, &
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         delta_d, nut_d, mult_d, c, eps, n)
+#elif HAVE_METAL
+    call metal_vreman_nut_compute(a11_d, a12_d, a13_d, &
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         delta_d, nut_d, mult_d, c, eps, n)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -179,7 +262,17 @@ contains
          delta_d, nut_d, mult_d, c, eps, n, &
          dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp)
 #elif HAVE_OPENCL
-    call neko_error('opencl backend is not supported for device_vreman_nut (buoyancy)')
+    call opencl_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         delta_d, nut_d, mult_d, c, eps, n, &
+         dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp)
+#elif HAVE_METAL
+    call metal_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         delta_d, nut_d, mult_d, c, eps, n, &
+         dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp)
 #else
     call neko_error('no device backend configured (vreman buoyancy)')
 #endif
