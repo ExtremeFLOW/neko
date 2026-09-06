@@ -214,7 +214,6 @@ krylov/bcknd/device/metal/pc_jacobi.lo : krylov/bcknd/device/metal/pc_jacobi.m d
 math/bcknd/device/metal/tensor.lo : math/bcknd/device/metal/tensor.m device/metal/check.h
 math/bcknd/device/metal/opr_cfl.lo : math/bcknd/device/metal/opr_cfl.m device/metal/check.h
 math/bcknd/device/metal/opr_dudxyz.lo : math/bcknd/device/metal/opr_dudxyz.m device/metal/check.h
-math/bcknd/device/metal/opr_grad.lo : math/bcknd/device/metal/opr_grad.m device/metal/check.h
 math/bcknd/device/metal/opr_opgrad.lo : math/bcknd/device/metal/opr_opgrad.m device/metal/check.h
 math/bcknd/device/metal/opr_cdtp.lo : math/bcknd/device/metal/opr_cdtp.m device/metal/check.h
 math/bcknd/device/metal/opr_conv1.lo : math/bcknd/device/metal/opr_conv1.m device/metal/check.h
