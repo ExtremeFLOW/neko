@@ -752,7 +752,7 @@ libneko_la_SOURCES += \
 	sem/bcknd/device/opencl/coef.c\
 	sem/bcknd/device/opencl/local_interpolation.c\
 	filter/bcknd/device/opencl/mappings.c\
-	source_terms/bcknd/device/opencl/idw.c
+	source_terms/bcknd/device/opencl/idw.c\
 	les/bcknd/device/opencl/smagorinsky_nut.c\
 	les/bcknd/device/opencl/wale_nut.c\
 	les/bcknd/device/opencl/sigma_nut.c\
@@ -829,7 +829,7 @@ METAL_OBJS = \
 	bc/bcknd/device/metal/neumann.lo\
 	bc/bcknd/device/metal/inhom_dirichlet.lo\
 	bc/bcknd/device/metal/dong_outflow.lo\
-	source_terms/bcknd/device/metal/idw.lo
+	source_terms/bcknd/device/metal/idw.lo\
 	bc/bcknd/device/metal/coupled_vector_bc_projector.lo\
 	bc/bcknd/device/metal/constrain_mixed_bc.lo\
 	les/bcknd/device/metal/smagorinsky_nut.lo\
@@ -894,7 +894,7 @@ dist_noinst_DATA = \
 	bc/bcknd/device/metal/neumann.m\
 	bc/bcknd/device/metal/inhom_dirichlet.m\
 	bc/bcknd/device/metal/dong_outflow.m\
-	source_terms/bcknd/device/metal/idw.m
+	source_terms/bcknd/device/metal/idw.m\
 	bc/bcknd/device/metal/constrain_mixed_bc.m\
 	bc/bcknd/device/metal/coupled_vector_bc_projector.m\
 	les/bcknd/device/metal/smagorinsky_nut.m\
@@ -956,7 +956,7 @@ METAL_KERNELS = \
 	bc/bcknd/device/metal/neumann_kernel.metal\
 	bc/bcknd/device/metal/inhom_dirichlet_kernel.metal\
 	bc/bcknd/device/metal/dong_outflow_kernel.metal\
-	source_terms/bcknd/device/metal/idw_kernel.metal
+	source_terms/bcknd/device/metal/idw_kernel.metal\
 	bc/bcknd/device/metal/constrain_mixed_bc_kernel.metal\
 	bc/bcknd/device/metal/coupled_vector_bc_projector_kernel.metal\
 	les/bcknd/device/metal/smagorinsky_nut_kernel.metal\
@@ -1346,6 +1346,7 @@ EXTRA_DIST = \
 	lpt/bcknd/device/metal/lpt_wall_collision_kernel.metal\
 	ale/bcknd/device/metal/ale_kinematics_kernel.metal\
 	source_terms/bcknd/device/metal/gradient_jump_penalty_kernel.metal\
+	source_terms/bcknd/device/metal/idw_kernel.metal\
 	wall_models/bcknd/device/metal/cai_sagaut_model_ii_kernel.metal\
 	bc/bcknd/device/metal/bc_utils.h\
 	bc/bcknd/device/metal/bc_shader_utils.h\
