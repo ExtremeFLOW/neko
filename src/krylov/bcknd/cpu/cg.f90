@@ -158,25 +158,17 @@ contains
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
-    call neko_scratch_registry%request_host_array(w_tmp, temp_indices(1), &
-         n, .false.)
-    call neko_scratch_registry%request_host_array(r_tmp, temp_indices(2), &
-         n, .false.)
-    call neko_scratch_registry%request_host_array(p_tmp, temp_indices(3), &
+    call neko_scratch_registry%request(this%w, temp_indices(1), n, .false.)
+    call neko_scratch_registry%request(this%r, temp_indices(2), n, .false.)
+    call neko_scratch_registry%request(this%z, temp_indices(4), n, .false.)
+    call neko_scratch_registry%request(this%alpha, temp_indices(5), CG_P_SPACE, .false.)
+    call neko_scratch_registry%request(p_tmp, temp_indices(3), &
          n * CG_P_SPACE, .false.)
-    call neko_scratch_registry%request_host_array(z_tmp, temp_indices(4), &
-         n, .false.)
-    call neko_scratch_registry%request_host_array(alpha_tmp, &
-         temp_indices(5), CG_P_SPACE, .false.)
 
-    this%w => w_tmp%x
-    this%r => r_tmp%x
     this%p(1:n, 1:CG_P_SPACE) => p_tmp%x
-    this%z => z_tmp%x
-    this%alpha => alpha_tmp%x
 
-    associate(w => this%w, r => this%r, p => this%p, &
-         z => this%z, alpha => this%alpha)
+    associate(w => this%w%x, r => this%r%x, p => this%p%x, &
+         z => this%z%x, alpha => this%alpha%x)
 
       rtz1 = 1.0_rp
       rtr = 0.0_rp
