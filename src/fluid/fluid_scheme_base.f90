@@ -39,7 +39,7 @@ module fluid_scheme_base
   use gather_scatter, only : gs_t
   use json_module, only : json_file
   use logger, only : LOG_SIZE
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use checkpoint, only : chkp_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBL_LEN
   use space, only : space_t
@@ -276,10 +276,10 @@ module fluid_scheme_base
   abstract interface
      function fluid_scheme_base_compute_cfl_intrf(this, dt) result(c)
        import fluid_scheme_base_t
-       import rp
+       import dp
        class(fluid_scheme_base_t), intent(in) :: this
-       real(kind=rp), intent(in) :: dt
-       real(kind=rp) :: c
+       real(kind=dp), intent(in) :: dt
+       real(kind=dp) :: c
      end function fluid_scheme_base_compute_cfl_intrf
   end interface
 

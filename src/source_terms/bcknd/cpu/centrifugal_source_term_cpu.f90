@@ -66,7 +66,12 @@ contains
     fv => fields%get_by_index(2)
     fw => fields%get_by_index(3)
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do private(i, rx, ry, rz, cx, cy, cz)
+    do i = 1, n
        ! displacement with respect to reference point
        rx = dof%x(i,1,1,1) - ref_point(1)
        ry = dof%y(i,1,1,1) - ref_point(2)
@@ -82,6 +87,7 @@ contains
        fv%x(i,1,1,1) = fv%x(i,1,1,1) - (omega(3) * cx - omega(1) * cz)
        fw%x(i,1,1,1) = fw%x(i,1,1,1) - (omega(1) * cy - omega(2) * cx)
     end do
+    !$omp end parallel do
 
   end subroutine centrifugal_source_term_compute_cpu
 

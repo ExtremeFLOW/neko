@@ -183,13 +183,13 @@ contains
     type(space_t) :: Xh
     type(coef_t) :: coef
     integer :: nelv, gdim
-    real(kind=rp) :: dt
+    real(kind=dp) :: dt
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u, v, w
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
-    cfl = 0d0
+    cfl = 0.0_dp
     if (gdim .eq. 3) then
        !$omp parallel do reduction(max:cfl) private(e, k, j, i, ur, us, ut, &
        !$omp& cflr, cfls, cflt, cflm)

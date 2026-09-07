@@ -23,6 +23,12 @@ extern void *zero_dirichlet_program;
 /** Device Symmetry kernels */
 extern void *symmetry_program;
 
+/** Device mixed BC constraint kernels */
+extern void *constrain_mixed_bc_program;
+
+/** Device coupled vector BC projector kernels */
+extern void *coupled_vector_bc_projector_program;
+
 /** Device Facet normal kernels */
 extern void *facet_normal_program;
 
@@ -67,6 +73,9 @@ extern void *ax_helm_full_program;
 
 /** Device jacobi kernels */
 extern void *jacobi_program;
+
+/** Device BiCGStab kernels */
+extern void *bicgstab_program;
 
 /** Device rhs_maker kernels */
 extern void *rhs_maker_program;
@@ -123,5 +132,50 @@ extern void *entropy_viscosity_program;
 
 /** Device IDW source term kernels */
 extern void *idw_program;
+
+/** Device Smagorinsky eddy viscosity kernels */
+extern void *smagorinsky_nut_program;
+
+/** Device WALE eddy viscosity kernels */
+extern void *wale_nut_program;
+
+/** Device Sigma eddy viscosity kernels */
+extern void *sigma_nut_program;
+
+/** Device Vreman eddy viscosity kernels */
+extern void *vreman_nut_program;
+
+/** Device Deardorff eddy viscosity kernels */
+extern void *deardorff_nut_program;
+
+/** Device dynamic Smagorinsky kernels */
+extern void *dynamic_smagorinsky_nut_program;
+
+/** Device wall model kernels */
+extern void *wall_model_program;
+
+/** Device rough log-law wall model kernels */
+extern void *rough_log_law_program;
+
+/** Device Spalding wall model kernels */
+extern void *spalding_program;
+
+/** Device Richardson wall model kernels */
+extern void *richardson_program;
+
+/** Device MOST wall model kernels */
+extern void *most_program;
+
+/** Device LPT periodic boundary kernels */
+extern void *lpt_periodic_bc_program;
+
+/** Device LPT wall collision kernels */
+extern void *lpt_wall_collision_program;
+
+/** Device ALE mesh kinematics kernels */
+extern void *ale_kinematics_program;
+
+/** Device gradient jump penalty kernels */
+extern void *gradient_jump_penalty_program;
 
 #endif

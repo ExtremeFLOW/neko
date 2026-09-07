@@ -1,0 +1,958 @@
+module test_coupled_bc_projector
+  use mpi
+  use pfunit
+  use num_types, only : rp
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use device, only : device_init, device_finalize, device_map, device_unmap, &
+       device_get_ptr, device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_mpi_types, only : neko_mpi_types_init
+  use mesh_fixture, only : single_reference_element_mesh, &
+       single_skewed_element_mesh, two_adjacent_unit_hex_mesh
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
+  use coefs, only : coef_t
+  use dofmap, only : dofmap_t
+  use gather_scatter, only : gs_t
+  use scratch_registry, only : neko_scratch_registry
+  use dirichlet, only : dirichlet_t
+  use bc_list, only : bc_list_t
+  use symmetry, only : symmetry_t
+  use non_normal, only : non_normal_t
+  use bc, only : bc_t
+  use vector_bc_projector, only : coupled_vector_bc_projector_t
+  use utils, only : linear_index
+  implicit none
+
+  real(kind=rp), parameter :: test_tol = 1000.0_rp * epsilon(1.0_rp)
+
+  @TestCase
+  type, extends(MPITestCase) :: test_coupled_bc_projector_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_coupled_bc_projector_case
+
+contains
+
+  subroutine setUp(this)
+    class(test_coupled_bc_projector_case), intent(inout) :: this
+    integer :: ierr
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call neko_mpi_types_init()
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_coupled_bc_projector_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  !> Verify that the parallel test template is wired correctly.
+  @test(npes=[1])
+  subroutine test_single_element(this)
+    class(test_coupled_bc_projector_case), intent(inout) :: this
+    integer :: ierr, comm_size
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    class(bc_t), pointer :: bc_ptr
+    integer :: zone_idx, i, j
+    integer, dimension(9) :: face1_dofs, face1_dofmap
+    integer :: center_idx, top_edge_idx
+    type(coupled_vector_bc_projector_t) :: bc_projector
+    real(kind=rp) :: tangential_value(3)
+
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call MPI_Comm_size(NEKO_COMM%mpi_val, comm_size, ierr)
+
+    ! Mesh and SEM
+    call single_reference_element_mesh(mesh)
+    call Xh%init(GLL, 3, 3, 3)
+    call dof%init(mesh, Xh)
+    call neko_scratch_registry%init(dof = dof)
+    call gs%init(dof)
+    call coef%init(gs)
+
+    ! DOF indices on face 1 (i = 1) of the 3x3x3 reference hex.
+    face1_dofs = [1, 4, 7, 10, 13, 16, 19, 22, 25]
+    face1_dofmap = 0
+
+    ! Mark each face of the hex with a zone
+    do zone_idx = 1, 6
+       call mesh%mark_labeled_facet(zone_idx, 1, zone_idx)
+       call mesh%labeled_zones(zone_idx)%finalize()
+    end do
+
+    tangential_value = 0.0_rp
+
+    ! Create a BC for each zone: symmetry on face 1, Dirichlet elsewhere.
+    call bclst%init(6)
+    call append_symmetry_bc(bclst, symmetry_bcs(1), coef, 1)
+    do zone_idx = 2, 6
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, zone_idx, &
+            real(zone_idx, rp))
+    end do
+
+    ! Verify the setup is correct.
+    @assertEqual(6, bclst%size())
+    do zone_idx = 1, 6
+       @assertEqual(1, mesh%labeled_zones(zone_idx)%size)
+       bc_ptr => bclst%get_by_zone_index(zone_idx)
+       @assertTrue(associated(bc_ptr))
+       @assertEqual(zone_idx, bc_ptr%zone_indices(1))
+    end do
+
+    call bc_projector%init(coef)
+    call bc_projector%mark(bclst)
+    call bc_projector%finalize(.true.)
+
+    ! Find face-1 indices in the resolved mixed-node mask.
+    face1_dofmap = 0
+    do i = 1, size(face1_dofs)
+       do j = 1, bc_projector%mixed_dof_mask%size()
+          if (bc_projector%mixed_dof_mask%get(j) .eq. face1_dofs(i)) then
+             face1_dofmap(i) = j
+             exit
+          end if
+       end do
+    end do
+
+    center_idx = face1_dofmap(5)
+    @assertTrue(center_idx > 0)
+    @assertEqual(1, bc_projector%mixed_dof_mask%size())
+
+    @assertEqual(2.0_rp, bc_projector%face_type(1, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%face_type(2, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%face_type(3, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%face_type(4, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%face_type(5, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%face_type(6, 1), tolerance=test_tol)
+
+    ! All nodes are constrained except for the one in the center of the cube.
+    @assertEqual(26, bc_projector%dirichlet_dof_mask%size() + bc_projector%mixed_dof_mask%size())
+
+    ! We expect face 1 to have normals [-1 0 0]. These will be
+    ! generated by the first pass of the projector, and not touched
+    ! by edge and corner treatment because that only runs on mixed
+    ! nodes, and here the nodes will be marked as class 0.
+
+    @assertEqual(-1.0_rp, bc_projector%n%x(1, center_idx), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%n%x(2, center_idx), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%n%x(3, center_idx), tolerance=test_tol)
+
+    call bc_projector%free()
+    call bclst%free()
+    do zone_idx = 1, 6
+       call dirichlet_bcs(zone_idx)%free()
+       call symmetry_bcs(zone_idx)%free()
+       call non_normal_bcs(zone_idx)%free()
+    end do
+
+    ! Set class 3 on the top face while keeping face 1 as symmetry.
+    call bclst%init(6)
+    call append_symmetry_bc(bclst, symmetry_bcs(1), coef, 1)
+    do zone_idx = 2, 5
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, zone_idx, &
+            real(zone_idx, rp))
+    end do
+    call append_non_normal_bc(bclst, non_normal_bcs(6), coef, 6, tangential_value)
+    call bc_projector%init(coef)
+    call bc_projector%mark(bclst)
+    call bc_projector%finalize(.true.)
+
+    face1_dofmap = 0
+    do i = 1, size(face1_dofs)
+       do j = 1, bc_projector%mixed_dof_mask%size()
+          if (bc_projector%mixed_dof_mask%get(j) .eq. face1_dofs(i)) then
+             face1_dofmap(i) = j
+             exit
+          end if
+       end do
+    end do
+
+    center_idx = face1_dofmap(5)
+    top_edge_idx = face1_dofmap(8)
+
+    @assertEqual(2.0_rp, bc_projector%face_type(1, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%face_type(2, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%face_type(3, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%face_type(4, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%face_type(5, 1), tolerance=test_tol)
+    @assertEqual(3.0_rp, bc_projector%face_type(6, 1), tolerance=test_tol)
+
+    ! Only face-1 nodes that retain class 2 survive in the mixed mask here:
+    ! the face center and the top-edge midpoint shared with face 6.
+    @assertTrue(center_idx > 0)
+    @assertTrue(top_edge_idx > 0)
+    @assertEqual(2, count(face1_dofmap > 0))
+    @assertEqual(-1.0_rp, bc_projector%n%x(1, center_idx), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%n%x(2, center_idx), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%n%x(3, center_idx), tolerance=test_tol)
+    @assertEqual(-1.0_rp, bc_projector%n%x(1, top_edge_idx), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%n%x(2, top_edge_idx), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_projector%n%x(3, top_edge_idx), tolerance=test_tol)
+
+    call bc_projector%free()
+    call bclst%free()
+    do zone_idx = 1, 6
+       call dirichlet_bcs(zone_idx)%free()
+       call symmetry_bcs(zone_idx)%free()
+       call non_normal_bcs(zone_idx)%free()
+    end do
+
+    ! Set class 2 on all faces.
+    call bclst%init(6)
+    do zone_idx = 1, 6
+       call append_symmetry_bc(bclst, symmetry_bcs(zone_idx), coef, zone_idx)
+    end do
+
+    call bc_projector%init(coef)
+    call bc_projector%mark(bclst)
+    call bc_projector%finalize(.true.)
+
+    face1_dofmap = 0
+    do i = 1, size(face1_dofs)
+       do j = 1, bc_projector%mixed_dof_mask%size()
+          if (bc_projector%mixed_dof_mask%get(j) .eq. face1_dofs(i)) then
+             face1_dofmap(i) = j
+             exit
+          end if
+       end do
+       @assertTrue(face1_dofmap(i) > 0)
+    end do
+
+    @assertEqual(2.0_rp, bc_projector%face_type(1, 1), tolerance=test_tol)
+    @assertEqual(2.0_rp, bc_projector%face_type(2, 1), tolerance=test_tol)
+    @assertEqual(2.0_rp, bc_projector%face_type(3, 1), tolerance=test_tol)
+    @assertEqual(2.0_rp, bc_projector%face_type(4, 1), tolerance=test_tol)
+    @assertEqual(2.0_rp, bc_projector%face_type(5, 1), tolerance=test_tol)
+    @assertEqual(2.0_rp, bc_projector%face_type(6, 1), tolerance=test_tol)
+
+    ! With all faces set to class 2, every node on face 1 is mixed
+    ! and is rebuilt by the edge/corner logic:
+    ! - the face-center node only belongs to face 1, so its normal
+    !   is (-1,0,0)
+    ! - edge midpoints on face 1 are shared with exactly one other
+    !   class-2 face, so their normals are the normalized sums of
+    !   two axis-aligned face normals:
+    !   (-1,0,-1), (-1,-1,0), (-1,1,0), (-1,0,1), each divided by
+    !   sqrt(2)
+    ! - corner nodes on face 1 are shared with two additional
+    !   class-2 faces, so their normals are the normalized sums of
+    !   three axis-aligned face normals:
+    !   (-1,-1,-1), (-1,1,-1), (-1,-1,1), (-1,1,1), each divided by
+    !   sqrt(3)
+    do i = 1, size(face1_dofmap)
+       select case (face1_dofs(i))
+       case (1)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_projector%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_projector%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_projector%n%x(3, face1_dofmap(i)), tolerance=test_tol)
+       case (4)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_projector%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(0.0_rp, bc_projector%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_projector%n%x(3, face1_dofmap(i)), tolerance=test_tol)
+       case (7)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_projector%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_projector%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_projector%n%x(3, face1_dofmap(i)), tolerance=test_tol)
+       case (10)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_projector%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_projector%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(0.0_rp, bc_projector%n%x(3, face1_dofmap(i)), tolerance=test_tol)
+       case (13)
+          @assertEqual(-1.0_rp, bc_projector%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(0.0_rp, bc_projector%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(0.0_rp, bc_projector%n%x(3, face1_dofmap(i)), tolerance=test_tol)
+       case (16)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_projector%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(1.0_rp / sqrt(2.0_rp), bc_projector%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(0.0_rp, bc_projector%n%x(3, face1_dofmap(i)), tolerance=test_tol)
+       case (19)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_projector%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_projector%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_projector%n%x(3, face1_dofmap(i)), tolerance=test_tol)
+       case (22)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_projector%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(0.0_rp, bc_projector%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(1.0_rp / sqrt(2.0_rp), bc_projector%n%x(3, face1_dofmap(i)), tolerance=test_tol)
+       case (25)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_projector%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_projector%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_projector%n%x(3, face1_dofmap(i)), tolerance=test_tol)
+       end select
+    end do
+
+
+    !do i = 1, bc_projector%mixed_dof_mask%size()
+    !   write(*,*) bc_projector%n%x(:, i)
+    !end do
+    !write(*,*) size(bc_projector%n%x, 1), size(bc_projector%n%x, 2)
+    !write(*,*) sum(bc_projector%n%x(1, :))
+    !write(*,*) sum(bc_projector%n%x(2, :))
+    !write(*,*) sum(bc_projector%n%x(3, :))
+
+    call bclst%free()
+    do zone_idx = 1, 6
+       call dirichlet_bcs(zone_idx)%free()
+       call symmetry_bcs(zone_idx)%free()
+       call non_normal_bcs(zone_idx)%free()
+    end do
+    call neko_scratch_registry%free()
+    call coef%free()
+    call gs%free()
+    call dof%free()
+    call Xh%free()
+    call mesh%free()
+    call bc_projector%free()
+
+  end subroutine test_single_element
+
+  !> Verify the homogeneous apply path for a symmetry boundary condition.
+  !! The projector should remove only the normal velocity component on the
+  !! resolved mixed node while leaving tangential components intact. Dirichlet
+  !! nodes on the other faces are also checked to make sure they are zeroed in
+  !! Cartesian space before the mixed-node projection is applied.
+  @test(npes=[1])
+  subroutine test_coupled_apply_symmetry(this)
+    class(test_coupled_bc_projector_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_projector_t) :: bc_projector
+    real(kind=rp), allocatable :: x(:), y(:), z(:)
+    integer :: zone_idx, dof_size
+    integer, parameter :: face_center = 13
+    integer, parameter :: interior = 14
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_reference_case(mesh, Xh, dof, gs, coef)
+
+    call bclst%init(6)
+    call append_symmetry_bc(bclst, symmetry_bcs(1), coef, 1)
+    do zone_idx = 2, 6
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, &
+            zone_idx, real(zone_idx, rp))
+    end do
+
+    call bc_projector%init(coef)
+    call bc_projector%mark(bclst)
+    call bc_projector%finalize(.true.)
+
+    dof_size = dof%size()
+    allocate(x(dof_size), y(dof_size), z(dof_size))
+    x = 4.0_rp
+    y = 5.0_rp
+    z = 6.0_rp
+
+    call map_vectors(x, y, z)
+    call bc_projector%apply(x, y, z, dof_size)
+    call unmap_vectors(x, y, z)
+
+    ! Face 1 has normal (-1, 0, 0), so a symmetry condition kills only x.
+    @assertEqual(0.0_rp, x(face_center), tolerance=test_tol)
+    @assertEqual(5.0_rp, y(face_center), tolerance=test_tol)
+    @assertEqual(6.0_rp, z(face_center), tolerance=test_tol)
+
+    ! A node on a Dirichlet face is fully constrained in Cartesian space.
+    @assertEqual(0.0_rp, x(2), tolerance=test_tol)
+    @assertEqual(0.0_rp, y(2), tolerance=test_tol)
+    @assertEqual(0.0_rp, z(2), tolerance=test_tol)
+
+    ! Interior nodes are outside the resolved boundary masks.
+    @assertEqual(4.0_rp, x(interior), tolerance=test_tol)
+    @assertEqual(5.0_rp, y(interior), tolerance=test_tol)
+    @assertEqual(6.0_rp, z(interior), tolerance=test_tol)
+
+    deallocate(x, y, z)
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_projector%free()
+  end subroutine test_coupled_apply_symmetry
+
+  !> Verify that the near-z fallback still produces an orthonormal basis.
+  !! A slightly skewed top face has a normal with |n_z| > 0.999 and nonzero
+  !! n_x. Projecting a velocity onto its tangent plane must leave no normal
+  !! component.
+  @test(npes=[1])
+  subroutine test_coupled_apply_symmetry_near_z(this)
+    class(test_coupled_bc_projector_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_projector_t) :: bc_projector
+    real(kind=rp), allocatable :: x(:), y(:), z(:)
+    real(kind=rp) :: normal_component, n_dot_t1, n_dot_t2, t1_dot_t2
+    real(kind=rp) :: t1_norm, t2_norm
+    integer :: zone_idx, dof_size, projector_idx
+    integer, parameter :: top_center = 23
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_skewed_case(mesh, Xh, dof, gs, coef)
+
+    call bclst%init(6)
+    do zone_idx = 1, 5
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, &
+            zone_idx, real(zone_idx, rp))
+    end do
+    call append_symmetry_bc(bclst, symmetry_bcs(6), coef, 6)
+
+    call bc_projector%init(coef)
+    call bc_projector%mark(bclst)
+    call bc_projector%finalize(.true.)
+
+    projector_idx = find_mask_index(bc_projector%mixed_dof_mask, top_center)
+    @assertTrue(projector_idx > 0)
+    @assertTrue(abs(bc_projector%n%x(3, projector_idx)) > 0.999_rp)
+    @assertTrue(abs(bc_projector%n%x(1, projector_idx)) > 0.01_rp)
+    n_dot_t1 = dot_product(bc_projector%n%x(:, projector_idx), &
+         bc_projector%t1%x(:, projector_idx))
+    n_dot_t2 = dot_product(bc_projector%n%x(:, projector_idx), &
+         bc_projector%t2%x(:, projector_idx))
+    t1_dot_t2 = dot_product(bc_projector%t1%x(:, projector_idx), &
+         bc_projector%t2%x(:, projector_idx))
+    t1_norm = sqrt(sum(bc_projector%t1%x(:, projector_idx)**2))
+    t2_norm = sqrt(sum(bc_projector%t2%x(:, projector_idx)**2))
+    @assertEqual(0.0_rp, n_dot_t1, tolerance=test_tol)
+    @assertEqual(0.0_rp, n_dot_t2, tolerance=test_tol)
+    @assertEqual(0.0_rp, t1_dot_t2, tolerance=test_tol)
+    @assertEqual(1.0_rp, t1_norm, tolerance=test_tol)
+    @assertEqual(1.0_rp, t2_norm, tolerance=test_tol)
+
+    dof_size = dof%size()
+    allocate(x(dof_size), y(dof_size), z(dof_size))
+    x = 4.0_rp
+    y = 5.0_rp
+    z = 6.0_rp
+
+    call map_vectors(x, y, z)
+    call bc_projector%apply(x, y, z, dof_size)
+    call unmap_vectors(x, y, z)
+
+    normal_component = x(top_center) * &
+         bc_projector%n%x(1, projector_idx) + y(top_center) * &
+         bc_projector%n%x(2, projector_idx) + z(top_center) * &
+         bc_projector%n%x(3, projector_idx)
+    @assertEqual(0.0_rp, normal_component, tolerance=test_tol)
+
+    deallocate(x, y, z)
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_projector%free()
+  end subroutine test_coupled_apply_symmetry_near_z
+
+  !> Verify the homogeneous apply path for a non-normal boundary condition.
+  !! The coupled projector treats class-3 nodes by preserving the normal
+  !! component and removing the two tangential components. With face 1 normal
+  !! (-1, 0, 0), this means x survives and y/z are zeroed on the resolved
+  !! mixed node.
+  @test(npes=[1])
+  subroutine test_coupled_apply_non_normal(this)
+    class(test_coupled_bc_projector_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_projector_t) :: bc_projector
+    real(kind=rp), allocatable :: x(:), y(:), z(:)
+    real(kind=rp) :: tangential_value(3)
+    integer :: zone_idx, dof_size
+    integer, parameter :: face_center = 13
+    integer, parameter :: interior = 14
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_reference_case(mesh, Xh, dof, gs, coef)
+
+    tangential_value = [0.0_rp, 0.0_rp, 0.0_rp]
+    call bclst%init(6)
+    call append_non_normal_bc(bclst, non_normal_bcs(1), coef, 1, &
+         tangential_value)
+    do zone_idx = 2, 6
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, &
+            zone_idx, real(zone_idx, rp))
+    end do
+
+    call bc_projector%init(coef)
+    call bc_projector%mark(bclst)
+    call bc_projector%finalize(.true.)
+
+    dof_size = dof%size()
+    allocate(x(dof_size), y(dof_size), z(dof_size))
+    x = 4.0_rp
+    y = 5.0_rp
+    z = 6.0_rp
+
+    call map_vectors(x, y, z)
+    call bc_projector%apply(x, y, z, dof_size)
+    call unmap_vectors(x, y, z)
+
+    ! Face 1 has normal (-1, 0, 0), so only the x/normal component remains.
+    @assertEqual(4.0_rp, x(face_center), tolerance=test_tol)
+    @assertEqual(0.0_rp, y(face_center), tolerance=test_tol)
+    @assertEqual(0.0_rp, z(face_center), tolerance=test_tol)
+    @assertEqual(4.0_rp, x(interior), tolerance=test_tol)
+    @assertEqual(5.0_rp, y(interior), tolerance=test_tol)
+    @assertEqual(6.0_rp, z(interior), tolerance=test_tol)
+
+    deallocate(x, y, z)
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_projector%free()
+  end subroutine test_coupled_apply_non_normal
+
+  !> Verify that a projector containing only Dirichlet conditions constructs
+  !! an allocated, empty mixed mask and empty basis matrices.
+  @test(npes=[1])
+  subroutine test_empty_mixed_mask(this)
+    class(test_coupled_bc_projector_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_projector_t) :: bc_projector
+    integer :: zone_idx
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_reference_case(mesh, Xh, dof, gs, coef)
+
+    call bclst%init(6)
+    do zone_idx = 1, 6
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, &
+            zone_idx, 0.0_rp)
+    end do
+
+    call bc_projector%init(coef)
+    call bc_projector%mark(bclst)
+    call bc_projector%finalize(.true.)
+
+    @assertEqual(26, bc_projector%dirichlet_dof_mask%size())
+    @assertEqual(0, bc_projector%mixed_dof_mask%size())
+    @assertEqual(0, bc_projector%n%size())
+    @assertEqual(0, bc_projector%t1%size())
+    @assertEqual(0, bc_projector%t2%size())
+
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_projector%free()
+  end subroutine test_empty_mixed_mask
+
+  !> Verify that finalize propagates resolved masks and local basis vectors
+  !! back into each mixed boundary condition. In this setup a class-2 symmetry
+  !! face and a class-3 non-normal face meet on an edge, while the remaining
+  !! faces are Dirichlet. The resolved BC-local supports should contain only
+  !! nodes whose globally reduced type still matches the BC type.
+  @test(npes=[1])
+  subroutine test_mixed_bc_basis_propagated(this)
+    class(test_coupled_bc_projector_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_projector_t) :: bc_projector
+    real(kind=rp) :: tangential_value(3)
+    integer :: zone_idx, i, global_idx, projector_idx
+    integer :: symmetry_size, non_normal_size
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_reference_case(mesh, Xh, dof, gs, coef)
+
+    tangential_value = [0.0_rp, 0.0_rp, 0.0_rp]
+    call bclst%init(6)
+    call append_symmetry_bc(bclst, symmetry_bcs(1), coef, 1)
+    do zone_idx = 2, 5
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, &
+            zone_idx, real(zone_idx, rp))
+    end do
+    call append_non_normal_bc(bclst, non_normal_bcs(6), coef, 6, &
+         tangential_value)
+
+    call bc_projector%init(coef)
+    call bc_projector%mark(bclst)
+    call bc_projector%finalize(.true.)
+
+    symmetry_size = symmetry_bcs(1)%resolved_msk%size()
+    non_normal_size = non_normal_bcs(6)%resolved_msk%size()
+
+    @assertEqual(2, symmetry_size)
+    @assertEqual(1, non_normal_size)
+    @assertEqual(symmetry_size, size(symmetry_bcs(1)%n%x, 2))
+    @assertEqual(non_normal_size, size(non_normal_bcs(6)%n%x, 2))
+
+    ! Every BC-local basis vector should be copied from the global projector
+    ! entry for the same resolved dof.
+    do i = 1, symmetry_bcs(1)%resolved_msk%size()
+       global_idx = symmetry_bcs(1)%resolved_msk%get(i)
+       projector_idx = find_mask_index(bc_projector%mixed_dof_mask, global_idx)
+       @assertTrue(projector_idx > 0)
+       call assert_basis_equal(symmetry_bcs(1)%n%x(:, i), &
+            bc_projector%n%x(:, projector_idx))
+       call assert_basis_equal(symmetry_bcs(1)%t1%x(:, i), &
+            bc_projector%t1%x(:, projector_idx))
+       call assert_basis_equal(symmetry_bcs(1)%t2%x(:, i), &
+            bc_projector%t2%x(:, projector_idx))
+    end do
+
+    do i = 1, non_normal_bcs(6)%resolved_msk%size()
+       global_idx = non_normal_bcs(6)%resolved_msk%get(i)
+       projector_idx = find_mask_index(bc_projector%mixed_dof_mask, global_idx)
+       @assertTrue(projector_idx > 0)
+       call assert_basis_equal(non_normal_bcs(6)%n%x(:, i), &
+            bc_projector%n%x(:, projector_idx))
+       call assert_basis_equal(non_normal_bcs(6)%t1%x(:, i), &
+            bc_projector%t1%x(:, projector_idx))
+       call assert_basis_equal(non_normal_bcs(6)%t2%x(:, i), &
+            bc_projector%t2%x(:, projector_idx))
+    end do
+
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_projector%free()
+  end subroutine test_mixed_bc_basis_propagated
+
+  !> Verify that finalize(rebuild_mask=.false.) reuses the already resolved
+  !! masks while rebuilding a valid basis. The mask sizes and representative
+  !! normal vector must be unchanged after the second finalize call.
+  @test(npes=[1])
+  subroutine test_finalize_rebuild_false(this)
+    class(test_coupled_bc_projector_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_projector_t) :: bc_projector
+    integer :: zone_idx, mixed_size, dirichlet_size, center_idx
+    real(kind=rp) :: normal_before(3)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_reference_case(mesh, Xh, dof, gs, coef)
+
+    call bclst%init(6)
+    do zone_idx = 1, 6
+       call append_symmetry_bc(bclst, symmetry_bcs(zone_idx), coef, zone_idx)
+    end do
+
+    call bc_projector%init(coef)
+    call bc_projector%mark(bclst)
+    call bc_projector%finalize(.true.)
+
+    mixed_size = bc_projector%mixed_dof_mask%size()
+    dirichlet_size = bc_projector%dirichlet_dof_mask%size()
+    center_idx = find_mask_index(bc_projector%mixed_dof_mask, 13)
+    @assertTrue(center_idx > 0)
+    normal_before = bc_projector%n%x(:, center_idx)
+
+    call bc_projector%finalize(.false.)
+
+    @assertEqual(mixed_size, bc_projector%mixed_dof_mask%size())
+    @assertEqual(dirichlet_size, bc_projector%dirichlet_dof_mask%size())
+    center_idx = find_mask_index(bc_projector%mixed_dof_mask, 13)
+    @assertTrue(center_idx > 0)
+    call assert_basis_equal(normal_before, bc_projector%n%x(:, center_idx))
+
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_projector%free()
+    @assertEqual(0, bc_projector%n%size())
+    @assertEqual(0, bc_projector%t1%size())
+    @assertEqual(0, bc_projector%t2%size())
+  end subroutine test_finalize_rebuild_false
+
+  !> Verify that shared-node gather-scatter resolution keeps the
+  !! highest-priority boundary type across adjacent elements. A symmetry face
+  !! on one element and a Dirichlet face on the neighboring element meet at
+  !! shared nodes; those shared dofs should become fully constrained rather
+  !! than mixed.
+  @test(npes=[1])
+  subroutine test_two_element_shared_face(this)
+    class(test_coupled_bc_projector_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_projector_t) :: bc_projector
+    integer :: shared_idx, symmetry_center
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_two_element_case(mesh, Xh, dof, gs, coef)
+
+    call bclst%init(2)
+    call append_symmetry_bc(bclst, symmetry_bcs(1), coef, 1)
+    call append_dirichlet_bc(bclst, dirichlet_bcs(2), coef, 2, 0.0_rp)
+
+    call bc_projector%init(coef)
+    call bc_projector%mark(bclst)
+    call bc_projector%finalize(.true.)
+
+    ! Element 1 face 2 and element 2 face 1 are geometrically coincident in
+    ! the two-hex fixture. The Dirichlet classification should win there after
+    ! GS_OP_MIN propagation.
+    shared_idx = linear_index(3, 2, 2, 1, 3, 3, 3)
+    @assertTrue(find_mask_index(bc_projector%dirichlet_dof_mask, shared_idx) > 0)
+    @assertEqual(0, find_mask_index(bc_projector%mixed_dof_mask, shared_idx))
+
+    ! A symmetry face-center away from the shared Dirichlet face remains mixed.
+    symmetry_center = linear_index(1, 2, 2, 1, 3, 3, 3)
+    @assertTrue(find_mask_index(bc_projector%mixed_dof_mask, symmetry_center) > 0)
+
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_projector%free()
+  end subroutine test_two_element_shared_face
+
+  subroutine append_dirichlet_bc(bclst, bc, coef, zone_idx, value)
+    type(bc_list_t), intent(inout) :: bclst
+    type(dirichlet_t), intent(inout), target :: bc
+    type(coef_t), target, intent(in) :: coef
+    integer, intent(in) :: zone_idx
+    real(kind=rp), intent(in) :: value
+
+    call bc%init_from_components(coef, value)
+    call bc%mark_labeled_zone(zone_idx)
+    call bc%finalize()
+    call bclst%append(bc)
+  end subroutine append_dirichlet_bc
+
+  subroutine append_symmetry_bc(bclst, bc, coef, zone_idx)
+    type(bc_list_t), intent(inout) :: bclst
+    type(symmetry_t), intent(inout), target :: bc
+    type(coef_t), target, intent(in) :: coef
+    integer, intent(in) :: zone_idx
+
+    call bc%init_from_components(coef)
+    call bc%mark_labeled_zone(zone_idx)
+    call bc%finalize()
+    call bclst%append(bc)
+  end subroutine append_symmetry_bc
+
+  subroutine append_non_normal_bc(bclst, bc, coef, zone_idx, value)
+    type(bc_list_t), intent(inout) :: bclst
+    type(non_normal_t), intent(inout), target :: bc
+    type(coef_t), target, intent(in) :: coef
+    integer, intent(in) :: zone_idx
+    real(kind=rp), intent(in) :: value(3)
+
+    call bc%init_from_components(coef, value)
+    call bc%mark_labeled_zone(zone_idx)
+    call bc%finalize()
+    call bclst%append(bc)
+  end subroutine append_non_normal_bc
+
+  subroutine init_reference_case(mesh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: mesh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+    integer :: zone_idx
+
+    call single_reference_element_mesh(mesh)
+    call Xh%init(GLL, 3, 3, 3)
+    call dof%init(mesh, Xh)
+    call neko_scratch_registry%init(dof = dof)
+    call gs%init(dof)
+    call coef%init(gs)
+
+    do zone_idx = 1, 6
+       call mesh%mark_labeled_facet(zone_idx, 1, zone_idx)
+       call mesh%labeled_zones(zone_idx)%finalize()
+    end do
+  end subroutine init_reference_case
+
+  subroutine init_skewed_case(mesh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: mesh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+    integer :: zone_idx
+
+    call single_skewed_element_mesh(mesh)
+    call Xh%init(GLL, 3, 3, 3)
+    call dof%init(mesh, Xh)
+    call neko_scratch_registry%init(dof = dof)
+    call gs%init(dof)
+    call coef%init(gs)
+
+    do zone_idx = 1, 6
+       call mesh%mark_labeled_facet(zone_idx, 1, zone_idx)
+       call mesh%labeled_zones(zone_idx)%finalize()
+    end do
+  end subroutine init_skewed_case
+
+  subroutine init_two_element_case(mesh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: mesh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+
+    call two_adjacent_unit_hex_mesh(mesh)
+    call Xh%init(GLL, 3, 3, 3)
+    call dof%init(mesh, Xh)
+    call neko_scratch_registry%init(dof = dof)
+    call gs%init(dof)
+    call coef%init(gs)
+
+    ! Zone 1 is the exterior x-min face of element 1. Zone 2 deliberately
+    ! marks the matching x-max face of element 1 and x-min face of element 2,
+    ! giving the projector shared nodes with competing BC classifications.
+    call mesh%mark_labeled_facet(1, 1, 1)
+    call mesh%labeled_zones(1)%finalize()
+    call mesh%mark_labeled_facet(2, 1, 2)
+    call mesh%mark_labeled_facet(1, 2, 2)
+    call mesh%labeled_zones(2)%finalize()
+  end subroutine init_two_element_case
+
+  subroutine free_reference_case(mesh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: mesh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+
+    call neko_scratch_registry%free()
+    call coef%free()
+    call gs%free()
+    call dof%free()
+    call Xh%free()
+    call mesh%free()
+  end subroutine free_reference_case
+
+  subroutine free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    type(bc_list_t), intent(inout) :: bclst
+    type(dirichlet_t), intent(inout) :: dirichlet_bcs(6)
+    type(symmetry_t), intent(inout) :: symmetry_bcs(6)
+    type(non_normal_t), intent(inout) :: non_normal_bcs(6)
+    integer :: zone_idx
+
+    call bclst%free()
+    do zone_idx = 1, 6
+       call dirichlet_bcs(zone_idx)%free()
+       call symmetry_bcs(zone_idx)%free()
+       call non_normal_bcs(zone_idx)%free()
+    end do
+  end subroutine free_bc_objects
+
+  integer function find_mask_index(msk, value) result(mask_idx)
+    use mask, only : mask_t
+    type(mask_t), intent(in) :: msk
+    integer, intent(in) :: value
+    integer :: i
+
+    mask_idx = 0
+    do i = 1, msk%size()
+       if (msk%get(i) .eq. value) then
+          mask_idx = i
+          return
+       end if
+    end do
+  end function find_mask_index
+
+  subroutine assert_basis_equal(a, b)
+    real(kind=rp), intent(in) :: a(3), b(3)
+
+    @assertEqual(a(1), b(1), tolerance=test_tol)
+    @assertEqual(a(2), b(2), tolerance=test_tol)
+    @assertEqual(a(3), b(3), tolerance=test_tol)
+  end subroutine assert_basis_equal
+
+  subroutine map_vectors(x, y, z)
+    real(kind=rp), intent(inout), target :: x(:), y(:), z(:)
+    type(c_ptr) :: x_d, y_d, z_d
+
+    if (NEKO_BCKND_DEVICE .ne. 1) return
+
+    x_d = c_null_ptr
+    y_d = c_null_ptr
+    z_d = c_null_ptr
+    call device_map(x, x_d, size(x))
+    call device_map(y, y_d, size(y))
+    call device_map(z, z_d, size(z))
+    call device_memcpy(x, x_d, size(x), HOST_TO_DEVICE, sync = .true.)
+    call device_memcpy(y, y_d, size(y), HOST_TO_DEVICE, sync = .true.)
+    call device_memcpy(z, z_d, size(z), HOST_TO_DEVICE, sync = .true.)
+  end subroutine map_vectors
+
+  subroutine unmap_vectors(x, y, z)
+    real(kind=rp), intent(inout), target :: x(:), y(:), z(:)
+    type(c_ptr) :: x_d, y_d, z_d
+
+    if (NEKO_BCKND_DEVICE .ne. 1) return
+
+    x_d = device_get_ptr(x)
+    y_d = device_get_ptr(y)
+    z_d = device_get_ptr(z)
+    call device_memcpy(x, x_d, size(x), DEVICE_TO_HOST, sync = .true.)
+    call device_memcpy(y, y_d, size(y), DEVICE_TO_HOST, sync = .true.)
+    call device_memcpy(z, z_d, size(z), DEVICE_TO_HOST, sync = .true.)
+    call device_unmap(x, x_d)
+    call device_unmap(y, y_d)
+    call device_unmap(z, z_d)
+  end subroutine unmap_vectors
+
+end module test_coupled_bc_projector

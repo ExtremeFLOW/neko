@@ -32,7 +32,7 @@
 !
 !> Defines the abstract interface for wall-model field samplers.
 module wall_sampler
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field, only : field_t
   use coefs, only : coef_t
   use vector, only : vector_t
@@ -193,7 +193,7 @@ contains
 
     call output%init(rp, 'wall_model_h_' // trim(bc_name), 1)
     call output%fields%assign_to_ptr(1, h_field)
-    call output%sample(0.0_rp)
+    call output%sample(0.0_dp)
     call output%free()
 
     call neko_scratch_registry%relinquish_field(scratch_index)

@@ -32,7 +32,7 @@
 !
 !> Implements `field_output_t`.
 module field_output
-  use num_types, only : rp
+  use num_types, only : dp
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, DEVICE_TO_HOST
@@ -112,7 +112,7 @@ contains
   !! @param t The time value.
   subroutine field_output_sample(this, t)
     class(field_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
     integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module generic_file
-  use num_types, only : rp
+  use num_types, only : dp
   use utils, only : neko_warning, neko_error, &
        filename_suffix_pos, filename_suffix
   use comm, only : pe_rank, NEKO_COMM
@@ -78,10 +78,10 @@ module generic_file
   abstract interface
      subroutine generic_file_write(this, data, t)
        import :: generic_file_t
-       import :: rp
+       import :: dp
        class(generic_file_t), intent(inout) :: this
        class(*), target, intent(in) :: data
-       real(kind=rp), intent(in), optional :: t
+       real(kind=dp), intent(in), optional :: t
      end subroutine generic_file_write
   end interface
 

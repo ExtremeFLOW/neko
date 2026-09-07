@@ -749,7 +749,8 @@ contains
 
 
     else
-       do concurrent (i = 1:n)
+       !$omp parallel do private(i, wrk, wrk_sqr)
+       do i = 1, n
           wrk = 1.0_rp / this%coef%B(i,1,1,1)
           this%pdudx%mf%x(i,1,1,1) = this%pdudx%mf%x(i,1,1,1) * wrk
           this%pdudy%mf%x(i,1,1,1) = this%pdudy%mf%x(i,1,1,1) * wrk
@@ -772,6 +773,7 @@ contains
           this%e13%mf%x(i,1,1,1) = this%e13%mf%x(i,1,1,1) * wrk_sqr
           this%e23%mf%x(i,1,1,1) = this%e23%mf%x(i,1,1,1) * wrk_sqr
        end do
+       !$omp end parallel do
     end if
 
   end subroutine fluid_stats_make_strong_grad
@@ -890,7 +892,8 @@ contains
                this%w_mean%mf%x, this%coef)
        end if
 
-       do concurrent (i = 1:n)
+       !$omp parallel do private(i, wrk)
+       do i = 1, n
           wrk = 1.0_rp / this%coef%B(i,1,1,1)
           mean_vel_grad%items(1)%ptr%x(i,1,1,1) = this%dudx%x(i,1,1,1) * wrk
           mean_vel_grad%items(2)%ptr%x(i,1,1,1) = this%dudy%x(i,1,1,1) * wrk
@@ -904,6 +907,7 @@ contains
           mean_vel_grad%items(8)%ptr%x(i,1,1,1) = this%dwdy%x(i,1,1,1) * wrk
           mean_vel_grad%items(9)%ptr%x(i,1,1,1) = this%dwdz%x(i,1,1,1) * wrk
        end do
+       !$omp end parallel do
 
     end if
 

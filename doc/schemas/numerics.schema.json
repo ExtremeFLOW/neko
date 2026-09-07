@@ -25,7 +25,7 @@
           "oneOf": [
             {
               "type": "integer",
-              "minimum": 3
+              "minimum": 1
             },
             {
               "$ref": "urn:neko:schema:common#/$defs/constRef"

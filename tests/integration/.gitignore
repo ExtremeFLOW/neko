@@ -7,4 +7,6 @@ logs/
 tests/**/*.case
 **/genmeshbox*
 **/*.csv
+neko.dSYM
+
 !tests/test_scalar_restart/reference_*.csv

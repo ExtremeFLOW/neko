@@ -87,12 +87,16 @@ module most_cpu
 
   ! These will point to the correct functions
   ! depending on stability regime and bc_type.
+  !! @note These are reassigned per node inside the compute loop, so every
+  !! thread needs its own copy. They are always set before being used.
   procedure(slaw_m_interface), pointer :: slaw_m_ptr => null()
   procedure(slaw_h_interface), pointer :: slaw_h_ptr => null()
   procedure(corr_m_interface), pointer :: corr_m_ptr => null()
   procedure(corr_h_interface), pointer :: corr_h_ptr => null()
   procedure(f_interface), pointer :: f_ptr => null()
   procedure(dfdl_interface), pointer :: dfdl_ptr => null()
+  !$omp threadprivate(slaw_m_ptr, slaw_h_ptr, corr_m_ptr, corr_h_ptr, &
+  !$omp& f_ptr, dfdl_ptr)
 
 contains
 
@@ -192,6 +196,9 @@ contains
     real(kind=rp), dimension(n_nodes), intent(inout) :: ti_diagn, ts_diagn
     real(kind=rp), dimension(n_nodes), intent(inout) :: q_diagn
 
+    !$omp parallel do private(i, ui, vi, wi, hi, rho, mu, normu, z0h, &
+    !$omp& L_upper, L_lower, L_old, f, dfdl, fd_h, L_new, L_sign, count, &
+    !$omp& utau, Ri_b, L_ob, magu, q, ti, ts, g_dot_n)
     do i=1, n_nodes
        ! Sample the variables
        ui = u(i)
@@ -280,8 +287,10 @@ contains
 
           if (abs(L_ob) > 5e5_rp .or. abs(L_ob) < 1e-6_rp) then
              count = max_count
+             !$omp critical
              call neko_warning("Obukhov length did not converge " // &
                   "(MOST wall model)")
+             !$omp end critical
           end if
 
           if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
@@ -319,6 +328,7 @@ contains
        ts_diagn(i) = temp_w(i)
        q_diagn(i) = q
     end do
+    !$omp end parallel do
   end subroutine most_compute_cpu
 
 !> Similarity laws and corrections for the STABLE regime:

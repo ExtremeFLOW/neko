@@ -34,7 +34,7 @@
 module chkp_output
   use checkpoint, only : chkp_t
   use output, only : output_t
-  use num_types, only : rp
+  use num_types, only : dp
   implicit none
   private
 
@@ -85,7 +85,7 @@ contains
   !> Sample a checkpoint at time @a t
   subroutine chkp_output_sample(this, t)
     class(chkp_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
 
     call this%chkp%sync_host()
     call this%file_%write(this%chkp, t)
