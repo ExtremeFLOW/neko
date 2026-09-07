@@ -41,19 +41,23 @@ module hdf5_session
 
   public :: hdf5_session_init, hdf5_session_finalize
 
+  !> Whether a session currently holds the library open. The file backends
+  !! consult this so they do not close the library out from under it.
+  integer :: session_active = 0
+
 contains
 
   !> Initialise the global HDF5 session
-  !! @details Holds the HDF5 library's Fortran interface open for the
-  !! lifetime of the session, such that the paired h5open_f/h5close_f
-  !! calls in the various file backends never drop the library's
-  !! reference count to zero mid-run
+  !! HDF5 does not maintain a global reference count, so we must.
   subroutine hdf5_session_init
 #ifdef HAVE_HDF5
     integer :: ierr
 
-    call h5open_f(ierr)
-    if (ierr .ne. 0) call neko_error('Failed to initialize HDF5')
+    if (session_active .eq. 0) then
+       call h5open_f(ierr)
+       if (ierr .ne. 0) call neko_error('Failed to initialize HDF5')
+    end if
+    session_active = session_active + 1
 #endif
   end subroutine hdf5_session_init
 
@@ -65,8 +69,11 @@ contains
 #ifdef HAVE_HDF5
     integer :: ierr
 
-    call h5close_f(ierr)
-    if (ierr .ne. 0) call neko_error('Failed to close HDF5')
+    session_active = session_active - 1
+    if (session_active .eq. 0) then
+       call h5close_f(ierr)
+       if (ierr .ne. 0) call neko_error('Failed to close HDF5')
+    end if
 #endif
   end subroutine hdf5_session_finalize
 
