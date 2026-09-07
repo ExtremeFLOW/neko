@@ -58,6 +58,18 @@ module bicgstab
   !! provided by [ksp_t](#krylov::ksp_t). The coupled interface solves the
   !! three components independently and does not apply a coupled operator.
   type, public, extends(ksp_t) :: bicgstab_t
+     !> Search direction \f$p\f$.
+     real(kind=rp), pointer :: p(:) => null()
+     !> Preconditioned search direction \f$\hat{p} = M^{-1}p\f$.
+     real(kind=rp), pointer :: p_hat(:) => null()
+     !> Residual \f$r\f$.
+     real(kind=rp), pointer :: r(:) => null()
+     !> Preconditioned intermediate residual \f$\hat{s} = M^{-1}s\f$.
+     real(kind=rp), pointer :: s_hat(:) => null()
+     !> Operator action \f$t = A\hat{s}\f$.
+     real(kind=rp), pointer :: t(:) => null()
+     !> Operator action \f$v = A\hat{p}\f$.
+     real(kind=rp), pointer :: v(:) => null()
    contains
      !> Initialise a CPU BiCGStab solver.
      procedure, pass(this) :: init => bicgstab_init
@@ -122,7 +134,7 @@ contains
     call this%ksp_free()
 
     nullify(this%M)
-
+    nullify(this%p, this%p_hat, this%r, this%s_hat, this%t, this%v)
 
   end subroutine bicgstab_free
 
@@ -159,6 +171,9 @@ contains
     real(kind=rp) :: beta, alpha, omega, rho_1, rho_2
     ! Extra-precision accumulator for the fused residual reductions
     real(kind=xp) :: res_sum
+    type(host_array_t), pointer :: p_tmp, p_hat_tmp, r_tmp
+    type(host_array_t), pointer :: s_hat_tmp, t_tmp, v_tmp
+    integer :: temp_indices(6)
 
     if (present(niter)) then
        max_iter = niter
@@ -167,31 +182,28 @@ contains
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
-    block
-      type(host_array_t), pointer :: p_tmp, p_hat_tmp, r_tmp
-      type(host_array_t), pointer :: s_hat_tmp, t_tmp, v_tmp
-      real(kind=rp), pointer :: p(:), p_hat(:), r(:), s_hat(:), t(:), v(:)
-      integer :: temp_indices(6)
+    call neko_scratch_registry%request_host_array(p_tmp, temp_indices(1), &
+         n, .false.)
+    call neko_scratch_registry%request_host_array(p_hat_tmp, &
+         temp_indices(2), n, .false.)
+    call neko_scratch_registry%request_host_array(r_tmp, temp_indices(3), &
+         n, .false.)
+    call neko_scratch_registry%request_host_array(s_hat_tmp, &
+         temp_indices(4), n, .false.)
+    call neko_scratch_registry%request_host_array(t_tmp, temp_indices(5), &
+         n, .false.)
+    call neko_scratch_registry%request_host_array(v_tmp, temp_indices(6), &
+         n, .false.)
 
-      call neko_scratch_registry%request_host_array(p_tmp, temp_indices(1), &
-           n, .false.)
-      call neko_scratch_registry%request_host_array(p_hat_tmp, &
-           temp_indices(2), n, .false.)
-      call neko_scratch_registry%request_host_array(r_tmp, temp_indices(3), &
-           n, .false.)
-      call neko_scratch_registry%request_host_array(s_hat_tmp, &
-           temp_indices(4), n, .false.)
-      call neko_scratch_registry%request_host_array(t_tmp, temp_indices(5), &
-           n, .false.)
-      call neko_scratch_registry%request_host_array(v_tmp, temp_indices(6), &
-           n, .false.)
+    this%p => p_tmp%x
+    this%p_hat => p_hat_tmp%x
+    this%r => r_tmp%x
+    this%s_hat => s_hat_tmp%x
+    this%t => t_tmp%x
+    this%v => v_tmp%x
 
-      p => p_tmp%x
-      p_hat => p_hat_tmp%x
-      r => r_tmp%x
-      s_hat => s_hat_tmp%x
-      t => t_tmp%x
-      v => v_tmp%x
+    associate(p => this%p, p_hat => this%p_hat, r => this%r, &
+         s_hat => this%s_hat, t => this%t, v => this%v)
 
       res_sum = 0.0_xp
       !$omp parallel do reduction(+:res_sum)
@@ -222,6 +234,7 @@ contains
       if (r_norm .le. 0.0_rp .or. rnorm .lt. this%abs_tol .or. &
            rnorm .lt. gamma) then
          ksp_results%converged = .true.
+         nullify(this%p, this%p_hat, this%r, this%s_hat, this%t, this%v)
          call neko_scratch_registry%relinquish_host_array(temp_indices)
          return
       end if
@@ -337,8 +350,9 @@ contains
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
       ksp_results%converged = this%is_converged(iter, rnorm)
-      call neko_scratch_registry%relinquish_host_array(temp_indices)
-    end block
+    end associate
+    nullify(this%p, this%p_hat, this%r, this%s_hat, this%t, this%v)
+    call neko_scratch_registry%relinquish_host_array(temp_indices)
   end function bicgstab_solve
 
   !> Check an inner product for a BiCGStab breakdown.
