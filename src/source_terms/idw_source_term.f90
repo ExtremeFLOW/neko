@@ -892,7 +892,8 @@ contains
          this%pmsk%x_d, this%w%x_d, this%wm%x_d, &
          this%lpx_d, this%lpy_d, this%lpz_d, &
          this%active_el_d, this%el_off_d, this%el_lag_d, &
-         this%n_active, this%lx3, time%dt, this%rmax, this%pwr_param, &
+         this%n_active, this%lx3, real(time%dt, kind=rp), this%rmax, &
+         this%pwr_param, &
          NEKO_EPS, wtol)
 
   end subroutine idw_compute_device

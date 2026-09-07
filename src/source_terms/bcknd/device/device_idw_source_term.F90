@@ -32,7 +32,7 @@
 !
 !> Device backend dispatch for the IDW immersed-boundary source term
 module device_idw_source_term
-  use num_types, only : dp, rp, c_rp
+  use num_types, only : rp, c_rp
   use utils, only : neko_error
   use device, only : glb_cmd_queue
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
@@ -143,8 +143,7 @@ contains
     type(c_ptr) :: lpx, lpy, lpz
     type(c_ptr) :: active_el, el_off, el_lag
     integer, intent(in) :: n_active, lx3
-    real(kind=rp), intent(in) :: rmax, pwr, eps, wtol
-    real(kind=dp), intent(in) :: dt
+    real(kind=rp), intent(in) :: dt, rmax, pwr, eps, wtol
 
 #ifdef HAVE_HIP
     call hip_idw_gather_one_sided(fu, fv, fw, &
@@ -163,13 +162,13 @@ contains
          fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &
          x, y, z, ds, pmsk, w, wm, lpx, lpy, lpz, &
          active_el, el_off, el_lag, n_active, lx3, &
-         real(dt, kind=xp), rmax, pwr, eps, wtol, glb_cmd_queue)
+         dt, rmax, pwr, eps, wtol, glb_cmd_queue)
 #elif HAVE_METAL
     call metal_idw_gather_one_sided(fu, fv, fw, &
          fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &
          x, y, z, ds, pmsk, w, wm, lpx, lpy, lpz, &
          active_el, el_off, el_lag, n_active, lx3, &
-         real(dt, kind=rp), rmax, pwr, eps, wtol)
+         dt, rmax, pwr, eps, wtol)
 #else
     call neko_error('No device backend configured')
 #endif
