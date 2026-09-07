@@ -49,8 +49,8 @@ module spectral_vanishing_viscosity
 
   character(len=3), parameter :: KNOWN_DIRECTIONS(7) = [character(len=3) :: &
        "rst", "rs", "rt", "st", "r", "s", "t"]
-  character(len=13), parameter :: KNOWN_FORMULATIONS(1) = [character(len=13) :: &
-       "Kirby-Sherwin"]
+  character(len=9), parameter :: KNOWN_FORMULATIONS(1) = [character(len=9) :: &
+       "one-sided"]
   character(len=5), parameter :: KNOWN_NU_TYPES(2) = [character(len=5) :: &
        "value", "field"]
   character(len=5), parameter :: KNOWN_KERNEL_TYPES(1) = [character(len=5) :: &
@@ -107,9 +107,9 @@ contains
     lx = coef%Xh%lx
 
     call json_get_or_default(json, "svv.formulation", formulation, &
-         "Kirby-Sherwin")
-    if (trim(formulation) .ne. "Kirby-Sherwin") then
-       call neko_error("This SVV operator only supports the Kirby-Sherwin " // &
+         "one-sided")
+    if (trim(formulation) .ne. "one-sided") then
+       call neko_error("This SVV operator only supports the one-sided " // &
             "formulation")
     end if
 

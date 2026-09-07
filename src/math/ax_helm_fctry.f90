@@ -40,10 +40,11 @@ submodule (ax_product) ax_helm_fctry
   use ax_helm_cpu, only : ax_helm_cpu_t
   use ax_helm_full_cpu, only : ax_helm_full_cpu_t
   use ax_helm_full_device, only : ax_helm_full_device_t
-  use ax_helm_svv_ks_cpu, only : ax_helm_svv_ks_cpu_t
-  use ax_helm_svv_ks_device, only : ax_helm_svv_ks_device_t
-  use ax_helm_svv_ks_full_cpu, only : ax_helm_svv_ks_full_cpu_t
-  use ax_helm_svv_ks_full_device, only : ax_helm_svv_ks_full_device_t
+  use ax_helm_svv_one_sided_cpu, only : ax_helm_svv_one_sided_cpu_t
+  use ax_helm_svv_one_sided_device, only : ax_helm_svv_one_sided_device_t
+  use ax_helm_svv_one_sided_full_cpu, only : ax_helm_svv_one_sided_full_cpu_t
+  use ax_helm_svv_one_sided_full_device, only : &
+       ax_helm_svv_one_sided_full_device_t
   use spectral_vanishing_viscosity, only : svv_t
   use utils, only : neko_error, neko_type_error, neko_type_registration_error
   implicit none
@@ -100,9 +101,9 @@ contains
              call neko_error("SVV is only available on CPU, " // &
                   "CUDA, and HIP backends")
           end if
-          allocate(ax_helm_svv_ks_device_t::object)
+          allocate(ax_helm_svv_one_sided_device_t::object)
        else
-          allocate(ax_helm_svv_ks_cpu_t::object)
+          allocate(ax_helm_svv_one_sided_cpu_t::object)
        end if
     case ("full_svv")
        if (NEKO_BCKND_SX .eq. 1 .or. NEKO_BCKND_XSMM .eq. 1) then
@@ -113,9 +114,9 @@ contains
              call neko_error("Full-stress SVV is only " // &
                   "available on CPU, CUDA, and HIP backends")
           end if
-          allocate(ax_helm_svv_ks_full_device_t::object)
+          allocate(ax_helm_svv_one_sided_full_device_t::object)
        else
-          allocate(ax_helm_svv_ks_full_cpu_t::object)
+          allocate(ax_helm_svv_one_sided_full_cpu_t::object)
        end if
     case default
        do i = 1, ax_helm_registry_size

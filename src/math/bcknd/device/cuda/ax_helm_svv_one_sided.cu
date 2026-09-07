@@ -36,14 +36,15 @@
 #include <stdlib.h>
 #include <device/device_config.h>
 #include <device/cuda/check.h>
-#include "ax_helm_svv_ks_full_kernel.h"
+#include "ax_helm_svv_one_sided_kernel.h"
 
 extern "C" {
 
-/** Fortran wrapper for the fused Kirby-Sherwin full-stress CUDA operator. */
-void cuda_ax_helm_svv_ks_full(
-    void *au, void *av, void *aw, void *u, void *v, void *w,
-    void *dx, void *dy, void *dz, void *h1,
+/**
+ * Fortran wrapper for the fused CUDA SVV Helmholtz operator.
+ */
+void cuda_ax_helm_svv_one_sided(
+    void *w, void *u, void *dx, void *dy, void *dz, void *h1,
     void *drdx, void *drdy, void *drdz,
     void *dsdx, void *dsdy, void *dsdz,
     void *dtdx, void *dtdy, void *dtdz,
@@ -59,16 +60,15 @@ void cuda_ax_helm_svv_ks_full(
   static bool shared_configured[17] = {false};
 
 #define LAUNCH(LX)                                                             \
-    ax_helm_svv_ks_full_kernel<real, LX>                                          \
+    ax_helm_svv_one_sided_kernel<real, LX>                                     \
         <<<blocks, threads, shared_size, stream>>>(                            \
-        (real *) au, (real *) av, (real *) aw,                                \
-        (real *) u, (real *) v, (real *) w,                                   \
-        (real *) dx, (real *) dy, (real *) dz, (real *) h1,                   \
-        (real *) drdx, (real *) drdy, (real *) drdz,                          \
-        (real *) dsdx, (real *) dsdy, (real *) dsdz,                          \
-        (real *) dtdx, (real *) dtdy, (real *) dtdz,                          \
-        (real *) jacinv, (real *) w3, (real *) h1_svv,                        \
-        (real *) filter_r, (real *) filter_s, (real *) filter_t);             \
+        (real *) w, (real *) u,                                                \
+        (real *) dx, (real *) dy, (real *) dz, (real *) h1,                    \
+        (real *) drdx, (real *) drdy, (real *) drdz,                           \
+        (real *) dsdx, (real *) dsdy, (real *) dsdz,                           \
+        (real *) dtdx, (real *) dtdy, (real *) dtdz,                           \
+        (real *) jacinv, (real *) w3, (real *) h1_svv,                         \
+        (real *) filter_r, (real *) filter_s, (real *) filter_t);              \
     CUDA_CHECK(cudaGetLastError())
 
 #define CASE(LX)                                                               \
@@ -79,12 +79,12 @@ void cuda_ax_helm_svv_ks_full(
 // Double precision exceeds the default 48 KiB shared-memory limit at LX >= 15.
 #define CASE_LARGE(LX)                                                         \
   case LX:                                                                     \
-    if (!shared_configured[LX]) {                                               \
+    if (!shared_configured[LX]) {                                              \
       CUDA_CHECK(cudaFuncSetAttribute(                                         \
-          ax_helm_svv_ks_full_kernel<real, LX>,                                   \
+          ax_helm_svv_one_sided_kernel<real, LX>,                              \
           cudaFuncAttributeMaxDynamicSharedMemorySize, shared_size));          \
-      shared_configured[LX] = true;                                             \
-    }                                                                           \
+      shared_configured[LX] = true;                                            \
+    }                                                                          \
     LAUNCH(LX);                                                                \
     break
 
