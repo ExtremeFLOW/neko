@@ -43,6 +43,7 @@ module neumann
   use vector, only : vector_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_copy
+  use vector_math, only : vector_cfill, vector_copy
   use device, only : device_memcpy, DEVICE_TO_HOST
   use device_neumann, only : device_neumann_apply_scalar, &
        device_neumann_apply_vector
@@ -360,7 +361,7 @@ contains
     ! Allocate flux vectors and assign to initial constant values
     do i = 1, size(this%init_flux_)
        call this%flux(i)%init(this%facet_node_msk(0))
-       this%flux(i) = this%init_flux_(i)
+       call vector_cfill(this%flux(i), this%init_flux_(i))
     end do
 
     this%uniform_0 = .true.
@@ -383,7 +384,7 @@ contains
             "neumann_set_flux_scalar")
     end if
 
-    this%flux(comp) = flux
+    call vector_cfill(this%flux(comp), flux)
     ! If we were uniform zero before, and this comp is set to zero, we are still
     ! uniform zero
     this%uniform_0 = abscmp(flux, 0.0_rp) .and. this%uniform_0
@@ -404,7 +405,7 @@ contains
             "neuman_set_flux_array")
     end if
 
-    this%flux(comp) = flux
+    call vector_copy(this%flux(comp), flux)
 
     ! Once a flux is set explicitly, we no longer assume it is uniform zero.
     this%uniform_0 = .false.

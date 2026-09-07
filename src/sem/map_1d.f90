@@ -49,6 +49,7 @@ module map_1d
   use vector, only : vector_ptr_t
   use utils, only : neko_error, neko_warning
   use math, only : glmax, glmin, glimax, relcmp, cmult, add2s1, col2
+  use matrix_math, only : matrix_cfill
   use mpi_f08, only : MPI_Allreduce, MPI_SUM, MPI_Barrier, MPI_IN_PLACE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -395,7 +396,7 @@ contains
     real(kind=rp) :: coord
     call avg_planes%free()
     call avg_planes%init(this%n_gll_lvls, field_list%size() + 1)
-    avg_planes = 0.0_rp
+    call matrix_cfill(avg_planes, 0.0_rp)
     !ugly way of getting coordinates, computes average
     n = this%dof%size()
     do i = 1, n
@@ -439,7 +440,7 @@ contains
     call avg_planes%free()
     call avg_planes%init(this%n_gll_lvls, size(vector_ptr) + 1)
     !ugly way of getting coordinates, computes average
-    avg_planes = 0.0_rp
+    call matrix_cfill(avg_planes, 0.0_rp)
 
     n = this%dof%size()
     do i = 1, n

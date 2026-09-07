@@ -44,7 +44,7 @@ module non_normal_aligned
        json_get_or_lookup
   use utils, only : neko_error
   use vector, only : vector_t
-  use vector_math, only : vector_masked_gather_copy_0
+  use vector_math, only : vector_cfill, vector_masked_gather_copy_0
   use scratch_registry, only : neko_scratch_registry
   use field, only : field_t
   use global_interpolation, only : GLOB_INTERP_TOL, GLOB_INTERP_PAD
@@ -421,9 +421,9 @@ contains
     call this%value_z%init(this%bc_z%msk(0), 'non_normal_aligned_z')
 
     if (this%use_constant_value) then
-       this%value_x = this%constant_value(1)
-       this%value_y = this%constant_value(2)
-       this%value_z = this%constant_value(3)
+       call vector_cfill(this%value_x, this%constant_value(1))
+       call vector_cfill(this%value_y, this%constant_value(2))
+       call vector_cfill(this%value_z, this%constant_value(3))
     else if (this%read_values_from_field) then
        call neko_scratch_registry%request_field(value_x_field, scratch_idx(1), &
             .true.)

@@ -142,7 +142,6 @@ program calc_lift_from_field
      call copy(v%x,field_data%v%x,dof%size())
      call copy(w%x,field_data%w%x,dof%size())
      call copy(p%x,field_data%p%x,dof%size())
-     drag_torq = 0.0_rp
      !set coords to somoething big
      drag_torq%x(:,2) = 1e15
 

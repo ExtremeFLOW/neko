@@ -39,7 +39,7 @@ module wall_sampler
   use json_module, only : json_file
   use user_intf, only : user_t
   use scratch_registry, only : neko_scratch_registry
-  use vector_math, only : vector_masked_scatter_copy_0
+  use vector_math, only : vector_copy, vector_masked_scatter_copy_0
   use fld_file_output, only : fld_file_output_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : HOST_TO_DEVICE
@@ -147,12 +147,14 @@ contains
        call neko_error('Wall sampler distances have an invalid size')
     end if
 
-    call this%h%free()
+    call this%h%init(h%size())
     this%n_nodes = n_nodes
     this%n_samples = n_samples
     this%user_values = .false.
     this%output_h_enabled = output_h
-    this%h = h
+
+    call this%h%init(h%size())
+    call vector_copy(this%h, h)
   end subroutine wall_sampler_init_base
 
   !> Write the first sampling distance at every wall node to a field file.

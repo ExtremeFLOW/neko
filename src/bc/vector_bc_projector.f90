@@ -980,10 +980,6 @@ contains
     call rzero(normal_y_field%x, dof_size)
     call rzero(normal_z_field%x, dof_size)
 
-    this%n = 0.0_rp
-    this%t1 = 0.0_rp
-    this%t2 = 0.0_rp
-
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)
 

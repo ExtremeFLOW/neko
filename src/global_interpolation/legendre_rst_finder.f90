@@ -40,6 +40,8 @@ module legendre_rst_finder
   use vector, only: vector_t
   use matrix, only: matrix_t
   use math, only: NEKO_EPS, matinv39
+  use vector_math, only: vector_cfill
+  use matrix_math, only: matrix_cfill
   use tensor_cpu, only: tnsr3d_cpu, tnsr3d_el_cpu
   use device_local_interpolation, only: device_find_rst_legendre
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
@@ -156,7 +158,7 @@ contains
     !> Find the elements that contain the points
     if (n_point_cand .lt. 1) return
 
-    rst_local_cand = 0.0_rp
+    call matrix_cfill(rst_local_cand, 0.0_rp)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        el_cands_d = device_get_ptr(el_cands)
@@ -197,7 +199,7 @@ contains
 
     call conv_pts%init(n_pts)
 
-    conv_pts = 1.0_rp
+    call vector_cfill(conv_pts, 1.0_rp)
 
     iter = 0
     converged = .false.
@@ -245,9 +247,12 @@ contains
     real(kind=rp) :: dt_legendre(this%Xh%lx, 1)
     real(kind=rp) :: jac(3,3)
     real(kind=xp) :: rst_d(3), jacinv(3,3)
+    real(kind=rp), dimension(this%Xh%lx * this%Xh%lx * this%Xh%lx) :: x_hat
+    real(kind=rp), dimension(this%Xh%lx * this%Xh%lx * this%Xh%lx) :: y_hat
+    real(kind=rp), dimension(this%Xh%lx * this%Xh%lx * this%Xh%lx) :: z_hat
     integer :: conv_pts
     logical :: converged
-    integer :: i, j, e, iter, lx
+    integer :: i, j, e, iter, lx, ih
 
 
 
@@ -293,32 +298,40 @@ contains
                   + rst(3,i)*dt_legendre(j, 1)
           end do
           e = (el_list(i))*this%Xh%lxyz + 1
+
+          ! Pull the element data to a static array instead of a slice
+          do ih = 0, lx*lx*lx - 1
+             x_hat(ih + 1) = this%x_hat%x(e + ih)
+             y_hat(ih + 1) = this%y_hat%x(e + ih)
+             z_hat(ih + 1) = this%z_hat%x(e + ih)
+          end do
+
           ! Compute the current xyz value
-          call tnsr3d_el_cpu(resx(i), 1, this%x_hat%x(e), lx, &
+          call tnsr3d_el_cpu(resx(i), 1, x_hat, lx, &
                r_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(resy(i), 1, this%y_hat%x(e), lx, &
+          call tnsr3d_el_cpu(resy(i), 1, y_hat, lx, &
                r_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(resz(i), 1, this%z_hat%x(e), lx, &
+          call tnsr3d_el_cpu(resz(i), 1, z_hat, lx, &
                r_legendre, s_legendre, t_legendre)
           ! This should in principle be merged into some larger kernel
           ! Compute the jacobian
-          call tnsr3d_el_cpu(jac(1,1), 1, this%x_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(1,1), 1, x_hat, lx, &
                dr_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(1,2), 1, this%y_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(1,2), 1, y_hat, lx, &
                dr_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(1,3), 1, this%z_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(1,3), 1, z_hat, lx, &
                dr_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(2,1), 1, this%x_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(2,1), 1, x_hat, lx, &
                r_legendre, ds_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(2,2), 1, this%y_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(2,2), 1, y_hat, lx, &
                r_legendre, ds_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(2,3), 1, this%z_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(2,3), 1, z_hat, lx, &
                r_legendre, ds_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(3,1), 1, this%x_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(3,1), 1, x_hat, lx, &
                r_legendre, s_legendre, dt_legendre)
-          call tnsr3d_el_cpu(jac(3,2), 1, this%y_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(3,2), 1, y_hat, lx, &
                r_legendre, s_legendre, dt_legendre)
-          call tnsr3d_el_cpu(jac(3,3), 1, this%z_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(3,3), 1, z_hat, lx, &
                r_legendre, s_legendre, dt_legendre)
           resx(i) = pt_x(i) - resx(i)
           resy(i) = pt_y(i) - resy(i)
