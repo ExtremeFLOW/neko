@@ -43,6 +43,41 @@ module rough_log_law_device
      end subroutine cuda_rough_log_law_compute
   end interface
 #elif HAVE_OPENCL
+  interface
+     subroutine opencl_rough_log_law_compute(u_d, v_d, w_d, &
+          n_x_d, n_y_d, n_z_d, h_d, &
+          tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+          kappa, rho_w_d, B, z0, tstep) &
+          bind(c, name = 'opencl_rough_log_law_compute')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       use num_types, only : c_rp
+       implicit none
+       type(c_ptr), value :: u_d, v_d, w_d
+       type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
+       real(c_rp) :: kappa, B, z0
+       type(c_ptr), value :: rho_w_d
+       type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
+       integer(c_int) :: n_nodes, tstep
+     end subroutine opencl_rough_log_law_compute
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_rough_log_law_compute(u_d, v_d, w_d, &
+          n_x_d, n_y_d, n_z_d, h_d, &
+          tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+          kappa, rho_w_d, B, z0, tstep) &
+          bind(c, name = 'metal_rough_log_law_compute')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       use num_types, only : c_rp
+       implicit none
+       type(c_ptr), value :: u_d, v_d, w_d
+       type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
+       real(c_rp) :: kappa, B, z0
+       type(c_ptr), value :: rho_w_d
+       type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
+       integer(c_int) :: n_nodes, tstep
+     end subroutine metal_rough_log_law_compute
+  end interface
 #endif
   public :: rough_log_law_compute_device
 
@@ -71,7 +106,15 @@ contains
          tau_x_d, tau_y_d, tau_z_d, n_nodes, &
          kappa, rho_w_d, B, z0, tstep)
 #elif HAVE_OPENCL
-    call neko_error("OPENCL is not implemented for the rough log-law model")
+    call opencl_rough_log_law_compute(u_d, v_d, w_d, &
+         n_x_d, n_y_d, n_z_d, h_d, &
+         tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+         kappa, rho_w_d, B, z0, tstep)
+#elif HAVE_METAL
+    call metal_rough_log_law_compute(u_d, v_d, w_d, &
+         n_x_d, n_y_d, n_z_d, h_d, &
+         tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+         kappa, rho_w_d, B, z0, tstep)
 #else
     call neko_error('No device backend configured')
 #endif
