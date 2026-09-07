@@ -513,8 +513,11 @@ contains
             this%lag_nrm, coef%dof%x, coef%dof%y, coef%dof%z, &
             coef%Xh%lx, coef%msh%nelv)
     else
-       this%mmsk = 0.0_rp
-       this%pmsk = 1.0_rp
+       ! Assign the host arrays directly: the field_t defined assignment only
+       ! fills the device buffer on a device build, and idw_assemble below and
+       ! idw_compute_weight both read the host side.
+       this%mmsk%x = 0.0_rp
+       this%pmsk%x = 1.0_rp
     end if
 
     call idw_assemble(this%gs, this%pmsk, coef%mult)
@@ -846,21 +849,34 @@ contains
        call this%global_interp%evaluate(this%fw_ib, w%x, .true.)
     end if
 
-    if (this%one_sided) then
-       if (n_lag > 0) call device_sync()
-    else if (n_lag > 0) then
-       call device_memcpy(this%fu_ib, this%fu_ib_d, n_lag, HOST_TO_DEVICE, &
-            sync = .false.)
-       call device_memcpy(this%fv_ib, this%fv_ib_d, n_lag, HOST_TO_DEVICE, &
-            sync = .false.)
-       call device_memcpy(this%fw_ib, this%fw_ib_d, n_lag, HOST_TO_DEVICE, &
-            sync = .not. this%idw_interp)
+    ! Stage the per-point values the gather kernel reads. Which side produced
+    ! them depends on the interpolation, not on one_sided: the Shepard
+    ! interpolation always runs on the host, the barycentric one runs on the
+    ! device for one_sided (idw_interp_masked passes on_host = .false.) and on
+    ! the host otherwise.
+    if (n_lag > 0) then
        if (this%idw_interp) then
+          call device_memcpy(this%fu_ib, this%fu_ib_d, n_lag, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(this%fv_ib, this%fv_ib_d, n_lag, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(this%fw_ib, this%fw_ib_d, n_lag, &
+               HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(this%fum_ib, this%fum_ib_d, n_lag, &
                HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(this%fvm_ib, this%fvm_ib_d, n_lag, &
                HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(this%fwm_ib, this%fwm_ib_d, n_lag, &
+               HOST_TO_DEVICE, sync = .true.)
+       else if (this%one_sided) then
+          ! Interpolated straight into the device buffers
+          call device_sync()
+       else
+          call device_memcpy(this%fu_ib, this%fu_ib_d, n_lag, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(this%fv_ib, this%fv_ib_d, n_lag, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(this%fw_ib, this%fw_ib_d, n_lag, &
                HOST_TO_DEVICE, sync = .true.)
        end if
     end if
