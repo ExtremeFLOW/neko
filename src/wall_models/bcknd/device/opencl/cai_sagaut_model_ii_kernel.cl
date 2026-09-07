@@ -79,7 +79,7 @@ __kernel void cai_sagaut_model_ii_compute_kernel(
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
   const real one = (real) 1.0;
-  const real half = (real) 0.5;
+  const real one_half = (real) 0.5;
   const real eps = (sizeof(real) == sizeof(float)) ?
     (real) FLT_EPSILON : (real) DBL_EPSILON;
   const real e_const = exp(kappa * B);
@@ -110,7 +110,7 @@ __kernel void cai_sagaut_model_ii_compute_kernel(
     const real rey = magu * h_d[i] / nu_d[i];
     const real blend = exp(-pow(rey / s, p));
     const real warg = kappa * e_const * rey;
-    const real a = one / (one + half * log(one + warg));
+    const real a = one / (one + one_half * log(one + warg));
     real wlam = log(one + a * warg);
     wlam = wlam / (one + wlam) * (one + log(warg / wlam));
 
