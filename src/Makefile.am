@@ -789,7 +789,6 @@ METAL_OBJS = \
 	math/bcknd/device/metal/tensor.lo\
 	math/bcknd/device/metal/opr_cfl.lo\
 	math/bcknd/device/metal/opr_dudxyz.lo\
-	math/bcknd/device/metal/opr_grad.lo\
 	math/bcknd/device/metal/opr_opgrad.lo\
 	math/bcknd/device/metal/opr_cdtp.lo\
 	math/bcknd/device/metal/opr_conv1.lo\
