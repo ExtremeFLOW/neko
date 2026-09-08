@@ -2704,7 +2704,7 @@ contains
                          + Dzt(k,7) * vt(i,1,7) &
                          + Dzt(k,8) * vt(i,1,8)
 
-             au(i,1,k,e) = au(i,1,k,e) &
+             aw(i,1,k,e) = aw(i,1,k,e) &
                          + Dzt(k,1) * wt(i,1,1) &
                          + Dzt(k,2) * wt(i,1,2) &
                          + Dzt(k,3) * wt(i,1,3) &
@@ -3802,9 +3802,9 @@ contains
                       + G22(i,1,1,e) * wvs(i,1,1) &
                       + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+                    * ( G13(i,1,1,e) * wvr(i,1,1) &
+                      + G23(i,1,1,e) * wvs(i,1,1) &
+                      + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
                     * ( G11(i,1,1,e) * wwr(i,1,1) &

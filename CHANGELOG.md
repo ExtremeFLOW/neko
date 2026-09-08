@@ -2,6 +2,11 @@
 
 ## Develop
 
+- Fixed the fused three-component Helmholtz operator on the CPU backend
+  (`ax_helm_cpu_t%compute_vector`) at polynomial orders 3 and 8, where a
+  component mix-up gave wrong momentum results. This affected the compressible
+  solver, the coupled velocity solvers and velocity projection on the CPU, but
+  not the GPU backends.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.
 - The gather-scatter comm. backend autotuning now covers the device-resident
   backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks
