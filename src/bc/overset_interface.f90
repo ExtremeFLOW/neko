@@ -58,6 +58,7 @@ module overset_interface
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use field, only : field_t
+  use field_series, only : field_series_t
   use logger, only : neko_log, LOG_SIZE
   use scratch_registry, only : neko_scratch_registry
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
@@ -96,6 +97,8 @@ module overset_interface
      logical :: find_interface = .false.
      logical :: setup = .false.
      logical :: log = .false.
+     !> Skip donor interpolation on the first update after restoring history.
+     logical :: restart_pending = .false.
 
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
@@ -123,6 +126,8 @@ module overset_interface
      procedure, pass(this) :: apply_scalar_dev => &
           overset_interface_apply_scalar_dev
      procedure, pass(this) :: update => overset_interface_update
+     !> Restore scalar interface history from accepted solution fields.
+     procedure, pass(this) :: restart_scalar => overset_interface_restart
 
      !> Build domain masks for the overset interface.
      procedure, pass(this), private :: build_masks_ => build_masks_
@@ -217,6 +222,8 @@ contains
     call this%init_base(coef)
     this%bc_type = BC_DIRICHLET
     this%relaxation = 1.0_rp
+    this%last_tstep = -1
+    this%restart_pending = .false.
 
     if (present(tol)) then
        if (tol .gt. 0.0_rp) then
@@ -299,7 +306,38 @@ contains
     call this%domain_element_mask%free()
 
     call this%free_base()
+    this%restart_pending = .false.
   end subroutine overset_interface_free
+
+  !> Restore scalar interface history from an accepted solution field.
+  !! The lag series is present for transported scalars and absent for
+  !! pressure. Historical values are inserted oldest-to-newest, while the
+  !! current accepted value remains in the base interface vector for the first
+  !! regular update to shift into lag position one.
+  subroutine overset_interface_restart(this, s, slag)
+    class(overset_interface_t), intent(inout) :: this
+    type(field_t), intent(in) :: s
+    type(field_series_t), intent(in), optional :: slag
+    integer :: i, n_previous
+
+    call this%s_interface_lag%reset()
+
+    n_previous = 0
+    if (present(slag)) then
+       n_previous = min(this%iextm_order - 1, slag%size())
+       do i = n_previous, 1, -1
+          call vector_masked_gather_copy(this%s_interface, &
+               slag%lf(i)%x(:,1,1,1), this%interface_dof_mask, &
+               slag%lf(i)%dof%size())
+          call this%s_interface_lag%update()
+       end do
+    end if
+
+    call vector_masked_gather_copy(this%s_interface, &
+         s%x(:,1,1,1), this%interface_dof_mask, s%dof%size())
+
+    this%restart_pending = .true.
+  end subroutine overset_interface_restart
 
   !> Apply scalar.
   !! @param x Field onto which to copy the values.
@@ -463,11 +501,15 @@ contains
 
     s => neko_registry%get_field(trim(this%field_name))
 
-    call this%interface_interpolator%evaluate_masked(this%s_interface%x, s%x, &
-         this%domain_element_mask, .false.)
+    ! The current accepted interface value is restored locally from the
+    ! solution field, so cross-domain interpolation is unnecessary once.
+    if (.not. this%restart_pending) then
+       call this%interface_interpolator%evaluate_masked(this%s_interface%x, &
+            s%x, this%domain_element_mask, .false.)
 
-    if (this%log) then
-       call this%log_interface_error_(s)
+       if (this%log) then
+          call this%log_interface_error_(s)
+       end if
     end if
 
     new_tstep = time%tstep .ne. this%last_tstep
@@ -477,7 +519,7 @@ contains
 
        call this%s_interface_lag%update()
 
-       nhist = min(time%tstep, this%iextm_order)
+       nhist = min(this%s_interface_lag%filled_size(), this%iextm_order)
        call time_scheme%compute_coeffs(iextm_coeffs, &
             real(time%dtlag, kind=rp), nhist)
 
@@ -487,6 +529,8 @@ contains
           call vector_add2s2(this%s_interface, this%s_interface_lag%lv(ihist), &
                iextm_coeffs(ihist))
        end do
+
+       this%restart_pending = .false.
     end if
 
     ! Preserve the IEXT prediction on the first pass of every physical

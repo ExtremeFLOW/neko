@@ -141,7 +141,8 @@ module overset_interface_vector
           overset_interface_vector_apply_scalar_dev
      procedure, pass(this) :: update => overset_interface_update
      !> Restore interface history from checkpointed solution fields.
-     procedure, pass(this) :: restart => overset_interface_vector_restart
+     procedure, pass(this) :: restart_vector => &
+          overset_interface_vector_restart
 
      !> Build the masks for the overset interface.
      procedure, pass(this), private :: build_masks_ => build_masks_
