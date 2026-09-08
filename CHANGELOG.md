@@ -28,9 +28,8 @@
 - Added `case.output_at_start`, whether the initial state of the simulation
   is written. It defaults to `true`, and to `false` when the fluid initial
   condition is a field file, where it would only copy that file.
-- Fixed an output starting after the end of the simulation taking its
-  direction of time from its own window, which let `output_at_end` force a
-  write out of it.
+- Fixed `output_at_end` forcing a write of an output whose `start_time` the
+  simulation has not reached.
 - A restart warns when the first file an output is about to write already
   exists, which happens when a run repeats an interval or the output
   frequency was changed at the restart.
@@ -43,8 +42,7 @@
   phase still cannot survive a restart, as the checkpoint does not store the
   time step index.
 - Fixed `time_state_t%is_done` taking one time step more than asked for when
-  the accumulated time fell a few ulps short of `end_time`, and never ending
-  a simulation marching backwards in time.
+  the accumulated time fell a few ulps short of `end_time`.
 - Made the `user_stats` integration test compare its average of a random
   field against a two-sided tolerance that covers the sampling noise; the
   one-sided `1e-4` passed or failed roughly at random.

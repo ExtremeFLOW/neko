@@ -128,8 +128,6 @@ module time_based_controller
      logical :: start_pending = .false.
      !> Index of the next scheduled execution, counted from `first_index`.
      integer :: next_index = 0
-     !> Direction of time, +1 for a forward and -1 for a backward run.
-     real(kind=dp) :: direction = 1.0_dp
      !> Value of `tstep` at which the current run started. Only used by the
      !! `tsteps` control mode, for which the schedule cannot be anchored in
      !! absolute time.
@@ -177,14 +175,8 @@ contains
   !! @param anchor_time The time the schedule is anchored to. Optional,
   !! defaults to zero for `simulationtime` and to `start_time` for
   !! `nsamples`, which divides the simulated interval rather than tiling it.
-  !! @param direction The direction of time of the simulation, +1 forwards
-  !! and -1 backwards. Optional, defaults to the direction from `start_time`
-  !! to `end_time`, which is the direction of the simulation whenever the
-  !! output covers the whole of it. Pass it for an output that starts later,
-  !! since the two directions differ when its start time lies beyond the end
-  !! of the simulation.
   subroutine time_based_controller_init(this, start_time, end_time, &
-       control_mode, control_value, write_at_start, anchor_time, direction)
+       control_mode, control_value, write_at_start, anchor_time)
     class(time_based_controller_t), intent(inout) :: this
     real(kind=dp), intent(in) :: start_time
     real(kind=dp), intent(in) :: end_time
@@ -192,7 +184,6 @@ contains
     real(kind=dp), intent(in) :: control_value
     logical, intent(in), optional :: write_at_start
     real(kind=dp), intent(in), optional :: anchor_time
-    real(kind=dp), intent(in), optional :: direction
     real(kind=dp) :: span, offset
 
     call this%free()
@@ -208,15 +199,7 @@ contains
        this%write_at_start = .true.
     end if
 
-    ! The schedule is expressed in terms of the progress made in the
-    ! direction the simulation marches in, which is positive also for a
-    ! simulation marching backwards in time.
-    if (present(direction)) then
-       this%direction = sign(1.0_dp, direction)
-    else
-       this%direction = sign(1.0_dp, end_time - start_time)
-    end if
-    span = this%direction * (end_time - start_time)
+    span = end_time - start_time
 
     if (trim(control_mode) .eq. 'simulationtime') then
        if (control_value .le. 0.0_dp) then
@@ -265,8 +248,7 @@ contains
     this%start_pending = .false.
 
     if (this%time_interval .gt. 0.0_dp) then
-       offset = this%direction * (start_time - this%anchor_time) / &
-            this%time_interval
+       offset = (start_time - this%anchor_time) / this%time_interval
        if (abs(offset) .gt. MAX_ANCHOR_INDEX) then
           ! The interval is too fine to resolve against this anchor.
           this%anchor_time = start_time
@@ -315,7 +297,6 @@ contains
     this%start_is_scheduled = .false.
     this%start_pending = .false.
     this%next_index = 0
-    this%direction = 1.0_dp
     this%tstep_offset = 0
     this%last_tstep = -1
     this%pending_index = -1
@@ -357,8 +338,8 @@ contains
     ! Nothing is scheduled, but an execution can still be forced.
     if (this%never .and. .not. ifforce) return
 
-    progress = this%direction * (time%t - this%anchor_time)
-    t_start = this%direction * (this%start_time - this%anchor_time)
+    progress = time%t - this%anchor_time
+    t_start = this%start_time - this%anchor_time
     tol = this%tolerance(time%dt)
 
     ! Nothing is ever executed before the start of the schedule.
@@ -374,7 +355,7 @@ contains
        ! not prescribe by itself.
        check = .true.
     else
-       t_end = this%direction * (this%end_time - this%anchor_time)
+       t_end = this%end_time - this%anchor_time
        t_next = real(this%first_index + this%next_index, dp) * &
             this%time_interval
        ! The schedule stops at end_time. Note that this is a condition on the
@@ -406,7 +387,7 @@ contains
     if (this%nsteps .gt. 0) then
        index = (time%tstep - this%tstep_offset) / this%nsteps + 1
     else if (this%time_interval .gt. 0.0_dp) then
-       progress = this%direction * (time%t - this%anchor_time)
+       progress = time%t - this%anchor_time
        tol = this%tolerance(time%dt)
        index = int(floor((progress + tol) / this%time_interval, kind = i8) &
             - this%first_index) + 1
@@ -481,8 +462,8 @@ contains
     dt = time%dt
     if (abs(time%dtlag(1)) .gt. 0.0_dp) dt = time%dtlag(1)
 
-    progress = this%direction * (time%t - this%anchor_time)
-    t_start = this%direction * (this%start_time - this%anchor_time)
+    progress = time%t - this%anchor_time
+    t_start = this%start_time - this%anchor_time
     tol = this%tolerance(dt)
 
     if (progress .lt. t_start - tol) then
@@ -533,7 +514,7 @@ contains
     else if (this%start_pending) then
        t = this%start_time
     else
-       t = this%anchor_time + this%direction * &
+       t = this%anchor_time + &
             real(this%first_index + this%next_index, dp) * this%time_interval
     end if
 
