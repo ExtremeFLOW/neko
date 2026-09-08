@@ -142,6 +142,8 @@ void find_rst_legendre_kernel_lx##LX(__global real * __restrict__ rst,         \
     zwork2[ijk] = ztmp;                                                        \
   }                                                                            \
                                                                                \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
   if(idx==0){                                                                  \
     const int ijk = idx;                                                       \
     const int jk = ijk;                                                        \
@@ -201,6 +203,8 @@ void find_rst_legendre_kernel_lx##LX(__global real * __restrict__ rst,         \
     zwork2[ijk] = ztmp;                                                        \
   }                                                                            \
                                                                                \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
   if (idx == 0) {                                                              \
     const int ijk = idx;                                                       \
     const int jk = ijk;                                                        \
@@ -258,6 +262,8 @@ void find_rst_legendre_kernel_lx##LX(__global real * __restrict__ rst,         \
     ywork2[ijk] = ytmp;                                                        \
     zwork2[ijk] = ztmp;                                                        \
   }                                                                            \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
                                                                                \
   if (idx == 0) {                                                              \
     const int ijk = idx;                                                       \

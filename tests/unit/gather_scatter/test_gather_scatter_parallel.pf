@@ -99,15 +99,13 @@ contains
     call rone(x%x, n)
     call add2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -122,15 +120,13 @@ contains
     ! Multiply by dof create different values from both sides
     call col2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MIN)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -146,15 +142,13 @@ contains
     ! Multiply by dof create different values from both sides
     call col2(x%x,real(d%dof,rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MAX)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -233,15 +227,13 @@ contains
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -255,15 +247,13 @@ contains
     call rone(x%x, n)
     call col2(x%x,real(d%dof,rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MIN)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -277,15 +267,13 @@ contains
     call rone(x%x, n)
     call col2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MAX)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -362,15 +350,13 @@ contains
     call rone(x%x, n)
     call add2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -384,15 +370,13 @@ contains
     call rone(x%x, n)
     call col2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MIN)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -406,15 +390,13 @@ contains
     call rone(x%x, n)
     call col2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MAX)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -491,15 +473,13 @@ contains
     call rone(x%x, n)
     call add2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -513,15 +493,13 @@ contains
     call rone(x%x, n)
     call col2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MIN)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -535,15 +513,13 @@ contains
     call rone(x%x, n)
     call col2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MAX)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -620,15 +596,13 @@ contains
     call rone(x%x, n)
     call add2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -642,15 +616,13 @@ contains
     call rone(x%x, n)
     call col2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MIN)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -664,15 +636,13 @@ contains
     call rone(x%x, n)
     call col2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MAX)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -749,15 +719,13 @@ contains
     call rone(x%x, n)
     call add2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -771,15 +739,13 @@ contains
     call rone(x%x, n)
     call col2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MIN)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -793,15 +759,13 @@ contains
     call rone(x%x, n)
     call col2(x%x,real(d%dof,rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MAX)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -878,15 +842,13 @@ contains
     call rone(x%x, n)
     call add2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -900,15 +862,13 @@ contains
     call rone(x%x, n)
     call col2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MIN)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
@@ -922,15 +882,13 @@ contains
     call rone(x%x, n)
     call col2(x%x, real(d%dof, rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_MAX)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
 

@@ -101,7 +101,7 @@ contains
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
     call json_get_or_default(json, "computed_field", computed_field, &
-         "gradient" // trim(field_name))
+         "gradient_" // trim(field_name))
 
     fields(1) = computed_field // "_x"
     fields(2) = computed_field // "_y"

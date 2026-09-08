@@ -443,13 +443,6 @@ contains
        call neko_log%message(log_buf)
     end if
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%kappa%x, this%kappa%x_d, this%kappa%size(), &
-            HOST_TO_DEVICE, sync = .false.)
-    end if
-
   end subroutine fluid_scheme_compressible_set_material_properties
 
   !> Update variable material properties
@@ -463,12 +456,6 @@ contains
     call this%user_material_properties(this%name, this%material_properties, &
          time)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%kappa%x, this%kappa%x_d, this%kappa%size(), &
-            HOST_TO_DEVICE, sync = .false.)
-    end if
   end subroutine fluid_scheme_compressible_update_material_properties
 
   !> Compute entropy field S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
