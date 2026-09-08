@@ -369,11 +369,11 @@ contains
           call this%output_list(i)%ptr%set_start_counter(nexecutions)
        end if
 
-       ! The file counter is where the schedule says the run has got to, so
-       ! it points past the files the previous run wrote. It does not when
-       ! the run is repeating an interval it has already covered, or when the
-       ! output frequency was changed, and the files of the previous run are
-       ! then written over.
+       ! The file counter is set to the number of writes scheduled up to the
+       ! restart time, so it points past the files of the previous run. It
+       ! does not when the run repeats an interval it has already covered, or
+       ! when the output frequency was changed, and the files of the previous
+       ! run are then overwritten.
        if (this%controllers(i)%never) cycle
        file_exists = .false.
        output_fname = &

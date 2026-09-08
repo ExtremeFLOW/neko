@@ -300,8 +300,8 @@ contains
     @assertFalse(ctrl%check(time))
   end subroutine test_never
 
-  !> An output with a start time of its own does not execute before it, and
-  !! picks up the schedule at the first scheduled time after it.
+  !> An output with its own start time does not execute before it, and then
+  !! executes at the scheduled times after it.
   @test
   subroutine test_start_time()
     type(time_based_controller_t) ctrl
@@ -318,8 +318,8 @@ contains
   end subroutine test_start_time
 
   !> The schedule of a `simulationtime` output is anchored at zero, so that
-  !! its executions land on whole multiples of the interval whatever time the
-  !! simulation starts from.
+  !! its executions are at whole multiples of the interval regardless of the
+  !! time the simulation starts from.
   @test
   subroutine test_anchored_at_whole_multiples()
     type(time_based_controller_t) ctrl
@@ -381,8 +381,8 @@ contains
     @assertEqual(t_out(4), 14.5_dp, tolerance=1e-8_dp)
   end subroutine test_nsamples_anchored_at_the_start
 
-  !> Restarting must neither skip nor repeat an execution, whatever time the
-  !! restart happens at.
+  !> Restarting must neither skip nor repeat an execution, regardless of the
+  !! restart time.
   @test
   subroutine test_restart_continuity()
     type(time_based_controller_t) ctrl
@@ -422,10 +422,9 @@ contains
     end do
   end subroutine test_restart_continuity
 
-  !> A start time lying a hair below a scheduled time, closer than the
-  !! tolerance, makes the execution at the start stand for the scheduled one
-  !! as well. A restart must count that single execution once, so that the
-  !! file numbering carries on without a gap.
+  !> A start time closer than the tolerance below a scheduled time makes the
+  !! single execution at the start count for the scheduled one as well. A
+  !! restart must count it once, so that the file numbering has no gap.
   @test
   subroutine test_restart_start_near_scheduled_time()
     type(time_based_controller_t) ctrl
@@ -534,7 +533,7 @@ contains
     @assertEqual(n, 4)
     @assertEqual(t_out(1), 0.25_dp, tolerance=1e-8_dp)
     @assertEqual(t_out(4), 1.0_dp, tolerance=1e-8_dp)
-    ! the cursor tracks the time instead of lagging behind it
+    ! next_index counts the scheduled times passed, not the executions
     @assertEqual(ctrl%next_index, 100)
   end subroutine test_timestep_larger_than_interval
 

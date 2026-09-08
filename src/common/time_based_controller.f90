@@ -38,24 +38,18 @@ module time_based_controller
   implicit none
   private
 
-  !> Tolerance used when comparing the simulation time to a scheduled
-  !! execution time, as a fraction of the current time-step size (or of the
-  !! output interval, whichever is smaller).
-  !! A scheduled execution is performed at the first time step for which
-  !! `t >= t_scheduled - TIME_TOL * dt`, so that a step landing a hair short
-  !! of the scheduled time (round-off in the accumulation of `t`) still
-  !! triggers it, instead of postponing it by a full step.
-  !! The tolerance is capped by the output interval, so that a time step
-  !! longer than the interval (in particular the placeholder step a variable
-  !! time step run starts from) never lets the round-off guard reach the next
-  !! scheduled time. Otherwise scheduled times not yet reached would count
-  !! as passed, and the write scheduled for the first interval after the
-  !! start would fire at the start itself.
+  !> Tolerance for comparing the simulation time to a scheduled time, as a
+  !! fraction of the time step. A scheduled time `t_k` is considered reached
+  !! at the first step with `t >= t_k - TIME_TOL * dt`, so that round-off in
+  !! the accumulation of `t` does not postpone the execution by a full step.
+  !! The tolerance is limited to the same fraction of the output interval, so
+  !! that a time step longer than the interval (in particular the `dt = 1`
+  !! placeholder a variable time step run starts from) cannot make a
+  !! scheduled time count as reached before the previous one has passed.
   real(kind=dp), public, parameter :: TIME_TOL = 0.1_dp
 
-  !> Relative tolerance used when deciding whether a scheduled time still
-  !! falls inside the interval covered by the controller. Only meant to
-  !! absorb round-off in `k * time_interval`.
+  !> Relative tolerance for round-off in `k * time_interval` when comparing a
+  !! scheduled time to `start_time` and `end_time`.
   real(kind=dp), public, parameter :: SPAN_TOL = 1.0e-9_dp
 
   !> A utility type for determining whether an action should be executed based
@@ -63,31 +57,27 @@ module time_based_controller
   !! file or execute a simcomp.
   !!
   !! @details
-  !! The controller defines a *schedule*: the sequence of times (or time
-  !! steps) at which the action should be performed. For the time based
-  !! control modes the schedule is
-  !! \f$ t_k = t_{anchor} + k \Delta t_{out} \f$, restricted to the
-  !! \f$ t_k \f$ that fall inside \f$ [t_{start}, t_{end}] \f$, plus, if
-  !! `write_at_start` is set, one execution at \f$ t_{start} \f$ itself.
+  !! The controller defines a schedule: the times (or time steps) at which
+  !! the action is executed. For the time based control modes these are
+  !! \f$ t_k = t_{anchor} + k \Delta t_{out} \f$ for the \f$ k \f$ with
+  !! \f$ t_k \f$ in \f$ [t_{start}, t_{end}] \f$ and, if `write_at_start`
+  !! is set, \f$ t_{start} \f$ itself.
   !!
-  !! A `simulationtime` schedule is anchored at zero, so that an output asked
-  !! for every \f$ \Delta t_{out} \f$ lands on whole multiples of it no
-  !! matter what time the simulation was started from. An `nsamples` schedule
-  !! divides the interval the schedule covers instead, and is therefore
-  !! anchored at \f$ t_{start} \f$.
+  !! A `simulationtime` schedule has `anchor_time = 0`, so that the
+  !! executions are at whole multiples of the interval regardless of the
+  !! start time. An `nsamples` schedule divides the interval from
+  !! `start_time` to `end_time`, so its anchor is `start_time`.
   !!
-  !! The schedule is an absolute property of the case: it does not depend on
-  !! how many executions have been performed, nor on when the run was
-  !! started. This is what makes it possible to restart a simulation without
-  !! either losing or duplicating an output: `set_counter` simply moves the
-  !! cursor to the first scheduled time that has not been reached yet, using
-  !! exactly the same predicate that `check` uses.
+  !! The schedule depends only on the case parameters, not on the number of
+  !! executions performed or on the time the run was started from. On a
+  !! restart, `set_counter` sets `next_index` to the first scheduled time not
+  !! yet reached, using the same comparison as `check`, so that no execution
+  !! is repeated or skipped.
   !!
-  !! `check` is free of observable side effects and idempotent within a time
-  !! step: it may be called any number of times per step, and returns
-  !! `.false.` once an execution has been registered for the current step.
-  !! The `nexecutions` counter is incremented externally by calling
-  !! `register_execution`.
+  !! `check` does not modify the controller and returns `.false.` for a time
+  !! step at which an execution has already been registered, so it can be
+  !! called several times per step. `register_execution` increments
+  !! `nexecutions` and advances `next_index`.
   type, public :: time_based_controller_t
      !> Frequency of execution.
      real(kind=dp) :: frequency = 0.0_dp
@@ -95,7 +85,7 @@ module time_based_controller
      real(kind=dp) :: time_interval = 0.0_dp
      !> Number of time steps in between executions.
      integer :: nsteps = 0
-     !> Time at which the schedule starts (and which it is anchored to).
+     !> First time at which an execution can be performed.
      real(kind=dp) :: start_time = 0.0_dp
      !> Time after which nothing is scheduled anymore.
      real(kind=dp) :: end_time = 0.0_dp
@@ -108,26 +98,27 @@ module time_based_controller
      character(len=:), allocatable :: control_mode
      !> Defines the frequency of writes.
      real(kind=dp) :: control_value = 0.0_dp
-     !> Time the schedule is anchored to. Zero for `simulationtime`, so that
-     !! the executions land on whole multiples of the interval, and the start
-     !! time for `nsamples`, which divides the interval the schedule covers.
+     !> Time the scheduled times are counted from. Zero for `simulationtime`
+     !! and `start_time` for `nsamples`.
      real(kind=dp) :: anchor_time = 0.0_dp
-     !> Whether an execution is scheduled at the start time itself, on top of
-     !! the ones the anchored schedule prescribes. Should be `.false.` for
-     !! outputs for which an execution at the very first time step is
-     !! meaningless, such as checkpoints and running statistics.
+     !> Whether an execution is performed at `start_time`, whether or not it
+     !! is one of the scheduled times. Should be `.false.` for outputs for
+     !! which an execution at the very first time step is meaningless, such as
+     !! checkpoints and running statistics.
      logical :: write_at_start = .true.
-     !> Index, relative to the anchor, of the first scheduled execution.
+     !> Index `k` of the first scheduled time.
      integer(kind=i8) :: first_index = 0
-     !> Whether the start time is itself one of the anchored schedule times.
+     !> Whether `start_time` is one of the scheduled times.
      logical :: start_is_scheduled = .false.
-     !> Whether the execution at the start time is still to be performed.
+     !> Whether the execution at `start_time` is still to be performed. Only
+     !! set when `write_at_start` is true and `start_time` is not one of the
+     !! scheduled times.
      logical :: start_pending = .false.
-     !> Index of the next scheduled execution, counted from `first_index`.
+     !> Number of scheduled times already passed. The next scheduled time is
+     !! `t_k` with `k = first_index + next_index`.
      integer :: next_index = 0
      !> Value of `tstep` at which the current run started. Only used by the
-     !! `tsteps` control mode, for which the schedule cannot be anchored in
-     !! absolute time.
+     !! `tsteps` control mode, whose schedule is relative to the run.
      integer :: tstep_offset = 0
      !> Time step at which an execution was last registered, -1 if none.
      !! Guarantees that at most one execution is performed per time step,
@@ -141,10 +132,10 @@ module time_based_controller
      procedure, pass(this) :: free => time_based_controller_free
      !> Check if the execution should be performed.
      procedure, pass(this) :: check => time_based_controller_check
-     !> Increment `nexecutions` and advance the schedule.
+     !> Increment `nexecutions` and advance `next_index`.
      procedure, pass(this) :: register_execution => &
           time_based_controller_register_execution
-     !> Move the schedule cursor to the current time (for restarts).
+     !> Set `next_index` and `nexecutions` for the current time (restarts).
      procedure, pass(this) :: set_counter => &
           time_based_controller_set_counter
      !> The time of the next scheduled execution.
@@ -156,18 +147,16 @@ module time_based_controller
 contains
 
   !> Constructor.
-  !! @param start_time The time at which the schedule starts. Both the first
-  !! possible execution time and the anchor of the schedule.
+  !! @param start_time The first time at which an execution can be performed.
   !! @param end_time The final simulation time.
   !! @param control_mode The way to interpret the `control_value` parameter.
   !! @param control_value The value defining the execution frequency.
-  !! @param write_at_start Whether an execution is scheduled at `start_time`
-  !! itself, on top of the ones the anchored schedule prescribes. Optional,
-  !! defaults to `.true.`.
-  !! @param anchor_time The time the schedule is anchored to. Optional,
-  !! defaults to zero for `simulationtime` and to `start_time` for
-  !! `nsamples`, which divides the interval from `start_time` to `end_time`
-  !! rather than tiling it.
+  !! @param write_at_start Whether an execution is performed at `start_time`,
+  !! whether or not it is one of the scheduled times. Optional, defaults to
+  !! `.true.`.
+  !! @param anchor_time The time the scheduled times are counted from.
+  !! Optional, defaults to zero for `simulationtime` and to `start_time` for
+  !! `nsamples`.
   subroutine time_based_controller_init(this, start_time, end_time, &
        control_mode, control_value, write_at_start, anchor_time)
     class(time_based_controller_t), intent(inout) :: this
@@ -213,8 +202,8 @@ contains
        this%frequency = control_value / span
        this%time_interval = 1.0_dp / this%frequency
        this%nsteps = 0
-       ! The samples divide the simulated interval, so they are counted from
-       ! its start rather than from a global grid.
+       ! The samples divide the interval from start_time to end_time, so
+       ! they are counted from start_time.
        this%anchor_time = start_time
     else if (trim(control_mode) .eq. 'tsteps') then
        if (control_value .lt. 1.0_dp) then
@@ -234,8 +223,8 @@ contains
 
     if (present(anchor_time)) this%anchor_time = anchor_time
 
-    ! Point the cursor at the first scheduled execution, and work out whether
-    ! the start time is one of the scheduled times or a point of its own.
+    ! Find the index of the first scheduled time, and whether start_time is
+    ! itself one of the scheduled times.
     this%first_index = 0
     this%start_is_scheduled = .true.
     this%start_pending = .false.
@@ -254,8 +243,8 @@ contains
     end if
 
     if (this%nsteps .gt. 0 .and. .not. this%write_at_start) then
-       ! A step based schedule is anchored at the first step of the run,
-       ! which is the counterpart of the start time here.
+       ! The first scheduled step of a step based schedule is the first step
+       ! of the run. Skip it, as start_time is skipped above.
        this%next_index = 1
     else
        this%next_index = 0
@@ -294,13 +283,13 @@ contains
   !! @param force Whether to execute irrespective of the schedule. Optional,
   !! defaults to `.false.`.
   !! @details The result is `.true.` at the first time step at which the next
-  !! scheduled time has been reached, up to a tolerance of `TIME_TOL * dt`.
-  !! A forced execution is performed unless the simulation has not reached the
-  !! start time of the schedule, or an execution has already been registered
-  !! for the current time step. The latter is what keeps the final, forced,
-  !! execution of a simulation from duplicating a scheduled one that lands on
-  !! the very same step. Forcing does override a `never` control, which is
-  !! how `output_at_end` writes an output that is otherwise never written.
+  !! scheduled time has been reached, within a tolerance of `TIME_TOL * dt`.
+  !! A forced execution is performed unless the time is before `start_time`,
+  !! or an execution has already been registered for the current time step.
+  !! The latter keeps the forced execution at the end of a simulation from
+  !! repeating a scheduled one at the same step. Forcing does override a
+  !! `never` control, which is how `output_at_end` writes an output that is
+  !! otherwise never written.
   function time_based_controller_check(this, time, force) result(check)
     class(time_based_controller_t), intent(in) :: this
     type(time_state_t), intent(in) :: time
@@ -328,7 +317,7 @@ contains
     t_start = this%start_time - this%anchor_time
     tol = this%tolerance(time%dt)
 
-    ! Nothing is ever executed before the start of the schedule.
+    ! Nothing is executed before start_time.
     if (progress .lt. t_start - tol) return
 
     if (ifforce) then
@@ -337,16 +326,16 @@ contains
        nstep = time%tstep - this%tstep_offset
        check = nstep .ge. this%next_index * this%nsteps
     else if (this%start_pending) then
-       ! The execution at the start time, which the anchored schedule does
-       ! not prescribe by itself.
+       ! The execution at start_time, which is not one of the scheduled
+       ! times.
        check = .true.
     else
        t_end = this%end_time - this%anchor_time
        t_next = real(this%first_index + this%next_index, dp) * &
             this%time_interval
-       ! The schedule stops at end_time. Note that this is a condition on the
-       ! *scheduled* time and not on the current time: a step that overshoots
-       ! end_time still performs the execution scheduled for end_time.
+       ! Nothing is scheduled after end_time. The condition is on the
+       ! scheduled time and not on the current time, so a step that
+       ! overshoots end_time still performs the execution scheduled for it.
        if (t_next .gt. t_end + SPAN_TOL * max(abs(t_end), &
             this%time_interval)) return
        check = progress .ge. t_next - tol
@@ -354,11 +343,12 @@ contains
 
   end function time_based_controller_check
 
-  !> The index of the first scheduled execution that lies strictly ahead of
-  !! the current time state.
-  !! @note All scheduled times that have already been reached are skipped, so
-  !! that a run using a time step larger than the output interval does not
-  !! accumulate a backlog of executions.
+  !> The number of scheduled times at or before the given time, counted from
+  !! `first_index`. Assigning it to `next_index` after an execution makes the
+  !! next scheduled time the first one after the given time.
+  !! @note Scheduled times passed within a single step are all counted, so a
+  !! time step larger than the output interval gives one execution per step
+  !! and not one per passed scheduled time.
   pure function next_index_after(this, time) result(index)
     class(time_based_controller_t), intent(in) :: this
     type(time_state_t), intent(in) :: time
@@ -373,19 +363,19 @@ contains
        index = int(floor((progress + tol) / this%time_interval, kind = i8) &
             - this%first_index) + 1
     else
-       ! Nothing is scheduled, so there is nothing to move past.
+       ! Nothing is scheduled.
        index = this%next_index
     end if
 
-    ! No clamping against `next_index` is done on purpose: a scheduled
-    ! execution always yields an index larger than the current one, while a
-    ! forced execution that happens before the next scheduled time must
-    ! leave the schedule untouched.
+    ! The result is not limited from below by the current `next_index` on
+    ! purpose: a scheduled execution always gives a larger index, and a
+    ! forced execution before the next scheduled time must leave
+    ! `next_index` unchanged.
     index = max(index, 0)
 
   end function next_index_after
 
-  !> Increment `nexecutions` and advance the schedule past the current time.
+  !> Increment `nexecutions` and advance `next_index` past the current time.
   !! @param time The current time state.
   subroutine time_based_controller_register_execution(this, time)
     class(time_based_controller_t), intent(inout) :: this
@@ -398,14 +388,13 @@ contains
 
   end subroutine time_based_controller_register_execution
 
-  !> Move the schedule cursor to the current time, and set `nexecutions` to
-  !! the number of executions that the schedule has already prescribed.
-  !! Called when restarting a simulation.
+  !> Set `next_index` to the first scheduled time not yet reached, and
+  !! `nexecutions` to the number of executions performed up to the current
+  !! time. Called when restarting a simulation.
   !! @param time The current time.
-  !! @details The predicate used here is exactly the one used by `check`, so
-  !! that the executions performed by the run that wrote the checkpoint are
-  !! the ones considered done: nothing is repeated and, more importantly,
-  !! nothing is skipped.
+  !! @details The comparison is the same as in `check`, so that exactly the
+  !! executions performed by the run that wrote the checkpoint are counted as
+  !! done, and none is repeated or skipped.
   subroutine time_based_controller_set_counter(this, time)
     class(time_based_controller_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -416,8 +405,8 @@ contains
 
     if (this%nsteps .gt. 0) then
        ! `tstep` is not stored in the checkpoint, so a step based schedule
-       ! cannot be reconstructed. Restart the cadence from the restart step,
-       ! without executing at the restart step itself.
+       ! cannot be continued. Start a new one from the restart step, without
+       ! executing at the restart step itself.
        this%tstep_offset = time%tstep
        this%next_index = 1
        this%start_pending = .false.
@@ -425,8 +414,8 @@ contains
        return
     end if
 
-    ! The size of the step that produced the checkpoint, which is the one
-    ! `check` would have used, and not necessarily the one of the new run.
+    ! The size of the step that produced the checkpoint, which is the step
+    ! `check` used at that time, and not the step of the new run.
     dt = time%dt
     if (abs(time%dtlag(1)) .gt. 0.0_dp) dt = time%dtlag(1)
 
@@ -435,7 +424,7 @@ contains
     tol = this%tolerance(dt)
 
     if (progress .lt. t_start - tol) then
-       ! The schedule has not started yet, so neither has the run.
+       ! The run has not reached start_time.
        this%next_index = 0
        this%nexecutions = 0
     else
@@ -444,12 +433,10 @@ contains
        this%next_index = max(n_passed, 0)
        this%nexecutions = this%next_index
        if (this%start_pending) then
-          ! The execution at the start time, which the schedule does not
-          ! prescribe by itself, was performed by the run that reached this
-          ! time. It counts as one of its own unless the first scheduled time
-          ! lay within tolerance of the start, in which case that single
-          ! execution also stood for the first scheduled one, exactly as
-          ! `register_execution` moved the cursor past it at the time.
+          ! The execution at start_time was performed by the previous run.
+          ! It is counted separately unless the first scheduled time was
+          ! within tolerance of start_time, in which case the same execution
+          ! was registered for both (see next_index_after).
           t_first = real(this%first_index, dp) * this%time_interval
           if (t_first .gt. t_start + tol) then
              this%nexecutions = this%nexecutions + 1
@@ -458,8 +445,8 @@ contains
        this%start_pending = .false.
     end if
 
-    ! Whatever was scheduled for the restart time has been done by the run
-    ! that wrote the checkpoint.
+    ! Anything scheduled for the restart time was executed by the run that
+    ! wrote the checkpoint.
     this%last_tstep = time%tstep
 
   end subroutine time_based_controller_set_counter

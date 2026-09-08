@@ -22,7 +22,7 @@
   step overshoots it, which it does whenever the step does not divide the
   simulated interval.
 - A `simulationtime` schedule is anchored at zero, so its writes land on
-  whole multiples of the interval whatever time the run started from:
+  whole multiples of the interval regardless of the time the run started from:
   starting at t = 10.5 and writing every 1.0 now gives 11.0, 12.0, ... rather
   than 11.5, 12.5, ... `nsamples` still divides the simulated interval.
 - Added `case.output_at_start`, whether the initial state of the simulation

@@ -148,10 +148,9 @@ contains
   end subroutine time_state_status
 
   !> Check if the simulation is done
-  !! @note A round-off sized tolerance keeps a time that lands a few ulps
-  !! short of the end time from buying a whole additional time step, which
-  !! would overshoot the end time by almost `dt` and produce an output past
-  !! it.
+  !! @note The tolerance keeps a time a few ulps short of the end time from
+  !! adding one more time step, which would overshoot the end time by almost
+  !! `dt` and produce an output past it.
   pure function time_state_is_done(this) result(is_done)
     class(time_state_t), intent(in) :: this
     logical :: is_done
