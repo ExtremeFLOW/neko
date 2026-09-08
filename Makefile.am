@@ -162,7 +162,8 @@ EXTRA_DIST = \
 	patches/json-fortran71.patch\
 	patches/cce_stack.patch\
 	patches/cce_time_state.patch\
-	patches/fujitsu_memleak.patch
+	patches/fujitsu_memleak.patch\
+	patches/fujitsu_memleak.sh
 
 if ENABLE_FLINT
 lint:
