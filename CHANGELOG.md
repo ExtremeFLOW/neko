@@ -14,6 +14,33 @@
 - Added runtime registration of user-defined scalar boundary-condition types
   through `register_scalar_pnpn_bc`.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.
+- The matrix core tile used by the HIP Helmholtz operator is now an
+  auto-tuner candidate rather than a build-time choice. It was fixed to the
+  batched `v_mfma_f64_4x4x4f64` tile on the argument that it fills `M = lx`
+  exactly where `v_mfma_f64_16x16x4f64` wastes half its rows; that tile in
+  fact runs at half the FLOP rate, owes four cycles on every step of an
+  accumulate chain and re-reads its second operand once per M-tile, which
+  cancels the utilisation gain around `lx = 8` and reverses it above.
+  A double precision build therefore now times eight matrix core candidates
+  per order instead of four, and `NEKO_MFMA_TILE` pins the tile when
+  `NEKO_AUTOTUNE=MFMA` pins the formulation. Single precision has no 4x4x4
+  instruction, so the dimension collapses there and the candidate count is
+  unchanged. `-DMFMA_F64_USE_16X16` still builds without the 4x4x4 path, and
+  now also removes it from the sweep instead of selecting between them.
+- Added a matrix core (`MFMA`) variant of the vector Helmholtz operator on the
+  HIP backend, as a candidate in the `Autotune Ax vector` search alongside the
+  elements per block sweep of its kstep variant, and pinnable with
+  `NEKO_AUTOTUNE=MFMA` and `NEKO_MFMA_NWF`. It runs the three components
+  through one set of staged cubes and keeps the shared geometric factors in
+  registers across them where they fit a register budget, re-reading them per
+  component where they do not. Same scope as the scalar variant: either
+  precision, `4 <= lx <= 12`, on a gfx90a or gfx942 device.
+- The vector Helmholtz auto-tuner on the HIP backend now reports the
+  formulation it chose and labels its kstep candidates, as the scalar one and
+  the CUDA copy do, and `NEKO_EB` on its own no longer pins the kstep
+  geometry --- it is read when `NEKO_AUTOTUNE=KSTEP` pins the formulation,
+  which is what it is documented to do. An unrecognised `NEKO_AUTOTUNE` value
+  is reported as an error there rather than silently pinning kstep.
 - The gather-scatter comm. backend autotuning now covers the device-resident
   backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks
   `MPIGPU`, `NCCL` and `CRYSTALGPU` (`NVSHMEM` only when asked for) alongside

@@ -153,11 +153,15 @@ device that will grant them the rest.
 is the batched form of it, which stages all ten input cubes of an element at
 once, for the vector operator only.
 .B MFMA
-is its HIP counterpart, available for the same operators less the vector
-.BR Ax ,
-which has no matrix core kernel, for
+is its HIP counterpart, available for the same operators, the vector
+.BR Ax
+included, for
 .BR 4 " <= " lx " <= " 12
-on a gfx90a or gfx942 device, in either precision.
+on a gfx90a or gfx942 device, in either precision. For the Helmholtz
+operator the search covers both matrix core tiles as well as the wavefronts
+per block, pinned by
+.BR NEKO_MFMA_TILE " and " NEKO_MFMA_NWF
+respectively.
 When unset, each operator benchmarks every formulation it has, and the
 geometry parameter of each, against the running case and caches the winner.
 .TP
@@ -227,6 +231,27 @@ leave wavefronts for, rounded down to a power of two, and the remaining
 wavefronts cooperate on each. Values outside the valid range fall back to
 .BR 0 .
 Unset by default, i.e. swept.
+.TP
+.B NEKO_MFMA_TILE
+Selects which matrix core tile the contraction is issued on when the matrix
+core formulation is pinned with
+.BR NEKO_AUTOTUNE=MFMA .
+Candidate
+.B 0
+is the precision's default tile, the batched 4x4x4 in double precision, and
+.B 1
+is the 16x16x4 tile. The two differ only in a double precision build \(em
+single precision has no 4x4x4 instruction \(em and only the Helmholtz
+operator, scalar and vector, carries the dimension;
+.BR opgrad ", " dudxyz ", " conv1 " and " cdtp
+keep the default tile and ignore this. The small tile fills M = lx exactly
+but runs at half the FLOP rate and re-reads its second operand once per
+M-tile, so which one wins depends on the order and is measured rather than
+assumed. Values outside the valid range, or a tile the build does not offer,
+fall back to
+.BR 0 .
+Defaults to
+.BR 0 .
 .TP
 .B NEKO_TUNE_ROUNDS
 Number of interleaved sampling rounds used by the operator auto-tuner. Each

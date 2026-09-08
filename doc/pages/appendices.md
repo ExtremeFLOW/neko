@@ -23,6 +23,7 @@ of the code. But can be useful for users and developers alike.
 | `NEKO_DMMA_NW`           | Pin the `DMMA` warps per block candidate (0, 1 or 2)                  | Unset (swept) |
 | `NEKO_DMMA_TMA_NW`       | Pin the `DMMA_TMA` / `DMMA_TMA_BATCH` warps per block candidate (0, 1 or 2) | Unset (swept) |
 | `NEKO_MFMA_NWF`          | Pin the `MFMA` wavefronts per block candidate (0 to 3)                | Unset (swept) |
+| `NEKO_MFMA_TILE`         | Pin the `MFMA` matrix core tile candidate (0 or 1)                    | Unset (swept) |
 | `NEKO_MFMA_TUNE`         | Sweep the matrix core variants on the HIP backend (boolean)           | 1             |
 | `NEKO_TUNE_ROUNDS`       | Interleaved sampling rounds used by the operator auto-tuner           | 3             |
 | `NEKO_TUNE_ITERS`        | Kernel launches timed per candidate per round                        | 100           |
@@ -79,13 +80,15 @@ nothing left to measure and the search is skipped outright.
   scalar operator has no such variant and reports the value as invalid.
 
 - `NEKO_AUTOTUNE=MFMA`  : the HIP counterpart of `DMMA` --- always use the
-  matrix core variant, sweeping its wavefronts per block unless
-  `NEKO_MFMA_NWF` pins one. Available for the Helmholtz operator `Ax`
-  (scalar only), `opgrad`, `dudxyz`, `conv1` and `cdtp`. Either precision,
+  matrix core variant, sweeping its wavefronts per block --- and, for the
+  Helmholtz operator, its matrix core tile --- unless `NEKO_MFMA_NWF` or
+  `NEKO_MFMA_TILE` pins one. Available for the Helmholtz operator `Ax`
+  (scalar and vector), `opgrad`, `dudxyz`, `conv1` and `cdtp`. Either precision,
   `4 <= lx <= 12`, on a gfx90a or gfx942 device.
 
 The vector Helmholtz operator has no 1d formulation, so `1D` and `KSTEP`
-both pin it to its kstep variant, and it has no matrix core variant on HIP.
+both pin it to its kstep variant. It does have a matrix core variant on
+HIP, which `MFMA` pins as it does the scalar one.
 
 Any other value is reported as an error and the search runs as usual.
 `DMMA` on a build or a device without fp64 tensor cores, or `MFMA` on one
@@ -124,6 +127,27 @@ variant is measured, not only when it is the pinned one.
 is one element per block, i.e. the unblocked geometry, which makes
 `NEKO_AUTOTUNE=KSTEP NEKO_EB=0` the A/B baseline for the blocking.
 Values outside the valid range fall back to `0`.
+
+`NEKO_MFMA_TILE` pins which matrix core tile the contraction is issued
+on, which the tuner otherwise sweeps: `0` is the
+precision's default tile and `1` the 16x16x4 one. It only names two
+different things in a double precision build --- single precision has no
+4x4x4 instruction, so both values are the 16x16x4 tile there, and the
+sweep measures the tile only where the two differ. The Helmholtz operator,
+scalar and vector, is the one that carries this dimension; `opgrad`,
+`dudxyz`, `conv1` and `cdtp` keep their contractions on the default tile
+and ignore the variable.
+
+Which tile is faster is not obvious and used to be fixed at build time.
+The batched 4x4x4 tile fills `M = lx < 16` exactly where the 16x16x4 one
+wastes half its rows at `lx = 8`, but it runs at half the FLOP rate, owes
+four cycles on each step of an accumulate chain where the large tile owes
+none, and re-reads its second operand once per M-tile. Those cancel around
+`lx = 8` and favour the large tile above it, so the tuner measures both
+rather than taking either argument on faith. Both are verified against a
+reference and give bit-identical double precision results, so the choice
+is a performance one only. The cost is tuning time: a double precision
+build times eight matrix core candidates per order instead of four.
 
 `NEKO_DMMA_NW` pins one of the instantiated warps per block candidates
 of the tensor core variant;

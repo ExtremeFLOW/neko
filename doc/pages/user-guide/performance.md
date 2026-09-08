@@ -126,8 +126,8 @@ The two formulations are:
 Five operators ship a third, which hands the tensor contractions of an
 element to the matrix units of the device rather than to the ordinary
 FMA pipes: on CUDA `Ax` (scalar and vector), `opgrad`, `dudxyz`, `conv1`
-and `cdtp`; on HIP the same five less the vector `Ax`, which has no matrix
-core kernel. `convect_scalar` and `lambda2` have no such variant on either
+and `cdtp`; on HIP the same five, the vector `Ax` included.
+`convect_scalar` and `lambda2` have no such variant on either
 backend and keep tuning the two.
 
 - the **dmma** variant on CUDA, which stages a cube in shared memory
@@ -281,10 +281,29 @@ fifteen for `conv1` and five for `cdtp`. The variants that stage past
 48 kB additionally check that the device will grant a block the shared
 memory they need.
 
+@note For the Helmholtz operator the mfma search has a second dimension:
+which matrix core tile the contraction is issued on. Double precision has
+two, and they trade against each other rather than one dominating. The
+batched `v_mfma_f64_4x4x4f64` tile fills `M = lx < 16` exactly, where
+`v_mfma_f64_16x16x4f64` wastes half its rows at `lx = 8` --- but it runs at
+128 rather than 256 flop per cycle per compute unit, owes four cycles on
+each step of an accumulate chain where the large tile owes none, and
+re-reads its second operand once per M-tile, which is two to three times
+the shared memory traffic. Counting issues and cycles, the small tile wins
+by 2x at `lx = 4`, the two are within about 10% of each other from `lx = 5`
+to `8`, and the large tile wins by 1.5x from `lx = 9` up. That was a
+compile-time choice until the accounting was redone, which is exactly the
+kind of decision the tuner exists to make, so both are now candidates ---
+eight instead of four in a double precision build. Single precision has no
+4x4x4 instruction, so there the dimension collapses and only four
+candidates are timed. Both tiles reproduce a reference to machine precision
+and give bit-identical double precision results, so nothing but time is at
+stake in trying them.
+
 @note The mfma variant covers `4 <= lx <= 12` in *both* precisions, on
-gfx90a (MI250X) and gfx942 (MI300A / MI300X), for the scalar `Ax`,
-`opgrad`, `dudxyz`, `conv1` and `cdtp` --- there is no vector mfma
-kernel. `v_mfma_f32_16x16x4f32` is true IEEE fp32, so a single precision
+gfx90a (MI250X) and gfx942 (MI300A / MI300X), for the scalar and vector
+`Ax`, `opgrad`, `dudxyz`, `conv1` and `cdtp`.
+`v_mfma_f32_16x16x4f32` is true IEEE fp32, so a single precision
 build loses nothing in accuracy there; the upper order bound is the LDS
 needed to keep the staged cubes resident, not the instruction.
 Availability is confirmed by launching a probe kernel that reports
@@ -306,19 +325,31 @@ on a given part is exactly what the tuner measures.
 The vector (three component) Helmholtz operator runs its own search,
 reported as a separate `Autotune Ax vector` section: the elements per
 block of its kstep variant against, on CUDA, the warp counts of a vector
-dmma variant and of the two TMA staged forms of it. It has no 1d
-formulation, so `NEKO_AUTOTUNE=1D` selects kstep there, and no matrix
-core variant on HIP, where the vector search is the elements per block
-sweep alone. Blocking is not expected to pay much for the vector kernels
+dmma variant and of the two TMA staged forms of it, and on HIP the
+wavefront counts of a vector mfma variant. It has no 1d
+formulation, so `NEKO_AUTOTUNE=1D` selects kstep there.
+Blocking is not expected to pay much for the vector kernels
 --- they sit at 254-255 registers, where a wider block changes threads
 per block but not registers per thread, so it only saves the derivative
 matrix loads --- but it is swept rather than assumed. Because the three
-components share one set of geometric factors, the dmma variant reads
-them once into registers and runs the components through the same staged
-cubes rather than staging twelve of them. On GH200 at `lx = 8` that
-loses narrowly to kstep --- holding the factors costs occupancy --- so
-it is there for the low order end, where the register cost falls away
+components share one set of geometric factors, the matrix unit variants
+read them once into registers and run the components through the same
+staged cubes rather than staging twelve of them. On GH200 at `lx = 8`
+that loses narrowly to kstep --- holding the factors costs occupancy ---
+so it is there for the low order end, where the register cost falls away
 and the shared memory footprint does not.
+
+The mfma form makes the same trade, but decides it per instantiation
+rather than taking it everywhere. A thread holds seven values for each of
+the `ceil(lx^3 / (64 * wpe))` points it owns, which is one point and
+fourteen registers where eight wavefronts cooperate on an `lx = 8`
+element and twenty seven points and 378 registers where a single
+wavefront takes an `lx = 12` one, against the 256 a lane addresses. The
+factors are therefore kept in registers only while they fit a 64 register
+budget, and re-read from global memory per component otherwise, on the
+expectation that an element read moments earlier is still in L2. Which
+side of that line a candidate falls on follows from `lx` and the
+wavefront count, so it adds no tuner dimension.
 
 Within each formulation the tuner also sweeps a geometry parameter. For
 the kstep kernels this is the number of *elements per thread block*: a
@@ -362,14 +393,24 @@ form
 on CUDA, where the second field is the elements packed into one cube, and
 
 ```
-  MFMA  4wf 1 e:    136.40 us/call
-  MFMA  8wf 1 e:    136.40 us/call
+  MFMA  4x4x4 4wf 1 e:    136.40 us/call
+  MFMA  4x4x4 8wf 1 e:    136.40 us/call
 ```
 
-on HIP, where it is the elements per block that the wavefront count
-implies. The chosen line names the same pair, as
+on HIP, where the first field is the matrix core tile and the last the
+elements per block that the wavefront count implies. The vector operator's
+matrix core lines carry one more field, `reg` or `glob`, saying whether that
+candidate held the geometric
+factors in registers across the three components or re-read them from
+global memory for each one --- which follows from the order and the
+wavefront count rather than being swept, so neighbouring candidates can
+differ in memory traffic as well as in block shape. At `lx = 8` in double
+precision the single wavefront candidate reports `glob` and the rest
+`reg`; at `lx = 12` only the eight wavefront candidate reports `reg`.
+
+The chosen line names the same pair, as
 `Chose        : 3 (DMMA, 2 warps, 8 elem/blk)` or
-`Chose        : 3 (MFMA, 4 wf, 1 elem/block)`.
+`Chose        : 3 (MFMA 4x4x4, 4 wf, 1 elem/blk)`.
 
 At `lx = 8` on Hopper the TMA staged variants add lines of their own,
 which carry no element count --- they stage a single element by

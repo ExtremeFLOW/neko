@@ -213,7 +213,9 @@ int tune_dudxyz(void *du, void *u,
   /* Geometry pinned by each formulation's own variable, -1 to sweep it */
   const int ch_pin = neko_chunks_pin();
   const int eb_pin = neko_eb_pin();
-  const int nwf_pin = neko_mfma_pin();
+  /* Wavefronts only: the tile dimension is Ax helm's, and these operators
+     stay on the default tile, see neko_mfma_nwf_pin() */
+  const int nwf_pin = neko_mfma_nwf_pin();
   /* Formulation pinned by NEKO_AUTOTUNE, as the identifier this returns */
   int strat = 0;
   /* Hardware capability, which the explicit NEKO_AUTOTUNE=MFMA pin needs */
@@ -331,7 +333,7 @@ int tune_dudxyz(void *du, void *u,
     NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
       CASE_KSTEP_SEL(LX, c);
     }
-    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, NEKO_MFMA_CANDIDATES) {
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, NEKO_MFMA_NWF_CANDIDATES) {
       CASE_MFMA_SEL(LX, c);
     }
   }
@@ -344,7 +346,7 @@ int tune_dudxyz(void *du, void *u,
     NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
       NEKO_TUNE_TIME(time2, CASE_KSTEP_SEL, LX, c, iters);
     }
-    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, NEKO_MFMA_CANDIDATES) {
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, NEKO_MFMA_NWF_CANDIDATES) {
       NEKO_TUNE_TIME(time3, CASE_MFMA_SEL, LX, c, iters);
     }
   }

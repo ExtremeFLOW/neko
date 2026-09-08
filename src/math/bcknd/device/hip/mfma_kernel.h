@@ -196,9 +196,86 @@ static inline bool mfma_lx_supported() {
  * eight. The measured LX = 8 curve was still improving at four, hence the
  * fourth candidate.
  */
-#define NEKO_MFMA_CANDIDATES 4
-#define NEKO_MFMA_NWF(C) (1 << (C))
+/*
+ * The candidate space is two dimensional: the wavefronts per block above, and
+ * which matrix core tile the contraction is issued on. Candidate C encodes
+ * both -- NWF = 2^(C mod 4) and TILE = C / 4 -- so one selector still names a
+ * whole geometry and candidates 0..3 mean exactly what they always did.
+ *
+ * TILE 0 is the precision's default tile: the batched 4x4x4 in double
+ * precision, the 16x16x4 in single, where there is no 4x4x4 counterpart
+ * (its f32 sibling has K = 1). TILE 1 is the 16x16x4 tile in both, so in
+ * single precision the two are the same code and only TILE 0 is offered --
+ * see mfma_tile_offered().
+ *
+ * WHY THE TILE IS MEASURED RATHER THAN CHOSEN. It used to be a compile-time
+ * #ifdef, on the argument that the 4x4x4 tile fills M = LX < 16 exactly where
+ * the 16x16x4 one wastes half its rows at LX = 8. That argument tacitly
+ * assumes the two instructions run at the same rate, and they do not. From
+ * AMD's own matrix instruction calculator, identically on gfx90a and gfx942:
+ *
+ *   v_mfma_f64_16x16x4f64  2048 flop / 32 cyc = 256 flop/CU/cycle, 0 wait
+ *   v_mfma_f64_4x4x4f64     512 flop / 16 cyc = 128 flop/CU/cycle, 4 waits
+ *
+ * The small tile is rate-halved -- 128 flop/CU/cycle is the f64 *vector* rate,
+ * so it surrenders the whole reason to use a matrix core in double precision
+ * -- and a chain of them into one accumulator, which is exactly what
+ * mfma_contract_4x4's K loop is, owes four cycles per step where the large
+ * tile owes none. Counting issues per element per contraction (4x4x4:
+ * ceil(LX/4) M-tiles x groups x ceil(LX/4) K-steps at 16 cycles; 16x16x4:
+ * groups x K-steps at 32) the M-utilisation gain is exactly cancelled at
+ * LX = 5..8 and reversed beyond it: 4x4x4 wins 2x at LX = 4, loses ~11% at
+ * LX = 5..8 once the accumulate waits are counted, and loses 1.5x at
+ * LX = 9..12. It also re-reads the B operand once per M-tile, so it costs 2x
+ * the operand traffic at LX = 5..8 and 3x at LX = 9..12 on a kernel measured
+ * at 69-72% of the memory roof.
+ *
+ * So the analytical answer is "4x4x4 at LX = 4, 16x16x4 above it", which is
+ * not what the old default did -- and it is an analytical answer, of the same
+ * kind as the one it replaces. Both tiles are hardware verified against a CPU
+ * reference and produce bit-identical f64 results, so trying both costs
+ * nothing but tuning time. Hence: measure it.
+ */
+#define NEKO_MFMA_NWF_CANDIDATES 4
+#define NEKO_MFMA_TILE_CANDIDATES 2
+#define NEKO_MFMA_CANDIDATES                                                  \
+  (NEKO_MFMA_NWF_CANDIDATES * NEKO_MFMA_TILE_CANDIDATES)
+#define NEKO_MFMA_NWF(C) (1 << ((C) % NEKO_MFMA_NWF_CANDIDATES))
+#define NEKO_MFMA_TILE(C) ((C) / NEKO_MFMA_NWF_CANDIDATES)
 #define NEKO_MFMA_NTHRDS(C) dim3(64, NEKO_MFMA_NWF(C), 1)
+
+/*
+ * Whether candidate C's tile is a distinct thing to measure in this build.
+ *
+ * TILE 1 is the 16x16x4 tile, which is what TILE 0 already resolves to in
+ * single precision and under -DMFMA_F64_USE_16X16, so offering it there would
+ * time the same kernel twice. The launch macros instantiate both regardless --
+ * every (precision, LX, candidate) has to compile -- and this only decides
+ * what the sweep and the env pin will run.
+ */
+static inline bool mfma_tile_offered(const int c) {
+  if (NEKO_MFMA_TILE(c) == 0) {
+    return true;
+  }
+#ifdef MFMA_F64_USE_16X16
+  return false;
+#else
+  return sizeof(real) == 8;
+#endif
+}
+
+/* Which tile candidate C names, for the tuner log */
+static inline const char *mfma_tile_name(const int c) {
+#ifdef MFMA_F64_USE_16X16
+  (void) c;
+  return "16x16";
+#else
+  if (NEKO_MFMA_TILE(c) != 0) {
+    return "16x16";
+  }
+  return (sizeof(real) == 8) ? "4x4x4" : "16x16";
+#endif
+}
 
 /*
  * Column groups per contraction -- the wavefront-parallel work one element
@@ -242,6 +319,41 @@ static inline bool mfma_lx_supported() {
 #define NEKO_MFMA_EB(LX, C) NEKO_MFMA_EB_N(NEKO_MFMA_NWF(C), LX)
 /* Wavefronts cooperating on one element */
 #define NEKO_MFMA_WPE(LX, C) (NEKO_MFMA_NWF(C) / NEKO_MFMA_EB(LX, C))
+
+/*
+ * Points per thread: the LX^3 points of an element shared out over the
+ * WPE * 64 threads that serve it. Only the vector operator needs this on the
+ * host side, but it belongs here with the rest of the geometry so that the
+ * device enum and the host launcher cannot drift apart -- which is how the
+ * WPE/EB split came to address past the end of its staging arrays.
+ */
+#define NEKO_MFMA_PPT_N(WPE, LX)                                              \
+  (((LX) * (LX) * (LX) + (WPE) * 64 - 1) / ((WPE) * 64))
+#define NEKO_MFMA_PPT(LX, C) NEKO_MFMA_PPT_N(NEKO_MFMA_WPE(LX, C), LX)
+
+/*
+ * Whether the vector operator keeps the seven geometric factors of each of a
+ * thread's points in registers across the three components, or re-reads them
+ * from global memory for each one. See ax_helm_mfma_vector_elem: the cost is
+ * 7 * PPT * (sizeof(T)/4) VGPRs, budgeted at a quarter of the 256 a lane
+ * addresses -- which leaves the four cube base pointers, the two index bases,
+ * the contraction accumulator and the seven pointwise temporaries room to
+ * live alongside it.
+ *
+ * It follows from LX and the wavefront count rather than being a candidate of
+ * its own, so the two modes cannot be compared directly -- which is why the
+ * tuner reports which one each candidate ran, see NEKO_TUNE_LOG_MFMA_VEC.
+ * Without that the sweep reads as a matrix core result when the step between
+ * two candidates is really a change in memory traffic.
+ */
+#ifndef NEKO_MFMA_VECTOR_GREG_VGPRS
+#define NEKO_MFMA_VECTOR_GREG_VGPRS 64
+#endif
+#define NEKO_MFMA_VECTOR_GREG_N(PPT, SZ)                                      \
+  ((7 * (PPT) * ((SZ) / 4)) <= NEKO_MFMA_VECTOR_GREG_VGPRS)
+#define NEKO_MFMA_VECTOR_GREG(LX, C)                                          \
+  NEKO_MFMA_VECTOR_GREG_N(NEKO_MFMA_PPT(LX, C), sizeof(real))
+
 #define NEKO_MFMA_NBLCKS(NELV, LX, C)                                         \
   dim3(((NELV) + NEKO_MFMA_EB(LX, C) - 1) / NEKO_MFMA_EB(LX, C), 1, 1)
 
@@ -268,9 +380,56 @@ static int neko_mfma_sweep()
   return 1;
 }
 
-/* Wavefronts per block candidate pinned by NEKO_MFMA_NWF, or -1 to leave it
-   to the sweep, see neko_eb_pin() in elem_block_tune.h */
+/*
+ * Candidate pinned by NEKO_MFMA_NWF and NEKO_MFMA_TILE, or -1 to leave it to
+ * the sweep, see neko_eb_pin() in elem_block_tune.h.
+ *
+ * The two dimensions stay separate variables -- NEKO_MFMA_NWF keeps its old
+ * range and meaning, NEKO_MFMA_TILE adds the tile -- rather than one index
+ * into the combined space, so that a pin written before the tile existed
+ * still selects what it used to. Setting either one pins the candidate;
+ * leaving both unset leaves the whole geometry to the sweep. A tile this
+ * build does not offer falls back to the default one at the requested
+ * wavefront count.
+ */
 static int neko_mfma_pin()
+{
+  const char *v = getenv("NEKO_MFMA_NWF");
+  const char *t = getenv("NEKO_MFMA_TILE");
+  int nwf, tile, c;
+
+  if (v == NULL && t == NULL) {
+    return -1;
+  }
+
+  nwf = (v != NULL) ? atoi(v) : 0;
+  tile = (t != NULL) ? atoi(t) : 0;
+  if (nwf < 0 || nwf >= NEKO_MFMA_NWF_CANDIDATES) {
+    nwf = 0;
+  }
+  if (tile < 0 || tile >= NEKO_MFMA_TILE_CANDIDATES) {
+    tile = 0;
+  }
+  c = tile * NEKO_MFMA_NWF_CANDIDATES + nwf;
+  if (!mfma_tile_offered(c)) {
+    c = nwf;
+  }
+  return c;
+}
+
+/*
+ * The same pin restricted to the wavefront dimension, for the operators that
+ * offer only that one.
+ *
+ * The tile dimension is carried by the Helmholtz operator alone, scalar and
+ * vector: it is the operator with the headroom to be worth the doubled
+ * instantiation count, and the one every measurement so far is about. The
+ * gradient-type operators keep the four wavefront candidates and their
+ * contractions stay on the default tile. This exists so that a
+ * NEKO_MFMA_TILE=1 pin is ignored there *explicitly* rather than by falling
+ * through a switch onto some other candidate.
+ */
+static int neko_mfma_nwf_pin()
 {
   const char *v = getenv("NEKO_MFMA_NWF");
   int c;
@@ -280,20 +439,55 @@ static int neko_mfma_pin()
   }
 
   c = atoi(v);
-  if (c < 0 || c >= NEKO_MFMA_CANDIDATES) {
+  if (c < 0 || c >= NEKO_MFMA_NWF_CANDIDATES) {
     c = 0;
   }
   return c;
 }
 
+/*
+ * Candidates the sweep runs: the wavefront counts on the default tile, and
+ * the same again on the 16x16x4 tile wherever this build offers that as a
+ * distinct thing to measure, see mfma_tile_offered(). The offered set is
+ * contiguous from 0, so it is a count rather than a skip and NEKO_TUNE_FOR()
+ * in elem_block_tune.h can take it directly.
+ */
+static inline int neko_mfma_candidates()
+{
+  return mfma_tile_offered(NEKO_MFMA_NWF_CANDIDATES) ?
+    NEKO_MFMA_CANDIDATES : NEKO_MFMA_NWF_CANDIDATES;
+}
+
 /* Report every measured MFMA candidate, see NEKO_TUNE_LOG in
-   elem_block_tune.h */
+   elem_block_tune.h. The tile is named because it is the dimension whose
+   default was wrong for eight of the nine supported orders */
 #define NEKO_TUNE_LOG_MFMA(LX, T3)                                            \
   do {                                                                        \
     for (int c = 0; c < NEKO_MFMA_CANDIDATES; c++) {                          \
       if ((T3)[c] >= NEKO_TUNE_INIT) { continue; }                            \
-      sprintf(neko_log_buf, "MFMA  %dwf %-2de: %9.2f us/call",                \
-              NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c),                          \
+      sprintf(neko_log_buf, "MFMA  %s %dwf %-2de: %9.2f us/call",             \
+              mfma_tile_name(c), NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c),       \
+              NEKO_TUNE_US((T3)[c], iters));                                  \
+      log_message(neko_log_buf);                                              \
+    }                                                                         \
+  } while (0)
+
+/*
+ * The same for the vector operator, plus the register mode each candidate
+ * ran in -- 'reg' where the geometric factors stay in registers across the
+ * three components, 'glob' where they are re-read from global memory for each
+ * one, see NEKO_MFMA_VECTOR_GREG. It is reported because it is derived from
+ * the wavefront count rather than swept, so two neighbouring candidates can
+ * differ in memory traffic as well as in block shape, and a step between them
+ * would otherwise be read as a matrix core effect.
+ */
+#define NEKO_TUNE_LOG_MFMA_VEC(LX, T3)                                        \
+  do {                                                                        \
+    for (int c = 0; c < NEKO_MFMA_CANDIDATES; c++) {                          \
+      if ((T3)[c] >= NEKO_TUNE_INIT) { continue; }                            \
+      sprintf(neko_log_buf, "MFMA  %s %dwf %-2de %-4s: %9.2f us/call",       \
+              mfma_tile_name(c), NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c),       \
+              NEKO_MFMA_VECTOR_GREG(LX, c) ? "reg" : "glob",                  \
               NEKO_TUNE_US((T3)[c], iters));                                  \
       log_message(neko_log_buf);                                              \
     }                                                                         \
@@ -501,12 +695,28 @@ void mfma_contract_4x4(double * __restrict__ out,
 }
 
 /*
- * Precision-dispatched tensor contraction: double precision uses the batched
- * 4x4x4 matrix core (full M-utilisation for M = LX < 16), single precision the
- * 16x16x4 tile (no f32 4x4x4 equivalent).  Lets one call site cover both.
+ * Precision- and tile-dispatched tensor contraction, so that one call site
+ * covers both precisions and both matrix core tiles.
+ *
+ * TILE 0 is the precision's default: the batched 4x4x4 tile in double
+ * precision (full M-utilisation for M = LX < 16, at half the FLOP rate --
+ * see the candidate space note above for why that trade is worth measuring),
+ * the 16x16x4 tile in single, which has no 4x4x4 counterpart. TILE 1 is the
+ * 16x16x4 tile in both, so in single precision the two are the same code.
+ *
+ * -DMFMA_F64_USE_16X16 makes TILE 0 the 16x16x4 tile in double precision as
+ * well, which collapses the tile dimension; the sweep then offers TILE 0
+ * alone, see mfma_tile_offered(). It is retained as a way to build without
+ * the 4x4x4 path at all, not as the way to choose between them -- that is now
+ * the autotuner's job.
+ *
+ * Both tiles are hardware verified against a CPU reference on gfx90a
+ * (mfma_probe, 144 configurations per tile) and give bit-identical f64
+ * results, so which one runs is a performance question only.
  */
 template< typename T, const int LX, const int AXIS,
-          const bool TRANSPOSE, const bool ACCUM, const int NWF = 1 >
+          const bool TRANSPOSE, const bool ACCUM, const int NWF = 1,
+          const int TILE = 0 >
 struct mfma_contract_sel {
   __device__ __forceinline__
   static void run(T * __restrict__ out, const T * __restrict__ dmat,
@@ -516,29 +726,36 @@ struct mfma_contract_sel {
   }
 };
 
+/* Double precision, TILE 0: the batched 4x4x4 tile, or the 16x16x4 one if the
+   build asked for it */
 template< const int LX, const int AXIS, const bool TRANSPOSE, const bool ACCUM,
           const int NWF >
-struct mfma_contract_sel<double, LX, AXIS, TRANSPOSE, ACCUM, NWF> {
+struct mfma_contract_sel<double, LX, AXIS, TRANSPOSE, ACCUM, NWF, 0> {
   __device__ __forceinline__
   static void run(double * __restrict__ out, const double * __restrict__ dmat,
                   const double * __restrict__ in, const int lane,
                   const int wf = 0) {
 #ifdef MFMA_F64_USE_16X16
-    /*
-     * Opt-out fallback: the original 16x16x4 tile (M-utilisation 50% at LX=8,
-     * 75% at LX=12).  Kept as an escape hatch behind -DMFMA_F64_USE_16X16; the
-     * batched 4x4x4 path below is the hardware-validated default.
-     */
     mfma_contract<double, LX, AXIS, TRANSPOSE, ACCUM, NWF>(out, dmat, in,
                                                            lane, wf);
 #else
-    /*
-     * Default f64 path: batched 4x4x4 matrix-core tile, full M-utilisation.
-     * Hardware-validated -- the ax_helm fluid solver converges on gfx90a/
-     * gfx942.  Still multi-wavefront via NWF.
-     */
     mfma_contract_4x4<LX, AXIS, TRANSPOSE, ACCUM, NWF>(out, dmat, in, lane, wf);
 #endif
+  }
+};
+
+/* Double precision, TILE 1: the 16x16x4 tile, M-utilisation 50% at LX = 8 and
+   75% at LX = 12, but at twice the FLOP rate of the batched tile, a free
+   accumulate chain and a third of its operand traffic at high order */
+template< const int LX, const int AXIS, const bool TRANSPOSE, const bool ACCUM,
+          const int NWF >
+struct mfma_contract_sel<double, LX, AXIS, TRANSPOSE, ACCUM, NWF, 1> {
+  __device__ __forceinline__
+  static void run(double * __restrict__ out, const double * __restrict__ dmat,
+                  const double * __restrict__ in, const int lane,
+                  const int wf = 0) {
+    mfma_contract<double, LX, AXIS, TRANSPOSE, ACCUM, NWF>(out, dmat, in,
+                                                           lane, wf);
   }
 };
 
