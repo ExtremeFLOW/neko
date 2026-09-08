@@ -205,10 +205,16 @@ contains
   @test
   subroutine test_register()
     type(time_based_controller_t) ctrl
+    type(time_state_t) :: time
 
     call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 10.0_dp)
-    call ctrl%register_execution()
+    time%t = 0.0_dp
+    time%dt = 0.1_dp
+    time%tstep = 0
+    call ctrl%register_execution(time)
     @assertEqual(ctrl%nexecutions, 1)
+    @assertEqual(ctrl%next_index, 1)
+    @assertFalse(ctrl%check(time))
   end subroutine test_register
 
   !> `check` must be callable several times per step without changing its
@@ -415,6 +421,50 @@ contains
        end do
     end do
   end subroutine test_restart_continuity
+
+  !> A start time lying a hair below a scheduled time, closer than the
+  !! tolerance, makes the execution at the start stand for the scheduled one
+  !! as well. A restart must count that single execution once, so that the
+  !! file numbering carries on without a gap.
+  @test
+  subroutine test_restart_start_near_scheduled_time()
+    type(time_based_controller_t) ctrl
+    type(time_state_t) :: time
+    real(kind=dp) :: t_ref(64), t_out(64)
+    integer :: n_ref, n, n_done, k, i
+
+    ! 0.1 lies 0.0005 above the start, within the tolerance 0.1 * dt
+    call ctrl%init(0.0995_dp, 0.3_dp, "simulationtime", 0.05_dp, .true.)
+    call collect(ctrl, 0.0995_dp, 0.3_dp, 0.01_dp, .false., t_ref, n_ref)
+    @assertEqual(t_ref(1), 0.0995_dp, tolerance=1e-8_dp)
+    @assertEqual(t_ref(2), 0.1495_dp, tolerance=1e-8_dp)
+
+    do k = 1, 19
+       time%start_time = 0.0995_dp
+       time%end_time = 0.3_dp
+       time%dt = 0.01_dp
+       time%dtlag = 0.01_dp
+       time%t = 0.0995_dp + real(k, dp) * 0.01_dp
+       time%tstep = 0
+
+       call ctrl%init(0.0995_dp, 0.3_dp, "simulationtime", 0.05_dp, .true.)
+       call ctrl%set_counter(time)
+
+       ! as many executions as the run performed up to the restart time
+       n_done = count(t_ref(1:n_ref) .le. time%t + 1e-8_dp)
+       @assertEqual(ctrl%nexecutions, n_done)
+
+       n = 0
+       do while (.not. time%is_done())
+          call step(time)
+          call sample(ctrl, time, .false., t_out, n)
+       end do
+       @assertEqual(n, n_ref - n_done)
+       do i = 1, n
+          @assertEqual(t_out(i), t_ref(n_done + i), tolerance=1e-8_dp)
+       end do
+    end do
+  end subroutine test_restart_start_near_scheduled_time
 
   !> The restart must use the time step of the run that wrote the
   !! checkpoint, which is the one stored in the checkpoint, and not the

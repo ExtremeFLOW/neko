@@ -87,9 +87,11 @@ The times at which an output is written are a property of the case, not of
 the run. With `simulationtime` they are the whole multiples of
 \f$ \Delta t_{out} \f$, so a case asking for an output every 1.0 writes at
 11.0, 12.0, 13.0 whether it started from 0, from 10.5, or from a checkpoint
-in between. With `nsamples` the samples divide the simulated interval instead,
-\f$ t_k = t_{start} + k (t_{end} - t_{start}) / n \f$, and the last one falls
-on `end_time`. Only the times inside the interval where the output is active
+in between. With `nsamples` the samples divide the interval over which the
+output is active instead, \f$ t_k = t_{start} + k (t_{end} - t_{start}) / n
+\f$, where \f$ t_{start} \f$ is the start of the simulation or, for the
+statistics, the start of the averaging, and the last sample falls on
+`end_time`. Only the times inside the interval where the output is active
 are written, and since the schedule does not depend on when the run was
 started, restarting neither skips nor repeats an output and the file numbering
 carries on.
