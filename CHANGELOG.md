@@ -2,6 +2,7 @@
 
 ## 1.1.99 [develop]
 
+## 1.1.1 [2026-09-08]
 - Fixed the fused three-component Helmholtz operator on the CPU backend
   (`ax_helm_cpu_t%compute_vector`) at polynomial orders 3 and 8, where a
   component mix-up gave wrong momentum results. This affected the compressible
