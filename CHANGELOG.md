@@ -47,6 +47,7 @@
   field against a two-sided tolerance that covers the sampling noise; the
   one-sided `1e-4` passed or failed roughly at random.
 
+- Added a coupled CPU BiCGStab solver for three-component vector systems.
 - The gather-scatter comm. backend autotuning now covers the device-resident
   backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks
   `MPIGPU`, `NCCL` and `CRYSTALGPU` (`NVSHMEM` only when asked for) alongside
@@ -135,7 +136,6 @@
 - Added `NEKO_GS_CAF_SIGNALING=auto`, selecting the fastest coarray
   signalling mode by benchmarking. Bound once per program, and only in
   effect when the comm. backend is autotuned as well.
-- Fixed a data race in openMP block in `adv_dealias` for scalar and ALE.
 - Added `phmg_update` to propagate mesh change to coarse level grids.
 - Fixed extrusion of curved edges when reading a 2D .nmsh file.
 - Added mathematical expressions as case file values, available as the
@@ -145,11 +145,56 @@
   elementary functions, and any scalar declared under `case.constants`, so
   simple spatially varying conditions no longer require a user file.
 - Added integration test for ALE (test_ale).
-- Updated simulation_components documentation to mirror the latest codebase.
-- Fixed stale accumulator in the SX gather-scatter backend (min/max/mul).
 - *BREAKING* Renamed the allocation-only `precon_factory` API to
   `precon_allocator`. Added runtime registration of user-defined
   preconditioner and Krylov solver types.
+## 1.1.1 [2026-09-08]
+- Fixed the fused three-component Helmholtz operator on the CPU backend
+  (`ax_helm_cpu_t%compute_vector`) at polynomial orders 3 and 8, where a
+  component mix-up gave wrong momentum results. This affected the compressible
+  solver, the coupled velocity solvers and velocity projection on the CPU, but
+  not the GPU backends.
+- Fixed the `log` option of the overset interface boundary conditions, which
+  was read into the component itself instead of the local variable passed on
+  to `init_from_components`, and therefore had no effect.
+- Fixed the loop determining `uniform_0` in `neumann_finalize`, which was
+  hardcoded to three components instead of the size of the flux array.
+- Fixed a data race in openMP block in `adv_dealias` for scalar and ALE.
+- Updated simulation_components documentation to mirror the latest codebase.
+- Documented zero-copy mapping in the `neko` man page, including the
+  `NEKO_HIP_ZEROCOPY` and `NEKO_METAL_ZEROCOPY` environment variables and the
+  synchronisation requirement it puts on host code.
+- Removed the device memcpy of `mu` and `kappa` after `material_properties`
+  in the compressible solver. Constant properties are filled directly on the
+  device by `field_cfill` and were then overwritten by the copy from the host,
+  silently reducing Navier-Stokes to Euler on devices. Non-constant properties
+  computed in the user file can now also be set with `device_math` directly,
+  without a copy.
+- Fixed stale accumulator in the SX gather-scatter backend (min/max/mul).
+- Fixed a race in the OpenCL local interpolation kernel when the work group is
+  wider than the SIMD group width.
+- Fixed truncated global reductions in the Metal backend, which silently
+  dropped data for `n > 1048576`, making every global reduction wrong on
+  meshes above ~1M points.
+- Silenced the obsolete autoconf macro warnings emitted by `autoreconf`
+  (`AC_TRY_COMPILE`, `AC_HELP_STRING` and the expansion order of `AC_PROG_CXX`
+  relative to `LT_INIT`), so that `autoconf -Wall` is clean. The generated
+  `configure` is unchanged in behaviour.
+- Fixed the OIFS selection for scalars, which looked for `case.numerics.oifs`
+  in the scalar's own json object rather than `oifs` in the numerics one, and
+  thus always selected the standard time-integration scheme.
+- Fixed the turbulent viscosity computed by `sigma_cpu`, which used the
+  multiplicity of the first element for all elements.
+- Reworked the workaround for the Fujitsu Fortran runtime memory leak. It is
+  now applied by `sh patches/fujitsu_memleak.sh` instead of `git apply`, with
+  the hook in `neko_init` and the entry in `src/.depends` inserted by pattern,
+  so that the workaround survives unrelated changes to the surrounding code.
+  The script is idempotent.
+- Fixed the output file names reported in the log, which were printed before
+  the write routine had incremented the file counter. Each file type now
+  reports the name of the next output via `get_next_output_fname`. Also fixed
+  `user_stats` ignoring `output_directory`, and the counter of the `.bp`
+  output starting at -1.
 ## 1.1.0 [2026-07-21]  
 - Added opt-in zero-copy unified memory mapping for the HIP backend on AMD
   MI300A APUs: with `NEKO_HIP_ZEROCOPY=1` (and `HSA_XNACK=1`), mapped arrays
@@ -214,7 +259,8 @@
 - Added HIP and CUDA support for ALE.
 - Added `spatial_average` simcomp for spatially averaging a list of registered
   fields.
-- Changed the normal vectors argument type in `setup_normals` to `vector_t` and added copy to device in the routine.
+- Changed the normal vectors argument type in `setup_normals` to `vector_t` and 
+  added copy to device in the routine.
 - Added new math operator for device. device_masked_copy_aligned, which performs
   a masked copy of data from one field to another, for a point zone mask.
 - Job control time limits can now be specified by a flexible string format, e.g.
@@ -241,8 +287,7 @@
   for hip and cuda.
 - Added the `hpfrt` source term for high-pass filter-based stabilization.
 - Added the `data_streamer` simulation component, allowing data streaming
-- Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal`
-  for hip and cuda.
+  with ADIOS2.
 - Added the Richardson wall model.
 - Added the variable NEKO_VARNAME_LEN in `common/utils.f90` to set a fixed
   size for `name` attributes in e.g. `field_t` and `vector_t`.
@@ -252,10 +297,7 @@
 - Modify field_writer and probes to by default output in
   `case.output_directory`
 - Added MOST wall model and added diagnostics for the wall models.
-- Added the `data_streamer` simulation component, allowing data streaming
-  with ADIOS2.
 - Fixed a bug (mu_msk) in `device_calc_force_array` in `force_torque.f90`.
-- Added MOST wall model and added diagnostics for the wall models.
 - Added ALE framework.
 - Added masked I/O capabilities for the field_writer via the optional
   `point_zone` JSON keyword.
