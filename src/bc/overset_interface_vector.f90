@@ -46,8 +46,9 @@ module overset_interface_vector
   use bc_list, only : bc_list_t
   use utils, only : split_string
   use field, only : field_t
+  use field_series, only : field_series_t
   use field_list, only : field_list_t
-  use math, only : masked_copy_0
+  use math, only : masked_copy_0, copy
   use device_math, only : device_masked_copy_0, device_copy
   use dofmap, only : dofmap_t
   use vector, only : vector_t
@@ -56,7 +57,6 @@ module overset_interface_vector
   use vector_math, only : vector_masked_gather_copy, &
        vector_masked_scatter_copy, vector_add2s2, &
        vector_cmult, vector_cmult2, vector_glsc2
-  use math, only : copy
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use vector_math, only : vector_copy
   use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
@@ -109,6 +109,8 @@ module overset_interface_vector
      logical :: find_interface = .false.
      logical :: setup = .false.
      logical :: log = .false.
+     !> Skip donor interpolation on the first update after restoring history.
+     logical :: restart_pending = .false.
 
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
@@ -138,6 +140,8 @@ module overset_interface_vector
      procedure, pass(this) :: apply_scalar_dev => &
           overset_interface_vector_apply_scalar_dev
      procedure, pass(this) :: update => overset_interface_update
+     !> Restore interface history from checkpointed solution fields.
+     procedure, pass(this) :: restart => overset_interface_vector_restart
 
      !> Build the masks for the overset interface.
      procedure, pass(this), private :: build_masks_ => build_masks_
@@ -204,6 +208,8 @@ contains
 
     this%bc_type = BC_DIRICHLET
     this%relaxation = 1.0_rp
+    this%last_tstep = -1
+    this%restart_pending = .false.
 
     !> Set the interpolation settings
     if (present(tol)) then
@@ -286,10 +292,61 @@ contains
     call this%domain_element_mask%free()
     call this%free_base()
 
+    this%restart_pending = .false.
+
     !if (associated(this%update_)) then
     !   nullify(this%update_)
     !end if
   end subroutine overset_interface_vector_free
+
+  !> Restore interface history from checkpointed solution fields.
+  !! Values are inserted from oldest to newest, leaving the current accepted
+  !! value in the base interface vectors. The next regular update shifts that
+  !! value into the first lag position before extrapolation. This must be
+  !! called after the fluid restart has restored continuity of interpolated
+  !! checkpoint fields.
+  subroutine overset_interface_vector_restart(this, u, v, w, ulag, vlag, &
+       wlag)
+    class(overset_interface_vector_t), intent(inout) :: this
+    type(field_t), intent(in) :: u, v, w
+    type(field_series_t), intent(in) :: ulag, vlag, wlag
+    integer :: i, n_previous
+
+    call this%u_interface_lag%reset()
+    call this%v_interface_lag%reset()
+    call this%w_interface_lag%reset()
+
+    n_previous = min(this%iextm_order - 1, ulag%size())
+
+    ! Insert older snapshots in reverse field-series order. Each update moves
+    ! the previously gathered (older) snapshot into the lag series.
+    do i = n_previous, 1, -1
+       call vector_masked_gather_copy(this%u_interface, &
+            ulag%lf(i)%x(:,1,1,1), this%interface_dof_mask, &
+            ulag%lf(i)%dof%size())
+       call vector_masked_gather_copy(this%v_interface, &
+            vlag%lf(i)%x(:,1,1,1), this%interface_dof_mask, &
+            vlag%lf(i)%dof%size())
+       call vector_masked_gather_copy(this%w_interface, &
+            wlag%lf(i)%x(:,1,1,1), this%interface_dof_mask, &
+            wlag%lf(i)%dof%size())
+
+       call this%u_interface_lag%update()
+       call this%v_interface_lag%update()
+       call this%w_interface_lag%update()
+    end do
+
+    ! Keep the most recent accepted value in the base vectors. The first
+    ! regular update after restart will shift it into lag position one.
+    call vector_masked_gather_copy(this%u_interface, &
+         u%x(:,1,1,1), this%interface_dof_mask, u%dof%size())
+    call vector_masked_gather_copy(this%v_interface, &
+         v%x(:,1,1,1), this%interface_dof_mask, v%dof%size())
+    call vector_masked_gather_copy(this%w_interface, &
+         w%x(:,1,1,1), this%interface_dof_mask, w%dof%size())
+
+    this%restart_pending = .true.
+  end subroutine overset_interface_vector_restart
 
   !> No-op apply scalar.
   !! @param x Field onto which to copy the values (e.g. u,v,w,p or s).
@@ -504,16 +561,19 @@ contains
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
 
-    !> Interpolate the values
-    call this%interface_interpolator%evaluate_masked(this%u_interface%x, &
-         u%x, this%domain_element_mask, .false.)
-    call this%interface_interpolator%evaluate_masked(this%v_interface%x, &
-         v%x, this%domain_element_mask, .false.)
-    call this%interface_interpolator%evaluate_masked(this%w_interface%x, &
-         w%x, this%domain_element_mask, .false.)
+    ! The current accepted interface value is restored locally from the
+    ! checkpoint, so cross-domain interpolation is unnecessary once.
+    if (.not. this%restart_pending) then
+       call this%interface_interpolator%evaluate_masked(this%u_interface%x, &
+            u%x, this%domain_element_mask, .false.)
+       call this%interface_interpolator%evaluate_masked(this%v_interface%x, &
+            v%x, this%domain_element_mask, .false.)
+       call this%interface_interpolator%evaluate_masked(this%w_interface%x, &
+            w%x, this%domain_element_mask, .false.)
 
-    if (this%log) then
-       call this%log_interface_error_(u, v, w)
+       if (this%log) then
+          call this%log_interface_error_(u, v, w)
+       end if
     end if
 
 
@@ -530,7 +590,7 @@ contains
        call this%w_interface_lag%update()
 
        ! Get the coefficients for the extrapolation
-       nhist = min(time%tstep, this%iextm_order)
+       nhist = min(this%u_interface_lag%filled_size(), this%iextm_order)
        call time_scheme%compute_coeffs(iextm_coeffs, &
             real(time%dtlag, kind=rp), nhist)
 
@@ -549,6 +609,8 @@ contains
           call vector_add2s2(this%w_interface, &
                this%w_interface_lag%lv(ihist), iextm_coeffs(ihist))
        end do
+
+       this%restart_pending = .false.
 
     end if
 
