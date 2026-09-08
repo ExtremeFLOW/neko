@@ -300,6 +300,8 @@ contains
     integer, intent(out) :: region_id
     integer :: i
 
+    if (.not. this%enabled) return
+
     region_id = -1
 
     ! Look for the region name first
