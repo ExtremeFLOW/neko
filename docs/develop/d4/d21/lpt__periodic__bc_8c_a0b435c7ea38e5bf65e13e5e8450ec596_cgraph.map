@@ -1,0 +1,12 @@
+<map id="opencl_lpt_periodic_bc_wrap_translational" name="opencl_lpt_periodic_bc_wrap_translational">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,177,69"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="465,29,617,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,28,225,21,321,15,418,21,452,26,451,32,417,27,321,20,226,27,178,33"/>
+<area shape="rect" id="Node000003" href="$df/da8/lpt__periodic__params_8h.html#ae6e3d1856d7be0ba1fb25d9edd6e15fc" title=" " alt="" coords="225,37,417,62"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="178,47,211,47,211,52,178,52"/>
+<area shape="rect" id="Node000004" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="255,86,387,111"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="179,65,249,80,247,86,177,70"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="500,30,498,20,504,10,519,5,541,3,567,6,581,13,578,18,565,11,541,8,520,10,508,15,503,21,505,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="417,47,452,47,452,52,417,52"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="378,83,451,67,452,72,379,89"/>
+</map>

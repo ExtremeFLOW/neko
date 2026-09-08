@@ -1,10 +1,16 @@
 <map id="device_smagorinsky_nut::hip_smagorinsky_nut_compute::hip_smagorinsky_nut_compute" name="device_smagorinsky_nut::hip_smagorinsky_nut_compute::hip_smagorinsky_nut_compute">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,15,237,84"/>
-<area shape="rect" id="Node000002" href="$d6/d30/namespacedevice__smagorinsky__nut.html#a47eaf1b109deb3ebb28908434510e3e6" title="Compute the eddy viscosity field for the Sigma model indevice." alt="" coords="285,22,476,77"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,47,271,47,271,52,237,52"/>
-<area shape="rect" id="Node000003" href="$d3/d28/smagorinsky__nut_8cu.html#aab5f54fa722db73c983f571c38c70ca9" title=" " alt="" coords="524,29,695,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="477,47,510,47,510,52,477,52"/>
-<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="743,29,895,69"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="695,47,729,47,729,52,695,52"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="780,30,777,20,783,10,797,5,819,3,843,6,856,13,854,18,841,11,819,8,799,10,787,15,782,21,785,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,20,237,89"/>
+<area shape="rect" id="Node000002" href="$d6/d30/namespacedevice__smagorinsky__nut.html#a47eaf1b109deb3ebb28908434510e3e6" title="Compute the eddy viscosity field for the Sigma model indevice." alt="" coords="285,27,476,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,52,271,52,271,57,237,57"/>
+<area shape="rect" id="Node000003" href="$d3/d28/smagorinsky__nut_8cu.html#aab5f54fa722db73c983f571c38c70ca9" title=" " alt="" coords="727,5,897,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="476,46,713,29,713,35,476,51"/>
+<area shape="rect" id="Node000005" href="$d8/dca/smagorinsky__nut_8c.html#ad037a140a8f74419bd2733b9ca25aea0" title=" " alt="" coords="524,63,679,103"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="477,64,511,69,510,74,476,69"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="945,63,1097,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="886,43,936,56,934,62,885,48"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="982,63,980,53,986,44,1000,38,1021,36,1046,39,1059,46,1056,51,1044,44,1021,41,1001,43,989,48,985,54,987,62"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="679,80,932,80,932,85,679,85"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="746,121,878,146"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="680,99,746,115,744,120,678,104"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="865,118,931,102,933,107,866,123"/>
 </map>

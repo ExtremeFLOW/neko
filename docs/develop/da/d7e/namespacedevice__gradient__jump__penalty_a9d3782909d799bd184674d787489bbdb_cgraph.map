@@ -1,8 +1,14 @@
 <map id="device_gradient_jump_penalty::device_gradient_jump_penalty_finalize" name="device_gradient_jump_penalty::device_gradient_jump_penalty_finalize">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,195,77"/>
-<area shape="rect" id="Node000002" href="$da/d26/gradient__jump__penalty_8cu.html#a5402059b725fcb77a274bf15e0367188" title=" " alt="" coords="243,29,397,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,47,229,47,229,52,195,52"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="445,29,597,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="398,47,431,47,431,52,398,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="484,30,481,20,487,11,501,5,521,3,545,6,558,13,555,18,543,11,521,8,502,10,491,15,487,21,489,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,27,195,82"/>
+<area shape="rect" id="Node000002" href="$da/d26/gradient__jump__penalty_8cu.html#a5402059b725fcb77a274bf15e0367188" title=" " alt="" coords="457,5,612,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,46,443,29,444,34,195,51"/>
+<area shape="rect" id="Node000004" href="$de/dd5/gradient__jump__penalty_8c.html#a216e68c0b17a57a8ec6edde1a91eebb1" title=" " alt="" coords="243,63,409,103"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="195,64,230,68,229,73,194,69"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="660,63,812,103"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="606,43,653,56,652,61,605,48"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="698,63,696,53,702,44,716,38,736,36,760,39,772,46,770,51,758,44,736,41,717,43,705,48,701,54,703,62"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="410,80,646,80,646,85,410,85"/>
+<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="469,121,601,146"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="409,100,469,115,468,120,408,105"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="585,118,646,103,647,108,587,123"/>
 </map>

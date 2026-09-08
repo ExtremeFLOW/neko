@@ -1,0 +1,20 @@
+<map id="/home/runner/work/neko/neko/src/lpt/bcknd/device/opencl/lpt_periodic_bc.c" name="/home/runner/work/neko/neko/src/lpt/bcknd/device/opencl/lpt_periodic_bc.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="300,5,491,60"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="76,196,142,221"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="301,42,218,49,133,63,60,82,33,95,15,110,10,119,8,127,15,147,37,171,65,189,62,193,33,175,11,149,3,128,4,117,11,106,30,91,58,77,132,57,217,44,300,36"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="454,196,625,221"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="398,60,404,103,411,126,423,146,451,171,485,189,482,193,448,176,419,150,406,128,399,105,393,61"/>
+<area shape="rect" id="Node000004" href="$d0/d05/opencl_2check_8h.html" title=" " alt="" coords="26,115,192,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="316,63,158,114,156,109,314,58"/>
+<area shape="rect" id="Node000005" href="$d4/d0f/jit_8h.html" title=" " alt="" coords="217,115,358,141"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="367,62,314,108,310,104,363,58"/>
+<area shape="rect" id="Node000006" href="$d1/df7/prgm__lib_8h.html" title=" " alt="" coords="434,108,584,148"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="430,58,477,97,474,101,426,62"/>
+<area shape="rect" id="Node000007" href="$df/da8/lpt__periodic__params_8h.html" title=" " alt="" coords="608,108,759,148"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="477,58,613,101,612,106,476,63"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="784,115,978,141"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="492,50,809,110,808,115,491,55"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="112,141,112,182,106,182,106,141"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="263,143,148,193,146,188,261,138"/>
+<area shape="poly" id="edge9_Node000007_Node000003" title=" " alt="" coords="650,150,574,192,571,187,648,146"/>
+</map>

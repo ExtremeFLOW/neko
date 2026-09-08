@@ -134,6 +134,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8428ba514ce6e98434a9ca9caa81e8fc" id="r_a8428ba514ce6e98434a9ca9caa81e8fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df2/structscalars_1_1scalars__t.html#a8428ba514ce6e98434a9ca9caa81e8fc">restart</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, chkp)</td></tr>
 <tr class="memdesc:a8428ba514ce6e98434a9ca9caa81e8fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart from checkpoint data.  <br /></td></tr>
 <tr class="separator:a8428ba514ce6e98434a9ca9caa81e8fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae85b69e64e9e3778d12431ccd58afc21" id="r_ae85b69e64e9e3778d12431ccd58afc21"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df2/structscalars_1_1scalars__t.html#ae85b69e64e9e3778d12431ccd58afc21">set_initial_conditions</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, user, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">is_restart</a>)</td></tr>
+<tr class="memdesc:ae85b69e64e9e3778d12431ccd58afc21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial conditions for all scalar fields.  <br /></td></tr>
+<tr class="separator:ae85b69e64e9e3778d12431ccd58afc21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2668464591feb74ec4da76b33dcbc722" id="r_a2668464591feb74ec4da76b33dcbc722"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df2/structscalars_1_1scalars__t.html#a2668464591feb74ec4da76b33dcbc722">validate</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a2668464591feb74ec4da76b33dcbc722"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the configuration is valid.  <br /></td></tr>
 <tr class="separator:a2668464591feb74ec4da76b33dcbc722"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -157,13 +160,10 @@ Private Member Functions</h2></td></tr>
 <tr class="separator:a52b6e704dcf432df6ee42d09c18bba99"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba148cbf38f5cf066038509dad829d3d" id="r_aba148cbf38f5cf066038509dad829d3d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df2/structscalars_1_1scalars__t.html#aba148cbf38f5cf066038509dad829d3d">scalars_init_single</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, msh, coef, gs, params, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">numerics_params</a>, user, chkp, ulag, vlag, wlag, time_scheme, rho)</td></tr>
 <tr class="separator:aba148cbf38f5cf066038509dad829d3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2af9e4e9a285443d82dcdb3d8215394e" id="r_a2af9e4e9a285443d82dcdb3d8215394e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df2/structscalars_1_1scalars__t.html#a2af9e4e9a285443d82dcdb3d8215394e">register_lags_with_checkpoint</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, chkp)</td></tr>
-<tr class="memdesc:a2af9e4e9a285443d82dcdb3d8215394e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register scalar lag fields with checkpoint.  <br /></td></tr>
-<tr class="separator:a2af9e4e9a285443d82dcdb3d8215394e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00061">61</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00060">60</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a806eb73a610d4ed8acb10cb37a0307b3" name="a806eb73a610d4ed8acb10cb37a0307b3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a806eb73a610d4ed8acb10cb37a0307b3">&#9670;&#160;</a></span>free()</h2>
@@ -181,7 +181,7 @@ Private Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00078">78</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00079">79</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 
 </div>
 </div>
@@ -277,7 +277,7 @@ Private Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00068">68</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00067">67</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 
 </div>
 </div>
@@ -379,7 +379,7 @@ Private Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00068">68</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00067">67</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -392,44 +392,6 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="141,55,175,60,174,65,140,60"/>
 </map>
 </div>
-
-</div>
-</div>
-<a id="a2af9e4e9a285443d82dcdb3d8215394e" name="a2af9e4e9a285443d82dcdb3d8215394e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2af9e4e9a285443d82dcdb3d8215394e">&#9670;&#160;</a></span>register_lags_with_checkpoint()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">private</a> scalars::scalars_t::register_lags_with_checkpoint </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d2/df2/structscalars_1_1scalars__t.html">scalars_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
-          <td class="paramname"><em>this</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d9/d88/structcheckpoint_1_1chkp__t.html">chkp_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
-          <td class="paramname"><em>chkp</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00080">80</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 
 </div>
 </div>
@@ -459,7 +421,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00074">74</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00073">73</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 
 </div>
 </div>
@@ -569,7 +531,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00069">69</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00068">68</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 
 </div>
 </div>
@@ -673,7 +635,50 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00070">70</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00069">69</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+
+</div>
+</div>
+<a id="ae85b69e64e9e3778d12431ccd58afc21" name="ae85b69e64e9e3778d12431ccd58afc21"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae85b69e64e9e3778d12431ccd58afc21">&#9670;&#160;</a></span>set_initial_conditions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a> scalars::scalars_t::set_initial_conditions </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d2/df2/structscalars_1_1scalars__t.html">scalars_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>user</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>is_restart</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">user</td><td>Type with user-defined procedures. </td></tr>
+    <tr><td class="paramname">is_restart</td><td>Whether the case is restarting from a checkpoint. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00075">75</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 
 </div>
 </div>
@@ -715,7 +720,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00072">72</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00071">71</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 
 </div>
 </div>
@@ -735,7 +740,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00076">76</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00077">77</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 
 </div>
 </div>
@@ -752,7 +757,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00063">63</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00062">62</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 
 </div>
 </div>
@@ -768,7 +773,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00065">65</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00064">64</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 
 </div>
 </div>
@@ -781,7 +786,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d1/de4/namespacescalars.html">scalars</a></li><li class="navelem"><a class="el" href="../../d2/df2/structscalars_1_1scalars__t.html">scalars_t</a></li>
-    <li class="footer">Generated on Mon Sep 7 2026 03:42:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 8 2026 03:41:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

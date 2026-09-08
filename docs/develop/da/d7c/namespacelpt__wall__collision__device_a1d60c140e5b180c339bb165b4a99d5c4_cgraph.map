@@ -1,8 +1,14 @@
 <map id="lpt_wall_collision_device::lpt_handle_elastic_wall_collisions_device" name="lpt_wall_collision_device::lpt_handle_elastic_wall_collisions_device">
-<area shape="rect" id="Node000001" title="Launch device kernel for elastic wall&#45;collision reflection." alt="" coords="5,15,180,84"/>
-<area shape="rect" id="Node000002" href="$d8/d85/lpt__wall__collision_8cu.html#a40b037dec28d1045e545080095ab2791" title=" " alt="" coords="228,29,407,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,47,214,47,214,52,180,52"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="455,29,607,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="407,47,441,47,441,52,407,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="491,30,488,20,495,10,509,5,531,3,556,6,569,13,567,18,554,11,531,8,510,10,498,15,493,21,496,28"/>
+<area shape="rect" id="Node000001" title="Launch device kernel for elastic wall&#45;collision reflection." alt="" coords="5,20,180,89"/>
+<area shape="rect" id="Node000002" href="$d8/d85/lpt__wall__collision_8cu.html#a40b037dec28d1045e545080095ab2791" title=" " alt="" coords="467,5,645,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,47,453,29,453,34,180,52"/>
+<area shape="rect" id="Node000004" href="$d3/db7/lpt__wall__collision_8c.html#a0472d562d1fd8bb57091cecac3d30e4c" title=" " alt="" coords="228,63,419,103"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="181,63,215,67,214,72,180,68"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="693,63,845,103"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="632,43,682,56,680,62,630,48"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="729,63,727,53,733,44,748,38,769,36,794,39,808,46,805,51,793,44,769,41,749,43,737,48,732,54,734,62"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="419,80,679,80,679,85,419,85"/>
+<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="490,121,622,146"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="416,100,485,115,483,120,415,105"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="610,118,679,101,681,106,611,123"/>
 </map>

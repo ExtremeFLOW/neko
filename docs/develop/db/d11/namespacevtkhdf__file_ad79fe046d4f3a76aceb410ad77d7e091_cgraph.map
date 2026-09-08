@@ -1,15 +1,19 @@
 <map id="vtkhdf_file::vtkhdf_file_set_subdivide" name="vtkhdf_file::vtkhdf_file_set_subdivide">
-<area shape="rect" id="Node000001" title="Enable or disable subdivision of spectral elements into linear sub&#45;cells. When subdivision is enabled..." alt="" coords="5,101,152,141"/>
-<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="207,5,355,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,98,147,68,199,40,216,33,218,37,201,44,150,73,107,103"/>
-<area shape="rect" id="Node000003" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="218,79,345,104"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,107,204,100,205,105,153,113"/>
-<area shape="rect" id="Node000005" href="$db/d11/namespacevtkhdf__file.html#acd9f76ab7236049ec43247198cb155e3" title="Build linear hexahedron sub&#45;cell node ordering for a spectral element. Returns an array of 0&#45;based te..." alt="" coords="200,129,363,169"/>
-<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="153,128,187,133,186,138,152,133"/>
-<area shape="rect" id="Node000006" href="$db/d11/namespacevtkhdf__file.html#affcc6249557f8cdd08b7265616fd7f7b" title="Build linear quadrilateral sub&#45;cell node ordering for a spectral element. Returns an array of 0&#45;based..." alt="" coords="200,193,363,233"/>
-<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="119,138,201,178,217,185,215,190,199,183,117,143"/>
-<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="248,80,241,70,245,60,258,54,281,52,310,56,321,65,317,69,307,61,281,57,260,59,248,64,246,70,252,77"/>
-<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="411,71,563,111"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="345,89,397,89,397,94,345,94"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="448,72,446,62,452,53,466,47,487,45,511,48,524,55,521,60,509,53,487,50,467,52,455,57,451,63,453,70"/>
+<area shape="rect" id="Node000001" title="Enable or disable subdivision of spectral elements into linear sub&#45;cells. When subdivision is enabled..." alt="" coords="5,164,152,204"/>
+<area shape="rect" id="Node000002" href="$d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba" title="Finalize the global HDF5 session." alt="" coords="209,5,353,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="93,162,136,110,166,81,198,55,208,49,210,54,202,60,169,85,140,113,97,166"/>
+<area shape="rect" id="Node000003" href="$d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395" title="Initialise the global HDF5 session HDF5 does not maintain a global reference count,..." alt="" coords="209,69,353,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="115,161,199,119,214,112,216,117,201,124,117,166"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="207,134,355,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="152,168,198,159,199,164,153,173"/>
+<area shape="rect" id="Node000005" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="218,207,345,233"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="153,194,205,204,204,209,152,200"/>
+<area shape="rect" id="Node000007" href="$db/d11/namespacevtkhdf__file.html#acd9f76ab7236049ec43247198cb155e3" title="Build linear hexahedron sub&#45;cell node ordering for a spectral element. Returns an array of 0&#45;based te..." alt="" coords="200,257,363,297"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="120,202,201,242,219,250,217,254,199,246,117,207"/>
+<area shape="rect" id="Node000008" href="$db/d11/namespacevtkhdf__file.html#affcc6249557f8cdd08b7265616fd7f7b" title="Build linear quadrilateral sub&#45;cell node ordering for a spectral element. Returns an array of 0&#45;based..." alt="" coords="200,321,363,361"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="97,203,141,254,170,282,202,307,210,313,208,317,198,312,166,286,137,258,93,206"/>
+<area shape="poly" id="edge7_Node000005_Node000005" title=" " alt="" coords="248,209,241,199,245,189,258,183,281,181,310,184,321,194,317,198,307,189,281,186,260,188,248,193,246,198,252,206"/>
+<area shape="rect" id="Node000006" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="411,200,563,240"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="345,217,397,217,397,223,345,223"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="448,200,446,190,452,181,466,175,487,173,511,176,524,184,521,188,509,181,487,179,467,181,455,185,451,191,453,199"/>
 </map>

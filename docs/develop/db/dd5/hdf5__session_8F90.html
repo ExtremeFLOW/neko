@@ -100,7 +100,8 @@ $(document).ready(function(){initNavTree('db/dd5/hdf5__session_8F90.html','../..
 <div class="header">
   <div class="summary">
 <a href="#namespaces">Modules</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">hdf5_session.F90 File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -116,11 +117,17 @@ Modules</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a83255e673de14b58b0fefebf44b26395" id="r_a83255e673de14b58b0fefebf44b26395"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395">hdf5_session::hdf5_session_init</a></td></tr>
-<tr class="memdesc:a83255e673de14b58b0fefebf44b26395"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise the global HDF5 session.  <br /></td></tr>
+<tr class="memdesc:a83255e673de14b58b0fefebf44b26395"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise the global HDF5 session HDF5 does not maintain a global reference count, so we must.  <br /></td></tr>
 <tr class="separator:a83255e673de14b58b0fefebf44b26395"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2d2199022ad9fb4f55158546daca5ba" id="r_af2d2199022ad9fb4f55158546daca5ba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba">hdf5_session::hdf5_session_finalize</a></td></tr>
 <tr class="memdesc:af2d2199022ad9fb4f55158546daca5ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize the global HDF5 session.  <br /></td></tr>
 <tr class="separator:af2d2199022ad9fb4f55158546daca5ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:ad076b6f3177002fcc5f2498a95c48022" id="r_ad076b6f3177002fcc5f2498a95c48022"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d0b/namespacehdf5__session.html#ad076b6f3177002fcc5f2498a95c48022">hdf5_session::session_active</a> = 0</td></tr>
+<tr class="memdesc:ad076b6f3177002fcc5f2498a95c48022"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether a session currently holds the library open. The file backends consult this so they do not close the library out from under it.  <br /></td></tr>
+<tr class="separator:ad076b6f3177002fcc5f2498a95c48022"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -128,7 +135,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../db/dd5/hdf5__session_8F90.html">hdf5_session.F90</a></li>
-    <li class="footer">Generated on Mon Sep 7 2026 03:42:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 8 2026 03:41:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

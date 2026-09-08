@@ -676,6 +676,7 @@ var hierarchy =
     [ "krylov::ksp_monitor_t", "d4/d33/structkrylov_1_1ksp__monitor__t.html", null ],
     [ "krylov::ksp_t", "d0/d3b/structkrylov_1_1ksp__t.html", [
       [ "bicgstab::bicgstab_t", "dc/dd5/structbicgstab_1_1bicgstab__t.html", null ],
+      [ "bicgstab_cpld::bicgstab_cpld_t", "de/d5d/structbicgstab__cpld_1_1bicgstab__cpld__t.html", null ],
       [ "bicgstab_device::bicgstab_device_t", "d2/d20/structbicgstab__device_1_1bicgstab__device__t.html", null ],
       [ "cacg::cacg_t", "de/d56/structcacg_1_1cacg__t.html", null ],
       [ "cg::cg_t", "db/d98/structcg_1_1cg__t.html", null ],
@@ -715,6 +716,7 @@ var hierarchy =
     [ "lpt_migrate::lpt_migrate_t", "d2/d23/structlpt__migrate_1_1lpt__migrate__t.html", null ],
     [ "lpt_output::lpt_output_t", "d8/d53/structlpt__output_1_1lpt__output__t.html", null ],
     [ "lpt_periodic_bc::lpt_periodic_bc_t", "d7/d57/structlpt__periodic__bc_1_1lpt__periodic__bc__t.html", null ],
+    [ "lpt_periodic_params", "d7/dac/structlpt__periodic__params.html", null ],
     [ "lpt::lpt_t", "d6/d7d/structlpt_1_1lpt__t.html", null ],
     [ "map_1d::map_1d_t", "d6/daf/structmap__1d_1_1map__1d__t.html", null ],
     [ "map_2d::map_2d_t", "d0/d18/structmap__2d_1_1map__2d__t.html", null ],

@@ -1,17 +1,23 @@
 <map id="ale_manager::compute_stiffness_ale" name="ale_manager::compute_stiffness_ale">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,65,177,105"/>
-<area shape="rect" id="Node000002" href="$d4/d50/namespaceale__routines__device.html#a4297360ce8c877ef730920a28492db6f" title="Cheap dist device implementation." alt="" coords="242,22,406,77"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,69,228,61,229,67,178,75"/>
-<area shape="rect" id="Node000005" href="$d3/d1b/namespaceale__routines__cpu.html#a8fa1e9c2d30882c5ca4edeab07beb1b7" title="Compute cheap_dist field by passing distance information throughout an entire local element before do..." alt="" coords="225,101,423,141"/>
-<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="178,96,212,101,211,107,177,101"/>
-<area shape="rect" id="Node000003" href="$d9/d17/ale__kinematics_8cu.html#a462090a94f71cff736d24f603274b4df" title=" " alt="" coords="471,37,665,62"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="406,47,457,47,457,52,406,52"/>
-<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="713,29,865,69"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="666,47,700,47,700,52,666,52"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="748,30,745,20,752,10,767,5,789,3,815,6,829,13,827,18,814,11,789,8,768,10,755,15,751,21,753,28"/>
-<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121" title="Set all elements to a constant c ." alt="" coords="525,97,611,122"/>
-<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="423,114,511,109,511,115,423,119"/>
-<area shape="rect" id="Node000007" href="$dd/d47/namespacemath.html#adf2291fe82a8e395c51038a2c6dce168" title="Max of an integer vector of length n." alt="" coords="513,170,623,195"/>
-<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="405,139,504,164,503,169,404,144"/>
-<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="532,172,524,162,528,152,543,146,568,143,599,147,611,156,608,160,597,152,568,149,544,151,532,156,529,161,536,168"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,87,177,127"/>
+<area shape="rect" id="Node000002" href="$d4/d50/namespaceale__routines__device.html#a4297360ce8c877ef730920a28492db6f" title="Cheap dist device implementation." alt="" coords="242,44,406,99"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,91,228,83,229,89,178,97"/>
+<area shape="rect" id="Node000007" href="$d3/d1b/namespaceale__routines__cpu.html#a8fa1e9c2d30882c5ca4edeab07beb1b7" title="Compute cheap_dist field by passing distance information throughout an entire local element before do..." alt="" coords="225,123,423,163"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="178,118,212,123,211,129,177,123"/>
+<area shape="rect" id="Node000003" href="$d9/d17/ale__kinematics_8cu.html#a462090a94f71cff736d24f603274b4df" title=" " alt="" coords="675,5,869,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="406,52,470,41,661,22,661,27,471,46,407,57"/>
+<area shape="rect" id="Node000005" href="$d3/dda/ale__kinematics_8c.html#aa673f147082ce494721418c37a65b623" title=" " alt="" coords="471,55,627,95"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="406,70,457,71,457,76,406,75"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="917,49,1069,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="829,28,904,46,903,51,828,33"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="952,49,949,39,956,30,971,24,993,22,1019,25,1033,32,1031,37,1018,30,993,27,972,29,959,34,955,40,957,48"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="627,72,903,67,903,73,627,77"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="706,107,838,132"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="628,88,694,101,693,107,627,93"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="828,104,903,86,904,92,829,109"/>
+<area shape="rect" id="Node000008" href="$dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121" title="Set all elements to a constant c ." alt="" coords="505,127,592,152"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="423,139,491,138,491,143,423,144"/>
+<area shape="rect" id="Node000009" href="$dd/d47/namespacemath.html#adf2291fe82a8e395c51038a2c6dce168" title="Max of an integer vector of length n." alt="" coords="494,200,603,225"/>
+<area shape="poly" id="edge11_Node000007_Node000009" title=" " alt="" coords="390,161,495,193,493,198,389,166"/>
+<area shape="poly" id="edge12_Node000009_Node000009" title=" " alt="" coords="513,202,505,192,509,182,524,176,549,173,579,177,592,186,588,190,577,182,549,179,525,181,512,186,510,191,517,198"/>
 </map>

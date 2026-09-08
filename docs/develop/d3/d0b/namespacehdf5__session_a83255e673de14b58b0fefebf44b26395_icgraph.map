@@ -1,5 +1,9 @@
 <map id="hdf5_session::hdf5_session_init" name="hdf5_session::hdf5_session_init">
-<area shape="rect" id="Node000001" title="Initialise the global HDF5 session." alt="" coords="173,5,317,45"/>
-<area shape="rect" id="Node000002" href="$dd/d62/namespaceneko.html#a7428543ecc3d1960dc260270d94466bd" title="Initialise Neko." alt="" coords="5,13,125,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,28,126,28,126,23,159,23"/>
+<area shape="rect" id="Node000001" title="Initialise the global HDF5 session HDF5 does not maintain a global reference count,..." alt="" coords="200,63,344,103"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacehdf5__file.html#a95bf02a33958bdd43f371b3bc5ff9026" title="Set the precision for the output (single or double)" alt="" coords="7,5,150,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,61,146,48,148,43,192,56"/>
+<area shape="rect" id="Node000003" href="$dd/d62/namespaceneko.html#a7428543ecc3d1960dc260270d94466bd" title="Initialise Neko." alt="" coords="19,70,139,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,85,139,85,139,80,186,80"/>
+<area shape="rect" id="Node000004" href="$db/d11/namespacevtkhdf__file.html#ad79fe046d4f3a76aceb410ad77d7e091" title="Enable or disable subdivision of spectral elements into linear sub&#45;cells. When subdivision is enabled..." alt="" coords="5,120,152,160"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="192,109,148,122,146,117,190,104"/>
 </map>

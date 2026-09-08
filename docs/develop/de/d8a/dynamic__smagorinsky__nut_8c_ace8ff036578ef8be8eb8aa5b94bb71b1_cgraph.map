@@ -1,0 +1,15 @@
+<map id="opencl_mij_compute_part1" name="opencl_mij_compute_part1">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,21,163,61"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="691,35,843,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,20,210,13,332,4,427,4,522,13,643,28,677,33,677,38,642,33,521,18,427,10,332,9,211,19,163,26"/>
+<area shape="rect" id="Node000003" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#a8db9d8bf3e3f93c1f2137ce048a17036" title=" " alt="" coords="211,29,399,54"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="163,39,197,39,197,44,163,44"/>
+<area shape="rect" id="Node000005" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#ae740553f29296f824b6643b533c4c255" title=" " alt="" coords="447,117,643,142"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="164,54,465,111,464,117,163,59"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="725,35,723,25,729,16,744,10,767,8,793,11,807,18,804,23,791,16,767,13,745,15,733,20,728,26,730,34"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="399,41,677,49,677,55,399,47"/>
+<area shape="rect" id="Node000004" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="479,67,611,93"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="385,51,466,65,465,70,384,57"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="611,70,677,62,677,67,612,75"/>
+<area shape="poly" id="edge8_Node000005_Node000002" title=" " alt="" coords="602,114,642,103,708,78,710,83,644,108,604,119"/>
+</map>

@@ -15,6 +15,7 @@ var searchData=
   ['lpt_5fmigrate_5ft_12',['lpt_migrate_t',['../d2/d23/structlpt__migrate_1_1lpt__migrate__t.html',1,'lpt_migrate']]],
   ['lpt_5foutput_5ft_13',['lpt_output_t',['../d8/d53/structlpt__output_1_1lpt__output__t.html',1,'lpt_output']]],
   ['lpt_5fperiodic_5fbc_5ft_14',['lpt_periodic_bc_t',['../d7/d57/structlpt__periodic__bc_1_1lpt__periodic__bc__t.html',1,'lpt_periodic_bc']]],
-  ['lpt_5fsimcomp_5ft_15',['lpt_simcomp_t',['../d2/d3c/structlpt__simcomp_1_1lpt__simcomp__t.html',1,'lpt_simcomp']]],
-  ['lpt_5ft_16',['lpt_t',['../d6/d7d/structlpt_1_1lpt__t.html',1,'lpt']]]
+  ['lpt_5fperiodic_5fparams_15',['lpt_periodic_params',['../d7/dac/structlpt__periodic__params.html',1,'']]],
+  ['lpt_5fsimcomp_5ft_16',['lpt_simcomp_t',['../d2/d3c/structlpt__simcomp_1_1lpt__simcomp__t.html',1,'lpt_simcomp']]],
+  ['lpt_5ft_17',['lpt_t',['../d6/d7d/structlpt_1_1lpt__t.html',1,'lpt']]]
 ];

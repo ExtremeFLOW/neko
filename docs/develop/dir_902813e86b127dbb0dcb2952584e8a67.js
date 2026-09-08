@@ -1,6 +1,7 @@
 var dir_902813e86b127dbb0dcb2952584e8a67 =
 [
     [ "bicgstab.f90", "d7/db5/bicgstab_8f90.html", "d7/db5/bicgstab_8f90" ],
+    [ "bicgstab_coupled.f90", "da/da0/bicgstab__coupled_8f90.html", "da/da0/bicgstab__coupled_8f90" ],
     [ "cacg.f90", "d7/dd0/cacg_8f90.html", "d7/dd0/cacg_8f90" ],
     [ "cg.f90", "d5/d60/cg_8f90.html", "d5/d60/cg_8f90" ],
     [ "cg_coupled.f90", "dd/dbf/cg__coupled_8f90.html", "dd/dbf/cg__coupled_8f90" ],

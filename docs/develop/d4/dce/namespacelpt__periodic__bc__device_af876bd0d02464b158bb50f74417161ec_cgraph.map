@@ -1,8 +1,17 @@
 <map id="lpt_periodic_bc_device::lpt_periodic_bc_wrap_translational_device" name="lpt_periodic_bc_device::lpt_periodic_bc_wrap_translational_device">
-<area shape="rect" id="Node000001" title="Launch device kernel for translational periodic wrapping." alt="" coords="5,22,176,77"/>
-<area shape="rect" id="Node000002" href="$de/d35/lpt__periodic__bc_8cu.html#a9448b78b78182eae88fd00bbb65c9787" title=" " alt="" coords="224,29,383,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,47,210,47,210,52,176,52"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="431,29,583,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="383,47,417,47,417,52,383,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="468,30,466,20,472,11,486,5,507,3,530,6,543,13,541,18,529,11,507,8,487,10,476,15,471,21,474,28"/>
+<area shape="rect" id="Node000001" title="Launch device kernel for translational periodic wrapping." alt="" coords="5,39,176,94"/>
+<area shape="rect" id="Node000002" href="$de/d35/lpt__periodic__bc_8cu.html#a9448b78b78182eae88fd00bbb65c9787" title=" " alt="" coords="231,5,389,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,48,217,40,218,45,177,53"/>
+<area shape="rect" id="Node000004" href="$d4/d21/lpt__periodic__bc_8c.html#a0b435c7ea38e5bf65e13e5e8450ec596" title=" " alt="" coords="224,79,396,119"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="177,76,211,82,210,87,176,82"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="684,72,836,112"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="390,34,636,71,670,76,670,81,636,76,389,39"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="719,72,717,62,723,53,738,47,760,45,786,48,800,56,797,60,784,53,760,51,739,53,726,57,722,63,724,71"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="396,91,444,89,670,88,670,93,444,95,396,96"/>
+<area shape="rect" id="Node000005" href="$df/da8/lpt__periodic__params_8h.html#ae6e3d1856d7be0ba1fb25d9edd6e15fc" title=" " alt="" coords="444,105,636,130"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="397,103,430,106,430,111,396,108"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="474,154,606,179"/>
+<area shape="poly" id="edge8_Node000004_Node000006" title=" " alt="" coords="370,116,445,140,473,148,472,153,443,145,368,121"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="636,104,670,100,671,105,636,109"/>
+<area shape="poly" id="edge9_Node000006_Node000003" title=" " alt="" coords="597,151,635,140,701,115,703,120,637,145,598,156"/>
 </map>

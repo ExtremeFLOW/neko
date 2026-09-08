@@ -1,8 +1,14 @@
 <map id="device_wale_nut::device_wale_nut_compute" name="device_wale_nut::device_wale_nut_compute">
-<area shape="rect" id="Node000001" title="Compute the eddy viscosity field for the WALE model on the device." alt="" coords="5,29,188,69"/>
-<area shape="rect" id="Node000002" href="$d5/dfd/wale__nut_8cu.html#a21109f02092112280548d9965eb9933c" title=" " alt="" coords="236,37,419,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,47,222,47,222,52,188,52"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="467,29,619,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="419,47,453,47,453,52,419,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="503,30,500,20,507,10,521,5,543,3,568,6,581,13,579,18,566,11,543,8,522,10,510,15,505,21,508,28"/>
+<area shape="rect" id="Node000001" title="Compute the eddy viscosity field for the WALE model on the device." alt="" coords="5,23,188,63"/>
+<area shape="rect" id="Node000002" href="$d5/dfd/wale__nut_8cu.html#a21109f02092112280548d9965eb9933c" title=" " alt="" coords="479,5,661,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,36,465,21,465,26,188,41"/>
+<area shape="rect" id="Node000004" href="$da/df0/wale__nut_8c.html#a1b8cccb11bea75f41924492f7c5c5554" title=" " alt="" coords="236,56,431,81"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="188,50,223,54,222,59,188,56"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="709,49,861,89"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="626,28,696,45,695,50,624,33"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="745,49,743,39,749,30,764,24,785,22,810,25,824,32,821,37,809,30,785,27,765,29,753,34,748,40,750,48"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="431,66,696,66,696,71,431,71"/>
+<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="504,107,636,132"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="394,79,497,101,496,106,393,84"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="624,104,695,87,696,92,626,109"/>
 </map>

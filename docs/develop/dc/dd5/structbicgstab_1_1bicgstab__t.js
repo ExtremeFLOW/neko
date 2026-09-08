@@ -20,12 +20,11 @@ var structbicgstab_1_1bicgstab__t =
     [ "m_ident", "dc/dd5/structbicgstab_1_1bicgstab__t.html#aeec0dc845eecbf135d94945f24a937dd", null ],
     [ "max_iter", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a0604caa64f407001658d0678f200e426", null ],
     [ "monitor", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a28a4c9b86fb1d7419f87185bcdff744d", null ],
-    [ "p", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a0eef0f3fc8c0b437d1c66b99e498944a", null ],
-    [ "p_hat", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a5b114e0bc783e2a2c2d23b4a06f6a159", null ],
-    [ "r", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a6acb8d24b4b2bd41e4cde24bbb6ee2e2", null ],
+    [ "p", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a97c7cf1c313152021e53414ce0305687", null ],
+    [ "p_hat", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a84ac88e3e99989fa9f725e9808a0e331", null ],
+    [ "r", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a8ef44c718c195322f1667cb99533be54", null ],
     [ "rel_tol", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a7e02bc45055956c25f0825ca6322051f", null ],
-    [ "s", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a4f09971ca2dae532e77a4168f6c77b33", null ],
-    [ "s_hat", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a301bb8ebcdac633a5f7b20384c5118ee", null ],
-    [ "t", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a1d0f060c4bee2b360c24d4a38e8044bd", null ],
-    [ "v", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a3ad793b28540927bacebd6bc65fcee95", null ]
+    [ "s_hat", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a919c28f9b0c52bc7fbe19ec3a732bddd", null ],
+    [ "t", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a6dd430bfd9faa46ac9b52308d4fe3751", null ],
+    [ "v", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a33ff1bd722e087dbc6b9ca35828ae493", null ]
 ];

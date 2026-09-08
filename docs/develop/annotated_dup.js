@@ -114,6 +114,9 @@ var annotated_dup =
     [ "bicgstab", "dd/d2f/namespacebicgstab.html", [
       [ "bicgstab_t", "dc/dd5/structbicgstab_1_1bicgstab__t.html", "dc/dd5/structbicgstab_1_1bicgstab__t" ]
     ] ],
+    [ "bicgstab_cpld", "db/df2/namespacebicgstab__cpld.html", [
+      [ "bicgstab_cpld_t", "de/d5d/structbicgstab__cpld_1_1bicgstab__cpld__t.html", "de/d5d/structbicgstab__cpld_1_1bicgstab__cpld__t" ]
+    ] ],
     [ "bicgstab_device", "df/dba/namespacebicgstab__device.html", [
       [ "bicgstab_device_t", "d2/d20/structbicgstab__device_1_1bicgstab__device__t.html", "d2/d20/structbicgstab__device_1_1bicgstab__device__t" ],
       [ "hip_bicgstab_part1", "dc/dc2/interfacebicgstab__device_1_1hip__bicgstab__part1.html", "dc/dc2/interfacebicgstab__device_1_1hip__bicgstab__part1" ],
@@ -2041,6 +2044,7 @@ var annotated_dup =
     [ "gs_utofu_ctx_t", "d3/d60/structgs__utofu__ctx__t.html", "d3/d60/structgs__utofu__ctx__t" ],
     [ "hip_buffer", "d3/d16/structhip__buffer.html", "d3/d16/structhip__buffer" ],
     [ "kinematics_params_t", "df/dc7/structkinematics__params__t.html", "df/dc7/structkinematics__params__t" ],
+    [ "lpt_periodic_params", "d7/dac/structlpt__periodic__params.html", "d7/dac/structlpt__periodic__params" ],
     [ "opencl_buffer", "d5/da0/structopencl__buffer.html", "d5/da0/structopencl__buffer" ],
     [ "opgrad_dmma_dispatch", "df/d08/structopgrad__dmma__dispatch.html", "df/d08/structopgrad__dmma__dispatch" ],
     [ "opgrad_dmma_tma_dispatch", "d6/d17/structopgrad__dmma__tma__dispatch.html", "d6/d17/structopgrad__dmma__tma__dispatch" ],

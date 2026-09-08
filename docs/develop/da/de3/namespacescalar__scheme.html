@@ -141,6 +141,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a2babd40d9acd6b4f4ca8dabfbe2e37e9" id="r_a2babd40d9acd6b4f4ca8dabfbe2e37e9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a2babd40d9acd6b4f4ca8dabfbe2e37e9">scalar_scheme_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, msh, c_xh, gs_xh, params, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">scheme</a>, user, rho)</td></tr>
 <tr class="memdesc:a2babd40d9acd6b4f4ca8dabfbe2e37e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize all related components of the current scheme.  <br /></td></tr>
 <tr class="separator:a2babd40d9acd6b4f4ca8dabfbe2e37e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe219aba510b669da4f2c1042297e0d5" id="r_afe219aba510b669da4f2c1042297e0d5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#afe219aba510b669da4f2c1042297e0d5">scalar_scheme_set_initial_condition</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, user, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">scalar_index</a>)</td></tr>
+<tr class="memdesc:afe219aba510b669da4f2c1042297e0d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the initial condition.  <br /></td></tr>
+<tr class="separator:afe219aba510b669da4f2c1042297e0d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af792e86e4d243cc9995295c9ed47d879" id="r_af792e86e4d243cc9995295c9ed47d879"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#af792e86e4d243cc9995295c9ed47d879">scalar_scheme_register_checkpoint</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, chkp, index, n_scalars)</td></tr>
+<tr class="memdesc:af792e86e4d243cc9995295c9ed47d879"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register this scalar scheme with the checkpoint.  <br /></td></tr>
+<tr class="separator:af792e86e4d243cc9995295c9ed47d879"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a57f35ef15b838ab8da7ab18d002a352b" id="r_a57f35ef15b838ab8da7ab18d002a352b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a57f35ef15b838ab8da7ab18d002a352b">scalar_scheme_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a57f35ef15b838ab8da7ab18d002a352b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a scalar formulation.  <br /></td></tr>
 <tr class="separator:a57f35ef15b838ab8da7ab18d002a352b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -159,9 +165,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ab72269e4be11d711d345d540ff333415" id="r_ab72269e4be11d711d345d540ff333415"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415">scalar_scheme_set_material_properties</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, params, user)</td></tr>
 <tr class="memdesc:ab72269e4be11d711d345d540ff333415"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set lamdba and cp.  <br /></td></tr>
 <tr class="separator:ab72269e4be11d711d345d540ff333415"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd868dcc3d2b06f844a21f1ee94b205a" id="r_acd868dcc3d2b06f844a21f1ee94b205a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#acd868dcc3d2b06f844a21f1ee94b205a">scalar_scheme_wrapper_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, msh, coef, gs, params, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">numerics_params</a>, user, chkp, ulag, vlag, wlag, time_scheme, rho)</td></tr>
-<tr class="memdesc:acd868dcc3d2b06f844a21f1ee94b205a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. Initializes the object.  <br /></td></tr>
-<tr class="separator:acd868dcc3d2b06f844a21f1ee94b205a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e0efed1c48a9c956c9e238e0e48a76f" id="r_a0e0efed1c48a9c956c9e238e0e48a76f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a0e0efed1c48a9c956c9e238e0e48a76f">scalar_scheme_wrapper_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, msh, coef, gs, params, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">numerics_params</a>, user, chkp, ulag, vlag, wlag, time_scheme, rho, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">checkpoint_index</a>, n_scalars)</td></tr>
+<tr class="memdesc:a0e0efed1c48a9c956c9e238e0e48a76f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. Initializes the object.  <br /></td></tr>
+<tr class="separator:a0e0efed1c48a9c956c9e238e0e48a76f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e8b4e8e83d114fec2685bfa33dcbd0f" id="r_a4e8b4e8e83d114fec2685bfa33dcbd0f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a4e8b4e8e83d114fec2685bfa33dcbd0f">scalar_scheme_wrapper_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a4e8b4e8e83d114fec2685bfa33dcbd0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor. Just deallocates the pointer.  <br /></td></tr>
 <tr class="separator:a4e8b4e8e83d114fec2685bfa33dcbd0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -198,7 +204,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00457">457</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00514">514</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -276,7 +282,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00332">332</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00344">344</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -342,7 +348,100 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00577">577</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00637">637</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+
+</div>
+</div>
+<a id="af792e86e4d243cc9995295c9ed47d879" name="af792e86e4d243cc9995295c9ed47d879"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af792e86e4d243cc9995295c9ed47d879">&#9670;&#160;</a></span>scalar_scheme_register_checkpoint()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scalar_scheme::scalar_scheme_register_checkpoint </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../dd/ded/structscalar__scheme_1_1scalar__scheme__t.html">scalar_scheme_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d9/d88/structcheckpoint_1_1chkp__t.html">chkp_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>chkp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>n_scalars</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">chkp</td><td>Checkpoint object to register with. </td></tr>
+    <tr><td class="paramname">index</td><td>Position of the scalar in checkpoint storage. </td></tr>
+    <tr><td class="paramname">n_scalars</td><td>Total number of scalar schemes. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00501">501</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+
+</div>
+</div>
+<a id="afe219aba510b669da4f2c1042297e0d5" name="afe219aba510b669da4f2c1042297e0d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe219aba510b669da4f2c1042297e0d5">&#9670;&#160;</a></span>scalar_scheme_set_initial_condition()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scalar_scheme::scalar_scheme_set_initial_condition </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../dd/ded/structscalar__scheme_1_1scalar__scheme__t.html">scalar_scheme_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>user</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>scalar_index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">user</td><td>Type with user-defined procedures. </td></tr>
+    <tr><td class="paramname">scalar_index</td><td>Index of the scalar in a field file. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00474">474</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -385,7 +484,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00664">664</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00724">724</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -462,7 +561,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>Currently only supporting Krylov solvers </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00562">562</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00622">622</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -499,7 +598,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00609">609</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00669">669</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -551,7 +650,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00520">520</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00580">580</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -571,12 +670,12 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00781">781</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00845">845</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
-<a id="acd868dcc3d2b06f844a21f1ee94b205a" name="acd868dcc3d2b06f844a21f1ee94b205a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acd868dcc3d2b06f844a21f1ee94b205a">&#9670;&#160;</a></span>scalar_scheme_wrapper_init()</h2>
+<a id="a0e0efed1c48a9c956c9e238e0e48a76f" name="a0e0efed1c48a9c956c9e238e0e48a76f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e0efed1c48a9c956c9e238e0e48a76f">&#9670;&#160;</a></span>scalar_scheme_wrapper_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -657,7 +756,19 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
-          <td class="paramname"><em>rho</em>&#160;</td>
+          <td class="paramname"><em>rho</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>checkpoint_index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>n_scalars</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -667,7 +778,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00760">760</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00820">820</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -693,7 +804,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00806">806</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00870">870</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -730,7 +841,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00795">795</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00859">859</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -755,7 +866,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00316">316</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00328">328</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -779,7 +890,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00320">320</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00332">332</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -789,7 +900,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/de3/namespacescalar__scheme.html">scalar_scheme</a></li>
-    <li class="footer">Generated on Mon Sep 7 2026 03:42:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 8 2026 03:41:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

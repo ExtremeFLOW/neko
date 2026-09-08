@@ -126,14 +126,16 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">chkp</td><td>Checkpoint for restarts. </td></tr>
     <tr><td class="paramname">ulag,vlag,wlag</td><td>The lagged velocity fields. </td></tr>
     <tr><td class="paramname"><a class="el" href="../../dd/d54/namespacetime__scheme.html" title="Base class for time integration schemes.">time_scheme</a></td><td>The time scheme controller. </td></tr>
-    <tr><td class="paramname">rho</td><td>The density field. Scalar scheme allocator. </td></tr>
+    <tr><td class="paramname">rho</td><td>The density field. </td></tr>
+    <tr><td class="paramname">checkpoint_index</td><td>Position of the scalar in checkpoint storage. </td></tr>
+    <tr><td class="paramname">n_scalars</td><td>Total number of scalar schemes. Scalar scheme allocator. </td></tr>
     <tr><td class="paramname">object</td><td>The object to be allocated. </td></tr>
     <tr><td class="paramname">type_name</td><td>The name of the scalar scheme type. Interface for an object allocator. Implemented in the user modules, should allocate the <code>obj</code> to the custom user type. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00294">294</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00306">306</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a92dcac7cc4ef2e19aadbb82c9cda1591" name="a92dcac7cc4ef2e19aadbb82c9cda1591"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a92dcac7cc4ef2e19aadbb82c9cda1591">&#9670;&#160;</a></span>scalar_scheme_allocate()</h2>
@@ -159,7 +161,7 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00294">294</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00306">306</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -172,7 +174,7 @@ Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/de3/namespacescalar__scheme.html">scalar_scheme</a></li><li class="navelem"><a class="el" href="../../d1/d36/interfacescalar__scheme_1_1scalar__scheme__allocate.html">scalar_scheme_allocate</a></li>
-    <li class="footer">Generated on Mon Sep 7 2026 03:42:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 8 2026 03:41:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

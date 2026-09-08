@@ -1,0 +1,9 @@
+<map id="opencl_sigma_nut_compute" name="opencl_sigma_nut_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,209,62"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="437,29,589,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,47,424,47,424,52,209,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="257,62,389,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="210,59,244,63,244,68,209,64"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="477,30,475,20,481,11,494,5,513,3,536,6,548,13,545,17,534,11,513,8,495,10,485,15,481,21,483,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="389,63,423,59,424,64,390,69"/>
+</map>

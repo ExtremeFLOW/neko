@@ -6,7 +6,7 @@
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="82,385,227,271,230,275,85,389"/>
 <area shape="rect" id="Node000012" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="177,330,336,355"/>
 <area shape="poly" id="edge15_Node000001_Node000012" title=" " alt="" coords="108,385,200,357,201,362,109,390"/>
-<area shape="rect" id="Node000014" href="$d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395" title="Initialise the global HDF5 session." alt="" coords="185,380,329,420"/>
+<area shape="rect" id="Node000014" href="$d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395" title="Initialise the global HDF5 session HDF5 does not maintain a global reference count,..." alt="" coords="185,380,329,420"/>
 <area shape="poly" id="edge17_Node000001_Node000014" title=" " alt="" coords="126,397,171,397,171,403,126,403"/>
 <area shape="rect" id="Node000015" href="$d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841" title="Initialize jobctrl." alt="" coords="187,445,327,470"/>
 <area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="109,410,201,438,200,443,108,415"/>

@@ -1,0 +1,11 @@
+<map id="lpt_periodic_params_pack" name="lpt_periodic_params_pack">
+<area shape="rect" id="Node000001" title=" " alt="" coords="704,67,896,93"/>
+<area shape="rect" id="Node000002" href="$d4/d21/lpt__periodic__bc_8c.html#a0b435c7ea38e5bf65e13e5e8450ec596" title=" " alt="" coords="484,60,656,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="690,83,656,83,656,77,690,77"/>
+<area shape="rect" id="Node000003" href="$d4/dce/namespacelpt__periodic__bc__device.html#af876bd0d02464b158bb50f74417161ec" title="Launch device kernel for translational periodic wrapping." alt="" coords="265,53,436,107"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="470,83,436,83,436,77,470,77"/>
+<area shape="rect" id="Node000004" href="$d0/d21/interfacelpt__periodic__bc__device_1_1hip__lpt__periodic__bc__wrap__rotational.html#a932e9a0dea4b8da9972a8e58081cd3f0" title=" " alt="" coords="5,5,217,75"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="252,66,217,60,218,55,252,61"/>
+<area shape="rect" id="Node000005" href="$dd/d68/namespacelpt__periodic__bc.html#a021c8ceabe8ac82a1c0a0f6c33dfb34a" title="Wrap particle positions and optional vector histories across boundaries." alt="" coords="39,99,184,139"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="252,99,185,110,184,104,252,93"/>
+</map>

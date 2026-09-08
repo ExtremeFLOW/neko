@@ -1,8 +1,20 @@
 <map id="device_dynamic_smagorinsky_nut::device_mij_compute_part1" name="device_dynamic_smagorinsky_nut::device_mij_compute_part1">
-<area shape="rect" id="Node000001" title="part 1 of the computing of the mij field" alt="" coords="5,29,240,69"/>
-<area shape="rect" id="Node000002" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#a1be7b8d840991fb8f90db602ae92c0fe" title=" " alt="" coords="288,37,475,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,47,274,47,274,52,240,52"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="523,29,675,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="475,47,509,47,509,52,475,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="558,30,556,20,562,10,577,5,599,3,624,6,638,13,635,18,622,11,599,8,578,10,565,15,561,21,563,28"/>
+<area shape="rect" id="Node000001" title="part 1 of the computing of the mij field" alt="" coords="5,49,240,89"/>
+<area shape="rect" id="Node000002" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#a1be7b8d840991fb8f90db602ae92c0fe" title=" " alt="" coords="737,5,924,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,58,724,23,724,28,240,63"/>
+<area shape="rect" id="Node000004" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#ace8ff036578ef8be8eb8aa5b94bb71b1" title=" " alt="" coords="288,77,445,117"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="240,79,275,83,274,89,240,85"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="972,99,1124,139"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="875,28,925,48,1005,90,1002,95,923,52,873,33"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="1007,100,1005,90,1012,80,1026,75,1048,73,1073,76,1087,83,1085,88,1072,81,1048,78,1027,80,1015,85,1010,91,1013,98"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="446,91,661,87,793,90,924,98,959,102,958,107,924,103,792,95,661,92,446,96"/>
+<area shape="rect" id="Node000005" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#a8db9d8bf3e3f93c1f2137ce048a17036" title=" " alt="" coords="497,107,685,132"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="446,102,484,106,484,111,445,107"/>
+<area shape="rect" id="Node000007" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#ae740553f29296f824b6643b533c4c255" title=" " alt="" coords="493,181,689,207"/>
+<area shape="poly" id="edge10_Node000004_Node000007" title=" " alt="" coords="415,114,549,173,547,178,413,119"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="686,117,958,117,958,122,686,122"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="765,157,897,183"/>
+<area shape="poly" id="edge8_Node000005_Node000006" title=" " alt="" coords="653,130,757,152,756,157,652,135"/>
+<area shape="poly" id="edge9_Node000006_Node000003" title=" " alt="" coords="886,155,958,137,959,143,887,160"/>
+<area shape="poly" id="edge11_Node000007_Node000003" title=" " alt="" coords="674,204,730,209,793,210,859,206,923,193,971,172,1011,145,1014,150,973,177,925,198,860,211,793,215,730,214,673,209"/>
 </map>

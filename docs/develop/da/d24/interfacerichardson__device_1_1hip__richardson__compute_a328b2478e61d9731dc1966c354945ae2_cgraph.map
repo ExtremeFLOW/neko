@@ -1,10 +1,16 @@
 <map id="richardson_device::hip_richardson_compute::hip_richardson_compute" name="richardson_device::hip_richardson_compute::hip_richardson_compute">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,195,77"/>
-<area shape="rect" id="Node000002" href="$d5/d35/namespacerichardson__device.html#a5ec10cce0adb9a2f1806fae82fed2c6e" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="243,29,447,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,47,229,47,229,52,195,52"/>
-<area shape="rect" id="Node000003" href="$d3/ddd/richardson_8cu.html#ac6107294c6a28b395e2a27e3656ec803" title=" " alt="" coords="495,37,687,62"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="447,47,481,47,481,52,447,52"/>
-<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="735,29,887,69"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="687,47,721,47,721,52,687,52"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="770,30,767,20,774,10,788,5,811,3,836,6,850,13,848,18,835,11,811,8,790,10,777,15,772,21,775,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,16,195,71"/>
+<area shape="rect" id="Node000002" href="$d5/d35/namespacerichardson__device.html#a5ec10cce0adb9a2f1806fae82fed2c6e" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="243,23,447,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,41,229,41,229,46,195,46"/>
+<area shape="rect" id="Node000003" href="$d3/ddd/richardson_8cu.html#ac6107294c6a28b395e2a27e3656ec803" title=" " alt="" coords="747,5,939,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="447,36,733,21,733,26,447,41"/>
+<area shape="rect" id="Node000005" href="$d1/da4/richardson_8c.html#a3d349adb3a7e03ccb34b62db43f386a7" title=" " alt="" coords="495,56,699,81"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="447,51,481,54,481,60,446,56"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="987,49,1139,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="899,28,974,46,973,51,898,33"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="1022,49,1019,39,1026,30,1040,24,1063,22,1088,25,1102,32,1100,37,1087,30,1063,27,1042,29,1029,34,1024,40,1027,48"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="699,66,973,66,973,71,699,71"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="777,107,909,132"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="660,79,768,101,766,106,659,84"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="898,104,973,87,974,92,899,109"/>
 </map>

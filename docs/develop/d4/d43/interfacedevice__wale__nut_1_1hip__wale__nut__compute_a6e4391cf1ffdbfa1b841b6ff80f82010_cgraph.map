@@ -1,10 +1,16 @@
 <map id="device_wale_nut::hip_wale_nut_compute::hip_wale_nut_compute" name="device_wale_nut::hip_wale_nut_compute::hip_wale_nut_compute">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,185,77"/>
-<area shape="rect" id="Node000002" href="$d3/d0e/namespacedevice__wale__nut.html#a2f302cc7cc3d11899224782aa884cf25" title="Compute the eddy viscosity field for the WALE model on the device." alt="" coords="233,29,416,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,47,219,47,219,52,186,52"/>
-<area shape="rect" id="Node000003" href="$d5/dfd/wale__nut_8cu.html#a21109f02092112280548d9965eb9933c" title=" " alt="" coords="464,37,647,62"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="416,47,450,47,450,52,416,52"/>
-<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="695,29,847,69"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="647,47,681,47,681,52,647,52"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="731,30,728,20,735,10,749,5,771,3,796,6,809,13,807,18,794,11,771,8,750,10,738,15,733,21,736,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,16,185,71"/>
+<area shape="rect" id="Node000002" href="$d3/d0e/namespacedevice__wale__nut.html#a2f302cc7cc3d11899224782aa884cf25" title="Compute the eddy viscosity field for the WALE model on the device." alt="" coords="233,23,416,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,41,219,41,219,46,186,46"/>
+<area shape="rect" id="Node000003" href="$d5/dfd/wale__nut_8cu.html#a21109f02092112280548d9965eb9933c" title=" " alt="" coords="707,5,889,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="416,36,693,21,693,26,416,41"/>
+<area shape="rect" id="Node000005" href="$da/df0/wale__nut_8c.html#a1b8cccb11bea75f41924492f7c5c5554" title=" " alt="" coords="464,56,659,81"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="416,50,451,54,450,59,416,56"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="937,49,1089,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="854,28,924,45,923,50,852,33"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="973,49,971,39,977,30,992,24,1013,22,1038,25,1052,32,1049,37,1037,30,1013,27,993,29,981,34,976,40,978,48"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="659,66,924,66,924,71,659,71"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="732,107,864,132"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="622,79,725,101,724,106,621,84"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="852,104,923,87,924,92,854,109"/>
 </map>

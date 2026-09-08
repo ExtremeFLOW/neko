@@ -1,10 +1,16 @@
 <map id="spalding_device::hip_spalding_compute::hip_spalding_compute" name="spalding_device::hip_spalding_compute::hip_spalding_compute">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,181,77"/>
-<area shape="rect" id="Node000002" href="$d2/d9a/namespacespalding__device.html#ab6035171a362c40d09520a03a70bbbcd" title="Compute the wall shear stress on device using Spalding&#39;s model." alt="" coords="229,29,420,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,47,216,47,216,52,182,52"/>
-<area shape="rect" id="Node000003" href="$d3/d8b/spalding_8cu.html#ad5a0601953b93f1083465b95b3d2548d" title=" " alt="" coords="468,37,647,62"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="420,47,454,47,454,52,420,52"/>
-<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="695,29,847,69"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="647,47,681,47,681,52,647,52"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="731,30,728,20,735,10,749,5,771,3,796,6,809,13,807,18,794,11,771,8,750,10,738,15,733,21,736,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,16,181,71"/>
+<area shape="rect" id="Node000002" href="$d2/d9a/namespacespalding__device.html#ab6035171a362c40d09520a03a70bbbcd" title="Compute the wall shear stress on device using Spalding&#39;s model." alt="" coords="229,23,420,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,41,216,41,216,46,182,46"/>
+<area shape="rect" id="Node000003" href="$d3/d8b/spalding_8cu.html#ad5a0601953b93f1083465b95b3d2548d" title=" " alt="" coords="707,5,885,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="420,36,693,21,693,26,420,41"/>
+<area shape="rect" id="Node000005" href="$d7/d10/spalding_8c.html#a36f5c96792145aeb130f9f3fa275411b" title=" " alt="" coords="468,56,659,81"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="421,51,455,54,454,60,420,56"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="933,49,1085,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="851,28,921,45,919,50,850,33"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="969,49,967,39,973,30,988,24,1009,22,1034,25,1048,32,1045,37,1033,30,1009,27,989,29,977,34,972,40,974,48"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="659,66,919,66,919,71,659,71"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="730,107,862,132"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="623,79,725,101,723,106,622,84"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="850,104,919,87,921,92,851,109"/>
 </map>

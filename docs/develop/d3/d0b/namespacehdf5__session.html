@@ -99,7 +99,8 @@ $(document).ready(function(){initNavTree('d3/d0b/namespacehdf5__session.html','.
 
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">hdf5_session Module Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -110,11 +111,17 @@ $(document).ready(function(){initNavTree('d3/d0b/namespacehdf5__session.html','.
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a83255e673de14b58b0fefebf44b26395" id="r_a83255e673de14b58b0fefebf44b26395"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395">hdf5_session_init</a></td></tr>
-<tr class="memdesc:a83255e673de14b58b0fefebf44b26395"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise the global HDF5 session.  <br /></td></tr>
+<tr class="memdesc:a83255e673de14b58b0fefebf44b26395"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise the global HDF5 session HDF5 does not maintain a global reference count, so we must.  <br /></td></tr>
 <tr class="separator:a83255e673de14b58b0fefebf44b26395"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2d2199022ad9fb4f55158546daca5ba" id="r_af2d2199022ad9fb4f55158546daca5ba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba">hdf5_session_finalize</a></td></tr>
 <tr class="memdesc:af2d2199022ad9fb4f55158546daca5ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize the global HDF5 session.  <br /></td></tr>
 <tr class="separator:af2d2199022ad9fb4f55158546daca5ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:ad076b6f3177002fcc5f2498a95c48022" id="r_ad076b6f3177002fcc5f2498a95c48022"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d0b/namespacehdf5__session.html#ad076b6f3177002fcc5f2498a95c48022">session_active</a> = 0</td></tr>
+<tr class="memdesc:ad076b6f3177002fcc5f2498a95c48022"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether a session currently holds the library open. The file backends consult this so they do not close the library out from under it.  <br /></td></tr>
+<tr class="separator:ad076b6f3177002fcc5f2498a95c48022"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="af2d2199022ad9fb4f55158546daca5ba" name="af2d2199022ad9fb4f55158546daca5ba"></a>
@@ -130,15 +137,19 @@ Functions/Subroutines</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>Must be called after all HDF5 file objects have been closed, and before MPI is finalized, since the library holds duplicated communicators for parallel I/O </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/dd5/hdf5__session_8F90_source.html#l00064">64</a> of file <a class="el" href="../../db/dd5/hdf5__session_8F90_source.html">hdf5_session.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/dd5/hdf5__session_8F90_source.html#l00068">68</a> of file <a class="el" href="../../db/dd5/hdf5__session_8F90_source.html">hdf5_session.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d3/d0b/namespacehdf5__session_af2d2199022ad9fb4f55158546daca5ba_icgraph.png" border="0" usemap="#ad3/d0b/namespacehdf5__session_af2d2199022ad9fb4f55158546daca5ba_icgraph" alt=""/></div>
 <map name="ad3/d0b/namespacehdf5__session_af2d2199022ad9fb4f55158546daca5ba_icgraph" id="ad3/d0b/namespacehdf5__session_af2d2199022ad9fb4f55158546daca5ba_icgraph">
-<area shape="rect" title="Finalize the global HDF5 session." alt="" coords="200,5,344,45"/>
-<area shape="rect" href="../../dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8" title="Finalize Neko." alt="" coords="5,13,152,38"/>
-<area shape="poly" title=" " alt="" coords="186,28,152,28,152,23,186,23"/>
+<area shape="rect" title="Finalize the global HDF5 session." alt="" coords="200,63,344,103"/>
+<area shape="rect" href="../../d6/dbe/namespacehdf5__file.html#a95bf02a33958bdd43f371b3bc5ff9026" title="Set the precision for the output (single or double)" alt="" coords="7,5,150,45"/>
+<area shape="poly" title=" " alt="" coords="190,61,146,48,148,43,192,56"/>
+<area shape="rect" href="../../dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8" title="Finalize Neko." alt="" coords="5,70,152,95"/>
+<area shape="poly" title=" " alt="" coords="186,85,152,85,152,80,186,80"/>
+<area shape="rect" href="../../db/d11/namespacevtkhdf__file.html#ad79fe046d4f3a76aceb410ad77d7e091" title="Enable or disable subdivision of spectral elements into linear sub&#45;cells. When subdivision is enabled..." alt="" coords="5,120,152,160"/>
+<area shape="poly" title=" " alt="" coords="192,109,148,122,146,117,190,104"/>
 </map>
 </div>
 
@@ -155,19 +166,47 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Holds the HDF5 library's Fortran interface open for the lifetime of the session, such that the paired h5open_f/h5close_f calls in the various file backends never drop the library's reference count to zero mid-run </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/dd5/hdf5__session_8F90_source.html#l00051">51</a> of file <a class="el" href="../../db/dd5/hdf5__session_8F90_source.html">hdf5_session.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/dd5/hdf5__session_8F90_source.html#l00052">52</a> of file <a class="el" href="../../db/dd5/hdf5__session_8F90_source.html">hdf5_session.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d3/d0b/namespacehdf5__session_a83255e673de14b58b0fefebf44b26395_icgraph.png" border="0" usemap="#ad3/d0b/namespacehdf5__session_a83255e673de14b58b0fefebf44b26395_icgraph" alt=""/></div>
 <map name="ad3/d0b/namespacehdf5__session_a83255e673de14b58b0fefebf44b26395_icgraph" id="ad3/d0b/namespacehdf5__session_a83255e673de14b58b0fefebf44b26395_icgraph">
-<area shape="rect" title="Initialise the global HDF5 session." alt="" coords="173,5,317,45"/>
-<area shape="rect" href="../../dd/d62/namespaceneko.html#a7428543ecc3d1960dc260270d94466bd" title="Initialise Neko." alt="" coords="5,13,125,38"/>
-<area shape="poly" title=" " alt="" coords="159,28,126,28,126,23,159,23"/>
+<area shape="rect" title="Initialise the global HDF5 session HDF5 does not maintain a global reference count,..." alt="" coords="200,63,344,103"/>
+<area shape="rect" href="../../d6/dbe/namespacehdf5__file.html#a95bf02a33958bdd43f371b3bc5ff9026" title="Set the precision for the output (single or double)" alt="" coords="7,5,150,45"/>
+<area shape="poly" title=" " alt="" coords="190,61,146,48,148,43,192,56"/>
+<area shape="rect" href="../../dd/d62/namespaceneko.html#a7428543ecc3d1960dc260270d94466bd" title="Initialise Neko." alt="" coords="19,70,139,95"/>
+<area shape="poly" title=" " alt="" coords="186,85,139,85,139,80,186,80"/>
+<area shape="rect" href="../../db/d11/namespacevtkhdf__file.html#ad79fe046d4f3a76aceb410ad77d7e091" title="Enable or disable subdivision of spectral elements into linear sub&#45;cells. When subdivision is enabled..." alt="" coords="5,120,152,160"/>
+<area shape="poly" title=" " alt="" coords="192,109,148,122,146,117,190,104"/>
 </map>
 </div>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="ad076b6f3177002fcc5f2498a95c48022" name="ad076b6f3177002fcc5f2498a95c48022"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad076b6f3177002fcc5f2498a95c48022">&#9670;&#160;</a></span>session_active</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> hdf5_session::session_active = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../db/dd5/hdf5__session_8F90_source.html#l00046">46</a> of file <a class="el" href="../../db/dd5/hdf5__session_8F90_source.html">hdf5_session.F90</a>.</p>
 
 </div>
 </div>
@@ -177,7 +216,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/d0b/namespacehdf5__session.html">hdf5_session</a></li>
-    <li class="footer">Generated on Mon Sep 7 2026 03:42:28 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 8 2026 03:41:13 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

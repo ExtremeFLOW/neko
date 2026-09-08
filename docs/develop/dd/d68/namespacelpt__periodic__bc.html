@@ -151,7 +151,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:ae5f65e011eb0816cebfb3894ad5feb07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab2f9fabbc3e890e1f8b62000f1dac537" id="r_ab2f9fabbc3e890e1f8b62000f1dac537"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pure</a> <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(3)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d68/namespacelpt__periodic__bc.html#ab2f9fabbc3e890e1f8b62000f1dac537">lpt_periodic_bc_get_dir</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, idx)</td></tr>
 <tr class="separator:ab2f9fabbc3e890e1f8b62000f1dac537"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a44970e58f1d7d0049a37d5768bea26b2" id="r_a44970e58f1d7d0049a37d5768bea26b2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d68/namespacelpt__periodic__bc.html#a44970e58f1d7d0049a37d5768bea26b2">lpt_periodic_bc_set_translational</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, idx, dir, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">periodic_min</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">periodic_max</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">shift</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">periodic_len</a>)</td></tr>
+<tr class="memitem:a44970e58f1d7d0049a37d5768bea26b2" id="r_a44970e58f1d7d0049a37d5768bea26b2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d68/namespacelpt__periodic__bc.html#a44970e58f1d7d0049a37d5768bea26b2">lpt_periodic_bc_set_translational</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, idx, dir, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">periodic_min</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">periodic_max</a>, shift, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">periodic_len</a>)</td></tr>
 <tr class="memdesc:a44970e58f1d7d0049a37d5768bea26b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store one translational periodic wrapping direction.  <br /></td></tr>
 <tr class="separator:a44970e58f1d7d0049a37d5768bea26b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -1067,22 +1067,35 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="131,167,201,141,202,146,133,172"/>
 <area shape="rect" href="../../d4/dce/namespacelpt__periodic__bc__device.html#a6a2e1c4d6bf56949a0ed95304b09691e" title="Launch device kernel for rotational periodic wrapping." alt="" coords="203,163,373,217"/>
 <area shape="poly" title=" " alt="" coords="151,187,189,187,189,193,151,193"/>
-<area shape="rect" href="../../d7/d06/namespacelpt__periodic__bc__cpu.html#a5b4754646f996f76631a7914f9778bd4" title="Wrap particle coordinates through translational periodic directions." alt="" coords="205,241,371,296"/>
+<area shape="rect" href="../../d7/d06/namespacelpt__periodic__bc__cpu.html#a5b4754646f996f76631a7914f9778bd4" title="Wrap particle coordinates through translational periodic directions." alt="" coords="205,335,371,389"/>
+<area shape="poly" title=" " alt="" coords="99,208,143,254,200,305,229,325,225,330,197,309,140,258,95,212"/>
+<area shape="rect" href="../../d4/dce/namespacelpt__periodic__bc__device.html#af876bd0d02464b158bb50f74417161ec" title="Launch device kernel for translational periodic wrapping." alt="" coords="203,241,373,296"/>
 <area shape="poly" title=" " alt="" coords="133,208,202,234,201,239,131,213"/>
-<area shape="rect" href="../../d4/dce/namespacelpt__periodic__bc__device.html#af876bd0d02464b158bb50f74417161ec" title="Launch device kernel for translational periodic wrapping." alt="" coords="203,320,373,375"/>
-<area shape="poly" title=" " alt="" coords="98,208,142,256,200,305,209,311,206,315,197,309,138,259,94,212"/>
-<area shape="rect" href="../../d7/d06/namespacelpt__periodic__bc__cpu.html#afe9107922a569d9fe5f1b4ee2c8a3e01" title="Rotate a two&#45;component vector in the x&#45;y plane." alt="" coords="429,91,580,131"/>
-<area shape="poly" title=" " alt="" coords="371,109,415,109,415,114,371,114"/>
-<area shape="rect" href="../../de/d35/lpt__periodic__bc_8cu.html#a91b6a5dbdbfc9b7411d1d5a65c4d0adf" title=" " alt="" coords="425,173,584,213"/>
-<area shape="poly" title=" " alt="" coords="374,188,412,189,412,194,374,194"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="632,249,784,289"/>
-<area shape="poly" title=" " alt="" coords="560,210,642,241,640,246,558,215"/>
-<area shape="poly" title=" " alt="" coords="670,249,668,239,674,230,687,224,708,222,732,225,745,232,742,237,730,230,708,227,689,229,677,234,673,240,675,248"/>
-<area shape="rect" href="../../d7/d06/namespacelpt__periodic__bc__cpu.html#a4ac7e866dc8a96c79bb3d23ba494474c" title="Extract one translational periodic slot from scalar storage." alt="" coords="427,241,583,296"/>
-<area shape="poly" title=" " alt="" coords="371,266,413,266,413,271,371,271"/>
-<area shape="rect" href="../../de/d35/lpt__periodic__bc_8cu.html#a9448b78b78182eae88fd00bbb65c9787" title=" " alt="" coords="425,323,584,363"/>
-<area shape="poly" title=" " alt="" coords="374,343,412,342,412,348,374,348"/>
-<area shape="poly" title=" " alt="" coords="559,321,639,291,641,296,561,326"/>
+<area shape="rect" href="../../d7/d06/namespacelpt__periodic__bc__cpu.html#afe9107922a569d9fe5f1b4ee2c8a3e01" title="Rotate a two&#45;component vector in the x&#45;y plane." alt="" coords="436,66,587,106"/>
+<area shape="poly" title=" " alt="" coords="371,99,422,93,423,99,372,105"/>
+<area shape="rect" href="../../de/d35/lpt__periodic__bc_8cu.html#a91b6a5dbdbfc9b7411d1d5a65c4d0adf" title=" " alt="" coords="662,78,821,118"/>
+<area shape="poly" title=" " alt="" coords="373,170,648,114,649,119,374,175"/>
+<area shape="rect" href="../../d4/d21/lpt__periodic__bc_8c.html#ada3ac4fa9cf08cb1c93938646bf489cd" title=" " alt="" coords="435,181,588,221"/>
+<area shape="poly" title=" " alt="" coords="374,191,421,194,421,199,373,197"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="885,215,1037,255"/>
+<area shape="poly" title=" " alt="" coords="801,116,839,134,888,169,930,204,927,208,885,173,836,139,798,120"/>
+<area shape="poly" title=" " alt="" coords="920,216,918,206,924,196,939,191,961,189,987,192,1001,199,998,204,985,197,961,194,940,196,928,201,923,207,925,214"/>
+<area shape="poly" title=" " alt="" coords="588,182,643,174,706,169,773,169,838,178,878,190,914,206,912,211,876,195,837,183,772,175,706,174,644,179,589,187"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="675,193,807,219"/>
+<area shape="poly" title=" " alt="" coords="588,200,662,201,662,207,588,205"/>
+<area shape="poly" title=" " alt="" coords="808,212,872,221,871,226,808,217"/>
+<area shape="rect" href="../../d7/d06/namespacelpt__periodic__bc__cpu.html#a4ac7e866dc8a96c79bb3d23ba494474c" title="Extract one translational periodic slot from scalar storage." alt="" coords="433,365,589,420"/>
+<area shape="poly" title=" " alt="" coords="372,371,420,378,420,383,371,376"/>
+<area shape="rect" href="../../de/d35/lpt__periodic__bc_8cu.html#a9448b78b78182eae88fd00bbb65c9787" title=" " alt="" coords="662,243,821,283"/>
+<area shape="poly" title=" " alt="" coords="374,265,648,262,648,267,374,270"/>
+<area shape="rect" href="../../d4/d21/lpt__periodic__bc_8c.html#a0b435c7ea38e5bf65e13e5e8450ec596" title=" " alt="" coords="425,301,597,341"/>
+<area shape="poly" title=" " alt="" coords="374,286,412,295,411,300,373,291"/>
+<area shape="poly" title=" " alt="" coords="821,251,872,244,872,249,821,256"/>
+<area shape="poly" title=" " alt="" coords="597,320,712,314,775,306,837,293,877,278,914,260,917,265,879,283,838,298,776,311,713,320,598,325"/>
+<area shape="poly" title=" " alt="" coords="536,298,584,263,644,229,667,220,668,225,646,234,587,268,539,303"/>
+<area shape="rect" href="../../df/da8/lpt__periodic__params_8h.html#ae6e3d1856d7be0ba1fb25d9edd6e15fc" title=" " alt="" coords="645,359,837,384"/>
+<area shape="poly" title=" " alt="" coords="599,337,670,353,669,358,597,342"/>
+<area shape="poly" title=" " alt="" coords="791,356,836,337,887,301,929,263,933,267,890,306,839,342,793,361"/>
 </map>
 </div>
 
@@ -1119,7 +1132,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/d68/namespacelpt__periodic__bc.html">lpt_periodic_bc</a></li>
-    <li class="footer">Generated on Mon Sep 7 2026 03:42:28 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 8 2026 03:41:13 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

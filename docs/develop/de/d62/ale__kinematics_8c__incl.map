@@ -1,0 +1,17 @@
+<map id="/home/runner/work/neko/neko/src/ale/bcknd/device/opencl/ale_kinematics.c" name="/home/runner/work/neko/neko/src/ale/bcknd/device/opencl/ale_kinematics.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="301,5,496,60"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="276,196,342,221"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="301,42,220,50,136,63,64,83,38,95,20,110,11,124,8,136,10,146,16,156,41,172,79,185,174,199,263,204,262,210,173,205,78,190,39,177,12,160,5,148,3,136,7,122,16,106,35,91,62,78,135,58,219,45,301,37"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="30,115,201,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="320,63,164,114,163,109,318,58"/>
+<area shape="rect" id="Node000004" href="$d0/d05/opencl_2check_8h.html" title=" " alt="" coords="226,115,392,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="375,62,332,107,328,103,371,58"/>
+<area shape="rect" id="Node000005" href="$d4/d0f/jit_8h.html" title=" " alt="" coords="417,115,558,141"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="426,58,469,103,465,107,422,62"/>
+<area shape="rect" id="Node000006" href="$d1/df7/prgm__lib_8h.html" title=" " alt="" coords="583,108,734,148"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="472,58,594,101,593,106,471,63"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="758,115,953,141"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="497,51,787,110,785,115,495,56"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="312,141,312,182,306,182,306,141"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="463,143,349,193,346,188,461,138"/>
+</map>

@@ -2,9 +2,11 @@ var structscalar__scheme_1_1scalar__scheme__t =
 [
     [ "free", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a5ff2f211aa47d8ae13a27f4cc041d36b", null ],
     [ "init", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a298a556a5ac032d139ed543bd0513165", null ],
+    [ "register_checkpoint", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a24c74f356b8fbd8a102f2fb7d467facc", null ],
     [ "restart", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a69289e93472837772290ae6726eed137", null ],
     [ "scheme_free", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a8c84513b624e230d446a679e43e87c2b", null ],
     [ "scheme_init", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#aa8d60bc429438d68cdac7528b5d242e4", null ],
+    [ "set_initial_condition", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a04ae6f86ebf88d1dfda42c443c7eb6db", null ],
     [ "set_material_properties", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a3884d617aeb33cde7717ea69abf3bf2d", null ],
     [ "step", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a18a32f62a6eef4fcec1a684d263a3dc5", null ],
     [ "update_material_properties", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a9edabb97331662ca0e570f5bc6f7e560", null ],

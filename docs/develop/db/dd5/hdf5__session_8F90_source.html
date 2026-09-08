@@ -148,35 +148,44 @@ $(document).ready(function(){initNavTree('db/dd5/hdf5__session_8F90_source.html'
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395">hdf5_session_init</a>, <a class="code hl_function" href="../../d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba">hdf5_session_finalize</a></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="foldopen" id="foldopen00051" data-start="" data-end="">
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="../../d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395">   51</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395">hdf5_session_init</a></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="preprocessor">#ifdef HAVE_HDF5</span></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="preprocessor"></span>    <span class="keywordtype">integer</span> :: ierr</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keyword">call </span>h5open_f(ierr)</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordflow">if</span> (ierr .ne. 0) <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Failed to initialize HDF5&#39;</span>)</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../d3/d0b/namespacehdf5__session.html#ad076b6f3177002fcc5f2498a95c48022">   46</a></span>  <span class="keywordtype">integer</span> :: <a class="code hl_variable" href="../../d3/d0b/namespacehdf5__session.html#ad076b6f3177002fcc5f2498a95c48022">session_active</a> = 0</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keyword">contains</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="foldopen" id="foldopen00052" data-start="" data-end="">
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395">   52</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395">hdf5_session_init</a></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="preprocessor">#ifdef HAVE_HDF5</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="preprocessor"></span>    <span class="keywordtype">integer</span> :: ierr</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d0b/namespacehdf5__session.html#ad076b6f3177002fcc5f2498a95c48022">session_active</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>       <span class="keyword">call </span>h5open_f(ierr)</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>       <span class="keywordflow">if</span> (ierr .ne. 0) <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Failed to initialize HDF5&#39;</span>)</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <a class="code hl_variable" href="../../d3/d0b/namespacehdf5__session.html#ad076b6f3177002fcc5f2498a95c48022">session_active</a> = <a class="code hl_variable" href="../../d3/d0b/namespacehdf5__session.html#ad076b6f3177002fcc5f2498a95c48022">session_active</a> + 1</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="preprocessor">#endif</span></div>
 </div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395">hdf5_session_init</a></div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="foldopen" id="foldopen00064" data-start="" data-end="">
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno"><a class="line" href="../../d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba">   64</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba">hdf5_session_finalize</a></div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="preprocessor">#ifdef HAVE_HDF5</span></div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="preprocessor"></span>    <span class="keywordtype">integer</span> :: ierr</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keyword">call </span>h5close_f(ierr)</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordflow">if</span> (ierr .ne. 0) <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Failed to close HDF5&#39;</span>)</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395">hdf5_session_init</a></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="foldopen" id="foldopen00068" data-start="" data-end="">
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="../../d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba">   68</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba">hdf5_session_finalize</a></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="preprocessor">#ifdef HAVE_HDF5</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="preprocessor"></span>    <span class="keywordtype">integer</span> :: ierr</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <a class="code hl_variable" href="../../d3/d0b/namespacehdf5__session.html#ad076b6f3177002fcc5f2498a95c48022">session_active</a> = <a class="code hl_variable" href="../../d3/d0b/namespacehdf5__session.html#ad076b6f3177002fcc5f2498a95c48022">session_active</a> - 1</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d0b/namespacehdf5__session.html#ad076b6f3177002fcc5f2498a95c48022">session_active</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>       <span class="keyword">call </span>h5close_f(ierr)</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>       <span class="keywordflow">if</span> (ierr .ne. 0) <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Failed to close HDF5&#39;</span>)</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="preprocessor">#endif</span></div>
 </div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba">hdf5_session_finalize</a></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d0b/namespacehdf5__session.html">hdf5_session</a></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba">hdf5_session_finalize</a></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d0b/namespacehdf5__session.html">hdf5_session</a></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00045">utils.f90:45</a></div></div>
 <div class="ttc" id="anamespacehdf5__session_html"><div class="ttname"><a href="../../d3/d0b/namespacehdf5__session.html">hdf5_session</a></div><div class="ttdoc">HDF5 session management.</div><div class="ttdef"><b>Definition</b> <a href="../../db/dd5/hdf5__session_8F90_source.html#l00034">hdf5_session.F90:34</a></div></div>
-<div class="ttc" id="anamespacehdf5__session_html_a83255e673de14b58b0fefebf44b26395"><div class="ttname"><a href="../../d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395">hdf5_session::hdf5_session_init</a></div><div class="ttdeci">subroutine, public hdf5_session_init</div><div class="ttdoc">Initialise the global HDF5 session.</div><div class="ttdef"><b>Definition</b> <a href="../../db/dd5/hdf5__session_8F90_source.html#l00051">hdf5_session.F90:52</a></div></div>
-<div class="ttc" id="anamespacehdf5__session_html_af2d2199022ad9fb4f55158546daca5ba"><div class="ttname"><a href="../../d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba">hdf5_session::hdf5_session_finalize</a></div><div class="ttdeci">subroutine, public hdf5_session_finalize</div><div class="ttdoc">Finalize the global HDF5 session.</div><div class="ttdef"><b>Definition</b> <a href="../../db/dd5/hdf5__session_8F90_source.html#l00064">hdf5_session.F90:65</a></div></div>
+<div class="ttc" id="anamespacehdf5__session_html_a83255e673de14b58b0fefebf44b26395"><div class="ttname"><a href="../../d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395">hdf5_session::hdf5_session_init</a></div><div class="ttdeci">subroutine, public hdf5_session_init</div><div class="ttdoc">Initialise the global HDF5 session HDF5 does not maintain a global reference count,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/dd5/hdf5__session_8F90_source.html#l00052">hdf5_session.F90:53</a></div></div>
+<div class="ttc" id="anamespacehdf5__session_html_ad076b6f3177002fcc5f2498a95c48022"><div class="ttname"><a href="../../d3/d0b/namespacehdf5__session.html#ad076b6f3177002fcc5f2498a95c48022">hdf5_session::session_active</a></div><div class="ttdeci">integer session_active</div><div class="ttdoc">Whether a session currently holds the library open. The file backends consult this so they do not clo...</div><div class="ttdef"><b>Definition</b> <a href="../../db/dd5/hdf5__session_8F90_source.html#l00046">hdf5_session.F90:46</a></div></div>
+<div class="ttc" id="anamespacehdf5__session_html_af2d2199022ad9fb4f55158546daca5ba"><div class="ttname"><a href="../../d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba">hdf5_session::hdf5_session_finalize</a></div><div class="ttdeci">subroutine, public hdf5_session_finalize</div><div class="ttdoc">Finalize the global HDF5 session.</div><div class="ttdef"><b>Definition</b> <a href="../../db/dd5/hdf5__session_8F90_source.html#l00068">hdf5_session.F90:69</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
@@ -184,7 +193,7 @@ $(document).ready(function(){initNavTree('db/dd5/hdf5__session_8F90_source.html'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../db/dd5/hdf5__session_8F90.html">hdf5_session.F90</a></li>
-    <li class="footer">Generated on Mon Sep 7 2026 03:42:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 8 2026 03:41:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
