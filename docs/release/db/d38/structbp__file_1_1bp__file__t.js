@@ -4,6 +4,8 @@ var structbp__file_1_1bp__file__t =
     [ "get_base_fname", "db/d38/structbp__file_1_1bp__file__t.html#ad7bc3c4a8fddb807e51da03e1f49f88e", null ],
     [ "get_counter", "db/d38/structbp__file_1_1bp__file__t.html#af858a91828f91d9bd77848b330cfd127", null ],
     [ "get_fname", "db/d38/structbp__file_1_1bp__file__t.html#ad63a6157051ac39af2d6f1be99fd9a0b", null ],
+    [ "get_next_output_fname", "db/d38/structbp__file_1_1bp__file__t.html#ad421138b69739cb09524a2cd12391664", null ],
+    [ "get_next_output_fname", "db/d38/structbp__file_1_1bp__file__t.html#a057b94f04fd0f34910ebcd4f67d864b1", null ],
     [ "get_start_counter", "db/d38/structbp__file_1_1bp__file__t.html#a98d12938b076977dc3623911305ed748", null ],
     [ "increment_counter", "db/d38/structbp__file_1_1bp__file__t.html#ad69c655c9860851f14c00e3524deaa12", null ],
     [ "init", "db/d38/structbp__file_1_1bp__file__t.html#a97b49155861328f0d439579245505ff3", null ],

@@ -18,7 +18,7 @@ var searchData=
   ['buffer_2ec_15',['buffer.c',['../d3/d8b/buffer_8c.html',1,'']]],
   ['buffer_2ecu_16',['buffer.cu',['../db/d39/buffer_8cu.html',1,'']]],
   ['buffer_2ef90_17',['buffer.F90',['../d4/d45/buffer_8F90.html',1,'']]],
-  ['buffer_2eh_18',['buffer.h',['../de/d3d/opencl_2buffer_8h.html',1,'(Global Namespace)'],['../db/d68/hip_2buffer_8h.html',1,'(Global Namespace)'],['../de/d4f/cuda_2buffer_8h.html',1,'(Global Namespace)']]],
+  ['buffer_2eh_18',['buffer.h',['../de/d4f/cuda_2buffer_8h.html',1,'(Global Namespace)'],['../de/d3d/opencl_2buffer_8h.html',1,'(Global Namespace)'],['../db/d68/hip_2buffer_8h.html',1,'(Global Namespace)']]],
   ['buffer_2ehip_19',['buffer.hip',['../d3/d21/buffer_8hip.html',1,'']]],
   ['buffer_5f1d_2ef90_20',['buffer_1d.F90',['../d9/d42/buffer__1d_8F90.html',1,'']]],
   ['buffer_5f4d_2ef90_21',['buffer_4d.F90',['../d4/dad/buffer__4d_8F90.html',1,'']]],

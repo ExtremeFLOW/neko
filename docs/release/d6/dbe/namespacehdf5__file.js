@@ -3,6 +3,7 @@ var namespacehdf5__file =
     [ "hdf5_file_t", "df/d0b/structhdf5__file_1_1hdf5__file__t.html", "df/d0b/structhdf5__file_1_1hdf5__file__t" ],
     [ "file_get_fname", "d6/dbe/namespacehdf5__file.html#a0a53b70eacc7db0ae404d09f20311313", null ],
     [ "hdf5_file_close", "d6/dbe/namespacehdf5__file.html#ab2a4dc599cb5d2b4ad76f3d230407974", null ],
+    [ "hdf5_file_get_next_output_fname", "d6/dbe/namespacehdf5__file.html#aa44c643164d9b716ecc49cdd5a96f2e5", null ],
     [ "hdf5_file_open", "d6/dbe/namespacehdf5__file.html#a0340581982a41f8a5fee1b625dd88de4", null ],
     [ "hdf5_file_read", "d6/dbe/namespacehdf5__file.html#a263ffb92b79c656703aed5b1134cfee8", null ],
     [ "hdf5_file_read_attribute", "d6/dbe/namespacehdf5__file.html#ab101a3e427d05fd02bdaa24a2b733048", null ],

@@ -1,6 +1,8 @@
 var namespacebp__file =
 [
     [ "bp_file_t", "db/d38/structbp__file_1_1bp__file__t.html", "db/d38/structbp__file_1_1bp__file__t" ],
+    [ "bp_file_format_fname", "d4/d0d/namespacebp__file.html#a2bc613c30931dc84f09671ead2f64a28", null ],
+    [ "bp_file_get_next_output_fname", "d4/d0d/namespacebp__file.html#a2bc7e18044bbf011203af17e74113472", null ],
     [ "bp_file_read", "d4/d0d/namespacebp__file.html#a0421977d014042ee60dee0474a5eaa1f", null ],
     [ "bp_file_set_layout", "d4/d0d/namespacebp__file.html#aa6adac17241c00323b7793036b6c90c6", null ],
     [ "bp_file_set_precision", "d4/d0d/namespacebp__file.html#ab923ffacf2665b29c4fb52f987e4c30f", null ],

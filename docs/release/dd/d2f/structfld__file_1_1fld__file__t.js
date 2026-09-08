@@ -6,6 +6,8 @@ var structfld__file_1_1fld__file__t =
     [ "get_fld_fname", "dd/d2f/structfld__file_1_1fld__file__t.html#aefa3b85ac938b2c7e35af853f39b732c", null ],
     [ "get_fname", "dd/d2f/structfld__file_1_1fld__file__t.html#ad63a6157051ac39af2d6f1be99fd9a0b", null ],
     [ "get_meta_fname", "dd/d2f/structfld__file_1_1fld__file__t.html#a3f86a9005a43761f75af9cc8fd2b74e4", null ],
+    [ "get_next_output_fname", "dd/d2f/structfld__file_1_1fld__file__t.html#a1561f716f3e4ec3f2c2f7064a80ca58a", null ],
+    [ "get_next_output_fname", "dd/d2f/structfld__file_1_1fld__file__t.html#a057b94f04fd0f34910ebcd4f67d864b1", null ],
     [ "get_start_counter", "dd/d2f/structfld__file_1_1fld__file__t.html#a98d12938b076977dc3623911305ed748", null ],
     [ "increment_counter", "dd/d2f/structfld__file_1_1fld__file__t.html#ad69c655c9860851f14c00e3524deaa12", null ],
     [ "init", "dd/d2f/structfld__file_1_1fld__file__t.html#a97b49155861328f0d439579245505ff3", null ],
