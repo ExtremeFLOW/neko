@@ -152,7 +152,7 @@ contains
        call device_cfill(t%x_d, 0.0_rp, t%n)
        call device_sync()
     end if
-    call cfill(t%x, 0.0_rp)
+    call cfill(t%x, 0.0_rp, t%n)
 
   end subroutine tensor4_allocate
 
