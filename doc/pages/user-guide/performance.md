@@ -488,11 +488,10 @@ implementations of the off-process gs exchange, and the right choice
 depends on the host/accelerator combination and the interconnect.
 
 The active backend can be selected at runtime via the `NEKO_GS_COMM`
-environment variable. If the variable is unset, a sensible default is
-chosen based on the build configuration (device-aware MPI when device
-MPI is available, and otherwise the fastest of the host backends the
-build supports, picked by the autotuner described in
-@ref performance-gs-autotuning). The supported values are:
+environment variable. If the variable is unset, the backend is picked by
+measurement: every backend the build supports is benchmarked at
+initialisation and the fastest one is kept, see
+@ref performance-gs-autotuning. The supported values are:
 
 | `NEKO_GS_COMM` | Backend | Requirement | Typical use |
 |---|---|---|---|
@@ -542,33 +541,55 @@ crosses the network once per stage it survives and is copied locally each
 time, and the stages are dependent, so only the first one overlaps the
 local gather-scatter. This is a trade of bandwidth and latency for message
 count: it pays where per-message overhead dominates and loses where the
-halo is already large enough to be bandwidth bound. `CRYSTAL` is
-benchmarked by the autotuning like any other host candidate, which is the
-intended way to find out which regime a given run is in;
-`NEKO_GS_TUNE=-CRYSTAL` drops it. `CRYSTALGPU` is not autotuned and has to
-be asked for by name.
+halo is already large enough to be bandwidth bound. Benchmarking is the
+intended way to find out which regime a given run is in: `CRYSTAL` is a
+default candidate in the autotuning (`NEKO_GS_TUNE=-CRYSTAL` drops it),
+and `CRYSTALGPU` is one on any device build that can drive it
+(`NEKO_GS_TUNE=-CRYSTALGPU` drops it).
 
-#### Runtime autotuning of the host backend {#performance-gs-autotuning}
+#### Runtime autotuning of the comm. backend {#performance-gs-autotuning}
 
-Which host backend wins depends on the MPI implementation, the
+Which backend wins depends on the MPI implementation, the
 interconnect and the halo of the particular decomposition, so the
 choice is made by measurement rather than by a built-in rule. When
 `NEKO_GS_COMM` is unset, no `comm_bcknd` argument is passed to
 `gs%init` and the run has more than one rank, each `gs_t` instance
-benchmarks the available host backends at initialisation and keeps the
-fastest one. This mirrors the autotuning of the device MPI
-synchronisation strategy (`NEKO_GS_STRTGY`) already done on
-accelerator builds.
+benchmarks the available backends at initialisation and keeps the
+fastest one. A candidate with a sub-choice of its own has that
+benchmarked too and contributes the winning variant's time, reported on
+that candidate's own line: the device MPI synchronisation strategy
+(`NEKO_GS_STRTGY`), and the coarray signaling mode.
 
-By default the candidates are every host backend the build supports
-except `CAF`: `MPI`, `NEIGHBOUR`, `MPIRMA` and `CRYSTAL`, which need
-nothing but MPI-3, plus `SHMEM` (OpenSHMEM) and `UTOFU` when the corresponding
-support was built in -- a backend whose support is missing aborts in
-its `init`, so it is left out of the list rather than tried. `SHMEM`
-and `CAF` are additionally skipped when `NEKO_COMM` does not span every
-process (`NEKO_COMM_ID`), since they address their peers by global PE /
-image number; `UTOFU` and `MPIRMA` exchange their addresses over
+By default the candidates are every backend the build supports except
+`CAF` and `NVSHMEM`: `MPI`, `NEIGHBOUR`, `MPIRMA` and `CRYSTAL`, which
+need nothing but MPI-3, plus `SHMEM` (OpenSHMEM) and `UTOFU` when the
+corresponding support was built in -- a backend whose support is missing
+aborts in its `init`, so it is left out of the list rather than tried.
+`SHMEM` and `CAF` are additionally skipped when `NEKO_COMM` does not span
+every process (`NEKO_COMM_ID`), since they address their peers by global
+PE / image number; `UTOFU` and `MPIRMA` exchange their addresses over
 `NEKO_COMM` itself and are kept in that case.
+
+On a CUDA or HIP build the device-resident backends join the comparison:
+`MPIGPU` and `CRYSTALGPU` when the build was configured with
+`--enable-device-mpi`, and `NCCL` when NCCL or RCCL was built in. `NCCL`
+carries the same restriction as the PE-addressed host backends and is
+skipped when `NEKO_COMM` does not span every process, since its
+communicator is built at startup from a unique id broadcast over
+`MPI_COMM_WORLD`. The host backends stay in the comparison on those
+builds and are measured as they actually run there, staging the halo
+through the host mirror of the shared buffer -- a copy in each direction
+that the device-resident backends avoid, which is precisely the trade the
+benchmark settles. Switching a candidate in also moves that staging
+(`gs_bcknd_t%shared_on_host`), so each backend is measured driving the
+exchange from the memory it was written for. OpenCL and Metal builds have
+no device-resident candidates: those backends' pack and unpack kernels
+exist for CUDA and HIP only, so such builds tune over the host backends
+alone.
+
+@note `NVSHMEM` is out of the default set because it aborts unless the
+peer lists come out symmetric and aligned, which is more than a run that
+never asked for it should risk. Add it with `NEKO_GS_TUNE=+NVSHMEM`.
 
 @note `MPIRMA` assumes the MPI implementation makes one-sided progress
 without the target entering MPI. That holds for hardware-driven
@@ -586,20 +607,26 @@ matched case insensitively:
 
 | `NEKO_GS_TUNE` | Candidates |
 |---|---|
-| unset | every supported host backend but `CAF` |
+| unset | every supported backend but `CAF` and `NVSHMEM` |
 | `+CAF` | the default set, plus the coarray backend |
+| `+NVSHMEM` | the default set, plus the NVSHMEM backend |
 | `-MPIRMA` | the default set, without the MPI one-sided backend |
 | `-CRYSTAL` | the default set, without the crystal router backend |
 | `-SHMEM` | the default set, without OpenSHMEM |
 | `+CAF,-SHMEM` | both deltas applied to the default set |
 | `MPI,NEIGHBOUR` | exactly those two, whatever the build supports |
+| `MPIGPU,NCCL` | the two device backends alone, on a GPU build |
 | `UTOFU` | uTofu alone -- nothing to compare, so it is simply used |
 
-Names prefixed with `+`/`-` modify the default set, plain names
-replace it, and mixing the two forms is an error, as is naming
-something that is not a host gather-scatter backend. Backends selected
-but unusable in this build or run are dropped from the comparison; a
-backend that was named explicitly says so in the log:
+Names are spelled as for `NEKO_GS_COMM` with one exception: `SHMEM`
+there means OpenSHMEM on a CPU build and NVSHMEM on a GPU build, while
+here the two can be candidates of the same run and are spelled apart,
+`SHMEM` for the host backend and `NVSHMEM` for the device one. Names
+prefixed with `+`/`-` modify the default set, plain names replace it,
+and mixing the two forms is an error, as is naming something that is not
+a gather-scatter backend. Backends selected but unusable in this build or
+run are dropped from the comparison; a backend that was named explicitly
+says so in the log:
 
 ```
  CAF          : unavailable
@@ -643,6 +670,27 @@ backend that was kept:
  uTofu        :  1.732E-04 s
  Tuned comm   :          MPI
 ```
+
+On a GPU build the device candidates appear in the same table, below the
+host ones. The device MPI row names the synchronisation strategy it was
+measured under, the way the `CAF` row names its signaling mode, since
+that is part of what was measured and is what the run goes on to use;
+`(env)` marks a strategy that came from `NEKO_GS_STRTGY` rather than from
+the benchmark:
+
+```
+ Comm         :         auto
+ ...
+ MPI          :  8.031E-05 s
+ Dev. MPI [01]:  3.412E-05 s
+ NCCL         :  2.984E-05 s
+ Dev. Crystal :  4.755E-05 s
+ Tuned comm   :         NCCL
+```
+
+Pinning device MPI with `NEKO_GS_COMM=MPIGPU` benchmarks no backends, so
+there the strategy keeps the line of its own it has always had,
+`Avg. strtgy` or `Env. strtgy`.
 
 Tuning is skipped, keeping the host MPI backend, if any rank holds
 zero dofs: such a rank skips the halo exchange entirely, which would
