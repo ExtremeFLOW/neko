@@ -97,7 +97,7 @@ contains
     type(coef_t), intent(in) :: coef
 
     call field%init(coef%dof)
-    field%x = coef%dof%x
+    field%x = coef%dof%x%x
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call field%copy_from(HOST_TO_DEVICE, sync = .true.)
     end if
