@@ -410,7 +410,7 @@ contains
     real(kind=rp), intent(in) :: a, b
     integer, intent(in) :: lx, n
 
-    if (.not. abscmp(a, b, verify_tol*n)) then
+    if (.not. abscmp(a, b, verify_tol)) then
        write(*, '(A,A,A,A,A,I3,A,e24.16,A,e24.16,A,e24.16)') &
             'mathbench MISMATCH: op = ', op, ', path = ', path, &
             ', lx = ', lx, ', math = ', a, ', wrapper = ', b, ', diff = ', a - b
