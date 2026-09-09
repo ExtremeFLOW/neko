@@ -73,7 +73,8 @@ module ale_routines_device
   interface
      subroutine add_kinematics_to_mesh_velocity_hip(wx, wy, wz, &
           x_ref, y_ref, z_ref, phi, x, y, z, &
-          kin_params, n) bind(c, name="add_kinematics_to_mesh_velocity_hip")
+          kin_params, n) &
+          bind(c, name = "add_kinematics_to_mesh_velocity_hip")
        use, intrinsic :: iso_c_binding
        import :: kinematics_params_t
        type(c_ptr), value :: wx, wy, wz, x_ref, y_ref, z_ref, phi, x, y, z
@@ -82,7 +83,8 @@ module ale_routines_device
      end subroutine add_kinematics_to_mesh_velocity_hip
 
      subroutine compute_cheap_dist_hip(d_d, x_d, y_d, z_d, lx, ly, lz, nel, &
-          local_iters, nchange_d) bind(c, name="compute_cheap_dist_hip")
+          local_iters, nchange_d) &
+          bind(c, name = "compute_cheap_dist_hip")
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: d_d, x_d, y_d, z_d, nchange_d
        integer(c_int), value :: lx, ly, lz, nel, local_iters
@@ -92,7 +94,8 @@ module ale_routines_device
   interface
      subroutine add_kinematics_to_mesh_velocity_cuda(wx, wy, wz, &
           x_ref, y_ref, z_ref, phi, x, y, z, &
-          kin_params, n) bind(c, name="add_kinematics_to_mesh_velocity_cuda")
+          kin_params, n) &
+          bind(c, name = "add_kinematics_to_mesh_velocity_cuda")
        use, intrinsic :: iso_c_binding
        import :: kinematics_params_t
        type(c_ptr), value :: wx, wy, wz, x_ref, y_ref, z_ref, phi, x, y, z
@@ -101,11 +104,56 @@ module ale_routines_device
      end subroutine add_kinematics_to_mesh_velocity_cuda
 
      subroutine compute_cheap_dist_cuda(d_d, x_d, y_d, z_d, lx, ly, lz, nel, &
-          local_iters, nchange_d) bind(c, name="compute_cheap_dist_cuda")
+          local_iters, nchange_d) &
+          bind(c, name = "compute_cheap_dist_cuda")
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: d_d, x_d, y_d, z_d, nchange_d
        integer(c_int), value :: lx, ly, lz, nel, local_iters
      end subroutine compute_cheap_dist_cuda
+  end interface
+
+#elif HAVE_OPENCL
+  interface
+     subroutine add_kinematics_to_mesh_velocity_opencl(wx, wy, wz, &
+          x_ref, y_ref, z_ref, phi, x, y, z, &
+          kin_params, n) &
+          bind(c, name = "add_kinematics_to_mesh_velocity_opencl")
+       use, intrinsic :: iso_c_binding
+       import :: kinematics_params_t
+       type(c_ptr), value :: wx, wy, wz, x_ref, y_ref, z_ref, phi, x, y, z
+       type(kinematics_params_t), value :: kin_params
+       integer(c_int), value :: n
+     end subroutine add_kinematics_to_mesh_velocity_opencl
+
+     subroutine compute_cheap_dist_opencl(d_d, x_d, y_d, z_d, lx, ly, lz, nel, &
+          local_iters, nchange_d) &
+          bind(c, name = "compute_cheap_dist_opencl")
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: d_d, x_d, y_d, z_d, nchange_d
+       integer(c_int), value :: lx, ly, lz, nel, local_iters
+     end subroutine compute_cheap_dist_opencl
+  end interface
+
+#elif HAVE_METAL
+  interface
+     subroutine add_kinematics_to_mesh_velocity_metal(wx, wy, wz, &
+          x_ref, y_ref, z_ref, phi, x, y, z, &
+          kin_params, n) &
+          bind(c, name = "add_kinematics_to_mesh_velocity_metal")
+       use, intrinsic :: iso_c_binding
+       import :: kinematics_params_t
+       type(c_ptr), value :: wx, wy, wz, x_ref, y_ref, z_ref, phi, x, y, z
+       type(kinematics_params_t), value :: kin_params
+       integer(c_int), value :: n
+     end subroutine add_kinematics_to_mesh_velocity_metal
+
+     subroutine compute_cheap_dist_metal(d_d, x_d, y_d, z_d, lx, ly, lz, nel, &
+          local_iters, nchange_d) &
+          bind(c, name = "compute_cheap_dist_metal")
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: d_d, x_d, y_d, z_d, nchange_d
+       integer(c_int), value :: lx, ly, lz, nel, local_iters
+     end subroutine compute_cheap_dist_metal
   end interface
 
 #endif
@@ -113,7 +161,8 @@ module ale_routines_device
 contains
 
 !> Cheap dist device implementation
-  subroutine compute_cheap_dist_device(dist_field, coef, msh, zone_indices, copy_to_host)
+  subroutine compute_cheap_dist_device(dist_field, coef, msh, zone_indices, &
+       copy_to_host)
     type(field_t), intent(inout) :: dist_field
     type(coef_t), intent(in) :: coef
     type(mesh_t), intent(in) :: msh
@@ -175,6 +224,14 @@ contains
 #elif HAVE_CUDA
        call compute_cheap_dist_cuda(dist_field%x_d, &
             coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
+            lx, ly, lz, nel, local_iters, nchange_d)
+#elif HAVE_OPENCL
+       call compute_cheap_dist_opencl(dist_field%x_d, &
+            coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+            lx, ly, lz, nel, local_iters, nchange_d)
+#elif HAVE_METAL
+       call compute_cheap_dist_metal(dist_field%x_d, &
+            coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
             lx, ly, lz, nel, local_iters, nchange_d)
 #endif
 
@@ -252,9 +309,20 @@ contains
          x_ref%x_d, y_ref%x_d, z_ref%x_d, &
          phi%x_d, coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
          kin_params, n)
+#elif HAVE_OPENCL
+    call add_kinematics_to_mesh_velocity_opencl( &
+         wx%x_d, wy%x_d, wz%x_d, &
+         x_ref%x_d, y_ref%x_d, z_ref%x_d, &
+         phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         kin_params, n)
+#elif HAVE_METAL
+    call add_kinematics_to_mesh_velocity_metal( &
+         wx%x_d, wy%x_d, wz%x_d, &
+         x_ref%x_d, y_ref%x_d, z_ref%x_d, &
+         phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         kin_params, n)
 #else
-    call neko_error("ALE: add_kinematics_to_mesh_velocity_device " // &
-         "supports only HIP or CUDA backends")
+    call neko_error("ALE: no device backend configured")
 #endif
 
   end subroutine add_kinematics_to_mesh_velocity_device

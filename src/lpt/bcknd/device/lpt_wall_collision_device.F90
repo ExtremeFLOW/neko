@@ -94,6 +94,58 @@ module lpt_wall_collision_device
        integer(c_int) :: n, gdim, nelv, lx, ly, lz, lag_len
      end subroutine cuda_lpt_handle_elastic_wall_collisions
   end interface
+#elif HAVE_OPENCL
+  interface
+     !> CUDA kernel entry point for elastic wall-collision reflection.
+     subroutine opencl_lpt_handle_elastic_wall_collisions(wall_facet_mask, &
+          el_list, x_old, y_old, z_old, x, y, z, d, u, v, w, u_lag, &
+          v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
+          acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, &
+          u_old, v_old, w_old, acc_x, acc_y, acc_z, dm_x, dm_y, dm_z, &
+          nx, ny, nz, n, gdim, nelv, lx, ly, lz, lag_len, strm) &
+          bind(c, name = 'opencl_lpt_handle_elastic_wall_collisions')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: wall_facet_mask, el_list
+       type(c_ptr), value :: x_old, y_old, z_old
+       type(c_ptr), value :: x, y, z, d, u, v, w
+       type(c_ptr), value :: u_lag, v_lag, w_lag
+       type(c_ptr), value :: u_laglag, v_laglag, w_laglag
+       type(c_ptr), value :: acc_xlag, acc_ylag, acc_zlag
+       type(c_ptr), value :: acc_xlaglag, acc_ylaglag, acc_zlaglag
+       type(c_ptr), value :: u_old, v_old, w_old
+       type(c_ptr), value :: acc_x, acc_y, acc_z
+       type(c_ptr), value :: dm_x, dm_y, dm_z
+       type(c_ptr), value :: nx, ny, nz, strm
+       integer(c_int) :: n, gdim, nelv, lx, ly, lz, lag_len
+     end subroutine opencl_lpt_handle_elastic_wall_collisions
+  end interface
+#elif HAVE_METAL
+  interface
+     !> CUDA kernel entry point for elastic wall-collision reflection.
+     subroutine metal_lpt_handle_elastic_wall_collisions(wall_facet_mask, &
+          el_list, x_old, y_old, z_old, x, y, z, d, u, v, w, u_lag, &
+          v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
+          acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, &
+          u_old, v_old, w_old, acc_x, acc_y, acc_z, dm_x, dm_y, dm_z, &
+          nx, ny, nz, n, gdim, nelv, lx, ly, lz, lag_len, strm) &
+          bind(c, name = 'metal_lpt_handle_elastic_wall_collisions')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: wall_facet_mask, el_list
+       type(c_ptr), value :: x_old, y_old, z_old
+       type(c_ptr), value :: x, y, z, d, u, v, w
+       type(c_ptr), value :: u_lag, v_lag, w_lag
+       type(c_ptr), value :: u_laglag, v_laglag, w_laglag
+       type(c_ptr), value :: acc_xlag, acc_ylag, acc_zlag
+       type(c_ptr), value :: acc_xlaglag, acc_ylaglag, acc_zlaglag
+       type(c_ptr), value :: u_old, v_old, w_old
+       type(c_ptr), value :: acc_x, acc_y, acc_z
+       type(c_ptr), value :: dm_x, dm_y, dm_z
+       type(c_ptr), value :: nx, ny, nz, strm
+       integer(c_int) :: n, gdim, nelv, lx, ly, lz, lag_len
+     end subroutine metal_lpt_handle_elastic_wall_collisions
+  end interface
 #endif
 
   public :: lpt_handle_elastic_wall_collisions_device
@@ -174,8 +226,28 @@ contains
          acc_y%x_d, acc_z%x_d, dm_Xh%x%x_d, dm_Xh%y%x_d, dm_Xh%z%x_d, &
          coef%nx_d, coef%ny_d, coef%nz_d, n_, gdim_, nelv_, lx_, ly_, &
          lz_, lag_len_, strm_)
+#elif HAVE_OPENCL
+    call opencl_lpt_handle_elastic_wall_collisions(wall_facet_mask_d, &
+         el_list_d, x_old%x_d, y_old%x_d, z_old%x_d, x%x_d, y%x_d, z%x_d, &
+         d%x_d, u%x_d, v%x_d, w%x_d, u_lag%x_d, v_lag%x_d, w_lag%x_d, &
+         u_laglag%x_d, v_laglag%x_d, w_laglag%x_d, acc_xlag%x_d, &
+         acc_ylag%x_d, acc_zlag%x_d, acc_xlaglag%x_d, acc_ylaglag%x_d, &
+         acc_zlaglag%x_d, u_old%x_d, v_old%x_d, w_old%x_d, acc_x%x_d, &
+         acc_y%x_d, acc_z%x_d, dm_Xh%x_d, dm_Xh%y_d, dm_Xh%z_d, &
+         coef%nx_d, coef%ny_d, coef%nz_d, n_, gdim_, nelv_, lx_, ly_, &
+         lz_, lag_len_, strm_)
+#elif HAVE_METAL
+    call metal_lpt_handle_elastic_wall_collisions(wall_facet_mask_d, &
+         el_list_d, x_old%x_d, y_old%x_d, z_old%x_d, x%x_d, y%x_d, z%x_d, &
+         d%x_d, u%x_d, v%x_d, w%x_d, u_lag%x_d, v_lag%x_d, w_lag%x_d, &
+         u_laglag%x_d, v_laglag%x_d, w_laglag%x_d, acc_xlag%x_d, &
+         acc_ylag%x_d, acc_zlag%x_d, acc_xlaglag%x_d, acc_ylaglag%x_d, &
+         acc_zlaglag%x_d, u_old%x_d, v_old%x_d, w_old%x_d, acc_x%x_d, &
+         acc_y%x_d, acc_z%x_d, dm_Xh%x_d, dm_Xh%y_d, dm_Xh%z_d, &
+         coef%nx_d, coef%ny_d, coef%nz_d, n_, gdim_, nelv_, lx_, ly_, &
+         lz_, lag_len_, strm_)
 #else
-    call neko_error('LPT wall collision device handling requires CUDA or HIP')
+    call neko_error('No device backend configured')
 #endif
   end subroutine lpt_handle_elastic_wall_collisions_device
 
