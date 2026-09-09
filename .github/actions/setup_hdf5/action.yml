@@ -99,6 +99,7 @@ runs:
         REPO: https://github.com/HDFGroup/hdf5.git
         VERSION: ${{ inputs.version }}
       run: |
+        mkdir -p $WORKING_DIR
         git clone --depth 1 --branch $VERSION $REPO $WORKING_DIR
 
     # ------------------------------------------------------------------------ #
@@ -108,7 +109,7 @@ runs:
       if: ${{ steps.cache-hdf5.outputs.cache-hit != 'true' }}
       shell: bash
       run: |
-        sudo apt install cmake ninja-build ${{ inputs.compiler }}
+        sudo apt install cmake ninja-build libopenmpi-dev ${{ inputs.compiler }}
 
     # ------------------------------------------------------------------------ #
     # Configure, build, and install the HDF5 library.
