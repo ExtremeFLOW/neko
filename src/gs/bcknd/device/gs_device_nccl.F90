@@ -47,6 +47,15 @@ module gs_device_nccl
   implicit none
   private
 
+  !> Whether NCCL (or its ROCm equivalent RCCL) was built into this Neko
+  !! (--with-nccl / --with-rccl). Lets callers (e.g. the gs comm. autotuner)
+  !! skip the backend rather than aborting in init on builds without it.
+#if defined(HAVE_NCCL) || defined(HAVE_RCCL)
+  logical, parameter, public :: GS_DEVICE_NCCL_AVAIL = .true.
+#else
+  logical, parameter, public :: GS_DEVICE_NCCL_AVAIL = .false.
+#endif
+
   !> Buffers for non-blocking communication and packing/unpacking
   type, private :: gs_device_nccl_buf_t
      integer, allocatable :: ndofs(:) !< Number of dofs
