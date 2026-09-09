@@ -33,11 +33,14 @@
 
 program mathbench
   use neko
-  use math, only : NEKO_EPS
-  ! module neko re-exports field_math, but not these two.
+  use, intrinsic :: iso_c_binding, only : c_size_t
+
+  use math, only : NEKO_EPS, add2, col2, glsc3
+  use device_math, only : device_add2, device_col2, device_glsc3
+  use field_math, only : field_add2, field_col2, field_glsc3
   use vector_math, only : vector_add2, vector_col2, vector_glsc3
   use matrix_math, only : matrix_add2, matrix_col2, matrix_glsc3
-  use, intrinsic :: iso_c_binding, only : c_size_t
+
   implicit none
 
   character(len=NEKO_FNAME_LEN) :: fname
