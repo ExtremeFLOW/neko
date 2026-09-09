@@ -300,11 +300,9 @@ contains
     integer, intent(out) :: region_id
     integer :: i
 
-
-region_id = -1
+    region_id = -1
 
     if (.not. this%enabled) return
-
 
     ! Look for the region name first
     do i = RT_STATS_RESERVED_REGIONS + 1, RT_STATS_MAX_REGIONS
