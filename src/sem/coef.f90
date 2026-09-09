@@ -953,7 +953,7 @@ contains
          dxds => c%dxds, dyds => c%dyds, dzds => c%dzds, &
          dxdt => c%dxdt, dydt => c%dydt, dzdt => c%dzdt, &
          dx => c%Xh%dx, dy => c%Xh%dy, dz => c%Xh%dz, &
-         x => c%dof%x, y => c%dof%y, z => c%dof%z, &
+         x => c%dof%x%x, y => c%dof%y%x, z => c%dof%z%x, &
          lx => c%Xh%lx, ly => c%Xh%ly, lz => c%Xh%lz, &
          dyt => c%Xh%dyt, dzt => c%Xh%dzt, &
          jacinv => c%jacinv, jac => c%jac)
@@ -964,7 +964,7 @@ contains
               c%dsdx_d, c%dsdy_d, c%dsdz_d, c%dtdx_d, c%dtdy_d, c%dtdz_d, &
               c%dxdr_d, c%dydr_d, c%dzdr_d, c%dxds_d, c%dyds_d, c%dzds_d, &
               c%dxdt_d, c%dydt_d, c%dzdt_d, c%Xh%dx_d, c%Xh%dy_d, c%Xh%dz_d, &
-              c%dof%x_d, c%dof%y_d, c%dof%z_d, c%jacinv_d, c%jac_d, &
+              c%dof%x%x_d, c%dof%y%x_d, c%dof%z%x_d, c%jacinv_d, c%jac_d, &
               c%Xh%lx, c%msh%nelv)
 
          ! copy to host only at initialization.
@@ -1427,11 +1427,11 @@ contains
           do i = 1, lxyz
              ! diff += abs( \| G(i,:,:,e) - G(i,:,:,reverse(m)) \|_l1 )
              diff = diff + abs(c%G11(i,1,1,e) - c%G11(i,1,1,c_inds_rev(m))) &
-                         + 2.0*abs(c%G12(i,1,1,e) - c%G12(i,1,1,c_inds_rev(m))) &
-                         + 2.0*abs(c%G13(i,1,1,e) - c%G13(i,1,1,c_inds_rev(m))) &
-                         + abs(c%G22(i,1,1,e) - c%G22(i,1,1,c_inds_rev(m))) &
-                         + 2.0*abs(c%G23(i,1,1,e) - c%G23(i,1,1,c_inds_rev(m))) &
-                         + abs(c%G33(i,1,1,e) - c%G33(i,1,1,c_inds_rev(m)))
+                  + 2.0*abs(c%G12(i,1,1,e) - c%G12(i,1,1,c_inds_rev(m))) &
+                  + 2.0*abs(c%G13(i,1,1,e) - c%G13(i,1,1,c_inds_rev(m))) &
+                  + abs(c%G22(i,1,1,e) - c%G22(i,1,1,c_inds_rev(m))) &
+                  + 2.0*abs(c%G23(i,1,1,e) - c%G23(i,1,1,c_inds_rev(m))) &
+                  + abs(c%G33(i,1,1,e) - c%G33(i,1,1,c_inds_rev(m)))
           end do
 
           ! match is found; mapping(e) is redundant
@@ -1813,8 +1813,8 @@ contains
                    un = this%get_normal(i, j, k, pe, pf)
                    len = sqrt(un(1) * un(1) + un(2) * un(2))
                    if (len .gt. NEKO_EPS) then
-                      d = this%dof%y(i, j, k, pe) * un(1) &
-                           - this%dof%x(i, j, k, pe) * un(2)
+                      d = this%dof%y%x(i, j, k, pe) * un(1) &
+                           - this%dof%x%x(i, j, k, pe) * un(2)
 
                       this%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)
                       this%R11(nc) = un(1) / len * sign(1.0_rp, d)

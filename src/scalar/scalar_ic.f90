@@ -245,7 +245,7 @@ contains
     call neko_log%message("Value: " // trim(expr))
 
     call expression_eval_static(expr, s%x, s%dof%size(), &
-         s%dof%x, s%dof%y, s%dof%z, 'scalar initial condition')
+         s%dof%x%x, s%dof%y%x, s%dof%z%x, 'scalar initial condition')
 
   end subroutine set_scalar_ic_expression
 

@@ -161,7 +161,7 @@ contains
          u_laglag%x_d, v_laglag%x_d, w_laglag%x_d, acc_xlag%x_d, &
          acc_ylag%x_d, acc_zlag%x_d, acc_xlaglag%x_d, acc_ylaglag%x_d, &
          acc_zlaglag%x_d, u_old%x_d, v_old%x_d, w_old%x_d, acc_x%x_d, &
-         acc_y%x_d, acc_z%x_d, dm_Xh%x_d, dm_Xh%y_d, dm_Xh%z_d, &
+         acc_y%x_d, acc_z%x_d, dm_Xh%x%x_d, dm_Xh%y%x_d, dm_Xh%z%x_d, &
          coef%nx_d, coef%ny_d, coef%nz_d, n_, gdim_, nelv_, lx_, ly_, &
          lz_, lag_len_, strm_)
 #elif HAVE_CUDA
@@ -171,7 +171,7 @@ contains
          u_laglag%x_d, v_laglag%x_d, w_laglag%x_d, acc_xlag%x_d, &
          acc_ylag%x_d, acc_zlag%x_d, acc_xlaglag%x_d, acc_ylaglag%x_d, &
          acc_zlaglag%x_d, u_old%x_d, v_old%x_d, w_old%x_d, acc_x%x_d, &
-         acc_y%x_d, acc_z%x_d, dm_Xh%x_d, dm_Xh%y_d, dm_Xh%z_d, &
+         acc_y%x_d, acc_z%x_d, dm_Xh%x%x_d, dm_Xh%y%x_d, dm_Xh%z%x_d, &
          coef%nx_d, coef%ny_d, coef%nz_d, n_, gdim_, nelv_, lx_, ly_, &
          lz_, lag_len_, strm_)
 #else

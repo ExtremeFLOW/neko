@@ -465,9 +465,9 @@ contains
        idx = zone%mask%get(i)
 
        nlindex = nonlinear_index(idx, lx, lx, lx)
-       x = dof%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
-       y = dof%y(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
-       z = dof%z(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
+       x = dof%x%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
+       y = dof%y%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
+       z = dof%z%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
 
        point_list(:, i) = [x, y, z]
     end do

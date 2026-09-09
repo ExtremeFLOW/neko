@@ -557,8 +557,8 @@ contains
     lx = this%c_Xh%Xh%lx
     ly = this%c_Xh%Xh%ly
     lz = this%c_Xh%Xh%lz
-    call compute_h_cpu(this%h%x, this%c_Xh%dof%x, this%c_Xh%dof%y, &
-         this%c_Xh%dof%z, lx, ly, lz, this%c_Xh%msh%nelv)
+    call compute_h_cpu(this%h%x, this%c_Xh%dof%x%x, this%c_Xh%dof%y%x, &
+         this%c_Xh%dof%z%x, lx, ly, lz, this%c_Xh%msh%nelv)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%h%x, this%h%x_d, this%h%dof%size(),&

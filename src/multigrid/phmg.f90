@@ -548,11 +548,11 @@ contains
     call profiler_start_region('PHMG_update_geometry')
     associate (mg => this%phmg_hrchy%lvl, nelv => this%msh%nelv)
       do i = 1, this%nlvls - 1
-         call this%crd_intrp(i)%map(mg(i)%dm_Xh%x, mg(0)%dm_Xh%x, &
+         call this%crd_intrp(i)%map(mg(i)%dm_Xh%x%x, mg(0)%dm_Xh%x%x, &
               nelv, mg(i)%Xh)
-         call this%crd_intrp(i)%map(mg(i)%dm_Xh%y, mg(0)%dm_Xh%y, &
+         call this%crd_intrp(i)%map(mg(i)%dm_Xh%y%x, mg(0)%dm_Xh%y%x, &
               nelv, mg(i)%Xh)
-         call this%crd_intrp(i)%map(mg(i)%dm_Xh%z, mg(0)%dm_Xh%z, &
+         call this%crd_intrp(i)%map(mg(i)%dm_Xh%z%x, mg(0)%dm_Xh%z%x, &
               nelv, mg(i)%Xh)
 
          call mg(i)%coef%recompute_metrics()

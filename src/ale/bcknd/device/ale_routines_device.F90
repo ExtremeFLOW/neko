@@ -170,11 +170,11 @@ contains
 
 #ifdef HAVE_HIP
        call compute_cheap_dist_hip(dist_field%x_d, &
-            coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+            coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
             lx, ly, lz, nel, local_iters, nchange_d)
 #elif HAVE_CUDA
        call compute_cheap_dist_cuda(dist_field%x_d, &
-            coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+            coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
             lx, ly, lz, nel, local_iters, nchange_d)
 #endif
 
@@ -244,13 +244,13 @@ contains
     call add_kinematics_to_mesh_velocity_hip( &
          wx%x_d, wy%x_d, wz%x_d, &
          x_ref%x_d, y_ref%x_d, z_ref%x_d, &
-         phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         phi%x_d, coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
          kin_params, n)
 #elif HAVE_CUDA
     call add_kinematics_to_mesh_velocity_cuda( &
          wx%x_d, wy%x_d, wz%x_d, &
          x_ref%x_d, y_ref%x_d, z_ref%x_d, &
-         phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         phi%x_d, coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
          kin_params, n)
 #else
     call neko_error("ALE: add_kinematics_to_mesh_velocity_device " // &
@@ -288,16 +288,16 @@ contains
 
     ! Current timestep update
     factor = time%dt * ab_coeffs(1)
-    call device_add2s2(c_Xh%dof%x_d, wm_x%x_d, factor, n)
-    call device_add2s2(c_Xh%dof%y_d, wm_y%x_d, factor, n)
-    call device_add2s2(c_Xh%dof%z_d, wm_z%x_d, factor, n)
+    call device_add2s2(c_Xh%dof%x%x_d, wm_x%x_d, factor, n)
+    call device_add2s2(c_Xh%dof%y%x_d, wm_y%x_d, factor, n)
+    call device_add2s2(c_Xh%dof%z%x_d, wm_z%x_d, factor, n)
 
     ! History Terms
     do j = 2, nadv
        factor = time%dt * ab_coeffs(j)
-       call device_add2s2(c_Xh%dof%x_d, wm_x_lag%lf(j - 1)%x_d, factor, n)
-       call device_add2s2(c_Xh%dof%y_d, wm_y_lag%lf(j - 1)%x_d, factor, n)
-       call device_add2s2(c_Xh%dof%z_d, wm_z_lag%lf(j - 1)%x_d, factor, n)
+       call device_add2s2(c_Xh%dof%x%x_d, wm_x_lag%lf(j - 1)%x_d, factor, n)
+       call device_add2s2(c_Xh%dof%y%x_d, wm_y_lag%lf(j - 1)%x_d, factor, n)
+       call device_add2s2(c_Xh%dof%z%x_d, wm_z_lag%lf(j - 1)%x_d, factor, n)
     end do
   end subroutine update_ale_mesh_device
 

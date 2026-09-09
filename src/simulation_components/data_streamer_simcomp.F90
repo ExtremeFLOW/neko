@@ -172,13 +172,13 @@ contains
             " for streaming mesh", lvl = NEKO_LOG_DEBUG)
        call neko_log%message("Streaming mesh: x-coordinates", &
             lvl = NEKO_LOG_DEBUG)
-       call this%dstream%stream(f%dof%x)
+       call this%dstream%stream(f%dof%x%x)
        call neko_log%message("Streaming mesh: y-coordinates", &
             lvl = NEKO_LOG_DEBUG)
-       call this%dstream%stream(f%dof%y)
+       call this%dstream%stream(f%dof%y%x)
        call neko_log%message("Streaming mesh: z-coordinates", &
             lvl = NEKO_LOG_DEBUG)
-       call this%dstream%stream(f%dof%z)
+       call this%dstream%stream(f%dof%z%x)
     end if
 
     nullify(f)
