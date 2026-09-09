@@ -65,11 +65,8 @@ program mathbench
   ! and grows with n -- so at CFD-realistic sizes the overhead is far below
   ! run-to-run noise and simply cannot be resolved. The small-lx end is the
   ! only regime where a per-call cost is a measurable fraction of the work.
-  integer, parameter :: nlx = 6
-  integer :: lx_sweep(nlx) = [ 2, 3, 4, 6, 8, 12 ]
-  integer, parameter :: npaths = 4
-  character(len=11) :: path_names(npaths) = &
-       [ 'math       ', 'field_math ', 'vector_math', 'matrix_math' ]
+  integer, parameter :: nlx = 8
+  integer :: lx_sweep(nlx) = [ 2, 3, 4, 6, 8, 12, 16, 24 ]
 
   ! Cross-path results at a fixed rank count should agree to the last bit on
   ! a CPU build (identical routine, identical data). On a device build the
@@ -188,9 +185,9 @@ contains
     call vb%init(n)
     call vc%init(n)
 
-    call ma%init(n / 16, 16)
-    call mb%init(n / 16, 16)
-    call mc%init(n / 16, 16)
+    call ma%init(n / 32, 32)
+    call mb%init(n / 32, 32)
+    call mc%init(n / 32, 32)
 
   end subroutine alloc_all
 
