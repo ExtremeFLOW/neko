@@ -130,7 +130,7 @@ jobs:
         if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: openmpi-bin autoconf automake autotools-dev make m4
+          packages: openmpi-bin autoconf automake autotools-dev make m4 libhdf5-mpi-dev
           version: apt-cache-1.0
           execute_install_scripts: true
 
@@ -255,7 +255,7 @@ jobs:
             echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
             echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
             echo "${{ github.workspace }}/install/bin" >> $GITHUB_PATH
-            ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --prefix=${{ github.workspace }}/install
+            ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --with-hdf5 --enable-real=${RP} --prefix=${{ github.workspace }}/install
 
           elif [ "$BACKEND" == 'cuda' ]; then
 
@@ -354,8 +354,8 @@ jobs:
           elif [ ${{ matrix.backend }} == 'metal' ]; then
 
               cd releng/neko-*
-              ./configure FC=${FC} --enable-real=${RP} --with-metal              
-              
+              ./configure FC=${FC} --enable-real=${RP} --with-metal
+
           else
               echo "Unknown backend ${{ matrix.backend }}"
               exit 1
