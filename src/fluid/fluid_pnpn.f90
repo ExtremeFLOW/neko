@@ -453,6 +453,7 @@ contains
     type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)
     integer :: i, j, n
+    class(bc_t), pointer :: bc_i
 
     dtlag = chkp%dtlag
     tlag = chkp%tlag
@@ -558,6 +559,21 @@ contains
        call this%bc_prs_surface%recompute_normals()
        call this%bc_sym_surface%recompute_normals()
     end if
+
+    ! Restore velocity bcs that need it (overset mostly)
+    do i = 1, this%bcs_vel%size()
+       bc_i => this%bcs_vel%get(i)
+       call bc_i%restart(this%u, this%v, this%w, &
+            this%ulag, this%vlag, this%wlag)
+    end do
+
+    ! Restore pressure bcs that need it (overset mostly)
+    do i = 1, this%bcs_prs%size()
+       bc_i => this%bcs_prs%get(i)
+       call bc_i%restart(this%p)
+    end do
+
+    nullify(bc_i)
 
   end subroutine fluid_pnpn_restart
 

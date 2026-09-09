@@ -46,8 +46,9 @@ module overset_interface_vector
   use bc_list, only : bc_list_t
   use utils, only : split_string
   use field, only : field_t
+  use field_series, only : field_series_t
   use field_list, only : field_list_t
-  use math, only : masked_copy_0
+  use math, only : masked_copy_0, copy
   use device_math, only : device_masked_copy_0, device_copy
   use dofmap, only : dofmap_t
   use vector, only : vector_t
@@ -55,8 +56,7 @@ module overset_interface_vector
   use vector_series, only : vector_series_t
   use vector_math, only : vector_masked_gather_copy, &
        vector_masked_scatter_copy, vector_add2s2, &
-       vector_cmult2, vector_glsc2
-  use math, only : copy
+       vector_cmult, vector_cmult2, vector_glsc2
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use vector_math, only : vector_copy
   use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
@@ -99,6 +99,8 @@ module overset_interface_vector
      type(vector_t) :: u_interface, v_interface, w_interface
      type(vector_series_t) :: u_interface_lag, v_interface_lag, w_interface_lag
      integer :: iextm_order = 1
+     !> Under-relaxation factor for updated interface values.
+     real(kind=rp) :: relaxation = 1.0_rp
      integer :: last_tstep = -1
      type(vector_list_t) :: interface_dof, interface_field
      !> Interpolation settings.
@@ -107,6 +109,8 @@ module overset_interface_vector
      logical :: find_interface = .false.
      logical :: setup = .false.
      logical :: log = .false.
+     !> Skip donor interpolation on the first update after restoring history.
+     logical :: restart_pending = .false.
 
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
@@ -136,6 +140,9 @@ module overset_interface_vector
      procedure, pass(this) :: apply_scalar_dev => &
           overset_interface_vector_apply_scalar_dev
      procedure, pass(this) :: update => overset_interface_update
+     !> Restore interface history from checkpointed solution fields.
+     procedure, pass(this) :: restart_vector => &
+          overset_interface_vector_restart
 
      !> Build the masks for the overset interface.
      procedure, pass(this), private :: build_masks_ => build_masks_
@@ -148,6 +155,9 @@ module overset_interface_vector
      !> Log interface interpolation error diagnostics.
      procedure, pass(this), private :: log_interface_error_ => &
           log_interface_error_
+     !> Under-relax the new interface values with the previously applied ones.
+     procedure, pass(this), private :: relax_interface_values_ => &
+          relax_interface_values_
   end type overset_interface_vector_t
 
 contains
@@ -159,7 +169,7 @@ contains
     class(overset_interface_vector_t), intent(inout), target :: this
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
-    real(kind=rp) :: tol, pad
+    real(kind=rp) :: tol, pad, relaxation
     logical :: log
 
     !> Parse the interpolation settings
@@ -171,9 +181,13 @@ contains
     if (this%iextm_order .lt. 1 .or. this%iextm_order .gt. 3) then
        call neko_error("The order of the IEXTm time scheme must be 1 to 3.")
     end if
+    call json_get_or_default(json, "relaxation", relaxation, 1.0_rp)
+    if (relaxation .le. 0.0_rp .or. relaxation .gt. 1.0_rp) then
+       call neko_error("The overset relaxation factor must be in (0, 1].")
+    end if
     call json_get_or_default(json, "log", log, .false.)
 
-    call this%init_from_components(coef, tol, pad, log)
+    call this%init_from_components(coef, tol, pad, log, relaxation)
 
   end subroutine overset_interface_vector_init
 
@@ -182,16 +196,21 @@ contains
   !! @param[in] tol The tolerance for the interpolation.
   !! @param[in] pad The padding for the interpolation.
   !! @param[in] log Whether to log the interpolation.
-  subroutine overset_interface_vector_init_from_components(this, coef, tol, pad, log)
+  !! @param[in] relaxation Under-relaxation factor for interface updates.
+  subroutine overset_interface_vector_init_from_components(this, coef, tol, &
+       pad, log, relaxation)
     class(overset_interface_vector_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
-    real(kind=rp), intent(in), optional :: tol, pad
+    real(kind=rp), intent(in), optional :: tol, pad, relaxation
     logical, intent(in), optional :: log
 
     !> This initializes coef, dof, msh, and Xh pointers
     call this%init_base(coef)
 
     this%bc_type = BC_DIRICHLET
+    this%relaxation = 1.0_rp
+    this%last_tstep = -1
+    this%restart_pending = .false.
 
     !> Set the interpolation settings
     if (present(tol)) then
@@ -202,6 +221,12 @@ contains
     end if
     if (present(log)) then
        this%log = log
+    end if
+    if (present(relaxation)) then
+       if (relaxation .le. 0.0_rp .or. relaxation .gt. 1.0_rp) then
+          call neko_error("The overset relaxation factor must be in (0, 1].")
+       end if
+       this%relaxation = relaxation
     end if
 
     call this%bc_u%init_from_components(coef, "u")
@@ -268,10 +293,61 @@ contains
     call this%domain_element_mask%free()
     call this%free_base()
 
+    this%restart_pending = .false.
+
     !if (associated(this%update_)) then
     !   nullify(this%update_)
     !end if
   end subroutine overset_interface_vector_free
+
+  !> Restore interface history from checkpointed solution fields.
+  !! Values are inserted from oldest to newest, leaving the current accepted
+  !! value in the base interface vectors. The next regular update shifts that
+  !! value into the first lag position before extrapolation. This must be
+  !! called after the fluid restart has restored continuity of interpolated
+  !! checkpoint fields.
+  subroutine overset_interface_vector_restart(this, u, v, w, ulag, vlag, &
+       wlag)
+    class(overset_interface_vector_t), intent(inout) :: this
+    type(field_t), intent(in) :: u, v, w
+    type(field_series_t), intent(in) :: ulag, vlag, wlag
+    integer :: i, n_previous
+
+    call this%u_interface_lag%reset()
+    call this%v_interface_lag%reset()
+    call this%w_interface_lag%reset()
+
+    n_previous = min(this%iextm_order - 1, ulag%size())
+
+    ! Insert older snapshots in reverse field-series order. Each update moves
+    ! the previously gathered (older) snapshot into the lag series.
+    do i = n_previous, 1, -1
+       call vector_masked_gather_copy(this%u_interface, &
+            ulag%lf(i)%x(:,1,1,1), this%interface_dof_mask, &
+            ulag%lf(i)%dof%size())
+       call vector_masked_gather_copy(this%v_interface, &
+            vlag%lf(i)%x(:,1,1,1), this%interface_dof_mask, &
+            vlag%lf(i)%dof%size())
+       call vector_masked_gather_copy(this%w_interface, &
+            wlag%lf(i)%x(:,1,1,1), this%interface_dof_mask, &
+            wlag%lf(i)%dof%size())
+
+       call this%u_interface_lag%update()
+       call this%v_interface_lag%update()
+       call this%w_interface_lag%update()
+    end do
+
+    ! Keep the most recent accepted value in the base vectors. The first
+    ! regular update after restart will shift it into lag position one.
+    call vector_masked_gather_copy(this%u_interface, &
+         u%x(:,1,1,1), this%interface_dof_mask, u%dof%size())
+    call vector_masked_gather_copy(this%v_interface, &
+         v%x(:,1,1,1), this%interface_dof_mask, v%dof%size())
+    call vector_masked_gather_copy(this%w_interface, &
+         w%x(:,1,1,1), this%interface_dof_mask, w%dof%size())
+
+    this%restart_pending = .true.
+  end subroutine overset_interface_vector_restart
 
   !> No-op apply scalar.
   !! @param x Field onto which to copy the values (e.g. u,v,w,p or s).
@@ -452,6 +528,7 @@ contains
     type(iextm_time_scheme_t) :: time_scheme
     integer :: nhist, ihist
     real(kind=rp) :: iextm_coeffs(4)
+    logical :: new_tstep
 
 
     !> Change the coordinates of the interface if set up by the user
@@ -485,21 +562,26 @@ contains
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
 
-    !> Interpolate the values
-    call this%interface_interpolator%evaluate_masked(this%u_interface%x, &
-         u%x, this%domain_element_mask, .false.)
-    call this%interface_interpolator%evaluate_masked(this%v_interface%x, &
-         v%x, this%domain_element_mask, .false.)
-    call this%interface_interpolator%evaluate_masked(this%w_interface%x, &
-         w%x, this%domain_element_mask, .false.)
+    ! The current accepted interface value is restored locally from the
+    ! checkpoint, so cross-domain interpolation is unnecessary once.
+    if (.not. this%restart_pending) then
+       call this%interface_interpolator%evaluate_masked(this%u_interface%x, &
+            u%x, this%domain_element_mask, .false.)
+       call this%interface_interpolator%evaluate_masked(this%v_interface%x, &
+            v%x, this%domain_element_mask, .false.)
+       call this%interface_interpolator%evaluate_masked(this%w_interface%x, &
+            w%x, this%domain_element_mask, .false.)
 
-    if (this%log) then
-       call this%log_interface_error_(u, v, w)
+       if (this%log) then
+          call this%log_interface_error_(u, v, w)
+       end if
     end if
 
 
+    new_tstep = time%tstep .ne. this%last_tstep
+
     !> If this is the first substep, then we do the extrapolation
-    if (time%tstep .ne. this%last_tstep) then
+    if (new_tstep) then
        ! Update the last steps
        this%last_tstep = time%tstep
 
@@ -509,7 +591,7 @@ contains
        call this%w_interface_lag%update()
 
        ! Get the coefficients for the extrapolation
-       nhist = min(time%tstep, this%iextm_order)
+       nhist = min(this%u_interface_lag%filled_size(), this%iextm_order)
        call time_scheme%compute_coeffs(iextm_coeffs, &
             real(time%dtlag, kind=rp), nhist)
 
@@ -529,8 +611,13 @@ contains
                this%w_interface_lag%lv(ihist), iextm_coeffs(ihist))
        end do
 
+       this%restart_pending = .false.
+
     end if
 
+    ! Preserve the IEXT prediction on the first pass of every physical
+    ! timestep. Relax only subsequent Schwarz corrections at the same tstep.
+    if (.not. new_tstep) call this%relax_interface_values_()
 
     !> Scatter them to the bc fields
     call vector_masked_scatter_copy(this%bc_u%field_bc%x(:,1,1,1), &
@@ -545,6 +632,51 @@ contains
 
 
   end subroutine overset_interface_update
+
+  !> Under-relax a Schwarz correction using the previously applied interface.
+  !! For each velocity component, blend the new donor value `g_new` with the
+  !! preceding Schwarz iterate `g_old` as
+  !! `g = relaxation * g_new + (1 - relaxation) * g_old`.
+  !! The caller skips this routine on the first pass of every physical
+  !! timestep, preserving the temporal accuracy of the IEXT prediction.
+  subroutine relax_interface_values_(this)
+    class(overset_interface_vector_t), intent(inout) :: this
+    type(vector_t), pointer :: previous
+    integer :: ind(1)
+    logical :: clear_scratch = .false.
+
+    ! A factor of one recovers the original, unrelaxed Schwarz iteration.
+    if (this%relaxation .ge. 1.0_rp) return
+
+    ! Reuse one scratch vector to hold the preceding iterate component.
+    call neko_scratch_registry%request_vector(previous, ind(1), &
+         this%u_interface%size(), clear_scratch)
+
+    ! Relax the new x-velocity donor data against the preceding iterate.
+    call vector_masked_gather_copy(previous, this%bc_u%field_bc%x(:,1,1,1), &
+         this%interface_dof_mask, this%bc_u%dof%size())
+    call vector_cmult(this%u_interface, this%relaxation)
+    call vector_add2s2(this%u_interface, previous, &
+         1.0_rp - this%relaxation)
+
+    ! Relax the new y-velocity donor data against the preceding iterate.
+    call vector_masked_gather_copy(previous, this%bc_v%field_bc%x(:,1,1,1), &
+         this%interface_dof_mask, this%bc_v%dof%size())
+    call vector_cmult(this%v_interface, this%relaxation)
+    call vector_add2s2(this%v_interface, previous, &
+         1.0_rp - this%relaxation)
+
+    ! Relax the new z-velocity donor data against the preceding iterate.
+    call vector_masked_gather_copy(previous, this%bc_w%field_bc%x(:,1,1,1), &
+         this%interface_dof_mask, this%bc_w%dof%size())
+    call vector_cmult(this%w_interface, this%relaxation)
+    call vector_add2s2(this%w_interface, previous, &
+         1.0_rp - this%relaxation)
+
+    ! Return the temporary storage to the scratch registry.
+    call neko_scratch_registry%relinquish(ind)
+
+  end subroutine relax_interface_values_
 
   !> Log interface RMSE for each vector component.
   subroutine log_interface_error_(this, u, v, w)

@@ -272,8 +272,9 @@ contains
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)
-    integer :: n
+    integer :: i, n
     type(field_t), pointer :: temp_field
+    class(bc_t), pointer :: bc_i
     dtlag = chkp%dtlag
     tlag = chkp%tlag
 
@@ -302,6 +303,14 @@ contains
     call this%gs_Xh%op(this%s, GS_OP_ADD)
     call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
     call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
+
+    ! Restore scalar bcs that need it. This is a no op in most bcs.
+    do i = 1, this%bcs%size()
+       bc_i => this%bcs%get(i)
+       call bc_i%restart(this%s, this%slag)
+    end do
+
+    nullify(bc_i)
 
   end subroutine scalar_pnpn_restart
 
