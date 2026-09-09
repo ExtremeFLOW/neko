@@ -162,8 +162,9 @@ On HIP that count also fixes the elements per block, and the two cannot
 be set independently: a contraction offers only `ceil(lx*lx/16)` column
 groups of wavefront-parallel work, so the block covers as many elements
 as that leaves wavefronts for --- rounded down to a power of two, so that
-it divides `nwf` --- and the rest cooperate on each. At `lx = 8` the top
-candidate is eight wavefronts on one element, at `lx = 4` it is eight
+it divides `nwf` --- and the rest cooperate on each. At `lx = 8`, where a
+contraction offers four column groups, the top candidate is two elements
+with four wavefronts each; at `lx = 4`, where it offers one, it is eight
 elements with one wavefront each.
 
 `NEKO_TUNE_ROUNDS` and `NEKO_TUNE_ITERS` control the sampling, and

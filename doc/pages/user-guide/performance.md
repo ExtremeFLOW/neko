@@ -177,7 +177,9 @@ surplus wavefronts are given an element of their own: the block covers
 `eb` elements, as many as the `ceil(lx^2/16)` groups leave wavefronts
 for and rounded down to a power of two so that it divides `nwf`, and
 `wpe = nwf / eb` wavefronts cooperate on each, the staging, geometry and
-write-back passes parallelising over the whole block either way. At
+write-back passes parallelising over the wavefronts that own the element
+rather than over the whole block --- only the derivative matrices are
+staged block-wide. At
 `lx = 4` with eight wavefronts that is eight elements, one each, with
 nothing idle; at `lx = 12` it is one element and eight cooperating
 wavefronts.
@@ -394,7 +396,7 @@ on CUDA, where the second field is the elements packed into one cube, and
 
 ```
   MFMA  4x4x4 4wf 1 e:    136.40 us/call
-  MFMA  4x4x4 8wf 1 e:    136.40 us/call
+  MFMA  4x4x4 8wf 2 e:    136.40 us/call
 ```
 
 on HIP, where the first field is the matrix core tile and the last the

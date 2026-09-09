@@ -439,8 +439,10 @@ ax_helm_kernel_kstep_padded(T * __restrict__ w,
  * NWF cooperating wavefronts (blockDim = (64, NWF, 1)) process one element,
  * sharing a single staged cube in LDS.  The matrix-core column tiles are
  * striped across the wavefronts (wf = threadIdx.y) via mfma_contract_sel, while
- * the staging, geometry and write-back passes parallelise over all NWF*64
- * threads (tid).  The three accumulating divergence contractions stay separated
+ * the staging, geometry and write-back passes parallelise over the WPE*64
+ * threads that serve one element (gtid); only the derivative matrices are
+ * staged by the whole block.  The three accumulating divergence contractions
+ * stay separated
  * by __syncthreads and each wavefront owns disjoint output columns, so the
  * accumulation is race-free.  NWF = 1 reproduces the single-wavefront kernel.
  *
