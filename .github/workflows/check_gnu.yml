@@ -25,7 +25,7 @@ on:
         description: "The version of the HDF5 library to use."
         type: string
         required: false
-        default: "hdf5_1_14_0"
+        default: "hdf5_2_0_0"
 
 jobs:
   GNU:
@@ -222,7 +222,7 @@ jobs:
         run: |
           if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.15.0"; fi
           if [ -z "$JSON_FORTRAN_VERSION" ]; then JSON_FORTRAN_VERSION="8.3.0"; fi
-          if [ -z "$HDF5_VERSION" ]; then HDF5_VERSION="hdf5_1_14_0"; fi
+          if [ -z "$HDF5_VERSION" ]; then HDF5_VERSION="hdf5_2_0_0"; fi
 
           echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
@@ -253,6 +253,7 @@ jobs:
           version: ${{ steps.setup-deps.outputs.hdf5-version }}
           os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
+          c-compiler: ${{ matrix.compiler == 'gfortran-12' && 'gcc-12' || matrix.compiler == 'gfortran-13' && 'gcc-13' || matrix.compiler == 'gfortran-14' && 'gcc-14' || 'gcc-15' }}
 
       # ---------------------------------------------------------------------- #
       # Build Neko
