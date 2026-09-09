@@ -107,7 +107,6 @@ contains
     ! physical mappings and thus better GPU TLB utilisation; rewriting
     ! the zeros on the host afterwards is benign.
     call t%alloc(n1, n2, n3)
-    t%x = 0.0_rp
 
     if (present(name)) then
        t%name = name
@@ -139,6 +138,7 @@ contains
        call device_cfill(t%x_d, 0.0_rp, t%n)
        call device_sync()
     end if
+    call cfill(t%x, 0.0_rp)
 
   end subroutine tensor3_allocate
 
