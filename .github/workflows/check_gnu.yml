@@ -246,7 +246,7 @@ jobs:
           compiler: ${{ matrix.compiler }}
 
       - name: Dependencies - Get HDF5
-        if: matrix.backend == 'cpu' && ( matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm' )
+        if: matrix.backend == 'cpu' && matrix.os == 'ubuntu-24.04'
         id: get-hdf5
         uses: ./.github/actions/setup_hdf5
         with:
@@ -275,8 +275,10 @@ jobs:
             echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
             echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
             echo "${{ github.workspace }}/install/bin" >> $GITHUB_PATH
-            if [ ${OS:0:6} == 'ubuntu' ]; then
+            if [ $OS == 'ubuntu-24.04' ]; then
               HDF5_CONFIG="--with-hdf5=${HDF5_DIR}"
+            else
+              HDF5_CONFIG=""
             fi
             ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR $HDF5_CONFIG --enable-real=${RP} --prefix=${{ github.workspace }}/install
 

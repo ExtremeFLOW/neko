@@ -11,7 +11,7 @@ inputs:
   install-dir:
     description: "The directory to install the HDF5 library."
     required: false
-    default: "${{ runner.workspace }}/pkg"
+    default: "${{ runner.workspace }}/pkg/hdf5"
 
   working-dir:
     description: "The directory to work in."
