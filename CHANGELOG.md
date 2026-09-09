@@ -2,6 +2,21 @@
 
 ## Develop
 
+- Added a setup-time conditioning diagnostic for the geometric factors, on
+  `COEF_FULL` coefficient sets only. `coef_metric_condition` logs the worst
+  metric condition number over the mesh, the worst for its Jacobi scaled
+  form, the perturbation single precision factors would put on the element
+  operator, and whether that is within tolerance (`coef_t%metric_sp_safe`).
+  The unscaled number bounds reduced precision *arithmetic* and grows as the
+  element aspect ratio squared; the scaled one bounds *storage* and depends
+  on skew alone. A single precision build warns past `NEKO_METRIC_COND_SP` or
+  `NEKO_METRIC_PERTURB_MAX`, and a non positive definite metric is an error
+  in any precision.
+- Added closed-form symmetric eigenvalue helpers `eig_sym2` and `eig_sym3` to
+  `math`, used by the metric conditioning diagnostic. Both work in double
+  precision regardless of `rp`, since the smallest root is a difference of
+  terms of order the largest eigenvalue and its relative accuracy therefore
+  degrades as `eps * kappa`.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.
 - The gather-scatter comm. backend autotuning now covers the device-resident
   backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks
