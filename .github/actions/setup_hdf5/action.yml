@@ -1,0 +1,165 @@
+name: Setup the HDF5 library
+description: |
+  This action sets up the HDF5 library for use in the main workflow.
+
+# ---------------------------------------------------------------------------- #
+# Define the inputs and outputs for this action. The inputs are used to
+# configure the action, while the outputs are used to pass information
+# back to the caller.
+
+inputs:
+  install-dir:
+    description: "The directory to install the HDF5 library."
+    required: false
+    default: "/home/runner/pkg/hdf5"
+
+  working-dir:
+    description: "The directory to work in."
+    required: false
+    default: "/home/runner/tmp/hdf5"
+
+  os:
+    description: "The operating system to use."
+    required: false
+    default: "${{ runner.os }}"
+
+  compiler:
+    description: "The compiler to use."
+    required: false
+    default: "gfortran"
+
+  compiler-flags:
+    description: "The compiler flag to use."
+    required: false
+    default: "-O3"
+
+  c-compiler:
+    description: "The C compiler to use."
+    required: false
+    default: "gcc"
+
+  build-options:
+    description: "The build option to use."
+    required: false
+    default: "--parallel"
+
+  install-options:
+    description: "The install option to use."
+    required: false
+    default: ""
+
+  version:
+    description: "The version of the HDF5 library to use."
+    required: false
+    default: "2.0.0"
+
+outputs:
+  install-dir:
+    description: "The directory where the HDF5 library was installed."
+    value: ${{ steps.set-output.outputs.install-dir }}
+
+# ---------------------------------------------------------------------------- #
+# Define the steps that will be run in this action. The steps are run in a
+# sequence, where the Cache step is run first. The Set output step runs last.
+
+runs:
+  using: composite
+  steps:
+    # ------------------------------------------------------------------------ #
+    # Setup the cache for the HDF5 library.
+    # All following steps should look if the cache was hit and skip if it was.
+
+    - name: Create cache key based on version, OS, and compiler
+      id: create-key
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+        OS: ${{ inputs.os }}
+        COMPILER: ${{ inputs.compiler }}
+        COMPILER_FLAGS: ${{ inputs.compiler-flags }}
+        REPO: https://github.com/HDFGroup/hdf5.git
+      run: |
+        # Get the GIT sha for the current commit
+        SHA=$(git ls-remote $REPO $VERSION | awk '{print $1}')
+        key="hdf5-$SHA-$OS-$COMPILER-${COMPILER_FLAGS// /_}"
+        printf "key=%s\n" "$key" | tee -a $GITHUB_OUTPUT
+
+    - name: Cache
+      id: cache-hdf5
+      uses: actions/cache@v5
+      with:
+        path: ${{ inputs.install-dir }}
+        key: ${{ steps.create-key.outputs.key }}
+
+    - name: Clone
+      if: ${{ steps.cache-hdf5.outputs.cache-hit != 'true' }}
+      shell: bash
+      env:
+        WORKING_DIR: ${{ inputs.working-dir }}
+        REPO: https://github.com/HDFGroup/hdf5.git
+        VERSION: ${{ inputs.version }}
+      run: |
+        git clone --depth 1 --branch $VERSION $REPO $WORKING_DIR
+
+    # ------------------------------------------------------------------------ #
+    # Setup system dependencies for the HDF5 library.
+
+    - name: Setup system dependencies
+      if: ${{ steps.cache-hdf5.outputs.cache-hit != 'true' }}
+      shell: bash
+      run: |
+        sudo apt install cmake ninja-build ${{ inputs.compiler }}
+
+    # ------------------------------------------------------------------------ #
+    # Configure, build, and install the HDF5 library.
+
+    - name: Configure
+      if: ${{ steps.cache-hdf5.outputs.cache-hit != 'true' }}
+      shell: bash
+      env:
+        INSTALL_DIR: ${{ inputs.install-dir }}
+        WORKING_DIR: ${{ inputs.working-dir }}
+        FC: ${{ inputs.compiler }}
+        FCFLAGS: ${{ inputs.compiler-flags }}
+        CC: ${{ inputs.c-compiler }}
+      run: |
+        cmake -B $WORKING_DIR/build -S $WORKING_DIR -G Ninja \
+            --install-prefix $INSTALL_DIR -DHDF5_ENABLE_PARALLEL=ON \
+            -DHDF5_BUILD_FORTRAN=ON -DHDF5_ENABLE_SZIP_SUPPORT:BOOL=OFF
+
+    - name: Build
+      if: ${{ steps.cache-hdf5.outputs.cache-hit != 'true' }}
+      shell: bash
+      env:
+        WORKING_DIR: ${{ inputs.working-dir }}
+        BUILD_OPTIONS: ${{ inputs.build-options }}
+      run: cmake --build $WORKING_DIR/build --config Release $BUILD_OPTIONS
+
+    - name: Install
+      if: ${{ steps.cache-hdf5.outputs.cache-hit != 'true' }}
+      shell: bash
+      env:
+        WORKING_DIR: ${{ inputs.working-dir }}
+        INSTALL_OPTIONS: ${{ inputs.install-options }}
+      run: |
+        cmake --install $WORKING_DIR/build --config Release $INSTALL_OPTIONS
+
+    # ------------------------------------------------------------------------ #
+    # Cleanup and set the output.
+
+    - name: Set output
+      id: set-output
+      shell: bash
+      env:
+        INSTALL_DIR: ${{ inputs.install-dir }}
+      run: |
+
+        if [ ! -d ${INSTALL_DIR}/lib ]; then
+          echo "Failed to install HDF5 library."
+          exit 1
+        fi
+
+        echo "install-dir=${INSTALL_DIR}"
+        echo "install-dir=${INSTALL_DIR}" >> $GITHUB_OUTPUT
+        echo "HDF5_ROOT=${INSTALL_DIR}" >> $GITHUB_ENV
+        echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${INSTALL_DIR}/lib" >> $GITHUB_ENV

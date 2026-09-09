@@ -21,6 +21,11 @@ on:
         type: string
         required: false
         default: "v4.15.0"
+      hdf5-version:
+        description: "The version of the HDF5 library to use."
+        type: string
+        required: false
+        default: "1.14.0"
 
 jobs:
   GNU:
@@ -130,7 +135,7 @@ jobs:
         if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: openmpi-bin autoconf automake autotools-dev make m4 libhdf5-mpi-dev
+          packages: openmpi-bin autoconf automake autotools-dev make m4
           version: apt-cache-1.0
           execute_install_scripts: true
 
@@ -213,12 +218,15 @@ jobs:
         env:
           PFUNIT_VERSION: ${{ inputs.pfunit-version }}
           JSON_FORTRAN_VERSION: ${{ inputs.json-fortran-version }}
+          HDF5_VERSION: ${{ inputs.hdf5-version }}
         run: |
           if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.15.0"; fi
           if [ -z "$JSON_FORTRAN_VERSION" ]; then JSON_FORTRAN_VERSION="8.3.0"; fi
+          if [ -z "$HDF5_VERSION" ]; then HDF5_VERSION="1.14.0"; fi
 
           echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
+          echo "hdf5-version=$HDF5_VERSION" >> $GITHUB_OUTPUT
 
       - name: Dependencies - Get pFunit
         id: get-pfunit
@@ -237,6 +245,15 @@ jobs:
           os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
+      - name: Dependencies - Get HDF5
+        if: matrix.backend == 'cpu'
+        id: get-hdf5
+        uses: ./.github/actions/setup_hdf5
+        with:
+          version: ${{ steps.setup-deps.outputs.hdf5-version }}
+          os: ${{ steps.setup-env.outputs.os-version }}
+          compiler: ${{ matrix.compiler }}
+
       # ---------------------------------------------------------------------- #
       # Build Neko
       # ---------------------------------------------------------------------- #
@@ -247,6 +264,7 @@ jobs:
       - name: Build - Configure Neko
         env:
           PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
+          HDF5_DIR: ${{ steps.get-hdf5.outputs.install-dir }}
           BACKEND: ${{ matrix.backend }}
         run: |
           if [ "$BACKEND" == 'cpu' ]; then
@@ -255,7 +273,7 @@ jobs:
             echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
             echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
             echo "${{ github.workspace }}/install/bin" >> $GITHUB_PATH
-            ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --with-hdf5 --enable-real=${RP} --prefix=${{ github.workspace }}/install
+            ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --with-hdf5=$HDF5_DIR --enable-real=${RP} --prefix=${{ github.workspace }}/install
 
           elif [ "$BACKEND" == 'cuda' ]; then
 
