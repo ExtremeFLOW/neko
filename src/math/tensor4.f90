@@ -34,8 +34,8 @@
 module tensor4
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use device, only : device_map, device_unmap, device_memcpy, &
-       device_sync
+  use device, only : device_map, device_unmap, device_memcpy, device_sync
+  use math, only : cfill
   use device_math, only : device_copy, device_cfill
   use utils, only : neko_error, NEKO_VARNAME_LEN
   use, intrinsic :: iso_c_binding
@@ -152,7 +152,7 @@ contains
        call device_cfill(t%x_d, 0.0_rp, t%n)
        call device_sync()
     end if
-    call cfill(t%x, 0.0_rp)
+    call cfill(t%x, 0.0_rp, t%n)
 
   end subroutine tensor4_allocate
 
