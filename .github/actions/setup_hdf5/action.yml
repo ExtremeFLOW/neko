@@ -11,12 +11,12 @@ inputs:
   install-dir:
     description: "The directory to install the HDF5 library."
     required: false
-    default: "/home/runner/pkg/hdf5"
+    default: "${{ runner.workspace }}/pkg"
 
   working-dir:
     description: "The directory to work in."
     required: false
-    default: "/home/runner/tmp/hdf5"
+    default: "${{ runner.workspace }}/tmp"
 
   os:
     description: "The operating system to use."
@@ -99,7 +99,6 @@ runs:
         REPO: https://github.com/HDFGroup/hdf5.git
         VERSION: ${{ inputs.version }}
       run: |
-        mkdir -p $WORKING_DIR
         git clone --depth 1 --branch $VERSION $REPO $WORKING_DIR
 
     # ------------------------------------------------------------------------ #
