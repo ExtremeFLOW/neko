@@ -59,10 +59,10 @@ program mathbench
   ! run-to-run noise and simply cannot be resolved. The small-lx end is the
   ! only regime where a per-call cost is a measurable fraction of the work.
   integer, parameter :: nlx = 6
-  integer :: lx_sweep(nlx) = (/ 2, 3, 4, 6, 8, 12 /)
+  integer :: lx_sweep(nlx) = [ 2, 3, 4, 6, 8, 12 ]
   integer, parameter :: npaths = 4
   character(len=11) :: path_names(npaths) = &
-       (/ 'math       ', 'field_math ', 'vector_math', 'matrix_math' /)
+       [ 'math       ', 'field_math ', 'vector_math', 'matrix_math' ]
 
   ! Cross-path results at a fixed rank count should agree to the last bit on
   ! a CPU build (identical routine, identical data). On a device build the
@@ -158,9 +158,9 @@ contains
     call vb%init(n)
     call vc%init(n)
 
-    call ma%init(n, 1)
-    call mb%init(n, 1)
-    call mc%init(n, 1)
+    call ma%init(n / 16, 16)
+    call mb%init(n / 16, 16)
+    call mc%init(n / 16, 16)
 
   end subroutine alloc_all
 
