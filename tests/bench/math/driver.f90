@@ -44,6 +44,7 @@ program mathbench
   implicit none
 
   character(len=NEKO_FNAME_LEN) :: fname
+  character(len=LOG_SIZE) :: logline
   character(len=80) :: argchar
   type(mesh_t) :: msh
   type(file_t) :: nmsh_file
@@ -106,16 +107,13 @@ program mathbench
   call nmsh_file%read(msh)
   call msh%generate_conn()
 
-  if (pe_rank .eq. 0) then
-     write(*, *) ''
-     write(*, '(A)') '# mathbench: math vs field_math/vector_math/matrix_math'
-     write(*, '(A, A)') '# mesh      : ', trim(fname)
-     write(*, '(A,I0)') '# glb_nelv  : ', msh%glb_nelv
-     write(*, '(A,I0)') '# pe_size   : ', pe_size
-     write(*, '(A,I0)') '# niter     : ', niter
-     write(*, '(A, A)') '# bcknd_dev : ', NEKO_BCKND
-     write(*, *) ''
-  end if
+  call neko_log%section('Math bench setup')
+  write(logline, '(A,I0)') 'niter     : ', niter
+  call neko_log%message(logline)
+  write(logline, '(A,I0)') 'nwarmup   : ', nwarmup
+  call neko_log%message(logline)
+  call neko_log%end_section()
+  call neko_log%newline()
 
   do ilx = 1, nlx
      lx = lx_sweep(ilx)
