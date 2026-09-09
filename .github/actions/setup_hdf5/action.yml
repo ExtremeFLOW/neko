@@ -76,12 +76,13 @@ runs:
         VERSION: ${{ inputs.version }}
         OS: ${{ inputs.os }}
         COMPILER: ${{ inputs.compiler }}
+        C_COMPILER: ${{ inputs.c-compiler }}
         COMPILER_FLAGS: ${{ inputs.compiler-flags }}
         REPO: https://github.com/HDFGroup/hdf5.git
       run: |
         # Get the GIT sha for the current commit
         SHA=$(git ls-remote $REPO $VERSION | awk '{print $1}')
-        key="hdf5-$SHA-$OS-$COMPILER-${COMPILER_FLAGS// /_}"
+        key="hdf5-$SHA-$OS-$COMPILER-${COMPILER_FLAGS// /_}-$C_COMPILER"
         printf "key=%s\n" "$key" | tee -a $GITHUB_OUTPUT
 
     - name: Cache
@@ -119,9 +120,11 @@ runs:
       env:
         INSTALL_DIR: ${{ inputs.install-dir }}
         WORKING_DIR: ${{ inputs.working-dir }}
-        FC: ${{ inputs.compiler }}
+        FC: mpifort
         FCFLAGS: ${{ inputs.compiler-flags }}
-        CC: ${{ inputs.c-compiler }}
+        CC: mpicc
+        OMPI_FC: ${{ inputs.compiler }}
+        OMPI_CC: ${{ inputs.c-compiler }}
       run: |
         cmake -B $WORKING_DIR/build -S $WORKING_DIR -G Ninja \
             --install-prefix $INSTALL_DIR -DHDF5_ENABLE_PARALLEL=ON \
@@ -133,6 +136,8 @@ runs:
       env:
         WORKING_DIR: ${{ inputs.working-dir }}
         BUILD_OPTIONS: ${{ inputs.build-options }}
+        OMPI_FC: ${{ inputs.compiler }}
+        OMPI_CC: ${{ inputs.c-compiler }}
       run: cmake --build $WORKING_DIR/build --config Release $BUILD_OPTIONS
 
     - name: Install
