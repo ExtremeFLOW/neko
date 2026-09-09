@@ -246,7 +246,7 @@ jobs:
           compiler: ${{ matrix.compiler }}
 
       - name: Dependencies - Get HDF5
-        if: matrix.backend == 'cpu' && matrix.os == 'ubuntu-24.04'
+        if: matrix.backend == 'cpu' && ( matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm' )
         id: get-hdf5
         uses: ./.github/actions/setup_hdf5
         with:
