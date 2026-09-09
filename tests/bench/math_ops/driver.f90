@@ -100,11 +100,11 @@ program mathbench
   if (pe_rank .eq. 0) then
      write(*, *) ''
      write(*, '(A)') '# mathbench: math vs field_math/vector_math/matrix_math'
-     write(*, '(A,A)')    '# mesh      : ', trim(fname)
-     write(*, '(A,I0)')   '# glb_nelv  : ', msh%glb_nelv
-     write(*, '(A,I0)')   '# pe_size   : ', pe_size
-     write(*, '(A,I0)')   '# niter     : ', niter
-     write(*, '(A,I0)')   '# bcknd_dev : ', NEKO_BCKND_DEVICE
+     write(*, '(A, A)') '# mesh      : ', trim(fname)
+     write(*, '(A,I0)') '# glb_nelv  : ', msh%glb_nelv
+     write(*, '(A,I0)') '# pe_size   : ', pe_size
+     write(*, '(A,I0)') '# niter     : ', niter
+     write(*, '(A, A)') '# bcknd_dev : ', NEKO_BCKND
      write(*, *) ''
   end if
 
