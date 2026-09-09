@@ -16,7 +16,7 @@ inputs:
   working-dir:
     description: "The directory to work in."
     required: false
-    default: "${{ runner.workspace }}/tmp"
+    default: "${{ runner.workspace }}/tmp/hdf5"
 
   os:
     description: "The operating system to use."
