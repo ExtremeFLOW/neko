@@ -101,11 +101,10 @@ per output per step, so a time step longer than the interval writes once and
 moves on rather than building up a backlog. The write scheduled for `end_time`
 still happens when the last step overshoots it.
 
-The initial state is written on top of the scheduled times, unless
-`output_at_start` says otherwise or the initial condition is read from a field
-file, where it would only copy that file. Checkpoints and statistics never
-write it: a checkpoint holds nothing the initial condition does not, and an
-average over an interval of zero length is empty.
+The initial state is written in addition to the scheduled times, unless
+`output_at_start` is `false`. Checkpoints and statistics never write it: a
+checkpoint holds nothing the initial condition does not, and an average over
+an interval of zero length is empty.
 
 @note A statistics file covers the interval between two writes, and the first
 one covers only the interval from the start of the averaging to the first
@@ -138,7 +137,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `mesh2mesh_tolerance` | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
 | `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as [[[DD-]HH:]MM:]SS           | No limit      |
 | `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
-| `output_at_start`     | Whether to write the initial state of the simulation. Checkpoints and statistics never do.            | `true` or `false`                               | `true`, `false` for a field initial condition |
+| `output_at_start`     | Whether to write the initial state of the simulation. Checkpoints and statistics never do.            | `true` or `false`                               | `true`        |
 
 Some additional practical comments are provided regarding the output triggered
 by `job_timelimit` and `output_at_end` keywords.

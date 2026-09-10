@@ -212,7 +212,8 @@ contains
        this%controllers(n) = this%controllers(1)
     else
        call this%controllers(n)%init(start_time_, this%time_end, &
-            write_control, write_par, write_at_start_)
+            write_control, write_par, write_at_start_, &
+            direction = this%time_end - this%time_start)
     end if
 
     ! The code below only prints to console

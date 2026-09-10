@@ -74,6 +74,11 @@ module time_based_controller
   !! yet reached, using the same comparison as `check`, so that no execution
   !! is repeated or skipped.
   !!
+  !! A simulation may march backwards in time (start time larger than the end
+  !! time, negative time step), as for an adjoint problem. All comparisons are
+  !! therefore made on the progress `direction * (t - anchor_time)`, which
+  !! increases during the run in either case.
+  !!
   !! `check` does not modify the controller and returns `.false.` for a time
   !! step at which an execution has already been registered, so it can be
   !! called several times per step. `register_execution` increments
@@ -117,6 +122,9 @@ module time_based_controller
      !> Number of scheduled times already passed. The next scheduled time is
      !! `t_k` with `k = first_index + next_index`.
      integer :: next_index = 0
+     !> Sign of the time step: +1 for a run forwards in time, -1 for a run
+     !! backwards in time.
+     real(kind=dp) :: direction = 1.0_dp
      !> Value of `tstep` at which the current run started. Only used by the
      !! `tsteps` control mode, whose schedule is relative to the run.
      integer :: tstep_offset = 0
@@ -157,8 +165,12 @@ contains
   !! @param anchor_time The time the scheduled times are counted from.
   !! Optional, defaults to zero for `simulationtime` and to `start_time` for
   !! `nsamples`.
+  !! @param direction Sign of the time step of the simulation, +1 or -1.
+  !! Optional, defaults to the sign of `end_time - start_time`. That default
+  !! is wrong for an output whose `start_time` lies beyond the end of the
+  !! simulation, so pass the direction for an output with its own start time.
   subroutine time_based_controller_init(this, start_time, end_time, &
-       control_mode, control_value, write_at_start, anchor_time)
+       control_mode, control_value, write_at_start, anchor_time, direction)
     class(time_based_controller_t), intent(inout) :: this
     real(kind=dp), intent(in) :: start_time
     real(kind=dp), intent(in) :: end_time
@@ -166,6 +178,7 @@ contains
     real(kind=dp), intent(in) :: control_value
     logical, intent(in), optional :: write_at_start
     real(kind=dp), intent(in), optional :: anchor_time
+    real(kind=dp), intent(in), optional :: direction
     real(kind=dp) :: span, offset
 
     call this%free()
@@ -181,7 +194,13 @@ contains
        this%write_at_start = .true.
     end if
 
-    span = end_time - start_time
+    if (present(direction)) then
+       this%direction = sign(1.0_dp, direction)
+    else
+       this%direction = sign(1.0_dp, end_time - start_time)
+    end if
+    ! Length of the interval covered, positive also for a run backwards.
+    span = this%direction * (end_time - start_time)
 
     if (trim(control_mode) .eq. 'simulationtime') then
        if (control_value .le. 0.0_dp) then
@@ -230,7 +249,8 @@ contains
     this%start_pending = .false.
 
     if (this%time_interval .gt. 0.0_dp) then
-       offset = (start_time - this%anchor_time) / this%time_interval
+       offset = this%direction * (start_time - this%anchor_time) / &
+            this%time_interval
        this%first_index = ceiling(offset - SPAN_TOL * max(1.0_dp, &
             abs(offset)), kind = i8)
        this%start_is_scheduled = abs(real(this%first_index, dp) - offset) &
@@ -274,6 +294,7 @@ contains
     this%start_is_scheduled = .false.
     this%start_pending = .false.
     this%next_index = 0
+    this%direction = 1.0_dp
     this%tstep_offset = 0
     this%last_tstep = -1
   end subroutine time_based_controller_free
@@ -313,8 +334,8 @@ contains
     ! Nothing is scheduled, but an execution can still be forced.
     if (this%never .and. .not. ifforce) return
 
-    progress = time%t - this%anchor_time
-    t_start = this%start_time - this%anchor_time
+    progress = this%direction * (time%t - this%anchor_time)
+    t_start = this%direction * (this%start_time - this%anchor_time)
     tol = this%tolerance(time%dt)
 
     ! Nothing is executed before start_time.
@@ -330,7 +351,7 @@ contains
        ! times.
        check = .true.
     else
-       t_end = this%end_time - this%anchor_time
+       t_end = this%direction * (this%end_time - this%anchor_time)
        t_next = real(this%first_index + this%next_index, dp) * &
             this%time_interval
        ! Nothing is scheduled after end_time. The condition is on the
@@ -358,7 +379,7 @@ contains
     if (this%nsteps .gt. 0) then
        index = (time%tstep - this%tstep_offset) / this%nsteps + 1
     else if (this%time_interval .gt. 0.0_dp) then
-       progress = time%t - this%anchor_time
+       progress = this%direction * (time%t - this%anchor_time)
        tol = this%tolerance(time%dt)
        index = int(floor((progress + tol) / this%time_interval, kind = i8) &
             - this%first_index) + 1
@@ -419,8 +440,8 @@ contains
     dt = time%dt
     if (abs(time%dtlag(1)) .gt. 0.0_dp) dt = time%dtlag(1)
 
-    progress = time%t - this%anchor_time
-    t_start = this%start_time - this%anchor_time
+    progress = this%direction * (time%t - this%anchor_time)
+    t_start = this%direction * (this%start_time - this%anchor_time)
     tol = this%tolerance(dt)
 
     if (progress .lt. t_start - tol) then
@@ -478,7 +499,7 @@ contains
     else if (this%start_pending) then
        t = this%start_time
     else
-       t = this%anchor_time + &
+       t = this%anchor_time + this%direction * &
             real(this%first_index + this%next_index, dp) * this%time_interval
     end if
 

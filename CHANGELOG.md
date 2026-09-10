@@ -26,8 +26,7 @@
   starting at t = 10.5 and writing every 1.0 now gives 11.0, 12.0, ... rather
   than 11.5, 12.5, ... `nsamples` still divides the simulated interval.
 - Added `case.output_at_start`, whether the initial state of the simulation
-  is written. It defaults to `true`, and to `false` when the fluid initial
-  condition is a field file, where it would only copy that file.
+  is written. Defaults to `true`.
 - Fixed `output_at_end` forcing a write of an output whose `start_time` the
   simulation has not reached.
 - A restart warns when the first file an output is about to write already
@@ -42,7 +41,8 @@
   phase still cannot survive a restart, as the checkpoint does not store the
   time step index.
 - Fixed `time_state_t%is_done` taking one time step more than asked for when
-  the accumulated time fell a few ulps short of `end_time`.
+  the accumulated time fell a few ulps short of `end_time`, and ending a
+  simulation marching backwards in time after its first step.
 - Made the `user_stats` integration test compare its average of a random
   field against a two-sided tolerance that covers the sampling noise; the
   one-sided `1e-4` passed or failed roughly at random.
