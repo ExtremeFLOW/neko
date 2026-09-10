@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Added runtime registration of user-defined scalar boundary-condition types
+  through `register_scalar_pnpn_bc`.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.
 - The gather-scatter comm. backend autotuning now covers the device-resident
   backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks

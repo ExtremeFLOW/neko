@@ -307,6 +307,40 @@
             }
           },
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            }
+          },
+          "not": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "dirichlet",
+                  "expression_dirichlet",
+                  "user_dirichlet",
+                  "user_neumann",
+                  "neumann",
+                  "overset_interface"
+                ]
+              }
+            },
+            "required": ["type"]
+          },
+          "additionalProperties": true
         }
       ]
     },
