@@ -8,10 +8,13 @@ module test_ax_factory
   use mesh, only : mesh_t
   implicit none
 
+  logical :: test_ax_was_freed = .false.
+
   type, extends(ax_t) :: test_ax_t
    contains
-     procedure, nopass :: compute => test_ax_compute
+     procedure, pass(this) :: compute => test_ax_compute
      procedure, pass(this) :: compute_vector => test_ax_compute_vector
+     procedure, pass(this) :: free => test_ax_free
   end type test_ax_t
 
 contains
@@ -53,6 +56,8 @@ contains
     end if
 
     @assertTrue(correct_type)
+    call object%free()
+    deallocate(object)
   end subroutine test_builtin_standard
 
   @test
@@ -82,6 +87,8 @@ contains
     end if
 
     @assertTrue(correct_type)
+    call object%free()
+    deallocate(object)
   end subroutine test_builtin_full
 
   @test
@@ -104,6 +111,11 @@ contains
     end select
 
     @assertTrue(correct_type)
+    test_ax_was_freed = .false.
+    call ax_helm_allocator(object, "standard")
+    @assertTrue(test_ax_was_freed)
+    call object%free()
+    deallocate(object)
   end subroutine test_registered_ax_type
 
   subroutine test_ax_allocate(obj)
@@ -112,7 +124,8 @@ contains
     allocate(test_ax_t::obj)
   end subroutine test_ax_allocate
 
-  subroutine test_ax_compute(w, u, coef, msh, Xh)
+  subroutine test_ax_compute(this, w, u, coef, msh, Xh)
+    class(test_ax_t), intent(in) :: this
     type(space_t), intent(in) :: Xh
     type(mesh_t), intent(in) :: msh
     type(coef_t), intent(in) :: coef
@@ -134,5 +147,11 @@ contains
     real(kind=rp), intent(in) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
   end subroutine test_ax_compute_vector
+
+  subroutine test_ax_free(this)
+    class(test_ax_t), intent(inout) :: this
+
+    test_ax_was_freed = .true.
+  end subroutine test_ax_free
 
 end module test_ax_factory
