@@ -464,16 +464,9 @@ contains
          tmp_feature, .false.)
     if (tmp_feature) logical_val = .true.
 
-    !
-    ! Whether the initial state of the simulation is written. Starting from a
-    ! field file, it is the file the simulation was started from, so there is
-    ! nothing to write.
-    !
-    call json_get_or_default(this%params, &
-         'case.fluid.initial_condition.type', string_val, "")
-    logical_val = trim(string_val) .ne. 'field'
+    ! Whether the initial state of the simulation is written.
     call json_get_or_default(this%params, 'case.output_at_start', &
-         write_at_start, logical_val)
+         write_at_start, .true.)
 
     call this%output_controller%init(this%time%end_time, &
          time_start = this%time%start_time, write_at_start = write_at_start)
