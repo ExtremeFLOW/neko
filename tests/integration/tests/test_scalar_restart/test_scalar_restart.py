@@ -1,6 +1,7 @@
 """Test scalar solver residuals and restart continuity."""
 
 import json
+import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -64,11 +65,7 @@ def _compare_with_reference(actual, reference):
     assert np.all(actual["tracer_final_residual"] <= SCALAR_TOLERANCE)
 
 
-def _has_hdf5(neko_dir):
-    """Return whether the configured Neko build defines HAVE_HDF5."""
-    return "-DHAVE_HDF5=1" in (neko_dir / "Makefile").read_text(
-        encoding="utf-8"
-    )
+HAVE_HDF5 = bool(os.getenv("HAVE_HDF5"))
 
 
 # Both checkpoint formats have to support a restart identically. The
@@ -81,7 +78,7 @@ def _has_hdf5(neko_dir):
         pytest.param(
             "hdf5",
             marks=pytest.mark.skipif(
-                not _has_hdf5(Path(get_neko_dir()).resolve()),
+                not HAVE_HDF5,
                 reason="Neko was configured without HDF5 support",
             ),
         ),

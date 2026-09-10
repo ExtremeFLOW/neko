@@ -149,35 +149,33 @@ jobs:
       - name: Setup - Python environment
         uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
-          cache: 'pip'
+          python-version: "3.x"
+          cache: "pip"
           cache-dependency-path: "**/requirements-tests.txt"
 
       - name: Setup - Install Python dependencies
-#        env:
-#          MPICC: mpicc
-#          MPI4PY_BUILD_WITH_MPI: "1"
-#          PIP_NO_BINARY: "mpi4py"
+        #        env:
+        #          MPICC: mpicc
+        #          MPI4PY_BUILD_WITH_MPI: "1"
+        #          PIP_NO_BINARY: "mpi4py"
         run: |
           pip install -r .github/workflows/extra/requirements-tests.txt
-#          pip install --no-binary=mpi4py mpi4py
+      #          pip install --no-binary=mpi4py mpi4py
 
+      #      - name: Check MPI vendor used by mpi4py
+      #        run: |
+      #          python - << 'EOF'
+      #          from mpi4py import MPI
+      #          print("MPI vendor:", MPI.get_vendor())
+      #          print("MPI version:", MPI.Get_version())
+      #          EOF
 
-#      - name: Check MPI vendor used by mpi4py
-#        run: |
-#          python - << 'EOF'
-#          from mpi4py import MPI
-#          print("MPI vendor:", MPI.get_vendor())
-#          print("MPI version:", MPI.Get_version())
-#          EOF
-
-#      - name: Debug MPI in CI
-#        run: |
-#          which mpirun || echo "mpirun not found"
-#          mpirun --version || echo "mpirun --version failed"
-#          echo "Running simple MPI hello..."
-#          mpirun --oversubscribe -np 2 hostname
-
+      #      - name: Debug MPI in CI
+      #        run: |
+      #          which mpirun || echo "mpirun not found"
+      #          mpirun --version || echo "mpirun --version failed"
+      #          echo "Running simple MPI hello..."
+      #          mpirun --oversubscribe -np 2 hostname
 
       # Setup matrix environment
       - name: Setup - Matrix environment
@@ -320,11 +318,14 @@ jobs:
 
       - name: Test - Integration tests
         if: matrix.backend == 'cpu'
+        env:
+          OS: ${{ matrix.os }}
         run: |
-           chmod +x $MAKENEKO_EXEC
-           cd tests/integration
-           pytest --max_nprocs=2 --real_precision=${RP}
-           cd ../..
+          export HAVE_HDF5=$($OS == 'ubuntu-24.04' && echo "1" || echo "0")
+          chmod +x $MAKENEKO_EXEC
+          cd tests/integration
+          pytest --max_nprocs=2 --real_precision=${RP}
+          cd ../..
 
       - name: Test - Check
         if: matrix.backend == 'cpu' || matrix.backend == 'metal'
