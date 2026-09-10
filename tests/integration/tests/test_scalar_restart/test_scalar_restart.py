@@ -107,12 +107,11 @@ def test_scalar_restart(launcher_script, request, tmp_path):
     _compare_with_reference(part1_data, part1_reference)
 
     checkpoints = sorted(checkpoint_dir.glob("scalar_restart*.chkp"))
-    assert len(checkpoints) == 3, (
-        "Expected initial, t=0.05, and t=0.10 checkpoints, "
-        f"found {checkpoints}"
+    assert len(checkpoints) == 2, (
+        f"Expected the t=0.05 and t=0.10 checkpoints, found {checkpoints}"
     )
 
-    case["case"]["restart_file"] = str(checkpoints[1])
+    case["case"]["restart_file"] = str(checkpoints[0])
     case["case"]["output_checkpoints"] = False
     del case["case"]["checkpoint_control"]
     del case["case"]["checkpoint_value"]
