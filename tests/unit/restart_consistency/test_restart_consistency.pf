@@ -292,12 +292,9 @@ contains
 
   ! ========================================================================== !
 
-  !> Build the case parameters in memory, so the test needs no case file.
-  !! The physics is `examples/tgv/tgv_expression.case`, coarsened: same
-  !! expression initial condition and timestep, but two elements per
-  !! direction and a lower polynomial order, and dealiasing off. None of
-  !! that changes what is under test -- a restart either replays exactly or
-  !! it does not -- it just keeps the run inside a unit test's budget.
+  !> Build an in-memory Taylor-Green vortex case for the restart test.
+  !! The generated case uses the periodic box written above, a third-order
+  !! time scheme, seventh-order elements, and expression initial conditions.
   !! @param params The JSON object to populate.
   !! @param restart Whether to add `case.restart_file`.
   !! @param checkpoint Checkpoint file to restart from when `restart`.
@@ -327,25 +324,9 @@ contains
        json_str = json_str // '"restart_file": "' // trim(checkpoint) // '",'
     end if
 
-    ! The box is triply periodic, so the case carries no boundary
-    ! conditions at all -- as the TGV example does not either. That also
-    ! makes the pressure operator singular, hence the example's loose
-    ! pressure tolerance rather than a tight one. The example's `hsmg`
-    ! preconditioner is swapped for `jacobi`: two elements per direction
-    ! leave multigrid no coarser level to build, and it diverges outright.
-    !
-    ! `projection_space_size` is pinned to zero, the one place this
-    ! deviates from the example, which sets 20 on the pressure solver. The
-    ! projection space is a running history of previous solutions used to
-    ! seed the next solve and it is not part of any checkpoint, so a
-    ! restart cannot reproduce it and this test would be asserting
-    ! something untrue. Measured, rather than assumed: with the example's
-    ! 20, the restart diverges at step 7 by `u/v/w/p RMSE = 6.1E-07 /
-    ! 6.1E-07 / 3.4E-07 / 4.9E-05`, identical to the last digit in both
-    ! checkpoint formats. Step 7 is exactly where it should be --
-    ! `projection_hold_steps` defaults to 5 and the checkpoint is taken at
-    ! step 5, so step 6 still matches and the first step that consults the
-    ! projection space is the first to differ.
+    ! The periodic domain needs no boundary conditions. Disable projection
+    ! spaces because their solver history is not checkpointed and would make
+    ! the restarted solve differ from the uninterrupted reference.
     json_str = json_str // &
          '"fluid": {"scheme": "pnpn", "Re": 360.0,' // &
          ' "initial_condition": {"type": "expression",' // &
