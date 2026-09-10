@@ -1517,6 +1517,7 @@ contains
        call gs%interp%apply_j(up)
        
 !       call gs%interp%add_mult_ji(up)
+       
     end if
 
   end subroutine gs_op_r1_inv

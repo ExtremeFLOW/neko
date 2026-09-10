@@ -167,7 +167,11 @@ contains
 
       call col2(this%d, coef%h1, coef%dof%size())
       if (coef%ifh2) call addcol3(this%d, coef%h2, coef%B, coef%dof%size())
-      call gs_h%op(this%d, dof%size(), GS_OP_ADD)
+      if (allocated(gs_h%interp)) then
+         call gs_h%op_inv(this%d, dof%size(), GS_OP_ADD)
+      else
+         call gs_h%op(this%d, dof%size(), GS_OP_ADD)
+      end if
       call invcol1(this%d, dof%size())
     end associate
   end subroutine jacobi_update

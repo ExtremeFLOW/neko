@@ -607,8 +607,13 @@ contains
          call schwarz_toreg3d(e, work2, this%Xh%lx, this%msh%nelv)
 
          ! sum border nodes
-         call this%gs_h%op(e, n, GS_OP_ADD)
-         call this%bclst%apply_scalar(e, n)
+         if (allocated(this%gs_schwarz%interp)) then
+            call this%bclst%apply_scalar(e, n)
+            call this%gs_h%op(e, n, GS_OP_ADD)
+         else
+            call this%gs_h%op(e, n, GS_OP_ADD)
+            call this%bclst%apply_scalar(e, n)
+         end if
 
          call schwarz_wt3d(e, this%wt, this%Xh%lx, this%msh%nelv)
       end if
