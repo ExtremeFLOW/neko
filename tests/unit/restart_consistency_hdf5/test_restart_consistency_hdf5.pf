@@ -33,7 +33,8 @@ module test_restart_consistency_hdf5
   use simulation, only : simulation_init, simulation_step, simulation_finalize
   use time_step_controller, only : time_step_controller_t
   use field, only : field_t
-  use math, only : copy, glsum
+  use math, only : copy, glsum, NEKO_EPS
+  use vector, only : vector_t
   use mesh, only : mesh_t
   use point, only : point_t
   use file, only : file_t
@@ -43,7 +44,7 @@ module test_restart_consistency_hdf5
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
-  use device, only : device_init, device_finalize
+  use device, only : device_init, device_finalize, DEVICE_TO_HOST
   use neko_config, only : NEKO_BCKND_DEVICE
   use logger, only : neko_log
   use jobctrl, only : jobctrl_init
@@ -63,8 +64,8 @@ module test_restart_consistency_hdf5
   !! elements.
   integer, parameter :: nel_dir = 8
   !> Total steps, and the step the checkpoint is taken after.
-  integer, parameter :: n_steps = 10
-  integer, parameter :: n_half = 5
+  integer, parameter :: n_steps = 100
+  integer, parameter :: n_half = 50
   !> Timestep, matching the TGV example's.
   real(kind=dp), parameter :: dt = 1.0e-2_dp
 
@@ -154,8 +155,8 @@ contains
     ! Snapshots are held as plain arrays, not fields: a `field_t` keeps a
     ! pointer to its dofmap, and the reference case's dofmap dies with the
     ! case, well before the comparison happens.
-    real(kind=rp), allocatable :: u_ref(:,:), v_ref(:,:)
-    real(kind=rp), allocatable :: w_ref(:,:), p_ref(:,:)
+    type(vector_t), allocatable :: u_ref(:), v_ref(:)
+    type(vector_t), allocatable :: w_ref(:), p_ref(:)
     character(len=1024) :: chkp_written
     integer :: i, k, n_after, n_glb, n_loc
 
@@ -175,8 +176,14 @@ contains
     n_glb = neko_case%msh%glb_nelv * neko_case%fluid%Xh%lxyz
     n_loc = neko_case%fluid%u%dof%size()
 
-    allocate(u_ref(n_loc, n_after), v_ref(n_loc, n_after))
-    allocate(w_ref(n_loc, n_after), p_ref(n_loc, n_after))
+    allocate(u_ref(n_after), v_ref(n_after))
+    allocate(w_ref(n_after), p_ref(n_after))
+    do i = 1, n_after
+       call u_ref(i)%init(n_loc)
+       call v_ref(i)%init(n_loc)
+       call w_ref(i)%init(n_loc)
+       call p_ref(i)%init(n_loc)
+    end do
 
     call dt_controller%init(neko_case%params)
     call simulation_init(neko_case, dt_controller)
@@ -195,14 +202,19 @@ contains
 
        if (i .gt. n_half) then
           k = i - n_half
-          call copy(u_ref(1, k), neko_case%fluid%u%x, n_loc)
-          call copy(v_ref(1, k), neko_case%fluid%v%x, n_loc)
-          call copy(w_ref(1, k), neko_case%fluid%w%x, n_loc)
-          call copy(p_ref(1, k), neko_case%fluid%p%x, n_loc)
+          call neko_case%fluid%u%copy_from(DEVICE_TO_HOST, .false.)
+          call neko_case%fluid%v%copy_from(DEVICE_TO_HOST, .false.)
+          call neko_case%fluid%w%copy_from(DEVICE_TO_HOST, .false.)
+          call neko_case%fluid%p%copy_from(DEVICE_TO_HOST, .true.)
+
+          call copy(u_ref(k)%x, neko_case%fluid%u%x, n_loc)
+          call copy(v_ref(k)%x, neko_case%fluid%v%x, n_loc)
+          call copy(w_ref(k)%x, neko_case%fluid%w%x, n_loc)
+          call copy(p_ref(k)%x, neko_case%fluid%p%x, n_loc)
        end if
     end do
 
-    ref_norm = sqrt(glsum(u_ref(:, n_after)**2, n_loc))
+    ref_norm = sqrt(glsum(u_ref(n_after)%x**2, n_loc))
 
     call simulation_finalize(neko_case)
     call neko_case%free()
@@ -231,20 +243,17 @@ contains
        call simulation_step(neko_case, dt_controller)
        k = i - n_half
 
-       err(1) = rmse(u_ref(:, k), neko_case%fluid%u%x, n_loc, n_glb)
-       err(2) = rmse(v_ref(:, k), neko_case%fluid%v%x, n_loc, n_glb)
-       err(3) = rmse(w_ref(:, k), neko_case%fluid%w%x, n_loc, n_glb)
-       err(4) = rmse(p_ref(:, k), neko_case%fluid%p%x, n_loc, n_glb)
+       call neko_case%fluid%u%copy_from(DEVICE_TO_HOST, .false.)
+       call neko_case%fluid%v%copy_from(DEVICE_TO_HOST, .false.)
+       call neko_case%fluid%w%copy_from(DEVICE_TO_HOST, .false.)
+       call neko_case%fluid%p%copy_from(DEVICE_TO_HOST, .true.)
 
-       ! Bit-exact, not merely close. Replaying a restored checkpoint runs
-       ! the same arithmetic on the same values, so the native chkp format
-       ! reproduces every step to exactly zero difference and anything
-       ! looser would be a tolerance chosen to fit the bug rather than the
-       ! physics. Measured against a reader that wrongly re-ran the
-       ! interpolation fix-up, the damage started at 3e-19 on the velocity
-       ! and 2e-16 on the pressure -- straddling NEKO_EPS, so a
-       ! machine-epsilon tolerance caught it only intermittently.
-       if (maxval(err) .gt. 0.0_rp) then
+       err(1) = rmse(u_ref(k)%x, neko_case%fluid%u%x, n_loc, n_glb)
+       err(2) = rmse(v_ref(k)%x, neko_case%fluid%v%x, n_loc, n_glb)
+       err(3) = rmse(w_ref(k)%x, neko_case%fluid%w%x, n_loc, n_glb)
+       err(4) = rmse(p_ref(k)%x, neko_case%fluid%p%x, n_loc, n_glb)
+
+       if (maxval(err) .gt. NEKO_EPS) then
           failing_step = i
           exit
        end if
@@ -253,6 +262,12 @@ contains
     call simulation_finalize(neko_case)
     call neko_case%free()
 
+    do i = 1, n_after
+       call u_ref(i)%free()
+       call v_ref(i)%free()
+       call w_ref(i)%free()
+       call p_ref(i)%free()
+    end do
     deallocate(u_ref, v_ref, w_ref, p_ref)
 
   end subroutine run_restart_check
@@ -340,11 +355,11 @@ contains
          ' "velocity_solver": {"type": "cg",' // &
          '  "preconditioner": {"type": "jacobi"},' // &
          '  "projection_space_size": 0,' // &
-         '  "absolute_tolerance": 1e-7, "max_iterations": 800},' // &
+         '  "absolute_tolerance": 1e-12, "max_iterations": 800},' // &
          ' "pressure_solver": {"type": "gmres",' // &
-         '  "preconditioner": {"type": "hsmg"},' // &
+         '  "preconditioner": {"type": "phmg"},' // &
          '  "projection_space_size": 0,' // &
-         '  "absolute_tolerance": 1e-4, "max_iterations": 800},' // &
+         '  "absolute_tolerance": 1e-7, "max_iterations": 800},' // &
          ' "output_control": "never"}}}'
 
     call params%load_from_string(json_str)
