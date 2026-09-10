@@ -410,33 +410,35 @@ $(document).ready(function(){initNavTree('d0/d6c/runtime__statistics_8f90_source
 <div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span> </div>
 <div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    region_id = -1</div>
 <div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span> </div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>    <span class="comment">! Look for the region name first</span></div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>    <span class="keywordflow">do</span> i = <a class="code hl_variable" href="../../d6/d78/namespaceruntime__stats.html#aba83d4c3bd7755755e086a1ba6fea51e">rt_stats_reserved_regions</a> + 1, <a class="code hl_variable" href="../../d6/d78/namespaceruntime__stats.html#afd8fc71ba24d1d271d7ded2c980d60c8">rt_stats_max_regions</a></div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>       <span class="keywordflow">if</span> (trim(this%rt_stats_id(i)) .eq. trim(name)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>          region_id = i</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>          <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>    <span class="comment">! If found, return</span></div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>    <span class="keywordflow">if</span> (region_id .ne. -1) <span class="keywordflow">return</span></div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span> </div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>    <span class="comment">! Otherwise, look for an empty slot</span></div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keywordflow">do</span> i = <a class="code hl_variable" href="../../d6/d78/namespaceruntime__stats.html#aba83d4c3bd7755755e086a1ba6fea51e">rt_stats_reserved_regions</a> + 1, <a class="code hl_variable" href="../../d6/d78/namespaceruntime__stats.html#afd8fc71ba24d1d271d7ded2c980d60c8">rt_stats_max_regions</a></div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>       <span class="keywordflow">if</span> (len_trim(this%rt_stats_id(i)) .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>          region_id = i</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>          <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keywordflow">if</span> (region_id .eq. -1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;Not enough profiling regions available&#39;</span>)</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span> </div>
-</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/d78/namespaceruntime__stats.html#ad16174630d36b9a6313ac82285d16118">runtime_stats_find_region_id</a></div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>    <span class="keywordflow">if</span> (.not. this%enabled) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> </div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>    <span class="comment">! Look for the region name first</span></div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>    <span class="keywordflow">do</span> i = <a class="code hl_variable" href="../../d6/d78/namespaceruntime__stats.html#aba83d4c3bd7755755e086a1ba6fea51e">rt_stats_reserved_regions</a> + 1, <a class="code hl_variable" href="../../d6/d78/namespaceruntime__stats.html#afd8fc71ba24d1d271d7ded2c980d60c8">rt_stats_max_regions</a></div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>       <span class="keywordflow">if</span> (trim(this%rt_stats_id(i)) .eq. trim(name)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>          region_id = i</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>          <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span> </div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>    <span class="comment">! If found, return</span></div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>    <span class="keywordflow">if</span> (region_id .ne. -1) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span> </div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    <span class="comment">! Otherwise, look for an empty slot</span></div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    <span class="keywordflow">do</span> i = <a class="code hl_variable" href="../../d6/d78/namespaceruntime__stats.html#aba83d4c3bd7755755e086a1ba6fea51e">rt_stats_reserved_regions</a> + 1, <a class="code hl_variable" href="../../d6/d78/namespaceruntime__stats.html#afd8fc71ba24d1d271d7ded2c980d60c8">rt_stats_max_regions</a></div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>       <span class="keywordflow">if</span> (len_trim(this%rt_stats_id(i)) .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>          region_id = i</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>          <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span> </div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="keywordflow">if</span> (region_id .eq. -1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;Not enough profiling regions available&#39;</span>)</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span> </div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/d78/namespaceruntime__stats.html">runtime_stats</a></div>
+</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/d78/namespaceruntime__stats.html#ad16174630d36b9a6313ac82285d16118">runtime_stats_find_region_id</a></div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span> </div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/d78/namespaceruntime__stats.html">runtime_stats</a></div>
 <div class="ttc" id="adevice__config_8h_html_a11d147c64891830c9e79b3315b1b2e21"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a></div><div class="ttdeci">double real</div><div class="ttdef"><b>Definition</b> <a href="../../d8/dc8/device__config_8h_source.html#l00012">device_config.h:12</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get__or__default_html"><div class="ttname"><a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_utils::json_get_or_default</a></div><div class="ttdoc">Retrieves a parameter by name or assigns a provided default value. In the latter case also adds the m...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00068">json_utils.f90:68</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00045">utils.f90:45</a></div></div>
@@ -480,7 +482,7 @@ $(document).ready(function(){initNavTree('d0/d6c/runtime__statistics_8f90_source
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d0/d6c/runtime__statistics_8f90.html">runtime_statistics.f90</a></li>
-    <li class="footer">Generated on Wed Sep 9 2026 03:41:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Sep 10 2026 03:40:57 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
