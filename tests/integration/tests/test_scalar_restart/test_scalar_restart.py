@@ -65,7 +65,7 @@ def _compare_with_reference(actual, reference):
     assert np.all(actual["tracer_final_residual"] <= SCALAR_TOLERANCE)
 
 
-HAVE_HDF5 = bool(os.getenv("HAVE_HDF5"))
+HAVE_HDF5 = bool(os.getenv("HAVE_HDF5", "0") == "1")
 
 
 # Both checkpoint formats have to support a restart identically. The
