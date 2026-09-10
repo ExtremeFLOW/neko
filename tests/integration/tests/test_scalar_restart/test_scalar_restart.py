@@ -64,10 +64,29 @@ def _compare_with_reference(actual, reference):
     assert np.all(actual["tracer_final_residual"] <= SCALAR_TOLERANCE)
 
 
+def _has_hdf5(neko_dir):
+    """Return whether the configured Neko build defines HAVE_HDF5."""
+    return "-DHAVE_HDF5=1" in (neko_dir / "Makefile").read_text(
+        encoding="utf-8"
+    )
+
+
 # Both checkpoint formats have to support a restart identically. The
 # reference data is physics, not format, so the same references apply to
 # each: if either format loses or garbles state, its part2 stops matching.
-@pytest.mark.parametrize("checkpoint_format", ["chkp", "hdf5"])
+@pytest.mark.parametrize(
+    "checkpoint_format",
+    [
+        "chkp",
+        pytest.param(
+            "hdf5",
+            marks=pytest.mark.skipif(
+                not _has_hdf5(Path(get_neko_dir()).resolve()),
+                reason="Neko was configured without HDF5 support",
+            ),
+        ),
+    ],
+)
 def test_scalar_restart(launcher_script, request, tmp_path, checkpoint_format):
     """Check scalar residuals and continuity across a checkpoint restart."""
     neko = get_neko()
