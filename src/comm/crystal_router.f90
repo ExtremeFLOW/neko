@@ -40,6 +40,9 @@
 !! unexpected-message buffers) with a recursive-bisection routing that talks
 !! to at most one or two partners per stage.
 !!
+!! The algorithm is the crystal router of Fox et al., "Solving Problems on
+!! Concurrent Processors, Volume 1", Prentice-Hall, 1988.
+!!
 !! Records are passed in a single packed `integer(i8)` buffer as a sequence of
 !! self-describing entries
 !! @verbatim

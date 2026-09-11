@@ -432,11 +432,19 @@ contains
        call neko_scratch_registry%request_field(value_z_field, scratch_idx(3), &
             .true.)
 
-       call import_fields(this%field_file_name, this%field_mesh_file_name, &
-            u = value_x_field, v = value_y_field, w = value_z_field, &
-            interpolate = this%field_interpolate, &
-            tolerance = this%field_interp_tolerance, &
-            padding = this%field_interp_padding)
+       if (trim(this%field_mesh_file_name) .eq. "none") then
+          call import_fields(this%field_file_name, &
+               u = value_x_field, v = value_y_field, w = value_z_field, &
+               interpolate = this%field_interpolate, &
+               tolerance = this%field_interp_tolerance, &
+               padding = this%field_interp_padding)
+       else
+          call import_fields(this%field_file_name, this%field_mesh_file_name, &
+               u = value_x_field, v = value_y_field, w = value_z_field, &
+               interpolate = this%field_interpolate, &
+               tolerance = this%field_interp_tolerance, &
+               padding = this%field_interp_padding)
+       end if
 
        call vector_masked_gather_copy_0(this%value_x, &
             value_x_field%x(:,1,1,1), this%bc_x%msk, value_x_field%size(), &

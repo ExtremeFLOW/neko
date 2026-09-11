@@ -156,7 +156,7 @@ contains
     real(kind=dp), intent(in), optional :: padding
 
     character(len=LOG_SIZE) :: log_buf
-    integer :: sample_idx, sample_mesh_idx, i
+    integer :: i
 
     logical :: interpolate_
 
@@ -174,11 +174,18 @@ contains
     call neko_log%message(log_buf)
 
     !
-    ! Read fld file and mesh file if specified
+    ! Read the mesh field only when interpolation is enabled and a separate
+    ! mesh field was specified. The mesh file is optional; when omitted, the
+    ! coordinates are read from the field file itself.
     !
-    if (present(mesh_fname)) then
-       call neko_log%message("Mesh file     : " // trim(mesh_fname))
-       call read_fld_file(mesh_fname, fld_data)
+    if (interpolate_) then
+       if (present(mesh_fname)) then
+          ! For scalar IC. TODO: stop using the "none" fill info in scalar.
+          if (trim(mesh_fname) .ne. "none") then
+             call neko_log%message("Mesh file     : " // trim(mesh_fname))
+             call read_fld_file(mesh_fname, fld_data)
+          end if
+       end if
     end if
 
     call read_fld_file(fname, fld_data)

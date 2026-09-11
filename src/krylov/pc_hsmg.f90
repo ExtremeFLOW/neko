@@ -404,6 +404,7 @@ contains
     class(hsmg_t), intent(inout) :: this
 
     if (allocated(this%ax)) then
+       call this%ax%free()
        deallocate(this%ax)
     end if
 

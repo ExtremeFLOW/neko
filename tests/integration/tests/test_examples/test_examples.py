@@ -135,6 +135,7 @@ examples = {
                 "preconditioner_template.f90",
                 "krylov_solver_template.f90",
                 "scalar_scheme_template.f90",
+                "scalar_pnpn_bc_template.f90",
             )
         )
     ),
