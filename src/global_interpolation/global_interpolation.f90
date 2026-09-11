@@ -72,6 +72,8 @@ module global_interpolation
   integer, public, parameter :: GLOB_MAP_SIZE = 4096
   real(kind=dp), public, parameter :: GLOB_INTERP_TOL = NEKO_EPS*1e3_dp
   real(kind=dp), public, parameter :: GLOB_INTERP_PAD = 1e-2_dp
+  !> Default maximum number of Newton iterations in the rst finder.
+  integer, public, parameter :: GLOB_INTERP_MAX_ITER = 10
 
   !> Implements the settings helper data container for global interpolation.
   type, public :: global_interpolation_settings_t
@@ -81,6 +83,8 @@ module global_interpolation
      real(kind=dp) :: tolerance = GLOB_INTERP_TOL
      !> Padding of the bounding boxes.
      real(kind=dp) :: padding = GLOB_INTERP_PAD
+     !> Maximum number of Newton iterations.
+     integer :: max_iterations = GLOB_INTERP_MAX_ITER
   end type global_interpolation_settings_t
 
   !> Implements global interpolation for arbitrary points in the domain.
@@ -136,6 +140,8 @@ module global_interpolation
      real(kind=dp) :: tolerance = GLOB_INTERP_TOL
      !> Padding
      real(kind=dp) :: padding = GLOB_INTERP_PAD
+     !> Maximum number of Newton iterations in the rst finder.
+     integer :: max_iterations = GLOB_INTERP_MAX_ITER
 
      !> Mapping of points to ranks.
      !> n_points_pe(pe_rank) = n_points I have at this rank
@@ -236,14 +242,20 @@ contains
     type(MPI_COMM), intent(in), optional :: comm
 
     real(kind=dp) :: tol, pad
+    integer :: max_iter
 
     call json_get_or_lookup_or_default(params_subdict, 'tolerance', &
          tol, GLOB_INTERP_TOL)
     call json_get_or_lookup_or_default(params_subdict, 'padding', &
          pad, GLOB_INTERP_PAD)
+    call json_get_or_lookup_or_default(params_subdict, 'max_iterations', &
+         max_iter, GLOB_INTERP_MAX_ITER)
+    if (max_iter .lt. 1) then
+       call neko_error('global_interpolation: max_iterations must be >= 1.')
+    end if
 
     call this%init_xyz(x, y, z, gdim, nelv, Xh, comm = comm, tol = tol, &
-         pad = pad)
+         pad = pad, max_iter = max_iter)
 
   end subroutine global_interpolation_init_json_xyz
 
@@ -263,13 +275,20 @@ contains
     type(mask_t), intent(in), optional :: mask
 
     real(kind=dp) :: tol, pad
+    integer :: max_iter
 
     call json_get_or_lookup_or_default(params_subdict, 'tolerance', &
          tol, GLOB_INTERP_TOL)
     call json_get_or_lookup_or_default(params_subdict, 'padding', &
          pad, GLOB_INTERP_PAD)
+    call json_get_or_lookup_or_default(params_subdict, 'max_iterations', &
+         max_iter, GLOB_INTERP_MAX_ITER)
+    if (max_iter .lt. 1) then
+       call neko_error('global_interpolation: max_iterations must be >= 1.')
+    end if
 
-    call this%init_dof(dof, comm = comm, tol = tol, pad = pad, mask = mask)
+    call this%init_dof(dof, comm = comm, tol = tol, pad = pad, mask = mask, &
+         max_iter = max_iter)
 
   end subroutine global_interpolation_init_json_dof
 
@@ -279,13 +298,15 @@ contains
   !! @param pad Padding of the bounding boxes.
   !! @param mask Mask that indicates which portions of the domain to include
   !! instead of tol and pad.
-  subroutine global_interpolation_init_dof(this, dof, comm, tol, pad, mask)
+  subroutine global_interpolation_init_dof(this, dof, comm, tol, pad, mask, &
+       max_iter)
     class(global_interpolation_t), target, intent(inout) :: this
     type(dofmap_t) :: dof
     type(MPI_COMM), optional, intent(in) :: comm
     real(kind=dp), optional :: tol
     real(kind=dp), optional :: pad
     type(mask_t), intent(in), optional :: mask
+    integer, intent(in), optional :: max_iter
 
     integer :: temp_nelv
 
@@ -297,7 +318,7 @@ contains
     if (.not. present(mask)) then
        call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
             dof%msh%gdim, dof%msh%nelv, dof%Xh, comm = comm, &
-            tol = tol, pad = pad)
+            tol = tol, pad = pad, max_iter = max_iter)
     else
 
        ! Initialize a helper field with the size of the mask
@@ -311,7 +332,7 @@ contains
        ! Initialize with the masked coordinates
        call this%init_xyz(dof%x(mask%get(),1,1,1), dof%y(mask%get(),1,1,1), &
             dof%z(mask%get(),1,1,1), dof%msh%gdim, temp_nelv, dof%Xh, &
-            comm = comm, tol = tol, pad = pad)
+            comm = comm, tol = tol, pad = pad, max_iter = max_iter)
     end if
 
   end subroutine global_interpolation_init_dof
@@ -327,7 +348,7 @@ contains
   !! @param tol Tolerance for Newton iterations.
   !! @param pad Padding of the bounding boxes.
   subroutine global_interpolation_init_xyz(this, x, y, z, gdim, nelv, Xh, &
-       comm, tol, pad)
+       comm, tol, pad, max_iter)
     class(global_interpolation_t), target, intent(inout) :: this
     real(kind=rp), intent(in) :: x(:)
     real(kind=rp), intent(in) :: y(:)
@@ -338,6 +359,7 @@ contains
     type(MPI_COMM), intent(in), optional :: comm
     real(kind=dp), intent(in), optional :: tol
     real(kind=dp), intent(in), optional :: pad
+    integer, intent(in), optional :: max_iter
 
     integer :: lx, ly, lz, ierr, i, n
     character(len=8000) :: log_buf
@@ -365,11 +387,20 @@ contains
     this%tolerance = GLOB_INTERP_TOL
     if (present(tol)) this%tolerance = tol
 
+    this%max_iterations = GLOB_INTERP_MAX_ITER
+    if (present(max_iter)) this%max_iterations = max_iter
+    if (this%max_iterations .lt. 1) then
+       call neko_error('global_interpolation: max_iterations must be >= 1.')
+    end if
+
     write(log_buf, '(A,E15.7)') &
          'Tolerance: ', this%tolerance
     call neko_log%message(log_buf)
     write(log_buf, '(A,E15.7)') &
          'Padding  : ', this%padding
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,I0)') &
+         'Max iter : ', this%max_iterations
     call neko_log%message(log_buf)
 
     time_start = MPI_Wtime()
@@ -458,7 +489,7 @@ contains
     end select
 
     call this%rst_finder%init(this%x%x, this%y%x, this%z%x, nelv, Xh, &
-         this%tolerance)
+         this%tolerance, this%max_iterations)
     if (allocated(this%n_points_pe)) deallocate(this%n_points_pe)
     if (allocated(this%n_points_pe_local)) deallocate(this%n_points_pe_local)
     if (allocated(this%n_points_offset_pe_local)) &
