@@ -115,7 +115,7 @@ contains
     lx = coef%Xh%lx
 
     call json_get_or_default(json, "svv.formulation", formulation, &
-         "one-sided")
+         "factorized")
     this%formulation = trim(formulation)
     if (all(trim(this%formulation) .ne. KNOWN_FORMULATIONS)) then
        call neko_type_error("The SVV formulation", this%formulation, &
