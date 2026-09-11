@@ -393,7 +393,8 @@
           "type": "boolean"
         },
         "formulation": {
-          "const": "one-sided"
+          "type": "string",
+          "enum": ["one-sided", "symmetric"]
         },
         "direction": {
           "type": "string",
