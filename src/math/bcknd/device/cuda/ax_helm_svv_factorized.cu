@@ -58,14 +58,14 @@ void cuda_ax_helm_svv_factorized(
         (real *) w, (real *) u, \
         (real *) dx, (real *) dy, (real *) dz, (real *) h1, \
         (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23); \
+        (real *) g12, (real *) g13, (real *) g23, *nelv); \
     CUDA_CHECK(cudaGetLastError()); \
     ax_helm_kernel_kstep<real, LX, 1, true> \
         <<<blocks, threads, 0, stream>>>( \
         (real *) w, (real *) u, \
         (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv, \
         (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23); \
+        (real *) g12, (real *) g13, (real *) g23, *nelv); \
     CUDA_CHECK(cudaGetLastError())
 
 #define LAUNCH_PADDED(LX) \
@@ -74,14 +74,14 @@ void cuda_ax_helm_svv_factorized(
         (real *) w, (real *) u, \
         (real *) dx, (real *) dy, (real *) dz, (real *) h1, \
         (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23); \
+        (real *) g12, (real *) g13, (real *) g23, *nelv); \
     CUDA_CHECK(cudaGetLastError()); \
     ax_helm_kernel_kstep_padded<real, LX, 1, true> \
         <<<blocks, threads, 0, stream>>>( \
         (real *) w, (real *) u, \
         (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv, \
         (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23); \
+        (real *) g12, (real *) g13, (real *) g23, *nelv); \
     CUDA_CHECK(cudaGetLastError())
 
 #define CASE(LX) \
