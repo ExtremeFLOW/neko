@@ -478,9 +478,9 @@ contains
               real(kind=dp) :: x, y, z
               idx = nonlinear_index(local_idx, lx, ly, lz)
 
-              x = real(dof%x(idx(1), idx(2), idx(3), idx(4)), dp)
-              y = real(dof%y(idx(1), idx(2), idx(3), idx(4)), dp)
-              z = real(dof%z(idx(1), idx(2), idx(3), idx(4)), dp)
+              x = real(dof%x%x(idx(1), idx(2), idx(3), idx(4)), dp)
+              y = real(dof%y%x(idx(1), idx(2), idx(3), idx(4)), dp)
+              z = real(dof%z%x(idx(1), idx(2), idx(3), idx(4)), dp)
 
               coords(1, local_idx) = x
               coords(2, local_idx) = y

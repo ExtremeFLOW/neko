@@ -81,7 +81,7 @@ contains
     call label_adjacent_faces(msh)
 
     call fld%init(dof, "xcoord")
-    fld%x = dof%x
+    fld%x = dof%x%x
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call fld%copy_from(HOST_TO_DEVICE, .true.)
     end if
@@ -133,7 +133,7 @@ contains
     call neko_registry%init()
     call neko_registry%add_field(dof, "u")
     reg_field => neko_registry%get_field_by_name("u")
-    reg_field%x = dof%x
+    reg_field%x = dof%x%x
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call reg_field%copy_from(HOST_TO_DEVICE, .true.)
     end if

@@ -222,17 +222,17 @@ contains
     !> keep this to later check if the coordinates have changed.
     if (NEKO_BCKND_DEVICE .eq. 1) then
        ! copy
-       call device_copy(this%x_dof%x_d, this%dof%x_d, this%dof%size())
-       call device_copy(this%y_dof%x_d, this%dof%y_d, this%dof%size())
-       call device_copy(this%z_dof%x_d, this%dof%z_d, this%dof%size())
+       call device_copy(this%x_dof%x_d, this%dof%x%x_d, this%dof%size())
+       call device_copy(this%y_dof%x_d, this%dof%y%x_d, this%dof%size())
+       call device_copy(this%z_dof%x_d, this%dof%z%x_d, this%dof%size())
        ! synchronize
        call this%x_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
        call this%y_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
        call this%z_dof%copy_from(DEVICE_TO_HOST, sync = .true.)
     else
-       call copy(this%x_dof%x, this%dof%x, this%dof%size())
-       call copy(this%y_dof%x, this%dof%y, this%dof%size())
-       call copy(this%z_dof%x, this%dof%z, this%dof%size())
+       call copy(this%x_dof%x, this%dof%x%x, this%dof%size())
+       call copy(this%y_dof%x, this%dof%y%x, this%dof%size())
+       call copy(this%z_dof%x, this%dof%z%x, this%dof%size())
     end if
 
   end subroutine overset_interface_vector_init_from_components
@@ -648,15 +648,15 @@ contains
 
     !> Gather the coordinates to the vectors
     call vector_masked_gather_copy(this%x_interface_dof, &
-         this%dof%x(:,1,1,1), &
+         this%dof%x%x(:,1,1,1), &
          this%interface_dof_mask, &
          this%dof%size())
     call vector_masked_gather_copy(this%y_interface_dof, &
-         this%dof%y(:,1,1,1), &
+         this%dof%y%x(:,1,1,1), &
          this%interface_dof_mask, &
          this%dof%size())
     call vector_masked_gather_copy(this%z_interface_dof, &
-         this%dof%z(:,1,1,1), &
+         this%dof%z%x(:,1,1,1), &
          this%interface_dof_mask, &
          this%dof%size())
     !> synchronize if on device

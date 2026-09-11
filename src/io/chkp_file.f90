@@ -715,7 +715,7 @@ contains
        end if
        call dof%init(msh, this%chkp_Xh)
        call this%global_interp%init(dof, NEKO_COMM, tol = tol)
-       call this%global_interp%find_points(u%dof%x, u%dof%y, u%dof%z, &
+       call this%global_interp%find_points(u%dof%x%x, u%dof%y%x, u%dof%z%x, &
             u%dof%size())
     else
        call this%space_interp%init(this%sim_Xh, this%chkp_Xh)

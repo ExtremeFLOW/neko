@@ -95,11 +95,11 @@ contains
     call m%generate_conn()
     call d%init(m, Xh)
 
-    @assertEqual(d%x(1,1,1,1), p(1)%x(1), tolerance=1d-14)
-    @assertEqual(d%x(2,1,1,1), p(2)%x(1), tolerance=1d-14)
+    @assertEqual(d%x%x(1,1,1,1), p(1)%x(1), tolerance=1d-14)
+    @assertEqual(d%x%x(2,1,1,1), p(2)%x(1), tolerance=1d-14)
 
-    @assertEqual(d%x(1,1,1,2), p(4)%x(1), tolerance=1d-14)
-    @assertEqual(d%x(2,1,1,2), p(5)%x(1), tolerance=1d-14)
+    @assertEqual(d%x%x(1,1,1,2), p(4)%x(1), tolerance=1d-14)
+    @assertEqual(d%x%x(2,1,1,2), p(5)%x(1), tolerance=1d-14)
 
   end subroutine test_dofmap_genxyz
 
@@ -628,15 +628,15 @@ contains
 
     do j = 1, Xh%ly
        do i = 1, Xh%lx
-          @assertEqual(d%x(i,j,1,1), d%x(i,j,3,1), tolerance=tol)
-          @assertEqual(d%y(i,j,1,1), d%y(i,j,3,1), tolerance=tol)
-          @assertEqual(0.0_rp, d%z(i,j,1,1), tolerance = tol)
-          @assertEqual(1.0_rp, d%z(i,j,3,1), tolerance = tol)
+          @assertEqual(d%x%x(i,j,1,1), d%x%x(i,j,3,1), tolerance=tol)
+          @assertEqual(d%y%x(i,j,1,1), d%y%x(i,j,3,1), tolerance=tol)
+          @assertEqual(0.0_rp, d%z%x(i,j,1,1), tolerance = tol)
+          @assertEqual(1.0_rp, d%z%x(i,j,3,1), tolerance = tol)
        end do
     end do
 
-    @assertEqual(-0.1_rp, d%y(2,1,1,1), tolerance = tol)
-    @assertTrue(abs(d%x(3,2,1,1) - 1.0_rp) .gt. tol)
+    @assertEqual(-0.1_rp, d%y%x(2,1,1,1), tolerance = tol)
+    @assertTrue(abs(d%x%x(3,2,1,1) - 1.0_rp) .gt. tol)
 
     call d%free()
     call Xh%free()
