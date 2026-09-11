@@ -39,10 +39,9 @@
  * @param u_d The sampled x-velocity field.
  * @param v_d The sampled y-velocity field.
  * @param w_d The sampled z-velocity field.
- * @param ind_r_d The r-index array for sampled GLL points.
- * @param ind_s_d The s-index array for sampled GLL points.
- * @param ind_t_d The t-index array for sampled GLL points.
- * @param ind_e_d The element-index array for sampled GLL points.
+ * @param u_d Sampled x velocity.
+ * @param v_d Sampled y velocity.
+ * @param w_d Sampled z velocity.
  * @param n_x_d The x-component of the wall normals.
  * @param n_y_d The y-component of the wall normals.
  * @param n_z_d The z-component of the wall normals.
@@ -63,10 +62,6 @@ __kernel void cai_sagaut_model_ii_compute_kernel(
     __global const real * __restrict__ u_d,
     __global const real * __restrict__ v_d,
     __global const real * __restrict__ w_d,
-    __global const int * __restrict__ ind_r_d,
-    __global const int * __restrict__ ind_s_d,
-    __global const int * __restrict__ ind_t_d,
-    __global const int * __restrict__ ind_e_d,
     __global const real * __restrict__ n_x_d,
     __global const real * __restrict__ n_y_d,
     __global const real * __restrict__ n_z_d,
@@ -77,7 +72,6 @@ __kernel void cai_sagaut_model_ii_compute_kernel(
     __global real * __restrict__ tau_y_d,
     __global real * __restrict__ tau_z_d,
     const int n_nodes,
-    const int lx,
     const real kappa,
     const real B,
     const real p,
@@ -85,20 +79,15 @@ __kernel void cai_sagaut_model_ii_compute_kernel(
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
   const real one = (real) 1.0;
-  const real half = (real) 0.5;
+  const real one_half = (real) 0.5;
   const real eps = (sizeof(real) == sizeof(float)) ?
     (real) FLT_EPSILON : (real) DBL_EPSILON;
   const real e_const = exp(kappa * B);
 
   for (int i = idx; i < n_nodes; i += str) {
-    const int index = (ind_e_d[i] - 1) * lx * lx * lx +
-      (ind_t_d[i] - 1) * lx * lx +
-      (ind_s_d[i] - 1) * lx +
-      (ind_r_d[i] - 1);
-
-    real ui = u_d[index];
-    real vi = v_d[index];
-    real wi = w_d[index];
+    real ui = u_d[i];
+    real vi = v_d[i];
+    real wi = w_d[i];
     const real rho = rho_w_d[i];
     const real nx = n_x_d[i];
     const real ny = n_y_d[i];
@@ -121,7 +110,7 @@ __kernel void cai_sagaut_model_ii_compute_kernel(
     const real rey = magu * h_d[i] / nu_d[i];
     const real blend = exp(-pow(rey / s, p));
     const real warg = kappa * e_const * rey;
-    const real a = one / (one + half * log(one + warg));
+    const real a = one / (one + one_half * log(one + warg));
     real wlam = log(one + a * warg);
     wlam = wlam / (one + wlam) * (one + log(warg / wlam));
 

@@ -40,7 +40,7 @@ module fluid_scheme_compressible
   use bc, only : bc_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use mesh, only : mesh_t
   use scratch_registry, only : neko_scratch_registry
   use space, only : GLL
@@ -379,8 +379,8 @@ contains
   !> @return Computed CFL number
   function fluid_scheme_compressible_compute_cfl(this, dt) result(c)
     class(fluid_scheme_compressible_t), intent(in) :: this
-    real(kind=rp), intent(in) :: dt
-    real(kind=rp) :: c
+    real(kind=dp), intent(in) :: dt
+    real(kind=dp) :: c
     integer :: n
 
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &

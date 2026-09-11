@@ -147,14 +147,15 @@ contains
 
   end subroutine entropy_viscosity_free
 
-  subroutine entropy_viscosity_compute(this, time, tstep, dt)
+  subroutine entropy_viscosity_compute(this, time)
     class(entropy_viscosity_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
 
-    call this%compute_residual(tstep, dt, time%dtlag)
-    call this%compute_viscosity(tstep)
+    call this%compute_residual(time%tstep, &
+         real(time%dt, kind=rp), &
+         real(time%dtlag, kind=rp))
+
+    call this%compute_viscosity(time%tstep)
 
   end subroutine entropy_viscosity_compute
 

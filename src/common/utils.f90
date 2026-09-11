@@ -337,11 +337,17 @@ contains
   subroutine neko_error_plain(error_code)
     integer, optional :: error_code
 
+    ! Persist buffered log output before aborting, such that the error
+    ! appears after any preceding log messages
+    flush(output_unit)
+
     if (present(error_code)) then
        write(error_unit, *) '*** ERROR ***', error_code
+       flush(error_unit)
        error stop
     else
        write(error_unit, *) '*** ERROR ***'
+       flush(error_unit)
        error stop
     end if
 
@@ -351,7 +357,12 @@ contains
   !! @param error_msg The error message to report.
   subroutine neko_error_msg(error_msg)
     character(len=*) :: error_msg
+
+    ! Persist buffered log output before aborting, such that the error
+    ! appears after any preceding log messages
+    flush(output_unit)
     write(error_unit, *) '*** ERROR: ', trim(error_msg), ' ***'
+    flush(error_unit)
     error stop
   end subroutine neko_error_msg
 
@@ -367,12 +378,14 @@ contains
     character(len=*), intent(in) :: known_types(:)
     integer :: i
 
+    flush(output_unit)
     write(error_unit, *) '*** ERROR WHEN SELECTING TYPE ***'
     write(error_unit, *) 'Type ', wrong_type, ' does not exist for ', base_type
     write(error_unit, *) 'Valid types are:'
     do i = 1, size(known_types)
        write(error_unit, *) "    ", known_types(i)
     end do
+    flush(error_unit)
     error stop
   end subroutine neko_type_error
 
@@ -381,6 +394,7 @@ contains
     character(len=*), intent(in) :: wrong_type
     logical, intent(in) :: known
 
+    flush(output_unit)
     write(error_unit, *) '*** ERROR WHEN REGISTERING TYPE ***'
     write(error_unit, *) 'Type name ', wrong_type, &
          ' conflicts with and already existing ', base_type, " type"
@@ -390,6 +404,7 @@ contains
        write(error_unit, *) 'The already existing type is also custom.' // &
             ' Make all custom type names unique!'
     end if
+    flush(error_unit)
     error stop
   end subroutine neko_type_registration_error
 
@@ -397,6 +412,7 @@ contains
   subroutine neko_warning(warning_msg)
     character(len=*) :: warning_msg
     write(output_unit, *) '*** WARNING: ', trim(warning_msg), ' ***'
+    flush(output_unit)
   end subroutine neko_warning
 
   !> Concatenate an array of strings into one string with array items

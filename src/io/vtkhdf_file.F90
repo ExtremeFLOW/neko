@@ -49,10 +49,10 @@ module vtkhdf_file
        MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
        MPI_Barrier, MPI_Bcast, MPI_LOGICAL
   use vtk, only : vtk_ordering
+  use hdf5_session, only : hdf5_session_init, hdf5_session_finalize
 #ifdef HAVE_HDF5
   use hdf5, only : &
        hid_t, hsize_t, size_t, &
-       h5open_f, h5close_f, &
        h5fcreate_f, h5fopen_f, h5fclose_f, h5fflush_f, h5fget_obj_count_f, &
        H5F_OBJ_ALL_F, H5F_SCOPE_GLOBAL_F, &
        h5gcreate_f, h5gopen_f, h5gclose_f, &
@@ -165,7 +165,7 @@ contains
   subroutine vtkhdf_file_write(this, data, t)
     class(vtkhdf_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
     type(field_list_t) :: fields
@@ -233,7 +233,7 @@ contains
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
 
-    call h5open_f(ierr)
+    call hdf5_session_init()
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
     call h5pset_fapl_mpio_f(plist_id, mpi_comm, mpi_info, ierr)
 
@@ -314,7 +314,7 @@ contains
     end block
     call h5fflush_f(file_id, H5F_SCOPE_GLOBAL_F, ierr)
     call h5fclose_f(file_id, ierr)
-    call h5close_f(ierr)
+    call hdf5_session_finalize()
 
     call fields%free()
 
@@ -339,7 +339,7 @@ contains
     logical, intent(in) :: amr
     integer, intent(in) :: counter
     logical, intent(in) :: subdivide
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
 
     integer(kind=1) :: VTK_cell_type
     integer :: ierr, i, ii, jj, kk, el, local_idx
@@ -656,7 +656,7 @@ contains
   subroutine vtkhdf_write_steps(vtkhdf_grp, counter, t)
     integer(hid_t), intent(in) :: vtkhdf_grp
     integer, intent(in) :: counter
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
 
     integer(hid_t) :: xf_id, H5T_NEKO_DOUBLE
     integer :: ierr
@@ -718,7 +718,7 @@ contains
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          step_offset, step_count, ierr)
 
-    time_value(1) = real(t, kind=dp)
+    time_value(1) = t
     call h5dwrite_f(dset_id, H5T_NEKO_DOUBLE, time_value, step_count, ierr, &
          file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
 
@@ -767,7 +767,7 @@ contains
     integer, intent(in) :: precision
     integer, intent(in) :: counter
     character(len=*), intent(in) :: fname
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
 
     integer(kind=i8) :: time_offset
     integer :: local_points, point_offset, total_points
@@ -1518,7 +1518,7 @@ contains
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
 
-    call h5open_f(ierr)
+    call hdf5_session_init()
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
     call h5pset_fapl_mpio_f(plist_id, mpi_comm, mpi_info, ierr)
 
@@ -1555,7 +1555,7 @@ contains
     call h5gclose_f(vtkhdf_grp, ierr)
     call h5fclose_f(file_id, ierr)
     call h5pclose_f(plist_id, ierr)
-    call h5close_f(ierr)
+    call hdf5_session_finalize()
 
     call fields%free()
 
@@ -1782,7 +1782,7 @@ contains
   subroutine vtkhdf_file_write(this, data, t)
     class(vtkhdf_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine vtkhdf_file_write
 

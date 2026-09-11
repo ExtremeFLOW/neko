@@ -37,7 +37,7 @@ module csv_file
   use matrix, only : matrix_t
   use generic_file, only : generic_file_t
   use utils, only : neko_error
-  use num_types, only : rp
+  use num_types, only : dp
   use logger, only : neko_log, log_size
   use comm
   implicit none
@@ -67,7 +67,7 @@ contains
   subroutine csv_file_write(this, data, t)
     class (csv_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
 
     type(vector_t), pointer :: vec
     type(matrix_t), pointer :: mat
@@ -122,7 +122,7 @@ contains
   subroutine csv_file_write_vector(f, data, t)
     class(csv_file_t), intent(inout) :: f
     type(vector_t), intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     integer :: file_unit, ierr, n
 
     ! Delete file if overwrite is enabled and header hasn't been written yet
@@ -163,7 +163,7 @@ contains
   subroutine csv_file_write_matrix(f, data, t)
     class(csv_file_t), intent(inout) :: f
     type(matrix_t), intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     integer :: file_unit, i, ierr, nc
 
     ! Delete file if overwrite is enabled and header hasn't been written yet

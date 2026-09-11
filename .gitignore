@@ -70,6 +70,7 @@ share/man/man1
 # Ignore temporary files
 *~
 *.swp
+**.1
 linter-report.txt
 
 # Explicitly ignore binaries to avoid confusion
@@ -109,3 +110,4 @@ install
 
 # Directory to stash temporary files during development
 .temp
+

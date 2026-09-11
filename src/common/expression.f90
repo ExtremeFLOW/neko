@@ -42,7 +42,7 @@
 !! used by `json_get_or_lookup`, so constants declared under `case.constants`
 !! in the case file can be used directly in the expressions.
 module expression
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use utils, only : neko_error
   use registry, only : neko_const_registry
   use, intrinsic :: ieee_arithmetic, only : ieee_is_finite
@@ -230,9 +230,9 @@ contains
     real(kind=rp), intent(in) :: x(n)
     real(kind=rp), intent(in) :: y(n)
     real(kind=rp), intent(in) :: z(n)
-    real(kind=rp), intent(in), optional :: t
-    real(kind=rp), intent(in), optional :: dt
-    real(kind=rp) :: t_, dt_
+    real(kind=dp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: dt
+    real(kind=dp) :: t_, dt_
     integer :: i0, nb, ip, sp, i, k
 
     if (this%n_op .eq. 0) call neko_error("Evaluating an uncompiled expression")
@@ -242,8 +242,8 @@ contains
             "time, but no time is available where it is used")
     end if
 
-    t_ = 0.0_rp
-    dt_ = 0.0_rp
+    t_ = 0.0_dp
+    dt_ = 0.0_dp
     if (present(t)) t_ = t
     if (present(dt)) dt_ = dt
 

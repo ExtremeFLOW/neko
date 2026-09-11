@@ -294,19 +294,15 @@ __global__ void most_compute(
     const T* __restrict__ v_d,
     const T* __restrict__ w_d,
     const T* __restrict__ temp_d,
+    const T* __restrict__ temp_w_d,
     const T* __restrict__ h_d,
     const T* __restrict__ n_x_d,
     const T* __restrict__ n_y_d,
     const T* __restrict__ n_z_d,
-    const int* __restrict__ ind_r_d,
-    const int* __restrict__ ind_s_d,
-    const int* __restrict__ ind_t_d,
-    const int* __restrict__ ind_e_d,
     T* __restrict__ tau_x_d,
     T* __restrict__ tau_y_d,
     T* __restrict__ tau_z_d,
     int n_nodes,
-    int lx,
     T kappa,
     const T * __restrict__ mu_w_d,
     const T * __restrict__ rho_w_d,
@@ -323,10 +319,7 @@ __global__ void most_compute(
     T* __restrict__ magu_diagn,
     T* __restrict__ ti_diagn,
     T* __restrict__ ts_diagn,
-    T* __restrict__ q_diagn,
-    const int* __restrict__ h_x_idx,
-    const int* __restrict__ h_y_idx,
-    const int* __restrict__ h_z_idx
+    T* __restrict__ q_diagn
 ) {
     const int idx = blockIdx.x * blockDim.x + threadIdx.x;
     const int str = blockDim.x * gridDim.x;
@@ -337,20 +330,11 @@ __global__ void most_compute(
     const T NR_step = 1e-3;
     const int max_iter = 50;
 
-    // Calculate the global 1D offset in the field arrays
-    // Layout: e is the slowest, r is the fastest
-    // Mapping GLL points from the full field to the boundary thread
-    // Neko provides 1-based indices from Fortran, so subtract 1.
     for (int i = idx; i < n_nodes; i += str) {
-        const int index = (ind_e_d[i] - 1) * lx * lx * lx +
-                          (ind_t_d[i] - 1) * lx * lx +
-                          (ind_s_d[i] - 1) * lx +
-                          (ind_r_d[i] - 1);  // 'long long' might be needed to avoid
-                                             // overflowing 32-bits of 'int'
-        T ui = u_d[index];
-        T vi = v_d[index];
-        T wi = w_d[index];
-        T ti = temp_d[index];
+        T ui = u_d[i];
+        T vi = v_d[i];
+        T wi = w_d[i];
+        T ti = temp_d[i];
         T hi = h_d[i];
         T mu = mu_w_d[i];
         T rho = rho_w_d[i];
@@ -464,16 +448,12 @@ __global__ void most_compute(
         tau_y_d[i] = -rho*utau*utau*vi/magu;
         tau_z_d[i] = -rho*utau*utau*wi/magu;
 
-        const int index_ts = (ind_e_d[i] - 1) * lx * lx * lx +
-                    (ind_t_d[i] - 1 - h_z_idx[i]) * lx * lx +
-                    (ind_s_d[i] - 1 - h_y_idx[i]) * lx +
-                    (ind_r_d[i] - 1 - h_x_idx[i]);
         Ri_b_diagn[i] = Ri_b;
         L_ob_diagn[i] = L_ob;
         utau_diagn[i] = utau;
         magu_diagn[i] = magu;
         ti_diagn[i] = ti;
-        ts_diagn[i] = temp_d[index_ts];
+        ts_diagn[i] = temp_w_d[i];
         q_diagn[i] = q;
     }
 }

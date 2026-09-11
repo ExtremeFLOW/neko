@@ -4,6 +4,7 @@ module test_case_file_utils
   use json_utils, only : json_get_or_lookup, json_no_defaults, &
        json_get_or_lookup_or_default
   use neko_config, only : NEKO_BCKND_DEVICE
+  use math, only: NEKO_EPS, NEKO_EPS_SP, NEKO_EPS_DP
   use num_types, only : rp, sp, dp
   use registry, only : neko_const_registry
   use vector, only : vector_t
@@ -47,7 +48,7 @@ contains
 
     call json_get_or_lookup(json, 'params.value', value)
 
-    @assertEqual(1.25_rp, value, tolerance=1e-12_rp)
+    @assertEqual(1.25_rp, value, tolerance=NEKO_EPS)
   end subroutine test_json_real_scalar
 
   @test
@@ -75,7 +76,7 @@ contains
 
     call json_get_or_lookup(json, 'params.value', value)
 
-    @assertEqual(expected, value, tolerance=1e-12_sp)
+    @assertEqual(expected, value, tolerance=NEKO_EPS_SP)
   end subroutine test_registry_real_scalar
 
   @test
@@ -90,7 +91,7 @@ contains
 
     call json_get_or_lookup(json, 'params.value', value)
 
-    @assertEqual(expected, value, tolerance=1e-12_rp)
+    @assertEqual(expected, value, tolerance=NEKO_EPS_DP)
   end subroutine test_registry_double_scalar
 
   @test
@@ -108,7 +109,7 @@ contains
 
     call json_get_or_lookup(json, 'params.value', value)
 
-    @assertEqual(expected_real, real(value, kind=rp), tolerance=1e-12_rp)
+    @assertEqual(expected_real, real(value, kind=rp), tolerance=NEKO_EPS)
   end subroutine test_registry_real_integer
 
   @test
@@ -126,8 +127,8 @@ contains
     call json%get('params.value', stored, found)
 
     @assertTrue(found)
-    @assertEqual(default_val, value, tolerance=1e-12_sp)
-    @assertEqual(default_val, stored, tolerance=1e-12_sp)
+    @assertEqual(default_val, value, tolerance=NEKO_EPS_SP)
+    @assertEqual(default_val, stored, tolerance=NEKO_EPS_SP)
   end subroutine test_default_value_for_reals
 
   @test
@@ -145,8 +146,8 @@ contains
     call json%get('params.value', stored, found)
 
     @assertTrue(found)
-    @assertEqual(default_val, value, tolerance=1e-12_dp)
-    @assertEqual(default_val, stored, tolerance=1e-12_dp)
+    @assertEqual(default_val, value, tolerance=NEKO_EPS_DP)
+    @assertEqual(default_val, stored, tolerance=NEKO_EPS_DP)
   end subroutine test_default_value_for_doubles
 
   @test
@@ -160,7 +161,7 @@ contains
 
     call json_get_or_lookup(json, 'params.arr', values)
 
-    @assertEqual(expected, values, tolerance=1e-12_sp)
+    @assertEqual(expected, values, tolerance=NEKO_EPS_SP)
   end subroutine test_real_array_from_json
 
   @test
@@ -173,7 +174,7 @@ contains
 
     call json_get_or_lookup(json, 'params.arr', values)
 
-    @assertEqual(expected, values, tolerance=1e-12_dp)
+    @assertEqual(expected, values, tolerance=NEKO_EPS_DP)
   end subroutine test_double_array_from_json
 
   @test
@@ -192,7 +193,7 @@ contains
 
     call json_get_or_lookup(json, 'params.arr', values)
 
-    @assertEqual(expected, values, tolerance=1e-12_sp)
+    @assertEqual(expected, values, tolerance=NEKO_EPS_SP)
   end subroutine test_real_array_from_registry
 
   @test
@@ -211,7 +212,7 @@ contains
 
     call json_get_or_lookup(json, 'params.arr', values)
 
-    @assertEqual(expected, values, tolerance=1e-12_dp)
+    @assertEqual(expected, values, tolerance=NEKO_EPS_DP)
   end subroutine test_double_array_from_registry
 
   @test

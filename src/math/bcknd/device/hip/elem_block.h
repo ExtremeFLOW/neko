@@ -34,27 +34,44 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "wave.h"
+
 /**
  * Elements per thread block for the SEM operator kstep kernels (HIP)
  *
- * A kstep block is one (LX,LX) thread plane per element. Against a 64 wide
- * wavefront that masks off a lot of lanes for every LX whose square is not a
- * multiple of the wave: 25% useful at LX = 4, 39% at LX = 5, 63% at LX = 9.
+ * A kstep block is one (LX,LX) thread plane per element. Against a wavefront
+ * that masks off a lot of lanes for every LX whose square is not a multiple
+ * of the wave: at the 64 lanes of CDNA, 25% useful at LX = 4, 39% at LX = 5,
+ * 63% at LX = 9.
  * Stacking EB elements along threadIdx.z packs the block back up.
  *
  * MEASURED TO LOSE on gfx90a and gfx942 for ax_helm: the blocked
  * specialisations roughly double VGPR usage and spill to scratch
  * (kstep_padded<double,8,4>: 168 VGPRs, 2596 B/lane scratch, against 110/0
- * unblocked). The sweep therefore defaults off on this backend. The
- * machinery is kept because the ranking inverts on NVIDIA, where blocking
- * measures a 1.6x win, and because the cause of the AMD register blow-up is
- * not yet understood.
+ * unblocked), and the cause of the register blow-up is still not understood.
+ * A single precision run at lx = 8 puts numbers on it: 130.7 us/call at one
+ * element per block against 1212 us at four and 1213 at eight, a factor of
+ * 9.3.
+ *
+ * The sweep is nevertheless on by default here as of 2026-08-22, as it is on
+ * CUDA. Encoding the verdict in a default meant the tuner could never
+ * re-measure it, and the ranking does invert on NVIDIA, where blocking
+ * measures a 1.6x win. The tuner rejects the blocked variants on its own; the
+ * price is tuning time, and at 9.3x slower those two candidates are most of
+ * it -- roughly 0.7 s per polynomial order at the default sampling.
  *
  * Candidate 0 is one element per block. Candidate C > 0 fits as many whole
  * elements as it can into 2^(C+1) wavefronts.
+ *
+ * NEKO_EB_WAVE is deliberately NEKO_WAVE_SIZE_UNIFORM and not NEKO_WAVE_SIZE:
+ * it sizes a kernel template argument and the matching launch geometry, which
+ * the host and device passes have to agree on, and only the command line form
+ * of the width is visible to both. On RDNA, pass -DNEKO_WAVE_SIZE=32 to size
+ * the candidates for a 32 lane wave; getting it wrong costs occupancy, not
+ * correctness, and this sweep defaults off on AMD regardless.
  */
 #ifndef NEKO_EB_WAVE
-#define NEKO_EB_WAVE 64
+#define NEKO_EB_WAVE NEKO_WAVE_SIZE_UNIFORM
 #endif
 
 /* LDS per CU, and the per workgroup maximum, on CDNA */

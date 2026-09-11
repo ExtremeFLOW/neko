@@ -17,14 +17,14 @@ typedef void (*neko_initial_condition_cb)(const char *scheme_name,
                                           int scheme_name_len);
 
 /* Pre timestep callback */
-typedef void (*neko_preprocess_cb)(neko_real t, int tstep);
+typedef void (*neko_preprocess_cb)(double t, int tstep);
 
 /* End of timestep callback */
-typedef void (*neko_compute_cb)(neko_real t, int tstep);
+typedef void (*neko_compute_cb)(double t, int tstep);
 
 /* User boundary condition callback */
 typedef void (*neko_dirichlet_condition_cb)(int *msk, int msk_size,
-                                            neko_real t, int tstep);
+                                            double t, int tstep);
 
 /**
  * Material properties callback
@@ -32,7 +32,7 @@ typedef void (*neko_dirichlet_condition_cb)(int *msk, int msk_size,
  */
 typedef void (*neko_material_properties_cb)(const char *scheme_name,
                                             int scheme_name_len,
-                                            neko_real t, int tstep);
+                                            double t, int tstep);
 
 /**
  * Source term callback
@@ -40,7 +40,7 @@ typedef void (*neko_material_properties_cb)(const char *scheme_name,
  */
 typedef void (*neko_source_term_cb)(const char *scheme_name,
                                     int scheme_name_len,
-                                    neko_real t, int tstep);
+                                    double t, int tstep);
 
 /* Initialise Neko */
 void neko_init();

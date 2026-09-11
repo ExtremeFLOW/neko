@@ -61,6 +61,27 @@ module wall_model_device
      end subroutine cuda_wall_model_compute_mag_field
   end interface
 #elif HAVE_OPENCL
+  interface
+     subroutine opencl_wall_model_compute_mag_field(tau_x_d, tau_y_d, tau_z_d, &
+          tau_field_d, msk_d, m) &
+          bind(c, name = 'opencl_wall_model_compute_mag_field')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       implicit none
+       type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d, tau_field_d, msk_d
+       integer(c_int) :: m
+     end subroutine opencl_wall_model_compute_mag_field
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_wall_model_compute_mag_field(tau_x_d, tau_y_d, tau_z_d, &
+          tau_field_d, msk_d, m) &
+          bind(c, name = 'metal_wall_model_compute_mag_field')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       implicit none
+       type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d, tau_field_d, msk_d
+       integer(c_int) :: m
+     end subroutine metal_wall_model_compute_mag_field
+  end interface
 #endif
   public :: wall_model_compute_mag_field_device
 
@@ -82,8 +103,11 @@ contains
     call cuda_wall_model_compute_mag_field(tau_x_d, tau_y_d, tau_z_d, &
          tau_field_d, msk_d, m)
 #elif HAVE_OPENCL
-    call neko_error("OPENCL is not implemented for &
-    &wall_model_compute_mag_field")
+    call opencl_wall_model_compute_mag_field(tau_x_d, tau_y_d, tau_z_d, &
+         tau_field_d, msk_d, m)
+#elif HAVE_METAL
+    call metal_wall_model_compute_mag_field(tau_x_d, tau_y_d, tau_z_d, &
+         tau_field_d, msk_d, m)
 #else
     call neko_error('No device backend configured')
 #endif

@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2025, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 !
 !> Defines an output for a list of mean fields
 module mean_field_output
-  use num_types, only : rp
+  use num_types, only : dp, rp
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use fld_file_data, only : fld_file_data_t
@@ -54,7 +54,7 @@ module mean_field_output
      !> Pointers to the fields inside the mean_fields
      type(field_list_t) :: fields
      !> Time to start output
-     real(kind=rp) :: start_time = 0.0_rp
+     real(kind=dp) :: start_time = 0.0_dp
      !> Number of fields
      integer :: n_fields = 0
      !> Space averaging object for 2 homogeneous directions.
@@ -92,7 +92,7 @@ contains
     character(len=*), intent(in) :: avg_dir
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
     character(len=1024) :: fname
     integer :: i
 
@@ -168,7 +168,7 @@ contains
   !> Sample the mean solution at time @a t and reset
   subroutine mean_field_output_sample(this, t)
     class(mean_field_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
     integer :: i
     type(fld_file_data_t) :: output_2d
     type(matrix_t) :: avg_output_1d

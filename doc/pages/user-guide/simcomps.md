@@ -159,7 +159,7 @@ the divergence.  By default, registers the result in `divergence`.
  }
  ~~~~~~~~~~~~~~~
 
-### gradient {#simcomp_gradient}
+#### gradient {#simcomp_gradient}
 Computes the gradient of a field.
 The field to derivate is controlled by the `field` keyword. The simcomp will, by
 default, register the computed components of the gradients in the registry as
@@ -174,7 +174,7 @@ value in the brackets corresponds to the choice of the user keyword.
  }
  ~~~~~~~~~~~~~~~
 
-### weak_gradient {#simcomp_weak_gradient}
+#### weak_gradient {#simcomp_weak_gradient}
 Computes the weak gradient of a field. The weak gradient is value of the
 gradient multiplied by the local value of the mass matrix. This is how a
 gradient term appears in the weak formulation of the governing equations. The

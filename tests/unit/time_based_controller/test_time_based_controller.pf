@@ -6,30 +6,30 @@ subroutine test_init()
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use time_state, only : time_state_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   implicit none
 
   type(time_based_controller_t) ctrl
 
-  call ctrl%init(0.0_rp, 1.0_rp, "simulationtime", 10.0_rp)
-  @assertEqual(ctrl%start_time, 0.0_rp, tolerance=1e-6_rp)
-  @assertEqual(ctrl%end_time, 1.0_rp, tolerance=1e-6_rp)
-  @assertEqual(ctrl%time_interval, 10.0_rp, tolerance=1e-6_rp)
-  @assertEqual(ctrl%frequency, 0.1_rp, tolerance=1e-6_rp)
+  call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 10.0_dp)
+  @assertEqual(ctrl%start_time, 0.0_dp, tolerance=1e-6_dp)
+  @assertEqual(ctrl%end_time, 1.0_dp, tolerance=1e-6_dp)
+  @assertEqual(ctrl%time_interval, 10.0_dp, tolerance=1e-6_dp)
+  @assertEqual(ctrl%frequency, 0.1_dp, tolerance=1e-6_dp)
   @assertEqual(ctrl%nsteps, 0)
 
-  call ctrl%init(0.0_rp, 1.0_rp, "nsamples", 10.0_rp)
-  @assertEqual(ctrl%start_time, 0.0_rp, tolerance=1e-6_rp)
-  @assertEqual(ctrl%end_time, 1.0_rp, tolerance=1e-6_rp)
-  @assertEqual(ctrl%time_interval, 0.1_rp, tolerance=1e-6_rp)
-  @assertEqual(ctrl%frequency, 10.0_rp, tolerance=1e-6_rp)
+  call ctrl%init(0.0_dp, 1.0_dp, "nsamples", 10.0_dp)
+  @assertEqual(ctrl%start_time, 0.0_dp, tolerance=1e-6_dp)
+  @assertEqual(ctrl%end_time, 1.0_dp, tolerance=1e-6_dp)
+  @assertEqual(ctrl%time_interval, 0.1_dp, tolerance=1e-6_dp)
+  @assertEqual(ctrl%frequency, 10.0_dp, tolerance=1e-6_dp)
   @assertEqual(ctrl%nsteps, 0)
 
-  call ctrl%init(0.0_rp, 1.0_rp, "tsteps", 10.0_rp)
-  @assertEqual(ctrl%start_time, 0.0_rp, tolerance=1e-6_rp)
-  @assertEqual(ctrl%end_time, 1.0_rp, tolerance=1e-6_rp)
-  @assertEqual(ctrl%time_interval, 0.0_rp, tolerance=1e-6_rp)
-  @assertEqual(ctrl%frequency, 0.0_rp, tolerance=1e-6_rp)
+  call ctrl%init(0.0_dp, 1.0_dp, "tsteps", 10.0_dp)
+  @assertEqual(ctrl%start_time, 0.0_dp, tolerance=1e-6_dp)
+  @assertEqual(ctrl%end_time, 1.0_dp, tolerance=1e-6_dp)
+  @assertEqual(ctrl%time_interval, 0.0_dp, tolerance=1e-6_dp)
+  @assertEqual(ctrl%frequency, 0.0_dp, tolerance=1e-6_dp)
   @assertEqual(ctrl%nsteps, 10)
 end subroutine test_init
 
@@ -38,17 +38,17 @@ end subroutine test_init
 subroutine test_assign()
   use pfunit
   use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   implicit none
 
   type(time_based_controller_t) ctrl1
   type(time_based_controller_t) ctrl2
 
-  call ctrl1%init(0.0_rp, 1.0_rp, "simulationtime", 10.0_rp)
+  call ctrl1%init(0.0_dp, 1.0_dp, "simulationtime", 10.0_dp)
   ctrl2 = ctrl1
-  @assertEqual(ctrl1%end_time, ctrl2%end_time, tolerance=1e-6_rp)
-  @assertEqual(ctrl1%time_interval, ctrl2%time_interval, tolerance=1e-6_rp)
-  @assertEqual(ctrl1%frequency, ctrl2%frequency, tolerance=1e-6_rp)
+  @assertEqual(ctrl1%end_time, ctrl2%end_time, tolerance=1e-6_dp)
+  @assertEqual(ctrl1%time_interval, ctrl2%time_interval, tolerance=1e-6_dp)
+  @assertEqual(ctrl1%frequency, ctrl2%frequency, tolerance=1e-6_dp)
   @assertEqual(ctrl1%nsteps, ctrl2%nsteps)
   @assertEqual(ctrl1%nexecutions, ctrl2%nexecutions)
   @assertEqual(ctrl1%control_value, ctrl2%control_value)
@@ -61,38 +61,38 @@ end subroutine test_assign
 subroutine test_check_simulationtime()
   use pfunit
   use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use time_state, only : time_state_t
   implicit none
 
   type(time_based_controller_t) ctrl
   type(time_state_t) :: time
 
-  call ctrl%init(0.0_rp, 10.0_rp, "simulationtime", 1.0_rp)
-  time%t = 0.0_rp
+  call ctrl%init(0.0_dp, 10.0_dp, "simulationtime", 1.0_dp)
+  time%t = 0.0_dp
   time%tstep = 0
-  time%dt = 0.0_rp
+  time%dt = 0.0_dp
 
   ! Expect true on first execution
   @assertEqual(ctrl%check(time), .true.)
   call ctrl%register_execution()
-  time%t = 1.1_rp
+  time%t = 1.1_dp
 
   @assertEqual(ctrl%check(time), .true.)
   call ctrl%register_execution()
-  time%t = 1.5_rp
+  time%t = 1.5_dp
 
   @assertEqual(ctrl%check(time), .false.)
-  time%t = 1.99_rp
-  time%dt = 0.5_rp
+  time%t = 1.99_dp
+  time%dt = 0.5_dp
 
   @assertEqual(ctrl%check(time), .true.)
   call ctrl%register_execution()
-  time%t = 2.01_rp
-  time%dt = 0.5_rp
+  time%t = 2.01_dp
+  time%dt = 0.5_dp
   @assertEqual(ctrl%check(time), .false.)
 
-  time%t = 3.01_rp
+  time%t = 3.01_dp
   @assertEqual(ctrl%check(time), .true.)
   call ctrl%register_execution()
 
@@ -103,24 +103,24 @@ end subroutine test_check_simulationtime
 subroutine test_check_nsamples()
   use pfunit
   use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use time_state, only : time_state_t
   implicit none
 
   type(time_based_controller_t) ctrl
   type(time_state_t) :: time
 
-  call ctrl%init(0.0_rp, 10.0_rp, "nsamples", 10.0_rp)
+  call ctrl%init(0.0_dp, 10.0_dp, "nsamples", 10.0_dp)
 
-  time%t = 0.0_rp
+  time%t = 0.0_dp
   ! Expect true on first execution
   @assertEqual(ctrl%check(time), .true.)
   call ctrl%register_execution()
-  time%t = 1.1_rp
+  time%t = 1.1_dp
 
   @assertEqual(ctrl%check(time), .true.)
   call ctrl%register_execution()
-  time%t = 1.5_rp
+  time%t = 1.5_dp
 
   @assertEqual(ctrl%check(time), .false.)
 
@@ -131,14 +131,14 @@ end subroutine test_check_nsamples
 subroutine test_check_tsteps()
   use pfunit
   use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use time_state, only : time_state_t
   implicit none
 
   type(time_based_controller_t) ctrl
   type(time_state_t) :: time
 
-  call ctrl%init(0.0_rp, 10.0_rp, "tsteps", 10.0_rp)
+  call ctrl%init(0.0_dp, 10.0_dp, "tsteps", 10.0_dp)
   time%tstep = 0
 
   ! Expect true on first execution
@@ -159,12 +159,12 @@ end subroutine test_check_tsteps
 subroutine test_register()
   use pfunit
   use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   implicit none
 
   type(time_based_controller_t) ctrl
 
-  call ctrl%init(0.0_rp, 1.0_rp, "simulationtime", 10.0_rp)
+  call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 10.0_dp)
   call ctrl%register_execution()
   @assertEqual(ctrl%nexecutions, 1)
 

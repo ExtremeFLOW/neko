@@ -53,7 +53,7 @@ int tune_conv1(void *du, void *u,
                void *drdy, void *dsdy, void *dtdy,
                void *drdz, void *dsdz, void *dtdz,
                void *jacinv, int *nel, int *gdim, int *lx, int *eb_sel,
-               int *ch_sel);
+               int *ch_sel, int *nwf_sel);
 
 extern "C" {
 
@@ -73,6 +73,8 @@ extern "C" {
     static int autotune_eb[17] = { 0 };
     /* chunk candidate chosen for the 1d variant */
     static int autotune_ch[17] = { 0 };
+    /* wavefronts per block candidate chosen for the mfma variant */
+    static int autotune_nwf[17] = { 0 };
 
     const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nthrds_kstep((*lx), (*lx), 1);
@@ -123,6 +125,29 @@ extern "C" {
     default: CASE_KSTEP(LX, 2); break;                                          \
     }
 
+#define CASE_MFMA(LX, C)                                                        \
+    hipLaunchKernelGGL( HIP_KERNEL_NAME(                                        \
+                          conv1_kernel_mfma<real, LX, NEKO_MFMA_NWF(C)> ),      \
+                        NEKO_MFMA_NBLCKS(*nel, LX, C), NEKO_MFMA_NTHRDS(C), 0,  \
+                        (hipStream_t) glb_cmd_queue,                            \
+                        (real *) du, (real *) u,                                \
+                        (real *) vx, (real *) vy, (real *) vz,                  \
+                        (real *) dx, (real *) dy, (real *) dz,                  \
+                        (real *) drdx, (real *) dsdx, (real *) dtdx,            \
+                        (real *) drdy, (real *) dsdy, (real *) dtdy,            \
+                        (real *) drdz, (real *) dsdz, (real *) dtdz,            \
+                        (real *) jacinv, *nel);                                 \
+    HIP_CHECK(hipGetLastError());
+
+/* Runtime dispatch onto the tuned wavefronts per block candidate */
+#define CASE_MFMA_SEL(LX, SEL)                                                  \
+    switch (SEL) {                                                              \
+    case 0:  CASE_MFMA(LX, 0); break;                                           \
+    case 1:  CASE_MFMA(LX, 1); break;                                           \
+    case 2:  CASE_MFMA(LX, 2); break;                                           \
+    default: CASE_MFMA(LX, 3); break;                                           \
+    }
+
 #define CASE(LX)                                                                \
     case LX:                                                                    \
       if(autotune[LX] == 0 ) {                                                  \
@@ -133,11 +158,14 @@ extern "C" {
                                     drdy, dsdy, dtdy,                           \
                                     drdz, dsdz, dtdz,                           \
                                     jacinv, nel, gdim, lx, &autotune_eb[LX],    \
-                                    &autotune_ch[LX]);                          \
+                                    &autotune_ch[LX],                           \
+                                    &autotune_nwf[LX]);                         \
       } else if (autotune[LX] == 1 ) {                                          \
         CASE_1D_SEL(LX, autotune_ch[LX]);                                       \
       } else if (autotune[LX] == 2 ) {                                          \
         CASE_KSTEP_SEL(LX, autotune_eb[LX]);                                    \
+      } else if (autotune[LX] == 3 ) {                                          \
+        CASE_MFMA_SEL(LX, autotune_nwf[LX]);                                    \
       }                                                                         \
       break
 
@@ -190,14 +218,20 @@ int tune_conv1(void *du, void *u,
                void *drdx, void *dsdx, void *dtdx,
                void *drdy, void *dsdy, void *dtdy,
                void *drdz, void *dsdz, void *dtdz,
-               void *jacinv, int *nel, int *gdim, int *lx, int *eb_sel, int *ch_sel) {
+               void *jacinv, int *nel, int *gdim, int *lx, int *eb_sel,
+               int *ch_sel, int *nwf_sel) {
   hipEvent_t start,stop;
   float time1[NEKO_CHUNKS_CANDIDATES];
   int best1 = 0;
   float time2[NEKO_EB_CANDIDATES];
+  float time3[NEKO_MFMA_CANDIDATES];
+  int best3 = 0;
   const int rounds = neko_tune_rounds();
   const int iters = neko_tune_iters();
   const int sweep = neko_eb_sweep();
+  const bool mfma = mfma_lx_supported<LX>() && hip_have_mfma();
+  /* Whether the sweep may pick it on its own, see neko_mfma_sweep() */
+  const bool mfma_tune = mfma && neko_mfma_sweep();
   int best = 0;
   int retval;
 
@@ -206,6 +240,9 @@ int tune_conv1(void *du, void *u,
   }
   for (int c = 0; c < NEKO_CHUNKS_CANDIDATES; c++) {
     time1[c] = NEKO_TUNE_INIT;
+  }
+  for (int c = 0; c < NEKO_MFMA_CANDIDATES; c++) {
+    time3[c] = NEKO_TUNE_INIT;
   }
 
   const dim3 nthrds_1d(1024, 1, 1);
@@ -223,6 +260,7 @@ int tune_conv1(void *du, void *u,
 
   *eb_sel = 0;
   *ch_sel = 0;
+  *nwf_sel = 0;
 
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
@@ -241,6 +279,20 @@ int tune_conv1(void *du, void *u,
       log_message(neko_log_buf);
       log_end_section();
       return 2;
+    } else if( !strcmp(env_value,"MFMA") ) {
+      if (mfma) {
+        const int c = neko_mfma_env();
+        *nwf_sel = c;
+        CASE_MFMA_SEL(LX, c);
+        sprintf(neko_log_buf,"Set by env   : 3 (MFMA, %d wf, %d elem/block)",
+                NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c));
+        log_message(neko_log_buf);
+        log_end_section();
+        return 3;
+      } else {
+        sprintf(neko_log_buf, "MFMA strategy not available for this config");
+        log_error(neko_log_buf);
+      }
     } else {
        sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
        log_error(neko_log_buf);
@@ -262,6 +314,12 @@ int tune_conv1(void *du, void *u,
       CASE_KSTEP(LX, 1);
       CASE_KSTEP(LX, 2);
     }
+    if (mfma_tune) {
+      CASE_MFMA(LX, 0);
+      CASE_MFMA(LX, 1);
+      CASE_MFMA(LX, 2);
+      CASE_MFMA(LX, 3);
+    }
   }
 
   /* Interleaved rounds, best time per variant */
@@ -275,13 +333,23 @@ int tune_conv1(void *du, void *u,
       NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 1, iters);
       NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 2, iters);
     }
+    if (mfma_tune) {
+      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 0, iters);
+      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 1, iters);
+      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 2, iters);
+      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 3, iters);
+    }
   }
 
   NEKO_TUNE_LOG(LX, time1, time2);
+  NEKO_TUNE_LOG_MFMA(LX, time3);
+
   NEKO_TUNE_BEST(time1, best1, NEKO_CHUNKS_CANDIDATES);
   NEKO_TUNE_BEST(time2, best, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_BEST(time3, best3, NEKO_MFMA_CANDIDATES);
   *eb_sel = best;
   *ch_sel = best1;
+  *nwf_sel = best3;
 
   if (time1[best1] < time2[best]) {
     retval = 1;
@@ -289,20 +357,31 @@ int tune_conv1(void *du, void *u,
     retval = 2;
   }
 
+  /* The mfma variant joins the comparison only where it exists, its
+     candidates are left at NEKO_TUNE_INIT otherwise */
+  if (time3[best3] < ((retval == 1) ? time1[best1] : time2[best])) {
+    retval = 3;
+  }
+
   /* Leave the chosen kernel's output in place: the tuner stands in for a real
      evaluation and the variants do not sum in the same order */
   if (retval == 1) {
     CASE_1D_SEL(LX, best1);
-  } else {
+  } else if (retval == 2) {
     CASE_KSTEP_SEL(LX, best);
+  } else {
+    CASE_MFMA_SEL(LX, best3);
   }
 
   if (retval == 1) {
     sprintf(neko_log_buf, "Chose        : 1 (1D, %d chunk)",
             NEKO_CHUNKS_SEL(LX, best1));
-  } else {
+  } else if (retval == 2) {
     sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
             NEKO_EB_SEL(LX, best));
+  } else {
+    sprintf(neko_log_buf, "Chose        : 3 (MFMA, %d wf, %d elem/block)",
+            NEKO_MFMA_NWF(best3), NEKO_MFMA_EB(LX, best3));
   }
   log_message(neko_log_buf);
   log_end_section();

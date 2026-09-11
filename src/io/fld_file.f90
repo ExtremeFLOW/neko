@@ -165,7 +165,7 @@ contains
   subroutine fld_file_write_manager(this, data, t)
     class(fld_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
 
     if (this%mask%is_set()) then
        call this%write_masked(data, this%mask, t)
@@ -180,7 +180,7 @@ contains
   subroutine fld_file_write(this, data, t)
     class(fld_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     type(array_ptr_t) :: x, y, z, u, v, w, p, tem
     real(kind=rp), allocatable, target :: tempo(:)
     type(mesh_t), pointer :: msh
@@ -207,7 +207,7 @@ contains
     type(field_t), pointer :: ptr
 
     if (present(t)) then
-       time = real(t, dp)
+       time = t
     else
        time = 0d0
     end if
@@ -612,7 +612,7 @@ contains
     class(fld_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
     type(mask_t), intent(in) :: mask
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     type(array_ptr_t) :: x, y, z, u, v, w, p, tem
     real(kind=rp), allocatable, target :: tempo(:)
     type(mesh_t), pointer :: msh
@@ -639,7 +639,7 @@ contains
     type(field_t), pointer :: ptr
 
     if (present(t)) then
-       time = real(t, dp)
+       time = t
     else
        time = 0d0
     end if
@@ -1370,7 +1370,7 @@ contains
     integer :: lx, ly, lz, glb_nelv, counter, lxyz
     integer :: FLD_DATA_SIZE, n_scalars, n
     integer :: file_unit
-    real(kind=rp) :: time
+    real(kind=dp) :: time
     real(kind=sp) :: temp
     type(linear_dist_t) :: dist
     real(kind=sp), parameter :: test_pattern = 6.54321
