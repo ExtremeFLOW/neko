@@ -1,0 +1,11 @@
+<map id="ax_helm_svv::ax_helm_svv_t" name="ax_helm_svv::ax_helm_svv_t">
+<area shape="rect" id="Node000001" title="Helmholtz operator carrying a non&#45;owning SVV object." alt="" coords="387,53,557,93"/>
+<area shape="rect" id="Node000004" href="$d2/d78/structax__helm__svv__one__sided__cpu_1_1ax__helm__svv__one__sided__cpu__t.html" title="CPU one&#45;sided SVV Helmholtz operator." alt="" coords="605,5,787,60"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="570,52,605,46,606,51,571,58"/>
+<area shape="rect" id="Node000005" href="$db/dd2/structax__helm__svv__one__sided__device_1_1ax__helm__svv__one__sided__device__t.html" title="Device matrix&#45;vector product for an SVV Helmholtz problem." alt="" coords="605,84,787,139"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="571,87,606,93,605,98,570,92"/>
+<area shape="rect" id="Node000002" href="$d1/d58/structax__helm_1_1ax__helm__t.html" title="Matrix&#45;vector product for a Helmholtz problem." alt="" coords="184,60,339,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="352,70,386,70,386,75,352,75"/>
+<area shape="rect" id="Node000003" href="$d3/d2c/structax__product_1_1ax__t.html" title="Base type for a matrix&#45;vector product providing ." alt="" coords="5,60,136,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="150,70,184,70,184,75,150,75"/>
+</map>

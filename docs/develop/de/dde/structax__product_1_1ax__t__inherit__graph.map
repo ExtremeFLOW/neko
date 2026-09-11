@@ -1,21 +1,33 @@
 <map id="ax_product::ax_t" name="ax_product::ax_t">
-<area shape="rect" id="Node000001" title="Base type for a matrix&#45;vector product providing ." alt="" coords="5,255,136,281"/>
-<area shape="rect" id="Node000002" href="$d1/d58/structax__helm_1_1ax__helm__t.html" title="Matrix&#45;vector product for a Helmholtz problem." alt="" coords="192,163,347,189"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,247,240,186,242,191,113,252"/>
-<area shape="rect" id="Node000008" href="$d8/d81/structax__helm__full_1_1ax__helm__full__t.html" title="Matrix&#45;vector product for a Helmholtz problem." alt="" coords="184,312,355,352"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="125,282,207,309,206,314,123,287"/>
-<area shape="rect" id="Node000003" href="$d7/d70/structax__helm__cpu_1_1ax__helm__cpu__t.html" title="CPU matrix&#45;vector product for a Helmholtz problem." alt="" coords="416,5,588,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="289,151,337,103,368,77,401,55,426,43,429,48,404,60,371,82,341,107,293,155"/>
-<area shape="rect" id="Node000004" href="$d7/d68/structax__helm__device_1_1ax__helm__device__t.html" title=" " alt="" coords="426,69,578,109"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="311,155,402,119,436,107,438,112,404,124,313,160"/>
-<area shape="rect" id="Node000005" href="$de/d9f/structax__helm__sx_1_1ax__helm__sx__t.html" title=" " alt="" coords="403,134,601,159"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="360,162,402,157,403,162,361,167"/>
-<area shape="rect" id="Node000006" href="$db/d0b/structax__helm__template_1_1ax__helm__template__t.html" title="A scalar Helmholtz&#45;like operator. Extending ax_helm_t supplies compute_vector by applying compute to ..." alt="" coords="418,184,586,224"/>
-<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="361,184,418,191,417,197,360,190"/>
-<area shape="rect" id="Node000007" href="$d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html" title=" " alt="" coords="407,248,597,288"/>
-<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="310,192,404,234,436,245,435,250,402,238,308,197"/>
-<area shape="rect" id="Node000009" href="$db/db0/structax__helm__full__cpu_1_1ax__helm__full__cpu__t.html" title="CPU matrix&#45;vector product for a Helmholtz problem with full stress tensor." alt="" coords="422,312,582,352"/>
-<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="368,329,422,329,422,335,368,335"/>
-<area shape="rect" id="Node000010" href="$db/d3f/structax__helm__full__device_1_1ax__helm__full__device__t.html" title=" " alt="" coords="414,376,590,416"/>
-<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="357,353,429,373,428,379,355,358"/>
+<area shape="rect" id="Node000001" title="Base type for a matrix&#45;vector product providing ." alt="" coords="5,415,136,441"/>
+<area shape="rect" id="Node000002" href="$d1/d58/structax__helm_1_1ax__helm__t.html" title="Matrix&#45;vector product for a Helmholtz problem." alt="" coords="192,198,347,223"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,403,254,222,258,226,95,406"/>
+<area shape="rect" id="Node000011" href="$d8/d81/structax__helm__full_1_1ax__helm__full__t.html" title="Matrix&#45;vector product for a Helmholtz problem." alt="" coords="184,408,355,448"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="150,425,184,425,184,431,150,431"/>
+<area shape="rect" id="Node000014" href="$db/d36/structax__helm__svv__full_1_1ax__helm__svv__full__t.html" title="Matrix&#45;vector product for a Helmholtz problem." alt="" coords="189,512,349,552"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="109,445,231,509,229,514,107,449"/>
+<area shape="rect" id="Node000003" href="$d7/d70/structax__helm__cpu_1_1ax__helm__cpu__t.html" title="CPU matrix&#45;vector product for a Helmholtz problem." alt="" coords="424,5,596,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="283,185,330,120,363,85,401,55,424,43,427,48,404,60,367,89,334,124,287,188"/>
+<area shape="rect" id="Node000004" href="$d7/d68/structax__helm__device_1_1ax__helm__device__t.html" title=" " alt="" coords="434,69,586,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="295,187,343,153,401,119,432,106,434,111,404,124,346,157,299,191"/>
+<area shape="rect" id="Node000005" href="$d2/d41/structax__helm__svv_1_1ax__helm__svv__t.html" title="Helmholtz operator carrying a non&#45;owning SVV object." alt="" coords="425,133,595,173"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="336,192,425,171,426,176,337,197"/>
+<area shape="rect" id="Node000008" href="$de/d9f/structax__helm__sx_1_1ax__helm__sx__t.html" title=" " alt="" coords="411,198,609,223"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="361,208,410,208,410,213,361,213"/>
+<area shape="rect" id="Node000009" href="$db/d0b/structax__helm__template_1_1ax__helm__template__t.html" title="A scalar Helmholtz&#45;like operator. Extending ax_helm_t supplies compute_vector by applying compute to ..." alt="" coords="426,248,594,288"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="337,224,426,245,425,251,336,229"/>
+<area shape="rect" id="Node000010" href="$d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html" title=" " alt="" coords="415,312,605,352"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="299,230,346,264,404,298,433,309,431,314,401,302,343,269,295,234"/>
+<area shape="rect" id="Node000006" href="$d2/d78/structax__helm__svv__one__sided__cpu_1_1ax__helm__svv__one__sided__cpu__t.html" title="CPU one&#45;sided SVV Helmholtz operator." alt="" coords="665,87,847,142"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="608,135,665,126,666,132,609,140"/>
+<area shape="rect" id="Node000007" href="$db/dd2/structax__helm__svv__one__sided__device_1_1ax__helm__svv__one__sided__device__t.html" title="Device matrix&#45;vector product for an SVV Helmholtz problem." alt="" coords="665,166,847,221"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="609,167,666,176,665,181,608,172"/>
+<area shape="rect" id="Node000012" href="$db/db0/structax__helm__full__cpu_1_1ax__helm__full__cpu__t.html" title="CPU matrix&#45;vector product for a Helmholtz problem with full stress tensor." alt="" coords="430,376,590,416"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="368,412,429,404,430,409,369,418"/>
+<area shape="rect" id="Node000013" href="$db/d3f/structax__helm__full__device_1_1ax__helm__full__device__t.html" title=" " alt="" coords="422,440,598,480"/>
+<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="369,438,422,446,421,451,368,444"/>
+<area shape="rect" id="Node000015" href="$d0/d5a/structax__helm__svv__one__sided__full__cpu_1_1ax__helm__svv__one__sided__full__cpu__t.html" title="CPU matrix&#45;vector product for a Helmholtz problem." alt="" coords="419,505,601,559"/>
+<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="364,529,419,529,419,535,364,535"/>
+<area shape="rect" id="Node000016" href="$da/d60/structax__helm__svv__one__sided__full__device_1_1ax__helm__svv__one__sided__full__device__t.html" title="Device one&#45;sided full&#45;stress SVV Helmholtz operator." alt="" coords="403,583,617,638"/>
+<area shape="poly" id="edge15_Node000014_Node000016" title=" " alt="" coords="345,554,426,581,425,586,343,559"/>
 </map>

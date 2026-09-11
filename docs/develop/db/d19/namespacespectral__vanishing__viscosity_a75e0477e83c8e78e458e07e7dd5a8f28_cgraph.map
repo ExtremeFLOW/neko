@@ -1,0 +1,11 @@
+<map id="spectral_vanishing_viscosity::svv_copy_viscosity" name="spectral_vanishing_viscosity::svv_copy_viscosity">
+<area shape="rect" id="Node000001" title="Copy the configured viscosity field and multiply it by density." alt="" coords="5,65,160,120"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="260,5,351,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,63,207,39,246,28,247,33,209,45,147,68"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="258,55,353,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,81,244,72,245,77,161,87"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="210,104,401,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="161,98,197,102,196,108,160,104"/>
+<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="208,153,403,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="152,118,209,138,239,147,237,152,207,143,150,123"/>
+</map>

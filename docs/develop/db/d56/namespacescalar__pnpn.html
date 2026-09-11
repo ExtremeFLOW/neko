@@ -100,7 +100,8 @@ $(document).ready(function(){initNavTree('db/d56/namespacescalar__pnpn.html','..
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Types</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">scalar_pnpn Module Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -110,13 +111,19 @@ $(document).ready(function(){initNavTree('db/d56/namespacescalar__pnpn.html','..
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/db3/interfacescalar__pnpn_1_1scalar__pnpn__bc__allocate.html">scalar_pnpn_bc_allocate</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Boundary condition factory. Both constructs and initializes the object.  <a href="../../d2/db3/interfacescalar__pnpn_1_1scalar__pnpn__bc__allocate.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/df1/structscalar__pnpn_1_1scalar__pnpn__bc__allocator__entry.html">scalar_pnpn_bc_allocator_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in user modules to add an allocator for custom types.  <a href="../../de/df1/structscalar__pnpn_1_1scalar__pnpn__bc__allocator__entry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html">scalar_pnpn_t</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aac3871c62463a0fd85ede135a64b7ae2" id="r_aac3871c62463a0fd85ede135a64b7ae2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#aac3871c62463a0fd85ede135a64b7ae2">scalar_pnpn_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, msh, coef, gs, params, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">numerics_params</a>, user, chkp, ulag, vlag, wlag, time_scheme, rho)</td></tr>
-<tr class="memdesc:aac3871c62463a0fd85ede135a64b7ae2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Boundary condition factory. Both constructs and initializes the object.  <br /></td></tr>
+<tr class="memdesc:aac3871c62463a0fd85ede135a64b7ae2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:aac3871c62463a0fd85ede135a64b7ae2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad710674c48dc848fb715f7cb971fe21a" id="r_ad710674c48dc848fb715f7cb971fe21a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#ad710674c48dc848fb715f7cb971fe21a">scalar_pnpn_register_checkpoint</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, chkp, index, n_scalars)</td></tr>
 <tr class="memdesc:ad710674c48dc848fb715f7cb971fe21a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register this scalar scheme with the checkpoint.  <br /></td></tr>
@@ -135,6 +142,15 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a2efb992b05cebc3a94f108c0f901e541" id="r_a2efb992b05cebc3a94f108c0f901e541"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#a2efb992b05cebc3a94f108c0f901e541">scalar_scheme_apply_strong_bcs</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
 <tr class="memdesc:a2efb992b05cebc3a94f108c0f901e541"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply strong boundary conditions.  <br /></td></tr>
 <tr class="separator:a2efb992b05cebc3a94f108c0f901e541"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a3188e9c7595c46483c3ffc10200c7221" id="r_a3188e9c7595c46483c3ffc10200c7221"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../de/df1/structscalar__pnpn_1_1scalar__pnpn__bc__allocator__entry.html">scalar_pnpn_bc_allocator_entry</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#a3188e9c7595c46483c3ffc10200c7221">scalar_pnpn_bc_registry</a></td></tr>
+<tr class="memdesc:a3188e9c7595c46483c3ffc10200c7221"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry of scalar Pn/Pn boundary condition allocators.  <br /></td></tr>
+<tr class="separator:a3188e9c7595c46483c3ffc10200c7221"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a171378f49b95a037ab91cca3f698476c" id="r_a171378f49b95a037ab91cca3f698476c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#a171378f49b95a037ab91cca3f698476c">scalar_pnpn_bc_registry_size</a> = 0</td></tr>
+<tr class="memdesc:a171378f49b95a037ab91cca3f698476c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of <code>scalar_pnpn_bc_registry</code>.  <br /></td></tr>
+<tr class="separator:a171378f49b95a037ab91cca3f698476c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="ad0f0e5d3f3bacefca090315ad14e8716" name="ad0f0e5d3f3bacefca090315ad14e8716"></a>
@@ -161,7 +177,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00473">473</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00541">541</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -189,7 +205,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00308">308</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00369">369</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -198,6 +214,9 @@ Functions/Subroutines</h2></td></tr>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scalar_pnpn::scalar_pnpn_init </td>
@@ -283,29 +302,30 @@ Functions/Subroutines</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
-<p>Will mark a mesh zone for the bc and finalize. </p><dl class="params"><dt>Parameters</dt><dd>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">object</td><td>The object to be allocated. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">scheme</td><td>The <code><a class="el" href="../../db/d56/namespacescalar__pnpn.html" title="Contains the scalar_pnpn_t type.">scalar_pnpn</a></code> scheme. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>JSON object for initializing the bc. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">coef</td><td>SEM coefficients. Constructor. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">msh</td><td>The mesh. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">coef</td><td>The coefficients. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">gs</td><td>The gather-scatter. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">params</td><td>The case parameter file in json. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">user</td><td>Type with user-defined procedures. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">chkp</td><td>Set up checkpoint for restarts. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">ulag</td><td>Lag arrays for the x velocity component. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">vlag</td><td>Lag arrays for the y velocity component. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">wlag</td><td>Lag arrays for the z velocity component. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname"><a class="el" href="../../dd/d54/namespacetime__scheme.html" title="Base class for time integration schemes.">time_scheme</a></td><td>The time-integration controller. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">rho</td><td>The fluid density. </td></tr>
+    <tr><td class="paramname">msh</td><td>The mesh. </td></tr>
+    <tr><td class="paramname">coef</td><td>The coefficients. </td></tr>
+    <tr><td class="paramname">gs</td><td>The gather-scatter. </td></tr>
+    <tr><td class="paramname">params</td><td>The case parameter file in json. </td></tr>
+    <tr><td class="paramname">user</td><td>Type with user-defined procedures. </td></tr>
+    <tr><td class="paramname">chkp</td><td>Set up checkpoint for restarts. </td></tr>
+    <tr><td class="paramname">ulag</td><td>Lag arrays for the x velocity component. </td></tr>
+    <tr><td class="paramname">vlag</td><td>Lag arrays for the y velocity component. </td></tr>
+    <tr><td class="paramname">wlag</td><td>Lag arrays for the z velocity component. </td></tr>
+    <tr><td class="paramname"><a class="el" href="../../dd/d54/namespacetime__scheme.html" title="Base class for time integration schemes.">time_scheme</a></td><td>The time-integration controller. </td></tr>
+    <tr><td class="paramname">rho</td><td>The fluid density. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00170">170</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00223">223</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -355,7 +375,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00259">259</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00320">320</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -393,7 +413,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00271">271</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00332">332</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -437,7 +457,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00493">493</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00561">561</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -494,7 +514,7 @@ Functions/Subroutines</h2></td></tr>
 </div><div class="memdoc">
 <p>Apply strong boundary conditions.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00357">357</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00420">420</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -538,7 +558,56 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00593">593</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00661">661</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a3188e9c7595c46483c3ffc10200c7221" name="a3188e9c7595c46483c3ffc10200c7221"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3188e9c7595c46483c3ffc10200c7221">&#9670;&#160;</a></span>scalar_pnpn_bc_registry</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(<a class="el" href="../../de/df1/structscalar__pnpn_1_1scalar__pnpn__bc__allocator__entry.html">scalar_pnpn_bc_allocator_entry</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">private</a> scalar_pnpn::scalar_pnpn_bc_registry</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00200">200</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+
+</div>
+</div>
+<a id="a171378f49b95a037ab91cca3f698476c" name="a171378f49b95a037ab91cca3f698476c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a171378f49b95a037ab91cca3f698476c">&#9670;&#160;</a></span>scalar_pnpn_bc_registry_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">private</a> scalar_pnpn::scalar_pnpn_bc_registry_size = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00204">204</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -548,7 +617,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/d56/namespacescalar__pnpn.html">scalar_pnpn</a></li>
-    <li class="footer">Generated on Thu Sep 10 2026 03:41:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Sep 11 2026 03:41:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

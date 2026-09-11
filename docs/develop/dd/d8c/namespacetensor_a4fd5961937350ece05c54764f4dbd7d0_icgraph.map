@@ -1,5 +1,13 @@
 <map id="tensor::tnsr3d_el" name="tensor::tnsr3d_el">
-<area shape="rect" id="Node000001" title="Tensor product &#160;performed on a single element." alt="" coords="221,20,352,45"/>
-<area shape="rect" id="Node000002" href="$dc/d32/interfacetensor_1_1triple__tensor__product.html#abb65a678c3512912b2606c6bce7d78c2" title="Computes the tensor product . This operation is usually performed for spectral interpolation of a sca..." alt="" coords="5,5,173,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,35,174,35,174,30,208,30"/>
+<area shape="rect" id="Node000001" title="Tensor product &#160;performed on a single element." alt="" coords="517,99,648,124"/>
+<area shape="rect" id="Node000002" href="$dd/d3a/namespaceax__helm__svv__one__sided__full__cpu.html#ac74f78fa06b3f39f0cf2d279b4cfa1a7" title="Generic CPU kernel for the full&#45;stress one&#45;sided SVV product." alt="" coords="288,5,469,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="535,96,449,63,451,58,537,91"/>
+<area shape="rect" id="Node000004" href="$da/d1b/namespaceax__helm__svv__one__sided__cpu.html#ab1a30d995050c91be750197bcef4e804" title="Generic CPU kernel for the one&#45;sided SVV Helmholtz product." alt="" coords="288,84,469,139"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="504,114,469,114,469,109,504,109"/>
+<area shape="rect" id="Node000006" href="$dc/d32/interfacetensor_1_1triple__tensor__product.html#abb65a678c3512912b2606c6bce7d78c2" title="Computes the tensor product . This operation is usually performed for spectral interpolation of a sca..." alt="" coords="295,163,463,217"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="537,132,451,165,449,160,535,127"/>
+<area shape="rect" id="Node000003" href="$dd/d3a/namespaceax__helm__svv__one__sided__full__cpu.html#a83456a6907d28da059393f73ffefef29" title="Compute &#160;inside a Krylov method, taking 3 components of a vector field in a coupled manner." alt="" coords="5,5,240,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="274,35,240,35,240,30,274,30"/>
+<area shape="rect" id="Node000005" href="$da/d1b/namespaceax__helm__svv__one__sided__cpu.html#a4b38d711c8f5555f052cfd79b63a8f5f" title="Compute the one&#45;sided SVV Helmholtz product." alt="" coords="32,84,213,139"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="274,114,214,114,214,109,274,109"/>
 </map>

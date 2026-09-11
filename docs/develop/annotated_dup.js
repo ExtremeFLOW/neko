@@ -77,6 +77,26 @@ var annotated_dup =
       [ "hip_ax_helm_stress_vector", "d6/d0b/interfaceax__helm__full__device_1_1hip__ax__helm__stress__vector.html", "d6/d0b/interfaceax__helm__full__device_1_1hip__ax__helm__stress__vector" ],
       [ "hip_ax_helm_stress_vector_part2", "da/de5/interfaceax__helm__full__device_1_1hip__ax__helm__stress__vector__part2.html", "da/de5/interfaceax__helm__full__device_1_1hip__ax__helm__stress__vector__part2" ]
     ] ],
+    [ "ax_helm_svv", "dd/dfe/namespaceax__helm__svv.html", [
+      [ "ax_helm_svv_t", "d2/d41/structax__helm__svv_1_1ax__helm__svv__t.html", "d2/d41/structax__helm__svv_1_1ax__helm__svv__t" ]
+    ] ],
+    [ "ax_helm_svv_full", "dc/dd1/namespaceax__helm__svv__full.html", [
+      [ "ax_helm_svv_full_t", "db/d36/structax__helm__svv__full_1_1ax__helm__svv__full__t.html", "db/d36/structax__helm__svv__full_1_1ax__helm__svv__full__t" ]
+    ] ],
+    [ "ax_helm_svv_one_sided_cpu", "da/d1b/namespaceax__helm__svv__one__sided__cpu.html", [
+      [ "ax_helm_svv_one_sided_cpu_t", "d2/d78/structax__helm__svv__one__sided__cpu_1_1ax__helm__svv__one__sided__cpu__t.html", "d2/d78/structax__helm__svv__one__sided__cpu_1_1ax__helm__svv__one__sided__cpu__t" ]
+    ] ],
+    [ "ax_helm_svv_one_sided_device", "df/d21/namespaceax__helm__svv__one__sided__device.html", [
+      [ "ax_helm_svv_one_sided_device_t", "db/dd2/structax__helm__svv__one__sided__device_1_1ax__helm__svv__one__sided__device__t.html", "db/dd2/structax__helm__svv__one__sided__device_1_1ax__helm__svv__one__sided__device__t" ],
+      [ "hip_ax_helm_svv_one_sided", "d3/d58/interfaceax__helm__svv__one__sided__device_1_1hip__ax__helm__svv__one__sided.html", "d3/d58/interfaceax__helm__svv__one__sided__device_1_1hip__ax__helm__svv__one__sided" ]
+    ] ],
+    [ "ax_helm_svv_one_sided_full_cpu", "dd/d3a/namespaceax__helm__svv__one__sided__full__cpu.html", [
+      [ "ax_helm_svv_one_sided_full_cpu_t", "d0/d5a/structax__helm__svv__one__sided__full__cpu_1_1ax__helm__svv__one__sided__full__cpu__t.html", "d0/d5a/structax__helm__svv__one__sided__full__cpu_1_1ax__helm__svv__one__sided__full__cpu__t" ]
+    ] ],
+    [ "ax_helm_svv_one_sided_full_device", "d5/d74/namespaceax__helm__svv__one__sided__full__device.html", [
+      [ "ax_helm_svv_one_sided_full_device_t", "da/d60/structax__helm__svv__one__sided__full__device_1_1ax__helm__svv__one__sided__full__device__t.html", "da/d60/structax__helm__svv__one__sided__full__device_1_1ax__helm__svv__one__sided__full__device__t" ],
+      [ "hip_ax_helm_svv_one_sided_full", "df/d29/interfaceax__helm__svv__one__sided__full__device_1_1hip__ax__helm__svv__one__sided__full.html", "df/d29/interfaceax__helm__svv__one__sided__full__device_1_1hip__ax__helm__svv__one__sided__full" ]
+    ] ],
     [ "ax_helm_sx", "d5/dd0/namespaceax__helm__sx.html", [
       [ "ax_helm_sx_t", "de/d9f/structax__helm__sx_1_1ax__helm__sx__t.html", "de/d9f/structax__helm__sx_1_1ax__helm__sx__t" ]
     ] ],
@@ -1603,7 +1623,12 @@ var annotated_dup =
       [ "set_scalar_ic", "df/d8e/interfacescalar__ic_1_1set__scalar__ic.html", "df/d8e/interfacescalar__ic_1_1set__scalar__ic" ]
     ] ],
     [ "scalar_pnpn", "db/d56/namespacescalar__pnpn.html", [
+      [ "scalar_pnpn_bc_allocate", "d2/db3/interfacescalar__pnpn_1_1scalar__pnpn__bc__allocate.html", "d2/db3/interfacescalar__pnpn_1_1scalar__pnpn__bc__allocate" ],
+      [ "scalar_pnpn_bc_allocator_entry", "de/df1/structscalar__pnpn_1_1scalar__pnpn__bc__allocator__entry.html", "de/df1/structscalar__pnpn_1_1scalar__pnpn__bc__allocator__entry" ],
       [ "scalar_pnpn_t", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t" ]
+    ] ],
+    [ "scalar_pnpn_bc_template", "da/d79/namespacescalar__pnpn__bc__template.html", [
+      [ "scalar_pnpn_bc_template_t", "da/d09/structscalar__pnpn__bc__template_1_1scalar__pnpn__bc__template__t.html", "da/d09/structscalar__pnpn__bc__template_1_1scalar__pnpn__bc__template__t" ]
     ] ],
     [ "scalar_residual", "dc/de7/namespacescalar__residual.html", [
       [ "scalar_residual_interface", "d0/d90/interfacescalar__residual_1_1scalar__residual__interface.html", "d0/d90/interfacescalar__residual_1_1scalar__residual__interface" ],
@@ -1779,6 +1804,9 @@ var annotated_dup =
     [ "spectral_error", "d0/d29/namespacespectral__error.html", [
       [ "spectral_error_t", "d9/deb/structspectral__error_1_1spectral__error__t.html", "d9/deb/structspectral__error_1_1spectral__error__t" ]
     ] ],
+    [ "spectral_vanishing_viscosity", "db/d19/namespacespectral__vanishing__viscosity.html", [
+      [ "svv_t", "df/d33/structspectral__vanishing__viscosity_1_1svv__t.html", "df/d33/structspectral__vanishing__viscosity_1_1svv__t" ]
+    ] ],
     [ "sphere_point_zone", "d9/dfe/namespacesphere__point__zone.html", [
       [ "sphere_point_zone_t", "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html", "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t" ]
     ] ],
@@ -1835,6 +1863,14 @@ var annotated_dup =
     [ "tensor", "dd/d8c/namespacetensor.html", [
       [ "transpose", "db/da7/interfacetensor_1_1transpose.html", "db/da7/interfacetensor_1_1transpose" ],
       [ "triple_tensor_product", "dc/d32/interfacetensor_1_1triple__tensor__product.html", "dc/d32/interfacetensor_1_1triple__tensor__product" ]
+    ] ],
+    [ "tensor3", "d5/d0e/namespacetensor3.html", [
+      [ "tensor3_ptr_t", "d8/d29/structtensor3_1_1tensor3__ptr__t.html", "d8/d29/structtensor3_1_1tensor3__ptr__t" ],
+      [ "tensor3_t", "d2/d24/structtensor3_1_1tensor3__t.html", "d2/d24/structtensor3_1_1tensor3__t" ]
+    ] ],
+    [ "tensor4", "df/d15/namespacetensor4.html", [
+      [ "tensor4_ptr_t", "da/d0e/structtensor4_1_1tensor4__ptr__t.html", "da/d0e/structtensor4_1_1tensor4__ptr__t" ],
+      [ "tensor4_t", "d2/de3/structtensor4_1_1tensor4__t.html", "d2/de3/structtensor4_1_1tensor4__t" ]
     ] ],
     [ "tensor_device", "d1/d4a/namespacetensor__device.html", [
       [ "hip_tnsr3d", "d1/df7/interfacetensor__device_1_1hip__tnsr3d.html", "d1/df7/interfacetensor__device_1_1hip__tnsr3d" ],

@@ -92,6 +92,8 @@ var structfluid__pnpn_1_1fluid__pnpn__t =
     [ "stats", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#af0a44febfd05048ee3a85e2a047bd722", null ],
     [ "strict_convergence", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a8be9c3ffbb61d65f3fa40e457d29d9b4", null ],
     [ "sumab", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a6b4e1a8d2d38af234a5f7417d9315331", null ],
+    [ "svv", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#af00196136ae2b02408145e4c523fe99b", null ],
+    [ "svv_enabled", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a7faa8a7aa1364204fa0b2b023032f94d", null ],
     [ "u", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#ac5a241796167b65dc25822aeeefe086d", null ],
     [ "u_e", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a353f63dec6d26389f0ab350069d6863c", null ],
     [ "u_res", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#af0a5b9589150effe51d394bb96bc022e", null ],

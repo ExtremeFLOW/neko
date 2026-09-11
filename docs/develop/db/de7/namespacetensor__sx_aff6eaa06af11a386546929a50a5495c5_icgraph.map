@@ -1,11 +1,19 @@
 <map id="tensor_sx::tnsr3d_el_sx" name="tensor_sx::tnsr3d_el_sx">
-<area shape="rect" id="Node000001" title=" " alt="" coords="428,60,603,85"/>
-<area shape="rect" id="Node000002" href="$dd/d8c/namespacetensor.html#a4fd5961937350ece05c54764f4dbd7d0" title="Tensor product &#160;performed on a single element." alt="" coords="235,28,366,53"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="416,61,366,53,367,48,417,55"/>
-<area shape="rect" id="Node000004" href="$dd/d8c/namespacetensor.html#a888ffea182763585491caac1e00b8569" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="221,84,380,109"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="415,87,381,90,380,85,414,81"/>
-<area shape="rect" id="Node000003" href="$dc/d32/interfacetensor_1_1triple__tensor__product.html#abb65a678c3512912b2606c6bce7d78c2" title="Computes the tensor product . This operation is usually performed for spectral interpolation of a sca..." alt="" coords="5,5,173,60"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="221,40,174,39,174,33,222,35"/>
-<area shape="rect" id="Node000005" href="$da/d80/namespacelocal__interpolation.html#afd8d4d55f170e96693e05613b4a37f10" title="Interpolates a list of fields based on a set of element ids." alt="" coords="17,84,161,139"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="208,106,162,109,161,104,207,100"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="724,179,899,204"/>
+<area shape="rect" id="Node000002" href="$dd/d8c/namespacetensor.html#a4fd5961937350ece05c54764f4dbd7d0" title="Tensor product &#160;performed on a single element." alt="" coords="531,139,662,164"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="728,179,662,166,663,161,729,173"/>
+<area shape="rect" id="Node000008" href="$dd/d8c/namespacetensor.html#a888ffea182763585491caac1e00b8569" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="517,203,676,228"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="711,205,677,209,676,204,710,200"/>
+<area shape="rect" id="Node000003" href="$dd/d3a/namespaceax__helm__svv__one__sided__full__cpu.html#ac74f78fa06b3f39f0cf2d279b4cfa1a7" title="Generic CPU kernel for the full&#45;stress one&#45;sided SVV product." alt="" coords="288,5,469,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="564,133,468,74,445,62,448,58,471,69,567,128"/>
+<area shape="rect" id="Node000005" href="$da/d1b/namespaceax__helm__svv__one__sided__cpu.html#ab1a30d995050c91be750197bcef4e804" title="Generic CPU kernel for the one&#45;sided SVV Helmholtz product." alt="" coords="288,84,469,139"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="517,140,469,131,470,125,518,134"/>
+<area shape="rect" id="Node000007" href="$dc/d32/interfacetensor_1_1triple__tensor__product.html#abb65a678c3512912b2606c6bce7d78c2" title="Computes the tensor product . This operation is usually performed for spectral interpolation of a sca..." alt="" coords="295,163,463,217"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="518,168,463,178,462,172,517,163"/>
+<area shape="rect" id="Node000004" href="$dd/d3a/namespaceax__helm__svv__one__sided__full__cpu.html#a83456a6907d28da059393f73ffefef29" title="Compute &#160;inside a Krylov method, taking 3 components of a vector field in a coupled manner." alt="" coords="5,5,240,60"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="274,35,240,35,240,30,274,30"/>
+<area shape="rect" id="Node000006" href="$da/d1b/namespaceax__helm__svv__one__sided__cpu.html#a4b38d711c8f5555f052cfd79b63a8f5f" title="Compute the one&#45;sided SVV Helmholtz product." alt="" coords="32,84,213,139"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="274,114,214,114,214,109,274,109"/>
+<area shape="rect" id="Node000009" href="$da/d80/namespacelocal__interpolation.html#afd8d4d55f170e96693e05613b4a37f10" title="Interpolates a list of fields based on a set of element ids." alt="" coords="307,241,451,296"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="531,234,451,254,450,249,530,229"/>
 </map>

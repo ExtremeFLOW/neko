@@ -1,7 +1,7 @@
 var ax__helm__sx_8f90 =
 [
     [ "ax_helm_sx::ax_helm_sx_t", "de/d9f/structax__helm__sx_1_1ax__helm__sx__t.html", "de/d9f/structax__helm__sx_1_1ax__helm__sx__t" ],
-    [ "ax_helm_sx_compute", "dd/d7b/ax__helm__sx_8f90.html#a6a7775e32e88b2adb9c0674942dd080a", null ],
+    [ "ax_helm_sx_compute", "dd/d7b/ax__helm__sx_8f90.html#a2399a2fe87b6dd2b820850e90d4b8e79", null ],
     [ "sx_ax_helm_lx", "dd/d7b/ax__helm__sx_8f90.html#a94a917659df4b4c602e8d0e77edfac64", null ],
     [ "sx_ax_helm_lx10", "dd/d7b/ax__helm__sx_8f90.html#ac15adb7c11d300429a31cf329e31ca40", null ],
     [ "sx_ax_helm_lx11", "dd/d7b/ax__helm__sx_8f90.html#a147eafed268853b3859c8463939ded2c", null ],

@@ -43,9 +43,15 @@ var searchData=
   ['ax_5fhelm_5ffull_5fdevice_5ft_40',['ax_helm_full_device_t',['../db/d3f/structax__helm__full__device_1_1ax__helm__full__device__t.html',1,'ax_helm_full_device']]],
   ['ax_5fhelm_5ffull_5ft_41',['ax_helm_full_t',['../d8/d81/structax__helm__full_1_1ax__helm__full__t.html',1,'ax_helm_full']]],
   ['ax_5fhelm_5fmfma_5fdispatch_42',['ax_helm_mfma_dispatch',['../d9/d4b/structax__helm__mfma__dispatch.html',1,'']]],
-  ['ax_5fhelm_5fsx_5ft_43',['ax_helm_sx_t',['../de/d9f/structax__helm__sx_1_1ax__helm__sx__t.html',1,'ax_helm_sx']]],
-  ['ax_5fhelm_5ft_44',['ax_helm_t',['../d1/d58/structax__helm_1_1ax__helm__t.html',1,'ax_helm']]],
-  ['ax_5fhelm_5ftemplate_5ft_45',['ax_helm_template_t',['../db/d0b/structax__helm__template_1_1ax__helm__template__t.html',1,'ax_helm_template']]],
-  ['ax_5fhelm_5fxsmm_5ft_46',['ax_helm_xsmm_t',['../d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html',1,'ax_helm_xsmm']]],
-  ['ax_5ft_47',['ax_t',['../d3/d2c/structax__product_1_1ax__t.html',1,'ax_product']]]
+  ['ax_5fhelm_5fsvv_5ffull_5ft_43',['ax_helm_svv_full_t',['../db/d36/structax__helm__svv__full_1_1ax__helm__svv__full__t.html',1,'ax_helm_svv_full']]],
+  ['ax_5fhelm_5fsvv_5fone_5fsided_5fcpu_5ft_44',['ax_helm_svv_one_sided_cpu_t',['../d2/d78/structax__helm__svv__one__sided__cpu_1_1ax__helm__svv__one__sided__cpu__t.html',1,'ax_helm_svv_one_sided_cpu']]],
+  ['ax_5fhelm_5fsvv_5fone_5fsided_5fdevice_5ft_45',['ax_helm_svv_one_sided_device_t',['../db/dd2/structax__helm__svv__one__sided__device_1_1ax__helm__svv__one__sided__device__t.html',1,'ax_helm_svv_one_sided_device']]],
+  ['ax_5fhelm_5fsvv_5fone_5fsided_5ffull_5fcpu_5ft_46',['ax_helm_svv_one_sided_full_cpu_t',['../d0/d5a/structax__helm__svv__one__sided__full__cpu_1_1ax__helm__svv__one__sided__full__cpu__t.html',1,'ax_helm_svv_one_sided_full_cpu']]],
+  ['ax_5fhelm_5fsvv_5fone_5fsided_5ffull_5fdevice_5ft_47',['ax_helm_svv_one_sided_full_device_t',['../da/d60/structax__helm__svv__one__sided__full__device_1_1ax__helm__svv__one__sided__full__device__t.html',1,'ax_helm_svv_one_sided_full_device']]],
+  ['ax_5fhelm_5fsvv_5ft_48',['ax_helm_svv_t',['../d2/d41/structax__helm__svv_1_1ax__helm__svv__t.html',1,'ax_helm_svv']]],
+  ['ax_5fhelm_5fsx_5ft_49',['ax_helm_sx_t',['../de/d9f/structax__helm__sx_1_1ax__helm__sx__t.html',1,'ax_helm_sx']]],
+  ['ax_5fhelm_5ft_50',['ax_helm_t',['../d1/d58/structax__helm_1_1ax__helm__t.html',1,'ax_helm']]],
+  ['ax_5fhelm_5ftemplate_5ft_51',['ax_helm_template_t',['../db/d0b/structax__helm__template_1_1ax__helm__template__t.html',1,'ax_helm_template']]],
+  ['ax_5fhelm_5fxsmm_5ft_52',['ax_helm_xsmm_t',['../d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html',1,'ax_helm_xsmm']]],
+  ['ax_5ft_53',['ax_t',['../d3/d2c/structax__product_1_1ax__t.html',1,'ax_product']]]
 ];

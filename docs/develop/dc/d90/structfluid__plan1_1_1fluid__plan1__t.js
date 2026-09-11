@@ -59,6 +59,8 @@ var structfluid__plan1_1_1fluid__plan1__t =
     [ "source_term", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a0c4cc065b664af8d7a9ed333946baad4", null ],
     [ "stats", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#af0a44febfd05048ee3a85e2a047bd722", null ],
     [ "strict_convergence", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a8be9c3ffbb61d65f3fa40e457d29d9b4", null ],
+    [ "svv", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#af00196136ae2b02408145e4c523fe99b", null ],
+    [ "svv_enabled", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a7faa8a7aa1364204fa0b2b023032f94d", null ],
     [ "u", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#ac5a241796167b65dc25822aeeefe086d", null ],
     [ "u_e", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a353f63dec6d26389f0ab350069d6863c", null ],
     [ "ulag", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a83f85c3368985db1cbf3cbc0ddf17c0d", null ],

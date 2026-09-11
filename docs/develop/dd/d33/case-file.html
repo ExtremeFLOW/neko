@@ -113,6 +113,7 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 </li>
 <li class="level1"><a href="#autotoc_md85">Numerics</a></li>
 <li class="level1"><a href="#case-file_fluid">Fluid</a><ul><li class="level2"><a href="#autotoc_md86">Material properties</a></li>
+<li class="level2"><a href="#case-file-svv">Spectral vanishing viscosity</a></li>
 <li class="level2"><a href="#autotoc_md87">Compressible flows</a><ul><li class="level3"><a href="#autotoc_md88">Compressible boundary conditions</a></li>
 </ul>
 </li>
@@ -154,16 +155,16 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 </li>
 <li class="level1"><a href="#case-file_scalar">Scalar</a><ul><li class="level2"><a href="#autotoc_md107">Material properties</a></li>
 <li class="level2"><a href="#autotoc_md108">Turbulence modelling</a></li>
-<li class="level2"><a href="#autotoc_md109">Boundary conditions</a></li>
-<li class="level2"><a href="#autotoc_md110">Initial conditions</a></li>
-<li class="level2"><a href="#autotoc_md111">Source terms</a></li>
-<li class="level2"><a href="#autotoc_md112">Linear solver configuration</a></li>
-<li class="level2"><a href="#autotoc_md113">Full parameter table</a></li>
+<li class="level2"><a href="#case-file_scalar-boundary-conditions">Boundary conditions</a></li>
+<li class="level2"><a href="#autotoc_md109">Initial conditions</a></li>
+<li class="level2"><a href="#autotoc_md110">Source terms</a></li>
+<li class="level2"><a href="#autotoc_md111">Linear solver configuration</a></li>
+<li class="level2"><a href="#autotoc_md112">Full parameter table</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md114">Simulation components</a></li>
-<li class="level1"><a href="#autotoc_md115">Point zones</a></li>
-<li class="level1"><a href="#autotoc_md116">Runtime statistics</a></li>
+<li class="level1"><a href="#autotoc_md113">Simulation components</a></li>
+<li class="level1"><a href="#autotoc_md114">Point zones</a></li>
+<li class="level1"><a href="#autotoc_md115">Runtime statistics</a></li>
 </ul>
 </div>
 <div class="textblock"><p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is hierarchical and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use of objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
@@ -412,6 +413,54 @@ Material properties</h2>
 <p>Note that if both <code>Re</code> and any of the dimensional material properties are provided, the simulation will issue an error.</p>
 <p>As an alternative to providing material properties in the case file, it is possible to do that in a special routine in the user file. This is demonstrated in the <code>rayleigh_benard_cylinder</code> example. Ultimately, both <code>rho</code> and <code>mu</code> have to be set in the subroutine. Additionally, this allows to change the material properties in time. Yet another options is to directly manipulate the case file programmatically in the <code>user_startup</code> routine and inject the material properties there. This is demonstrated in the <code>rayleigh_benard</code> example.</p>
 <p>When material properties are constant or only vary in time, one can use the simplified form of the viscous stress tensor in the governing equations. However, when there are spatial variations, it is necessary to use the general (full) form. The variation may come, for example, due to a turbulence model, the modifications in the above-mentioned user routine. The general form of the stress tensor requires solving the 3 equations for the velocity components in a coupled manner, which requires an appropriate linear solver. By default, Neko will use the simplified form of the tensor, and the full one must be selected by the user by setting <code>full_stress_formulation</code> to true.</p>
+<h2><a class="anchor" id="case-file-svv"></a>
+Spectral vanishing viscosity</h2>
+<p>Spectral vanishing viscosity (SVV) selectively adds dissipation to the high-frequency content of the solution. It was first proposed by Tadmor (1989) and later introduced to the spectral element method (SEM) community by Kirby and Sherwin (2006). Neko currently supports only the one-sided formulation, which applies the high-pass operator to the trial-function gradient in physical space (i.e., to gradients in the x, y, and z directions). The full-stress formulation is also supported for velocity and requires <code>coupled_cg</code> (or <code>fused_coupled_cg</code> on CUDA/HIP). For fluid solves, SVV is available with the implicit <code>pnpn</code> scheme.</p>
+<p>For the fluid equations, add <code>svv</code> to the <code>fluid</code> object. For a scalar, add the same object directly to that scalar's configuration:</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;svv&quot;: {</div>
+<div class="line">    &quot;enabled&quot;: true,</div>
+<div class="line">    &quot;formulation&quot;: &quot;one-sided&quot;,</div>
+<div class="line">    &quot;direction&quot;: &quot;rst&quot;,</div>
+<div class="line">    &quot;kernel&quot;: {</div>
+<div class="line">      &quot;type&quot;: &quot;power&quot;,</div>
+<div class="line">      &quot;power_coefficient&quot;: 0.5</div>
+<div class="line">    },</div>
+<div class="line">    &quot;nu&quot;: {</div>
+<div class="line">      &quot;type&quot;: &quot;value&quot;,</div>
+<div class="line">      &quot;value&quot;: 1.0e-3</div>
+<div class="line">    }</div>
+<div class="line">  }</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>The optional <code>formulation</code> entry defaults to <code>one-sided</code>; it is shown above to make the operator choice explicit. The required <code>kernel</code> object selects the modal transfer function through its <code>type</code>; currently, only <code>power</code> is supported. For the <code>power</code> kernel, the required <code>power_coefficient</code> controls the modal transfer function; larger values confine the added dissipation to modes nearer the polynomial cut-off. The <code>direction</code> selects the reference-element directions in which the modal filter is applied and defaults to <code>rst</code>. The SVV viscosity <code>nu</code> is multiplied by density internally and may be either a constant <code>value</code> or a registered <code>field</code>. A field configuration uses <code>field_name</code>:</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;svv&quot;: {</div>
+<div class="line">    &quot;enabled&quot;: true,</div>
+<div class="line">    &quot;formulation&quot;: &quot;one-sided&quot;,</div>
+<div class="line">    &quot;direction&quot;: &quot;rst&quot;,</div>
+<div class="line">    &quot;kernel&quot;: {</div>
+<div class="line">      &quot;type&quot;: &quot;power&quot;,</div>
+<div class="line">      &quot;power_coefficient&quot;: 0.5</div>
+<div class="line">    },</div>
+<div class="line">    &quot;nu&quot;: {</div>
+<div class="line">      &quot;type&quot;: &quot;field&quot;,</div>
+<div class="line">      &quot;time_variable&quot;: true,</div>
+<div class="line">      &quot;field_name&quot;: &quot;some_viscosity&quot;</div>
+<div class="line">    }</div>
+<div class="line">  }</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>For a field-valued viscosity, the optional <code>time_variable</code> entry controls whether the field is refreshed at every time step and defaults to <code>true</code>.</p>
+<p>The SVV operator, including its full-stress variant, is implemented for CPU, CUDA, and HIP backends. It is not currently available with the SX, XSMM, OpenCL, or Metal backends.</p>
+<details >
+<summary >
+<b><u>References</u></b></summary>
+<p></p>
+<ul>
+<li>Eitan Tadmor. “Convergence of spectral methods for nonlinear conservation laws.” <em>SIAM Journal on Numerical Analysis</em>, 26(1):30–44, 1989.</li>
+<li>Robert M. Kirby and Spencer J. Sherwin. “Stabilisation of spectral/hp element methods through spectral vanishing viscosity: Application to fluid mechanics modelling.” <em>Computer Methods in Applied Mechanics and Engineering</em>, 195(23):3128–3144, 2006.</li>
+</ul>
+<p></p>
+</details>
 <h2><a class="anchor" id="autotoc_md87"></a>
 Compressible flows</h2>
 <p>Neko supports compressible flow simulations via the compressible solver. To enable compressible flow, set <code>"scheme": "compressible"</code> in the fluid configuration. This solver integrates the compressible Navier-Stokes equations using a Runge-Kutta time integration scheme with artificial viscosity for stability.</p>
@@ -1813,7 +1862,7 @@ Turbulence modelling</h2>
 <div class="line">    &quot;alphat_field&quot;: &quot;temperature_alphat&quot;</div>
 <div class="line">  }</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md109"></a>
+</div><!-- fragment --><h2><a class="anchor" id="case-file_scalar-boundary-conditions"></a>
 Boundary conditions</h2>
 <p>The boundary conditions for the scalar are specified through the <code>boundary_conditions</code> keyword, which follows the same format as the fluid, for specifying the type of the condition and where it is applied. The following types of conditions are available for the scalar:</p>
 <ul>
@@ -1835,13 +1884,18 @@ Boundary conditions</h2>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
-<li><code>user</code>. User boundary condition, see <a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">further documentation</a>. <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;user&quot;,</div>
+<li><code>user_dirichlet</code>. User-updated Dirichlet boundary condition, see the <a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">user-file documentation</a>. <div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;user_dirichlet&quot;,</div>
+<div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
+<div class="line">}</div>
+</div><!-- fragment --></li>
+<li><code>user_neumann</code>. User-updated Neumann boundary condition, see the <a class="el" href="../../d6/def/user-file.html#user-file_field-neumann-update">user-file documentation</a>. <div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;user_neumann&quot;,</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md110"></a>
+<h2><a class="anchor" id="autotoc_md109"></a>
 Initial conditions</h2>
 <p>The object <code>initial_condition</code> is used to provide initial conditions. It is mandatory. The means of prescribing the values are controlled via the <code>type</code> keyword:</p>
 <ol type="1">
@@ -1855,13 +1909,13 @@ Initial conditions</h2>
 <li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>zone_name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
 <li><code>field</code>, where the initial condition is retrieved from a field file. Works in the same way as for the fluid. See the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-ic">fluid section</a> for detailed explanations.</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md111"></a>
+<h2><a class="anchor" id="autotoc_md110"></a>
 Source terms</h2>
 <p>The configuration of source terms is the same as for the fluid. A demonstration of using source terms for the scalar can be found in the <code>scalar_mms</code> example.</p>
-<h2><a class="anchor" id="autotoc_md112"></a>
+<h2><a class="anchor" id="autotoc_md111"></a>
 Linear solver configuration</h2>
 <p>Should be provided as an object under the <code>solver</code> keyword. For available configuration options, see the corresponding documentation for the fliud. A standard choice would be <code>"type": "cg"</code> and <code>"preconditioner": "jacobi"</code>.</p>
-<h2><a class="anchor" id="autotoc_md113"></a>
+<h2><a class="anchor" id="autotoc_md112"></a>
 Full parameter table</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -1911,16 +1965,16 @@ Full parameter table</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the scalar equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md114"></a>
+<h1><a class="anchor" id="autotoc_md113"></a>
 Simulation components</h1>
 <p>Simulation components enable the user to perform various additional operations, which are not strictly necessary to run the solver. An example could be computing and output of additional fields, e.g. vorticity.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../d3/d84/simcomps.html">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md115"></a>
+<h1><a class="anchor" id="autotoc_md114"></a>
 Point zones</h1>
 <p>Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Three predefined geometric shapes are selectable from the case file: boxes, spheres, and cylinders.</p>
 <p>A point zone object defined in the case file can be retrieved from the point zone registry, <code>neko_point_zone_registry</code>, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../da/dd0/point-zones.html">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md116"></a>
+<h1><a class="anchor" id="autotoc_md115"></a>
 Runtime statistics</h1>
 <p>This object adds the collection of runtime statistics (timings) for identified profiling regions. A region is defined as all functions between a call to <code>profiler_start_region(name, id)</code> and <code>profiler_end_region(name, id)</code>. Neko currently supports 50 regions, with id 1..25 being reserved for internal use.</p>
 <table class="markdownTable">
@@ -1938,7 +1992,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Sep 10 2026 03:40:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Sep 11 2026 03:41:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

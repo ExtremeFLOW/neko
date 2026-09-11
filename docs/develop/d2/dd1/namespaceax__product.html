@@ -100,6 +100,7 @@ $(document).ready(function(){initNavTree('d2/dd1/namespaceax__product.html','../
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Types</a> &#124;
+<a href="#func-members">Functions/Subroutines</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">ax_product Module Reference</div></div>
 </div><!--header-->
@@ -126,6 +127,12 @@ Data Types</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base type for a matrix-vector product providing \( Ax \).  <a href="../../d3/d2c/structax__product_1_1ax__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions/Subroutines</h2></td></tr>
+<tr class="memitem:a6fc6271244af8e3d3d2e826accbe6d0e" id="r_a6fc6271244af8e3d3d2e826accbe6d0e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/dd1/namespaceax__product.html#a6fc6271244af8e3d3d2e826accbe6d0e">ax_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a6fc6271244af8e3d3d2e826accbe6d0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Release resources held by a matrix-vector product.  <br /></td></tr>
+<tr class="separator:a6fc6271244af8e3d3d2e826accbe6d0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:a3a6934bf6eb2fd435b4e9f3697201548" id="r_a3a6934bf6eb2fd435b4e9f3697201548"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d3/de0/structax__product_1_1ax__helm__allocator__entry.html">ax_helm_allocator_entry</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/dd1/namespaceax__product.html#a3a6934bf6eb2fd435b4e9f3697201548">ax_helm_registry</a></td></tr>
@@ -135,6 +142,36 @@ Variables</h2></td></tr>
 <tr class="memdesc:a0cd9c59ea91ef3aac08d3f7fe31e8704"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of <code>ax_helm_registry</code>.  <br /></td></tr>
 <tr class="separator:a0cd9c59ea91ef3aac08d3f7fe31e8704"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Function/Subroutine Documentation</h2>
+<a id="a6fc6271244af8e3d3d2e826accbe6d0e" name="a6fc6271244af8e3d3d2e826accbe6d0e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6fc6271244af8e3d3d2e826accbe6d0e">&#9670;&#160;</a></span>ax_free()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> ax_product::ax_free </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>This default implementation permits resource-free operators to require no special handling. Descendants with pointer or allocatable components should override it. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../dc/dd6/ax_8f90_source.html#l00160">160</a> of file <a class="el" href="../../dc/dd6/ax_8f90_source.html">ax.f90</a>.</p>
+
+</div>
+</div>
 <h2 class="groupheader">Variable Documentation</h2>
 <a id="a3a6934bf6eb2fd435b4e9f3697201548" name="a3a6934bf6eb2fd435b4e9f3697201548"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3a6934bf6eb2fd435b4e9f3697201548">&#9670;&#160;</a></span>ax_helm_registry</h2>
@@ -148,7 +185,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/dd6/ax_8f90_source.html#l00089">89</a> of file <a class="el" href="../../dc/dd6/ax_8f90_source.html">ax.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/dd6/ax_8f90_source.html#l00090">90</a> of file <a class="el" href="../../dc/dd6/ax_8f90_source.html">ax.f90</a>.</p>
 
 </div>
 </div>
@@ -172,7 +209,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/dd6/ax_8f90_source.html#l00092">92</a> of file <a class="el" href="../../dc/dd6/ax_8f90_source.html">ax.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/dd6/ax_8f90_source.html#l00093">93</a> of file <a class="el" href="../../dc/dd6/ax_8f90_source.html">ax.f90</a>.</p>
 
 </div>
 </div>
@@ -182,7 +219,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d2/dd1/namespaceax__product.html">ax_product</a></li>
-    <li class="footer">Generated on Thu Sep 10 2026 03:40:59 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Sep 11 2026 03:41:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

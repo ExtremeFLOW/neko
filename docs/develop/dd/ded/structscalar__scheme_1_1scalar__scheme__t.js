@@ -37,6 +37,8 @@ var structscalar__scheme_1_1scalar__scheme__t =
     [ "s", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a4dba49c8c38c10944716140cad07f7dd", null ],
     [ "slag", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a783436e16b2fc713401118a35ee89fa5", null ],
     [ "source_term", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#abd115b21b6eb902c045d17561f254617", null ],
+    [ "svv", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a3aa19101a7b8d610139b1016955094ae", null ],
+    [ "svv_enabled", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#ac35c66940c27a205b82ea06394eab54c", null ],
     [ "u", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a44037993bd8743a0f5021ddf8c0b49de", null ],
     [ "user_material_properties", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a8520f100dad699d7a112b4042ab695e4", null ],
     [ "v", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a6eb0f84d7e313f889e52bdc44ceeaba6", null ],

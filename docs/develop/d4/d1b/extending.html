@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('d4/d1b/extending.html','../../'); init
 <ul>
 <li>You need to manually integrate your new files into Neko's build system.</li>
 <li>Updating Neko via Git becomes more complex, as you'll need to resolve merge conflicts between your changes and upstream updates.</li>
-<li>To avoid that hassle, you would have to open a pull request and merge your changes into Neko—though this may not be your intention. Or it might be to small in scope to qualify for being included.</li>
+<li>To avoid that hassle, you would have to open a pull request and merge your changes into Neko—though this may not be your intention. Or it might be too small in scope to qualify for being included.</li>
 </ul>
 <p>Extending Neko with <code>makeneko</code> is quite easy, but not everything in the code supports this. Here is a list of things you can implement.</p>
 <ul>
@@ -120,12 +120,13 @@ $(document).ready(function(){initNavTree('d4/d1b/extending.html','../../'); init
 <li>Krylov solvers (<code>ksp_t</code> descendants).</li>
 <li>Matrix-vector products (<code>ax_t</code> descendants).</li>
 <li>Scalar schemes (<code>scalar_scheme_t</code> descendants).</li>
+<li>Scalar boundary conditions (<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a> descendants).</li>
 </ul>
 <p>This list will hopefully be extended later. Fluid schemes are a notable omission.</p>
-<p>To implement a new type, the easiest thing is to start by copying over the <code>.f90</code> of an already existing type, renaming things inside and then adding the functionality you want (e.g. the particular form of the source term). When you are done, two special subroutines have to be added to you module. To make explaining easier, let us assume that your module is called <code>mymodule</code> and the new type <code>mytype</code>.</p>
+<p>To implement a new type, the easiest thing is to start by copying over the <code>.f90</code> of an already existing type, renaming things inside and then adding the functionality you want (e.g. the particular form of the source term). When you are done, two special subroutines have to be added to your module. To make explaining easier, let us assume that your module is called <code>mymodule</code> and the new type <code>mytype</code>.</p>
 <ul>
 <li>All the types in the list above have a routine called <code>register_*</code>, where the <code>*</code> is replaced by the name of the type, for example, <code>register_source_term</code>.</li>
-<li>The also provide a procedure interface called <code>*_allocate</code>, e.g. <code>source_term_allocate</code>.</li>
+<li>They also provide a procedure interface called <code>*_allocate</code>, e.g. <code>source_term_allocate</code>.</li>
 </ul>
 <p>Both of these routines should be brought into the the new modules with <code>use</code> statements. Then, two routines need to be defined in the module.</p>
 <ul>
@@ -151,7 +152,7 @@ $(document).ready(function(){initNavTree('d4/d1b/extending.html','../../'); init
 <div class="line">  <span class="comment">! This is what you set in the JSON file, in the type keyword</span></div>
 <div class="line">  <span class="keyword">call </span>register_source_term(<span class="stringliteral">&quot;mytype&quot;</span>, allocator)</div>
 <div class="line"><span class="keyword">end subroutine </span></div>
-</div><!-- fragment --><p class="startli">Note that the <code>*_register_types</code> routine can register maybe types, not necessarily just one.</p>
+</div><!-- fragment --><p class="startli">Note that the <code>*_register_types</code> routine can register many types, not necessarily just one.</p>
 </li>
 </ul>
 <p>For custom device kernels, <code>mymodule</code> must define a C interface to a CUDA/HIP routine that launches the kernel.</p>
@@ -185,7 +186,7 @@ $(document).ready(function(){initNavTree('d4/d1b/extending.html','../../'); init
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Sep 10 2026 03:40:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Sep 11 2026 03:41:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -101,7 +101,7 @@ $(document).ready(function(){initNavTree('df/d67/md__2home_2runner_2work_2neko_2
   <div class="headertitle"><div class="title">User-type templates</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="autotoc_md222"></a> Each file is a standalone module that demonstrates one of Neko's supported user-type injection points. Copy the file for the type you need, rename the file, module, derived type, JSON type name, and registration routine together, then add it to your <code>makeneko</code> command alongside the user file.</p>
+<div class="textblock"><p><a class="anchor" id="autotoc_md221"></a> Each file is a standalone module that demonstrates one of Neko's supported user-type injection points. Copy the file for the type you need, rename the file, module, derived type, JSON type name, and registration routine together, then add it to your <code>makeneko</code> command alongside the user file.</p>
 <p>For example:</p>
 <div class="fragment"><div class="line">makeneko user.f90 my_source_term.f90</div>
 </div><!-- fragment --><p><code>makeneko</code> discovers each <code>module_name_register_types</code> routine and calls it at startup. The registration routine in every template is deliberately kept at the end of its module so it is easy to find.</p>
@@ -116,15 +116,16 @@ $(document).ready(function(){initNavTree('df/d67/md__2home_2runner_2work_2neko_2
 <li><code><a class="el" href="../../d8/d4b/krylov__solver__template_8f90.html">krylov_solver_template.f90</a></code> — <code>ksp_t</code></li>
 <li><code><a class="el" href="../../d3/db9/ax__helm__template_8f90.html">ax_helm_template.f90</a></code> — <code>ax_t</code> Helmholtz matrix-vector product</li>
 <li><code><a class="el" href="../../dd/d32/scalar__scheme__template_8f90.html">scalar_scheme_template.f90</a></code> — <code>scalar_scheme_t</code></li>
+<li><code><a class="el" href="../../d5/dd6/scalar__pnpn__bc__template_8f90.html">scalar_pnpn_bc_template.f90</a></code> — scalar Pn/Pn <code>bc_t</code></li>
 </ul>
-<p>The executable bodies are safe, minimal starting points rather than useful models: the LES and wall-model templates produce zero additional effects; the preconditioner and Ax templates are identities; and the Krylov template stops with an explicit error until its solve routine is implemented. Replace the marked <code>TODO</code> sections with the actual algorithm. </p>
+<p>The executable bodies are safe, minimal starting points rather than useful models: the LES and wall-model templates produce zero additional effects; the preconditioner and Ax templates are identities; and the Krylov and scalar Pn/Pn boundary-condition templates stop with an explicit error until their solve and apply routines are implemented. Replace the marked <code>TODO</code> sections with the actual algorithm. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Sep 10 2026 03:40:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Sep 11 2026 03:41:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

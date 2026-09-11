@@ -118,6 +118,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aba03bcf1446e7bee67439441ad8c8970" id="r_aba03bcf1446e7bee67439441ad8c8970"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#aba03bcf1446e7bee67439441ad8c8970">fluid_pnpn_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, msh, lx, params, user, chkp)</td></tr>
 <tr class="memdesc:aba03bcf1446e7bee67439441ad8c8970"><td class="mdescLeft">&#160;</td><td class="mdescRight">Boundary condition factory for pressure.  <br /></td></tr>
 <tr class="separator:aba03bcf1446e7bee67439441ad8c8970"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21e7a0cfb7be2640882fe62d11311950" id="r_a21e7a0cfb7be2640882fe62d11311950"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#a21e7a0cfb7be2640882fe62d11311950">fluid_pnpn_ax_vel_factory</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a21e7a0cfb7be2640882fe62d11311950"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate and configure the Helmholtz matrix-vector product for the velocity, <code>thisAx_vel</code>.  <br /></td></tr>
+<tr class="separator:a21e7a0cfb7be2640882fe62d11311950"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2c1343c39852c088298081c8d91ae6b6" id="r_a2c1343c39852c088298081c8d91ae6b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#a2c1343c39852c088298081c8d91ae6b6">fluid_pnpn_restart</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, chkp)</td></tr>
 <tr class="separator:a2c1343c39852c088298081c8d91ae6b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa2582bae4203cde06a4a72c54aebd215" id="r_aa2582bae4203cde06a4a72c54aebd215"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#aa2582bae4203cde06a4a72c54aebd215">fluid_pnpn_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
@@ -133,6 +136,34 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:a7f70c90f36be1ce04e75fa930aed3819"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
+<a id="a21e7a0cfb7be2640882fe62d11311950" name="a21e7a0cfb7be2640882fe62d11311950"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21e7a0cfb7be2640882fe62d11311950">&#9670;&#160;</a></span>fluid_pnpn_ax_vel_factory()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> fluid_pnpn::fluid_pnpn_ax_vel_factory </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00452">452</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+
+</div>
+</div>
 <a id="aa2582bae4203cde06a4a72c54aebd215" name="aa2582bae4203cde06a4a72c54aebd215"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa2582bae4203cde06a4a72c54aebd215">&#9670;&#160;</a></span>fluid_pnpn_free()</h2>
 
@@ -157,7 +188,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00564">564</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00592">592</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -232,7 +263,7 @@ Functions/Subroutines</h2></td></tr>
 </dl>
 <p>Set the number of schwarz iterations to perform each time step.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00241">241</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00243">243</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -270,7 +301,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00451">451</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00479">479</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -320,7 +351,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00948">948</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00983">983</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -375,7 +406,7 @@ Functions/Subroutines</h2></td></tr>
 </dl>
 <p>adds div.(u_i*wm) to RHS</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00660">660</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00690">690</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -403,7 +434,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l01185">1185</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l01220">1220</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -413,7 +444,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html">fluid_pnpn</a></li>
-    <li class="footer">Generated on Thu Sep 10 2026 03:40:59 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Sep 11 2026 03:41:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

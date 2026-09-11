@@ -1,0 +1,7 @@
+<map id="scalar_pnpn_bc_template::scalar_pnpn_bc_template_t::finalize" name="scalar_pnpn_bc_template::scalar_pnpn_bc_template_t::finalize">
+<area shape="rect" id="Node000001" title="Finalize the boundary condition." alt="" coords="5,5,201,60"/>
+<area shape="rect" id="Node000002" href="$da/d79/namespacescalar__pnpn__bc__template.html#a767b282b0b30da45b8077645ca73e209" title="Register the custom boundary condition type with scalar Pn/Pn." alt="" coords="249,5,445,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,30,236,30,236,35,201,35"/>
+<area shape="rect" id="Node000003" href="$da/d79/namespacescalar__pnpn__bc__template.html#abe72bed5c0f85c1035244e7aaa8df236" title="Allocate the custom boundary condition." alt="" coords="493,5,689,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="445,30,480,30,480,35,445,35"/>
+</map>

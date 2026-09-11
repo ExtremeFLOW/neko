@@ -1,0 +1,11 @@
+<map id="tensor4::tensor4_t::assignment" name="tensor4::tensor4_t::assignment">
+<area shape="rect" id="Node000001" title="Assignment ." alt="" coords="5,37,145,77"/>
+<area shape="rect" id="Node000002" href="$df/d15/namespacetensor4.html#ae2713573c05b2b665b440e48e8a2e36e" title="Assignment ." alt="" coords="193,5,371,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,44,179,39,180,44,146,49"/>
+<area shape="rect" id="Node000004" href="$df/d15/namespacetensor4.html#ae08744c85a855409f4f79012f9162f34" title="Assignment ." alt="" coords="193,69,371,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="146,66,180,71,179,76,145,71"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e" title="Set all elements to a constant c ." alt="" coords="437,5,595,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="371,23,424,23,424,28,371,28"/>
+<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="419,77,613,102"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="371,87,405,87,405,92,371,92"/>
+</map>

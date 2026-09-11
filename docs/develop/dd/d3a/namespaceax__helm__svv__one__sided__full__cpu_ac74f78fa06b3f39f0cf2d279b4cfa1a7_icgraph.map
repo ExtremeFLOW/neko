@@ -1,0 +1,5 @@
+<map id="ax_helm_svv_one_sided_full_cpu::ax_helm_svv_one_sided_full_lx" name="ax_helm_svv_one_sided_full_cpu::ax_helm_svv_one_sided_full_lx">
+<area shape="rect" id="Node000001" title="Generic CPU kernel for the full&#45;stress one&#45;sided SVV product." alt="" coords="288,5,469,60"/>
+<area shape="rect" id="Node000002" href="$dd/d3a/namespaceax__helm__svv__one__sided__full__cpu.html#a83456a6907d28da059393f73ffefef29" title="Compute &#160;inside a Krylov method, taking 3 components of a vector field in a coupled manner." alt="" coords="5,5,240,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="274,35,240,35,240,30,274,30"/>
+</map>

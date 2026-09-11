@@ -1,7 +1,7 @@
 var namespaceax__helm__cpu =
 [
     [ "ax_helm_cpu_t", "d7/d70/structax__helm__cpu_1_1ax__helm__cpu__t.html", "d7/d70/structax__helm__cpu_1_1ax__helm__cpu__t" ],
-    [ "ax_helm_compute", "d5/de3/namespaceax__helm__cpu.html#a2837063ed646a211207822382c71aada", null ],
+    [ "ax_helm_compute", "d5/de3/namespaceax__helm__cpu.html#a35be3636d2cfec38f14d707961810d76", null ],
     [ "ax_helm_lx", "d5/de3/namespaceax__helm__cpu.html#a2cc9024bfec2c74dde5ebed9e4cfdbdb", null ],
     [ "ax_helm_lx10", "d5/de3/namespaceax__helm__cpu.html#ae43153da52488b8dc8f76d60ea31ea56", null ],
     [ "ax_helm_lx11", "d5/de3/namespaceax__helm__cpu.html#aea8b2efe4aba652192310f99fa75fb6f", null ],

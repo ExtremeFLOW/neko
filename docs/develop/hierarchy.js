@@ -44,6 +44,10 @@ var hierarchy =
       [ "ax_helm::ax_helm_t", "d1/d58/structax__helm_1_1ax__helm__t.html", [
         [ "ax_helm_cpu::ax_helm_cpu_t", "d7/d70/structax__helm__cpu_1_1ax__helm__cpu__t.html", null ],
         [ "ax_helm_device::ax_helm_device_t", "d7/d68/structax__helm__device_1_1ax__helm__device__t.html", null ],
+        [ "ax_helm_svv::ax_helm_svv_t", "d2/d41/structax__helm__svv_1_1ax__helm__svv__t.html", [
+          [ "ax_helm_svv_one_sided_cpu::ax_helm_svv_one_sided_cpu_t", "d2/d78/structax__helm__svv__one__sided__cpu_1_1ax__helm__svv__one__sided__cpu__t.html", null ],
+          [ "ax_helm_svv_one_sided_device::ax_helm_svv_one_sided_device_t", "db/dd2/structax__helm__svv__one__sided__device_1_1ax__helm__svv__one__sided__device__t.html", null ]
+        ] ],
         [ "ax_helm_sx::ax_helm_sx_t", "de/d9f/structax__helm__sx_1_1ax__helm__sx__t.html", null ],
         [ "ax_helm_template::ax_helm_template_t", "db/d0b/structax__helm__template_1_1ax__helm__template__t.html", null ],
         [ "ax_helm_xsmm::ax_helm_xsmm_t", "d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html", null ]
@@ -51,6 +55,10 @@ var hierarchy =
       [ "ax_helm_full::ax_helm_full_t", "d8/d81/structax__helm__full_1_1ax__helm__full__t.html", [
         [ "ax_helm_full_cpu::ax_helm_full_cpu_t", "db/db0/structax__helm__full__cpu_1_1ax__helm__full__cpu__t.html", null ],
         [ "ax_helm_full_device::ax_helm_full_device_t", "db/d3f/structax__helm__full__device_1_1ax__helm__full__device__t.html", null ]
+      ] ],
+      [ "ax_helm_svv_full::ax_helm_svv_full_t", "db/d36/structax__helm__svv__full_1_1ax__helm__svv__full__t.html", [
+        [ "ax_helm_svv_one_sided_full_cpu::ax_helm_svv_one_sided_full_cpu_t", "d0/d5a/structax__helm__svv__one__sided__full__cpu_1_1ax__helm__svv__one__sided__full__cpu__t.html", null ],
+        [ "ax_helm_svv_one_sided_full_device::ax_helm_svv_one_sided_full_device_t", "da/d60/structax__helm__svv__one__sided__full__device_1_1ax__helm__svv__one__sided__full__device__t.html", null ]
       ] ]
     ] ],
     [ "bc::bc_alloc_t", "d4/da2/structbc_1_1bc__alloc__t.html", null ],
@@ -85,6 +93,7 @@ var hierarchy =
       [ "non_normal_aligned::non_normal_aligned_t", "d1/ddc/structnon__normal__aligned_1_1non__normal__aligned__t.html", null ],
       [ "overset_interface::overset_interface_t", "d9/db1/structoverset__interface_1_1overset__interface__t.html", null ],
       [ "overset_interface_vector::overset_interface_vector_t", "d5/d64/structoverset__interface__vector_1_1overset__interface__vector__t.html", null ],
+      [ "scalar_pnpn_bc_template::scalar_pnpn_bc_template_t", "da/d09/structscalar__pnpn__bc__template_1_1scalar__pnpn__bc__template__t.html", null ],
       [ "symmetry_aligned::symmetry_aligned_t", "d5/d3b/structsymmetry__aligned_1_1symmetry__aligned__t.html", null ],
       [ "zero_dirichlet::zero_dirichlet_t", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html", [
         [ "no_slip::no_slip_t", "dc/d90/structno__slip_1_1no__slip__t.html", null ]
@@ -449,6 +458,8 @@ var hierarchy =
     [ "ax_helm_device::hip_ax_helm", "da/dff/interfaceax__helm__device_1_1hip__ax__helm.html", null ],
     [ "ax_helm_full_device::hip_ax_helm_stress_vector", "d6/d0b/interfaceax__helm__full__device_1_1hip__ax__helm__stress__vector.html", null ],
     [ "ax_helm_full_device::hip_ax_helm_stress_vector_part2", "da/de5/interfaceax__helm__full__device_1_1hip__ax__helm__stress__vector__part2.html", null ],
+    [ "ax_helm_svv_one_sided_device::hip_ax_helm_svv_one_sided", "d3/d58/interfaceax__helm__svv__one__sided__device_1_1hip__ax__helm__svv__one__sided.html", null ],
+    [ "ax_helm_svv_one_sided_full_device::hip_ax_helm_svv_one_sided_full", "df/d29/interfaceax__helm__svv__one__sided__full__device_1_1hip__ax__helm__svv__one__sided__full.html", null ],
     [ "ax_helm_device::hip_ax_helm_vector", "d1/d0f/interfaceax__helm__device_1_1hip__ax__helm__vector.html", null ],
     [ "ax_helm_device::hip_ax_helm_vector_part2", "d2/dae/interfaceax__helm__device_1_1hip__ax__helm__vector__part2.html", null ],
     [ "bicgstab_device::hip_bicgstab_part1", "dc/dc2/interfacebicgstab__device_1_1hip__bicgstab__part1.html", null ],
@@ -1030,6 +1041,8 @@ var hierarchy =
     [ "runge_kutta_time_scheme::runge_kutta_time_scheme_t", "d4/d16/structrunge__kutta__time__scheme_1_1runge__kutta__time__scheme__t.html", null ],
     [ "runtime_stats::runtime_stats_t", "d5/db8/structruntime__stats_1_1runtime__stats__t.html", null ],
     [ "scalar_bc_projector::scalar_bc_projector_t", "d6/dc1/structscalar__bc__projector_1_1scalar__bc__projector__t.html", null ],
+    [ "scalar_pnpn::scalar_pnpn_bc_allocate", "d2/db3/interfacescalar__pnpn_1_1scalar__pnpn__bc__allocate.html", null ],
+    [ "scalar_pnpn::scalar_pnpn_bc_allocator_entry", "de/df1/structscalar__pnpn_1_1scalar__pnpn__bc__allocator__entry.html", null ],
     [ "scalar_residual::scalar_residual_interface", "d0/d90/interfacescalar__residual_1_1scalar__residual__interface.html", null ],
     [ "scalar_residual::scalar_residual_t", "de/de3/structscalar__residual_1_1scalar__residual__t.html", [
       [ "scalar_residual_cpu::scalar_residual_cpu_t", "db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html", null ],
@@ -1201,6 +1214,7 @@ var hierarchy =
     [ "stl::stl_triangle_t", "df/daa/structstl_1_1stl__triangle__t.html", null ],
     [ "operators::strain_rate", "db/d20/interfaceoperators_1_1strain__rate.html", null ],
     [ "structs::struct_curve_t", "d0/d10/structstructs_1_1struct__curve__t.html", null ],
+    [ "spectral_vanishing_viscosity::svv_t", "df/d33/structspectral__vanishing__viscosity_1_1svv__t.html", null ],
     [ "math::swap", "d7/d0d/interfacemath_1_1swap.html", null ],
     [ "fdm::sygv", "d3/d46/interfacefdm_1_1sygv.html", null ],
     [ "system::system_cpuid", "d7/d90/interfacesystem_1_1system__cpuid.html", null ],
@@ -1211,6 +1225,10 @@ var hierarchy =
     [ "tree_amg_multigrid::tamg_solver_t", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html", null ],
     [ "tree_amg_multigrid::tamg_wrk_t", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html", null ],
     [ "richardson_cpu::tau_interface", "d0/d9b/interfacerichardson__cpu_1_1tau__interface.html", null ],
+    [ "tensor3::tensor3_ptr_t", "d8/d29/structtensor3_1_1tensor3__ptr__t.html", null ],
+    [ "tensor3::tensor3_t", "d2/d24/structtensor3_1_1tensor3__t.html", null ],
+    [ "tensor4::tensor4_ptr_t", "da/d0e/structtensor4_1_1tensor4__ptr__t.html", null ],
+    [ "tensor4::tensor4_t", "d2/de3/structtensor4_1_1tensor4__t.html", null ],
     [ "tet_mesh::tet_mesh_t", "db/d3a/structtet__mesh_1_1tet__mesh__t.html", null ],
     [ "time_based_controller::time_based_controller_t", "db/de7/structtime__based__controller_1_1time__based__controller__t.html", null ],
     [ "time_interpolator::time_interpolator_t", "d8/d85/structtime__interpolator_1_1time__interpolator__t.html", null ],

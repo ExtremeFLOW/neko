@@ -6,6 +6,8 @@ var dir_23179ed14d067dddc96ef717056004fe =
     [ "opencl", "dir_a753435b69305af25b1972a8c16b18f4.html", "dir_a753435b69305af25b1972a8c16b18f4" ],
     [ "ax_helm_device.F90", "d1/d46/ax__helm__device_8F90.html", "d1/d46/ax__helm__device_8F90" ],
     [ "ax_helm_full_device.F90", "dd/d4d/ax__helm__full__device_8F90.html", "dd/d4d/ax__helm__full__device_8F90" ],
+    [ "ax_helm_svv_one_sided_device.F90", "d2/d4a/ax__helm__svv__one__sided__device_8F90.html", "d2/d4a/ax__helm__svv__one__sided__device_8F90" ],
+    [ "ax_helm_svv_one_sided_full_device.F90", "d3/d1f/ax__helm__svv__one__sided__full__device_8F90.html", "d3/d1f/ax__helm__svv__one__sided__full__device_8F90" ],
     [ "device_math.F90", "d8/d8f/device__math_8F90.html", "d8/d8f/device__math_8F90" ],
     [ "device_mathops.F90", "d0/d28/device__mathops_8F90.html", "d0/d28/device__mathops_8F90" ],
     [ "device_mpi_op.h", "db/d37/device__mpi__op_8h.html", "db/d37/device__mpi__op_8h" ],

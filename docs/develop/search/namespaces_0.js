@@ -20,8 +20,14 @@ var searchData=
   ['ax_5fhelm_5ffull_17',['ax_helm_full',['../d5/d19/namespaceax__helm__full.html',1,'']]],
   ['ax_5fhelm_5ffull_5fcpu_18',['ax_helm_full_cpu',['../df/d07/namespaceax__helm__full__cpu.html',1,'']]],
   ['ax_5fhelm_5ffull_5fdevice_19',['ax_helm_full_device',['../d1/d73/namespaceax__helm__full__device.html',1,'']]],
-  ['ax_5fhelm_5fsx_20',['ax_helm_sx',['../d5/dd0/namespaceax__helm__sx.html',1,'']]],
-  ['ax_5fhelm_5ftemplate_21',['ax_helm_template',['../d2/db3/namespaceax__helm__template.html',1,'']]],
-  ['ax_5fhelm_5fxsmm_22',['ax_helm_xsmm',['../d3/d57/namespaceax__helm__xsmm.html',1,'']]],
-  ['ax_5fproduct_23',['ax_product',['../d2/dd1/namespaceax__product.html',1,'']]]
+  ['ax_5fhelm_5fsvv_20',['ax_helm_svv',['../dd/dfe/namespaceax__helm__svv.html',1,'']]],
+  ['ax_5fhelm_5fsvv_5ffull_21',['ax_helm_svv_full',['../dc/dd1/namespaceax__helm__svv__full.html',1,'']]],
+  ['ax_5fhelm_5fsvv_5fone_5fsided_5fcpu_22',['ax_helm_svv_one_sided_cpu',['../da/d1b/namespaceax__helm__svv__one__sided__cpu.html',1,'']]],
+  ['ax_5fhelm_5fsvv_5fone_5fsided_5fdevice_23',['ax_helm_svv_one_sided_device',['../df/d21/namespaceax__helm__svv__one__sided__device.html',1,'']]],
+  ['ax_5fhelm_5fsvv_5fone_5fsided_5ffull_5fcpu_24',['ax_helm_svv_one_sided_full_cpu',['../dd/d3a/namespaceax__helm__svv__one__sided__full__cpu.html',1,'']]],
+  ['ax_5fhelm_5fsvv_5fone_5fsided_5ffull_5fdevice_25',['ax_helm_svv_one_sided_full_device',['../d5/d74/namespaceax__helm__svv__one__sided__full__device.html',1,'']]],
+  ['ax_5fhelm_5fsx_26',['ax_helm_sx',['../d5/dd0/namespaceax__helm__sx.html',1,'']]],
+  ['ax_5fhelm_5ftemplate_27',['ax_helm_template',['../d2/db3/namespaceax__helm__template.html',1,'']]],
+  ['ax_5fhelm_5fxsmm_28',['ax_helm_xsmm',['../d3/d57/namespaceax__helm__xsmm.html',1,'']]],
+  ['ax_5fproduct_29',['ax_product',['../d2/dd1/namespaceax__product.html',1,'']]]
 ];

@@ -2,6 +2,8 @@ var dir_a1c99f91a79f7bf548f96fca73db34ee =
 [
     [ "ax_helm_cpu.f90", "dd/da6/ax__helm__cpu_8f90.html", "dd/da6/ax__helm__cpu_8f90" ],
     [ "ax_helm_full_cpu.f90", "db/d43/ax__helm__full__cpu_8f90.html", "db/d43/ax__helm__full__cpu_8f90" ],
+    [ "ax_helm_svv_one_sided_cpu.f90", "d4/d61/ax__helm__svv__one__sided__cpu_8f90.html", "d4/d61/ax__helm__svv__one__sided__cpu_8f90" ],
+    [ "ax_helm_svv_one_sided_full_cpu.f90", "da/dcc/ax__helm__svv__one__sided__full__cpu_8f90.html", "da/dcc/ax__helm__svv__one__sided__full__cpu_8f90" ],
     [ "ax_helm_vector_cpu.f90", "d5/dc8/ax__helm__vector__cpu_8f90.html", null ],
     [ "convect_scalar.f90", "d5/d63/convect__scalar_8f90.html", null ],
     [ "cpu_cdtp.f90", "d8/d21/cpu__cdtp_8f90.html", null ],
