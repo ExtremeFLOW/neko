@@ -36,16 +36,19 @@
 #include <stdlib.h>
 #include <device/device_config.h>
 #include <device/cuda/check.h>
-#include "ax_helm_kernel.h"
+#include "ax_helm_full_kernel.h"
 
 extern "C" {
 
-/** Fortran wrapper for the fused symmetric CUDA SVV Helmholtz operator. */
-void cuda_ax_helm_svv_symmetric(
-    void *w, void *u, void *dx, void *dy, void *dz, void *h1,
+/** Fortran wrapper for the fused factorized full-stress CUDA operator. */
+void cuda_ax_helm_svv_factorized_full(
+    void *au, void *av, void *aw, void *u, void *v, void *w,
+    void *dx, void *dy, void *dz, void *h1,
     void *Br, void *Bs, void *Bt, void *h1_svv,
-    void *g11, void *g22, void *g33,
-    void *g12, void *g13, void *g23,
+    void *drdx, void *drdy, void *drdz,
+    void *dsdx, void *dsdy, void *dsdz,
+    void *dtdx, void *dtdy, void *dtdz,
+    void *jacinv, void *w3,
     int *nelv, int *lx) {
 
   const dim3 threads(*lx, *lx, 1);
@@ -53,35 +56,47 @@ void cuda_ax_helm_svv_symmetric(
   const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
 #define LAUNCH(LX)                                                             \
-    ax_helm_kernel_kstep<real, LX, 1, false>                                      \
+    ax_helm_stress_kernel_vector_kstep<real, LX, false>                        \
         <<<blocks, threads, 0, stream>>>(                                      \
-        (real *) w, (real *) u,                                                \
+        (real *) au, (real *) av, (real *) aw,                                \
+        (real *) u, (real *) v, (real *) w,                                   \
         (real *) dx, (real *) dy, (real *) dz, (real *) h1,                   \
-        (real *) g11, (real *) g22, (real *) g33,                             \
-        (real *) g12, (real *) g13, (real *) g23);                            \
+        (real *) drdx, (real *) drdy, (real *) drdz,                          \
+        (real *) dsdx, (real *) dsdy, (real *) dsdz,                          \
+        (real *) dtdx, (real *) dtdy, (real *) dtdz,                          \
+        (real *) jacinv, (real *) w3);                                        \
     CUDA_CHECK(cudaGetLastError());                                            \
-    ax_helm_kernel_kstep<real, LX, 1, true>                                       \
+    ax_helm_stress_kernel_vector_kstep<real, LX, true>                         \
         <<<blocks, threads, 0, stream>>>(                                      \
-        (real *) w, (real *) u,                                                \
+        (real *) au, (real *) av, (real *) aw,                                \
+        (real *) u, (real *) v, (real *) w,                                   \
         (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv,               \
-        (real *) g11, (real *) g22, (real *) g33,                             \
-        (real *) g12, (real *) g13, (real *) g23);                            \
+        (real *) drdx, (real *) drdy, (real *) drdz,                          \
+        (real *) dsdx, (real *) dsdy, (real *) dsdz,                          \
+        (real *) dtdx, (real *) dtdy, (real *) dtdz,                          \
+        (real *) jacinv, (real *) w3);                                        \
     CUDA_CHECK(cudaGetLastError())
 
 #define LAUNCH_PADDED(LX)                                                      \
-    ax_helm_kernel_kstep_padded<real, LX, 1, false>                               \
+    ax_helm_stress_kernel_vector_kstep_padded<real, LX, false>                 \
         <<<blocks, threads, 0, stream>>>(                                      \
-        (real *) w, (real *) u,                                                \
+        (real *) au, (real *) av, (real *) aw,                                \
+        (real *) u, (real *) v, (real *) w,                                   \
         (real *) dx, (real *) dy, (real *) dz, (real *) h1,                   \
-        (real *) g11, (real *) g22, (real *) g33,                             \
-        (real *) g12, (real *) g13, (real *) g23);                            \
+        (real *) drdx, (real *) drdy, (real *) drdz,                          \
+        (real *) dsdx, (real *) dsdy, (real *) dsdz,                          \
+        (real *) dtdx, (real *) dtdy, (real *) dtdz,                          \
+        (real *) jacinv, (real *) w3);                                        \
     CUDA_CHECK(cudaGetLastError());                                            \
-    ax_helm_kernel_kstep_padded<real, LX, 1, true>                                \
+    ax_helm_stress_kernel_vector_kstep_padded<real, LX, true>                  \
         <<<blocks, threads, 0, stream>>>(                                      \
-        (real *) w, (real *) u,                                                \
+        (real *) au, (real *) av, (real *) aw,                                \
+        (real *) u, (real *) v, (real *) w,                                   \
         (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv,               \
-        (real *) g11, (real *) g22, (real *) g33,                             \
-        (real *) g12, (real *) g13, (real *) g23);                            \
+        (real *) drdx, (real *) drdy, (real *) drdz,                          \
+        (real *) dsdx, (real *) dsdy, (real *) dsdz,                          \
+        (real *) dtdx, (real *) dtdy, (real *) dtdz,                          \
+        (real *) jacinv, (real *) w3);                                        \
     CUDA_CHECK(cudaGetLastError())
 
 #define CASE(LX)                                                               \

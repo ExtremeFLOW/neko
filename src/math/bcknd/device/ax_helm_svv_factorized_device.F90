@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Device implementation of the symmetric SVV Helmholtz operator.
-module ax_helm_svv_symmetric_device
+!> Device implementation of the factorized SVV Helmholtz operator.
+module ax_helm_svv_factorized_device
   use ax_helm_svv, only : ax_helm_svv_t
   use num_types, only : rp
   use coefs, only : coef_t
@@ -44,19 +44,19 @@ module ax_helm_svv_symmetric_device
   implicit none
   private
 
-  !> Device matrix-vector product for a symmetric SVV Helmholtz problem.
-  type, public, extends(ax_helm_svv_t) :: ax_helm_svv_symmetric_device_t
+  !> Device matrix-vector product for a factorized SVV Helmholtz problem.
+  type, public, extends(ax_helm_svv_t) :: ax_helm_svv_factorized_device_t
    contains
      !> Compute the product.
-     procedure, pass(this) :: compute => ax_helm_svv_symmetric_device_compute
-  end type ax_helm_svv_symmetric_device_t
+     procedure, pass(this) :: compute => ax_helm_svv_factorized_device_compute
+  end type ax_helm_svv_factorized_device_t
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_ax_helm_svv_symmetric(w_d, u_d, dx_d, dy_d, dz_d, h1_d, &
+     subroutine hip_ax_helm_svv_factorized(w_d, u_d, dx_d, dy_d, dz_d, h1_d, &
           Br_d, Bs_d, Bt_d, svv_h1_d, G11_d, G22_d, G33_d, &
           G12_d, G13_d, G23_d, nelv, lx) &
-          bind(c, name='hip_ax_helm_svv_symmetric')
+          bind(c, name='hip_ax_helm_svv_factorized')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        type(c_ptr), value :: w_d, u_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, h1_d
@@ -64,14 +64,14 @@ module ax_helm_svv_symmetric_device
        type(c_ptr), value :: G11_d, G22_d, G33_d
        type(c_ptr), value :: G12_d, G13_d, G23_d
        integer(c_int) :: nelv, lx
-     end subroutine hip_ax_helm_svv_symmetric
+     end subroutine hip_ax_helm_svv_factorized
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_ax_helm_svv_symmetric(w_d, u_d, dx_d, dy_d, dz_d, h1_d, &
+     subroutine cuda_ax_helm_svv_factorized(w_d, u_d, dx_d, dy_d, dz_d, h1_d, &
           Br_d, Bs_d, Bt_d, svv_h1_d, G11_d, G22_d, G33_d, &
           G12_d, G13_d, G23_d, nelv, lx) &
-          bind(c, name='cuda_ax_helm_svv_symmetric')
+          bind(c, name='cuda_ax_helm_svv_factorized')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        type(c_ptr), value :: w_d, u_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, h1_d
@@ -79,21 +79,21 @@ module ax_helm_svv_symmetric_device
        type(c_ptr), value :: G11_d, G22_d, G33_d
        type(c_ptr), value :: G12_d, G13_d, G23_d
        integer(c_int) :: nelv, lx
-     end subroutine cuda_ax_helm_svv_symmetric
+     end subroutine cuda_ax_helm_svv_factorized
   end interface
 #endif
 
 contains
 
-  !> Compute the symmetric SVV Helmholtz product.
-  !! @param this Device symmetric SVV Helmholtz operator.
+  !> Compute the factorized SVV Helmholtz product.
+  !! @param this Device factorized SVV Helmholtz operator.
   !! @param w Result.
   !! @param u Input field.
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space.
-  subroutine ax_helm_svv_symmetric_device_compute(this, w, u, coef, msh, Xh)
-    class(ax_helm_svv_symmetric_device_t), intent(in) :: this
+  subroutine ax_helm_svv_factorized_device_compute(this, w, u, coef, msh, Xh)
+    class(ax_helm_svv_factorized_device_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
@@ -105,25 +105,25 @@ contains
     w_d = device_get_ptr(w)
 
 #ifdef HAVE_HIP
-    call hip_ax_helm_svv_symmetric(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+    call hip_ax_helm_svv_factorized(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
          coef%h1_d, this%svv%Br_d, this%svv%Bs_d, this%svv%Bt_d, &
          this%svv%h1_d, coef%G11_d, coef%G22_d, coef%G33_d, &
          coef%G12_d, coef%G13_d, coef%G23_d, &
          msh%nelv, Xh%lx)
 #elif HAVE_CUDA
-    call cuda_ax_helm_svv_symmetric(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+    call cuda_ax_helm_svv_factorized(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
          coef%h1_d, this%svv%Br_d, this%svv%Bs_d, this%svv%Bt_d, &
          this%svv%h1_d, coef%G11_d, coef%G22_d, coef%G33_d, &
          coef%G12_d, coef%G13_d, coef%G23_d, &
          msh%nelv, Xh%lx)
 #elif HAVE_OPENCL
-    call neko_error('OPENCL is not implemented for symmetric SVV')
+    call neko_error('OPENCL is not implemented for factorized SVV')
 #endif
 
     if (coef%ifh2) then
        call device_addcol4(w_d, coef%h2_d, coef%B_d, u_d, coef%dof%size())
     end if
 
-  end subroutine ax_helm_svv_symmetric_device_compute
+  end subroutine ax_helm_svv_factorized_device_compute
 
-end module ax_helm_svv_symmetric_device
+end module ax_helm_svv_factorized_device

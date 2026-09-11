@@ -41,8 +41,8 @@
 
 extern "C" {
 
-/** Fortran wrapper for the fused symmetric full-stress HIP operator. */
-void hip_ax_helm_svv_symmetric_full(
+/** Fortran wrapper for the fused factorized full-stress HIP operator. */
+void hip_ax_helm_svv_factorized_full(
     void *au, void *av, void *aw, void *u, void *v, void *w,
     void *dx, void *dy, void *dz, void *h1,
     void *Br, void *Bs, void *Bt, void *h1_svv,
