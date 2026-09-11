@@ -76,11 +76,11 @@ contains
     real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
     call ax_helm_svv_factorized_full_lx(au, av, aw, u, v, w, &
-            Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, &
-            coef%dsdz, coef%dtdx, coef%dtdy, coef%dtdz, &
-            coef%jacinv, Xh%w3, this%svv%h1, &
-            this%svv%Br, this%svv%Bs, this%svv%Bt, msh%nelv, Xh%lx)
+         Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
+         coef%h1, coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, &
+         coef%dsdz, coef%dtdx, coef%dtdy, coef%dtdz, &
+         coef%jacinv, Xh%w3, this%svv%h1, &
+         this%svv%Br, this%svv%Bs, this%svv%Bt, msh%nelv, Xh%lx)
 
     if (coef%ifh2) then
        call addcol4 (au, coef%h2, coef%B, u, coef%dof%size())
@@ -157,7 +157,7 @@ contains
     real(kind=rp) :: s11_h(lx, lx, lx), s22_h(lx, lx, lx)
     real(kind=rp) :: s33_h(lx, lx, lx), s12_h(lx, lx, lx)
     real(kind=rp) :: s13_h(lx, lx, lx), s23_h(lx, lx, lx)
-    
+
     real(kind=rp) :: wur(lx, lx, lx)
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
@@ -268,32 +268,32 @@ contains
 
        do i = 1, lx*lx*lx
           u1 = (drdx(i,1,1,e) * wur(i,1,1) &
-              + dsdx(i,1,1,e) * wus(i,1,1) &
-              + dtdx(i,1,1,e) * wut(i,1,1)) * jacinv(i,1,1,e)
+               + dsdx(i,1,1,e) * wus(i,1,1) &
+               + dtdx(i,1,1,e) * wut(i,1,1)) * jacinv(i,1,1,e)
           u2 = (drdy(i,1,1,e) * wur(i,1,1) &
-              + dsdy(i,1,1,e) * wus(i,1,1) &
-              + dtdy(i,1,1,e) * wut(i,1,1)) * jacinv(i,1,1,e)
+               + dsdy(i,1,1,e) * wus(i,1,1) &
+               + dtdy(i,1,1,e) * wut(i,1,1)) * jacinv(i,1,1,e)
           u3 = (drdz(i,1,1,e) * wur(i,1,1) &
-              + dsdz(i,1,1,e) * wus(i,1,1) &
-              + dtdz(i,1,1,e) * wut(i,1,1)) * jacinv(i,1,1,e)
+               + dsdz(i,1,1,e) * wus(i,1,1) &
+               + dtdz(i,1,1,e) * wut(i,1,1)) * jacinv(i,1,1,e)
           v1 = (drdx(i,1,1,e) * wvr(i,1,1) &
-              + dsdx(i,1,1,e) * wvs(i,1,1) &
-              + dtdx(i,1,1,e) * wvt(i,1,1)) * jacinv(i,1,1,e)
+               + dsdx(i,1,1,e) * wvs(i,1,1) &
+               + dtdx(i,1,1,e) * wvt(i,1,1)) * jacinv(i,1,1,e)
           v2 = (drdy(i,1,1,e) * wvr(i,1,1) &
-              + dsdy(i,1,1,e) * wvs(i,1,1) &
-              + dtdy(i,1,1,e) * wvt(i,1,1)) * jacinv(i,1,1,e)
+               + dsdy(i,1,1,e) * wvs(i,1,1) &
+               + dtdy(i,1,1,e) * wvt(i,1,1)) * jacinv(i,1,1,e)
           v3 = (drdz(i,1,1,e) * wvr(i,1,1) &
-              + dsdz(i,1,1,e) * wvs(i,1,1) &
-              + dtdz(i,1,1,e) * wvt(i,1,1)) * jacinv(i,1,1,e)
+               + dsdz(i,1,1,e) * wvs(i,1,1) &
+               + dtdz(i,1,1,e) * wvt(i,1,1)) * jacinv(i,1,1,e)
           w1 = (drdx(i,1,1,e) * wwr(i,1,1) &
-              + dsdx(i,1,1,e) * wws(i,1,1) &
-              + dtdx(i,1,1,e) * wwt(i,1,1)) * jacinv(i,1,1,e)
+               + dsdx(i,1,1,e) * wws(i,1,1) &
+               + dtdx(i,1,1,e) * wwt(i,1,1)) * jacinv(i,1,1,e)
           w2 = (drdy(i,1,1,e) * wwr(i,1,1) &
-              + dsdy(i,1,1,e) * wws(i,1,1) &
-              + dtdy(i,1,1,e) * wwt(i,1,1)) * jacinv(i,1,1,e)
+               + dsdy(i,1,1,e) * wws(i,1,1) &
+               + dtdy(i,1,1,e) * wwt(i,1,1)) * jacinv(i,1,1,e)
           w3 = (drdz(i,1,1,e) * wwr(i,1,1) &
-              + dsdz(i,1,1,e) * wws(i,1,1) &
-              + dtdz(i,1,1,e) * wwt(i,1,1)) * jacinv(i,1,1,e)
+               + dsdz(i,1,1,e) * wws(i,1,1) &
+               + dtdz(i,1,1,e) * wwt(i,1,1)) * jacinv(i,1,1,e)
           s11(i,1,1) = u1 + u1
           s22(i,1,1) = v2 + v2
           s33(i,1,1) = w3 + w3
@@ -311,62 +311,62 @@ contains
           s13_h(i,1,1) = h1(i,1,1,e) * s13(i,1,1) * weights3(i,1,1)
           s23_h(i,1,1) = h1(i,1,1,e) * s23(i,1,1) * weights3(i,1,1)
           wur(i,1,1) = drdx(i,1,1,e) * s11_h(i,1,1) &
-                     + drdy(i,1,1,e) * s12_h(i,1,1) &
-                     + drdz(i,1,1,e) * s13_h(i,1,1)
+               + drdy(i,1,1,e) * s12_h(i,1,1) &
+               + drdz(i,1,1,e) * s13_h(i,1,1)
           wus(i,1,1) = dsdx(i,1,1,e) * s11_h(i,1,1) &
-                     + dsdy(i,1,1,e) * s12_h(i,1,1) &
-                     + dsdz(i,1,1,e) * s13_h(i,1,1)
+               + dsdy(i,1,1,e) * s12_h(i,1,1) &
+               + dsdz(i,1,1,e) * s13_h(i,1,1)
           wut(i,1,1) = dtdx(i,1,1,e) * s11_h(i,1,1) &
-                     + dtdy(i,1,1,e) * s12_h(i,1,1) &
-                     + dtdz(i,1,1,e) * s13_h(i,1,1)
+               + dtdy(i,1,1,e) * s12_h(i,1,1) &
+               + dtdz(i,1,1,e) * s13_h(i,1,1)
           wvr(i,1,1) = drdx(i,1,1,e) * s12_h(i,1,1) &
-                     + drdy(i,1,1,e) * s22_h(i,1,1) &
-                     + drdz(i,1,1,e) * s23_h(i,1,1)
+               + drdy(i,1,1,e) * s22_h(i,1,1) &
+               + drdz(i,1,1,e) * s23_h(i,1,1)
           wvs(i,1,1) = dsdx(i,1,1,e) * s12_h(i,1,1) &
-                     + dsdy(i,1,1,e) * s22_h(i,1,1) &
-                     + dsdz(i,1,1,e) * s23_h(i,1,1)
+               + dsdy(i,1,1,e) * s22_h(i,1,1) &
+               + dsdz(i,1,1,e) * s23_h(i,1,1)
           wvt(i,1,1) = dtdx(i,1,1,e) * s12_h(i,1,1) &
-                     + dtdy(i,1,1,e) * s22_h(i,1,1) &
-                     + dtdz(i,1,1,e) * s23_h(i,1,1)
+               + dtdy(i,1,1,e) * s22_h(i,1,1) &
+               + dtdz(i,1,1,e) * s23_h(i,1,1)
           wwr(i,1,1) = drdx(i,1,1,e) * s13_h(i,1,1) &
-                     + drdy(i,1,1,e) * s23_h(i,1,1) &
-                     + drdz(i,1,1,e) * s33_h(i,1,1)
+               + drdy(i,1,1,e) * s23_h(i,1,1) &
+               + drdz(i,1,1,e) * s33_h(i,1,1)
           wws(i,1,1) = dsdx(i,1,1,e) * s13_h(i,1,1) &
-                     + dsdy(i,1,1,e) * s23_h(i,1,1) &
-                     + dsdz(i,1,1,e) * s33_h(i,1,1)
+               + dsdy(i,1,1,e) * s23_h(i,1,1) &
+               + dsdz(i,1,1,e) * s33_h(i,1,1)
           wwt(i,1,1) = dtdx(i,1,1,e) * s13_h(i,1,1) &
-                     + dtdy(i,1,1,e) * s23_h(i,1,1) &
-                     + dtdz(i,1,1,e) * s33_h(i,1,1)
+               + dtdy(i,1,1,e) * s23_h(i,1,1) &
+               + dtdz(i,1,1,e) * s33_h(i,1,1)
 
           ! Map the filtered reference derivatives to physical space and
           ! form the six factorized SVV stress components.
           u1 = (drdx(i,1,1,e) * ur_svv(i,1,1) &
-              + dsdx(i,1,1,e) * us_svv(i,1,1) &
-              + dtdx(i,1,1,e) * ut_svv(i,1,1)) * jacinv(i,1,1,e)
+               + dsdx(i,1,1,e) * us_svv(i,1,1) &
+               + dtdx(i,1,1,e) * ut_svv(i,1,1)) * jacinv(i,1,1,e)
           u2 = (drdy(i,1,1,e) * ur_svv(i,1,1) &
-              + dsdy(i,1,1,e) * us_svv(i,1,1) &
-              + dtdy(i,1,1,e) * ut_svv(i,1,1)) * jacinv(i,1,1,e)
+               + dsdy(i,1,1,e) * us_svv(i,1,1) &
+               + dtdy(i,1,1,e) * ut_svv(i,1,1)) * jacinv(i,1,1,e)
           u3 = (drdz(i,1,1,e) * ur_svv(i,1,1) &
-              + dsdz(i,1,1,e) * us_svv(i,1,1) &
-              + dtdz(i,1,1,e) * ut_svv(i,1,1)) * jacinv(i,1,1,e)
+               + dsdz(i,1,1,e) * us_svv(i,1,1) &
+               + dtdz(i,1,1,e) * ut_svv(i,1,1)) * jacinv(i,1,1,e)
           v1 = (drdx(i,1,1,e) * vr_svv(i,1,1) &
-              + dsdx(i,1,1,e) * vs_svv(i,1,1) &
-              + dtdx(i,1,1,e) * vt_svv(i,1,1)) * jacinv(i,1,1,e)
+               + dsdx(i,1,1,e) * vs_svv(i,1,1) &
+               + dtdx(i,1,1,e) * vt_svv(i,1,1)) * jacinv(i,1,1,e)
           v2 = (drdy(i,1,1,e) * vr_svv(i,1,1) &
-              + dsdy(i,1,1,e) * vs_svv(i,1,1) &
-              + dtdy(i,1,1,e) * vt_svv(i,1,1)) * jacinv(i,1,1,e)
+               + dsdy(i,1,1,e) * vs_svv(i,1,1) &
+               + dtdy(i,1,1,e) * vt_svv(i,1,1)) * jacinv(i,1,1,e)
           v3 = (drdz(i,1,1,e) * vr_svv(i,1,1) &
-              + dsdz(i,1,1,e) * vs_svv(i,1,1) &
-              + dtdz(i,1,1,e) * vt_svv(i,1,1)) * jacinv(i,1,1,e)
+               + dsdz(i,1,1,e) * vs_svv(i,1,1) &
+               + dtdz(i,1,1,e) * vt_svv(i,1,1)) * jacinv(i,1,1,e)
           w1 = (drdx(i,1,1,e) * wr_svv(i,1,1) &
-              + dsdx(i,1,1,e) * ws_svv(i,1,1) &
-              + dtdx(i,1,1,e) * wt_svv(i,1,1)) * jacinv(i,1,1,e)
+               + dsdx(i,1,1,e) * ws_svv(i,1,1) &
+               + dtdx(i,1,1,e) * wt_svv(i,1,1)) * jacinv(i,1,1,e)
           w2 = (drdy(i,1,1,e) * wr_svv(i,1,1) &
-              + dsdy(i,1,1,e) * ws_svv(i,1,1) &
-              + dtdy(i,1,1,e) * wt_svv(i,1,1)) * jacinv(i,1,1,e)
+               + dsdy(i,1,1,e) * ws_svv(i,1,1) &
+               + dtdy(i,1,1,e) * wt_svv(i,1,1)) * jacinv(i,1,1,e)
           w3 = (drdz(i,1,1,e) * wr_svv(i,1,1) &
-              + dsdz(i,1,1,e) * ws_svv(i,1,1) &
-              + dtdz(i,1,1,e) * wt_svv(i,1,1)) * jacinv(i,1,1,e)
+               + dsdz(i,1,1,e) * ws_svv(i,1,1) &
+               + dtdz(i,1,1,e) * wt_svv(i,1,1)) * jacinv(i,1,1,e)
 
           s11_h(i,1,1) = svv_h1(i,1,1,e) * (u1 + u1) * weights3(i,1,1)
           s22_h(i,1,1) = svv_h1(i,1,1,e) * (v2 + v2) * weights3(i,1,1)
@@ -376,32 +376,32 @@ contains
           s23_h(i,1,1) = svv_h1(i,1,1,e) * (v3 + w2) * weights3(i,1,1)
 
           ur_svv(i,1,1) = drdx(i,1,1,e) * s11_h(i,1,1) &
-                        + drdy(i,1,1,e) * s12_h(i,1,1) &
-                        + drdz(i,1,1,e) * s13_h(i,1,1)
+               + drdy(i,1,1,e) * s12_h(i,1,1) &
+               + drdz(i,1,1,e) * s13_h(i,1,1)
           us_svv(i,1,1) = dsdx(i,1,1,e) * s11_h(i,1,1) &
-                        + dsdy(i,1,1,e) * s12_h(i,1,1) &
-                        + dsdz(i,1,1,e) * s13_h(i,1,1)
+               + dsdy(i,1,1,e) * s12_h(i,1,1) &
+               + dsdz(i,1,1,e) * s13_h(i,1,1)
           ut_svv(i,1,1) = dtdx(i,1,1,e) * s11_h(i,1,1) &
-                        + dtdy(i,1,1,e) * s12_h(i,1,1) &
-                        + dtdz(i,1,1,e) * s13_h(i,1,1)
+               + dtdy(i,1,1,e) * s12_h(i,1,1) &
+               + dtdz(i,1,1,e) * s13_h(i,1,1)
           vr_svv(i,1,1) = drdx(i,1,1,e) * s12_h(i,1,1) &
-                        + drdy(i,1,1,e) * s22_h(i,1,1) &
-                        + drdz(i,1,1,e) * s23_h(i,1,1)
+               + drdy(i,1,1,e) * s22_h(i,1,1) &
+               + drdz(i,1,1,e) * s23_h(i,1,1)
           vs_svv(i,1,1) = dsdx(i,1,1,e) * s12_h(i,1,1) &
-                        + dsdy(i,1,1,e) * s22_h(i,1,1) &
-                        + dsdz(i,1,1,e) * s23_h(i,1,1)
+               + dsdy(i,1,1,e) * s22_h(i,1,1) &
+               + dsdz(i,1,1,e) * s23_h(i,1,1)
           vt_svv(i,1,1) = dtdx(i,1,1,e) * s12_h(i,1,1) &
-                        + dtdy(i,1,1,e) * s22_h(i,1,1) &
-                        + dtdz(i,1,1,e) * s23_h(i,1,1)
+               + dtdy(i,1,1,e) * s22_h(i,1,1) &
+               + dtdz(i,1,1,e) * s23_h(i,1,1)
           wr_svv(i,1,1) = drdx(i,1,1,e) * s13_h(i,1,1) &
-                        + drdy(i,1,1,e) * s23_h(i,1,1) &
-                        + drdz(i,1,1,e) * s33_h(i,1,1)
+               + drdy(i,1,1,e) * s23_h(i,1,1) &
+               + drdz(i,1,1,e) * s33_h(i,1,1)
           ws_svv(i,1,1) = dsdx(i,1,1,e) * s13_h(i,1,1) &
-                        + dsdy(i,1,1,e) * s23_h(i,1,1) &
-                        + dsdz(i,1,1,e) * s33_h(i,1,1)
+               + dsdy(i,1,1,e) * s23_h(i,1,1) &
+               + dsdz(i,1,1,e) * s33_h(i,1,1)
           wt_svv(i,1,1) = dtdx(i,1,1,e) * s13_h(i,1,1) &
-                        + dtdy(i,1,1,e) * s23_h(i,1,1) &
-                        + dtdz(i,1,1,e) * s33_h(i,1,1)
+               + dtdy(i,1,1,e) * s23_h(i,1,1) &
+               + dtdz(i,1,1,e) * s33_h(i,1,1)
        end do
 
        do j = 1, lx*lx

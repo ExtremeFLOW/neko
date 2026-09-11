@@ -67,10 +67,10 @@ contains
     real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
     call ax_helm_svv_factorized_lx(w, u, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, &
-            this%svv%Br, this%svv%Bs, this%svv%Bt, coef%h1, this%svv%h1, &
-            coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, &
-            msh%nelv, Xh%lx)
+         Xh%dxt, Xh%dyt, Xh%dzt, &
+         this%svv%Br, this%svv%Bs, this%svv%Bt, coef%h1, this%svv%h1, &
+         coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, &
+         msh%nelv, Xh%lx)
 
     if (coef%ifh2) call addcol4 (w,coef%h2,coef%B,u,coef%dof%size())
 
