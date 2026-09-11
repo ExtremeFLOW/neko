@@ -2,7 +2,7 @@
 #define __MATH_AX_HELM_KERNEL_H__
 
 /*
- Copyright (c) 2021-2024, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -149,7 +149,8 @@ __global__ void ax_helm_kernel_1d(T * __restrict__ w,
   }
 }
 
-template< typename T, const int LX, const int EB >
+template< typename T, const int LX, const int EB,
+          const bool ACCUMULATE = false >
 __global__ void NEKO_EB_BOUNDS(LX*LX*EB)
 ax_helm_kernel_kstep(T * __restrict__ w,
                      const T * __restrict__ u,
@@ -269,7 +270,11 @@ ax_helm_kernel_kstep(T * __restrict__ w,
   if (active) {
 #pragma unroll
     for (int k = 0; k < LX; ++k){
-      w[ij + k*LX*LX + ele] = rw[k];
+      if (ACCUMULATE) {
+        w[ij + k*LX*LX + ele] += rw[k];
+      } else {
+        w[ij + k*LX*LX + ele] = rw[k];
+      }
     }
   }
 }
@@ -279,7 +284,8 @@ ax_helm_kernel_kstep(T * __restrict__ w,
  * remove bank conflicts when LX is a power of 2
  */
 
-template< typename T, const int LX, const int EB >
+template< typename T, const int LX, const int EB,
+          const bool ACCUMULATE = false >
 __global__ void NEKO_EB_BOUNDS(LX*LX*EB)
 ax_helm_kernel_kstep_padded(T * __restrict__ w,
                             const T * __restrict__ u,
@@ -398,7 +404,11 @@ ax_helm_kernel_kstep_padded(T * __restrict__ w,
   if (active) {
 #pragma unroll
     for (int k = 0; k < LX; ++k){
-      w[ij + k*LX*LX + ele] = rw[k];
+      if (ACCUMULATE) {
+        w[ij + k*LX*LX + ele] += rw[k];
+      } else {
+        w[ij + k*LX*LX + ele] = rw[k];
+      }
     }
   }
 }

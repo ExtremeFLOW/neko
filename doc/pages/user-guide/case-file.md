@@ -362,9 +362,12 @@ by the user by setting `full_stress_formulation` to true.
 Spectral vanishing viscosity (SVV) selectively adds dissipation to the
 high-frequency content of the solution. It was first proposed by Tadmor (1989)
 and later introduced to the spectral element method (SEM) community by Kirby
-and Sherwin (2006). Neko currently supports only the one-sided formulation,
-which applies the high-pass operator to the trial-function gradient in physical
-space (i.e., to gradients in the x, y, and z directions). The full-stress
+and Sherwin (2006). Neko supports both the `one-sided` and `symmetric`
+formulations. The
+one-sided formulation applies the high-pass operator to the trial-function
+gradient in physical space (i.e., to gradients in the x, y, and z directions).
+The symmetric formulation applies a square-root high-pass operator to both the
+test- and trial-function derivatives. The full-stress
 formulation is also supported for velocity and requires `coupled_cg` (or
 `fused_coupled_cg` on CUDA/HIP). For fluid solves, SVV is available with the
 implicit `pnpn` scheme.
@@ -390,8 +393,9 @@ same object directly to that scalar's configuration:
 }
 ```
 
-The optional `formulation` entry defaults to `one-sided`;
-it is shown above to make the operator choice explicit. The required `kernel`
+The optional `formulation` entry accepts `one-sided` or `symmetric` and defaults to
+`one-sided`; it is shown above to make the operator choice explicit. The required
+`kernel`
 object selects the modal transfer function through its `type`; currently, only
 `power` is supported.  For the `power` kernel, the required `power_coefficient`
 controls the modal transfer function; larger values confine the added

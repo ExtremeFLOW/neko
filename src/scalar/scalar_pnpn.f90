@@ -245,7 +245,11 @@ contains
 
     ! Setup backend dependent Ax routines
     if (this%svv_enabled) then
-       call ax_helm_allocator(this%ax, type_name = "standard_svv")
+       if (this%svv%formulation .eq. "symmetric") then
+          call ax_helm_allocator(this%ax, type_name = "symmetric_svv")
+       else
+          call ax_helm_allocator(this%ax, type_name = "standard_svv")
+       end if
        select type (operator => this%ax)
        class is (ax_helm_svv_t)
           operator%svv => this%svv

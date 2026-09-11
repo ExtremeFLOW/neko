@@ -41,20 +41,27 @@ submodule (ax_product) ax_helm_fctry
   use ax_helm_full_cpu, only : ax_helm_full_cpu_t
   use ax_helm_full_device, only : ax_helm_full_device_t
   use ax_helm_svv_one_sided_cpu, only : ax_helm_svv_one_sided_cpu_t
+  use ax_helm_svv_symmetric_cpu, only : ax_helm_svv_symmetric_cpu_t
   use ax_helm_svv_one_sided_device, only : ax_helm_svv_one_sided_device_t
+  use ax_helm_svv_symmetric_device, only : ax_helm_svv_symmetric_device_t
   use ax_helm_svv_one_sided_full_cpu, only : ax_helm_svv_one_sided_full_cpu_t
+  use ax_helm_svv_symmetric_full_cpu, only : ax_helm_svv_symmetric_full_cpu_t
   use ax_helm_svv_one_sided_full_device, only : &
        ax_helm_svv_one_sided_full_device_t
+  use ax_helm_svv_symmetric_full_device, only : &
+       ax_helm_svv_symmetric_full_device_t
   use spectral_vanishing_viscosity, only : svv_t
   use utils, only : neko_error, neko_type_error, neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the allocator routine
-  character(len=20) :: AX_HELM_KNOWN_TYPES(4) = [character(len=20) :: &
+  character(len=20) :: AX_HELM_KNOWN_TYPES(6) = [character(len=20) :: &
        "standard", &
        "full", &
        "standard_svv", &
-       "full_svv"]
+       "full_svv", &
+       "symmetric_svv", &
+       "full_symmetric_svv"]
 
 contains
 
@@ -92,7 +99,7 @@ contains
        else
           allocate(ax_helm_full_cpu_t::object)
        end if
-    case ("standard_svv")
+    case ("standard_svv", "symmetric_svv")
        if (NEKO_BCKND_SX .eq. 1 .or. NEKO_BCKND_XSMM .eq. 1) then
           call neko_error("SVV is not available with the SX or " // &
                "XSMM backend")
@@ -101,11 +108,19 @@ contains
              call neko_error("SVV is only available on CPU, " // &
                   "CUDA, and HIP backends")
           end if
-          allocate(ax_helm_svv_one_sided_device_t::object)
+          if (trim(type_name) .eq. "symmetric_svv") then
+             allocate(ax_helm_svv_symmetric_device_t::object)
+          else
+             allocate(ax_helm_svv_one_sided_device_t::object)
+          end if
        else
-          allocate(ax_helm_svv_one_sided_cpu_t::object)
+          if (trim(type_name) .eq. "symmetric_svv") then
+             allocate(ax_helm_svv_symmetric_cpu_t::object)
+          else
+             allocate(ax_helm_svv_one_sided_cpu_t::object)
+          end if
        end if
-    case ("full_svv")
+    case ("full_svv", "full_symmetric_svv")
        if (NEKO_BCKND_SX .eq. 1 .or. NEKO_BCKND_XSMM .eq. 1) then
           call neko_error("Full stress formulation is only available &
           &on the CPU and device")
@@ -114,9 +129,17 @@ contains
              call neko_error("Full-stress SVV is only " // &
                   "available on CPU, CUDA, and HIP backends")
           end if
-          allocate(ax_helm_svv_one_sided_full_device_t::object)
+          if (trim(type_name) .eq. "full_symmetric_svv") then
+             allocate(ax_helm_svv_symmetric_full_device_t::object)
+          else
+             allocate(ax_helm_svv_one_sided_full_device_t::object)
+          end if
        else
-          allocate(ax_helm_svv_one_sided_full_cpu_t::object)
+          if (trim(type_name) .eq. "full_symmetric_svv") then
+             allocate(ax_helm_svv_symmetric_full_cpu_t::object)
+          else
+             allocate(ax_helm_svv_one_sided_full_cpu_t::object)
+          end if
        end if
     case default
        do i = 1, ax_helm_registry_size
