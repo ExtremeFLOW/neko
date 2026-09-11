@@ -593,33 +593,38 @@ contains
     real(kind=dp) :: t(niter)
     integer :: i, ierr
 
+#ifdef NEKO_BCKND_CPU
     ! --- math -------------------------------------------------------------
     do i = 1, nwarmup
        call reset_one(da, da_d, refa, refa_d, n)
-#ifndef NEKO_BCKND_CPU
-       call device_add3(da_d, db_d, dc_d, n)
-#else
        call add3(da, db, dc, n)
-#endif
-#ifndef NEKO_BCKND_CPU
-       call device_sync()
-#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
        call reset_one(da, da_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
-#ifndef NEKO_BCKND_CPU
-       call device_add3(da_d, db_d, dc_d, n)
-#else
        call add3(da, db, dc, n)
-#endif
-#ifndef NEKO_BCKND_CPU
-       call device_sync()
-#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('add3 ', 'math       ', lx, n, n_glb, t)
+
+#else
+    ! --- device_math ------------------------------------------------------
+    do i = 1, nwarmup
+       call reset_one(da, da_d, refa, refa_d, n)
+       call device_add3(da_d, db_d, dc_d, n)
+       call device_sync()
+    end do
+    call MPI_Barrier(NEKO_COMM, ierr)
+    do i = 1, niter
+       call reset_one(da, da_d, refa, refa_d, n)
+       t(i) = MPI_Wtime()
+       call device_add3(da_d, db_d, dc_d, n)
+       call device_sync()
+       t(i) = MPI_Wtime() - t(i)
+    end do
+    call report('add3 ', 'device_math', lx, n, n_glb, t)
+#endif
 
     ! --- field_math -------------------------------------------------------
     do i = 1, nwarmup
@@ -715,9 +720,7 @@ contains
        call reset_one(da, da_d, refa, refa_d, n)
        call device_add3(da_d, db_d, dc_d, n)
        call device_add3(dd_d, db_d, dc_d, n)
-#ifndef NEKO_BCKND_CPU
        call device_sync()
-#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
@@ -725,9 +728,7 @@ contains
        t(i) = MPI_Wtime()
        call device_add3(da_d, db_d, dc_d, n)
        call device_add3(dd_d, db_d, dc_d, n)
-#ifndef NEKO_BCKND_CPU
        call device_sync()
-#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('2add3', 'device_math', lx, n, n_glb, t)
@@ -811,25 +812,31 @@ contains
     real(kind=rp) :: s
     integer :: i, ierr
 
+#ifdef NEKO_BCKND_CPU
     ! --- math -------------------------------------------------------------
     do i = 1, nwarmup
-#ifndef NEKO_BCKND_CPU
-       s = device_glsc3(da_d, db_d, dc_d, n)
-#else
        s = glsc3(da, db, dc, n)
-#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
        t(i) = MPI_Wtime()
-#ifndef NEKO_BCKND_CPU
-       s = device_glsc3(da_d, db_d, dc_d, n)
-#else
        s = glsc3(da, db, dc, n)
-#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('glsc3', 'math       ', lx, n, n_glb, t)
+#else
+    ! --- device_math ------------------------------------------------------
+    do i = 1, nwarmup
+       s = device_glsc3(da_d, db_d, dc_d, n)
+    end do
+    call MPI_Barrier(NEKO_COMM, ierr)
+    do i = 1, niter
+       t(i) = MPI_Wtime()
+       s = device_glsc3(da_d, db_d, dc_d, n)
+       t(i) = MPI_Wtime() - t(i)
+    end do
+    call report('glsc3', 'device_math', lx, n, n_glb, t)
+#endif
 
     ! --- field_math -------------------------------------------------------
     do i = 1, nwarmup
