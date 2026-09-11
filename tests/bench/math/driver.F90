@@ -155,27 +155,27 @@ contains
     allocate(refb(n))
     allocate(refc(n))
     allocate(refd(n))
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+#ifndef NEKO_BCKND_CPU
 
-       select case (rp)
-       case (sp)
-          c_size = n * int(4, c_size_t)
-       case (dp)
-          c_size = n * int(8, c_size_t)
-       case default
-          call neko_error('Unknown Fortran type')
-       end select
+    select case (rp)
+    case (sp)
+       c_size = n * int(4, c_size_t)
+    case (dp)
+       c_size = n * int(8, c_size_t)
+    case default
+       call neko_error('Unknown Fortran type')
+    end select
 
-       call device_alloc(refa_d, c_size)
-       call device_alloc(refb_d, c_size)
-       call device_alloc(refc_d, c_size)
-       call device_alloc(refd_d, c_size)
+    call device_alloc(refa_d, c_size)
+    call device_alloc(refb_d, c_size)
+    call device_alloc(refc_d, c_size)
+    call device_alloc(refd_d, c_size)
 
-       call device_alloc(da_d, c_size)
-       call device_alloc(db_d, c_size)
-       call device_alloc(dc_d, c_size)
-       call device_alloc(dd_d, c_size)
-    end if
+    call device_alloc(da_d, c_size)
+    call device_alloc(db_d, c_size)
+    call device_alloc(dc_d, c_size)
+    call device_alloc(dd_d, c_size)
+#endif
 
     allocate(da(n))
     allocate(db(n))
@@ -205,17 +205,17 @@ contains
     deallocate(refc)
     deallocate(refd)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_free(refa_d)
-       call device_free(refb_d)
-       call device_free(refc_d)
-       call device_free(refd_d)
+#ifndef NEKO_BCKND_CPU
+    call device_free(refa_d)
+    call device_free(refb_d)
+    call device_free(refc_d)
+    call device_free(refd_d)
 
-       call device_free(da_d)
-       call device_free(db_d)
-       call device_free(dc_d)
-       call device_free(dd_d)
-    end if
+    call device_free(da_d)
+    call device_free(db_d)
+    call device_free(dc_d)
+    call device_free(dd_d)
+#endif
 
     deallocate(da)
     deallocate(db)
@@ -249,12 +249,12 @@ contains
     call coord_fill(refc, dm%x, dm%y, dm%z, n, 3)
     call coord_fill(refd, dm%x, dm%y, dm%z, n, 4)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(refa, refa_d, n, HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(refb, refb_d, n, HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(refc, refc_d, n, HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(refd, refd_d, n, HOST_TO_DEVICE, sync = .true.)
-    end if
+#ifndef NEKO_BCKND_CPU
+    call device_memcpy(refa, refa_d, n, HOST_TO_DEVICE, sync = .false.)
+    call device_memcpy(refb, refb_d, n, HOST_TO_DEVICE, sync = .false.)
+    call device_memcpy(refc, refc_d, n, HOST_TO_DEVICE, sync = .false.)
+    call device_memcpy(refd, refd_d, n, HOST_TO_DEVICE, sync = .true.)
+#endif
 
     call reset_all(n)
 
@@ -285,11 +285,11 @@ contains
     real(kind=rp), intent(inout) :: src(n)
     type(c_ptr), intent(inout) :: dst_d, src_d
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_copy(dst_d, src_d, n)
-    else
-       call copy(dst, src, n)
-    end if
+#ifndef NEKO_BCKND_CPU
+    call device_copy(dst_d, src_d, n)
+#else
+    call copy(dst, src, n)
+#endif
 
   end subroutine reset_one
 
@@ -325,9 +325,9 @@ contains
     real(kind=rp), intent(inout) :: x(n)
     type(c_ptr), intent(inout) :: x_d
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(x, x_d, n, DEVICE_TO_HOST, sync = .true.)
-    end if
+#ifndef NEKO_BCKND_CPU
+    call device_memcpy(x, x_d, n, DEVICE_TO_HOST, sync = .true.)
+#endif
 
   end subroutine sync_to_host
 
@@ -340,11 +340,11 @@ contains
     ! --- col2 : a = a * b -------------------------------------------------
     call reset_all(n)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col2(da_d, db_d, n)
-    else
-       call col2(da, db, n)
-    end if
+#ifndef NEKO_BCKND_CPU
+    call device_col2(da_d, db_d, n)
+#else
+    call col2(da, db, n)
+#endif
     call field_col2(fa, fb, n)
     call vector_col2(va, vb, n)
     call matrix_col2(ma, mb, n)
@@ -361,11 +361,11 @@ contains
     ! --- add3 : a = b + c -------------------------------------------------
     call reset_all(n)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_add3(da_d, db_d, dc_d, n)
-    else
-       call add3(da, db, dc, n)
-    end if
+#ifndef NEKO_BCKND_CPU
+    call device_add3(da_d, db_d, dc_d, n)
+#else
+    call add3(da, db, dc, n)
+#endif
     call field_add3(fa, fb, fc, n)
     call vector_add3(va, vb, vc, n)
     call matrix_add3(ma, mb, mc, n)
@@ -387,11 +387,11 @@ contains
     ! communicator, and it is checked by comparing runs, not within one run.
     call reset_all(n)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       s_math = device_glsc3(da_d, db_d, dc_d, n)
-    else
-       s_math = glsc3(da, db, dc, n)
-    end if
+#ifndef NEKO_BCKND_CPU
+    s_math = device_glsc3(da_d, db_d, dc_d, n)
+#else
+    s_math = glsc3(da, db, dc, n)
+#endif
     s_field = field_glsc3(fa, fb, fc, n)
     s_vector = vector_glsc3(va, vb, vc, n)
     s_matrix = matrix_glsc3(ma, mb, mc, n)
@@ -498,23 +498,27 @@ contains
     ! --- math -------------------------------------------------------------
     do i = 1, nwarmup
        call reset_one(da, da_d, refa, refa_d, n)
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_col2(da_d, db_d, n)
-       else
-          call col2(da, db, n)
-       end if
+#ifndef NEKO_BCKND_CPU
+       call device_col2(da_d, db_d, n)
+#else
+       call col2(da, db, n)
+#endif
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
        call reset_one(da, da_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_col2(da_d, db_d, n)
-       else
-          call col2(da, db, n)
-       end if
+#ifndef NEKO_BCKND_CPU
+       call device_col2(da_d, db_d, n)
+#else
+       call col2(da, db, n)
+#endif
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('col2 ', 'math       ', lx, n, n_glb, t)
@@ -523,14 +527,18 @@ contains
     do i = 1, nwarmup
        call reset_one(fa%x, fa%x_d, refa, refa_d, n)
        call field_col2(fa, fb, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
        call reset_one(fa%x, fa%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
        call field_col2(fa, fb, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('col2 ', 'field_math ', lx, n, n_glb, t)
@@ -539,14 +547,18 @@ contains
     do i = 1, nwarmup
        call reset_one(va%x, va%x_d, refa, refa_d, n)
        call vector_col2(va, vb, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
        call reset_one(va%x, va%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
        call vector_col2(va, vb, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('col2 ', 'vector_math', lx, n, n_glb, t)
@@ -555,14 +567,18 @@ contains
     do i = 1, nwarmup
        call reset_one(ma%x, ma%x_d, refa, refa_d, n)
        call matrix_col2(ma, mb, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
        call reset_one(ma%x, ma%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
        call matrix_col2(ma, mb, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('col2 ', 'matrix_math', lx, n, n_glb, t)
@@ -580,23 +596,27 @@ contains
     ! --- math -------------------------------------------------------------
     do i = 1, nwarmup
        call reset_one(da, da_d, refa, refa_d, n)
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_add3(da_d, db_d, dc_d, n)
-       else
-          call add3(da, db, dc, n)
-       end if
+#ifndef NEKO_BCKND_CPU
+       call device_add3(da_d, db_d, dc_d, n)
+#else
+       call add3(da, db, dc, n)
+#endif
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
        call reset_one(da, da_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_add3(da_d, db_d, dc_d, n)
-       else
-          call add3(da, db, dc, n)
-       end if
+#ifndef NEKO_BCKND_CPU
+       call device_add3(da_d, db_d, dc_d, n)
+#else
+       call add3(da, db, dc, n)
+#endif
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('add3 ', 'math       ', lx, n, n_glb, t)
@@ -605,14 +625,18 @@ contains
     do i = 1, nwarmup
        call reset_one(fa%x, fa%x_d, refa, refa_d, n)
        call field_add3(fa, fb, fc, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
        call reset_one(fa%x, fa%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
        call field_add3(fa, fb, fc, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('add3 ', 'field_math ', lx, n, n_glb, t)
@@ -621,14 +645,18 @@ contains
     do i = 1, nwarmup
        call reset_one(va%x, va%x_d, refa, refa_d, n)
        call vector_add3(va, vb, vc, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
        call reset_one(va%x, va%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
        call vector_add3(va, vb, vc, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('add3 ', 'vector_math', lx, n, n_glb, t)
@@ -637,14 +665,18 @@ contains
     do i = 1, nwarmup
        call reset_one(ma%x, ma%x_d, refa, refa_d, n)
        call matrix_add3(ma, mb, mc, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
        call reset_one(ma%x, ma%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
        call matrix_add3(ma, mb, mc, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('add3 ', 'matrix_math', lx, n, n_glb, t)
@@ -659,40 +691,57 @@ contains
     real(kind=dp) :: t(niter)
     integer :: i, ierr
 
+#ifdef NEKO_BCKND_CPU
     ! --- math -------------------------------------------------------------
     do i = 1, nwarmup
        call reset_one(da, da_d, refa, refa_d, n)
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_add3(da_d, db_d, dc_d, n)
-          call device_add3(dd_d, db_d, dc_d, n)
-       else
-          call add3(da, db, dc, n)
-          call add3(dd, db, dc, n)
-       end if
-       call device_sync()
+       call add3(da, db, dc, n)
+       call add3(dd, db, dc, n)
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
        call reset_one(da, da_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_add3(da_d, db_d, dc_d, n)
-          call device_add3(dd_d, db_d, dc_d, n)
-       else
-          call add3(da, db, dc, n)
-          call add3(dd, db, dc, n)
-       end if
-       call device_sync()
+       call add3(da, db, dc, n)
+       call add3(dd, db, dc, n)
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('2add3', 'math       ', lx, n, n_glb, t)
+
+#else
+    ! --- device math ------------------------------------------------------
+
+    do i = 1, nwarmup
+       call reset_one(da, da_d, refa, refa_d, n)
+       call device_add3(da_d, db_d, dc_d, n)
+       call device_add3(dd_d, db_d, dc_d, n)
+#ifndef NEKO_BCKND_CPU
+       call device_sync()
+#endif
+    end do
+    call MPI_Barrier(NEKO_COMM, ierr)
+    do i = 1, niter
+       call reset_one(da, da_d, refa, refa_d, n)
+       t(i) = MPI_Wtime()
+       call device_add3(da_d, db_d, dc_d, n)
+       call device_add3(dd_d, db_d, dc_d, n)
+#ifndef NEKO_BCKND_CPU
+       call device_sync()
+#endif
+       t(i) = MPI_Wtime() - t(i)
+    end do
+    call report('2add3', 'device_math', lx, n, n_glb, t)
+
+#endif
 
     ! --- field_math -------------------------------------------------------
     do i = 1, nwarmup
        call reset_one(fa%x, fa%x_d, refa, refa_d, n)
        call field_add3(fa, fb, fc, n)
        call field_add3(fd, fb, fc, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
@@ -700,7 +749,9 @@ contains
        t(i) = MPI_Wtime()
        call field_add3(fa, fb, fc, n)
        call field_add3(fd, fb, fc, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('2add3', 'field_math ', lx, n, n_glb, t)
@@ -710,7 +761,9 @@ contains
        call reset_one(va%x, va%x_d, refa, refa_d, n)
        call vector_add3(va, vb, vc, n)
        call vector_add3(vd, vb, vc, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
@@ -718,7 +771,9 @@ contains
        t(i) = MPI_Wtime()
        call vector_add3(va, vb, vc, n)
        call vector_add3(vd, vb, vc, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('2add3', 'vector_math', lx, n, n_glb, t)
@@ -728,7 +783,9 @@ contains
        call reset_one(ma%x, ma%x_d, refa, refa_d, n)
        call matrix_add3(ma, mb, mc, n)
        call matrix_add3(md, mb, mc, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
@@ -736,7 +793,9 @@ contains
        t(i) = MPI_Wtime()
        call matrix_add3(ma, mb, mc, n)
        call matrix_add3(md, mb, mc, n)
+#ifndef NEKO_BCKND_CPU
        call device_sync()
+#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('2add3', 'matrix_math', lx, n, n_glb, t)
@@ -754,20 +813,20 @@ contains
 
     ! --- math -------------------------------------------------------------
     do i = 1, nwarmup
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          s = device_glsc3(da_d, db_d, dc_d, n)
-       else
-          s = glsc3(da, db, dc, n)
-       end if
+#ifndef NEKO_BCKND_CPU
+       s = device_glsc3(da_d, db_d, dc_d, n)
+#else
+       s = glsc3(da, db, dc, n)
+#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
        t(i) = MPI_Wtime()
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          s = device_glsc3(da_d, db_d, dc_d, n)
-       else
-          s = glsc3(da, db, dc, n)
-       end if
+#ifndef NEKO_BCKND_CPU
+       s = device_glsc3(da_d, db_d, dc_d, n)
+#else
+       s = glsc3(da, db, dc, n)
+#endif
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('glsc3', 'math       ', lx, n, n_glb, t)

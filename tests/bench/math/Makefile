@@ -1,10 +1,13 @@
 FFLAGS  = `pkg-config --cflags neko`
 LIBS    = `pkg-config --libs neko`
 FC      = `pkg-config --variable=compiler neko`
+BCKND   = `pkg-config --variable=backend neko`
+
+FFLAGS  += -DNEKO_BCKND_$(BCKND)
 
 DEST    = mathbench
-SRC	= driver.f90
-OBJ	= ${SRC:.f90=.o}
+SRC	= driver.F90
+OBJ	= ${SRC:.F90=.o}
 
 all: $(DEST)
 
@@ -16,5 +19,5 @@ clean:
 $(DEST): ${OBJ}
 	$(FC) $(FFLAGS) ${OBJ} -o $@  $(LIBS)
 
-%.o: %.f90
+%.o: %.F90
 	${FC} ${FFLAGS} -c $<
