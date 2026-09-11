@@ -267,6 +267,41 @@ smallest of `timestep` and the value calculated from the target CFL number.
 | `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                            | Positive real less than `1`       | `0.5`         |
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                   | Positive real less than `1`       | `0.2`         |
 | `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
+| `exact_output_time`        | Whether to shrink dt so that sampling and output times are hit exactly                      | `true` or `false`                 | `false`       |
+| `output_landing_steps`     | Number of steps ahead of an output time at which dt starts being shrunk                     | Positive integer                  | `10`          |
+
+#### Landing exactly on the output times
+
+By default an output or a statistics sample is taken at the first time step
+that is at (or past) the requested time, so the time actually written is
+somewhere between the requested time and one time step after it. Setting
+`exact_output_time` to `true` makes the time-step controller adjust `dt` such
+that the requested times are reached exactly.
+
+The adjustment applies to every time-based controller in the case, which
+includes the fluid and checkpoint outputs as well as the `compute_control`,
+`preprocess_control` and `output_control` of all simulation components, and it
+also makes the simulation stop exactly at `end_time`. Controllers using the
+`tsteps` control mode have no time-based schedule and are not considered.
+
+Once the next such time is less than `output_landing_steps` time steps away,
+the remaining time is divided into the smallest whole number of equal steps
+that are no larger than the `dt` that was asked for. The time step therefore
+only ever gets smaller, never larger, so the scheme stays stable, and the
+original `dt` is restored right after the target has been reached. With a
+variable time step, the CFL controller keeps working on the unreduced `dt`, so
+the reduction does not accumulate.
+
+@note If several controllers request times that are very close to each other
+but not equal, landing on both of them requires one very short time step in
+between. Set `min_timestep` to put a floor on how short a step may become; a
+target that cannot be reached without going below that floor is simply passed
+as it would be without this option.
+
+@note Since the simulation now stops exactly at `end_time`, an output whose
+schedule falls on `end_time` is written twice when `output_at_end` is `true`
+(the default): once by its own schedule and once by the forced write at the
+end of the run. Set `output_at_end` to `false` if that duplicate is unwanted.
 
 ### Restarts and joblimit
 Restarts will restart the simulation from the exact state at a given time that

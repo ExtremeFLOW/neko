@@ -154,6 +154,124 @@ subroutine test_check_tsteps()
 
 end subroutine test_check_tsteps
 
+!> Test the next scheduled execution time of a single controller
+@test
+subroutine test_next_time()
+  use pfunit
+  use time_based_controller, only : time_based_controller_t, &
+       time_based_controller_reset_schedules
+  use num_types, only : rp, dp
+  use time_state, only : time_state_t
+  implicit none
+
+  type(time_based_controller_t) ctrl
+  type(time_state_t) :: time
+
+  call time_based_controller_reset_schedules()
+
+  time%start_time = 0.0_dp
+  time%end_time = 10.0_dp
+  time%dt = 0.3_dp
+  time%t = 0.0_dp
+
+  call ctrl%init(0.0_dp, 10.0_dp, "simulationtime", 1.0_dp)
+
+  ! At the start, the next execution is one interval ahead
+  @assertEqual(ctrl%next_time(time), 1.0_dp, tolerance=1e-12_dp)
+
+  ! In between two executions, the upcoming one is returned
+  time%t = 1.5_dp
+  @assertEqual(ctrl%next_time(time), 2.0_dp, tolerance=1e-12_dp)
+
+  ! Standing exactly on an execution time, the following one is returned
+  time%t = 2.0_dp
+  @assertEqual(ctrl%next_time(time), 3.0_dp, tolerance=1e-12_dp)
+
+  ! The last execution is at the end time
+  time%t = 9.5_dp
+  @assertEqual(ctrl%next_time(time), 10.0_dp, tolerance=1e-12_dp)
+
+  ! Nothing is scheduled after the end time
+  time%t = 10.0_dp
+  @assertTrue(ctrl%next_time(time) .ge. huge(0.0_dp))
+
+  ! The schedule is anchored at the start of the simulation
+  time%start_time = 2.0_dp
+  time%t = 2.5_dp
+  @assertEqual(ctrl%next_time(time), 3.0_dp, tolerance=1e-12_dp)
+
+  ! nsamples gives an interval of (end_time - start_time) / nsamples
+  time%start_time = 0.0_dp
+  time%t = 0.15_dp
+  call ctrl%init(0.0_dp, 10.0_dp, "nsamples", 10.0_dp)
+  @assertEqual(ctrl%next_time(time), 1.0_dp, tolerance=1e-12_dp)
+
+  ! Step-based and disabled controllers have no time-based schedule
+  call ctrl%init(0.0_dp, 10.0_dp, "tsteps", 10.0_dp)
+  @assertTrue(ctrl%next_time(time) .ge. huge(0.0_dp))
+
+  call ctrl%init(0.0_dp, 10.0_dp, "never", 0.0_dp)
+  @assertTrue(ctrl%next_time(time) .ge. huge(0.0_dp))
+
+  call time_based_controller_reset_schedules()
+
+end subroutine test_next_time
+
+!> Test the next scheduled execution time across all controllers
+@test
+subroutine test_next_scheduled_time()
+  use pfunit
+  use time_based_controller, only : time_based_controller_t, &
+       time_based_controller_next_scheduled_time, &
+       time_based_controller_reset_schedules
+  use num_types, only : rp, dp
+  use time_state, only : time_state_t
+  implicit none
+
+  type(time_based_controller_t) ctrl1, ctrl2, ctrl3
+  type(time_state_t) :: time
+  real(kind=dp) :: next
+
+  call time_based_controller_reset_schedules()
+
+  time%start_time = 0.0_dp
+  time%end_time = 10.0_dp
+  time%dt = 0.05_dp
+  time%t = 0.0_dp
+
+  ! Without any controller there is nothing to land on
+  next = time_based_controller_next_scheduled_time(time)
+  @assertTrue(next .ge. huge(0.0_dp))
+
+  call ctrl1%init(0.0_dp, 10.0_dp, "simulationtime", 1.0_dp)
+  next = time_based_controller_next_scheduled_time(time)
+  @assertEqual(next, 1.0_dp, tolerance=1e-12_dp)
+
+  ! The earliest of the two schedules wins
+  call ctrl2%init(0.0_dp, 10.0_dp, "simulationtime", 0.25_dp)
+  next = time_based_controller_next_scheduled_time(time)
+  @assertEqual(next, 0.25_dp, tolerance=1e-12_dp)
+
+  time%t = 0.9_dp
+  next = time_based_controller_next_scheduled_time(time)
+  @assertEqual(next, 1.0_dp, tolerance=1e-12_dp)
+
+  ! Step-based controllers do not contribute
+  call ctrl3%init(0.0_dp, 10.0_dp, "tsteps", 3.0_dp)
+  next = time_based_controller_next_scheduled_time(time)
+  @assertEqual(next, 1.0_dp, tolerance=1e-12_dp)
+
+  ! Only the schedule matters, so registering a duplicate changes nothing
+  call ctrl3%init(0.0_dp, 10.0_dp, "simulationtime", 1.0_dp)
+  next = time_based_controller_next_scheduled_time(time)
+  @assertEqual(next, 1.0_dp, tolerance=1e-12_dp)
+
+  call time_based_controller_reset_schedules()
+  next = time_based_controller_next_scheduled_time(time)
+  @assertTrue(next .ge. huge(0.0_dp))
+
+end subroutine test_next_scheduled_time
+
 !> Test register
 @test
 subroutine test_register()

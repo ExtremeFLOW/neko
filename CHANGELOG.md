@@ -2,6 +2,14 @@
 
 ## Develop
 
+- Added `case.time.exact_output_time`, which makes the time-step controller
+  shrink `dt` so that sampling and output times are reached exactly instead of
+  at the first step past them. It covers every time-based controller in the
+  case (fluid and checkpoint outputs, and the `preprocess_control`,
+  `compute_control` and `output_control` of all simulation components) and
+  also makes the simulation stop exactly at `end_time`. The number of steps
+  ahead of a target at which `dt` starts being reduced is set with
+  `case.time.output_landing_steps`, defaulting to 10.
 - Added runtime registration of user-defined scalar boundary-condition types
   through `register_scalar_pnpn_bc`.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.

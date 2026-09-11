@@ -79,12 +79,35 @@ module time_based_controller
      !> Set the counter based on a time (for restarts)
      procedure, pass(this) :: set_counter => &
           time_based_controller_set_counter
+     !> The next time at which `check` will return true.
+     procedure, pass(this) :: next_time => time_based_controller_next_time
 
   end type time_based_controller_t
+
+  !> The execution schedule of a controller, stripped down to what is needed
+  !! to predict when it will fire next.
+  type :: schedule_t
+     !> Time interval between executions.
+     real(kind=dp) :: time_interval = 0.0_dp
+     !> Time after which the controller stops executing.
+     real(kind=dp) :: end_time = 0.0_dp
+  end type schedule_t
+
+  !> The distinct schedules of all time-based controllers constructed so far.
+  !! @note Kept as a module variable rather than as a list of pointers to the
+  !! controllers themselves, since the latter live in arrays that are
+  !! reallocated as outputs and simcomps are added.
+  type(schedule_t), allocatable :: registered_schedules(:)
+
+  !> Number of used entries in `registered_schedules`.
+  integer :: n_registered_schedules = 0
 
   interface assignment(=)
      module procedure time_based_controller_assignment
   end interface assignment(=)
+
+  public :: time_based_controller_next_scheduled_time, &
+       time_based_controller_reset_schedules
 
 contains
 
@@ -127,6 +150,12 @@ contains
     else
        call neko_error("The control parameter must be simulationtime, nsamples&
        & tsteps, or never, but received "//trim(control_mode))
+    end if
+
+    ! Make the schedule known globally, so that the time-step controller can
+    ! shrink dt to land exactly on the execution times, if asked to.
+    if (.not. this%never .and. this%time_interval .gt. 0.0_dp) then
+       call register_schedule(this%time_interval, this%end_time)
     end if
   end subroutine time_based_controller_init
 
@@ -228,6 +257,120 @@ contains
     end if
 
   end subroutine time_based_controller_set_counter
+
+  !> The next time at which this controller is scheduled to execute.
+  !! @param time Current time.
+  !! @return The next execution time, or `huge(0.0_dp)` if the controller has
+  !! no time-based schedule, or will never execute again.
+  pure function time_based_controller_next_time(this, time) result(next_time)
+    class(time_based_controller_t), intent(in) :: this
+    type(time_state_t), intent(in) :: time
+    real(kind=dp) :: next_time
+
+    if (this%never .or. this%nsteps .gt. 0) then
+       next_time = huge(0.0_dp)
+    else
+       next_time = schedule_next_time(this%time_interval, this%end_time, time)
+    end if
+
+  end function time_based_controller_next_time
+
+  !> The earliest time at which any of the constructed controllers is
+  !! scheduled to execute.
+  !! @param time Current time.
+  !! @return The next execution time, or `huge(0.0_dp)` if no controller has a
+  !! time-based schedule left to run.
+  pure function time_based_controller_next_scheduled_time(time) &
+       result(next_time)
+    type(time_state_t), intent(in) :: time
+    real(kind=dp) :: next_time
+    integer :: i
+
+    next_time = huge(0.0_dp)
+    do i = 1, n_registered_schedules
+       next_time = min(next_time, &
+            schedule_next_time(registered_schedules(i)%time_interval, &
+            registered_schedules(i)%end_time, time))
+    end do
+
+  end function time_based_controller_next_scheduled_time
+
+  !> Forget all registered schedules, e.g. when setting up a new case.
+  subroutine time_based_controller_reset_schedules()
+
+    if (allocated(registered_schedules)) deallocate(registered_schedules)
+    n_registered_schedules = 0
+
+  end subroutine time_based_controller_reset_schedules
+
+  !> Add a schedule to `registered_schedules`, unless an identical one is
+  !! already there.
+  !! @param time_interval Time interval between executions.
+  !! @param end_time Time after which the controller stops executing.
+  subroutine register_schedule(time_interval, end_time)
+    real(kind=dp), intent(in) :: time_interval
+    real(kind=dp), intent(in) :: end_time
+    type(schedule_t), allocatable :: tmp(:)
+    integer :: i
+
+    if (.not. allocated(registered_schedules)) then
+       allocate(registered_schedules(8))
+    end if
+
+    do i = 1, n_registered_schedules
+       if (registered_schedules(i)%time_interval .eq. time_interval .and. &
+            registered_schedules(i)%end_time .eq. end_time) return
+    end do
+
+    if (n_registered_schedules .eq. size(registered_schedules)) then
+       allocate(tmp(2 * size(registered_schedules)))
+       tmp(1:n_registered_schedules) = &
+            registered_schedules(1:n_registered_schedules)
+       call move_alloc(tmp, registered_schedules)
+    end if
+
+    n_registered_schedules = n_registered_schedules + 1
+    registered_schedules(n_registered_schedules)%time_interval = time_interval
+    registered_schedules(n_registered_schedules)%end_time = end_time
+
+  end subroutine register_schedule
+
+  !> The next time a periodic schedule fires, strictly after the current time.
+  !! @details The times at which `check` returns true are the grid
+  !! `time%start_time + k * time_interval`, so this is the first grid point
+  !! ahead of `time%t`. A tolerance of a few units in the last place is used,
+  !! such that the point we have just landed on is not returned again.
+  !! @param time_interval Time interval between executions.
+  !! @param end_time Time after which the controller stops executing.
+  !! @param time Current time.
+  !! @return The next execution time, or `huge(0.0_dp)` if there is none.
+  pure function schedule_next_time(time_interval, end_time, time) &
+       result(next_time)
+    real(kind=dp), intent(in) :: time_interval
+    real(kind=dp), intent(in) :: end_time
+    type(time_state_t), intent(in) :: time
+    real(kind=dp) :: next_time
+    real(kind=dp) :: nintervals, tol
+
+    next_time = huge(0.0_dp)
+    if (time_interval .le. 0.0_dp) return
+    if (time%t .gt. end_time) return
+
+    ! Number of whole intervals since the start, rounded towards minus
+    ! infinity. Kept in floating point to not overflow for tiny intervals.
+    nintervals = aint((time%t - time%start_time) / time_interval)
+    if (nintervals .gt. (time%t - time%start_time) / time_interval) then
+       nintervals = nintervals - 1.0_dp
+    end if
+
+    tol = 10.0_dp * spacing(max(abs(time%t), time_interval))
+
+    next_time = time%start_time + (nintervals + 1.0_dp) * time_interval
+    if (next_time .le. time%t + tol) next_time = next_time + time_interval
+
+    if (next_time .gt. end_time) next_time = huge(0.0_dp)
+
+  end function schedule_next_time
 
 
 end module time_based_controller
