@@ -380,7 +380,7 @@ same object directly to that scalar's configuration:
 {
   "svv": {
     "enabled": true,
-    "formulation": "one-sided",
+    "formulation": "factorized",
     "direction": "rst",
     "kernel": {
       "type": "power",
@@ -395,7 +395,8 @@ same object directly to that scalar's configuration:
 ```
 
 The optional `formulation` entry accepts `one-sided` or `factorized` and
-defaults to `one-sided`; it is shown above to make the operator choice explicit.
+defaults to `factorized`; it is shown above to make the operator choice
+explicit.
 The required `kernel` object selects the modal transfer function through its
 `type`; currently, only `power` is supported. For the `power` kernel, the
 required `power_coefficient` controls the modal transfer function; larger
@@ -410,7 +411,7 @@ either a constant `value` or a registered `field`. A field configuration uses
 {
   "svv": {
     "enabled": true,
-    "formulation": "one-sided",
+    "formulation": "factorized",
     "direction": "rst",
     "kernel": {
       "type": "power",
