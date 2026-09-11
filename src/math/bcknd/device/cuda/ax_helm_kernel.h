@@ -61,7 +61,8 @@
  * Device kernel for axhelm
  */
 
-template< typename T, const int LX, const int CHUNKS >
+template< typename T, const int LX, const int CHUNKS,
+          const bool ACCUMULATE = false >
 __global__ void ax_helm_kernel_1d(T * __restrict__ w,
                                   const T * __restrict__ u,
                                   const T * __restrict__ dx,
@@ -163,12 +164,17 @@ __global__ void ax_helm_kernel_1d(T * __restrict__ w,
               + shdyt[j+l*LX] * shus[i+l*LX+k*LX*LX]
               + shdzt[k+l*LX] * shut[i+j*LX+l*LX*LX];
       }
-      w[ijk+e*LX*LX*LX] = wijke;
+      if (ACCUMULATE) {
+        w[ijk+e*LX*LX*LX] += wijke;
+      } else {
+        w[ijk+e*LX*LX*LX] = wijke;
+      }
     }
   }
 }
 
-template< typename T, const int LX, const int EB >
+template< typename T, const int LX, const int EB,
+          const bool ACCUMULATE = false >
 __global__ void NEKO_EB_BOUNDS(LX*LX*EB)
 ax_helm_kernel_kstep(T * __restrict__ w,
                      const T * __restrict__ u,
@@ -288,7 +294,11 @@ ax_helm_kernel_kstep(T * __restrict__ w,
   if (active) {
 #pragma unroll
     for (int k = 0; k < LX; ++k){
-      w[ij + k*LX*LX + ele] = rw[k];
+      if (ACCUMULATE) {
+        w[ij + k*LX*LX + ele] += rw[k];
+      } else {
+        w[ij + k*LX*LX + ele] = rw[k];
+      }
     }
   }
 }
@@ -298,7 +308,8 @@ ax_helm_kernel_kstep(T * __restrict__ w,
  * remove bank conflicts when LX is a power of 2
  */
 
-template< typename T, const int LX, const int EB >
+template< typename T, const int LX, const int EB,
+          const bool ACCUMULATE = false >
 __global__ void NEKO_EB_BOUNDS(LX*LX*EB)
 ax_helm_kernel_kstep_padded(T * __restrict__ w,
                             const T * __restrict__ u,
@@ -417,7 +428,11 @@ ax_helm_kernel_kstep_padded(T * __restrict__ w,
   if (active) {
 #pragma unroll
     for (int k = 0; k < LX; ++k){
-      w[ij + k*LX*LX + ele] = rw[k];
+      if (ACCUMULATE) {
+        w[ij + k*LX*LX + ele] += rw[k];
+      } else {
+        w[ij + k*LX*LX + ele] = rw[k];
+      }
     }
   }
 }
@@ -437,7 +452,8 @@ ax_helm_kernel_kstep_padded(T * __restrict__ w,
 
 #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && (__CUDA_ARCH__ < 1000)
 
-template< const int LX, const int NW >
+template< const int LX, const int NW,
+          const bool ACCUMULATE = false >
 __device__ __forceinline__
 void ax_helm_dmma_elem(double * __restrict__ w,
                        const double * __restrict__ u,
@@ -585,7 +601,11 @@ void ax_helm_dmma_elem(double * __restrict__ w,
     const dmma_idx x = pack::map(p, ebase, nelv);
 
     if (x.live) {
-      w[x.g] = shu[x.c];
+      if (ACCUMULATE) {
+        w[x.g] += shu[x.c];
+      } else {
+        w[x.g] = shu[x.c];
+      }
     }
   }
 }
@@ -601,7 +621,8 @@ void ax_helm_dmma_elem(double * __restrict__ w,
  * never selects the strategy for them, so the no-op is unreachable at runtime,
  * see dmma_lx_supported() and cuda_have_dmma() in dmma_kernel.h.
  */
-template< typename T, const int LX, const int NW >
+template< typename T, const int LX, const int NW,
+          const bool ACCUMULATE = false >
 struct ax_helm_dmma_dispatch {
   __device__ static void run(T * __restrict__,
                              const T * __restrict__,
@@ -622,8 +643,8 @@ struct ax_helm_dmma_dispatch {
 
 /* Keep in sync with dmma_lx_supported() in dmma_kernel.h */
 #define NEKO_AX_HELM_DMMA_DISPATCH(LXV)                                        \
-  template< const int NW >                                                     \
-  struct ax_helm_dmma_dispatch< double, LXV, NW > {                            \
+  template< const int NW, const bool ACCUMULATE >                            \
+  struct ax_helm_dmma_dispatch< double, LXV, NW, ACCUMULATE > {                       \
     __device__ static void run(double * __restrict__ w,                        \
                                const double * __restrict__ u,                  \
                                const double * __restrict__ dx,                 \
@@ -637,7 +658,7 @@ struct ax_helm_dmma_dispatch {
                                const double * __restrict__ g13,                \
                                const double * __restrict__ g23,                \
                                const int nelv) {                               \
-      ax_helm_dmma_elem< LXV, NW >(w, u, dx, dy, dz, h1,                       \
+      ax_helm_dmma_elem< LXV, NW, ACCUMULATE >(w, u, dx, dy, dz, h1, \
                                    g11, g22, g33, g12, g13, g23, nelv);        \
     }                                                                          \
   }
@@ -652,7 +673,8 @@ NEKO_AX_HELM_DMMA_DISPATCH(8);
 
 #endif // __CUDA_ARCH__ in [800, 1000)
 
-template< typename T, const int LX, const int NW >
+template< typename T, const int LX, const int NW,
+          const bool ACCUMULATE = false >
 __global__ void NEKO_EB_BOUNDS(32 * NW)
 ax_helm_kernel_dmma(T * __restrict__ w,
                     const T * __restrict__ u,
@@ -668,7 +690,7 @@ ax_helm_kernel_dmma(T * __restrict__ w,
                     const T * __restrict__ g23,
                     const int nelv) {
 
-  ax_helm_dmma_dispatch< T, LX, NW >::run(w, u, dx, dy, dz, h1,
+  ax_helm_dmma_dispatch< T, LX, NW, ACCUMULATE >::run(w, u, dx, dy, dz, h1,
                                           g11, g22, g33, g12, g13, g23, nelv);
 }
 
@@ -695,7 +717,8 @@ ax_helm_kernel_dmma(T * __restrict__ w,
 #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 900) &&                        \
     (__CUDA_ARCH__ < 1000) && NEKO_TMA_TOOLKIT
 
-template< const int LX, const int NW >
+template< const int LX, const int NW,
+          const bool ACCUMULATE = false >
 __device__ __forceinline__
 void ax_helm_dmma_tma_elem(double * __restrict__ w,
                            const double * __restrict__ u,
@@ -841,6 +864,13 @@ void ax_helm_dmma_tma_elem(double * __restrict__ w,
   tma_fence_shared();
   __syncthreads();
 
+  if (ACCUMULATE) {
+    for (int p = tid; p < DMMA_CUBE; p += nthrds) {
+      shu[p] += w[ebase + p];
+    }
+    __syncthreads();
+  }
+
   if (tid == 0) {
     tma_store(w + ebase, shu, CUBE_BYTES);
     tma_store_wait();
@@ -859,7 +889,8 @@ void ax_helm_dmma_tma_elem(double * __restrict__ w,
  * does not: single precision, any lx but DMMA_P, a build without sm_90, and a
  * toolkit older than CUDA 12.
  */
-template< typename T, const int LX, const int NW >
+template< typename T, const int LX, const int NW,
+          const bool ACCUMULATE = false >
 struct ax_helm_dmma_tma_dispatch {
   __device__ static void run(T * __restrict__,
                              const T * __restrict__,
@@ -880,8 +911,8 @@ struct ax_helm_dmma_tma_dispatch {
 
 /* Keep in sync with dmma_tma_lx_supported() in dmma_tma_kernel.h */
 #define NEKO_AX_HELM_DMMA_TMA_DISPATCH(LXV)                                    \
-  template< const int NW >                                                     \
-  struct ax_helm_dmma_tma_dispatch< double, LXV, NW > {                        \
+  template< const int NW, const bool ACCUMULATE >                        \
+  struct ax_helm_dmma_tma_dispatch< double, LXV, NW, ACCUMULATE > {                   \
     __device__ static void run(double * __restrict__ w,                        \
                                const double * __restrict__ u,                  \
                                const double * __restrict__ dx,                 \
@@ -894,7 +925,7 @@ struct ax_helm_dmma_tma_dispatch {
                                const double * __restrict__ g12,                \
                                const double * __restrict__ g13,                \
                                const double * __restrict__ g23) {              \
-      ax_helm_dmma_tma_elem< LXV, NW >(w, u, dx, dy, dz, h1,                   \
+      ax_helm_dmma_tma_elem< LXV, NW, ACCUMULATE >(w, u, dx, dy, dz, h1, \
                                        g11, g22, g33, g12, g13, g23);          \
     }                                                                          \
   }
@@ -903,7 +934,8 @@ NEKO_AX_HELM_DMMA_TMA_DISPATCH(8);
 
 #endif // __CUDA_ARCH__ == sm_90 with a CUDA 12 toolkit
 
-template< typename T, const int LX, const int NW >
+template< typename T, const int LX, const int NW,
+          const bool ACCUMULATE = false >
 __global__ void NEKO_EB_BOUNDS(32 * NW)
 ax_helm_kernel_dmma_tma(T * __restrict__ w,
                         const T * __restrict__ u,
@@ -918,7 +950,7 @@ ax_helm_kernel_dmma_tma(T * __restrict__ w,
                         const T * __restrict__ g13,
                         const T * __restrict__ g23) {
 
-  ax_helm_dmma_tma_dispatch< T, LX, NW >::run(w, u, dx, dy, dz, h1,
+  ax_helm_dmma_tma_dispatch< T, LX, NW, ACCUMULATE >::run(w, u, dx, dy, dz, h1,
                                               g11, g22, g33, g12, g13, g23);
 }
 
