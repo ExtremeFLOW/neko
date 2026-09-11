@@ -362,12 +362,13 @@ by the user by setting `full_stress_formulation` to true.
 Spectral vanishing viscosity (SVV) selectively adds dissipation to the
 high-frequency content of the solution. It was first proposed by Tadmor (1989)
 and later introduced to the spectral element method (SEM) community by Kirby
-and Sherwin (2006). Neko supports both the `one-sided` and `symmetric`
-formulations. The
-one-sided formulation applies the high-pass operator to the trial-function
-gradient in physical space (i.e., to gradients in the x, y, and z directions).
-The symmetric formulation applies a square-root high-pass operator to both the
-test- and trial-function derivatives. The full-stress
+and Sherwin (2006). Neko supports both the `one-sided` and `factorized`
+formulations. The one-sided formulation applies the high-pass operator to the
+trial-function gradient in physical space (i.e., to gradients in the x, y,
+and z directions).
+The factorized formulation proposed by Xu and Pasquetti (2004) applies a
+square-root high-pass operator to both the test- and trial-function derivatives.
+The full-stress
 formulation is also supported for velocity and requires `coupled_cg` (or
 `fused_coupled_cg` on CUDA/HIP). For fluid solves, SVV is available with the
 implicit `pnpn` scheme.
@@ -393,13 +394,12 @@ same object directly to that scalar's configuration:
 }
 ```
 
-The optional `formulation` entry accepts `one-sided` or `symmetric` and defaults to
-`one-sided`; it is shown above to make the operator choice explicit. The required
-`kernel`
-object selects the modal transfer function through its `type`; currently, only
-`power` is supported.  For the `power` kernel, the required `power_coefficient`
-controls the modal transfer function; larger values confine the added
-dissipation to modes nearer the polynomial cut-off.
+The optional `formulation` entry accepts `one-sided` or `factorized` and
+defaults to `one-sided`; it is shown above to make the operator choice explicit.
+The required `kernel` object selects the modal transfer function through its
+`type`; currently, only `power` is supported. For the `power` kernel, the
+required `power_coefficient` controls the modal transfer function; larger
+values confine the added dissipation to modes nearer the polynomial cut-off.
 The `direction` selects the reference-element directions
 in which the modal filter is applied and defaults to `rst`.
 The SVV viscosity `nu` is multiplied by density internally and may be
@@ -441,6 +441,9 @@ OpenCL, or Metal backends.
   methods through spectral vanishing viscosity: Application to fluid mechanics
   modelling.” *Computer Methods in Applied Mechanics and Engineering*,
   195(23):3128–3144, 2006.
+- Chuanju Xu and Richard Pasquetti. “Stabilized spectral element computations
+  of high Reynolds number incompressible flows.”
+  *Journal of Computational Physics*, 196(2):680–704, 2004.
 
 </details>
 

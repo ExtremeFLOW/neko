@@ -49,8 +49,9 @@ module spectral_vanishing_viscosity
 
   character(len=3), parameter :: KNOWN_DIRECTIONS(7) = [character(len=3) :: &
        "rst", "rs", "rt", "st", "r", "s", "t"]
-  character(len=9), parameter :: KNOWN_FORMULATIONS(2) = [character(len=9) :: &
-       "one-sided", "symmetric"]
+  character(len=10), parameter :: KNOWN_FORMULATIONS(2) = &
+       [character(len=10) :: &
+       "one-sided", "factorized"]
   character(len=5), parameter :: KNOWN_NU_TYPES(2) = [character(len=5) :: &
        "value", "field"]
   character(len=5), parameter :: KNOWN_KERNEL_TYPES(1) = [character(len=5) :: &
@@ -75,7 +76,7 @@ module spectral_vanishing_viscosity
      !> Identity matrix used to disable filtering in selected directions.
      real(kind=rp), allocatable :: ident(:,:)
      type(c_ptr) :: ident_d = C_NULL_PTR
-     !> Complementary derivatives, (I - F) D, for symmetric SVV.
+     !> Complementary derivatives, (I - F) D, for factorized SVV.
      real(kind=rp), allocatable :: Br(:,:), Bs(:,:), Bt(:,:)
      type(c_ptr) :: Br_d = C_NULL_PTR
      type(c_ptr) :: Bs_d = C_NULL_PTR
@@ -137,7 +138,7 @@ contains
        if (power_coef .eq. 0.0_rp) then
           transfer = 0.0_rp
        else
-          if (this%formulation .eq. "symmetric") then
+          if (this%formulation .eq. "factorized") then
              exponent_factor = 0.5_rp
           else
              exponent_factor = 1.0_rp
@@ -161,7 +162,7 @@ contains
        this%ident(i, i) = 1.0_rp
     end do
 
-    if (this%formulation .eq. "symmetric") then
+    if (this%formulation .eq. "factorized") then
        call svv_build_complementary_derivatives(this)
     end if
 
@@ -207,7 +208,7 @@ contains
     if (allocated(formulation)) deallocate(formulation)
   end subroutine svv_init_from_json
 
-  !> Build the complementary derivative matrices used by symmetric SVV.
+  !> Build the complementary derivative matrices used by factorized SVV.
   !! @param this SVV object.
   subroutine svv_build_complementary_derivatives(this)
     class(svv_t), intent(inout) :: this

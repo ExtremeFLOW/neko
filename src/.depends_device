@@ -15,8 +15,12 @@ math/bcknd/device/hip/opr_rotate_cyc.lo : math/bcknd/device/hip/opr_rotate_cyc.h
 math/bcknd/device/hip/ax_helm.lo : math/bcknd/device/hip/ax_helm.hip math/bcknd/device/hip/ax_helm_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h math/bcknd/device/hip/mfma_kernel.h
 math/bcknd/device/hip/ax_helm_svv_one_sided.lo : math/bcknd/device/hip/ax_helm_svv_one_sided.hip math/bcknd/device/hip/ax_helm_svv_one_sided_kernel.h
 math/bcknd/device/hip/ax_helm_svv_one_sided_full.lo : math/bcknd/device/hip/ax_helm_svv_one_sided_full.hip math/bcknd/device/hip/ax_helm_svv_one_sided_full_kernel.h
-math/bcknd/device/hip/ax_helm_svv_symmetric.lo : math/bcknd/device/hip/ax_helm_svv_symmetric.hip math/bcknd/device/hip/ax_helm_kernel.h
-math/bcknd/device/hip/ax_helm_svv_symmetric_full.lo : math/bcknd/device/hip/ax_helm_svv_symmetric_full.hip math/bcknd/device/hip/ax_helm_full_kernel.h
+math/bcknd/device/hip/ax_helm_svv_factorized.lo : \
+	math/bcknd/device/hip/ax_helm_svv_factorized.hip \
+	math/bcknd/device/hip/ax_helm_kernel.h
+math/bcknd/device/hip/ax_helm_svv_factorized_full.lo : \
+	math/bcknd/device/hip/ax_helm_svv_factorized_full.hip \
+	math/bcknd/device/hip/ax_helm_full_kernel.h
 math/bcknd/device/hip/ax_helm_full.lo : math/bcknd/device/hip/ax_helm_full.hip math/bcknd/device/hip/ax_helm_full_kernel.h
 math/bcknd/device/hip/schwarz.lo : math/bcknd/device/hip/schwarz.hip math/bcknd/device/hip/schwarz_kernel.h
 math/bcknd/device/hip/tensor.lo : math/bcknd/device/hip/tensor.hip math/bcknd/device/hip/tensor_kernel.h
@@ -78,8 +82,12 @@ math/bcknd/device/cuda/opr_rotate_cyc.lo : math/bcknd/device/cuda/opr_rotate_cyc
 math/bcknd/device/cuda/ax_helm.lo : math/bcknd/device/cuda/ax_helm.cu math/bcknd/device/cuda/ax_helm_kernel.h math/bcknd/device/cuda/elem_block.h math/bcknd/device/cuda/elem_block_tune.h math/bcknd/device/cuda/dmma_kernel.h math/bcknd/device/cuda/dmma_tma_kernel.h
 math/bcknd/device/cuda/ax_helm_svv_one_sided.lo : math/bcknd/device/cuda/ax_helm_svv_one_sided.cu math/bcknd/device/cuda/ax_helm_svv_one_sided_kernel.h
 math/bcknd/device/cuda/ax_helm_svv_one_sided_full.lo : math/bcknd/device/cuda/ax_helm_svv_one_sided_full.cu math/bcknd/device/cuda/ax_helm_svv_one_sided_full_kernel.h
-math/bcknd/device/cuda/ax_helm_svv_symmetric.lo : math/bcknd/device/cuda/ax_helm_svv_symmetric.cu math/bcknd/device/cuda/ax_helm_kernel.h
-math/bcknd/device/cuda/ax_helm_svv_symmetric_full.lo : math/bcknd/device/cuda/ax_helm_svv_symmetric_full.cu math/bcknd/device/cuda/ax_helm_full_kernel.h
+math/bcknd/device/cuda/ax_helm_svv_factorized.lo : \
+	math/bcknd/device/cuda/ax_helm_svv_factorized.cu \
+	math/bcknd/device/cuda/ax_helm_kernel.h
+math/bcknd/device/cuda/ax_helm_svv_factorized_full.lo : \
+	math/bcknd/device/cuda/ax_helm_svv_factorized_full.cu \
+	math/bcknd/device/cuda/ax_helm_full_kernel.h
 math/bcknd/device/cuda/ax_helm_full.lo : math/bcknd/device/cuda/ax_helm_full.cu math/bcknd/device/cuda/ax_helm_full_kernel.h
 math/bcknd/device/cuda/schwarz.lo : math/bcknd/device/cuda/schwarz.cu math/bcknd/device/cuda/schwarz_kernel.h
 math/bcknd/device/cuda/tensor.lo : math/bcknd/device/cuda/tensor.cu math/bcknd/device/cuda/tensor_kernel.h
