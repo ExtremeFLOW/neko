@@ -60,7 +60,7 @@ void hip_ax_helm_svv_factorized(
         (real *) w, (real *) u, \
         (real *) dx, (real *) dy, (real *) dz, (real *) h1, \
         (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23); \
+        (real *) g12, (real *) g13, (real *) g23, *nelv); \
     HIP_CHECK(hipGetLastError()); \
     hipLaunchKernelGGL( \
         HIP_KERNEL_NAME(ax_helm_kernel_kstep<real, LX, 1, true>), \
@@ -68,7 +68,7 @@ void hip_ax_helm_svv_factorized(
         (real *) w, (real *) u, \
         (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv, \
         (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23); \
+        (real *) g12, (real *) g13, (real *) g23, *nelv); \
     HIP_CHECK(hipGetLastError()); \
     break
 
@@ -80,7 +80,7 @@ void hip_ax_helm_svv_factorized(
         (real *) w, (real *) u, \
         (real *) dx, (real *) dy, (real *) dz, (real *) h1, \
         (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23); \
+        (real *) g12, (real *) g13, (real *) g23, *nelv); \
     HIP_CHECK(hipGetLastError()); \
     hipLaunchKernelGGL( \
         HIP_KERNEL_NAME(ax_helm_kernel_kstep_padded<real, LX, 1, true>), \
@@ -88,7 +88,7 @@ void hip_ax_helm_svv_factorized(
         (real *) w, (real *) u, \
         (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv, \
         (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23); \
+        (real *) g12, (real *) g13, (real *) g23, *nelv); \
     HIP_CHECK(hipGetLastError()); \
     break
 

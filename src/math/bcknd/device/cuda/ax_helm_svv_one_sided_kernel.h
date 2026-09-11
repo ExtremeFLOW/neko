@@ -41,7 +41,7 @@
  * direction disables filtering in that direction while retaining the complete
  * Helmholtz gradient and divergence.
  */
-template<typename T, const int LX>
+template<typename T, const int LX, const bool ACCUMULATE = false>
 __global__ void ax_helm_svv_one_sided_kernel(
     T * __restrict__ w,
     const T * __restrict__ u,
