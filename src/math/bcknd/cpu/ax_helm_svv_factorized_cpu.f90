@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> CPU implementation of the symmetric SVV Helmholtz operator.
-module ax_helm_svv_symmetric_cpu
+!> CPU implementation of the factorized SVV Helmholtz operator.
+module ax_helm_svv_factorized_cpu
   use ax_helm_svv, only : ax_helm_svv_t
   use num_types, only : rp
   use coefs, only : coef_t
@@ -42,11 +42,11 @@ module ax_helm_svv_symmetric_cpu
   private
 
   !> CPU matrix-vector product for a Helmholtz problem.
-  type, public, extends(ax_helm_svv_t) :: ax_helm_svv_symmetric_cpu_t
+  type, public, extends(ax_helm_svv_t) :: ax_helm_svv_factorized_cpu_t
    contains
      !> Compute the product.
-     procedure, pass(this) :: compute => ax_helm_svv_symmetric_compute
-  end type ax_helm_svv_symmetric_cpu_t
+     procedure, pass(this) :: compute => ax_helm_svv_factorized_compute
+  end type ax_helm_svv_factorized_cpu_t
 
 contains
 
@@ -58,15 +58,15 @@ contains
   !! @param Xh Function space \f$ X_h \f$.
   !! @note Since this is a performance-crtical routine, it is implemented in
   !! several kernels corresponding to different polynmial orders.
-  subroutine ax_helm_svv_symmetric_compute(this, w, u, coef, msh, Xh)
-    class(ax_helm_svv_symmetric_cpu_t), intent(in) :: this
+  subroutine ax_helm_svv_factorized_compute(this, w, u, coef, msh, Xh)
+    class(ax_helm_svv_factorized_cpu_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    call ax_helm_svv_symmetric_lx(w, u, Xh%dx, Xh%dy, Xh%dz, &
+    call ax_helm_svv_factorized_lx(w, u, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, &
             this%svv%Br, this%svv%Bs, this%svv%Bt, coef%h1, this%svv%h1, &
             coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, &
@@ -75,7 +75,7 @@ contains
     if (coef%ifh2) call addcol4 (w,coef%h2,coef%B,u,coef%dof%size())
 
 
-  end subroutine ax_helm_svv_symmetric_compute
+  end subroutine ax_helm_svv_factorized_compute
 
   !> Generic CPU kernel for the Helmholz matrix-vector product.
   !! @param w Result.
@@ -99,7 +99,7 @@ contains
   !! @param G23 Geometric factor \f$G_{23}\f$.
   !! @param n Number of elements.
   !! @param lx Polynomial order.
-  subroutine ax_helm_svv_symmetric_lx(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
+  subroutine ax_helm_svv_factorized_lx(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        Br, Bs, Bt, h1, svv_h1, G11, G22, G33, G12, G13, G23, n, lx)
     integer, intent(in) :: n, lx
     real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
@@ -235,6 +235,6 @@ contains
        end do
 
     end do
-  end subroutine ax_helm_svv_symmetric_lx
+  end subroutine ax_helm_svv_factorized_lx
 
-end module ax_helm_svv_symmetric_cpu
+end module ax_helm_svv_factorized_cpu

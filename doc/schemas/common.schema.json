@@ -394,7 +394,7 @@
         },
         "formulation": {
           "type": "string",
-          "enum": ["one-sided", "symmetric"]
+          "enum": ["one-sided", "factorized"]
         },
         "direction": {
           "type": "string",
