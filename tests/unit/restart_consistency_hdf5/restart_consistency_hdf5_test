@@ -1,0 +1,12 @@
+#!/bin/sh
+# Pin the gather-scatter communication backend. Left unset, each gs_t
+# benchmarks the available backends and keeps the fastest, so two cases
+# built in one process can end up summing in different orders -- which a
+# bit-exact comparison would report as a checkpoint fault.
+NEKO_GS_COMM=MPI
+export NEKO_GS_COMM
+if which mpirun >/dev/null; then
+    mpirun -np 2 ./restart_consistency_hdf5/restart_consistency_hdf5_suite
+else
+    mpiexec -np 2 ./restart_consistency_hdf5/restart_consistency_hdf5_suite
+fi
