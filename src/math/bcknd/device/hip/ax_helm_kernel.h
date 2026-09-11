@@ -42,7 +42,8 @@
  * Device kernels for Ax helm
  */
 
-template< typename T, const int LX, const int CHUNKS >
+template< typename T, const int LX, const int CHUNKS,
+          const bool ACCUMULATE = false >
 __global__ void ax_helm_kernel_1d(T * __restrict__ w,
                                   const T * __restrict__ u,
                                   const T * __restrict__ dx,
@@ -144,7 +145,11 @@ __global__ void ax_helm_kernel_1d(T * __restrict__ w,
               + shdyt[j+l*LX] * shus[i+l*LX+k*LX*LX]
               + shdzt[k+l*LX] * shut[i+j*LX+l*LX*LX];
       }
-      w[ijk+e*LX*LX*LX] = wijke;
+      if (ACCUMULATE) {
+        w[ijk+e*LX*LX*LX] += wijke;
+      } else {
+        w[ijk+e*LX*LX*LX] = wijke;
+      }
     }
   }
 }
@@ -469,7 +474,8 @@ ax_helm_kernel_kstep_padded(T * __restrict__ w,
  *
  * mfma_contract_sel routes double precision through the batched 4x4x4 matrix
  * core (full M-utilisation) and single precision through the 16x16x4 tile. */
-template< typename T, const int LX, const int NWF, const int TILE >
+template< typename T, const int LX, const int NWF, const int TILE,
+          const bool ACCUMULATE = false >
 __device__ void ax_helm_mfma_elem(T * __restrict__ w,
                                   const T * __restrict__ u,
                                   const T * __restrict__ dx,
@@ -664,8 +670,12 @@ __device__ void ax_helm_mfma_elem(T * __restrict__ w,
   if (active) {
 #pragma unroll
     for (int q = 0; q < SPT; q++) {
-      if (goff[q] >= 0)
-        w[goff[q] + ele] = shu[sh + gtid + q * GNTHR];
+      if (goff[q] >= 0) {
+        if (ACCUMULATE)
+          w[goff[q] + ele] += shu[sh + gtid + q * GNTHR];
+        else
+          w[goff[q] + ele] = shu[sh + gtid + q * GNTHR];
+      }
     }
   }
 }
@@ -680,7 +690,8 @@ __device__ void ax_helm_mfma_elem(T * __restrict__ w,
  * the strategy for them, so the no-op is unreachable at runtime, see
  * mfma_lx_supported() and hip_have_mfma() in mfma_kernel.h.
  */
-template< typename T, const int LX, const int NWF, const int TILE >
+template< typename T, const int LX, const int NWF, const int TILE,
+          const bool ACCUMULATE = false >
 struct ax_helm_mfma_dispatch {
   __device__ static void run(T *, const T *, const T *, const T *, const T *,
                              const T *, const T *, const T *, const T *,
@@ -691,8 +702,8 @@ struct ax_helm_mfma_dispatch {
 
 /* Keep in sync with mfma_lx_supported() in mfma_kernel.h */
 #define NEKO_AX_HELM_MFMA_DISPATCH(TYPE, LXV)                                  \
-  template< const int NWF, const int TILE >                                    \
-  struct ax_helm_mfma_dispatch< TYPE, LXV, NWF, TILE > {                       \
+  template< const int NWF, const int TILE, const bool ACCUMULATE >             \
+  struct ax_helm_mfma_dispatch< TYPE, LXV, NWF, TILE, ACCUMULATE > {           \
     __device__ static void run(TYPE *w, const TYPE *u,                         \
                                const TYPE *dx, const TYPE *dy,                 \
                                const TYPE *dz, const TYPE *h1,                 \
@@ -700,7 +711,8 @@ struct ax_helm_mfma_dispatch {
                                const TYPE *g33, const TYPE *g12,               \
                                const TYPE *g13, const TYPE *g23,               \
                                const int nelv) {                               \
-      ax_helm_mfma_elem< TYPE, LXV, NWF, TILE >(w, u, dx, dy, dz, h1,          \
+      ax_helm_mfma_elem< TYPE, LXV, NWF, TILE, ACCUMULATE >(                   \
+                                          w, u, dx, dy, dz, h1,                \
                                           g11, g22, g33, g12, g13, g23,        \
                                           nelv);                               \
     }                                                                          \
@@ -733,7 +745,8 @@ NEKO_AX_HELM_MFMA_DISPATCH(float, 12);
  * gfx90a/gfx942 without that constraint. Keep it byte-identical to the
  * configuration that was confirmed on hardware.
  */
-template< typename T, const int LX, const int NWF, const int TILE >
+template< typename T, const int LX, const int NWF, const int TILE,
+          const bool ACCUMULATE = false >
 __global__ void __launch_bounds__(64 * NWF)
 ax_helm_kernel_mfma(T * __restrict__ w,
                     const T * __restrict__ u,
@@ -749,9 +762,8 @@ ax_helm_kernel_mfma(T * __restrict__ w,
                     const T * __restrict__ g23,
                     const int nelv) {
 
-  ax_helm_mfma_dispatch< T, LX, NWF, TILE >::run(w, u, dx, dy, dz, h1,
-                                                 g11, g22, g33,
-                                                 g12, g13, g23, nelv);
+  ax_helm_mfma_dispatch< T, LX, NWF, TILE, ACCUMULATE >::run(
+      w, u, dx, dy, dz, h1, g11, g22, g33, g12, g13, g23, nelv);
 }
 
 /*

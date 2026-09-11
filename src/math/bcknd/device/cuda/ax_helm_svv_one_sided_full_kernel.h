@@ -37,7 +37,7 @@
 /**
  * Evaluate one physical derivative of a field at a nodal point.
  */
-template<typename T, const int LX>
+template<typename T, const int LX, const bool ACCUMULATE = false>
 __device__ __forceinline__ T ax_helm_svv_one_sided_full_derivative(
     const T * __restrict__ field,
     const int component,
