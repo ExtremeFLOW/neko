@@ -2,6 +2,16 @@
 
 ## Develop
 
+- Fixed `too many resources requested for launch` from the CUDA and HIP `coef`
+  kernels, which gave each element 1024 threads. Registers are allocated per
+  block, and at 1024 threads the per-thread count of two of these kernels
+  exceeded the 65536 registers a block can be given: 70 at `lx = 2` in the
+  area and normal kernel, which the coarsest level of the HSMG pressure
+  preconditioner reaches whatever the case's polynomial order is, and 126 at
+  `lx = 16` in the `dxyz` kernel. The three per-element `coef` kernels now use
+  the kstep layout of the SEM operator kernels, one (`lx`,`lx`) thread plane
+  per element with several elements stacked per block, which holds a block at
+  or below 256 threads for every supported order.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.
 - The gather-scatter comm. backend autotuning now covers the device-resident
   backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks

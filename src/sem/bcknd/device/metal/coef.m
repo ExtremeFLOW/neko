@@ -133,7 +133,14 @@ void metal_coef_generate_geo(void *G11, void *G12, void *G13,
   [enc setBuffer:(__bridge id<MTLBuffer>)w3     offset:0 atIndex:16];
   [enc setBytes:gdim length:sizeof(int) atIndex:17];
 
-  NSUInteger nthrds = 1024;
+  /* The threadgroup size a pipeline can be given drops below 1024 when the
+     kernel's register or threadgroup memory use is high, so ask the pipeline
+     instead of assuming. The kernel strides over the element with
+     threads_per_threadgroup, so any size is correct. */
+  NSUInteger nthrds = pso_geo[LX].maxTotalThreadsPerThreadgroup;
+  if (nthrds > 1024) {
+    nthrds = 1024;
+  }
   MTLSize groupSize = MTLSizeMake(nthrds, 1, 1);
   MTLSize numGroups = MTLSizeMake((NSUInteger)(*nel), 1, 1);
 
@@ -196,7 +203,14 @@ void metal_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz,
     [enc setBuffer:(__bridge id<MTLBuffer>)y    offset:0 atIndex:13];
     [enc setBuffer:(__bridge id<MTLBuffer>)z    offset:0 atIndex:14];
 
-    NSUInteger nthrds = 1024;
+    /* The threadgroup size a pipeline can be given drops below 1024 when the
+       kernel's register or threadgroup memory use is high, so ask the pipeline
+       instead of assuming. The kernel strides over the element with
+       threads_per_threadgroup, so any size is correct. */
+    NSUInteger nthrds = pso_dxyz[LX].maxTotalThreadsPerThreadgroup;
+    if (nthrds > 1024) {
+      nthrds = 1024;
+    }
     MTLSize groupSize = MTLSizeMake(nthrds, 1, 1);
     MTLSize numGroups = MTLSizeMake((NSUInteger)(*nel), 1, 1);
 
@@ -342,7 +356,14 @@ void metal_coef_generate_area_and_normal(void *area, void *nx, void *ny,
   [enc setBuffer:(__bridge id<MTLBuffer>)wz   offset:0 atIndex:15];
   [enc setBytes:&eps length:sizeof(real) atIndex:16];
 
-  NSUInteger nthrds = 1024;
+  /* The threadgroup size a pipeline can be given drops below 1024 when the
+     kernel's register or threadgroup memory use is high, so ask the pipeline
+     instead of assuming. The kernel strides over the element with
+     threads_per_threadgroup, so any size is correct. */
+  NSUInteger nthrds = pso_area[LX].maxTotalThreadsPerThreadgroup;
+  if (nthrds > 1024) {
+    nthrds = 1024;
+  }
   MTLSize groupSize = MTLSizeMake(nthrds, 1, 1);
   MTLSize numGroups = MTLSizeMake((NSUInteger)(*nel), 1, 1);
 
