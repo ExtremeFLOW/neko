@@ -357,6 +357,89 @@ coupled manner, which requires an appropriate linear solver. By default, Neko
 will use the simplified form of the tensor, and the full one must be selected
 by the user by setting `full_stress_formulation` to true.
 
+### Spectral vanishing viscosity {#case-file-svv}
+
+Spectral vanishing viscosity (SVV) selectively adds dissipation to the
+high-frequency content of the solution. It was first proposed by Tadmor (1989)
+and later introduced to the spectral element method (SEM) community by Kirby
+and Sherwin (2006). Neko currently supports only the one-sided formulation,
+which applies the high-pass operator to the trial-function gradient in physical
+space (i.e., to gradients in the x, y, and z directions). The full-stress
+formulation is also supported for velocity and requires `coupled_cg` (or
+`fused_coupled_cg` on CUDA/HIP). For fluid solves, SVV is available with the
+implicit `pnpn` scheme.
+
+For the fluid equations, add `svv` to the `fluid` object. For a scalar, add the
+same object directly to that scalar's configuration:
+
+```json
+{
+  "svv": {
+    "enabled": true,
+    "formulation": "one-sided",
+    "direction": "rst",
+    "kernel": {
+      "type": "power",
+      "power_coefficient": 0.5
+    },
+    "nu": {
+      "type": "value",
+      "value": 1.0e-3
+    }
+  }
+}
+```
+
+The optional `formulation` entry defaults to `one-sided`;
+it is shown above to make the operator choice explicit. The required `kernel`
+object selects the modal transfer function through its `type`; currently, only
+`power` is supported.  For the `power` kernel, the required `power_coefficient`
+controls the modal transfer function; larger values confine the added
+dissipation to modes nearer the polynomial cut-off.
+The `direction` selects the reference-element directions
+in which the modal filter is applied and defaults to `rst`.
+The SVV viscosity `nu` is multiplied by density internally and may be
+either a constant `value` or a registered `field`. A field configuration uses
+`field_name`:
+
+```json
+{
+  "svv": {
+    "enabled": true,
+    "formulation": "one-sided",
+    "direction": "rst",
+    "kernel": {
+      "type": "power",
+      "power_coefficient": 0.5
+    },
+    "nu": {
+      "type": "field",
+      "time_variable": true,
+      "field_name": "some_viscosity"
+    }
+  }
+}
+```
+
+For a field-valued viscosity, the optional `time_variable` entry controls
+whether the field is refreshed at every time step and defaults to `true`.
+
+The SVV operator, including its full-stress variant, is implemented for
+CPU, CUDA, and HIP backends. It is not currently available with the SX, XSMM,
+OpenCL, or Metal backends.
+
+<details>
+<summary><b><u>References</u></b></summary>
+
+- Eitan Tadmor. “Convergence of spectral methods for nonlinear conservation
+  laws.” *SIAM Journal on Numerical Analysis*, 26(1):30–44, 1989.
+- Robert M. Kirby and Spencer J. Sherwin. “Stabilisation of spectral/hp element
+  methods through spectral vanishing viscosity: Application to fluid mechanics
+  modelling.” *Computer Methods in Applied Mechanics and Engineering*,
+  195(23):3128–3144, 2006.
+
+</details>
+
 ### Compressible flows
 
 Neko supports compressible flow simulations via the compressible solver.
@@ -465,8 +548,9 @@ the governing equations to feature the full viscous stress tensor, as required
 for a variable viscosity field.
 
 Note that the full viscous stress tensor requires the equations for the 3
-velocity components to be solved in a coupled manner. Therefore, the `coupled_cg`
-(or `fused_coupled_cg`) solver should be used for velocity.
+velocity components to be solved in a coupled manner. Therefore,
+`coupled_bicgstab`, `coupled_cg`, or `fused_coupled_cg` should be used for
+velocity. The `coupled_bicgstab` solver is currently available on CPUs only.
 
 ### Schwarz iterations
 This feature is enabled by setting the `schwarz_iterations` keyword inside
@@ -634,25 +718,31 @@ A more detailed description of each boundary condition is provided below.
 
   The second option is to provide the values through a field file using the
   `file_name` keyword. This is currently supported only by the axis-aligned
-  implementation. The file must contain a three-component vector field in
-  global Cartesian coordinates. Internally, only the tangential components are
-  enforced on the boundary. Optional interpolation settings are the same as for
-  other field-imported data:
+  implementation. The file must contain a three-component vector field in global
+  Cartesian coordinates. Internally, only the tangential components are enforced
+  on the boundary. The `file_name` and `mesh_file_name` values use Neko's
+  field-sample naming convention, for example `field0.f00000`. The
+  `mesh_file_name` is an optional field sample containing the source mesh
+  coordinates; it can be omitted when the source field contains its own
+  coordinates. Optional interpolation settings are the same as for other
+  field-imported data:
 
   * `interpolate`. Logical flag controlling whether interpolation is used.
-  * `mesh_file_name`. Mesh file used for interpolation when the source field is
-    defined on a different mesh.
+  * `mesh_file_name`. Optional sampled field containing the source mesh
+    coordinates when the source field is defined on a different mesh.
   * `interpolation.tolerance`. Tolerance for the interpolation search.
   * `interpolation.padding`. Padding used in the interpolation search.
 
   ```json
   {
     "type": "normal_outflow",
-    "file_name": "outlet_velocity.fld",
+    "file_name": "outlet_velocity0.f00000",
     "interpolate": true,
-    "mesh_file_name": "coarse_box.nmsh",
-    "interpolation.tolerance": 1.0e-8,
-    "interpolation.padding": 0.01,
+    "mesh_file_name": "coarse_box0.f00000",
+    "interpolation": {
+      "tolerance": 1.0e-8,
+      "padding": 0.01
+    },
     "zone_indices": [1, 2]
   }
   ```
@@ -1883,6 +1973,8 @@ The following keywords are used, with the corresponding options.
   - `cg`, a conjugate gradient solver.
   - `pipecg`, a pipelined conjugate gradient solver.
   - `bicgstab`, a bi-conjugate gradient stabilized solver.
+  - `coupled_bicgstab`, a coupled bi-conjugate gradient stabilized solver for
+    CPU backends. It can be used for velocity when viscosity varies in space.
   - `cacg`, a communication-avoiding conjugate gradient solver.
   - `coupled_cg`, a coupled conjugate gradient solver. Must be used for velocity
     when viscosity varies in space.
@@ -2022,7 +2114,7 @@ concisely directly in the table.
 | `source_terms`                                     | Array of JSON objects, defining additional source terms.                                          | See list of source terms above                              | -             |
 | `gradient_jump_penalty`                            | Array of JSON objects, defining additional gradient jump penalty.                                 | See list of gradient jump penalty above                     | -             |
 | `boundary_types`                                   | Boundary types/conditions labels.                                                                 | Array of strings                                            | -             |
-| `velocity_solver.type`                             | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`                 | -             |
+| `velocity_solver.type`                             | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `coupled_bicgstab`, `coupled_cg`, `cacg`, `gmres` | -             |
 | `velocity_solver.preconditioner.type`              | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
 | `velocity_solver.absolute_tolerance`               | Linear solver convergence criterion for the momentum equation.                                    | Positive real                                               | -             |
 | `velocity_solver.maxiter`                          | Linear solver max iteration count for the momentum equation.                                      | Positive real                                               | 800           |
@@ -2095,7 +2187,7 @@ user could set it up by the following manner to include an eddy diffusivity fiel
 }
 ```
 
-### Boundary conditions
+### Boundary conditions {#case-file_scalar-boundary-conditions}
 
 The boundary conditions for the scalar are specified through the
 `boundary_conditions` keyword, which follows the same format as the fluid, for
@@ -2128,10 +2220,19 @@ The following types of conditions are available for the scalar:
     "zone_indices": [1, 2]
   }
   ```
-* `user`. User boundary condition, see [further documentation](#user-file_field-dirichlet-update).
+* `user_dirichlet`. User-updated Dirichlet boundary condition, see the
+  [user-file documentation](@ref user-file_field-dirichlet-update).
   ```json
   {
-    "type": "user",
+    "type": "user_dirichlet",
+    "zone_indices": [1, 2]
+  }
+  ```
+* `user_neumann`. User-updated Neumann boundary condition, see the
+  [user-file documentation](@ref user-file_field-neumann-update).
+  ```json
+  {
+    "type": "user_neumann",
     "zone_indices": [1, 2]
   }
   ```

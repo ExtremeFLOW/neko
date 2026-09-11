@@ -110,6 +110,8 @@ module neko
   use vector, only : vector_t, vector_ptr_t
   use vector_list, only : vector_list_t
   use matrix, only : matrix_t
+  use tensor3, only : tensor3_t
+  use tensor4, only : tensor4_t
   use tensor
   use simulation_component, only : simulation_component_t, &
        simulation_component_wrapper_t, simulation_component_factory, &
@@ -262,6 +264,7 @@ contains
 
     call C%time%reset()
     call simulation_init(C, dt_controller)
+    call neko_log%flush()
 
     call profiler_start
     tstep_loop_start_time = MPI_WTIME()
@@ -271,6 +274,7 @@ contains
     end do
     call profiler_stop
 
+    call neko_log%flush()
     call simulation_finalize(C)
 
   end subroutine neko_solve

@@ -48,12 +48,19 @@ module logger
   !> Length of the section header
   integer, public, parameter :: SEC_HEAD_SIZE = 30
 
+  ! Possible levels of logging
+  integer, public, parameter :: NEKO_LOG_QUIET = 0 !< Always
+  integer, public, parameter :: NEKO_LOG_INFO = 1 !< Default
+  integer, public, parameter :: NEKO_LOG_VERBOSE = 2 !< Verbose
+  integer, public, parameter :: NEKO_LOG_DEPRECATION = 5 !< Deprecation
+  integer, public, parameter :: NEKO_LOG_DEBUG = 10 !< Debug
+
   type, public :: log_t
-     integer, private :: indent_
-     integer, private :: section_id_
-     integer, private :: tab_size_
-     integer, private :: level_
-     integer, private :: unit_
+     integer, private :: indent_ = 0
+     integer, private :: section_id_ = 0
+     integer, private :: tab_size_ = 1
+     integer, private :: level_ = NEKO_LOG_INFO
+     integer, private :: unit_ = stdout
 
      character(len=LOG_SIZE), private :: section_header = ""
 
@@ -71,6 +78,7 @@ module logger
      procedure, pass(this) :: warning => log_warning
      procedure, pass(this) :: deprecated => log_deprecated
      procedure, pass(this) :: end_section => log_end_section
+     procedure, pass(this) :: flush => log_flush
 
      procedure, private, pass(this) :: print_section_header => &
           log_print_section_header
@@ -78,16 +86,6 @@ module logger
 
   !> Global log stream
   type(log_t), public :: neko_log
-  !> Always logged
-  integer, public, parameter :: NEKO_LOG_QUIET = 0
-  !> Default log level
-  integer, public, parameter :: NEKO_LOG_INFO = 1
-  !> Verbose log level
-  integer, public, parameter :: NEKO_LOG_VERBOSE = 2
-  !> Deprecation log level
-  integer, public, parameter :: NEKO_LOG_DEPRECATION = 5
-  !> Debug log level
-  integer, public, parameter :: NEKO_LOG_DEBUG = 10
 
   !> List of already logged deprecated features
   character(len=50), dimension(:), allocatable :: deprecated_list
@@ -134,6 +132,9 @@ contains
     class(log_t), intent(inout) :: this
     integer :: i
 
+    ! Flush the log before closing off.
+    call this%flush()
+
     if (this%section_id_ .ne. 0) then
        call neko_error("Log is unbalanced")
     end if
@@ -152,14 +153,31 @@ contains
     end if
 
     this%indent_ = 0
+    this%section_id_ = 0
+    this%tab_size_ = 1
     this%level_ = NEKO_LOG_INFO
-    this%unit_ = -1
+    this%unit_ = stdout
 
     if (allocated(deprecated_list)) then
        deallocate(deprecated_list)
     end if
 
   end subroutine log_free
+
+  !> Flush the log stream, ensuring buffered output leaves the process
+  !! @note Flushing is local to rank 0 (the only writer) and never collective,
+  !! so it is safe to call from any rank.
+  subroutine log_flush(this)
+    class(log_t), intent(in) :: this
+
+    ! The unit is compared against the sentinel value set by `log_free`, and
+    ! not simply tested for being positive, since NEWUNIT-assigned units
+    ! (used for NEKO_LOG_FILE) are always negative
+    if (pe_rank .eq. 0) then
+       flush(this%unit_)
+    end if
+
+  end subroutine log_flush
 
   !> Increase indention level
   subroutine log_begin(this)
@@ -265,6 +283,7 @@ contains
        write(this%unit_, '(1X,A,A,A)') '(version: ', trim(version), ')'
        write(this%unit_, '(1X,A)') trim(build_info)
        write(this%unit_, '(A)') ''
+       flush(this%unit_)
     end if
 
   end subroutine log_header
@@ -275,8 +294,9 @@ contains
     character(len=*), intent(in) :: msg
 
     if (pe_rank .eq. 0) then
+       call this%flush()
        call this%indent()
-       write(stderr, '(A,A,A)') '*** ERROR: ', trim(msg), '  ***'
+       call neko_error(trim(msg))
     end if
 
   end subroutine log_error
@@ -289,6 +309,7 @@ contains
     if (pe_rank .eq. 0) then
        call this%indent()
        write(this%unit_, '(A,A,A)') '*** WARNING: ', trim(msg), '  ***'
+       call this%flush()
     end if
 
   end subroutine log_warning
@@ -475,8 +496,10 @@ contains
           msg(len:len) = c_msg(len)
        end do
 
+       call neko_log%flush()
        call neko_log%indent()
        write(stderr, '(A,A,A)') '*** ERROR: ', trim(msg(1:len)), '  ***'
+       flush(stderr)
     end if
 
   end subroutine log_error_c
@@ -500,6 +523,7 @@ contains
        call neko_log%indent()
        write(neko_log%unit_, '(A,A,A)') &
             '*** WARNING: ', trim(msg(1:len)), '  ***'
+       call neko_log%flush()
     end if
 
   end subroutine log_warning_c

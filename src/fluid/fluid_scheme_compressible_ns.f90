@@ -256,15 +256,17 @@ contains
     class(bc_t), pointer :: bc
     integer :: i
 
-    call this%scheme_free()
-
     if (allocated(this%Ax)) then
+       call this%Ax%free()
        deallocate(this%Ax)
     end if
 
     if (allocated(this%Ax_stress)) then
+       call this%Ax_stress%free()
        deallocate(this%Ax_stress)
     end if
+
+    call this%scheme_free()
 
     if (allocated(this%compressible_rhs)) then
        deallocate(this%compressible_rhs)

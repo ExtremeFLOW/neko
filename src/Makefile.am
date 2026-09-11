@@ -62,13 +62,16 @@ neko_fortran_SOURCES = \
 	gs/bcknd/device/gs_device.F90\
 	gs/gs_ops.f90\
 	gs/gs_comm.f90\
+	gs/gs_crystal_plan.f90\
 	gs/gs_mpi.f90\
+	gs/gs_crystal.f90\
 	gs/gs_mpi_rma.f90\
 	gs/gs_shmem.F90\
 	gs/gs_caf.F90\
 	gs/gs_neighbour.f90\
 	gs/gs_utofu.F90\
 	gs/bcknd/device/gs_device_mpi.F90\
+	gs/bcknd/device/gs_device_crystal.F90\
 	gs/bcknd/device/gs_device_nccl.F90\
 	gs/bcknd/device/gs_device_shmem.F90\
 	gs/gather_scatter.f90\
@@ -146,6 +149,8 @@ neko_fortran_SOURCES = \
 	registries/scratch_registry.f90\
 	math/matrix.f90\
 	math/matrix_math.f90\
+	math/tensor3.f90\
+	math/tensor4.f90\
 	math/signed_distance.f90\
 	multigrid/tree_amg.f90\
 	multigrid/tree_amg_utils.f90\
@@ -232,6 +237,7 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/cpu/cheby.f90\
 	krylov/bcknd/cpu/pipecg.f90\
 	krylov/bcknd/cpu/bicgstab.f90\
+	krylov/bcknd/cpu/bicgstab_coupled.f90\
 	krylov/bcknd/cpu/gmres.f90\
 	krylov/bcknd/cpu/pc_jacobi.f90\
 	krylov/bcknd/cpu/cg_coupled.f90\
@@ -241,6 +247,7 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
 	krylov/bcknd/device/cg_device.f90\
 	krylov/bcknd/device/cg_cpld_device.f90\
+	krylov/bcknd/device/bicgstab_device.F90\
 	krylov/bcknd/device/cheby_device.F90\
 	krylov/bcknd/device/pipecg_device.F90\
 	krylov/bcknd/device/fusedcg_device.F90\
@@ -326,12 +333,19 @@ neko_fortran_SOURCES = \
 	math/ax_helm_fctry.f90\
 	math/ax_helm.f90\
 	math/ax_helm_full.f90\
+	math/spectral_vanishing_viscosity.f90\
+	math/ax_helm_svv.f90\
+	math/ax_helm_svv_full.f90\
 	math/bcknd/cpu/ax_helm_cpu.f90\
+	math/bcknd/cpu/ax_helm_svv_one_sided_cpu.f90\
+	math/bcknd/cpu/ax_helm_svv_one_sided_full_cpu.f90\
 	math/bcknd/cpu/ax_helm_vector_cpu.f90\
 	math/bcknd/cpu/ax_helm_full_cpu.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
 	math/bcknd/device/ax_helm_device.F90\
+	math/bcknd/device/ax_helm_svv_one_sided_device.F90\
+	math/bcknd/device/ax_helm_svv_one_sided_full_device.F90\
 	math/bcknd/device/ax_helm_full_device.F90\
 	common/projection.f90\
 	common/projection_vel.f90\
@@ -535,7 +549,10 @@ libneko_la_SOURCES += \
 	math/bcknd/device/hip/opr_cfl.hip\
 	math/bcknd/device/hip/opr_rotate_cyc.hip\
 	math/bcknd/device/hip/ax_helm.hip\
+	math/bcknd/device/hip/ax_helm_svv_one_sided.hip\
+	math/bcknd/device/hip/ax_helm_svv_one_sided_full.hip\
 	math/bcknd/device/hip/ax_helm_full.hip\
+	krylov/bcknd/device/hip/bicgstab_aux.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
 	krylov/bcknd/device/hip/pipecg_aux.hip\
 	krylov/bcknd/device/hip/fusedcg_aux.hip\
@@ -605,7 +622,10 @@ libneko_la_SOURCES += \
 	math/bcknd/device/cuda/opr_cfl.cu\
 	math/bcknd/device/cuda/opr_rotate_cyc.cu\
 	math/bcknd/device/cuda/ax_helm.cu\
+	math/bcknd/device/cuda/ax_helm_svv_one_sided.cu\
+	math/bcknd/device/cuda/ax_helm_svv_one_sided_full.cu\
 	math/bcknd/device/cuda/ax_helm_full.cu\
+	krylov/bcknd/device/cuda/bicgstab_aux.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
 	krylov/bcknd/device/cuda/pipecg_aux.cu\
 	krylov/bcknd/device/cuda/fusedcg_aux.cu\
@@ -716,6 +736,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/opencl/opr_rotate_cyc.c\
 	math/bcknd/device/opencl/ax_helm.c\
 	math/bcknd/device/opencl/ax_helm_full.c\
+	krylov/bcknd/device/opencl/bicgstab.c\
 	krylov/bcknd/device/opencl/pc_jacobi.c\
 	gs/bcknd/device/opencl/gs.c\
 	bc/bcknd/device/opencl/dirichlet.c\
@@ -740,7 +761,22 @@ libneko_la_SOURCES += \
 	scalar/bcknd/device/opencl/scalar_residual.c\
 	sem/bcknd/device/opencl/coef.c\
 	sem/bcknd/device/opencl/local_interpolation.c\
-	filter/bcknd/device/opencl/mappings.c
+	filter/bcknd/device/opencl/mappings.c\
+	les/bcknd/device/opencl/smagorinsky_nut.c\
+	les/bcknd/device/opencl/wale_nut.c\
+	les/bcknd/device/opencl/sigma_nut.c\
+	les/bcknd/device/opencl/vreman_nut.c\
+	les/bcknd/device/opencl/deardorff_nut.c\
+	les/bcknd/device/opencl/dynamic_smagorinsky_nut.c\
+	wall_models/bcknd/device/opencl/wall_model.c\
+	wall_models/bcknd/device/opencl/rough_log_law.c\
+	wall_models/bcknd/device/opencl/spalding.c\
+	wall_models/bcknd/device/opencl/richardson.c\
+	wall_models/bcknd/device/opencl/most.c\
+	lpt/bcknd/device/opencl/lpt_periodic_bc.c\
+	lpt/bcknd/device/opencl/lpt_wall_collision.c\
+	ale/bcknd/device/opencl/ale_kinematics.c\
+	source_terms/bcknd/device/opencl/gradient_jump_penalty.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -777,6 +813,7 @@ METAL_OBJS = \
 	math/bcknd/device/metal/schwarz.lo\
 	math/bcknd/device/metal/fdm.lo\
 	multigrid/bcknd/device/metal/amg_cheby.lo\
+	krylov/bcknd/device/metal/bicgstab.lo\
 	krylov/bcknd/device/metal/cheby.lo\
 	krylov/bcknd/device/metal/pc_jacobi.lo\
 	scalar/bcknd/device/metal/scalar_residual.lo\
@@ -801,7 +838,24 @@ METAL_OBJS = \
 	bc/bcknd/device/metal/neumann.lo\
 	bc/bcknd/device/metal/inhom_dirichlet.lo\
 	bc/bcknd/device/metal/dong_outflow.lo\
-	bc/bcknd/device/metal/coupled_vector_bc_projector.lo
+	bc/bcknd/device/metal/coupled_vector_bc_projector.lo\
+	bc/bcknd/device/metal/constrain_mixed_bc.lo\
+	les/bcknd/device/metal/smagorinsky_nut.lo\
+	les/bcknd/device/metal/wale_nut.lo\
+	les/bcknd/device/metal/sigma_nut.lo\
+	les/bcknd/device/metal/vreman_nut.lo\
+	les/bcknd/device/metal/deardorff_nut.lo\
+	les/bcknd/device/metal/dynamic_smagorinsky_nut.lo\
+	wall_models/bcknd/device/metal/wall_model.lo\
+	wall_models/bcknd/device/metal/rough_log_law.lo\
+	wall_models/bcknd/device/metal/spalding.lo\
+	wall_models/bcknd/device/metal/richardson.lo\
+	wall_models/bcknd/device/metal/most.lo\
+	lpt/bcknd/device/metal/lpt_periodic_bc.lo\
+	lpt/bcknd/device/metal/lpt_wall_collision.lo\
+	ale/bcknd/device/metal/ale_kinematics.lo\
+	source_terms/bcknd/device/metal/gradient_jump_penalty.lo\
+	wall_models/bcknd/device/metal/cai_sagaut_model_ii.lo
 
 libneko_la_LIBADD += $(METAL_OBJS)
 
@@ -824,6 +878,7 @@ dist_noinst_DATA = \
 	math/bcknd/device/metal/fdm.m\
 	multigrid/bcknd/device/metal/amg_cheby.m\
 	krylov/bcknd/device/metal/pc_jacobi.m\
+	krylov/bcknd/device/metal/bicgstab.m\
 	krylov/bcknd/device/metal/cheby.m\
 	scalar/bcknd/device/metal/scalar_residual.m\
 	math/bcknd/device/metal/mathops.m\
@@ -847,7 +902,24 @@ dist_noinst_DATA = \
 	bc/bcknd/device/metal/neumann.m\
 	bc/bcknd/device/metal/inhom_dirichlet.m\
 	bc/bcknd/device/metal/dong_outflow.m\
-	bc/bcknd/device/metal/coupled_vector_bc_projector.m
+	bc/bcknd/device/metal/constrain_mixed_bc.m\
+	bc/bcknd/device/metal/coupled_vector_bc_projector.m\
+	les/bcknd/device/metal/smagorinsky_nut.m\
+	les/bcknd/device/metal/wale_nut.m\
+	les/bcknd/device/metal/sigma_nut.m\
+	les/bcknd/device/metal/vreman_nut.m\
+	les/bcknd/device/metal/deardorff_nut.m\
+	les/bcknd/device/metal/dynamic_smagorinsky_nut.m\
+	wall_models/bcknd/device/metal/wall_model.m\
+	wall_models/bcknd/device/metal/rough_log_law.m\
+	wall_models/bcknd/device/metal/spalding.m\
+	wall_models/bcknd/device/metal/richardson.m\
+	wall_models/bcknd/device/metal/most.m\
+	lpt/bcknd/device/metal/lpt_periodic_bc.m\
+	lpt/bcknd/device/metal/lpt_wall_collision.m\
+	ale/bcknd/device/metal/ale_kinematics.m\
+	source_terms/bcknd/device/metal/gradient_jump_penalty.m\
+	wall_models/bcknd/device/metal/cai_sagaut_model_ii.m
 
 METAL_KERNELS = \
 	math/bcknd/device/metal/math_kernel.metal\
@@ -867,6 +939,7 @@ METAL_KERNELS = \
 	math/bcknd/device/metal/fdm_kernel.metal\
 	multigrid/bcknd/device/metal/amg_cheby_kernel.metal\
 	krylov/bcknd/device/metal/pc_jacobi_kernel.metal\
+	krylov/bcknd/device/metal/bicgstab_kernel.metal\
 	krylov/bcknd/device/metal/cheby_kernel.metal\
 	scalar/bcknd/device/metal/scalar_residual_update_kernel.metal\
 	math/bcknd/device/metal/mathops_kernel.metal\
@@ -890,7 +963,24 @@ METAL_KERNELS = \
 	bc/bcknd/device/metal/neumann_kernel.metal\
 	bc/bcknd/device/metal/inhom_dirichlet_kernel.metal\
 	bc/bcknd/device/metal/dong_outflow_kernel.metal\
-	bc/bcknd/device/metal/coupled_vector_bc_projector_kernel.metal
+	bc/bcknd/device/metal/constrain_mixed_bc_kernel.metal\
+	bc/bcknd/device/metal/coupled_vector_bc_projector_kernel.metal\
+	les/bcknd/device/metal/smagorinsky_nut_kernel.metal\
+	les/bcknd/device/metal/wale_nut_kernel.metal\
+	les/bcknd/device/metal/sigma_nut_kernel.metal\
+	les/bcknd/device/metal/vreman_nut_kernel.metal\
+	les/bcknd/device/metal/deardorff_nut_kernel.metal\
+	les/bcknd/device/metal/dynamic_smagorinsky_nut_kernel.metal\
+	wall_models/bcknd/device/metal/wall_model_kernel.metal\
+	wall_models/bcknd/device/metal/rough_log_law_kernel.metal\
+	wall_models/bcknd/device/metal/spalding_kernel.metal\
+	wall_models/bcknd/device/metal/richardson_kernel.metal\
+	wall_models/bcknd/device/metal/most_kernel.metal\
+	lpt/bcknd/device/metal/lpt_periodic_bc_kernel.metal\
+	lpt/bcknd/device/metal/lpt_wall_collision_kernel.metal\
+	ale/bcknd/device/metal/ale_kinematics_kernel.metal\
+	source_terms/bcknd/device/metal/gradient_jump_penalty_kernel.metal\
+	wall_models/bcknd/device/metal/cai_sagaut_model_ii_kernel.metal
 
 device/metal/neko_kernels.metallib: $(METAL_KERNELS)
 	$(MKDIR_P) device/metal
@@ -985,7 +1075,10 @@ CLEANFILES += \
 	source_terms/bcknd/device/opencl/*.cl.h\
 	wall_models/bcknd/device/opencl/*.cl.h\
 	filter/bcknd/device/opencl/*.cl.h\
-	common/bcknd/device/opencl/*.cl.h
+	common/bcknd/device/opencl/*.cl.h\
+	les/bcknd/device/opencl/*.cl.h\
+	lpt/bcknd/device/opencl/*.cl.h\
+	ale/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
@@ -1028,6 +1121,8 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/cfl_kernel.h\
 	math/bcknd/device/cuda/rotate_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
+	math/bcknd/device/cuda/ax_helm_svv_one_sided_kernel.h\
+	math/bcknd/device/cuda/ax_helm_svv_one_sided_full_kernel.h\
 	math/bcknd/device/cuda/ax_helm_full_kernel.h\
 	math/bcknd/device/cuda/dmma_kernel.h\
 	math/bcknd/device/cuda/dmma_tma_kernel.h\
@@ -1088,6 +1183,8 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/cfl_kernel.h\
 	math/bcknd/device/hip/rotate_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
+	math/bcknd/device/hip/ax_helm_svv_one_sided_kernel.h\
+	math/bcknd/device/hip/ax_helm_svv_one_sided_full_kernel.h\
 	math/bcknd/device/hip/ax_helm_full_kernel.h\
 	math/bcknd/device/hip/mfma_kernel.h\
 	math/bcknd/device/hip/elem_block.h\
@@ -1105,6 +1202,8 @@ EXTRA_DIST = \
 	fluid/regularization/bcknd/device/hip/entropy_viscosity_kernel.h\
 	fluid/stress_formulation/bcknd/device/hip/prs_stress_res_kernel.h\
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
+	krylov/bcknd/device/cuda/bicgstab_kernel.h\
+	krylov/bcknd/device/hip/bicgstab_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
 	krylov/bcknd/device/hip/pipecg_kernel.h\
 	krylov/bcknd/device/cuda/fusedcg_kernel.h\
@@ -1166,9 +1265,25 @@ EXTRA_DIST = \
 	fluid/regularization/bcknd/device/opencl/entropy_viscosity_kernel.cl\
 	scalar/bcknd/device/opencl/scalar_residual_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
+	krylov/bcknd/device/opencl/bicgstab_kernel.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	sem/bcknd/device/opencl/local_interpolation_kernel.cl\
+	les/bcknd/device/opencl/smagorinsky_nut_kernel.cl\
+	les/bcknd/device/opencl/wale_nut_kernel.cl\
+	les/bcknd/device/opencl/sigma_nut_kernel.cl\
+	les/bcknd/device/opencl/vreman_nut_kernel.cl\
+	les/bcknd/device/opencl/deardorff_nut_kernel.cl\
+	les/bcknd/device/opencl/dynamic_smagorinsky_nut_kernel.cl\
+	wall_models/bcknd/device/opencl/wall_model_kernel.cl\
+	wall_models/bcknd/device/opencl/rough_log_law_kernel.cl\
+	wall_models/bcknd/device/opencl/spalding_kernel.cl\
+	wall_models/bcknd/device/opencl/richardson_kernel.cl\
+	wall_models/bcknd/device/opencl/most_kernel.cl\
+	lpt/bcknd/device/opencl/lpt_periodic_bc_kernel.cl\
+	lpt/bcknd/device/opencl/lpt_wall_collision_kernel.cl\
+	ale/bcknd/device/opencl/ale_kinematics_kernel.cl\
+	source_terms/bcknd/device/opencl/gradient_jump_penalty_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
 	math/bcknd/device/device_mpi_op.h\
 	math/bcknd/device/device_nccl_reduce.h\
@@ -1178,6 +1293,8 @@ EXTRA_DIST = \
 	filter/bcknd/device/opencl/mapping_kernels.cl\
 	source_terms/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
 	source_terms/bcknd/device/hip/gradient_jump_penalty_kernel.h\
+	lpt/bcknd/device/lpt_periodic_params.h\
+	device/metal/kernel_utils.h\
 	math/bcknd/device/metal/math_kernel.metal\
 	math/bcknd/device/metal/ax_helm_kernel.metal\
 	math/bcknd/device/metal/ax_helm_full_kernel.metal\
@@ -1194,6 +1311,7 @@ EXTRA_DIST = \
 	math/bcknd/device/metal/schwarz_kernel.metal\
 	math/bcknd/device/metal/fdm_kernel.metal\
 	multigrid/bcknd/device/metal/amg_cheby_kernel.metal\
+	krylov/bcknd/device/metal/bicgstab_kernel.metal\
 	krylov/bcknd/device/metal/cheby_kernel.metal\
 	krylov/bcknd/device/metal/pc_jacobi_kernel.metal\
 	scalar/bcknd/device/metal/scalar_residual_update_kernel.metal\
@@ -1218,7 +1336,24 @@ EXTRA_DIST = \
 	bc/bcknd/device/metal/neumann_kernel.metal\
 	bc/bcknd/device/metal/inhom_dirichlet_kernel.metal\
 	bc/bcknd/device/metal/dong_outflow_kernel.metal\
+	bc/bcknd/device/metal/constrain_mixed_bc_kernel.metal\
 	bc/bcknd/device/metal/coupled_vector_bc_projector_kernel.metal\
+	les/bcknd/device/metal/smagorinsky_nut_kernel.metal\
+	les/bcknd/device/metal/wale_nut_kernel.metal\
+	les/bcknd/device/metal/sigma_nut_kernel.metal\
+	les/bcknd/device/metal/vreman_nut_kernel.metal\
+	les/bcknd/device/metal/deardorff_nut_kernel.metal\
+	les/bcknd/device/metal/dynamic_smagorinsky_nut_kernel.metal\
+	wall_models/bcknd/device/metal/wall_model_kernel.metal\
+	wall_models/bcknd/device/metal/rough_log_law_kernel.metal\
+	wall_models/bcknd/device/metal/spalding_kernel.metal\
+	wall_models/bcknd/device/metal/richardson_kernel.metal\
+	wall_models/bcknd/device/metal/most_kernel.metal\
+	lpt/bcknd/device/metal/lpt_periodic_bc_kernel.metal\
+	lpt/bcknd/device/metal/lpt_wall_collision_kernel.metal\
+	ale/bcknd/device/metal/ale_kinematics_kernel.metal\
+	source_terms/bcknd/device/metal/gradient_jump_penalty_kernel.metal\
+	wall_models/bcknd/device/metal/cai_sagaut_model_ii_kernel.metal\
 	bc/bcknd/device/metal/bc_utils.h\
 	bc/bcknd/device/metal/bc_shader_utils.h\
 	device/metal/check.h\
