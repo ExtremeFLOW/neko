@@ -608,6 +608,9 @@
           "$ref": "urn:neko:schema:simcomps:field_subsampler#/$defs/simulationComponent"
         },
         {
+          "$ref": "urn:neko:schema:simcomps:artificial_viscosity_model#/$defs/simulationComponent"
+        },
+        {
           "$ref": "urn:neko:schema:simcomps:boundary_data_writer#/$defs/simulationComponent"
         },
         {
