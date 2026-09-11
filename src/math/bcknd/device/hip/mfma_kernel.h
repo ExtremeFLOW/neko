@@ -268,12 +268,18 @@ static int neko_mfma_sweep()
   return 1;
 }
 
-/* Forced candidate, used when NEKO_AUTOTUNE pins the MFMA variant */
-static int neko_mfma_env()
+/* Wavefronts per block candidate pinned by NEKO_MFMA_NWF, or -1 to leave it
+   to the sweep, see neko_eb_pin() in elem_block_tune.h */
+static int neko_mfma_pin()
 {
   const char *v = getenv("NEKO_MFMA_NWF");
-  int c = (v != NULL) ? atoi(v) : 0;
+  int c;
 
+  if (v == NULL) {
+    return -1;
+  }
+
+  c = atoi(v);
   if (c < 0 || c >= NEKO_MFMA_CANDIDATES) {
     c = 0;
   }
