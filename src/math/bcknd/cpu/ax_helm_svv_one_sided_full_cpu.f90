@@ -156,9 +156,9 @@ contains
     real(kind=rp), intent(in) :: Dyt(lx,lx)
     real(kind=rp), intent(in) :: Dzt(lx,lx)
     real(kind=rp), intent(in) :: svv_h1(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: svv_Q(lx, lx), svv_Qt(lx, lx)
+    real(kind=rp), intent(in) :: svv_Q(lx, lx), svv_Qt(lx, lx)
     character(len=*), intent(in) :: svv_direction
-    real(kind=rp), intent(inout) :: ident(lx, lx)
+    real(kind=rp), intent(in) :: ident(lx, lx)
 
     real(kind=rp) :: s11_h, s22_h, s33_h, s12_h, s13_h, s23_h
 
@@ -188,6 +188,23 @@ contains
     real(kind=rp) :: s13(lx, lx, lx)
     real(kind=rp) :: s23(lx, lx, lx)
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
+    real(kind=rp) :: filter_r(lx, lx), filter_s(lx, lx), filter_t(lx, lx)
+
+    if (index(svv_direction, "r") > 0) then
+       filter_r = svv_Q
+    else
+       filter_r = ident
+    end if
+    if (index(svv_direction, "s") > 0) then
+       filter_s = svv_Qt
+    else
+       filter_s = ident
+    end if
+    if (index(svv_direction, "t") > 0) then
+       filter_t = svv_Qt
+    else
+       filter_t = ident
+    end if
 
     do e = 1, n
        do j = 1, lx * lx
@@ -277,56 +294,12 @@ contains
        end do
 
        ! spatial convolution for spectral vanishing (low pass filter (LPF))
-       if (svv_direction .eq. "rst") then
-          call tnsr3d_el(s11_svv, lx, s11, lx, svv_Q, svv_Qt, svv_Qt)
-          call tnsr3d_el(s22_svv, lx, s22, lx, svv_Q, svv_Qt, svv_Qt)
-          call tnsr3d_el(s33_svv, lx, s33, lx, svv_Q, svv_Qt, svv_Qt)
-          call tnsr3d_el(s12_svv, lx, s12, lx, svv_Q, svv_Qt, svv_Qt)
-          call tnsr3d_el(s13_svv, lx, s13, lx, svv_Q, svv_Qt, svv_Qt)
-          call tnsr3d_el(s23_svv, lx, s23, lx, svv_Q, svv_Qt, svv_Qt)
-       else if (svv_direction .eq. "rs") then
-          call tnsr3d_el(s11_svv, lx, s11, lx, svv_Q, svv_Qt, ident)
-          call tnsr3d_el(s22_svv, lx, s22, lx, svv_Q, svv_Qt, ident)
-          call tnsr3d_el(s33_svv, lx, s33, lx, svv_Q, svv_Qt, ident)
-          call tnsr3d_el(s12_svv, lx, s12, lx, svv_Q, svv_Qt, ident)
-          call tnsr3d_el(s13_svv, lx, s13, lx, svv_Q, svv_Qt, ident)
-          call tnsr3d_el(s23_svv, lx, s23, lx, svv_Q, svv_Qt, ident)
-       else if (svv_direction .eq. "rt") then
-          call tnsr3d_el(s11_svv, lx, s11, lx, svv_Q, ident, svv_Qt)
-          call tnsr3d_el(s22_svv, lx, s22, lx, svv_Q, ident, svv_Qt)
-          call tnsr3d_el(s33_svv, lx, s33, lx, svv_Q, ident, svv_Qt)
-          call tnsr3d_el(s12_svv, lx, s12, lx, svv_Q, ident, svv_Qt)
-          call tnsr3d_el(s13_svv, lx, s13, lx, svv_Q, ident, svv_Qt)
-          call tnsr3d_el(s23_svv, lx, s23, lx, svv_Q, ident, svv_Qt)
-       else if (svv_direction .eq. "st") then
-          call tnsr3d_el(s11_svv, lx, s11, lx, ident, svv_Qt, svv_Qt)
-          call tnsr3d_el(s22_svv, lx, s22, lx, ident, svv_Qt, svv_Qt)
-          call tnsr3d_el(s33_svv, lx, s33, lx, ident, svv_Qt, svv_Qt)
-          call tnsr3d_el(s12_svv, lx, s12, lx, ident, svv_Qt, svv_Qt)
-          call tnsr3d_el(s13_svv, lx, s13, lx, ident, svv_Qt, svv_Qt)
-          call tnsr3d_el(s23_svv, lx, s23, lx, ident, svv_Qt, svv_Qt)
-       else if (svv_direction .eq. "r") then
-          call tnsr3d_el(s11_svv, lx, s11, lx, svv_Q, ident, ident)
-          call tnsr3d_el(s22_svv, lx, s22, lx, svv_Q, ident, ident)
-          call tnsr3d_el(s33_svv, lx, s33, lx, svv_Q, ident, ident)
-          call tnsr3d_el(s12_svv, lx, s12, lx, svv_Q, ident, ident)
-          call tnsr3d_el(s13_svv, lx, s13, lx, svv_Q, ident, ident)
-          call tnsr3d_el(s23_svv, lx, s23, lx, svv_Q, ident, ident)
-       else if (svv_direction .eq. "s") then
-          call tnsr3d_el(s11_svv, lx, s11, lx, ident, svv_Qt, ident)
-          call tnsr3d_el(s22_svv, lx, s22, lx, ident, svv_Qt, ident)
-          call tnsr3d_el(s33_svv, lx, s33, lx, ident, svv_Qt, ident)
-          call tnsr3d_el(s12_svv, lx, s12, lx, ident, svv_Qt, ident)
-          call tnsr3d_el(s13_svv, lx, s13, lx, ident, svv_Qt, ident)
-          call tnsr3d_el(s23_svv, lx, s23, lx, ident, svv_Qt, ident)
-       else if (svv_direction .eq. "t") then
-          call tnsr3d_el(s11_svv, lx, s11, lx, ident, ident, svv_Qt)
-          call tnsr3d_el(s22_svv, lx, s22, lx, ident, ident, svv_Qt)
-          call tnsr3d_el(s33_svv, lx, s33, lx, ident, ident, svv_Qt)
-          call tnsr3d_el(s12_svv, lx, s12, lx, ident, ident, svv_Qt)
-          call tnsr3d_el(s13_svv, lx, s13, lx, ident, ident, svv_Qt)
-          call tnsr3d_el(s23_svv, lx, s23, lx, ident, ident, svv_Qt)
-       end if
+       call tnsr3d_el(s11_svv, lx, s11, lx, filter_r, filter_s, filter_t)
+       call tnsr3d_el(s22_svv, lx, s22, lx, filter_r, filter_s, filter_t)
+       call tnsr3d_el(s33_svv, lx, s33, lx, filter_r, filter_s, filter_t)
+       call tnsr3d_el(s12_svv, lx, s12, lx, filter_r, filter_s, filter_t)
+       call tnsr3d_el(s13_svv, lx, s13, lx, filter_r, filter_s, filter_t)
+       call tnsr3d_el(s23_svv, lx, s23, lx, filter_r, filter_s, filter_t)
 
        do i = 1, lx*lx*lx
           ! high pass filter from the LPF result
