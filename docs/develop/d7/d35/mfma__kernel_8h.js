@@ -12,6 +12,6 @@ var mfma__kernel_8h =
     [ "hip_have_mfma", "d7/d35/mfma__kernel_8h.html#a7e3ce445f098e02799be0deeeee1fe6d", null ],
     [ "hip_mfma_arch_probe", "d7/d35/mfma__kernel_8h.html#a02d36ef9d468176fa428c3464a1aadf5", null ],
     [ "mfma_lx_supported", "d7/d35/mfma__kernel_8h.html#a1760bd4f051258f65577a288137af550", null ],
-    [ "neko_mfma_env", "d7/d35/mfma__kernel_8h.html#a854c7281bf0395250e2001704c5b55e5", null ],
+    [ "neko_mfma_pin", "d7/d35/mfma__kernel_8h.html#a72cdac771b250ae347ae1803acd23ef9", null ],
     [ "neko_mfma_sweep", "d7/d35/mfma__kernel_8h.html#ad5690afb81cf3734a1b60cd1bc68fc37", null ]
 ];

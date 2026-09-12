@@ -59,7 +59,7 @@ var searchData=
   ['log_5fheader_56',['log_header',['../d8/da0/namespacelogger.html#a32c862e8094a51ee2a94f0cf68d3f6fe',1,'logger']]],
   ['log_5findent_57',['log_indent',['../d8/da0/namespacelogger.html#aa5cb5e4f91d477e6a8bd70d19d36f38f',1,'logger']]],
   ['log_5finfo_58',['log_info',['../d5/dcf/structprojection_1_1projection__t.html#a511f1f624ffc132df20b46edee24262d',1,'projection::projection_t']]],
-  ['log_5finit_59',['log_init',['../d8/da0/namespacelogger.html#a8551faa34f96a05fd4c3375f52f1620b',1,'logger']]],
+  ['log_5finit_59',['log_init',['../d8/da0/namespacelogger.html#a86d04534534fdb6d509b73ec5985aeaf',1,'logger']]],
   ['log_5finterface_5ferror_5f_60',['log_interface_error_',['../d9/db1/structoverset__interface_1_1overset__interface__t.html#a7f90209c7556374b4bac8700df9460b2',1,'overset_interface::overset_interface_t::log_interface_error_()'],['../d5/d64/structoverset__interface__vector_1_1overset__interface__vector__t.html#ab151e99317d3e615d8c7bd7c336b7d4f',1,'overset_interface_vector::overset_interface_vector_t::log_interface_error_()'],['../d6/de1/namespaceoverset__interface__vector.html#a39ae73c70e1d995c7ffc543278df54b6',1,'overset_interface_vector::log_interface_error_()'],['../d1/da5/namespaceoverset__interface.html#a7d61c39526e32be5660aa9cb6641ef1c',1,'overset_interface::log_interface_error_()']]],
   ['log_5fmessage_61',['log_message',['../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1',1,'log_message():&#160;neko_log.h'],['../d8/da0/namespacelogger.html#a567ff9b3d26cfb289fff24e118e03db1',1,'logger::log_message(this, msg, lvl)']]],
   ['log_5fmessage_5fc_62',['log_message_c',['../d8/da0/namespacelogger.html#a7503165ea169149c6485871abbb42423',1,'logger']]],

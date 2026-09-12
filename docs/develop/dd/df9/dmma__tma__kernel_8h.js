@@ -32,6 +32,6 @@ var dmma__tma__kernel_8h =
     [ "dmma_tma_ptr_aligned", "dd/df9/dmma__tma__kernel_8h.html#afe43953b23e59568c252cfc78e3d2cfc", null ],
     [ "dmma_tma_vector_aligned", "dd/df9/dmma__tma__kernel_8h.html#a1dae6bfbb56888653582a5139ba15e84", null ],
     [ "dmma_tma_vector_lx_supported", "dd/df9/dmma__tma__kernel_8h.html#a62c08d89a8d2357d482ffc687135d298", null ],
-    [ "neko_dmma_tma_env", "dd/df9/dmma__tma__kernel_8h.html#ab534bb4f8e1c9e05416224e9a30c0690", null ],
+    [ "neko_dmma_tma_pin", "dd/df9/dmma__tma__kernel_8h.html#ab1da6297a7951070e06ba3cdc35c8755", null ],
     [ "tma_arch_compiled", "dd/df9/dmma__tma__kernel_8h.html#a6a3a23224a59e6a8d440e1f075d56dbe", null ]
 ];

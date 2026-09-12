@@ -11,5 +11,5 @@ var dmma__kernel_8h =
     [ "dmma_arch_compiled", "d3/d60/dmma__kernel_8h.html#a0bba1cfcea0eee33ae5698e88975b647", null ],
     [ "dmma_lx_supported", "d3/d60/dmma__kernel_8h.html#a6bed77f19d96cd336244a70839250c89", null ],
     [ "dmma_vector_lx_supported", "d3/d60/dmma__kernel_8h.html#a111991d67625fb4e93f5017db685f194", null ],
-    [ "neko_dmma_env", "d3/d60/dmma__kernel_8h.html#a2a5aab55128e30ea29e4771b305e839e", null ]
+    [ "neko_dmma_pin", "d3/d60/dmma__kernel_8h.html#ab54455e9938f86dd454ab4b5fea38d9f", null ]
 ];
