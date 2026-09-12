@@ -48,6 +48,8 @@ OUTFLOW_ARC_WIDTH_DEG = 90.0
 CIRCLE_ARC_STEP_DEG = 45.0
 BUILDING_MIN_TERRAIN_ABOVE_WATER_M = 0.75
 BUILDING_BASE_CLEARANCE_M = 0.5
+BUILDING_BASE_EMBED_M = 2.0
+BUILDING_CONTACT_SAMPLE_SPACING_M = 5.0
 BUILDING_MIN_FOOTPRINT_AREA_M2 = 0.0
 BUILDING_MIN_EDGE_M = 0.0
 BUILDING_SIMPLIFY_M = 0.0
@@ -991,26 +993,82 @@ def triangulate_building_ring(ring: list[tuple[float, float]]) -> tuple[list[tup
     return triangles, True
 
 
-def building_base_and_top(properties: dict, terrain_base: float, water_level: float) -> tuple[float, float]:
+def building_footprint_sample_points(
+    ring: list[tuple[float, float]],
+    spacing_m: float = BUILDING_CONTACT_SAMPLE_SPACING_M,
+) -> list[tuple[float, float]]:
+    points: list[tuple[float, float]] = []
+    for p0, p1 in zip(ring, ring[1:] + ring[:1]):
+        x0, y0 = p0
+        x1, y1 = p1
+        length = math.hypot(x1 - x0, y1 - y0)
+        n = max(1, int(math.ceil(length / max(spacing_m, 1.0))))
+        for i in range(n):
+            t = i / n
+            points.append((x0 + t * (x1 - x0), y0 + t * (y1 - y0)))
+    xs = [p[0] for p in ring]
+    ys = [p[1] for p in ring]
+    step = max(spacing_m, 1.0)
+    x = min(xs) + 0.5 * step
+    while x < max(xs):
+        y = min(ys) + 0.5 * step
+        while y < max(ys):
+            if point_in_polygon(x, y, ring):
+                points.append((x, y))
+            y += step
+        x += step
+    return points
+
+
+def building_min_footprint_terrain(
+    ring: list[tuple[float, float]],
+    samples: np.ndarray,
+    water_level: float,
+    shoreline: list[list[tuple[float, float]]],
+    center: tuple[float, float],
+    radius: float,
+) -> float:
+    heights = [
+        terrain_height(x - center[0], y - center[1], samples, water_level, shoreline, center, radius)
+        for x, y in building_footprint_sample_points(ring)
+    ]
+    return min(heights)
+
+
+def building_height(properties: dict) -> float:
     mark = properties.get("MARK_Z")
     roof = properties.get("TAK_Z")
     by_height = properties.get("BYGG_H")
-    base = max(water_level, terrain_base + BUILDING_BASE_CLEARANCE_M)
 
     try:
         h = float(roof) - float(mark)
         if BUILDING_MIN_HEIGHT_M <= h <= BUILDING_MAX_HEIGHT_M:
-            return base, base + h
+            return h
     except (TypeError, ValueError):
         pass
 
     try:
         h = float(by_height)
         if BUILDING_MIN_HEIGHT_M <= h <= BUILDING_MAX_HEIGHT_M:
-            return base, base + h
+            return h
     except (TypeError, ValueError):
         pass
-    return base, base + 12.0
+    return 12.0
+
+
+def building_base_and_top(
+    properties: dict,
+    terrain_base: float,
+    water_level: float,
+    footprint_min_terrain: float | None = None,
+) -> tuple[float, float]:
+    visible_base = max(water_level, terrain_base + BUILDING_BASE_CLEARANCE_M)
+    height = building_height(properties)
+    top = visible_base + height
+    if footprint_min_terrain is None:
+        return visible_base, top
+    embedded_base = footprint_min_terrain - BUILDING_BASE_EMBED_M
+    return embedded_base, max(top, embedded_base + height)
 
 
 def building_sits_on_water_level_terrain(terrain_base: float, water_level: float) -> bool:
@@ -1076,7 +1134,10 @@ def write_sodermalm_building_stl(
             if building_sits_on_water_level_terrain(terrain_base, water_level):
                 skipped += 1
                 continue
-            base_z, top_z = building_base_and_top(props, terrain_base, water_level)
+            footprint_min_terrain = building_min_footprint_terrain(
+                pts_global, samples, water_level, shoreline, center, radius
+            )
+            base_z, top_z = building_base_and_top(props, terrain_base, water_level, footprint_min_terrain)
             if top_z <= base_z + 0.5:
                 skipped += 1
                 continue
@@ -1118,6 +1179,8 @@ def write_sodermalm_building_stl(
         "min_edge_m": BUILDING_MIN_EDGE_M,
         "simplify_m": BUILDING_SIMPLIFY_M,
         "base_clearance_m": BUILDING_BASE_CLEARANCE_M,
+        "base_embed_m": BUILDING_BASE_EMBED_M,
+        "contact_sample_spacing_m": BUILDING_CONTACT_SAMPLE_SPACING_M,
         "height_limits_m": [BUILDING_MIN_HEIGHT_M, BUILDING_MAX_HEIGHT_M],
         "description": "Sealed LOD1 building solids in the local cylinder coordinate system for Brinkman boundary_mesh.",
     }
@@ -1232,7 +1295,10 @@ def render_3d_scene(
             terrain_base = terrain_height(lx, ly, samples, water_level, shoreline, center, radius)
             if building_sits_on_water_level_terrain(terrain_base, water_level):
                 continue
-            base, top = building_base_and_top(props, terrain_base, water_level)
+            footprint_min_terrain = building_min_footprint_terrain(
+                pts_global, samples, water_level, shoreline, center, radius
+            )
+            base, top = building_base_and_top(props, terrain_base, water_level, footprint_min_terrain)
             roof_fill = "#d8d7d2"
             roof_points = [(x, y, top) for x, y in pts]
             for (x0, y0), (x1, y1) in zip(pts, pts[1:] + pts[:1]):

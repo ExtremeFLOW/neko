@@ -1,6 +1,9 @@
 module user
   use neko
+  use fluid_pnpn, only : fluid_pnpn_t
   use import_field_utils, only : import_fields
+  use mpi_f08, only : MPI_Allreduce, MPI_Bcast, MPI_INTEGER, MPI_MAX, &
+       MPI_MIN, MPI_SUM
   implicit none
 
   real(kind=rp), parameter :: u_ref = 4.467_rp
@@ -19,6 +22,9 @@ module user
   real(kind=rp) :: sponge_radius_m = 2536.52_rp
   real(kind=rp) :: sponge_thickness_m = 800.0_rp
   real(kind=rp) :: sponge_rise_m = 500.0_rp
+  real(kind=rp) :: diagnostic_interval = 0.0_rp
+  real(kind=rp) :: diagnostic_start_time = 0.0_rp
+  real(kind=rp) :: next_diagnostic_time = huge(0.0_rp)
   character(len=256) :: initial_field = ""
 
 contains
@@ -33,11 +39,18 @@ contains
     sponge_radius_m = read_env_real("SODERMALM_SPONGE_RADIUS_M", 2536.52_rp)
     sponge_thickness_m = read_env_real("SODERMALM_SPONGE_THICKNESS_M", 800.0_rp)
     sponge_rise_m = read_env_real("SODERMALM_SPONGE_RISE_M", 500.0_rp)
+    diagnostic_interval = read_env_real( &
+         "SODERMALM_DIAGNOSTIC_INTERVAL", 0.0_rp)
+    diagnostic_start_time = read_env_real( &
+         "SODERMALM_DIAGNOSTIC_START_TIME", 0.0_rp)
     call get_environment_variable("SODERMALM_INITIAL_FIELD", initial_field)
 
     user%initialize => user_initialize
     user%initial_conditions => initial_conditions
     user%dirichlet_conditions => dirichlet_conditions
+    if (diagnostic_interval .gt. 0.0_rp) then
+       user%compute => flow_diagnostics
+    end if
   end subroutine user_setup
 
   function read_env_real(name, default_value) result(value)
@@ -137,12 +150,167 @@ contains
        call wbf%copy_from(HOST_TO_DEVICE, sync = .true.)
     end if
 
+    if (diagnostic_interval .gt. 0.0_rp) then
+       next_diagnostic_time = max(real(time%t, rp), diagnostic_start_time)
+    end if
+
     nullify(u)
     nullify(fringe)
     nullify(ubf)
     nullify(vbf)
     nullify(wbf)
   end subroutine user_initialize
+
+  subroutine flow_diagnostics(time)
+    type(time_state_t), intent(in) :: time
+    type(field_t), pointer :: u, v, w, p, indicator, permeability
+    type(field_t), pointer :: divergence, p_res
+    type(coef_t), pointer :: coef
+    real(kind=rp) :: local_max2, global_max2, speed2
+    real(kind=rp) :: local_drag_power, global_drag_power
+    real(kind=rp) :: local_div_max, global_div_max
+    real(kind=rp) :: local_div_l2, global_div_l2
+    real(kind=rp) :: local_p_max, global_p_max
+    real(kind=rp) :: local_pres_max, global_pres_max
+    real(kind=rp) :: local_pres_l2, global_pres_l2
+    real(kind=rp) :: details(11)
+    integer :: i, local_idx, owner_candidate, owner, ierr, divergence_idx
+    logical :: has_brinkman
+
+    if (diagnostic_interval .le. 0.0_rp) return
+    if (real(time%t, rp) + 0.5_rp * real(time%dt, rp) .lt. &
+         next_diagnostic_time) return
+
+    do while (next_diagnostic_time .le. real(time%t, rp) + &
+         0.5_rp * real(time%dt, rp))
+       next_diagnostic_time = next_diagnostic_time + diagnostic_interval
+    end do
+
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
+    p => neko_registry%get_field("p")
+    has_brinkman = neko_registry%field_exists("brinkman_indicator") .and. &
+         neko_registry%field_exists("brinkman_permeability")
+    if (has_brinkman) then
+       indicator => neko_registry%get_field("brinkman_indicator")
+       permeability => neko_registry%get_field("brinkman_permeability")
+    end if
+    coef => neko_user_access%case%fluid%c_Xh
+    nullify(p_res)
+    select type (fluid => neko_user_access%case%fluid)
+    type is (fluid_pnpn_t)
+       p_res => fluid%p_res
+    end select
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call u%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call v%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call w%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call p%copy_from(DEVICE_TO_HOST, sync = .false.)
+       if (associated(p_res)) then
+          call p_res%copy_from(DEVICE_TO_HOST, sync = .false.)
+       end if
+       if (has_brinkman) then
+          call indicator%copy_from(DEVICE_TO_HOST, sync = .false.)
+          call permeability%copy_from(DEVICE_TO_HOST, sync = .true.)
+       else
+          call p%copy_from(DEVICE_TO_HOST, sync = .true.)
+       end if
+    end if
+
+    call neko_scratch_registry%request_field(divergence, divergence_idx, &
+         .false.)
+    call div(divergence%x, u%x, v%x, w%x, coef)
+
+    local_max2 = -huge(0.0_rp)
+    local_idx = 1
+    local_drag_power = 0.0_rp
+    local_div_max = 0.0_rp
+    local_div_l2 = 0.0_rp
+    local_p_max = 0.0_rp
+    local_pres_max = 0.0_rp
+    local_pres_l2 = 0.0_rp
+    do i = 1, u%size()
+       speed2 = u%x(i,1,1,1)**2 + v%x(i,1,1,1)**2 + &
+            w%x(i,1,1,1)**2
+       if (speed2 .gt. local_max2) then
+          local_max2 = speed2
+          local_idx = i
+       end if
+       if (has_brinkman) then
+          local_drag_power = local_drag_power - permeability%x(i,1,1,1) * &
+               speed2 * coef%B(i,1,1,1)
+       end if
+       local_div_max = max(local_div_max, abs(divergence%x(i,1,1,1)))
+       local_div_l2 = local_div_l2 + divergence%x(i,1,1,1)**2 * &
+            coef%B(i,1,1,1)
+       local_p_max = max(local_p_max, abs(p%x(i,1,1,1)))
+       if (associated(p_res)) then
+          local_pres_max = max(local_pres_max, abs(p_res%x(i,1,1,1)))
+          local_pres_l2 = local_pres_l2 + p_res%x(i,1,1,1)**2 * &
+               coef%B(i,1,1,1)
+       end if
+    end do
+
+    call MPI_Allreduce(local_max2, global_max2, 1, MPI_REAL_PRECISION, &
+         MPI_MAX, NEKO_COMM, ierr)
+    owner_candidate = huge(0)
+    if (local_max2 .eq. global_max2) owner_candidate = pe_rank
+    call MPI_Allreduce(owner_candidate, owner, 1, MPI_INTEGER, MPI_MIN, &
+         NEKO_COMM, ierr)
+    call MPI_Allreduce(local_drag_power, global_drag_power, 1, &
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Allreduce(local_div_max, global_div_max, 1, &
+         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    call MPI_Allreduce(local_div_l2, global_div_l2, 1, &
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Allreduce(local_p_max, global_p_max, 1, &
+         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    call MPI_Allreduce(local_pres_max, global_pres_max, 1, &
+         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    call MPI_Allreduce(local_pres_l2, global_pres_l2, 1, &
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+
+    details = 0.0_rp
+    if (pe_rank .eq. owner) then
+       details(1) = u%dof%x(local_idx,1,1,1)
+       details(2) = u%dof%y(local_idx,1,1,1)
+       details(3) = u%dof%z(local_idx,1,1,1)
+       details(4) = u%x(local_idx,1,1,1)
+       details(5) = v%x(local_idx,1,1,1)
+       details(6) = w%x(local_idx,1,1,1)
+       details(7) = p%x(local_idx,1,1,1)
+       if (has_brinkman) then
+          details(8) = indicator%x(local_idx,1,1,1)
+          details(9) = permeability%x(local_idx,1,1,1)
+       end if
+       details(10) = coef%jac(local_idx,1,1,1)
+       details(11) = real(local_idx, rp)
+    end if
+    call MPI_Bcast(details, size(details), MPI_REAL_PRECISION, owner, &
+         NEKO_COMM, ierr)
+
+    if (pe_rank .eq. 0) then
+       write(*,'(A,ES15.7,A,I0,A,ES15.7,A,I0)') &
+            'BRINKMAN_DIAG t=', time%t, ' step=', time%tstep, &
+            ' max_u=', sqrt(global_max2), ' rank=', owner
+       write(*,'(A,3(ES15.7,1X),A,3(ES15.7,1X))') &
+            'BRINKMAN_DIAG xyz=', details(1:3), ' uvw=', details(4:6)
+       write(*,'(A,5(ES15.7,1X),A,I0)') &
+            'BRINKMAN_DIAG p_ind_alpha_jac_power=', details(7:10), &
+            global_drag_power, ' local_idx=', nint(details(11))
+       write(*,'(A,5(ES15.7,1X))') &
+            'BRINKMAN_DIAG div_max_div_rms_p_max_pres_max_pres_rms=', &
+            global_div_max, sqrt(global_div_l2 / coef%volume), &
+            global_p_max, global_pres_max, &
+            sqrt(global_pres_l2 / coef%volume)
+    end if
+
+    call neko_scratch_registry%relinquish_field(divergence_idx)
+    nullify(u, v, w, p, coef, divergence, p_res)
+    if (has_brinkman) nullify(indicator, permeability)
+  end subroutine flow_diagnostics
 
   function inlet_edge_ramp(x, y) result(scale)
     real(kind=rp), intent(in) :: x, y

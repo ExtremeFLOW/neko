@@ -1,25 +1,25 @@
 {
     "version": 1.0,
     "case": {
-        "mesh_file": "../generated_2x_xy/sodermalm_cylinder_2x_xy.nmsh",
+        "mesh_file": "../generated_p7_xy35_inlet220_nz10/sodermalm_cylinder_p7_xy35_inlet220_nz10.nmsh",
         "output_directory": "fields",
         "output_at_end": true,
         "output_boundary": false,
-        "output_checkpoints": false,
-        "checkpoint_control": "never",
-        "checkpoint_value": 1,
+        "output_checkpoints": true,
+        "checkpoint_control": "simulationtime",
+        "checkpoint_value": 25.0,
         "time": {
             "end_time": 100.0,
             "variable_timestep": true,
             "timestep": 0.01,
-            "target_cfl": 0.3,
-            "max_timestep": 0.25,
-            "max_dt_increase_factor": 1.5
+            "target_cfl": 0.15,
+            "max_timestep": 0.02,
+            "max_dt_increase_factor": 1.1
         },
         "numerics": {
             "time_order": 2,
-            "polynomial_order": 2,
-            "dealias": false
+            "polynomial_order": 3,
+            "dealias": true
         },
         "fluid": {
             "scheme": "pnpn",
@@ -34,7 +34,7 @@
                 },
                 "projection_space_size": 0,
                 "absolute_tolerance": 1e-7,
-                "max_iterations": 800
+                "max_iterations": 1200
             },
             "pressure_solver": {
                 "type": "gmres",
@@ -44,7 +44,7 @@
                 "projection_space_size": 8,
                 "projection_reorthogonalize_basis": true,
                 "absolute_tolerance": 1e-4,
-                "max_iterations": 1000
+                "max_iterations": 1200
             },
             "output_control": "simulationtime",
             "output_value": 10.0,
@@ -63,7 +63,8 @@
                 },
                 {
                     "type": "normal_outflow",
-                    "zone_indices": [ 6 ]
+                    "zone_indices": [ 6 ],
+                    "value": [ 4.3, 4.3, 0.0 ]
                 },
                 {
                     "type": "no_slip",
@@ -73,26 +74,31 @@
             "source_terms": [
                 {
                     "type": "brinkman",
-                    "limits": [ 0.0, 20.0 ],
-                    "penalty": 1.0,
+                    "limits": [ 0.0, 65.0 ],
+                    "penalty": 10.0,
                     "output": {
-                        "enable": true,
+                        "enable": false,
                         "path": "fields",
                         "precision": "sp",
                         "format": "fld"
                     },
                     "objects": [
                         {
-                            "type": "boundary_mesh",
-                            "name": "../generated_2x_xy/sodermalm_buildings_2x_xy.stl",
-                            "cache": true,
-                            "cache_file": "fields/sodermalm_buildings_2x_xy_distance_cache",
-                            "distance_transform": {
-                                "type": "smooth_step",
-                                "value": 50.0
-                            }
+                            "type": "file",
+                            "file_name": "fields/bldp3_ctr500.fld",
+                            "field_name": "s01",
+                            "file_index": 0
                         }
-                    ]
+                    ],
+                    "ramp_time": 30.0,
+                    "filter": {
+                        "type": "PDE",
+                        "radius": 20.0,
+                        "tolerance": 1e-8,
+                        "max_iter": 500,
+                        "solver": "cg",
+                        "preconditioner": "jacobi"
+                    }
                 }
             ]
         }

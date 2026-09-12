@@ -466,6 +466,9 @@
           },
           "additionalProperties": false
         },
+        "ramp_time": {
+          "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
+        },
         "start_time": {
           "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
         },

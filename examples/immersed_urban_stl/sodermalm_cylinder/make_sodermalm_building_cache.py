@@ -20,6 +20,8 @@ MARKER_SIZE = 4
 SHORE_BLEND_M = 180.0
 BUILDING_MIN_TERRAIN_ABOVE_WATER_M = 0.75
 BUILDING_BASE_CLEARANCE_M = 0.5
+BUILDING_BASE_EMBED_M = 2.0
+BUILDING_CONTACT_SAMPLE_SPACING_M = 5.0
 BUILDING_MIN_FOOTPRINT_AREA_M2 = 0.0
 BUILDING_MIN_EDGE_M = 0.0
 BUILDING_SIMPLIFY_M = 0.0
@@ -238,26 +240,82 @@ def simplify_ring(points: List[Tuple[float, float]], tolerance: float) -> List[T
     return simplified
 
 
-def building_base_and_top(properties: Dict[str, object], terrain_base: float, water_level: float) -> Tuple[float, float]:
+def building_footprint_sample_points(
+    ring: List[Tuple[float, float]],
+    spacing_m: float = BUILDING_CONTACT_SAMPLE_SPACING_M,
+) -> List[Tuple[float, float]]:
+    points: List[Tuple[float, float]] = []
+    for p0, p1 in zip(ring, ring[1:] + ring[:1]):
+        x0, y0 = p0
+        x1, y1 = p1
+        length = math.hypot(x1 - x0, y1 - y0)
+        n = max(1, int(math.ceil(length / max(spacing_m, 1.0))))
+        for i in range(n):
+            t = i / n
+            points.append((x0 + t * (x1 - x0), y0 + t * (y1 - y0)))
+    xs = [p[0] for p in ring]
+    ys = [p[1] for p in ring]
+    step = max(spacing_m, 1.0)
+    x = min(xs) + 0.5 * step
+    while x < max(xs):
+        y = min(ys) + 0.5 * step
+        while y < max(ys):
+            if point_in_polygon(x, y, ring):
+                points.append((x, y))
+            y += step
+        x += step
+    return points
+
+
+def building_min_footprint_terrain(
+    ring: List[Tuple[float, float]],
+    samples: np.ndarray,
+    water_level: float,
+    shoreline: List[List[Tuple[float, float]]],
+    center: Tuple[float, float],
+    radius: float,
+) -> float:
+    heights = [
+        terrain_height(x - center[0], y - center[1], samples, water_level, shoreline, center, radius)
+        for x, y in building_footprint_sample_points(ring)
+    ]
+    return min(heights)
+
+
+def building_height(properties: Dict[str, object]) -> float:
     mark = properties.get("MARK_Z")
     roof = properties.get("TAK_Z")
     by_height = properties.get("BYGG_H")
-    base_z = max(water_level, terrain_base + BUILDING_BASE_CLEARANCE_M)
 
     try:
         height = float(roof) - float(mark)
         if BUILDING_MIN_HEIGHT_M <= height <= BUILDING_MAX_HEIGHT_M:
-            return base_z, base_z + height
+            return height
     except (TypeError, ValueError):
         pass
 
     try:
         height = float(by_height)
         if BUILDING_MIN_HEIGHT_M <= height <= BUILDING_MAX_HEIGHT_M:
-            return base_z, base_z + height
+            return height
     except (TypeError, ValueError):
         pass
-    return base_z, base_z + 12.0
+    return 12.0
+
+
+def building_base_and_top(
+    properties: Dict[str, object],
+    terrain_base: float,
+    water_level: float,
+    footprint_min_terrain: float = None,
+) -> Tuple[float, float]:
+    visible_base = max(water_level, terrain_base + BUILDING_BASE_CLEARANCE_M)
+    height = building_height(properties)
+    top_z = visible_base + height
+    if footprint_min_terrain is None:
+        return visible_base, top_z
+    embedded_base = footprint_min_terrain - BUILDING_BASE_EMBED_M
+    return embedded_base, max(top_z, embedded_base + height)
 
 
 def building_sits_on_water_level_terrain(terrain_base: float, water_level: float) -> bool:
@@ -394,10 +452,21 @@ def distance_to_polygon_boundary_xy(
     return distance
 
 
-def smooth_step(distance: np.ndarray, width: float) -> np.ndarray:
+def smooth_step(
+    distance: np.ndarray,
+    width: float,
+    transition_placement: str = "outside",
+) -> np.ndarray:
     if width <= 0.0:
         return (distance <= 0.0).astype(np.float64)
-    t = np.clip((distance - width) / -width, 0.0, 1.0)
+    if transition_placement == "outside":
+        t = np.clip((distance - width) / -width, 0.0, 1.0)
+    elif transition_placement == "centered":
+        t = np.clip(0.5 - distance / width, 0.0, 1.0)
+    else:
+        raise RuntimeError(
+            f"Unknown transition placement: {transition_placement}"
+        )
     return t**3 * (t * (6.0 * t - 15.0) + 10.0)
 
 
@@ -458,7 +527,10 @@ def building_parts(generated: Path) -> Tuple[List[Dict[str, object]], float]:
             if building_sits_on_water_level_terrain(terrain_base, water_level):
                 skipped += 1
                 continue
-            base_z, top_z = building_base_and_top(props, terrain_base, water_level)
+            footprint_min_terrain = building_min_footprint_terrain(
+                pts_global, samples, water_level, shoreline, center, radius
+            )
+            base_z, top_z = building_base_and_top(props, terrain_base, water_level, footprint_min_terrain)
             if top_z <= base_z + 0.5:
                 skipped += 1
                 continue
@@ -491,6 +563,7 @@ def compute_indicator(
     z: np.ndarray,
     parts: List[Dict[str, object]],
     smooth_width: float,
+    transition_placement: str = "outside",
 ) -> Tuple[np.ndarray, int]:
     indicator = np.zeros(x.shape, dtype=np.float64)
     touched = 0
@@ -520,12 +593,35 @@ def compute_indicator(
         horizontal_signed = np.where(inside_xy, -boundary_distance, boundary_distance)
         vertical_distance = np.maximum(part["base_z"] - zz, zz - part["top_z"])
         signed_distance = np.maximum(horizontal_signed, vertical_distance)
-        values = smooth_step(signed_distance, smooth_width)
+        values = smooth_step(
+            signed_distance, smooth_width, transition_placement
+        )
         changed = values > indicator[ids]
         if np.any(changed):
             indicator[ids[changed]] = values[changed]
             touched += int(np.count_nonzero(changed))
     return indicator, touched
+
+
+def shift_building_parts(
+    parts: List[Dict[str, object]],
+    shift_x: float,
+    shift_y: float,
+) -> None:
+    """Shift building footprints for mesh-alignment diagnostics."""
+    if shift_x == 0.0 and shift_y == 0.0:
+        return
+    for part in parts:
+        part["ring"] = [
+            (x + shift_x, y + shift_y) for x, y in part["ring"]
+        ]
+        xmin, ymin, xmax, ymax = part["bounds"]
+        part["bounds"] = (
+            xmin + shift_x,
+            ymin + shift_y,
+            xmax + shift_x,
+            ymax + shift_y,
+        )
 
 
 def land_mask_for_points(
@@ -541,6 +637,27 @@ def land_mask_for_points(
     for ring in shoreline:
         inside ^= inside_polygon_xy(global_xy[:, 0], global_xy[:, 1], ring)
     return inside[inverse]
+
+
+def remove_underresolved_fragments(
+    indicator: np.ndarray,
+    header: Dict[str, object],
+    min_element_fraction: float,
+) -> Tuple[np.ndarray, int]:
+    if min_element_fraction <= 0.0:
+        return indicator, 0
+    if min_element_fraction >= 1.0:
+        raise RuntimeError("--min-element-solid-fraction must be smaller than 1")
+
+    lx, ly, lz = header["lx"], header["ly"], header["lz"]
+    npts = lx * ly * lz
+    by_element = indicator.reshape(header["nelv"], npts)
+    mean_indicator = by_element.mean(axis=1)
+    solid_present = np.max(by_element, axis=1) >= 0.5
+    underresolved = solid_present & (mean_indicator < min_element_fraction)
+    if np.any(underresolved):
+        by_element[underresolved, :] = 0.0
+    return indicator, int(np.count_nonzero(underresolved))
 
 
 def write_cache(prefix: Path, header: Dict[str, object], element_ids: np.ndarray, x: np.ndarray, y: np.ndarray, z: np.ndarray, s01: np.ndarray) -> None:
@@ -590,6 +707,15 @@ def main() -> None:
     parser.add_argument("--min-edge", type=float, default=0.0)
     parser.add_argument("--simplify", type=float, default=0.0)
     parser.add_argument("--max-height", type=float, default=BUILDING_MAX_HEIGHT_M)
+    parser.add_argument(
+        "--transition-placement",
+        choices=("outside", "centered"),
+        default="outside",
+        help="Place smoothing outside the STL or center it on the surface",
+    )
+    parser.add_argument("--min-element-solid-fraction", type=float, default=0.0)
+    parser.add_argument("--diagnostic-shift-x", type=float, default=0.0)
+    parser.add_argument("--diagnostic-shift-y", type=float, default=0.0)
     args = parser.parse_args()
 
     BUILDING_MIN_FOOTPRINT_AREA_M2 = args.min_footprint_area
@@ -600,16 +726,35 @@ def main() -> None:
     _, center, _, _, shoreline = prepared_geometry(args.generated)
     header, element_ids, x, y, z = read_template_coordinates(args.template_field)
     parts, _ = building_parts(args.generated)
-    indicator, touched = compute_indicator(x, y, z, parts, args.smooth_width)
+    shift_building_parts(
+        parts, args.diagnostic_shift_x, args.diagnostic_shift_y
+    )
+    indicator, touched = compute_indicator(
+        x,
+        y,
+        z,
+        parts,
+        args.smooth_width,
+        args.transition_placement,
+    )
     land_xy = land_mask_for_points(x, y, center, shoreline)
     clipped_outside_land = int(np.count_nonzero(indicator[~land_xy] > 0.0))
     indicator[~land_xy] = 0.0
+    indicator, dropped_fragments = remove_underresolved_fragments(
+        indicator, header, args.min_element_solid_fraction
+    )
     write_cache(args.cache_prefix, header, element_ids, x, y, z, indicator)
 
     solid = int(np.count_nonzero(indicator >= 0.5))
     print(f"Building parts: {len(parts)}")
+    print(
+        "Diagnostic horizontal shift: "
+        f"({args.diagnostic_shift_x}, {args.diagnostic_shift_y}) m"
+    )
+    print(f"Transition placement: {args.transition_placement}")
     print(f"Candidate updates: {touched}")
     print(f"Clipped outside land: {clipped_outside_land}")
+    print(f"Dropped underresolved elements: {dropped_fragments}")
     print(f"Solid fraction >= 0.5: {solid / indicator.size:.6f}")
     print(f"Wrote {args.cache_prefix}0.f00000")
 
