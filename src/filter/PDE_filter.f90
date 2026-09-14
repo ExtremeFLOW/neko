@@ -261,11 +261,19 @@ contains
        end do
     end if
 
-    ! gather scatter
-    call this%coef%gs_h%op(RHS, GS_OP_ADD)
+    if (allocated(this%coef%gs_h%interp)) then
+       ! set BCs
+       call this%bclst_filt%apply_scalar(RHS%x, n)
 
-    ! set BCs
-    call this%bclst_filt%apply_scalar(RHS%x, n)
+       ! gather scatter
+       call this%coef%gs_h%op(RHS, GS_OP_ADD)
+    else
+       ! gather scatter
+       call this%coef%gs_h%op(RHS, GS_OP_ADD)
+
+       ! set BCs
+       call this%bclst_filt%apply_scalar(RHS%x, n)
+    end if
 
     ! Solve Helmholtz equation
     call profiler_start_region("filter solve")

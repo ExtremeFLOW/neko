@@ -931,17 +931,31 @@ contains
               mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &
               dt, dm_Xh%size())
 
-         call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
-         call gs_Xh%op(u_res, GS_OP_ADD, event)
-         call device_event_sync(event)
-         call gs_Xh%op(v_res, GS_OP_ADD, event)
-         call device_event_sync(event)
-         call gs_Xh%op(w_res, GS_OP_ADD, event)
-         call device_event_sync(event)
-         call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
+         if (allocated(gs_Xh%interp)) then
+            ! Set residual to zero at strong velocity boundaries.
+            call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
 
-         ! Set residual to zero at strong velocity boundaries.
-         call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
+            call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
+            call gs_Xh%op(u_res, GS_OP_ADD, event)
+            call device_event_sync(event)
+            call gs_Xh%op(v_res, GS_OP_ADD, event)
+            call device_event_sync(event)
+            call gs_Xh%op(w_res, GS_OP_ADD, event)
+            call device_event_sync(event)
+            call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
+         else
+            call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
+            call gs_Xh%op(u_res, GS_OP_ADD, event)
+            call device_event_sync(event)
+            call gs_Xh%op(v_res, GS_OP_ADD, event)
+            call device_event_sync(event)
+            call gs_Xh%op(w_res, GS_OP_ADD, event)
+            call device_event_sync(event)
+            call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
+
+            ! Set residual to zero at strong velocity boundaries.
+            call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
+         end if
 
          call profiler_end_region('Velocity_residual', 19)
 

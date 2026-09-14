@@ -168,7 +168,8 @@ contains
       call col2(this%d, coef%h1, coef%dof%size())
       if (coef%ifh2) call addcol3(this%d, coef%h2, coef%B, coef%dof%size())
       if (allocated(gs_h%interp)) then
-         call gs_h%op_inv(this%d, dof%size(), GS_OP_ADD)
+         call gs_h%op(this%d, dof%size(), GS_OP_ADD)
+         !call gs_h%op_inv(this%d, dof%size(), GS_OP_ADD) !??????
       else
          call gs_h%op(this%d, dof%size(), GS_OP_ADD)
       end if
