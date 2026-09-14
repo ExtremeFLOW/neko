@@ -233,7 +233,7 @@ ax_helm_kernel_kstep(T * __restrict__ w,
     for (int l = 0; l < LX; l++){
       ttmp += shdz[k+l*LX] * ru[l];
     }
-    __syncthreads();
+    neko_eb_kstep_barrier<LX>();
 
     T rtmp = 0.0;
     T stmp = 0.0;
@@ -255,7 +255,7 @@ ax_helm_kernel_kstep(T * __restrict__ w,
                      + G12 * stmp
                      + G22 * ttmp);
 
-    __syncthreads();
+    neko_eb_kstep_barrier<LX>();
 
     T wijke = 0.0;
 #pragma unroll
@@ -362,7 +362,7 @@ ax_helm_kernel_kstep_padded(T * __restrict__ w,
     for (int l = 0; l < LX; l++){
       ttmp += shdz[k+l*(LX+1)] * ru[l];
     }
-    __syncthreads();
+    neko_eb_kstep_barrier<LX>();
 
     T rtmp = 0.0;
     T stmp = 0.0;
@@ -384,7 +384,7 @@ ax_helm_kernel_kstep_padded(T * __restrict__ w,
                           + G12 * stmp
                           + G22 * ttmp);
 
-    __syncthreads();
+    neko_eb_kstep_barrier<LX>();
 
     T wijke = 0.0;
 #pragma unroll
@@ -771,7 +771,7 @@ ax_helm_kernel_vector_kstep(T * __restrict__ au,
       vttmp += shdz[k+l*LX] * rv[l];
       wttmp += shdz[k+l*LX] * rw[l];
     }
-    __syncthreads();
+    neko_eb_kstep_barrier<LX>();
 
     T urtmp = 0.0;
     T ustmp = 0.0;
@@ -832,7 +832,7 @@ ax_helm_kernel_vector_kstep(T * __restrict__ au,
                      + G12 * wstmp
                      + G22 * wttmp);
 
-    __syncthreads();
+    neko_eb_kstep_barrier<LX>();
 
     T uwijke = 0.0;
     T vwijke = 0.0;
@@ -986,7 +986,7 @@ ax_helm_kernel_vector_kstep_padded(T * __restrict__ au,
       vttmp += shdz[k+l*(LX+1)] * rv[l];
       wttmp += shdz[k+l*(LX+1)] * rw[l];
     }
-    __syncthreads();
+    neko_eb_kstep_barrier<LX>();
 
     T urtmp = 0.0;
     T ustmp = 0.0;
@@ -1047,7 +1047,7 @@ ax_helm_kernel_vector_kstep_padded(T * __restrict__ au,
                          + G12 * wstmp
                          + G22 * wttmp);
 
-    __syncthreads();
+    neko_eb_kstep_barrier<LX>();
 
     T uwijke = 0.0;
     T vwijke = 0.0;
