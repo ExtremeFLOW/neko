@@ -605,6 +605,32 @@ contains
 
   end subroutine gs_free
 
+  !> Allocate the buffers the fused vector gather-scatter needs, on the
+  !! first gs_op_r3 that reaches the fused path.
+  !!
+  !! @param gs gather-scatter kernel to complete
+  !! @note Rank local, not collective: a rank with no shared dofs never
+  !! reaches the fused path, so neither this nor comm%init_vec may
+  !! communicate. Backends whose vector buffers come out of an allocation
+  !! the whole run agrees on make them in init instead, see gs_comm_t.
+  subroutine gs_vec_alloc(gs)
+    class(gs_t), intent(inout) :: gs
+
+    if (.not. allocated(gs%shared_gs_v)) then
+       allocate(gs%shared_gs_v(max(1, GS_VEC_NC * gs%nshared)))
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(gs%shared_gs_v, gs%shared_gs_v_d, &
+               max(1, GS_VEC_NC * gs%nshared))
+       end if
+    end if
+
+    if (.not. gs%comm%vec_ready) then
+       call gs%comm%init_vec()
+       gs%comm%vec_ready = .true.
+    end if
+
+  end subroutine gs_vec_alloc
+
   !> Setup mapping of dofs to gather-scatter operations
   subroutine gs_init_mapping(gs)
     type(gs_t), target, intent(inout) :: gs
@@ -614,6 +640,7 @@ contains
     type(stack_i4_t), target :: local_face_dof, face_dof_local
     type(stack_i4_t), target :: shared_face_dof, face_dof_shared
     integer :: i, j, k, l, lx, ly, lz, max_id, max_sid, id, lid, dm_size
+    integer :: sdm_size
     type(htable_i8_t) :: dm !>
     type(htable_i8_t), pointer :: sdm
 
@@ -626,11 +653,16 @@ contains
     lz = dofmap%Xh%lz
     dm_size = dofmap%size()/lx
 
+    ! The shared dof table only ever receives dofs the dofmap flagged as
+    ! shared, i.e. the partition surface, which is a small fraction of the
+    ! dofmap.
+    sdm_size = min(count(dofmap%shared_dof), dofmap%size() / 2) * 2
+
     call dm%init(dm_size, i)
     !>@note this might be a bit overkill,
     !!but having many collisions makes the init take too long.
     !!This is really critical to performance of the init
-    call sdm%init(dofmap%size(), i)
+    call sdm%init(max(sdm_size, 1), i)
 
 
     call local_dof%init()
@@ -1342,13 +1374,8 @@ contains
     ! Allocate buffer for shared gs-ops
     allocate(gs%shared_gs(gs%nshared))
 
-    ! Compact multi-component shared buffer for the fused vector gs. On the
-    ! device it is mapped so the fused exchange can use its device pointer.
-    allocate(gs%shared_gs_v(max(1, GS_VEC_NC * gs%nshared)))
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(gs%shared_gs_v, gs%shared_gs_v_d, &
-            max(1, GS_VEC_NC * gs%nshared))
-    end if
+    ! The compact multi-component shared buffer for the fused vector gs
+    ! (gs%shared_gs_v) is allocated on the first gs_op_r3, see gs_vec_alloc.
 
     if (gs%nshared .gt. 0) then
        call gs_qsort_dofmap(gs%shared_dof_gs, gs%shared_gs_dof, &
@@ -1826,6 +1853,12 @@ contains
        end if
        return
     end if
+
+    ! The fused path is the only user of the vector buffers, so they are
+    ! allocated here rather than in the setup. A rank that skips the
+    ! exchange below (no dofs, or a single rank run) needs none of them,
+    ! and gs_vec_alloc communicates nothing, so ranks may disagree.
+    if (pe_size .gt. 1 .and. n .gt. 0) call gs_vec_alloc(gs)
 
     lo = gs%local_facet_offset
     so = -gs%shared_facet_offset
