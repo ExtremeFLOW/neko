@@ -333,6 +333,34 @@ Optional arguments:
 It is also possible to set a `start_time` before which the probes will not be
 executed (same behavior as the statistics).
 
+On moving (ALE) meshes, the `moving_mesh` sub-dictionary should be added to keep the
+probes sampling at the right locations. 
+In this case, two different modes for probes can be chosen: `fixed` keeps the points
+at their lab-frame positions while the mesh moves underneath them;
+`body_attached` moves the points rigidly with an ALE body, identified by one
+of the body's boundary `zone_id`s.
+~~~~~~~~~~~~~~~{.json}
+"moving_mesh": {
+  "mode": "body_attached",
+  "zone_id": 3,
+  "max_position_drift": 1e-8
+}
+~~~~~~~~~~~~~~~
+`max_position_drift` (optional) is the maximum accepted distance, in mesh
+length units, between where a probe is sampled and where it should be; the
+points are automatically searched for again when it is exceeded. Points
+that temporarily cannot be found (e.g. covered by a moving body in `fixed` mode) record
+zeros until recovered. The default depends on the working precision.
+For a double-precision build, the default is 1.0e-8 while for a
+single-precision build the default is 1.2e-5.
+
+For `body_attached` probes the current coordinates are written with the
+data: CSV sample rows become `t, x, y, z, field values`, and HDF5 output
+gains the datasets `coords_x`, `coords_y`, `coords_z` next to the fields
+(the `coordinates` dataset keeps the initial positions).
+
+@note Selecting the AABB finders with setting enviromental variables `NEKO_GLOBAL_INTERP_EL_FINDER=AABB` and `NEKO_GLOBAL_INTERP_PE_FINDER=AABB`, and setting `load_balancing` to `true` in the case file (requires configuring Neko with ParMETIS, see \ref perf_load_balancing), can reduce the computational overheads of finding points in probes for large meshes.
+
 #### Supported types
 
 - `file`: Reads a list of points from a CSV file. The name of the file is

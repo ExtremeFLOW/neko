@@ -48,6 +48,44 @@
               },
               "additionalProperties": true
             },
+            "moving_mesh": {
+              "type": "object",
+              "required": [
+                "mode"
+              ],
+              "properties": {
+                "mode": {
+                  "enum": [
+                    "fixed",
+                    "body_attached"
+                  ]
+                },
+                "zone_id": {
+                  "$ref": "urn:neko:schema:simulation-components#/$defs/integerOrRef",
+                  "minimum": 1
+                },
+                "max_position_drift": {
+                  "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef",
+                  "exclusiveMinimum": 0
+                }
+              },
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "body_attached"
+                  }
+                },
+                "required": [
+                  "mode"
+                ]
+              },
+              "then": {
+                "required": [
+                  "zone_id"
+                ]
+              },
+              "additionalProperties": true
+            },
             "start_time": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
             }

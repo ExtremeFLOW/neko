@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Added probes support for moving mesh (ALE) simulations, with `fixed`
+  and `body_attached` modes.
 - Added runtime registration of user-defined scalar boundary-condition types
   through `register_scalar_pnpn_bc`.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.
