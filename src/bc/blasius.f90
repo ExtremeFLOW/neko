@@ -258,7 +258,8 @@ contains
       m = this%msk(0)
 
 
-      ! Pretabulate values during first call to apply
+      ! Pretabulate values during first call to apply.
+      !$omp single
       if (.not. c_associated(blax_d) .and. strong_ .and. m .gt. 0) then
          allocate(bla_x(m), bla_y(m), bla_z(m)) ! Temp arrays
 
@@ -302,6 +303,7 @@ contains
 
          deallocate(bla_x, bla_y, bla_z)
       end if
+      !$omp end single
 
       if (strong_ .and. this%msk(0) .gt. 0) then
          call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &

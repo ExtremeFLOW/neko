@@ -1,7 +1,8 @@
 # Changelog
 
 ## 1.1.99 [develop]
-
+- Fixed several OpenMP races in the boundary conditions, including a Neumann
+  flux accumulated once per thread.
 ## 1.1.1 [2026-09-08]
 - Fixed the fused three-component Helmholtz operator on the CPU backend
   (`ax_helm_cpu_t%compute_vector`) at polynomial orders 3 and 8, where a

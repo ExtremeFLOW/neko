@@ -110,6 +110,7 @@ contains
     end if
 
     if (.not. strong_) then
+       !$omp single
        ! Compute the wall stress using the wall model.
        call this%wall_model%compute(time%t, time%tstep)
 
@@ -120,6 +121,7 @@ contains
        ! boundary conditions.
        call this%set_stress(this%wall_model%tau_x, this%wall_model%tau_y, &
             this%wall_model%tau_z)
+       !$omp end single
     end if
 
     ! Either add the stress to the RHS or apply the non-penetration condition
@@ -164,6 +166,7 @@ contains
     end if
 
     if (.not. strong_) then
+       !$omp single
        ! Compute the wall stress using the wall model.
        call this%wall_model%compute(time%t, time%tstep)
 
@@ -174,6 +177,7 @@ contains
        ! boundary conditions.
        call this%set_stress(this%wall_model%tau_x, this%wall_model%tau_y, &
             this%wall_model%tau_z)
+       !$omp end single
     end if
 
     ! Either add the stress to the RHS or apply the non-penetration condition
