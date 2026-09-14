@@ -178,6 +178,7 @@ contains
     logical, intent(in), optional :: strong
     integer :: i, m, k, facet
     integer :: idx(4)
+    real(kind=rp) :: area
     logical :: strong_
 
     if (present(strong)) then
@@ -203,20 +204,17 @@ contains
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
+          area = 0.0_rp
           select case (facet)
           case (1,2)
-             x(k) = x(k) + &
-                  this%flux%x(i) * &
-                  this%coef%area(idx(2), idx(3), facet, idx(4))
+             area = this%coef%area(idx(2), idx(3), facet, idx(4))
           case (3,4)
-             x(k) = x(k) + &
-                  this%flux%x(i) * &
-                  this%coef%area(idx(1), idx(3), facet, idx(4))
+             area = this%coef%area(idx(1), idx(3), facet, idx(4))
           case (5,6)
-             x(k) = x(k) + &
-                  this%flux%x(i) * &
-                  this%coef%area(idx(1), idx(2), facet, idx(4))
+             area = this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
+          !$omp atomic
+          x(k) = x(k) + this%flux%x(i) * area
        end do
        !$omp end do
     end if
