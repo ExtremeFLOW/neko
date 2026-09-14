@@ -188,11 +188,13 @@ contains
 
     if (.not. strong_) then
 
+       !$omp single
        if (.not. this%updated) then
           call this%update(this%field_list, this, time)
           call this%gather_flux()
           this%updated = .true.
        end if
+       !$omp end single
 
        m = this%facet_node_msk(0)
        !$omp do
@@ -240,11 +242,13 @@ contains
     end if
 
     if (.not. strong_) then
+       !$omp single
        if (.not. this%updated) then
           call this%update(this%field_list, this, time)
           call this%gather_flux()
           this%updated = .true.
        end if
+       !$omp end single
 
        if (this%facet_node_msk(0) .gt. 0) then
           call device_neumann_apply_scalar(this%facet_node_msk_d, &
