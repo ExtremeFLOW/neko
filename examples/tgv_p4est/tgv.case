@@ -2,30 +2,34 @@
     "version": 1.0,
     "case":
     {
-        "mesh_file": "512.nmsh",
+        "mesh_file": "tgv.nmsh",
         "mesh_manager": {
             "type": "p4est",
-            "tree_file": "512.tree",
+            "tree_file": "tgv.p4est",
             "ref_level_max": 2,
-	    "log_level": 8
+	    "log_level": 0
         },
 	"runtime_statistics" : {
-            "enabled" : true
+            "enabled" : false
 	},
-        "output_boundary": true,
-        "output_checkpoints": false,
+        "output_boundary": false,
+        "output_checkpoints": true,
+	"checkpoint_format" : "chkp",
+        "checkpoint_control": "tsteps",
+        "checkpoint_value": 5000,
         "output_at_end": true,
+	//"restart_file": "fluid00001.chkp",
         "load_balance": false,
-        "job_timelimit": "00:00:00",
+        "job_timelimit": "00:01:00",
         "time": {
-            "end_time": 0.5,
+            "end_time": 5.0,
             "variable_timestep": true,
-            "max_timestep": 0.25e-2,
+            "max_timestep": 1.5e-1,
             "target_cfl": 0.3
         },
         "numerics": {
             "time_order": 3,
-            "polynomial_order": 7,
+            "polynomial_order": 8,
             "dealias": true
         },
         "fluid": {
@@ -39,17 +43,22 @@
                 "preconditioner": {
                     "type": "jacobi"
                 },
-                "projection_space_size": 0,
+                "projection_space_size": 8,
                 "absolute_tolerance": 1e-7,
                 "max_iterations": 800
             },
             "pressure_solver": {
                 "type": "gmres",
                 "preconditioner": {
-                    "type": "hsmg"
+                    "type": "hsmg",
+                    "coarse_grid": {
+                        "solver": "cg",
+                        "preconditioner": "jacobi",
+                        "iterations": 20
+                    }
                 },
-                "projection_space_size": 20,
-                "absolute_tolerance": 1e-4,
+                "projection_space_size": 8,
+                "absolute_tolerance": 1e-5,
                 "max_iterations": 800
             },
             "output_control": "simulationtime",
@@ -63,7 +72,13 @@
                 "fields": [ "u", "v", "w" ],
                 "name": "omega",
                 "compute_control": "tsteps",
-                "compute_value": 50
+                "compute_value": 5
+            },
+            {
+                "type": "spectral_error",
+                "fields": [ "p", "u", "v", "w" ],
+                "start_time": 0.008,
+                "compute_value": 1
             }
         ]
     }

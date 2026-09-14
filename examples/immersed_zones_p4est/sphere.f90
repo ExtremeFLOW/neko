@@ -1,8 +1,4 @@
-! Two-dimensional flow past circular cylinder cavity
-!
-! Note that the domain is actually 3D with width one element. In order
-! to prevent any instability in the z direction, the w velocity is
-! set to zero at every step. This is needed for higher Reynolds numbers.
+! Test for immersed boundary method
 !
 module user
   use neko
@@ -29,7 +25,7 @@ module user
   ! temporary field
   type(field_t) :: ftmp
   ! sponge parameters; starting point, width, strength
-  real(rp), parameter :: spng_st = 24.0_rp, spng_wdth = 6.0_rp, &
+  real(rp), parameter :: spng_st = 4.0_rp, spng_wdth = 2.0_rp, &
        spng_str = 0.75_rp
   ! error indicator
   real(rp), dimension(:), allocatable :: errind
@@ -41,7 +37,7 @@ module user
   ! Max wall time period in seconds for averaging of error indicator
   real(dp), parameter :: wall_period = 60 * 60 * 0.5_dp
   ! Averaging time of error indicator in simulation units
-  real(dp), parameter :: time_int = 0.01_dp
+  real(dp), parameter :: time_int = 2.0_dp
   ! Threshold for instantaneous to average indicator ratio to trigger rescue
   ! refinement
   real(rp), parameter :: pr_ratio = 5.0_rp
@@ -78,7 +74,7 @@ contains
     integer :: il, n_simcomps
     real(kind=rp) :: t, rtmp
     type(field_t), pointer :: u, v, w, p
-    character(len=NEKO_VARNAME_LEN), dimension(2) :: fld_name_ref
+    character(len=NEKO_VARNAME_LEN), dimension(3) :: fld_name_ref
     character(len=NEKO_VARNAME_LEN), dimension(1) :: fld_name_mntr
 
     u => neko_registry%get_field('u')
@@ -105,6 +101,7 @@ contains
     ! initialise error indicator
     fld_name_ref(1) = 'u'
     fld_name_ref(2) = 'v'
+    fld_name_ref(3) = 'w'
     fld_name_mntr(1) = 'p'
     call amr_error_ind_tool%init(u%msh, fld_name_ref = fld_name_ref, &
          fld_name_mntr = fld_name_mntr)
@@ -138,6 +135,8 @@ contains
 
     type(field_t), pointer :: rhs_u, rhs_v, rhs_w, u, v, w
 
+    return
+
     if (scheme_name .eq. 'fluid') then
 
        rhs_u => rhs%get_by_index(1)
@@ -157,6 +156,10 @@ contains
        call field_col2(ftmp, spng_prf)
        call field_add2(rhs_v, ftmp)
 
+       call field_sub3(ftmp, w_bf, w)
+       call field_col2(ftmp, spng_prf)
+       call field_add2(rhs_w, ftmp)
+
     end if
 
   end subroutine user_source_terms
@@ -164,13 +167,6 @@ contains
   ! User-defined routine called at the end of every time step
   subroutine user_compute(time)
     type(time_state_t), intent(in) :: time
-
-    type(field_t), pointer :: w
-
-    ! set the w component to zero to avoid any 3D instability
-    ! in this quasi-2D flow
-    w => neko_registry%get_field("w")
-    call field_rzero(w)
 
   end subroutine user_compute
 
@@ -212,130 +208,177 @@ contains
     integer, parameter :: nint = 500, it_max = 50
     ! Ratios for global new elements and acceptable error
     real(rp), parameter :: ratio_el = 0.2, ratio_dlt = 0.01
+    ! geometrical context
+    real(rp) :: x_pos
+    ! Define region with refinement enabled
+    real(rp), parameter :: x_out = 4.0
 
-    ! Get global max of instantaneous and averages pressure error indicators
-    pr_in_max = glmax(amr_error_ind_tool%eind_in_mntr%items(1)%ptr%x, nelv)
-    pr_av_max = glmax(amr_error_ind_tool%eind_av_mntr%items(1)%ptr%x, nelv)
-    ! check if rescue refinement is needed; HAND TUNED
-    ifrescue = (pr_in_max .gt. (min(pr_av_max, pr_err_cutoff) * pr_ratio ))
+    real(rp) :: dst
 
-    if (ifrescue) then
-       ! rescue refinement is based on instantaneous presser error indicator
-       errind(:) = amr_error_ind_tool%eind_in_mntr%items(1)%ptr%x(:)
+    
+!    return ! no refinement for restart
+    
+    ! geometry based refinement
+    associate(dm_Xh => amr_error_ind_tool%grid_min%dm_Xh)
+      if (time%tstep .eq. 10) then
+         ! flag elements; just geometrical context
+         do il = 1, nelv
+            ! sphere
+            dst = sqrt((dm_Xh%x(2, 2, 2, il) -1.0_rp)**2 + &
+                 (dm_Xh%y(2, 2, 2, il) - 0.5_rp)**2 + &
+                 (dm_Xh%z(2, 2, 2, il) - 0.5_rp)**2)
+            ! column
+            !dst = sqrt(dm_Xh%x(2, 2, 2, il)**2 + dm_Xh%y(2, 2, 2, il)**2)
+            if (dst .le. 0.3_rp) then
+               ref_mark(il) = amr_flg_h_ref
+            end if
+            ! wall
+            !if (dm_Xh%x(2, 2, 2, il) .le. 0.0_rp .and. &
+            !     dm_Xh%x(2, 2, 2, il) .ge. -1.6_rp) then
+            !   ref_mark(il) = amr_flg_h_ref
+            !end if
+         end do
+         ifrefine = .true.
 
-       ! flag problematic elements
-       ref_thr_var = min(pr_av_max, pr_err_cutoff)
-       do il = 1, nelv
-          if(errind(il) .gt. ref_thr_var) then
-             refine_flag(il) = .true.
-          else
-             refine_flag(il) = .false.
-          endif
-       enddo
+      end if
+    end associate
+    
 
-       ! remove nonconforming interfaces next to marked elements
-       call amr_nonconf_int_remove(nelv, ref_level, refine_flag, ref_mark, &
-            amr_error_ind_tool%grid_min, 1, .true., nmod)
-
-       ifrefine = .true.
-       write(log_buf, '(A,3E15.7)') 'Rescue refinement: ', pr_in_max, &
-            pr_av_max, ref_thr_var
-       call neko_log%message(log_buf)
-    else
-       ! Averaging time for error indicator; simulation time
-       time_av = amr_error_ind_tool%get_collect_time()
-
-       ! refinement frequency based on the wall time
-       ifwall = ((MPI_WTIME() - last_wall_time) .gt. wall_period)
-       call MPI_Bcast(ifwall, 1, MPI_LOGICAL, 0, NEKO_COMM, ierr)
-
-       if (time_av .gt. time_int .or. ifwall) then
-          ! refinement frequency based on the wall time
-          last_wall_time = MPI_WTIME()
-
-          if (if_eind .and. .not. if_refined) then
-             ! error indicator collection phase already completed, but no
-             ! refinement performed
-             if_eind = .false.
-
-             ! reset averaged error indicator
-             call amr_error_ind_tool%reset_average()
-          else
-             ! new error indicator collection phase completed
-             if_eind = .true.
-
-             ! get combined error indicator
-             call amr_error_ind_tool%err_av_get(AMR_OP_ELEN, errind, nelv)
-
-             ! Variable threshold for refinement based on assumed number of
-             ! elements to be refined
-             ! Global max number of elements
-             rtmp = real(glb_max_elem, rp)
-             ! global free space ratio
-             rgnelv = real(amr_error_ind_tool%msh%glb_nelv, rp)
-             rtmp = sqrt(max(0.0_rp, rtmp - rgnelv) / rtmp)
-             ! take into account number of children
-             rtmp = rtmp / 7.0_rp
-             ! Expected number of elements to be refined and allowed difference
-             el_ref = int(rgnelv * ratio_el * rtmp)
-             el_dlt = max(int(el_ref * ratio_dlt), 3)
-             ! Elements at max refinement level cannot be refined, so
-             ! shouldn't be counted
-             do il = 1, nelv
-                if(ref_level(il) .lt. ref_level_max) then
-                   refine_flag(il) = .true.
-                else
-                   refine_flag(il) = .false.
-                endif
-             enddo
-             call amr_thrsh_get(el_ref, el_dlt, errind, refine_flag, nelv, &
-                  nint, it_max, .false., ref_thr_var, nmod, iter)
-
-             ! Do not refine forever
-             ref_thr_var = max(ref_thr_var, ref_thr)
-
-             write(log_buf, '(A,2E15.7)') 'Ref./crs. thresholds: ', &
-                  ref_thr_var, crs_thr
-             call neko_log%message(log_buf)
-
-             ! for geometry based refinement
-             associate(dm_Xh => amr_error_ind_tool%grid_min%dm_Xh, &
-                  msh => amr_error_ind_tool%grid_min%msh)
-
-               ! flag elements
-               ! Error indicator based part
-               do il = 1, nelv
-                  if (errind(il) .gt. ref_thr_var .and. &
-                          ref_level(il) .lt. ref_level_max) then
-                        ref_mark(il) = amr_flg_h_ref
-                        ifrefine = .true.
-                     else if (errind(il) .lt. crs_thr .and. &
-                          ref_level(il) .gt. ref_level_min) then
-                        ref_mark(il) = amr_flg_h_crs
-                        ifrefine = .true.
-                     else
-                        ref_mark(il) = amr_flg_none
-                     end if
-                  end if
-               end do
-             end associate
-
-             ! Global test
-             call MPI_Allreduce(MPI_IN_PLACE, ifrefine, 1, MPI_LOGICAL, &
-                  MPI_LOR, NEKO_COMM, ierr)
-
-             if (ifrefine) then
-                ! check consistency of refinement regions
-                iter = 10
-                iterb = 10
-                call amr_ref_mark_check(nelv, ref_level, family, ref_mark, &
-                     amr_error_ind_tool%grid_min, iter, iterb, nmod)
-                write(log_buf, '(A,2I9)') 'Refinement mark check: ', iter, nmod
-                call neko_log%message(log_buf)
-             end if
-          end if
-       end if
-    end if
+!!$    ! Get global max of instantaneous and averages pressure error indicators
+!!$    pr_in_max = glmax(amr_error_ind_tool%eind_in_mntr%items(1)%ptr%x, nelv)
+!!$    pr_av_max = glmax(amr_error_ind_tool%eind_av_mntr%items(1)%ptr%x, nelv)
+!!$    ! check if rescue refinement is needed; HAND TUNED
+!!$    ifrescue = (pr_in_max .gt. (min(pr_av_max, pr_err_cutoff) * pr_ratio ))
+!!$
+!!$    if (ifrescue) then
+!!$       ! rescue refinement is based on instantaneous presser error indicator
+!!$       errind(:) = amr_error_ind_tool%eind_in_mntr%items(1)%ptr%x(:)
+!!$
+!!$       ! flag problematic elements
+!!$       ref_thr_var = min(pr_av_max, pr_err_cutoff)
+!!$       do il = 1, nelv
+!!$          if(errind(il) .gt. ref_thr_var) then
+!!$             refine_flag(il) = .true.
+!!$          else
+!!$             refine_flag(il) = .false.
+!!$          endif
+!!$       enddo
+!!$
+!!$       ! remove nonconforming interfaces next to marked elements
+!!$       call amr_nonconf_int_remove(nelv, ref_level, refine_flag, ref_mark, &
+!!$            amr_error_ind_tool%grid_min, 1, .true., nmod)
+!!$
+!!$       ifrefine = .true.
+!!$       write(log_buf, '(A,3E15.7)') 'Rescue refinement: ', pr_in_max, &
+!!$            pr_av_max, ref_thr_var
+!!$       call neko_log%message(log_buf)
+!!$    else
+!!$       ! Averaging time for error indicator; simulation time
+!!$       time_av = amr_error_ind_tool%get_collect_time()
+!!$
+!!$       ! refinement frequency based on the wall time
+!!$       ifwall = ((MPI_WTIME() - last_wall_time) .gt. wall_period)
+!!$       call MPI_Bcast(ifwall, 1, MPI_LOGICAL, 0, NEKO_COMM, ierr)
+!!$
+!!$       if (time_av .gt. time_int .or. ifwall) then
+!!$          ! refinement frequency based on the wall time
+!!$          last_wall_time = MPI_WTIME()
+!!$
+!!$          if (if_eind .and. .not. if_refined) then
+!!$             ! error indicator collection phase already completed, but no
+!!$             ! refinement performed
+!!$             if_eind = .false.
+!!$
+!!$             ! reset averaged error indicator
+!!$             call amr_error_ind_tool%reset_average()
+!!$          else
+!!$             ! new error indicator collection phase completed
+!!$             if_eind = .true.
+!!$
+!!$             ! get combined error indicator
+!!$             call amr_error_ind_tool%err_av_get(AMR_OP_ELEN, errind, nelv)
+!!$
+!!$             ! Variable threshold for refinement based on assumed number of
+!!$             ! elements to be refined
+!!$             ! Global max number of elements
+!!$             rtmp = real(glb_max_elem, rp)
+!!$             ! global free space ratio
+!!$             rgnelv = real(amr_error_ind_tool%msh%glb_nelv, rp)
+!!$             rtmp = sqrt(max(0.0_rp, rtmp - rgnelv) / rtmp)
+!!$             ! take into account number of children
+!!$             rtmp = rtmp / 7.0_rp
+!!$             ! Expected number of elements to be refined and allowed difference
+!!$             el_ref = int(rgnelv * ratio_el * rtmp)
+!!$             el_dlt = max(int(el_ref * ratio_dlt), 3)
+!!$             ! Elements at max refinement level cannot be refined, so
+!!$             ! shouldn't be counted
+!!$             do il = 1, nelv
+!!$                if(ref_level(il) .lt. ref_level_max) then
+!!$                   refine_flag(il) = .true.
+!!$                else
+!!$                   refine_flag(il) = .false.
+!!$                endif
+!!$             enddo
+!!$             call amr_thrsh_get(el_ref, el_dlt, errind, refine_flag, nelv, &
+!!$                  nint, it_max, .false., ref_thr_var, nmod, iter)
+!!$
+!!$             ! Do not refine forever
+!!$             ref_thr_var = max(ref_thr_var, ref_thr)
+!!$
+!!$             write(log_buf, '(A,2E15.7)') 'Ref./crs. thresholds: ', &
+!!$                  ref_thr_var, crs_thr
+!!$             call neko_log%message(log_buf)
+!!$
+!!$             ! for geometry based refinement
+!!$             associate(dm_Xh => amr_error_ind_tool%grid_min%dm_Xh, &
+!!$                  msh => amr_error_ind_tool%grid_min%msh)
+!!$
+!!$               ! flag elements
+!!$               do il = 1, nelv
+!!$                  ! Element centre context
+!!$                  x_pos = dm_Xh%x(2, 2, 2, il)
+!!$                  ! Region excluded from refinement
+!!$                  if (x_out .lt. x_pos) then
+!!$                     if (ref_level(il) .gt. 0) then
+!!$                        ref_mark(il) = amr_flg_h_crs
+!!$                     else
+!!$                        ref_mark(il) = amr_flg_none
+!!$                     end if
+!!$                  else
+!!$                     if (ref_level(il) .gt. ref_level_max) then
+!!$                        ref_mark(il) = amr_flg_h_crs
+!!$                        ifrefine = .true.
+!!$                     else if (errind(il) .gt. ref_thr_var .and. &
+!!$                          ref_level(il) .lt. ref_level_max) then
+!!$                        ref_mark(il) = amr_flg_h_ref
+!!$                        ifrefine = .true.
+!!$                     else if (errind(il) .lt. crs_thr .and. &
+!!$                          ref_level(il) .gt. ref_level_min) then
+!!$                        ref_mark(il) = amr_flg_h_crs
+!!$                        ifrefine = .true.
+!!$                     else
+!!$                        ref_mark(il) = amr_flg_none
+!!$                     end if
+!!$                  end if
+!!$               end do
+!!$             end associate
+!!$
+!!$             ! Global test
+!!$             call MPI_Allreduce(MPI_IN_PLACE, ifrefine, 1, MPI_LOGICAL, &
+!!$                  MPI_LOR, NEKO_COMM, ierr)
+!!$
+!!$             if (ifrefine) then
+!!$                ! check consistency of refinement regions
+!!$                iter = 10
+!!$                iterb = 10
+!!$                call amr_ref_mark_check(nelv, ref_level, family, ref_mark, &
+!!$                     amr_error_ind_tool%grid_min, iter, iterb, nmod)
+!!$                write(log_buf, '(A,2I9)') 'Refinement mark check: ', iter, nmod
+!!$                call neko_log%message(log_buf)
+!!$             end if
+!!$          end if
+!!$       end if
+!!$    end if
 
     ! for monitoring
     if (ifrefine) then

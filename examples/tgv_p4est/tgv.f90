@@ -8,13 +8,21 @@ module user
   use neko
   use amr_reconstruct, only : amr_reconstruct_t, amr_flg_none, amr_flg_h_ref, &
        amr_flg_h_crs
+  use amr_tools, only : amr_spectral_error_t, AMR_OP_MAX, AMR_OP_ELEN, &
+       amr_ref_mark_check
   use fld_file, only : fld_file_t
   use fld_file_output, only : fld_file_output_t
+  use curl_simcomp, only : curl_t
   implicit none
 
   ! Global user variables
   type(field_t) :: w1
-  type(fld_file_output_t), save :: tst_fld
+  type(curl_t), pointer :: simcomp_curl
+  ! error indicator
+  real(rp), dimension(:), allocatable :: errind
+  type(amr_spectral_error_t) :: amr_error_ind_tool
+  ! for debugging
+  type(fld_file_output_t) :: tst_fld
   real(rp) :: t
 
 contains
@@ -23,32 +31,12 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
     user%initial_conditions => initial_conditions
-    user%mesh_setup => user_mesh_scale
     user%compute => user_calc_quantities
     user%initialize => user_initialize
     user%finalize => user_finalize
     user%amr_refine_flag => amr_refine_flag
     user%amr_reconstruct => amr_reconstructing
   end subroutine user_setup
-
-  ! Rescale mesh
-  subroutine user_mesh_scale(msh, time)
-    type(mesh_t), intent(inout) :: msh
-    type(time_state_t), intent(in) :: time
-    integer :: i, p, nvert
-    real(kind=rp) :: d
-    d = 4._rp
-
-    ! The original mesh has size 0..8 to be mapped onto -pi..pi
-    ! will be updated later to a method giving back the vertices of the mesh
-    nvert = size(msh%points)
-    do i = 1, nvert
-       msh%points(i)%x(1) = (msh%points(i)%x(1) - d) / d * pi
-       msh%points(i)%x(2) = (msh%points(i)%x(2) - d) / d * pi
-       msh%points(i)%x(3) = (msh%points(i)%x(3) - d) / d * pi
-    end do
-
-  end subroutine user_mesh_scale
 
   ! User-defined initial condition
   subroutine initial_conditions(scheme_name, fields)
@@ -75,16 +63,6 @@ contains
 
     call field_rzero(p)
 
-    ! initialise file output for debugging AMR refinement
-    call tst_fld%init(rp, "testing_refine", 4)
-    call tst_fld%fields%assign_to_ptr(1, p)
-    call tst_fld%fields%assign_to_ptr(2, u)
-    call tst_fld%fields%assign_to_ptr(3, v)
-    call tst_fld%fields%assign_to_ptr(4, w)
-    select type(file => tst_fld%file_%file_type)
-    type is (fld_file_t)
-       file%write_mesh = .true.
-    end select
   end subroutine initial_conditions
 
   function tgv_ic(x, y, z) result(uvw)
@@ -100,19 +78,59 @@ contains
   ! User-defined initialization called just before time loop starts
   subroutine user_initialize(time)
     type(time_state_t), intent(in) :: time
-    real(kind=rp) :: t
-    type(field_t), pointer :: u
+    integer :: il, n_simcomps, lx
+    real(kind=dp) :: td
+    type(field_t), pointer :: u, v, w, p
 
+    p => neko_registry%get_field('p')
     u => neko_registry%get_field('u')
+    v => neko_registry%get_field('v')
+    w => neko_registry%get_field('w')
 
-    ! initialize work arrays for postprocessing
+    ! initialize work arrays for post-processing
     call w1%init(u%dof, 'work1')
 
+    ! initialise error indicator
+    call amr_error_ind_tool%init(u%msh)
+
+    ! error indicator array not allocated as not used
+!    allocate(errind(amr_error_ind_tool%nelv))
+
+    ! identify simcomps
+    n_simcomps = neko_simcomps%get_n()
+    do il = 1, n_simcomps
+       call simcomp_get_pointer(neko_simcomps%simcomps(il)%simcomp)
+    end do
+
     ! call usercheck and vorticity simcomp also for tstep=0
-    call neko_simcomps%simcomps(1)%simcomp%compute(time)
+    call simcomp_curl%compute(time)
     call user_calc_quantities(time)
 
+    ! initialise file output for debugging AMR refinement
+    call tst_fld%init(rp, "testing_refine", 4)
+    call tst_fld%fields%assign_to_ptr(1, p)
+    call tst_fld%fields%assign_to_ptr(2, u)
+    call tst_fld%fields%assign_to_ptr(3, v)
+    call tst_fld%fields%assign_to_ptr(4, w)
+    select type(file => tst_fld%file_%file_type)
+    type is (fld_file_t)
+       file%write_mesh = .true.
+       file%skip_pressure = .false.
+       file%skip_velocity = .false.
+    end select
+
   end subroutine user_initialize
+
+  ! Subroutine to get simcomps pointers
+  subroutine simcomp_get_pointer(simcomp)
+    class(simulation_component_t), target, intent(in) :: simcomp
+
+    select type (simcomp)
+       type is(curl_t)
+          simcomp_curl => simcomp
+       end select
+
+  end subroutine simcomp_get_pointer
 
   ! User-defined routine called at the end of every time step
   subroutine user_calc_quantities(time)
@@ -191,45 +209,94 @@ contains
   subroutine user_finalize(time)
     type(time_state_t), intent(in) :: time
 
+    ! Checkpoint averaged indicator fields before finalising
+    call amr_error_ind_tool%checkpoint()
+
     ! Deallocate the fields
     call w1%free()
+
+    call amr_error_ind_tool%free()
+
+!    deallocate(errind)
+
   end subroutine user_finalize
 
-  subroutine amr_refine_flag(time, ref_mark, ifrefine)
+  ! Set refinement flag
+  subroutine amr_refine_flag(time, nelv, ref_level, family, ref_mark, ifrefine)
     type(time_state_t), intent(in) :: time
-    integer, dimension(:), intent(inout) :: ref_mark
+    integer, intent(in) :: nelv
+    integer, dimension(nelv), intent(in) :: ref_level
+    integer, dimension(2, nelv), intent(in) :: family
+    integer, dimension(nelv), intent(inout) :: ref_mark
     logical, intent(inout) :: ifrefine
+    integer :: il, iter, iterb, nmod
+    real(rp) :: dst
+    real(dp) :: time_av
 
-    if (time%tstep .eq. 4) then
-!       if (pe_rank .eq. 0) then
-!          ref_mark(:) = amr_flg_h_ref
-!       else
-!          ref_mark(:) = amr_flg_none
-!       end if
-       ref_mark(:) = amr_flg_h_ref
-       ifrefine = .true.
-    else if (time%tstep .eq. 5) then
-       ref_mark(:) = amr_flg_h_crs
-!       ifrefine = .true.
-       ifrefine = .false.
-    else
-       ref_mark(:) = amr_flg_none
-       ifrefine = .false.
-    end if
+    ! Averaging time for error indicator
+!    time_av = amr_error_ind_tool%get_collect_time()
 
-    ! for debugging
+    ! geometry based refinement
+    associate(dm_Xh => amr_error_ind_tool%grid_min%dm_Xh)
+      if (time%tstep .eq. 4) then
+!         call amr_error_ind_tool%err_av_get(AMR_OP_ELEN, errind, nelv)
+
+         ! flag elements; just geometrical context
+         do il = 1, nelv
+            ! sphere
+            dst = sqrt(dm_Xh%x(2, 2, 2, il)**2 + dm_Xh%y(2, 2, 2, il)**2 + &
+                 dm_Xh%z(2, 2, 2, il)**2)
+            ! column
+            !dst = sqrt(dm_Xh%x(2, 2, 2, il)**2 + dm_Xh%y(2, 2, 2, il)**2)
+            if (dst .le. 1.5_rp .and. dm_Xh%x(2, 2, 2, il) .le. 0.0_rp) then
+               ref_mark(il) = amr_flg_h_ref
+            end if
+            ! wall
+            !if (dm_Xh%x(2, 2, 2, il) .le. 0.0_rp .and. &
+            !     dm_Xh%x(2, 2, 2, il) .ge. -1.6_rp) then
+            !   ref_mark(il) = amr_flg_h_ref
+            !end if
+         end do
+         ifrefine = .true.
+      else if (time%tstep .eq. 15) then
+!         do il = 1, nelv
+!            if (ref_level(il) .gt. 0) then
+!               ref_mark(il) = amr_flg_h_crs
+!            end if
+!         end do
+!         ref_mark(:) = amr_flg_h_crs
+!         ifrefine = .true.
+      end if
+    end associate
+
+    ! for monitoring
     if (ifrefine) then
+
        t = time%t
+       call amr_error_ind_tool%sample(ref_mark, t)
+
+       ! for debugging
        call tst_fld%sample(t)
     end if
 
   end subroutine amr_refine_flag
 
-  subroutine amr_reconstructing(reconstruct, counter, tstep)
+  subroutine amr_reconstructing(reconstruct, counter, time)
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
-    call w1%amr_reallocate(reconstruct, counter, tstep)
+    call w1%amr_reallocate(reconstruct, counter, time)
+    call amr_error_ind_tool%amr_restart(reconstruct, counter, time)
+
+    ! reallocate arrays
+!    if (reconstruct%nold .ne. reconstruct%nnew) then
+!       if (allocated(errind)) then
+!          deallocate(errind)
+!          allocate(errind(reconstruct%nnew))
+!          errind( :) = 0.0_rp
+!       end if
+!    end if
 
     ! for debugging
     call tst_fld%sample(t)
