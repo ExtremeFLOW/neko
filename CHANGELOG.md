@@ -1,6 +1,8 @@
 # Changelog
 
 ## 1.1.99 [develop]
+
+## 1.1.2 [2026-09-14]
 - Fixed several OpenMP races in the boundary conditions, including a Neumann
   flux accumulated once per thread.
 - Fixed a leaked MPI file handle in the fld reader, which never closed the

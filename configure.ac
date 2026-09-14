@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.1.1])
+AC_INIT([neko],[1.1.2])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -421,7 +421,7 @@ AC_SUBST(NEKO_PKG_FCFLAGS)
 FCFLAGS="$FCFLAGS $NEKO_PKG_FCFLAGS"
 
 # Date stamp for generated manual pages
-AC_SUBST(MAN_DATE, [2026-07-14])
+AC_SUBST(MAN_DATE, [2026-09-14])
 
 AC_CONFIG_FILES([Makefile\
         src/Makefile\
