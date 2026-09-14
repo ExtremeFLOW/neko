@@ -86,6 +86,22 @@ module cai_sagaut_model_ii_device
        integer(c_int) :: n_nodes
      end subroutine opencl_cai_sagaut_model_ii_compute
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_cai_sagaut_model_ii_compute(u_d, v_d, w_d, n_x_d, &
+          n_y_d, n_z_d, nu_d, rho_w_d, h_d, tau_x_d, tau_y_d, tau_z_d, &
+          n_nodes, kappa, B, p, s) &
+          bind(c, name = 'metal_cai_sagaut_model_ii_compute')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       use num_types, only : c_rp
+       implicit none
+       type(c_ptr), value :: u_d, v_d, w_d, rho_w_d
+       type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d, nu_d
+       type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
+       real(c_rp) :: kappa, B, p, s
+       integer(c_int) :: n_nodes
+     end subroutine metal_cai_sagaut_model_ii_compute
+  end interface
 #endif
   public :: cai_sagaut_model_ii_compute_device
 
@@ -131,6 +147,10 @@ contains
          kappa, B, p, s)
 #elif HAVE_OPENCL
     call opencl_cai_sagaut_model_ii_compute(u_d, v_d, w_d, n_x_d, n_y_d, &
+         n_z_d, nu_d, rho_w_d, h_d, tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+         kappa, B, p, s)
+#elif HAVE_METAL
+    call metal_cai_sagaut_model_ii_compute(u_d, v_d, w_d, n_x_d, n_y_d, &
          n_z_d, nu_d, rho_w_d, h_d, tau_x_d, tau_y_d, tau_z_d, n_nodes, &
          kappa, B, p, s)
 #else

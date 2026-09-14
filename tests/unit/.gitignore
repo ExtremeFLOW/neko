@@ -21,6 +21,8 @@ test-suite.log
 !mesh/mesh_test
 !point_interpolation/point_interpolation_test
 !templates/parallel/parallel_test
+!tensor3/tensor3_test
+!tensor4/tensor4_test
 !vector/vector_test
 !vtkhdf/vtkhdf_test
 

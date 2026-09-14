@@ -16,13 +16,13 @@ of the code. But can be useful for users and developers alike.
 
 | Name                     | Description                                                           | Default value |
 | ------------------------ | --------------------------------------------------------------------- | ------------- |
-| `NEKO_AUTOTUNE`          | Force SEM operator kernel formulation (``'1D'``,``'KSTEP'``,``'DMMA'``,``'DMMA_TMA'``,``'DMMA_TMA_BATCH'``,``'MFMA'``) | Unset |
+| `NEKO_AUTOTUNE`          | Restrict the SEM operator search to one kernel formulation (``'1D'``,``'KSTEP'``,``'DMMA'``,``'DMMA_TMA'``,``'DMMA_TMA_BATCH'``,``'MFMA'``) | Unset |
 | `NEKO_EB_TUNE`           | Sweep elements per block for the kstep kernels (boolean)              | 1             |
-| `NEKO_EB`                | Elements per block candidate when `NEKO_AUTOTUNE=KSTEP` (0, 1 or 2)   | 0             |
-| `NEKO_CHUNKS`            | Chunk size candidate when `NEKO_AUTOTUNE=1D` (0 to 3)                 | 0             |
-| `NEKO_DMMA_NW`           | Warps per block candidate when `NEKO_AUTOTUNE=DMMA` (0, 1 or 2)       | 0             |
-| `NEKO_DMMA_TMA_NW`       | Warps per block candidate when `NEKO_AUTOTUNE=DMMA_TMA` or `DMMA_TMA_BATCH` (0, 1 or 2) | 0 |
-| `NEKO_MFMA_NWF`          | Wavefronts per block candidate when `NEKO_AUTOTUNE=MFMA` (0 to 3)     | 0             |
+| `NEKO_EB`                | Pin the kstep elements per block candidate (0, 1 or 2)                | Unset (swept) |
+| `NEKO_CHUNKS`            | Pin the 1d chunk size candidate (0 to 3)                              | Unset (swept) |
+| `NEKO_DMMA_NW`           | Pin the `DMMA` warps per block candidate (0, 1 or 2)                  | Unset (swept) |
+| `NEKO_DMMA_TMA_NW`       | Pin the `DMMA_TMA` / `DMMA_TMA_BATCH` warps per block candidate (0, 1 or 2) | Unset (swept) |
+| `NEKO_MFMA_NWF`          | Pin the `MFMA` wavefronts per block candidate (0 to 3)                | Unset (swept) |
 | `NEKO_MFMA_TUNE`         | Sweep the matrix core variants on the HIP backend (boolean)           | 1             |
 | `NEKO_TUNE_ROUNDS`       | Interleaved sampling rounds used by the operator auto-tuner           | 3             |
 | `NEKO_TUNE_ITERS`        | Kernel launches timed per candidate per round                        | 100           |
@@ -31,7 +31,7 @@ of the code. But can be useful for users and developers alike.
 | `NEKO_LOG_LEVEL`         | Log verbosity level (integer > 0, default: 1)                         | Unset         |
 | `NEKO_GS_STRTGY`         | Gather-scatter device MPI sync. strategy (0 < integer < 5 )           | Unset         |
 | `NEKO_GS_COMM`           | Gather-scatter communication backend                                  | Unset         |
-| `NEKO_GS_TUNE`           | Comm. backends the gather-scatter autotuning benchmarks (list)        | Unset (all but `CAF`) |
+| `NEKO_GS_TUNE`           | Comm. backends the gather-scatter autotuning benchmarks (list)        | Unset (all but `CAF`, `NVSHMEM`) |
 | `NEKO_GS_CAF_SIGNALING`  | Coarray Fortran gather-scatter signaling mode                         | Unset         |
 | `NEKO_GS_RMA_FLUSH_ALL`  | Batch the MPI RMA gather-scatter payload flush (boolean)              | 1             |
 | `NEKO_COMM_ID`           | Communicator id for this process (non-negative integer)               | 0             |
@@ -47,24 +47,31 @@ its available kernel formulations on first call and caches the winner
 for the rest of the run; see @ref performance-operator-autotuning for
 what is measured and why the defaults differ between vendors.
 
-`NEKO_AUTOTUNE` pins a formulation and skips the search:
+`NEKO_AUTOTUNE` narrows the search to one formulation. It does not decide
+the geometry within that formulation: the chunk sizes, elements per block
+or warps per block of the named variant are still measured against each
+other and reported, and it takes that variant's own selector
+(`NEKO_CHUNKS`, `NEKO_EB`, `NEKO_DMMA_NW`, `NEKO_DMMA_TMA_NW`,
+`NEKO_MFMA_NWF`) to fix the geometry as well. With both set there is
+nothing left to measure and the search is skipped outright.
 
-- `NEKO_AUTOTUNE=1D`    : always use the 1d variant, with the chunk size
-  given by `NEKO_CHUNKS`.
-- `NEKO_AUTOTUNE=KSTEP` : always use the kstep variant, with the
-  elements per block given by `NEKO_EB`.
-- `NEKO_AUTOTUNE=DMMA`  : always use the fp64 tensor core variant, with
-  the warps per block given by `NEKO_DMMA_NW`. Available on CUDA for the
-  Helmholtz operator `Ax` (scalar and vector), `opgrad`, `dudxyz`,
-  `conv1` and `cdtp`. Double precision only, `2 <= lx <= 8` except for
-  the vector `Ax`, which is `4 <= lx <= 8`, on an sm_80 or sm_90 device.
+- `NEKO_AUTOTUNE=1D`    : always use the 1d variant, sweeping its chunk
+  sizes unless `NEKO_CHUNKS` pins one.
+- `NEKO_AUTOTUNE=KSTEP` : always use the kstep variant, sweeping its
+  elements per block unless `NEKO_EB` pins one.
+- `NEKO_AUTOTUNE=DMMA`  : always use the fp64 tensor core variant,
+  sweeping its warps per block unless `NEKO_DMMA_NW` pins one. Available
+  on CUDA for the Helmholtz operator `Ax` (scalar and vector), `opgrad`,
+  `dudxyz`, `conv1` and `cdtp`. Double precision only, `2 <= lx <= 8`
+  except for the vector `Ax`, which is `4 <= lx <= 8`, on an sm_80 or
+  sm_90 device.
   `convect_scalar` and `lambda2` have no such variant and keep tuning as
   usual.
 - `NEKO_AUTOTUNE=DMMA_TMA` : always use the TMA staged form of that
-  variant, for every operator that has one, with the warps per block
-  given by `NEKO_DMMA_TMA_NW`. Double precision and `lx = 8` only, on an
-  sm_90 device, and needs a CUDA 12 or later toolkit. The `opgrad` and
-  `conv1` forms stage past 48 kB and additionally need a device that will
+  variant, for every operator that has one, sweeping its warps per block
+  unless `NEKO_DMMA_TMA_NW` pins one. Double precision and `lx = 8` only,
+  on an sm_90 device, and needs a CUDA 12 or later toolkit. The `opgrad`
+  and `conv1` forms stage past 48 kB and additionally need a device that will
   grant a block 54800 B and 71184 B respectively.
 - `NEKO_AUTOTUNE=DMMA_TMA_BATCH` : the batched form of the TMA variant,
   which stages all ten input cubes of an element at once. Same scope and
@@ -72,10 +79,10 @@ what is measured and why the defaults differ between vendors.
   scalar operator has no such variant and reports the value as invalid.
 
 - `NEKO_AUTOTUNE=MFMA`  : the HIP counterpart of `DMMA` --- always use the
-  matrix core variant, with the wavefronts per block given by
-  `NEKO_MFMA_NWF`. Available for the Helmholtz operator `Ax` (scalar only),
-  `opgrad`, `dudxyz`, `conv1` and `cdtp`. Either precision, `4 <= lx <= 12`,
-  on a gfx90a or gfx942 device.
+  matrix core variant, sweeping its wavefronts per block unless
+  `NEKO_MFMA_NWF` pins one. Available for the Helmholtz operator `Ax`
+  (scalar only), `opgrad`, `dudxyz`, `conv1` and `cdtp`. Either precision,
+  `4 <= lx <= 12`, on a gfx90a or gfx942 device.
 
 The vector Helmholtz operator has no 1d formulation, so `1D` and `KSTEP`
 both pin it to its kstep variant, and it has no matrix core variant on HIP.
@@ -105,21 +112,21 @@ and the polynomial order allow the variant at all; setting it to `0`
 keeps the strategy out of the sweep while leaving
 `NEKO_AUTOTUNE=MFMA` able to pin it explicitly.
 
-`NEKO_CHUNKS` selects among the instantiated chunk sizes when the 1d
-variant is pinned with `NEKO_AUTOTUNE=1D`. Candidates `0` to `3` are
-1024, 512, 256 and 128 threads; candidate `0` is the historical value,
-so `NEKO_AUTOTUNE=1D` on its own is the A/B baseline for the chunk
+`NEKO_CHUNKS` pins one of the instantiated chunk sizes, which the tuner
+would otherwise sweep. Candidates `0` to `3` are 1024, 512, 256 and 128
+threads; candidate `0` is the historical value, so
+`NEKO_AUTOTUNE=1D NEKO_CHUNKS=0` is the A/B baseline for the chunk
 sweep. A candidate smaller than one derivative matrix (`lx*lx`) is
-invalid and falls back to 1024.
+invalid and falls back to 1024. The variable applies whenever the 1d
+variant is measured, not only when it is the pinned one.
 
-`NEKO_EB` selects among the instantiated blocking candidates when a
-formulation is pinned with `NEKO_AUTOTUNE=KSTEP`; candidate `0` is one
-element per block, i.e. the unblocked geometry, which makes
-`NEKO_AUTOTUNE=KSTEP` on its own the A/B baseline for the blocking.
+`NEKO_EB` pins one of the instantiated blocking candidates; candidate `0`
+is one element per block, i.e. the unblocked geometry, which makes
+`NEKO_AUTOTUNE=KSTEP NEKO_EB=0` the A/B baseline for the blocking.
 Values outside the valid range fall back to `0`.
 
-`NEKO_DMMA_NW` selects among the instantiated warps per block candidates
-when the tensor core variant is pinned with `NEKO_AUTOTUNE=DMMA`;
+`NEKO_DMMA_NW` pins one of the instantiated warps per block candidates
+of the tensor core variant;
 candidates `0`, `1` and `2` are 2, 4 and 8 warps. Values outside the
 valid range fall back to `0`. `NEKO_DMMA_TMA_NW` is the same selector for
 the two TMA staged variants, with the same three candidates, and is read
@@ -177,14 +184,18 @@ A number of gather-scatter backends are supported.
   per routing stage instead of one per peer (host only). `CRYSTALGPU` is the
   device-aware variant, which keeps the halo on the GPU
 
-When `NEKO_GS_COMM` is unset and the build has no device-aware MPI,
-the host backends are benchmarked at initialisation and the fastest
-one is kept (see @ref performance-gs-autotuning). Which ones take part
-is set by `NEKO_GS_TUNE`, a list of backend names spelled as for
-`NEKO_GS_COMM` (comma or space separated, case insensitive). Unset, it
-means every host backend the build supports except `CAF`, which a
+When `NEKO_GS_COMM` is unset, the backends are benchmarked at
+initialisation and the fastest one is kept (see
+@ref performance-gs-autotuning). Which ones take part is set by
+`NEKO_GS_TUNE`, a list of backend names spelled as for `NEKO_GS_COMM`
+(comma or space separated, case insensitive). Unset, it means every
+backend the build supports except `CAF`, which a
 compiler can accept at configure time while still giving the job a
-single image the coarray backend cannot use.
+single image the coarray backend cannot use, and `NVSHMEM`, which aborts
+unless the peer lists come out symmetric and aligned. On a CUDA or HIP
+build the device-resident backends (`MPIGPU`, `CRYSTALGPU` and `NCCL`)
+are candidates alongside the host ones, which are then measured staging
+the halo through the host as they actually run there.
 
 - `NEKO_GS_TUNE=+CAF` adds the coarray backend to that default set,
   `NEKO_GS_TUNE=-SHMEM` removes a backend from it, and the two can be
@@ -192,8 +203,10 @@ single image the coarray backend cannot use.
 - Plain names replace the set outright: `NEKO_GS_TUNE=MPI,NEIGHBOUR`
   benchmarks those two and nothing else. A single name pins that
   backend without benchmarking anything.
-- The two forms cannot be mixed, and a name that is not a host
-  gather-scatter backend is an error.
+- The two forms cannot be mixed, and a name that is not a
+  gather-scatter backend is an error. `SHMEM` here always names the host
+  OpenSHMEM backend and `NVSHMEM` the device one, since a GPU build can
+  have both as candidates.
 
 Backends that are selected but cannot run in this build or run are
 dropped; those named explicitly are reported in the log as

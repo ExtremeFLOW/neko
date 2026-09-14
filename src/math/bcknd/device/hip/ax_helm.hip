@@ -397,11 +397,17 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   int best3 = 0;
   const int rounds = neko_tune_rounds();
   const int iters = neko_tune_iters();
-  const int sweep = neko_eb_sweep();
+  /* Candidates of the kstep sweep, one -- the unblocked shape -- when the
+     elements per block sweep is off */
+  const int eb_cand = neko_eb_sweep() ? NEKO_EB_CANDIDATES : 1;
+  /* Geometry pinned by each formulation's own variable, -1 to sweep it */
+  const int ch_pin = neko_chunks_pin();
+  const int eb_pin = neko_eb_pin();
+  const int nwf_pin = neko_mfma_pin();
+  /* Formulation pinned by NEKO_AUTOTUNE, as the identifier tune() returns */
+  int strat = 0;
   /* Hardware capability, which the explicit NEKO_AUTOTUNE=MFMA pin needs */
   const bool mfma = mfma_lx_supported<LX>() && hip_have_mfma();
-  /* Whether the sweep may pick it on its own, see neko_mfma_sweep() */
-  const bool mfma_tune = mfma && neko_mfma_sweep();
   int best = 0;
   int retval;
 
@@ -429,35 +435,23 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
 
   *eb_sel = 0;
   *ch_sel = 0;
+  *nwf_sel = 0;
 
+  /*
+   * NEKO_AUTOTUNE names a formulation, and that is all it does: the sweep
+   * below is narrowed to that one kernel family, but its geometry -- the
+   * chunk size, the elements per block, the wavefronts per block -- is still
+   * measured candidate against candidate. A formulation this build or this
+   * device does not have is reported and ignored, leaving the full sweep.
+   */
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
-      *ch_sel = neko_chunks_env();
-      CASE_1D_SEL(LX, *ch_sel);
-      sprintf(neko_log_buf,"Set by env   : 1 (1D, %d chunk)",
-              NEKO_CHUNKS_SEL(LX, *ch_sel));
-      log_message(neko_log_buf);
-      log_end_section();
-      return 1;
+      strat = 1;
     } else if( !strcmp(env_value,"KSTEP") ) {
-      const int c = neko_eb_env();
-      *eb_sel = c;
-      CASE_KSTEP_SEL(LX, c);
-      sprintf(neko_log_buf,"Set by env   : 2 (KSTEP, %d elem/block)",
-              NEKO_EB_SEL(LX, c));
-      log_message(neko_log_buf);
-      log_end_section();
-      return 2;
+      strat = 2;
     } else if( !strcmp(env_value,"MFMA") ) {
       if (mfma) {
-        const int c = neko_mfma_env();
-        *nwf_sel = c;
-        CASE_MFMA_SEL(LX, c);
-        sprintf(neko_log_buf,"Set by env   : 3 (MFMA, %d wf, %d elem/block)",
-                NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c));
-        log_message(neko_log_buf);
-        log_end_section();
-        return 3;
+        strat = 3;
       } else {
         sprintf(neko_log_buf, "MFMA strategy not available for this config");
         log_error(neko_log_buf);
@@ -468,6 +462,51 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
     }
   }
 
+  /* Geometry of the pinned formulation, if its own variable fixes that too.
+     Both pinned leaves nothing to measure, so the kernel is launched once and
+     reported, which is what pinning has always done */
+  const int pin = (strat == 1) ? ch_pin : (strat == 2) ? eb_pin :
+                  (strat == 3) ? nwf_pin : -1;
+
+  if (pin >= 0) {
+    switch (strat) {
+    case 1:
+      *ch_sel = pin;
+      CASE_1D_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 1 (1D, %d chunk)",
+              NEKO_CHUNKS_SEL(LX, pin));
+      break;
+    case 2:
+      *eb_sel = pin;
+      CASE_KSTEP_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 2 (KSTEP, %d elem/block)",
+              NEKO_EB_SEL(LX, pin));
+      break;
+    default:
+      *nwf_sel = pin;
+      CASE_MFMA_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 3 (MFMA, %d wf, %d elem/block)",
+              NEKO_MFMA_NWF(pin), NEKO_MFMA_EB(LX, pin));
+      break;
+    }
+    log_message(neko_log_buf);
+    log_end_section();
+    return strat;
+  }
+
+  if (strat) {
+    sprintf(neko_log_buf, "Set by env   : %d (%s)", strat, env_value);
+    log_message(neko_log_buf);
+  }
+
+  /* Formulations the sweep considers, see NEKO_TUNE_FOR(). NEKO_MFMA_TUNE
+     keeps the matrix core variant out of an unpinned sweep, but naming it
+     explicitly still measures it */
+  const bool try_1d = (strat == 0 || strat == 1);
+  const bool try_kstep = (strat == 0 || strat == 2);
+  const bool try_mfma = mfma && ((strat == 3) ||
+                                 (strat == 0 && neko_mfma_sweep()));
+
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
 
@@ -475,40 +514,28 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
      be resident and the clocks at steady state, or whichever variant is
      timed first is measured on a colder part */
   for (int i = 0; i < NEKO_TUNE_WARMUP; i++) {
-    CASE_1D(LX, 0);
-    CASE_1D(LX, 1);
-    CASE_1D(LX, 2);
-    CASE_1D(LX, 3);
-    CASE_KSTEP(LX, 0);
-    if (sweep) {
-      CASE_KSTEP(LX, 1);
-      CASE_KSTEP(LX, 2);
+    NEKO_TUNE_FOR(c, try_1d, ch_pin, NEKO_CHUNKS_CANDIDATES) {
+      CASE_1D_SEL(LX, c);
     }
-    if (mfma_tune) {
-      CASE_MFMA(LX, 0);
-      CASE_MFMA(LX, 1);
-      CASE_MFMA(LX, 2);
-      CASE_MFMA(LX, 3);
+    NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+      CASE_KSTEP_SEL(LX, c);
+    }
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, NEKO_MFMA_CANDIDATES) {
+      CASE_MFMA_SEL(LX, c);
     }
   }
 
   /* Interleaved rounds, best time per variant: timing them one after another
      in a fixed order lets clock drift bias the comparison by position */
   for (int r = 0; r < rounds; r++) {
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 0, iters);
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 1, iters);
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 2, iters);
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 3, iters);
-    NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 0, iters);
-    if (sweep) {
-      NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 1, iters);
-      NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 2, iters);
+    NEKO_TUNE_FOR(c, try_1d, ch_pin, NEKO_CHUNKS_CANDIDATES) {
+      NEKO_TUNE_TIME(time1, CASE_1D_SEL, LX, c, iters);
     }
-    if (mfma_tune) {
-      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 0, iters);
-      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 1, iters);
-      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 2, iters);
-      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 3, iters);
+    NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+      NEKO_TUNE_TIME(time2, CASE_KSTEP_SEL, LX, c, iters);
+    }
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, NEKO_MFMA_CANDIDATES) {
+      NEKO_TUNE_TIME(time3, CASE_MFMA_SEL, LX, c, iters);
     }
   }
 
@@ -576,11 +603,16 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   int best3 = 0;
   const int rounds = neko_tune_rounds();
   const int iters = neko_tune_iters();
-  const int sweep = neko_eb_sweep();
+  /* Candidates of the kstep sweep, see tune() */
+  const int eb_cand = neko_eb_sweep() ? NEKO_EB_CANDIDATES : 1;
+  /* Geometry pinned by each formulation's own variable, -1 to sweep it */
+  const int ch_pin = neko_chunks_pin();
+  const int eb_pin = neko_eb_pin();
+  const int nwf_pin = neko_mfma_pin();
+  /* Formulation pinned by NEKO_AUTOTUNE, as the identifier this returns */
+  int strat = 0;
   /* Hardware capability, which the explicit NEKO_AUTOTUNE=MFMA pin needs */
   const bool mfma = mfma_lx_supported<LX>() && hip_have_mfma();
-  /* Whether the sweep may pick it on its own, see neko_mfma_sweep() */
-  const bool mfma_tune = mfma && neko_mfma_sweep();
   int best = 0;
   int retval;
 
@@ -608,35 +640,17 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
 
   *eb_sel = 0;
   *ch_sel = 0;
+  *nwf_sel = 0;
 
+  /* NEKO_AUTOTUNE names a formulation and nothing more, see tune() */
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
-      *ch_sel = neko_chunks_env();
-      CASE_1D_SEL(LX, *ch_sel);
-      sprintf(neko_log_buf,"Set by env   : 1 (1D, %d chunk)",
-              NEKO_CHUNKS_SEL(LX, *ch_sel));
-      log_message(neko_log_buf);
-      log_end_section();
-      return 1;
-     } else if( !strcmp(env_value,"KSTEP") ) {
-      const int c = neko_eb_env();
-      *eb_sel = c;
-      CASE_KSTEP_PADDED_SEL(LX, c);
-      sprintf(neko_log_buf,"Set by env   : 2 (KSTEP, %d elem/block)",
-              NEKO_EB_SEL(LX, c));
-      log_message(neko_log_buf);
-      log_end_section();
-      return 2;
+      strat = 1;
+    } else if( !strcmp(env_value,"KSTEP") ) {
+      strat = 2;
     } else if( !strcmp(env_value,"MFMA") ) {
       if (mfma) {
-        const int c = neko_mfma_env();
-        *nwf_sel = c;
-        CASE_MFMA_SEL(LX, c);
-        sprintf(neko_log_buf,"Set by env   : 3 (MFMA, %d wf, %d elem/block)",
-                NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c));
-        log_message(neko_log_buf);
-        log_end_section();
-        return 3;
+        strat = 3;
       } else {
         sprintf(neko_log_buf, "MFMA strategy not available for this config");
         log_error(neko_log_buf);
@@ -647,6 +661,47 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
     }
   }
 
+  /* Formulation and geometry both pinned leaves nothing to measure */
+  const int pin = (strat == 1) ? ch_pin : (strat == 2) ? eb_pin :
+                  (strat == 3) ? nwf_pin : -1;
+
+  if (pin >= 0) {
+    switch (strat) {
+    case 1:
+      *ch_sel = pin;
+      CASE_1D_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 1 (1D, %d chunk)",
+              NEKO_CHUNKS_SEL(LX, pin));
+      break;
+    case 2:
+      *eb_sel = pin;
+      CASE_KSTEP_PADDED_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 2 (KSTEP, %d elem/block)",
+              NEKO_EB_SEL(LX, pin));
+      break;
+    default:
+      *nwf_sel = pin;
+      CASE_MFMA_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 3 (MFMA, %d wf, %d elem/block)",
+              NEKO_MFMA_NWF(pin), NEKO_MFMA_EB(LX, pin));
+      break;
+    }
+    log_message(neko_log_buf);
+    log_end_section();
+    return strat;
+  }
+
+  if (strat) {
+    sprintf(neko_log_buf, "Set by env   : %d (%s)", strat, env_value);
+    log_message(neko_log_buf);
+  }
+
+  /* Formulations the sweep considers, see NEKO_TUNE_FOR() */
+  const bool try_1d = (strat == 0 || strat == 1);
+  const bool try_kstep = (strat == 0 || strat == 2);
+  const bool try_mfma = mfma && ((strat == 3) ||
+                                 (strat == 0 && neko_mfma_sweep()));
+
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
 
@@ -654,40 +709,28 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
      be resident and the clocks at steady state, or whichever variant is
      timed first is measured on a colder part */
   for (int i = 0; i < NEKO_TUNE_WARMUP; i++) {
-    CASE_1D(LX, 0);
-    CASE_1D(LX, 1);
-    CASE_1D(LX, 2);
-    CASE_1D(LX, 3);
-    CASE_KSTEP_PADDED(LX, 0);
-    if (sweep) {
-      CASE_KSTEP_PADDED(LX, 1);
-      CASE_KSTEP_PADDED(LX, 2);
+    NEKO_TUNE_FOR(c, try_1d, ch_pin, NEKO_CHUNKS_CANDIDATES) {
+      CASE_1D_SEL(LX, c);
     }
-    if (mfma_tune) {
-      CASE_MFMA(LX, 0);
-      CASE_MFMA(LX, 1);
-      CASE_MFMA(LX, 2);
-      CASE_MFMA(LX, 3);
+    NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+      CASE_KSTEP_PADDED_SEL(LX, c);
+    }
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, NEKO_MFMA_CANDIDATES) {
+      CASE_MFMA_SEL(LX, c);
     }
   }
 
   /* Interleaved rounds, best time per variant: timing them one after another
      in a fixed order lets clock drift bias the comparison by position */
   for (int r = 0; r < rounds; r++) {
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 0, iters);
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 1, iters);
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 2, iters);
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 3, iters);
-    NEKO_TUNE_TIME(time2, CASE_KSTEP_PADDED, LX, 0, iters);
-    if (sweep) {
-      NEKO_TUNE_TIME(time2, CASE_KSTEP_PADDED, LX, 1, iters);
-      NEKO_TUNE_TIME(time2, CASE_KSTEP_PADDED, LX, 2, iters);
+    NEKO_TUNE_FOR(c, try_1d, ch_pin, NEKO_CHUNKS_CANDIDATES) {
+      NEKO_TUNE_TIME(time1, CASE_1D_SEL, LX, c, iters);
     }
-    if (mfma_tune) {
-      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 0, iters);
-      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 1, iters);
-      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 2, iters);
-      NEKO_TUNE_TIME(time3, CASE_MFMA, LX, 3, iters);
+    NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+      NEKO_TUNE_TIME(time2, CASE_KSTEP_PADDED_SEL, LX, c, iters);
+    }
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, NEKO_MFMA_CANDIDATES) {
+      NEKO_TUNE_TIME(time3, CASE_MFMA_SEL, LX, c, iters);
     }
   }
 
@@ -742,9 +785,9 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
 
 /*
  * The vector Ax has no 1d variant, so these only sweep the elements per
- * block candidates. Setting NEKO_AUTOTUNE to anything pins candidate 0,
- * i.e. the one element per block shape these kernels have always had,
- * which is the A/B baseline for the blocking.
+ * block candidates. Setting NEKO_EB pins one of them, candidate 0 being the
+ * one element per block shape these kernels have always had and so the A/B
+ * baseline for the blocking.
  *
  * @note The section title has to fit the 30 character header field in
  * log_section(), which truncates rather than wraps -- hence "Ax vector"
@@ -760,6 +803,8 @@ int tune_vector(void *au, void *av, void *aw, void *u, void *v, void *w,
   const int rounds = neko_tune_rounds();
   const int iters = neko_tune_iters();
   const int sweep = neko_eb_sweep();
+  /* Elements per block pinned by NEKO_EB, -1 to sweep it */
+  const int eb_pin = neko_eb_pin();
   int best = 0;
 
   for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
@@ -778,10 +823,13 @@ int tune_vector(void *au, void *av, void *aw, void *u, void *v, void *w,
    * reach the register file limit -- and start spilling to scratch -- well
    * before a wider block can buy anything. Sweeping them by default was a
    * regression. Set NEKO_EB_TUNE=1 to opt back into the sweep
+   *
+   * NEKO_AUTOTUNE is not consulted here: it names a formulation, and the
+   * vector Ax has only the one, so naming it says nothing about the geometry.
+   * NEKO_EB still pins that, and pinning it is what skips the sweep
    */
-  if (getenv("NEKO_AUTOTUNE") ||
-      getenv("NEKO_EB") || !neko_eb_sweep()) {
-    const int c = neko_eb_env();
+  if (eb_pin >= 0 || !sweep) {
+    const int c = (eb_pin >= 0) ? eb_pin : 0;
     CASE_VECTOR_SEL(LX, c);
     sprintf(neko_log_buf, "Vector Ax    : %d elem/block (untuned)",
             NEKO_EB_SEL(LX, c));
@@ -836,6 +884,8 @@ int tune_vector_padded(void *au, void *av, void *aw,
   const int rounds = neko_tune_rounds();
   const int iters = neko_tune_iters();
   const int sweep = neko_eb_sweep();
+  /* Elements per block pinned by NEKO_EB, -1 to sweep it */
+  const int eb_pin = neko_eb_pin();
   int best = 0;
 
   for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
@@ -854,10 +904,13 @@ int tune_vector_padded(void *au, void *av, void *aw,
    * reach the register file limit -- and start spilling to scratch -- well
    * before a wider block can buy anything. Sweeping them by default was a
    * regression. Set NEKO_EB_TUNE=1 to opt back into the sweep
+   *
+   * NEKO_AUTOTUNE is not consulted here: it names a formulation, and the
+   * vector Ax has only the one, so naming it says nothing about the geometry.
+   * NEKO_EB still pins that, and pinning it is what skips the sweep
    */
-  if (getenv("NEKO_AUTOTUNE") ||
-      getenv("NEKO_EB") || !neko_eb_sweep()) {
-    const int c = neko_eb_env();
+  if (eb_pin >= 0 || !sweep) {
+    const int c = (eb_pin >= 0) ? eb_pin : 0;
     CASE_VECTOR_PADDED_SEL(LX, c);
     sprintf(neko_log_buf, "Vector Ax    : %d elem/block (untuned)",
             NEKO_EB_SEL(LX, c));

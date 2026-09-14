@@ -282,6 +282,7 @@ contains
              write(log_buf, '(A,I6)') 'Output number :', &
                   int(this%controllers(i)%nexecutions)
              call neko_log%message(log_buf)
+             call neko_log%flush()
 
              call samp%output_list(i)%ptr%sample(time%t)
 
@@ -301,6 +302,7 @@ contains
             ' Output time (s): ', sample_time
        call neko_log%message(log_buf)
        call neko_log%end_section()
+       call neko_log%flush()
     end if
     call profiler_end_region('Output controller', 22)
   end subroutine output_controller_execute
