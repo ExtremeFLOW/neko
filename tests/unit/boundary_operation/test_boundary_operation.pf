@@ -20,6 +20,8 @@ module test_boundary_operation
   use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
   use registry, only : neko_registry
   use vector_math, only : vector_face_masked_gather_copy_0
+  use math, only : copy
+  use device, only : device_copy
   implicit none
 
   integer, parameter :: lx_test = 3
@@ -81,9 +83,10 @@ contains
     call label_adjacent_faces(msh)
 
     call fld%init(dof, "xcoord")
-    fld%x = dof%x%x
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call fld%copy_from(HOST_TO_DEVICE, .true.)
+       call device_copy(fld%x_d, dof%x%x_d, dof%size())
+    else
+       call copy(fld%x, dof%x%x, dof%size())
     end if
 
     call init_boundary_operation_for_compute_test(simcomp, fld, coef)
@@ -133,9 +136,10 @@ contains
     call neko_registry%init()
     call neko_registry%add_field(dof, "u")
     reg_field => neko_registry%get_field_by_name("u")
-    reg_field%x = dof%x%x
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call reg_field%copy_from(HOST_TO_DEVICE, .true.)
+       call device_copy(reg_field%x_d, dof%x%x_d, dof%size())
+    else
+       call copy(reg_field%x, dof%x%x, dof%size())
     end if
 
     call test_case%time%init(0.0_dp, 1.0_dp, 0.1_dp)
