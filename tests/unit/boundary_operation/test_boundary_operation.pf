@@ -21,7 +21,7 @@ module test_boundary_operation
   use registry, only : neko_registry
   use vector_math, only : vector_face_masked_gather_copy_0
   use math, only : copy
-  use device, only : device_copy
+  use device_math, only : device_copy
   implicit none
 
   integer, parameter :: lx_test = 3
