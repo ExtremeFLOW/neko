@@ -83,6 +83,53 @@ def test_allows_user_extension_properties(tmp_path):
     assert result.returncode == 0, result.stdout + result.stderr
 
 
+def test_allows_custom_scalar_pnpn_boundary_condition(tmp_path):
+    with (EXAMPLES_DIR / "scalar_mms" / "scalar_mms.case").open(
+        encoding="utf-8"
+    ) as handle:
+        data = json5.load(handle)
+
+    boundary = data["case"]["scalar"]["boundary_conditions"][0]
+    boundary.clear()
+    boundary.update(
+        {
+            "type": "custom_scalar_bc",
+            "zone_indices": [1],
+            "custom_parameter": 2.0,
+        }
+    )
+
+    case_file = tmp_path / "custom_scalar_bc.case"
+    case_file.write_text(json.dumps(data), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(case_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_rejects_custom_properties_for_builtin_scalar_bc(tmp_path):
+    with (EXAMPLES_DIR / "scalar_mms" / "scalar_mms.case").open(
+        encoding="utf-8"
+    ) as handle:
+        data = json5.load(handle)
+
+    boundary = data["case"]["scalar"]["boundary_conditions"][0]
+    boundary["custom_parameter"] = 2.0
+
+    case_file = tmp_path / "invalid_scalar_bc.case"
+    case_file.write_text(json.dumps(data), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(case_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode != 0
+
+
 def test_rejects_real_encoding_for_integer_controller_value(tmp_path):
     with (EXAMPLES_DIR / "rayleigh_benard_cylinder" / "rayleigh.case").open(
         encoding="utf-8"
@@ -237,6 +284,25 @@ def test_all_builtin_simcomps_have_schemas():
     schema_types = set(re.findall(r"urn:neko:schema:simcomps:([^#]+)#", refs))
 
     assert schema_types == runtime_types
+
+
+def test_all_builtin_scalar_pnpn_bc_types_have_schemas():
+    runtime_types = factory_case_values(
+        REPO_ROOT / "src/scalar/scalar_pnpn_bc_fctry.f90"
+    )
+    with (REPO_ROOT / "doc/schemas/scalar.schema.json").open(
+        encoding="utf-8"
+    ) as handle:
+        schema = json.load(handle)
+    schema_types = collect_const_values(
+        schema["$defs"]["scalarBoundaryCondition"], "type"
+    )
+    custom_schema = schema["$defs"]["scalarBoundaryCondition"]["oneOf"][-1]
+    excluded_custom_types = set(
+        custom_schema["not"]["properties"]["type"]["enum"]
+    )
+
+    assert schema_types == runtime_types == excluded_custom_types
 
 
 @pytest.mark.parametrize(
