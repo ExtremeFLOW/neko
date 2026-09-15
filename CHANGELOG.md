@@ -1,6 +1,8 @@
 # Changelog
 
 ## Develop
+- Fixed several OpenMP races in the boundary conditions, including a Neumann
+  flux accumulated once per thread.
 - Fixed a leaked MPI file handle in the fld reader, which never closed the
   file it opened.
 - Added runtime registration of user-defined scalar boundary-condition types
