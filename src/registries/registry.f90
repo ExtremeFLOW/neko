@@ -69,6 +69,10 @@ module registry
      procedure, pass(this) :: add_vector => registry_add_vector
      !> Add a matrix to the registry.
      procedure, pass(this) :: add_matrix => registry_add_matrix
+     !> Add a tensor3 to the registry.
+     procedure, pass(this) :: add_tensor3 => registry_add_tensor3
+     !> Add a tensor4 to the registry.
+     procedure, pass(this) :: add_tensor4 => registry_add_tensor4
      !> Add a real scalar to the registry.
      procedure, pass(this) :: add_real_scalar => registry_add_real_scalar
      !> Add an integer scalar to the registry.
@@ -82,6 +86,10 @@ module registry
      procedure, pass(this) :: get_vector => registry_get_vector
      !> Get pointer to a stored matrix by name.
      procedure, pass(this) :: get_matrix => registry_get_matrix
+     !> Get pointer to a stored tensor3 by name.
+     procedure, pass(this) :: get_tensor3 => registry_get_tensor3
+     !> Get pointer to a stored tensor4 by name.
+     procedure, pass(this) :: get_tensor4 => registry_get_tensor4
      !> Get pointer to a stored real scalar by name.
      procedure, pass(this) :: get_real_scalar => registry_get_real_scalar
      !> Get pointer to a stored integer scalar by name.
@@ -95,6 +103,10 @@ module registry
      procedure, pass(this) :: vector_exists => registry_vector_exists
      !> Check if a matrix with a given name is already in the registry.
      procedure, pass(this) :: matrix_exists => registry_matrix_exists
+     !> Check if a tensor3 with a given name is already in the registry.
+     procedure, pass(this) :: tensor3_exists => registry_tensor3_exists
+     !> Check if a tensor4 with a given name is already in the registry.
+     procedure, pass(this) :: tensor4_exists => registry_tensor4_exists
      !> Check if a real scalar with a given name is already in the registry.
      procedure, pass(this) :: real_scalar_exists => registry_real_scalar_exists
      !> Check if an integer scalar with a given name is already in the registry.
@@ -113,6 +125,10 @@ module registry
      procedure, pass(this) :: n_vectors => registry_n_vectors
      !> Get the number of matrices in the registry.
      procedure, pass(this) :: n_matrices => registry_n_matrices
+     !> Get the number of tensor3s in the registry.
+     procedure, pass(this) :: n_tensor3s => registry_n_tensor3s
+     !> Get the number of tensor4s in the registry.
+     procedure, pass(this) :: n_tensor4s => registry_n_tensor4s
      !> Get the number of real scalars in the registry.
      procedure, pass(this) :: n_real_scalars => registry_n_real_scalars
      !> Get the number of integer scalars in the registry.
@@ -135,7 +151,6 @@ module registry
   !! from the global registry to prevent name clashes with registered objects
   !! used by Neko itself.
   type(registry_t), public, target :: neko_const_registry
-
 
 contains
   ! ========================================================================== !
@@ -332,6 +347,86 @@ contains
 
   end subroutine registry_add_matrix
 
+  !> Add a tensor3 to the registry.
+  !! @param n The size of the tensor3.
+  !! @param name The name of the tensor3.
+  !! @param ignore_existing If true, will do nothing if the tensor3 is already in
+  !! the registry. If false, will throw an error. Optional, defaults to false.
+  subroutine registry_add_tensor3(this, n, m, k, name, ignore_existing)
+    class(registry_t), intent(inout) :: this
+    integer, intent(in) :: n, m, k
+    character(len=*), target, intent(in) :: name
+    logical, optional, intent(in) :: ignore_existing
+    logical :: ignore_existing_
+
+    ignore_existing_ = .false.
+    if (present(ignore_existing)) then
+       ignore_existing_ = ignore_existing
+    end if
+
+    if (this%tensor3_exists(name)) then
+       if (ignore_existing_) then
+          return
+       else
+          call neko_error("Tensor3 with name " // name // &
+               " is already registered")
+       end if
+    end if
+
+    if (this%n_entries() .eq. this%get_size()) then
+       call this%expand()
+    end if
+
+    this%n_entries_ = this%n_entries_ + 1
+
+    ! Initialize the named tensor3 at the appropriate index
+    call this%entries(this%n_entries_)%init_tensor3(n, m, k, name)
+
+    call neko_log%message("Tensor3 " // trim(name) // " added to the registry", &
+         lvl=NEKO_LOG_DEBUG)
+
+  end subroutine registry_add_tensor3
+
+  !> Add a tensor4 to the registry.
+  !! @param n The size of the tensor4.
+  !! @param name The name of the tensor4.
+  !! @param ignore_existing If true, will do nothing if the tensor4 is already in
+  !! the registry. If false, will throw an error. Optional, defaults to false.
+  subroutine registry_add_tensor4(this, n, m, k, name, ignore_existing)
+    class(registry_t), intent(inout) :: this
+    integer, intent(in) :: n, m, k
+    character(len=*), target, intent(in) :: name
+    logical, optional, intent(in) :: ignore_existing
+    logical :: ignore_existing_
+
+    ignore_existing_ = .false.
+    if (present(ignore_existing)) then
+       ignore_existing_ = ignore_existing
+    end if
+
+    if (this%tensor4_exists(name)) then
+       if (ignore_existing_) then
+          return
+       else
+          call neko_error("Tensor4 with name " // name // &
+               " is already registered")
+       end if
+    end if
+
+    if (this%n_entries() .eq. this%get_size()) then
+       call this%expand()
+    end if
+
+    this%n_entries_ = this%n_entries_ + 1
+
+    ! Initialize the named tensor4 at the appropriate index
+    call this%entries(this%n_entries_)%init_tensor4(n, m, k, name)
+
+    call neko_log%message("Tensor4 " // trim(name) // " added to the registry", &
+         lvl=NEKO_LOG_DEBUG)
+
+  end subroutine registry_add_tensor4
+
   !> Add a real scalar to the registry.
   !! @param value The scalar value.
   !! @param name The name of the scalar.
@@ -516,7 +611,67 @@ contains
     call this%print_contents()
     call neko_error("Matrix " // name // " could not be found in the registry")
 
-  end function registry_get_matrix_by_name
+  end function registry_get_matrix
+
+  !> Get pointer to a stored tensor3 by name.
+  recursive function registry_get_tensor3(this, name) result(f)
+    class(registry_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
+    character(len=:), allocatable :: alias_target
+    type(tensor3_t), pointer :: f
+    logical :: found
+    integer :: i
+
+    found = .false.
+
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'tensor3' .and. &
+            this%entries(i)%get_name() .eq. trim(name)) then
+          f => this%entries(i)%get_tensor3()
+          return
+       end if
+    end do
+
+    call this%aliases%get(name, alias_target, found)
+    if (found) then
+       f => this%get_tensor3(alias_target)
+       return
+    end if
+
+    call this%print_contents()
+    call neko_error("Tensor3 " // name // " could not be found in the registry")
+
+  end function registry_get_tensor3
+
+  !> Get pointer to a stored tensor4 by name.
+  recursive function registry_get_tensor4(this, name) result(f)
+    class(registry_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
+    character(len=:), allocatable :: alias_target
+    type(tensor4_t), pointer :: f
+    logical :: found
+    integer :: i
+
+    found = .false.
+
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'tensor4' .and. &
+            this%entries(i)%get_name() .eq. trim(name)) then
+          f => this%entries(i)%get_tensor4()
+          return
+       end if
+    end do
+
+    call this%aliases%get(name, alias_target, found)
+    if (found) then
+       f => this%get_tensor4(alias_target)
+       return
+    end if
+
+    call this%print_contents()
+    call neko_error("Tensor4 " // name // " could not be found in the registry")
+
+  end function registry_get_tensor4
 
   !> Get pointer to a stored real scalar by name.
   recursive function registry_get_real_scalar(this, name) result(s)
@@ -647,6 +802,30 @@ contains
 
   end function registry_matrix_exists
 
+  !> Check if a tensor3 with a given name is already in the registry.
+  function registry_tensor3_exists(this, name) result(found)
+    class(registry_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
+    logical :: found
+    integer :: i
+
+    found = this%entry_exists(name, 'tensor3')
+    if (.not. found) found = this%aliases%valid_path(name)
+
+  end function registry_tensor3_exists
+
+  !> Check if a tensor4 with a given name is already in the registry.
+  function registry_tensor4_exists(this, name) result(found)
+    class(registry_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
+    logical :: found
+    integer :: i
+
+    found = this%entry_exists(name, 'tensor4')
+    if (.not. found) found = this%aliases%valid_path(name)
+
+  end function registry_tensor4_exists
+
   !> Check if a real scalar with a given name is already in the registry.
   function registry_real_scalar_exists(this, name) result(found)
     class(registry_t), target, intent(inout) :: this
@@ -720,6 +899,32 @@ contains
        end if
     end do
   end function registry_n_matrices
+
+  !> Get the number of tensor3 stored in the registry
+  pure function registry_n_tensor3s(this) result(n)
+    class(registry_t), intent(in) :: this
+    integer :: n, i
+
+    n = 0
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'tensor3') then
+          n = n + 1
+       end if
+    end do
+  end function registry_n_tensor3s
+
+  !> Get the number of tensor4 stored in the registry
+  pure function registry_n_tensor4s(this) result(n)
+    class(registry_t), intent(in) :: this
+    integer :: n, i
+
+    n = 0
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'tensor4') then
+          n = n + 1
+       end if
+    end do
+  end function registry_n_tensor4s
 
   !> Get the number of real scalars stored in the registry
   pure function registry_n_real_scalars(this) result(n)
