@@ -117,6 +117,22 @@ module scratch_registry
      generic :: relinquish_matrix => relinquish_matrix_single, &
           relinquish_matrix_multiple
 
+     !> Get a new scratch tensor3
+     procedure, pass(this) :: request_tensor3
+     procedure, pass(this) :: relinquish_tensor3_single
+     procedure, pass(this) :: relinquish_tensor3_multiple
+     !> Free a tensor3 for later reuse
+     generic :: relinquish_tensor3 => relinquish_tensor3_single, &
+          relinquish_tensor3_multiple
+
+     !> Get a new scratch tensor4
+     procedure, pass(this) :: request_tensor4
+     procedure, pass(this) :: relinquish_tensor4_single
+     procedure, pass(this) :: relinquish_tensor4_multiple
+     !> Free a tensor4 for later reuse
+     generic :: relinquish_tensor4 => relinquish_tensor4_single, &
+          relinquish_tensor4_multiple
+
      !> Get a new scratch field
      procedure, pass(this) :: request_field
      procedure, pass(this) :: relinquish_field_single
@@ -127,7 +143,8 @@ module scratch_registry
 
      !> Generic request procedure
      generic :: request => request_host_array, request_device_array, &
-          request_vector, request_matrix, request_field
+          request_vector, request_matrix, request_tensor3, request_tensor4, &
+          request_field
      procedure, pass(this) :: relinquish_single
      procedure, pass(this) :: relinquish_multiple
      !> Generic relinquish procedure
