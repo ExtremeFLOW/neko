@@ -52,6 +52,7 @@ module scratch_registry
 
   use dofmap, only : dofmap_t
   use utils, only : neko_error
+  use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
   private
 
@@ -548,7 +549,11 @@ contains
                cycle
             end if
 
-            if (clear) call tensor3_rzero(t)
+            if (clear .and. NEKO_BCKND_DEVICE .eq. 1) then
+               call device_rzero(t%x_d, t%size())
+            else if (clear) then
+               call rzero(t%x, t%size())
+            end if
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -604,7 +609,11 @@ contains
                cycle
             end if
 
-            if (clear) call tensor4_rzero(t)
+            if (clear .and. NEKO_BCKND_DEVICE .eq. 1) then
+               call device_rzero(t%x_d, t%size())
+            else if (clear) then
+               call rzero(t%x, t%size())
+            end if
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
