@@ -83,26 +83,28 @@ module registry
      procedure, pass(this) :: add_alias => registry_add_alias
 
      !> Get pointer to a stored field by name.
-     procedure, pass(this) :: get_field_by_name => &
-          registry_get_field
+     procedure, pass(this) :: get_field => registry_get_field
      !> Get pointer to a stored vector by name.
-     procedure, pass(this) :: get_vector_by_name => &
-          registry_get_vector
+     procedure, pass(this) :: get_vector => registry_get_vector
      !> Get pointer to a stored matrix by name.
-     procedure, pass(this) :: get_matrix_by_name => &
-          registry_get_matrix
+     procedure, pass(this) :: get_matrix => registry_get_matrix
      !> Get pointer to a stored tensor3 by name.
-     procedure, pass(this) :: get_tensor3_by_name => &
-          registry_get_tensor3
+     procedure, pass(this) :: get_tensor3 => registry_get_tensor3
      !> Get pointer to a stored tensor4 by name.
-     procedure, pass(this) :: get_tensor4_by_name => &
-          registry_get_tensor4
+     procedure, pass(this) :: get_tensor4 => registry_get_tensor4
      !> Get pointer to a stored real scalar by name.
-     procedure, pass(this) :: get_real_scalar_by_name => &
-          registry_get_real_scalar
+     procedure, pass(this) :: get_real_scalar => registry_get_real_scalar
      !> Get pointer to a stored integer scalar by name.
-     procedure, pass(this) :: get_integer_scalar_by_name => &
-          registry_get_integer_scalar
+     procedure, pass(this) :: get_integer_scalar => registry_get_integer_scalar
+
+     ! Just to retain the old API for backwards compatibility.
+     generic :: get_field_by_name => get_field
+     generic :: get_vector_by_name => get_vector
+     generic :: get_matrix_by_name => get_matrix
+     generic :: get_tensor3_by_name => get_tensor3
+     generic :: get_tensor4_by_name => get_tensor4
+     generic :: get_real_scalar_by_name => get_real_scalar
+     generic :: get_integer_scalar_by_name => get_integer_scalar
 
      !> Check if an entry with a given name is already in the registry.
      procedure, pass(this) :: entry_exists => registry_entry_exists
