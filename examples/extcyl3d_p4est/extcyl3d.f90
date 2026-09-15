@@ -306,16 +306,15 @@ contains
                ! Error indicator based part
                do il = 1, nelv
                   if (errind(il) .gt. ref_thr_var .and. &
-                          ref_level(il) .lt. ref_level_max) then
-                        ref_mark(il) = amr_flg_h_ref
-                        ifrefine = .true.
-                     else if (errind(il) .lt. crs_thr .and. &
-                          ref_level(il) .gt. ref_level_min) then
-                        ref_mark(il) = amr_flg_h_crs
-                        ifrefine = .true.
-                     else
-                        ref_mark(il) = amr_flg_none
-                     end if
+                       ref_level(il) .lt. ref_level_max) then
+                     ref_mark(il) = amr_flg_h_ref
+                     ifrefine = .true.
+                  else if (errind(il) .lt. crs_thr .and. &
+                       ref_level(il) .gt. ref_level_min) then
+                     ref_mark(il) = amr_flg_h_crs
+                     ifrefine = .true.
+                  else
+                     ref_mark(il) = amr_flg_none
                   end if
                end do
              end associate
