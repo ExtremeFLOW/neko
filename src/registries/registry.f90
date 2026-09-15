@@ -77,28 +77,15 @@ module registry
      procedure, pass(this) :: add_alias => registry_add_alias
 
      !> Get pointer to a stored field by name.
-     procedure, pass(this) :: get_field_by_name => registry_get_field_by_name
+     procedure, pass(this) :: get_field => registry_get_field
      !> Get pointer to a stored vector by name.
-     procedure, pass(this) :: get_vector_by_name => registry_get_vector_by_name
+     procedure, pass(this) :: get_vector => registry_get_vector
      !> Get pointer to a stored matrix by name.
-     procedure, pass(this) :: get_matrix_by_name => registry_get_matrix_by_name
+     procedure, pass(this) :: get_matrix => registry_get_matrix
      !> Get pointer to a stored real scalar by name.
-     procedure, pass(this) :: get_real_scalar_by_name => &
-          registry_get_real_scalar_by_name
+     procedure, pass(this) :: get_real_scalar => registry_get_real_scalar
      !> Get pointer to a stored integer scalar by name.
-     procedure, pass(this) :: get_integer_scalar_by_name => &
-          registry_get_integer_scalar_by_name
-
-     !> Generic field getter
-     generic :: get_field => get_field_by_name
-     !> Generic vector getter
-     generic :: get_vector => get_vector_by_name
-     !> Generic matrix getter
-     generic :: get_matrix => get_matrix_by_name
-     !> Generic real scalar getter
-     generic :: get_real_scalar => get_real_scalar_by_name
-     !> Generic integer scalar getter
-     generic :: get_integer_scalar => get_integer_scalar_by_name
+     procedure, pass(this) :: get_integer_scalar => registry_get_integer_scalar
 
      !> Check if an entry with a given name is already in the registry.
      procedure, pass(this) :: entry_exists => registry_entry_exists
@@ -326,7 +313,7 @@ contains
        if (ignore_existing_) then
           return
        else
-          call neko_error("Vector with name " // name // &
+          call neko_error("Matrix with name " // name // &
                " is already registered")
        end if
     end if
@@ -443,7 +430,7 @@ contains
   ! Methods for retrieving objects from the registry by name
 
   !> Get pointer to a stored field by field name.
-  recursive function registry_get_field_by_name(this, name) result(f)
+  recursive function registry_get_field(this, name) result(f)
     class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=:), allocatable :: alias_target
@@ -461,18 +448,18 @@ contains
 
     call this%aliases%get(name, alias_target, found)
     if (found) then
-       f => this%get_field_by_name(alias_target)
+       f => this%get_field(alias_target)
        return
     end if
 
     call this%print_contents()
     call neko_error("Field " // name // " could not be found in the registry")
 
-  end function registry_get_field_by_name
+  end function registry_get_field
 
 
   !> Get pointer to a stored vector by name.
-  recursive function registry_get_vector_by_name(this, name) result(f)
+  recursive function registry_get_vector(this, name) result(f)
     class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=:), allocatable :: alias_target
@@ -492,17 +479,17 @@ contains
 
     call this%aliases%get(name, alias_target, found)
     if (found) then
-       f => this%get_vector_by_name(alias_target)
+       f => this%get_vector(alias_target)
        return
     end if
 
     call this%print_contents()
     call neko_error("Vector " // name // " could not be found in the registry")
 
-  end function registry_get_vector_by_name
+  end function registry_get_vector
 
   !> Get pointer to a stored matrix by name.
-  recursive function registry_get_matrix_by_name(this, name) result(f)
+  recursive function registry_get_matrix(this, name) result(f)
     class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=:), allocatable :: alias_target
@@ -522,7 +509,7 @@ contains
 
     call this%aliases%get(name, alias_target, found)
     if (found) then
-       f => this%get_matrix_by_name(alias_target)
+       f => this%get_matrix(alias_target)
        return
     end if
 
@@ -532,7 +519,7 @@ contains
   end function registry_get_matrix_by_name
 
   !> Get pointer to a stored real scalar by name.
-  recursive function registry_get_real_scalar_by_name(this, name) result(s)
+  recursive function registry_get_real_scalar(this, name) result(s)
     class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=:), allocatable :: alias_target
@@ -552,17 +539,17 @@ contains
 
     call this%aliases%get(name, alias_target, found)
     if (found) then
-       s => this%get_real_scalar_by_name(alias_target)
+       s => this%get_real_scalar(alias_target)
        return
     end if
 
     call this%print_contents()
-    call neko_error("Scalar " // name // " could not be found in the registry")
+    call neko_error("Real scalar " // name // " could not be found in the registry")
 
-  end function registry_get_real_scalar_by_name
+  end function registry_get_real_scalar
 
   !> Get pointer to a stored integer scalar by name.
-  recursive function registry_get_integer_scalar_by_name(this, name) result(s)
+  recursive function registry_get_integer_scalar(this, name) result(s)
     class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=:), allocatable :: alias_target
@@ -582,7 +569,7 @@ contains
 
     call this%aliases%get(name, alias_target, found)
     if (found) then
-       s => this%get_integer_scalar_by_name(alias_target)
+       s => this%get_integer_scalar(alias_target)
        return
     end if
 
@@ -590,23 +577,34 @@ contains
     call neko_error("Integer scalar " // name // &
          " could not be found in the registry")
 
-  end function registry_get_integer_scalar_by_name
+  end function registry_get_integer_scalar
 
   ! ========================================================================== !
   ! Methods for checking existence of objects in the registry
 
   !> Check if a field with a given name is already in the registry.
-  function registry_entry_exists(this, name) result(found)
+  !! @param name The name of the field.
+  !! @param type The type of the entry. Optional, if not provided, will check
+  !!        all types.
+  function registry_entry_exists(this, name, type) result(found)
     class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
+    character(len=*), intent(in), optional :: type
     logical :: found
     integer :: i
 
     found = .false.
     do i = 1, this%n_entries()
        if (trim(this%entries(i)%get_name()) .eq. trim(name)) then
-          found = .true.
-          return
+          if (present(type)) then
+             if (trim(this%entries(i)%get_type()) .eq. trim(type)) then
+                found = .true.
+                return
+             end if
+          else
+             found = .true.
+             return
+          end if
        end if
     end do
 
@@ -620,16 +618,9 @@ contains
     logical :: found
     integer :: i
 
-    found = .false.
-    do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'field' .and. &
-            this%entries(i)%get_name() .eq. trim(name)) then
-          found = .true.
-          return
-       end if
-    end do
+    found = this%entry_exists(name, 'field')
+    if (.not. found) found = this%aliases%valid_path(name)
 
-    found = this%aliases%valid_path(name)
   end function registry_field_exists
 
   !> Check if a vector with a given name is already in the registry.
@@ -639,16 +630,9 @@ contains
     logical :: found
     integer :: i
 
-    found = .false.
-    do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'vector' .and. &
-            this%entries(i)%get_name() .eq. trim(name)) then
-          found = .true.
-          return
-       end if
-    end do
+    found = this%entry_exists(name, 'vector')
+    if (.not. found) found = this%aliases%valid_path(name)
 
-    found = this%aliases%valid_path(name)
   end function registry_vector_exists
 
   !> Check if a matrix with a given name is already in the registry.
@@ -658,16 +642,9 @@ contains
     logical :: found
     integer :: i
 
-    found = .false.
-    do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'matrix' .and. &
-            this%entries(i)%get_name() .eq. trim(name)) then
-          found = .true.
-          return
-       end if
-    end do
+    found = this%entry_exists(name, 'matrix')
+    if (.not. found) found = this%aliases%valid_path(name)
 
-    found = this%aliases%valid_path(name)
   end function registry_matrix_exists
 
   !> Check if a real scalar with a given name is already in the registry.
@@ -677,16 +654,9 @@ contains
     logical :: found
     integer :: i
 
-    found = .false.
-    do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'real_scalar' .and. &
-            this%entries(i)%get_name() .eq. trim(name)) then
-          found = .true.
-          return
-       end if
-    end do
+    found = this%entry_exists(name, 'real_scalar')
+    if (.not. found) found = this%aliases%valid_path(name)
 
-    found = this%aliases%valid_path(name)
   end function registry_real_scalar_exists
 
   !> Check if an integer scalar with a given name is already in the registry.
@@ -696,16 +666,9 @@ contains
     logical :: found
     integer :: i
 
-    found = .false.
-    do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'integer_scalar' .and. &
-            this%entries(i)%get_name() .eq. trim(name)) then
-          found = .true.
-          return
-       end if
-    end do
+    found = this%entry_exists(name, 'integer_scalar')
+    if (.not. found) found = this%aliases%valid_path(name)
 
-    found = this%aliases%valid_path(name)
   end function registry_integer_scalar_exists
 
   ! ========================================================================== !
