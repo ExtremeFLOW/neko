@@ -852,11 +852,11 @@ contains
   pure function registry_n_entries(this, type) result(n)
     class(registry_t), intent(in) :: this
     character(len=*), intent(in), optional :: type
-    integer :: n
+    integer :: n, i
 
     if (present(type)) then
        n = 0
-       do i = 1, this%n_entries()
+       do i = 1, this%n_entries_
           if (this%entries(i)%get_type() .eq. trim(type)) then
              n = n + 1
           end if
