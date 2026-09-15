@@ -12,32 +12,19 @@ import numpy as np
 
 
 HERE = Path(__file__).resolve().parent
-CASE_ROOT = HERE.parent
-GENERATED = Path(os.environ.get("GENERATED_PATH", CASE_ROOT / "generated_2x_xy"))
-FIELD = Path(os.environ.get("FIELD_PATH", HERE / "fields" / "field0.f00000"))
-GEOMETRY_FIELD = Path(os.environ.get("GEOMETRY_FIELD", HERE / "fields" / "field0.f00000"))
-MASK_FIELD = os.environ.get("MASK_FIELD_PATH")
-MASK_THRESHOLD = float(os.environ.get("MASK_THRESHOLD", "0.1"))
-OUT = Path(os.environ.get("OUT_PATH", HERE / "renders" / "sodermalm_velocity_terrain_plus10.png"))
-NPZ_OUT = os.environ.get("NPZ_OUT")
-SAMPLE_ONLY = os.environ.get("SAMPLE_ONLY", "0") == "1"
-SHOW_STREAMLINES = os.environ.get("SHOW_STREAMLINES", "1") != "0"
-VMAX_OVERRIDE = os.environ.get("VMAX")
-VMIN_OVERRIDE = os.environ.get("VMIN")
-COLOR_SCALE = os.environ.get("COLOR_SCALE", "linear")
+CASE_ROOT = HERE
+GENERATED = Path(os.environ.get("GENERATED_PATH", HERE / "generated_sharp_mask"))
+FIELD = Path(os.environ.get("FIELD_PATH", HERE / "run" / "fields" / "field0.f00000"))
+GEOMETRY_FIELD = Path(os.environ.get("GEOMETRY_FIELD", HERE / "run" / "fields" / "field0.f00000"))
+NPZ_OUT = Path(os.environ.get("NPZ_OUT", HERE / "renders" / "terrain_plus10.npz"))
+COLOR_SCALE = os.environ.get("COLOR_SCALE", "log")
 COLORMAP_STYLE = os.environ.get("COLORMAP_STYLE", "urban_flow")
-LOG_VREF = float(os.environ.get("LOG_VREF", "0.08"))
-BUILDING_ALPHA = int(os.environ.get("BUILDING_ALPHA", "185"))
+LOG_VREF = float(os.environ.get("LOG_VREF", "0.12"))
 GRID_N = 420
 LIFT_M = float(os.environ.get("LIFT_M", "10.0"))
 SAMPLE_Z = os.environ.get("SAMPLE_Z")
 SAMPLE_TERRAIN_FROM_GEOJSON = os.environ.get("SAMPLE_TERRAIN_FROM_GEOJSON", "0") == "1"
 CHUNK_ELEMS = 16000
-STREAMLINE_MIN_SPEED = 0.06
-STREAMLINE_STEP_M = 24.0
-STREAMLINE_MAX_STEPS = 260
-STREAMLINE_SEED_SPACING = 34
-
 sys.path.insert(0, str(CASE_ROOT))
 from build_sodermalm_cylinder import (  # noqa: E402
     load_geojson,
@@ -49,15 +36,6 @@ from build_sodermalm_cylinder import (  # noqa: E402
 
 
 def metadata_path(generated: Path) -> Path:
-    preferred = [
-        generated / "sodermalm_cylinder_2x_xy_metadata.json",
-        generated / "sodermalm_cylinder_shallow_debug_metadata.json",
-        generated / "sodermalm_cylinder_metadata.json",
-        generated / "sodermalm_cylinder_lumi_coarse_metadata.json",
-    ]
-    for path in preferred:
-        if path.exists():
-            return path
     matches = sorted(p for p in generated.glob("*metadata.json") if not p.name.startswith("._"))
     if matches:
         return matches[0]
@@ -146,33 +124,9 @@ def update_best(flat, score, u, v, w, best_score, best_u, best_v, best_w) -> Non
     best_w[flat] = w[replace]
 
 
-def update_best_scalar(flat, score, value, best_score, best_value) -> None:
-    keep = np.isfinite(score) & np.isfinite(value)
-    if not np.any(keep):
-        return
-    flat = flat[keep]
-    score = score[keep]
-    value = value[keep]
-    local = np.full_like(best_score, np.inf)
-    np.minimum.at(local, flat, score)
-    winners = score <= local[flat]
-    flat = flat[winners]
-    score = score[winners]
-    value = value[winners]
-    replace = score < best_score[flat]
-    flat = flat[replace]
-    best_score[flat] = score[replace]
-    best_value[flat] = value[replace]
-
-
 def read_vector_chunk(handle, offset, start, ne, nelv, npts, dtype, bytes_elem) -> np.ndarray:
     handle.seek(offset + start * 3 * bytes_elem)
     return np.fromfile(handle, dtype=dtype, count=ne * 3 * npts).reshape(ne, 3, npts)
-
-
-def read_scalar_chunk(handle, offset, scalar_index, start, ne, nelv, npts, dtype, bytes_elem) -> np.ndarray:
-    handle.seek(offset + scalar_index * nelv * bytes_elem + start * bytes_elem)
-    return np.fromfile(handle, dtype=dtype, count=ne * npts)
 
 
 def fill_missing_nearest(grid: np.ndarray, valid_mask: np.ndarray) -> np.ndarray:
@@ -274,214 +228,11 @@ def color_velocity(speed: np.ndarray, vmin: float, vmax: float) -> np.ndarray:
     return np.uint8(np.clip(rgb, 0, 255))
 
 
-def project_global(x: float, y: float, center: tuple[float, float], radius: float, size: int) -> tuple[int, int]:
-    px = int(round((x - (center[0] - radius)) / (2 * radius) * (size - 1)))
-    py = int(round(((center[1] + radius) - y) / (2 * radius) * (size - 1)))
-    return px, py
-
-
-def draw_polyline(draw: ImageDraw.ImageDraw, points, center, radius, size, fill, width=1) -> None:
-    rows = [project_global(x, y, center, radius, size) for x, y in points]
-    if len(rows) >= 2:
-        draw.line(rows, fill=fill, width=width, joint="curve")
-
-
-def bilinear(grid: np.ndarray, px: float, py: float) -> float:
-    if px < 0.0 or py < 0.0 or px >= grid.shape[1] - 1 or py >= grid.shape[0] - 1:
-        return float("nan")
-    ix = int(math.floor(px))
-    iy = int(math.floor(py))
-    tx = px - ix
-    ty = py - iy
-    return float(
-        (1.0 - tx) * (1.0 - ty) * grid[iy, ix]
-        + tx * (1.0 - ty) * grid[iy, ix + 1]
-        + (1.0 - tx) * ty * grid[iy + 1, ix]
-        + tx * ty * grid[iy + 1, ix + 1]
-    )
-
-
-def pixel_to_local(px: float, py: float, radius: float) -> tuple[float, float]:
-    x = -radius + (px + 0.5) * (2.0 * radius / GRID_N)
-    y = radius - (py + 0.5) * (2.0 * radius / GRID_N)
-    return x, y
-
-
-def local_to_pixel(x: float, y: float, radius: float) -> tuple[float, float]:
-    px = (x + radius) / (2.0 * radius) * GRID_N - 0.5
-    py = (radius - y) / (2.0 * radius) * GRID_N - 0.5
-    return px, py
-
-
-def integrate_streamline(
-    seed_px: float,
-    seed_py: float,
-    u: np.ndarray,
-    v: np.ndarray,
-    speed: np.ndarray,
-    disk: np.ndarray,
-    radius: float,
-    direction: float,
-) -> list[tuple[float, float]]:
-    points: list[tuple[float, float]] = []
-    x, y = pixel_to_local(seed_px, seed_py, radius)
-    for _ in range(STREAMLINE_MAX_STEPS):
-        px, py = local_to_pixel(x, y, radius)
-        ix = int(round(px))
-        iy = int(round(py))
-        if ix < 0 or iy < 0 or ix >= GRID_N or iy >= GRID_N or not disk[iy, ix]:
-            break
-        local_speed = bilinear(speed, px, py)
-        if not np.isfinite(local_speed) or local_speed < STREAMLINE_MIN_SPEED:
-            break
-        ux = bilinear(u, px, py)
-        vy = bilinear(v, px, py)
-        mag = math.hypot(ux, vy)
-        if not np.isfinite(mag) or mag < STREAMLINE_MIN_SPEED:
-            break
-        points.append((x, y))
-        x += direction * STREAMLINE_STEP_M * ux / mag
-        y += direction * STREAMLINE_STEP_M * vy / mag
-    return points
-
-
-def draw_streamlines(
-    draw: ImageDraw.ImageDraw,
-    u: np.ndarray,
-    v: np.ndarray,
-    speed: np.ndarray,
-    disk: np.ndarray,
-    center: tuple[float, float],
-    radius: float,
-) -> None:
-    for py in range(STREAMLINE_SEED_SPACING // 2, GRID_N, STREAMLINE_SEED_SPACING):
-        for px in range(STREAMLINE_SEED_SPACING // 2, GRID_N, STREAMLINE_SEED_SPACING):
-            if not disk[py, px] or speed[py, px] < STREAMLINE_MIN_SPEED:
-                continue
-            backward = integrate_streamline(px, py, u, v, speed, disk, radius, -1.0)
-            forward = integrate_streamline(px, py, u, v, speed, disk, radius, 1.0)
-            path = list(reversed(backward[1:])) + forward
-            if len(path) < 5:
-                continue
-            global_path = [(x + center[0], y + center[1]) for x, y in path]
-            draw_polyline(draw, global_path, center, radius, GRID_N, (245, 248, 250, 150), width=1)
-
-            end = path[-1]
-            prev = path[-4] if len(path) >= 4 else path[0]
-            dx = end[0] - prev[0]
-            dy = end[1] - prev[1]
-            norm = math.hypot(dx, dy)
-            if norm <= 1.0:
-                continue
-            ux, uy = dx / norm, dy / norm
-            left = (-uy, ux)
-            arrow = [
-                (end[0] + center[0], end[1] + center[1]),
-                (end[0] + center[0] - 22.0 * ux + 8.0 * left[0], end[1] + center[1] - 22.0 * uy + 8.0 * left[1]),
-                (end[0] + center[0] - 22.0 * ux - 8.0 * left[0], end[1] + center[1] - 22.0 * uy - 8.0 * left[1]),
-            ]
-            rows = [project_global(x, y, center, radius, GRID_N) for x, y in arrow]
-            draw.polygon(rows, fill=(245, 248, 250, 135))
-
-
-def inlet_arc_points(
-    center: tuple[float, float],
-    radius: float,
-    wind_from_deg: float,
-    arc_width_deg: float,
-    n: int = 240,
-) -> list[tuple[float, float]]:
-    start = wind_from_deg - 0.5 * arc_width_deg
-    stop = wind_from_deg + 0.5 * arc_width_deg
-    points = []
-    for bearing in np.linspace(start, stop, n):
-        theta = math.radians(bearing)
-        points.append((center[0] + radius * math.sin(theta), center[1] + radius * math.cos(theta)))
-    return points
-
-
-def render_overlay(
-    rgb: np.ndarray,
-    speed: np.ndarray,
-    valid: np.ndarray,
-    u: np.ndarray,
-    v: np.ndarray,
-    disk: np.ndarray,
-    center,
-    radius,
-    shoreline,
-    buildings,
-    wind_from_deg: float,
-    arc_width_deg: float,
-    sample_label: str,
-    vmin: float,
-    vmax: float,
-    time: float,
-) -> Image.Image:
-    from PIL import Image, ImageDraw
-
-    img = Image.fromarray(rgb, "RGB")
-    yy, xx = np.mgrid[0:GRID_N, 0:GRID_N]
-    x = -radius + (xx + 0.5) * (2 * radius / GRID_N)
-    y = radius - (yy + 0.5) * (2 * radius / GRID_N)
-    outside = x * x + y * y > radius * radius
-    rgb[outside] = np.array([166, 213, 232], dtype=np.uint8)
-    rgb[(~valid) & (~outside)] = np.array([226, 228, 225], dtype=np.uint8)
-    img = Image.fromarray(rgb, "RGB")
-    draw = ImageDraw.Draw(img, "RGBA")
-    if SHOW_STREAMLINES:
-        draw_streamlines(draw, u, v, speed, disk & valid, center, radius)
-
-    for ring in shoreline:
-        draw_polyline(draw, ring, center, radius, GRID_N, (20, 29, 34, 215), width=2)
-    for ring in buildings:
-        pts = ring[:-1] if ring and ring[0] == ring[-1] else ring
-        if len(pts) < 3:
-            continue
-        rows = [project_global(x, y, center, radius, GRID_N) for x, y in pts]
-        draw.polygon(rows, fill=(185, 185, 178, BUILDING_ALPHA), outline=(82, 82, 76, 170))
-
-    draw_polyline(
-        draw,
-        inlet_arc_points(center, radius, wind_from_deg, arc_width_deg),
-        center,
-        radius,
-        GRID_N,
-        (210, 22, 32, 255),
-        width=5,
-    )
-
-    canvas = Image.new("RGB", (GRID_N + 92, GRID_N + 36), "white")
-    canvas.paste(img, (18, 18))
-    cdraw = ImageDraw.Draw(canvas, "RGBA")
-    bar_x = GRID_N + 36
-    bar_y = 50
-    bar_h = GRID_N - 92
-    bar_w = 20
-    values = np.linspace(vmax, vmin, bar_h, dtype=np.float32)[:, None]
-    bar = color_velocity(values, vmin, vmax).reshape(bar_h, 1, 3)
-    bar = np.repeat(bar, bar_w, axis=1)
-    canvas.paste(Image.fromarray(bar, "RGB"), (bar_x, bar_y))
-    cdraw.rectangle((bar_x, bar_y, bar_x + bar_w, bar_y + bar_h), outline=(20, 20, 20, 255), width=1)
-    vmid = 0.5 * (vmin + vmax)
-    for frac, label in ((0.0, f"{vmax:.2f}"), (0.5, f"{vmid:.2f}"), (1.0, f"{vmin:.2f}")):
-        y = bar_y + int(round(frac * bar_h))
-        cdraw.line((bar_x + bar_w, y, bar_x + bar_w + 5, y), fill=(20, 20, 20, 255), width=1)
-        cdraw.text((bar_x + bar_w + 8, y - 6), label, fill=(20, 20, 20, 255))
-    scale_note = "log scale" if COLOR_SCALE == "log" else "linear scale"
-    note = f"|u| at {sample_label}, t = {time:.3f}; {scale_note}; inlet {wind_from_deg:.0f} deg +/- {0.5 * arc_width_deg:.0f} deg"
-    cdraw.text((18, GRID_N + 20), note, fill=(20, 20, 20, 255))
-    cdraw.text((bar_x - 5, bar_y - 22), "|u|", fill=(20, 20, 20, 255))
-    return canvas
-
-
 def main() -> None:
     meta_path = metadata_path(GENERATED)
     meta = json.loads(meta_path.read_text())
     center = tuple(float(v) for v in meta["center_epsg3006"])
     radius = float(meta["radius_m"])
-    wind_from_deg = float(meta.get("inflow_from_degrees", 315.0))
-    arc_width_deg = float(meta.get("inflow_arc_width_degrees", 90.0))
     land_geometry = load_geojson(GENERATED / "sodermalm_osm_island_epsg3006.geojson")["features"][0]["geometry"]
     shoreline = polygon_boundary_rings(land_geometry)
     terrain_sample_rows = None
@@ -585,99 +336,18 @@ def main() -> None:
             print(f"sampled {stop}/{nelv}", flush=True)
 
     valid = np.isfinite(best_u).reshape(GRID_N, GRID_N)
-    mask_grid = None
-    if MASK_FIELD:
-        mask_path = Path(MASK_FIELD)
-        mask_header = parse_fld_header(mask_path)
-        mask_offsets = field_offsets(mask_header)
-        if "S" not in mask_offsets:
-            raise RuntimeError(f"Mask field does not contain S block; rdcode={mask_header['rdcode']!r}")
-        for key in ("lx", "ly", "lz", "nelv"):
-            if mask_header[key] != geometry_header[key]:
-                raise RuntimeError(
-                    f"Mask field {mask_path} is incompatible with {geometry_field}: "
-                    f"{key}={mask_header[key]} vs {geometry_header[key]}"
-                )
-        mask_dtype = np.dtype(mask_header["endian"] + ("f4" if mask_header["wdsz"] == 4 else "f8"))
-        mask_bytes_elem = npts * mask_header["wdsz"]
-        best_mask_score = np.full(cells, np.inf, dtype=np.float32)
-        best_mask = np.full(cells, np.nan, dtype=np.float32)
-        with geometry_field.open("rb") as geometry_handle, mask_path.open("rb") as mask_handle:
-            for start in range(0, nelv, CHUNK_ELEMS):
-                stop = min(start + CHUNK_ELEMS, nelv)
-                ne = stop - start
-                xyz = read_vector_chunk(geometry_handle, geometry_offsets["X"], start, ne, nelv, npts, geometry_dtype, geometry_bytes_elem)
-                scalar = read_scalar_chunk(mask_handle, mask_offsets["S"], 0, start, ne, nelv, npts, mask_dtype, mask_bytes_elem)
-                x = xyz[:, 0, :].ravel()
-                y = xyz[:, 1, :].ravel()
-                z = xyz[:, 2, :].ravel()
-                ix = np.floor((x + radius) / (2 * radius) * GRID_N).astype(np.int32)
-                iy = np.floor((radius - y) / (2 * radius) * GRID_N).astype(np.int32)
-                inside = (ix >= 0) & (ix < GRID_N) & (iy >= 0) & (iy < GRID_N)
-                if not np.any(inside):
-                    continue
-                flat = iy[inside] * GRID_N + ix[inside]
-                score = np.abs(z[inside] - target_flat[flat]).astype(np.float32)
-                update_best_scalar(flat, score, scalar[inside], best_mask_score, best_mask)
-                print(f"sampled mask {stop}/{nelv}", flush=True)
-        mask_grid = fill_missing_nearest(best_mask.reshape(GRID_N, GRID_N), np.isfinite(best_mask).reshape(GRID_N, GRID_N))
-        valid &= mask_grid < MASK_THRESHOLD
     u = fill_missing_nearest(best_u.reshape(GRID_N, GRID_N), valid)
     v = fill_missing_nearest(best_v.reshape(GRID_N, GRID_N), valid)
     w = fill_missing_nearest(best_w.reshape(GRID_N, GRID_N), valid)
     speed = blur3(np.sqrt(u * u + v * v + w * w), passes=1)
     speed[~valid] = np.nan
-    if NPZ_OUT:
-        Path(NPZ_OUT).parent.mkdir(parents=True, exist_ok=True)
-        np.savez_compressed(
-            NPZ_OUT,
-            speed=speed,
-            u=u,
-            v=v,
-            w=w,
-            disk=disk,
-            valid=valid,
-            mask=mask_grid if mask_grid is not None else np.full_like(speed, np.nan, dtype=np.float32),
-            x=xg,
-            y=yg,
-            time=header["time"],
-        )
-        if SAMPLE_ONLY:
-            print(f"Wrote {NPZ_OUT}")
-            return
-    vmin = float(VMIN_OVERRIDE) if VMIN_OVERRIDE else 0.0
-    plot_values = speed[disk & valid]
-    if plot_values.size == 0:
-        raise RuntimeError("No valid fluid samples after applying the mask threshold")
-    vmax = float(VMAX_OVERRIDE) if VMAX_OVERRIDE else float(np.nanpercentile(plot_values, 99.0))
-    vmax = max(vmax, vmin + 1.0e-6)
-    rgb = color_velocity(np.nan_to_num(speed, nan=vmin), vmin, vmax)
-
-    building_rings = []
-    for feature in load_geojson(GENERATED / "sodermalm_buildings.geojson")["features"]:
-        for ring in polygon_rings(feature["geometry"]):
-            building_rings.append(ring)
-    img = render_overlay(
-        rgb,
-        speed,
-        valid,
-        u,
-        v,
-        disk,
-        center,
-        radius,
-        shoreline,
-        building_rings,
-        wind_from_deg,
-        arc_width_deg,
-        sample_label,
-        vmin,
-        vmax,
-        header["time"],
+    NPZ_OUT.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(
+        NPZ_OUT,
+        speed=speed, u=u, v=v, w=w, disk=disk, valid=valid,
+        x=xg, y=yg, time=header["time"],
     )
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    img.save(OUT)
-    print(f"Wrote {OUT}")
+    print(f"Wrote {NPZ_OUT}")
 
 
 if __name__ == "__main__":

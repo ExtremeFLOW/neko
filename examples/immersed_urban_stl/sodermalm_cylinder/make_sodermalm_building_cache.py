@@ -603,25 +603,6 @@ def compute_indicator(
     return indicator, touched
 
 
-def shift_building_parts(
-    parts: List[Dict[str, object]],
-    shift_x: float,
-    shift_y: float,
-) -> None:
-    """Shift building footprints for mesh-alignment diagnostics."""
-    if shift_x == 0.0 and shift_y == 0.0:
-        return
-    for part in parts:
-        part["ring"] = [
-            (x + shift_x, y + shift_y) for x, y in part["ring"]
-        ]
-        xmin, ymin, xmax, ymax = part["bounds"]
-        part["bounds"] = (
-            xmin + shift_x,
-            ymin + shift_y,
-            xmax + shift_x,
-            ymax + shift_y,
-        )
 
 
 def land_mask_for_points(
@@ -639,25 +620,6 @@ def land_mask_for_points(
     return inside[inverse]
 
 
-def remove_underresolved_fragments(
-    indicator: np.ndarray,
-    header: Dict[str, object],
-    min_element_fraction: float,
-) -> Tuple[np.ndarray, int]:
-    if min_element_fraction <= 0.0:
-        return indicator, 0
-    if min_element_fraction >= 1.0:
-        raise RuntimeError("--min-element-solid-fraction must be smaller than 1")
-
-    lx, ly, lz = header["lx"], header["ly"], header["lz"]
-    npts = lx * ly * lz
-    by_element = indicator.reshape(header["nelv"], npts)
-    mean_indicator = by_element.mean(axis=1)
-    solid_present = np.max(by_element, axis=1) >= 0.5
-    underresolved = solid_present & (mean_indicator < min_element_fraction)
-    if np.any(underresolved):
-        by_element[underresolved, :] = 0.0
-    return indicator, int(np.count_nonzero(underresolved))
 
 
 def write_cache(prefix: Path, header: Dict[str, object], element_ids: np.ndarray, x: np.ndarray, y: np.ndarray, z: np.ndarray, s01: np.ndarray) -> None:
@@ -702,7 +664,7 @@ def main() -> None:
     parser.add_argument("--generated", type=Path, required=True)
     parser.add_argument("--template-field", type=Path, required=True)
     parser.add_argument("--cache-prefix", type=Path, required=True)
-    parser.add_argument("--smooth-width", type=float, default=50.0)
+    parser.add_argument("--smooth-width", type=float, default=0.0)
     parser.add_argument("--min-footprint-area", type=float, default=0.0)
     parser.add_argument("--min-edge", type=float, default=0.0)
     parser.add_argument("--simplify", type=float, default=0.0)
@@ -713,9 +675,6 @@ def main() -> None:
         default="outside",
         help="Place smoothing outside the STL or center it on the surface",
     )
-    parser.add_argument("--min-element-solid-fraction", type=float, default=0.0)
-    parser.add_argument("--diagnostic-shift-x", type=float, default=0.0)
-    parser.add_argument("--diagnostic-shift-y", type=float, default=0.0)
     args = parser.parse_args()
 
     BUILDING_MIN_FOOTPRINT_AREA_M2 = args.min_footprint_area
@@ -726,9 +685,6 @@ def main() -> None:
     _, center, _, _, shoreline = prepared_geometry(args.generated)
     header, element_ids, x, y, z = read_template_coordinates(args.template_field)
     parts, _ = building_parts(args.generated)
-    shift_building_parts(
-        parts, args.diagnostic_shift_x, args.diagnostic_shift_y
-    )
     indicator, touched = compute_indicator(
         x,
         y,
@@ -740,21 +696,13 @@ def main() -> None:
     land_xy = land_mask_for_points(x, y, center, shoreline)
     clipped_outside_land = int(np.count_nonzero(indicator[~land_xy] > 0.0))
     indicator[~land_xy] = 0.0
-    indicator, dropped_fragments = remove_underresolved_fragments(
-        indicator, header, args.min_element_solid_fraction
-    )
     write_cache(args.cache_prefix, header, element_ids, x, y, z, indicator)
 
     solid = int(np.count_nonzero(indicator >= 0.5))
     print(f"Building parts: {len(parts)}")
-    print(
-        "Diagnostic horizontal shift: "
-        f"({args.diagnostic_shift_x}, {args.diagnostic_shift_y}) m"
-    )
     print(f"Transition placement: {args.transition_placement}")
     print(f"Candidate updates: {touched}")
     print(f"Clipped outside land: {clipped_outside_land}")
-    print(f"Dropped underresolved elements: {dropped_fragments}")
     print(f"Solid fraction >= 0.5: {solid / indicator.size:.6f}")
     print(f"Wrote {args.cache_prefix}0.f00000")
 

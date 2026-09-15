@@ -1,184 +1,126 @@
-# Södermalm Cylinder Wind Smoke Case
+# Sodermalm Cylinder: Sharp Mask
 
-This folder contains the local Södermalm immersed-boundary wind example used for
-quick CPU tests and GPU production-pilot runs. The cutout includes Södermalm
-plus the upstream Gamla Stan island group. The mesh is a cylindrical extruded
-hex mesh with a terrain-following bottom, open top, and building geometry
-provided as an STL or cached Brinkman indicator field.
+The retained configuration covers Sodermalm, Gamla Stan, and Riddarholmen.
+Terrain forms the mesh bottom; buildings form the Brinkman solid. This is a
+production-development case, not a claim of validated building-scale accuracy.
 
-## Prepare GIS Cutout
+## Current Settings
+
+- Conforming quadrilateral disk extruded into hexes; radius about 2.54 km.
+- Land elements 35 m, water elements 225 m; p7 gives nominal 5 m land spacing.
+  GLL spacing is nonuniform.
+- Ten vertically stretched layers; top 350 m above the lowest terrain/water.
+- Wind from SW (225 degrees); full height-dependent profile at initialization
+  and inlet: `4.467 * (max(z, 1) / 51)^0.16` m/s. No wind ramp or inlet taper.
+- Inlet: 220 degrees, bearings 115 through 335. Remaining cylindrical side
+  zones: `outflow+dong`; top: `normal_outflow`; bottom: no-slip.
+- All land-valid building footprints, no area/edge filtering. Heights are
+  limited to 2-65 m; bases extend 2 m below sampled footprint minimum terrain.
+- Sharp raw mask (zero distance-transition width), PDE filter radius 10 m.
+  Explicit Brinkman: penalty 10, limits [0, 65], forcing ramp 30 s.
+- HPFRT: two modes, weight 2; Re 100; dealiasing enabled.
+- CFL target 0.15; initial dt 0.001, maximum dt 0.02, growth factor 1.1.
+- Fresh start to t = 500 s; fields every 10 s, checkpoints every 25 s.
+
+The definitive solver parameters are in `run/sharp_mask.case`.
+The inlet fix is geometric: circle curves are split at exact zone endpoints,
+and the binary mesh is checked after writing. Older files named `inlet220`
+can actually have a 180-degree inlet. Do not reuse their cache or checkpoint
+with regenerated geometry. The current long sharp-mask run predates this
+geometry correction; this directory combines its solver settings with the fix.
+
+## Prepare
+
+Requirements: Python 3.11+ with NumPy and Pillow; Gmsh, `mesh_checker`,
+and `rsvg-convert` on PATH (or set `GMSH`, `MESH_CHECKER`, `RSVG`).
+Neko must include the current Brinkman filter/ramp and HPFRT support.
+FFmpeg is needed only for movies.
+
+Preserve these prepared GIS inputs in `input/prepared/` (EPSG:3006):
+
+- `sodermalm_osm_island_epsg3006.geojson`
+- `sodermalm_osm_water_cut_epsg3006.geojson`
+- `sodermalm_buildings.geojson`
+- `sodermalm_cylinder_contours.geojson`
+
+From this directory:
 
 ```sh
-python3 expand_sodermalm_with_gamla_stan.py
+python3 generate_geometry.py
+python3 check_building_ground_contact.py generated_sharp_mask
+python3 prepare_case.py
 ```
 
-The script expands the prepared Södermalm land mask with Gamla Stan and
-Riddarholmen, then reclips buildings and terrain contours from the local
-GeoPackage. It keeps a
-`sodermalm_only_epsg3006.geojson` base mask so repeated runs do not accumulate
-duplicate island geometry. A small close/open is applied to merge the very tight
-old-town gaps that are below this mesh resolution.
+Generation writes `generated_sharp_mask/` and geometry figures to
+`figures_sharp_mask/`. The contact audit must find no air gaps.
+Preparation creates the p7 building cache in `cache_sharp_mask/` and records
+its input hashes. It rejects unverified existing caches. To omit geometry
+figures, use `SODERMALM_SKIP_FIGURES=1`.
 
-## Generate Geometry
+## Build and Run
+
+Build on the appropriate host before submitting a solver job:
 
 ```sh
-python3 build_sodermalm_cylinder_2x_xy.py
+cd run
+makeneko sodermalm_wind.f90
+bash run.sh mpirun -np 6
 ```
 
-The script reads prepared GIS cutouts from `input/prepared`, writes the mesh and
-building STL to `generated_2x_xy`, produces diagnostic figures in
-`figures_2x_xy`, and runs `mesh_checker` on the generated `.nmsh`.
+The launch above illustrates a local MPI command, not a production allocation.
+On a cluster, pass the existing known-working launcher/binding arguments to
+`run.sh` from a private scheduler script. The script performs input checks,
+does not compile, and refuses to overwrite previous fields. Keep account IDs
+and scheduler wrappers outside Git.
 
-Default local mesh target:
+The user callback logs maximum velocity/location and divergence diagnostics
+every simulated second. Set `SODERMALM_DIAGNOSTIC_INTERVAL` to change this
+interval. No solver or boundary experiment is enabled by an environment flag.
 
-- land element size: `110 m`, giving about `55 m` effective p2 x-y spacing
-- water element size: `225 m`
-- vertical elements: `5`
-- domain top: `350 m` above the lowest terrain/water level
-- polynomial order in the case: `2`
-- default wind direction: SW, using meteorological convention
-  (`225 deg`, north is `0/360 deg`, clockwise positive)
-- inlet arc: `180 deg`, centered on the wind direction
+## Heatmaps and Movies
 
-Current production mesh geometry:
+Render existing outputs on the cluster where they reside; download only media.
+For one frame:
 
 ```sh
-SODERMALM_OUTPUT_SUFFIX=p7_xy35_inlet220_nz10 \
-SODERMALM_TARGET_LABEL="production mesh geometry" \
-SODERMALM_LAND_MESH_SIZE_M=35 \
-SODERMALM_WATER_MESH_SIZE_M=225 \
-SODERMALM_INFLOW_ARC_WIDTH_DEG=220 \
-SODERMALM_NZ=10 \
-SODERMALM_DOMAIN_HEIGHT_M=1000 \
-SODERMALM_SKIP_FIGURES=1 \
-python3 build_sodermalm_cylinder_2x_xy.py
-```
-
-This gives `35 m` land elements and a `1 km` domain height. The qualified
-diagnostic uses polynomial order `3`, or about `11.7 m` effective x-y spacing
-over land. The same geometry gives about `5 m` effective spacing at order `7`.
-
-## Build Brinkman Cache On LUMI
-
-The LUMI run uses a cached building indicator field to avoid repeating the STL
-distance search in every solver job.
-
-```sh
-python3 make_template_field_from_nmsh.py \
-  generated_p7_xy35_inlet220_nz10/sodermalm_cylinder_p7_xy35_inlet220_nz10.nmsh \
-  cache_p3_xy35_inlet220_nz10_allbuildings_centered_sw50_h65/template.f00000 \
-  --polynomial-order 3
-
-python3 make_sodermalm_building_cache.py \
-  --generated generated_p7_xy35_inlet220_nz10 \
-  --template-field cache_p3_xy35_inlet220_nz10_allbuildings_centered_sw50_h65/template.f00000 \
-  --cache-prefix cache_p3_xy35_inlet220_nz10_allbuildings_centered_sw50_h65/bldp3_ctr50 \
-  --smooth-width 50 \
-  --transition-placement centered \
-  --max-height 65
-```
-
-By default the cache builder keeps every land-valid building footprint. Do not
-apply area/edge filters unless a specific mesh-resolution diagnostic proves
-that unresolved footprint fragments are causing instability. `run_neko.sh`
-builds this cache automatically when it is absent.
-
-Verify that every flat building base intersects the terrain before running:
-
-```sh
-python3 check_building_ground_contact.py generated_p7_xy35_inlet220_nz10
-python3 render_building_contact_closeups.py generated_p7_xy35_inlet220_nz10
-```
-
-The audit must report zero buildings with an air gap. The close-ups show the
-most and least embedded bases against the terrain surface.
-
-## Run Neko Locally
-
-```sh
-cd run_sodermalm_wind_2x_xy_t10_np6_soft_buildings
-./run_neko.sh
-```
-
-Optional overrides:
-
-```sh
-NP=4 MPIEXEC=mpirun NEKO_BIN=/path/to/neko ./run_neko.sh
-```
-
-The case runs to `t = 100`, uses the Högdalen vertical wind profile as both
-initial and inlet velocity, applies it on the untapered 220-degree inlet, and
-writes fields every 10 seconds under `fields`.
-
-## Run Baseline On LUMI
-
-```sh
-sbatch run_lumi_sodermalm_baseline.sbatch
-```
-
-The baseline Slurm script expects the case under
-the LUMI scratch case directory. Do not commit the site-local Slurm script,
-because it contains the project account.
-
-Current qualified baseline (LUMI job `21977386`):
-
-- mesh: `generated_p7_xy35_inlet220_nz10/sodermalm_cylinder_p7_xy35_inlet220_nz10.nmsh`
-- building object: cached centered all-land-valid building indicator
-- polynomial order: `3`
-- dealiasing: enabled
-- wind: full Högdalen/SW profile as initial condition and inlet condition
-- inlet: `220 deg`, no taper, centered on SW wind-from direction
-- side arcs: `outflow+dong`
-- top: `normal_outflow`
-- bottom: no-slip terrain/water bottom
-- Reynolds number: `100`
-- Brinkman penalty: `10`
-- Brinkman limits: `[0, 65]`
-- Brinkman ramp time: `30 s`
-- Brinkman PDE filter radius: `20 m`
-- wind ramp: disabled
-- `target_cfl`: `0.15`
-- `max_timestep`: `0.02`
-- `max_dt_increase_factor`: `1.1`
-- output interval: `10 s`
-- checkpoint interval: `25 s`
-
-This clean `t = 0` to `100 s` run completed past the former repeatable
-`t ~= 57 s` failure. Its final maximum velocity was `13.37 m/s`, divergence
-RMS was `9.35e-3`, and pressure-residual RMS was `8.92e-3`.
-
-Do not use `normal_outflow` on the cylindrical side arcs with the default
-non-full-stress formulation. It selects Neko's axis-aligned tangential
-constraint, which is not valid on a curved boundary. Building-generated
-perturbations exposed this as a repeatable backflow instability near
-`t = 57 s`. Use the energy-stable `outflow+dong` condition on both open side
-arcs; `normal_outflow` remains appropriate on the horizontal top.
-
-LUMI cached-Brinkman runs need enough host memory and the current device-MPI
-build. Keep the site-local Slurm wrapper and project account outside Git.
-
-Do not enable `SODERMALM_RAMP_TIME` with this top-boundary setup unless the
-top/open reference velocity is ramped consistently too. Ramping only the
-initial/inlet wind introduced a mismatch at the top/open boundary in testing.
-
-## Render The Heatmap
-
-```sh
-GENERATED_PATH=generated_p7_xy35_inlet220_nz10 \
-FIELD_PATH=run_sodermalm_wind_2x_xy_t10_np6_soft_buildings/fields/field0.f00010 \
-GEOMETRY_FIELD=run_sodermalm_wind_2x_xy_t10_np6_soft_buildings/fields/field0.f00000 \
-LIFT_M=10 SAMPLE_ONLY=1 \
-NPZ_OUT=run_sodermalm_wind_2x_xy_t10_np6_soft_buildings/renders/t100_terrain_plus10.npz \
+FIELD_PATH=run/fields/field0.f00001 \
+GEOMETRY_FIELD=run/fields/field0.f00000 \
+LIFT_M=10 NPZ_OUT=renders/terrain_plus10.npz \
 python3 sample_terrain_relative_velocity_npz.py
 
-VMIN=0 BUILDING_ALPHA=95 \
-python3 render_velocity_field_heatmap.py \
-  generated_p7_xy35_inlet220_nz10 \
-  run_sodermalm_wind_2x_xy_t10_np6_soft_buildings/renders/t100_terrain_plus10.npz \
-  run_sodermalm_wind_2x_xy_t10_np6_soft_buildings/renders/t100_terrain_plus10.png
+python3 render_velocity_field_heatmap.py generated_sharp_mask \
+  renders/terrain_plus10.npz renders/terrain_plus10.png
 ```
 
-The first script samples the solution at `terrain + 10 m`. The second renders
-those samples as a continuous field, then overlays the shoreline, buildings,
-inlet arc, and color scale. Use one shared uncapped maximum across frames when
-making a movie so colors remain comparable in time.
+For all selected outputs, with a single uncapped scale across frames:
+
+```sh
+python3 render_movie.py run/fields/field0.f????? \
+  --geometry-field run/fields/field0.f00000 \
+  --lift 10 --out renders/terrain_plus10_movie
+```
+
+Use `--lift 30` for terrain + 30 m. The movie directory must be new.
+Outputs include PNG frames, sampled NPZ files, and `velocity.mp4`.
+Rendering retains the logarithmic urban-flow colormap, building/shoreline
+overlays and colorbar, without titles or streamlines. Building interiors are
+not masked out.
+
+Sampling is approximate: it selects nearest-height GLL values in horizontal
+bins (about 12 m), applies the existing display smoothing, and renders a
+continuous heatmap. It is not spectral-element interpolation. The color range
+covers the sampled/displayed slice, not the whole 3D field; use solver
+diagnostics for global maxima.
+
+## Checks
+
+The small regression tests protect the corrected boundary zoning and retained
+case settings; they do not launch simulations.
+
+```sh
+python3 -m unittest discover -s tests -v
+python3 prepare_case.py --check
+```
+
+Production notes, job logs, GIS data, caches, results, and scheduler scripts
+stay outside version control.

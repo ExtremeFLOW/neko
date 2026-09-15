@@ -1,7 +1,6 @@
 module user
   use neko
   use fluid_pnpn, only : fluid_pnpn_t
-  use import_field_utils, only : import_fields
   use mpi_f08, only : MPI_Allreduce, MPI_Bcast, MPI_INTEGER, MPI_MAX, &
        MPI_MIN, MPI_SUM
   implicit none
@@ -15,35 +14,19 @@ module user
   real(kind=rp), parameter :: flow_to_deg = modulo(wind_from_deg + 180.0_rp, 360.0_rp)
   real(kind=rp), parameter :: wind_x = sin(flow_to_deg * deg_to_rad)
   real(kind=rp), parameter :: wind_y = cos(flow_to_deg * deg_to_rad)
-  real(kind=rp) :: ramp_time = 0.0_rp
-  real(kind=rp) :: initial_wind_scale = 1.0_rp
-  real(kind=rp) :: inlet_taper_deg = 20.0_rp
-  real(kind=rp) :: inlet_arc_width_deg = 180.0_rp
-  real(kind=rp) :: sponge_radius_m = 2536.52_rp
-  real(kind=rp) :: sponge_thickness_m = 800.0_rp
-  real(kind=rp) :: sponge_rise_m = 500.0_rp
   real(kind=rp) :: diagnostic_interval = 0.0_rp
   real(kind=rp) :: diagnostic_start_time = 0.0_rp
   real(kind=rp) :: next_diagnostic_time = huge(0.0_rp)
-  character(len=256) :: initial_field = ""
 
 contains
 
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
 
-    ramp_time = read_env_real("SODERMALM_RAMP_TIME", 0.0_rp)
-    initial_wind_scale = read_env_real("SODERMALM_INITIAL_WIND_SCALE", 1.0_rp)
-    inlet_taper_deg = read_env_real("SODERMALM_INLET_TAPER_DEG", 20.0_rp)
-    inlet_arc_width_deg = read_env_real("SODERMALM_INLET_ARC_WIDTH_DEG", 180.0_rp)
-    sponge_radius_m = read_env_real("SODERMALM_SPONGE_RADIUS_M", 2536.52_rp)
-    sponge_thickness_m = read_env_real("SODERMALM_SPONGE_THICKNESS_M", 800.0_rp)
-    sponge_rise_m = read_env_real("SODERMALM_SPONGE_RISE_M", 500.0_rp)
     diagnostic_interval = read_env_real( &
-         "SODERMALM_DIAGNOSTIC_INTERVAL", 0.0_rp)
+         "SODERMALM_DIAGNOSTIC_INTERVAL", 1.0_rp)
     diagnostic_start_time = read_env_real( &
          "SODERMALM_DIAGNOSTIC_START_TIME", 0.0_rp)
-    call get_environment_variable("SODERMALM_INITIAL_FIELD", initial_field)
 
     user%initialize => user_initialize
     user%initial_conditions => initial_conditions
@@ -77,88 +60,12 @@ contains
     speed = u_ref * (z_eff / z_ref) ** alpha
   end function wind_speed
 
-  function wind_ramp(t) result(scale)
-    real(kind=rp), intent(in) :: t
-    real(kind=rp) :: scale
-    real(kind=rp) :: s
-
-    if (ramp_time <= 0.0_rp) then
-       scale = 1.0_rp
-    else
-       s = min(max(t / ramp_time, 0.0_rp), 1.0_rp)
-       scale = initial_wind_scale + (1.0_rp - initial_wind_scale) * &
-            s * s * (3.0_rp - 2.0_rp * s)
-    end if
-  end function wind_ramp
-
-  function circular_distance_deg(a, b) result(distance)
-    real(kind=rp), intent(in) :: a, b
-    real(kind=rp) :: distance
-
-    distance = abs(modulo(a - b + 180.0_rp, 360.0_rp) - 180.0_rp)
-  end function circular_distance_deg
-
-  function smooth01(s) result(value)
-    real(kind=rp), intent(in) :: s
-    real(kind=rp) :: value
-    real(kind=rp) :: x
-
-    x = min(max(s, 0.0_rp), 1.0_rp)
-    value = x * x * (3.0_rp - 2.0_rp * x)
-  end function smooth01
-
   subroutine user_initialize(time)
     type(time_state_t), intent(in) :: time
-    type(field_t), pointer :: u, fringe, ubf, vbf, wbf
-    integer :: i
-    real(kind=rp) :: x, y, z, downstream, dist_from_upstream_edge, rise
-
-    u => neko_registry%get_field("u")
-    call neko_registry%add_field(u%dof, "sponge_fringe")
-    call neko_registry%add_field(u%dof, "sponge_bf_u")
-    call neko_registry%add_field(u%dof, "sponge_bf_v")
-    call neko_registry%add_field(u%dof, "sponge_bf_w")
-    fringe => neko_registry%get_field("sponge_fringe")
-    ubf => neko_registry%get_field("sponge_bf_u")
-    vbf => neko_registry%get_field("sponge_bf_v")
-    wbf => neko_registry%get_field("sponge_bf_w")
-
-    fringe%x = 0.0_rp
-    rise = max(sponge_rise_m, 1.0_rp)
-    do i = 1, fringe%size()
-       x = fringe%dof%x(i, 1, 1, 1)
-       y = fringe%dof%y(i, 1, 1, 1)
-       z = fringe%dof%z(i, 1, 1, 1)
-       downstream = x * wind_x + y * wind_y
-       dist_from_upstream_edge = downstream + sponge_radius_m
-
-       if (dist_from_upstream_edge >= 0.0_rp .and. &
-            dist_from_upstream_edge <= sponge_thickness_m) then
-          fringe%x(i, 1, 1, 1) = smooth01( &
-               (sponge_thickness_m - dist_from_upstream_edge) / rise)
-       end if
-
-       ubf%x(i, 1, 1, 1) = wind_speed(z) * wind_x
-       vbf%x(i, 1, 1, 1) = wind_speed(z) * wind_y
-       wbf%x(i, 1, 1, 1) = 0.0_rp
-    end do
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call fringe%copy_from(HOST_TO_DEVICE, sync = .false.)
-       call ubf%copy_from(HOST_TO_DEVICE, sync = .false.)
-       call vbf%copy_from(HOST_TO_DEVICE, sync = .false.)
-       call wbf%copy_from(HOST_TO_DEVICE, sync = .true.)
-    end if
 
     if (diagnostic_interval .gt. 0.0_rp) then
        next_diagnostic_time = max(real(time%t, rp), diagnostic_start_time)
     end if
-
-    nullify(u)
-    nullify(fringe)
-    nullify(ubf)
-    nullify(vbf)
-    nullify(wbf)
   end subroutine user_initialize
 
   subroutine flow_diagnostics(time)
@@ -312,22 +219,6 @@ contains
     if (has_brinkman) nullify(indicator, permeability)
   end subroutine flow_diagnostics
 
-  function inlet_edge_ramp(x, y) result(scale)
-    real(kind=rp), intent(in) :: x, y
-    real(kind=rp) :: scale
-    real(kind=rp) :: bearing, distance_from_center, edge_distance
-
-    if (inlet_taper_deg <= 0.0_rp) then
-       scale = 1.0_rp
-       return
-    end if
-
-    bearing = modulo(atan2(x, y) / deg_to_rad + 360.0_rp, 360.0_rp)
-    distance_from_center = circular_distance_deg(bearing, wind_from_deg)
-    edge_distance = 0.5_rp * inlet_arc_width_deg - distance_from_center
-    scale = smooth01(edge_distance / inlet_taper_deg)
-  end function inlet_edge_ramp
-
   subroutine set_profile(u, v, w, idx)
     type(field_t), intent(inout) :: u, v, w
     integer, intent(in) :: idx
@@ -338,17 +229,6 @@ contains
     v%x(idx, 1, 1, 1) = speed * wind_y
     w%x(idx, 1, 1, 1) = 0.0_rp
   end subroutine set_profile
-
-  subroutine set_profile_scaled(u, v, w, idx, scale)
-    type(field_t), intent(inout) :: u, v, w
-    integer, intent(in) :: idx
-    real(kind=rp), intent(in) :: scale
-
-    call set_profile(u, v, w, idx)
-    u%x(idx, 1, 1, 1) = scale * u%x(idx, 1, 1, 1)
-    v%x(idx, 1, 1, 1) = scale * v%x(idx, 1, 1, 1)
-    w%x(idx, 1, 1, 1) = scale * w%x(idx, 1, 1, 1)
-  end subroutine set_profile_scaled
 
   subroutine initial_conditions(scheme_name, fields)
     character(len=*), intent(in) :: scheme_name
@@ -363,17 +243,8 @@ contains
     w => fields%get_by_name("w")
     p => fields%get_by_name("p")
 
-    if (len_trim(initial_field) .gt. 0) then
-       call import_fields(trim(initial_field), u = u, v = v, w = w, &
-            p = p, interpolate = .false.)
-       return
-    end if
-
     do i = 1, u%size()
        call set_profile(u, v, w, i)
-       u%x(i, 1, 1, 1) = initial_wind_scale * u%x(i, 1, 1, 1)
-       v%x(i, 1, 1, 1) = initial_wind_scale * v%x(i, 1, 1, 1)
-       w%x(i, 1, 1, 1) = initial_wind_scale * w%x(i, 1, 1, 1)
     end do
     p%x = 0.0_rp
 
@@ -391,17 +262,14 @@ contains
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: u, v, w
     integer :: i, idx
-    real(kind=rp) :: scale
 
     u => fields%get_by_name("u")
     v => fields%get_by_name("v")
     w => fields%get_by_name("w")
 
-    scale = wind_ramp(time%t)
     do i = 1, bc%msk(0)
        idx = bc%msk(i)
-       call set_profile_scaled(u, v, w, idx, scale * &
-            inlet_edge_ramp(u%dof%x(idx, 1, 1, 1), u%dof%y(idx, 1, 1, 1)))
+       call set_profile(u, v, w, idx)
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

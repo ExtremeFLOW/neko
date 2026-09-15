@@ -1,95 +1,13 @@
 # Immersed Urban STL
 
-## Requirements
+The maintained example is [Sodermalm cylinder](sodermalm_cylinder/README.md):
+a terrain-following cylindrical hex mesh and embedded buildings represented
+by a cached Brinkman mask.
 
-Put the local GIS input here:
+The current configuration is p7, sharp raw mask, 10 m PDE mask filtering,
+HPFRT, and an exactly validated 220-degree inlet. Geometry generation,
+case preparation, execution, and the continuous velocity heatmap/movie
+workflow are documented in the cylinder directory.
 
-```sh
-geometry_pipeline/input/steep_pilot_layers.gpkg
-```
-
-Required commands on `PATH`:
-
-```sh
-ogr2ogr
-gdal_grid
-gmsh2nek
-rea2nbin
-mesh_checker
-neko
-```
-
-## Generate Geometry
-
-From this directory:
-
-```sh
-./geometry_pipeline/generate_geometry.sh
-./prepare.sh
-```
-
-This creates:
-
-```sh
-urban_terrain.nmsh
-urban_terrain_surface.stl
-urban_buildings.stl
-```
-
-## Generate Brinkman Mask
-
-First create the template field:
-
-```sh
-cd fine_3x/run_mask
-rm -rf fields
-mkdir -p fields
-neko immersed_urban_stl.case
-cd ../..
-```
-
-Then create the footprint-based mask:
-
-```sh
-python3 geometry_pipeline/scripts/make_brinkman_mask.py
-```
-
-The mask is written to:
-
-```sh
-fine_3x/upload/urban_brinkman_mask0.f00000
-fine_3x/upload/urban_brinkman_mask0.nek5000
-```
-
-## Run Neko
-
-For the default local case:
-
-```sh
-neko immersed_urban_stl.case
-```
-
-For the `fine_3x` mesh with the generated mask, copy the files from
-`fine_3x/upload/` into the run directory and use the Brinkman object:
-
-```json
-{
-  "type": "file",
-  "file_name": "fields/urban_brinkman_mask0.fld",
-  "field_name": "s01"
-}
-```
-
-## Render
-
-After `fields/field0.f00000` exists:
-
-```sh
-python3 render_urban_depth_scene.py
-```
-
-Output:
-
-```sh
-urban_depth_full_ground_streamlines_view_restored.png
-```
+GIS inputs, generated artifacts, scheduler scripts, and private production
+notes are not versioned.

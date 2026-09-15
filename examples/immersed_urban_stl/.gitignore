@@ -1,36 +1,40 @@
-# Generated geometry/build products.
-geometry_pipeline/generated/
-geometry_pipeline/.build/
-sodermalm_cylinder/generated_*/
-sodermalm_cylinder/figures_*/
-sodermalm_cylinder/run_sodermalm_wind_2x_xy_t10_np6_soft_buildings/renders/
-sodermalm_cylinder/run_sodermalm_wind_2x_xy_t10_np6_soft_buildings/lumi_*_fields/
-sodermalm_cylinder/run_sodermalm_wind_2x_xy_t10_np6_soft_buildings/archived_runs/
-
-# Local/remote run outputs.
-local_*/
-fields/
-fields_*/
-fields.*/
-fine_*/
-corrected_mask_run/
+# Private inputs, scheduler wrappers, and working notes.
 input/
+*.sbatch
+PRODUCTION*.md
+*NOTES*.md
 
-# Large generated mesh, geometry, and visualization files.
-*.msh
-*.re2
+# Geometry, cache, run, and visualization products.
+generated_*/
+figures_*/
+cache_*/
+renders/
+renders_*/
+fields/
 *.nmsh
+*.msh
 *.stl
+*.re2
+*.f[0-9][0-9][0-9][0-9][0-9]
+*.fld
+*.chkp
+*.nek5000
+*.npz
+*.png
+*.svg
 *.mp4
 *.gif
-*.png
-*.f[0-9][0-9][0-9][0-9][0-9]
-*.nek5000
 
-# Logs, caches, frames, and Python bytecode.
+# Local build and runtime products.
+neko
+*.o
+*.mod
+*.smod
+usr_driver.f90
 *.log
 *.out
+*.err
 .mplconfig/
 __pycache__/
 *.py[cod]
-movie_frames*/
+.DS_Store

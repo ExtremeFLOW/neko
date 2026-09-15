@@ -20,7 +20,7 @@ import build_sodermalm_cylinder as base
 
 
 HERE = Path(__file__).resolve().parent
-DEFAULT_GENERATED = HERE / "generated_p7_xy35_inlet220_nz10"
+DEFAULT_GENERATED = HERE / "generated_sharp_mask"
 PAD = 34
 CANVAS_N = 1600
 

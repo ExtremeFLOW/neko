@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a local Södermalm cylindrical hex-mesh prototype.
+"""Build the terrain-following Sodermalm cylindrical hex mesh.
 
 This version uses Gmsh to create a proper quad mesh of a circular disk, then
 extrudes those quads into Neko hex elements. The terrain is real/interpolated
@@ -20,30 +20,28 @@ from xml.sax.saxutils import escape
 
 import numpy as np
 
+from check_cylinder_boundary_zones import check_boundary_zones
+
 
 HERE = Path(__file__).resolve().parent
-INPUT_GPKG = HERE / "input" / "inner_stockholm_15km_layers_clipped.gpkg"
 OUT = HERE / "generated"
 FIG = HERE / "figures"
 
-OGR2OGR = os.environ.get("OGR2OGR", shutil.which("ogr2ogr") or "/opt/homebrew/bin/ogr2ogr")
 GMSH = os.environ.get("GMSH", shutil.which("gmsh") or "/opt/homebrew/bin/gmsh")
 RSVG = os.environ.get("RSVG", shutil.which("rsvg-convert") or "/opt/homebrew/bin/rsvg-convert")
-OSGEO_PYTHON = os.environ.get("OSGEO_PYTHON", shutil.which("python3") or "/opt/homebrew/bin/python3")
 REPO_MESH_CHECKER = HERE.parents[2] / ".codex_build" / "cpu_install" / "bin" / "mesh_checker"
-MESH_CHECKER = str(REPO_MESH_CHECKER) if REPO_MESH_CHECKER.exists() else (shutil.which("mesh_checker") or "/usr/local/bin/mesh_checker")
+MESH_CHECKER = os.environ.get("MESH_CHECKER", str(REPO_MESH_CHECKER) if REPO_MESH_CHECKER.exists() else (shutil.which("mesh_checker") or "mesh_checker"))
 
 NZ = 10
 BUFFER_M = 220.0
-DOMAIN_HEIGHT_ABOVE_LOWEST_M = 1000.0
-VERTICAL_STRETCH = 1.5
-MESH_SIZE_M = 260.0
-LAND_MESH_SIZE_M = 100.0
-WATER_MESH_SIZE_M = 280.0
-SHORELINE_SIMPLIFY_M = 20.0
+DOMAIN_HEIGHT_ABOVE_LOWEST_M = 350.0
+VERTICAL_STRETCH = 2.0
+LAND_MESH_SIZE_M = 35.0
+WATER_MESH_SIZE_M = 225.0
+SHORELINE_SIMPLIFY_M = 35.0
 SHORE_BLEND_M = 180.0
 INFLOW_FROM_DEG = 225.0
-INFLOW_ARC_WIDTH_DEG = 180.0
+INFLOW_ARC_WIDTH_DEG = 220.0
 OUTFLOW_ARC_WIDTH_DEG = 90.0
 CIRCLE_ARC_STEP_DEG = 45.0
 BUILDING_MIN_TERRAIN_ABOVE_WATER_M = 0.75
@@ -55,23 +53,6 @@ BUILDING_MIN_EDGE_M = 0.0
 BUILDING_SIMPLIFY_M = 0.0
 BUILDING_MIN_HEIGHT_M = 2.0
 BUILDING_MAX_HEIGHT_M = 65.0
-
-
-# Rough hint used by the mask-derivation helper to find the correct connected
-# land component. It is not used as the final shoreline.
-SODERMALM_WGS84 = [
-    (17.9985, 59.3150),
-    (18.0120, 59.3215),
-    (18.0400, 59.3228),
-    (18.0730, 59.3215),
-    (18.1015, 59.3130),
-    (18.1065, 59.3035),
-    (18.0890, 59.2965),
-    (18.0630, 59.2950),
-    (18.0330, 59.3010),
-    (18.0100, 59.3065),
-    (17.9985, 59.3150),
-]
 
 
 def run(cmd: list[str]) -> None:
@@ -101,15 +82,6 @@ def run_mesh_checker(mesh_path: Path) -> str:
 def load_geojson(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
-
-def write_geojson(path: Path, geometry: dict, crs_name: str = "EPSG:4326") -> None:
-    data = {
-        "type": "FeatureCollection",
-        "name": path.stem,
-        "crs": {"type": "name", "properties": {"name": crs_name}},
-        "features": [{"type": "Feature", "properties": {}, "geometry": geometry}],
-    }
-    path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 def polygon_rings(geometry: dict) -> list[list[tuple[float, float]]]:
@@ -307,10 +279,19 @@ def inlet_arc_polylines(radius: float, n: int = 361) -> list[list[tuple[float, f
 
 
 def write_gmsh_geo(path: Path, radius: float, shoreline: list[list[tuple[float, float]]], center: tuple[float, float]) -> None:
-    if 360.0 % CIRCLE_ARC_STEP_DEG != 0.0:
+    if not 0.0 < CIRCLE_ARC_STEP_DEG < 180.0 or 360.0 % CIRCLE_ARC_STEP_DEG != 0.0:
         raise ValueError("CIRCLE_ARC_STEP_DEG must divide 360 degrees exactly")
-    n_arcs = int(round(360.0 / CIRCLE_ARC_STEP_DEG))
-    circle_points = [circle_point(i * CIRCLE_ARC_STEP_DEG, radius) for i in range(n_arcs)]
+    if not 0.0 < INFLOW_ARC_WIDTH_DEG < 360.0 or not 0.0 < OUTFLOW_ARC_WIDTH_DEG < 360.0:
+        raise ValueError("Inflow and outflow arc widths must be between 0 and 360 degrees")
+    angles = [i * CIRCLE_ARC_STEP_DEG for i in range(int(round(360.0 / CIRCLE_ARC_STEP_DEG)))]
+    # A physical curve cannot straddle a boundary-condition transition.
+    for bearing, width in ((INFLOW_FROM_DEG, INFLOW_ARC_WIDTH_DEG),
+                           (INFLOW_FROM_DEG + 180.0, OUTFLOW_ARC_WIDTH_DEG)):
+        for end in (bearing - width / 2.0, bearing + width / 2.0):
+            angles.append((90.0 - end) % 360.0)
+    angles = sorted(set(round(a, 10) for a in angles))
+    n_arcs = len(angles)
+    circle_points = [circle_point(a, radius) for a in angles]
     side_curves: dict[int, list[int]] = {1: [], 2: [], 3: []}
 
     lines: list[str] = [
@@ -331,13 +312,13 @@ def write_gmsh_geo(path: Path, radius: float, shoreline: list[list[tuple[float, 
         start = i + 2
         end = 2 if i == n_arcs - 1 else i + 3
         lines.append(f"Circle({curve_id}) = {{{start}, 1, {end}}};")
-        mid_angle = (i + 0.5) * CIRCLE_ARC_STEP_DEG
+        mid_angle = 0.5 * (angles[i] + (angles[i + 1] if i + 1 < n_arcs else 360.0))
         mx, my = circle_point(mid_angle, 1.0)
         side_curves[cylindrical_side_zone(compass_bearing_deg(mx, my))].append(curve_id)
     lines.append(f"Curve Loop(1) = {{{', '.join(str(i + 1) for i in range(n_arcs))}}};")
 
-    next_point = 100
-    next_curve = 100
+    next_point = max(100, n_arcs + 2)
+    next_curve = max(100, n_arcs + 1)
     next_loop = 10
 
     def add_ring(ring: list[tuple[float, float]], lc: float) -> int:
@@ -369,7 +350,7 @@ def write_gmsh_geo(path: Path, radius: float, shoreline: list[list[tuple[float, 
 
     island_loops = [loop for loop, depth in zip(ring_loops, depths) if depth % 2 == 0]
     water_surface = 1
-    lines.append(f"Plane Surface({water_surface}) = {{1, {', '.join(str(loop) for loop in island_loops)}}};")
+    lines.append(f"Plane Surface({water_surface}) = {{{', '.join(str(loop) for loop in [1] + island_loops)}}};")
 
     surfaces = [water_surface]
     next_surface = 2
@@ -391,33 +372,6 @@ def write_gmsh_geo(path: Path, radius: float, shoreline: list[list[tuple[float, 
     lines.append(f"Physical Surface(10) = {{{', '.join(str(s) for s in surfaces)}}};")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-
-def write_gmsh_geo_uniform(path: Path, radius: float) -> None:
-    geo = f"""
-SetFactory("OpenCASCADE");
-Mesh.MshFileVersion = 2.2;
-Mesh.Algorithm = 8;
-Mesh.RecombineAll = 1;
-Mesh.Optimize = 1;
-Mesh.CharacteristicLengthMin = {MESH_SIZE_M};
-Mesh.CharacteristicLengthMax = {MESH_SIZE_M};
-Point(1) = {{0, 0, 0, {MESH_SIZE_M}}};
-Point(2) = {{{radius}, 0, 0, {MESH_SIZE_M}}};
-Point(3) = {{0, {radius}, 0, {MESH_SIZE_M}}};
-Point(4) = {{{-radius}, 0, 0, {MESH_SIZE_M}}};
-Point(5) = {{0, {-radius}, 0, {MESH_SIZE_M}}};
-Circle(1) = {{2, 1, 3}};
-Circle(2) = {{3, 1, 4}};
-Circle(3) = {{4, 1, 5}};
-Circle(4) = {{5, 1, 2}};
-Curve Loop(1) = {{1, 2, 3, 4}};
-Plane Surface(1) = {{1}};
-Recombine Surface {{1}};
-Physical Curve(1) = {{2}};
-Physical Curve(2) = {{1, 3, 4}};
-Physical Surface(10) = {{1}};
-"""
-    path.write_text(geo.strip() + "\n", encoding="utf-8")
 
 
 def parse_msh(path: Path) -> tuple[dict[int, tuple[float, float]], list[tuple[int, list[int]]], list[tuple[int, int, int]]]:
@@ -549,6 +503,8 @@ def write_nmsh(
             write_zone(handle, element, face, label)
         handle.write(struct.pack("<i", 0))
 
+    boundary_check = check_boundary_zones(path, INFLOW_FROM_DEG, INFLOW_ARC_WIDTH_DEG,
+                                          OUTFLOW_ARC_WIDTH_DEG)
     return {
         "elements": n_elements,
         "base_quads": len(fixed_quads),
@@ -559,6 +515,7 @@ def write_nmsh(
         "water_level": water_level,
         "top_z": float(top_z),
         "side_zone_faces": len(side_zones),
+        "boundary_validation": boundary_check,
     }
 
 
@@ -681,56 +638,6 @@ def render_terrain_only(
     path.with_suffix(".svg").write_text("\n".join(lines), encoding="utf-8")
     run([RSVG, str(path.with_suffix(".svg")), "-o", str(path)])
 
-
-def render_overview(
-    path: Path,
-    shoreline: list[list[tuple[float, float]]],
-    buildings: list[list[tuple[float, float]]],
-    center: tuple[float, float],
-    radius: float,
-    samples: np.ndarray,
-    water_level: float,
-) -> None:
-    width, height = 1250, 1050
-    margin = 90
-    scale = min((width - 2 * margin) / (2 * radius), (height - 2 * margin) / (2 * radius))
-
-    def project(x: float, y: float) -> tuple[float, float]:
-        return width / 2 + (x - center[0]) * scale, height / 2 - (y - center[1]) * scale
-
-    lines = svg_header(width, height)
-    lines.append('<text x="60" y="45" class="title">Södermalm terrain blended to water-level cylinder</text>')
-    lines.append(f'<text x="60" y="70" class="small">Water level inferred from local contours: z = {water_level:.1f} m; red arc is the {INFLOW_ARC_WIDTH_DEG:.0f} deg inlet centered on wind from {INFLOW_FROM_DEG:.0f} deg</text>')
-
-    n = 95
-    zmax = float(np.max(samples[:, 2]))
-    cell = 2 * radius / n
-    for iy in range(n):
-        for ix in range(n):
-            x = -radius + (ix + 0.5) * cell
-            y = -radius + (iy + 0.5) * cell
-            if x * x + y * y > radius * radius:
-                continue
-            z = terrain_height(x, y, samples, water_level, shoreline, center, radius)
-            px, py = project(x + center[0] - cell / 2, y + center[1] + cell / 2)
-            lines.append(
-                f'<rect x="{px:.1f}" y="{py:.1f}" width="{cell * scale + 0.8:.1f}" height="{cell * scale + 0.8:.1f}" '
-                f'fill="{color_height(z, water_level, zmax)}" stroke="none"/>'
-            )
-
-    cx, cy = project(center[0], center[1])
-    cr = radius * scale
-    lines.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{cr:.1f}" fill="none" stroke="#1464a0" stroke-width="3"/>')
-    for arc in inlet_arc_polylines(radius):
-        pts = [(center[0] + x, center[1] + y) for x, y in arc]
-        lines.append(polyline(pts, project, fill="none", stroke="#d7191c", stroke_width=8))
-    for ring in buildings[:6000]:
-        lines.append(polyline(ring + [ring[0]], project, fill="none", stroke="#555555", stroke_width=0.55, opacity=0.45))
-    for ring in shoreline:
-        lines.append(polyline(ring, project, fill="none", stroke="#222222", stroke_width=2.5))
-    lines.append("</svg>")
-    path.with_suffix(".svg").write_text("\n".join(lines), encoding="utf-8")
-    run([RSVG, str(path.with_suffix(".svg")), "-o", str(path)])
 
 
 def render_mesh(
@@ -1361,125 +1268,7 @@ def render_3d_scene(
     run([RSVG, str(path.with_suffix(".svg")), "-o", str(path)])
 
 
-def render_oblique(path: Path, radius: float, terrain_min: float, top_z: float) -> None:
-    width, height = 1200, 850
-
-    def project(x: float, y: float, z: float) -> tuple[float, float]:
-        return width / 2 + 0.062 * (x - y), 610 + 0.026 * (x + y) - 1.35 * (z - terrain_min)
-
-    lines = svg_header(width, height)
-    lines.append('<text x="60" y="45" class="title">Oblique check: cylindrical side, flat water edge, flat top</text>')
-    lines.append(f'<text x="60" y="70" class="small">Blue: cylinder wall; red: {INFLOW_ARC_WIDTH_DEG:.0f} deg inlet; bottom circle is at inferred water level</text>')
-    for z, stroke in ((terrain_min, "#1464a0"), (top_z, "#1464a0")):
-        pts = [(radius * math.cos(t), radius * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 160)]
-        lines.append(polyline(pts, lambda x, y, zz=z: project(x, y, zz), fill="none", stroke=stroke, stroke_width=2))
-    for a in np.linspace(0, 360, 17):
-        x = radius * math.cos(math.radians(a))
-        y = radius * math.sin(math.radians(a))
-        p0 = project(x, y, terrain_min)
-        p1 = project(x, y, top_z)
-        lines.append(f'<line x1="{p0[0]:.1f}" y1="{p0[1]:.1f}" x2="{p1[0]:.1f}" y2="{p1[1]:.1f}" stroke="#9ecae1" stroke-width="1"/>')
-    for arc in inlet_arc_polylines(radius):
-        lines.append(polyline(arc, lambda x, y: project(x, y, top_z), fill="none", stroke="#d7191c", stroke_width=7))
-    lines.append("</svg>")
-    path.with_suffix(".svg").write_text("\n".join(lines), encoding="utf-8")
-    run([RSVG, str(path.with_suffix(".svg")), "-o", str(path)])
-
-
-def main() -> None:
-    OUT.mkdir(parents=True, exist_ok=True)
-    FIG.mkdir(parents=True, exist_ok=True)
-    if not INPUT_GPKG.exists():
-        raise SystemExit(f"Missing input GeoPackage: {INPUT_GPKG}")
-
-    run([OSGEO_PYTHON, str(HERE / "fetch_sodermalm_osm_mask.py")])
-    land_mask = OUT / "sodermalm_osm_island_epsg3006.geojson"
-    land_geometry = load_geojson(land_mask)["features"][0]["geometry"]
-    shoreline = polygon_boundary_rings(land_geometry)
-    all_shore_points = [p for ring in shoreline for p in ring]
-    px = np.array([p[0] for p in all_shore_points])
-    py = np.array([p[1] for p in all_shore_points])
-    center = (float((px.min() + px.max()) * 0.5), float((py.min() + py.max()) * 0.5))
-    radius = float(max(math.hypot(x - center[0], y - center[1]) for x, y in all_shore_points) + BUFFER_M)
-
-    buildings_geojson = OUT / "sodermalm_buildings.geojson"
-    contours_geojson = OUT / "sodermalm_cylinder_contours.geojson"
-    for path in (buildings_geojson, contours_geojson):
-        if path.exists():
-            path.unlink()
-    run([OGR2OGR, "-f", "GeoJSON", str(buildings_geojson), str(INPUT_GPKG), "buildings", "-clipsrc", str(land_mask)])
-    run([
-        OGR2OGR, "-f", "GeoJSON", str(contours_geojson), str(INPUT_GPKG), "terrain_contours",
-        "-spat", str(center[0] - radius), str(center[1] - radius), str(center[0] + radius), str(center[1] + radius),
-    ])
-
-    samples, water_level = terrain_samples(contours_geojson, center)
-    geo = OUT / "sodermalm_cylinder_quad_disk.geo"
-    msh = OUT / "sodermalm_cylinder_quad_disk.msh"
-    write_gmsh_geo(geo, radius, shoreline, center)
-    run([GMSH, "-2", str(geo), "-format", "msh2", "-o", str(msh)])
-    nodes, quads, lines = parse_msh(msh)
-
-    mesh_path = OUT / "sodermalm_cylinder_coarse.nmsh"
-    mesh_info = write_nmsh(mesh_path, nodes, quads, lines, samples, water_level, shoreline, center, radius)
-    building_stl_info = write_sodermalm_building_stl(
-        OUT / "sodermalm_buildings.stl",
-        buildings_geojson,
-        samples,
-        water_level,
-        shoreline,
-        center,
-        radius,
-    )
-
-    building_rings: list[list[tuple[float, float]]] = []
-    for feature in load_geojson(buildings_geojson)["features"]:
-        for ring in polygon_rings(feature["geometry"]):
-            if ring:
-                building_rings.append(ring)
-
-    render_overview(FIG / "sodermalm_waterlevel_overview.png", shoreline, building_rings, center, radius, samples, water_level)
-    render_terrain_only(FIG / "sodermalm_terrain_height_contours.png", shoreline, contours_geojson, center, radius, samples, water_level)
-    render_terrain_only(FIG / "sodermalm_terrain_height_contours_notext.png", shoreline, contours_geojson, center, radius, samples, water_level, annotate=False)
-    render_mesh(FIG / "sodermalm_cylinder_mesh_topdown.png", nodes, quads, radius, shoreline, center)
-    render_mesh(FIG / "sodermalm_cylinder_mesh_topdown_notext.png", nodes, quads, radius, shoreline, center)
-    render_terrain_mesh_3d(FIG / "sodermalm_cylinder_mesh_3d.png", nodes, quads, lines, samples, water_level, shoreline, center, radius)
-    render_oblique(FIG / "sodermalm_cylinder_oblique.png", radius, water_level, mesh_info["top_z"])
-    render_3d_scene(FIG / "sodermalm_cylinder_3d_buildings.png", shoreline, buildings_geojson, center, radius, samples, water_level)
-    checker_output = run_mesh_checker(mesh_path)
-
-    metadata = {
-        "center_epsg3006": center,
-        "radius_m": radius,
-        "buffer_m": BUFFER_M,
-        "domain_height_above_lowest_m": DOMAIN_HEIGHT_ABOVE_LOWEST_M,
-        "mesh_size_m": MESH_SIZE_M,
-        "land_mesh_size_m": LAND_MESH_SIZE_M,
-        "water_mesh_size_m": WATER_MESH_SIZE_M,
-        "shoreline_simplify_m": SHORELINE_SIMPLIFY_M,
-        "shore_blend_m": SHORE_BLEND_M,
-        "inflow_from_degrees": INFLOW_FROM_DEG,
-        "inflow_arc_width_degrees": INFLOW_ARC_WIDTH_DEG,
-        "outflow_arc_width_degrees": OUTFLOW_ARC_WIDTH_DEG,
-        "inflow_angle_convention": "meteorological: north is 0/360 degrees, clockwise positive; direction is where wind comes from",
-        "zones": {
-            "1": "inlet_arc",
-            "2": "downstream_outlet_arc",
-            "3": "lateral_open_side_arcs",
-            "5": "terrain_or_water_bottom",
-            "6": "top",
-        },
-        "mesh": mesh_info,
-        "building_stl": building_stl_info,
-        "building_footprints": len(building_rings),
-        "land_mask": "OpenStreetMap place=island polygon for Södermalm",
-        "land_mask_source": str(land_mask),
-        "rough_search_hint_wgs84": SODERMALM_WGS84,
-        "mesh_checker_summary": checker_output,
-    }
-    (OUT / "sodermalm_cylinder_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    print(json.dumps({k: v for k, v in metadata.items() if k != "mesh_checker_summary"}, indent=2))
-
 
 if __name__ == "__main__":
+    from generate_geometry import main
     main()

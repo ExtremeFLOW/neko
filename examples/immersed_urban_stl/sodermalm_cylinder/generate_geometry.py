@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Build a 2x finer horizontal Södermalm cylinder mesh.
-
-This keeps the validated coarse-run vertical setup but halves the x-y target
-element sizes to give roughly 55 m effective p2 spacing over land.
-"""
+"""Generate the sharp-mask p7 terrain-following cylinder and building STL."""
 
 from __future__ import annotations
 
@@ -20,7 +16,7 @@ import build_sodermalm_cylinder as base
 
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE / "input" / "prepared"
-SUFFIX = os.environ.get("SODERMALM_OUTPUT_SUFFIX", "2x_xy")
+SUFFIX = os.environ.get("SODERMALM_OUTPUT_SUFFIX", "sharp_mask")
 OUT = HERE / f"generated_{SUFFIX}"
 FIG = HERE / f"figures_{SUFFIX}"
 TAG = SUFFIX
@@ -34,16 +30,18 @@ PREPARED_INPUTS = (
 
 
 def main() -> None:
+    if any(OUT.glob("*.nmsh")):
+        raise SystemExit(f"Refusing to overwrite existing geometry in {OUT}; use a new output suffix.")
     OUT.mkdir(parents=True, exist_ok=True)
     FIG.mkdir(parents=True, exist_ok=True)
     skip_figures = os.environ.get("SODERMALM_SKIP_FIGURES", "0") == "1"
 
     base.OUT = OUT
     base.FIG = FIG
-    base.NZ = int(os.environ.get("SODERMALM_NZ", "5"))
+    base.NZ = int(os.environ.get("SODERMALM_NZ", "10"))
     base.DOMAIN_HEIGHT_ABOVE_LOWEST_M = float(os.environ.get("SODERMALM_DOMAIN_HEIGHT_M", "350.0"))
     base.VERTICAL_STRETCH = float(os.environ.get("SODERMALM_VERTICAL_STRETCH", "2.0"))
-    base.LAND_MESH_SIZE_M = float(os.environ.get("SODERMALM_LAND_MESH_SIZE_M", "110.0"))
+    base.LAND_MESH_SIZE_M = float(os.environ.get("SODERMALM_LAND_MESH_SIZE_M", "35.0"))
     base.WATER_MESH_SIZE_M = float(os.environ.get("SODERMALM_WATER_MESH_SIZE_M", "225.0"))
     base.SHORELINE_SIMPLIFY_M = float(os.environ.get("SODERMALM_SHORELINE_SIMPLIFY_M", "35.0"))
     base.SHORE_BLEND_M = float(os.environ.get("SODERMALM_SHORE_BLEND_M", "180.0"))
@@ -88,7 +86,6 @@ def main() -> None:
 
     if not skip_figures:
         base.render_mesh(FIG / f"sodermalm_cylinder_{TAG}_mesh_topdown.png", nodes, quads, radius, shoreline, center)
-        base.render_mesh(FIG / f"sodermalm_cylinder_{TAG}_mesh_topdown_notext.png", nodes, quads, radius, shoreline, center)
         base.render_terrain_mesh_3d(
             FIG / f"sodermalm_cylinder_{TAG}_mesh_3d.png",
             nodes,
@@ -122,7 +119,7 @@ def main() -> None:
     checker_output = base.run_mesh_checker(mesh_path)
 
     metadata = {
-        "target": os.environ.get("SODERMALM_TARGET_LABEL", "2x finer horizontal local p2 run, same vertical setup"),
+        "target": os.environ.get("SODERMALM_TARGET_LABEL", "p7 sharp-mask geometry, exact 220-degree inlet"),
         "center_epsg3006": center,
         "radius_m": radius,
         "buffer_m": base.BUFFER_M,
@@ -130,9 +127,11 @@ def main() -> None:
         "vertical_stretch": base.VERTICAL_STRETCH,
         "nz": base.NZ,
         "land_mesh_size_m": base.LAND_MESH_SIZE_M,
-        "effective_land_p2_xy_spacing_m": base.LAND_MESH_SIZE_M / 2.0,
+        "nominal_effective_land_p7_xy_spacing_m": base.LAND_MESH_SIZE_M / 7.0,
         "water_mesh_size_m": base.WATER_MESH_SIZE_M,
-        "effective_water_p2_xy_spacing_m": base.WATER_MESH_SIZE_M / 2.0,
+        "nominal_effective_water_p7_xy_spacing_m": base.WATER_MESH_SIZE_M / 7.0,
+        "shore_blend_m": base.SHORE_BLEND_M,
+        "polynomial_order": 7,
         "shoreline_simplify_m": base.SHORELINE_SIMPLIFY_M,
         "inflow_from_degrees": base.INFLOW_FROM_DEG,
         "inflow_arc_width_degrees": base.INFLOW_ARC_WIDTH_DEG,

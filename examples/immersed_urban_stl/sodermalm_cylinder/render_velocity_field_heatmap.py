@@ -154,7 +154,8 @@ def main() -> None:
     visible_values = field[mask > 0.5]
     if visible_values.size == 0:
         raise RuntimeError("No visible velocity samples to render")
-    vmax = float(vmax_override) if vmax_override else float(np.nanmax(visible_values))
+    sample_max = float(np.nanmax(speed[disk & valid]))
+    vmax = float(vmax_override) if vmax_override else max(sample_max, float(np.nanmax(visible_values)))
     vmax = max(vmax, vmin + 1.0e-6)
     rgb = color_velocity(field, vmin, vmax)
     alpha = np.clip(mask * 255.0, 0, 255).astype(np.uint8)
@@ -182,7 +183,7 @@ def main() -> None:
                 if len(pts) >= 3:
                     draw.polygon(
                         global_ring_to_px(pts, center, radius),
-                        fill=(96, 96, 92, int(os.environ.get("BUILDING_ALPHA", "105"))),
+                        fill=(96, 96, 92, int(os.environ.get("BUILDING_ALPHA", "95"))),
                         outline=(45, 45, 42, 130),
                     )
 

@@ -1,7 +1,7 @@
 {
-    "version": 1.0,
+    "version": 1,
     "case": {
-        "mesh_file": "../generated_p7_xy35_inlet220_nz10/sodermalm_cylinder_p7_xy35_inlet220_nz10.nmsh",
+        "mesh_file": "../generated_sharp_mask/sodermalm_cylinder_sharp_mask.nmsh",
         "output_directory": "fields",
         "output_at_end": true,
         "output_boundary": false,
@@ -9,16 +9,16 @@
         "checkpoint_control": "simulationtime",
         "checkpoint_value": 25.0,
         "time": {
-            "end_time": 100.0,
+            "end_time": 500.0,
             "variable_timestep": true,
-            "timestep": 0.01,
+            "timestep": 0.001,
             "target_cfl": 0.15,
             "max_timestep": 0.02,
             "max_dt_increase_factor": 1.1
         },
         "numerics": {
             "time_order": 2,
-            "polynomial_order": 3,
+            "polynomial_order": 7,
             "dealias": true
         },
         "fluid": {
@@ -43,7 +43,7 @@
                 },
                 "projection_space_size": 8,
                 "projection_reorthogonalize_basis": true,
-                "absolute_tolerance": 1e-4,
+                "absolute_tolerance": 0.0001,
                 "max_iterations": 1200
             },
             "output_control": "simulationtime",
@@ -51,30 +51,47 @@
             "boundary_conditions": [
                 {
                     "type": "user_velocity",
-                    "zone_indices": [ 1 ]
+                    "zone_indices": [
+                        1
+                    ]
                 },
                 {
                     "type": "outflow+dong",
-                    "zone_indices": [ 2 ]
+                    "zone_indices": [
+                        2
+                    ]
                 },
                 {
                     "type": "outflow+dong",
-                    "zone_indices": [ 3 ]
+                    "zone_indices": [
+                        3
+                    ]
                 },
                 {
                     "type": "normal_outflow",
-                    "zone_indices": [ 6 ],
-                    "value": [ 4.3, 4.3, 0.0 ]
+                    "zone_indices": [
+                        6
+                    ],
+                    "value": [
+                        4.3,
+                        4.3,
+                        0.0
+                    ]
                 },
                 {
                     "type": "no_slip",
-                    "zone_indices": [ 5 ]
+                    "zone_indices": [
+                        5
+                    ]
                 }
             ],
             "source_terms": [
                 {
                     "type": "brinkman",
-                    "limits": [ 0.0, 65.0 ],
+                    "limits": [
+                        0.0,
+                        65.0
+                    ],
                     "penalty": 10.0,
                     "output": {
                         "enable": false,
@@ -85,7 +102,7 @@
                     "objects": [
                         {
                             "type": "file",
-                            "file_name": "fields/bldp3_ctr500.fld",
+                            "file_name": "../cache_sharp_mask/buildings0.fld",
                             "field_name": "s01",
                             "file_index": 0
                         }
@@ -93,12 +110,17 @@
                     "ramp_time": 30.0,
                     "filter": {
                         "type": "PDE",
-                        "radius": 20.0,
+                        "radius": 10.0,
                         "tolerance": 1e-8,
                         "max_iter": 500,
                         "solver": "cg",
                         "preconditioner": "jacobi"
                     }
+                },
+                {
+                    "type": "hpfrt",
+                    "filter_modes": 2,
+                    "filter_weight": 2.0
                 }
             ]
         }
