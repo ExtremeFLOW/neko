@@ -230,8 +230,8 @@ contains
   !> Add a field to the registry.
   !! @param dof The map of degrees of freedom.
   !! @param name The name of the field.
-  !! @param ignore_existing If true, will do nothing if the field is already in
-  !! the registry. If false, will throw an error. Optional, defaults to false.
+  !! @param ignore_existing If true, will do nothing if the field is already
+  !! in the registry. If false, will throw an error. Optional, default is false.
   subroutine registry_add_field(this, dof, name, ignore_existing)
     class(registry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
@@ -270,8 +270,8 @@ contains
   !> Add a vector to the registry.
   !! @param n The size of the vector.
   !! @param name The name of the vector.
-  !! @param ignore_existing If true, will do nothing if the vector is already in
-  !! the registry. If false, will throw an error. Optional, defaults to false.
+  !! @param ignore_existing If true, will do nothing if the vector is already
+  !! in the registry. If false, will throw an error. Optional, default is false.
   subroutine registry_add_vector(this, n, name, ignore_existing)
     class(registry_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -310,8 +310,8 @@ contains
   !> Add a matrix to the registry.
   !! @param n The size of the matrix.
   !! @param name The name of the matrix.
-  !! @param ignore_existing If true, will do nothing if the matrix is already in
-  !! the registry. If false, will throw an error. Optional, defaults to false.
+  !! @param ignore_existing If true, will do nothing if the matrix is already
+  !! in the registry. If false, will throw an error. Optional, default is false.
   subroutine registry_add_matrix(this, nrows, ncols, name, ignore_existing)
     class(registry_t), intent(inout) :: this
     integer, intent(in) :: nrows, ncols
@@ -350,8 +350,8 @@ contains
   !> Add a tensor3 to the registry.
   !! @param n The size of the tensor3.
   !! @param name The name of the tensor3.
-  !! @param ignore_existing If true, will do nothing if the tensor3 is already in
-  !! the registry. If false, will throw an error. Optional, defaults to false.
+  !! @param ignore_existing If true, will do nothing if the tensor3 is already
+  !! in the registry. If false, will throw an error. Optional, default is false.
   subroutine registry_add_tensor3(this, n, m, k, name, ignore_existing)
     class(registry_t), intent(inout) :: this
     integer, intent(in) :: n, m, k
@@ -382,19 +382,19 @@ contains
     ! Initialize the named tensor3 at the appropriate index
     call this%entries(this%n_entries_)%init_tensor3(n, m, k, name)
 
-    call neko_log%message("Tensor3 " // trim(name) // " added to the registry", &
-         lvl=NEKO_LOG_DEBUG)
+    call neko_log%message("Tensor3 " // trim(name) // &
+         " added to the registry", lvl=NEKO_LOG_DEBUG)
 
   end subroutine registry_add_tensor3
 
   !> Add a tensor4 to the registry.
   !! @param n The size of the tensor4.
   !! @param name The name of the tensor4.
-  !! @param ignore_existing If true, will do nothing if the tensor4 is already in
-  !! the registry. If false, will throw an error. Optional, defaults to false.
-  subroutine registry_add_tensor4(this, n, m, k, name, ignore_existing)
+  !! @param ignore_existing If true, will do nothing if the tensor4 is already
+  !! in the registry. If false, will throw an error. Optional, default is false.
+  subroutine registry_add_tensor4(this, n, m, k, l, name, ignore_existing)
     class(registry_t), intent(inout) :: this
-    integer, intent(in) :: n, m, k
+    integer, intent(in) :: n, m, k, l
     character(len=*), target, intent(in) :: name
     logical, optional, intent(in) :: ignore_existing
     logical :: ignore_existing_
@@ -420,10 +420,10 @@ contains
     this%n_entries_ = this%n_entries_ + 1
 
     ! Initialize the named tensor4 at the appropriate index
-    call this%entries(this%n_entries_)%init_tensor4(n, m, k, name)
+    call this%entries(this%n_entries_)%init_tensor4(n, m, k, l, name)
 
-    call neko_log%message("Tensor4 " // trim(name) // " added to the registry", &
-         lvl=NEKO_LOG_DEBUG)
+    call neko_log%message("Tensor4 " // trim(name) // &
+         " added to the registry", lvl=NEKO_LOG_DEBUG)
 
   end subroutine registry_add_tensor4
 
@@ -771,7 +771,6 @@ contains
     class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     logical :: found
-    integer :: i
 
     found = this%entry_exists(name, 'field')
     if (.not. found) found = this%aliases%valid_path(name)
@@ -783,7 +782,6 @@ contains
     class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     logical :: found
-    integer :: i
 
     found = this%entry_exists(name, 'vector')
     if (.not. found) found = this%aliases%valid_path(name)
@@ -795,7 +793,6 @@ contains
     class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     logical :: found
-    integer :: i
 
     found = this%entry_exists(name, 'matrix')
     if (.not. found) found = this%aliases%valid_path(name)
@@ -807,7 +804,6 @@ contains
     class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     logical :: found
-    integer :: i
 
     found = this%entry_exists(name, 'tensor3')
     if (.not. found) found = this%aliases%valid_path(name)
@@ -819,7 +815,6 @@ contains
     class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     logical :: found
-    integer :: i
 
     found = this%entry_exists(name, 'tensor4')
     if (.not. found) found = this%aliases%valid_path(name)
@@ -831,7 +826,6 @@ contains
     class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     logical :: found
-    integer :: i
 
     found = this%entry_exists(name, 'real_scalar')
     if (.not. found) found = this%aliases%valid_path(name)
@@ -843,7 +837,6 @@ contains
     class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     logical :: found
-    integer :: i
 
     found = this%entry_exists(name, 'integer_scalar')
     if (.not. found) found = this%aliases%valid_path(name)
@@ -854,109 +847,77 @@ contains
   ! Generic component accessor methods
 
   !> Get number of registered entries.
-  pure function registry_n_entries(this) result(n)
+  pure function registry_n_entries(this, type) result(n)
     class(registry_t), intent(in) :: this
+    character(len=*), intent(in), optional :: type
     integer :: n
 
-    n = this%n_entries_
+    if (present(type)) then
+       n = 0
+       do i = 1, this%n_entries()
+          if (this%entries(i)%get_type() .eq. trim(type)) then
+             n = n + 1
+          end if
+       end do
+    else
+       n = this%n_entries_
+    end if
+
   end function registry_n_entries
 
   !> Get the number of fields stored in the registry
   pure function registry_n_fields(this) result(n)
     class(registry_t), intent(in) :: this
     integer :: n, i
-
-    n = 0
-    do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'field') then
-          n = n + 1
-       end if
-    end do
+    n = this%n_entries('field')
   end function registry_n_fields
 
   !> Get the number of vector stored in the registry
   pure function registry_n_vectors(this) result(n)
     class(registry_t), intent(in) :: this
     integer :: n, i
-
-    n = 0
-    do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'vector') then
-          n = n + 1
-       end if
-    end do
+    n = this%n_entries('vector')
   end function registry_n_vectors
 
   !> Get the number of matrix stored in the registry
   pure function registry_n_matrices(this) result(n)
     class(registry_t), intent(in) :: this
     integer :: n, i
-
-    n = 0
-    do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'matrix') then
-          n = n + 1
-       end if
-    end do
+    n = this%n_entries('matrix')
   end function registry_n_matrices
 
   !> Get the number of tensor3 stored in the registry
   pure function registry_n_tensor3s(this) result(n)
     class(registry_t), intent(in) :: this
     integer :: n, i
-
-    n = 0
-    do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'tensor3') then
-          n = n + 1
-       end if
-    end do
+    n = this%n_entries('tensor3')
   end function registry_n_tensor3s
 
   !> Get the number of tensor4 stored in the registry
   pure function registry_n_tensor4s(this) result(n)
     class(registry_t), intent(in) :: this
     integer :: n, i
-
-    n = 0
-    do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'tensor4') then
-          n = n + 1
-       end if
-    end do
+    n = this%n_entries('tensor4')
   end function registry_n_tensor4s
 
   !> Get the number of real scalars stored in the registry
   pure function registry_n_real_scalars(this) result(n)
     class(registry_t), intent(in) :: this
     integer :: n, i
-
-    n = 0
-    do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'real_scalar') then
-          n = n + 1
-       end if
-    end do
+    n = this%n_entries('real_scalar')
   end function registry_n_real_scalars
 
   !> Get the number of integer scalars stored in the registry
   pure function registry_n_integer_scalars(this) result(n)
     class(registry_t), intent(in) :: this
     integer :: n, i
-
-    n = 0
-    do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'integer_scalar') then
-          n = n + 1
-       end if
-    end do
+    n = this%n_entries('integer_scalar')
   end function registry_n_integer_scalars
 
   !> Get the number of aliases stored in the registry
   pure function registry_n_aliases(this) result(n)
     class(registry_t), intent(in) :: this
     integer :: n
-
     n = this%n_aliases_
   end function registry_n_aliases
 
@@ -1001,12 +962,14 @@ contains
     class(registry_t), intent(in) :: this
     character(len=*), optional, intent(in) :: type
     character(len=:), allocatable :: filter_type
-    character(len=14), parameter :: types(5) = (/ &
+    character(len=14), parameter :: types(7) = [ &
          'field         ', &
          'vector        ', &
          'matrix        ', &
+         'tensor3       ', &
+         'tensor4       ', &
          'real_scalar   ', &
-         'integer_scalar' /)
+         'integer_scalar' ]
     logical :: filter_active
     integer :: i
     logical :: known_type
