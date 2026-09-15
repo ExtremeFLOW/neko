@@ -227,11 +227,11 @@ contains
             lx, ly, lz, nel, local_iters, nchange_d)
 #elif HAVE_OPENCL
        call compute_cheap_dist_opencl(dist_field%x_d, &
-            coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+            coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
             lx, ly, lz, nel, local_iters, nchange_d)
 #elif HAVE_METAL
        call compute_cheap_dist_metal(dist_field%x_d, &
-            coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+            coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
             lx, ly, lz, nel, local_iters, nchange_d)
 #endif
 
@@ -313,13 +313,13 @@ contains
     call add_kinematics_to_mesh_velocity_opencl( &
          wx%x_d, wy%x_d, wz%x_d, &
          x_ref%x_d, y_ref%x_d, z_ref%x_d, &
-         phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         phi%x_d, coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
          kin_params, n)
 #elif HAVE_METAL
     call add_kinematics_to_mesh_velocity_metal( &
          wx%x_d, wy%x_d, wz%x_d, &
          x_ref%x_d, y_ref%x_d, z_ref%x_d, &
-         phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         phi%x_d, coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
          kin_params, n)
 #else
     call neko_error("ALE: no device backend configured")
