@@ -495,33 +495,41 @@ contains
     real(kind=dp) :: t(niter)
     integer :: i, ierr
 
+#ifdef NEKO_BCKND_CPU
     ! --- math -------------------------------------------------------------
     do i = 1, nwarmup
        call reset_one(da, da_d, refa, refa_d, n)
-#ifndef NEKO_BCKND_CPU
-       call device_col2(da_d, db_d, n)
-#else
        call col2(da, db, n)
-#endif
-#ifndef NEKO_BCKND_CPU
-       call device_sync()
-#endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        call reset_one(da, da_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
-#ifndef NEKO_BCKND_CPU
-       call device_col2(da_d, db_d, n)
-#else
        call col2(da, db, n)
-#endif
-#ifndef NEKO_BCKND_CPU
-       call device_sync()
-#endif
+
        t(i) = MPI_Wtime() - t(i)
     end do
     call report('col2 ', 'math       ', lx, n, n_glb, t)
+
+#else
+    ! --- device_math ------------------------------------------------------
+    do i = 1, nwarmup
+       call reset_one(da, da_d, refa, refa_d, n)
+       call device_col2(da_d, db_d, n)
+       call device_sync()
+    end do
+    call MPI_Barrier(NEKO_COMM, ierr)
+
+    do i = 1, niter
+       call reset_one(da, da_d, refa, refa_d, n)
+       t(i) = MPI_Wtime()
+       call device_col2(da_d, db_d, n)
+       call device_sync()
+       t(i) = MPI_Wtime() - t(i)
+    end do
+    call report('col2 ', 'device_math', lx, n, n_glb, t)
+#endif
 
     ! --- field_math -------------------------------------------------------
     do i = 1, nwarmup
@@ -532,6 +540,7 @@ contains
 #endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        call reset_one(fa%x, fa%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
@@ -552,6 +561,7 @@ contains
 #endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        call reset_one(va%x, va%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
@@ -572,6 +582,7 @@ contains
 #endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        call reset_one(ma%x, ma%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
@@ -599,6 +610,7 @@ contains
        call reset_one(da, da_d, refa, refa_d, n)
        call add3(da, db, dc, n)
     end do
+
     call MPI_Barrier(NEKO_COMM, ierr)
     do i = 1, niter
        call reset_one(da, da_d, refa, refa_d, n)
@@ -616,6 +628,7 @@ contains
        call device_sync()
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        call reset_one(da, da_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
@@ -635,6 +648,7 @@ contains
 #endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        call reset_one(fa%x, fa%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
@@ -655,6 +669,7 @@ contains
 #endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        call reset_one(va%x, va%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
@@ -675,6 +690,7 @@ contains
 #endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        call reset_one(ma%x, ma%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
@@ -704,6 +720,7 @@ contains
        call add3(dd, db, dc, n)
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        call reset_one(da, da_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
@@ -723,6 +740,7 @@ contains
        call device_sync()
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        call reset_one(da, da_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
@@ -745,6 +763,7 @@ contains
 #endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        call reset_one(fa%x, fa%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
@@ -767,6 +786,7 @@ contains
 #endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        call reset_one(va%x, va%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
@@ -789,6 +809,7 @@ contains
 #endif
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        call reset_one(ma%x, ma%x_d, refa, refa_d, n)
        t(i) = MPI_Wtime()
@@ -818,6 +839,7 @@ contains
        s = glsc3(da, db, dc, n)
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        t(i) = MPI_Wtime()
        s = glsc3(da, db, dc, n)
@@ -830,6 +852,7 @@ contains
        s = device_glsc3(da_d, db_d, dc_d, n)
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        t(i) = MPI_Wtime()
        s = device_glsc3(da_d, db_d, dc_d, n)
@@ -843,6 +866,7 @@ contains
        s = field_glsc3(fa, fb, fc, n)
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        t(i) = MPI_Wtime()
        s = field_glsc3(fa, fb, fc, n)
@@ -855,6 +879,7 @@ contains
        s = vector_glsc3(va, vb, vc, n)
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        t(i) = MPI_Wtime()
        s = vector_glsc3(va, vb, vc, n)
@@ -867,6 +892,7 @@ contains
        s = matrix_glsc3(ma, mb, mc, n)
     end do
     call MPI_Barrier(NEKO_COMM, ierr)
+
     do i = 1, niter
        t(i) = MPI_Wtime()
        s = matrix_glsc3(ma, mb, mc, n)
