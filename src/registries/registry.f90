@@ -749,7 +749,7 @@ contains
   ! Methods for checking existence of objects in the registry
 
   !> Check if an entry with a given name is already in the registry.
-  !! @param name The name of the field.
+  !! @param name The name of the entry.
   !! @param type The type of the entry. Optional, if not provided, will check
   !!        all types.
   function registry_entry_exists(this, name, type) result(found)
