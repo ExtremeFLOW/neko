@@ -64,7 +64,7 @@ contains
 
     do i = 1, bc%msk(0)
        s%x(bc%msk(i),1,1,1) = &
-            1.0_rp - s%dof%z(bc%msk(i),1,1,1)
+            1.0_rp - s%dof%z%x(bc%msk(i),1,1,1)
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -89,7 +89,7 @@ contains
 
     !> Initialize with rand perturbations on temperature
     do i = 1, s%dof%size()
-       s%x(i,1,1,1) = 1 - s%dof%z(i,1,1,1)
+       s%x(i,1,1,1) = 1 - s%dof%z%x(i,1,1,1)
     end do
 
     ! perturb not on element boundaries
@@ -102,9 +102,9 @@ contains
                 !call random_number(rand)
                 !Somewhat random
                 rand = cos(real(e + s%msh%offset_el,rp) * real(i*j*k, rp))
-                r = sqrt(s%dof%x(i,j,k,e)**2 + s%dof%y(i,j,k,e)**2)
-                z = s%dof%z(i,j,k,e)
-                s%x(i,j,k,e) = 1.0_rp - z + 0.0001_rp*rand*s%dof%x(i,j,k,e)* &
+                r = sqrt(s%dof%x%x(i,j,k,e)**2 + s%dof%y%x(i,j,k,e)**2)
+                z = s%dof%z%x(i,j,k,e)
+                s%x(i,j,k,e) = 1.0_rp - z + 0.0001_rp*rand*s%dof%x%x(i,j,k,e)* &
                      sin(3.0_rp*pi*r/0.05_rp) * sin(10.0_rp*pi*z)
              end do
           end do

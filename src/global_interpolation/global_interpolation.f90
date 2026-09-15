@@ -291,7 +291,7 @@ contains
 
     ! Store the number of dofs
     this%n_dof = dof%size()
-    ! NOTE: Passing dof%x(:,1,1,1), etc in init_xyz passes down the entire
+    ! NOTE: Passing dof%x%x(:,1,1,1), etc in init_xyz passes down the entire
     ! dof%x array and not a slice. It is done this way for
     ! to get the right dimension (see global_interpolation_init_xyz).
     if (.not. present(mask)) then
