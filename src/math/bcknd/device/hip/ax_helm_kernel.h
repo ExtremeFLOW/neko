@@ -428,9 +428,20 @@ ax_helm_kernel_kstep_padded(T * __restrict__ w,
  * arithmetic. That is the whole difficulty with the strategy: the operator
  * runs at roughly 1.6 flop/byte, tens of times below the ridge, so the tile
  * utilisation a matrix core buys has to be paid for in staging traffic and
- * usually is. The lx = 4 candidates at more than one wavefront predate the
- * elements per block rework and should be re-measured before they are
- * quoted. Nothing has been measured on gfx942 at all.
+ * usually is. Nothing has been measured on gfx942 at all.
+ *
+ * ALL OF THOSE NUMBERS ARE STALE. They predate the elements per block rework
+ * (which changed what more than one wavefront means at lx = 4), the padded LDS
+ * layout, the B-hoisted 4x4x4 nest, the 16 wavefront rung and the geometry
+ * prefetch. Of those the first three are the ones expected to move the lx = 8
+ * comparison: the bank model prices a whole lx = 8 f64 element -- every LDS
+ * access of the six contractions and the three linear passes -- at 2976
+ * cycles before them and 1220 after, and the streaming efficiency those
+ * numbers are really measuring is what an 8-way LDS conflict costs. The same
+ * model puts lx = 12 f64 at 8964 -> 4752 and the orders it does not pad,
+ * lx = 10 and 11, at -30% and -27% from the hoisted operand alone. Re-measure
+ * before quoting any of it, and treat the 4.5% deficit as the thing to re-test
+ * rather than as a settled result.
  */
 #if defined(__gfx90a__) || defined(__gfx942__)
 
@@ -469,18 +480,28 @@ __device__ void ax_helm_mfma_elem(T * __restrict__ w,
      block covering EB elements, see the note in mfma_kernel.h. At LX = 4 the
      contraction offers one column group, so WPE is 1 and every wavefront gets
      an element of its own rather than idling. */
-  enum { EB = NEKO_MFMA_EB_N(NWF, LX),
-         WPE = NWF / EB };
+  enum { PAD = NEKO_MFMA_PAD_N(LX, sizeof(T)),
+         CUBE = NEKO_MFMA_CUBE_N(LX, sizeof(T)),
+         DMAT = NEKO_MFMA_DMAT_N(LX, sizeof(T)),
+         EB = NEKO_MFMA_EB_N(NWF, LX, sizeof(T)),
+         WPE = NWF / EB,
+         GNTHR = WPE * 64,                 /* threads serving one element */
+         SPT = NEKO_MFMA_SPT_N(WPE, LX, sizeof(T)),
+         /* Geometry prefetched into registers, or read where it is used?
+            Same budget and the same macro the tuner logs with, see the note
+            on the prefetch below */
+         GREG = NEKO_MFMA_VECTOR_GREG_N(SPT, sizeof(T)),
+         NG = GREG ? SPT : 1 };
   static_assert(WPE * EB == NWF,
                 "wavefronts per block must split evenly over the elements");
 
-  __shared__ T shdx[LX * LX];
-  __shared__ T shdy[LX * LX];
-  __shared__ T shdz[LX * LX];
-  __shared__ T shu[EB * LX * LX * LX];   // input u, later reused as output w
-  __shared__ T shr[EB * LX * LX * LX];   // d/dr -> Sr
-  __shared__ T shs[EB * LX * LX * LX];   // d/ds -> Ss
-  __shared__ T sht[EB * LX * LX * LX];   // d/dt -> St
+  __shared__ T shdx[DMAT];
+  __shared__ T shdy[DMAT];
+  __shared__ T shdz[DMAT];
+  __shared__ T shu[EB * CUBE];           // input u, later reused as output w
+  __shared__ T shr[EB * CUBE];           // d/dr -> Sr
+  __shared__ T shs[EB * CUBE];           // d/ds -> Ss
+  __shared__ T sht[EB * CUBE];           // d/dt -> St
 
   static_assert(sizeof(shdx) + sizeof(shdy) + sizeof(shdz) +
                 sizeof(shu) + sizeof(shr) + sizeof(shs) + sizeof(sht)
@@ -495,7 +516,6 @@ __device__ void ax_helm_mfma_elem(T * __restrict__ w,
   const int eb  = wf / WPE;              // which element this wavefront serves
   const int sub = wf % WPE;              // its rank among that element's waves
   const int gtid = sub * 64 + lane;      // thread id within the element group
-  const int gnthr = WPE * 64;
 
   /* Threads past the last element still have to reach the block wide
      barriers, so clamp their reads and drop their stores rather than
@@ -505,62 +525,138 @@ __device__ void ax_helm_mfma_elem(T * __restrict__ w,
   const bool active = (EB == 1) ? true : (e_blk < nelv);
   const int e = active ? e_blk : (nelv - 1);
   const int ele = e * LX3;
-  const int sh = eb * LX3;
+  const int sh = eb * CUBE;
 
-  /* Reference derivative matrices, one copy shared by every element */
+  /* The element point each of this thread's LDS slots holds, or -1 for a pad
+     slot, decoded once and reused by every pass below. The three passes walk
+     slots at unit stride in LDS -- which is what keeps them off each other's
+     banks once the cube is padded -- and this array is the translation back
+     to the caller's LX^3 storage, see mfma_slot_point(). Where the cube is not
+     padded the decode folds away to the identity and this is the old
+     p = gtid + q*GNTHR loop. */
+  int goff[SPT];
+#pragma unroll
+  for (int q = 0; q < SPT; q++) {
+    const int sl = gtid + q * GNTHR;
+    goff[q] = (sl < CUBE) ? mfma_slot_point<LX, PAD>(sl) : -1;
+  }
+
+  /* Reference derivative matrices, one copy shared by every element. The
+     staged copy carries the padded column stride, so the linear index of the
+     caller's LX x LX copy is decoded here; the global reads stay contiguous
+     and it is the LDS side that gains the stride, which is the point. */
   for (int p = tid; p < LX2; p += nthr) {
-    shdx[p] = dx[p];
-    shdy[p] = dy[p];
-    shdz[p] = dz[p];
+    const int sd = mfma_dmat_idx<LX, PAD>(p % LX, p / LX);
+    shdx[sd] = dx[p];
+    shdy[sd] = dy[p];
+    shdz[sd] = dz[p];
   }
   /* Element-local field, staged by the wavefronts that own it */
-  for (int p = gtid; p < LX3; p += gnthr)
-    shu[sh + p] = u[p + ele];
+#pragma unroll
+  for (int q = 0; q < SPT; q++) {
+    if (goff[q] >= 0)
+      shu[sh + gtid + q * GNTHR] = u[goff[q] + ele];
+  }
 
   __syncthreads();
 
-  /* Gradient: ur, us, ut in canonical i + LX*j + LX*LX*k layout. */
-  mfma_contract_sel<T, LX, 0, false, false, WPE, TILE>::run(shr + sh, shdx,
-                                                      shu + sh, lane, sub);
-  mfma_contract_sel<T, LX, 1, false, false, WPE, TILE>::run(shs + sh, shdy,
-                                                      shu + sh, lane, sub);
-  mfma_contract_sel<T, LX, 2, false, false, WPE, TILE>::run(sht + sh, shdz,
-                                                      shu + sh, lane, sub);
+  /*
+   * The seven geometric factors, issued here rather than where they are used.
+   *
+   * They are needed by the pointwise pass, which sits behind the gradient
+   * contractions and a barrier, so reading them there exposes the full global
+   * latency with nothing to cover it: this kernel runs at three wavefronts per
+   * SIMD in double precision at LX = 8, a third of what the 1D kernel that
+   * beats it reaches, so there is no other occupancy to hide behind. Issued
+   * here they are in flight across the three contractions instead.
+   *
+   * The cost is 7 * SPT * (sizeof(T)/4) VGPRs, and past a budget that stops
+   * paying -- 189 values at LX = 12 on a single wavefront, against the 256 a
+   * lane addresses -- so it is chosen per instantiation by the same
+   * NEKO_MFMA_VECTOR_GREG the vector kernel uses, and reported by the tuner
+   * for the same reason: it is derived from the wavefront count rather than
+   * swept, so two neighbouring candidates can differ in more than block shape.
+   */
+  T rG00[NG], rG11[NG], rG22[NG];
+  T rG01[NG], rG02[NG], rG12[NG];
+  T rH1[NG];
+
+  if (GREG) {
+#pragma unroll
+    for (int q = 0; q < NG; q++) {
+      const int gp = (goff[q] >= 0) ? (goff[q] + ele) : ele;
+      rG00[q] = g11[gp];
+      rG11[q] = g22[gp];
+      rG22[q] = g33[gp];
+      rG01[q] = g12[gp];
+      rG02[q] = g13[gp];
+      rG12[q] = g23[gp];
+      rH1[q]  = h1[gp];
+    }
+  }
+
+  /* Gradient: ur, us, ut in canonical i + SJ*j + SK*k layout. */
+  mfma_contract_sel<T, LX, 0, false, false, WPE, TILE, PAD>::run(shr + sh,
+                                                shdx, shu + sh, lane, sub);
+  mfma_contract_sel<T, LX, 1, false, false, WPE, TILE, PAD>::run(shs + sh,
+                                                shdy, shu + sh, lane, sub);
+  mfma_contract_sel<T, LX, 2, false, false, WPE, TILE, PAD>::run(sht + sh,
+                                                shdz, shu + sh, lane, sub);
 
   __syncthreads();
 
   /* Geometry (pointwise): (ur,us,ut) -> (Sr,Ss,St), reusing shr/shs/sht. */
-  for (int p = gtid; p < LX3; p += gnthr) {
-    const int gp = p + ele;
-    const T G00 = g11[gp], G11 = g22[gp], G22 = g33[gp];
-    const T G01 = g12[gp], G02 = g13[gp], G12 = g23[gp];
-    const T H1  = h1[gp];
-    const T rr = shr[sh + p], ss = shs[sh + p], tt = sht[sh + p];
-    shr[sh + p] = H1 * (G00 * rr + G01 * ss + G02 * tt);
-    shs[sh + p] = H1 * (G01 * rr + G11 * ss + G12 * tt);
-    sht[sh + p] = H1 * (G02 * rr + G12 * ss + G22 * tt);
+#pragma unroll
+  for (int q = 0; q < SPT; q++) {
+    if (goff[q] >= 0) {
+      const int sl = sh + gtid + q * GNTHR;
+      T G00, G11, G22, G01, G02, G12, H1;
+      if (GREG) {
+        /* GREG is a compile time constant, so only one of these two bodies is
+           emitted; the clamp keeps the index inside the NG == 1 array that the
+           other one never reads from */
+        const int r = GREG ? q : 0;
+        G00 = rG00[r]; G11 = rG11[r]; G22 = rG22[r];
+        G01 = rG01[r]; G02 = rG02[r]; G12 = rG12[r];
+        H1  = rH1[r];
+      } else {
+        const int gp = goff[q] + ele;
+        G00 = g11[gp]; G11 = g22[gp]; G22 = g33[gp];
+        G01 = g12[gp]; G02 = g13[gp]; G12 = g23[gp];
+        H1  = h1[gp];
+      }
+      const T rr = shr[sl], ss = shs[sl], tt = sht[sl];
+      shr[sl] = H1 * (G00 * rr + G01 * ss + G02 * tt);
+      shs[sl] = H1 * (G01 * rr + G11 * ss + G12 * tt);
+      sht[sl] = H1 * (G02 * rr + G12 * ss + G22 * tt);
+    }
   }
 
   __syncthreads();
 
-  /* Divergence: w = Dr^T Sr + Ds^T Ss + Dt^T St, accumulated in shu (= w). */
-  for (int p = gtid; p < LX3; p += gnthr)
-    shu[sh + p] = 0.0;
+  /* Divergence: w = Dr^T Sr + Ds^T Ss + Dt^T St, accumulated in shu (= w).
+     The first contraction overwrites rather than accumulates, which is what
+     lets the separate zeroing pass over the cube -- and the barrier after it
+     -- go away entirely; the summation order of the three is unchanged, so
+     this is not a reassociation. All four (TRANSPOSE, ACCUM) pairs are covered
+     by the gfx90a read-out, so the non-accumulating one is no less verified
+     than the accumulating one. */
+  mfma_contract_sel<T, LX, 0, true, false, WPE, TILE, PAD>::run(shu + sh,
+                                                shdx, shr + sh, lane, sub);
   __syncthreads();
-
-  mfma_contract_sel<T, LX, 0, true, true, WPE, TILE>::run(shu + sh, shdx,
-                                                    shr + sh, lane, sub);
+  mfma_contract_sel<T, LX, 1, true, true, WPE, TILE, PAD>::run(shu + sh,
+                                                shdy, shs + sh, lane, sub);
   __syncthreads();
-  mfma_contract_sel<T, LX, 1, true, true, WPE, TILE>::run(shu + sh, shdy,
-                                                    shs + sh, lane, sub);
-  __syncthreads();
-  mfma_contract_sel<T, LX, 2, true, true, WPE, TILE>::run(shu + sh, shdz,
-                                                    sht + sh, lane, sub);
+  mfma_contract_sel<T, LX, 2, true, true, WPE, TILE, PAD>::run(shu + sh,
+                                                shdz, sht + sh, lane, sub);
   __syncthreads();
 
   if (active) {
-    for (int p = gtid; p < LX3; p += gnthr)
-      w[p + ele] = shu[sh + p];
+#pragma unroll
+    for (int q = 0; q < SPT; q++) {
+      if (goff[q] >= 0)
+        w[goff[q] + ele] = shu[sh + gtid + q * GNTHR];
+    }
   }
 }
 #endif // __gfx90a__ || __gfx942__
@@ -1139,27 +1235,30 @@ __device__ void ax_helm_mfma_vector_elem(T * __restrict__ au,
 
   /* NWF wavefronts per block, WPE of them cooperating on one element and the
      block covering EB elements, exactly as in ax_helm_mfma_elem */
-  enum { EB = NEKO_MFMA_EB_N(NWF, LX),
+  enum { PAD = NEKO_MFMA_PAD_N(LX, sizeof(T)),
+         CUBE = NEKO_MFMA_CUBE_N(LX, sizeof(T)),
+         DMAT = NEKO_MFMA_DMAT_N(LX, sizeof(T)),
+         EB = NEKO_MFMA_EB_N(NWF, LX, sizeof(T)),
          WPE = NWF / EB,
          GNTHR = WPE * 64,                 /* threads serving one element */
-         PPT = NEKO_MFMA_PPT_N(WPE, LX),
+         SPT = NEKO_MFMA_SPT_N(WPE, LX, sizeof(T)),
          /* Geometry in registers across the components, or re-read per
             component? The same macro the tuner logs with, so the reported
             mode cannot drift from the compiled one */
-         GREG = NEKO_MFMA_VECTOR_GREG_N(PPT, sizeof(T)),
+         GREG = NEKO_MFMA_VECTOR_GREG_N(SPT, sizeof(T)),
          /* One slot when the factors are re-read, so the arrays below cost
             nothing in that case */
-         NG = GREG ? PPT : 1 };
+         NG = GREG ? SPT : 1 };
   static_assert(WPE * EB == NWF,
                 "wavefronts per block must split evenly over the elements");
 
-  __shared__ T shdx[LX * LX];
-  __shared__ T shdy[LX * LX];
-  __shared__ T shdz[LX * LX];
-  __shared__ T shc[EB * LX * LX * LX];   // component in, later its result out
-  __shared__ T shr[EB * LX * LX * LX];   // d/dr -> Sr
-  __shared__ T shs[EB * LX * LX * LX];   // d/ds -> Ss
-  __shared__ T sht[EB * LX * LX * LX];   // d/dt -> St
+  __shared__ T shdx[DMAT];
+  __shared__ T shdy[DMAT];
+  __shared__ T shdz[DMAT];
+  __shared__ T shc[EB * CUBE];           // component in, later its result out
+  __shared__ T shr[EB * CUBE];           // d/dr -> Sr
+  __shared__ T shs[EB * CUBE];           // d/ds -> Ss
+  __shared__ T sht[EB * CUBE];           // d/dt -> St
 
   static_assert(sizeof(shdx) + sizeof(shdy) + sizeof(shdz) +
                 sizeof(shc) + sizeof(shr) + sizeof(shs) + sizeof(sht)
@@ -1183,19 +1282,31 @@ __device__ void ax_helm_mfma_vector_elem(T * __restrict__ au,
   const bool active = (EB == 1) ? true : (e_blk < nelv);
   const int e = active ? e_blk : (nelv - 1);
   const int ele = e * LX3;
-  const int sh = eb * LX3;
+  const int sh = eb * CUBE;
 
-  /* Reference derivative matrices, one copy shared by every element */
+  /* The element point behind each of this thread's LDS slots, decoded once,
+     see ax_helm_mfma_elem */
+  int goff[SPT];
+#pragma unroll
+  for (int q = 0; q < SPT; q++) {
+    const int sl = gtid + q * GNTHR;
+    goff[q] = (sl < CUBE) ? mfma_slot_point<LX, PAD>(sl) : -1;
+  }
+
+  /* Reference derivative matrices, one copy shared by every element. The
+     staged copy carries the padded column stride, so the linear index of the
+     caller's LX x LX copy is decoded here; the global reads stay contiguous
+     and it is the LDS side that gains the stride, which is the point. */
   for (int p = tid; p < LX2; p += nthr) {
-    shdx[p] = dx[p];
-    shdy[p] = dy[p];
-    shdz[p] = dz[p];
+    const int sd = mfma_dmat_idx<LX, PAD>(p % LX, p / LX);
+    shdx[sd] = dx[p];
+    shdy[sd] = dy[p];
+    shdz[sd] = dz[p];
   }
 
   /* The geometric factors, read once and reused by all three components. The
-     pointwise pass below strides the points the same way, so the value for
-     point gtid + q * GNTHR stays in slot q and no index array is needed --
-     unlike the CUDA kernel, whose cube is padded */
+     pointwise pass below strides the slots the same way, so the value for slot
+     gtid + q * GNTHR stays in slot q and no index array is needed */
   T rG00[NG], rG11[NG], rG22[NG];
   T rG01[NG], rG02[NG], rG12[NG];
   T rH1[NG];
@@ -1203,8 +1314,7 @@ __device__ void ax_helm_mfma_vector_elem(T * __restrict__ au,
   if (GREG) {
 #pragma unroll
     for (int q = 0; q < NG; q++) {
-      const int p = gtid + q * GNTHR;
-      const int gp = (p < LX3) ? (p + ele) : ele;
+      const int gp = (goff[q] >= 0) ? (goff[q] + ele) : ele;
       rG00[q] = g11[gp];
       rG11[q] = g22[gp];
       rG22[q] = g33[gp];
@@ -1224,37 +1334,33 @@ __device__ void ax_helm_mfma_vector_elem(T * __restrict__ au,
     T * const       cout = (c == 0) ? au : (c == 1) ? av : aw;
 
     /* Element-local component, staged by the wavefronts that own it, over the
-       same point set the write-back at the end of the loop uses -- which is
+       same slot set the write-back at the end of the loop uses -- which is
        what makes the barrier between the two unnecessary, see there */
-    for (int p = gtid; p < LX3; p += GNTHR)
-      shc[sh + p] = cin[p + ele];
+#pragma unroll
+    for (int q = 0; q < SPT; q++) {
+      if (goff[q] >= 0)
+        shc[sh + gtid + q * GNTHR] = cin[goff[q] + ele];
+    }
 
     __syncthreads();
 
-    /* Gradient: ur, us, ut in canonical i + LX*j + LX*LX*k layout */
-    mfma_contract_sel<T, LX, 0, false, false, WPE, TILE>::run(shr + sh, shdx,
-                                                        shc + sh, lane, sub);
-    mfma_contract_sel<T, LX, 1, false, false, WPE, TILE>::run(shs + sh, shdy,
-                                                        shc + sh, lane, sub);
-    mfma_contract_sel<T, LX, 2, false, false, WPE, TILE>::run(sht + sh, shdz,
-                                                        shc + sh, lane, sub);
+    /* Gradient: ur, us, ut in canonical i + SJ*j + SK*k layout */
+    mfma_contract_sel<T, LX, 0, false, false, WPE, TILE, PAD>::run(shr + sh,
+                                                  shdx, shc + sh, lane, sub);
+    mfma_contract_sel<T, LX, 1, false, false, WPE, TILE, PAD>::run(shs + sh,
+                                                  shdy, shc + sh, lane, sub);
+    mfma_contract_sel<T, LX, 2, false, false, WPE, TILE, PAD>::run(sht + sh,
+                                                  shdz, shc + sh, lane, sub);
 
     __syncthreads();
 
     /* Geometry (pointwise): (ur,us,ut) -> (Sr,Ss,St), reusing shr/shs/sht.
-       The staged component is dead once the gradient is out, so this pass also
-       clears it for the accumulating divergence below. It visits every point
-       already -- the same point set the staging loop covers, strided the same
-       way -- so the clear is free, and it saves the scalar kernel's separate
-       zeroing pass and the barrier after it, three barriers per element per
-       call. Making the first divergence contraction non-accumulating, as the
-       CUDA kernel does, would remove the clear entirely; that mode pair is
-       covered by the read-out too, so it stays open as a simplification once
-       there is hardware to confirm it on */
+       The staged component is dead once the gradient is out and does not need
+       clearing either: the first divergence contraction below overwrites it */
 #pragma unroll
-    for (int q = 0; q < PPT; q++) {
-      const int p = gtid + q * GNTHR;
-      if (p < LX3) {
+    for (int q = 0; q < SPT; q++) {
+      if (goff[q] >= 0) {
+        const int sl = sh + gtid + q * GNTHR;
         T G00, G11, G22, G01, G02, G12, H1;
         if (GREG) {
           /* GREG is a compile time constant, so only one of these two bodies
@@ -1265,41 +1371,44 @@ __device__ void ax_helm_mfma_vector_elem(T * __restrict__ au,
           G01 = rG01[r]; G02 = rG02[r]; G12 = rG12[r];
           H1  = rH1[r];
         } else {
-          const int gp = p + ele;
+          const int gp = goff[q] + ele;
           G00 = g11[gp]; G11 = g22[gp]; G22 = g33[gp];
           G01 = g12[gp]; G02 = g13[gp]; G12 = g23[gp];
           H1  = h1[gp];
         }
-        const T rr = shr[sh + p], ss = shs[sh + p], tt = sht[sh + p];
-        shr[sh + p] = H1 * (G00 * rr + G01 * ss + G02 * tt);
-        shs[sh + p] = H1 * (G01 * rr + G11 * ss + G12 * tt);
-        sht[sh + p] = H1 * (G02 * rr + G12 * ss + G22 * tt);
-        shc[sh + p] = 0.0;
+        const T rr = shr[sl], ss = shs[sl], tt = sht[sl];
+        shr[sl] = H1 * (G00 * rr + G01 * ss + G02 * tt);
+        shs[sl] = H1 * (G01 * rr + G11 * ss + G12 * tt);
+        sht[sl] = H1 * (G02 * rr + G12 * ss + G22 * tt);
       }
     }
 
     __syncthreads();
 
-    /* Divergence: Dr^T Sr + Ds^T Ss + Dt^T St, accumulated in shc */
-    mfma_contract_sel<T, LX, 0, true, true, WPE, TILE>::run(shc + sh, shdx,
-                                                      shr + sh, lane, sub);
+    /* Divergence: Dr^T Sr + Ds^T Ss + Dt^T St, the first one overwriting shc
+       so that nothing has to clear it, see ax_helm_mfma_elem */
+    mfma_contract_sel<T, LX, 0, true, false, WPE, TILE, PAD>::run(shc + sh,
+                                                  shdx, shr + sh, lane, sub);
     __syncthreads();
-    mfma_contract_sel<T, LX, 1, true, true, WPE, TILE>::run(shc + sh, shdy,
-                                                      shs + sh, lane, sub);
+    mfma_contract_sel<T, LX, 1, true, true, WPE, TILE, PAD>::run(shc + sh,
+                                                  shdy, shs + sh, lane, sub);
     __syncthreads();
-    mfma_contract_sel<T, LX, 2, true, true, WPE, TILE>::run(shc + sh, shdz,
-                                                      sht + sh, lane, sub);
+    mfma_contract_sel<T, LX, 2, true, true, WPE, TILE, PAD>::run(shc + sh,
+                                                  shdz, sht + sh, lane, sub);
     __syncthreads();
 
     if (active) {
-      for (int p = gtid; p < LX3; p += GNTHR)
-        cout[p + ele] = shc[sh + p];
+#pragma unroll
+      for (int q = 0; q < SPT; q++) {
+        if (goff[q] >= 0)
+          cout[goff[q] + ele] = shc[sh + gtid + q * GNTHR];
+      }
     }
 
     /* Not required as the loops stand: the write-back above and the restage
-       at the top of the next pass walk the same point set per thread, so a
+       at the top of the next pass walk the same slot set per thread, so a
        thread only restages what it just read out itself, and no wavefront
-       can run ahead into another's points. Kept so that re-striding either
+       can run ahead into another's slots. Kept so that re-striding either
        loop -- coalescing the write-back over tid rather than gtid, say --
        cannot introduce a race silently */
     if (c < 2) {

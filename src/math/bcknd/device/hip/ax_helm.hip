@@ -162,8 +162,19 @@ extern "C" {
     case 4:  CASE_MFMA(LX, 4); break;                                           \
     case 5:  CASE_MFMA(LX, 5); break;                                           \
     case 6:  CASE_MFMA(LX, 6); break;                                           \
-    default: CASE_MFMA(LX, 7); break;                                           \
+    case 7:  CASE_MFMA(LX, 7); break;                                           \
+    case 8:  CASE_MFMA(LX, 8); break;                                           \
+    default: CASE_MFMA(LX, 9); break;                                           \
     }
+
+/* The switch above has to name every candidate. A candidate that fell
+   through to the default arm would launch its own grid and block shape --
+   NEKO_MFMA_NBLCKS and NEKO_MFMA_NTHRDS are evaluated at the call site --
+   at a kernel compiled for a different wavefront count, which is a launch
+   failure where the block is bigger and silent corruption where it is not.
+   Raising the candidate count without extending the switch stops here. */
+static_assert(NEKO_MFMA_CANDIDATES == 10,
+              "CASE_MFMA_SEL does not cover the candidate space");
 
 /* Runtime dispatch onto the tuned elements per block candidate */
 #define CASE_KSTEP_SEL(LX, SEL)                                                 \
@@ -353,8 +364,19 @@ extern "C" {
     case 4:  CASE_VECTOR_MFMA(LX, 4); break;                                    \
     case 5:  CASE_VECTOR_MFMA(LX, 5); break;                                    \
     case 6:  CASE_VECTOR_MFMA(LX, 6); break;                                    \
-    default: CASE_VECTOR_MFMA(LX, 7); break;                                    \
+    case 7:  CASE_VECTOR_MFMA(LX, 7); break;                                    \
+    case 8:  CASE_VECTOR_MFMA(LX, 8); break;                                    \
+    default: CASE_VECTOR_MFMA(LX, 9); break;                                    \
     }
+
+/* The switch above has to name every candidate. A candidate that fell
+   through to the default arm would launch its own grid and block shape --
+   NEKO_MFMA_NBLCKS and NEKO_MFMA_NTHRDS are evaluated at the call site --
+   at a kernel compiled for a different wavefront count, which is a launch
+   failure where the block is bigger and silent corruption where it is not.
+   Raising the candidate count without extending the switch stops here. */
+static_assert(NEKO_MFMA_CANDIDATES == 10,
+              "CASE_VECTOR_MFMA_SEL does not cover the candidate space");
 
 #define CASE_VECTOR(LX)                                                         \
     case LX:                                                                    \

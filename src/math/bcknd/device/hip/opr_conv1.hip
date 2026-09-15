@@ -145,8 +145,15 @@ extern "C" {
     case 0:  CASE_MFMA(LX, 0); break;                                           \
     case 1:  CASE_MFMA(LX, 1); break;                                           \
     case 2:  CASE_MFMA(LX, 2); break;                                           \
-    default: CASE_MFMA(LX, 3); break;                                           \
+    case 3:  CASE_MFMA(LX, 3); break;                                           \
+    default: CASE_MFMA(LX, 4); break;                                           \
     }
+
+/* The switch above has to name every wavefront candidate, see the note in
+   ax_helm.hip: a candidate reaching the default arm launches one geometry's
+   grid at another geometry's kernel. */
+static_assert(NEKO_MFMA_NWF_CANDIDATES == 5,
+              "CASE_MFMA_SEL does not cover the candidate space");
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \

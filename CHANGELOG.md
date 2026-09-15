@@ -13,6 +13,41 @@
   file it opened.
 - Added runtime registration of user-defined scalar boundary-condition types
   through `register_scalar_pnpn_bc`.
+- The staged cubes and derivative matrices of the HIP matrix core Helmholtz
+  kernels are padded to an odd stride wherever a bank model says that pays. A
+  contraction walks its free index across the lanes one stride apart, so an
+  even stride puts them on the same shared memory banks --- an eight-way
+  conflict at `lx = 8` in double precision. Padding an odd order would
+  introduce one instead, so the layout follows the order rather than a rule of
+  thumb, and the staging, pointwise and write-back passes now walk
+  shared-memory slots rather than element points to stay conflict free too.
+  With the operand hoist below, the modelled shared-memory cycles of one
+  `lx = 8` double precision element go from 2976 to 1220 and of an `lx = 12`
+  one from 8964 to 4752. `-DNEKO_MFMA_PAD=0` builds the old layout for an A/B.
+- The batched `v_mfma_f64_4x4x4f64` contraction keeps one accumulator per
+  M-tile and reads its second operand once per column group and K-step,
+  instead of re-reading it for every M-tile --- it never depended on the
+  M-tile. That was two to three times the shared memory operand traffic, and
+  it made the K loop a single accumulate chain, which this instruction charges
+  four cycles a step for. Each accumulator sums in the same order as before,
+  so results are unchanged bit for bit.
+- The HIP matrix core kernels gained a 16 wavefront candidate, the 1024 thread
+  workgroup maximum on CDNA. The ladder stopped at 512 threads and so topped
+  out at three wavefronts per SIMD, where the 1d kernel that beats it at
+  `lx = 8` reaches eight from a larger shared memory footprint. The elements
+  per block that surplus wavefronts buy are now clamped by the 64 kB workgroup
+  limit as well as by the column group count.
+- The first divergence contraction of the HIP matrix core Helmholtz kernels
+  overwrites its accumulator instead of adding to it, which removes the pass
+  that cleared the cube and the barrier after it. The scalar kernel also
+  issues the seven geometric factors ahead of the gradient contractions rather
+  than behind the barrier that follows them, where the register budget allows
+  it; the auto-tuner reports which mode each candidate ran in, as it already
+  did for the vector kernel.
+- Fixed `opr_dudxyz`, `opr_cdtp`, `opr_conv1` and `opr_opgrad` on the HIP
+  backend not listing `mfma_kernel.h` among their dependencies, so a change to
+  the matrix core primitives left those four objects holding the previous
+  version of them.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.
 - The matrix core tile used by the HIP Helmholtz operator is now an
   auto-tuner candidate rather than a build-time choice. It was fixed to the

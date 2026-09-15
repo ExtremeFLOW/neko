@@ -22,7 +22,7 @@ of the code. But can be useful for users and developers alike.
 | `NEKO_CHUNKS`            | Pin the 1d chunk size candidate (0 to 3)                              | Unset (swept) |
 | `NEKO_DMMA_NW`           | Pin the `DMMA` warps per block candidate (0, 1 or 2)                  | Unset (swept) |
 | `NEKO_DMMA_TMA_NW`       | Pin the `DMMA_TMA` / `DMMA_TMA_BATCH` warps per block candidate (0, 1 or 2) | Unset (swept) |
-| `NEKO_MFMA_NWF`          | Pin the `MFMA` wavefronts per block candidate (0 to 3)                | Unset (swept) |
+| `NEKO_MFMA_NWF`          | Pin the `MFMA` wavefronts per block candidate (0 to 4)                | Unset (swept) |
 | `NEKO_MFMA_TILE`         | Pin the `MFMA` matrix core tile candidate (0 or 1)                    | Unset (swept) |
 | `NEKO_MFMA_TUNE`         | Sweep the matrix core variants on the HIP backend (boolean)           | 1             |
 | `NEKO_TUNE_ROUNDS`       | Interleaved sampling rounds used by the operator auto-tuner           | 3             |
