@@ -36,6 +36,8 @@ module registry
   use field, only : field_t
   use vector, only : vector_t
   use matrix, only : matrix_t
+  use tensor3, only : tensor3_t
+  use tensor4, only : tensor4_t
   use registry_entry, only : registry_entry_t
   use dofmap, only : dofmap_t
   use utils, only : neko_error
