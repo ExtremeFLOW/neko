@@ -18,6 +18,7 @@ var gather__scatter_8f90 =
     [ "gs_qsort_dofmap", "d5/d7e/gather__scatter_8f90.html#a762680d00a8b9d4de7498ece71c4092b", null ],
     [ "gs_schedule", "d5/d7e/gather__scatter_8f90.html#a70b1e5adb11770ec89f7e135bb74c793", null ],
     [ "gs_sort_i8", "d5/d7e/gather__scatter_8f90.html#abba505ea99ff836fd6ba1e86d237d655", null ],
+    [ "gs_vec_alloc", "d5/d7e/gather__scatter_8f90.html#a1779a89eead5baf936d7e36e6fd59096", null ],
     [ "gs_tune_ntrials", "d5/d7e/gather__scatter_8f90.html#a524d80241ca9d4e2a4cc2153339c7669", null ],
     [ "gs_tune_nwarmup", "d5/d7e/gather__scatter_8f90.html#a6a126f789af89fc7aa5fc815afdbd77a", null ]
 ];

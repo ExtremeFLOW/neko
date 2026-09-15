@@ -137,6 +137,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:adf347376b55732f0328d416cc179b8a4" id="r_adf347376b55732f0328d416cc179b8a4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd9/namespacegs__device__crystal.html#adf347376b55732f0328d416cc179b8a4">gs_device_crystal_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, send_pe, recv_pe)</td></tr>
 <tr class="memdesc:adf347376b55732f0328d416cc179b8a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise crystal router based device communication See <a class="el" href="../../d6/d75/gs__comm_8f90.html">gs_comm.f90</a> for details.  <br /></td></tr>
 <tr class="separator:adf347376b55732f0328d416cc179b8a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08a44b4c86bc78bafaad05f02122bcb4" id="r_a08a44b4c86bc78bafaad05f02122bcb4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd9/namespacegs__device__crystal.html#a08a44b4c86bc78bafaad05f02122bcb4">gs_device_crystal_init_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a08a44b4c86bc78bafaad05f02122bcb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate the fused vector working and send buffers in device memory, sized for GS_VEC_NC components. Deferred to the first fused exchange, see gs_comm_t. The nc-scaled stage index lists are uploaded separately, on the first exchange of a given nc (see vec_nc), and the routing plan is shared with the scalar exchange, so this stays rank local.  <br /></td></tr>
+<tr class="separator:a08a44b4c86bc78bafaad05f02122bcb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f1430d28f086f2d1a2afecc8c804452" id="r_a2f1430d28f086f2d1a2afecc8c804452"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd9/namespacegs__device__crystal.html#a2f1430d28f086f2d1a2afecc8c804452">gs_device_crystal_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a2f1430d28f086f2d1a2afecc8c804452"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate crystal router based device communication.  <br /></td></tr>
 <tr class="separator:a2f1430d28f086f2d1a2afecc8c804452"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -236,7 +239,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00704">704</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00719">719</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -276,7 +279,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00740">740</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00755">755</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -346,7 +349,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00596">596</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00611">611</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -441,7 +444,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00615">615</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00630">630</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -508,7 +511,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00755">755</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00770">770</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -580,7 +583,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00633">633</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00648">648</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -677,7 +680,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00651">651</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00666">666</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -744,7 +747,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00721">721</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00736">736</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -802,7 +805,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00673">673</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00688">688</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -854,7 +857,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00307">307</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00321">321</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -910,7 +913,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00238">238</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00239">239</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -923,6 +926,44 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="172,87,210,87,210,92,172,92"/>
 <area shape="rect" href="../../d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="220,134,375,159"/>
 <area shape="poly" title=" " alt="" coords="163,107,238,128,236,133,161,112"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a08a44b4c86bc78bafaad05f02122bcb4" name="a08a44b4c86bc78bafaad05f02122bcb4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08a44b4c86bc78bafaad05f02122bcb4">&#9670;&#160;</a></span>gs_device_crystal_init_vec()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gs_device_crystal::gs_device_crystal_init_vec </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../de/df3/structgs__device__crystal_1_1gs__device__crystal__t.html">gs_device_crystal_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00307">307</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../da/dd9/namespacegs__device__crystal_a08a44b4c86bc78bafaad05f02122bcb4_cgraph.png" border="0" usemap="#ada/dd9/namespacegs__device__crystal_a08a44b4c86bc78bafaad05f02122bcb4_cgraph" alt=""/></div>
+<map name="ada/dd9/namespacegs__device__crystal_a08a44b4c86bc78bafaad05f02122bcb4_cgraph" id="ada/dd9/namespacegs__device__crystal_a08a44b4c86bc78bafaad05f02122bcb4_cgraph">
+<area shape="rect" title="Allocate the fused vector working and send buffers in device memory, sized for GS_VEC_NC components...." alt="" coords="5,5,201,45"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="249,13,404,38"/>
+<area shape="poly" title=" " alt="" coords="201,23,236,23,236,28,201,28"/>
 </map>
 </div>
 
@@ -962,7 +1003,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00345">345</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00360">360</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 
 </div>
 </div>
@@ -1006,7 +1047,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00465">465</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00480">480</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1084,7 +1125,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00371">371</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00386">386</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1173,7 +1214,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00500">500</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00515">515</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1244,7 +1285,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00403">403</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00418">418</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1326,7 +1367,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00531">531</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html#l00546">546</a> of file <a class="el" href="../../dd/d82/gs__device__crystal_8F90_source.html">gs_device_crystal.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1356,7 +1397,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/dd9/namespacegs__device__crystal.html">gs_device_crystal</a></li>
-    <li class="footer">Generated on Mon Sep 14 2026 03:44:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 15 2026 03:41:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

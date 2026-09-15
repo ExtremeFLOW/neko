@@ -1,0 +1,5 @@
+<map id="gs_device_crystal::gs_device_crystal_init_vec" name="gs_device_crystal::gs_device_crystal_init_vec">
+<area shape="rect" id="Node000001" title="Allocate the fused vector working and send buffers in device memory, sized for GS_VEC_NC components...." alt="" coords="5,5,201,45"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="249,13,404,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,23,236,23,236,28,201,28"/>
+</map>

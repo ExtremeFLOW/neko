@@ -21,6 +21,7 @@ var gs__device__crystal_8F90 =
     [ "cr_vec_index", "dd/d82/gs__device__crystal_8F90.html#a4b1e460401dddd861bdcb0990be0033e", null ],
     [ "gs_device_crystal_free", "dd/d82/gs__device__crystal_8F90.html#a2f1430d28f086f2d1a2afecc8c804452", null ],
     [ "gs_device_crystal_init", "dd/d82/gs__device__crystal_8F90.html#adf347376b55732f0328d416cc179b8a4", null ],
+    [ "gs_device_crystal_init_vec", "dd/d82/gs__device__crystal_8F90.html#a08a44b4c86bc78bafaad05f02122bcb4", null ],
     [ "gs_device_crystal_nbrecv", "dd/d82/gs__device__crystal_8F90.html#a42a664fad40c1ed667c0b754381e3ea5", null ],
     [ "gs_device_crystal_nbrecv_vec", "dd/d82/gs__device__crystal_8F90.html#a57e489ecb0c5974a2d24eb73652a68e7", null ],
     [ "gs_device_crystal_nbsend", "dd/d82/gs__device__crystal_8F90.html#ae4a8e74a66c3c6371d57d17b30c23acb", null ],

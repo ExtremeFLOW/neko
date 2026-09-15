@@ -9,6 +9,7 @@ var structgs__device__shmem_1_1gs__device__shmem__t =
     [ "init_dofs", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#ad9e79d04ff4047090f23a87847df0516", null ],
     [ "init_order", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a8cbd176ce03aa9f17e780266c755e489", null ],
     [ "init_schedule", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a46d63611d1f60b38d11653ed6a0592fb", null ],
+    [ "init_vec", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a7d7cd7e9bc5f0f076adbb5a6d9f14bdd", null ],
     [ "nbrecv", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a6b6704f8f1b30efeaa9be6d5f82b012f", null ],
     [ "nbrecv", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#afe5d3da570816cb38d9eb2b2a15e6c25", null ],
     [ "nbrecv_vec", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a267ca858f6b88f32565f5ed7404491cc", null ],
@@ -34,5 +35,6 @@ var structgs__device__shmem_1_1gs__device__shmem__t =
     [ "send_dof", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a8004e1ed7b91668a726c51f51712c246", null ],
     [ "send_pe", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a922bae84686dc75a7487fedf8544704a", null ],
     [ "stream", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a474946dab16dc6cbef76d19f413d81fc", null ],
+    [ "vec_ready", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a51ac8247b6edaef004b2f930e5490ed9", null ],
     [ "vec_supported", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#ab5445b62e22604c428bacfa315a6fd5e", null ]
 ];

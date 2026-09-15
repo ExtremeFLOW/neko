@@ -8,5 +8,6 @@ var gs__neighbour_8f90 =
     [ "gs_nbwait_neighbour", "d1/db8/gs__neighbour_8f90.html#a1c351395446f33e715b8e20e14460a6b", null ],
     [ "gs_nbwait_vec_neighbour", "d1/db8/gs__neighbour_8f90.html#a49bb4a26fe493fe0fa8e53cb909531e5", null ],
     [ "gs_neighbour_free", "d1/db8/gs__neighbour_8f90.html#ac2db40447c0186d42068a842b4f831cd", null ],
-    [ "gs_neighbour_init", "d1/db8/gs__neighbour_8f90.html#ac6c2f6953923b2f0fab9d55bdfdcedd1", null ]
+    [ "gs_neighbour_init", "d1/db8/gs__neighbour_8f90.html#ac6c2f6953923b2f0fab9d55bdfdcedd1", null ],
+    [ "gs_neighbour_init_vec", "d1/db8/gs__neighbour_8f90.html#a72403bab959d011aa42abab4bfc24839", null ]
 ];

@@ -9,6 +9,8 @@ var structgs__neighbour_1_1gs__neighbour__t =
     [ "init_dofs", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#ad9e79d04ff4047090f23a87847df0516", null ],
     [ "init_order", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#a8cbd176ce03aa9f17e780266c755e489", null ],
     [ "init_schedule", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#a46d63611d1f60b38d11653ed6a0592fb", null ],
+    [ "init_vec", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#a7d7cd7e9bc5f0f076adbb5a6d9f14bdd", null ],
+    [ "init_vec", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#a039b7ae85fcf63160a99a053e94b6c3a", null ],
     [ "nbrecv", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#ac39211ec831286e1525e954e3eed45a1", null ],
     [ "nbrecv", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#afe5d3da570816cb38d9eb2b2a15e6c25", null ],
     [ "nbrecv_vec", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#acb4740062fe8d21f3e820b6ace12d0ce", null ],
@@ -40,5 +42,6 @@ var structgs__neighbour_1_1gs__neighbour__t =
     [ "send_pe", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#a922bae84686dc75a7487fedf8544704a", null ],
     [ "sendcounts", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#a0bc830e11f065735f40e6702005a1474", null ],
     [ "sendcounts_v", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#a80c459dd8c19a37b32645f77c8d71edb", null ],
+    [ "vec_ready", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#a51ac8247b6edaef004b2f930e5490ed9", null ],
     [ "vec_supported", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#ab5445b62e22604c428bacfa315a6fd5e", null ]
 ];

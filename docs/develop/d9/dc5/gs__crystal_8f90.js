@@ -3,6 +3,7 @@ var gs__crystal_8f90 =
     [ "gs_crystal::gs_crystal_t", "d7/db2/structgs__crystal_1_1gs__crystal__t.html", "d7/db2/structgs__crystal_1_1gs__crystal__t" ],
     [ "gs_crystal_free", "d9/dc5/gs__crystal_8f90.html#ad3a58a8ff5522b2bdde211072017eacf", null ],
     [ "gs_crystal_init", "d9/dc5/gs__crystal_8f90.html#a70a62c1886cd314e13988452400f622d", null ],
+    [ "gs_crystal_init_vec", "d9/dc5/gs__crystal_8f90.html#a9aaf0b18ce785656d774de5edd38454d", null ],
     [ "gs_crystal_nbrecv", "d9/dc5/gs__crystal_8f90.html#af384658738c258f9b92911bee93982b9", null ],
     [ "gs_crystal_nbrecv_vec", "d9/dc5/gs__crystal_8f90.html#ab60489cb138f754da2f94b5e553ee4d1", null ],
     [ "gs_crystal_nbsend", "d9/dc5/gs__crystal_8f90.html#ad3798587fcfdd94b692b9cadc805ed80", null ],

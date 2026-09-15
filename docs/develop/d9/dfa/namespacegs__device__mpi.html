@@ -143,11 +143,17 @@ Data Types</h2></td></tr>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a1ffb2ff8429c63efe7920436e7fd21d6" id="r_a1ffb2ff8429c63efe7920436e7fd21d6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dfa/namespacegs__device__mpi.html#a1ffb2ff8429c63efe7920436e7fd21d6">gs_device_mpi_buf_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pe_order</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dof_stack</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">mark_dupes</a>)</td></tr>
 <tr class="separator:a1ffb2ff8429c63efe7920436e7fd21d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af753bf1814fa5c7d240b6ad21d01369e" id="r_af753bf1814fa5c7d240b6ad21d01369e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dfa/namespacegs__device__mpi.html#af753bf1814fa5c7d240b6ad21d01369e">gs_device_mpi_buf_init_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:af753bf1814fa5c7d240b6ad21d01369e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate this buffer's fused vector slab, sized for up to GS_VEC_NC components. Deferred to the first fused exchange, see gs_comm_t.  <br /></td></tr>
+<tr class="separator:af753bf1814fa5c7d240b6ad21d01369e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb045b3b7a92b5de7ffeed36d4da2a26" id="r_abb045b3b7a92b5de7ffeed36d4da2a26"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dfa/namespacegs__device__mpi.html#abb045b3b7a92b5de7ffeed36d4da2a26">gs_device_mpi_buf_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="separator:abb045b3b7a92b5de7ffeed36d4da2a26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe2c32b8ff7fe4f3941b8653b47ec885" id="r_afe2c32b8ff7fe4f3941b8653b47ec885"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dfa/namespacegs__device__mpi.html#afe2c32b8ff7fe4f3941b8653b47ec885">gs_device_mpi_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, send_pe, recv_pe)</td></tr>
 <tr class="memdesc:afe2c32b8ff7fe4f3941b8653b47ec885"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise MPI based communication method.  <br /></td></tr>
 <tr class="separator:afe2c32b8ff7fe4f3941b8653b47ec885"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35831485ed2eba78a08522c8c13a88c0" id="r_a35831485ed2eba78a08522c8c13a88c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dfa/namespacegs__device__mpi.html#a35831485ed2eba78a08522c8c13a88c0">gs_device_mpi_init_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a35831485ed2eba78a08522c8c13a88c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate the fused vector send and receive slabs in device memory, sized for GS_VEC_NC components. Deferred to the first fused exchange, see gs_comm_t. The peer lists, dof maps and streams built in init are shared with the scalar exchange, so this stays rank local.  <br /></td></tr>
+<tr class="separator:a35831485ed2eba78a08522c8c13a88c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a467e70ece8c5500ace71594579ccd501" id="r_a467e70ece8c5500ace71594579ccd501"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dfa/namespacegs__device__mpi.html#a467e70ece8c5500ace71594579ccd501">gs_device_mpi_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a467e70ece8c5500ace71594579ccd501"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate MPI based communication method.  <br /></td></tr>
 <tr class="separator:a467e70ece8c5500ace71594579ccd501"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -195,7 +201,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00318">318</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00328">328</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -255,13 +261,55 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00239">239</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00241">241</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d9/dfa/namespacegs__device__mpi_a1ffb2ff8429c63efe7920436e7fd21d6_cgraph.png" border="0" usemap="#ad9/dfa/namespacegs__device__mpi_a1ffb2ff8429c63efe7920436e7fd21d6_cgraph" alt=""/></div>
 <map name="ad9/dfa/namespacegs__device__mpi_a1ffb2ff8429c63efe7920436e7fd21d6_cgraph" id="ad9/dfa/namespacegs__device__mpi_a1ffb2ff8429c63efe7920436e7fd21d6_cgraph">
 <area shape="rect" title=" " alt="" coords="5,23,197,63"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="257,5,411,31"/>
+<area shape="poly" title=" " alt="" coords="197,30,243,25,243,31,198,36"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#af4efdfe9477e7cf1f9d07c5741c519a3" title="Set memory on the device to a value." alt="" coords="245,55,423,80"/>
+<area shape="poly" title=" " alt="" coords="198,51,232,54,231,59,197,56"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a64443968b2f6b9f8c1c410f0c6d213a2" title="Synchronize a device stream." alt="" coords="471,47,624,87"/>
+<area shape="poly" title=" " alt="" coords="423,65,457,65,457,70,423,70"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="af753bf1814fa5c7d240b6ad21d01369e" name="af753bf1814fa5c7d240b6ad21d01369e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af753bf1814fa5c7d240b6ad21d01369e">&#9670;&#160;</a></span>gs_device_mpi_buf_init_vec()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gs_device_mpi::gs_device_mpi_buf_init_vec </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html">gs_device_mpi_buf_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00317">317</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d9/dfa/namespacegs__device__mpi_af753bf1814fa5c7d240b6ad21d01369e_cgraph.png" border="0" usemap="#ad9/dfa/namespacegs__device__mpi_af753bf1814fa5c7d240b6ad21d01369e_cgraph" alt=""/></div>
+<map name="ad9/dfa/namespacegs__device__mpi_af753bf1814fa5c7d240b6ad21d01369e_cgraph" id="ad9/dfa/namespacegs__device__mpi_af753bf1814fa5c7d240b6ad21d01369e_cgraph">
+<area shape="rect" title="Allocate this buffer&#39;s fused vector slab, sized for up to GS_VEC_NC components. Deferred to the first..." alt="" coords="5,23,197,63"/>
 <area shape="rect" href="../../d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="257,5,411,31"/>
 <area shape="poly" title=" " alt="" coords="197,30,243,25,243,31,198,36"/>
 <area shape="rect" href="../../d0/dbe/namespacedevice.html#af4efdfe9477e7cf1f9d07c5741c519a3" title="Set memory on the device to a value." alt="" coords="245,55,423,80"/>
@@ -297,7 +345,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00368">368</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00391">391</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -353,7 +401,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00332">332</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00342">342</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -366,6 +414,34 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="198,68,232,73,231,78,197,73"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="a35831485ed2eba78a08522c8c13a88c0" name="a35831485ed2eba78a08522c8c13a88c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35831485ed2eba78a08522c8c13a88c0">&#9670;&#160;</a></span>gs_device_mpi_init_vec()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gs_device_mpi::gs_device_mpi_init_vec </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html">gs_device_mpi_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00382">382</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 
 </div>
 </div>
@@ -403,7 +479,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00472">472</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00496">496</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 
 </div>
 </div>
@@ -447,7 +523,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00594">594</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00618">618</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 
 </div>
 </div>
@@ -509,7 +585,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00397">397</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00421">421</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -592,7 +668,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00560">560</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00584">584</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -661,7 +737,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00486">486</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00510">510</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -740,7 +816,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00609">609</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00633">633</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -763,7 +839,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d9/dfa/namespacegs__device__mpi.html">gs_device_mpi</a></li>
-    <li class="footer">Generated on Mon Sep 14 2026 03:44:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 15 2026 03:41:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

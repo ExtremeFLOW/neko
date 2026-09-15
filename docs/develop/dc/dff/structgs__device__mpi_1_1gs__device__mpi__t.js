@@ -9,6 +9,8 @@ var structgs__device__mpi_1_1gs__device__mpi__t =
     [ "init_dofs", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#ad9e79d04ff4047090f23a87847df0516", null ],
     [ "init_order", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a8cbd176ce03aa9f17e780266c755e489", null ],
     [ "init_schedule", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a46d63611d1f60b38d11653ed6a0592fb", null ],
+    [ "init_vec", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#aceeb48fa215cec57b3d5975de98652ba", null ],
+    [ "init_vec", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a7d7cd7e9bc5f0f076adbb5a6d9f14bdd", null ],
     [ "nbrecv", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#acc8a316922178a679646746c39909fa4", null ],
     [ "nbrecv", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#afe5d3da570816cb38d9eb2b2a15e6c25", null ],
     [ "nbrecv_vec", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#ab4e74586559291bf9aa438963b878a7d", null ],
@@ -32,5 +34,6 @@ var structgs__device__mpi_1_1gs__device__mpi__t =
     [ "send_event", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a64e4235e784360168cba4b2ec4fc2015", null ],
     [ "send_pe", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a922bae84686dc75a7487fedf8544704a", null ],
     [ "stream", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#ad4dc5abce2c8f710b623cb99c6bd1516", null ],
+    [ "vec_ready", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a51ac8247b6edaef004b2f930e5490ed9", null ],
     [ "vec_supported", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#ab5445b62e22604c428bacfa315a6fd5e", null ]
 ];

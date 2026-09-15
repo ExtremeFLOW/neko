@@ -156,6 +156,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab208ca2607042ef1f8b98f913371f645" id="r_ab208ca2607042ef1f8b98f913371f645"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/db2/structgs__crystal_1_1gs__crystal__t.html#ab208ca2607042ef1f8b98f913371f645">nbwait</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, n, op, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
 <tr class="memdesc:ab208ca2607042ef1f8b98f913371f645"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drive the remaining routing stages and reduce what is delivered into the shared vector.  <br /></td></tr>
 <tr class="separator:ab208ca2607042ef1f8b98f913371f645"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a77863e179c93a79c616b9cbda1b4fd1d" id="r_a77863e179c93a79c616b9cbda1b4fd1d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/db2/structgs__crystal_1_1gs__crystal__t.html#a77863e179c93a79c616b9cbda1b4fd1d">init_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a77863e179c93a79c616b9cbda1b4fd1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate the fused vector working and send buffers, sized for GS_VEC_NC components. Deferred to the first fused exchange, see gs_comm_t. The routing plan is shared with the scalar exchange and is not rebuilt here, so this stays rank local.  <br /></td></tr>
+<tr class="separator:a77863e179c93a79c616b9cbda1b4fd1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7e64161652c1116cdadbccd93e14f725" id="r_a7e64161652c1116cdadbccd93e14f725"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/db2/structgs__crystal_1_1gs__crystal__t.html#a7e64161652c1116cdadbccd93e14f725">nbsend_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>, <a class="el" href="../../d7/db2/structgs__crystal_1_1gs__crystal__t.html#afa035afde00f47347afb7c349a094b28">tag</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deps</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
 <tr class="memdesc:a7e64161652c1116cdadbccd93e14f725"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pack the shared vector and post the send of the first routing stage, fused nc-component.  <br /></td></tr>
 <tr class="separator:a7e64161652c1116cdadbccd93e14f725"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -190,8 +193,11 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a46d63611d1f60b38d11653ed6a0592fb" id="r_a46d63611d1f60b38d11653ed6a0592fb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a46d63611d1f60b38d11653ed6a0592fb">init_schedule</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a46d63611d1f60b38d11653ed6a0592fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set up this communication method for the schedule taken over by <em>take_schedule</em>. Collective, as <em>init</em> is.  <br /></td></tr>
 <tr class="separator:a46d63611d1f60b38d11653ed6a0592fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d7cd7e9bc5f0f076adbb5a6d9f14bdd" id="r_a7d7cd7e9bc5f0f076adbb5a6d9f14bdd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a7d7cd7e9bc5f0f076adbb5a6d9f14bdd">init_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a7d7cd7e9bc5f0f076adbb5a6d9f14bdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fused vector halo exchange. Default implementations abort; backends that set vec_supported = .true. override them.  <br /></td></tr>
+<tr class="separator:a7d7cd7e9bc5f0f076adbb5a6d9f14bdd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af4dc3308d366cc075bc75e6116267c3b" id="r_af4dc3308d366cc075bc75e6116267c3b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#af4dc3308d366cc075bc75e6116267c3b">nbsend_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>, <a class="el" href="../../d7/db2/structgs__crystal_1_1gs__crystal__t.html#afa035afde00f47347afb7c349a094b28">tag</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deps</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
-<tr class="memdesc:af4dc3308d366cc075bc75e6116267c3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fused vector halo exchange. Default implementations abort; backends that set vec_supported = .true. override them.  <br /></td></tr>
+<tr class="memdesc:af4dc3308d366cc075bc75e6116267c3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default fused vector send. Abort unless a backend overrides it.  <br /></td></tr>
 <tr class="separator:af4dc3308d366cc075bc75e6116267c3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acb4740062fe8d21f3e820b6ace12d0ce" id="r_acb4740062fe8d21f3e820b6ace12d0ce"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#acb4740062fe8d21f3e820b6ace12d0ce">nbrecv_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d7/db2/structgs__crystal_1_1gs__crystal__t.html#afa035afde00f47347afb7c349a094b28">tag</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>)</td></tr>
 <tr class="memdesc:acb4740062fe8d21f3e820b6ace12d0ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default fused vector receive. Abort unless a backend overrides it.  <br /></td></tr>
@@ -243,6 +249,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:ab5445b62e22604c428bacfa315a6fd5e" id="r_ab5445b62e22604c428bacfa315a6fd5e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#ab5445b62e22604c428bacfa315a6fd5e">vec_supported</a> = .false.</td></tr>
 <tr class="memdesc:ab5445b62e22604c428bacfa315a6fd5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether this backend implements the fused vector (multi-component) halo exchange (nbsend_vec/nbrecv_vec/nbwait_vec). When .false., the gs_op_r3 caller falls back to nc independent scalar exchanges.  <br /></td></tr>
 <tr class="separator:ab5445b62e22604c428bacfa315a6fd5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51ac8247b6edaef004b2f930e5490ed9" id="r_a51ac8247b6edaef004b2f930e5490ed9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a51ac8247b6edaef004b2f930e5490ed9">vec_ready</a> = .false.</td></tr>
+<tr class="memdesc:a51ac8247b6edaef004b2f930e5490ed9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the buffers the fused vector exchange needs are in place. They are sized GS_VEC_NC times the halo, quadrupling what the backend holds, and only gs_op_r3 ever touches them, so a backend that can allocate them on its own defers that to the first fused exchange (see init_vec) rather than paying for it in every run. A backend whose vector buffers are part of an allocation the whole run has to agree on &ndash; symmetric memory, coarrays, registered memory, an RMA window &ndash; cannot defer, since a rank with no shared dofs never reaches the first fused exchange; those allocate in init and set this there.  <br /></td></tr>
+<tr class="separator:a51ac8247b6edaef004b2f930e5490ed9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
@@ -288,7 +297,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -316,7 +325,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -344,7 +353,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -404,7 +413,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -432,7 +441,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00086">86</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -483,7 +492,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -511,7 +520,56 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00091">91</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+
+</div>
+</div>
+<a id="a7d7cd7e9bc5f0f076adbb5a6d9f14bdd" name="a7d7cd7e9bc5f0f076adbb5a6d9f14bdd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d7cd7e9bc5f0f076adbb5a6d9f14bdd">&#9670;&#160;</a></span>init_vec() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) gs_comm::gs_comm_t::init_vec </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html">gs_comm_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>Rank local by contract: a rank with no shared dofs skips the fused exchange entirely, so an override must not communicate. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+
+</div>
+</div>
+<a id="a77863e179c93a79c616b9cbda1b4fd1d" name="a77863e179c93a79c616b9cbda1b4fd1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a77863e179c93a79c616b9cbda1b4fd1d">&#9670;&#160;</a></span>init_vec() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) gs_crystal::gs_crystal_t::init_vec </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d7/db2/structgs__crystal_1_1gs__crystal__t.html">gs_crystal_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00091">91</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
 
 </div>
 </div>
@@ -565,7 +623,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00084">84</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -609,7 +667,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00084">84</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -645,7 +703,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00092">92</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00093">93</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
 
 </div>
 </div>
@@ -723,7 +781,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -799,7 +857,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00095">95</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -865,7 +923,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00091">91</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00092">92</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
 
 </div>
 </div>
@@ -937,7 +995,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -999,7 +1057,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00097">97</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -1053,7 +1111,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00093">93</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
 
 </div>
 </div>
@@ -1097,7 +1155,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00090">90</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -1359,6 +1417,30 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a51ac8247b6edaef004b2f930e5490ed9" name="a51ac8247b6edaef004b2f930e5490ed9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51ac8247b6edaef004b2f930e5490ed9">&#9670;&#160;</a></span>vec_ready</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a> gs_comm::gs_comm_t::vec_ready = .false.</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+
+</div>
+</div>
 <a id="ab5445b62e22604c428bacfa315a6fd5e" name="ab5445b62e22604c428bacfa315a6fd5e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab5445b62e22604c428bacfa315a6fd5e">&#9670;&#160;</a></span>vec_supported</h2>
 
@@ -1392,7 +1474,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/d99/namespacegs__crystal.html">gs_crystal</a></li><li class="navelem"><a class="el" href="../../d7/db2/structgs__crystal_1_1gs__crystal__t.html">gs_crystal_t</a></li>
-    <li class="footer">Generated on Mon Sep 14 2026 03:44:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 15 2026 03:41:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

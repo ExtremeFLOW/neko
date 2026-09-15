@@ -9,6 +9,8 @@ var structgs__crystal_1_1gs__crystal__t =
     [ "init_dofs", "d7/db2/structgs__crystal_1_1gs__crystal__t.html#ad9e79d04ff4047090f23a87847df0516", null ],
     [ "init_order", "d7/db2/structgs__crystal_1_1gs__crystal__t.html#a8cbd176ce03aa9f17e780266c755e489", null ],
     [ "init_schedule", "d7/db2/structgs__crystal_1_1gs__crystal__t.html#a46d63611d1f60b38d11653ed6a0592fb", null ],
+    [ "init_vec", "d7/db2/structgs__crystal_1_1gs__crystal__t.html#a7d7cd7e9bc5f0f076adbb5a6d9f14bdd", null ],
+    [ "init_vec", "d7/db2/structgs__crystal_1_1gs__crystal__t.html#a77863e179c93a79c616b9cbda1b4fd1d", null ],
     [ "nbrecv", "d7/db2/structgs__crystal_1_1gs__crystal__t.html#a5d117d97a5a2916df4023eed7a97538b", null ],
     [ "nbrecv", "d7/db2/structgs__crystal_1_1gs__crystal__t.html#afe5d3da570816cb38d9eb2b2a15e6c25", null ],
     [ "nbrecv_vec", "d7/db2/structgs__crystal_1_1gs__crystal__t.html#acb4740062fe8d21f3e820b6ace12d0ce", null ],
@@ -36,5 +38,6 @@ var structgs__crystal_1_1gs__crystal__t =
     [ "send_pe", "d7/db2/structgs__crystal_1_1gs__crystal__t.html#a922bae84686dc75a7487fedf8544704a", null ],
     [ "sreq", "d7/db2/structgs__crystal_1_1gs__crystal__t.html#a2607e14e6cddb70147218a684509eaa3", null ],
     [ "tag", "d7/db2/structgs__crystal_1_1gs__crystal__t.html#afa035afde00f47347afb7c349a094b28", null ],
+    [ "vec_ready", "d7/db2/structgs__crystal_1_1gs__crystal__t.html#a51ac8247b6edaef004b2f930e5490ed9", null ],
     [ "vec_supported", "d7/db2/structgs__crystal_1_1gs__crystal__t.html#ab5445b62e22604c428bacfa315a6fd5e", null ]
 ];

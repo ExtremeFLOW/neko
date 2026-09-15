@@ -9,6 +9,8 @@ var structgs__device__nccl_1_1gs__device__nccl__t =
     [ "init_dofs", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#ad9e79d04ff4047090f23a87847df0516", null ],
     [ "init_order", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#a8cbd176ce03aa9f17e780266c755e489", null ],
     [ "init_schedule", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#a46d63611d1f60b38d11653ed6a0592fb", null ],
+    [ "init_vec", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#a1474979cd32724e4d1d8b1d0da13962d", null ],
+    [ "init_vec", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#a7d7cd7e9bc5f0f076adbb5a6d9f14bdd", null ],
     [ "nbrecv", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#a9666a8e5a250e2bc20f8a79174bc82f3", null ],
     [ "nbrecv", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#afe5d3da570816cb38d9eb2b2a15e6c25", null ],
     [ "nbrecv_vec", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#a013db2232c7394524ba3e1fea193ce79", null ],
@@ -32,5 +34,6 @@ var structgs__device__nccl_1_1gs__device__nccl__t =
     [ "send_event", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#a084ad2dca51b59da8912622a3004e203", null ],
     [ "send_pe", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#a922bae84686dc75a7487fedf8544704a", null ],
     [ "stream", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#adf9131963ed892d3ede4d806a76316f1", null ],
+    [ "vec_ready", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#a51ac8247b6edaef004b2f930e5490ed9", null ],
     [ "vec_supported", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#ab5445b62e22604c428bacfa315a6fd5e", null ]
 ];

@@ -2,6 +2,7 @@ var structgs__device__mpi_1_1gs__device__mpi__buf__t =
 [
     [ "free", "db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html#a23f213ec5a491dce5c1a5417401e065c", null ],
     [ "init", "db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html#a1716c208935f7c1841bbd6450a72ade6", null ],
+    [ "init_vec", "db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html#a7e8f3af64fe5cc526b4aafeb57a26da5", null ],
     [ "buf_d", "db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html#a354853ecf76ac965ae683f430312aa7f", null ],
     [ "buf_v_d", "db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html#a7bcee094bdd8249af948faf5cddc0d29", null ],
     [ "dof_d", "db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html#ac4ca14bbd211c433867bbeb772029466", null ],

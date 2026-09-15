@@ -15,6 +15,7 @@ var namespacegather__scatter =
     [ "gs_op_vector3", "d0/d78/namespacegather__scatter.html#aac2a59847cf00bf8f06355ebbda60679", null ],
     [ "gs_schedule", "d0/d78/namespacegather__scatter.html#a70b1e5adb11770ec89f7e135bb74c793", null ],
     [ "gs_sort_i8", "d0/d78/namespacegather__scatter.html#abba505ea99ff836fd6ba1e86d237d655", null ],
+    [ "gs_vec_alloc", "d0/d78/namespacegather__scatter.html#a1779a89eead5baf936d7e36e6fd59096", null ],
     [ "gs_tune_ntrials", "d0/d78/namespacegather__scatter.html#a524d80241ca9d4e2a4cc2153339c7669", null ],
     [ "gs_tune_nwarmup", "d0/d78/namespacegather__scatter.html#a6a126f789af89fc7aa5fc815afdbd77a", null ]
 ];

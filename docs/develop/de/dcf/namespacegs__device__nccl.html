@@ -132,11 +132,17 @@ Data Types</h2></td></tr>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a7fd02aded867f9843400ccda5550adf1" id="r_a7fd02aded867f9843400ccda5550adf1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dcf/namespacegs__device__nccl.html#a7fd02aded867f9843400ccda5550adf1">gs_device_nccl_buf_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pe_order</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dof_stack</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">mark_dupes</a>)</td></tr>
 <tr class="separator:a7fd02aded867f9843400ccda5550adf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9057ee599ffb51333c54378a5a0a9052" id="r_a9057ee599ffb51333c54378a5a0a9052"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dcf/namespacegs__device__nccl.html#a9057ee599ffb51333c54378a5a0a9052">gs_device_nccl_buf_init_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a9057ee599ffb51333c54378a5a0a9052"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate this buffer's fused vector slab, sized for up to GS_VEC_NC components. Deferred to the first fused exchange, see gs_comm_t.  <br /></td></tr>
+<tr class="separator:a9057ee599ffb51333c54378a5a0a9052"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aefc2ac685c287cff92cd6de2cde7bc0f" id="r_aefc2ac685c287cff92cd6de2cde7bc0f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dcf/namespacegs__device__nccl.html#aefc2ac685c287cff92cd6de2cde7bc0f">gs_device_nccl_buf_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="separator:aefc2ac685c287cff92cd6de2cde7bc0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d4e675b4dbc3a5de103b430b400981c" id="r_a2d4e675b4dbc3a5de103b430b400981c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dcf/namespacegs__device__nccl.html#a2d4e675b4dbc3a5de103b430b400981c">gs_device_nccl_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, send_pe, recv_pe)</td></tr>
 <tr class="memdesc:a2d4e675b4dbc3a5de103b430b400981c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise NCCL based communication method.  <br /></td></tr>
 <tr class="separator:a2d4e675b4dbc3a5de103b430b400981c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af341d3d71c6b16fe0ae6800c6a89fa91" id="r_af341d3d71c6b16fe0ae6800c6a89fa91"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dcf/namespacegs__device__nccl.html#af341d3d71c6b16fe0ae6800c6a89fa91">gs_device_nccl_init_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:af341d3d71c6b16fe0ae6800c6a89fa91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate the fused vector send and receive slabs in device memory, sized for GS_VEC_NC components. Deferred to the first fused exchange, see gs_comm_t. The NCCL communicator is built once at startup and the peer lists and dof maps come from init, so this stays rank local.  <br /></td></tr>
+<tr class="separator:af341d3d71c6b16fe0ae6800c6a89fa91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef31fde09a39eebc0ee90e008cba5bb5" id="r_aef31fde09a39eebc0ee90e008cba5bb5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dcf/namespacegs__device__nccl.html#aef31fde09a39eebc0ee90e008cba5bb5">gs_device_nccl_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:aef31fde09a39eebc0ee90e008cba5bb5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate MPI based communication method.  <br /></td></tr>
 <tr class="separator:aef31fde09a39eebc0ee90e008cba5bb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -190,7 +196,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00261">261</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00271">271</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -250,7 +256,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00188">188</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00190">190</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -259,6 +265,44 @@ Here is the call graph for this function:</div>
 <area shape="rect" title=" " alt="" coords="5,5,167,45"/>
 <area shape="rect" href="../../d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="215,13,369,38"/>
 <area shape="poly" title=" " alt="" coords="167,23,201,23,201,28,167,28"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a9057ee599ffb51333c54378a5a0a9052" name="a9057ee599ffb51333c54378a5a0a9052"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9057ee599ffb51333c54378a5a0a9052">&#9670;&#160;</a></span>gs_device_nccl_buf_init_vec()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gs_device_nccl::gs_device_nccl_buf_init_vec </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/dda/structgs__device__nccl_1_1gs__device__nccl__buf__t.html">gs_device_nccl_buf_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00261">261</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../de/dcf/namespacegs__device__nccl_a9057ee599ffb51333c54378a5a0a9052_cgraph.png" border="0" usemap="#ade/dcf/namespacegs__device__nccl_a9057ee599ffb51333c54378a5a0a9052_cgraph" alt=""/></div>
+<map name="ade/dcf/namespacegs__device__nccl_a9057ee599ffb51333c54378a5a0a9052_cgraph" id="ade/dcf/namespacegs__device__nccl_a9057ee599ffb51333c54378a5a0a9052_cgraph">
+<area shape="rect" title="Allocate this buffer&#39;s fused vector slab, sized for up to GS_VEC_NC components. Deferred to the first..." alt="" coords="5,5,196,45"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="244,13,399,38"/>
+<area shape="poly" title=" " alt="" coords="196,23,230,23,230,28,196,28"/>
 </map>
 </div>
 
@@ -288,7 +332,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00310">310</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00333">333</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -344,7 +388,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00273">273</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00283">283</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -357,6 +401,34 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="149,66,183,71,182,77,148,71"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="af341d3d71c6b16fe0ae6800c6a89fa91" name="af341d3d71c6b16fe0ae6800c6a89fa91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af341d3d71c6b16fe0ae6800c6a89fa91">&#9670;&#160;</a></span>gs_device_nccl_init_vec()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gs_device_nccl::gs_device_nccl_init_vec </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html">gs_device_nccl_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00324">324</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 
 </div>
 </div>
@@ -394,7 +466,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00378">378</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00402">402</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 
 </div>
 </div>
@@ -438,7 +510,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00475">475</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00499">499</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 
 </div>
 </div>
@@ -500,7 +572,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00339">339</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00363">363</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -583,7 +655,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00445">445</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00469">469</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -654,7 +726,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00388">388</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00412">412</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -733,7 +805,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00481">481</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00505">505</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -777,7 +849,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../de/dcf/namespacegs__device__nccl.html">gs_device_nccl</a></li>
-    <li class="footer">Generated on Mon Sep 14 2026 03:44:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 15 2026 03:41:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

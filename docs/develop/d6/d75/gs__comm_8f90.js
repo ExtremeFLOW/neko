@@ -8,6 +8,7 @@ var gs__comm_8f90 =
     [ "gs_comm::gs_nbwait", "d3/d94/interfacegs__comm_1_1gs__nbwait.html", "d3/d94/interfacegs__comm_1_1gs__nbwait" ],
     [ "free_dofs", "d6/d75/gs__comm_8f90.html#ae00beb400345e7fc6471a1955ee94274", null ],
     [ "free_order", "d6/d75/gs__comm_8f90.html#af358299661323a0d9c6f95066f16957b", null ],
+    [ "gs_init_vec", "d6/d75/gs__comm_8f90.html#abf383fa8691750292605f90ffc382301", null ],
     [ "gs_nbrecv_vec", "d6/d75/gs__comm_8f90.html#a231d252586882cad9c4581d2d0b9d4d6", null ],
     [ "gs_nbsend_vec", "d6/d75/gs__comm_8f90.html#a17b10fb25e3e407ab72e1b13968a1deb", null ],
     [ "gs_nbwait_vec", "d6/d75/gs__comm_8f90.html#a8471cd85c960e8e4c087823fd0aee730", null ],

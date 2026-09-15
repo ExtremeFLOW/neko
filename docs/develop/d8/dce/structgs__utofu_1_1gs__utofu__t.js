@@ -9,6 +9,7 @@ var structgs__utofu_1_1gs__utofu__t =
     [ "init_dofs", "d8/dce/structgs__utofu_1_1gs__utofu__t.html#ad9e79d04ff4047090f23a87847df0516", null ],
     [ "init_order", "d8/dce/structgs__utofu_1_1gs__utofu__t.html#a8cbd176ce03aa9f17e780266c755e489", null ],
     [ "init_schedule", "d8/dce/structgs__utofu_1_1gs__utofu__t.html#a46d63611d1f60b38d11653ed6a0592fb", null ],
+    [ "init_vec", "d8/dce/structgs__utofu_1_1gs__utofu__t.html#a7d7cd7e9bc5f0f076adbb5a6d9f14bdd", null ],
     [ "nbrecv", "d8/dce/structgs__utofu_1_1gs__utofu__t.html#a9111a10306a4ed67c66395bef40adc81", null ],
     [ "nbrecv", "d8/dce/structgs__utofu_1_1gs__utofu__t.html#afe5d3da570816cb38d9eb2b2a15e6c25", null ],
     [ "nbrecv_vec", "d8/dce/structgs__utofu_1_1gs__utofu__t.html#acb4740062fe8d21f3e820b6ace12d0ce", null ],
@@ -57,5 +58,6 @@ var structgs__utofu_1_1gs__utofu__t =
     [ "send_offset", "d8/dce/structgs__utofu_1_1gs__utofu__t.html#a1008c71f675ead9bf153a1c49c25a37f", null ],
     [ "send_pe", "d8/dce/structgs__utofu_1_1gs__utofu__t.html#a922bae84686dc75a7487fedf8544704a", null ],
     [ "send_size", "d8/dce/structgs__utofu_1_1gs__utofu__t.html#ab7fcf4f1f4cecd8a0bde52ed3447abcd", null ],
+    [ "vec_ready", "d8/dce/structgs__utofu_1_1gs__utofu__t.html#a51ac8247b6edaef004b2f930e5490ed9", null ],
     [ "vec_supported", "d8/dce/structgs__utofu_1_1gs__utofu__t.html#ab5445b62e22604c428bacfa315a6fd5e", null ]
 ];

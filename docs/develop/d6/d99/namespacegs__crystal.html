@@ -119,6 +119,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a70a62c1886cd314e13988452400f622d" id="r_a70a62c1886cd314e13988452400f622d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d99/namespacegs__crystal.html#a70a62c1886cd314e13988452400f622d">gs_crystal_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, send_pe, recv_pe)</td></tr>
 <tr class="memdesc:a70a62c1886cd314e13988452400f622d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise crystal router based communication method See <a class="el" href="../../d6/d75/gs__comm_8f90.html">gs_comm.f90</a> for details.  <br /></td></tr>
 <tr class="separator:a70a62c1886cd314e13988452400f622d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9aaf0b18ce785656d774de5edd38454d" id="r_a9aaf0b18ce785656d774de5edd38454d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d99/namespacegs__crystal.html#a9aaf0b18ce785656d774de5edd38454d">gs_crystal_init_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a9aaf0b18ce785656d774de5edd38454d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate the fused vector working and send buffers, sized for GS_VEC_NC components. Deferred to the first fused exchange, see gs_comm_t. The routing plan is shared with the scalar exchange and is not rebuilt here, so this stays rank local.  <br /></td></tr>
+<tr class="separator:a9aaf0b18ce785656d774de5edd38454d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad3a58a8ff5522b2bdde211072017eacf" id="r_ad3a58a8ff5522b2bdde211072017eacf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d99/namespacegs__crystal.html#ad3a58a8ff5522b2bdde211072017eacf">gs_crystal_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:ad3a58a8ff5522b2bdde211072017eacf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate crystal router based communication method.  <br /></td></tr>
 <tr class="separator:ad3a58a8ff5522b2bdde211072017eacf"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -170,7 +173,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00120">120</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00132">132</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
 
 </div>
 </div>
@@ -206,7 +209,35 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00100">100</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00101">101</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
+
+</div>
+</div>
+<a id="a9aaf0b18ce785656d774de5edd38454d" name="a9aaf0b18ce785656d774de5edd38454d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9aaf0b18ce785656d774de5edd38454d">&#9670;&#160;</a></span>gs_crystal_init_vec()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gs_crystal::gs_crystal_init_vec </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d7/db2/structgs__crystal_1_1gs__crystal__t.html">gs_crystal_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00123">123</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
 
 </div>
 </div>
@@ -244,7 +275,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00136">136</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00149">149</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
 
 </div>
 </div>
@@ -288,7 +319,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00347">347</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00360">360</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
 
 </div>
 </div>
@@ -350,7 +381,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00170">170</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00183">183</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
 
 </div>
 </div>
@@ -424,7 +455,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00385">385</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00398">398</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
 
 </div>
 </div>
@@ -480,7 +511,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00213">213</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00226">226</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
 
 </div>
 </div>
@@ -542,7 +573,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00430">430</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html#l00443">443</a> of file <a class="el" href="../../d9/dc5/gs__crystal_8f90_source.html">gs_crystal.f90</a>.</p>
 
 </div>
 </div>
@@ -552,7 +583,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/d99/namespacegs__crystal.html">gs_crystal</a></li>
-    <li class="footer">Generated on Mon Sep 14 2026 03:44:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 15 2026 03:41:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

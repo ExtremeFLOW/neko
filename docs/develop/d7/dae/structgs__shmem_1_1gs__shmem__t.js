@@ -9,6 +9,7 @@ var structgs__shmem_1_1gs__shmem__t =
     [ "init_dofs", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#ad9e79d04ff4047090f23a87847df0516", null ],
     [ "init_order", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a8cbd176ce03aa9f17e780266c755e489", null ],
     [ "init_schedule", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a46d63611d1f60b38d11653ed6a0592fb", null ],
+    [ "init_vec", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a7d7cd7e9bc5f0f076adbb5a6d9f14bdd", null ],
     [ "nbrecv", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#aec5d1110e6cf95af443cbc206c9ccde4", null ],
     [ "nbrecv", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#afe5d3da570816cb38d9eb2b2a15e6c25", null ],
     [ "nbrecv_vec", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#acb4740062fe8d21f3e820b6ace12d0ce", null ],
@@ -31,5 +32,6 @@ var structgs__shmem_1_1gs__shmem__t =
     [ "send_buf", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#acf1175acc4202ea29e011d986f1031d9", null ],
     [ "send_dof", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a8004e1ed7b91668a726c51f51712c246", null ],
     [ "send_pe", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a922bae84686dc75a7487fedf8544704a", null ],
+    [ "vec_ready", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a51ac8247b6edaef004b2f930e5490ed9", null ],
     [ "vec_supported", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#ab5445b62e22604c428bacfa315a6fd5e", null ]
 ];
