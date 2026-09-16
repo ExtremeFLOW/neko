@@ -3,6 +3,12 @@
 ## Develop
 - Fixed several OpenMP races in the boundary conditions, including a Neumann
   flux accumulated once per thread.
+- Fixed further OpenMP races outside the boundary-condition update blocks:
+  the symmetry, shear stress and non-normal vector conditions lacked
+  worksharing inside the `bc_list` parallel region, `facet_normal` and the
+  `nu=4` tensor contraction left a loop-body index shared, the wall model
+  stress update ran on every thread, and the coupled CG shared its residual
+  reduction temporaries.
 - Fixed a leaked MPI file handle in the fld reader, which never closed the
   file it opened.
 - Added runtime registration of user-defined scalar boundary-condition types
