@@ -35,6 +35,7 @@ module particles
   use num_types, only : rp
   use vector, only : vector_t
   use utils, only : neko_error
+  use device, only : HOST_TO_DEVICE
   implicit none
   private
 
@@ -112,31 +113,34 @@ contains
     call this%acc_zlaglag%init(this%n)
     call this%d%init(this%n)
     call this%rho%init(this%n)
-    this%x = x
-    this%y = y
-    this%z = z
+
+    this%x%x = x
+    this%y%x = y
+    this%z%x = z
     if (present(u) .and. present(v) .and. present(w)) then
-       this%u = u
-       this%v = v
-       this%w = w
+       this%u%x = u
+       this%v%x = v
+       this%w%x = w
     else
-       this%u = 0.0_rp
-       this%v = 0.0_rp
-       this%w = 0.0_rp
+       this%u%x = 0.0_rp
+       this%v%x = 0.0_rp
+       this%w%x = 0.0_rp
     end if
     if (present(diameter)) then
-       this%d = diameter
+       this%d%x = diameter
     else
-       this%d = 0.0_rp
+       this%d%x = 0.0_rp
     end if
     if (present(density)) then
-       this%rho = density
+       this%rho%x = density
     else
-       this%rho = 0.0_rp
+       this%rho%x = 0.0_rp
     end if
     do i = 1, this%n
        this%ids(i) = i
     end do
+
+    call this%device_sync(HOST_TO_DEVICE)
   end subroutine particles_init
 
   subroutine particles_free(this)

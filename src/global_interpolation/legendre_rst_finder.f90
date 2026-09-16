@@ -40,6 +40,7 @@ module legendre_rst_finder
   use vector, only: vector_t
   use matrix, only: matrix_t
   use math, only: NEKO_EPS, matinv39
+  use vector_math, only: vector_cfill
   use tensor_cpu, only: tnsr3d_cpu, tnsr3d_el_cpu
   use device_local_interpolation, only: device_find_rst_legendre
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
@@ -197,7 +198,7 @@ contains
 
     call conv_pts%init(n_pts)
 
-    conv_pts = 1.0_rp
+    call vector_cfill(conv_pts, 1.0_rp)
 
     iter = 0
     converged = .false.

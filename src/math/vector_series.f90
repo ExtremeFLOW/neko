@@ -34,6 +34,7 @@
 module vector_series
   use num_types, only : rp
   use vector, only : vector_t
+  use vector_math, only : vector_cfill
   implicit none
   private
 
@@ -165,7 +166,7 @@ contains
     integer :: i
 
     do i = 1, this%len
-       this%lv(i) = 0.0_rp
+       call vector_cfill(this%lv(i), 0.0_rp)
     end do
 
     this%n_filled = 0
