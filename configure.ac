@@ -361,14 +361,18 @@ AX_ROCTX
 # Checks for HDF5
 if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
    AX_CRAY_HDF5_PARALLEL
-else
-   AX_HDF5
+fi
+
+if (test "x${have_cray_hdf5}" != xyes); then
+    AX_HDF5
 fi
 
 # Checks for OpenSHMEM
 if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
    AX_CRAY_SHMEM
-else
+fi
+
+if (test "x${have_cray_shmem}" != xyes); then
    AX_SHMEM
 fi
 
