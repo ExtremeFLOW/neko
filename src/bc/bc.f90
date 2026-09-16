@@ -46,6 +46,7 @@ module bc
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
   use field, only : field_t
+  use field_series, only : field_series_t
   use gs_ops, only : GS_OP_ADD
   use math, only : relcmp, rzero
   use device_math, only : device_cfill
@@ -128,6 +129,12 @@ module bc
      procedure, pass(this) :: apply_vector_generic => bc_apply_vector_generic
      !> Write a field showing the mask of the bcs
      procedure, pass(this) :: debug_mask_ => bc_debug_mask
+     !> Restore a scalar boundary condition from solution history.
+     procedure, pass(this) :: restart_scalar => bc_restart_scalar
+     !> Restore a vector boundary condition from solution history.
+     procedure, pass(this) :: restart_vector => bc_restart_vector
+     !> Restore boundary-condition state after a simulation restart.
+     generic :: restart => restart_scalar, restart_vector
      !> Apply the boundary condition to a scalar field on the CPU.
      procedure(bc_apply_scalar), pass(this), deferred :: apply_scalar
      !> Apply the boundary condition to a vector field on the CPU.
@@ -260,6 +267,22 @@ module bc
   end interface
 
 contains
+
+  !> Default no-op restart hook for scalar boundary conditions.
+  !! The lag series is optional because not every scalar-like field, notably
+  !! pressure, has solution history stored in the checkpoint.
+  subroutine bc_restart_scalar(this, s, slag)
+    class(bc_t), intent(inout) :: this
+    type(field_t), intent(in) :: s
+    type(field_series_t), intent(in), optional :: slag
+  end subroutine bc_restart_scalar
+
+  !> Default no-op restart hook for vector boundary conditions.
+  subroutine bc_restart_vector(this, u, v, w, ulag, vlag, wlag)
+    class(bc_t), intent(inout) :: this
+    type(field_t), intent(in) :: u, v, w
+    type(field_series_t), intent(in) :: ulag, vlag, wlag
+  end subroutine bc_restart_vector
 
   !> Constructor
   !! @param dof Map of degrees of freedom.
