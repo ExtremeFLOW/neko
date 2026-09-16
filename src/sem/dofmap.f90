@@ -792,11 +792,9 @@ contains
        call msh%apply_deform(this%x%x, this%y%x, this%z%x, Xh%lx, Xh%ly, Xh%lz)
     end if
 
-    if (NEKO_BCKND_DEVICE .eq. 0) then
-       call this%x%copy_from(HOST_TO_DEVICE, .false.)
-       call this%y%copy_from(HOST_TO_DEVICE, .false.)
-       call this%z%copy_from(HOST_TO_DEVICE, .true.)
-    end if
+    call this%x%copy_from(HOST_TO_DEVICE, .false.)
+    call this%y%copy_from(HOST_TO_DEVICE, .false.)
+    call this%z%copy_from(HOST_TO_DEVICE, .true.)
   end subroutine dofmap_generate_xyz
 
   !> Generate the x, y, z coordinates of the dofs in a signle element, assuming
