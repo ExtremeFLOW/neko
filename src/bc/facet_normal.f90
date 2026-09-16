@@ -154,13 +154,12 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: v
     real(kind=rp), intent(inout), dimension(n) :: w
     type(time_state_t), intent(in), optional :: time
-    integer :: i, m, k, idx(4), facet
-    real(kind=rp) :: normal(3), area
+    integer :: i, m, k
 
     m = this%unique_mask(0)
     ! Since apply_surfvec is called outside of the parallel region, we
     ! need to open a separate parallel region here
-    !$omp parallel do
+    !$omp parallel do private(k)
     do i = 1, m
        k = this%unique_mask(i)
        x(k) = u(k) * this%nx%x(i)

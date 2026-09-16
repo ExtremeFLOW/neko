@@ -119,9 +119,13 @@ treated as fatal errors. If unset, they are reported as warnings.
 Indentation width used by the logger.
 .TP
 .B NEKO_AUTOTUNE
-Pins the kernel formulation used by the spectral element operators on the
-CUDA and HIP backends, skipping the auto-tuning search that otherwise runs
-on the first call of each operator. Accepted values are
+Restricts the auto-tuning search run by the spectral element operators on the
+CUDA and HIP backends to a single kernel formulation. The geometry within that
+formulation is still measured: the search is narrowed, not skipped, and it
+takes the formulation's own selector
+.RB ( NEKO_CHUNKS ", " NEKO_EB ", " NEKO_DMMA_NW ", " NEKO_DMMA_TMA_NW
+.RB " or " NEKO_MFMA_NWF )
+to fix that too, which then leaves nothing to measure. Accepted values are
 .BR 1D ", " KSTEP ", " DMMA ", " DMMA_TMA ", " DMMA_TMA_BATCH " and " MFMA .
 .B DMMA
 is a CUDA only variant, available for the Helmholtz operator
@@ -175,67 +179,54 @@ to keep it out of the sweep;
 still pins it explicitly.
 .TP
 .B NEKO_EB
-Selects the elements-per-block candidate used when the kstep formulation
-is pinned with
-.BR NEKO_AUTOTUNE=KSTEP .
-Candidate
+Pins the elements-per-block candidate of the kstep formulation, which the
+auto-tuner sweeps when this is unset. Candidate
 .B 0
 is one element per block, i.e. the unblocked geometry. Values outside the
 valid range fall back to
 .BR 0 .
-Defaults to
-.BR 0 .
+Unset by default, i.e. swept.
 .TP
 .B NEKO_CHUNKS
-Selects the chunk size candidate used when the 1d formulation is pinned
-with
-.BR NEKO_AUTOTUNE=1D .
-Candidates
+Pins the chunk size candidate of the 1d formulation, which the auto-tuner
+sweeps when this is unset. Candidates
 .BR 0 " to " 3
 are 1024, 512, 256 and 128 threads per block; candidate
 .B 0
 is the historical value. A candidate smaller than one derivative matrix
-is invalid and falls back to 1024. Defaults to
-.BR 0 .
+is invalid and falls back to 1024. Unset by default, i.e. swept.
 .TP
 .B NEKO_DMMA_NW
-Selects the warps-per-block candidate used when the fp64 tensor core
-formulation is pinned with
-.BR NEKO_AUTOTUNE=DMMA .
-Candidates
+Pins the warps-per-block candidate of the fp64 tensor core formulation,
+which the auto-tuner sweeps when this is unset. Candidates
 .BR 0 ", " 1 " and " 2
 are 2, 4 and 8 warps per block. Values outside the valid range fall back to
 .BR 0 .
-Defaults to
-.BR 0 .
+Unset by default, i.e. swept.
 .TP
 .B NEKO_DMMA_TMA_NW
-Selects the warps-per-block candidate used when a TMA staged tensor core
-formulation is pinned with
-.BR NEKO_AUTOTUNE=DMMA_TMA " or " NEKO_AUTOTUNE=DMMA_TMA_BATCH .
-Candidates
+Pins the warps-per-block candidate of the TMA staged tensor core
+formulations, which the auto-tuner sweeps when this is unset. Candidates
 .BR 0 ", " 1 " and " 2
 are 2, 4 and 8 warps per block, as for
 .BR NEKO_DMMA_NW ,
-and both variants read this one variable. Values outside the valid range fall
+and both
+.BR DMMA_TMA " and " DMMA_TMA_BATCH
+read this one variable. Values outside the valid range fall
 back to
 .BR 0 .
-Defaults to
-.BR 0 .
+Unset by default, i.e. swept.
 .TP
 .B NEKO_MFMA_NWF
-Selects the wavefronts-per-block candidate used when the matrix core
-formulation is pinned with
-.BR NEKO_AUTOTUNE=MFMA .
-Candidates
+Pins the wavefronts-per-block candidate of the matrix core formulation,
+which the auto-tuner sweeps when this is unset. Candidates
 .BR 0 " to " 3
 are 1, 2, 4 and 8 wavefronts per block. The count also fixes the elements per
 block: the block covers as many elements as the ceil(lx*lx/16) column groups
 leave wavefronts for, rounded down to a power of two, and the remaining
 wavefronts cooperate on each. Values outside the valid range fall back to
 .BR 0 .
-Defaults to
-.BR 0 .
+Unset by default, i.e. swept.
 .TP
 .B NEKO_TUNE_ROUNDS
 Number of interleaved sampling rounds used by the operator auto-tuner. Each

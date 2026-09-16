@@ -1622,6 +1622,8 @@ contains
                int(FLD_DATA_SIZE, i8))
        end do
 
+       call MPI_File_close(fh, ierr)
+
        call device_sync()
        call this%increment_counter()
 

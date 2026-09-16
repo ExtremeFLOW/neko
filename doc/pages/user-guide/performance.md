@@ -435,11 +435,13 @@ turns the sweep off if the extra tuning time is not wanted.
 
 The tuning behaviour is controlled by the environment variables
 described in the @ref appendices_env-var reference: `NEKO_AUTOTUNE`
-pins a formulation and skips the search entirely, `NEKO_EB_TUNE` and
+narrows the search to one formulation, whose geometry is still swept,
+`NEKO_EB_TUNE` and
 `NEKO_MFMA_TUNE` enable or disable the elements per block and matrix
 core sweeps, `NEKO_EB`, `NEKO_CHUNKS`, `NEKO_DMMA_NW`,
-`NEKO_DMMA_TMA_NW` and `NEKO_MFMA_NWF` force a particular geometry when a
-formulation is pinned, and
+`NEKO_DMMA_TMA_NW` and `NEKO_MFMA_NWF` pin a particular geometry instead
+of sweeping it --- pinning both leaves nothing to measure and skips the
+search --- and
 `NEKO_TUNE_ROUNDS` / `NEKO_TUNE_ITERS` control the sampling of both
 sweeps. All
 of them are useful mainly for A/B testing; the defaults are intended to

@@ -17,6 +17,18 @@
   precision regardless of `rp`, since the smallest root is a difference of
   terms of order the largest eigenvalue and its relative accuracy therefore
   degrades as `eps * kappa`.
+- Fixed several OpenMP races in the boundary conditions, including a Neumann
+  flux accumulated once per thread.
+- Fixed further OpenMP races outside the boundary-condition update blocks:
+  the symmetry, shear stress and non-normal vector conditions lacked
+  worksharing inside the `bc_list` parallel region, `facet_normal` and the
+  `nu=4` tensor contraction left a loop-body index shared, the wall model
+  stress update ran on every thread, and the coupled CG shared its residual
+  reduction temporaries.
+- Fixed a leaked MPI file handle in the fld reader, which never closed the
+  file it opened.
+- Added runtime registration of user-defined scalar boundary-condition types
+  through `register_scalar_pnpn_bc`.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.
 - The gather-scatter comm. backend autotuning now covers the device-resident
   backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks
@@ -61,6 +73,16 @@
   staged (`DMMA_TMA`) formulations to the `opgrad`, `dudxyz`, `conv1` and
   `cdtp` operators, again as auto-tuner candidates selected per operator,
   polynomial order and element count.
+- *BREAKING* `NEKO_AUTOTUNE` now narrows the SEM operator search to the named
+  formulation instead of skipping the search outright. The geometry of that
+  formulation --- chunk size, elements per block, warps or wavefronts per
+  block --- is still swept and reported, where pinning a formulation used to
+  silently fix it at candidate 0. `NEKO_EB`, `NEKO_CHUNKS`, `NEKO_DMMA_NW`,
+  `NEKO_DMMA_TMA_NW` and `NEKO_MFMA_NWF` now pin that geometry whenever their
+  formulation is measured, rather than only when it is the pinned one, and
+  setting one alongside `NEKO_AUTOTUNE` leaves nothing to measure and skips
+  the search as before. So an A/B run of two formulations compares each at its
+  own best geometry; to get the old behaviour, set the geometry variable too.
 - *BREAKING* The `ax_helm_factory` is renamed to `ax_helm_allocator`. It now
   selects matrix-vector product types by name instead of a `full_formulation`
   logical argument, and supports runtime registration of user-defined `ax_t`
@@ -76,6 +98,10 @@
 - Added configurable wall-model field samplers. Wall models can now sample at
   GLL nodes or physical wall-normal distances using global interpolation. The
   sampling values can also be supplied per wall node through new user hooks.
+- Added the asymmetric spectral vanishing viscosity formulation for implicit
+- Added the one-sided spectral vanishing viscosity formulation for implicit
+  fluid and scalar solves, including the full-stress fluid operator, on CPU,
+  CUDA, and HIP backends.
 - The CUDA and HIP auto-tuners for `ax_helm` and the SEM operators (`opgrad`,
   `dudxyz`, `cdtp`, `conv1`, `convect_scalar`, `lambda2`) now also sweep the
   thread block geometry, not just the kernel formulation: chunk size for the

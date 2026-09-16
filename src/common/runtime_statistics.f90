@@ -302,6 +302,8 @@ contains
 
     region_id = -1
 
+    if (.not. this%enabled) return
+
     ! Look for the region name first
     do i = RT_STATS_RESERVED_REGIONS + 1, RT_STATS_MAX_REGIONS
        if (trim(this%rt_stats_id(i)) .eq. trim(name)) then

@@ -301,10 +301,12 @@ contains
     end if
 
     if (strong_) then
+       !$omp single
        if (.not. this%updated) then
           call this%update(time)
           this%updated = .true.
        end if
+       !$omp end single
 
        call masked_copy_0(x, this%bc_s%field_bc%x, this%msk, n, this%msk(0))
     end if
@@ -330,10 +332,12 @@ contains
     end if
 
     if (strong_) then
+       !$omp single
        if (.not. this%updated) then
           call this%update(time)
           this%updated = .true.
        end if
+       !$omp end single
 
        if (this%msk(0) .gt. 0) then
           call device_masked_copy_0(x_d, this%bc_s%field_bc%x_d, &
