@@ -113,6 +113,10 @@ contains
     end if
 
     if (.not. strong_) then
+       ! This runs inside the bc_list parallel region, so the update must be
+       ! executed by a single thread; the barrier implied by 'end single' is
+       ! what makes the tau field consistent before the Neumann bcs read it.
+       !$omp single
        ! Compute the wall stress using the wall model.
        call this%wall_model%compute( real(time%t, kind=rp), time%tstep)
 
@@ -123,6 +127,7 @@ contains
        ! boundary conditions.
        call this%set_stress(this%wall_model%tau_x, this%wall_model%tau_y, &
             this%wall_model%tau_z)
+       !$omp end single
     end if
 
     ! Either add the stress to the RHS or apply the non-penetration condition
