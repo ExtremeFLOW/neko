@@ -430,6 +430,11 @@ contains
     ! The vector context stays registered either way; only its use is gated.
     call get_environment_variable("NEKO_GS_UTOFU_VEC", env_val, env_len)
     this%vec_supported = .not. (env_len .gt. 0 .and. env_val(1:1) .eq. '0')
+    ! The vector slabs are part of the symmetric/registered allocation
+    ! made above, which every rank has to take part in, so they cannot
+    ! be deferred to the first fused exchange: a rank with no shared
+    ! dofs never reaches it. See gs_comm_t%vec_ready.
+    this%vec_ready = .true.
 #else
     call neko_error("uTofu support not built; reconfigure with --with-utofu")
 #endif

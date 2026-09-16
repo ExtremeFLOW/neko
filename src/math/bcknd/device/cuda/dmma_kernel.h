@@ -150,12 +150,18 @@ enum {
 #define NEKO_DMMA_NBLCKS(NELV, LX)                                            \
   dim3(((NELV) + NEKO_DMMA_PACK(LX) - 1) / NEKO_DMMA_PACK(LX), 1, 1)
 
-/* Forced candidate, used when NEKO_AUTOTUNE pins the DMMA variant */
-static int neko_dmma_env()
+/* Warps per block candidate pinned by NEKO_DMMA_NW, or -1 to leave it to the
+   sweep, see neko_eb_pin() in elem_block_tune.h */
+static int neko_dmma_pin()
 {
   const char *v = getenv("NEKO_DMMA_NW");
-  int c = (v != NULL) ? atoi(v) : 0;
+  int c;
 
+  if (v == NULL) {
+    return -1;
+  }
+
+  c = atoi(v);
   if (c < 0 || c >= NEKO_DMMA_CANDIDATES) {
     c = 0;
   }

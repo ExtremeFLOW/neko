@@ -82,6 +82,7 @@ module gs_neighbour
      procedure, pass(this) :: nbsend => gs_nbsend_neighbour
      procedure, pass(this) :: nbrecv => gs_nbrecv_neighbour
      procedure, pass(this) :: nbwait => gs_nbwait_neighbour
+     procedure, pass(this) :: init_vec => gs_neighbour_init_vec
      procedure, pass(this) :: nbsend_vec => gs_nbsend_vec_neighbour
      procedure, pass(this) :: nbrecv_vec => gs_nbrecv_vec_neighbour
      procedure, pass(this) :: nbwait_vec => gs_nbwait_vec_neighbour
@@ -132,16 +133,8 @@ contains
     end do
     allocate(this%recv_buf(max(1, recv_total)))
 
-    ! Fused vector exchange buffers/descriptors, sized for GS_VEC_NC comps.
-    allocate(this%send_buf_v(max(1, GS_VEC_NC*send_total)))
-    allocate(this%recv_buf_v(max(1, GS_VEC_NC*recv_total)))
-    allocate(this%sendcounts_v(max(1, nsend)), this%sdispls_v(max(1, nsend)))
-    allocate(this%recvcounts_v(max(1, nrecv)), this%rdispls_v(max(1, nrecv)))
-    this%sendcounts_v = 0
-    this%sdispls_v = 0
-    this%recvcounts_v = 0
-    this%rdispls_v = 0
     this%vec_supported = .true.
+    this%vec_ready = .false.
 
     ! Build a distributed-graph communicator over the halo neighbourhood.
     ! With MPI_Dist_graph_create_adjacent and reorder = .false. the order of
@@ -158,6 +151,31 @@ contains
     deallocate(src_weights, dst_weights)
 
   end subroutine gs_neighbour_init
+
+  !> Allocate the fused vector exchange buffers and the nc-scaled collective
+  !! descriptors, sized for GS_VEC_NC components. Deferred to the first
+  !! fused exchange, see gs_comm_t. The graph communicator built in init is
+  !! shared with the scalar exchange and is not touched here, so this stays
+  !! rank local.
+  subroutine gs_neighbour_init_vec(this)
+    class(gs_neighbour_t), intent(inout) :: this
+    integer :: nsend, nrecv, send_total, recv_total
+
+    nsend = size(this%send_pe)
+    nrecv = size(this%recv_pe)
+    send_total = sum(this%sendcounts)
+    recv_total = sum(this%recvcounts)
+
+    allocate(this%send_buf_v(max(1, GS_VEC_NC*send_total)))
+    allocate(this%recv_buf_v(max(1, GS_VEC_NC*recv_total)))
+    allocate(this%sendcounts_v(max(1, nsend)), this%sdispls_v(max(1, nsend)))
+    allocate(this%recvcounts_v(max(1, nrecv)), this%rdispls_v(max(1, nrecv)))
+    this%sendcounts_v = 0
+    this%sdispls_v = 0
+    this%recvcounts_v = 0
+    this%rdispls_v = 0
+
+  end subroutine gs_neighbour_init_vec
 
   !> Deallocate the neighbourhood-collective communication method
   subroutine gs_neighbour_free(this)
@@ -177,6 +195,7 @@ contains
     if (allocated(this%sdispls_v)) deallocate(this%sdispls_v)
     if (allocated(this%recvcounts_v)) deallocate(this%recvcounts_v)
     if (allocated(this%rdispls_v)) deallocate(this%rdispls_v)
+    this%vec_ready = .false.
 
     call MPI_Comm_free(this%neigh_comm, ierr)
 

@@ -44,6 +44,13 @@
  * bias the comparison by candidate position, which no amount of extra
  * iterations removes.
  *
+ * NEKO_AUTOTUNE takes a formulation out of the tuner's hands, but only the
+ * formulation: the geometry candidates of the one it names are still measured
+ * and reported, and it takes that formulation's own variable (NEKO_EB,
+ * NEKO_CHUNKS, ...) to fix the geometry too. Pinning the formulation used to
+ * imply candidate 0, which silently answered a different question than the one
+ * an A/B run of two formulations is asking. See NEKO_TUNE_FOR() below.
+ *
  * A tune function using these macros is expected to have `start`, `stop` and
  * `stream` in scope --- and `iters` for the reporting macros --- plus a
  * CASE_1D(LX) macro and a kstep launch macro taking (LX, C).
@@ -80,24 +87,43 @@ static int neko_eb_sweep()
   return NEKO_EB_SWEEP_DEFAULT;
 }
 
-/* Forced candidate, used when NEKO_AUTOTUNE pins the kstep variant */
-static int neko_eb_env()
+/*
+ * Elements per block candidate pinned by NEKO_EB, or -1 to leave it to the
+ * sweep.
+ *
+ * NEKO_AUTOTUNE selects the formulation and nothing more -- the geometry
+ * inside it is still measured unless it is pinned here -- so "unset" has to
+ * be distinguishable from candidate 0, which is a candidate like any other.
+ * Hence the -1 rather than a plain default of 0. Out of range values clamp
+ * to 0 rather than releasing the pin, as they always have.
+ */
+static int neko_eb_pin()
 {
   const char *v = getenv("NEKO_EB");
-  int c = (v != NULL) ? atoi(v) : 0;
+  int c;
 
+  if (v == NULL) {
+    return -1;
+  }
+
+  c = atoi(v);
   if (c < 0 || c >= NEKO_EB_CANDIDATES) {
     c = 0;
   }
   return c;
 }
 
-/* Forced chunk candidate, used when NEKO_AUTOTUNE pins the 1d variant */
-static int neko_chunks_env()
+/* Chunk candidate pinned by NEKO_CHUNKS, or -1 to sweep, see neko_eb_pin() */
+static int neko_chunks_pin()
 {
   const char *v = getenv("NEKO_CHUNKS");
-  int c = (v != NULL) ? atoi(v) : 0;
+  int c;
 
+  if (v == NULL) {
+    return -1;
+  }
+
+  c = atoi(v);
   if (c < 0 || c >= NEKO_CHUNKS_CANDIDATES) {
     c = 0;
   }
@@ -119,6 +145,24 @@ static int neko_tune_iters()
 
   return (n < 1) ? 1 : n;
 }
+
+/*
+ * Loop over the candidates of one formulation, binding C to each in turn.
+ *
+ * ON gates the formulation itself: hardware support, and -- when NEKO_AUTOTUNE
+ * is set -- whether it is the formulation that was asked for. PIN is the
+ * candidate that formulation's own variable forces, or -1 to measure all N of
+ * them. So NEKO_AUTOTUNE narrows the search to one kernel family without
+ * deciding the geometry within it, which is still swept and reported.
+ *
+ * An out of play formulation yields an empty range, leaving its candidates at
+ * NEKO_TUNE_INIT so it loses the comparison at the end rather than having to
+ * be excluded from it.
+ */
+#define NEKO_TUNE_FOR(C, ON, PIN, N)                                          \
+  for (int C = (((PIN) >= 0) ? (PIN) : 0),                                    \
+       C##_last_ = ((ON) ? (((PIN) >= 0) ? (PIN) + 1 : (N)) : 0);             \
+       C < C##_last_; C++)
 
 /* One timed round of LAUNCH at candidate C, min reduced into T[C] */
 #define NEKO_TUNE_TIME(T, LAUNCH, LX, C, ITERS)                           \
