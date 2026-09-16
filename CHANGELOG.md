@@ -1,7 +1,16 @@
 # Changelog
 
 ## Develop
-
+- Fixed several OpenMP races in the boundary conditions, including a Neumann
+  flux accumulated once per thread.
+- Fixed further OpenMP races outside the boundary-condition update blocks:
+  the symmetry, shear stress and non-normal vector conditions lacked
+  worksharing inside the `bc_list` parallel region, `facet_normal` and the
+  `nu=4` tensor contraction left a loop-body index shared, the wall model
+  stress update ran on every thread, and the coupled CG shared its residual
+  reduction temporaries.
+- Fixed a leaked MPI file handle in the fld reader, which never closed the
+  file it opened.
 - Added runtime registration of user-defined scalar boundary-condition types
   through `register_scalar_pnpn_bc`.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.
@@ -48,6 +57,16 @@
   staged (`DMMA_TMA`) formulations to the `opgrad`, `dudxyz`, `conv1` and
   `cdtp` operators, again as auto-tuner candidates selected per operator,
   polynomial order and element count.
+- *BREAKING* `NEKO_AUTOTUNE` now narrows the SEM operator search to the named
+  formulation instead of skipping the search outright. The geometry of that
+  formulation --- chunk size, elements per block, warps or wavefronts per
+  block --- is still swept and reported, where pinning a formulation used to
+  silently fix it at candidate 0. `NEKO_EB`, `NEKO_CHUNKS`, `NEKO_DMMA_NW`,
+  `NEKO_DMMA_TMA_NW` and `NEKO_MFMA_NWF` now pin that geometry whenever their
+  formulation is measured, rather than only when it is the pinned one, and
+  setting one alongside `NEKO_AUTOTUNE` leaves nothing to measure and skips
+  the search as before. So an A/B run of two formulations compares each at its
+  own best geometry; to get the old behaviour, set the geometry variable too.
 - *BREAKING* The `ax_helm_factory` is renamed to `ax_helm_allocator`. It now
   selects matrix-vector product types by name instead of a `full_formulation`
   logical argument, and supports runtime registration of user-defined `ax_t`

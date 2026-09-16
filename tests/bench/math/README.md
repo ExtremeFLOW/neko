@@ -78,19 +78,8 @@ iteration slower, so the fastest observed call is the cleanest estimate of the
 true cost, and it is the only statistic that makes a nanosecond-scale dispatch
 difference visible at all. `mean`/`stddev` are printed alongside so that a
 noisy run is recognisable as noisy rather than silently reported as clean.
-`Mdofs/s/pe` is `1e-6 * dofs / time / pes`. That is ReFrame's `workrate`
-formula (`tests/reframe/checks.py`) with a corrected scale factor: `workrate`
-uses `1e-3`, which makes the number it prints 1000x the `Mdofs/s` it is
-labelled as. The label is made true here rather than the discrepancy carried
-into a new tracked metric, so **these numbers are not directly comparable to a
-`workrate` figure** -- divide by 1000 first.
-
-## Regression tracking
-
-`MathOpsVerify` and `MathOpsPerf` in `tests/reframe/checks.py` run this
-benchmark on every PR and gate on it. See `tests/reframe/README.md` for what
-is gated, and for how to regenerate the pinned `glsc3` values and the
-overhead thresholds.
+`Mdofs/s/pe` uses the ReFrame workrate formula already used for Neko
+(`tests/reframe/checks.py`): `1e-3 * dofs / time / pes`.
 
 Timing uses `-np 1` by default. For the in-place ops the operand is restored
 from a reference between iterations, and that restore sits **outside** the

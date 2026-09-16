@@ -1292,7 +1292,7 @@ contains
     nvnu = nv * nu
     nvnv = nv * nv
 
-    !$omp parallel do private(ie, i, j, k, l, ii, tmp, work, work2)
+    !$omp parallel do private(ie, i, j, k, l, ii, jj, tmp, work, work2)
     do ie = 1, nelv
        do j = 1, nunu
           do i = 1, nv
