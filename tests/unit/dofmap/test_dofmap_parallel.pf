@@ -95,6 +95,12 @@ contains
     call m%generate_conn()
     call d%init(m, Xh)
 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call d%x%copy_from(DEVICE_TO_HOST, .false.)
+       call d%y%copy_from(DEVICE_TO_HOST, .false.)
+       call d%z%copy_from(DEVICE_TO_HOST, .true.)
+    end if
+
     @assertEqual(d%x%x(1,1,1,1), p(1)%x(1), tolerance=1d-14)
     @assertEqual(d%x%x(2,1,1,1), p(2)%x(1), tolerance=1d-14)
 
@@ -625,6 +631,12 @@ contains
 
     call Xh%init(GLL, 3, 3, 3)
     call d%init(m_extruded, Xh)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call d%x%copy_from(DEVICE_TO_HOST, .false.)
+       call d%y%copy_from(DEVICE_TO_HOST, .false.)
+       call d%z%copy_from(DEVICE_TO_HOST, .true.)
+    end if
 
     do j = 1, Xh%ly
        do i = 1, Xh%lx
