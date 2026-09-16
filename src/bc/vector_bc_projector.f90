@@ -48,6 +48,7 @@ module vector_bc_projector
   use htable, only : htable_i4_t
   use logger, only : LOG_SIZE
   use matrix, only : matrix_t
+  use matrix_math, only : matrix_rzero
   use scratch_registry, only : neko_scratch_registry
   use math, only : cfill_mask, masked_scatter_copy, rzero, cfill
   use gs_ops, only : GS_OP_ADD, GS_OP_MIN
@@ -980,9 +981,9 @@ contains
     call rzero(normal_y_field%x, dof_size)
     call rzero(normal_z_field%x, dof_size)
 
-    this%n = 0.0_rp
-    this%t1 = 0.0_rp
-    this%t2 = 0.0_rp
+    call matrix_rzero(this%n)
+    call matrix_rzero(this%t1)
+    call matrix_rzero(this%t2)
 
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)

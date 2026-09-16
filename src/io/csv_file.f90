@@ -83,7 +83,7 @@ contains
           call csv_file_write_vector(this, ptr, t)
 
        type is (matrix_t)
-          if (.not. allocated(ptr%x)) then
+          if (.not. ptr%is_allocated()) then
              call neko_error("Matrix is not allocated. Use " // &
                   "matrix%init() to associate your array " // &
                   "with a matrix_t object")
@@ -207,7 +207,7 @@ contains
           call csv_file_read_vector(this, ptr)
 
        type is (matrix_t)
-          if (.not. allocated(ptr%x)) then
+          if (.not. ptr%is_allocated()) then
              call neko_error("Matrix is not allocated. Use " // &
                   "matrix%init() to associate your array " // &
                   "with a matrix_t object")
