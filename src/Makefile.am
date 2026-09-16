@@ -339,6 +339,8 @@ neko_fortran_SOURCES = \
 	math/bcknd/cpu/ax_helm_cpu.f90\
 	math/bcknd/cpu/ax_helm_svv_one_sided_cpu.f90\
 	math/bcknd/cpu/ax_helm_svv_one_sided_full_cpu.f90\
+	math/bcknd/cpu/ax_helm_svv_factorized_cpu.f90\
+	math/bcknd/cpu/ax_helm_svv_factorized_full_cpu.f90\
 	math/bcknd/cpu/ax_helm_vector_cpu.f90\
 	math/bcknd/cpu/ax_helm_full_cpu.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
@@ -346,6 +348,8 @@ neko_fortran_SOURCES = \
 	math/bcknd/device/ax_helm_device.F90\
 	math/bcknd/device/ax_helm_svv_one_sided_device.F90\
 	math/bcknd/device/ax_helm_svv_one_sided_full_device.F90\
+	math/bcknd/device/ax_helm_svv_factorized_device.F90\
+	math/bcknd/device/ax_helm_svv_factorized_full_device.F90\
 	math/bcknd/device/ax_helm_full_device.F90\
 	common/projection.f90\
 	common/projection_vel.f90\
@@ -551,6 +555,8 @@ libneko_la_SOURCES += \
 	math/bcknd/device/hip/ax_helm.hip\
 	math/bcknd/device/hip/ax_helm_svv_one_sided.hip\
 	math/bcknd/device/hip/ax_helm_svv_one_sided_full.hip\
+	math/bcknd/device/hip/ax_helm_svv_factorized.hip\
+	math/bcknd/device/hip/ax_helm_svv_factorized_full.hip\
 	math/bcknd/device/hip/ax_helm_full.hip\
 	krylov/bcknd/device/hip/bicgstab_aux.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
@@ -624,6 +630,8 @@ libneko_la_SOURCES += \
 	math/bcknd/device/cuda/ax_helm.cu\
 	math/bcknd/device/cuda/ax_helm_svv_one_sided.cu\
 	math/bcknd/device/cuda/ax_helm_svv_one_sided_full.cu\
+	math/bcknd/device/cuda/ax_helm_svv_factorized.cu\
+	math/bcknd/device/cuda/ax_helm_svv_factorized_full.cu\
 	math/bcknd/device/cuda/ax_helm_full.cu\
 	krylov/bcknd/device/cuda/bicgstab_aux.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\

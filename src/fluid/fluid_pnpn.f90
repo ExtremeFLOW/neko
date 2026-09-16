@@ -454,7 +454,13 @@ contains
 
     if (this%full_stress_formulation) then
        if (this%svv_enabled) then
-          call ax_helm_allocator(this%Ax_vel, type_name = "full_svv")
+          if (this%svv%formulation .eq. "factorized") then
+             call ax_helm_allocator(this%Ax_vel, &
+                  type_name = "full_factorized_svv")
+          else
+             call ax_helm_allocator(this%Ax_vel, &
+                  type_name = "full_one_sided_svv")
+          end if
           select type (operator => this%Ax_vel)
           class is (ax_helm_svv_full_t)
              operator%svv => this%svv
@@ -464,7 +470,11 @@ contains
        end if
     else
        if (this%svv_enabled) then
-          call ax_helm_allocator(this%Ax_vel, type_name = "standard_svv")
+          if (this%svv%formulation .eq. "factorized") then
+             call ax_helm_allocator(this%Ax_vel, type_name = "factorized_svv")
+          else
+             call ax_helm_allocator(this%Ax_vel, type_name = "one_sided_svv")
+          end if
           select type (operator => this%Ax_vel)
           class is (ax_helm_svv_t)
              operator%svv => this%svv
