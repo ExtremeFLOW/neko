@@ -1,0 +1,5 @@
+<map id="registry_entry::get_tensor4" name="registry_entry::get_tensor4">
+<area shape="rect" id="Node000001" title="Get the tensor4 pointer of the registry entry." alt="" coords="240,5,381,45"/>
+<area shape="rect" id="Node000002" href="$db/d1a/structregistry_1_1registry__t.html#aef192b989b9366b9abfbbd0819216e5c" title="Get pointer to a stored tensor4 by name." alt="" coords="5,5,192,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="226,28,192,28,192,23,226,23"/>
+</map>

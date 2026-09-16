@@ -1,0 +1,5 @@
+<map id="registry::registry_t::get_integer_scalar_by_name" name="registry::registry_t::get_integer_scalar_by_name">
+<area shape="rect" id="Node000001" title="Get pointer to a stored integer scalar by name." alt="" coords="5,5,168,60"/>
+<area shape="rect" id="Node000002" href="$da/dd7/namespaceregistry__entry.html#ae8a12dacf40f8f5f39c46eee0796ffff" title="Get the integer scalar pointer of the registry entry." alt="" coords="216,13,357,53"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,30,202,30,202,35,168,35"/>
+</map>

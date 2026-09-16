@@ -1,0 +1,5 @@
+<map id="scratch_registry::relinquish_tensor4_single" name="scratch_registry::relinquish_tensor4_single">
+<area shape="rect" id="Node000001" title="Relinquish the use of a tensor4 in the registry." alt="" coords="233,13,431,53"/>
+<area shape="rect" id="Node000002" href="$d8/d43/structscratch__registry_1_1scratch__registry__t.html#af0e5ef0885910909d506237a2a449fea" title="Free a tensor4 for later reuse." alt="" coords="5,5,185,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,35,185,35,185,30,220,30"/>
+</map>

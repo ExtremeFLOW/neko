@@ -9,6 +9,8 @@ var registry__entry_8f90 =
     [ "get_matrix", "d4/d0a/registry__entry_8f90.html#acedfce28cd2622f840edc90262dbc84c", null ],
     [ "get_name", "d4/d0a/registry__entry_8f90.html#a234730e21ac5be9be352ba8121ad8dcd", null ],
     [ "get_real_scalar", "d4/d0a/registry__entry_8f90.html#a0241e01b1da7a7fc9bce4c1ba10ab3fc", null ],
+    [ "get_tensor3", "d4/d0a/registry__entry_8f90.html#a124a151dd76c6a628c3cd526f1f07450", null ],
+    [ "get_tensor4", "d4/d0a/registry__entry_8f90.html#a3efeb305d30d0be978387f322cc51027", null ],
     [ "get_type", "d4/d0a/registry__entry_8f90.html#ad7db10ee9381282d6a82a14679671290", null ],
     [ "get_vector", "d4/d0a/registry__entry_8f90.html#acc0b4db0e9bb178913d4a0a58fc08979", null ],
     [ "init_register_device_array", "d4/d0a/registry__entry_8f90.html#a38a09b8ecfde313c9056a174043696ff", null ],
@@ -17,6 +19,8 @@ var registry__entry_8f90 =
     [ "init_register_integer_scalar", "d4/d0a/registry__entry_8f90.html#a8c4cd19e190eb1723fe43fa221d647bd", null ],
     [ "init_register_matrix", "d4/d0a/registry__entry_8f90.html#a56316fbde7964f7bbce990d763083da8", null ],
     [ "init_register_real_scalar", "d4/d0a/registry__entry_8f90.html#a535562454a1935004ebd4be50aa7b977", null ],
+    [ "init_register_tensor3", "d4/d0a/registry__entry_8f90.html#a42c14bd813910fa048aaa30a5edaf3cf", null ],
+    [ "init_register_tensor4", "d4/d0a/registry__entry_8f90.html#a31a620f1afd598099dba3980abd18e80", null ],
     [ "init_register_vector", "d4/d0a/registry__entry_8f90.html#a72779a2efe077428637ac684a542afd2", null ],
     [ "is_allocated", "d4/d0a/registry__entry_8f90.html#acbb55751525cb0c95a0384513b3970ab", null ],
     [ "move_from_registry_entry", "d4/d0a/registry__entry_8f90.html#a91d4609096cff2b1eba90259d01d61a2", null ]
