@@ -54,6 +54,7 @@ module scratch_registry
   use dofmap, only : dofmap_t
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -370,18 +371,19 @@ contains
     end associate
   end subroutine request_host_array
 
-  !> Get a device_array from the registry by assigning it to a pointer.
-  !! @param v Pointer to the requested device_array.
-  !! @param index Index of the device_array in the registry (for
+  !> Get a device array from the registry by assigning it to a pointer.
+  !! @param v Pointer to the requested device array.
+  !! @param index Index of the device array in the registry (for
   !! relinquishing later).
-  !! @param n Size of the requested device_array.
-  !! @param clear If true, the device_array values are set to zero upon request.
+  !! @param n Size of the requested device array.
+  !! @param clear If true, the device array values are set to zero upon request.
   subroutine request_device_array(this, v, index, n, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    type(device_array_t), pointer, intent(inout) :: v
+    type(c_ptr), intent(inout) :: v
     integer, intent(inout) :: index
     integer, intent(in) :: n
     logical, intent(in) :: clear
+    type(device_array_t), pointer :: v_tmp
 
     associate(entries => this%entries, n_entries => this%n_entries, &
          n_inuse => this%n_inuse)
@@ -396,15 +398,17 @@ contains
                cycle
             end if
 
-            v => entries(index)%get_device_array()
-            if (v%size() .ne. n) then
-               nullify(v)
+            v_tmp => entries(index)%get_device_array()
+            if (v_tmp%size() .ne. n) then
+               nullify(v_tmp)
                cycle
             end if
 
-            if (clear) call device_rzero(v%x_d, v%size())
+            v = v_tmp%x_d
+            if (clear) call device_rzero(v, n)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
+            nullify(v_tmp)
             return
          end if
       end do
@@ -416,7 +420,9 @@ contains
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_device_array(n)
-      v => this%entries(n_entries)%get_device_array()
+      v_tmp => this%entries(n_entries)%get_device_array()
+      v = v_tmp%x_d
+      nullify(v_tmp)
 
     end associate
   end subroutine request_device_array

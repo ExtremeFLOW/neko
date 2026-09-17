@@ -1,6 +1,5 @@
 module test_scratch_registry
   use pfunit
-  use device_array, only : device_array_t
   use field, only : field_t
   use vector, only : vector_t
   use matrix, only : matrix_t
@@ -17,6 +16,7 @@ module test_scratch_registry
        device_init, device_finalize
   use comm, only : pe_rank, pe_size
   use neko_config, only : NEKO_BCKND_DEVICE
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
 
   @TestCase
@@ -378,7 +378,7 @@ contains
     type(vector_t), pointer :: v2
     type(matrix_t), pointer :: m3
     real(kind=rp), pointer, dimension(:) :: h4
-    type(device_array_t), pointer :: d5
+    type(c_ptr) :: d5
     type(field_t), pointer :: f6
     real(kind=rp), allocatable :: dtmp(:)
     integer :: i
@@ -405,7 +405,7 @@ contains
        call scratch%request(d5, indices(5), 7, .false.)
        allocate(dtmp(7))
        dtmp = 5.0_rp
-       call device_memcpy(dtmp, d5%x_d, d5%size(), HOST_TO_DEVICE, sync=.true.)
+       call device_memcpy(dtmp, d5, 7, HOST_TO_DEVICE, sync=.true.)
     end if
 
     call scratch%request(f6, indices(6), .false.)
@@ -424,7 +424,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        dtmp = 0.0_rp
-       call device_memcpy(dtmp, d5%x_d, d5%size(), DEVICE_TO_HOST, sync=.true.)
+       call device_memcpy(dtmp, d5, 7, DEVICE_TO_HOST, sync=.true.)
        do i = 1, size(dtmp)
           @assertEqual(dtmp(i), 5.0_rp)
        end do
