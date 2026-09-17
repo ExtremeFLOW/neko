@@ -10,6 +10,9 @@
   loop. Useful for initial conditions read from a field file, in particular one
   interpolated from another mesh, which do not satisfy the continuity equation
   and otherwise provoke a large initial pressure transient.
+- Fixed the `point_zone` fluid initial condition aborting with a Fortran
+  runtime error, its log message wrote a three-component vector with a
+  format holding a single edit descriptor.
 - Added runtime registration of user-defined scalar boundary-condition types
   through `register_scalar_pnpn_bc`.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.

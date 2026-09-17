@@ -442,7 +442,8 @@ contains
     integer :: size
 
     call neko_log%message("Type       : point_zone")
-    write (log_buf, '(A,ES12.6)') "Base value : ", base_value
+    write (log_buf, '(A,"[",2(ES12.6,","),ES12.6," ]")') "Base value : ", &
+         base_value(1), base_value(2), base_value(3)
     call neko_log%message(log_buf)
     call neko_log%message("Zone name : " // trim(zone_name))
     write (log_buf, '(A,"[",2(ES12.6,","),ES12.6," ]")') "Value      : ", &
