@@ -3,12 +3,12 @@ device/hip/buffer.lo : device/hip/buffer.hip device/hip/buffer.h
 device/hip/unified.lo : device/hip/unified.hip device/hip/unified.h
 math/bcknd/device/hip/math.lo : math/bcknd/device/hip/math.hip math/bcknd/device/hip/math_kernel.h device/hip/unified.h device/hip/buffer.lo
 math/bcknd/device/hip/mathops.lo : math/bcknd/device/hip/mathops.hip math/bcknd/device/hip/mathops_kernel.h
-math/bcknd/device/hip/opr_dudxyz.lo : math/bcknd/device/hip/opr_dudxyz.hip math/bcknd/device/hip/dudxyz_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h
-math/bcknd/device/hip/opr_cdtp.lo : math/bcknd/device/hip/opr_cdtp.hip math/bcknd/device/hip/cdtp_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h
-math/bcknd/device/hip/opr_conv1.lo : math/bcknd/device/hip/opr_conv1.hip math/bcknd/device/hip/conv1_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h
+math/bcknd/device/hip/opr_dudxyz.lo : math/bcknd/device/hip/opr_dudxyz.hip math/bcknd/device/hip/dudxyz_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h math/bcknd/device/hip/mfma_kernel.h
+math/bcknd/device/hip/opr_cdtp.lo : math/bcknd/device/hip/opr_cdtp.hip math/bcknd/device/hip/cdtp_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h math/bcknd/device/hip/mfma_kernel.h
+math/bcknd/device/hip/opr_conv1.lo : math/bcknd/device/hip/opr_conv1.hip math/bcknd/device/hip/conv1_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h math/bcknd/device/hip/mfma_kernel.h
 math/bcknd/device/hip/opr_convect_scalar.lo : math/bcknd/device/hip/opr_convect_scalar.hip math/bcknd/device/hip/convect_scalar_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h
 math/bcknd/device/hip/set_convect_rst.lo : math/bcknd/device/hip/set_convect_rst.hip math/bcknd/device/hip/set_convect_rst_kernel.h
-math/bcknd/device/hip/opr_opgrad.lo : math/bcknd/device/hip/opr_opgrad.hip math/bcknd/device/hip/opgrad_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h
+math/bcknd/device/hip/opr_opgrad.lo : math/bcknd/device/hip/opr_opgrad.hip math/bcknd/device/hip/opgrad_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h math/bcknd/device/hip/mfma_kernel.h
 math/bcknd/device/hip/opr_lambda2.lo : math/bcknd/device/hip/opr_lambda2.hip math/bcknd/device/hip/lambda2_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h
 math/bcknd/device/hip/opr_cfl.lo : math/bcknd/device/hip/opr_cfl.hip math/bcknd/device/hip/cfl_kernel.h device/hip/buffer.lo
 math/bcknd/device/hip/opr_rotate_cyc.lo : math/bcknd/device/hip/opr_rotate_cyc.hip math/bcknd/device/hip/rotate_kernel.h

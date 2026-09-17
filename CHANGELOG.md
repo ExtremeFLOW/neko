@@ -13,7 +13,69 @@
   file it opened.
 - Added runtime registration of user-defined scalar boundary-condition types
   through `register_scalar_pnpn_bc`.
+- The staged cubes and derivative matrices of the HIP matrix core Helmholtz
+  kernels are padded to an odd stride wherever a bank model says that pays. A
+  contraction walks its free index across the lanes one stride apart, so an
+  even stride puts them on the same shared memory banks --- an eight-way
+  conflict at `lx = 8` in double precision. Padding an odd order would
+  introduce one instead, so the layout follows the order rather than a rule of
+  thumb, and the staging, pointwise and write-back passes now walk
+  shared-memory slots rather than element points to stay conflict free too.
+  With the operand hoist below, the modelled shared-memory cycles of one
+  `lx = 8` double precision element go from 2976 to 1220 and of an `lx = 12`
+  one from 8964 to 4752. `-DNEKO_MFMA_PAD=0` builds the old layout for an A/B.
+- The batched `v_mfma_f64_4x4x4f64` contraction keeps one accumulator per
+  M-tile and reads its second operand once per column group and K-step,
+  instead of re-reading it for every M-tile --- it never depended on the
+  M-tile. That was two to three times the shared memory operand traffic, and
+  it made the K loop a single accumulate chain, which this instruction charges
+  four cycles a step for. Each accumulator sums in the same order as before,
+  so results are unchanged bit for bit.
+- The HIP matrix core kernels gained a 16 wavefront candidate, the 1024 thread
+  workgroup maximum on CDNA. The ladder stopped at 512 threads and so topped
+  out at three wavefronts per SIMD, where the 1d kernel that beats it at
+  `lx = 8` reaches eight from a larger shared memory footprint. The elements
+  per block that surplus wavefronts buy are now clamped by the 64 kB workgroup
+  limit as well as by the column group count.
+- The first divergence contraction of the HIP matrix core Helmholtz kernels
+  overwrites its accumulator instead of adding to it, which removes the pass
+  that cleared the cube and the barrier after it. The scalar kernel also
+  issues the seven geometric factors ahead of the gradient contractions rather
+  than behind the barrier that follows them, where the register budget allows
+  it; the auto-tuner reports which mode each candidate ran in, as it already
+  did for the vector kernel.
+- Fixed `opr_dudxyz`, `opr_cdtp`, `opr_conv1` and `opr_opgrad` on the HIP
+  backend not listing `mfma_kernel.h` among their dependencies, so a change to
+  the matrix core primitives left those four objects holding the previous
+  version of them.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.
+- The matrix core tile used by the HIP Helmholtz operator is now an
+  auto-tuner candidate rather than a build-time choice. It was fixed to the
+  batched `v_mfma_f64_4x4x4f64` tile on the argument that it fills `M = lx`
+  exactly where `v_mfma_f64_16x16x4f64` wastes half its rows; that tile in
+  fact runs at half the FLOP rate, owes four cycles on every step of an
+  accumulate chain and re-reads its second operand once per M-tile, which
+  cancels the utilisation gain around `lx = 8` and reverses it above.
+  A double precision build therefore now times eight matrix core candidates
+  per order instead of four, and `NEKO_MFMA_TILE` pins the tile when
+  `NEKO_AUTOTUNE=MFMA` pins the formulation. Single precision has no 4x4x4
+  instruction, so the dimension collapses there and the candidate count is
+  unchanged. `-DMFMA_F64_USE_16X16` still builds without the 4x4x4 path, and
+  now also removes it from the sweep instead of selecting between them.
+- Added a matrix core (`MFMA`) variant of the vector Helmholtz operator on the
+  HIP backend, as a candidate in the `Autotune Ax vector` search alongside the
+  elements per block sweep of its kstep variant, and pinnable with
+  `NEKO_AUTOTUNE=MFMA` and `NEKO_MFMA_NWF`. It runs the three components
+  through one set of staged cubes and keeps the shared geometric factors in
+  registers across them where they fit a register budget, re-reading them per
+  component where they do not. Same scope as the scalar variant: either
+  precision, `4 <= lx <= 12`, on a gfx90a or gfx942 device.
+- The vector Helmholtz auto-tuner on the HIP backend now reports the
+  formulation it chose and labels its kstep candidates, as the scalar one and
+  the CUDA copy do, and `NEKO_EB` on its own no longer pins the kstep
+  geometry --- it is read when `NEKO_AUTOTUNE=KSTEP` pins the formulation,
+  which is what it is documented to do. An unrecognised `NEKO_AUTOTUNE` value
+  is reported as an error there rather than silently pinning kstep.
 - The gather-scatter comm. backend autotuning now covers the device-resident
   backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks
   `MPIGPU`, `NCCL` and `CRYSTALGPU` (`NVSHMEM` only when asked for) alongside
