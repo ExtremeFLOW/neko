@@ -431,7 +431,7 @@ $(document).ready(function(){initNavTree('dd/dbf/cg__coupled_8f90_source.html','
 <div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>         alpha = rtz1 / pap</div>
 <div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>         tmp_xp = 0.0_xp</div>
 <div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span> </div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>         <span class="comment">!$omp parallel private (i)</span></div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>         <span class="comment">!$omp parallel private (i, r1_xp, r2_xp, r3_xp, mult_xp)</span></div>
 <div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>         <span class="comment">!$omp do</span></div>
 <div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>         <span class="keywordflow">do</span> i = 1, n</div>
 <div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>            x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * p1(i)</div>
@@ -519,7 +519,7 @@ $(document).ready(function(){initNavTree('dd/dbf/cg__coupled_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../dir_579bd9dcbaa72a162125f0b560cd82ab.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_902813e86b127dbb0dcb2952584e8a67.html">cpu</a></li><li class="navelem"><a class="el" href="../../dd/dbf/cg__coupled_8f90.html">cg_coupled.f90</a></li>
-    <li class="footer">Generated on Wed Sep 16 2026 03:41:56 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Sep 17 2026 03:42:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

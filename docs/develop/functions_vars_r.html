@@ -160,6 +160,7 @@ $(document).ready(function(){initNavTree('functions_vars_r.html',''); initResiza
 <li>registry_fields&#160;:&#160;<a class="el" href="d5/d82/structfield__source__term_1_1field__source__term__t.html#a6f4d5a2c51ac197ad6f6f2da1b729656">field_source_term::field_source_term_t</a></li>
 <li>regularization&#160;:&#160;<a class="el" href="d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#a50a3707913fc84151ab28dc7d8b1320a">fluid_scheme_compressible_ns::fluid_scheme_compressible_ns_t</a></li>
 <li>rel_tol&#160;:&#160;<a class="el" href="d0/d3b/structkrylov_1_1ksp__t.html#a7e02bc45055956c25f0825ca6322051f">krylov::ksp_t</a></li>
+<li>relaxation&#160;:&#160;<a class="el" href="d9/db1/structoverset__interface_1_1overset__interface__t.html#a26d9a6828083cda0654c5dc85490ec76">overset_interface::overset_interface_t</a>, <a class="el" href="d5/d64/structoverset__interface__vector_1_1overset__interface__vector__t.html#a56b2d90680988be4302069b0338893cd">overset_interface_vector::overset_interface_vector_t</a></li>
 <li>remote_offset&#160;:&#160;<a class="el" href="da/d8c/structgs__device__shmem_1_1gs__device__shmem__buf__t.html#abf5ee840970d83b5311b2f8d07e7ae7a">gs_device_shmem::gs_device_shmem_buf_t</a>, <a class="el" href="de/d29/structgs__shmem_1_1gs__shmem__buf__t.html#a5c1bb21e9d4ea6facdd248316929d2b3">gs_shmem::gs_shmem_buf_t</a></li>
 <li>reqs&#160;:&#160;<a class="el" href="db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html#a3eb989cfd352522a3b0d20f85067528b">gs_device_mpi::gs_device_mpi_buf_t</a></li>
 <li>request&#160;:&#160;<a class="el" href="d6/da5/structcartesian__pe__finder_1_1i8__mpi__t.html#a251103c47365ecbc54d8bdb5492c8549">cartesian_pe_finder::i8_mpi_t</a>, <a class="el" href="dc/d33/structglb__intrp__comm_1_1glb__intrp__comm__mpi__t.html#a32a34c48c9603365063cc06329e05588">glb_intrp_comm::glb_intrp_comm_mpi_t</a>, <a class="el" href="d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html#aae824f3ec74a49be1605befc8e49f736">gs_neighbour::gs_neighbour_t</a></li>
@@ -170,6 +171,7 @@ $(document).ready(function(){initNavTree('functions_vars_r.html',''); initResiza
 <li>res_y&#160;:&#160;<a class="el" href="d0/d41/structcartesian__pe__finder_1_1cartesian__pe__finder__t.html#a474ccfc14964d5f1c051792fa7465b1e">cartesian_pe_finder::cartesian_pe_finder_t</a></li>
 <li>res_z&#160;:&#160;<a class="el" href="d0/d41/structcartesian__pe__finder_1_1cartesian__pe__finder__t.html#aa310ec37044c8b6512ab28253296ea69">cartesian_pe_finder::cartesian_pe_finder_t</a></li>
 <li>resolved_msk&#160;:&#160;<a class="el" href="d0/de5/structmixed__bc_1_1mixed__bc__t.html#a77861cfb4c1bbc009f783410f5f78576">mixed_bc::mixed_bc_t</a></li>
+<li>restart_pending&#160;:&#160;<a class="el" href="d9/db1/structoverset__interface_1_1overset__interface__t.html#ac6341f2d7a51d75d62687f41df8cc839">overset_interface::overset_interface_t</a>, <a class="el" href="d5/d64/structoverset__interface__vector_1_1overset__interface__vector__t.html#a239e085393328a3803fa4bdd620c2565">overset_interface_vector::overset_interface_vector_t</a></li>
 <li>rgroup&#160;:&#160;<a class="el" href="d4/db0/structre2_1_1re2v1__t.html#a0a61e96558ff92d8cdc6d737a1138153">re2::re2v1_t</a>, <a class="el" href="d8/da8/structre2_1_1re2v2__t.html#afee23c1179c43b247e8b6a02960dba29">re2::re2v2_t</a></li>
 <li>rho&#160;:&#160;<a class="el" href="db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a613224f8034bbbe56c471ae153ebe431">fluid_scheme_base::fluid_scheme_base_t</a>, <a class="el" href="d7/d84/structparticles_1_1particles__t.html#a3b6cd18b6762870102764fb37692fb25">particles::particles_t</a>, <a class="el" href="dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#adb945b0298927af39616daa98eb3d164">scalar_scheme::scalar_scheme_t</a>, <a class="el" href="d4/d70/structwall__model_1_1wall__model__t.html#aac3d1e1f292b9fa9ad78c17106fa0c3a">wall_model::wall_model_t</a></li>
 <li>rho_fluid&#160;:&#160;<a class="el" href="d6/d7d/structlpt_1_1lpt__t.html#a94709d8aebafa1b8adcc6323b0b4cb97">lpt::lpt_t</a></li>
@@ -212,7 +214,7 @@ $(document).ready(function(){initNavTree('functions_vars_r.html',''); initResiza
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Wed Sep 16 2026 03:42:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Sep 17 2026 03:42:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

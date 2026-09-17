@@ -21,6 +21,8 @@ var namespacebc =
     [ "bc_mark_labeled_zone", "d0/dc0/namespacebc.html#a5b3ac2d9b95b25f436ae9c45a4dfe2e9", null ],
     [ "bc_mark_labeled_zones", "d0/dc0/namespacebc.html#a3a65fc0cb682babc613ef7ffa349f630", null ],
     [ "bc_mark_zone", "d0/dc0/namespacebc.html#a09216b9fa74d0d37e1cc4c54376b7afe", null ],
+    [ "bc_restart_scalar", "d0/dc0/namespacebc.html#a8f5a129d761984848a51f000cda065e2", null ],
+    [ "bc_restart_vector", "d0/dc0/namespacebc.html#a53e4b92bdee27517d9c33e1a2b78e959", null ],
     [ "bc_dirichlet", "d0/dc0/namespacebc.html#aadbae891f231fe713af9d8cf0519656a", null ],
     [ "bc_mixed_constrains_normal", "d0/dc0/namespacebc.html#a4b4ff9ed1d4cee8ffc94c92ebd496c4b", null ],
     [ "bc_mixed_constrains_tangent", "d0/dc0/namespacebc.html#a2060662f3c7134d67d434bde3a19abb9", null ],

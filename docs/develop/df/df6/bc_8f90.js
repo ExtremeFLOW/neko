@@ -21,6 +21,8 @@ var bc_8f90 =
     [ "bc_mark_labeled_zone", "df/df6/bc_8f90.html#a5b3ac2d9b95b25f436ae9c45a4dfe2e9", null ],
     [ "bc_mark_labeled_zones", "df/df6/bc_8f90.html#a3a65fc0cb682babc613ef7ffa349f630", null ],
     [ "bc_mark_zone", "df/df6/bc_8f90.html#a09216b9fa74d0d37e1cc4c54376b7afe", null ],
+    [ "bc_restart_scalar", "df/df6/bc_8f90.html#a8f5a129d761984848a51f000cda065e2", null ],
+    [ "bc_restart_vector", "df/df6/bc_8f90.html#a53e4b92bdee27517d9c33e1a2b78e959", null ],
     [ "bc_dirichlet", "df/df6/bc_8f90.html#aadbae891f231fe713af9d8cf0519656a", null ],
     [ "bc_mixed_constrains_normal", "df/df6/bc_8f90.html#a4b4ff9ed1d4cee8ffc94c92ebd496c4b", null ],
     [ "bc_mixed_constrains_tangent", "df/df6/bc_8f90.html#a2060662f3c7134d67d434bde3a19abb9", null ],

@@ -549,6 +549,7 @@ var namespaces_dup =
     ] ],
     [ "neko_api_user", "d9/d9a/namespaceneko__api__user.html", "d9/d9a/namespaceneko__api__user" ],
     [ "neko_config", "d9/d77/namespaceneko__config.html", [
+      [ "neko_bcknd", "d9/d77/namespaceneko__config.html#a52b59183c14b9cfd8c495f38f5c0626e", null ],
       [ "neko_bcknd_cuda", "d9/d77/namespaceneko__config.html#ad9bfad217bb0181e4bcc9692bc114006", null ],
       [ "neko_bcknd_device", "d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d", null ],
       [ "neko_bcknd_hip", "d9/d77/namespaceneko__config.html#a1d9feaab1563d5590372a3f369510ccd", null ],

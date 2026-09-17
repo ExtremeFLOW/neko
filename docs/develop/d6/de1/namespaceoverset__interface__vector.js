@@ -12,6 +12,8 @@ var namespaceoverset__interface__vector =
     [ "overset_interface_vector_finalize", "d6/de1/namespaceoverset__interface__vector.html#aaceff9e5746d66e20a849efbe36dc4fd", null ],
     [ "overset_interface_vector_free", "d6/de1/namespaceoverset__interface__vector.html#a415d73b757cfb7af1a71063a7f742791", null ],
     [ "overset_interface_vector_init", "d6/de1/namespaceoverset__interface__vector.html#ac186a8f13ba966ebe6de37eb9796630b", null ],
-    [ "overset_interface_vector_init_from_components", "d6/de1/namespaceoverset__interface__vector.html#a32f3e7f09da55c2db5e9caa696ec78bf", null ],
+    [ "overset_interface_vector_init_from_components", "d6/de1/namespaceoverset__interface__vector.html#a28b97629790f600682ee1c5cf7d71a74", null ],
+    [ "overset_interface_vector_restart", "d6/de1/namespaceoverset__interface__vector.html#a6e732e024096998065edf34518b1ee61", null ],
+    [ "relax_interface_values_", "d6/de1/namespaceoverset__interface__vector.html#a154557983f69614a27afc8a56a6e9b4c", null ],
     [ "setup_interpolator_", "d6/de1/namespaceoverset__interface__vector.html#ae8b33df8a57f6f6adcefdd23eb477eb4", null ]
 ];

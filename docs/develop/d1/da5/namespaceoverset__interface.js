@@ -12,7 +12,9 @@ var namespaceoverset__interface =
     [ "overset_interface_finalize", "d1/da5/namespaceoverset__interface.html#a1780910c32e936ca68c01ca9ae8d75a0", null ],
     [ "overset_interface_free", "d1/da5/namespaceoverset__interface.html#a4679dd9a149f9ae09e18da2bfad22b02", null ],
     [ "overset_interface_init", "d1/da5/namespaceoverset__interface.html#a81a463a7eaccddbb1cd23160cc38a447", null ],
-    [ "overset_interface_init_from_components", "d1/da5/namespaceoverset__interface.html#af3c5c9c51383cd4d1ae15367c142db77", null ],
+    [ "overset_interface_init_from_components", "d1/da5/namespaceoverset__interface.html#a7c84d29e68342f68fe73ca7beff152dd", null ],
+    [ "overset_interface_restart", "d1/da5/namespaceoverset__interface.html#a5b02f14dda346c497c842264cf11738a", null ],
     [ "overset_interface_update", "d1/da5/namespaceoverset__interface.html#a36693c0ebf4a3f7734e15b2f6d49a3ef", null ],
+    [ "relax_interface_value_", "d1/da5/namespaceoverset__interface.html#ab3b9eb06de0cbd115d81915827f6f7a3", null ],
     [ "setup_interpolator_", "d1/da5/namespaceoverset__interface.html#a9a945c0e2d4849850803b1c58561101a", null ]
 ];

@@ -119,12 +119,15 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ac186a8f13ba966ebe6de37eb9796630b" id="r_ac186a8f13ba966ebe6de37eb9796630b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/de1/namespaceoverset__interface__vector.html#ac186a8f13ba966ebe6de37eb9796630b">overset_interface_vector_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, coef, json)</td></tr>
 <tr class="memdesc:ac186a8f13ba966ebe6de37eb9796630b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:ac186a8f13ba966ebe6de37eb9796630b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a32f3e7f09da55c2db5e9caa696ec78bf" id="r_a32f3e7f09da55c2db5e9caa696ec78bf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/de1/namespaceoverset__interface__vector.html#a32f3e7f09da55c2db5e9caa696ec78bf">overset_interface_vector_init_from_components</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, coef, tol, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pad</a>, log)</td></tr>
-<tr class="memdesc:a32f3e7f09da55c2db5e9caa696ec78bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from components.  <br /></td></tr>
-<tr class="separator:a32f3e7f09da55c2db5e9caa696ec78bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28b97629790f600682ee1c5cf7d71a74" id="r_a28b97629790f600682ee1c5cf7d71a74"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/de1/namespaceoverset__interface__vector.html#a28b97629790f600682ee1c5cf7d71a74">overset_interface_vector_init_from_components</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, coef, tol, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pad</a>, log, relaxation)</td></tr>
+<tr class="memdesc:a28b97629790f600682ee1c5cf7d71a74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from components.  <br /></td></tr>
+<tr class="separator:a28b97629790f600682ee1c5cf7d71a74"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a415d73b757cfb7af1a71063a7f742791" id="r_a415d73b757cfb7af1a71063a7f742791"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/de1/namespaceoverset__interface__vector.html#a415d73b757cfb7af1a71063a7f742791">overset_interface_vector_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a415d73b757cfb7af1a71063a7f742791"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor. Currently unused as is, all <a class="el" href="../../db/d5b/namespacefield__dirichlet.html" title="Defines user dirichlet condition for a scalar field.">field_dirichlet</a> attributes are freed in <code>fluid_scheme_incompressible::free</code>.  <br /></td></tr>
 <tr class="separator:a415d73b757cfb7af1a71063a7f742791"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e732e024096998065edf34518b1ee61" id="r_a6e732e024096998065edf34518b1ee61"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/de1/namespaceoverset__interface__vector.html#a6e732e024096998065edf34518b1ee61">overset_interface_vector_restart</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, v, w, ulag, vlag, wlag)</td></tr>
+<tr class="memdesc:a6e732e024096998065edf34518b1ee61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restore interface history from checkpointed solution fields. Values are inserted from oldest to newest, leaving the current accepted value in the base interface vectors. The next regular update shifts that value into the first lag position before extrapolation. This must be called after the fluid restart has restored continuity of interpolated checkpoint fields.  <br /></td></tr>
+<tr class="separator:a6e732e024096998065edf34518b1ee61"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a89778eb1c76842685a67c7d3e9770990" id="r_a89778eb1c76842685a67c7d3e9770990"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/de1/namespaceoverset__interface__vector.html#a89778eb1c76842685a67c7d3e9770990">overset_interface_vector_apply_scalar</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, x, n, time, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strong</a>)</td></tr>
 <tr class="memdesc:a89778eb1c76842685a67c7d3e9770990"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op apply scalar.  <br /></td></tr>
 <tr class="separator:a89778eb1c76842685a67c7d3e9770990"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -143,6 +146,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ab7093d47eb4ad24d0377416ce090ff80" id="r_ab7093d47eb4ad24d0377416ce090ff80"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/de1/namespaceoverset__interface__vector.html#ab7093d47eb4ad24d0377416ce090ff80">overset_interface_update</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
 <tr class="memdesc:ab7093d47eb4ad24d0377416ce090ff80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the values at the interfaces.  <br /></td></tr>
 <tr class="separator:ab7093d47eb4ad24d0377416ce090ff80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a154557983f69614a27afc8a56a6e9b4c" id="r_a154557983f69614a27afc8a56a6e9b4c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/de1/namespaceoverset__interface__vector.html#a154557983f69614a27afc8a56a6e9b4c">relax_interface_values_</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a154557983f69614a27afc8a56a6e9b4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Under-relax a Schwarz correction using the previously applied interface. For each velocity component, blend the new donor value <code>g_new</code> with the preceding Schwarz iterate <code>g_old</code> as <code>g = relaxation * g_new + (1 - relaxation) * g_old</code>. The caller skips this routine on the first pass of every physical timestep, preserving the temporal accuracy of the IEXT prediction.  <br /></td></tr>
+<tr class="separator:a154557983f69614a27afc8a56a6e9b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a39ae73c70e1d995c7ffc543278df54b6" id="r_a39ae73c70e1d995c7ffc543278df54b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/de1/namespaceoverset__interface__vector.html#a39ae73c70e1d995c7ffc543278df54b6">log_interface_error_</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, v, w)</td></tr>
 <tr class="memdesc:a39ae73c70e1d995c7ffc543278df54b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log interface RMSE for each vector component.  <br /></td></tr>
 <tr class="separator:a39ae73c70e1d995c7ffc543278df54b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -184,7 +190,7 @@ Functions/Subroutines</h2></td></tr>
 <p>Create a mask that marks the full elements containing overset boundary points</p>
 <p>Create a domain mask that exclude the boundary elements.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00597">597</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00729">729</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -230,7 +236,7 @@ Here is the call graph for this function:</div>
 <p>Gather the coordinates to the vectors</p>
 <p>synchronize if on device</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00650">650</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00782">782</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -296,7 +302,7 @@ Here is the call graph for this function:</div>
 <p>Compute the L2 norm (RMSE in reality) of the error at the interface points</p>
 <p>Log the errors</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00554">554</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00686">686</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -364,11 +370,10 @@ Here is the call graph for this function:</div>
 <p>Update in sub-step 1 should be an extrapolation of the boundary values</p>
 <p>Find points if needed - later make sure only in first substep</p>
 <p>Interpolate</p>
-<p>Interpolate the values</p>
 <p>If this is the first substep, then we do the extrapolation</p>
 <p>Scatter them to the bc fields</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00452">452</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00528">528</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -458,7 +463,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00280">280</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00356">356</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
 
 </div>
 </div>
@@ -521,7 +526,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00295">295</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00371">371</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
 
 </div>
 </div>
@@ -600,7 +605,7 @@ Here is the call graph for this function:</div>
 </dl>
 <p>TODO: Change the mask to mask_t</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00314">314</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00390">390</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -688,7 +693,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00356">356</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00432">432</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -733,7 +738,7 @@ Here is the call graph for this function:</div>
 <p>Fill the vector lists</p>
 <p>Initialize the lag arrays</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00395">395</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00471">471</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
 
 </div>
 </div>
@@ -761,7 +766,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00242">242</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00267">267</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
 
 </div>
 </div>
@@ -805,12 +810,12 @@ Here is the call graph for this function:</div>
 </dl>
 <p>Parse the interpolation settings</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00158">158</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00168">168</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
 
 </div>
 </div>
-<a id="a32f3e7f09da55c2db5e9caa696ec78bf" name="a32f3e7f09da55c2db5e9caa696ec78bf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a32f3e7f09da55c2db5e9caa696ec78bf">&#9670;&#160;</a></span>overset_interface_vector_init_from_components()</h2>
+<a id="a28b97629790f600682ee1c5cf7d71a74" name="a28b97629790f600682ee1c5cf7d71a74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a28b97629790f600682ee1c5cf7d71a74">&#9670;&#160;</a></span>overset_interface_vector_init_from_components()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -846,7 +851,13 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">optional</a>&#160;</td>
-          <td class="paramname"><em>log</em>&#160;</td>
+          <td class="paramname"><em>log</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">optional</a>&#160;</td>
+          <td class="paramname"><em>relaxation</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -866,6 +877,7 @@ Here is the call graph for this function:</div>
     <tr><td class="paramdir">[in]</td><td class="paramname">tol</td><td>The tolerance for the interpolation. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">pad</td><td>The padding for the interpolation. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">log</td><td>Whether to log the interpolation. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">relaxation</td><td>Under-relaxation factor for interface updates. </td></tr>
   </table>
   </dd>
 </dl>
@@ -874,17 +886,153 @@ Here is the call graph for this function:</div>
 <p>init coord vectors</p>
 <p>Copy the dof coordinates to the internal vectors keep this to later check if the coordinates have changed.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00185">185</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00200">200</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d6/de1/namespaceoverset__interface__vector_a32f3e7f09da55c2db5e9caa696ec78bf_cgraph.png" border="0" usemap="#ad6/de1/namespaceoverset__interface__vector_a32f3e7f09da55c2db5e9caa696ec78bf_cgraph" alt=""/></div>
-<map name="ad6/de1/namespaceoverset__interface__vector_a32f3e7f09da55c2db5e9caa696ec78bf_cgraph" id="ad6/de1/namespaceoverset__interface__vector_a32f3e7f09da55c2db5e9caa696ec78bf_cgraph">
+<div class="center"><img src="../../d6/de1/namespaceoverset__interface__vector_a28b97629790f600682ee1c5cf7d71a74_cgraph.png" border="0" usemap="#ad6/de1/namespaceoverset__interface__vector_a28b97629790f600682ee1c5cf7d71a74_cgraph" alt=""/></div>
+<map name="ad6/de1/namespaceoverset__interface__vector_a28b97629790f600682ee1c5cf7d71a74_cgraph" id="ad6/de1/namespaceoverset__interface__vector_a28b97629790f600682ee1c5cf7d71a74_cgraph">
 <area shape="rect" title="Constructor from components." alt="" coords="5,16,197,71"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="295,5,390,31"/>
 <area shape="poly" title=" " alt="" coords="197,31,281,22,282,27,198,36"/>
 <area shape="rect" href="../../d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="245,55,440,80"/>
 <area shape="poly" title=" " alt="" coords="198,50,232,54,232,59,197,56"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a6e732e024096998065edf34518b1ee61" name="a6e732e024096998065edf34518b1ee61"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e732e024096998065edf34518b1ee61">&#9670;&#160;</a></span>overset_interface_vector_restart()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> overset_interface_vector::overset_interface_vector_restart </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/d64/structoverset__interface__vector_1_1overset__interface__vector__t.html">overset_interface_vector_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>w</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d1/d6e/structfield__series_1_1field__series__t.html">field_series_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>ulag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d1/d6e/structfield__series_1_1field__series__t.html">field_series_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>vlag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d1/d6e/structfield__series_1_1field__series__t.html">field_series_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>wlag</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00309">309</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d6/de1/namespaceoverset__interface__vector_a6e732e024096998065edf34518b1ee61_cgraph.png" border="0" usemap="#ad6/de1/namespaceoverset__interface__vector_a6e732e024096998065edf34518b1ee61_cgraph" alt=""/></div>
+<map name="ad6/de1/namespaceoverset__interface__vector_a6e732e024096998065edf34518b1ee61_cgraph" id="ad6/de1/namespaceoverset__interface__vector_a6e732e024096998065edf34518b1ee61_cgraph">
+<area shape="rect" title="Restore interface history from checkpointed solution fields. Values are inserted from oldest to newes..." alt="" coords="5,37,197,92"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a580a0e0a951754438d50c403f0f63217" title="Gather a vector to reduced contigous array ." alt="" coords="245,45,412,85"/>
+<area shape="poly" title=" " alt="" coords="198,62,232,62,232,67,198,67"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a94c783d80179255baecfdfdf2fa94828" title="Gather a masked vector ." alt="" coords="478,5,645,60"/>
+<area shape="poly" title=" " alt="" coords="412,51,464,43,465,49,413,56"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a6db9a4f12c04c0b2c391549243aeee40" title="Gather a masked vector to reduced contigous vector ." alt="" coords="460,84,663,109"/>
+<area shape="poly" title=" " alt="" coords="413,73,456,80,455,85,412,79"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a154557983f69614a27afc8a56a6e9b4c" name="a154557983f69614a27afc8a56a6e9b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a154557983f69614a27afc8a56a6e9b4c">&#9670;&#160;</a></span>relax_interface_values_()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> overset_interface_vector::relax_interface_values_ </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/d64/structoverset__interface__vector_1_1overset__interface__vector__t.html">overset_interface_vector_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00646">646</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d6/de1/namespaceoverset__interface__vector_a154557983f69614a27afc8a56a6e9b4c_cgraph.png" border="0" usemap="#ad6/de1/namespaceoverset__interface__vector_a154557983f69614a27afc8a56a6e9b4c_cgraph" alt=""/></div>
+<map name="ad6/de1/namespaceoverset__interface__vector_a154557983f69614a27afc8a56a6e9b4c_cgraph" id="ad6/de1/namespaceoverset__interface__vector_a154557983f69614a27afc8a56a6e9b4c_cgraph">
+<area shape="rect" title="Under&#45;relax a Schwarz correction using the previously applied interface. For each velocity component,..." alt="" coords="5,145,191,185"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#ad2e3b136be995cb9e58faec0d754e15e" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="245,55,399,95"/>
+<area shape="poly" title=" " alt="" coords="148,142,257,98,259,103,150,147"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a4b22f3cb13faa637574a1ff59e78a237" title="Multiplication by constant c ." alt="" coords="245,145,399,185"/>
+<area shape="poly" title=" " alt="" coords="191,162,232,162,232,167,191,167"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a580a0e0a951754438d50c403f0f63217" title="Gather a vector to reduced contigous array ." alt="" coords="239,242,405,282"/>
+<area shape="poly" title=" " alt="" coords="146,182,263,234,261,239,144,187"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="499,5,610,31"/>
+<area shape="poly" title=" " alt="" coords="399,54,489,31,490,37,400,59"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a1bd061bc66a9917394de645ffd09e1f0" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="476,55,633,95"/>
+<area shape="poly" title=" " alt="" coords="399,73,462,73,462,78,399,78"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="504,120,605,145"/>
+<area shape="poly" title=" " alt="" coords="399,151,490,139,491,144,400,157"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a5bc420eefcedaedd955663f62d9e5e89" title="Multiplication by constant c ." alt="" coords="476,170,633,210"/>
+<area shape="poly" title=" " alt="" coords="400,170,463,177,462,183,399,176"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a94c783d80179255baecfdfdf2fa94828" title="Gather a masked vector ." alt="" coords="471,235,638,289"/>
+<area shape="poly" title=" " alt="" coords="406,259,457,259,457,265,406,265"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a6db9a4f12c04c0b2c391549243aeee40" title="Gather a masked vector to reduced contigous vector ." alt="" coords="453,313,656,339"/>
+<area shape="poly" title=" " alt="" coords="387,280,454,299,485,308,484,313,453,305,385,285"/>
 </map>
 </div>
 
@@ -916,7 +1064,7 @@ Here is the call graph for this function:</div>
 <p>Initialize the interpolator with the mask and the dof coords</p>
 <p>Find the interface points on the global domain</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00675">675</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html#l00807">807</a> of file <a class="el" href="../../d8/d48/overset__interface__vector_8f90_source.html">overset_interface_vector.f90</a>.</p>
 
 </div>
 </div>
@@ -926,7 +1074,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/de1/namespaceoverset__interface__vector.html">overset_interface_vector</a></li>
-    <li class="footer">Generated on Wed Sep 16 2026 03:42:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Sep 17 2026 03:42:20 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

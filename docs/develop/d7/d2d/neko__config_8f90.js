@@ -1,5 +1,6 @@
 var neko__config_8f90 =
 [
+    [ "neko_bcknd", "d7/d2d/neko__config_8f90.html#a52b59183c14b9cfd8c495f38f5c0626e", null ],
     [ "neko_bcknd_cuda", "d7/d2d/neko__config_8f90.html#ad9bfad217bb0181e4bcc9692bc114006", null ],
     [ "neko_bcknd_device", "d7/d2d/neko__config_8f90.html#ac196ccb4b3efd94171f0cfbfedaa7b9d", null ],
     [ "neko_bcknd_hip", "d7/d2d/neko__config_8f90.html#a1d9feaab1563d5590372a3f369510ccd", null ],
