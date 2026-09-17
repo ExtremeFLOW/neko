@@ -136,10 +136,15 @@ module scratch_registry
      generic :: relinquish_tensor4 => relinquish_tensor4_single, &
           relinquish_tensor4_multiple
 
-     !> Get a new scratch field
-     procedure, pass(this) :: request_field
+     !> Get a new scratch field based on the stored dofmap
+     procedure, pass(this) :: request_field_stored_dof
+     !> Get a new scratch field based on a provided dofmap
+     procedure, pass(this) :: request_field_free_dof
      procedure, pass(this) :: relinquish_field_single
      procedure, pass(this) :: relinquish_field_multiple
+     !> Get a new scratch field
+     generic :: request_field => request_field_stored_dof, &
+          request_field_free_dof
      !> Free a field for later reuse
      generic :: relinquish_field => relinquish_field_single, &
           relinquish_field_multiple
@@ -147,7 +152,7 @@ module scratch_registry
      !> Generic request procedure
      generic :: request => request_host_array, request_device_array, &
           request_vector, request_matrix, request_tensor3, request_tensor4, &
-          request_field
+          request_field_stored_dof, request_field_free_dof
      procedure, pass(this) :: relinquish_single
      procedure, pass(this) :: relinquish_multiple
      !> Generic relinquish procedure
@@ -636,7 +641,7 @@ contains
   !! @param f Pointer to the requested field.
   !! @param index Index of the field in the registry (for relinquishing later).
   !! @param clear If true, the field values are set to zero upon request.
-  subroutine request_field(this, f, index, clear)
+  subroutine request_field_stored_dof(this, f, index, clear)
     class(scratch_registry_t), target, intent(inout) :: this
     type(field_t), pointer, intent(inout) :: f
     integer, intent(inout) :: index
@@ -644,7 +649,7 @@ contains
     character(len=10) :: name
 
     if (.not. associated(this%dof)) then
-       call neko_error("scratch_registry::request_field: "&
+       call neko_error("scratch_registry::request_field_stored_dof: "&
             // "No dofmap assigned to scratch registry.")
     end if
 
@@ -681,7 +686,60 @@ contains
       f => this%entries(n_entries)%get_field()
 
     end associate
-  end subroutine request_field
+  end subroutine request_field_stored_dof
+
+  !> Get a field from the registry by assigning it to a pointer
+  !! @param f Pointer to the requested field.
+  !! @param index Index of the field in the registry (for relinquishing later).
+  !! @param dof Dofmap to use for the field.
+  !! @param clear If true, the field values are set to zero upon request.
+  subroutine request_field_free_dof(this, f, index, dof, clear)
+    class(scratch_registry_t), target, intent(inout) :: this
+    type(field_t), pointer, intent(inout) :: f
+    integer, intent(inout) :: index
+    type(dofmap_t), intent(in) :: dof
+    logical, intent(in) :: clear
+    character(len=10) :: name
+
+    associate(entries => this%entries, n_entries => this%n_entries, &
+         n_inuse => this%n_inuse)
+
+      do index = 1, this%get_size()
+         if (.not. this%inuse(index)) then
+
+            if (.not. entries(index)%is_allocated()) then
+               write(name, "(A3,I0.3)") "wrk", index
+               call entries(index)%init_field(dof, trim(name))
+               n_entries = n_entries + 1
+            else if (entries(index)%get_type() .ne. 'field') then
+               cycle
+            end if
+
+            f => entries(index)%get_field()
+            if (.not. associated(f%dof, dof)) then
+               nullify(f)
+               cycle
+            end if
+
+            if (clear) call field_rzero(f)
+            this%inuse(index) = .true.
+            this%n_inuse = this%n_inuse + 1
+            return
+         end if
+      end do
+
+      ! all existing fields in use, we need to expand to add a new one
+      index = n_entries + 1
+      call this%expand()
+      n_entries = n_entries + 1
+      n_inuse = n_inuse + 1
+      this%inuse(n_entries) = .true.
+      write (name, "(A3,I0.3)") "wrk", index
+      call this%entries(n_entries)%init_field(dof, trim(name))
+      f => this%entries(n_entries)%get_field()
+
+    end associate
+  end subroutine request_field_free_dof
 
   !> Relinquish the use of a host_array in the registry
   !! @param index The index of the host_array to free
