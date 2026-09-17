@@ -42,6 +42,9 @@
             "type"
           ],
           "properties": {
+            "make_divergence_free": {
+              "type": "boolean"
+            },
             "type": {
               "const": "user"
             }
@@ -55,6 +58,9 @@
             "value"
           ],
           "properties": {
+            "make_divergence_free": {
+              "type": "boolean"
+            },
             "type": {
               "const": "uniform"
             },
@@ -71,6 +77,9 @@
             "value"
           ],
           "properties": {
+            "make_divergence_free": {
+              "type": "boolean"
+            },
             "type": {
               "const": "expression"
             },
@@ -94,6 +103,9 @@
             "approximation"
           ],
           "properties": {
+            "make_divergence_free": {
+              "type": "boolean"
+            },
             "type": {
               "const": "blasius"
             },
@@ -126,6 +138,9 @@
             "zone_value"
           ],
           "properties": {
+            "make_divergence_free": {
+              "type": "boolean"
+            },
             "type": {
               "const": "point_zone"
             },
@@ -149,6 +164,9 @@
             "file_name"
           ],
           "properties": {
+            "make_divergence_free": {
+              "type": "boolean"
+            },
             "type": {
               "const": "field"
             },

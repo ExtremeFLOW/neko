@@ -2,6 +2,14 @@
 
 ## Develop
 
+- Added `case.fluid.initial_condition.make_divergence_free`, which projects the
+  initial velocity onto the divergence-free subspace before the first time
+  step. A Poisson problem for a scalar potential is solved with the case's
+  pressure solver and its gradient subtracted from the velocity, using the same
+  discrete operators and boundary conditions as the pressure step of the time
+  loop. Useful for initial conditions read from a field file, in particular one
+  interpolated from another mesh, which do not satisfy the continuity equation
+  and otherwise provoke a large initial pressure transient.
 - Added runtime registration of user-defined scalar boundary-condition types
   through `register_scalar_pnpn_bc`.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.

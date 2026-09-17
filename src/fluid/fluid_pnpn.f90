@@ -87,6 +87,7 @@ module fluid_pnpn
   use file, only : file_t
   use operators, only : ortho, rotate_cyc
   use opr_device, only : device_ortho
+  use div_free_projection, only : project_div_free
   use time_state, only : time_state_t
   use comm, only : NEKO_COMM
   use ale_manager, only : ale_manager_t
@@ -188,6 +189,10 @@ module fluid_pnpn
      !> Whether to use the full formulation of the viscous stress term
      logical :: full_stress_formulation = .false.
 
+     !> Whether to project the initial condition onto the divergence-free
+     !! subspace before the first time step.
+     logical :: div_free_ic = .false.
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => fluid_pnpn_init
@@ -202,6 +207,8 @@ module fluid_pnpn
      !> Write a field with boundary condition specifications.
      procedure, pass(this) :: write_boundary_conditions => &
           fluid_pnpn_write_boundary_conditions
+     !> Project the velocity onto the divergence-free subspace.
+     procedure, pass(this) :: make_div_free => fluid_pnpn_make_div_free
   end type fluid_pnpn_t
 
   interface
@@ -282,6 +289,10 @@ contains
     call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
          .false.)
     call this%c_Xh%generate_cyclic_bc()
+
+    call json_get_or_default(params, &
+         "case.fluid.initial_condition.make_divergence_free", &
+         this%div_free_ic, .false.)
 
     ! Setup backend dependent Ax routines for the velocity
     call fluid_pnpn_ax_vel_factory(this)
@@ -588,6 +599,25 @@ contains
     end if
 
   end subroutine fluid_pnpn_restart
+
+  !> Project the velocity onto the space of discretely divergence-free fields.
+  !! @details Solves a Poisson problem for a scalar potential and subtracts its
+  !! gradient from the velocity, reusing the pressure solver, preconditioner
+  !! and boundary conditions of the scheme. Intended to clean up an initial
+  !! condition, e.g. one read from a field file, that does not satisfy the
+  !! continuity equation. The normal velocity on boundaries where the velocity
+  !! is prescribed is left unchanged, the tangential one is not, so the
+  !! velocity boundary conditions should be re-applied afterwards, as the time
+  !! loop does at the start of every step.
+  subroutine fluid_pnpn_make_div_free(this)
+    class(fluid_pnpn_t), target, intent(inout) :: this
+
+    call project_div_free(this%u, this%v, this%w, this%dp, this%p_res, &
+         this%c_Xh, this%gs_Xh, this%Ax_prs, this%ksp_prs, this%pc_prs, &
+         this%bcs_prs_projector, this%bc_prs_surface, this%prs_dirichlet, &
+         this%glb_n_points)
+
+  end subroutine fluid_pnpn_make_div_free
 
   subroutine fluid_pnpn_free(this)
     class(fluid_pnpn_t), intent(inout) :: this

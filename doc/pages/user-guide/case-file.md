@@ -1116,6 +1116,64 @@ file documentation.
    Interpolation will always be performed if `"interpolate"` is set
    to `true`, even if the field file matches with the current simulation.
 
+Regardless of the type, the optional `make_divergence_free` keyword can be set
+to `true` to project the initial velocity onto the space of divergence-free
+fields before the first time step, see
+[divergence-free initial conditions](@ref case-file_fluid-div-free-ic) below.
+
+#### Divergence-free initial conditions {#case-file_fluid-div-free-ic}
+
+An initial velocity field that does not satisfy the continuity equation, which
+is typically the case for a field interpolated from another mesh or assembled
+by hand, provokes a large pressure transient over the first few time steps. The
+`make_divergence_free` keyword removes the divergent part of the field up
+front:
+
+~~~~~~~~~~~~~~~{.json}
+"initial_condition": {
+    "type": "field",
+    "file_name": "myfield0.f00034",
+    "make_divergence_free": true
+}
+~~~~~~~~~~~~~~~
+
+A Poisson problem is solved for a scalar potential \f$ \phi \f$,
+
+\f{eqnarray*}{
+   \nabla^2 \phi &=& \nabla \cdot \mathbf{u} \quad &\text{in } \Omega, \\
+   \partial_n \phi &=& 0 \quad &\text{on } \Gamma_D, \\
+   \phi &=& 0 \quad &\text{on } \Gamma_{out},
+\f}
+
+and its gradient is subtracted from the velocity, \f$ \mathbf{u} \leftarrow
+\mathbf{u} - \nabla \phi \f$. This is the Helmholtz--Leray decomposition, and
+it is assembled with the same discrete operators and the same boundary
+conditions as the pressure step of the time loop, so the resulting field is
+divergence free in exactly the sense that the solver enforces. The problem is
+solved with the `pressure_solver` configured for the case, and the norm of the
+divergence before and after the projection is reported in the log.
+
+The condition on \f$ \Gamma_D \f$, the boundaries where the velocity is
+prescribed, makes the correction tangential there, so a prescribed inflow
+profile is preserved exactly. The tangential velocity on those boundaries is in
+general modified, but the velocity boundary conditions are applied again at the
+start of the first time step.
+
+@note The keyword has no effect when restarting from a checkpoint, since the
+initial condition is then not used at all. It is only available for the `pnpn`
+scheme.
+
+@attention With no boundary at which the pressure is prescribed, the Poisson
+problem is a pure Neumann one and is solvable only if the net flux through the
+boundary vanishes. The net flux is reported in the log in that case, and a
+non-zero value means that the boundary conditions themselves do not conserve
+mass, which the projection cannot repair.
+
+@attention The projection is a cold solve without an initial guess, so it needs
+considerably more iterations than a pressure solve inside the time loop. A
+warning is emitted if it does not converge, in which case `max_iterations` of
+the `pressure_solver` should be increased, or a stronger preconditioner such as
+`hsmg` used.
 
 ### Source terms {#case-file_fluid-source-term}
 The `source_terms` object should be used to specify the source terms in the
@@ -2106,6 +2164,7 @@ concisely directly in the table.
 | `initial_condition.mesh_file_name`                 | If `"type"="field"` and interpolation is enabled, the name of the field file that contains the mesh coordinates.       | Strings ending with `f*****`                                | `file_name`   |
 | `initial_condition.interpolation.tolerance`        | If `"type"="field"` and interpolation is enabled, the tolerance for the point search.             | Positive real.                                              | `NEKO_EPS*1e3`|
 | `initial_condition.interpolation.padding`          | If `"type"="field"` and interpolation is enabled, the padding for the point search.               | Positive real.                                              | `1e-2`        |
+| `initial_condition.make_divergence_free`           | Whether to project the initial velocity onto the divergence-free subspace, see [divergence-free initial conditions](@ref case-file_fluid-div-free-ic). | `true` or `false`      | `false`       |
 | `blasius.delta`                                    | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                               | -             |
 | `blasius.freestream_velocity`                      | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                           | -             |
 | `blasius.approximation`                            | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin`, `tanh`    | -             |

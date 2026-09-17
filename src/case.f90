@@ -384,12 +384,26 @@ contains
             this%params%valid_path('case.restart_file'))
     end if
 
-    ! Add initial conditions to BDF scheme (if present)
+    ! Project the initial condition onto the divergence-free subspace, and add
+    ! the initial conditions to the BDF scheme (if present)
+    call json_get_or_default(this%params, &
+         'case.fluid.initial_condition.make_divergence_free', logical_val, &
+         .false.)
+
     select type (f => this%fluid)
     type is (fluid_pnpn_t)
+       if (f%div_free_ic .and. &
+            .not. this%params%valid_path('case.restart_file')) then
+          call f%make_div_free()
+       end if
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
+    class default
+       if (logical_val) then
+          call neko_error('The divergence-free projection of the initial ' // &
+               'condition is only available for the pnpn scheme.')
+       end if
     end select
 
     !
