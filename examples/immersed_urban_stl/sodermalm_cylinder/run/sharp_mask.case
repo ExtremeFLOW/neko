@@ -1,7 +1,8 @@
 {
-    "version": 1,
+    "version": 1.0,
     "case": {
         "mesh_file": "../generated_sharp_mask/sodermalm_cylinder_sharp_mask.nmsh",
+        "restart_file": "restart.chkp",
         "output_directory": "fields",
         "output_at_end": true,
         "output_boundary": false,
@@ -18,7 +19,7 @@
         },
         "numerics": {
             "time_order": 2,
-            "polynomial_order": 7,
+            "polynomial_order": 9,
             "dealias": true
         },
         "fluid": {

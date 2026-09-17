@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import math
 import os
 import struct
 import sys
@@ -16,12 +15,9 @@ CASE_ROOT = HERE
 GENERATED = Path(os.environ.get("GENERATED_PATH", HERE / "generated_sharp_mask"))
 FIELD = Path(os.environ.get("FIELD_PATH", HERE / "run" / "fields" / "field0.f00000"))
 GEOMETRY_FIELD = Path(os.environ.get("GEOMETRY_FIELD", HERE / "run" / "fields" / "field0.f00000"))
-NPZ_OUT = Path(os.environ.get("NPZ_OUT", HERE / "renders" / "terrain_plus10.npz"))
-COLOR_SCALE = os.environ.get("COLOR_SCALE", "log")
-COLORMAP_STYLE = os.environ.get("COLORMAP_STYLE", "urban_flow")
-LOG_VREF = float(os.environ.get("LOG_VREF", "0.12"))
+NPZ_OUT = Path(os.environ.get("NPZ_OUT", HERE / "renders" / "terrain_plus20.npz"))
 GRID_N = 420
-LIFT_M = float(os.environ.get("LIFT_M", "10.0"))
+LIFT_M = float(os.environ.get("LIFT_M", "20.0"))
 SAMPLE_Z = os.environ.get("SAMPLE_Z")
 SAMPLE_TERRAIN_FROM_GEOJSON = os.environ.get("SAMPLE_TERRAIN_FROM_GEOJSON", "0") == "1"
 CHUNK_ELEMS = 16000
@@ -29,7 +25,6 @@ sys.path.insert(0, str(CASE_ROOT))
 from build_sodermalm_cylinder import (  # noqa: E402
     load_geojson,
     polygon_boundary_rings,
-    polygon_rings,
     terrain_height,
     terrain_samples,
 )
@@ -181,53 +176,6 @@ def blur3(grid: np.ndarray, passes: int = 2) -> np.ndarray:
     return out
 
 
-def velocity_fraction(speed: np.ndarray, vmin: float, vmax: float) -> np.ndarray:
-    shifted = np.clip(speed - vmin, 0.0, None)
-    span = max(vmax - vmin, 1.0e-12)
-    if COLOR_SCALE == "log":
-        return np.log1p(shifted / LOG_VREF) / np.log1p(span / LOG_VREF)
-    return shifted / span
-
-
-def color_velocity(speed: np.ndarray, vmin: float, vmax: float) -> np.ndarray:
-    if COLORMAP_STYLE == "urban_flow":
-        # Blue-to-red ramp tuned for weak urban-flow variations near 0-6 m/s.
-        stops = np.array(
-            [
-                [54, 44, 133],
-                [39, 91, 190],
-                [39, 169, 212],
-                [53, 207, 161],
-                [142, 216, 101],
-                [229, 218, 77],
-                [241, 152, 55],
-                [194, 51, 45],
-            ],
-            dtype=np.float32,
-        )
-    else:
-        # A restrained viridis-like ramp, kept readable without saturating the whole map.
-        stops = np.array(
-            [
-                [39, 35, 74],
-                [48, 103, 141],
-                [53, 157, 139],
-                [128, 198, 97],
-                [235, 220, 77],
-                [246, 146, 54],
-                [166, 37, 41],
-            ],
-            dtype=np.float32,
-        )
-    t = np.clip(velocity_fraction(speed, vmin, vmax), 0.0, 1.0)
-    pos = t * (len(stops) - 1)
-    idx = np.floor(pos).astype(np.int32)
-    frac = (pos - idx)[..., None]
-    idx1 = np.minimum(idx + 1, len(stops) - 1)
-    rgb = stops[idx] * (1.0 - frac) + stops[idx1] * frac
-    return np.uint8(np.clip(rgb, 0, 255))
-
-
 def main() -> None:
     meta_path = metadata_path(GENERATED)
     meta = json.loads(meta_path.read_text())
@@ -261,6 +209,15 @@ def main() -> None:
     nelv = header["nelv"]
     bytes_elem = npts * header["wdsz"]
     geometry_bytes_elem = npts * geometry_header["wdsz"]
+    ids = np.fromfile(FIELD, dtype=header["endian"] + "i4", count=nelv, offset=136)
+    geometry_ids = np.fromfile(geometry_field, dtype=geometry_header["endian"] + "i4",
+                               count=nelv, offset=136)
+    if len(ids) != nelv or not np.array_equal(ids, geometry_ids):
+        raise ValueError("Velocity and geometry fields have different element ordering")
+    if FIELD.stat().st_size < offsets["U"] + nelv * 3 * bytes_elem:
+        raise ValueError("Incomplete velocity field")
+    if geometry_field.stat().st_size < geometry_offsets["X"] + nelv * 3 * geometry_bytes_elem:
+        raise ValueError("Incomplete geometry field")
     cells = GRID_N * GRID_N
     bottom_z = np.full(cells, np.inf, dtype=np.float32)
 
@@ -345,7 +302,7 @@ def main() -> None:
     np.savez_compressed(
         NPZ_OUT,
         speed=speed, u=u, v=v, w=w, disk=disk, valid=valid,
-        x=xg, y=yg, time=header["time"],
+        x=xg, y=yg, time=header["time"], sample_label=sample_label,
     )
     print(f"Wrote {NPZ_OUT}")
 

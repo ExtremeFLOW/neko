@@ -17,4 +17,5 @@ if [[ $# -eq 0 ]]; then
     printf '%s\n' 'Usage: bash run.sh LAUNCHER [ARGS...] (e.g. mpirun -np 6)' >&2
     exit 1
 fi
+mkdir -p fields
 exec "$@" ./neko sharp_mask.case

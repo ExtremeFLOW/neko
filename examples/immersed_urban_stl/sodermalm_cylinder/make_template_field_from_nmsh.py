@@ -105,7 +105,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mesh", type=Path)
     parser.add_argument("output", type=Path)
-    parser.add_argument("--polynomial-order", type=int, default=7)
+    parser.add_argument("--polynomial-order", type=int, default=9)
     args = parser.parse_args()
 
     element_ids, vertices = read_nmsh(args.mesh)

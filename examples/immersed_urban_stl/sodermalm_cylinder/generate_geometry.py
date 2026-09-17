@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the sharp-mask p7 terrain-following cylinder and building STL."""
+"""Generate fresh p9 terrain-following geometry, not a restart-compatible mesh."""
 
 from __future__ import annotations
 
@@ -119,7 +119,7 @@ def main() -> None:
     checker_output = base.run_mesh_checker(mesh_path)
 
     metadata = {
-        "target": os.environ.get("SODERMALM_TARGET_LABEL", "p7 sharp-mask geometry, exact 220-degree inlet"),
+        "target": os.environ.get("SODERMALM_TARGET_LABEL", "p9 sharp-mask geometry, exact 180-degree inlet"),
         "center_epsg3006": center,
         "radius_m": radius,
         "buffer_m": base.BUFFER_M,
@@ -127,11 +127,11 @@ def main() -> None:
         "vertical_stretch": base.VERTICAL_STRETCH,
         "nz": base.NZ,
         "land_mesh_size_m": base.LAND_MESH_SIZE_M,
-        "nominal_effective_land_p7_xy_spacing_m": base.LAND_MESH_SIZE_M / 7.0,
+        "nominal_effective_land_xy_spacing_m": base.LAND_MESH_SIZE_M / 9.0,
         "water_mesh_size_m": base.WATER_MESH_SIZE_M,
-        "nominal_effective_water_p7_xy_spacing_m": base.WATER_MESH_SIZE_M / 7.0,
+        "nominal_effective_water_xy_spacing_m": base.WATER_MESH_SIZE_M / 9.0,
         "shore_blend_m": base.SHORE_BLEND_M,
-        "polynomial_order": 7,
+        "polynomial_order": 9,
         "shoreline_simplify_m": base.SHORELINE_SIMPLIFY_M,
         "inflow_from_degrees": base.INFLOW_FROM_DEG,
         "inflow_arc_width_degrees": base.INFLOW_ARC_WIDTH_DEG,

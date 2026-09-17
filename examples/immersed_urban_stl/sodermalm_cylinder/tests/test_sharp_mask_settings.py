@@ -14,13 +14,14 @@ import make_sodermalm_building_cache as cache
 class SharpMaskSettingsTest(unittest.TestCase):
     def test_geometry_and_case_defaults(self):
         case = json.loads((HERE / "run" / "sharp_mask.case").read_text())["case"]
-        self.assertEqual(geometry.INFLOW_ARC_WIDTH_DEG, 220)
+        self.assertEqual(geometry.INFLOW_ARC_WIDTH_DEG, 180)
         self.assertEqual(geometry.INFLOW_FROM_DEG, 225)
         self.assertEqual(geometry.NZ, 10)
         self.assertEqual(geometry.DOMAIN_HEIGHT_ABOVE_LOWEST_M, 350)
-        self.assertEqual(geometry.LAND_MESH_SIZE_M / case["numerics"]["polynomial_order"], 5)
+        self.assertEqual(case["numerics"]["polynomial_order"], 9)
+        self.assertAlmostEqual(geometry.LAND_MESH_SIZE_M / 9, 3.8888888889)
         self.assertTrue(case["numerics"]["dealias"])
-        self.assertNotIn("restart_file", case)
+        self.assertEqual(case["restart_file"], "restart.chkp")
         self.assertEqual(case["time"]["end_time"], 500)
         self.assertEqual(case["fluid"]["output_value"], 10)
         self.assertEqual(case["checkpoint_value"], 25)
