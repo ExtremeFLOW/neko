@@ -1159,9 +1159,22 @@ profile is preserved exactly. The tangential velocity on those boundaries is in
 general modified, but the velocity boundary conditions are applied again at the
 start of the first time step.
 
+Only the velocity is modified. The initial pressure is left exactly as the
+initial condition provides it, because it has no influence on the solution: the
+pressure step solves for an increment, \f$ A(p^0 + \delta p) = A p^0 + (-A p^0 +
+b) = b \f$, so the pressure after the first step is independent of the one
+before it. A poor initial pressure costs solver iterations in the first step,
+nothing more.
+
 @note The keyword has no effect when restarting from a checkpoint, since the
 initial condition is then not used at all. It is only available for the `pnpn`
-scheme.
+scheme, and is rejected with an error for the `compressible` one.
+
+@note The projection removes the part of the divergence that the discrete
+pressure gradient can represent, which is all of it for a field the mesh
+resolves. A discontinuous initial condition, such as one built from a
+`point_zone`, has a divergence the polynomial space cannot represent at all, and
+for those the projection only reduces the divergence rather than removing it.
 
 @attention With no boundary at which the pressure is prescribed, the Poisson
 problem is a pure Neumann one and is solvable only if the net flux through the

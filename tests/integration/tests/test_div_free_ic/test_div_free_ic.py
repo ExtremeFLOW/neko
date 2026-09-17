@@ -70,12 +70,16 @@ def _solver(solver_type, preconditioner):
     }
 
 
-def _case(mesh, output_directory, project):
+def _case(mesh, output_directory, project, uniform=False):
     """Build the case file, with the projection either on or off."""
-    initial_condition = {
-        "type": "expression",
-        "value": ["1 + 0.3*sin(2*pi*x)", "0.3*sin(2*pi*y)", "0"],
-    }
+    if uniform:
+        # A constant field is divergence free to begin with.
+        initial_condition = {"type": "uniform", "value": [1.0, 0.0, 0.0]}
+    else:
+        initial_condition = {
+            "type": "expression",
+            "value": ["1 + 0.3*sin(2*pi*x)", "0.3*sin(2*pi*y)", "0"],
+        }
     if project:
         initial_condition["make_divergence_free"] = True
 
@@ -187,13 +191,14 @@ def _read_probes(probe_file):
     return values
 
 
-def _run(assets, project, name):
+def _run(assets, project, name, uniform=False):
     """Run one case and return the probed values and the log."""
     run_dir = assets["workdir"] / name
     run_dir.mkdir()
     case_file = run_dir / f"{name}.case"
     case_file.write_text(
-        json.dumps(_case(assets["mesh"], run_dir, project), indent=2) + "\n",
+        json.dumps(_case(assets["mesh"], run_dir, project, uniform), indent=2)
+        + "\n",
         encoding="utf-8",
     )
     log_file = run_dir / f"{name}.log"
@@ -262,3 +267,21 @@ def _log_value(log, marker):
         if marker in line:
             return float(line.split(marker)[1].strip())
     raise AssertionError(f"'{marker}' is missing from the log")
+
+
+def test_divergence_free_leaves_a_good_field_alone(div_free_assets):
+    """Projecting an already divergence-free field must not damage it."""
+    tolerance = VALUE_TOLERANCE[conftest.RP]
+
+    projected, log = _run(div_free_assets, True, "uniform", uniform=True)
+
+    for x, values in zip(PROBE_X, projected):
+        assert values[0] == pytest.approx(1.0, abs=tolerance), f"x = {x}"
+        assert values[1] == pytest.approx(0.0, abs=tolerance), f"x = {x}"
+        assert values[2] == pytest.approx(0.0, abs=tolerance), f"x = {x}"
+
+    # The correction has to stay at the level of the initial divergence, the
+    # projection must not introduce any of its own.
+    before = _log_value(log, "div(u) L2, before :")
+    after = _log_value(log, "div(u) L2, after  :")
+    assert after < max(1.0e3 * before, tolerance), f"{before} -> {after}"
