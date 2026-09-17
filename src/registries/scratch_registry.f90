@@ -35,6 +35,7 @@
 !! often and you don't want to create temporary objects (work arrays) inside
 !! it on each call.
 module scratch_registry
+  use num_types, only : rp
   use registry_entry, only : registry_entry_t
   use host_array, only : host_array_t
   use device_array, only : device_array_t
@@ -89,9 +90,14 @@ module scratch_registry
      procedure, pass(this) :: get_inuse
 
      !> Get a new scratch host array
-     procedure, pass(this) :: request_host_array
+     procedure, pass(this) :: request_host_array_t
+     !> Get a new scratch real array
+     procedure, pass(this) :: request_real_array
      procedure, pass(this) :: relinquish_host_array_single
      procedure, pass(this) :: relinquish_host_array_multiple
+     !> Generic request procedure for host arrays
+     generic :: request_host_array => request_host_array_t, &
+          request_real_array
      !> Free a host array for later reuse
      generic :: relinquish_host_array => relinquish_host_array_single, &
           relinquish_host_array_multiple
@@ -145,10 +151,13 @@ module scratch_registry
           relinquish_field_multiple
 
      !> Generic request procedure
-     generic :: request => request_host_array, request_device_array, &
-          request_vector, request_matrix, request_tensor3, request_tensor4, &
-          request_field
+     generic :: request => request_host_array_t, request_real_array, &
+          request_device_array, request_vector, request_matrix, &
+          request_tensor3, request_tensor4, request_field
+
+     !> Generic relinquish procedure for single objects
      procedure, pass(this) :: relinquish_single
+     !> Generic relinquish procedure for multiple objects
      procedure, pass(this) :: relinquish_multiple
      !> Generic relinquish procedure
      generic :: relinquish => relinquish_single, relinquish_multiple
@@ -316,7 +325,7 @@ contains
   !! relinquishing later).
   !! @param n Size of the requested host_array.
   !! @param clear If true, the host_array values are set to zero upon request.
-  subroutine request_host_array(this, v, index, n, clear)
+  subroutine request_host_array_t(this, v, index, n, clear)
     class(scratch_registry_t), target, intent(inout) :: this
     type(host_array_t), pointer, intent(inout) :: v
     integer, intent(inout) :: index
@@ -359,7 +368,63 @@ contains
       v => this%entries(n_entries)%get_host_array()
 
     end associate
-  end subroutine request_host_array
+  end subroutine request_host_array_t
+
+  !> Get a host array from the registry by assigning it to a pointer.
+  !! @param v Pointer to the requested host_array.
+  !! @param index Index of the host array in the registry (for
+  !! relinquishing later).
+  !! @param n Size of the requested host_array.
+  !! @param clear If true, the host_array values are set to zero upon request.
+  subroutine request_real_array(this, v, index, n, clear)
+    class(scratch_registry_t), target, intent(inout) :: this
+    real(kind=rp), pointer, dimension(:), intent(inout) :: v
+    integer, intent(inout) :: index
+    integer, intent(in) :: n
+    logical, intent(in) :: clear
+    type(host_array_t), pointer :: v_scratch
+
+    associate(entries => this%entries, n_entries => this%n_entries, &
+         n_inuse => this%n_inuse)
+
+      do index = 1, this%get_size()
+         if (.not. this%inuse(index)) then
+
+            if (.not. entries(index)%is_allocated()) then
+               call entries(index)%init_host_array(n)
+               n_entries = n_entries + 1
+            else if (trim(entries(index)%get_type()) .ne. 'host_array') then
+               cycle
+            end if
+
+            v_scratch => entries(index)%get_host_array()
+            if (v_scratch%size() .ne. n) then
+               nullify(v_scratch)
+               cycle
+            end if
+
+            if (clear) call rzero(v_scratch%x, v_scratch%size())
+            this%inuse(index) = .true.
+            this%n_inuse = this%n_inuse + 1
+            v => v_scratch%x
+            nullify(v_scratch)
+            return
+         end if
+      end do
+
+      ! all existing host_arrays in use, we need to expand to add a new one
+      index = n_entries + 1
+      call this%expand()
+      n_entries = n_entries + 1
+      n_inuse = n_inuse + 1
+      this%inuse(n_entries) = .true.
+      call this%entries(n_entries)%init_host_array(n)
+      v_scratch => this%entries(n_entries)%get_host_array()
+      v => v_scratch%x
+      nullify(v_scratch)
+
+    end associate
+  end subroutine request_real_array
 
   !> Get a device_array from the registry by assigning it to a pointer.
   !! @param v Pointer to the requested device_array.
