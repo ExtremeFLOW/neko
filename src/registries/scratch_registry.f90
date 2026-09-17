@@ -697,7 +697,7 @@ contains
     class(scratch_registry_t), target, intent(inout) :: this
     type(field_t), pointer, intent(inout) :: f
     integer, intent(inout) :: index
-    type(dofmap_t), intent(in) :: dof
+    type(dofmap_t), target, intent(in) :: dof
     logical, intent(in) :: clear
     character(len=10) :: name
 
