@@ -378,7 +378,7 @@ contains
   !! @param clear If true, the host_array values are set to zero upon request.
   subroutine request_real_array(this, v, index, n, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    real(kind=rp), pointer, dimension(:), intent(inout) :: v
+    real(kind=rp), pointer, contiguous, dimension(:), intent(inout) :: v
     integer, intent(inout) :: index
     integer, intent(in) :: n
     logical, intent(in) :: clear
