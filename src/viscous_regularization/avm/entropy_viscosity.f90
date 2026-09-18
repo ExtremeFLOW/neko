@@ -593,26 +593,26 @@ contains
           im = max(1, i-1)
           ip = min(this%coef%Xh%lx, i+1)
 
-          di = (this%coef%dof%x(ip, j, k, e) - &
-               this%coef%dof%x(im, j, k, e))**2 &
-               + (this%coef%dof%y(ip, j, k, e) - &
-               this%coef%dof%y(im, j, k, e))**2 &
-               + (this%coef%dof%z(ip, j, k, e) - &
-               this%coef%dof%z(im, j, k, e))**2
+          di = (this%coef%dof%x%x(ip, j, k, e) - &
+               this%coef%dof%x%x(im, j, k, e))**2 &
+               + (this%coef%dof%y%x(ip, j, k, e) - &
+               this%coef%dof%y%x(im, j, k, e))**2 &
+               + (this%coef%dof%z%x(ip, j, k, e) - &
+               this%coef%dof%z%x(im, j, k, e))**2
 
-          dj = (this%coef%dof%x(i, jp, k, e) - &
-               this%coef%dof%x(i, jm, k, e))**2 &
-               + (this%coef%dof%y(i, jp, k, e) - &
-               this%coef%dof%y(i, jm, k, e))**2 &
-               + (this%coef%dof%z(i, jp, k, e) - &
-               this%coef%dof%z(i, jm, k, e))**2
+          dj = (this%coef%dof%x%x(i, jp, k, e) - &
+               this%coef%dof%x%x(i, jm, k, e))**2 &
+               + (this%coef%dof%y%x(i, jp, k, e) - &
+               this%coef%dof%y%x(i, jm, k, e))**2 &
+               + (this%coef%dof%z%x(i, jp, k, e) - &
+               this%coef%dof%z%x(i, jm, k, e))**2
 
-          dk = (this%coef%dof%x(i, j, kp, e) - &
-               this%coef%dof%x(i, j, km, e))**2 &
-               + (this%coef%dof%y(i, j, kp, e) - &
-               this%coef%dof%y(i, j, km, e))**2 &
-               + (this%coef%dof%z(i, j, kp, e) - &
-               this%coef%dof%z(i, j, km, e))**2
+          dk = (this%coef%dof%x%x(i, j, kp, e) - &
+               this%coef%dof%x%x(i, j, km, e))**2 &
+               + (this%coef%dof%y%x(i, j, kp, e) - &
+               this%coef%dof%y%x(i, j, km, e))**2 &
+               + (this%coef%dof%z%x(i, j, kp, e) - &
+               this%coef%dof%z%x(i, j, km, e))**2
 
           di = sqrt(di) / (ip - im)
           dj = sqrt(dj) / (jp - jm)
