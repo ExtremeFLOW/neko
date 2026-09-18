@@ -35,7 +35,7 @@ module field_dirichlet_vector
   use num_types, only : rp
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use bc_list, only : bc_list_t
   use utils, only : split_string
   use field, only : field_t
@@ -111,6 +111,7 @@ contains
     type(coef_t), intent(in) :: coef
 
     call this%init_base(coef)
+    this%bc_type = BC_DIRICHLET
 
     call this%bc_u%init_from_components(coef, "u")
     call this%bc_v%init_from_components(coef, "v")
@@ -201,10 +202,12 @@ contains
 
        ! We can send any of the 3 bcs we have as argument, since they are all
        ! the same boundary.
+       !$omp single
        if (.not. this%updated) then
           call this%update(this%field_list, this%bc_u, time)
           this%updated = .true.
        end if
+       !$omp end single
 
        call masked_copy_0(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy_0(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
@@ -237,10 +240,12 @@ contains
     end if
 
     if (strong_) then
+       !$omp single
        if (.not. this%updated) then
           call this%update(this%field_list, this%bc_u, time)
           this%updated = .true.
        end if
+       !$omp end single
 
        if (this%msk(0) .gt. 0) then
           call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, &
@@ -255,26 +260,17 @@ contains
   end subroutine field_dirichlet_vector_apply_vector_dev
 
   !> Finalize by building the mask arrays and propagating to underlying bcs.
-  subroutine field_dirichlet_vector_finalize(this, only_facets)
+  subroutine field_dirichlet_vector_finalize(this)
     class(field_dirichlet_vector_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
-
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
 
     call this%bc_u%mark_facets(this%marked_facet)
     call this%bc_v%mark_facets(this%marked_facet)
     call this%bc_w%mark_facets(this%marked_facet)
 
-    call this%bc_u%finalize(only_facets_)
-    call this%bc_v%finalize(only_facets_)
-    call this%bc_w%finalize(only_facets_)
+    call this%bc_u%finalize()
+    call this%bc_v%finalize()
+    call this%bc_w%finalize()
 
   end subroutine field_dirichlet_vector_finalize
 

@@ -38,9 +38,9 @@ module ale_manager
   use field, only : field_t
   use coefs, only : coef_t
   use space, only : space_t
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
-  use precon, only : pc_t, precon_factory, precon_destroy
+  use precon, only : pc_t, precon_allocator, precon_destroy
   use bc_list, only : bc_list_t
   use checkpoint, only : chkp_t
   use checkpoint_payload, only : checkpoint_payload_t
@@ -81,6 +81,8 @@ module ale_manager
   use device_math, only : device_glmin, device_copy
   use field_math, only : field_rzero, field_add2, &
        field_cmult
+  use scalar_bc_projector, only : scalar_bc_projector_t
+
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST, device_sync
   use operators, only : rotate_cyc
   use fld_file_output, only : fld_file_output_t
@@ -215,6 +217,9 @@ contains
        neko_ale => null()
        return
     else if (this%active) then
+       ! force all elements as deformed when mesh changes.
+       call coef%msh%all_deformed()
+
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if ((.not. (NEKO_BCKND_HIP .eq. 1)) .and. &
                (.not. (NEKO_BCKND_CUDA .eq. 1))) then
@@ -249,9 +254,9 @@ contains
     call this%y_ref%init(coef%dof, "y_ref")
     call this%z_ref%init(coef%dof, "z_ref")
 
-    call copy(this%x_ref%x, coef%dof%x, n)
-    call copy(this%y_ref%x, coef%dof%y, n)
-    call copy(this%z_ref%x, coef%dof%z, n)
+    call copy(this%x_ref%x, coef%dof%x%x, n)
+    call copy(this%y_ref%x, coef%dof%y%x, n)
+    call copy(this%z_ref%x, coef%dof%z%x, n)
 
     ! Sync to device
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -393,7 +398,7 @@ contains
              this%config%bodies(i)%name = tmp_str
           else
              write(this%config%bodies(i)%name, '(A,I0)') 'body_', i
-          endif
+          end if
 
           if (body_sub%valid_path('zone_indices')) then
              call json_get(body_sub, 'zone_indices', zone_indices)
@@ -402,7 +407,7 @@ contains
              call neko_error("ALE: body " // &
                   trim(this%config%bodies(i)%name) // &
                   " must have 'zone_indices'")
-          endif
+          end if
 
           ! Oscillation
           this%config%bodies(i)%osc_amp = 0.0_rp
@@ -864,8 +869,8 @@ contains
     real(kind=rp), allocatable :: h2_restore(:, :, :, :)
     type(zero_dirichlet_t) :: bc_active_body
     type(zero_dirichlet_t) :: bc_inactive_body
-    type(bc_list_t) :: bcloc
-    type(bc_list_t) :: bcloc_zeros_only
+    type(scalar_bc_projector_t) :: bc_projector
+    type(scalar_bc_projector_t) :: bc_projector_zeros_only
     type(json_file) :: body_sub
     character(len=256) :: phi_fname
     character(len=:), allocatable :: tmp_str
@@ -906,7 +911,7 @@ contains
     call neko_log%message("Starting base mesh motion solve ...")
     n = coef%dof%size()
 
-    call ax_helm_factory(Ax, full_formulation = .false.)
+    call ax_helm_allocator(Ax, type_name = "standard")
     call krylov_solver_factory(ksp, n, ksp_solver, &
          ksp_max_iter, abstol, monitor = res_monitor)
     call ale_precon_factory(pc, ksp, coef, coef%dof, &
@@ -1011,15 +1016,13 @@ contains
           call bc_inactive_body%finalize()
 
           ! The Full list for the solver (Freeze everything to 0 correction)
-          call bcloc%init()
-          call bcloc%append(this%bc_fixed)
-          call bcloc%append(bc_active_body)
-          call bcloc%append(bc_inactive_body)
+          call bc_projector%mark(this%bc_fixed)
+          call bc_projector%mark(bc_active_body)
+          call bc_projector%mark(bc_inactive_body)
 
           ! The "Zeros Only" list for the field (Reset other boundaries)
-          call bcloc_zeros_only%init()
-          call bcloc_zeros_only%append(this%bc_fixed)
-          call bcloc_zeros_only%append(bc_inactive_body)
+          call bc_projector_zeros_only%mark(this%bc_fixed)
+          call bc_projector_zeros_only%mark(bc_inactive_body)
 
           call field_rzero(this%base_shapes(body_idx))
           this%base_shapes(body_idx)%x = 0.0_rp
@@ -1045,7 +1048,7 @@ contains
           ! Apply Zeros to others.
           ! This ensures fixed walls and other bodies are 0.0,
           ! even if they share grid with a moving wall.
-          call bcloc_zeros_only%apply_scalar(this%base_shapes(body_idx)%x, n)
+          call bc_projector_zeros_only%apply(this%base_shapes(body_idx)%x, n)
 
           ! Compute RHS: RHS = -A * Phi_lifted.
           ! The following is motivated by implementation in Nek5000.
@@ -1055,14 +1058,14 @@ contains
 
           ! Here we use the FULL list to apply zero Dirichlet BC
           ! on all boundaries.
-          call bcloc%apply_scalar(rhs_field%x, n)
+          call bc_projector%apply(rhs_field%x, n)
           call coef%gs_h%op(rhs_field, GS_OP_ADD)
 
           ! Solve
           call field_rzero(corr_field)
           call pc%update()
           monitor(1) = ksp%solve(Ax, corr_field, &
-               rhs_field%x, n, coef, bcloc, coef%gs_h)
+               rhs_field%x, n, coef, bc_projector, coef%gs_h)
 
           ! phi = phi_lifted + phi_corr
           call field_add2(this%base_shapes(body_idx), corr_field, n)
@@ -1084,8 +1087,8 @@ contains
 
           call bc_active_body%free()
           call bc_inactive_body%free()
-          call bcloc%free()
-          call bcloc_zeros_only%free()
+          call bc_projector%free()
+          call bc_projector_zeros_only%free()
 
           ! We let the host to also have the base_shapes so in
           ! user_ale_mesh_vel
@@ -1144,7 +1147,10 @@ contains
 
     if (allocated(h1_restore)) deallocate(h1_restore)
     if (allocated(h2_restore)) deallocate(h2_restore)
-    if (allocated(Ax)) deallocate(Ax)
+    if (allocated(Ax)) then
+       call Ax%free()
+       deallocate(Ax)
+    end if
     if (allocated(ksp)) then
        call ksp%free()
        deallocate(ksp)
@@ -1338,9 +1344,9 @@ contains
     case ('built-in')
 
        do concurrent (i = 1:n)
-          x = coef%dof%x(i, 1, 1, 1)
-          y = coef%dof%y(i, 1, 1, 1)
-          z = coef%dof%z(i, 1, 1, 1)
+          x = coef%dof%x%x(i, 1, 1, 1)
+          y = coef%dof%y%x(i, 1, 1, 1)
+          z = coef%dof%z%x(i, 1, 1, 1)
 
           max_added_stiff = 0.0_rp
 
@@ -1515,7 +1521,7 @@ contains
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*), intent(in) :: pctype
     type(json_file), intent(inout) :: params
-    call precon_factory(pc, pctype)
+    call precon_allocator(pc, pctype)
     select type (pcp => pc)
     type is (jacobi_t)
        call pcp%init(coef, dof, gs)
@@ -1643,28 +1649,19 @@ contains
        call this%wm_y%copy_from(HOST_TO_DEVICE, sync = .false.)
        call this%wm_z%copy_from(HOST_TO_DEVICE, sync = .false.)
 
-       call this%wm_x_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
-            sync = .false.)
-       call this%wm_x_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
-            sync = .false.)
+       call this%wm_x_lag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call this%wm_x_lag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
 
-       call this%wm_y_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
-            sync = .false.)
-       call this%wm_y_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
-            sync = .false.)
+       call this%wm_y_lag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call this%wm_y_lag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
 
-       call this%wm_z_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
-            sync = .false.)
-       call this%wm_z_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
-            sync = .false.)
+       call this%wm_z_lag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call this%wm_z_lag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
 
-       if (c_associated(coef%dof%x_d)) then
-          call device_memcpy(coef%dof%x, coef%dof%x_d, &
-               size(coef%dof%x), HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(coef%dof%y, coef%dof%y_d, &
-               size(coef%dof%y), HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(coef%dof%z, coef%dof%z_d, &
-               size(coef%dof%z), HOST_TO_DEVICE, sync = .false.)
+       if (c_associated(coef%dof%x%x_d)) then
+          call coef%dof%x%copy_from(HOST_TO_DEVICE, sync = .false.)
+          call coef%dof%y%copy_from(HOST_TO_DEVICE, sync = .false.)
+          call coef%dof%z%copy_from(HOST_TO_DEVICE, sync = .false.)
        end if
 
        if (c_associated(coef%Blag_d)) then
@@ -1947,11 +1944,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(mesh => coef%dof)
-         call device_memcpy(mesh%x, mesh%x_d, mesh%size(), &
+         call device_memcpy(mesh%x%x, mesh%x%x_d, mesh%size(), &
               DEVICE_TO_HOST, sync = .false.)
-         call device_memcpy(mesh%y, mesh%y_d, mesh%size(), &
+         call device_memcpy(mesh%y%x, mesh%y%x_d, mesh%size(), &
               DEVICE_TO_HOST, sync = .false.)
-         call device_memcpy(mesh%z, mesh%z_d, mesh%size(), &
+         call device_memcpy(mesh%z%x, mesh%z%x_d, mesh%size(), &
               DEVICE_TO_HOST, sync = .false.)
        end associate
     end if
@@ -2081,7 +2078,7 @@ contains
           idx = i
        end if
 
-       R = this%body_rot_matrices(:,:,idx)
+       R = this%body_rot_matrices(:, :, idx)
 
        ! Angles
        yaw_deg = atan2(R(2,1), R(1,1)) * rad_to_deg
@@ -2275,12 +2272,12 @@ contains
     call payload%add_series(this%wm_x_lag)
     call payload%add_series(this%wm_y_lag)
     call payload%add_series(this%wm_z_lag)
-    call payload%add_mesh_array("mesh_x", coef%dof%x, coef%msh, coef%Xh, &
-         coef%dof%x_d)
-    call payload%add_mesh_array("mesh_y", coef%dof%y, coef%msh, coef%Xh, &
-         coef%dof%y_d)
-    call payload%add_mesh_array("mesh_z", coef%dof%z, coef%msh, coef%Xh, &
-         coef%dof%z_d)
+    call payload%add_mesh_array("mesh_x", coef%dof%x%x, coef%msh, coef%Xh, &
+         coef%dof%x%x_d)
+    call payload%add_mesh_array("mesh_y", coef%dof%y%x, coef%msh, coef%Xh, &
+         coef%dof%y%x_d)
+    call payload%add_mesh_array("mesh_z", coef%dof%z%x, coef%msh, coef%Xh, &
+         coef%dof%z%x_d)
     call payload%add_mesh_array("B_lag", coef%Blag, coef%msh, coef%Xh, &
          coef%Blag_d)
     call payload%add_mesh_array("B_laglag", coef%Blaglag, coef%msh, &

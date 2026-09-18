@@ -16,6 +16,7 @@ clean-local:
 html-local: doxygen.stamp
 
 EXTRA_DIST = pages/appendices/governing-equations.md \
+			pages/appendices/mixed-boundary-condition-resolution.md \
 			schemas \
 			pages/appendices/publications.md \
 			pages/developer-guide \

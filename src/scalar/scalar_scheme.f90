@@ -49,7 +49,7 @@ module scalar_scheme
   use hsmg, only : hsmg_t
   use bc_list, only : bc_list_t
   use bc, only : bc_t
-  use precon, only : pc_t, precon_factory, precon_destroy
+  use precon, only : pc_t, precon_allocator, precon_destroy
   use mesh, only : mesh_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
@@ -70,6 +70,7 @@ module scalar_scheme
   use time_state, only : time_state_t
   use device, only : device_memcpy, DEVICE_TO_HOST
   use scalar_ic, only : set_scalar_ic
+  use spectral_vanishing_viscosity, only : svv_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -136,6 +137,10 @@ module scalar_scheme
           user_material_properties => null()
      !> Freeze the scheme, i.e. do nothing in step()
      logical :: freeze = .false.
+     !> Whether spectral vanishing viscosity is enabled.
+     logical :: svv_enabled = .false.
+     !> Spectral vanishing viscosity data.
+     type(svv_t), allocatable :: svv
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -420,6 +425,18 @@ contains
     !
     call this%set_material_properties(params, user)
 
+    !
+    ! Spectral vanishing viscosity
+    !
+    if (params%valid_path('svv')) then
+       call json_get_or_default(params, 'svv.enabled', this%svv_enabled, &
+            .false.)
+       if (this%svv_enabled) then
+          allocate(this%svv)
+          call this%svv%init(params, this%c_Xh, this%rho)
+       end if
+    end if
+
 
     !
     ! Turbulence modelling
@@ -511,6 +528,12 @@ contains
     integer :: i
 
     bc => null()
+
+    if (allocated(this%svv)) then
+       call this%svv%free()
+       deallocate(this%svv)
+    end if
+    this%svv_enabled = .false.
 
     nullify(this%Xh)
     nullify(this%dm_Xh)
@@ -639,7 +662,7 @@ contains
     character(len=*) :: pctype
     type(json_file), intent(inout) :: pcparams
 
-    call precon_factory(pc, pctype)
+    call precon_allocator(pc, pctype)
 
     select type (pcp => pc)
     type is (jacobi_t)

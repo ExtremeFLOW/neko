@@ -58,6 +58,15 @@ module gs_utofu
   implicit none
   private
 
+  !> Whether uTofu support was built into this Neko (--with-utofu). Lets
+  !! callers (e.g. the gs comm. autotuner) skip the backend rather than
+  !! aborting in init on builds without it.
+#ifdef HAVE_UTOFU
+  logical, parameter, public :: GS_UTOFU_AVAIL = .true.
+#else
+  logical, parameter, public :: GS_UTOFU_AVAIL = .false.
+#endif
+
   !> MPI tag used for the one-off neighbour metadata exchange at init.
   integer, parameter :: GS_UTOFU_XCHG_TAG = 8123
   !> Ditto for the fused vector path's metadata exchange.
@@ -421,6 +430,11 @@ contains
     ! The vector context stays registered either way; only its use is gated.
     call get_environment_variable("NEKO_GS_UTOFU_VEC", env_val, env_len)
     this%vec_supported = .not. (env_len .gt. 0 .and. env_val(1:1) .eq. '0')
+    ! The vector slabs are part of the symmetric/registered allocation
+    ! made above, which every rank has to take part in, so they cannot
+    ! be deferred to the first fused exchange: a rank with no shared
+    ! dofs never reaches it. See gs_comm_t%vec_ready.
+    this%vec_ready = .true.
 #else
     call neko_error("uTofu support not built; reconfigure with --with-utofu")
 #endif

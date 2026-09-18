@@ -814,7 +814,8 @@ contains
        call device_col2(this%ews%mf%x_d, this%stats_work%x_d, n)
 
     else
-       do concurrent (i = 1:n)
+       !$omp parallel do private(i, wrk, wrk_sqr)
+       do i = 1, n
           wrk = 1.0_rp / this%coef%B(i,1,1,1)
           this%pdsdx%mf%x(i,1,1,1) = this%pdsdx%mf%x(i,1,1,1) * wrk
           this%pdsdy%mf%x(i,1,1,1) = this%pdsdy%mf%x(i,1,1,1) * wrk
@@ -851,6 +852,7 @@ contains
           this%evs%mf%x(i,1,1,1) = this%evs%mf%x(i,1,1,1) * wrk_sqr
           this%ews%mf%x(i,1,1,1) = this%ews%mf%x(i,1,1,1) * wrk_sqr
        end do
+       !$omp end parallel do
 
     end if
 

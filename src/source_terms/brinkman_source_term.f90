@@ -503,7 +503,7 @@ contains
        call neko_log%message(log_msg, NEKO_LOG_DEBUG)
        call cache_output%init(dp, cache_filename, 1)
        call cache_output%fields%assign_to_field(1, temp_field)
-       call cache_output%sample(0.0_rp)
+       call cache_output%sample(0.0_dp)
     end if
 
     ! Update the global indicator field by max operator

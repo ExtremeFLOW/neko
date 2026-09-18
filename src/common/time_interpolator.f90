@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2025, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 !
 !> Implements type time_interpolator_t.
 module time_interpolator
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field, only : field_t
   use field_series, only : field_series_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -93,7 +93,7 @@ contains
   subroutine time_interpolator_interpolate(this, t, f, t_past, f_past, &
        t_future, f_future)
     class(time_interpolator_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: t, t_past, t_future
+    real(kind=dp), intent(inout) :: t, t_past, t_future
     type(field_t), intent(inout) :: f, f_past, f_future
     real(kind=rp) :: w_past, w_future !Weights for the interpolation
     integer :: n
@@ -127,11 +127,11 @@ contains
   !! @note This subroutine is similar to the int_vel subroutine of NEK5000
   subroutine time_interpolator_scalar(this, t, f_interpolated, f_n, tlag, n)
     class(time_interpolator_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
     integer, intent(in) :: n
     type(field_series_t), intent(inout) :: f_n
     type(field_t), intent(inout) :: f_interpolated
-    real(kind=rp), dimension(0:this%order), intent(in) :: tlag
+    real(kind=dp), dimension(0:this%order), intent(in) :: tlag
     type(c_ptr) :: f_interpolated_d
     integer :: i, l
 
@@ -145,17 +145,18 @@ contains
        &is not implemented")
     end if
 
-    wt = 0
+    wt = 0.0_rp
 
     ! interpolation weights
-    call fd_weights_full(t, tlag, this%order - 1, 0, wt(0:this%order - 1))
+    call fd_weights_full(real(t, kind=rp), real(tlag, kind=rp), &
+         this%order - 1, 0, wt(0:this%order - 1))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add4s3(f_interpolated%x_d, f_n%f%x_d, f_n%lf(1)%x_d, &
-                        f_n%lf(2)%x_d, wt(0), wt(1), wt(2), n)
+            f_n%lf(2)%x_d, wt(0), wt(1), wt(2), n)
     else
        call add4s3(f_interpolated%x, f_n%f%x, f_n%lf(1)%x, f_n%lf(2)%x, &
-                  wt(0), wt(1), wt(2), n)
+            wt(0), wt(1), wt(2), n)
     end if
 
   end subroutine time_interpolator_scalar

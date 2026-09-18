@@ -32,7 +32,20 @@
             },
             "pressure_solver": {
                 "type": "gmres",
-                "preconditioner": { "type": "hsmg" },
+                "preconditioner": {
+                  "type": "phmg",
+
+                  "update": {
+                    "enabled": true,
+                    "eigs": {
+                      "enabled": true,
+                      "frequency": 50,
+                      "warm_start": true,
+                      "warm_start_iterations": 50
+                    }
+                  }
+
+                },
                 "projection_space_size": 10,
                 "projection_reorthogonalize_basis": true,
                 "absolute_tolerance": 1e-7,

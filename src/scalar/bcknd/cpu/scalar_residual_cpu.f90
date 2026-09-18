@@ -6,8 +6,7 @@ module scalar_residual_cpu
   use coefs, only : coef_t
   use space, only : space_t
   use mesh, only : mesh_t
-  use num_types, only : rp    
-  use math, only : copy, cfill
+  use num_types, only : rp
   use field, only : field_t
   use mesh, only : mesh_t
   use ax_product, only : ax_t
@@ -34,12 +33,12 @@ contains
   !! @param msh The mesh.
   !! @param Xh The SEM function space.
   !! @param lambda The thermal conductivity.
-  !! @param rhocp The density multiplied by the specific heat capacity.
+  !! @param rho_cp The density multiplied by the specific heat capacity.
   !! @param bd The coefficeints from the BDF differencing scheme.
   !! @param dt The timestep.
   !! @param n The total number of degrees of freedom.
   subroutine scalar_residual_cpu_compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
-      lambda, rhocp, bd, dt, n)
+       lambda, rho_cp, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
@@ -47,23 +46,36 @@ contains
     type(field_t), intent(inout) :: s_res
     type(field_t), intent(in) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
-    type(field_t), intent(in) :: lambda
-    real(kind=rp), intent(in) :: rhocp
+    type(field_t), intent(in) :: lambda, rho_cp
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
     integer :: i
 
-    call copy(c_Xh%h1, lambda%x, n)
-    call cfill(c_Xh%h2, rhocp * bd / dt, n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1, n
+       c_Xh%h1(i,1,1,1) = lambda%x(i,1,1,1)
+       c_Xh%h2(i,1,1,1) = rho_cp%x(i,1,1,1) * bd / dt
+    end do
+    !$omp end parallel do
 
     c_Xh%ifh2 = .true.
 
     call Ax%compute(s_res%x, s%x, c_Xh, msh, Xh)
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do
     do i = 1, n
        s_res%x(i,1,1,1) = (-s_res%x(i,1,1,1)) + f_Xh%x(i,1,1,1)
     end do
+    !$omp end parallel do
 
   end subroutine scalar_residual_cpu_compute
 

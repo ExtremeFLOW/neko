@@ -61,9 +61,9 @@ contains
           u%x(i,1,1,1) = u_geo
           v%x(i,1,1,1) = 0.0_rp
           w%x(i,1,1,1) = 0.0_rp
-          x = u%dof%x(i,1,1,1)
-          y = u%dof%y(i,1,1,1)
-          z = u%dof%z(i,1,1,1)
+          x = u%dof%x%x(i,1,1,1)
+          y = u%dof%y%x(i,1,1,1)
+          z = u%dof%z%x(i,1,1,1)
           if (z .le. 50) then ! Small perturbation to help get turbulence started
              u%x(i,1,1,1) = u%x(i,1,1,1) + eps*(sin(alpha*x)*sin(beta*y)) &
                   + eps*(sin(gamma*x)*sin(delta*y))
@@ -77,7 +77,7 @@ contains
        s => fields%get(scheme_name)
        if (scheme_name .eq. 'temperature') then
           do i = 1, s%dof%size()
-             z = s%dof%z(i,1,1,1)
+             z = s%dof%z%x(i,1,1,1)
              if (z .le. z1) then
                 s%x(i,1,1,1) = theta0
              elseif (z .le. z2) then
@@ -88,7 +88,7 @@ contains
           end do
        elseif (scheme_name .eq. 'TKE') then
           do i = 1, s%dof%size()
-             z = s%dof%z(i,1,1,1)
+             z = s%dof%z%x(i,1,1,1)
              if (z .le. ze) then
                 s%x(i,1,1,1) = 0.4_rp * (1 - z/ze)*(1 - z/ze)*(1 - z/ze)
              else
@@ -115,7 +115,7 @@ contains
     fringe%x(:,1,1,1) = 0.0_rp
 
     do i = 1, fringe%size()
-       z = fringe%dof%z(i,1,1,1)
+       z = fringe%dof%z%x(i,1,1,1)
 
        if (z .gt. zmin_spng) then
           fringe%x(i,1,1,1) = stp_fun( (z - zmin_spng)/delta_spng )

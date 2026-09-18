@@ -92,6 +92,7 @@ EXTRA_DIST = \
 	examples/rayleigh_benard/rayleigh.case\
 	examples/tgv/262144.nmsh\
 	examples/tgv/tgv.case\
+	examples/tgv/tgv_expression.case\
 	examples/tgv/README.md\
 	examples/tgv/32768.nmsh\
 	examples/tgv/tgv.f90\
@@ -162,7 +163,8 @@ EXTRA_DIST = \
 	patches/json-fortran71.patch\
 	patches/cce_stack.patch\
 	patches/cce_time_state.patch\
-	patches/fujitsu_memleak.patch
+	patches/fujitsu_memleak.patch\
+	patches/fujitsu_memleak.sh
 
 if ENABLE_FLINT
 lint:

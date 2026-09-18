@@ -32,7 +32,7 @@
 !
 !> Defines an output
 module output
-  use num_types, only : rp
+  use num_types, only : dp
   use file, only : file_t
   implicit none
   private
@@ -58,9 +58,9 @@ module output
   abstract interface
      subroutine output_sample(this, t)
        import :: output_t
-       import rp
+       import dp
        class(output_t), intent(inout) :: this
-       real(kind=rp), intent(in) :: t
+       real(kind=dp), intent(in) :: t
      end subroutine output_sample
 
      subroutine output_free(this)

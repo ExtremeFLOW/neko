@@ -61,7 +61,7 @@ def test_user_stats(launcher_script, request, log_file, tmp_path):
         result.returncode == 0
     ), f"neko process failed with exit code {result.returncode}"
 
-    stats_file = tmp_path / "user_stats.csv"
+    stats_file = tmp_path / "user_stats0.csv"
     assert stats_file.exists(), (
         f"user_stats output was not written to {tmp_path}"
     )
@@ -73,4 +73,3 @@ def test_user_stats(launcher_script, request, log_file, tmp_path):
     assert (
          error < 1e-4
     ), f"Error exceeded tolerance: {error}"
-

@@ -45,8 +45,11 @@ module gs_bcknd
      type(c_ptr) :: gather_event = C_NULL_PTR
      type(c_ptr) :: scatter_event = C_NULL_PTR
      type(c_ptr) :: gs_stream = C_NULL_PTR
-     !> Shared points are handled on the host (device backends only; kept
-     !! in the base type so it can be set without a select type)
+     !> Shared points are handled on the host (device backends only). Kept
+     !! in the base type so that it can be set without a select type: a
+     !! select type (gs_device_t) assignment to it miscompiles with CCE 21
+     !! at -O2/-O3, silently leaving the shared points on the host so that
+     !! the scatter overwrites the unpacked halo with the stale host buffer
      logical :: shared_on_host = .true.
    contains
      procedure(gs_backend_init), pass(this), deferred :: init

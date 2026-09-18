@@ -207,6 +207,9 @@ contains
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
     real(kind=rp) :: normal(3)
 
+    ! Here, and in facet_factor_init() and dist2_quadrature_hex() below
+    call coef%require_facets('gradient_jump_penalty')
+
     call this%free()
 
     call this%init_base(fields, coef, start_time, end_time)
@@ -465,16 +468,16 @@ contains
        n11 = normal1(1)
        n12 = normal1(2)
        n13 = normal1(3)
-       x1 = dm%x(1, l, k, i)
-       y1 = dm%y(1, l, k, i)
-       z1 = dm%z(1, l, k, i)
+       x1 = dm%x%x(1, l, k, i)
+       y1 = dm%y%x(1, l, k, i)
+       z1 = dm%z%x(1, l, k, i)
        normal2 = coef%get_normal(1, l, k, i, 2)
        n21 = normal2(1)
        n22 = normal2(2)
        n23 = normal2(3)
-       x2 = dm%x(n, l, k, i)
-       y2 = dm%y(n, l, k, i)
-       z2 = dm%z(n, l, k, i)
+       x2 = dm%x%x(n, l, k, i)
+       y2 = dm%y%x(n, l, k, i)
+       z2 = dm%z%x(n, l, k, i)
     case (2)
        ! now the facet pair share the same value for h
        ! but just let it be here for furture possible changes
@@ -482,76 +485,76 @@ contains
        n11 = normal1(1)
        n12 = normal1(2)
        n13 = normal1(3)
-       x1 = dm%x(n, l, k, i)
-       y1 = dm%y(n, l, k, i)
-       z1 = dm%z(n, l, k, i)
+       x1 = dm%x%x(n, l, k, i)
+       y1 = dm%y%x(n, l, k, i)
+       z1 = dm%z%x(n, l, k, i)
        normal2 = coef%get_normal(1, l, k, i, 1)
        n21 = normal2(1)
        n22 = normal2(2)
        n23 = normal2(3)
-       x2 = dm%x(1, l, k, i)
-       y2 = dm%y(1, l, k, i)
-       z2 = dm%z(1, l, k, i)
+       x2 = dm%x%x(1, l, k, i)
+       y2 = dm%y%x(1, l, k, i)
+       z2 = dm%z%x(1, l, k, i)
     case (3)
        normal1 = coef%get_normal(1, l, k, i, 3)
        n11 = normal1(1)
        n12 = normal1(2)
        n13 = normal1(3)
-       x1 = dm%x(l, 1, k, i)
-       y1 = dm%y(l, 1, k, i)
-       z1 = dm%z(l, 1, k, i)
+       x1 = dm%x%x(l, 1, k, i)
+       y1 = dm%y%x(l, 1, k, i)
+       z1 = dm%z%x(l, 1, k, i)
        normal2 = coef%get_normal(1, l, k, i, 4)
        n21 = normal2(1)
        n22 = normal2(2)
        n23 = normal2(3)
-       x2 = dm%x(l, n, k, i)
-       y2 = dm%y(l, n, k, i)
-       z2 = dm%z(l, n, k, i)
+       x2 = dm%x%x(l, n, k, i)
+       y2 = dm%y%x(l, n, k, i)
+       z2 = dm%z%x(l, n, k, i)
     case (4)
        normal1 = coef%get_normal(1, l, k, i, 4)
        n11 = normal1(1)
        n12 = normal1(2)
        n13 = normal1(3)
-       x1 = dm%x(l, n, k, i)
-       y1 = dm%y(l, n, k, i)
-       z1 = dm%z(l, n, k, i)
+       x1 = dm%x%x(l, n, k, i)
+       y1 = dm%y%x(l, n, k, i)
+       z1 = dm%z%x(l, n, k, i)
        normal2 = coef%get_normal(1, l, k, i, 3)
        n21 = normal2(1)
        n22 = normal2(2)
        n23 = normal2(3)
-       x2 = dm%x(l, 1, k, i)
-       y2 = dm%y(l, 1, k, i)
-       z2 = dm%z(l, 1, k, i)
+       x2 = dm%x%x(l, 1, k, i)
+       y2 = dm%y%x(l, 1, k, i)
+       z2 = dm%z%x(l, 1, k, i)
     case (5)
        normal1 = coef%get_normal(1, l, k, i, 5)
        n11 = normal1(1)
        n12 = normal1(2)
        n13 = normal1(3)
-       x1 = dm%x(l, k, 1, i)
-       y1 = dm%y(l, k, 1, i)
-       z1 = dm%z(l, k, 1, i)
+       x1 = dm%x%x(l, k, 1, i)
+       y1 = dm%y%x(l, k, 1, i)
+       z1 = dm%z%x(l, k, 1, i)
        normal2 = coef%get_normal(1, l, k, i, 6)
        n21 = normal2(1)
        n22 = normal2(2)
        n23 = normal2(3)
-       x2 = dm%x(l, k, n, i)
-       y2 = dm%y(l, k, n, i)
-       z2 = dm%z(l, k, n, i)
+       x2 = dm%x%x(l, k, n, i)
+       y2 = dm%y%x(l, k, n, i)
+       z2 = dm%z%x(l, k, n, i)
     case (6)
        normal1 = coef%get_normal(1, l, k, i, 6)
        n11 = normal1(1)
        n12 = normal1(2)
        n13 = normal1(3)
-       x1 = dm%x(l, k, n, i)
-       y1 = dm%y(l, k, n, i)
-       z1 = dm%z(l, k, n, i)
+       x1 = dm%x%x(l, k, n, i)
+       y1 = dm%y%x(l, k, n, i)
+       z1 = dm%z%x(l, k, n, i)
        normal2 = coef%get_normal(1, l, k, i, 5)
        n21 = normal2(1)
        n22 = normal2(2)
        n23 = normal2(3)
-       x2 = dm%x(l, k, 1, i)
-       y2 = dm%y(l, k, 1, i)
-       z2 = dm%z(l, k, 1, i)
+       x2 = dm%x%x(l, k, 1, i)
+       y2 = dm%y%x(l, k, 1, i)
+       z2 = dm%z%x(l, k, 1, i)
     case default
        call neko_error("The face index is not correct")
     end select
@@ -881,27 +884,35 @@ contains
     real(kind=rp), intent(in) :: wa(lx + 2, lx + 2, lx + 2, nelv)
     real(kind=rp), intent(in) :: dphidxi(lx, lx)
 
-    integer :: i, j, k
+    integer :: e, i, j, k
 
-    do i = 1, lx
-       do j = 1, lx
-          do k = 1, lx
-             penalty(i, j, k, :) = &
-                  wa(1, j + 1, k + 1, :) * &
-                  dphidxi(1, i) + &
-                  wa(lx + 2, j + 1, k + 1, :) * &
-                  dphidxi(lx, i) + &
-                  wa(i + 1, 1, k + 1, :) * &
-                  dphidxi(1, j) + &
-                  wa(i + 1, lx + 2, k + 1, :) * &
-                  dphidxi(lx, j) + &
-                  wa(i + 1, j + 1, 1, :) * &
-                  dphidxi(1, k) + &
-                  wa(i + 1, j + 1, lx + 2, :) * &
-                  dphidxi(lx, k)
+    !$omp parallel do private(e, i, j, k)
+    do e = 1, nelv
+       do k = 1, lx
+          do j = 1, lx
+             !OCL NORECURRENCE, NOVREC, NOALIAS
+             !DIR$ CONCURRENT
+             !DIR$ IVDEP
+             !GCC$ ivdep
+             do i = 1, lx
+                penalty(i, j, k, e) = &
+                     wa(1, j + 1, k + 1, e) * &
+                     dphidxi(1, i) + &
+                     wa(lx + 2, j + 1, k + 1, e) * &
+                     dphidxi(lx, i) + &
+                     wa(i + 1, 1, k + 1, e) * &
+                     dphidxi(1, j) + &
+                     wa(i + 1, lx + 2, k + 1, e) * &
+                     dphidxi(lx, j) + &
+                     wa(i + 1, j + 1, 1, e) * &
+                     dphidxi(1, k) + &
+                     wa(i + 1, j + 1, lx + 2, e) * &
+                     dphidxi(lx, k)
+             end do
           end do
        end do
     end do
+    !$omp end parallel do
 
   end subroutine gradient_jump_penalty_finalize_hex
 

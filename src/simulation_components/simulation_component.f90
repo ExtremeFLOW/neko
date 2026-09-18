@@ -36,7 +36,7 @@
 !! @note
 !! The canonical way to abbreviate simulation_component is simcomp.
 module simulation_component
-  use num_types, only : rp
+  use num_types, only : dp
   use json_module, only : json_file
   use case, only : case_t
   use time_based_controller, only : time_based_controller_t
@@ -211,7 +211,7 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: preprocess_control, compute_control, &
          output_control
-    real(kind=rp) :: preprocess_value, compute_value, output_value
+    real(kind=dp) :: preprocess_value, compute_value, output_value
     integer :: order
 
     call this%parse_json(json, case%params, preprocess_control, &
@@ -243,11 +243,11 @@ contains
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: output_value
 
     this%case => case
     this%order = order
@@ -299,11 +299,11 @@ contains
     type(json_file), intent(inout) :: json
     type(json_file), intent(inout) :: case_params
     character(len=:), allocatable, intent(inout) :: preprocess_control
-    real(kind=rp), intent(out) :: preprocess_value
+    real(kind=dp), intent(out) :: preprocess_value
     character(len=:), allocatable, intent(inout) :: compute_control
-    real(kind=rp), intent(out) :: compute_value
+    real(kind=dp), intent(out) :: compute_value
     character(len=:), allocatable, intent(inout) :: output_control
-    real(kind=rp), intent(out) :: output_value
+    real(kind=dp), intent(out) :: output_value
     integer :: preprocess_value_int, compute_value_int, output_value_int
     character(len=:), allocatable :: json_path
     type(json_file) :: json_object
@@ -332,14 +332,14 @@ contains
        ! Read it is an interger, and convert to real
        call json_get_or_lookup_or_default(json_object, json_path, &
             preprocess_value_int, 1)
-       preprocess_value = real(preprocess_value_int, kind=rp)
+       preprocess_value = real(preprocess_value_int, kind=dp)
     else if (preprocess_control .eq. "simulationtime") then
        ! Read as real
        call json_get_or_lookup_or_default(json_object, json_path, &
-            preprocess_value, 1.0_rp)
+            preprocess_value, 1.0_dp)
     else if (preprocess_control .eq. "never") then
        ! Dummy value
-       preprocess_value = 0.0_rp
+       preprocess_value = 0.0_dp
     end if
 
     !
@@ -366,15 +366,15 @@ contains
        ! Read it is an interger, and convert to real
        call json_get_or_lookup_or_default(json_object, json_path, &
             compute_value_int, 1)
-       compute_value = real(compute_value_int, kind=rp)
+       compute_value = real(compute_value_int, kind=dp)
     else if (compute_control .eq. "simulationtime") then
        ! Read as real
        call json_get_or_lookup_or_default(json_object, json_path, &
-            compute_value, 1.0_rp)
+            compute_value, 1.0_dp)
        compute_value_int = int(compute_value)
     else if (compute_control .eq. "never") then
        ! Dummy value
-       compute_value = 0.0_rp
+       compute_value = 0.0_dp
        compute_value_int = 0
     end if
 
@@ -402,14 +402,14 @@ contains
        ! Read it is an interger, and convert to real
        call json_get_or_lookup_or_default(json_object, json_path, &
             output_value_int, compute_value_int)
-       output_value = real(output_value_int, kind=rp)
+       output_value = real(output_value_int, kind=dp)
     else if (output_control .eq. "simulationtime") then
        ! Read as real
        call json_get_or_lookup_or_default(json_object, json_path, &
             output_value, compute_value)
     else if (output_control .eq. "never") then
        ! Dummy value
-       output_value = 0.0_rp
+       output_value = 0.0_dp
     end if
 
     deallocate(json_path)

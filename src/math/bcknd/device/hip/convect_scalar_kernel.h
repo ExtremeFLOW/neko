@@ -1,5 +1,6 @@
 #ifndef __MATH_CONVECT_SCALAR_KERNEL_H__
 #define __MATH_CONVECT_SCALAR_KERNEL_H__
+
 /*
  Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
@@ -34,19 +35,21 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "elem_block.h"
+
 /**
  * Device kernel for convective terms
  */
 
 template< typename T, const int LX, const int CHUNKS >
 __global__ void convect_scalar_kernel_1d(T * __restrict__ du,
-                                const T * __restrict__ u,
-                                const T * __restrict__ cr,
-                                const T * __restrict__ cs,
-                                const T * __restrict__ ct,
-                                const T * __restrict__ dx,
-                                const T * __restrict__ dy,
-                                const T * __restrict__ dz) {
+                                         const T * __restrict__ u,
+                                         const T * __restrict__ cr,
+                                         const T * __restrict__ cs,
+                                         const T * __restrict__ ct,
+                                         const T * __restrict__ dx,
+                                         const T * __restrict__ dy,
+                                         const T * __restrict__ dz) {
 
   __shared__ T shu[LX * LX * LX];
 
@@ -105,8 +108,8 @@ __global__ void convect_scalar_kernel_1d(T * __restrict__ du,
   }
 }
 
-template< typename T, const int LX >
-__global__ void __launch_bounds__(LX*LX,3)
+template< typename T, const int LX, const int EB >
+__global__ void NEKO_EB_BOUNDS(LX*LX*EB)
   convect_scalar_kernel_kstep(T * __restrict__ du,
                      const T * __restrict__ u,
                      const T * __restrict__ cr,
@@ -114,23 +117,40 @@ __global__ void __launch_bounds__(LX*LX,3)
                      const T * __restrict__ ct,
                      const T * __restrict__ dx,
                      const T * __restrict__ dy,
-                     const T * __restrict__ dz) {
+                     const T * __restrict__ dz,
+                    const int nelv) {
 
-  __shared__ T shu[LX * LX];
+  __shared__ T shu[EB * LX * LX];
 
   __shared__ T shdx[LX*LX];
   __shared__ T shdy[LX*LX];
   __shared__ T shdz[LX*LX];
 
-  const int e = blockIdx.x;
+  static_assert(sizeof(shu) +
+                sizeof(shdx) +
+                sizeof(shdy) +
+                sizeof(shdz)
+                <= NEKO_EB_MAX_LDS,
+                "kstep block exceeds the LDS budget");
+
+  const int eb = (EB == 1) ? 0 : threadIdx.z;
+  const int e_blk = blockIdx.x * EB + eb;
+  /* Threads past the last element still have to reach the barriers in
+     the k loop, so clamp their reads and drop their stores rather than
+     returning early. At EB == 1 this all constant folds away */
+  const bool active = (EB == 1) ? true : (e_blk < nelv);
+  const int e = active ? e_blk : (nelv - 1);
+  const int sh = eb * LX * LX;
   const int j = threadIdx.y;
   const int i = threadIdx.x;
   const int ij = i + j * LX;
   const int ele = e*LX*LX*LX;
 
-  shdx[ij] = dx[ij];
-  shdy[ij] = dy[ij];
-  shdz[ij] = dz[ij];
+  if (eb == 0) {
+    shdx[ij] = dx[ij];
+    shdy[ij] = dy[ij];
+    shdz[ij] = dz[ij];
+  }
 
   T ru[LX];
   T rcr[LX];
@@ -151,7 +171,8 @@ __global__ void __launch_bounds__(LX*LX,3)
   for (int k = 0; k < LX; ++k) {
     const int ijk = ij + k*LX*LX;
     T ttmp = 0.0;
-    shu[ij] = ru[k];
+    shu[sh + ij] = ru[k];
+#pragma unroll
     for (int l = 0; l < LX; l++) {
       ttmp += shdz[k+l*LX] * ru[l];
     }
@@ -161,13 +182,15 @@ __global__ void __launch_bounds__(LX*LX,3)
     T stmp = 0.0;
 #pragma unroll
     for (int l = 0; l < LX; l++) {
-      rtmp += shdx[i+l*LX] * shu[l+j*LX];
-      stmp += shdy[j+l*LX] * shu[i+l*LX];
+      rtmp += shdx[i+l*LX] * shu[sh + l+j*LX];
+      stmp += shdy[j+l*LX] * shu[sh + i+l*LX];
     }
 
-    du[ijk + ele] = rcr[k] * rtmp
-	                + rcs[k] * stmp
-	                + rct[k] * ttmp;
+    if (active) {
+      du[ijk + ele] = rcr[k] * rtmp
+  	                + rcs[k] * stmp
+  	                + rct[k] * ttmp;
+    }
     __syncthreads();
   }
 }

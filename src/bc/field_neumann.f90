@@ -34,7 +34,7 @@
 module field_neumann
   use num_types, only : rp
   use coefs, only : coef_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_NEUMANN
   use field, only : field_t
   use field_list, only : field_list_t
   use vector, only : vector_t
@@ -127,7 +127,7 @@ contains
     character(len=*), intent(in) :: field_name
 
     call this%init_base(coef)
-    this%strong = .false.
+    this%bc_type = BC_NEUMANN
 
     call this%field_bc%init(this%dof, field_name)
     call this%field_list%init(1)
@@ -178,6 +178,7 @@ contains
     logical, intent(in), optional :: strong
     integer :: i, m, k, facet
     integer :: idx(4)
+    real(kind=rp) :: area
     logical :: strong_
 
     if (present(strong)) then
@@ -188,33 +189,32 @@ contains
 
     if (.not. strong_) then
 
+       !$omp single
        if (.not. this%updated) then
           call this%update(this%field_list, this, time)
           call this%gather_flux()
           this%updated = .true.
        end if
+       !$omp end single
 
-       m = this%msk(0)
+       m = this%facet_node_msk(0)
        !$omp do
        do i = 1, m
-          k = this%msk(i)
+          k = this%facet_node_msk(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
+          area = 0.0_rp
           select case (facet)
           case (1,2)
-             x(k) = x(k) + &
-                  this%flux%x(i) * &
-                  this%coef%area(idx(2), idx(3), facet, idx(4))
+             area = this%coef%area(idx(2), idx(3), facet, idx(4))
           case (3,4)
-             x(k) = x(k) + &
-                  this%flux%x(i) * &
-                  this%coef%area(idx(1), idx(3), facet, idx(4))
+             area = this%coef%area(idx(1), idx(3), facet, idx(4))
           case (5,6)
-             x(k) = x(k) + &
-                  this%flux%x(i) * &
-                  this%coef%area(idx(1), idx(2), facet, idx(4))
+             area = this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
+          !$omp atomic
+          x(k) = x(k) + this%flux%x(i) * area
        end do
        !$omp end do
     end if
@@ -240,16 +240,19 @@ contains
     end if
 
     if (.not. strong_) then
+       !$omp single
        if (.not. this%updated) then
           call this%update(this%field_list, this, time)
           call this%gather_flux()
           this%updated = .true.
        end if
+       !$omp end single
 
-       if (this%msk(0) .gt. 0) then
-          call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
+       if (this%facet_node_msk(0) .gt. 0) then
+          call device_neumann_apply_scalar(this%facet_node_msk_d, &
+               this%facet_d, x_d, &
                this%flux%x_d, this%coef%area_d, this%coef%Xh%lx, &
-               size(this%msk), strm)
+               size(this%facet_node_msk), strm)
        end if
     end if
 
@@ -285,17 +288,10 @@ contains
   end subroutine field_neumann_apply_vector_dev
 
   !> Finalize.
-  subroutine field_neumann_finalize(this, only_facets)
+  subroutine field_neumann_finalize(this)
     class(field_neumann_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
 
-    if (present(only_facets)) then
-       if (.not. only_facets) then
-          call neko_error("For field_neumann_t, only_facets has to be true.")
-       end if
-    end if
-
-    call this%finalize_base(.true.)
+    call this%finalize_base()
     call this%flux%init(this%msk(0))
 
   end subroutine field_neumann_finalize

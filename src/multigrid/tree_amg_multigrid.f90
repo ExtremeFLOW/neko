@@ -42,18 +42,18 @@
 !>  call amg_solver%solve(x%x, f, n)
 !>
 module tree_amg_multigrid
-  use num_types, only: rp
+  use num_types, only : rp
   use utils, only : neko_error, neko_warning
   use math, only : add2, rzero, glsc2, col2, copy, add2s1
   use device_math, only : device_rzero, device_col2, device_add2, device_sub3, &
        device_glsc2, device_copy
   use comm
-  use mpi_f08, only: MPI_Allreduce, MPI_MIN, MPI_IN_PLACE, MPI_INTEGER
+  use mpi_f08, only : MPI_Allreduce, MPI_MIN, MPI_IN_PLACE, MPI_INTEGER
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use space, only : space_t
-  use ax_product, only: ax_t
-  use bc_list, only : bc_list_t
+  use ax_product, only : ax_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use tree_amg, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
   use tree_amg_aggregate, only : aggregate_finest_level, aggregate_greedy, &
@@ -61,10 +61,11 @@ module tree_amg_multigrid
   use tree_amg_smoother, only : amg_cheby_t
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_unmap, device_memcpy, HOST_TO_DEVICE, &
+  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE, &
        device_get_ptr
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
+  !$ use omp_lib, only : omp_get_max_threads
   implicit none
   private
 
@@ -90,6 +91,8 @@ module tree_amg_multigrid
      procedure, pass(this) :: init => tamg_mg_init
      procedure, pass(this) :: solve => tamg_mg_solve
      procedure, pass(this) :: free => tamg_mg_free
+     procedure, pass(this) :: invalidate_eigs => tamg_mg_invalidate_eigs
+     procedure, pass(this) :: set_eig_refresh => tamg_mg_set_eig_refresh
      procedure, private, pass(this) :: mg_cycle => tamg_mg_cycle
      procedure, private, pass(this) :: mg_cycle_d => tamg_mg_cycle_d
   end type tamg_solver_t
@@ -103,9 +106,9 @@ contains
   !! @param msh Finest level mesh information
   !! @param gs_h Finest level gather scatter operator
   !! @param nlvls Number of levels for the TreeAMG hierarchy
-  !! @param blst Finest level BC list
+  !! @param bc_projector Finest level BC projector
   !! @param max_iter Number of AMG iterations
-  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls, blst, &
+  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls, bc_projector, &
        max_iter, cheby_degree)
     class(tamg_solver_t), intent(inout), target :: this
     class(ax_t), target, intent(in) :: ax
@@ -113,7 +116,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     type(mesh_t), target, intent(in) :: msh
     type(gs_t), target, intent(in) :: gs_h
-    type(bc_list_t), target, intent(in) :: blst
+    type(scalar_bc_projector_t), target, intent(in) :: bc_projector
     integer, intent(in) :: nlvls
     integer, intent(in) :: max_iter
     integer, intent(in) :: cheby_degree
@@ -130,7 +133,7 @@ contains
     call neko_log%message(log_buf)
 
     allocate( this%amg )
-    call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, blst)
+    call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, bc_projector)
 
     ! Aggregation
     use_greedy_agg = .true.
@@ -215,6 +218,10 @@ contains
     ! Create index mapping between levels
     call fill_lvl_map(this%amg)
 
+    ! Invert those maps so the flat matvec can be driven from the aggregate
+    ! side instead of scattering into the coarse vector with atomics
+    call build_agg_csr(this%amg)
+
     call neko_log%end_section()
 
   end subroutine tamg_mg_init
@@ -259,6 +266,32 @@ contains
        end do
     end if
   end subroutine tamg_mg_free
+
+
+  !> Re-estimate every level's eigenvalues on the next solve. Needed when
+  !! the operator changes underneath the hierarchy.
+  subroutine tamg_mg_invalidate_eigs(this)
+    class(tamg_solver_t), intent(inout) :: this
+    integer :: lvl
+    do lvl = 0, this%amg%nlvls-1
+       this%smoo(lvl)%recompute_eigs = .true.
+    end do
+  end subroutine tamg_mg_invalidate_eigs
+
+
+  !> Set the eigenvalue re-estimation policy on every level.
+  !! @param warm_start Restart from the saved eigenvector
+  !! @param power_its_refresh Iterations to use when restarting
+  subroutine tamg_mg_set_eig_refresh(this, warm_start, power_its_refresh)
+    class(tamg_solver_t), intent(inout) :: this
+    logical, intent(in) :: warm_start
+    integer, intent(in) :: power_its_refresh
+    integer :: lvl
+    do lvl = 0, this%amg%nlvls-1
+       this%smoo(lvl)%warm_start_eigs = warm_start
+       this%smoo(lvl)%power_its_refresh = power_its_refresh
+    end do
+  end subroutine tamg_mg_set_eig_refresh
 
 
   !> Solver function for the TreeAMG solver object
@@ -524,31 +557,47 @@ contains
   !! @param amg The tamg hierarchy
   subroutine fill_lvl_map(amg)
     type(tamg_hierarchy_t), intent(inout) :: amg
-    integer :: i, j, k, l, nid, n
+    integer, allocatable :: dof2gid(:)
+    integer :: i, j, k, l, nid, n, nmap
     do j = 1, amg%lvl(1)%nnodes
        do k = 1, amg%lvl(1)%nodes(j)%ndofs
           nid = amg%lvl(1)%nodes(j)%dofs(k)
           amg%lvl(1)%map_finest2lvl(nid) = amg%lvl(1)%nodes(j)%gid
        end do
     end do
-    n = size(amg%lvl(1)%map_finest2lvl)
+    ! map_finest2lvl is allocated 0:fine_lvl_dofs (element 0 carries the
+    ! length for the device kernels), so size() is one more than the number
+    ! of dofs and must not be used as the upper loop bound.
+    n = amg%lvl(1)%fine_lvl_dofs
     do l = 2, amg%nlvls
-       do i = 1, n
-          nid = amg%lvl(l-1)%map_finest2lvl(i)
-          do j = 1, amg%lvl(l)%nnodes
-             do k = 1, amg%lvl(l)%nodes(j)%ndofs
-                if (nid .eq. amg%lvl(l)%nodes(j)%dofs(k)) then
-                   amg%lvl(l)%map_finest2lvl(i) = amg%lvl(l)%nodes(j)%gid
-                end if
-             end do
+       ! Invert the level's node->dof lists once into dof2gid, then compose
+       ! with the level below. Searching every node for every dof instead
+       ! is O(n * dofs-on-level) and dominates setup on large coarse grids.
+       allocate(dof2gid(amg%lvl(l)%fine_lvl_dofs))
+       dof2gid = 0
+       do j = 1, amg%lvl(l)%nnodes
+          do k = 1, amg%lvl(l)%nodes(j)%ndofs
+             dof2gid(amg%lvl(l)%nodes(j)%dofs(k)) = amg%lvl(l)%nodes(j)%gid
           end do
        end do
+       do i = 1, n
+          nid = amg%lvl(l-1)%map_finest2lvl(i)
+          if (nid .ge. 1 .and. nid .le. amg%lvl(l)%fine_lvl_dofs) then
+             if (dof2gid(nid) .gt. 0) then
+                amg%lvl(l)%map_finest2lvl(i) = dof2gid(nid)
+             end if
+          end if
+       end do
+       deallocate(dof2gid)
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       ! The whole array, element 0 included, is what gets mirrored; keep
+       ! this independent of the loop bound above.
+       nmap = size(amg%lvl(1)%map_finest2lvl)
        do l = 1, amg%nlvls
-          amg%lvl(l)%map_finest2lvl(0) = n
+          amg%lvl(l)%map_finest2lvl(0) = nmap
           call device_memcpy( amg%lvl(l)%map_finest2lvl, &
-               amg%lvl(l)%map_finest2lvl_d, n, &
+               amg%lvl(l)%map_finest2lvl_d, nmap, &
                HOST_TO_DEVICE, .true.)
           call device_memcpy( amg%lvl(l)%map_f2c, &
                amg%lvl(l)%map_f2c_d, amg%lvl(l)%fine_lvl_dofs+1, &
@@ -556,4 +605,103 @@ contains
        end do
     end if
   end subroutine fill_lvl_map
+
+  !> Build the transpose of map_finest2lvl in CSR form: for every aggregate
+  !! on a level, the list of finest-level dofs that map to it. This lets the
+  !! flat matvec walk aggregates rather than dofs, so its restriction becomes
+  !! a segmented reduction with disjoint writes instead of an atomic scatter.
+  !! Two O(n) passes per level.
+  !! @param amg The tamg hierarchy, with the level maps already filled
+  subroutine build_agg_csr(amg)
+    type(tamg_hierarchy_t), intent(inout) :: amg
+    !> Cache-line padding for the per-thread partials, in elements of rp.
+    !! 32 doubles = 256 B, the A64FX line; a multiple of the 64 B line
+    !! everywhere else.
+    integer, parameter :: PART_PAD = 32
+    integer, allocatable :: fill(:), seen(:)
+    integer :: l, i, j, k, c, n, nagg, nthrds, ldpart
+
+    n = amg%lvl(1)%fine_lvl_dofs
+
+    nthrds = 1
+    !$ nthrds = omp_get_max_threads()
+
+    ! The restriction and prolongation operators thread over nodes on the
+    ! assumption that a level's nodes partition the dofs of the level below,
+    ! which is what makes their writes disjoint. Check it once here rather
+    ! than let a violation turn into a silent data race at solve time.
+    do l = 1, amg%nlvls
+       allocate(seen(amg%lvl(l)%fine_lvl_dofs))
+       seen = 0
+       do j = 1, amg%lvl(l)%nnodes
+          do k = 1, amg%lvl(l)%nodes(j)%ndofs
+             i = amg%lvl(l)%nodes(j)%dofs(k)
+             if (i .lt. 1 .or. i .gt. amg%lvl(l)%fine_lvl_dofs) then
+                call neko_error('TAMG: node dof outside the level')
+             end if
+             if (seen(i) .ne. 0) then
+                call neko_error('TAMG: dof shared by two nodes on a level')
+             end if
+             seen(i) = j
+          end do
+       end do
+       deallocate(seen)
+    end do
+
+    do l = 1, amg%nlvls
+       nagg = amg%lvl(l)%nnodes
+
+       allocate(amg%lvl(l)%agg_ptr(nagg + 1))
+       allocate(amg%lvl(l)%agg_dof(n))
+       allocate(fill(nagg))
+
+       ! Levels with too few aggregates to give every thread one fall back
+       ! to a reduction over dofs into per-thread partials; the coarsest
+       ! level always does, it has a single aggregate from aggregate_end.
+       ! Pad the leading dimension so every thread's column starts in its
+       ! own cache line: unpadded, nagg = 1 puts all nthrds accumulators in
+       ! a single line and the inner loop degenerates into line ping-pong,
+       ! which is no better than the atomic it replaces. PART_PAD is in
+       ! elements and covers the widest line in play (A64FX is 256 B, x86
+       ! and most AArch64 are 64 B).
+       if (nagg .lt. 2 * nthrds) then
+          ldpart = ((nagg + PART_PAD - 1) / PART_PAD) * PART_PAD
+          allocate(amg%lvl(l)%agg_part(ldpart, nthrds))
+       end if
+
+       associate(aptr => amg%lvl(l)%agg_ptr, adof => amg%lvl(l)%agg_dof, &
+            map => amg%lvl(l)%map_finest2lvl)
+
+         ! Histogram the aggregate sizes into aptr(2:nagg+1). map_finest2lvl
+         ! is never initialised, so a dof left out of the aggregation shows
+         ! up here rather than as silent garbage in the matvec.
+         aptr = 0
+         do i = 1, n
+            c = map(i)
+            if (c .lt. 1 .or. c .gt. nagg) then
+               call neko_error('TAMG: dof not covered by the aggregation')
+            end if
+            aptr(c + 1) = aptr(c + 1) + 1
+         end do
+
+         ! Prefix sum into 1-based offsets
+         aptr(1) = 1
+         do c = 1, nagg
+            aptr(c + 1) = aptr(c + 1) + aptr(c)
+         end do
+
+         ! Place the dof ids. i ascends, so each aggregate's list comes out
+         ! sorted, which keeps the indirect reads in the matvec monotone.
+         fill = 0
+         do i = 1, n
+            c = map(i)
+            adof(aptr(c) + fill(c)) = i
+            fill(c) = fill(c) + 1
+         end do
+       end associate
+
+       deallocate(fill)
+    end do
+
+  end subroutine build_agg_csr
 end module tree_amg_multigrid

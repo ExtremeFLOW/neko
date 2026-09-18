@@ -87,12 +87,16 @@ module most_cpu
 
   ! These will point to the correct functions
   ! depending on stability regime and bc_type.
+  !! @note These are reassigned per node inside the compute loop, so every
+  !! thread needs its own copy. They are always set before being used.
   procedure(slaw_m_interface), pointer :: slaw_m_ptr => null()
   procedure(slaw_h_interface), pointer :: slaw_h_ptr => null()
   procedure(corr_m_interface), pointer :: corr_m_ptr => null()
   procedure(corr_h_interface), pointer :: corr_h_ptr => null()
   procedure(f_interface), pointer :: f_ptr => null()
   procedure(dfdl_interface), pointer :: dfdl_ptr => null()
+  !$omp threadprivate(slaw_m_ptr, slaw_h_ptr, corr_m_ptr, corr_h_ptr, &
+  !$omp& f_ptr, dfdl_ptr)
 
 contains
 
@@ -162,14 +166,13 @@ contains
 
   !> Main routine to compute the surface stresses based on MOST.
   !! @param tstep The current time-step
-  subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
-       n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
+  subroutine most_compute_cpu(u, v, w, temp, temp_w, &
+       n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, &
        kappa, mu_w, rho_w, g_vec, Pr, z0, z0h_in, bc_type, bc_value, tstep, &
        Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, ts_diagn,&
-       q_diagn, h_x_idx, h_y_idx, h_z_idx)
-    integer, intent(in) :: n_nodes, lx, nelv, tstep
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
-    integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
+       q_diagn)
+    integer, intent(in) :: n_nodes, tstep
+    real(kind=rp), dimension(n_nodes), intent(in) :: u, v, w, temp, temp_w
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
     real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value, Pr
     real(kind=rp), dimension(3), intent(in) :: g_vec
@@ -192,16 +195,16 @@ contains
     real(kind=rp), dimension(n_nodes), intent(inout) :: utau_diagn, magu_diagn
     real(kind=rp), dimension(n_nodes), intent(inout) :: ti_diagn, ts_diagn
     real(kind=rp), dimension(n_nodes), intent(inout) :: q_diagn
-    integer, dimension(n_nodes), intent(in) :: h_x_idx
-    integer, dimension(n_nodes), intent(in) :: h_y_idx
-    integer, dimension(n_nodes), intent(in) :: h_z_idx
 
+    !$omp parallel do private(i, ui, vi, wi, hi, rho, mu, normu, z0h, &
+    !$omp& L_upper, L_lower, L_old, f, dfdl, fd_h, L_new, L_sign, count, &
+    !$omp& utau, Ri_b, L_ob, magu, q, ti, ts, g_dot_n)
     do i=1, n_nodes
        ! Sample the variables
-       ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       ti = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       ui = u(i)
+       vi = v(i)
+       wi = w(i)
+       ti = temp(i)
        hi = h(i)
        rho = rho_w(i)
        mu = mu_w(i)
@@ -284,8 +287,10 @@ contains
 
           if (abs(L_ob) > 5e5_rp .or. abs(L_ob) < 1e-6_rp) then
              count = max_count
+             !$omp critical
              call neko_warning("Obukhov length did not converge " // &
                   "(MOST wall model)")
+             !$omp end critical
           end if
 
           if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
@@ -320,10 +325,10 @@ contains
        utau_diagn(i) = utau
        magu_diagn(i) = magu
        ti_diagn(i) = ti
-       ts_diagn(i) = temp(ind_r(i) - h_x_idx(i), ind_s(i) - h_y_idx(i), &
-            ind_t(i) - h_z_idx(i), ind_e(i))
+       ts_diagn(i) = temp_w(i)
        q_diagn(i) = q
     end do
+    !$omp end parallel do
   end subroutine most_compute_cpu
 
 !> Similarity laws and corrections for the STABLE regime:

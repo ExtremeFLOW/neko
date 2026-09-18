@@ -162,13 +162,13 @@ int tune_set_convect_rst(void *cr, void *cs, void *ct,
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
       CASE_1D(LX);
-      sprintf(neko_log_buf,"Set by env : 1 (1D)");
+      sprintf(neko_log_buf,"Set by env   : 1 (1D)");
       log_message(neko_log_buf);
       log_end_section();
       return 1;
     } else if( !strcmp(env_value,"KSTEP") ) {
       CASE_KSTEP(LX);
-      sprintf(neko_log_buf,"Set by env : 2 (KSTEP)");
+      sprintf(neko_log_buf,"Set by env   : 2 (KSTEP)");
       log_message(neko_log_buf);
       log_end_section();
       return 2;
@@ -207,7 +207,7 @@ int tune_set_convect_rst(void *cr, void *cs, void *ct,
     retval = 2;
   }
 
-  sprintf(neko_log_buf, "Chose      : %d (%s)", retval,
+  sprintf(neko_log_buf, "Chose        : %d (%s)", retval,
           (retval > 1 ? "KSTEP" : "1D"));
   log_message(neko_log_buf);
   log_end_section();

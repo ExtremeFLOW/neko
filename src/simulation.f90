@@ -123,7 +123,7 @@ contains
     type(time_step_controller_t), intent(inout) :: dt_controller
     real(kind=dp), optional, intent(in) :: tstep_loop_start_time
     real(kind=dp) :: start_time, end_time, tstep_start_time
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     character(len=LOG_SIZE) :: log_buf
 
     ! Setup the time step, and start time
@@ -224,7 +224,7 @@ contains
           time%tlag(2) = time%t
        end if
 
-       call ext_bdf%set_coeffs(time%dtlag)
+       call ext_bdf%set_coeffs(real(time%dtlag, kind=rp))
     end if
 
     time%tstep = time%tstep + 1
@@ -283,7 +283,7 @@ contains
     ! Restart the time state and BDF coefficients
     call chkp%set_time_state(C%time)
     do i = 1, size(C%time%dtlag)
-       call C%fluid%ext_bdf%set_coeffs(C%time%dtlag)
+       call C%fluid%ext_bdf%set_coeffs(real(C%time%dtlag, kind=rp))
     end do
 
     ! Restart the fluid and scalars
@@ -301,7 +301,7 @@ contains
   !> Write a checkpoint at joblimit
   subroutine simulation_joblimit_chkp(C, t)
     type(case_t), intent(inout) :: C
-    real(kind=rp), intent(inout) :: t
+    real(kind=dp), intent(inout) :: t
     type(file_t) :: chkpf
     character(len=:), allocatable :: chkp_format
     character(len=LOG_SIZE) :: log_buf
@@ -316,10 +316,12 @@ contains
     else
        format_str = '.chkp'
     end if
-    call chkpf%init(C%output_directory // 'joblimit'//trim(format_str))
-    call chkpf%write(C%chkp, t)
+    call chkpf%init(C%output_directory // 'joblimit' // trim(format_str))
     write(log_buf, '(A)') '! saving checkpoint >>>'
     call neko_log%message(log_buf)
+    call neko_log%flush()
+    call chkpf%write(C%chkp, t)
+    call neko_log%flush()
 
   end subroutine simulation_joblimit_chkp
 

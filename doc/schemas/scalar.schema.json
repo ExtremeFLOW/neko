@@ -75,6 +75,22 @@
           "type": "object",
           "required": [
             "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "const": "expression"
+            },
+            "value": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
             "zone_name",
             "base_value",
             "zone_value"
@@ -156,6 +172,29 @@
             },
             "value": {
               "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "const": "expression_dirichlet"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "value": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             }
           },
           "additionalProperties": false
@@ -263,11 +302,51 @@
               "minimum": 1,
               "maximum": 3
             },
+            "relaxation": {
+              "type": "number",
+              "x-neko-real": true,
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
             "log": {
               "type": "boolean"
             }
           },
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            }
+          },
+          "not": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "dirichlet",
+                  "expression_dirichlet",
+                  "user_dirichlet",
+                  "user_neumann",
+                  "neumann",
+                  "overset_interface"
+                ]
+              }
+            },
+            "required": ["type"]
+          },
+          "additionalProperties": true
         }
       ]
     },
@@ -300,6 +379,9 @@
         },
         "advection": {
           "type": "boolean"
+        },
+        "svv": {
+          "$ref": "urn:neko:schema:common#/$defs/svv"
         },
         "initial_condition": {
           "$ref": "#/$defs/scalarInitialCondition"

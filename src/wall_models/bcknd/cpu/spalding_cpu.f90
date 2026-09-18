@@ -43,24 +43,24 @@ contains
   !> Compute the wall shear stress on cpu using Spalding's model.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine spalding_compute_cpu(u, v, w, ind_r, ind_s, ind_t, ind_e, &
-       n_x, n_y, n_z, nu, rho_w, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
+  subroutine spalding_compute_cpu(u, v, w, &
+       n_x, n_y, n_z, nu, rho_w, h, tau_x, tau_y, tau_z, n_nodes, &
        kappa, B, tstep)
-    integer, intent(in) :: n_nodes, lx, nelv, tstep
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w
+    integer, intent(in) :: n_nodes, tstep
+    real(kind=rp), dimension(n_nodes), intent(in) :: u, v, w
     real(kind=rp), dimension(n_nodes), intent(in) :: rho_w
-    integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h, nu
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
     real(kind=rp), intent(in) :: kappa, B
     integer :: i
     real(kind=rp) :: ui, vi, wi, magu, utau, normu, guess, rho
 
+    !$omp parallel do private(i, ui, vi, wi, magu, utau, normu, guess, rho)
     do i=1, n_nodes
-       ! Sample the velocity
-       ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       ! Load the sampled velocity
+       ui = u(i)
+       vi = v(i)
+       wi = w(i)
        rho = rho_w(i)
 
        ! Project on tangential direction
@@ -87,6 +87,7 @@ contains
        tau_y(i) = -rho*utau**2 * vi / magu
        tau_z(i) = -rho*utau**2 * wi / magu
     end do
+    !$omp end parallel do
 
   end subroutine spalding_compute_cpu
 
@@ -111,7 +112,7 @@ contains
 
     maxiter = 100
 
-    do k=1, maxiter
+    do k = 1, maxiter
        up = u / utau
        yp = y * utau / nu
        niter = k
@@ -132,13 +133,16 @@ contains
 
        if (error < 1e-3) then
           exit
-       endif
+       end if
 
-    enddo
+    end do
 
     if (niter .eq. maxiter) then
-       write(log_msg, *) "Newton not converged", error, f, utau, old, guess
+       ! Called from inside an OpenMP loop, so serialise the log write.
+       !$omp critical
+       write(log_msg, *) "Newton not converged", error, f, utau
        call neko_log%message(log_msg, NEKO_LOG_DEBUG)
+       !$omp end critical
     end if
   end function solve_cpu
 end module spalding_cpu

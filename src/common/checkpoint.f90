@@ -298,8 +298,8 @@ contains
     type(checkpoint_payload_t), pointer :: payload
 
     payload => this%add_payload("time")
-    call payload%add_array("tlag", time_state%tlag, replicated = .true.)
-    call payload%add_array("dtlag", time_state%dtlag, replicated = .true.)
+    call payload%add_array_dp("tlag", time_state%tlag, replicated = .true.)
+    call payload%add_array_dp("dtlag", time_state%dtlag, replicated = .true.)
 
   end subroutine chkp_add_time_state
 
@@ -308,15 +308,15 @@ contains
   !! @param dtlag Pointer to the registered previous time-step sizes.
   subroutine chkp_get_time_history(this, tlag, dtlag)
     class(chkp_t), intent(in) :: this
-    real(kind=rp), pointer, intent(out) :: tlag(:), dtlag(:)
+    real(kind=dp), pointer, intent(out) :: tlag(:), dtlag(:)
     type(checkpoint_payload_t), pointer :: payload
     type(checkpoint_array_t), pointer :: array
 
     payload => this%get_payload("time")
     array => payload%find_array("tlag")
-    tlag => array%x
+    tlag => array%x_dp
     array => payload%find_array("dtlag")
-    dtlag => array%x
+    dtlag => array%x_dp
 
   end subroutine chkp_get_time_history
 
@@ -334,7 +334,7 @@ contains
   subroutine chkp_set_time_state(this, time_state)
     class(chkp_t), intent(in) :: this
     type(time_state_t), intent(inout) :: time_state
-    real(kind=rp), pointer :: tlag(:), dtlag(:)
+    real(kind=dp), pointer :: tlag(:), dtlag(:)
 
     call this%get_time_history(tlag, dtlag)
     time_state%t = this%t

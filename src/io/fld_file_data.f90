@@ -38,7 +38,7 @@ module fld_file_data
      type(vector_t), allocatable :: s(:) !< Numbered scalar fields.
      integer :: gdim !< Spatial dimensions.
      integer :: n_scalars = 0 !< Number of numbered scalar fields.
-     real(kind=rp) :: time = 0.0 !< Time of latest sample/read.
+     real(kind=dp) :: time = 0.0 !< Time of latest sample/read.
      integer :: glb_nelv = 0 !< Global number of elements.
      integer :: nelv = 0 !< Number of elements on this rank.
      integer :: offset_el = 0 !< Element offset for this rank.
@@ -476,7 +476,7 @@ contains
        deallocate(this%s)
     end if
     this%n_scalars = 0
-    this%time = 0.0
+    this%time = 0.0_dp
     this%glb_nelv = 0
     this%nelv = 0
     this%offset_el = 0
@@ -557,20 +557,20 @@ contains
        center_y = 0d0
        center_z = 0d0
        do i = 1, to_Xh%lxyz
-          center_x = center_x + to_dof%x(i, 1, 1, e)
-          center_y = center_y + to_dof%y(i, 1, 1, e)
-          center_z = center_z + to_dof%z(i, 1, 1, e)
+          center_x = center_x + to_dof%x%x(i, 1, 1, e)
+          center_y = center_y + to_dof%y%x(i, 1, 1, e)
+          center_z = center_z + to_dof%z%x(i, 1, 1, e)
        end do
        center_x = center_x / to_Xh%lxyz
        center_y = center_y / to_Xh%lxyz
        center_z = center_z / to_Xh%lxyz
        do i = 1, to_Xh%lxyz
-          x_coords(i, 1, 1, e) = to_dof%x(i, 1, 1, e) - &
-               tol_ * (to_dof%x(i, 1, 1, e) - center_x)
-          y_coords(i, 1, 1, e) = to_dof%y(i, 1, 1, e) - &
-               tol_ * (to_dof%y(i, 1, 1, e) - center_y)
-          z_coords(i, 1, 1, e) = to_dof%z(i, 1, 1, e) - &
-               tol_ * (to_dof%z(i, 1, 1, e) - center_z)
+          x_coords(i, 1, 1, e) = to_dof%x%x(i, 1, 1, e) - &
+               tol_ * (to_dof%x%x(i, 1, 1, e) - center_x)
+          y_coords(i, 1, 1, e) = to_dof%y%x(i, 1, 1, e) - &
+               tol_ * (to_dof%y%x(i, 1, 1, e) - center_y)
+          z_coords(i, 1, 1, e) = to_dof%z%x(i, 1, 1, e) - &
+               tol_ * (to_dof%z%x(i, 1, 1, e) - center_z)
        end do
     end do
 

@@ -102,7 +102,7 @@ contains
     call json_get_or_default(json, "name", name, "weak_gradient")
     call json_get(json, "field", field_name)
     call json_get_or_default(json, "computed_field", computed_field, &
-         "weak_gradient" // trim(field_name))
+         "weak_gradient_" // trim(field_name))
 
     fields(1) = computed_field // "_x"
     fields(2) = computed_field // "_y"
@@ -205,11 +205,11 @@ contains
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: output_value
     character(len=*) :: field_name
     character(len=*) :: computed_field
     character(len=*), intent(in), optional :: filename

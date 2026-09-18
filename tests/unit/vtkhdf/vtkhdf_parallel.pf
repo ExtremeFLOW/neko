@@ -434,9 +434,9 @@ contains
     ! Perform the write operation: 2 timesteps at t=0.0 and t=1.0
     fname = "test_write_time.vtkhdf"
     call file%init(fname)
-    call file%write(f, 0.0_rp)
+    call file%write(f, 0.0_dp)
     call field_cfill(f, 2.0_rp)
-    call file%write(f, 1.0_rp)
+    call file%write(f, 1.0_dp)
     call file%free()
 
     ! Wait to help system flush data to disk before we read
@@ -843,9 +843,9 @@ contains
     class is (vtkhdf_file_t)
        call ft%set_subdivide(.true.)
     end select
-    call file%write(f, 0.0_rp)
+    call file%write(f, 0.0_dp)
     call field_cfill(f, 2.0_rp)
-    call file%write(f, 1.0_rp)
+    call file%write(f, 1.0_dp)
     call file%free()
 
     ! Wait to help system flush data to disk before we read

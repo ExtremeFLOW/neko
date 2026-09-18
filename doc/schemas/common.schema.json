@@ -247,6 +247,36 @@
       },
       "additionalProperties": false
     },
+    "phmgUpdateEigs": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "frequency": {
+          "$ref": "#/$defs/nonNegativeIntegerOrRef"
+        },
+        "warm_start": {
+          "type": "boolean"
+        },
+        "warm_start_iterations": {
+          "$ref": "#/$defs/positiveIntegerOrRef"
+        }
+      },
+      "additionalProperties": false
+    },
+    "phmgUpdate": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "eigs": {
+          "$ref": "#/$defs/phmgUpdateEigs"
+        }
+      },
+      "additionalProperties": false
+    },
     "phmgCoarseGrid": {
       "type": "object",
       "properties": {
@@ -328,6 +358,9 @@
             "schwarz"
           ]
         },
+        "update": {
+          "$ref": "#/$defs/phmgUpdate"
+        },
         "coarse_grid": {
           "$ref": "#/$defs/phmgCoarseGrid"
         }
@@ -349,6 +382,90 @@
           "$ref": "#/$defs/phmgPreconditioner"
         }
       ]
+    },
+    "svv": {
+      "type": "object",
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "formulation": {
+          "const": "one-sided"
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["rst", "rs", "rt", "st", "r", "s", "t"]
+        },
+        "kernel": {
+          "type": "object",
+          "required": [
+            "type",
+            "power_coefficient"
+          ],
+          "properties": {
+            "type": {
+              "const": "power"
+            },
+            "power_coefficient": {
+              "$ref": "#/$defs/nonNegativeNumberOrRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        "nu": {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["value", "field"]
+            },
+            "value": {
+              "$ref": "#/$defs/nonNegativeNumberOrRef"
+            },
+            "field_name": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "time_variable": {
+              "type": "boolean"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {"const": "value"}
+                }
+              },
+              "then": {
+                "required": ["value"]
+              },
+              "else": {
+                "required": ["field_name"]
+              }
+            }
+          ],
+          "additionalProperties": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "enabled": {"const": true}
+            }
+          },
+          "then": {
+            "required": ["kernel", "nu"]
+          }
+        }
+      ],
+      "additionalProperties": false
     },
     "linearSolver": {
       "type": "object",

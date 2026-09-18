@@ -50,10 +50,14 @@ module hdf5_file
   use vector, only : vector_t
   use matrix, only : matrix_t
   use datadist, only : linear_dist_t
+  use global_interpolation, only : global_interpolation_t
+  use math, only : rzero
   use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
        MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
-       MPI_Barrier, MPI_INTEGER8, MPI_Scan, MPI_Bcast
+       MPI_Barrier, MPI_INTEGER8, MPI_Scan, MPI_Bcast, &
+       MPI_DOUBLE_PRECISION
+  use hdf5_session, only : hdf5_session_init, hdf5_session_finalize
 #ifdef HAVE_HDF5
   use hdf5
 #endif
@@ -176,17 +180,17 @@ contains
   subroutine hdf5_file_write(this, data, t)
     class(hdf5_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
     type(field_ptr_t), allocatable :: fp(:)
     type(field_series_ptr_t), allocatable :: fsp(:)
-    real(kind=rp), pointer :: dtlag(:)
-    real(kind=rp), pointer :: tlag(:)
+    real(kind=dp), pointer :: dtlag(:)
+    real(kind=dp), pointer :: tlag(:)
     integer :: ierr, info, drank, i, j
-    integer(hid_t) :: plist_id, access_plist_id
+    integer(hid_t) :: plist_id, fapl_id
     integer(hid_t) :: file_id, dset_id, grp_id, attr_id
-    integer(hid_t) :: filespace, dataset_space, memspace
+    integer(hid_t) :: filespace, dspace_id, memspace
     integer(hid_t) :: H5T_NEKO_REAL
     integer(hsize_t), dimension(1) :: ddim, dcount, doffset
     integer :: suffix_pos
@@ -204,17 +208,20 @@ contains
     if (.not. this%overwrite) call this%increment_counter()
     fname = trim(this%get_fname())
 
-    ! h5open_f is idempotent; the process-wide session owns finalization.
-    call h5open_f(ierr)
+    call hdf5_session_init()
+
     call hdf5_file_determine_real(H5T_NEKO_REAL)
 
-    call h5pcreate_f(H5P_FILE_ACCESS_F, access_plist_id, ierr)
+    ! The file-access and dataset-transfer property lists are distinct
+    ! objects; reusing one identifier for both would leak the first, and
+    ! HDF5 then refuses to close the library at the end of the session.
+    call h5pcreate_f(H5P_FILE_ACCESS_F, fapl_id, ierr)
     info = MPI_INFO_NULL%mpi_val
-    call h5pset_fapl_mpio_f(access_plist_id, NEKO_COMM%mpi_val, info, ierr)
+    call h5pset_fapl_mpio_f(fapl_id, NEKO_COMM%mpi_val, info, ierr)
 
     call h5fcreate_f(fname, H5F_ACC_TRUNC_F, &
-         file_id, ierr, access_prp = access_plist_id)
-    call h5pclose_f(access_plist_id, ierr)
+         file_id, ierr, access_prp = fapl_id)
+    call h5pclose_f(fapl_id, ierr)
 
     call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, ierr)
     call h5pset_dxpl_mpio_f(plist_id, H5FD_MPIO_COLLECTIVE_F, ierr)
@@ -223,9 +230,9 @@ contains
     ddim = 1
 
     if (present(t)) then
-       call h5acreate_f(file_id, "Time", H5T_NEKO_REAL, filespace, attr_id, &
+       call h5acreate_f(file_id, "Time", H5T_NATIVE_DOUBLE, filespace, attr_id, &
             ierr, h5p_default_f, h5p_default_f)
-       call h5awrite_f(attr_id, H5T_NEKO_REAL, t, ddim, ierr)
+       call h5awrite_f(attr_id, H5T_NATIVE_DOUBLE, t, ddim, ierr)
        call h5aclose_f(attr_id, ierr)
     end if
 
@@ -276,24 +283,24 @@ contains
 
        call h5screate_simple_f(drank, ddim, filespace, ierr)
 
-       call h5dcreate_f(grp_id, 'tlag', H5T_NEKO_REAL, &
+       call h5dcreate_f(grp_id, 'tlag', H5T_NATIVE_DOUBLE, &
             filespace, dset_id, ierr)
-       call h5dget_space_f(dset_id, dataset_space, ierr)
-       call h5sselect_hyperslab_f (dataset_space, H5S_SELECT_SET_F, &
+       call h5dget_space_f(dset_id, dspace_id, ierr)
+       call h5sselect_hyperslab_f (dspace_id, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-       call h5dwrite_f(dset_id, H5T_NEKO_REAL, tlag, &
+       call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, tlag, &
             ddim, ierr, xfer_prp = plist_id)
-       call h5sclose_f(dataset_space, ierr)
+       call h5sclose_f(dspace_id, ierr)
        call h5dclose_f(dset_id, ierr)
 
-       call h5dcreate_f(grp_id, 'dtlag', H5T_NEKO_REAL, &
+       call h5dcreate_f(grp_id, 'dtlag', H5T_NATIVE_DOUBLE, &
             filespace, dset_id, ierr)
-       call h5dget_space_f(dset_id, dataset_space, ierr)
-       call h5sselect_hyperslab_f (dataset_space, H5S_SELECT_SET_F, &
+       call h5dget_space_f(dset_id, dspace_id, ierr)
+       call h5sselect_hyperslab_f (dspace_id, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-       call h5dwrite_f(dset_id, H5T_NEKO_REAL, dtlag, &
+       call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, dtlag, &
             ddim, ierr, xfer_prp = plist_id)
-       call h5sclose_f(dataset_space, ierr)
+       call h5sclose_f(dspace_id, ierr)
        call h5dclose_f(dset_id, ierr)
 
        call h5sclose_f(filespace, ierr)
@@ -318,8 +325,10 @@ contains
             lcpl_id = h5p_default_f, gcpl_id = h5p_default_f, &
             gapl_id = h5p_default_f)
 
+       ! `lxyz` rather than `lx**3`: they agree in 3D, but a 2D case has
+       ! `lz = 1`, and the reader derives its offsets the same way.
        dcount(1) = int(dof%size(), 8)
-       doffset(1) = int(msh%offset_el, 8) * int((dof%Xh%lx**3),8)
+       doffset(1) = int(msh%offset_el, 8) * int(dof%Xh%lxyz, 8)
        ddim = int(dof%size(), 8)
        drank = 1
        call MPI_Allreduce(MPI_IN_PLACE, ddim(1), 1, &
@@ -333,14 +342,14 @@ contains
           do i = 1, size(fp)
              call h5dcreate_f(grp_id, fp(i)%ptr%name, H5T_NEKO_REAL, &
                   filespace, dset_id, ierr)
-             call h5dget_space_f(dset_id, dataset_space, ierr)
-             call h5sselect_hyperslab_f(dataset_space, H5S_SELECT_SET_F, &
+             call h5dget_space_f(dset_id, dspace_id, ierr)
+             call h5sselect_hyperslab_f(dspace_id, H5S_SELECT_SET_F, &
                   doffset, dcount, ierr)
              call h5dwrite_f(dset_id, H5T_NEKO_REAL, &
                   fp(i)%ptr%x(1,1,1,1), &
-                  ddim, ierr, file_space_id = dataset_space, &
+                  ddim, ierr, file_space_id = dspace_id, &
                   mem_space_id = memspace, xfer_prp = plist_id)
-             call h5sclose_f(dataset_space, ierr)
+             call h5sclose_f(dspace_id, ierr)
              call h5dclose_f(dset_id, ierr)
           end do
           deallocate(fp)
@@ -351,14 +360,14 @@ contains
              do j = 1, fsp(i)%ptr%size()
                 call h5dcreate_f(grp_id, fsp(i)%ptr%lf(j)%name, &
                      H5T_NEKO_REAL, filespace, dset_id, ierr)
-                call h5dget_space_f(dset_id, dataset_space, ierr)
-                call h5sselect_hyperslab_f(dataset_space, H5S_SELECT_SET_F, &
+                call h5dget_space_f(dset_id, dspace_id, ierr)
+                call h5sselect_hyperslab_f(dspace_id, H5S_SELECT_SET_F, &
                      doffset, dcount, ierr)
                 call h5dwrite_f(dset_id, H5T_NEKO_REAL, &
                      fsp(i)%ptr%lf(j)%x(1,1,1,1), &
-                     ddim, ierr, file_space_id = dataset_space, &
+                     ddim, ierr, file_space_id = dspace_id, &
                      mem_space_id = memspace, xfer_prp = plist_id)
-                call h5sclose_f(dataset_space, ierr)
+                call h5sclose_f(dspace_id, ierr)
                 call h5dclose_f(dset_id, ierr)
              end do
           end do
@@ -372,6 +381,7 @@ contains
 
     call h5pclose_f(plist_id, ierr)
     call h5fclose_f(file_id, ierr)
+    call hdf5_session_finalize()
 
   end subroutine hdf5_file_write
 
@@ -380,7 +390,7 @@ contains
   subroutine hdf5_file_read(this, data)
     class(hdf5_file_t) :: this
     class(*), target, intent(inout) :: data
-    integer(hid_t) :: plist_id, access_plist_id
+    integer(hid_t) :: plist_id, fapl_id
     integer(hid_t) :: file_id, dset_id, grp_id, attr_id
     integer(hid_t) :: filespace, memspace
     integer(hid_t) :: H5T_NEKO_REAL
@@ -391,26 +401,28 @@ contains
     type(field_ptr_t), allocatable :: fp(:)
     type(field_series_ptr_t), allocatable :: fsp(:)
     type(neko_space_t), target :: source_Xh
-    real(kind=rp), pointer :: dtlag(:)
-    real(kind=rp), pointer :: tlag(:)
-    real(kind=rp) :: t
+    real(kind=dp), pointer :: dtlag(:)
+    real(kind=dp), pointer :: tlag(:)
+    real(kind=dp) :: t
     character(len=1024) :: fname
     logical :: payloads_exist
 
     fname = trim(this%get_fname())
 
-    ! h5open_f is idempotent; the process-wide session owns finalization.
-    call h5open_f(ierr)
+    call hdf5_session_init()
+
     call hdf5_file_determine_data(data, msh, dof, fp, fsp, dtlag, tlag)
     call hdf5_file_determine_real(H5T_NEKO_REAL)
 
-    call h5pcreate_f(H5P_FILE_ACCESS_F, access_plist_id, ierr)
+    ! As in the write path, keep the file-access and dataset-transfer
+    ! property lists in separate identifiers so neither is leaked.
+    call h5pcreate_f(H5P_FILE_ACCESS_F, fapl_id, ierr)
     info = MPI_INFO_NULL%mpi_val
-    call h5pset_fapl_mpio_f(access_plist_id, NEKO_COMM%mpi_val, info, ierr)
+    call h5pset_fapl_mpio_f(fapl_id, NEKO_COMM%mpi_val, info, ierr)
 
     call h5fopen_f(fname, H5F_ACC_RDONLY_F, &
-         file_id, ierr, access_prp = access_plist_id)
-    call h5pclose_f(access_plist_id, ierr)
+         file_id, ierr, access_prp = fapl_id)
+    call h5pclose_f(fapl_id, ierr)
 
     call h5lexists_f(file_id, 'Payloads', payloads_exist, ierr)
 
@@ -419,7 +431,7 @@ contains
 
     ddim = 1
     call h5aopen_name_f(file_id, 'Time', attr_id, ierr)
-    call h5aread_f(attr_id, H5T_NEKO_REAL, t, ddim, ierr)
+    call h5aread_f(attr_id, H5T_NATIVE_DOUBLE, t, ddim, ierr)
     call h5aclose_f(attr_id, ierr)
 
     select type (data)
@@ -468,7 +480,7 @@ contains
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-       call h5dread_f(dset_id, H5T_NEKO_REAL, tlag, ddim, ierr, &
+       call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, tlag, ddim, ierr, &
             xfer_prp = plist_id)
        call h5dclose_f(dset_id, ierr)
        call h5sclose_f(filespace, ierr)
@@ -477,7 +489,7 @@ contains
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-       call h5dread_f(dset_id, H5T_NEKO_REAL, dtlag, ddim, ierr, &
+       call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, dtlag, ddim, ierr, &
             xfer_prp = plist_id)
        call h5dclose_f(dset_id, ierr)
        call h5sclose_f(filespace, ierr)
@@ -520,6 +532,7 @@ contains
     call h5pclose_f(plist_id, ierr)
     call h5fclose_f(file_id, ierr)
     call source_Xh%free()
+    call hdf5_session_finalize()
 
   end subroutine hdf5_file_read
 
@@ -937,17 +950,28 @@ contains
        h5_neko_real, array)
     integer(hid_t), intent(in) :: group_id, plist_id, h5_neko_real
     type(checkpoint_array_t), intent(in) :: array
-    integer(hid_t) :: dset_id, filespace, memspace
+    integer(hid_t) :: dset_id, filespace, memspace, h5_type
     integer(hsize_t), dimension(1) :: ddim, dcount, doffset
     integer :: ierr
+    logical :: stored_dp
 
+    ! Arrays registered through `add_array_dp` keep double precision in the
+    ! file whatever `rp` is, so that the time history survives a restart into
+    ! a build of the other precision.
+    stored_dp = associated(array%x_dp)
+    if (stored_dp) then
+       h5_type = H5T_NATIVE_DOUBLE
+       dcount(1) = int(size(array%x_dp), hsize_t)
+    else
+       h5_type = h5_neko_real
+       dcount(1) = int(size(array%x), hsize_t)
+    end if
     ddim(1) = int(array%global_count, hsize_t)
-    dcount(1) = int(size(array%x), hsize_t)
     doffset(1) = int(array%offset, hsize_t)
 
     call h5screate_simple_f(1, ddim, filespace, ierr)
     call h5screate_simple_f(1, dcount, memspace, ierr)
-    call h5dcreate_f(group_id, trim(array%name), h5_neko_real, &
+    call h5dcreate_f(group_id, trim(array%name), h5_type, &
          filespace, dset_id, ierr)
 
     if (array%replicated .and. pe_rank .ne. 0) then
@@ -958,9 +982,15 @@ contains
             doffset, dcount, ierr)
     end if
 
-    call h5dwrite_f(dset_id, h5_neko_real, array%x, dcount, ierr, &
-         file_space_id = filespace, mem_space_id = memspace, &
-         xfer_prp = plist_id)
+    if (stored_dp) then
+       call h5dwrite_f(dset_id, h5_type, array%x_dp, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+    else
+       call h5dwrite_f(dset_id, h5_type, array%x, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+    end if
 
     call h5dclose_f(dset_id, ierr)
     call h5sclose_f(filespace, ierr)
@@ -977,11 +1007,11 @@ contains
        h5_neko_real, array)
     integer(hid_t), intent(in) :: group_id, plist_id, h5_neko_real
     type(checkpoint_array_t), intent(inout) :: array
-    integer(hid_t) :: dset_id, filespace, memspace
+    integer(hid_t) :: dset_id, filespace, memspace, h5_type
     integer(hsize_t), dimension(1) :: dcount, doffset
     integer(hsize_t), dimension(1) :: dataset_dims, dataset_maxdims
     integer :: ierr
-    logical :: dataset_exists
+    logical :: dataset_exists, stored_dp
 
     call h5lexists_f(group_id, trim(array%name), dataset_exists, ierr)
     if (.not. dataset_exists) then
@@ -999,7 +1029,14 @@ contains
             "' has an incompatible global extent")
     end if
 
-    dcount(1) = int(size(array%x), hsize_t)
+    stored_dp = associated(array%x_dp)
+    if (stored_dp) then
+       h5_type = H5T_NATIVE_DOUBLE
+       dcount(1) = int(size(array%x_dp), hsize_t)
+    else
+       h5_type = h5_neko_real
+       dcount(1) = int(size(array%x), hsize_t)
+    end if
     doffset(1) = int(array%offset, hsize_t)
     call h5screate_simple_f(1, dcount, memspace, ierr)
 
@@ -1010,17 +1047,30 @@ contains
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
     end if
-    call h5dread_f(dset_id, h5_neko_real, array%x, dcount, ierr, &
-         file_space_id = filespace, mem_space_id = memspace, &
-         xfer_prp = plist_id)
+    if (stored_dp) then
+       call h5dread_f(dset_id, h5_type, array%x_dp, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+    else
+       call h5dread_f(dset_id, h5_type, array%x, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+    end if
 
     call h5dclose_f(dset_id, ierr)
     call h5sclose_f(filespace, ierr)
     call h5sclose_f(memspace, ierr)
 
+    ! Only rank zero selected the dataset above, so the copy every rank holds
+    ! has to come from there.
     if (array%replicated) then
-       call MPI_Bcast(array%x, size(array%x), MPI_REAL_PRECISION, 0, &
-            NEKO_COMM, ierr)
+       if (stored_dp) then
+          call MPI_Bcast(array%x_dp, size(array%x_dp), &
+               MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
+       else
+          call MPI_Bcast(array%x, size(array%x), MPI_REAL_PRECISION, 0, &
+               NEKO_COMM, ierr)
+       end if
     end if
 
   end subroutine hdf5_checkpoint_read_array
@@ -1039,8 +1089,8 @@ contains
     type(dofmap_t), pointer, intent(inout) :: dof
     type(field_ptr_t), allocatable, intent(inout) :: fp(:)
     type(field_series_ptr_t), allocatable, intent(inout) :: fsp(:)
-    real(kind=rp), pointer, intent(inout) :: dtlag(:)
-    real(kind=rp), pointer, intent(inout) :: tlag(:)
+    real(kind=dp), pointer, intent(inout) :: dtlag(:)
+    real(kind=dp), pointer, intent(inout) :: tlag(:)
     integer :: i, j, fp_size, fp_cur, fsp_size, fsp_cur
 
     select type (data)
@@ -1120,6 +1170,74 @@ contains
 
   end subroutine hdf5_file_determine_data
 
+  ! Not yet reachable: the payload reader below handles polynomial-order
+  ! interpolation only, so mesh-to-mesh restart from an HDF5 checkpoint is
+  ! still to be wired into `hdf5_checkpoint_read_field` and
+  ! `hdf5_checkpoint_read_mesh_array`. The routine is kept here, unchanged
+  ! from the version it arrived with, as the basis for that work.
+  !> Read one field from the open `Fields` group and place it into its
+  !! destination, interpolating when the checkpoint was written on a
+  !! different discretisation. Mirrors `chkp_file`'s `read_field`.
+  !! @param grp_id The open `Fields` group.
+  !! @param name Dataset name, which is the field's own name.
+  !! @param read_buf Scratch sized to the checkpoint's local degrees of
+  !! freedom; the raw data lands here before any interpolation.
+  !! @param dst The field data to fill.
+  !! @param h5_real HDF5 type matching the working precision.
+  !! @param ddim Global size of the dataset.
+  !! @param dcount This rank's share of it.
+  !! @param doffset Where this rank's share starts.
+  !! @param memspace Dataspace describing `read_buf`.
+  !! @param plist_id Dataset transfer property list.
+  !! @param nel Elements in the checkpoint's mesh, locally.
+  !! @param mesh2mesh Whether to interpolate between two meshes.
+  !! @param interp_space Whether to interpolate between polynomial orders.
+  !! @param space_interp Interpolator between orders, when used.
+  !! @param global_interp Interpolator between meshes, when used.
+  !! @param dof The running case's dofmap.
+  subroutine hdf5_read_field(grp_id, name, read_buf, dst, h5_real, ddim, &
+       dcount, doffset, memspace, plist_id, nel, mesh2mesh, interp_space, &
+       space_interp, global_interp, dof)
+    integer(hid_t), intent(in) :: grp_id
+    character(len=*), intent(in) :: name
+    real(kind=rp), intent(inout) :: read_buf(:)
+    real(kind=rp), intent(inout) :: dst(:,:,:,:)
+    integer(hid_t), intent(in) :: h5_real
+    integer(hsize_t), intent(in) :: ddim(1), dcount(1), doffset(1)
+    integer(hid_t), intent(in) :: memspace, plist_id
+    integer, intent(in) :: nel
+    logical, intent(in) :: mesh2mesh, interp_space
+    type(interpolator_t), intent(inout) :: space_interp
+    type(global_interpolation_t), intent(inout) :: global_interp
+    type(dofmap_t), intent(in) :: dof
+
+    integer(hid_t) :: dset_id, filespace
+    integer :: ierr, k
+    logical, parameter :: interp_on_host = .true.
+
+    call h5dopen_f(grp_id, trim(name), dset_id, ierr)
+    call h5dget_space_f(dset_id, filespace, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+         doffset, dcount, ierr)
+    call h5dread_f(dset_id, h5_real, read_buf, ddim, ierr, &
+         file_space_id = filespace, mem_space_id = memspace, &
+         xfer_prp = plist_id)
+    call h5dclose_f(dset_id, ierr)
+    call h5sclose_f(filespace, ierr)
+
+    if (mesh2mesh) then
+       call rzero(dst, dof%size())
+       call global_interp%evaluate(dst, read_buf, interp_on_host)
+    else if (interp_space) then
+       call space_interp%map_host(dst, read_buf, nel, dof%Xh)
+    else
+       do k = 1, size(read_buf)
+          dst(k, 1, 1, 1) = read_buf(k)
+       end do
+    end if
+
+  end subroutine hdf5_read_field
+
   !> Determine hdf5 real type corresponding to NEKO_REAL
   !! @note This must be called after h5open_f, otherwise
   !! the H5T_NATIVE_XYZ types has a value of 0
@@ -1163,7 +1281,7 @@ contains
     counter = this%get_counter() - this%get_start_counter()
 
     ! Set the configuration for MPI IO
-    call h5open_f(ierr)
+    call hdf5_session_init()
 
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
@@ -1204,7 +1322,7 @@ contains
     this%plist_id = -1_hid_t
     call h5fclose_f(this%file_id, ierr)
     this%file_id = -1_hid_t
-    call h5close_f(ierr)
+    call hdf5_session_finalize()
 
     call neko_log%message("Closed HDF5 file: " // trim(this%get_fname()), &
          lvl = NEKO_LOG_DEBUG)
@@ -2158,7 +2276,7 @@ contains
   subroutine hdf5_file_write(this, data, t)
     class(hdf5_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_write
 

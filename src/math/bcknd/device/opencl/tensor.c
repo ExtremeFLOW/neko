@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022-2025, The Neko Authors
+ Copyright (c) 2022-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
 #include <device/opencl/prgm_lib.h>
@@ -96,6 +97,11 @@ void opencl_tnsr3d(void *v, int *nv, void *u, int *nu,
     CASE(12);
     CASE(13);
     CASE(14);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", n);
+      exit(1);
+    }
   }
 }
 
@@ -150,5 +156,10 @@ void opencl_tnsr3d_el_list(void *v, int *nv, void *u, int *nu,
     CASE(12);
     CASE(13);
     CASE(14);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", n);
+      exit(1);
+    }
   }
 }

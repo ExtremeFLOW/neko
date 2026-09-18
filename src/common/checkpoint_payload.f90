@@ -31,7 +31,7 @@
 !
 !> Format-independent checkpoint payloads.
 module checkpoint_payload
-  use num_types, only : rp, i8
+  use num_types, only : rp, dp, i8
   use field, only : field_t, field_ptr_t
   use field_series, only : field_series_t, field_series_ptr_t
   use mesh, only : mesh_t
@@ -45,8 +45,13 @@ module checkpoint_payload
   type, public :: checkpoint_array_t
      !> Dataset name within the payload.
      character(len=:), allocatable :: name
-     !> Contiguous local host storage.
+     !> Contiguous local host storage, used when the array is stored in the
+     !! working precision.
      real(kind=rp), pointer :: x(:) => null()
+     !> Contiguous local host storage, used instead of `x` when the array is
+     !! stored in double precision whatever the working precision is. Exactly
+     !! one of `x` and `x_dp` is associated.
+     real(kind=dp), pointer :: x_dp(:) => null()
      !> Optional device storage corresponding to `x`.
      type(c_ptr) :: x_d = c_null_ptr
      !> Number of entries in the global dataset.
@@ -115,6 +120,10 @@ module checkpoint_payload
      !> Add a contiguous real array of rank one to four.
      generic :: add_array => add_array_1d, add_array_2d, add_array_3d, &
           add_array_4d
+     !> Add a rank-one array held in double precision. Separate from the
+     !! `add_array` generic because `rp` and `dp` are the same kind in a
+     !! double-precision build, which would make the generic ambiguous.
+     procedure, pass(this) :: add_array_dp => checkpoint_payload_add_array_dp
      !> Add a four-dimensional nodal mesh array.
      procedure, pass(this) :: add_mesh_array => add_mesh_array_4d
      !> Return the number of fields in a payload.
@@ -192,6 +201,9 @@ contains
           if (associated(this%arrays(i)%ptr)) then
              if (associated(this%arrays(i)%ptr%x)) then
                 nullify(this%arrays(i)%ptr%x)
+             end if
+             if (associated(this%arrays(i)%ptr%x_dp)) then
+                nullify(this%arrays(i)%ptr%x_dp)
              end if
              this%arrays(i)%ptr%x_d = c_null_ptr
              deallocate(this%arrays(i)%ptr)
@@ -453,6 +465,62 @@ contains
     call move_alloc(tmp, this%arrays)
 
   end subroutine checkpoint_payload_add_array
+
+  !> Store a rank-one double-precision array in a payload.
+  !! @param name Dataset name within the payload.
+  !! @param x Contiguous local array storage.
+  !! @param[optional] global_count Number of entries in the global dataset.
+  !! @param[optional] offset Zero-based offset of `x` in the global dataset.
+  !! @param[optional] replicated Whether every rank owns a copy of `x`.
+  subroutine checkpoint_payload_add_array_dp(this, name, x, global_count, &
+       offset, replicated)
+    class(checkpoint_payload_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
+    real(kind=dp), contiguous, target, intent(inout) :: x(:)
+    integer(kind=i8), intent(in), optional :: global_count, offset
+    logical, intent(in), optional :: replicated
+    type(checkpoint_array_ptr_t), allocatable :: tmp(:)
+    logical :: is_replicated
+    integer :: n
+
+    call checkpoint_payload_validate_name(this, name)
+
+    is_replicated = .false.
+    if (present(replicated)) is_replicated = replicated
+
+    if (is_replicated) then
+       if (present(global_count) .or. present(offset)) then
+          call neko_error("Replicated checkpoint arrays do not take a " // &
+               "global count or offset")
+       end if
+    else if (.not. present(global_count) .or. .not. present(offset)) then
+       call neko_error("Distributed checkpoint arrays require a global " // &
+            "count and offset")
+    end if
+
+    n = this%array_count()
+    allocate(tmp(n + 1))
+    if (n .gt. 0) tmp(1:n) = this%arrays
+    allocate(tmp(n + 1)%ptr)
+    tmp(n + 1)%ptr%name = trim(name)
+    tmp(n + 1)%ptr%x_dp => x
+    tmp(n + 1)%ptr%replicated = is_replicated
+    if (is_replicated) then
+       tmp(n + 1)%ptr%global_count = int(size(x), i8)
+       tmp(n + 1)%ptr%offset = 0_i8
+    else
+       tmp(n + 1)%ptr%global_count = global_count
+       tmp(n + 1)%ptr%offset = offset
+       if (tmp(n + 1)%ptr%offset .lt. 0_i8 .or. &
+            tmp(n + 1)%ptr%global_count .lt. int(size(x), i8) .or. &
+            tmp(n + 1)%ptr%offset + int(size(x), i8) .gt. &
+            tmp(n + 1)%ptr%global_count) then
+          call neko_error("Invalid checkpoint array selection")
+       end if
+    end if
+    call move_alloc(tmp, this%arrays)
+
+  end subroutine checkpoint_payload_add_array_dp
 
   !> Store a flattened nodal mesh array in a payload.
   !! @param name Dataset name within the payload.

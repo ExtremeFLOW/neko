@@ -83,8 +83,8 @@ __global__ void cfl_reduce_kernel(T * bufred, const int n) {
  * Device kernel for CFL
  */
 
-template< typename T, const int LX, const int CHUNKS >
-__global__ void cfl_kernel(const T dt,
+template< typename D, typename T, const int LX, const int CHUNKS >
+__global__ void cfl_kernel(const D dt,
 			   const T * __restrict__ u,
 			   const T * __restrict__ v,
 			   const T * __restrict__ w,
@@ -101,7 +101,7 @@ __global__ void cfl_kernel(const T dt,
 			   const T * __restrict__ ds_inv, 
 			   const T * __restrict__ dt_inv,
 			   const T * __restrict__ jacinv,
-			   T * __restrict__ cfl_h) { 
+			   D * __restrict__ cfl_h) { 
 
   int i,j,k;
   
@@ -121,7 +121,7 @@ __global__ void cfl_kernel(const T dt,
 
   __shared__ T shjacinv[LX * LX * LX];
 
-  __shared__ T shared[32];
+  __shared__ D shared[32];
 
   if (iii < LX) {
     shdr_inv[iii] = dr_inv[iii];
@@ -142,7 +142,7 @@ __global__ void cfl_kernel(const T dt,
   
   __syncthreads();
 
-  T cfl_tmp = 0.0;
+  D cfl_tmp = 0.0;
   for (int n = 0; n < nchunks; n++) {
     const int ijk = iii + n * CHUNKS;
     const int jk = ijk / LX;
@@ -150,15 +150,15 @@ __global__ void cfl_kernel(const T dt,
     k = jk / LX;
     j = jk - k * LX;
     if ( i < LX && j < LX && k < LX) {
-      const T cflr = fabs( dt * ( ( shu[ijk] * drdx[ijk + e * LX * LX * LX]
+      const D cflr = fabs( dt * ( ( shu[ijk] * drdx[ijk + e * LX * LX * LX]
                                     + shv[ijk] * drdy[ijk + e * LX * LX * LX]
                                     + shw[ijk] * drdz[ijk + e * LX * LX * LX] 
                                     ) * shjacinv[ijk]) * shdr_inv[i]);
-      const T cfls = fabs( dt * ( ( shu[ijk] * dsdx[ijk + e * LX * LX * LX]
+      const D cfls = fabs( dt * ( ( shu[ijk] * dsdx[ijk + e * LX * LX * LX]
                                     + shv[ijk] * dsdy[ijk + e * LX * LX * LX]
                                     + shw[ijk] * dsdz[ijk + e * LX * LX * LX] 
                                     ) * shjacinv[ijk]) * shds_inv[j]);
-      const T cflt = fabs( dt * ( ( shu[ijk] * dtdx[ijk + e * LX * LX * LX]
+      const D cflt = fabs( dt * ( ( shu[ijk] * dtdx[ijk + e * LX * LX * LX]
                                     + shv[ijk] * dtdy[ijk + e * LX * LX * LX]
                                     + shw[ijk] * dtdz[ijk + e * LX * LX * LX] 
                                     ) * shjacinv[ijk]) * shdt_inv[k]);
@@ -168,14 +168,14 @@ __global__ void cfl_kernel(const T dt,
     }
   }
 
-  cfl_tmp = cfl_reduce_warp<T>(cfl_tmp);
+  cfl_tmp = cfl_reduce_warp<D>(cfl_tmp);
   if (lane == 0)
     shared[wid] = cfl_tmp;
   __syncthreads();
   
   cfl_tmp = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
   if (wid == 0)
-    cfl_tmp = cfl_reduce_warp<T>(cfl_tmp);
+    cfl_tmp = cfl_reduce_warp<D>(cfl_tmp);
 
   if (threadIdx.x == 0)
     cfl_h[blockIdx.x] = cfl_tmp;
