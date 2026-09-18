@@ -1,11 +1,11 @@
 module test_device_scratch_registry
   use pfunit
-  use device_array, only : device_array_t
   use scratch_registry, only : scratch_registry_t
   use num_types, only : rp
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_init, device_finalize, device_memcpy, &
        DEVICE_TO_HOST, HOST_TO_DEVICE
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
 
   @TestCase
@@ -37,10 +37,11 @@ contains
   subroutine test_dev_scratch_reuse_clear(this)
     class(test_device_scratch), intent(inout) :: this
     type(scratch_registry_t) :: scratch
-    type(device_array_t), pointer :: d1
-    type(device_array_t), pointer :: d2
+    type(c_ptr) :: d1, d2
     real(kind=rp), allocatable :: x(:)
-    integer :: i1, i2, i
+    integer :: i1, i2, i, n
+
+    n = 5
 
     if (NEKO_BCKND_DEVICE .ne. 1) then
        return
@@ -48,16 +49,16 @@ contains
 
     call scratch%init(1, 1)
 
-    call scratch%request(d1, i1, 5, .false.)
-    allocate(x(5))
+    call scratch%request(d1, i1, n, .false.)
+    allocate(x(n))
     x = 3.0_rp
-    call device_memcpy(x, d1%x_d, d1%size(), HOST_TO_DEVICE, sync=.true.)
+    call device_memcpy(x, d1, n, HOST_TO_DEVICE, sync=.true.)
 
     call scratch%relinquish(i1)
 
-    call scratch%request(d2, i2, 5, .false.)
+    call scratch%request(d2, i2, n, .false.)
     x = 0.0_rp
-    call device_memcpy(x, d2%x_d, d2%size(), DEVICE_TO_HOST, sync=.true.)
+    call device_memcpy(x, d2, n, DEVICE_TO_HOST, sync=.true.)
 
     @assertEqual(i1, 1)
     @assertEqual(i2, 1)
@@ -67,9 +68,9 @@ contains
 
     call scratch%relinquish(i2)
 
-    call scratch%request(d2, i2, 5, .true.)
+    call scratch%request(d2, i2, n, .true.)
     x = -1.0_rp
-    call device_memcpy(x, d2%x_d, d2%size(), DEVICE_TO_HOST, sync=.true.)
+    call device_memcpy(x, d2, n, DEVICE_TO_HOST, sync=.true.)
 
     do i = 1, size(x)
        @assertEqual(x(i), 0.0_rp)
@@ -84,8 +85,7 @@ contains
   subroutine test_dev_scratch_size_mismatch(this)
     class(test_device_scratch), intent(inout) :: this
     type(scratch_registry_t) :: scratch
-    type(device_array_t), pointer :: d1
-    type(device_array_t), pointer :: d2
+    type(c_ptr) :: d1, d2
     integer :: i1, i2
 
     if (NEKO_BCKND_DEVICE .ne. 1) then
@@ -101,8 +101,6 @@ contains
 
     @assertEqual(i1, 1)
     @assertEqual(i2, 2)
-    @assertEqual(d1%size(), 3)
-    @assertEqual(d2%size(), 7)
     @assertEqual(scratch%get_n_entries(), 2)
     @assertEqual(scratch%get_n_inuse(), 1)
     @assertEqual(scratch%get_size(), 2)
