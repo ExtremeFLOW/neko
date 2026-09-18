@@ -1,6 +1,13 @@
 # Changelog
 
 ## Develop
+- The CPU vector and full stress Helmholtz operators apply the mass term
+  `h2 * B * u` inside their element kernels rather than in a separate pass
+  over the whole field afterwards, so an `lx = 8` double precision velocity
+  `Ax` moves 144 bytes per grid point instead of 216. The term is added in
+  the same place and in the same order as before, so results are unchanged
+  bit for bit, and the `ifh2 = .false.` path taken by the pressure solve is
+  untouched.
 - Fixed further OpenMP races outside the boundary-condition update blocks:
   the symmetry, shear stress and non-normal vector conditions lacked
   worksharing inside the `bc_list` parallel region, `facet_normal` and the
