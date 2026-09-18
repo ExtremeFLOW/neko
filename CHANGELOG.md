@@ -10,6 +10,13 @@
   loop. Useful for initial conditions read from a field file, in particular one
   interpolated from another mesh, which do not satisfy the continuity equation
   and otherwise provoke a large initial pressure transient.
+- Fixed `expression_velocity`, `expression_pressure` and the scalar
+  `expression_dirichlet` boundary conditions not being enforced. They
+  never set `bc_type`, so the schemes did not recognise them as strong
+  Dirichlet conditions and left their degrees of freedom unconstrained
+  in the linear solve. The prescribed value was written into the field
+  and then immediately solved away, silently. The Pn-Pn pressure
+  equation also lost its surface term on those boundaries.
 - Fixed the `point_zone` fluid initial condition aborting with a Fortran
   runtime error, its log message wrote a three-component vector with a
   format holding a single edit descriptor.

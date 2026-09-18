@@ -1173,8 +1173,21 @@ scheme, and is rejected with an error for the `compressible` one.
 @note The projection removes the part of the divergence that the discrete
 pressure gradient can represent, which is all of it for a field the mesh
 resolves. A discontinuous initial condition, such as one built from a
-`point_zone`, has a divergence the polynomial space cannot represent at all, and
-for those the projection only reduces the divergence rather than removing it.
+`point_zone`, or one assembled by splicing two fields together, has a
+divergence the polynomial space cannot represent at all, and for those the
+projection only reduces the divergence rather than removing it. Blending such a
+field over a distance of about one element instead of splicing it sharply
+recovers the full reduction, and is worth doing.
+
+The correction is the smallest one, in the \f$ L^2 \f$ sense, that makes the
+field divergence free, so a field that is already divergence free is left
+alone. Where the initial condition is assembled from pieces, for instance a
+turbulent field extended with a laminar one, the divergence is concentrated at
+the seam, and the correction decays away from it like the slowest mode the
+Poisson problem admits, which is set by the cross-section of the domain, not by
+the seam. In a plane channel the e-folding length is a fraction of the channel
+height, so a well-developed region a channel height away from the seam is
+altered by a few parts in \f$ 10^5 \f$ and is effectively untouched.
 
 @attention With no boundary at which the pressure is prescribed, the Poisson
 problem is a pure Neumann one and is solvable only if the net flux through the
