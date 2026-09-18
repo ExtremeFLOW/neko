@@ -32,7 +32,7 @@
 !
 !> Defines a registry for storing and requesting temporary objects
 !! This can be used when you have a function that will be called
-!! often and you don't want to create temporary objects (work arrays) inside
+!! often and you don'ptr want to create temporary objects (work arrays) inside
 !! it on each call.
 module scratch_registry
   use num_types, only : rp
@@ -321,14 +321,14 @@ contains
   end subroutine expand
 
   !> Get a host array from the registry by assigning it to a pointer.
-  !! @param v Pointer to the requested host array.
+  !! @param ptr Pointer to the requested host array.
   !! @param index Index of the host array in the registry (for
   !! relinquishing later).
   !! @param n Size of the requested host_array.
   !! @param clear If true, the host_array values are set to zero upon request.
-  subroutine request_host_array(this, v, index, n, clear)
+  subroutine request_host_array(this, ptr, index, n, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    real(kind=rp), pointer, dimension(:), intent(inout) :: v
+    real(kind=rp), pointer, dimension(:), intent(inout) :: ptr
     integer, intent(inout) :: index
     integer, intent(in) :: n
     logical, intent(in) :: clear
@@ -356,7 +356,7 @@ contains
             if (clear) call rzero(v_scratch%x, v_scratch%size())
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
-            v => v_scratch%x
+            ptr => v_scratch%x
             nullify(v_scratch)
             return
          end if
@@ -370,21 +370,21 @@ contains
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_host_array(n)
       v_scratch => this%entries(n_entries)%get_host_array()
-      v => v_scratch%x
+      ptr => v_scratch%x
       nullify(v_scratch)
 
     end associate
   end subroutine request_host_array
 
   !> Get a device array from the registry by assigning it to a pointer.
-  !! @param v Pointer to the requested device array.
+  !! @param ptr Pointer to the requested device array.
   !! @param index Index of the device array in the registry (for
   !! relinquishing later).
   !! @param n Size of the requested device array.
   !! @param clear If true, the device array values are set to zero upon request.
-  subroutine request_device_array(this, v, index, n, clear)
+  subroutine request_device_array(this, ptr, index, n, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    type(c_ptr), intent(inout) :: v
+    type(c_ptr), intent(inout) :: ptr
     integer, intent(inout) :: index
     integer, intent(in) :: n
     logical, intent(in) :: clear
@@ -409,8 +409,8 @@ contains
                cycle
             end if
 
-            v = v_tmp%x_d
-            if (clear) call device_rzero(v, n)
+            ptr = v_tmp%x_d
+            if (clear) call device_rzero(ptr, n)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             nullify(v_tmp)
@@ -426,20 +426,20 @@ contains
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_device_array(n)
       v_tmp => this%entries(n_entries)%get_device_array()
-      v = v_tmp%x_d
+      ptr = v_tmp%x_d
       nullify(v_tmp)
 
     end associate
   end subroutine request_device_array
 
   !> Get a vector from the registry by assigning it to a pointer.
-  !! @param v Pointer to the requested vector.
+  !! @param ptr Pointer to the requested vector.
   !! @param index Index of the vector in the registry (for relinquishing later).
   !! @param n Size of the requested vector.
   !! @param clear If true, the vector values are set to zero upon request.
-  subroutine request_vector(this, v, index, n, clear)
+  subroutine request_vector(this, ptr, index, n, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    type(vector_t), pointer, intent(inout) :: v
+    type(vector_t), pointer, intent(inout) :: ptr
     integer, intent(inout) :: index
     integer, intent(in) :: n
     logical, intent(in) :: clear
@@ -457,13 +457,13 @@ contains
                cycle
             end if
 
-            v => entries(index)%get_vector()
-            if (v%size() .ne. n) then
-               nullify(v)
+            ptr => entries(index)%get_vector()
+            if (ptr%size() .ne. n) then
+               nullify(ptr)
                cycle
             end if
 
-            if (clear) call vector_rzero(v)
+            if (clear) call vector_rzero(ptr)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -477,20 +477,20 @@ contains
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_vector(n)
-      v => this%entries(n_entries)%get_vector()
+      ptr => this%entries(n_entries)%get_vector()
 
     end associate
   end subroutine request_vector
 
   !> Get a matrix from the registry by assigning it to a pointer.
-  !! @param m Pointer to the requested matrix.
+  !! @param ptr Pointer to the requested matrix.
   !! @param index Index of the matrix in the registry (for relinquishing later).
   !! @param nrows Number of rows of the requested matrix.
   !! @param ncols Number of columns of the requested matrix.
   !! @param clear If true, the matrix values are set to zero upon request.
-  subroutine request_matrix(this, m, index, nrows, ncols, clear)
+  subroutine request_matrix(this, ptr, index, nrows, ncols, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    type(matrix_t), pointer, intent(inout) :: m
+    type(matrix_t), pointer, intent(inout) :: ptr
     integer, intent(inout) :: index
     integer, intent(in) :: nrows, ncols
     logical, intent(in) :: clear
@@ -508,14 +508,14 @@ contains
                cycle
             end if
 
-            m => entries(index)%get_matrix()
-            if (m%get_nrows() .ne. nrows .or. &
-                 m%get_ncols() .ne. ncols) then
-               nullify(m)
+            ptr => entries(index)%get_matrix()
+            if (ptr%get_nrows() .ne. nrows .or. &
+                 ptr%get_ncols() .ne. ncols) then
+               nullify(ptr)
                cycle
             end if
 
-            if (clear) call matrix_rzero(m)
+            if (clear) call matrix_rzero(ptr)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -529,21 +529,21 @@ contains
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_matrix(nrows, ncols)
-      m => this%entries(n_entries)%get_matrix()
+      ptr => this%entries(n_entries)%get_matrix()
 
     end associate
   end subroutine request_matrix
 
   !> Get a tensor3 from the registry by assigning it to a pointer.
-  !! @param t Pointer to the requested tensor3.
+  !! @param ptr Pointer to the requested tensor3.
   !! @param index Index of the tensor3 in the registry (for relinquishing later).
   !! @param n Number of rows of the requested tensor3.
-  !! @param m Number of columns of the requested tensor3.
+  !! @param ptr Number of columns of the requested tensor3.
   !! @param l Number of layers of the requested tensor3.
   !! @param clear If true, the tensor3 values are set to zero upon request.
-  subroutine request_tensor3(this, t, index, n, m, l, clear)
+  subroutine request_tensor3(this, ptr, index, n, m, l, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    type(tensor3_t), pointer, intent(inout) :: t
+    type(tensor3_t), pointer, intent(inout) :: ptr
     integer, intent(inout) :: index
     integer, intent(in) :: n, m, l
     logical, intent(in) :: clear
@@ -561,18 +561,18 @@ contains
                cycle
             end if
 
-            t => entries(index)%get_tensor3()
-            if (t%get_n1() .ne. n .or. &
-                 t%get_n2() .ne. m .or. &
-                 t%get_n3() .ne. l) then
-               nullify(t)
+            ptr => entries(index)%get_tensor3()
+            if (ptr%get_n1() .ne. n .or. &
+                 ptr%get_n2() .ne. m .or. &
+                 ptr%get_n3() .ne. l) then
+               nullify(ptr)
                cycle
             end if
 
             if (clear .and. NEKO_BCKND_DEVICE .eq. 1) then
-               call device_rzero(t%x_d, t%size())
+               call device_rzero(ptr%x_d, ptr%size())
             else if (clear) then
-               call rzero(t%x, t%size())
+               call rzero(ptr%x, ptr%size())
             end if
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
@@ -587,22 +587,22 @@ contains
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_tensor3(n, m, l)
-      t => this%entries(n_entries)%get_tensor3()
+      ptr => this%entries(n_entries)%get_tensor3()
 
     end associate
   end subroutine request_tensor3
 
   !> Get a tensor4 from the registry by assigning it to a pointer.
-  !! @param t Pointer to the requested tensor4.
+  !! @param ptr Pointer to the requested tensor4.
   !! @param index Index of the tensor4 in the registry (for relinquishing later).
   !! @param n Number of rows of the requested tensor4.
-  !! @param m Number of columns of the requested tensor4.
+  !! @param ptr Number of columns of the requested tensor4.
   !! @param l Number of layers of the requested tensor4.
   !! @param k Number of slices of the requested tensor4.
   !! @param clear If true, the tensor4 values are set to zero upon request.
-  subroutine request_tensor4(this, t, index, n, m, l, k, clear)
+  subroutine request_tensor4(this, ptr, index, n, m, l, k, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    type(tensor4_t), pointer, intent(inout) :: t
+    type(tensor4_t), pointer, intent(inout) :: ptr
     integer, intent(inout) :: index
     integer, intent(in) :: n, m, l, k
     logical, intent(in) :: clear
@@ -620,19 +620,19 @@ contains
                cycle
             end if
 
-            t => entries(index)%get_tensor4()
-            if (t%get_n1() .ne. n .or. &
-                 t%get_n2() .ne. m .or. &
-                 t%get_n3() .ne. l .or. &
-                 t%get_n4() .ne. k) then
-               nullify(t)
+            ptr => entries(index)%get_tensor4()
+            if (ptr%get_n1() .ne. n .or. &
+                 ptr%get_n2() .ne. m .or. &
+                 ptr%get_n3() .ne. l .or. &
+                 ptr%get_n4() .ne. k) then
+               nullify(ptr)
                cycle
             end if
 
             if (clear .and. NEKO_BCKND_DEVICE .eq. 1) then
-               call device_rzero(t%x_d, t%size())
+               call device_rzero(ptr%x_d, ptr%size())
             else if (clear) then
-               call rzero(t%x, t%size())
+               call rzero(ptr%x, ptr%size())
             end if
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
@@ -647,18 +647,18 @@ contains
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_tensor4(n, m, l, k)
-      t => this%entries(n_entries)%get_tensor4()
+      ptr => this%entries(n_entries)%get_tensor4()
 
     end associate
   end subroutine request_tensor4
 
   !> Get a field from the registry by assigning it to a pointer
-  !! @param f Pointer to the requested field.
+  !! @param ptr Pointer to the requested field.
   !! @param index Index of the field in the registry (for relinquishing later).
   !! @param clear If true, the field values are set to zero upon request.
-  subroutine request_field_stored_dof(this, f, index, clear)
+  subroutine request_field_stored_dof(this, ptr, index, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    type(field_t), pointer, intent(inout) :: f
+    type(field_t), pointer, intent(inout) :: ptr
     integer, intent(inout) :: index
     logical, intent(in) :: clear
     character(len=10) :: name
@@ -682,8 +682,8 @@ contains
                cycle
             end if
 
-            f => entries(index)%get_field()
-            if (clear) call field_rzero(f)
+            ptr => entries(index)%get_field()
+            if (clear) call field_rzero(ptr)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -698,19 +698,19 @@ contains
       this%inuse(n_entries) = .true.
       write (name, "(A3,I0.3)") "wrk", index
       call this%entries(n_entries)%init_field(this%dof, trim(name))
-      f => this%entries(n_entries)%get_field()
+      ptr => this%entries(n_entries)%get_field()
 
     end associate
   end subroutine request_field_stored_dof
 
   !> Get a field from the registry by assigning it to a pointer
-  !! @param f Pointer to the requested field.
+  !! @param ptr Pointer to the requested field.
   !! @param index Index of the field in the registry (for relinquishing later).
   !! @param dof Dofmap to use for the field.
   !! @param clear If true, the field values are set to zero upon request.
-  subroutine request_field_free_dof(this, f, index, dof, clear)
+  subroutine request_field_free_dof(this, ptr, index, dof, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    type(field_t), pointer, intent(inout) :: f
+    type(field_t), pointer, intent(inout) :: ptr
     integer, intent(inout) :: index
     type(dofmap_t), target, intent(in) :: dof
     logical, intent(in) :: clear
@@ -718,7 +718,7 @@ contains
 
     associate(entries => this%entries, n_entries => this%n_entries, &
          n_inuse => this%n_inuse)
-      !$omp critical (scratch_registry_request_field_free_dof)
+
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
 
@@ -730,13 +730,13 @@ contains
                cycle
             end if
 
-            f => entries(index)%get_field()
-            if (.not. associated(f%dof, dof)) then
-               nullify(f)
+            ptr => entries(index)%get_field()
+            if (.not. associated(ptr%dof, dof)) then
+               nullify(ptr)
                cycle
             end if
 
-            if (clear) call field_rzero(f)
+            if (clear) call field_rzero(ptr)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -744,6 +744,7 @@ contains
       end do
 
       ! all existing fields in use, we need to expand to add a new one
+
       index = n_entries + 1
       call this%expand()
       n_entries = n_entries + 1
@@ -751,8 +752,8 @@ contains
       this%inuse(n_entries) = .true.
       write (name, "(A3,I0.3)") "wrk", index
       call this%entries(n_entries)%init_field(dof, trim(name))
-      f => this%entries(n_entries)%get_field()
-      !$omp end critical (scratch_registry_request_field_free_dof)
+      ptr => this%entries(n_entries)%get_field()
+
     end associate
   end subroutine request_field_free_dof
 
