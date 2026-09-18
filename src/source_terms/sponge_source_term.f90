@@ -258,8 +258,8 @@ contains
     this%v_bf = constant_values(2)
     this%w_bf = constant_values(3)
 
-    call neko_log%message("Baseflow   : constant", lvl = NEKO_LOG_INFO)
-    write (log_buf, '(A, 3(ES12.6, A))') "Value: [", &
+    call neko_log%message("Baseflow       : constant", lvl = NEKO_LOG_INFO)
+    write (log_buf, '(A, 3(ES12.6, A))') "Value          : [", &
          (constant_values(i), ", ", i = 1, 2), constant_values(3), "]"
     call neko_log%message(log_buf, lvl = NEKO_LOG_INFO)
 
@@ -294,7 +294,7 @@ contains
          amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
          dump_fname)
 
-    call neko_log%message("Baseflow   : field")
+    call neko_log%message("Baseflow       : field", lvl = NEKO_LOG_INFO)
 
     !
     ! Create the base flow fields in the registry
@@ -347,7 +347,7 @@ contains
          amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
          dump_fname)
 
-    call neko_log%message("Baseflow   : user")
+    call neko_log%message("Baseflow       : user", lvl = NEKO_LOG_INFO)
 
   end subroutine sponge_init_user
 
@@ -377,7 +377,7 @@ contains
     this%amplitudes(2) = amplitudes(2)
     this%amplitudes(3) = amplitudes(3)
 
-    write (log_buf, '(A, 3(ES12.6, A))') "Amplitudes : [", &
+    write (log_buf, '(A, 3(ES12.6, A))') "Amplitudes     : [", &
          (amplitudes(i), ", ", i = 1, 2), amplitudes(3), "]"
     call neko_log%message(log_buf, lvl=NEKO_LOG_INFO)
 
@@ -386,12 +386,12 @@ contains
     this%dump_fields = dump_fields
     this%dump_fname = trim(dump_fname)
 
-    call neko_log%message("Fringe name      : " // trim(fringe_registry_name), &
+    call neko_log%message("Fringe name    : " // trim(fringe_registry_name), &
          lvl = NEKO_LOG_INFO)
-    call neko_log%message("Baseflow prefix  : " // trim(bf_registry_pref), &
-         lvl = NEKO_LOG_DEBUG)
+    call neko_log%message("Baseflow prefix: " // trim(bf_registry_pref), &
+         lvl = NEKO_LOG_INFO)
 
-    write (log_buf, "(A,L)") "Dump fields      : ", this%dump_fields
+    write (log_buf, "(A,L)") "Dump fields    : ", this%dump_fields
     call neko_log%message(log_buf, lvl=NEKO_LOG_INFO)
 
     this%u => neko_registry%get_field_by_name("u")
