@@ -14,6 +14,12 @@
   `nu=4` tensor contraction left a loop-body index shared, the wall model
   stress update ran on every thread, and the coupled CG shared its residual
   reduction temporaries.
+- The OpenCL vector Helmholtz operator applies its mass term in one fused
+  kernel, as the CUDA, HIP and Metal backends already did, rather than in
+  three `device_addcol4` calls that re-read `h2` and `B` once per component.
+  An interface for the kernel had been declared but never implemented, so
+  the operator fell through to the generic path and moved 224 bytes per grid
+  point at `lx = 8` in double precision where the other backends moved 192.
 - Sped up the CPU dealiasing tensor contractions. `tnsr3d_cpu` gained unrolled
   `nu = 8` and `nu = 12` kernels covering the 3/2-rule pair, and the generic
   kernel hoists its reduction index out of the innermost loop so that loop is
