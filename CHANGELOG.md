@@ -9,6 +9,16 @@
   `nu=4` tensor contraction left a loop-body index shared, the wall model
   stress update ran on every thread, and the coupled CG shared its residual
   reduction temporaries.
+- Sped up the CPU dealiasing tensor contractions. `tnsr3d_cpu` gained unrolled
+  `nu = 8` and `nu = 12` kernels covering the 3/2-rule pair, and the generic
+  kernel hoists its reduction index out of the innermost loop so that loop is
+  unit-stride. Results move by about one ulp wherever the compiler contracts
+  the restructured expressions into FMAs differently.
+- The Pn-Pn pressure residual now subtracts the facet-normal surface terms
+  directly into it through the new `facet_normal_t%apply_surfvec_sub`, rather
+  than staging them through six full-length scratch fields, and the velocity
+  residual uses the fused `compute_vector` the device and stress backends
+  already used.
 - Fixed a leaked MPI file handle in the fld reader, which never closed the
   file it opened.
 - Added runtime registration of user-defined scalar boundary-condition types
