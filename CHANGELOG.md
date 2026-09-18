@@ -8,8 +8,6 @@
   the same place and in the same order as before, so results are unchanged
   bit for bit, and the `ifh2 = .false.` path taken by the pressure solve is
   untouched.
-- Fixed several OpenMP races in the boundary conditions, including a Neumann
-  flux accumulated once per thread.
 - Fixed further OpenMP races outside the boundary-condition update blocks:
   the symmetry, shear stress and non-normal vector conditions lacked
   worksharing inside the `bc_list` parallel region, `facet_normal` and the
@@ -26,8 +24,6 @@
   than staging them through six full-length scratch fields, and the velocity
   residual uses the fused `compute_vector` the device and stress backends
   already used.
-- Fixed a leaked MPI file handle in the fld reader, which never closed the
-  file it opened.
 - Modularized the entropy viscosity in the compressible Navier-Stokes solver
   by computing it in simcomp as an `artificial viscosity model` and
   applying it via a new object `viscous_regularization`.
@@ -36,7 +32,6 @@
   `case.numerics.c_avisc_entropy` options are now rejected. Configure an
   `artificial_viscosity_model` simulation component with those coefficients
   and enable its field through the fluid `viscous_regularization` object.
-
 - Added runtime registration of user-defined scalar boundary-condition types
   through `register_scalar_pnpn_bc`.
 - The staged cubes and derivative matrices of the HIP matrix core Helmholtz
@@ -216,6 +211,13 @@
 - *BREAKING* Renamed the allocation-only `precon_factory` API to
   `precon_allocator`. Added runtime registration of user-defined
   preconditioner and Krylov solver types.
+
+## 1.1.2 [2026-09-14]
+- Fixed several OpenMP races in the boundary conditions, including a Neumann
+  flux accumulated once per thread.
+- Fixed a leaked MPI file handle in the fld reader, which never closed the
+  file it opened.
+
 ## 1.1.1 [2026-09-08]
 - Fixed the fused three-component Helmholtz operator on the CPU backend
   (`ax_helm_cpu_t%compute_vector`) at polynomial orders 3 and 8, where a
@@ -263,7 +265,8 @@
   reports the name of the next output via `get_next_output_fname`. Also fixed
   `user_stats` ignoring `output_directory`, and the counter of the `.bp`
   output starting at -1.
-## 1.1.0 [2026-07-21]  
+
+## 1.1.0 [2026-07-21]
 - Added opt-in zero-copy unified memory mapping for the HIP backend on AMD
   MI300A APUs: with `NEKO_HIP_ZEROCOPY=1` (and `HSA_XNACK=1`), mapped arrays
   alias their host allocation instead of being replicated on the device,
@@ -327,8 +330,7 @@
 - Added HIP and CUDA support for ALE.
 - Added `spatial_average` simcomp for spatially averaging a list of registered
   fields.
-- Changed the normal vectors argument type in `setup_normals` to `vector_t` and 
-  added copy to device in the routine.
+- Changed the normal vectors argument type in `setup_normals` to `vector_t` and added copy to device in the routine.
 - Added new math operator for device. device_masked_copy_aligned, which performs
   a masked copy of data from one field to another, for a point zone mask.
 - Job control time limits can now be specified by a flexible string format, e.g.
@@ -346,9 +348,6 @@
 - Added `host_array_t` and `device_array_t` temporary array types and support
   for requesting these through `scratch_registry_t`.
 - Added the `cai_sagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL.
-- Modularized `entropy_viscosity` into two steps: 1. Calculate the
-  artificial viscosity field in a simcomp; 2. Apply the artificial 
-  viscosity though a viscous regularization object.
 - Added the `create_periodic_zones` contrib utility for converting pairs of
   labeled zones in an existing `.nmsh` mesh into periodic zones.
   backends. This model is based on the work of [Cai and Sagaut (PoF,
@@ -394,17 +393,10 @@
 - Added optional log output from the flow_rate_force, controlled by the `log`
   parameter.
 - Increased precision of the time value in the log.
-- Added a script to add new unit tests under `contrib/add_unit_test`. The same
-  script can add a .pf file to an existing suite.
-- Bugfix: Fixed a bug in the `unmap` subroutine, where the device pointer was
-  used to check if the field was mapped, which lead to a crash when trying to
-  unmap an array that was not associated with a device. Correctly does nothing
-  now.
 - Added an AI policy to the contribution guidelines.
 - Added simple support for VTKHDF. For now it can be used for fluid outputs.
   Simple restarts are supported with fixed mesh and MPI configuration.
   The VTKHDF output format is still experimental and will change in the future.
-- Added templates for serial and parallel unit tests.
 - Added code review instructions for LLMs in a copilot-friendly location.
 - Improved pixi installation. Added support to create a Python environment
   inside the pixi shell. Added support to choose real precision.
@@ -478,6 +470,7 @@
 - Fix cyclic boundary rotation device bug, which tried to launch kernels
   with zero threads for ranks not containing cyclic boundaries.
 - Change default parameters for tamg and phmg to be less expensive.
+
 ## 1.0.0 [2025-12-05] 
 ### Deprecated features
 - `operator::dudxyz` calls with implicit device arrays are deprecated. Please
