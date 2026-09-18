@@ -247,6 +247,20 @@ contains
     this%dof => dof
   end subroutine scratch_registry_set_dofmap
 
+  !> Assign a new expansion size to the scratch registry.
+  !! @param expansion_size New expansion size to assign.
+  subroutine scratch_registry_set_expansion_size(this, expansion_size)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: expansion_size
+
+    if (expansion_size .le. 0) then
+       call neko_error("scratch_registry::set_expansion_size: "&
+            // "Expansion size must be positive.")
+    end if
+
+    this%expansion_size = expansion_size
+  end subroutine scratch_registry_set_expansion_size
+
   !> Get the number of objects stored in the registry
   pure function get_n_entries(this) result(n)
     class(scratch_registry_t), intent(in) :: this
@@ -395,45 +409,48 @@ contains
     integer, intent(inout) :: index
     integer, intent(in) :: n
     logical, intent(in) :: clear
-    type(device_array_t), pointer :: v_tmp
+    type(device_array_t), pointer :: scratch_entry
 
-    associate(entries => this%entries, n_entries => this%n_entries)
+    ! Look for a compatible, unused object in the registry.
+    !$omp critical
+    do index = 1, this%get_size()
 
-      do index = 1, this%get_size()
-         if (.not. this%inuse(index)) then
+       ! Check for unused or unallocated objects.
+       if (this%inuse(index)) then
+          cycle
+       else if (.not. this%entries(index)%is_allocated()) then
+          call this%entries(index)%init_device_array(n)
+          this%n_entries = this%n_entries + 1
+       else if (trim(this%entries(index)%get_type()) .ne. 'device_array') then
+          cycle
+       end if
 
-            if (.not. entries(index)%is_allocated()) then
-               call entries(index)%init_device_array(n)
-               n_entries = n_entries + 1
-            else if (trim(entries(index)%get_type()) .ne. 'device_array') then
-               cycle
-            end if
+       ! Check compatibility of the object size.
+       scratch_entry => this%entries(index)%get_device_array()
+       if (scratch_entry%size() .eq. n) then
+          exit
+       end if
+       nullify(scratch_entry)
+    end do
+    !$omp end critical
 
-            v_tmp => entries(index)%get_device_array()
-            if (v_tmp%size() .ne. n) then
-               nullify(v_tmp)
-               cycle
-            end if
+    ! If no compatible, unused objects are found, expand and create a new one.
+    if (.not. associated(scratch_entry)) then
+       index = this%get_size() + 1
+       call this%expand()
+       !$omp critical
+       call this%entries(index)%init_device_array(n)
+       !$omp end critical
+       this%n_entries = this%n_entries + 1
+       scratch_entry => this%entries(index)%get_device_array()
+    end if
 
-            ptr = v_tmp%x_d
-            if (clear) call device_rzero(ptr, n)
-            this%inuse(index) = .true.
-            nullify(v_tmp)
-            return
-         end if
-      end do
+    ! Assign the pointer to the entry and clear the values if requested.
+    ptr = scratch_entry%x_d
+    if (clear) call device_rzero(ptr, n)
+    this%inuse(index) = .true.
 
-      ! all existing device_arrays in use, we need to expand to add a new one
-      index = n_entries + 1
-      call this%expand()
-      n_entries = n_entries + 1
-      this%inuse(n_entries) = .true.
-      call this%entries(n_entries)%init_device_array(n)
-      v_tmp => this%entries(n_entries)%get_device_array()
-      ptr = v_tmp%x_d
-      nullify(v_tmp)
-
-    end associate
+    nullify(scratch_entry)
   end subroutine request_device_array
 
   !> Get a vector from the registry by assigning it to a pointer.
@@ -447,40 +464,48 @@ contains
     integer, intent(inout) :: index
     integer, intent(in) :: n
     logical, intent(in) :: clear
+    type(vector_t), pointer :: scratch_entry
 
-    associate(entries => this%entries, n_entries => this%n_entries)
+    ! Look for a compatible, unused object in the registry.
+    !$omp critical
+    do index = 1, this%get_size()
 
-      do index = 1, this%get_size()
-         if (.not. this%inuse(index)) then
+       ! Check for unused or unallocated objects.
+       if (this%inuse(index)) then
+          cycle
+       else if (.not. this%entries(index)%is_allocated()) then
+          call this%entries(index)%init_vector(n)
+          this%n_entries = this%n_entries + 1
+       else if (trim(this%entries(index)%get_type()) .ne. 'vector') then
+          cycle
+       end if
 
-            if (.not. entries(index)%is_allocated()) then
-               call entries(index)%init_vector(n)
-               n_entries = n_entries + 1
-            else if (trim(entries(index)%get_type()) .ne. 'vector') then
-               cycle
-            end if
+       ! Check compatibility of the object size.
+       scratch_entry => this%entries(index)%get_vector()
+       if (scratch_entry%size() .eq. n) then
+          exit
+       end if
+       nullify(scratch_entry)
+    end do
+    !$omp end critical
 
-            ptr => entries(index)%get_vector()
-            if (ptr%size() .ne. n) then
-               nullify(ptr)
-               cycle
-            end if
+    ! If no compatible, unused objects are found, expand and create a new one.
+    if (.not. associated(scratch_entry)) then
+       index = this%get_size() + 1
+       call this%expand()
+       !$omp critical
+       call this%entries(index)%init_vector(n)
+       !$omp end critical
+       this%n_entries = this%n_entries + 1
+       scratch_entry => this%entries(index)%get_vector()
+    end if
 
-            if (clear) call vector_rzero(ptr)
-            this%inuse(index) = .true.
-            return
-         end if
-      end do
+    ! Assign the pointer to the entry and clear the values if requested.
+    ptr => scratch_entry
+    if (clear) call vector_rzero(ptr)
+    this%inuse(index) = .true.
 
-      ! all existing vectors in use, we need to expand to add a new one
-      index = n_entries + 1
-      call this%expand()
-      n_entries = n_entries + 1
-      this%inuse(n_entries) = .true.
-      call this%entries(n_entries)%init_vector(n)
-      ptr => this%entries(n_entries)%get_vector()
-
-    end associate
+    nullify(scratch_entry)
   end subroutine request_vector
 
   !> Get a matrix from the registry by assigning it to a pointer.
@@ -495,41 +520,48 @@ contains
     integer, intent(inout) :: index
     integer, intent(in) :: nrows, ncols
     logical, intent(in) :: clear
+    type(matrix_t), pointer :: scratch_entry
 
-    associate(entries => this%entries, n_entries => this%n_entries)
+    ! Look for a compatible, unused object in the registry.
+    !$omp critical
+    do index = 1, this%get_size()
 
-      do index = 1, this%get_size()
-         if (.not. this%inuse(index)) then
+       ! Check for unused or unallocated objects.
+       if (this%inuse(index)) then
+          cycle
+       else if (.not. this%entries(index)%is_allocated()) then
+          call this%entries(index)%init_matrix(nrows, ncols)
+          this%n_entries = this%n_entries + 1
+       else if (trim(this%entries(index)%get_type()) .ne. 'matrix') then
+          cycle
+       end if
 
-            if (.not. entries(index)%is_allocated()) then
-               call entries(index)%init_matrix(nrows, ncols)
-               n_entries = n_entries + 1
-            else if (trim(entries(index)%get_type()) .ne. 'matrix') then
-               cycle
-            end if
+       ! Check compatibility of the object size.
+       scratch_entry => this%entries(index)%get_matrix()
+       if (all(scratch_entry%get_dims() .eq. [nrows, ncols])) then
+          exit
+       end if
+       nullify(scratch_entry)
+    end do
+    !$omp end critical
 
-            ptr => entries(index)%get_matrix()
-            if (ptr%get_nrows() .ne. nrows .or. &
-                 ptr%get_ncols() .ne. ncols) then
-               nullify(ptr)
-               cycle
-            end if
+    ! If no compatible, unused objects are found, expand and create a new one.
+    if (.not. associated(scratch_entry)) then
+       index = this%get_size() + 1
+       call this%expand()
+       !$omp critical
+       call this%entries(index)%init_matrix(nrows, ncols)
+       !$omp end critical
+       this%n_entries = this%n_entries + 1
+       scratch_entry => this%entries(index)%get_matrix()
+    end if
 
-            if (clear) call matrix_rzero(ptr)
-            this%inuse(index) = .true.
-            return
-         end if
-      end do
+    ! Assign the pointer to the entry and clear the values if requested.
+    ptr => scratch_entry
+    if (clear) call matrix_rzero(ptr)
+    this%inuse(index) = .true.
 
-      ! all existing matrices in use, we need to expand to add a new one
-      index = n_entries + 1
-      call this%expand()
-      n_entries = n_entries + 1
-      this%inuse(n_entries) = .true.
-      call this%entries(n_entries)%init_matrix(nrows, ncols)
-      ptr => this%entries(n_entries)%get_matrix()
-
-    end associate
+    nullify(scratch_entry)
   end subroutine request_matrix
 
   !> Get a tensor3 from the registry by assigning it to a pointer.
@@ -545,46 +577,52 @@ contains
     integer, intent(inout) :: index
     integer, intent(in) :: n, m, l
     logical, intent(in) :: clear
+    type(tensor3_t), pointer :: scratch_entry
 
-    associate(entries => this%entries, n_entries => this%n_entries)
+    ! Look for a compatible, unused object in the registry.
+    !$omp critical
+    do index = 1, this%get_size()
 
-      do index = 1, this%get_size()
-         if (.not. this%inuse(index)) then
+       ! Check for unused or unallocated objects.
+       if (this%inuse(index)) then
+          cycle
+       else if (.not. this%entries(index)%is_allocated()) then
+          call this%entries(index)%init_tensor3(n, m, l)
+          this%n_entries = this%n_entries + 1
+       else if (trim(this%entries(index)%get_type()) .ne. 'tensor3') then
+          cycle
+       end if
 
-            if (.not. entries(index)%is_allocated()) then
-               call entries(index)%init_tensor3(n, m, l)
-               n_entries = n_entries + 1
-            else if (trim(entries(index)%get_type()) .ne. 'tensor3') then
-               cycle
-            end if
+       ! Check compatibility of the object size.
+       scratch_entry => this%entries(index)%get_tensor3()
+       if (all(scratch_entry%get_dims() .eq. [n, m, l])) then
+          exit
+       end if
+       nullify(scratch_entry)
+    end do
+    !$omp end critical
 
-            ptr => entries(index)%get_tensor3()
-            if (ptr%get_n1() .ne. n .or. &
-                 ptr%get_n2() .ne. m .or. &
-                 ptr%get_n3() .ne. l) then
-               nullify(ptr)
-               cycle
-            end if
+    ! If no compatible, unused objects are found, expand and create a new one.
+    if (.not. associated(scratch_entry)) then
+       index = this%get_size() + 1
+       call this%expand()
+       !$omp critical
+       call this%entries(index)%init_tensor3(n, m, l)
+       !$omp end critical
+       this%n_entries = this%n_entries + 1
+       scratch_entry => this%entries(index)%get_tensor3()
+    end if
 
-            if (clear .and. NEKO_BCKND_DEVICE .eq. 1) then
-               call device_rzero(ptr%x_d, ptr%size())
-            else if (clear) then
-               call rzero(ptr%x, ptr%size())
-            end if
-            this%inuse(index) = .true.
-            return
-         end if
-      end do
+    ! Assign the pointer to the entry and clear the values if requested.
+    ptr => scratch_entry
+    if (clear .and. NEKO_BCKND_DEVICE .eq. 1) then
+       call device_rzero(ptr%x_d, ptr%size())
+    else if (clear) then
+       call rzero(ptr%x, ptr%size())
+    end if
+    this%inuse(index) = .true.
 
-      ! all existing matrices in use, we need to expand to add a new one
-      index = n_entries + 1
-      call this%expand()
-      n_entries = n_entries + 1
-      this%inuse(n_entries) = .true.
-      call this%entries(n_entries)%init_tensor3(n, m, l)
-      ptr => this%entries(n_entries)%get_tensor3()
-
-    end associate
+    nullify(scratch_entry)
   end subroutine request_tensor3
 
   !> Get a tensor4 from the registry by assigning it to a pointer.
@@ -601,47 +639,52 @@ contains
     integer, intent(inout) :: index
     integer, intent(in) :: n, m, l, k
     logical, intent(in) :: clear
+    type(tensor4_t), pointer :: scratch_entry
 
-    associate(entries => this%entries, n_entries => this%n_entries)
+    ! Look for a compatible, unused object in the registry.
+    !$omp critical
+    do index = 1, this%get_size()
 
-      do index = 1, this%get_size()
-         if (.not. this%inuse(index)) then
+       ! Check for unused or unallocated objects.
+       if (this%inuse(index)) then
+          cycle
+       else if (.not. this%entries(index)%is_allocated()) then
+          call this%entries(index)%init_tensor4(n, m, l, k)
+          this%n_entries = this%n_entries + 1
+       else if (trim(this%entries(index)%get_type()) .ne. 'tensor4') then
+          cycle
+       end if
 
-            if (.not. entries(index)%is_allocated()) then
-               call entries(index)%init_tensor4(n, m, l, k)
-               n_entries = n_entries + 1
-            else if (trim(entries(index)%get_type()) .ne. 'tensor4') then
-               cycle
-            end if
+       ! Check compatibility of the object size.
+       scratch_entry => this%entries(index)%get_tensor4()
+       if (all(scratch_entry%get_dims() .eq. [n, m, l, k])) then
+          exit
+       end if
+       nullify(scratch_entry)
+    end do
+    !$omp end critical
 
-            ptr => entries(index)%get_tensor4()
-            if (ptr%get_n1() .ne. n .or. &
-                 ptr%get_n2() .ne. m .or. &
-                 ptr%get_n3() .ne. l .or. &
-                 ptr%get_n4() .ne. k) then
-               nullify(ptr)
-               cycle
-            end if
+    ! If no compatible, unused objects are found, expand and create a new one.
+    if (.not. associated(scratch_entry)) then
+       index = this%get_size() + 1
+       call this%expand()
+       !$omp critical
+       call this%entries(index)%init_tensor4(n, m, l, k)
+       !$omp end critical
+       this%n_entries = this%n_entries + 1
+       scratch_entry => this%entries(index)%get_tensor4()
+    end if
 
-            if (clear .and. NEKO_BCKND_DEVICE .eq. 1) then
-               call device_rzero(ptr%x_d, ptr%size())
-            else if (clear) then
-               call rzero(ptr%x, ptr%size())
-            end if
-            this%inuse(index) = .true.
-            return
-         end if
-      end do
+    ! Assign the pointer to the entry and clear the values if requested.
+    ptr => scratch_entry
+    if (clear .and. NEKO_BCKND_DEVICE .eq. 1) then
+       call device_rzero(ptr%x_d, ptr%size())
+    else if (clear) then
+       call rzero(ptr%x, ptr%size())
+    end if
+    this%inuse(index) = .true.
 
-      ! all existing matrices in use, we need to expand to add a new one
-      index = n_entries + 1
-      call this%expand()
-      n_entries = n_entries + 1
-      this%inuse(n_entries) = .true.
-      call this%entries(n_entries)%init_tensor4(n, m, l, k)
-      ptr => this%entries(n_entries)%get_tensor4()
-
-    end associate
+    nullify(scratch_entry)
   end subroutine request_tensor4
 
   !> Get a field from the registry by assigning it to a pointer
@@ -654,42 +697,50 @@ contains
     integer, intent(inout) :: index
     logical, intent(in) :: clear
     character(len=10) :: name
+    type(field_t), pointer :: scratch_entry
 
-    if (.not. associated(this%dof)) then
-       call neko_error("scratch_registry::request_field_stored_dof: "&
-            // "No dofmap assigned to scratch registry.")
+    ! Look for a compatible, unused object in the registry.
+    !$omp critical
+    do index = 1, this%get_size()
+
+       ! Check for unused or unallocated objects.
+       if (this%inuse(index)) then
+          cycle
+       else if (.not. this%entries(index)%is_allocated()) then
+          write(name, "(A3,I0.3)") "wrk", index
+          call this%entries(index)%init_field(this%dof, name)
+          this%n_entries = this%n_entries + 1
+       else if (trim(this%entries(index)%get_type()) .ne. 'field') then
+          cycle
+       end if
+
+       ! Check compatibility of the object size.
+       scratch_entry => this%entries(index)%get_field()
+       if (associated(scratch_entry%dof, this%dof)) then
+          exit
+       end if
+       nullify(scratch_entry)
+    end do
+    !$omp end critical
+
+    ! If no compatible, unused objects are found, expand and create a new one.
+    if (.not. associated(scratch_entry)) then
+       index = this%get_size() + 1
+       call this%expand()
+       write(name, "(A3,I0.3)") "wrk", index
+       !$omp critical
+       call this%entries(index)%init_field(this%dof, name)
+       !$omp end critical
+       this%n_entries = this%n_entries + 1
+       scratch_entry => this%entries(index)%get_field()
     end if
 
-    associate(entries => this%entries, n_entries => this%n_entries)
+    ! Assign the pointer to the entry and clear the values if requested.
+    ptr => scratch_entry
+    if (clear) call field_rzero(ptr)
+    this%inuse(index) = .true.
 
-      do index = 1, this%get_size()
-         if (.not. this%inuse(index)) then
-
-            if (.not. entries(index)%is_allocated()) then
-               write(name, "(A3,I0.3)") "wrk", index
-               call entries(index)%init_field(this%dof, trim(name))
-               n_entries = n_entries + 1
-            else if (entries(index)%get_type() .ne. 'field') then
-               cycle
-            end if
-
-            ptr => entries(index)%get_field()
-            if (clear) call field_rzero(ptr)
-            this%inuse(index) = .true.
-            return
-         end if
-      end do
-
-      ! all existing fields in use, we need to expand to add a new one
-      index = n_entries + 1
-      call this%expand()
-      n_entries = n_entries + 1
-      this%inuse(n_entries) = .true.
-      write (name, "(A3,I0.3)") "wrk", index
-      call this%entries(n_entries)%init_field(this%dof, trim(name))
-      ptr => this%entries(n_entries)%get_field()
-
-    end associate
+    nullify(scratch_entry)
   end subroutine request_field_stored_dof
 
   !> Get a field from the registry by assigning it to a pointer
@@ -704,43 +755,50 @@ contains
     type(dofmap_t), target, intent(in) :: dof
     logical, intent(in) :: clear
     character(len=10) :: name
+    type(field_t), pointer :: scratch_entry
 
-    associate(entries => this%entries, n_entries => this%n_entries)
+    ! Look for a compatible, unused object in the registry.
+    !$omp critical
+    do index = 1, this%get_size()
 
-      do index = 1, this%get_size()
-         if (.not. this%inuse(index)) then
+       ! Check for unused or unallocated objects.
+       if (this%inuse(index)) then
+          cycle
+       else if (.not. this%entries(index)%is_allocated()) then
+          write(name, "(A3,I0.3)") "wrk", index
+          call this%entries(index)%init_field(dof, name)
+          this%n_entries = this%n_entries + 1
+       else if (trim(this%entries(index)%get_type()) .ne. 'field') then
+          cycle
+       end if
 
-            if (.not. entries(index)%is_allocated()) then
-               write(name, "(A3,I0.3)") "wrk", index
-               call entries(index)%init_field(dof, trim(name))
-               n_entries = n_entries + 1
-            else if (entries(index)%get_type() .ne. 'field') then
-               cycle
-            end if
+       ! Check compatibility of the object size.
+       scratch_entry => this%entries(index)%get_field()
+       if (associated(scratch_entry%dof, dof)) then
+          exit
+       end if
+       nullify(scratch_entry)
+    end do
+    !$omp end critical
 
-            ptr => entries(index)%get_field()
-            if (.not. associated(ptr%dof, dof)) then
-               nullify(ptr)
-               cycle
-            end if
+    ! If no compatible, unused objects are found, expand and create a new one.
+    if (.not. associated(scratch_entry)) then
+       index = this%get_size() + 1
+       call this%expand()
+       write(name, "(A3,I0.3)") "wrk", index
+       !$omp critical
+       call this%entries(index)%init_field(dof, name)
+       !$omp end critical
+       this%n_entries = this%n_entries + 1
+       scratch_entry => this%entries(index)%get_field()
+    end if
 
-            if (clear) call field_rzero(ptr)
-            this%inuse(index) = .true.
-            return
-         end if
-      end do
+    ! Assign the pointer to the entry and clear the values if requested.
+    ptr => scratch_entry
+    if (clear) call field_rzero(ptr)
+    this%inuse(index) = .true.
 
-      ! all existing fields in use, we need to expand to add a new one
-
-      index = n_entries + 1
-      call this%expand()
-      n_entries = n_entries + 1
-      this%inuse(n_entries) = .true.
-      write (name, "(A3,I0.3)") "wrk", index
-      call this%entries(n_entries)%init_field(dof, trim(name))
-      ptr => this%entries(n_entries)%get_field()
-
-    end associate
+    nullify(scratch_entry)
   end subroutine request_field_free_dof
 
   !> Relinquish the use of a host_array in the registry
