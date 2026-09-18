@@ -231,11 +231,6 @@ contains
          call gs_h%gs_op_vector(w, n, GS_OP_ADD)
          call blst%apply(w, n)
          call gs_h%interp%apply_j(w, n)
-         
-!         call gs_h%op(w, n, GS_OP_ADD)
-!         call blst%apply(w, n)
-!         call gs_h%op_h1(w, n, GS_OP_ADD)
-         
       else
          call gs_h%op(w, n, GS_OP_ADD)
          call blst%apply(w, n)
@@ -255,10 +250,6 @@ contains
          call gs_h%gs_op_vector(w, n, GS_OP_ADD)
          call blst%apply(w, n)
          call gs_h%interp%apply_j(w, n)
-         
-!         call blst%apply(w, n)
-!         call gs_h%op_h1(w, n, GS_OP_ADD)
-         
       end if
       call copy(d, w, n)
       a = 2.0_rp / this%tha
@@ -274,11 +265,6 @@ contains
             call gs_h%gs_op_vector(w, n, GS_OP_ADD)
             call blst%apply(w, n)
             call gs_h%interp%apply_j(w, n)
-            
-!            call gs_h%op(w, n, GS_OP_ADD)
-!            call blst%apply(w, n)
-!            call gs_h%op_h1(w, n, GS_OP_ADD)
-            
          else
             call gs_h%op(w, n, GS_OP_ADD)
             call blst%apply(w, n)
@@ -291,10 +277,6 @@ contains
             call gs_h%gs_op_vector(w, n, GS_OP_ADD)
             call blst%apply(w, n)
             call gs_h%interp%apply_j(w, n)
-            
-!            call blst%apply(w, n)
-!            call gs_h%op_h1(w, n, GS_OP_ADD)
-            
          end if
 
          if (iter .eq. 2) then
@@ -316,11 +298,6 @@ contains
          call gs_h%gs_op_vector(w, n, GS_OP_ADD)
          call blst%apply(w, n)
          call gs_h%interp%apply_j(w, n)
-         
-!         call gs_h%op(w, n, GS_OP_ADD)
-!         call blst%apply(w, n)
-!         call gs_h%op_h1(w, n, GS_OP_ADD)
-         
       else
          call gs_h%op(w, n, GS_OP_ADD)
          call blst%apply(w, n)

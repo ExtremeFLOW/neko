@@ -757,12 +757,6 @@ contains
       ! Compute the source terms
       call this%source_term%compute(time)
 
-      
-!      f_x%x = 0.0_rp
-!      f_y%x = 0.0_rp
-!      f_z%x = 0.0_rp
-      
-
       ! Add Neumann bc contributions to the RHS
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
            this%dm_Xh%size(), time, strong = .false.)
@@ -882,16 +876,6 @@ contains
             call device_event_sync(event)
             call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
             call gs_Xh%interp%apply_j(p_res)
-            
-!            call gs_Xh%op(p_res, GS_OP_ADD, event)
-!            call device_event_sync(event)
-!
-!            ! Set the residual to zero at strong pressure boundaries.
-!            call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
-!
-!            call gs_Xh%op_h1(p_res, GS_OP_ADD, event)
-!            call device_event_sync(event)
-            
          else
             call gs_Xh%op(p_res, GS_OP_ADD, event)
             call device_event_sync(event)
@@ -959,28 +943,6 @@ contains
             call gs_Xh%interp%apply_j(u_res)
             call gs_Xh%interp%apply_j(v_res)
             call gs_Xh%interp%apply_j(w_res)
-            
-!            call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
-!            call gs_Xh%op(u_res, GS_OP_ADD, event)
-!            call device_event_sync(event)
-!            call gs_Xh%op(v_res, GS_OP_ADD, event)
-!            call device_event_sync(event)
-!            call gs_Xh%op(w_res, GS_OP_ADD, event)
-!            call device_event_sync(event)
-!            call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
-!
-!            ! Set residual to zero at strong velocity boundaries.
-!            call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
-!
-!            call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
-!            call gs_Xh%op_h1(u_res, GS_OP_ADD, event)
-!            call device_event_sync(event)
-!            call gs_Xh%op_h1(v_res, GS_OP_ADD, event)
-!            call device_event_sync(event)
-!            call gs_Xh%op_h1(w_res, GS_OP_ADD, event)
-!            call device_event_sync(event)
-!            call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
-            
          else
             call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
             call gs_Xh%op(u_res, GS_OP_ADD, event)

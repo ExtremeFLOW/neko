@@ -362,11 +362,6 @@ contains
        call gs_h%gs_op_vector(this%bb(:, this%m), n, GS_OP_ADD)
        call bclst%apply_scalar(this%bb(1, this%m), n)
        call gs_h%interp%apply_j(this%bb(:, this%m), n)
-       
-!       call gs_h%op(this%bb(:, this%m), n, GS_OP_ADD)
-!       call bclst%apply_scalar(this%bb(1, this%m), n)
-!       call gs_h%op_h1(this%bb(:, this%m), n, GS_OP_ADD)
-       
     else
        call gs_h%gs_op_vector(this%bb(1, this%m), n, GS_OP_ADD)
        call bclst%apply_scalar(this%bb(1, this%m), n)
@@ -420,11 +415,6 @@ contains
             call gs_h%gs_op_vector(this%bb(:, i), n, GS_OP_ADD)
             call blst%apply_scalar(this%bb(1, i), n)
             call gs_h%interp%apply_j(this%bb(:, i), n)
-            
-!            call gs_h%op(bb(:, i), n, GS_OP_ADD)
-!            call blst%apply_scalar(bb(1, i), n)
-!            call gs_h%op_h1(bb(:, i), n, GS_OP_ADD)
-            
          else
             call gs_h%gs_op_vector(bb(1, i), n, GS_OP_ADD)
             call blst%apply_scalar(bb(1, i), n)

@@ -266,11 +266,6 @@ contains
        call this%coef%gs_h%gs_op_vector(RHS%x, n, GS_OP_ADD)
        call this%bclst_filt%apply_scalar(RHS%x, n)
        call this%coef%gs_h%interp%apply_j(RHS)
-       
-!       call this%coef%gs_h%op(RHS, GS_OP_ADD)
-!       call this%bclst_filt%apply_scalar(RHS%x, n)
-!       call this%coef%gs_h%op_h1(RHS, GS_OP_ADD)
-       
     else
        ! gather scatter
        call this%coef%gs_h%op(RHS, GS_OP_ADD)

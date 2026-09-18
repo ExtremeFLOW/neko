@@ -255,19 +255,6 @@ contains
        call gs_h%interp%apply_j(this%proj_u%bb(:, this%proj_u%m), n)
        call gs_h%interp%apply_j(this%proj_v%bb(:, this%proj_v%m), n)
        call gs_h%interp%apply_j(this%proj_w%bb(:, this%proj_w%m), n)
-       
-!       call gs_h%op(this%proj_u%bb(:, this%proj_u%m), n, GS_OP_ADD)
-!       call gs_h%op(this%proj_v%bb(:, this%proj_v%m), n, GS_OP_ADD)
-!       call gs_h%op(this%proj_w%bb(:, this%proj_w%m), n, GS_OP_ADD)
-!
-!       call bclst_u%apply_scalar(this%proj_u%bb(1, this%proj_u%m), n)
-!       call bclst_v%apply_scalar(this%proj_v%bb(1, this%proj_v%m), n)
-!       call bclst_w%apply_scalar(this%proj_w%bb(1, this%proj_w%m), n)
-!
-!       call gs_h%op_h1(this%proj_u%bb(:, this%proj_u%m), n, GS_OP_ADD)
-!       call gs_h%op_h1(this%proj_v%bb(:, this%proj_v%m), n, GS_OP_ADD)
-!       call gs_h%op_h1(this%proj_w%bb(:, this%proj_w%m), n, GS_OP_ADD)
-       
     else
        call gs_h%gs_op_vector(this%proj_u%bb(1, this%proj_u%m), n, GS_OP_ADD)
        call gs_h%gs_op_vector(this%proj_v%bb(1, this%proj_v%m), n, GS_OP_ADD)

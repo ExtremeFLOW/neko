@@ -623,13 +623,6 @@ contains
           call this%grids(1)%bclst%apply(this%r, this%grids(1)%dof%size())
           call this%grids(1)%gs_h%interp%apply_j(this%r, &
                this%grids(1)%dof%size())
-          
-!          call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), &
-!               GS_OP_ADD)
-!          call this%grids(1)%bclst%apply(this%r, this%grids(1)%dof%size())
-!          call this%grids(1)%gs_h%op_h1(this%r, this%grids(1)%dof%size(), &
-!               GS_OP_ADD)
-          
        else
           call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), &
                GS_OP_ADD)
