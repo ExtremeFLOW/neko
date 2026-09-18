@@ -8,7 +8,7 @@ module test_checkpoint_payload
   use field_series, only : field_series_t
   use mesh, only : mesh_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp, i8
+  use num_types, only : rp, dp, i8
   use space, only : space_t, GLL
   use, intrinsic :: iso_c_binding, only : c_associated, c_loc
   implicit none
@@ -164,6 +164,96 @@ contains
 
     call payload%free()
   end subroutine test_array_registration
+
+  !> Verify registration of arrays held in double precision, which the
+  !! checkpoint readers and writers distinguish from working-precision
+  !! arrays by which of the two host pointers is associated.
+  @test
+  subroutine test_array_dp_registration(this)
+    class(test_checkpoint_payload_case), intent(inout) :: this
+    type(checkpoint_payload_t) :: payload
+    type(checkpoint_array_t), pointer :: array
+    real(kind=dp), target :: replicated_values(3)
+    real(kind=dp), target :: distributed_values(2)
+    ! Differs from its single-precision rounding, so an array that was
+    ! narrowed to the working precision on the way in would not compare
+    ! equal to it in a single-precision build.
+    real(kind=dp), parameter :: fine = 1.0_dp + 1.0e-12_dp
+
+    replicated_values = [fine, 2.0_dp, 3.0_dp]
+    distributed_values = [4.0_dp, 5.0_dp]
+
+    call payload%init("time")
+    call payload%add_array_dp("tlag", replicated_values, replicated = .true.)
+    call payload%add_array_dp("dtlag", distributed_values, 6_i8, 2_i8)
+
+    @assertEqual(2, payload%array_count())
+
+    array => payload%find_array("tlag")
+    @assertTrue(associated(array))
+    @assertTrue(associated(array%x_dp))
+    @assertFalse(associated(array%x))
+    @assertTrue(array%replicated)
+    @assertEqual(3_i8, array%global_count)
+    @assertEqual(0_i8, array%offset)
+    @assertEqual(size(replicated_values), size(array%x_dp))
+
+    ! Double precision is kept whatever the working precision is.
+    @assertTrue(array%x_dp(1) .eq. fine)
+    @assertTrue(array%x_dp(1) .ne. 1.0_dp)
+
+    ! The descriptor aliases the caller's storage, which is how a restart
+    ! delivers the values it reads back to the time state.
+    array%x_dp(2) = 42.0_dp
+    @assertTrue(replicated_values(2) .eq. 42.0_dp)
+
+    array => payload%find_array("dtlag")
+    @assertTrue(associated(array%x_dp))
+    @assertFalse(associated(array%x))
+    @assertFalse(array%replicated)
+    @assertEqual(6_i8, array%global_count)
+    @assertEqual(2_i8, array%offset)
+    @assertEqual(size(distributed_values), size(array%x_dp))
+    @assertTrue(array%x_dp(2) .eq. 5.0_dp)
+
+    call payload%free()
+  end subroutine test_array_dp_registration
+
+  !> Verify that double- and working-precision arrays coexist in one payload
+  !! and that releasing it leaves the registered storage untouched.
+  @test
+  subroutine test_array_dp_and_rp_coexist(this)
+    class(test_checkpoint_payload_case), intent(inout) :: this
+    type(checkpoint_payload_t) :: payload
+    type(checkpoint_array_t), pointer :: array
+    real(kind=dp), target :: times(2)
+    real(kind=rp), target :: positions(2)
+
+    times = [1.0_dp, 2.0_dp]
+    positions = [3.0_rp, 4.0_rp]
+
+    call payload%init("mixed")
+    call payload%add_array_dp("tlag", times, replicated = .true.)
+    call payload%add_array("pivot_position", positions, replicated = .true.)
+
+    @assertEqual(2, payload%array_count())
+
+    array => payload%find_array("tlag")
+    @assertTrue(associated(array%x_dp))
+    @assertFalse(associated(array%x))
+
+    array => payload%find_array("pivot_position")
+    @assertTrue(associated(array%x))
+    @assertFalse(associated(array%x_dp))
+
+    call payload%free()
+
+    @assertEqual(0, payload%array_count())
+    @assertTrue(times(1) .eq. 1.0_dp)
+    @assertTrue(times(2) .eq. 2.0_dp)
+    @assertEqual(3.0_rp, positions(1))
+    @assertEqual(4.0_rp, positions(2))
+  end subroutine test_array_dp_and_rp_coexist
 
   !> Verify registration of four-dimensional nodal mesh arrays.
   @test
