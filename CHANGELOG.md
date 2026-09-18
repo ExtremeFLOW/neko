@@ -1,6 +1,10 @@
 # Changelog
 
 ## Develop
+- Updated interfaces for scratch host and device arrays. Now the canonical types
+  are used when requesting scratch arrays of these types. `c_ptr` and
+  `real(kind=rp), pointer` should be used rather than the wrappers
+  `host_array_t` and `device_array_t`.
 - Fixed several OpenMP races in the boundary conditions, including a Neumann
   flux accumulated once per thread.
 - Fixed further OpenMP races outside the boundary-condition update blocks:
