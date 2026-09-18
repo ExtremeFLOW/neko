@@ -391,7 +391,7 @@ contains
     call neko_log%message("Baseflow prefix: " // trim(bf_registry_pref), &
          lvl = NEKO_LOG_INFO)
 
-    write (log_buf, "(A,L)") "Dump fields    : ", this%dump_fields
+    write (log_buf, "(A,L1)") "Dump fields: ", this%dump_fields
     call neko_log%message(log_buf, lvl=NEKO_LOG_INFO)
 
     this%u => neko_registry%get_field_by_name("u")
