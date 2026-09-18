@@ -44,7 +44,7 @@ module sponge_source_term
   use device_math, only : device_sub3, device_col2, device_add2s2
   use time_state, only : time_state_t
   use math, only : sub3, col2, add2s2
-  use logger, only : neko_log, NEKO_LOG_DEBUG
+  use logger, only : neko_log, NEKO_LOG_DEBUG, NEKO_LOG_INFO, LOG_SIZE
   use neko_config, only : NEKO_BCKND_DEVICE
   use source_term, only : source_term_t
   use case, only : case_t
@@ -134,7 +134,7 @@ contains
     type(json_file) :: baseflow_subdict
     integer :: i, izone
 
-    call neko_log%section("SPONGE SOURCE TERM", LVL = NEKO_LOG_DEBUG)
+    call neko_log%section("Sponge source term", LVL = NEKO_LOG_INFO)
 
     call json_get_or_default(json, "dump_fields", dump_fields, .false.)
     call json_get_or_default(json, "dump_file_name", dump_fname, &
@@ -227,6 +227,8 @@ contains
          bf_registry_pref
     logical, intent(in) :: dump_fields
     real(kind=rp), intent(in) :: constant_values(:)
+    character(len=LOG_SIZE) :: log_buf
+    integer :: i
 
     !
     ! Common constructor
@@ -238,9 +240,6 @@ contains
     !
     ! Create the base flow fields in the registry
     !
-    call neko_log%message("Initializing bf fields", &
-         lvl = NEKO_LOG_DEBUG)
-
     call neko_registry%add_field(this%u%dof, &
          trim(bf_registry_pref) // "_u")
     call neko_registry%add_field(this%v%dof, &
@@ -258,6 +257,11 @@ contains
     this%u_bf = constant_values(1)
     this%v_bf = constant_values(2)
     this%w_bf = constant_values(3)
+
+    call neko_log%message("Baseflow   : constant", lvl = NEKO_LOG_INFO)
+    write (log_buf, '(A, 3(ES12.6, A))') "Value: [", &
+         (constant_values(i), ", ", i = 1, 2), constant_values(3), "]"
+    call neko_log%message(log_buf, lvl = NEKO_LOG_INFO)
 
     this%baseflow_set = .true.
 
@@ -290,12 +294,11 @@ contains
          amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
          dump_fname)
 
+    call neko_log%message("Baseflow   : field")
+
     !
     ! Create the base flow fields in the registry
     !
-    call neko_log%message("Initializing bf fields", &
-         lvl = NEKO_LOG_DEBUG)
-
     call neko_registry%add_field(this%u%dof, &
          trim(bf_registry_pref) // "_u")
     call neko_registry%add_field(this%v%dof, &
@@ -344,6 +347,8 @@ contains
          amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
          dump_fname)
 
+    call neko_log%message("Baseflow   : user")
+
   end subroutine sponge_init_user
 
   !> Common constructor.
@@ -359,7 +364,11 @@ contains
          bf_registry_pref
     logical, intent(in) :: dump_fields
 
+    character(len=LOG_SIZE) :: log_buf
+
     integer :: i
+
+    call neko_log%message("Initializing sponge", lvl = NEKO_LOG_DEBUG)
 
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
@@ -368,12 +377,22 @@ contains
     this%amplitudes(2) = amplitudes(2)
     this%amplitudes(3) = amplitudes(3)
 
+    write (log_buf, '(A, 3(ES12.6, A))') "Amplitudes : [", &
+         (amplitudes(i), ", ", i = 1, 2), amplitudes(3), "]"
+    call neko_log%message(log_buf, lvl=NEKO_LOG_INFO)
+
     this%fringe_registry_name = trim(fringe_registry_name)
     this%bf_rgstry_pref = trim(bf_registry_pref)
     this%dump_fields = dump_fields
     this%dump_fname = trim(dump_fname)
 
-    call neko_log%message("Initializing sponge", lvl = NEKO_LOG_DEBUG)
+    call neko_log%message("Fringe name: " // trim(fringe_registry_name), &
+         lvl = NEKO_LOG_INFO)
+    call neko_log%message("Baseflow prefix  : " // trim(bf_registry_pref), &
+         lvl = NEKO_LOG_DEBUG)
+
+    write (log_buf, "(A,L)") "Dump fields: ", this%dump_fields
+    call neko_log%message(log_buf, lvl=NEKO_LOG_INFO)
 
     call neko_log%message("Pointing at fields u,v,w", &
          lvl = NEKO_LOG_DEBUG)
@@ -453,7 +472,7 @@ contains
        if (.not. neko_registry%field_exists( &
             trim(this%fringe_registry_name))) then
           call neko_error("SPONGE: No fringe field set (" // &
-               this%fringe_registry_name // " not found)")
+               trim(this%fringe_registry_name) // " not found)")
        end if
 
        ! This will throw an error if the user hasn't added 'sponge_fringe'
