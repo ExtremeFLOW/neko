@@ -62,6 +62,7 @@ module global_interpolation
   use vector, only : vector_t
   use vector_math, only : vector_masked_gather_copy
   use matrix, only : matrix_t
+  use matrix_math, only : matrix_cfill
   use math, only : copy, NEKO_EPS
   use mask, only : mask_t
   use structs, only : array_ptr_t
@@ -814,7 +815,7 @@ contains
     allocate(rst_results(3, n_glb_point_cand))
     allocate(res_results(3, n_glb_point_cand))
     allocate(el_owner_results(n_glb_point_cand))
-    res = 1e2_rp
+    call matrix_cfill(res, 1e2_rp)
     this%rst = 1e2
     this%pe_owner = -1
     this%el_owner0 = -1
