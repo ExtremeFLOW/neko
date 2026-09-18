@@ -21,6 +21,11 @@ on:
         type: string
         required: false
         default: "v4.15.0"
+      hdf5-version:
+        description: "The version of the HDF5 library to use."
+        type: string
+        required: false
+        default: "hdf5_2_0_0"
 
 jobs:
   GNU:
@@ -144,35 +149,33 @@ jobs:
       - name: Setup - Python environment
         uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
-          cache: 'pip'
+          python-version: "3.x"
+          cache: "pip"
           cache-dependency-path: "**/requirements-tests.txt"
 
       - name: Setup - Install Python dependencies
-#        env:
-#          MPICC: mpicc
-#          MPI4PY_BUILD_WITH_MPI: "1"
-#          PIP_NO_BINARY: "mpi4py"
+        #        env:
+        #          MPICC: mpicc
+        #          MPI4PY_BUILD_WITH_MPI: "1"
+        #          PIP_NO_BINARY: "mpi4py"
         run: |
           pip install -r .github/workflows/extra/requirements-tests.txt
-#          pip install --no-binary=mpi4py mpi4py
+      #          pip install --no-binary=mpi4py mpi4py
 
+      #      - name: Check MPI vendor used by mpi4py
+      #        run: |
+      #          python - << 'EOF'
+      #          from mpi4py import MPI
+      #          print("MPI vendor:", MPI.get_vendor())
+      #          print("MPI version:", MPI.Get_version())
+      #          EOF
 
-#      - name: Check MPI vendor used by mpi4py
-#        run: |
-#          python - << 'EOF'
-#          from mpi4py import MPI
-#          print("MPI vendor:", MPI.get_vendor())
-#          print("MPI version:", MPI.Get_version())
-#          EOF
-
-#      - name: Debug MPI in CI
-#        run: |
-#          which mpirun || echo "mpirun not found"
-#          mpirun --version || echo "mpirun --version failed"
-#          echo "Running simple MPI hello..."
-#          mpirun --oversubscribe -np 2 hostname
-
+      #      - name: Debug MPI in CI
+      #        run: |
+      #          which mpirun || echo "mpirun not found"
+      #          mpirun --version || echo "mpirun --version failed"
+      #          echo "Running simple MPI hello..."
+      #          mpirun --oversubscribe -np 2 hostname
 
       # Setup matrix environment
       - name: Setup - Matrix environment
@@ -213,12 +216,15 @@ jobs:
         env:
           PFUNIT_VERSION: ${{ inputs.pfunit-version }}
           JSON_FORTRAN_VERSION: ${{ inputs.json-fortran-version }}
+          HDF5_VERSION: ${{ inputs.hdf5-version }}
         run: |
           if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.15.0"; fi
           if [ -z "$JSON_FORTRAN_VERSION" ]; then JSON_FORTRAN_VERSION="8.3.0"; fi
+          if [ -z "$HDF5_VERSION" ]; then HDF5_VERSION="hdf5_2_0_0"; fi
 
           echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
+          echo "hdf5-version=$HDF5_VERSION" >> $GITHUB_OUTPUT
 
       - name: Dependencies - Get pFunit
         id: get-pfunit
@@ -237,6 +243,16 @@ jobs:
           os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
+      - name: Dependencies - Get HDF5
+        if: matrix.backend == 'cpu' && matrix.os == 'ubuntu-24.04'
+        id: get-hdf5
+        uses: ./.github/actions/setup_hdf5
+        with:
+          version: ${{ steps.setup-deps.outputs.hdf5-version }}
+          os: ${{ steps.setup-env.outputs.os-version }}
+          compiler: ${{ matrix.compiler }}
+          c-compiler: ${{ matrix.compiler == 'gfortran-12' && 'gcc-12' || matrix.compiler == 'gfortran-13' && 'gcc-13' || matrix.compiler == 'gfortran-14' && 'gcc-14' || 'gcc-15' }}
+
       # ---------------------------------------------------------------------- #
       # Build Neko
       # ---------------------------------------------------------------------- #
@@ -247,7 +263,9 @@ jobs:
       - name: Build - Configure Neko
         env:
           PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
+          HDF5_DIR: ${{ steps.get-hdf5.outputs.install-dir }}
           BACKEND: ${{ matrix.backend }}
+          OS: ${{ matrix.os }}
         run: |
           if [ "$BACKEND" == 'cpu' ]; then
 
@@ -255,7 +273,12 @@ jobs:
             echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
             echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
             echo "${{ github.workspace }}/install/bin" >> $GITHUB_PATH
-            ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --prefix=${{ github.workspace }}/install
+            if [ $OS == 'ubuntu-24.04' ]; then
+              HDF5_CONFIG="--with-hdf5=${HDF5_DIR}"
+            else
+              HDF5_CONFIG=""
+            fi
+            ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR $HDF5_CONFIG --enable-real=${RP} --prefix=${{ github.workspace }}/install
 
           elif [ "$BACKEND" == 'cuda' ]; then
 
@@ -295,11 +318,14 @@ jobs:
 
       - name: Test - Integration tests
         if: matrix.backend == 'cpu'
+        env:
+          OS: ${{ matrix.os }}
         run: |
-           chmod +x $MAKENEKO_EXEC
-           cd tests/integration
-           pytest --max_nprocs=2 --real_precision=${RP}
-           cd ../..
+          export HAVE_HDF5=$($OS == 'ubuntu-24.04' && echo "1" || echo "0")
+          chmod +x $MAKENEKO_EXEC
+          cd tests/integration
+          pytest --max_nprocs=2 --real_precision=${RP}
+          cd ../..
 
       - name: Test - Check
         if: matrix.backend == 'cpu' || matrix.backend == 'metal'
@@ -354,8 +380,8 @@ jobs:
           elif [ ${{ matrix.backend }} == 'metal' ]; then
 
               cd releng/neko-*
-              ./configure FC=${FC} --enable-real=${RP} --with-metal              
-              
+              ./configure FC=${FC} --enable-real=${RP} --with-metal
+
           else
               echo "Unknown backend ${{ matrix.backend }}"
               exit 1

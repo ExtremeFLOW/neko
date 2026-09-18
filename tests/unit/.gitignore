@@ -25,6 +25,8 @@ test-suite.log
 !tensor4/tensor4_test
 !vector/vector_test
 !vtkhdf/vtkhdf_test
+!restart_consistency/restart_consistency_test
+!restart_consistency_hdf5/restart_consistency_hdf5_test
 
 # Processed files
 **.inc
@@ -78,6 +80,10 @@ expression/expression_test
 point_interpolation/point_interpolation_suite
 **/test_write_*.vtkhdf
 **/test_write_*.data/*.h5
+restart_consistency/restart_consistency_suite
+restart_consistency_hdf5/restart_consistency_hdf5_suite
+**/restart_consistency*.nmsh
+**/restart_consistency*.h5
 templates/parallel/parallel_suite
 templates/serial/serial_test
 bc_projector/bc_projector_suite

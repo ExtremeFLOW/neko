@@ -10,7 +10,7 @@ inputs:
   working-dir:
     description: "The directory to work in."
     required: false
-    default: "${{ runner.workspace }}/tmp"
+    default: "${{ runner.workspace }}/tmp/pfunit"
   os:
     description: "The operating system to use."
     required: false
