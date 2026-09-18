@@ -1907,6 +1907,11 @@ contains
   end subroutine power
 
   !> Eigenvalues of a symmetric 2x2 matrix, descending
+  !! @param a11 Diagonal entry (1,1).
+  !! @param a22 Diagonal entry (2,2).
+  !! @param a12 Off-diagonal entry.
+  !! @param e1 The larger eigenvalue.
+  !! @param e2 The smaller eigenvalue.
   pure subroutine eig_sym2(a11, a22, a12, e1, e2)
     real(kind=dp), intent(in) :: a11, a22, a12
     real(kind=dp), intent(out) :: e1, e2
@@ -1942,6 +1947,22 @@ contains
   !! build the same amplification against \f$ \epsilon_{sp} \f$ would put a
   !! 6% error on \f$ \kappa \f$ at 1e6 and lose it entirely near 1e7,
   !! exactly where the answer matters most.
+  !!
+  !! @note Both call sites in coef_metric_condition() pass a matrix scaled to
+  !! unit magnitude: the geometric factors divided by their largest entry, and
+  !! the same factors Jacobi scaled to a unit diagonal. The latter is exactly
+  !! the identity for an orthogonal element, which is why the isotropic branch
+  !! above is not merely defensive.
+  !!
+  !! @param a11 Diagonal entry (1,1).
+  !! @param a22 Diagonal entry (2,2).
+  !! @param a33 Diagonal entry (3,3).
+  !! @param a12 Off-diagonal entry (1,2).
+  !! @param a13 Off-diagonal entry (1,3).
+  !! @param a23 Off-diagonal entry (2,3).
+  !! @param e1 The largest eigenvalue.
+  !! @param e2 The intermediate eigenvalue.
+  !! @param e3 The smallest eigenvalue.
   pure subroutine eig_sym3(a11, a22, a33, a12, a13, a23, e1, e2, e3)
     real(kind=dp), intent(in) :: a11, a22, a33, a12, a13, a23
     real(kind=dp), intent(out) :: e1, e2, e3
