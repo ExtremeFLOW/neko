@@ -358,12 +358,19 @@ contains
     call Ax%compute(this%bb(1, this%m), x, coef, coef%msh, coef%Xh)
 
     if (allocated(gs_h%interp)) then
-       call gs_h%op(this%bb(:, this%m), n, GS_OP_ADD)
+       call gs_h%interp%apply_jt(this%bb(:, this%m), n)
+       call gs_h%gs_op_vector(this%bb(:, this%m), n, GS_OP_ADD)
+       call bclst%apply_scalar(this%bb(1, this%m), n)
+       call gs_h%interp%apply_j(this%bb(:, this%m), n)
+       
+!       call gs_h%op(this%bb(:, this%m), n, GS_OP_ADD)
+!       call bclst%apply_scalar(this%bb(1, this%m), n)
+!       call gs_h%op_h1(this%bb(:, this%m), n, GS_OP_ADD)
+       
     else
        call gs_h%gs_op_vector(this%bb(1, this%m), n, GS_OP_ADD)
+       call bclst%apply_scalar(this%bb(1, this%m), n)
     end if
-
-    call bclst%apply_scalar(this%bb(1, this%m), n)
 
     call proj_ortho(this, coef, n)
     call profiler_end_region('Project back', 17)
@@ -409,12 +416,19 @@ contains
          call Ax%compute(bb(1,i), xx(1,i), coef, coef%msh, coef%Xh)
 
          if (allocated(gs_h%interp)) then
-            call gs_h%op(bb(:, i), n, GS_OP_ADD)
+            call gs_h%interp%apply_jt(this%bb(:, i), n)
+            call gs_h%gs_op_vector(this%bb(:, i), n, GS_OP_ADD)
+            call blst%apply_scalar(this%bb(1, i), n)
+            call gs_h%interp%apply_j(this%bb(:, i), n)
+            
+!            call gs_h%op(bb(:, i), n, GS_OP_ADD)
+!            call blst%apply_scalar(bb(1, i), n)
+!            call gs_h%op_h1(bb(:, i), n, GS_OP_ADD)
+            
          else
-            call gs_h%gs_op_vector(bb(1,i), n, GS_OP_ADD)
+            call gs_h%gs_op_vector(bb(1, i), n, GS_OP_ADD)
+            call blst%apply_scalar(bb(1, i), n)
          end if
-
-         call blst%apply_scalar(bb(1,i), n)
       end do
 
       ! Modified Gram-Schmidt

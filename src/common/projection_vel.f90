@@ -46,6 +46,7 @@ module projection_vel
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use time_step_controller, only : time_step_controller_t
   use projection, only : projection_t, proj_ortho
+  use operators, only : rotate_cyc
   use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
@@ -233,18 +234,49 @@ contains
          coef, coef%msh, coef%Xh)
 
     if (allocated(gs_h%interp)) then
-       call gs_h%op(this%proj_u%bb(:, this%proj_u%m), n, GS_OP_ADD)
-       call gs_h%op(this%proj_v%bb(:, this%proj_v%m), n, GS_OP_ADD)
-       call gs_h%op(this%proj_w%bb(:, this%proj_w%m), n, GS_OP_ADD)
+       call gs_h%interp%apply_jt(this%proj_u%bb(:, this%proj_u%m), n)
+       call gs_h%interp%apply_jt(this%proj_v%bb(:, this%proj_v%m), n)
+       call gs_h%interp%apply_jt(this%proj_w%bb(:, this%proj_w%m), n)
+
+       call rotate_cyc(this%proj_u%bb(:, this%proj_u%m), &
+            this%proj_v%bb(:, this%proj_v%m), &
+            this%proj_w%bb(:, this%proj_w%m), 1, coef)
+       call gs_h%gs_op_vector(this%proj_u%bb(1, this%proj_u%m), n, GS_OP_ADD)
+       call gs_h%gs_op_vector(this%proj_v%bb(1, this%proj_v%m), n, GS_OP_ADD)
+       call gs_h%gs_op_vector(this%proj_w%bb(1, this%proj_w%m), n, GS_OP_ADD)
+       call rotate_cyc(this%proj_u%bb(:, this%proj_u%m), &
+            this%proj_v%bb(:, this%proj_v%m), &
+            this%proj_w%bb(:, this%proj_w%m), 0, coef)
+
+       call bclst_u%apply_scalar(this%proj_u%bb(1, this%proj_u%m), n)
+       call bclst_v%apply_scalar(this%proj_v%bb(1, this%proj_v%m), n)
+       call bclst_w%apply_scalar(this%proj_w%bb(1, this%proj_w%m), n)
+
+       call gs_h%interp%apply_j(this%proj_u%bb(:, this%proj_u%m), n)
+       call gs_h%interp%apply_j(this%proj_v%bb(:, this%proj_v%m), n)
+       call gs_h%interp%apply_j(this%proj_w%bb(:, this%proj_w%m), n)
+       
+!       call gs_h%op(this%proj_u%bb(:, this%proj_u%m), n, GS_OP_ADD)
+!       call gs_h%op(this%proj_v%bb(:, this%proj_v%m), n, GS_OP_ADD)
+!       call gs_h%op(this%proj_w%bb(:, this%proj_w%m), n, GS_OP_ADD)
+!
+!       call bclst_u%apply_scalar(this%proj_u%bb(1, this%proj_u%m), n)
+!       call bclst_v%apply_scalar(this%proj_v%bb(1, this%proj_v%m), n)
+!       call bclst_w%apply_scalar(this%proj_w%bb(1, this%proj_w%m), n)
+!
+!       call gs_h%op_h1(this%proj_u%bb(:, this%proj_u%m), n, GS_OP_ADD)
+!       call gs_h%op_h1(this%proj_v%bb(:, this%proj_v%m), n, GS_OP_ADD)
+!       call gs_h%op_h1(this%proj_w%bb(:, this%proj_w%m), n, GS_OP_ADD)
+       
     else
        call gs_h%gs_op_vector(this%proj_u%bb(1, this%proj_u%m), n, GS_OP_ADD)
        call gs_h%gs_op_vector(this%proj_v%bb(1, this%proj_v%m), n, GS_OP_ADD)
        call gs_h%gs_op_vector(this%proj_w%bb(1, this%proj_w%m), n, GS_OP_ADD)
-    end if
 
-    call bclst_u%apply_scalar(this%proj_u%bb(1, this%proj_u%m), n)
-    call bclst_v%apply_scalar(this%proj_v%bb(1, this%proj_v%m), n)
-    call bclst_w%apply_scalar(this%proj_w%bb(1, this%proj_w%m), n)
+       call bclst_u%apply_scalar(this%proj_u%bb(1, this%proj_u%m), n)
+       call bclst_v%apply_scalar(this%proj_v%bb(1, this%proj_v%m), n)
+       call bclst_w%apply_scalar(this%proj_w%bb(1, this%proj_w%m), n)
+    end if
 
     call proj_ortho(this%proj_u, coef, n)
     call proj_ortho(this%proj_v, coef, n)
