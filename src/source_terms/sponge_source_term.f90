@@ -210,7 +210,7 @@ contains
             " is not a valid method")
     end select
 
-    call neko_log%end_section(lvl = NEKO_LOG_DEBUG)
+    call neko_log%end_section(lvl = NEKO_LOG_INFO)
 
   end subroutine sponge_init_from_json
 
@@ -386,16 +386,14 @@ contains
     this%dump_fields = dump_fields
     this%dump_fname = trim(dump_fname)
 
-    call neko_log%message("Fringe name: " // trim(fringe_registry_name), &
+    call neko_log%message("Fringe name      : " // trim(fringe_registry_name), &
          lvl = NEKO_LOG_INFO)
     call neko_log%message("Baseflow prefix  : " // trim(bf_registry_pref), &
          lvl = NEKO_LOG_DEBUG)
 
-    write (log_buf, "(A,L)") "Dump fields: ", this%dump_fields
+    write (log_buf, "(A,L)") "Dump fields      : ", this%dump_fields
     call neko_log%message(log_buf, lvl=NEKO_LOG_INFO)
 
-    call neko_log%message("Pointing at fields u,v,w", &
-         lvl = NEKO_LOG_DEBUG)
     this%u => neko_registry%get_field_by_name("u")
     this%v => neko_registry%get_field_by_name("v")
     this%w => neko_registry%get_field_by_name("w")
