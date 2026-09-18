@@ -97,31 +97,42 @@ module gs_interp
      !> Perform face/edge interpolation
      procedure(gs_interp_apply_fld), pass(this), deferred :: apply_j_fld
      procedure(gs_interp_apply_r4), pass(this), deferred :: apply_j_r4
-     generic :: apply_j => apply_j_fld, apply_j_r4
+     procedure(gs_interp_apply_r1), pass(this), deferred :: apply_j_r1
+     generic :: apply_j => apply_j_fld, apply_j_r4, apply_j_r1
      !> Perform inverse face/edge interpolation
      procedure(gs_interp_apply_fld), pass(this), deferred :: apply_ji_fld
      procedure(gs_interp_apply_r4), pass(this), deferred :: apply_ji_r4
-     generic :: apply_ji => apply_ji_fld, apply_ji_r4
+     procedure(gs_interp_apply_r1), pass(this), deferred :: apply_ji_r1
+     generic :: apply_ji => apply_ji_fld, apply_ji_r4, apply_ji_r1
      !> Perform transposed face/edge interpolation
      procedure(gs_interp_apply_fld), pass(this), deferred :: apply_jt_fld
      procedure(gs_interp_apply_r4), pass(this), deferred :: apply_jt_r4
-     generic :: apply_jt => apply_jt_fld, apply_jt_r4
+     procedure(gs_interp_apply_r1), pass(this), deferred :: apply_jt_r1
+     generic :: apply_jt => apply_jt_fld, apply_jt_r4, apply_jt_r1
      !> Zero children's nonconforming faces/edges
      procedure(gs_interp_apply_fld), pass(this), deferred :: zero_children_fld
      procedure(gs_interp_apply_r4), pass(this), deferred :: zero_children_r4
-     generic :: zero_children => zero_children_fld, zero_children_r4
+     procedure(gs_interp_apply_r1), pass(this), deferred :: zero_children_r1
+     generic :: zero_children => zero_children_fld, zero_children_r4, &
+          zero_children_r1
      !> Set children's nonconforming faces/edges
      procedure(gs_interp_set_fld), pass(this), deferred :: set_children_fld
      procedure(gs_interp_set_r4), pass(this), deferred :: set_children_r4
-     generic :: set_children => set_children_fld, set_children_r4
+     procedure(gs_interp_set_r1), pass(this), deferred :: set_children_r1
+     generic :: set_children => set_children_fld, set_children_r4, &
+          set_children_r1
      !> Scale children's nonconforming faces/edges
      procedure(gs_interp_scale_fld), pass(this), deferred :: scale_children_fld
      procedure(gs_interp_scale_r4), pass(this), deferred :: scale_children_r4
-     generic :: scale_children => scale_children_fld, scale_children_r4
+     procedure(gs_interp_scale_r1), pass(this), deferred :: scale_children_r1
+     generic :: scale_children => scale_children_fld, scale_children_r4, &
+          scale_children_r1
      !> Remove multiplicity for H1
      procedure(gs_interp_apply_fld), pass(this), deferred :: remove_mult_h1_fld
      procedure(gs_interp_apply_r4), pass(this), deferred :: remove_mult_h1_r4
-     generic :: remove_mult_h1 => remove_mult_h1_fld, remove_mult_h1_r4
+     procedure(gs_interp_apply_r1), pass(this), deferred :: remove_mult_h1_r1
+     generic :: remove_mult_h1 => remove_mult_h1_fld, remove_mult_h1_r4, &
+          remove_mult_h1_r1
      !> Remove multiplicity for J^T
      procedure(gs_interp_apply_fld), pass(this), deferred :: remove_mult_jt_fld
      procedure(gs_interp_apply_r4), pass(this), deferred :: remove_mult_jt_r4
@@ -178,6 +189,13 @@ module gs_interp
        real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
      end subroutine gs_interp_apply_r4
 
+     subroutine gs_interp_apply_r1(this, vec, ntot)
+       import gs_interp_t, rp
+       class(gs_interp_t), intent(inout) :: this
+       integer, intent(in) :: ntot
+       real(rp), target, dimension(ntot), intent(inout) :: vec
+     end subroutine gs_interp_apply_r1
+
      !> Children's nonconforming face/edge filling
      subroutine gs_interp_set_fld(this, field, cnst)
        import gs_interp_t, field_t, rp
@@ -193,6 +211,14 @@ module gs_interp
        real(rp), intent(in) :: cnst
      end subroutine gs_interp_set_r4
 
+     subroutine gs_interp_set_r1(this, vec, ntot, cnst)
+       import gs_interp_t, rp
+       class(gs_interp_t), intent(inout) :: this
+       integer, intent(in) :: ntot
+       real(rp), target, dimension(ntot), intent(inout) :: vec
+       real(rp), intent(in) :: cnst
+     end subroutine gs_interp_set_r1
+
      !> Children's nonconforming face/edge scaling
      subroutine gs_interp_scale_fld(this, field, cnst_f, cnst_e)
        import gs_interp_t, field_t, rp
@@ -207,6 +233,14 @@ module gs_interp
        real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
        real(rp), intent(in) :: cnst_f, cnst_e
      end subroutine gs_interp_scale_r4
+
+     subroutine gs_interp_scale_r1(this, vec, ntot, cnst_f, cnst_e)
+       import gs_interp_t, rp
+       class(gs_interp_t), intent(inout) :: this
+       integer, intent(in) :: ntot
+       real(rp), target, dimension(ntot), intent(inout) :: vec
+       real(rp), intent(in) :: cnst_f, cnst_e
+     end subroutine gs_interp_scale_r1
   end interface
 
 contains

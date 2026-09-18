@@ -93,30 +93,40 @@ module gs_interp_cpu
      !> Perform face/edge interpolation
      procedure, pass(this) :: apply_j_fld => gs_interp_cpu_apply_j_fld
      procedure, pass(this) :: apply_j_r4 => gs_interp_cpu_apply_j_r4
+     procedure, pass(this) :: apply_j_r1 => gs_interp_cpu_apply_j_r1
      !> Perform inverse face/edge interpolation
      procedure, pass(this) :: apply_ji_fld => gs_interp_cpu_apply_ji_fld
      procedure, pass(this) :: apply_ji_r4 => gs_interp_cpu_apply_ji_r4
+     procedure, pass(this) :: apply_ji_r1 => gs_interp_cpu_apply_ji_r1
      !> Perform transposed face/edge interpolation
      procedure, pass(this) :: apply_jt_fld => gs_interp_cpu_apply_jt_fld
      procedure, pass(this) :: apply_jt_r4 => gs_interp_cpu_apply_jt_r4
+     procedure, pass(this) :: apply_jt_r1 => gs_interp_cpu_apply_jt_r1
      !> Zero children's nonconforming faces/edges
      procedure, pass(this) :: zero_children_fld => &
           gs_interp_cpu_zero_children_fld
      procedure, pass(this) :: zero_children_r4 => &
           gs_interp_cpu_zero_children_r4
+     procedure, pass(this) :: zero_children_r1 => &
+          gs_interp_cpu_zero_children_r1
      !> Set children's nonconforming faces/edges
      procedure, pass(this) :: set_children_fld => gs_interp_cpu_set_children_fld
      procedure, pass(this) :: set_children_r4 => gs_interp_cpu_set_children_r4
+     procedure, pass(this) :: set_children_r1 => gs_interp_cpu_set_children_r1
      !> Scale children's nonconforming faces/edges
      procedure, pass(this) :: scale_children_fld => &
           gs_interp_cpu_scale_children_fld
      procedure, pass(this) :: scale_children_r4 => &
           gs_interp_cpu_scale_children_r4
+     procedure, pass(this) :: scale_children_r1 => &
+          gs_interp_cpu_scale_children_r1
      !> Remove multiplicity for H1
      procedure, pass(this) :: remove_mult_h1_fld => &
           gs_interp_cpu_remove_mult_h1_fld
      procedure, pass(this) :: remove_mult_h1_r4 => &
           gs_interp_cpu_remove_mult_h1_r4
+     procedure, pass(this) :: remove_mult_h1_r1 => &
+          gs_interp_cpu_remove_mult_h1_r1
      !> Remove multiplicity for J^T
      procedure, pass(this) :: remove_mult_jt_fld => &
           gs_interp_cpu_remove_mult_jt_fld
@@ -487,7 +497,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_apply_j_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
     integer :: il, itmp
 
     if (this%ifhang) then
@@ -515,6 +525,17 @@ contains
     end if
 
   end subroutine gs_interp_cpu_apply_j_r4
+
+  subroutine gs_interp_cpu_apply_j_r1(this, vec, ntot)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    integer, intent(in) :: ntot
+    real(rp), target, dimension(ntot), intent(inout) :: vec
+    real(kind=rp), dimension(:, :, :, :), pointer :: up
+
+    up(1 : this%lx, 1 : this%lx, 1 : this%lx, 1 : this%nel) => vec(:)
+    call this%apply_j_r4(up)
+
+  end subroutine gs_interp_cpu_apply_j_r1
 
   !> Perform face interpolation in a single element for j
   !! @param[in]     lx        number of points in 1D
@@ -601,7 +622,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_apply_ji_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
     integer :: il, itmp
 
     if (this%ifhang) then
@@ -630,6 +651,17 @@ contains
     end if
 
   end subroutine gs_interp_cpu_apply_ji_r4
+
+  subroutine gs_interp_cpu_apply_ji_r1(this, vec, ntot)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    integer, intent(in) :: ntot
+    real(rp), target, dimension(ntot), intent(inout) :: vec
+    real(kind=rp), dimension(:, :, :, :), pointer :: up
+
+    up(1 : this%lx, 1 : this%lx, 1 : this%lx, 1 : this%nel) => vec(:)
+    call this%apply_ji_r4(up)
+
+  end subroutine gs_interp_cpu_apply_ji_r1
 
   !> Perform inverse face interpolation in a single element for j
   !! @param[in]     lx        number of points in 1D
@@ -722,7 +754,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_apply_jt_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
     integer :: il, itmp
 
     if (this%ifhang) then
@@ -750,6 +782,17 @@ contains
     end if
 
   end subroutine gs_interp_cpu_apply_jt_r4
+
+  subroutine gs_interp_cpu_apply_jt_r1(this, vec, ntot)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    integer, intent(in) :: ntot
+    real(rp), target, dimension(ntot), intent(inout) :: vec
+    real(kind=rp), dimension(:, :, :, :), pointer :: up
+
+    up(1 : this%lx, 1 : this%lx, 1 : this%lx, 1 : this%nel) => vec(:)
+    call this%apply_jt_r4(up)
+
+  end subroutine gs_interp_cpu_apply_jt_r1
 
   !> Perform face interpolation in a single element for j transposed
   !! @param[in]     lx        number of points in 1D
@@ -840,7 +883,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_zero_children_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
     integer :: il
 
     if (this%ifhang) then
@@ -851,6 +894,17 @@ contains
     end if
 
   end subroutine gs_interp_cpu_zero_children_r4
+
+  subroutine gs_interp_cpu_zero_children_r1(this, vec, ntot)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    integer, intent(in) :: ntot
+    real(rp), target, dimension(ntot), intent(inout) :: vec
+    real(kind=rp), dimension(:, :, :, :), pointer :: up
+
+    up(1 : this%lx, 1 : this%lx, 1 : this%lx, 1 : this%nel) => vec(:)
+    call this%zero_children_r4(up)
+
+  end subroutine gs_interp_cpu_zero_children_r1
 
   !> Set children's nonconforming faces/edges using field
   !! @param[inout]  field    field for face interpolation
@@ -869,7 +923,7 @@ contains
   !! @param[in]     cnst   constant value
   subroutine gs_interp_cpu_set_children_r4(this, vec, cnst)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
     real(rp), intent(in) :: cnst
     integer :: il, jl, itmp
 
@@ -899,6 +953,18 @@ contains
 
   end subroutine gs_interp_cpu_set_children_r4
 
+  subroutine gs_interp_cpu_set_children_r1(this, vec, ntot, cnst)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    integer, intent(in) :: ntot
+    real(rp), target, dimension(ntot), intent(inout) :: vec
+    real(rp), intent(in) :: cnst
+    real(kind=rp), dimension(:, :, :, :), pointer :: up
+
+    up(1 : this%lx, 1 : this%lx, 1 : this%lx, 1 : this%nel) => vec(:)
+    call this%set_children_r4(up, cnst)
+
+  end subroutine gs_interp_cpu_set_children_r1
+
   !> Scale children's nonconforming faces/edges using field
   !! @param[inout]  field    field for face interpolation
   !! @param[in]     cnst_f   face constant value
@@ -918,7 +984,7 @@ contains
   !! @param[in]     cnst_e   edge constant value
   subroutine gs_interp_cpu_scale_children_r4(this, vec, cnst_f, cnst_e)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
     real(rp), intent(in) :: cnst_f, cnst_e
     integer :: il, jl, itmp
 
@@ -952,6 +1018,18 @@ contains
 
   end subroutine gs_interp_cpu_scale_children_r4
 
+  subroutine gs_interp_cpu_scale_children_r1(this, vec, ntot, cnst_f, cnst_e)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    integer, intent(in) :: ntot
+    real(rp), target, dimension(ntot), intent(inout) :: vec
+    real(rp), intent(in) :: cnst_f, cnst_e
+    real(kind=rp), dimension(:, :, :, :), pointer :: up
+
+    up(1 : this%lx, 1 : this%lx, 1 : this%lx, 1 : this%nel) => vec(:)
+    call this%scale_children_r4(up, cnst_f, cnst_e)
+
+  end subroutine gs_interp_cpu_scale_children_r1
+
   !> Add multiplicity for H1 using field
   !! @param[inout]  field    field for face interpolation
   subroutine gs_interp_cpu_remove_mult_h1_fld(this, field)
@@ -966,7 +1044,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_remove_mult_h1_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
     integer :: il, jl, kl, el
 
     ! this operation if performed independently of hanging elements presence
@@ -977,6 +1055,17 @@ contains
     end do
 
   end subroutine gs_interp_cpu_remove_mult_h1_r4
+
+  subroutine gs_interp_cpu_remove_mult_h1_r1(this, vec, ntot)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    integer, intent(in) :: ntot
+    real(rp), target, dimension(ntot), intent(inout) :: vec
+    real(kind=rp), dimension(:, :, :, :), pointer :: up
+
+    up(1 : this%lx, 1 : this%lx, 1 : this%lx, 1 : this%nel) => vec(:)
+    call this%remove_mult_h1_r4(up)
+
+  end subroutine gs_interp_cpu_remove_mult_h1_r1
 
   !> Remove multiplicity for J^T using field
   !! @param[inout]  field    field for face interpolation
@@ -992,7 +1081,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_remove_mult_jt_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
     integer :: il, jl, itmp
 
     if (this%ifhang) then
@@ -1041,7 +1130,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_remove_mult_ji_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
     integer :: il, jl, itmp
 
     if (this%ifhang) then
@@ -1090,7 +1179,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_add_mult_jt_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
     integer :: il, jl, itmp
 
     if (this%ifhang) then
@@ -1139,7 +1228,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_add_mult_ji_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
     integer :: il, jl, itmp
 
     if (this%ifhang) then
