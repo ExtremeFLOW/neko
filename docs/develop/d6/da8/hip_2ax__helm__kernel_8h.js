@@ -1,8 +1,9 @@
 var hip_2ax__helm__kernel_8h =
 [
-    [ "ax_helm_mfma_dispatch< T, LX, NWF >", "d9/d4b/structax__helm__mfma__dispatch.html", "d9/d4b/structax__helm__mfma__dispatch" ],
-    [ "__launch_bounds__", "d6/da8/hip_2ax__helm__kernel_8h.html#ac0e7d27082787422f7204c37fd345c2c", null ],
-    [ "__launch_bounds__", "d6/da8/hip_2ax__helm__kernel_8h.html#a7fc641269ac03287c90e08d2e3379d63", null ],
+    [ "ax_helm_mfma_dispatch< T, LX, NWF, TILE >", "d9/d4b/structax__helm__mfma__dispatch.html", "d9/d4b/structax__helm__mfma__dispatch" ],
+    [ "ax_helm_mfma_vector_dispatch< T, LX, NWF, TILE >", "d7/dd5/structax__helm__mfma__vector__dispatch.html", "d7/dd5/structax__helm__mfma__vector__dispatch" ],
+    [ "__launch_bounds__", "d6/da8/hip_2ax__helm__kernel_8h.html#a81c969ff38ec03020e67fac1f69b25df", null ],
+    [ "__launch_bounds__", "d6/da8/hip_2ax__helm__kernel_8h.html#a37098e1715bb4de45fbb591b7ef85cf8", null ],
     [ "__syncthreads", "d6/da8/hip_2ax__helm__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],
     [ "ax_helm_kernel_1d", "d6/da8/hip_2ax__helm__kernel_8h.html#a4a85bb452502bb7f5e989959bcd68179", null ],
     [ "ax_helm_kernel_vector_part2", "d6/da8/hip_2ax__helm__kernel_8h.html#af15d604a7aa3d7fb54a15eadfa6a2e8c", null ],

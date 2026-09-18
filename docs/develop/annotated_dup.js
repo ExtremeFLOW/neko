@@ -2063,6 +2063,7 @@ var annotated_dup =
     [ "ax_helm_dmma_tma_vector_dispatch", "dd/dbd/structax__helm__dmma__tma__vector__dispatch.html", "dd/dbd/structax__helm__dmma__tma__vector__dispatch" ],
     [ "ax_helm_dmma_vector_dispatch", "dc/d57/structax__helm__dmma__vector__dispatch.html", "dc/d57/structax__helm__dmma__vector__dispatch" ],
     [ "ax_helm_mfma_dispatch", "d9/d4b/structax__helm__mfma__dispatch.html", "d9/d4b/structax__helm__mfma__dispatch" ],
+    [ "ax_helm_mfma_vector_dispatch", "d7/dd5/structax__helm__mfma__vector__dispatch.html", "d7/dd5/structax__helm__mfma__vector__dispatch" ],
     [ "cdtp_dmma_dispatch", "d4/dbf/structcdtp__dmma__dispatch.html", "d4/dbf/structcdtp__dmma__dispatch" ],
     [ "cdtp_dmma_tma_dispatch", "df/de3/structcdtp__dmma__tma__dispatch.html", "df/de3/structcdtp__dmma__tma__dispatch" ],
     [ "cdtp_mfma_dispatch", "d6/dce/structcdtp__mfma__dispatch.html", "d6/dce/structcdtp__mfma__dispatch" ],

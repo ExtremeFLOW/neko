@@ -15,14 +15,16 @@ var ax__helm_8hip =
     [ "CASE_VECTOR", "de/d11/ax__helm_8hip.html#a0e633116639902b6dbb336d5ffd095e0", null ],
     [ "CASE_VECTOR_KSTEP", "de/d11/ax__helm_8hip.html#a44876b92236ddea1e39a34f45278e905", null ],
     [ "CASE_VECTOR_KSTEP_PADDED", "de/d11/ax__helm_8hip.html#aad5a9abef830d6e2bdae0327b0be1aa0", null ],
+    [ "CASE_VECTOR_KSTEP_PADDED_SEL", "de/d11/ax__helm_8hip.html#ae04b7ea2556d1ae87ccd1aa6ec03f7fc", null ],
+    [ "CASE_VECTOR_KSTEP_SEL", "de/d11/ax__helm_8hip.html#ac26a37cfdc72096672692e452fdd310c", null ],
+    [ "CASE_VECTOR_MFMA", "de/d11/ax__helm_8hip.html#a92a82d3b293b5047f3650ee327574121", null ],
+    [ "CASE_VECTOR_MFMA_SEL", "de/d11/ax__helm_8hip.html#a1d6117c3ba8e5eed55b5ef80387119a4", null ],
     [ "CASE_VECTOR_PADDED", "de/d11/ax__helm_8hip.html#ac3318de6e7784e8415692b030bcf4d11", null ],
-    [ "CASE_VECTOR_PADDED_SEL", "de/d11/ax__helm_8hip.html#a47b8bf2bf782ce5ca7f392298bb05cc9", null ],
-    [ "CASE_VECTOR_SEL", "de/d11/ax__helm_8hip.html#ac9bb3b2dc9310f2037c17a1f8da85d9f", null ],
     [ "hip_ax_helm", "de/d11/ax__helm_8hip.html#a946ea4d3c1efc7593a51a12627001329", null ],
     [ "hip_ax_helm_vector", "de/d11/ax__helm_8hip.html#a84f44270dc4fa7113cde5e675ba64c57", null ],
     [ "hip_ax_helm_vector_part2", "de/d11/ax__helm_8hip.html#a3def8cf9f8aaf27c88165a392dad3d33", null ],
     [ "tune", "de/d11/ax__helm_8hip.html#afb4c4d97ea42bd24a727371cd9f84eac", null ],
     [ "tune_padded", "de/d11/ax__helm_8hip.html#a08725d38ae5955a49d9a8b463ba14fd5", null ],
-    [ "tune_vector", "de/d11/ax__helm_8hip.html#a7dbea834a809ed0d84fdf4135d650eb8", null ],
-    [ "tune_vector_padded", "de/d11/ax__helm_8hip.html#a8effd70feda36150d6bf87c1ed4d7f86", null ]
+    [ "tune_vector", "de/d11/ax__helm_8hip.html#aaca534b20fb02eb3de09f449bf029bb1", null ],
+    [ "tune_vector_padded", "de/d11/ax__helm_8hip.html#afd7b6aa27b4b11f8491b8abf19d131c7", null ]
 ];

@@ -14,5 +14,8 @@ var hip_2elem__block_8h =
     [ "NEKO_EB_NBLCKS", "d1/d1c/hip_2elem__block_8h.html#a75c9afb15557ad911b7754eb416f883a", null ],
     [ "NEKO_EB_NTHRDS", "d1/d1c/hip_2elem__block_8h.html#ae9a3e8a2d588f120eddf349dc5533752", null ],
     [ "NEKO_EB_SEL", "d1/d1c/hip_2elem__block_8h.html#ae178dd5571078a283d9e163f0601583e", null ],
-    [ "NEKO_EB_WAVE", "d1/d1c/hip_2elem__block_8h.html#a865031c06e94d06069d5ccf352075fef", null ]
+    [ "NEKO_EB_WAVE", "d1/d1c/hip_2elem__block_8h.html#a865031c06e94d06069d5ccf352075fef", null ],
+    [ "NEKO_EB_WAVE_BARRIER", "d1/d1c/hip_2elem__block_8h.html#a5d6650770e09659455cbb16daf7aaba2", null ],
+    [ "neko_eb_kstep_barrier", "d1/d1c/hip_2elem__block_8h.html#af7d676f278cc1678e8facace5da77ef5", null ],
+    [ "neko_eb_slice_in_wave", "d1/d1c/hip_2elem__block_8h.html#a2f60db3f58f2cffc5981ddbf66bba0b2", null ]
 ];

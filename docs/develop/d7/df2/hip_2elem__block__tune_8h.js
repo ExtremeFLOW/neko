@@ -5,6 +5,8 @@ var hip_2elem__block__tune_8h =
     [ "NEKO_TUNE_FOR", "d7/df2/hip_2elem__block__tune_8h.html#a9cc8e7859302ac8994f6dedec26f10ea", null ],
     [ "NEKO_TUNE_INIT", "d7/df2/hip_2elem__block__tune_8h.html#a646ee7c3605c0d9875e06fb0b8894d67", null ],
     [ "NEKO_TUNE_LOG", "d7/df2/hip_2elem__block__tune_8h.html#a4b5e764b94acd23308a10278cc5b1a9b", null ],
+    [ "NEKO_TUNE_LOG_1D", "d7/df2/hip_2elem__block__tune_8h.html#ad2d1f34171873ee5016879b6c43c130c", null ],
+    [ "NEKO_TUNE_LOG_KSTEP", "d7/df2/hip_2elem__block__tune_8h.html#ae6a9432951ac2d4140276d2b7f5dab44", null ],
     [ "NEKO_TUNE_TIME", "d7/df2/hip_2elem__block__tune_8h.html#a250188824c14b638c09e18f4909198fd", null ],
     [ "NEKO_TUNE_US", "d7/df2/hip_2elem__block__tune_8h.html#a31d72213f07273d53ede6595be9d9a1e", null ],
     [ "NEKO_TUNE_WARMUP", "d7/df2/hip_2elem__block__tune_8h.html#aed9e9add51fc2b7a20bd2f6a45468f8f", null ],
