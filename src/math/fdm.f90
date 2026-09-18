@@ -93,6 +93,7 @@ module fdm
      real(kind=rp), allocatable :: len_lr(:), len_ls(:), len_lt(:)
      real(kind=rp), allocatable :: len_mr(:), len_ms(:), len_mt(:)
      real(kind=rp), allocatable :: len_rr(:), len_rs(:), len_rt(:)
+     logical, allocatable :: pface(:,:)
      real(kind=rp), allocatable :: swplen(:,:,:,:)
      type(c_ptr) :: swplen_d = C_NULL_PTR
      type(space_t), pointer :: Xh => null()
@@ -380,6 +381,38 @@ contains
     ie = 1014
   end subroutine plane_space
 
+  !> Mark nonconforming interfaces from the parent perspective
+  subroutine fdm_mark_parent_faces(this)
+    type(fdm_t), intent(inout) :: this
+    real(kind=rp), allocatable :: ind(:,:,:,:)
+    integer :: lx, ie, f, i, j, n
+    lx = this%Xh%lx
+    n = this%dof%size()
+    if (allocated(this%pface)) deallocate(this%pface)
+    allocate(this%pface(6, this%dof%msh%nelv))
+    this%pface = .false.
+    if (.not. allocated(this%gs_h%interp)) return
+    if (.not. this%dof%msh%conn%ifhang_set) return
+    allocate(ind(lx, lx, lx, this%dof%msh%nelv))
+    ind = 0.0_rp
+    call this%gs_h%interp%set_children(ind, 1.0_rp)
+    call this%gs_h%gs_op_vector(ind, n, GS_OP_ADD)
+    do ie = 1, this%dof%msh%nelv
+       if (this%dof%msh%conn%hang(ie)) cycle
+       do f = 1, 6
+          select case (f)
+          case (1); this%pface(f, ie) = ind(1, 2, 2, ie) .gt. 0.5_rp
+          case (2); this%pface(f, ie) = ind(lx, 2, 2, ie) .gt. 0.5_rp
+          case (3); this%pface(f, ie) = ind(2, 1, 2, ie) .gt. 0.5_rp
+          case (4); this%pface(f, ie) = ind(2, lx, 2, ie) .gt. 0.5_rp
+          case (5); this%pface(f, ie) = ind(2, 2, 1, ie) .gt. 0.5_rp
+          case (6); this%pface(f, ie) = ind(2, 2, lx, ie) .gt. 0.5_rp
+          end select
+       end do
+    end do
+    deallocate(ind)
+  end subroutine fdm_mark_parent_faces
+
   !> Setup the arrays s, d needed for the fast evaluation of the system
   subroutine fdm_setup_fast(this, ah, bh, nl, n)
     integer, intent(in) :: nl, n
@@ -390,6 +423,8 @@ contains
     integer :: ie, il, nr, ns, nt
     integer :: lbr, rbr, lbs, rbs, lbt, rbt
     real(kind=rp) :: eps, diag
+
+    call fdm_mark_parent_faces(this)
 
     associate(s => this%s, d => this%d, &
          llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
@@ -402,6 +437,19 @@ contains
          rbs = this%dof%msh%facet_type(4, ie)
          lbt = this%dof%msh%facet_type(5, ie)
          rbt = this%dof%msh%facet_type(6, ie)
+         ! hanging interfaces are Dirichlet in the local Schwarz
+         ! problems on both sides (child hanging faces and parent faces); the
+         ! interface dofs are corrected by the coarse grid only.
+         if (this%dof%msh%conn%ifhang_set) then
+            if (this%dof%msh%conn%hang(ie)) then
+               if (this%dof%msh%conn%fcs%hang(1, ie) .ne. -1) lbr = 1
+               if (this%dof%msh%conn%fcs%hang(2, ie) .ne. -1) rbr = 1
+               if (this%dof%msh%conn%fcs%hang(3, ie) .ne. -1) lbs = 1
+               if (this%dof%msh%conn%fcs%hang(4, ie) .ne. -1) rbs = 1
+               if (this%dof%msh%conn%fcs%hang(5, ie) .ne. -1) lbt = 1
+               if (this%dof%msh%conn%fcs%hang(6, ie) .ne. -1) rbt = 1
+            end if
+         end if
 
          nr = nl
          ns = nl

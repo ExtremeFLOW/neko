@@ -198,8 +198,14 @@ contains
       do iter = 1, max_iter
          call this%M%solve(z, r, n)
          if (allocated(gs_h%interp)) then
+            call gs_h%interp%remove_mult_h1(z, n)
+            call gs_h%gs_op_vector(z, n, GS_OP_ADD)
             call blst%apply(z, n)
-            call gs_h%op_h1(z, n, GS_OP_ADD)
+            call gs_h%interp%apply_j(z, n)
+            
+!            call blst%apply(z, n)
+!            call gs_h%op_h1(z, n, GS_OP_ADD)
+            
          end if
 
          rtz2 = rtz1
@@ -216,8 +222,15 @@ contains
          call Ax%compute(w, p(1,p_cur), coef, x%msh, x%Xh)
 
          if (allocated(gs_h%interp)) then
+            call gs_h%interp%apply_jt(w, n)
+            call gs_h%gs_op_vector(w, n, GS_OP_ADD)
             call blst%apply(w, n)
-            call gs_h%op(w, n, GS_OP_ADD)
+            call gs_h%interp%apply_j(w, n)
+            
+!            call gs_h%op(w, n, GS_OP_ADD)
+!            call blst%apply(w, n)
+!            call gs_h%op_h1(w, n, GS_OP_ADD)
+            
          else
             call gs_h%op(w, n, GS_OP_ADD)
             call blst%apply(w, n)

@@ -229,8 +229,15 @@ contains
             call copy(r, f, n)
             call Ax%compute(w, x%x, coef, x%msh, x%Xh)
             if (allocated(gs_h%interp)) then
+               call gs_h%interp%apply_jt(w, n)
+               call gs_h%gs_op_vector(w, n, GS_OP_ADD)
                call blst%apply(w, n)
-               call gs_h%op(w, n, GS_OP_ADD)
+               call gs_h%interp%apply_j(w, n)
+               
+!               call gs_h%op(w, n, GS_OP_ADD)
+!               call blst%apply(w, n)
+!               call gs_h%op_h1(w, n, GS_OP_ADD)
+               
             else
                call gs_h%op(w, n, GS_OP_ADD)
                call blst%apply(w, n)
@@ -253,14 +260,27 @@ contains
 
             call this%M%solve(z(1,j), v(1,j), n)
             if (allocated(gs_h%interp)) then
-               call blst%apply(z(:,j), n)
-               call gs_h%op_h1(z(:,j), n, GS_OP_ADD)
+               call gs_h%interp%remove_mult_h1(z(:, j), n)
+               call gs_h%gs_op_vector(z(:, j), n, GS_OP_ADD)
+               call blst%apply(z(:, j), n)
+               call gs_h%interp%apply_j(z(:, j), n)
+               
+!               call blst%apply(z(:,j), n)
+!               call gs_h%op_h1(z(:,j), n, GS_OP_ADD)
+               
             end if
 
             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
             if (allocated(gs_h%interp)) then
+               call gs_h%interp%apply_jt(w, n)
+               call gs_h%gs_op_vector(w, n, GS_OP_ADD)
                call blst%apply(w, n)
-               call gs_h%op(w, n, GS_OP_ADD)
+               call gs_h%interp%apply_j(w, n)
+               
+!               call gs_h%op(w, n, GS_OP_ADD)
+!               call blst%apply(w, n)
+!               call gs_h%op_h1(w, n, GS_OP_ADD)
+               
             else
                call gs_h%op(w, n, GS_OP_ADD)
                call blst%apply(w, n)

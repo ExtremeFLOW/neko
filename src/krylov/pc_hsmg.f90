@@ -290,14 +290,10 @@ contains
 
     ! multiplicity
     i = this%mult%size()
-    call rone(this%mult%x, i)
-    call coef%gs_h%op(this%mult%x, i, GS_OP_ADD)
-    call invcol1(this%mult%x, i)
+    call copy(this%mult%x, coef%mult, i)
 
     i = this%mult_mg%size()
-    call rone(this%mult_mg%x, i)
-    call this%gs_mg%op(this%mult_mg%x, i, GS_OP_ADD)
-    call invcol1(this%mult_mg%x, i)
+    call copy(this%mult_mg%x, this%c_mg%mult, i)
 
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax, full_formulation = .false.)
@@ -619,14 +615,26 @@ contains
             this%msh%nelv, this%grids(1)%Xh)
        !Crs solve
 
-       call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), GS_OP_ADD)
-
        if (allocated(this%grids(1)%gs_h%interp)) then
-          call hsmg_apply_jt(this%r, this%grids(1)%Xh%lx, this%grids(1)%Xh%ly, &
-               this%grids(1)%Xh%lx, this%msh%nelv, this%grids(1)%gs_h)
+          call this%grids(1)%gs_h%interp%apply_jt(this%r, &
+               this%grids(1)%dof%size())
+          call this%grids(1)%gs_h%gs_op_vector(this%r, &
+               this%grids(1)%dof%size(), GS_OP_ADD)
+          call this%grids(1)%bclst%apply(this%r, this%grids(1)%dof%size())
+          call this%grids(1)%gs_h%interp%apply_j(this%r, &
+               this%grids(1)%dof%size())
+          
+!          call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), &
+!               GS_OP_ADD)
+!          call this%grids(1)%bclst%apply(this%r, this%grids(1)%dof%size())
+!          call this%grids(1)%gs_h%op_h1(this%r, this%grids(1)%dof%size(), &
+!               GS_OP_ADD)
+          
+       else
+          call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), &
+               GS_OP_ADD)
+          call this%grids(1)%bclst%apply(this%r, this%grids(1)%dof%size())
        end if
-
-       call this%grids(1)%bclst%apply(this%r, this%grids(1)%dof%size())
 
        call profiler_start_region('HSMG_coarse-solve', 11)
        if (allocated(this%amg_solver)) then
@@ -643,10 +651,6 @@ contains
 
        call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x, &
             this%grids(1)%dof%size())
-
-       if (allocated(this%grids(1)%gs_h%interp)) then
-          call this%grids(1)%gs_h%interp%apply_j(this%grids(1)%e)
-       end if
 
        call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
             this%msh%nelv, this%grids(2)%Xh)
@@ -666,16 +670,6 @@ contains
     end if
     call profiler_end_region('HSMG_solve', 8)
   end subroutine hsmg_solve
-
-  !> Apply J^T operator for nonconforming meshes
-  subroutine hsmg_apply_jt(arr, nx, ny, nz, nelv, gs)
-    integer, intent(in) :: nx, ny, nz, nelv
-    real(kind=rp), intent(inout) :: arr(nx, ny, nz, nelv)
-    type(gs_t), intent(inout) :: gs
-
-    call gs%interp%apply_jt(arr)
-
-  end subroutine hsmg_apply_jt
 
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
@@ -732,15 +726,10 @@ contains
     call this%mult_mg%amr_reallocate(reconstruct, counter, time)
 
     il = this%mult%size()
-    call rone(this%mult%x, il)
-    ! this is not perfect
-    call this%grids(3)%gs_h%op(this%mult%x, il, GS_OP_ADD)
-    call invcol1(this%mult%x, il)
+    call copy(this%mult%x, this%grids(3)%coef%mult, il)
 
     il = this%mult_mg%size()
-    call rone(this%mult_mg%x, il)
-    call this%gs_mg%op(this%mult_mg%x, il, GS_OP_ADD)
-    call invcol1(this%mult_mg%x, il)
+    call copy(this%mult_mg%x, this%c_mg%mult, il)
 
     ! ax does not require restarting
 

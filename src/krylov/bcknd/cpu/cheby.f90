@@ -226,8 +226,20 @@ contains
       ! calculate residual
       call copy(r, f, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
-      call gs_h%op(w, n, GS_OP_ADD)
-      call blst%apply(w, n)
+      if (allocated(gs_h%interp)) then
+         call gs_h%interp%apply_jt(w, n)
+         call gs_h%gs_op_vector(w, n, GS_OP_ADD)
+         call blst%apply(w, n)
+         call gs_h%interp%apply_j(w, n)
+         
+!         call gs_h%op(w, n, GS_OP_ADD)
+!         call blst%apply(w, n)
+!         call gs_h%op_h1(w, n, GS_OP_ADD)
+         
+      else
+         call gs_h%op(w, n, GS_OP_ADD)
+         call blst%apply(w, n)
+      end if
       call sub2(r, w, n)
 
       rtr = glsc3(r, coef%mult, r, n)
@@ -238,6 +250,16 @@ contains
 
       ! First iteration
       call this%M%solve(w, r, n)
+      if (allocated(gs_h%interp)) then
+         call gs_h%interp%remove_mult_h1(w, n)
+         call gs_h%gs_op_vector(w, n, GS_OP_ADD)
+         call blst%apply(w, n)
+         call gs_h%interp%apply_j(w, n)
+         
+!         call blst%apply(w, n)
+!         call gs_h%op_h1(w, n, GS_OP_ADD)
+         
+      end if
       call copy(d, w, n)
       a = 2.0_rp / this%tha
       call add2s2(x%x, d, a, n)! x = x + a*d
@@ -247,11 +269,33 @@ contains
          ! calculate residual
          call copy(r, f, n)
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
-         call gs_h%op(w, n, GS_OP_ADD)
-         call blst%apply(w, n)
+         if (allocated(gs_h%interp)) then
+            call gs_h%interp%apply_jt(w, n)
+            call gs_h%gs_op_vector(w, n, GS_OP_ADD)
+            call blst%apply(w, n)
+            call gs_h%interp%apply_j(w, n)
+            
+!            call gs_h%op(w, n, GS_OP_ADD)
+!            call blst%apply(w, n)
+!            call gs_h%op_h1(w, n, GS_OP_ADD)
+            
+         else
+            call gs_h%op(w, n, GS_OP_ADD)
+            call blst%apply(w, n)
+         end if
          call sub2(r, w, n)
 
          call this%M%solve(w, r, n)
+         if (allocated(gs_h%interp)) then
+            call gs_h%interp%remove_mult_h1(w, n)
+            call gs_h%gs_op_vector(w, n, GS_OP_ADD)
+            call blst%apply(w, n)
+            call gs_h%interp%apply_j(w, n)
+            
+!            call blst%apply(w, n)
+!            call gs_h%op_h1(w, n, GS_OP_ADD)
+            
+         end if
 
          if (iter .eq. 2) then
             b = 0.5_rp * (this%dlt * a)**2
@@ -267,8 +311,20 @@ contains
       ! calculate residual
       call copy(r, f, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
-      call gs_h%op(w, n, GS_OP_ADD)
-      call blst%apply(w, n)
+      if (allocated(gs_h%interp)) then
+         call gs_h%interp%apply_jt(w, n)
+         call gs_h%gs_op_vector(w, n, GS_OP_ADD)
+         call blst%apply(w, n)
+         call gs_h%interp%apply_j(w, n)
+         
+!         call gs_h%op(w, n, GS_OP_ADD)
+!         call blst%apply(w, n)
+!         call gs_h%op_h1(w, n, GS_OP_ADD)
+         
+      else
+         call gs_h%op(w, n, GS_OP_ADD)
+         call blst%apply(w, n)
+      end if
       call sub2(r, w, n)
       rtr = glsc3(r, coef%mult, r, n)
       rnorm = sqrt(rtr) * norm_fac

@@ -757,6 +757,12 @@ contains
       ! Compute the source terms
       call this%source_term%compute(time)
 
+      
+!      f_x%x = 0.0_rp
+!      f_y%x = 0.0_rp
+!      f_z%x = 0.0_rp
+      
+
       ! Add Neumann bc contributions to the RHS
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
            this%dm_Xh%size(), time, strong = .false.)
@@ -871,18 +877,21 @@ contains
          ! values from the boundary.
          if (allocated(gs_Xh%interp)) then
             ! Set the residual to zero at strong pressure boundaries.
-            call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
-
-            call gs_Xh%op(p_res, GS_OP_ADD, event)
+            call gs_Xh%interp%apply_jt(p_res)
+            call gs_Xh%gs_op_vector(p_res%x, p%dof%size(), GS_OP_ADD, event)
             call device_event_sync(event)
-
-            ! For testing
-!            call gs_Xh%interp%apply_jt(p_res)
-
-!            call gs_Xh%gs_op_vector(p_res%x, p%dof%size(), GS_OP_ADD, event)
+            call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
+            call gs_Xh%interp%apply_j(p_res)
+            
+!            call gs_Xh%op(p_res, GS_OP_ADD, event)
 !            call device_event_sync(event)
-
-!            call gs_Xh%interp%apply_j(p_res)
+!
+!            ! Set the residual to zero at strong pressure boundaries.
+!            call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
+!
+!            call gs_Xh%op_h1(p_res, GS_OP_ADD, event)
+!            call device_event_sync(event)
+            
          else
             call gs_Xh%op(p_res, GS_OP_ADD, event)
             call device_event_sync(event)
@@ -932,17 +941,46 @@ contains
               dt, dm_Xh%size())
 
          if (allocated(gs_Xh%interp)) then
-            ! Set residual to zero at strong velocity boundaries.
-            call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
+            call gs_Xh%interp%apply_jt(u_res)
+            call gs_Xh%interp%apply_jt(v_res)
+            call gs_Xh%interp%apply_jt(w_res)
 
             call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
-            call gs_Xh%op(u_res, GS_OP_ADD, event)
+            call gs_Xh%gs_op_vector(u_res%x, u%dof%size(), GS_OP_ADD, event)
             call device_event_sync(event)
-            call gs_Xh%op(v_res, GS_OP_ADD, event)
+            call gs_Xh%gs_op_vector(v_res%x, v%dof%size(), GS_OP_ADD, event)
             call device_event_sync(event)
-            call gs_Xh%op(w_res, GS_OP_ADD, event)
+            call gs_Xh%gs_op_vector(w_res%x, w%dof%size(), GS_OP_ADD, event)
             call device_event_sync(event)
             call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
+
+            call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
+
+            call gs_Xh%interp%apply_j(u_res)
+            call gs_Xh%interp%apply_j(v_res)
+            call gs_Xh%interp%apply_j(w_res)
+            
+!            call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
+!            call gs_Xh%op(u_res, GS_OP_ADD, event)
+!            call device_event_sync(event)
+!            call gs_Xh%op(v_res, GS_OP_ADD, event)
+!            call device_event_sync(event)
+!            call gs_Xh%op(w_res, GS_OP_ADD, event)
+!            call device_event_sync(event)
+!            call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
+!
+!            ! Set residual to zero at strong velocity boundaries.
+!            call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
+!
+!            call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
+!            call gs_Xh%op_h1(u_res, GS_OP_ADD, event)
+!            call device_event_sync(event)
+!            call gs_Xh%op_h1(v_res, GS_OP_ADD, event)
+!            call device_event_sync(event)
+!            call gs_Xh%op_h1(w_res, GS_OP_ADD, event)
+!            call device_event_sync(event)
+!            call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
+            
          else
             call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
             call gs_Xh%op(u_res, GS_OP_ADD, event)

@@ -60,7 +60,7 @@
 !> Overlapping schwarz solves
 module schwarz
   use num_types, only : rp, i8
-  use math, only : rzero, rone
+  use math, only : rzero, rone, copy
   use mesh, only : mesh_t
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
@@ -89,9 +89,13 @@ module schwarz
   type, public, extends(amr_restart_component_t) :: schwarz_t
      real(kind=rp), allocatable :: work1(:)
      real(kind=rp), allocatable :: work2(:)
+     real(kind=rp), allocatable :: work3(:)
+     real(kind=rp), allocatable :: work4(:)
      real(kind=rp), allocatable :: wt(:,:,:,:,:)
      type(c_ptr) :: work1_d = C_NULL_PTR
      type(c_ptr) :: work2_d = C_NULL_PTR
+     type(c_ptr) :: work3_d = C_NULL_PTR
+     type(c_ptr) :: work4_d = C_NULL_PTR
      type(c_ptr) :: wt_d = C_NULL_PTR
      type(space_t) :: Xh_schwarz !< needed to init gs
      type(gs_t) :: gs_schwarz !< We are only interested in the gather-scatter!
@@ -105,6 +109,16 @@ module schwarz
      type(c_ptr) :: event = C_NULL_PTR
      logical :: local_gs = .false.
      type(gs_t), allocatable :: gs_h_local
+     ! required by nonconforming meshes
+     ! Parent faces scaling factor
+     ! (env NEKO_HANG_PARENT_WT; default 1)
+     real(kind=rp) :: alpha
+     ! Factor applied to the parent's overlap contribution received by
+     ! hanging children depending on the childrens aspect ration
+     ! (env NEKO_HANG_XFER_BETA; default 1 = full, 0 = none)
+     real(kind=rp) :: beta
+     ! Threshold for element aspect ratio (env NEKO_HANG_AR_THR, default 1.05)
+     real(kind=rp) :: thr
    contains
      procedure, pass(this) :: init => schwarz_init
      procedure, pass(this) :: free => schwarz_free
@@ -122,7 +136,8 @@ contains
     type(gs_t), target, intent(inout) :: gs_h
     type(mesh_t), target, intent(inout) :: msh
     type(bc_list_t), target, intent(inout) :: bclst
-    integer :: nthrds
+    integer :: nthrds, stat, l
+    character(len=32) :: buf
 
     call this%free()
 
@@ -132,6 +147,8 @@ contains
 
     allocate(this%work1(this%dm_schwarz%size()))
     allocate(this%work2(this%dm_schwarz%size()))
+    allocate(this%work3(this%dm_schwarz%size()))
+    allocate(this%work4(this%dm_schwarz%size()))
     allocate(this%wt(Xh%lx, Xh%lx, 4, msh%gdim, msh%nelv))
 
     call this%fdm%init(Xh, dof, gs_h)
@@ -162,6 +179,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%work1, this%work1_d, this%dm_schwarz%size())
        call device_map(this%work2, this%work2_d, this%dm_schwarz%size())
+       call device_map(this%work3, this%work3_d, this%dm_schwarz%size())
+       call device_map(this%work4, this%work4_d, this%dm_schwarz%size())
     end if
 
     call schwarz_setup_wt(this)
@@ -174,6 +193,20 @@ contains
             HOST_TO_DEVICE, sync = .false.)
        call device_event_create(this%event, 2)
     end if
+
+    ! nonconforming meshes only
+    ! scaling factors
+    this%alpha = 1.0_rp
+    call get_environment_variable('NEKO_HANG_PARENT_WT', buf, l, stat)
+    if (stat .eq. 0 .and. l .gt. 0) read(buf, *) this%alpha
+    this%beta = 1.0_rp
+    call get_environment_variable('NEKO_HANG_XFER_BETA', buf, l, stat)
+    if (stat .eq. 0 .and. l .gt. 0) read(buf, *) this%beta
+    ! threshold for element aspect ratio
+    this%thr = 1.05_rp
+    call get_environment_variable('NEKO_HANG_AR_THR', buf, l, stat)
+    if (stat .eq. 0 .and. l .gt. 0) read(buf, *) this%thr
+
   end subroutine schwarz_init
 
   subroutine schwarz_free(this)
@@ -190,6 +223,18 @@ contains
           call device_unmap(this%work2, this%work2_d)
        end if
        deallocate(this%work2)
+    end if
+    if (allocated(this%work3)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%work3, this%work3_d)
+       end if
+       deallocate(this%work3)
+    end if
+    if (allocated(this%work4)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%work4, this%work4_d)
+       end if
+       deallocate(this%work4)
     end if
     if (allocated(this%wt)) deallocate(this%wt)
 
@@ -222,14 +267,16 @@ contains
     call this%free_amr_base()
 
   end subroutine schwarz_free
+
   !> setup weights
   subroutine schwarz_setup_wt(this)
     class(schwarz_t), intent(inout) :: this
     integer :: enx, eny, enz, n, ie, k, ns
     real(kind=rp), parameter :: zero = 0.0_rp
     real(kind=rp), parameter :: one = 1.0_rp
-    associate(work1 => this%work1, work2 => this%work2, msh => this%msh, &
-         Xh => this%Xh, Xh_schwarz => this%Xh_schwarz)
+    associate(work1 => this%work1, work2 => this%work2, work3 => this%work3, &
+         work4 => this%work4, msh => this%msh, Xh => this%Xh, &
+         Xh_schwarz => this%Xh_schwarz)
 
       n = this%dof%size()
 
@@ -247,6 +294,14 @@ contains
       call schwarz_extrude(work1, 0, zero, work2, 0, one, enx, eny, enz, &
            msh%nelv)
 
+      ! Children's local solutions vanish on their hanging faces and halo
+      ! (Dirichlet), so they contribute no overlap to the parent: exclude them
+      ! from the counts on both the sent (work2) and own (work1) side.
+      if (allocated(this%gs_schwarz%interp)) then
+         call this%gs_schwarz%interp%zero_children(work1, ns)
+         call this%gs_schwarz%interp%zero_children(work2, ns)
+      end if
+
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(work2, this%work2_d, ns, &
               HOST_TO_DEVICE, sync = .false.)
@@ -254,7 +309,19 @@ contains
          call device_memcpy(work2, this%work2_d, ns, &
               DEVICE_TO_HOST, sync = .true.)
       else
-         call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
+         ! Count halo contributions with the same operator used in
+         ! schwarz_compute (exact nonconforming exchange)
+         if (allocated(this%gs_schwarz%interp)) then
+            call schwarz_halo_exchange_nc(work2, work3, work4, ns, &
+                 this%gs_schwarz)
+            ! Children receive beta x the parent's overlap (own is zero here)
+            if (this%msh%conn%ifhang_set) &
+                 call schwarz_scale_children_ext(work2, ns, this%beta, &
+                 this%thr, this%fdm, enx, eny, enz, msh%nelv, &
+                 msh%conn%hang, msh%conn%fcs%hang)
+         else
+            call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
+         end if
       end if
       call schwarz_extrude(work2, 0, one, work1, 0, -one, enx, eny, enz, &
            msh%nelv)
@@ -274,7 +341,24 @@ contains
          call device_memcpy(work1, this%work1_d, n, &
               DEVICE_TO_HOST, sync = .true.)
       else
-         call this%gs_h%op(work1, n, GS_OP_ADD)
+         ! On nonconforming meshes the border values are summed over the
+         ! non-child incidences only (children zeroed, plain gs), weighted,
+         ! and then the hanging children are filled by op_h1 from the
+         ! weighted parents. Count with the same operations (no J here).
+         if (allocated(this%gs_h%interp)) then
+            call this%gs_h%interp%zero_children(work1, n)
+            call this%gs_h%gs_op_vector(work1, n, GS_OP_ADD)
+         else
+            call this%gs_h%op(work1, n, GS_OP_ADD)
+         end if
+      end if
+
+      ! Optional damping of the parent-side interface correction: weights on
+      ! the parent's hanging-interface face plane and first interior plane are
+      ! multiplied by NEKO_HANG_PARENT_WT (default 1)
+      if (allocated(this%gs_h%interp) .and. allocated(this%fdm%pface)) then
+         call schwarz_scale_parent_counts(work1, n, this%alpha, this%fdm, &
+              enx, eny, enz, this%msh%nelv)
       end if
 
       k = 1
@@ -392,7 +476,8 @@ contains
 
   !> Sum values along rows l1, l2 with weights f1, f2 and store along row l1.
   !! Helps us avoid complicated communcation to get neighbor values.
-  !! Simply copy interesting values to the boundary and then do gs_op on extended array.
+  !! Simply copy interesting values to the boundary and then do gs_op on
+  !! extended array.
   !! @note arr1 and arr2 must not be the same array. Use schwarz_extrude_single
   !! when operating on a single array to avoid aliasing violations.
   subroutine schwarz_extrude(arr1, l1, f1, arr2, l2, f2, nx, ny, nz, nelv)
@@ -513,6 +598,116 @@ contains
     end if
   end subroutine schwarz_extrude_single
 
+  !> Halo exchange on the extended (Schwarz) array for nonconforming meshes.
+  !! On entry the halo planes hold the element's own values (as set by
+  !! schwarz_extrude); on exit they hold own + sum of the neighbours' values,
+  !! where a hanging child receives J(parent) and the parent receives
+  !! sum_c J^-1(child_c). op_inv = J gs J^-1 is exact for all slots except the
+  !! hanging children, which are recomputed from the non-child contributions.
+  subroutine schwarz_halo_exchange_nc(work, t1, t2, ns, gs, cscale_f, cscale_e)
+    integer, intent(in) :: ns
+    real(kind=rp), intent(inout), target :: work(ns), t1(ns), t2(ns)
+    type(gs_t), intent(inout) :: gs
+    real(kind=rp), intent(in), optional :: cscale_f, cscale_e
+    integer :: i
+
+    call copy(t1, work, ns)
+    call copy(t2, work, ns)
+
+    ! t1 = J gs J^-1 work : exact on non-child slots; optionally rescale the
+    ! children's contribution (dual quantities) before sampling
+    if (present(cscale_f) .and. present(cscale_e)) then
+       call gs%interp%scale_children(t1, ns, cscale_f, cscale_e)
+    end if
+    call gs%op_inv(t1, ns, GS_OP_ADD)
+
+    ! t2 = J gs (Z work) : children receive J(sum of non-child contributions)
+    call gs%interp%zero_children(t2, ns)
+    call gs%gs_op_vector(t2, ns, GS_OP_ADD)
+    call gs%interp%apply_j(t2, ns)
+
+    ! work = Z t1 + (1 - Z) (t2 + work)
+    do i = 1, ns
+       t2(i) = t2(i) + work(i)
+    end do
+    call copy(work, t2, ns)
+    call gs%interp%zero_children(work, ns)
+    do i = 1, ns
+       t2(i) = t2(i) - work(i)
+    end do
+    call gs%interp%zero_children(t1, ns)
+    do i = 1, ns
+       work(i) = t1(i) + t2(i)
+    end do
+  end subroutine schwarz_halo_exchange_nc
+
+  !> Scale the hanging children's halo planes of an extended array.
+  !! Nearly cubic children receive beta x the parent's overlap; stretched
+  !! children receive none.
+  subroutine schwarz_scale_children_ext(work, ns, beta, thr, fdm, enx, &
+       eny, enz, nelv, hange, hangf)
+    integer, intent(in) :: ns
+    real(kind=rp), intent(inout), target :: work(ns)
+    real(kind=rp), intent(in) :: beta, thr
+    type(fdm_t), intent(in) :: fdm
+    integer, intent(in) :: enx, eny, enz, nelv
+    logical, dimension(nelv) :: hange
+    integer, dimension(6, nelv) :: hangf
+    real(kind=rp), pointer :: w4(:,:,:,:)
+    real(kind=rp) :: ar, fac, lmin, lmax
+    integer :: e, f
+
+    w4(1:enx, 1:eny, 1:enz, 1:nelv) => work
+    do e = 1, nelv
+       if (.not. hange(e)) cycle
+       lmin = min(fdm%len_mr(e), fdm%len_ms(e), fdm%len_mt(e))
+       lmax = max(fdm%len_mr(e), fdm%len_ms(e), fdm%len_mt(e))
+       ar = lmax / max(lmin, 1e-30_rp)
+       fac = 0.0_rp
+       if (ar .le. thr) fac = beta
+       do f = 1, 6
+          if (hangf(f, e) .eq. -1) cycle
+          select case (f)
+          case (1); w4(1, :, :, e) = fac * w4(1, :, :, e)
+          case (2); w4(enx, :, :, e) = fac * w4(enx, :, :, e)
+          case (3); w4(:, 1, :, e) = fac * w4(:, 1, :, e)
+          case (4); w4(:, eny, :, e) = fac * w4(:, eny, :, e)
+          case (5); w4(:, :, 1, e) = fac * w4(:, :, 1, e)
+          case (6); w4(:, :, enz, e) = fac * w4(:, :, enz, e)
+          end select
+       end do
+    end do
+  end subroutine schwarz_scale_children_ext
+
+  !> Divide the border counts on parent faces (planes 1 and 2 from that
+  !! face) by alpha, so that the resulting weights are multiplied by alpha
+  subroutine schwarz_scale_parent_counts(work, n, alpha, fdm, enx, &
+       eny, enz, nelv)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), target :: work(n)
+    real(kind=rp), intent(in) :: alpha
+    type(fdm_t), intent(in) :: fdm
+    integer, intent(in) :: enx, eny, enz, nelv
+    real(kind=rp), pointer :: w4(:,:,:,:)
+    integer :: e, f
+
+    if (abs(alpha - 1.0_rp) .lt. 1e-12_rp) return
+    w4(1:enx, 1:eny, 1:enz, 1:nelv) => work
+    do e = 1, nelv
+       do f = 1, 6
+          if (.not. fdm%pface(f, e)) cycle
+          select case (f)
+          case (1); w4(1:2, :, :, e) = w4(1:2, :, :, e) / alpha
+          case (2); w4(enx-1:enx, :, :, e) = w4(enx-1:enx, :, :, e) / alpha
+          case (3); w4(:, 1:2, :, e) = w4(:, 1:2, :, e) / alpha
+          case (4); w4(:, eny-1:eny, :, e) = w4(:, eny-1:eny, :, e) / alpha
+          case (5); w4(:, :, 1:2, e) = w4(:, :, 1:2, e) / alpha
+          case (6); w4(:, :, enz-1:enz, e) = w4(:, :, enz-1:enz, e) / alpha
+          end select
+       end do
+    end do
+  end subroutine schwarz_scale_parent_counts
+
   subroutine schwarz_compute(this, e, r)
     class(schwarz_t), intent(inout) :: this
     real(kind=rp), dimension(this%dof%size()), intent(inout) :: e, r
@@ -521,7 +716,8 @@ contains
     real(kind=rp), parameter :: one = 1.0_rp
     type(c_ptr) :: e_d, r_d
     associate(work1 => this%work1, work1_d => this%work1_d, &
-         work2 => this%work2, work2_d => this%work2_d)
+         work2 => this%work2, work2_d => this%work2_d, work3 => this%work3, &
+         work4 => this%work4)
 
       n = this%dof%size()
       enx = this%Xh_schwarz%lx
@@ -579,7 +775,11 @@ contains
               enx, eny, enz, this%msh%nelv)
 
          if (allocated(this%gs_schwarz%interp)) then
-            call this%gs_schwarz%op_inv(work1, ns, GS_OP_ADD)
+            ! Exact halo exchange at hanging faces; the children's
+            ! residual is a child-mass-scaled dual quantity, rescale it by the
+            ! face/edge measure ratio (4/2) before sampling it for the parent
+            call schwarz_halo_exchange_nc(work1, work3, work4, ns, &
+                 this%gs_schwarz, 4.0_rp, 2.0_rp)
          else
             call this%gs_schwarz%op(work1, ns, GS_OP_ADD)
          end if
@@ -594,7 +794,16 @@ contains
               enx, eny, enz, this%msh%nelv)
 
          if (allocated(this%gs_schwarz%interp)) then
-            call this%gs_schwarz%op_inv(work2, ns, GS_OP_ADD)
+            ! Exact halo exchange at hanging faces
+            call schwarz_halo_exchange_nc(work2, work3, work4, ns, &
+                 this%gs_schwarz)
+            ! Children's own overlap solution is zero on their hanging halo
+            ! (Dirichlet), so the halo holds J(parent): scale it by beta
+            if (this%msh%conn%ifhang_set) &
+                 call schwarz_scale_children_ext(work2, ns, this%beta, &
+                 this%thr, this%fdm, enx, eny, enz, this%msh%nelv, &
+                 this%msh%conn%hang, this%msh%conn%fcs%hang)
+            call this%gs_schwarz%interp%zero_children(work1, ns)
          else
             call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
          end if
@@ -608,14 +817,19 @@ contains
 
          ! sum border nodes
          if (allocated(this%gs_schwarz%interp)) then
+            ! Mask; sum over non-child incidences (children zeroed, no J);
+            ! apply the (consistently computed) weights; then fill hanging
+            ! children by interpolating the weighted parent values (op_h1).
             call this%bclst%apply_scalar(e, n)
-            call this%gs_h%op(e, n, GS_OP_ADD)
+            call this%gs_h%interp%zero_children(e, n)
+            call this%gs_h%gs_op_vector(e, n, GS_OP_ADD)
+            call schwarz_wt3d(e, this%wt, this%Xh%lx, this%msh%nelv)
+            call this%gs_h%op_h1(e, n, GS_OP_ADD)
          else
             call this%gs_h%op(e, n, GS_OP_ADD)
             call this%bclst%apply_scalar(e, n)
+            call schwarz_wt3d(e, this%wt, this%Xh%lx, this%msh%nelv)
          end if
-
-         call schwarz_wt3d(e, this%wt, this%Xh%lx, this%msh%nelv)
       end if
     end associate
   end subroutine schwarz_compute
@@ -690,9 +904,13 @@ contains
     if (reconstruct%nold .ne. reconstruct%nnew) then
        if (allocated(this%work1)) deallocate(this%work1)
        if (allocated(this%work2)) deallocate(this%work2)
+       if (allocated(this%work3)) deallocate(this%work3)
+       if (allocated(this%work4)) deallocate(this%work4)
        if (allocated(this%wt)) deallocate(this%wt)
        allocate(this%work1(this%dm_schwarz%size()))
        allocate(this%work2(this%dm_schwarz%size()))
+       allocate(this%work3(this%dm_schwarz%size()))
+       allocate(this%work4(this%dm_schwarz%size()))
        allocate(this%wt(this%Xh%lx, this%Xh%lx, 4, this%msh%gdim, &
             this%msh%nelv))
     end if
