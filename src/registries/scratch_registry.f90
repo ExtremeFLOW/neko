@@ -153,7 +153,10 @@ module scratch_registry
      generic :: request => request_host_array, request_device_array, &
           request_vector, request_matrix, request_tensor3, request_tensor4, &
           request_field_stored_dof, request_field_free_dof
+
+     !> Generic relinquish procedure for single objects
      procedure, pass(this) :: relinquish_single
+     !> Generic relinquish procedure for multiple objects
      procedure, pass(this) :: relinquish_multiple
      !> Generic relinquish procedure
      generic :: relinquish => relinquish_single, relinquish_multiple
