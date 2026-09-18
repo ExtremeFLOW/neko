@@ -59,7 +59,7 @@ contains
 
     ntot = dof%size()
     do i = 1, ntot
-       uvw = tgv_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1))
+       uvw = tgv_ic(u%dof%x%x(i,1,1,1),u%dof%y%x(i,1,1,1),u%dof%z%x(i,1,1,1))
        u%x(i,1,1,1) = uvw(1)
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)

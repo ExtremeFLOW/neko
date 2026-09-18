@@ -503,7 +503,7 @@ contains
           call src_dof%init(src_msh, data%previous_Xh)
           call global_interp%init(src_dof, NEKO_COMM, &
                tol = data%mesh2mesh_tol)
-          call global_interp%find_points(dof%x, dof%y, dof%z, dof%size())
+          call global_interp%find_points(dof%x%x, dof%y%x, dof%z%x, dof%size())
        else if (data%previous_Xh%lx .ne. dof%Xh%lx) then
           call space_interp%init(dof%Xh, data%previous_Xh)
           interp_space = .true.

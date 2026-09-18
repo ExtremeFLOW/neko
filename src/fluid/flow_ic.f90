@@ -349,7 +349,7 @@ contains
        end select
 
        call expression_eval_static(expr(i), f%x, n, &
-            u%dof%x, u%dof%y, u%dof%z, 'fluid initial condition')
+            u%dof%x%x, u%dof%y%x, u%dof%z%x, 'fluid initial condition')
     end do
 
     nullify(f)
@@ -397,7 +397,7 @@ contains
     if ((uinf(1) .gt. 0.0_rp) .and. abscmp(uinf(2), 0.0_rp) &
          .and. abscmp(uinf(3), 0.0_rp)) then
        do i = 1, u%dof%size()
-          u%x(i,1,1,1) = bla(u%dof%z(i,1,1,1), delta, uinf(1))
+          u%x(i,1,1,1) = bla(u%dof%z%x(i,1,1,1), delta, uinf(1))
           v%x(i,1,1,1) = 0.0_rp
           w%x(i,1,1,1) = 0.0_rp
        end do
@@ -405,7 +405,7 @@ contains
          .and. abscmp(uinf(3), 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = 0.0_rp
-          v%x(i,1,1,1) = bla(u%dof%x(i,1,1,1), delta, uinf(2))
+          v%x(i,1,1,1) = bla(u%dof%x%x(i,1,1,1), delta, uinf(2))
           w%x(i,1,1,1) = 0.0_rp
        end do
     else if (abscmp(uinf(1), 0.0_rp) .and. abscmp(uinf(2), 0.0_rp) &
@@ -413,7 +413,7 @@ contains
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = 0.0_rp
           v%x(i,1,1,1) = 0.0_rp
-          w%x(i,1,1,1) = bla(u%dof%y(i,1,1,1), delta, uinf(3))
+          w%x(i,1,1,1) = bla(u%dof%y%x(i,1,1,1), delta, uinf(3))
        end do
     end if
 

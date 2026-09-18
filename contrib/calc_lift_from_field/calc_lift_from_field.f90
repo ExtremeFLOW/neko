@@ -105,13 +105,13 @@ program calc_lift_from_field
   ! 1 corresponds to r, 2 to s, 3 to t
   if (trim(hom_dir) .eq. 'x') then
      dir = 1
-     line => dof%x
+     line => dof%x%x
   else if (trim(hom_dir) .eq. 'y') then
      dir = 2
-     line => dof%y
+     line => dof%y%x
   else if (trim(hom_dir) .eq. 'z') then
      dir = 3
-     line => dof%z
+     line => dof%z%x
   else
      call neko_error('The homogeneous direction should be "x", "y"or "z"')
   end if
@@ -174,7 +174,8 @@ program calc_lift_from_field
                     s13_ = s13%x(i,j,k,e)
                     s23_ = s23%x(i,j,k,e)
                     s33_ = s33%x(i,j,k,e)
-                    call drag_torque_pt(dgtq,dof%x(i,j,k,e), dof%y(i,j,k,e),dof%z(i,j,k,e),&
+                    call drag_torque_pt(dgtq, dof%x%x(i,j,k,e), &
+                         dof%y%x(i,j,k,e), dof%z%x(i,j,k,e), &
                          center, &
                          s11_, s22_, s33_, s12_, s13_, s23_,&
                          p%x(i,j,k,e), nv(1), nv(2), nv(3), visc)
