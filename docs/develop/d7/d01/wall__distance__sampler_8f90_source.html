@@ -331,11 +331,11 @@ $(document).ready(function(){initNavTree('d7/d01/wall__distance__sampler_8f90_so
 <div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>          <span class="keywordflow">else</span></div>
 <div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>             distance = this%distances(j)</div>
 <div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>          this%xyz(1,p) = coef%dof%x(linear,1,1,1) - &amp;</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>          this%xyz(1,p) = coef%dof%x%x(linear,1,1,1) - &amp;</div>
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>               distance * n_x%x(i)</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>          this%xyz(2,p) = coef%dof%y(linear,1,1,1) - &amp;</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>          this%xyz(2,p) = coef%dof%y%x(linear,1,1,1) - &amp;</div>
 <div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>               distance * n_y%x(i)</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>          this%xyz(3,p) = coef%dof%z(linear,1,1,1) - &amp;</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>          this%xyz(3,p) = coef%dof%z%x(linear,1,1,1) - &amp;</div>
 <div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>               distance * n_z%x(i)</div>
 <div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>          this%h%x(p) = distance</div>
 <div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span><span class="keywordflow">       end do</span></div>
@@ -427,7 +427,7 @@ $(document).ready(function(){initNavTree('d7/d01/wall__distance__sampler_8f90_so
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_d19e42ec822a5375dfd47528cb2d7af7.html">wall_models</a></li><li class="navelem"><a class="el" href="../../d7/d01/wall__distance__sampler_8f90.html">wall_distance_sampler.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -367,112 +367,114 @@ $(document).ready(function(){initNavTree('df/dcc/les__model_8f90_source.html','.
 <div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    ly_half = this%coef%Xh%ly / 2</div>
 <div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    lz_half = this%coef%Xh%lz / 2</div>
 <div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span> </div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    <span class="keywordflow">if</span> (this%delta_type .eq. <span class="stringliteral">&quot;elementwise_max&quot;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>       <span class="comment">! use a same length scale throughout an entire element</span></div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>       <span class="comment">! the length scale is based on maximum GLL spacing</span></div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>       <span class="keywordflow">do</span> e = 1, this%coef%msh%nelv</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>          di = (this%coef%dof%x(lx_half, 1, 1, e) &amp;</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>               - this%coef%dof%x(lx_half + 1, 1, 1, e))**2 &amp;</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>               + (this%coef%dof%y(lx_half, 1, 1, e) &amp;</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>               - this%coef%dof%y(lx_half + 1, 1, 1, e))**2 &amp;</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>               + (this%coef%dof%z(lx_half, 1, 1, e) &amp;</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>               - this%coef%dof%z(lx_half + 1, 1, 1, e))**2</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span> </div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>          dj = (this%coef%dof%x(1, ly_half, 1, e) &amp;</div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>               - this%coef%dof%x(1, ly_half + 1, 1, e))**2 &amp;</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>               + (this%coef%dof%y(1, ly_half, 1, e) &amp;</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>               - this%coef%dof%y(1, ly_half + 1, 1, e))**2 &amp;</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>               + (this%coef%dof%z(1, ly_half, 1, e) &amp;</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>               - this%coef%dof%z(1, ly_half + 1, 1, e))**2</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>          dk = (this%coef%dof%x(1, 1, lz_half, e) &amp;</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>               - this%coef%dof%x(1, 1, lz_half + 1, e))**2 &amp;</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>               + (this%coef%dof%y(1, 1, lz_half, e) &amp;</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>               - this%coef%dof%y(1, 1, lz_half + 1, e))**2 &amp;</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>               + (this%coef%dof%z(1, 1, lz_half, e) &amp;</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>               - this%coef%dof%z(1, 1, lz_half + 1, e))**2</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>          di = sqrt(di)</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>          dj = sqrt(dj)</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>          dk = sqrt(dk)</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>          this%delta%x(:,:,:,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%delta_type .eq. <span class="stringliteral">&quot;elementwise_average&quot;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>       <span class="comment">! use a same length scale throughout an entire element</span></div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>       <span class="comment">! the length scale is based on (volume)^(1/3)/(N+1)</span></div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>       <span class="keywordflow">do</span> e = 1, this%coef%msh%nelv</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>          volume_element = 0.0_rp</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>          <span class="keywordflow">do</span> k = 1, this%coef%Xh%lx * this%coef%Xh%ly * this%coef%Xh%lz</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>             volume_element = volume_element + this%coef%B(k, 1, 1, e)</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>          this%delta%x(:,:,:,e) = (volume_element / &amp;</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>               (this%coef%Xh%lx - 1.0_rp) / &amp;</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>               (this%coef%Xh%ly - 1.0_rp) / &amp;</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>               (this%coef%Xh%lz - 1.0_rp) ) ** (1.0_rp / 3.0_rp)</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%delta_type .eq. <span class="stringliteral">&quot;pointwise&quot;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>       <span class="keywordflow">do</span> e = 1, this%coef%msh%nelv</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>          <span class="keywordflow">do</span> k = 1, this%coef%Xh%lz</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>             km = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(1, k-1)</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>             kp = min(this%coef%Xh%lz, k+1)</div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span> </div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>             <span class="keywordflow">do</span> j = 1, this%coef%Xh%ly</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>                jm = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(1, j-1)</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>                jp = min(this%coef%Xh%ly, j+1)</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span> </div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>                <span class="keywordflow">do</span> i = 1, this%coef%Xh%lx</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>                   im = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(1, i-1)</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>                   ip = min(this%coef%Xh%lx, i+1)</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span> </div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>                   di = (this%coef%dof%x(ip, j, k, e) - &amp;</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>                        this%coef%dof%x(im, j, k, e))**2 &amp;</div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>                        + (this%coef%dof%y(ip, j, k, e) - &amp;</div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>                        this%coef%dof%y(im, j, k, e))**2 &amp;</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>                        + (this%coef%dof%z(ip, j, k, e) - &amp;</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>                        this%coef%dof%z(im, j, k, e))**2</div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span> </div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>                   dj = (this%coef%dof%x(i, jp, k, e) - &amp;</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>                        this%coef%dof%x(i, jm, k, e))**2 &amp;</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>                        + (this%coef%dof%y(i, jp, k, e) - &amp;</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>                        this%coef%dof%y(i, jm, k, e))**2 &amp;</div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>                        + (this%coef%dof%z(i, jp, k, e) - &amp;</div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>                        this%coef%dof%z(i, jm, k, e))**2</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span> </div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>                   dk = (this%coef%dof%x(i, j, kp, e) - &amp;</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>                        this%coef%dof%x(i, j, km, e))**2 &amp;</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>                        + (this%coef%dof%y(i, j, kp, e) - &amp;</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>                        this%coef%dof%y(i, j, km, e))**2 &amp;</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>                        + (this%coef%dof%z(i, j, kp, e) - &amp;</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>                        this%coef%dof%z(i, j, km, e))**2</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span> </div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>                   di = sqrt(di) / (ip - im)</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>                   dj = sqrt(dj) / (jp - jm)</div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>                   dk = sqrt(dk) / (kp - km)</div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>                   this%delta%x(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)</div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span> </div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span><span class="keywordflow">                end do</span></div>
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>       <span class="keyword">call </span>neko_type_error(<span class="stringliteral">&quot;delta_type for LES model&quot;</span>, &amp;</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>            this%delta_type, delta_known_types)</div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>       stop</div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span> </div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>       <span class="keyword">call </span>device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&amp;</div>
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>            host_to_device, sync = .false.)</div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>       <span class="keyword">call </span>this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), gs_op_add)</div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>       <span class="keyword">call </span>device_col2(this%delta%x_d, this%coef%mult_d, this%delta%dof%size())</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>       <span class="keyword">call </span>this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), gs_op_add)</div>
-<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>       <span class="keyword">call </span>col2(this%delta%x, this%coef%mult, this%delta%dof%size())</div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span> </div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    associate(dof =&gt; this%coef%dof)</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>      <span class="keywordflow">if</span> (this%delta_type .eq. <span class="stringliteral">&quot;elementwise_max&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>         <span class="comment">! use a same length scale throughout an entire element</span></div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>         <span class="comment">! the length scale is based on maximum GLL spacing</span></div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>         <span class="keywordflow">do</span> e = 1, this%coef%msh%nelv</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>            di = (dof%x%x(lx_half, 1, 1, e) &amp;</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>                 - dof%x%x(lx_half + 1, 1, 1, e))**2 &amp;</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>                 + (dof%y%x(lx_half, 1, 1, e) &amp;</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>                 - dof%y%x(lx_half + 1, 1, 1, e))**2 &amp;</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>                 + (dof%z%x(lx_half, 1, 1, e) &amp;</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>                 - dof%z%x(lx_half + 1, 1, 1, e))**2</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span> </div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>            dj = (dof%x%x(1, ly_half, 1, e) &amp;</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>                 - dof%x%x(1, ly_half + 1, 1, e))**2 &amp;</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>                 + (dof%y%x(1, ly_half, 1, e) &amp;</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>                 - dof%y%x(1, ly_half + 1, 1, e))**2 &amp;</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>                 + (dof%z%x(1, ly_half, 1, e) &amp;</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>                 - dof%z%x(1, ly_half + 1, 1, e))**2</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span> </div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>            dk = (dof%x%x(1, 1, lz_half, e) &amp;</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>                 - dof%x%x(1, 1, lz_half + 1, e))**2 &amp;</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>                 + (dof%y%x(1, 1, lz_half, e) &amp;</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>                 - dof%y%x(1, 1, lz_half + 1, e))**2 &amp;</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>                 + (dof%z%x(1, 1, lz_half, e) &amp;</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>                 - dof%z%x(1, 1, lz_half + 1, e))**2</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>            di = sqrt(di)</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>            dj = sqrt(dj)</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>            dk = sqrt(dk)</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>            this%delta%x(:,:,:,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>      <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%delta_type .eq. <span class="stringliteral">&quot;elementwise_average&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>         <span class="comment">! use a same length scale throughout an entire element</span></div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>         <span class="comment">! the length scale is based on (volume)^(1/3)/(N+1)</span></div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>         <span class="keywordflow">do</span> e = 1, this%coef%msh%nelv</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>            volume_element = 0.0_rp</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>            <span class="keywordflow">do</span> k = 1, this%coef%Xh%lx * this%coef%Xh%ly * this%coef%Xh%lz</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>               volume_element = volume_element + this%coef%B(k, 1, 1, e)</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span><span class="keywordflow">            end do</span></div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>            this%delta%x(:,:,:,e) = (volume_element / &amp;</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>                 (this%coef%Xh%lx - 1.0_rp) / &amp;</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>                 (this%coef%Xh%ly - 1.0_rp) / &amp;</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>                 (this%coef%Xh%lz - 1.0_rp) ) ** (1.0_rp / 3.0_rp)</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>      <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%delta_type .eq. <span class="stringliteral">&quot;pointwise&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>         <span class="keywordflow">do</span> e = 1, this%coef%msh%nelv</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>            <span class="keywordflow">do</span> k = 1, this%coef%Xh%lz</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>               km = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(1, k-1)</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>               kp = min(this%coef%Xh%lz, k+1)</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span> </div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>               <span class="keywordflow">do</span> j = 1, this%coef%Xh%ly</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>                  jm = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(1, j-1)</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>                  jp = min(this%coef%Xh%ly, j+1)</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span> </div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>                  <span class="keywordflow">do</span> i = 1, this%coef%Xh%lx</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>                     im = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(1, i-1)</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>                     ip = min(this%coef%Xh%lx, i+1)</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span> </div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>                     di = (dof%x%x(ip, j, k, e) - &amp;</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>                          dof%x%x(im, j, k, e))**2 &amp;</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>                          + (dof%y%x(ip, j, k, e) - &amp;</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>                          dof%y%x(im, j, k, e))**2 &amp;</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>                          + (dof%z%x(ip, j, k, e) - &amp;</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>                          dof%z%x(im, j, k, e))**2</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span> </div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>                     dj = (dof%x%x(i, jp, k, e) - &amp;</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>                          dof%x%x(i, jm, k, e))**2 &amp;</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>                          + (dof%y%x(i, jp, k, e) - &amp;</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>                          dof%y%x(i, jm, k, e))**2 &amp;</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>                          + (dof%z%x(i, jp, k, e) - &amp;</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>                          dof%z%x(i, jm, k, e))**2</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span> </div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>                     dk = (dof%x%x(i, j, kp, e) - &amp;</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>                          dof%x%x(i, j, km, e))**2 &amp;</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>                          + (dof%y%x(i, j, kp, e) - &amp;</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>                          dof%y%x(i, j, km, e))**2 &amp;</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>                          + (dof%z%x(i, j, kp, e) - &amp;</div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>                          dof%z%x(i, j, km, e))**2</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span> </div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>                     di = sqrt(di) / (ip - im)</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>                     dj = sqrt(dj) / (jp - jm)</div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>                     dk = sqrt(dk) / (kp - km)</div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>                     this%delta%x(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)</div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span> </div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span><span class="keywordflow">                  end do</span></div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span><span class="keywordflow">               end do</span></div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span><span class="keywordflow">            end do</span></div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>      <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>         <span class="keyword">call </span>neko_type_error(<span class="stringliteral">&quot;delta_type for LES model&quot;</span>, &amp;</div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>              this%delta_type, delta_known_types)</div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>         stop</div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span> </div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>         <span class="keyword">call </span>device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&amp;</div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>              host_to_device, sync = .false.)</div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>         <span class="keyword">call </span>this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), gs_op_add)</div>
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>         <span class="keyword">call </span>device_col2(this%delta%x_d, this%coef%mult_d, this%delta%dof%size())</div>
+<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>      <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>         <span class="keyword">call </span>this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), gs_op_add)</div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>         <span class="keyword">call </span>col2(this%delta%x, this%coef%mult, this%delta%dof%size())</div>
+<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>    <span class="keyword">end </span>associate</div>
 </div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>  <span class="keyword">end subroutine </span>les_model_compute_delta</div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span> </div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/dfc/namespaceles__model.html">les_model</a></div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>  <span class="keyword">end subroutine </span>les_model_compute_delta</div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span> </div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/dfc/namespaceles__model.html">les_model</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00072">device.F90:72</a></div></div>
 <div class="ttc" id="ainterfaceles__model_1_1les__model__compute_html"><div class="ttname"><a href="../../d8/d42/interfaceles__model_1_1les__model__compute.html">les_model::les_model_compute</a></div><div class="ttdoc">Compute eddy viscosity.</div><div class="ttdef"><b>Definition</b> <a href="../../df/dcc/les__model_8f90_source.html#l00102">les_model.f90:102</a></div></div>
 <div class="ttc" id="ainterfaceles__model_1_1les__model__free_html"><div class="ttname"><a href="../../d8/daa/interfaceles__model_1_1les__model__free.html">les_model::les_model_free</a></div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="../../df/dcc/les__model_8f90_source.html#l00124">les_model.f90:124</a></div></div>
@@ -511,7 +513,7 @@ $(document).ready(function(){initNavTree('df/dcc/les__model_8f90_source.html','.
 <div class="ttc" id="anamespaceutils_html_a8de91e60607d8bf98d265d9e9a90f88f"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f">utils::neko_warning</a></div><div class="ttdeci">subroutine, public neko_warning(warning_msg)</div><div class="ttdoc">Reports a warning to standard output.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00412">utils.f90:413</a></div></div>
 <div class="ttc" id="anamespaceutils_html_ac2aece3826d2efe73113379fc55ae05b"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">utils::neko_type_error</a></div><div class="ttdeci">subroutine, public neko_type_error(base_type, wrong_type, known_types)</div><div class="ttdoc">Reports an error allocating a type for a particular base pointer class.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00375">utils.f90:376</a></div></div>
 <div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00093">coef.f90:93</a></div></div>
-<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00057">dofmap.f90:57</a></div></div>
+<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00058">dofmap.f90:58</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00048">field.f90:48</a></div></div>
 <div class="ttc" id="astructfield__series_1_1field__series__t_html"><div class="ttname"><a href="../../d1/d6e/structfield__series_1_1field__series__t.html">field_series::field_series_t</a></div><div class="ttdoc">Stores a series (sequence) of fields, logically connected to a base field, and arranged according to ...</div><div class="ttdef"><b>Definition</b> <a href="../../db/dd7/field__series_8f90_source.html#l00042">field_series.f90:42</a></div></div>
 <div class="ttc" id="astructfluid__pnpn_1_1fluid__pnpn__t_html"><div class="ttname"><a href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn::fluid_pnpn_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d7/db9/fluid__pnpn_8f90_source.html#l00101">fluid_pnpn.f90:101</a></div></div>
@@ -526,7 +528,7 @@ $(document).ready(function(){initNavTree('df/dcc/les__model_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_6ac2283507a4fed10461ea6c78ce067a.html">les</a></li><li class="navelem"><a class="el" href="../../df/dcc/les__model_8f90.html">les_model.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

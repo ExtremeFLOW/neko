@@ -1,5 +1,5 @@
 <map id="tensor_cpu::tnsr3d_cpu" name="tensor_cpu::tnsr3d_cpu">
-<area shape="rect" id="Node000001" title=" " alt="" coords="516,77,688,102"/>
+<area shape="rect" id="Node000001" title="Three&#45;dimensional tensor product over a list of elements." alt="" coords="516,77,688,102"/>
 <area shape="rect" id="Node000002" href="$d9/da0/namespaceinterpolation.html#a1e6266e1f241a9e85cd33acffdb7319e" title="Interpolates an array to one of Xh or Yh on host." alt="" coords="279,5,468,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="542,75,445,48,446,43,543,70"/>
 <area shape="rect" id="Node000003" href="$d4/d3b/namespacelegendre__rst__finder.html#a970b08b43a39e23dc45b8aa746a94ded" title=" " alt="" coords="282,69,465,109"/>

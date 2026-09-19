@@ -319,9 +319,9 @@ $(document).ready(function(){initNavTree('d6/d7f/wall__gll__sampler_8f90_source.
 <div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    lz = coef%Xh%lz</div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    <span class="keywordflow">do</span> i = 1, this%n_nodes</div>
 <div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>       idx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(msk(i), lx, ly, lz)</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>       xw = coef%dof%x(idx(1), idx(2), idx(3), idx(4))</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>       yw = coef%dof%y(idx(1), idx(2), idx(3), idx(4))</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>       zw = coef%dof%z(idx(1), idx(2), idx(3), idx(4))</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>       xw = coef%dof%x%x(idx(1), idx(2), idx(3), idx(4))</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>       yw = coef%dof%y%x(idx(1), idx(2), idx(3), idx(4))</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>       zw = coef%dof%z%x(idx(1), idx(2), idx(3), idx(4))</div>
 <div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>       fid = facet(i)</div>
 <div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>       <span class="keywordflow">do</span> j = 1, this%n_samples</div>
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>          p = (i - 1) * this%n_samples + j</div>
@@ -357,9 +357,9 @@ $(document).ready(function(){initNavTree('d6/d7f/wall__gll__sampler_8f90_source.
 <div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>          sample_idx(p) = <a class="code hl_function" href="../../d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7">linear_index</a>(sample(1), sample(2), sample(3), &amp;</div>
 <div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>               sample(4), lx, ly, lz)</div>
 <div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span> </div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>          dx = coef%dof%x(sample(1), sample(2), sample(3), sample(4)) - xw</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>          dy = coef%dof%y(sample(1), sample(2), sample(3), sample(4)) - yw</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>          dz = coef%dof%z(sample(1), sample(2), sample(3), sample(4)) - zw</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>          dx = coef%dof%x%x(sample(1), sample(2), sample(3), sample(4)) - xw</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>          dy = coef%dof%y%x(sample(1), sample(2), sample(3), sample(4)) - yw</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>          dz = coef%dof%z%x(sample(1), sample(2), sample(3), sample(4)) - zw</div>
 <div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>          this%h%x(p) = -(dx*n_x%x(i) + dy*n_y%x(i) + dz*n_z%x(i))</div>
 <div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span><span class="keywordflow">    end do</span></div>
@@ -460,7 +460,7 @@ $(document).ready(function(){initNavTree('d6/d7f/wall__gll__sampler_8f90_source.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_d19e42ec822a5375dfd47528cb2d7af7.html">wall_models</a></li><li class="navelem"><a class="el" href="../../d6/d7f/wall__gll__sampler_8f90.html">wall_gll_sampler.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

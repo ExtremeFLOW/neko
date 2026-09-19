@@ -357,16 +357,16 @@ $(document).ready(function(){initNavTree('d4/d7a/map__2d_8f90_source.html','../.
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="keyword">allocate</span>(fld_data2d%idx(this%nelv_2d))</div>
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
 <div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>    <span class="keywordflow">if</span> (this%dir .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>       x_ptr =&gt; this%dof%z</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>       y_ptr =&gt; this%dof%y</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>       x_ptr =&gt; this%dof%z%x</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>       y_ptr =&gt; this%dof%y%x</div>
 <div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordflow">if</span> (this%dir .eq. 2) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>       x_ptr =&gt; this%dof%x</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>       y_ptr =&gt; this%dof%z</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>       x_ptr =&gt; this%dof%x%x</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>       y_ptr =&gt; this%dof%z%x</div>
 <div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    <span class="keywordflow">if</span> (this%dir .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>       x_ptr =&gt; this%dof%x</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>       y_ptr =&gt; this%dof%y</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>       x_ptr =&gt; this%dof%x%x</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>       y_ptr =&gt; this%dof%y%x</div>
 <div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="keywordflow">do</span> j = 1, this%nelv_2d</div>
 <div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>       fld_data2d%idx(j) = this%el_idx_2d(j)</div>
@@ -431,16 +431,16 @@ $(document).ready(function(){initNavTree('d4/d7a/map__2d_8f90_source.html','../.
 <div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>    <span class="keyword">allocate</span>(fld_data2d%idx(n_2d))</div>
 <div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span> </div>
 <div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    <span class="keywordflow">if</span> (this%dir .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>       x_ptr =&gt; this%dof%z</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>       y_ptr =&gt; this%dof%y</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>       x_ptr =&gt; this%dof%z%x</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>       y_ptr =&gt; this%dof%y%x</div>
 <div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="keywordflow">if</span> (this%dir .eq. 2) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>       x_ptr =&gt; this%dof%x</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>       y_ptr =&gt; this%dof%z</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>       x_ptr =&gt; this%dof%x%x</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>       y_ptr =&gt; this%dof%z%x</div>
 <div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    <span class="keywordflow">if</span> (this%dir .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>       x_ptr =&gt; this%dof%x</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>       y_ptr =&gt; this%dof%y</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>       x_ptr =&gt; this%dof%x%x</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>       y_ptr =&gt; this%dof%y%x</div>
 <div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>    <span class="keywordflow">do</span> j = 1, n_2d</div>
 <div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>       fld_data2d%idx(j) = this%idx_2d(j)</div>
@@ -623,7 +623,7 @@ $(document).ready(function(){initNavTree('d4/d7a/map__2d_8f90_source.html','../.
 <div class="ttc" id="anamespaceutils_html_a4c8e13ce7a50b4ecdbc01c590018bea7"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7">utils::linear_index</a></div><div class="ttdeci">pure integer function, public linear_index(i, j, k, l, lx, ly, lz)</div><div class="ttdoc">Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00288">utils.f90:289</a></div></div>
 <div class="ttc" id="anamespacevector_html"><div class="ttname"><a href="../../d7/d34/namespacevector.html">vector</a></div><div class="ttdoc">Defines a vector.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/db2/vector_8f90_source.html#l00034">vector.f90:34</a></div></div>
 <div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00093">coef.f90:93</a></div></div>
-<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00057">dofmap.f90:57</a></div></div>
+<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00058">dofmap.f90:58</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00048">field.f90:48</a></div></div>
 <div class="ttc" id="astructfield__list_1_1field__list__t_html"><div class="ttname"><a href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list::field_list_t</a></div><div class="ttdoc">field_list_t, To be able to group fields together</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d13/field__list_8f90_source.html#l00047">field_list.f90:47</a></div></div>
 <div class="ttc" id="astructfld__file__data_1_1fld__file__data__t_html"><div class="ttname"><a href="../../db/da1/structfld__file__data_1_1fld__file__data__t.html">fld_file_data::fld_file_data_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d8f/fld__file__data_8f90_source.html#l00028">fld_file_data.f90:28</a></div></div>
@@ -638,7 +638,7 @@ $(document).ready(function(){initNavTree('d4/d7a/map__2d_8f90_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_03fb5b14824697692326bbb959ec235e.html">sem</a></li><li class="navelem"><a class="el" href="../../d4/d7a/map__2d_8f90.html">map_2d.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

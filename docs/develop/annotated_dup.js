@@ -54,6 +54,21 @@ var annotated_dup =
       [ "compute_cheap_dist_hip", "d4/dfb/interfaceale__routines__device_1_1compute__cheap__dist__hip.html", "d4/dfb/interfaceale__routines__device_1_1compute__cheap__dist__hip" ],
       [ "kinematics_params_t", "d8/d38/structale__routines__device_1_1kinematics__params__t.html", "d8/d38/structale__routines__device_1_1kinematics__params__t" ]
     ] ],
+    [ "artificial_viscosity", "d7/d6b/namespaceartificial__viscosity.html", [
+      [ "artificial_viscosity_t", "dd/d51/structartificial__viscosity_1_1artificial__viscosity__t.html", "dd/d51/structartificial__viscosity_1_1artificial__viscosity__t" ]
+    ] ],
+    [ "artificial_viscosity_model", "d8/da1/namespaceartificial__viscosity__model.html", [
+      [ "allocator_entry", "d7/d49/structartificial__viscosity__model_1_1allocator__entry.html", "d7/d49/structartificial__viscosity__model_1_1allocator__entry" ],
+      [ "avm_allocate", "d3/dda/interfaceartificial__viscosity__model_1_1avm__allocate.html", "d3/dda/interfaceartificial__viscosity__model_1_1avm__allocate" ],
+      [ "avm_compute", "dd/d1e/interfaceartificial__viscosity__model_1_1avm__compute.html", "dd/d1e/interfaceartificial__viscosity__model_1_1avm__compute" ],
+      [ "avm_free", "df/da5/interfaceartificial__viscosity__model_1_1avm__free.html", "df/da5/interfaceartificial__viscosity__model_1_1avm__free" ],
+      [ "avm_init", "de/d28/interfaceartificial__viscosity__model_1_1avm__init.html", "de/d28/interfaceartificial__viscosity__model_1_1avm__init" ],
+      [ "avm_preprocess", "df/dde/interfaceartificial__viscosity__model_1_1avm__preprocess.html", "df/dde/interfaceartificial__viscosity__model_1_1avm__preprocess" ],
+      [ "avm_t", "d0/d38/structartificial__viscosity__model_1_1avm__t.html", "d0/d38/structartificial__viscosity__model_1_1avm__t" ]
+    ] ],
+    [ "avm_simcomp", "db/dc2/namespaceavm__simcomp.html", [
+      [ "avm_simcomp_t", "da/d55/structavm__simcomp_1_1avm__simcomp__t.html", "da/d55/structavm__simcomp_1_1avm__simcomp__t" ]
+    ] ],
     [ "ax_helm", "d0/d35/namespaceax__helm.html", [
       [ "ax_helm_t", "d1/d58/structax__helm_1_1ax__helm__t.html", "d1/d58/structax__helm_1_1ax__helm__t" ]
     ] ],
@@ -1550,12 +1565,6 @@ var annotated_dup =
     [ "registry_entry", "da/dd7/namespaceregistry__entry.html", [
       [ "registry_entry_t", "df/db9/structregistry__entry_1_1registry__entry__t.html", "df/db9/structregistry__entry_1_1registry__entry__t" ]
     ] ],
-    [ "regularization", "d8/dd5/namespaceregularization.html", [
-      [ "reg_compute", "d3/d52/interfaceregularization_1_1reg__compute.html", "d3/d52/interfaceregularization_1_1reg__compute" ],
-      [ "reg_free", "d4/d81/interfaceregularization_1_1reg__free.html", "d4/d81/interfaceregularization_1_1reg__free" ],
-      [ "reg_init", "d1/dbb/interfaceregularization_1_1reg__init.html", "d1/dbb/interfaceregularization_1_1reg__init" ],
-      [ "regularization_t", "d0/d2d/structregularization_1_1regularization__t.html", "d0/d2d/structregularization_1_1regularization__t" ]
-    ] ],
     [ "rhs_maker", "db/d98/namespacerhs__maker.html", [
       [ "rhs_maker_bdf", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf.html", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf" ],
       [ "rhs_maker_bdf_t", "d4/d7a/structrhs__maker_1_1rhs__maker__bdf__t.html", "d4/d7a/structrhs__maker_1_1rhs__maker__bdf__t" ],
@@ -2003,6 +2012,12 @@ var annotated_dup =
     [ "vector_series", "de/dec/namespacevector__series.html", [
       [ "vector_series_ptr_t", "df/d78/structvector__series_1_1vector__series__ptr__t.html", "df/d78/structvector__series_1_1vector__series__ptr__t" ],
       [ "vector_series_t", "d3/dba/structvector__series_1_1vector__series__t.html", "d3/dba/structvector__series_1_1vector__series__t" ]
+    ] ],
+    [ "viscous_regularization", "dd/dcf/namespaceviscous__regularization.html", [
+      [ "reg_free", "d3/d50/interfaceviscous__regularization_1_1reg__free.html", "d3/d50/interfaceviscous__regularization_1_1reg__free" ],
+      [ "reg_init", "da/d03/interfaceviscous__regularization_1_1reg__init.html", "da/d03/interfaceviscous__regularization_1_1reg__init" ],
+      [ "reg_update", "d4/d6d/interfaceviscous__regularization_1_1reg__update.html", "d4/d6d/interfaceviscous__regularization_1_1reg__update" ],
+      [ "viscous_regularization_t", "d1/d62/structviscous__regularization_1_1viscous__regularization__t.html", "d1/d62/structviscous__regularization_1_1viscous__regularization__t" ]
     ] ],
     [ "vreman", "d4/d6e/namespacevreman.html", [
       [ "vreman_t", "de/d91/structvreman_1_1vreman__t.html", "de/d91/structvreman_1_1vreman__t" ]

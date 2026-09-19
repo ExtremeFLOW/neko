@@ -128,12 +128,12 @@ Collaboration diagram for compressible_res_cpu::compressible_res_cpu_t:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a1766975b06a440f7c64fe96b5061db73" id="r_a1766975b06a440f7c64fe96b5061db73"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nopass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/da2/structcompressible__res__cpu_1_1compressible__res__cpu__t.html#a1766975b06a440f7c64fe96b5061db73">step</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rho_field</a>, m_x, m_y, m_z, e, p, u, v, w, ax, ax_stress, coef, gs, h, artificial_visc, mu, kappa, bcs_vel, time, rk_scheme, dt)</td></tr>
-<tr class="memdesc:a1766975b06a440f7c64fe96b5061db73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advances the primitive variables (density, momentum, energy) in time using a Runge-Kutta scheme.  <br /></td></tr>
-<tr class="separator:a1766975b06a440f7c64fe96b5061db73"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac98d500ce7b75f50e79aecacce220be9" id="r_ac98d500ce7b75f50e79aecacce220be9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nopass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/da2/structcompressible__res__cpu_1_1compressible__res__cpu__t.html#ac98d500ce7b75f50e79aecacce220be9">evaluate_rhs</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_rho_field</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_m_x</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_m_y</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_m_z</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_e</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rho_field</a>, m_x, m_y, m_z, e, p, u, v, w, ax, ax_stress, coef, gs, h, artificial_visc, mu, kappa)</td></tr>
-<tr class="memdesc:ac98d500ce7b75f50e79aecacce220be9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluates the right-hand side of the compressible equations. Inviscid terms are evaluated through div(). Stabilization is always the existing scalar Laplacian. In navier-stokes mode, physical mu and kappa add a separate compressible Navier-Stokes viscous flux.  <br /></td></tr>
-<tr class="separator:ac98d500ce7b75f50e79aecacce220be9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad49b639f60a202f012789ea798e173eb" id="r_ad49b639f60a202f012789ea798e173eb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nopass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/da2/structcompressible__res__cpu_1_1compressible__res__cpu__t.html#ad49b639f60a202f012789ea798e173eb">step</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rho_field</a>, m_x, m_y, m_z, e, p, u, v, w, ax, ax_stress, coef, gs, artificial_visc, mu, kappa, bcs_vel, time, rk_scheme, dt)</td></tr>
+<tr class="memdesc:ad49b639f60a202f012789ea798e173eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advances the primitive variables (density, momentum, energy) in time using a Runge-Kutta scheme.  <br /></td></tr>
+<tr class="separator:ad49b639f60a202f012789ea798e173eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a856d20826b0e792c7f7f244734c22d07" id="r_a856d20826b0e792c7f7f244734c22d07"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nopass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/da2/structcompressible__res__cpu_1_1compressible__res__cpu__t.html#a856d20826b0e792c7f7f244734c22d07">evaluate_rhs</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_rho_field</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_m_x</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_m_y</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_m_z</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_e</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rho_field</a>, m_x, m_y, m_z, e, p, u, v, w, ax, ax_stress, coef, gs, artificial_visc, mu, kappa)</td></tr>
+<tr class="memdesc:a856d20826b0e792c7f7f244734c22d07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluates the right-hand side of the compressible equations. Inviscid terms are evaluated through div(). Stabilization is always the existing scalar Laplacian. In navier-stokes mode, physical mu and kappa add a separate compressible Navier-Stokes viscous flux.  <br /></td></tr>
+<tr class="separator:a856d20826b0e792c7f7f244734c22d07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -144,8 +144,8 @@ Public Attributes</h2></td></tr>
 <div class="textblock">
 <p class="definition">Definition at line <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html#l00056">56</a> of file <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html">compressible_res_cpu.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
-<a id="ac98d500ce7b75f50e79aecacce220be9" name="ac98d500ce7b75f50e79aecacce220be9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac98d500ce7b75f50e79aecacce220be9">&#9670;&#160;</a></span>evaluate_rhs()</h2>
+<a id="a856d20826b0e792c7f7f244734c22d07" name="a856d20826b0e792c7f7f244734c22d07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a856d20826b0e792c7f7f244734c22d07">&#9670;&#160;</a></span>evaluate_rhs()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -265,12 +265,6 @@ Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>h</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>artificial_visc</em>, </td>
         </tr>
         <tr>
@@ -316,7 +310,6 @@ Public Attributes</h2></td></tr>
     <tr><td class="paramname">Ax</td><td>Matrix-vector product operator for Laplacian terms </td></tr>
     <tr><td class="paramname">coef</td><td>Spatial discretization coefficients </td></tr>
     <tr><td class="paramname">gs</td><td>Gather-scatter operator for parallel communication </td></tr>
-    <tr><td class="paramname">h</td><td>Mesh size field </td></tr>
     <tr><td class="paramname">artificial_visc</td><td>Artificial viscosity field </td></tr>
     <tr><td class="paramname">mu</td><td>Dynamic viscosity field for physical momentum diffusion </td></tr>
     <tr><td class="paramname">kappa</td><td>Thermal conductivity field for physical energy diffusion </td></tr>
@@ -328,8 +321,8 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a1766975b06a440f7c64fe96b5061db73" name="a1766975b06a440f7c64fe96b5061db73"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1766975b06a440f7c64fe96b5061db73">&#9670;&#160;</a></span>step()</h2>
+<a id="ad49b639f60a202f012789ea798e173eb" name="ad49b639f60a202f012789ea798e173eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad49b639f60a202f012789ea798e173eb">&#9670;&#160;</a></span>step()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -419,12 +412,6 @@ Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>h</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>artificial_visc</em>, </td>
         </tr>
         <tr>
@@ -485,7 +472,6 @@ Public Attributes</h2></td></tr>
     <tr><td class="paramname">Ax</td><td>Matrix-vector product operator </td></tr>
     <tr><td class="paramname">coef</td><td>Coefficients for spatial discretization </td></tr>
     <tr><td class="paramname">gs</td><td>Gather-scatter operator for parallel communication </td></tr>
-    <tr><td class="paramname">h</td><td>Mesh size field </td></tr>
     <tr><td class="paramname">artificial_visc</td><td>Artificial viscosity field (entropy viscosity, min with low-order) </td></tr>
     <tr><td class="paramname">mu</td><td>Dynamic viscosity field (physical viscosity for momentum) </td></tr>
     <tr><td class="paramname">kappa</td><td>Thermal conductivity field (physical viscosity for energy) </td></tr>
@@ -497,7 +483,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p>Implements <a class="el" href="../../d3/d8a/structcompressible__residual_1_1compressible__rhs__t.html#a63c1ade75f602d9b3149e022adec165f">compressible_residual::compressible_rhs_t</a>.</p>
+<p>Implements <a class="el" href="../../d3/d8a/structcompressible__residual_1_1compressible__rhs__t.html#ab1ba68354e098165f4f9bb8caa75386a">compressible_residual::compressible_rhs_t</a>.</p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html#l00058">58</a> of file <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html">compressible_res_cpu.f90</a>.</p>
 
@@ -537,7 +523,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d4/d83/namespacecompressible__res__cpu.html">compressible_res_cpu</a></li><li class="navelem"><a class="el" href="../../d9/da2/structcompressible__res__cpu_1_1compressible__res__cpu__t.html">compressible_res_cpu_t</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -454,7 +454,7 @@ $(document).ready(function(){initNavTree('d9/d91/flow__ic_8f90_source.html','../
 <div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span><span class="keywordflow">       end select</span></div>
 <div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span> </div>
 <div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>       <span class="keyword">call </span>expression_eval_static(expr(i), f%x, n, &amp;</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>            u%dof%x, u%dof%y, u%dof%z, <span class="stringliteral">&#39;fluid initial condition&#39;</span>)</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>            u%dof%x%x, u%dof%y%x, u%dof%z%x, <span class="stringliteral">&#39;fluid initial condition&#39;</span>)</div>
 <div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span> </div>
 <div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>    <span class="keyword">nullify</span>(f)</div>
@@ -502,7 +502,7 @@ $(document).ready(function(){initNavTree('d9/d91/flow__ic_8f90_source.html','../
 <div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>    <span class="keywordflow">if</span> ((uinf(1) .gt. 0.0_rp) .and. abscmp(uinf(2), 0.0_rp) &amp;</div>
 <div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>         .and. abscmp(uinf(3), 0.0_rp)) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>       <span class="keywordflow">do</span> i = 1, u%dof%size()</div>
-<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>          u%x(i,1,1,1) = bla(u%dof%z(i,1,1,1), delta, uinf(1))</div>
+<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>          u%x(i,1,1,1) = bla(u%dof%z%x(i,1,1,1), delta, uinf(1))</div>
 <div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>          v%x(i,1,1,1) = 0.0_rp</div>
 <div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>          w%x(i,1,1,1) = 0.0_rp</div>
 <div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span><span class="keywordflow">       end do</span></div>
@@ -510,7 +510,7 @@ $(document).ready(function(){initNavTree('d9/d91/flow__ic_8f90_source.html','../
 <div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>         .and. abscmp(uinf(3), 0.0_rp)) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>       <span class="keywordflow">do</span> i = 1, u%dof%size()</div>
 <div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>          u%x(i,1,1,1) = 0.0_rp</div>
-<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>          v%x(i,1,1,1) = bla(u%dof%x(i,1,1,1), delta, uinf(2))</div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>          v%x(i,1,1,1) = bla(u%dof%x%x(i,1,1,1), delta, uinf(2))</div>
 <div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>          w%x(i,1,1,1) = 0.0_rp</div>
 <div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (abscmp(uinf(1), 0.0_rp) .and. abscmp(uinf(2), 0.0_rp) &amp;</div>
@@ -518,7 +518,7 @@ $(document).ready(function(){initNavTree('d9/d91/flow__ic_8f90_source.html','../
 <div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>       <span class="keywordflow">do</span> i = 1, u%dof%size()</div>
 <div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>          u%x(i,1,1,1) = 0.0_rp</div>
 <div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>          v%x(i,1,1,1) = 0.0_rp</div>
-<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>          w%x(i,1,1,1) = bla(u%dof%y(i,1,1,1), delta, uinf(3))</div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>          w%x(i,1,1,1) = bla(u%dof%y%x(i,1,1,1), delta, uinf(3))</div>
 <div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span> </div>
@@ -691,7 +691,7 @@ $(document).ready(function(){initNavTree('d9/d91/flow__ic_8f90_source.html','../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d9/d91/flow__ic_8f90.html">flow_ic.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

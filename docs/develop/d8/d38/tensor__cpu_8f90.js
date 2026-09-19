@@ -27,7 +27,9 @@ var tensor__cpu_8f90 =
     [ "tnsr3d_el_n9_cpu", "d8/d38/tensor__cpu_8f90.html#aa02177bbe1b001870fd0e1b41c19944a", null ],
     [ "tnsr3d_el_n_cpu", "d8/d38/tensor__cpu_8f90.html#ad97f3d6179a480e00c0bab11ef16afd8", null ],
     [ "tnsr3d_el_nvnu_cpu", "d8/d38/tensor__cpu_8f90.html#ae4744f0b8f4479debd1a4ccbc5174e50", null ],
+    [ "tnsr3d_nu12_cpu", "d8/d38/tensor__cpu_8f90.html#a29cba931c011f7c7bf2799c65e906460", null ],
     [ "tnsr3d_nu2nv4_cpu", "d8/d38/tensor__cpu_8f90.html#a5bc753fd95ff31b7899987e76a6e9ecf", null ],
     [ "tnsr3d_nu4_cpu", "d8/d38/tensor__cpu_8f90.html#ad367fb18271b3a7b328d1e911316427b", null ],
+    [ "tnsr3d_nu8_cpu", "d8/d38/tensor__cpu_8f90.html#a9a2c07e35fabc0fba2ff92018521a375", null ],
     [ "tnsr3d_nvnu_cpu", "d8/d38/tensor__cpu_8f90.html#a68d125d230f5d64bbc077467af881ee1", null ]
 ];

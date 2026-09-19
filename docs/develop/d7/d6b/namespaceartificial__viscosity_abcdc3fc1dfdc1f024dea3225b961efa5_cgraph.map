@@ -1,0 +1,15 @@
+<map id="artificial_viscosity::artificial_viscosity_update" name="artificial_viscosity::artificial_viscosity_update">
+<area shape="rect" id="Node000001" title="Update the effective viscosity with artificial and physical viscosity." alt="" coords="5,65,153,120"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a8ab404025f5d8cd75e11241fbb8735e3" title="Vector addition ." alt="" coords="201,55,368,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,81,187,77,188,82,154,86"/>
+<area shape="rect" id="Node000005" href="$d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad" title="Copy a vector ." alt="" coords="202,104,367,129"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="154,99,189,103,188,108,154,104"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="466,5,562,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="344,52,452,28,453,34,345,57"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a2599f84bce1660a18c72dc3eddb17bfe" title="Vector addition ." alt="" coords="416,55,612,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="368,65,402,65,402,70,368,70"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="467,104,561,129"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="368,114,453,114,453,119,368,119"/>
+<area shape="rect" id="Node000007" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="417,153,611,179"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="345,127,441,148,440,153,344,132"/>
+</map>

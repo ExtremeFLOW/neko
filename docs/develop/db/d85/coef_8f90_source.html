@@ -994,7 +994,7 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a id="l00953" name="l00953"></a><span class="lineno">  953</span>         dxds =&gt; c%dxds, dyds =&gt; c%dyds, dzds =&gt; c%dzds, &amp;</div>
 <div class="line"><a id="l00954" name="l00954"></a><span class="lineno">  954</span>         dxdt =&gt; c%dxdt, dydt =&gt; c%dydt, dzdt =&gt; c%dzdt, &amp;</div>
 <div class="line"><a id="l00955" name="l00955"></a><span class="lineno">  955</span>         dx =&gt; c%Xh%dx, dy =&gt; c%Xh%dy, dz =&gt; c%Xh%dz, &amp;</div>
-<div class="line"><a id="l00956" name="l00956"></a><span class="lineno">  956</span>         x =&gt; c%dof%x, y =&gt; c%dof%y, z =&gt; c%dof%z, &amp;</div>
+<div class="line"><a id="l00956" name="l00956"></a><span class="lineno">  956</span>         x =&gt; c%dof%x%x, y =&gt; c%dof%y%x, z =&gt; c%dof%z%x, &amp;</div>
 <div class="line"><a id="l00957" name="l00957"></a><span class="lineno">  957</span>         lx =&gt; c%Xh%lx, ly =&gt; c%Xh%ly, lz =&gt; c%Xh%lz, &amp;</div>
 <div class="line"><a id="l00958" name="l00958"></a><span class="lineno">  958</span>         dyt =&gt; c%Xh%dyt, dzt =&gt; c%Xh%dzt, &amp;</div>
 <div class="line"><a id="l00959" name="l00959"></a><span class="lineno">  959</span>         jacinv =&gt; c%jacinv, jac =&gt; c%jac)</div>
@@ -1005,7 +1005,7 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a id="l00964" name="l00964"></a><span class="lineno">  964</span>              c%dsdx_d, c%dsdy_d, c%dsdz_d, c%dtdx_d, c%dtdy_d, c%dtdz_d, &amp;</div>
 <div class="line"><a id="l00965" name="l00965"></a><span class="lineno">  965</span>              c%dxdr_d, c%dydr_d, c%dzdr_d, c%dxds_d, c%dyds_d, c%dzds_d, &amp;</div>
 <div class="line"><a id="l00966" name="l00966"></a><span class="lineno">  966</span>              c%dxdt_d, c%dydt_d, c%dzdt_d, c%Xh%dx_d, c%Xh%dy_d, c%Xh%dz_d, &amp;</div>
-<div class="line"><a id="l00967" name="l00967"></a><span class="lineno">  967</span>              c%dof%x_d, c%dof%y_d, c%dof%z_d, c%jacinv_d, c%jac_d, &amp;</div>
+<div class="line"><a id="l00967" name="l00967"></a><span class="lineno">  967</span>              c%dof%x%x_d, c%dof%y%x_d, c%dof%z%x_d, c%jacinv_d, c%jac_d, &amp;</div>
 <div class="line"><a id="l00968" name="l00968"></a><span class="lineno">  968</span>              c%Xh%lx, c%msh%nelv)</div>
 <div class="line"><a id="l00969" name="l00969"></a><span class="lineno">  969</span> </div>
 <div class="line"><a id="l00970" name="l00970"></a><span class="lineno">  970</span>         <span class="comment">! copy to host only at initialization.</span></div>
@@ -1441,11 +1441,11 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a id="l01427" name="l01427"></a><span class="lineno"> 1427</span>          <span class="keywordflow">do</span> i = 1, lxyz</div>
 <div class="line"><a id="l01428" name="l01428"></a><span class="lineno"> 1428</span>             <span class="comment">! diff += abs( \| G(i,:,:,e) - G(i,:,:,reverse(m)) \|_l1 )</span></div>
 <div class="line"><a id="l01429" name="l01429"></a><span class="lineno"> 1429</span>             diff = diff + abs(c%G11(i,1,1,e) - c%G11(i,1,1,c_inds_rev(m))) &amp;</div>
-<div class="line"><a id="l01430" name="l01430"></a><span class="lineno"> 1430</span>                         + 2.0*abs(c%G12(i,1,1,e) - c%G12(i,1,1,c_inds_rev(m))) &amp;</div>
-<div class="line"><a id="l01431" name="l01431"></a><span class="lineno"> 1431</span>                         + 2.0*abs(c%G13(i,1,1,e) - c%G13(i,1,1,c_inds_rev(m))) &amp;</div>
-<div class="line"><a id="l01432" name="l01432"></a><span class="lineno"> 1432</span>                         + abs(c%G22(i,1,1,e) - c%G22(i,1,1,c_inds_rev(m))) &amp;</div>
-<div class="line"><a id="l01433" name="l01433"></a><span class="lineno"> 1433</span>                         + 2.0*abs(c%G23(i,1,1,e) - c%G23(i,1,1,c_inds_rev(m))) &amp;</div>
-<div class="line"><a id="l01434" name="l01434"></a><span class="lineno"> 1434</span>                         + abs(c%G33(i,1,1,e) - c%G33(i,1,1,c_inds_rev(m)))</div>
+<div class="line"><a id="l01430" name="l01430"></a><span class="lineno"> 1430</span>                  + 2.0*abs(c%G12(i,1,1,e) - c%G12(i,1,1,c_inds_rev(m))) &amp;</div>
+<div class="line"><a id="l01431" name="l01431"></a><span class="lineno"> 1431</span>                  + 2.0*abs(c%G13(i,1,1,e) - c%G13(i,1,1,c_inds_rev(m))) &amp;</div>
+<div class="line"><a id="l01432" name="l01432"></a><span class="lineno"> 1432</span>                  + abs(c%G22(i,1,1,e) - c%G22(i,1,1,c_inds_rev(m))) &amp;</div>
+<div class="line"><a id="l01433" name="l01433"></a><span class="lineno"> 1433</span>                  + 2.0*abs(c%G23(i,1,1,e) - c%G23(i,1,1,c_inds_rev(m))) &amp;</div>
+<div class="line"><a id="l01434" name="l01434"></a><span class="lineno"> 1434</span>                  + abs(c%G33(i,1,1,e) - c%G33(i,1,1,c_inds_rev(m)))</div>
 <div class="line"><a id="l01435" name="l01435"></a><span class="lineno"> 1435</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l01436" name="l01436"></a><span class="lineno"> 1436</span> </div>
 <div class="line"><a id="l01437" name="l01437"></a><span class="lineno"> 1437</span>          <span class="comment">! match is found; mapping(e) is redundant</span></div>
@@ -1819,8 +1819,8 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a id="l01813" name="l01813"></a><span class="lineno"> 1813</span>                   un = this%get_normal(i, j, k, pe, pf)</div>
 <div class="line"><a id="l01814" name="l01814"></a><span class="lineno"> 1814</span>                   len = sqrt(un(1) * un(1) + un(2) * un(2))</div>
 <div class="line"><a id="l01815" name="l01815"></a><span class="lineno"> 1815</span>                   <span class="keywordflow">if</span> (len .gt. neko_eps) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01816" name="l01816"></a><span class="lineno"> 1816</span>                      d = this%dof%y(i, j, k, pe) * un(1) &amp;</div>
-<div class="line"><a id="l01817" name="l01817"></a><span class="lineno"> 1817</span>                           - this%dof%x(i, j, k, pe) * un(2)</div>
+<div class="line"><a id="l01816" name="l01816"></a><span class="lineno"> 1816</span>                      d = this%dof%y%x(i, j, k, pe) * un(1) &amp;</div>
+<div class="line"><a id="l01817" name="l01817"></a><span class="lineno"> 1817</span>                           - this%dof%x%x(i, j, k, pe) * un(2)</div>
 <div class="line"><a id="l01818" name="l01818"></a><span class="lineno"> 1818</span> </div>
 <div class="line"><a id="l01819" name="l01819"></a><span class="lineno"> 1819</span>                      this%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)</div>
 <div class="line"><a id="l01820" name="l01820"></a><span class="lineno"> 1820</span>                      this%R11(nc) = un(1) / len * sign(1.0_rp, d)</div>
@@ -2011,7 +2011,7 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="ttc" id="anamespaceutils_html_a3057090d42cc301b1dd486200a087029"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a3057090d42cc301b1dd486200a087029">utils::index_is_on_facet</a></div><div class="ttdeci">pure logical function, public index_is_on_facet(i, j, k, lx, ly, lz, facet)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00313">utils.f90:314</a></div></div>
 <div class="ttc" id="anamespaceutils_html_a4c8e13ce7a50b4ecdbc01c590018bea7"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7">utils::linear_index</a></div><div class="ttdeci">pure integer function, public linear_index(i, j, k, l, lx, ly, lz)</div><div class="ttdoc">Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00288">utils.f90:289</a></div></div>
 <div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00093">coef.f90:93</a></div></div>
-<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00057">dofmap.f90:57</a></div></div>
+<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00058">dofmap.f90:58</a></div></div>
 <div class="ttc" id="astructgather__scatter_1_1gs__t_html"><div class="ttname"><a href="../../dd/db8/structgather__scatter_1_1gs__t.html">gather_scatter::gs_t</a></div><div class="ttdoc">Gather-scatter kernel.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d7e/gather__scatter_8f90_source.html#l00090">gather_scatter.f90:90</a></div></div>
 <div class="ttc" id="astructmesh_1_1mesh__t_html"><div class="ttname"><a href="../../d7/d28/structmesh_1_1mesh__t.html">mesh::mesh_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00073">mesh.f90:73</a></div></div>
 <div class="ttc" id="astructspace_1_1space__t_html"><div class="ttname"><a href="../../da/d99/structspace_1_1space__t.html">space::space_t</a></div><div class="ttdoc">The function space for the SEM solution fields.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da4/space_8f90_source.html#l00064">space.f90:64</a></div></div>
@@ -2022,7 +2022,7 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_03fb5b14824697692326bbb959ec235e.html">sem</a></li><li class="navelem"><a class="el" href="../../db/d85/coef_8f90.html">coef.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

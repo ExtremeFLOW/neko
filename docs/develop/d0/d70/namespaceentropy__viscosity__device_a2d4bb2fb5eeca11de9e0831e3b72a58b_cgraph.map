@@ -1,5 +1,5 @@
 <map id="entropy_viscosity_device::entropy_viscosity_smooth_divide_device" name="entropy_viscosity_device::entropy_viscosity_smooth_divide_device">
-<area shape="rect" id="Node000001" title="Divide by multiplicity for smoothing on device." alt="" coords="5,27,207,82"/>
+<area shape="rect" id="Node000001" title="Divide by gather&#45;scatter multiplicity on a device." alt="" coords="5,27,207,82"/>
 <area shape="rect" id="Node000002" href="$d8/d84/entropy__viscosity_8cu.html#a8d9e2c3150f6ca15c1efb9133f30fd91" title=" " alt="" coords="457,5,656,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,45,443,30,444,35,207,51"/>
 <area shape="rect" id="Node000004" href="$dd/d01/entropy__viscosity_8c.html#ab607bd3d91c4ec935a5070fd793717ae" title=" " alt="" coords="255,63,409,103"/>

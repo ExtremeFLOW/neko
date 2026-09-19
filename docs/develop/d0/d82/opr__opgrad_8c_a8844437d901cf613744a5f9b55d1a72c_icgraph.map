@@ -28,12 +28,12 @@
 <area shape="poly" id="edge17_Node000003_Node000018" title=" " alt="" coords="863,420,853,475,833,545,818,582,800,618,777,652,750,682,717,702,714,697,746,678,773,649,795,616,813,580,828,543,848,474,858,419"/>
 <area shape="rect" id="Node000019" href="$d4/dd6/namespaceweak__gradient__simcomp.html#ae236a24b2d3afb8a0cdb2f3fe182d75c" title="Compute the weak_gradient field." alt="" coords="547,756,737,796"/>
 <area shape="poly" id="edge18_Node000003_Node000019" title=" " alt="" coords="865,420,859,485,842,573,827,619,807,665,782,708,750,746,734,758,731,754,746,742,777,705,802,663,822,617,836,571,854,485,860,420"/>
-<area shape="rect" id="Node000005" href="$d4/d83/namespacecompressible__res__cpu.html#a758165caa9c40474f1011ad71633f123" title="Evaluates the right&#45;hand side of the compressible equations. Inviscid terms are evaluated through div..." alt="" coords="311,5,478,45"/>
+<area shape="rect" id="Node000005" href="$d4/d83/namespacecompressible__res__cpu.html#ae51fb68a855fdc7b456753fc8a5dac9d" title="Evaluates the right&#45;hand side of the compressible equations. Inviscid terms are evaluated through div..." alt="" coords="311,5,478,45"/>
 <area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="522,28,478,28,478,23,522,23"/>
-<area shape="rect" id="Node000006" href="$d4/d83/namespacecompressible__res__cpu.html#a97f4d91ee2dafadca4d3865ee272fa1c" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="5,5,253,45"/>
+<area shape="rect" id="Node000006" href="$d4/d83/namespacecompressible__res__cpu.html#a35a0bbc442c4c17ab97413a56da367e3" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="5,5,253,45"/>
 <area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="298,28,253,28,253,23,298,23"/>
-<area shape="rect" id="Node000008" href="$df/dcd/namespacecompressible__res__device.html#a071cf7851336d843e409d6a825f70f0c" title=" " alt="" coords="301,77,488,117"/>
+<area shape="rect" id="Node000008" href="$df/dcd/namespacecompressible__res__device.html#a903fd97843ea532a9268469191340aa8" title=" " alt="" coords="301,77,488,117"/>
 <area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="535,100,488,100,488,95,535,95"/>
-<area shape="rect" id="Node000009" href="$df/dcd/namespacecompressible__res__device.html#a97e7637dcef6c624bbc69911283f8aa0" title=" " alt="" coords="20,70,239,125"/>
+<area shape="rect" id="Node000009" href="$df/dcd/namespacecompressible__res__device.html#a4cd55df45e21856441b4b2520e65055a" title=" " alt="" coords="20,70,239,125"/>
 <area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="288,100,239,100,239,95,288,95"/>
 </map>

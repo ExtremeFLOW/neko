@@ -1,6 +1,6 @@
 <map id="tensor_cpu::tnsr3d_nu2nv4_cpu" name="tensor_cpu::tnsr3d_nu2nv4_cpu">
-<area shape="rect" id="Node000001" title=" " alt="" coords="736,69,879,109"/>
-<area shape="rect" id="Node000002" href="$d4/d59/namespacetensor__cpu.html#a4cf2208915ae46c403588df67292d583" title=" " alt="" coords="516,77,688,102"/>
+<area shape="rect" id="Node000001" title="Batched tensor product specialised for nu = 2, nv = 4." alt="" coords="736,69,879,109"/>
+<area shape="rect" id="Node000002" href="$d4/d59/namespacetensor__cpu.html#a4cf2208915ae46c403588df67292d583" title="Three&#45;dimensional tensor product over a list of elements." alt="" coords="516,77,688,102"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="722,92,688,92,688,87,722,87"/>
 <area shape="rect" id="Node000003" href="$d9/da0/namespaceinterpolation.html#a1e6266e1f241a9e85cd33acffdb7319e" title="Interpolates an array to one of Xh or Yh on host." alt="" coords="279,5,468,45"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="542,75,445,48,446,43,543,70"/>

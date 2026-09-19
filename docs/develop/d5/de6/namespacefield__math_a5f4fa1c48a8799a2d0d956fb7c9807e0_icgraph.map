@@ -1,8 +1,8 @@
 <map id="field_math::field_cfill" name="field_math::field_cfill">
 <area shape="rect" id="Node000001" title="Set all elements to a constant c ." alt="" coords="268,177,425,203"/>
-<area shape="rect" id="Node000002" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title=" " alt="" coords="12,5,213,60"/>
+<area shape="rect" id="Node000002" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title="Compute the BDF entropy residual." alt="" coords="12,5,213,60"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="324,169,279,121,250,96,219,74,198,63,201,58,221,69,253,92,282,117,328,165"/>
-<area shape="rect" id="Node000003" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="12,84,213,139"/>
+<area shape="rect" id="Node000003" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title="Compute and limit the entropy viscosity coefficient." alt="" coords="12,84,213,139"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="294,175,194,141,196,136,296,170"/>
 <area shape="rect" id="Node000004" href="$dd/d61/namespaceentropy__viscosity.html#a61bd45b0d923d7c027704cad17a6cbef" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="16,163,209,217"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="254,193,210,193,210,187,254,187"/>

@@ -24,7 +24,7 @@
 <area shape="poly" id="edge17_Node000006_Node000015" title=" " alt="" coords="710,406,797,398,797,403,711,412"/>
 <area shape="rect" id="Node000010" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="1215,371,1373,396"/>
 <area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="915,487,1032,475,1099,462,1166,445,1216,424,1260,401,1262,405,1218,429,1168,450,1101,467,1033,480,915,493"/>
-<area shape="rect" id="Node000012" href="$d4/d59/namespacetensor__cpu.html#acc19954200ae575492692c19bba2a7c3" title=" " alt="" coords="1008,395,1151,435"/>
+<area shape="rect" id="Node000012" href="$d4/d59/namespacetensor__cpu.html#acc19954200ae575492692c19bba2a7c3" title="Two&#45;dimensional tensor product on a single element." alt="" coords="1008,395,1151,435"/>
 <area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="904,355,945,367,1008,388,1006,393,943,373,902,360"/>
 <area shape="rect" id="Node000013" href="$db/de7/namespacetensor__sx.html#ae40bc41ded753e9b7c41a6ca576a6cfd" title=" " alt="" coords="992,281,1167,307"/>
 <area shape="poly" id="edge13_Node000011_Node000013" title=" " alt="" coords="914,329,1010,307,1011,312,916,334"/>

@@ -19,6 +19,9 @@ var namespaces_dup =
       [ "update_ale_mesh_cpu", "d3/d1b/namespaceale__routines__cpu.html#afeaabcb60c806c7d3bdf2b6cb2c788b8", null ]
     ] ],
     [ "ale_routines_device", "d4/d50/namespaceale__routines__device.html", "d4/d50/namespaceale__routines__device" ],
+    [ "artificial_viscosity", "d7/d6b/namespaceartificial__viscosity.html", "d7/d6b/namespaceartificial__viscosity" ],
+    [ "artificial_viscosity_model", "d8/da1/namespaceartificial__viscosity__model.html", "d8/da1/namespaceartificial__viscosity__model" ],
+    [ "avm_simcomp", "db/dc2/namespaceavm__simcomp.html", "db/dc2/namespaceavm__simcomp" ],
     [ "ax_helm", "d0/d35/namespaceax__helm.html", "d0/d35/namespaceax__helm" ],
     [ "ax_helm_cpu", "d5/de3/namespaceax__helm__cpu.html", "d5/de3/namespaceax__helm__cpu" ],
     [ "ax_helm_device", "d7/d82/namespaceax__helm__device.html", "d7/d82/namespaceax__helm__device" ],
@@ -766,7 +769,6 @@ var namespaces_dup =
     ] ],
     [ "registry", "de/d1f/namespaceregistry.html", "de/d1f/namespaceregistry" ],
     [ "registry_entry", "da/dd7/namespaceregistry__entry.html", "da/dd7/namespaceregistry__entry" ],
-    [ "regularization", "d8/dd5/namespaceregularization.html", "d8/dd5/namespaceregularization" ],
     [ "rhs_maker", "db/d98/namespacerhs__maker.html", "db/d98/namespacerhs__maker" ],
     [ "rhs_maker_cpu", "db/dd7/namespacerhs__maker__cpu.html", "db/dd7/namespacerhs__maker__cpu" ],
     [ "rhs_maker_device", "d1/d29/namespacerhs__maker__device.html", "d1/d29/namespacerhs__maker__device" ],
@@ -931,8 +933,10 @@ var namespaces_dup =
       [ "tnsr3d_el_n9_cpu", "d4/d59/namespacetensor__cpu.html#aa02177bbe1b001870fd0e1b41c19944a", null ],
       [ "tnsr3d_el_n_cpu", "d4/d59/namespacetensor__cpu.html#ad97f3d6179a480e00c0bab11ef16afd8", null ],
       [ "tnsr3d_el_nvnu_cpu", "d4/d59/namespacetensor__cpu.html#ae4744f0b8f4479debd1a4ccbc5174e50", null ],
+      [ "tnsr3d_nu12_cpu", "d4/d59/namespacetensor__cpu.html#a29cba931c011f7c7bf2799c65e906460", null ],
       [ "tnsr3d_nu2nv4_cpu", "d4/d59/namespacetensor__cpu.html#a5bc753fd95ff31b7899987e76a6e9ecf", null ],
       [ "tnsr3d_nu4_cpu", "d4/d59/namespacetensor__cpu.html#ad367fb18271b3a7b328d1e911316427b", null ],
+      [ "tnsr3d_nu8_cpu", "d4/d59/namespacetensor__cpu.html#a9a2c07e35fabc0fba2ff92018521a375", null ],
       [ "tnsr3d_nvnu_cpu", "d4/d59/namespacetensor__cpu.html#a68d125d230f5d64bbc077467af881ee1", null ]
     ] ],
     [ "tensor_device", "d1/d4a/namespacetensor__device.html", "d1/d4a/namespacetensor__device" ],
@@ -1050,6 +1054,7 @@ var namespaces_dup =
       [ "vector_vdot3", "d3/d0d/namespacevector__math.html#a2dda46ce20ce34f6b2cff7601e742ad6", null ]
     ] ],
     [ "vector_series", "de/dec/namespacevector__series.html", "de/dec/namespacevector__series" ],
+    [ "viscous_regularization", "dd/dcf/namespaceviscous__regularization.html", "dd/dcf/namespaceviscous__regularization" ],
     [ "vreman", "d4/d6e/namespacevreman.html", "d4/d6e/namespacevreman" ],
     [ "vreman_cpu", "d9/da0/namespacevreman__cpu.html", [
       [ "vreman_compute_cpu", "d9/da0/namespacevreman__cpu.html#aa03fd0abec8a671168f801c2c28552e7", null ]

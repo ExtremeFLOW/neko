@@ -42,7 +42,7 @@
 <area shape="poly" id="edge39_Node000001_Node000040" title=" " alt="" coords="853,843,839,959,815,1113,798,1191,779,1262,756,1320,730,1360,703,1377,700,1372,726,1356,751,1318,774,1260,793,1190,810,1112,834,958,847,843"/>
 <area shape="rect" id="Node000004" href="$d6/dbe/namespacecoefs.html#a4fd6fc1c4fc98d7fa254f37aedf70f92" title="Initialize coefficients." alt="" coords="307,5,451,31"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="541,165,533,159,520,144,513,130,508,100,503,72,497,58,485,45,469,35,451,28,453,23,471,30,488,41,501,55,509,70,513,99,518,128,525,141,536,155,545,161"/>
-<area shape="rect" id="Node000005" href="$df/dcd/namespacecompressible__res__device.html#a071cf7851336d843e409d6a825f70f0c" title=" " alt="" coords="286,55,473,95"/>
+<area shape="rect" id="Node000005" href="$df/dcd/namespacecompressible__res__device.html#a903fd97843ea532a9268469191340aa8" title=" " alt="" coords="286,55,473,95"/>
 <area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="550,167,533,159,518,147,508,134,500,121,485,110,461,98,464,93,488,105,503,118,513,131,522,143,536,154,552,162"/>
 <area shape="rect" id="Node000007" href="$d5/de6/namespacefield__math.html#a7b40c8c5bbf9d100cf0a8588a047ebf9" title="Set all elements to one." alt="" coords="298,120,461,145"/>
 <area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="552,169,445,148,446,143,553,164"/>
@@ -50,11 +50,11 @@
 <area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="521,185,476,185,476,179,521,179"/>
 <area shape="rect" id="Node000009" href="$d3/d0d/namespacevector__math.html#ae230a7be11fda2b4e3a193c8f3e172c2" title="Set all elements to one." alt="" coords="285,219,474,244"/>
 <area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="553,200,446,221,445,216,552,195"/>
-<area shape="rect" id="Node000006" href="$df/dcd/namespacecompressible__res__device.html#a97e7637dcef6c624bbc69911283f8aa0" title=" " alt="" coords="5,48,224,103"/>
+<area shape="rect" id="Node000006" href="$df/dcd/namespacecompressible__res__device.html#a4cd55df45e21856441b4b2520e65055a" title=" " alt="" coords="5,48,224,103"/>
 <area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="272,78,224,78,224,73,272,73"/>
-<area shape="rect" id="Node000012" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title=" " alt="" coords="279,268,480,323"/>
+<area shape="rect" id="Node000012" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title="Compute the BDF entropy residual." alt="" coords="279,268,480,323"/>
 <area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="549,397,533,390,517,376,508,363,499,349,485,336,466,325,469,321,488,332,504,346,513,360,521,373,536,385,551,393"/>
-<area shape="rect" id="Node000013" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="279,347,480,401"/>
+<area shape="rect" id="Node000013" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title="Compute and limit the entropy viscosity coefficient." alt="" coords="279,347,480,401"/>
 <area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="538,401,480,392,481,387,539,396"/>
 <area shape="rect" id="Node000014" href="$dd/d61/namespaceentropy__viscosity.html#a61bd45b0d923d7c027704cad17a6cbef" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="283,425,476,480"/>
 <area shape="poly" id="edge13_Node000011_Node000014" title=" " alt="" coords="540,430,477,440,476,435,539,425"/>

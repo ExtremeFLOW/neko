@@ -29,6 +29,7 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "simulation_components", "dir_702567638a028346607c31c39047d6bd.html", "dir_702567638a028346607c31c39047d6bd" ],
     [ "source_terms", "dir_5333ab263fff069c320f5b66c5911c96.html", "dir_5333ab263fff069c320f5b66c5911c96" ],
     [ "time_schemes", "dir_58145b2c6f6f1e5d6a1061a637d0019b.html", "dir_58145b2c6f6f1e5d6a1061a637d0019b" ],
+    [ "viscous_regularization", "dir_1e58d6e000ccc54c9586b2adaec0917c.html", "dir_1e58d6e000ccc54c9586b2adaec0917c" ],
     [ "wall_models", "dir_d19e42ec822a5375dfd47528cb2d7af7.html", "dir_d19e42ec822a5375dfd47528cb2d7af7" ],
     [ "case.f90", "d2/d0f/case_8f90.html", "d2/d0f/case_8f90" ],
     [ "driver.f90", "d0/dd9/driver_8f90.html", "d0/dd9/driver_8f90" ],

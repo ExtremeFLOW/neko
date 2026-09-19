@@ -14,7 +14,8 @@ var searchData=
   ['vector_5fseries_5ft_11',['vector_series_t',['../d3/dba/structvector__series_1_1vector__series__t.html',1,'vector_series']]],
   ['vector_5ft_12',['vector_t',['../d3/d5b/structvector_1_1vector__t.html',1,'vector']]],
   ['vel_5fres_13',['vel_res',['../dd/d55/interfacepnpn__residual_1_1vel__res.html',1,'pnpn_residual']]],
-  ['vreman_5ft_14',['vreman_t',['../de/d91/structvreman_1_1vreman__t.html',1,'vreman']]],
-  ['vtk_5ffile_5ft_15',['vtk_file_t',['../d8/d43/structvtk__file_1_1vtk__file__t.html',1,'vtk_file']]],
-  ['vtkhdf_5ffile_5ft_16',['vtkhdf_file_t',['../d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html',1,'vtkhdf_file']]]
+  ['viscous_5fregularization_5ft_14',['viscous_regularization_t',['../d1/d62/structviscous__regularization_1_1viscous__regularization__t.html',1,'viscous_regularization']]],
+  ['vreman_5ft_15',['vreman_t',['../de/d91/structvreman_1_1vreman__t.html',1,'vreman']]],
+  ['vtk_5ffile_5ft_16',['vtk_file_t',['../d8/d43/structvtk__file_1_1vtk__file__t.html',1,'vtk_file']]],
+  ['vtkhdf_5ffile_5ft_17',['vtkhdf_file_t',['../d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html',1,'vtkhdf_file']]]
 ];

@@ -1,7 +1,7 @@
 <map id="math::glmax" name="math::glmax">
 <area shape="rect" id="Node000001" title="Max of a vector of length n." alt="" coords="463,171,568,196"/>
 <area shape="poly" id="edge4_Node000001_Node000001" title=" " alt="" coords="551,161,541,153,515,149,494,151,483,156,481,162,487,169,482,172,475,162,479,152,493,146,515,144,543,148,554,157"/>
-<area shape="rect" id="Node000002" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="213,5,415,60"/>
+<area shape="rect" id="Node000002" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title="Compute and limit the entropy viscosity coefficient." alt="" coords="213,5,415,60"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="496,161,461,117,438,94,413,74,394,62,397,58,416,69,442,90,465,113,500,158"/>
 <area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#a668616d38a8bc5c5f732edcca70d6be3" title="Global maximum of all elements in a field ." alt="" coords="227,84,401,109"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="485,165,451,144,414,124,376,112,378,107,416,120,454,139,487,161"/>

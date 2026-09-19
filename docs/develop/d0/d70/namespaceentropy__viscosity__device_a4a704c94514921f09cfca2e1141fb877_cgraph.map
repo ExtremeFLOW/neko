@@ -1,5 +1,5 @@
 <map id="entropy_viscosity_device::entropy_viscosity_clamp_to_low_order_device" name="entropy_viscosity_device::entropy_viscosity_clamp_to_low_order_device">
-<area shape="rect" id="Node000001" title="Clamp regularization coefficient to low&#45;order viscosity on device." alt="" coords="5,27,197,82"/>
+<area shape="rect" id="Node000001" title="Clamp the coefficient to low&#45;order viscosity on a device." alt="" coords="5,27,197,82"/>
 <area shape="rect" id="Node000002" href="$d8/d84/entropy__viscosity_8cu.html#aab5f79145f1cf9300b124ecd868a4453" title=" " alt="" coords="453,5,644,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,46,439,30,440,35,198,51"/>
 <area shape="rect" id="Node000004" href="$dd/d01/entropy__viscosity_8c.html#accdd3f16b84e8d1862fef9f157f52d83" title=" " alt="" coords="245,63,405,103"/>

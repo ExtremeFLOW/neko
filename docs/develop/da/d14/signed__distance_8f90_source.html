@@ -208,9 +208,9 @@ $(document).ready(function(){initNavTree('da/d14/signed__distance_8f90_source.ht
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="comment">!$omp parallel do private(id, p, distance)</span></div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keywordflow">do</span> id = 1, total_size</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>       p(1) = field_data%dof%x(id, 1, 1, 1)</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>       p(2) = field_data%dof%y(id, 1, 1, 1)</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>       p(3) = field_data%dof%z(id, 1, 1, 1)</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>       p(1) = field_data%dof%x%x(id, 1, 1, 1)</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>       p(2) = field_data%dof%y%x(id, 1, 1, 1)</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>       p(3) = field_data%dof%z%x(id, 1, 1, 1)</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>       distance = <a class="code hl_function" href="../../d4/def/namespacesigned__distance.html#a7d05cfbb969c2c9d5fd4c6248032efe5">tri_mesh_aabb_tree</a>(search_tree, <a class="code hl_namespace" href="../../db/dfc/namespacemesh.html">mesh</a>%el, p, max_distance)</div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span> </div>
@@ -534,7 +534,7 @@ $(document).ready(function(){initNavTree('da/d14/signed__distance_8f90_source.ht
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../da/d14/signed__distance_8f90.html">signed_distance.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

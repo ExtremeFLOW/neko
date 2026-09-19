@@ -1,7 +1,9 @@
 <map id="opencl_compute_entropy" name="opencl_compute_entropy">
-<area shape="rect" id="Node000001" title=" " alt="" coords="489,20,676,45"/>
-<area shape="rect" id="Node000002" href="$dc/da9/namespacecompressible__ops__device.html#a1ad819b1bfd41a2fcc598b3246825363" title="Compute entropy field S = 1/(gamma&#45;1) * rho * (log(p) &#45; gamma * log(rho)) on device." alt="" coords="244,5,441,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="476,35,442,35,442,30,476,30"/>
-<area shape="rect" id="Node000003" href="$d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html#a84b251a5423eccec5fe6f92da42519ae" title=" " alt="" coords="5,5,196,60"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="231,35,196,35,196,30,231,30"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="500,60,687,85"/>
+<area shape="rect" id="Node000002" href="$dc/da9/namespacecompressible__ops__device.html#a1ad819b1bfd41a2fcc598b3246825363" title="Compute entropy field S = 1/(gamma&#45;1) * rho * (log(p) &#45; gamma * log(rho)) on device." alt="" coords="255,45,452,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="486,75,452,75,452,70,486,70"/>
+<area shape="rect" id="Node000003" href="$dd/d61/namespaceentropy__viscosity.html#adb6bcd0b2fdc96d2add4d4f20a11466f" title="Compute entropy from the current pressure and density." alt="" coords="5,5,207,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="241,57,206,52,207,46,242,52"/>
+<area shape="rect" id="Node000004" href="$d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html#a84b251a5423eccec5fe6f92da42519ae" title=" " alt="" coords="11,84,201,139"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="242,93,202,99,201,94,241,88"/>
 </map>

@@ -2,7 +2,6 @@ var structfluid__scheme__compressible_1_1fluid__scheme__compressible__t =
 [
     [ "compute_cfl", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a37f4164f756483b936243df0c43f04ba", null ],
     [ "compute_cfl", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#ad7fb22f1612eef7d26bb12e3992f4f5c", null ],
-    [ "compute_entropy", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#aebfabceb59f0ffcf8e558d00f1825cd1", null ],
     [ "compute_max_wave_speed", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a6b84da9c664a3d1d7cf9c28aec661de8", null ],
     [ "free", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a464378437252b52223f927ff0379dfb1", null ],
     [ "init", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#af987ca36fb46b1404cfa5315f0a17ba3", null ],
@@ -46,7 +45,6 @@ var structfluid__scheme__compressible_1_1fluid__scheme__compressible__t =
     [ "p", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a2c2eafb9ed41ca75247aa37720cc3823", null ],
     [ "params", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#ad19229a5aac438306051b6509cf8ab2c", null ],
     [ "rho", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a613224f8034bbbe56c471ae153ebe431", null ],
-    [ "s", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a3716680ce334cab0bb15c5adaaf454a2", null ],
     [ "temperature", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a07fbbca13b7ebdd2c11469868a7ecdaf", null ],
     [ "u", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#ac5a241796167b65dc25822aeeefe086d", null ],
     [ "ulag", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a83f85c3368985db1cbf3cbc0ddf17c0d", null ],

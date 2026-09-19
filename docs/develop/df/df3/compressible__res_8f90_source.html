@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('df/df3/compressible__res_8f90_source.h
   <div class="headertitle"><div class="title">compressible_res.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../df/df3/compressible__res_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2025, The Neko Authors</span></div>
+<a href="../../df/df3/compressible__res_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2025-2026, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -154,14 +154,14 @@ $(document).ready(function(){initNavTree('df/df3/compressible__res_8f90_source.h
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../d3/d8a/structcompressible__residual_1_1compressible__rhs__t.html">   46</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span>, <span class="keyword">abstract</span> :: <a class="code hl_struct" href="../../d3/d8a/structcompressible__residual_1_1compressible__rhs__t.html">compressible_rhs_t</a></div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="../../d3/d8a/structcompressible__residual_1_1compressible__rhs__t.html#aaadcec19627820ae2a1b38d9be057889">   47</a></span><span class="keywordtype">     real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: gamma = 1.4_rp</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>   <span class="keyword">contains</span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="../../d3/d8a/structcompressible__residual_1_1compressible__rhs__t.html#a63c1ade75f602d9b3149e022adec165f">   49</a></span>     <span class="keywordtype">procedure</span>(<a class="code hl_interface" href="../../de/d93/interfacecompressible__residual_1_1compressible__rhs.html">compressible_rhs</a>), <span class="keywordtype">nopass</span>, <span class="keywordtype">deferred</span> :: step</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="../../d3/d8a/structcompressible__residual_1_1compressible__rhs__t.html#ab1ba68354e098165f4f9bb8caa75386a">   49</a></span>     <span class="keywordtype">procedure</span>(<a class="code hl_interface" href="../../de/d93/interfacecompressible__residual_1_1compressible__rhs.html">compressible_rhs</a>), <span class="keywordtype">nopass</span>, <span class="keywordtype">deferred</span> :: step</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../d3/d8a/structcompressible__residual_1_1compressible__rhs__t.html">compressible_rhs_t</a></div>
 </div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  abstract <span class="keyword">interface</span></div>
 <div class="foldopen" id="foldopen00054" data-start="" data-end="">
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="../../de/d93/interfacecompressible__residual_1_1compressible__rhs.html#a568fa6883e3ec26482ddf1c22ce8288d">   54</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../de/d93/interfacecompressible__residual_1_1compressible__rhs.html">compressible_rhs</a>(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &amp;</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>          Ax_stress, coef, gs, h, artificial_visc, mu, kappa, bcs_vel, time, &amp;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="../../de/d93/interfacecompressible__residual_1_1compressible__rhs.html#aa029f9ac47f8d10114a5eeb1b6f70a32">   54</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../de/d93/interfacecompressible__residual_1_1compressible__rhs.html">compressible_rhs</a>(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &amp;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>          Ax_stress, coef, gs, artificial_visc, mu, kappa, bcs_vel, time, &amp;</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>          rk_scheme, dt)</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>       <span class="keywordtype">import </span><a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a></div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>       <span class="keywordtype">import </span><a class="code hl_struct" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a></div>
@@ -172,7 +172,7 @@ $(document).ready(function(){initNavTree('df/df3/compressible__res_8f90_source.h
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>       <span class="keywordtype">import </span><a class="code hl_struct" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a></div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>       <span class="keywordtype">import </span><a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a></div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>       <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(inout)</span> :: rho_field, m_x, m_y, m_z, E</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>       <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(in)</span> :: p, u, v, w, h, artificial_visc, mu, kappa</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>       <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(in)</span> :: p, u, v, w, artificial_visc, mu, kappa</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>       <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a>), <span class="keywordtype">intent(inout)</span> :: Ax, Ax_stress</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>       <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(inout)</span> :: coef</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>       <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), <span class="keywordtype">intent(inout)</span> :: gs</div>
@@ -219,7 +219,7 @@ $(document).ready(function(){initNavTree('df/df3/compressible__res_8f90_source.h
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../df/df3/compressible__res_8f90.html">compressible_res.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

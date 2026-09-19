@@ -333,19 +333,19 @@ $(document).ready(function(){initNavTree('d3/d8d/ale__routines__device_8F90_sour
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d4/dfb/interfaceale__routines__device_1_1compute__cheap__dist__hip.html">compute_cheap_dist_hip</a>(dist_field%x_d, &amp;</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>            coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>            coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &amp;</div>
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>            lx, ly, lz, nel, local_iters, nchange_d)</div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_function" href="../../d9/d17/ale__kinematics_8cu.html#a462090a94f71cff736d24f603274b4df">compute_cheap_dist_cuda</a>(dist_field%x_d, &amp;</div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>            coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>            coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &amp;</div>
 <div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>            lx, ly, lz, nel, local_iters, nchange_d)</div>
 <div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
 <div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_function" href="../../d3/dda/ale__kinematics_8c.html#aa673f147082ce494721418c37a65b623">compute_cheap_dist_opencl</a>(dist_field%x_d, &amp;</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>            coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>            coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &amp;</div>
 <div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>            lx, ly, lz, nel, local_iters, nchange_d)</div>
 <div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span><span class="preprocessor">#elif HAVE_METAL</span></div>
 <div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span><span class="preprocessor"></span>       <span class="keyword">call </span>compute_cheap_dist_metal(dist_field%x_d, &amp;</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>            coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>            coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &amp;</div>
 <div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>            lx, ly, lz, nel, local_iters, nchange_d)</div>
 <div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span><span class="preprocessor"></span> </div>
@@ -416,25 +416,25 @@ $(document).ready(function(){initNavTree('d3/d8d/ale__routines__device_8F90_sour
 <div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d1/da5/interfaceale__routines__device_1_1add__kinematics__to__mesh__velocity__hip.html">add_kinematics_to_mesh_velocity_hip</a>( &amp;</div>
 <div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>         wx%x_d, wy%x_d, wz%x_d, &amp;</div>
 <div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>         x_ref%x_d, y_ref%x_d, z_ref%x_d, &amp;</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>         phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>         phi%x_d, coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &amp;</div>
 <div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>         kin_params, n)</div>
 <div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
 <div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d9/d17/ale__kinematics_8cu.html#af18107f3879728b02c8a02084074b5fb">add_kinematics_to_mesh_velocity_cuda</a>( &amp;</div>
 <div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>         wx%x_d, wy%x_d, wz%x_d, &amp;</div>
 <div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>         x_ref%x_d, y_ref%x_d, z_ref%x_d, &amp;</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>         phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>         phi%x_d, coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &amp;</div>
 <div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>         kin_params, n)</div>
 <div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
 <div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d3/dda/ale__kinematics_8c.html#a2d149fd13a5cf40d57f46c8318e884b2">add_kinematics_to_mesh_velocity_opencl</a>( &amp;</div>
 <div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>         wx%x_d, wy%x_d, wz%x_d, &amp;</div>
 <div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>         x_ref%x_d, y_ref%x_d, z_ref%x_d, &amp;</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>         phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>         phi%x_d, coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &amp;</div>
 <div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>         kin_params, n)</div>
 <div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span><span class="preprocessor">#elif HAVE_METAL</span></div>
 <div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span><span class="preprocessor"></span>    <span class="keyword">call </span>add_kinematics_to_mesh_velocity_metal( &amp;</div>
 <div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>         wx%x_d, wy%x_d, wz%x_d, &amp;</div>
 <div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>         x_ref%x_d, y_ref%x_d, z_ref%x_d, &amp;</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>         phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>         phi%x_d, coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &amp;</div>
 <div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>         kin_params, n)</div>
 <div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span><span class="preprocessor">#else</span></div>
 <div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span><span class="preprocessor"></span>    <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;ALE: no device backend configured&quot;</span>)</div>
@@ -472,16 +472,16 @@ $(document).ready(function(){initNavTree('d3/d8d/ale__routines__device_8F90_sour
 <div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span> </div>
 <div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    <span class="comment">! Current timestep update</span></div>
 <div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    factor = time%dt * ab_coeffs(1)</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    <span class="keyword">call </span>device_add2s2(c_xh%dof%x_d, wm_x%x_d, factor, n)</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    <span class="keyword">call </span>device_add2s2(c_xh%dof%y_d, wm_y%x_d, factor, n)</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    <span class="keyword">call </span>device_add2s2(c_xh%dof%z_d, wm_z%x_d, factor, n)</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    <span class="keyword">call </span>device_add2s2(c_xh%dof%x%x_d, wm_x%x_d, factor, n)</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    <span class="keyword">call </span>device_add2s2(c_xh%dof%y%x_d, wm_y%x_d, factor, n)</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    <span class="keyword">call </span>device_add2s2(c_xh%dof%z%x_d, wm_z%x_d, factor, n)</div>
 <div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span> </div>
 <div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>    <span class="comment">! History Terms</span></div>
 <div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>    <span class="keywordflow">do</span> j = 2, nadv</div>
 <div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>       factor = time%dt * ab_coeffs(j)</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>       <span class="keyword">call </span>device_add2s2(c_xh%dof%x_d, wm_x_lag%lf(j - 1)%x_d, factor, n)</div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>       <span class="keyword">call </span>device_add2s2(c_xh%dof%y_d, wm_y_lag%lf(j - 1)%x_d, factor, n)</div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>       <span class="keyword">call </span>device_add2s2(c_xh%dof%z_d, wm_z_lag%lf(j - 1)%x_d, factor, n)</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>       <span class="keyword">call </span>device_add2s2(c_xh%dof%x%x_d, wm_x_lag%lf(j - 1)%x_d, factor, n)</div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>       <span class="keyword">call </span>device_add2s2(c_xh%dof%y%x_d, wm_y_lag%lf(j - 1)%x_d, factor, n)</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>       <span class="keyword">call </span>device_add2s2(c_xh%dof%z%x_d, wm_z_lag%lf(j - 1)%x_d, factor, n)</div>
 <div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span><span class="keywordflow">    end do</span></div>
 </div>
 <div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d4/d50/namespaceale__routines__device.html#a66f122c51f57f4ff2edf95cb0d091599">update_ale_mesh_device</a></div>
@@ -545,7 +545,7 @@ $(document).ready(function(){initNavTree('d3/d8d/ale__routines__device_8F90_sour
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_391bd94a2158f4efe3737861093ee88d.html">ale</a></li><li class="navelem"><a class="el" href="../../dir_83c70afcc3d6650899bca260ab2612e8.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_bff1851eac1bc297d33d91b37e062ec5.html">device</a></li><li class="navelem"><a class="el" href="../../d3/d8d/ale__routines__device_8F90.html">ale_routines_device.F90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

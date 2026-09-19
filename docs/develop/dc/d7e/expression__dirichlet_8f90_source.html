@@ -395,8 +395,8 @@ $(document).ready(function(){initNavTree('dc/d7e/expression__dirichlet_8f90_sour
 <div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: ym(:)</div>
 <div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: zm(:)</div>
 <div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span> </div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    <span class="keyword">call </span><a class="code hl_function" href="../../db/de8/namespaceexpression__dirichlet.html#a4fd72b42495a2e9e749ca7e75469515a">gather_coords</a>(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(0), <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%dof%x, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%dof%y, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%dof%z, &amp;</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>         <span class="keyword">size</span>(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%dof%x), xm, ym, zm)</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    <span class="keyword">call </span><a class="code hl_function" href="../../db/de8/namespaceexpression__dirichlet.html#a4fd72b42495a2e9e749ca7e75469515a">gather_coords</a>(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(0), <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%dof%x%x, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%dof%y%x, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%dof%z%x, &amp;</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>         <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%dof%size(), xm, ym, zm)</div>
 <div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span> </div>
 </div>
 <div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../db/de8/namespaceexpression__dirichlet.html#ab23c00748f30e2646b49ac4d5222c899">expression_mask_coords</a></div>
@@ -468,7 +468,7 @@ $(document).ready(function(){initNavTree('dc/d7e/expression__dirichlet_8f90_sour
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../dc/d7e/expression__dirichlet_8f90.html">expression_dirichlet.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

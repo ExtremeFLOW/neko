@@ -1,5 +1,5 @@
 <map id="tensor_cpu::tnsr3d_el_cpu" name="tensor_cpu::tnsr3d_el_cpu">
-<area shape="rect" id="Node000001" title=" " alt="" coords="768,128,911,168"/>
+<area shape="rect" id="Node000001" title="Three&#45;dimensional tensor product on a single element." alt="" coords="768,128,911,168"/>
 <area shape="rect" id="Node000002" href="$da/db7/namespacefdm__cpu.html#a6cfa04a90992de2138efc0c36836b3ec" title=" " alt="" coords="523,49,720,74"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="791,124,719,89,680,77,681,72,721,84,793,119"/>
 <area shape="rect" id="Node000003" href="$d4/d3b/namespacelegendre__rst__finder.html#ad5a19c84e42ad8ea774710c506f5aa6a" title="Using the Legendre polynomials to find the rst coordinates." alt="" coords="535,99,707,139"/>

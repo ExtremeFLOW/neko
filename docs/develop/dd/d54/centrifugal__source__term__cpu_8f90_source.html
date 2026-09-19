@@ -176,9 +176,9 @@ $(document).ready(function(){initNavTree('dd/d54/centrifugal__source__term__cpu_
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="comment">!$omp parallel do private(i, rx, ry, rz, cx, cy, cz)</span></div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="keywordflow">do</span> i = 1, n</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>       <span class="comment">! displacement with respect to reference point</span></div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>       rx = dof%x(i,1,1,1) - ref_point(1)</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>       ry = dof%y(i,1,1,1) - ref_point(2)</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>       rz = dof%z(i,1,1,1) - ref_point(3)</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>       rx = dof%x%x(i,1,1,1) - ref_point(1)</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>       ry = dof%y%x(i,1,1,1) - ref_point(2)</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>       rz = dof%z%x(i,1,1,1) - ref_point(3)</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>       <span class="comment">! Omega x r</span></div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>       cx = (omega(2) * rz - omega(3) * ry)</div>
@@ -205,7 +205,7 @@ $(document).ready(function(){initNavTree('dd/d54/centrifugal__source__term__cpu_
 <div class="ttc" id="anamespacemath_html_af014991361eebeb6b753b3deba502bc9"><div class="ttname"><a href="../../dd/d47/namespacemath.html#af014991361eebeb6b753b3deba502bc9">math::vcross</a></div><div class="ttdeci">subroutine, public vcross(u1, u2, u3, v1, v2, v3, w1, w2, w3, n)</div><div class="ttdoc">Compute a cross product  assuming vector components  etc.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00818">math.f90:819</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00014">num_types.f90:14</a></div></div>
-<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00057">dofmap.f90:57</a></div></div>
+<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00058">dofmap.f90:58</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00048">field.f90:48</a></div></div>
 <div class="ttc" id="astructfield__list_1_1field__list__t_html"><div class="ttname"><a href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list::field_list_t</a></div><div class="ttdoc">field_list_t, To be able to group fields together</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d13/field__list_8f90_source.html#l00047">field_list.f90:47</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
@@ -214,7 +214,7 @@ $(document).ready(function(){initNavTree('dd/d54/centrifugal__source__term__cpu_
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_5333ab263fff069c320f5b66c5911c96.html">source_terms</a></li><li class="navelem"><a class="el" href="../../dir_89b8f2ab57928d108310b3ac1395bf66.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_613cd740a47d43a01aa8bbb8355c7276.html">cpu</a></li><li class="navelem"><a class="el" href="../../dd/d54/centrifugal__source__term__cpu_8f90.html">centrifugal_source_term_cpu.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

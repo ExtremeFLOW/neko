@@ -104,40 +104,63 @@ $(document).ready(function(){initNavTree('dd/d61/namespaceentropy__viscosity.htm
   <div class="headertitle"><div class="title">entropy_viscosity Module Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Implements the entropy-based artificial viscosity model.  
+</p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html">entropy_viscosity_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Entropy-based artificial viscosity model for compressible flow.  <a href="../../da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a95d12d05435ac4196e22e1c6ba2cb53f" id="r_a95d12d05435ac4196e22e1c6ba2cb53f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#a95d12d05435ac4196e22e1c6ba2cb53f">entropy_viscosity_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, json, coef, dof, reg_coeff)</td></tr>
-<tr class="separator:a95d12d05435ac4196e22e1c6ba2cb53f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9568439ff60819e52a800919255a9788" id="r_a9568439ff60819e52a800919255a9788"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#a9568439ff60819e52a800919255a9788">entropy_viscosity_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, case, json)</td></tr>
+<tr class="memdesc:a9568439ff60819e52a800919255a9788"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the entropy viscosity model from a case and JSON parameters.  <br /></td></tr>
+<tr class="separator:a9568439ff60819e52a800919255a9788"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac485870e85c6e73f0b2444c5ef69eb1" id="r_aac485870e85c6e73f0b2444c5ef69eb1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#aac485870e85c6e73f0b2444c5ef69eb1">entropy_viscosity_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:aac485870e85c6e73f0b2444c5ef69eb1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free the entropy viscosity model.  <br /></td></tr>
 <tr class="separator:aac485870e85c6e73f0b2444c5ef69eb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a87e44b222f9d5052dff82bdc66b861be" id="r_a87e44b222f9d5052dff82bdc66b861be"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#a87e44b222f9d5052dff82bdc66b861be">entropy_viscosity_compute</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
-<tr class="separator:a87e44b222f9d5052dff82bdc66b861be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71c3ad1ecc939d78e75fd13d3a0b29b7" id="r_a71c3ad1ecc939d78e75fd13d3a0b29b7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#a71c3ad1ecc939d78e75fd13d3a0b29b7">entropy_viscosity_preprocess</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
+<tr class="memdesc:a71c3ad1ecc939d78e75fd13d3a0b29b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the artificial viscosity before a time step.  <br /></td></tr>
+<tr class="separator:a71c3ad1ecc939d78e75fd13d3a0b29b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a829906b2ecb74b192bc9e759fdfe420d" id="r_a829906b2ecb74b192bc9e759fdfe420d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d">entropy_viscosity_compute_residual</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, tstep, dt, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dt_lag</a>)</td></tr>
+<tr class="memdesc:a829906b2ecb74b192bc9e759fdfe420d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the BDF entropy residual.  <br /></td></tr>
 <tr class="separator:a829906b2ecb74b192bc9e759fdfe420d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7c66cb381c6418f63ea5d9b8e9191df7" id="r_a7c66cb381c6418f63ea5d9b8e9191df7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7">entropy_viscosity_compute_viscosity</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, tstep)</td></tr>
+<tr class="memdesc:a7c66cb381c6418f63ea5d9b8e9191df7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute and limit the entropy viscosity coefficient.  <br /></td></tr>
 <tr class="separator:a7c66cb381c6418f63ea5d9b8e9191df7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61bd45b0d923d7c027704cad17a6cbef" id="r_a61bd45b0d923d7c027704cad17a6cbef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#a61bd45b0d923d7c027704cad17a6cbef">entropy_viscosity_smooth_viscosity</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a61bd45b0d923d7c027704cad17a6cbef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cross-element smoothing via gather-scatter averaging. Averages viscosity values at shared nodes between elements.  <br /></td></tr>
 <tr class="separator:a61bd45b0d923d7c027704cad17a6cbef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a044170f89b565dcfee9bc8618bf2431a" id="r_a044170f89b565dcfee9bc8618bf2431a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#a044170f89b565dcfee9bc8618bf2431a">entropy_viscosity_apply_element_max</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a044170f89b565dcfee9bc8618bf2431a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replace nodal viscosity values by the maximum in each element.  <br /></td></tr>
 <tr class="separator:a044170f89b565dcfee9bc8618bf2431a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed46748e6d0f44e0964fe20f010060ea" id="r_aed46748e6d0f44e0964fe20f010060ea"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#aed46748e6d0f44e0964fe20f010060ea">entropy_viscosity_set_fields</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, s, u, v, w, h, max_wave_speed, msh, xh, gs)</td></tr>
-<tr class="separator:aed46748e6d0f44e0964fe20f010060ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3da36f36cfa3a24ba77d25d2567ef967" id="r_a3da36f36cfa3a24ba77d25d2567ef967"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#a3da36f36cfa3a24ba77d25d2567ef967">entropy_viscosity_update_lag</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
-<tr class="separator:a3da36f36cfa3a24ba77d25d2567ef967"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed0ea64f61f9c3c2a5a772681ad55de7" id="r_aed0ea64f61f9c3c2a5a772681ad55de7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#aed0ea64f61f9c3c2a5a772681ad55de7">entropy_viscosity_set_fields</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, p, rho, u, v, w, max_wave_speed, msh, xh, gs, gamma)</td></tr>
+<tr class="memdesc:aed0ea64f61f9c3c2a5a772681ad55de7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Associate the fields and discretization used by the model.  <br /></td></tr>
+<tr class="separator:aed0ea64f61f9c3c2a5a772681ad55de7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb6bcd0b2fdc96d2add4d4f20a11466f" id="r_adb6bcd0b2fdc96d2add4d4f20a11466f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#adb6bcd0b2fdc96d2add4d4f20a11466f">entropy_viscosity_compute_entropy</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:adb6bcd0b2fdc96d2add4d4f20a11466f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute entropy from the current pressure and density.  <br /></td></tr>
+<tr class="separator:adb6bcd0b2fdc96d2add4d4f20a11466f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf36e83d48a922c4ff63b6756e870cfb" id="r_abf36e83d48a922c4ff63b6756e870cfb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#abf36e83d48a922c4ff63b6756e870cfb">entropy_viscosity_restart</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
+<tr class="memdesc:abf36e83d48a922c4ff63b6756e870cfb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reinitialize entropy history from a restarted flow state.  <br /></td></tr>
+<tr class="separator:abf36e83d48a922c4ff63b6756e870cfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91529679adc0741cc556f99874b54c13" id="r_a91529679adc0741cc556f99874b54c13"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#a91529679adc0741cc556f99874b54c13">entropy_viscosity_update_lag</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
+<tr class="memdesc:a91529679adc0741cc556f99874b54c13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shift the entropy history and compute the new entropy.  <br /></td></tr>
+<tr class="separator:a91529679adc0741cc556f99874b54c13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38f4b542c4afb59639d9d5866555ea06" id="r_a38f4b542c4afb59639d9d5866555ea06"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#a38f4b542c4afb59639d9d5866555ea06">entropy_viscosity_col3_vector_cpu</a> (us, vs, ws, u, v, w, s, n)</td></tr>
+<tr class="memdesc:a38f4b542c4afb59639d9d5866555ea06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Multiply each velocity component by entropy on the CPU.  <br /></td></tr>
 <tr class="separator:a38f4b542c4afb59639d9d5866555ea06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2137cf7cecdea93e85c6ad0426e486d0" id="r_a2137cf7cecdea93e85c6ad0426e486d0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#a2137cf7cecdea93e85c6ad0426e486d0">entropy_viscosity_abs_add_cpu</a> (entropy_residual, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">div_field</a>, n)</td></tr>
+<tr class="memdesc:a2137cf7cecdea93e85c6ad0426e486d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add the flux divergence to the residual and take its absolute value.  <br /></td></tr>
 <tr class="separator:a2137cf7cecdea93e85c6ad0426e486d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec157dc1b3580787c12b09910ff30107" id="r_aec157dc1b3580787c12b09910ff30107"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pure</a> <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#aec157dc1b3580787c12b09910ff30107">entropy_viscosity_low_order</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, i)</td></tr>
-<tr class="memdesc:aec157dc1b3580787c12b09910ff30107"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute low-order viscosity at point i: c_avisc_low * h * max_wave_speed.  <br /></td></tr>
+<tr class="memdesc:aec157dc1b3580787c12b09910ff30107"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute low-order viscosity at one point.  <br /></td></tr>
 <tr class="separator:aec157dc1b3580787c12b09910ff30107"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5344532c9a2f4d002d4f5a3d9c514c06" id="r_a5344532c9a2f4d002d4f5a3d9c514c06"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html#a5344532c9a2f4d002d4f5a3d9c514c06">entropy_viscosity_compute_h</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a5344532c9a2f4d002d4f5a3d9c514c06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the characteristic mesh size. Adapted from <code>les_model_compute_delta</code> in <code><a class="el" href="../../df/dcc/les__model_8f90.html">les_model.f90</a></code>.  <br /></td></tr>
+<tr class="separator:a5344532c9a2f4d002d4f5a3d9c514c06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a2137cf7cecdea93e85c6ad0426e486d0" name="a2137cf7cecdea93e85c6ad0426e486d0"></a>
@@ -179,15 +202,23 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">entropy_residual</td><td>The entropy residual to update. </td></tr>
+    <tr><td class="paramname">div_field</td><td>The entropy-flux divergence. </td></tr>
+    <tr><td class="paramname">n</td><td>Number of field entries. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00401">401</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00538">538</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d61/namespaceentropy__viscosity_a2137cf7cecdea93e85c6ad0426e486d0_icgraph.png" border="0" usemap="#add/d61/namespaceentropy__viscosity_a2137cf7cecdea93e85c6ad0426e486d0_icgraph" alt=""/></div>
 <map name="add/d61/namespaceentropy__viscosity_a2137cf7cecdea93e85c6ad0426e486d0_icgraph" id="add/d61/namespaceentropy__viscosity_a2137cf7cecdea93e85c6ad0426e486d0_icgraph">
-<area shape="rect" title=" " alt="" coords="255,5,421,60"/>
-<area shape="rect" href="../../dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title=" " alt="" coords="5,5,207,60"/>
+<area shape="rect" title="Add the flux divergence to the residual and take its absolute value." alt="" coords="255,5,421,60"/>
+<area shape="rect" href="../../dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title="Compute the BDF entropy residual." alt="" coords="5,5,207,60"/>
 <area shape="poly" title=" " alt="" coords="241,35,207,35,207,30,241,30"/>
 </map>
 </div>
@@ -217,17 +248,23 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The entropy viscosity model. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00336">336</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00413">413</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d61/namespaceentropy__viscosity_a044170f89b565dcfee9bc8618bf2431a_cgraph.png" border="0" usemap="#add/d61/namespaceentropy__viscosity_a044170f89b565dcfee9bc8618bf2431a_cgraph" alt=""/></div>
 <map name="add/d61/namespaceentropy__viscosity_a044170f89b565dcfee9bc8618bf2431a_cgraph" id="add/d61/namespaceentropy__viscosity_a044170f89b565dcfee9bc8618bf2431a_cgraph">
-<area shape="rect" title=" " alt="" coords="5,45,185,100"/>
+<area shape="rect" title="Replace nodal viscosity values by the maximum in each element." alt="" coords="5,45,185,100"/>
 <area shape="rect" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#ad2f208edbdaeacbf93e34df9bfa0d7d8" title="Apply element&#45;wise maximum on CPU." alt="" coords="233,5,421,60"/>
 <area shape="poly" title=" " alt="" coords="186,54,219,49,220,54,186,60"/>
-<area shape="rect" href="../../d0/d70/namespaceentropy__viscosity__device.html#aa5c7b1e697f359ba494c7d53ab9832f1" title="Apply element&#45;wise maximum on device." alt="" coords="233,84,421,139"/>
+<area shape="rect" href="../../d0/d70/namespaceentropy__viscosity__device.html#aa5c7b1e697f359ba494c7d53ab9832f1" title="Apply the element&#45;wise maximum on a device." alt="" coords="233,84,421,139"/>
 <area shape="poly" title=" " alt="" coords="186,85,220,91,219,96,186,90"/>
 <area shape="rect" href="../../d8/d84/entropy__viscosity_8cu.html#a435574cf967d0ba5061e55cc73ac20eb" title=" " alt="" coords="680,62,867,102"/>
 <area shape="poly" title=" " alt="" coords="421,103,666,86,667,92,422,108"/>
@@ -314,23 +351,36 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">us</td><td>Entropy-weighted first velocity component. </td></tr>
+    <tr><td class="paramname">vs</td><td>Entropy-weighted second velocity component. </td></tr>
+    <tr><td class="paramname">ws</td><td>Entropy-weighted third velocity component. </td></tr>
+    <tr><td class="paramname">u</td><td>The first velocity component. </td></tr>
+    <tr><td class="paramname">v</td><td>The second velocity component. </td></tr>
+    <tr><td class="paramname">w</td><td>The third velocity component. </td></tr>
+    <tr><td class="paramname">S</td><td>The entropy field. </td></tr>
+    <tr><td class="paramname">n</td><td>Number of field entries. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00382">382</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00515">515</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d61/namespaceentropy__viscosity_a38f4b542c4afb59639d9d5866555ea06_icgraph.png" border="0" usemap="#add/d61/namespaceentropy__viscosity_a38f4b542c4afb59639d9d5866555ea06_icgraph" alt=""/></div>
 <map name="add/d61/namespaceentropy__viscosity_a38f4b542c4afb59639d9d5866555ea06_icgraph" id="add/d61/namespaceentropy__viscosity_a38f4b542c4afb59639d9d5866555ea06_icgraph">
-<area shape="rect" title=" " alt="" coords="255,5,425,60"/>
-<area shape="rect" href="../../dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title=" " alt="" coords="5,5,207,60"/>
+<area shape="rect" title="Multiply each velocity component by entropy on the CPU." alt="" coords="255,5,425,60"/>
+<area shape="rect" href="../../dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title="Compute the BDF entropy residual." alt="" coords="5,5,207,60"/>
 <area shape="poly" title=" " alt="" coords="241,35,207,35,207,30,241,30"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a87e44b222f9d5052dff82bdc66b861be" name="a87e44b222f9d5052dff82bdc66b861be"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a87e44b222f9d5052dff82bdc66b861be">&#9670;&#160;</a></span>entropy_viscosity_compute()</h2>
+<a id="adb6bcd0b2fdc96d2add4d4f20a11466f" name="adb6bcd0b2fdc96d2add4d4f20a11466f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb6bcd0b2fdc96d2add4d4f20a11466f">&#9670;&#160;</a></span>entropy_viscosity_compute_entropy()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -339,21 +389,11 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> entropy_viscosity::entropy_viscosity_compute </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> entropy_viscosity::entropy_viscosity_compute_entropy </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html">entropy_viscosity_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
-          <td class="paramname"><em>this</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramname"><em>this</em></td><td>)</td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>time</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -362,8 +402,84 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The entropy viscosity model. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00150">150</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00465">465</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d61/namespaceentropy__viscosity_adb6bcd0b2fdc96d2add4d4f20a11466f_cgraph.png" border="0" usemap="#add/d61/namespaceentropy__viscosity_adb6bcd0b2fdc96d2add4d4f20a11466f_cgraph" alt=""/></div>
+<map name="add/d61/namespaceentropy__viscosity_adb6bcd0b2fdc96d2add4d4f20a11466f_cgraph" id="add/d61/namespaceentropy__viscosity_adb6bcd0b2fdc96d2add4d4f20a11466f_cgraph">
+<area shape="rect" title="Compute entropy from the current pressure and density." alt="" coords="5,45,207,100"/>
+<area shape="rect" href="../../d7/d6d/namespacecompressible__ops__cpu.html#aa0c5b9b50066ee6171a1493ec32f2fea" title="Compute entropy field S = 1/(gamma&#45;1) * rho * (log(p) &#45; gamma * log(rho)) on CPU." alt="" coords="265,5,442,60"/>
+<area shape="poly" title=" " alt="" coords="206,54,251,47,252,52,207,59"/>
+<area shape="rect" href="../../dc/da9/namespacecompressible__ops__device.html#a1ad819b1bfd41a2fcc598b3246825363" title="Compute entropy field S = 1/(gamma&#45;1) * rho * (log(p) &#45; gamma * log(rho)) on device." alt="" coords="255,84,452,139"/>
+<area shape="poly" title=" " alt="" coords="207,86,242,91,241,96,206,91"/>
+<area shape="rect" href="../../db/de5/compressible__ops__compute__entropy_8cu.html#a0ab2a3e31e801c696cd71590e7fc7363" title=" " alt="" coords="735,73,909,99"/>
+<area shape="poly" title=" " alt="" coords="452,103,721,89,721,94,453,109"/>
+<area shape="rect" href="../../d7/d3d/compressible__ops__compute__entropy_8c.html#a6f6e2de97955aaf3553cab3cfde549e1" title=" " alt="" coords="500,124,687,149"/>
+<area shape="poly" title=" " alt="" coords="453,119,487,123,486,128,452,124"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="957,117,1109,157"/>
+<area shape="poly" title=" " alt="" coords="877,96,944,113,943,118,875,101"/>
+<area shape="poly" title=" " alt="" coords="994,117,991,107,998,98,1012,92,1033,90,1058,93,1071,100,1069,105,1056,98,1033,95,1013,97,1001,102,997,108,999,116"/>
+<area shape="poly" title=" " alt="" coords="687,134,944,134,944,139,687,139"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="756,175,888,200"/>
+<area shape="poly" title=" " alt="" coords="652,147,751,169,750,174,651,152"/>
+<area shape="poly" title=" " alt="" coords="875,172,943,155,944,161,877,177"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a5344532c9a2f4d002d4f5a3d9c514c06" name="a5344532c9a2f4d002d4f5a3d9c514c06"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5344532c9a2f4d002d4f5a3d9c514c06">&#9670;&#160;</a></span>entropy_viscosity_compute_h()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> entropy_viscosity::entropy_viscosity_compute_h </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html">entropy_viscosity_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000040">Todo:</a></b></dt><dd>Move this operation to a shared module. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The entropy viscosity model. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00573">573</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d61/namespaceentropy__viscosity_a5344532c9a2f4d002d4f5a3d9c514c06_cgraph.png" border="0" usemap="#add/d61/namespaceentropy__viscosity_a5344532c9a2f4d002d4f5a3d9c514c06_cgraph" alt=""/></div>
+<map name="add/d61/namespaceentropy__viscosity_a5344532c9a2f4d002d4f5a3d9c514c06_cgraph" id="add/d61/namespaceentropy__viscosity_a5344532c9a2f4d002d4f5a3d9c514c06_cgraph">
+<area shape="rect" title="Compute the characteristic mesh size. Adapted from les_model_compute_delta in les_model...." alt="" coords="5,23,221,63"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="319,5,410,31"/>
+<area shape="poly" title=" " alt="" coords="221,30,305,21,306,27,222,35"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="269,55,460,80"/>
+<area shape="poly" title=" " alt="" coords="222,51,256,54,255,60,221,56"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -412,23 +528,32 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The entropy viscosity model. </td></tr>
+    <tr><td class="paramname">tstep</td><td>The current time-step index. </td></tr>
+    <tr><td class="paramname">dt</td><td>The current time-step size. </td></tr>
+    <tr><td class="paramname">dt_lag</td><td>Previous time-step sizes. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00162">162</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00233">233</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d61/namespaceentropy__viscosity_a829906b2ecb74b192bc9e759fdfe420d_cgraph.png" border="0" usemap="#add/d61/namespaceentropy__viscosity_a829906b2ecb74b192bc9e759fdfe420d_cgraph" alt=""/></div>
 <map name="add/d61/namespaceentropy__viscosity_a829906b2ecb74b192bc9e759fdfe420d_cgraph" id="add/d61/namespaceentropy__viscosity_a829906b2ecb74b192bc9e759fdfe420d_cgraph">
-<area shape="rect" title=" " alt="" coords="5,173,207,228"/>
+<area shape="rect" title="Compute the BDF entropy residual." alt="" coords="5,173,207,228"/>
 <area shape="rect" href="../../d2/d73/namespacedevice__math.html#ada32e4bb9b2ce2ff39e708510146ff23" title="Vector multiplication with 3 vectors ." alt="" coords="264,5,455,31"/>
 <area shape="poly" title=" " alt="" coords="123,171,176,105,212,69,253,40,266,33,268,38,256,44,216,73,180,108,127,175"/>
-<area shape="rect" href="../../dd/d61/namespaceentropy__viscosity.html#a2137cf7cecdea93e85c6ad0426e486d0" title=" " alt="" coords="276,55,443,109"/>
+<area shape="rect" href="../../dd/d61/namespaceentropy__viscosity.html#a2137cf7cecdea93e85c6ad0426e486d0" title="Add the flux divergence to the residual and take its absolute value." alt="" coords="276,55,443,109"/>
 <area shape="poly" title=" " alt="" coords="153,171,254,118,267,112,269,117,256,123,155,175"/>
-<area shape="rect" href="../../dd/d61/namespaceentropy__viscosity.html#a38f4b542c4afb59639d9d5866555ea06" title=" " alt="" coords="274,133,445,188"/>
+<area shape="rect" href="../../dd/d61/namespaceentropy__viscosity.html#a38f4b542c4afb59639d9d5866555ea06" title="Multiply each velocity component by entropy on the CPU." alt="" coords="274,133,445,188"/>
 <area shape="poly" title=" " alt="" coords="206,182,260,174,261,179,207,187"/>
 <area shape="rect" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#a68ff8cecc853dfc5ec4f6d9a3c74318e" title="Compute entropy residual on CPU." alt="" coords="255,212,464,267"/>
 <area shape="poly" title=" " alt="" coords="207,213,242,219,241,224,206,219"/>
-<area shape="rect" href="../../d0/d70/namespaceentropy__viscosity__device.html#acf127351f0b6ee837c55c187bd5f01fb" title="Compute entropy residual on device." alt="" coords="255,291,464,345"/>
+<area shape="rect" href="../../d0/d70/namespaceentropy__viscosity__device.html#acf127351f0b6ee837c55c187bd5f01fb" title="Compute entropy residual on a device." alt="" coords="255,291,464,345"/>
 <area shape="poly" title=" " alt="" coords="157,226,256,276,273,283,270,288,254,280,155,230"/>
 <area shape="rect" href="../../d5/de6/namespacefield__math.html#a5f4fa1c48a8799a2d0d956fb7c9807e0" title="Set all elements to a constant c ." alt="" coords="281,369,438,395"/>
 <area shape="poly" title=" " alt="" coords="128,227,181,292,216,326,256,354,272,362,270,367,253,359,213,330,177,295,124,230"/>
@@ -485,25 +610,32 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The entropy viscosity model. </td></tr>
+    <tr><td class="paramname">tstep</td><td>The current time-step index. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00235">235</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00309">309</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d61/namespaceentropy__viscosity_a7c66cb381c6418f63ea5d9b8e9191df7_cgraph.png" border="0" usemap="#add/d61/namespaceentropy__viscosity_a7c66cb381c6418f63ea5d9b8e9191df7_cgraph" alt=""/></div>
 <map name="add/d61/namespaceentropy__viscosity_a7c66cb381c6418f63ea5d9b8e9191df7_cgraph" id="add/d61/namespaceentropy__viscosity_a7c66cb381c6418f63ea5d9b8e9191df7_cgraph">
-<area shape="rect" title=" " alt="" coords="5,356,207,411"/>
+<area shape="rect" title="Compute and limit the entropy viscosity coefficient." alt="" coords="5,356,207,411"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#a7f0feef1d5e8da2763f4d1e03a02ca49" title="Take the absolute value of an array." alt="" coords="306,5,413,31"/>
 <area shape="poly" title=" " alt="" coords="108,355,121,290,147,206,166,161,189,117,218,76,253,41,271,30,292,22,294,27,274,34,256,45,222,80,194,120,171,163,152,207,126,292,114,356"/>
 <area shape="rect" href="../../d2/d73/namespacedevice__math.html#aa55c9d4cfc4bba967eb08edb3f3193c0" title=" " alt="" coords="281,55,438,95"/>
 <area shape="poly" title=" " alt="" coords="112,355,129,302,157,235,198,165,224,133,253,105,267,96,270,100,256,109,228,137,203,168,162,237,134,304,117,357"/>
 <area shape="rect" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#ab6b6dd61c1acde59f4e7303cc1690875" title="Clamp regularization coefficient to low&#45;order viscosity on CPU." alt="" coords="263,120,455,175"/>
 <area shape="poly" title=" " alt="" coords="119,354,140,317,171,271,209,225,253,184,259,180,262,184,256,188,213,228,175,274,145,319,123,357"/>
-<area shape="rect" href="../../d0/d70/namespaceentropy__viscosity__device.html#a4a704c94514921f09cfca2e1141fb877" title="Clamp regularization coefficient to low&#45;order viscosity on device." alt="" coords="263,199,455,253"/>
+<area shape="rect" href="../../d0/d70/namespaceentropy__viscosity__device.html#a4a704c94514921f09cfca2e1141fb877" title="Clamp the coefficient to low&#45;order viscosity on a device." alt="" coords="263,199,455,253"/>
 <area shape="poly" title=" " alt="" coords="134,354,187,308,253,262,263,257,266,262,256,267,191,312,137,358"/>
 <area shape="rect" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#a628159169134365fed3bf1f085189cad" title="Compute viscosity from entropy residual on CPU." alt="" coords="255,277,464,332"/>
 <area shape="poly" title=" " alt="" coords="194,353,257,334,259,339,195,358"/>
-<area shape="rect" href="../../d0/d70/namespaceentropy__viscosity__device.html#ae4e8e03d7a6b53f82b4143a03f66b0c9" title="Compute viscosity from entropy residual on device." alt="" coords="255,356,464,411"/>
+<area shape="rect" href="../../d0/d70/namespaceentropy__viscosity__device.html#ae4e8e03d7a6b53f82b4143a03f66b0c9" title="Compute viscosity from an entropy residual on a device." alt="" coords="255,356,464,411"/>
 <area shape="poly" title=" " alt="" coords="207,381,241,381,241,386,207,386"/>
 <area shape="rect" href="../../d5/de6/namespacefield__math.html#a28c175a03f6a8174143bb2d488da7b6d" title="Add a scalar to vector ." alt="" coords="277,435,442,460"/>
 <area shape="poly" title=" " alt="" coords="207,407,255,419,293,429,291,434,254,425,206,412"/>
@@ -577,13 +709,19 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The entropy viscosity model. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00131">131</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00192">192</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
 
 </div>
 </div>
-<a id="a95d12d05435ac4196e22e1c6ba2cb53f" name="a95d12d05435ac4196e22e1c6ba2cb53f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a95d12d05435ac4196e22e1c6ba2cb53f">&#9670;&#160;</a></span>entropy_viscosity_init()</h2>
+<a id="a9568439ff60819e52a800919255a9788" name="a9568439ff60819e52a800919255a9788"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9568439ff60819e52a800919255a9788">&#9670;&#160;</a></span>entropy_viscosity_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -597,26 +735,14 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>case</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">type(json_file), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
-          <td class="paramname"><em>json</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
-          <td class="paramname"><em>coef</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
-          <td class="paramname"><em>dof</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
-          <td class="paramname"><em>reg_coeff</em>&#160;</td>
+          <td class="paramname"><em>json</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -625,8 +751,16 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The entropy viscosity model. </td></tr>
+    <tr><td class="paramname">case</td><td>The compressible-flow case. </td></tr>
+    <tr><td class="paramname">json</td><td>The model configuration. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00104">104</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00152">152</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -663,19 +797,30 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The entropy viscosity model. </td></tr>
+    <tr><td class="paramname">i</td><td>The point index. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The low-order viscosity. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00419">419</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00559">559</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
 
 </div>
 </div>
-<a id="aed46748e6d0f44e0964fe20f010060ea" name="aed46748e6d0f44e0964fe20f010060ea"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aed46748e6d0f44e0964fe20f010060ea">&#9670;&#160;</a></span>entropy_viscosity_set_fields()</h2>
+<a id="a71c3ad1ecc939d78e75fd13d3a0b29b7" name="a71c3ad1ecc939d78e75fd13d3a0b29b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71c3ad1ecc939d78e75fd13d3a0b29b7">&#9670;&#160;</a></span>entropy_viscosity_preprocess()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> entropy_viscosity::entropy_viscosity_set_fields </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> entropy_viscosity::entropy_viscosity_preprocess </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html">entropy_viscosity_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
@@ -683,8 +828,104 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
-          <td class="paramname"><em>s</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The entropy viscosity model. </td></tr>
+    <tr><td class="paramname">time</td><td>The current time state. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00216">216</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+
+</div>
+</div>
+<a id="abf36e83d48a922c4ff63b6756e870cfb" name="abf36e83d48a922c4ff63b6756e870cfb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf36e83d48a922c4ff63b6756e870cfb">&#9670;&#160;</a></span>entropy_viscosity_restart()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> entropy_viscosity::entropy_viscosity_restart </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html">entropy_viscosity_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The entropy viscosity model. </td></tr>
+    <tr><td class="paramname">time</td><td>The restored time state. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00484">484</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+
+</div>
+</div>
+<a id="aed0ea64f61f9c3c2a5a772681ad55de7" name="aed0ea64f61f9c3c2a5a772681ad55de7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed0ea64f61f9c3c2a5a772681ad55de7">&#9670;&#160;</a></span>entropy_viscosity_set_fields()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> entropy_viscosity::entropy_viscosity_set_fields </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html">entropy_viscosity_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>rho</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -708,12 +949,6 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
-          <td class="paramname"><em>h</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
           <td class="paramname"><em>max_wave_speed</em>, </td>
         </tr>
         <tr>
@@ -732,7 +967,13 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
-          <td class="paramname"><em>gs</em>&#160;</td>
+          <td class="paramname"><em>gs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>gamma</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -740,21 +981,30 @@ Here is the call graph for this function:</div>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The entropy viscosity model. </td></tr>
+    <tr><td class="paramname">p</td><td>The pressure field. </td></tr>
+    <tr><td class="paramname">rho</td><td>The density field. </td></tr>
+    <tr><td class="paramname">u</td><td>The first velocity component. </td></tr>
+    <tr><td class="paramname">v</td><td>The second velocity component. </td></tr>
+    <tr><td class="paramname">w</td><td>The third velocity component. </td></tr>
+    <tr><td class="paramname">max_wave_speed</td><td>The maximum characteristic wave speed. </td></tr>
+    <tr><td class="paramname">msh</td><td>The computational mesh. </td></tr>
+    <tr><td class="paramname">Xh</td><td>The function space. </td></tr>
+    <tr><td class="paramname">gs</td><td>The gather-scatter operator. </td></tr>
+    <tr><td class="paramname">gamma</td><td>The ratio of specific heats. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00352">352</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../dd/d61/namespaceentropy__viscosity_aed46748e6d0f44e0964fe20f010060ea_icgraph.png" border="0" usemap="#add/d61/namespaceentropy__viscosity_aed46748e6d0f44e0964fe20f010060ea_icgraph" alt=""/></div>
-<map name="add/d61/namespaceentropy__viscosity_aed46748e6d0f44e0964fe20f010060ea_icgraph" id="add/d61/namespaceentropy__viscosity_aed46748e6d0f44e0964fe20f010060ea_icgraph">
-<area shape="rect" title=" " alt="" coords="256,41,420,96"/>
-<area shape="rect" href="../../da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html#a8be967a1006af3b44b0641b57714c59d" title="Compute low&#45;order viscosity at point i: c_avisc_low * h * max_wave_speed." alt="" coords="27,5,186,60"/>
-<area shape="poly" title=" " alt="" coords="242,56,186,48,187,42,242,51"/>
-<area shape="rect" href="../../d2/de6/namespacefluid__scheme__compressible__ns.html#af85770bd48d79cfbf2b1d25483e7e3b4" title=" " alt="" coords="5,85,208,125"/>
-<area shape="poly" title=" " alt="" coords="242,86,209,92,208,86,242,81"/>
-</map>
-</div>
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00441">441</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -781,8 +1031,14 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The entropy viscosity model. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00305">305</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00380">380</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -791,7 +1047,7 @@ Here is the call graph for this function:</div>
 <area shape="rect" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="5,116,199,171"/>
 <area shape="rect" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#a9ead36765ddba96b03e43e973a0dff3d" title="Divide by multiplicity for smoothing on CPU." alt="" coords="247,5,448,60"/>
 <area shape="poly" title=" " alt="" coords="154,114,246,69,259,63,262,68,248,74,156,118"/>
-<area shape="rect" href="../../d0/d70/namespaceentropy__viscosity__device.html#a2d4bb2fb5eeca11de9e0831e3b72a58b" title="Divide by multiplicity for smoothing on device." alt="" coords="247,84,448,139"/>
+<area shape="rect" href="../../d0/d70/namespaceentropy__viscosity__device.html#a2d4bb2fb5eeca11de9e0831e3b72a58b" title="Divide by gather&#45;scatter multiplicity on a device." alt="" coords="247,84,448,139"/>
 <area shape="poly" title=" " alt="" coords="199,128,233,124,234,129,199,133"/>
 <area shape="rect" href="../../d5/de6/namespacefield__math.html#a5f4fa1c48a8799a2d0d956fb7c9807e0" title="Set all elements to a constant c ." alt="" coords="269,163,426,188"/>
 <area shape="poly" title=" " alt="" coords="199,153,255,161,254,166,199,159"/>
@@ -821,8 +1077,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="a3da36f36cfa3a24ba77d25d2567ef967" name="a3da36f36cfa3a24ba77d25d2567ef967"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3da36f36cfa3a24ba77d25d2567ef967">&#9670;&#160;</a></span>entropy_viscosity_update_lag()</h2>
+<a id="a91529679adc0741cc556f99874b54c13" name="a91529679adc0741cc556f99874b54c13"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a91529679adc0741cc556f99874b54c13">&#9670;&#160;</a></span>entropy_viscosity_update_lag()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -834,8 +1090,18 @@ Here is the call graph for this function:</div>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> entropy_viscosity::entropy_viscosity_update_lag </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html">entropy_viscosity_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
-          <td class="paramname"><em>this</em></td><td>)</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -844,8 +1110,15 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The entropy viscosity model. </td></tr>
+    <tr><td class="paramname">time</td><td>The current time state. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00375">375</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html#l00496">496</a> of file <a class="el" href="../../da/db9/entropy__viscosity_8f90_source.html">entropy_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -855,7 +1128,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/d61/namespaceentropy__viscosity.html">entropy_viscosity</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

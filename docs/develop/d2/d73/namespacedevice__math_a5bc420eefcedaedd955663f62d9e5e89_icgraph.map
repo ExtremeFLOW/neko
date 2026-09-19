@@ -6,7 +6,7 @@
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="574,353,560,302,537,241,503,178,481,149,457,123,440,112,443,107,460,119,486,145,507,175,542,239,565,301,580,351"/>
 <area shape="rect" id="Node000005" href="$d0/d6f/namespacedrag__torque.html#a70a6c2b95914784b94819fb918ff8b15" title="Calculate drag and torque from array of points." alt="" coords="290,133,441,173"/>
 <area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="557,356,457,242,387,175,391,171,461,238,561,353"/>
-<area shape="rect" id="Node000008" href="$df/dcd/namespacecompressible__res__device.html#a071cf7851336d843e409d6a825f70f0c" title=" " alt="" coords="272,252,459,292"/>
+<area shape="rect" id="Node000008" href="$df/dcd/namespacecompressible__res__device.html#a903fd97843ea532a9268469191340aa8" title=" " alt="" coords="272,252,459,292"/>
 <area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="532,361,404,295,407,290,535,357"/>
 <area shape="rect" id="Node000010" href="$d5/de6/namespacefield__math.html#ace939df7b2efd9fc297be656077298f8" title="Multiplication by constant c ." alt="" coords="280,343,451,369"/>
 <area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="492,376,451,370,451,365,493,370"/>
@@ -27,7 +27,7 @@
 <area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="276,133,187,110,188,105,277,128"/>
 <area shape="rect" id="Node000007" href="$d5/d15/namespacewall__shear__stress__simcomp.html#a67243455c77fdf2f525efc734ced8a54" title="Compute the wall shear stress." alt="" coords="9,133,220,173"/>
 <area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="276,156,220,156,220,151,276,151"/>
-<area shape="rect" id="Node000009" href="$df/dcd/namespacecompressible__res__device.html#a97e7637dcef6c624bbc69911283f8aa0" title=" " alt="" coords="5,198,224,253"/>
+<area shape="rect" id="Node000009" href="$df/dcd/namespacecompressible__res__device.html#a4cd55df45e21856441b4b2520e65055a" title=" " alt="" coords="5,198,224,253"/>
 <area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="258,255,224,248,225,243,259,250"/>
 <area shape="rect" id="Node000011" href="$d3/d66/namespacefluid__scheme__compressible.html#aead24bdf8d441e371475ee0191f2d0f4" title="Validate field initialization and compute derived quantities." alt="" coords="9,277,220,331"/>
 <area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="289,343,219,328,221,323,291,338"/>

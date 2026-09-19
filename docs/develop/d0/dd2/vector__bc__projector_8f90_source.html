@@ -951,7 +951,7 @@ $(document).ready(function(){initNavTree('d0/dd2/vector__bc__projector_8f90_sour
 <div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span>    <span class="keywordtype">integer</span> :: edge_len, edge_idx, node_idx</div>
 <div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: normal(3), t1_vec(3), t2_vec(3), len, bc_type</div>
 <div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">parameter</span> :: normal_tol = 100.0_rp * epsilon(1.0_rp)</div>
-<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: error_msg</div>
+<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>    <span class="keywordtype">character(len=1024)</span> :: error_msg</div>
 <div class="line"><a id="l00934" name="l00934"></a><span class="lineno">  934</span> </div>
 <div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span>    <span class="keyword">call </span>this%clear_basis()</div>
 <div class="line"><a id="l00936" name="l00936"></a><span class="lineno">  936</span> </div>
@@ -1735,7 +1735,7 @@ $(document).ready(function(){initNavTree('d0/dd2/vector__bc__projector_8f90_sour
 <div class="ttc" id="astructbc_1_1bc__t_html"><div class="ttname"><a href="../../d6/db3/structbc_1_1bc__t.html">bc::bc_t</a></div><div class="ttdoc">Base type for a boundary condition.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00073">bc.f90:73</a></div></div>
 <div class="ttc" id="astructbc__list_1_1bc__list__t_html"><div class="ttname"><a href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list::bc_list_t</a></div><div class="ttdoc">A list of allocatable `bc_t`. Follows the standard interface of lists.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00049">bc_list.f90:49</a></div></div>
 <div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00093">coef.f90:93</a></div></div>
-<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00057">dofmap.f90:57</a></div></div>
+<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00058">dofmap.f90:58</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00048">field.f90:48</a></div></div>
 <div class="ttc" id="astructfield__list_1_1field__list__t_html"><div class="ttname"><a href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list::field_list_t</a></div><div class="ttdoc">field_list_t, To be able to group fields together</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d13/field__list_8f90_source.html#l00047">field_list.f90:47</a></div></div>
 <div class="ttc" id="astructfld__file_1_1fld__file__t_html"><div class="ttname"><a href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file::fld_file_t</a></div><div class="ttdoc">Interface for NEKTON fld files.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/dcf/fld__file_8f90_source.html#l00066">fld_file.f90:66</a></div></div>
@@ -1754,7 +1754,7 @@ $(document).ready(function(){initNavTree('d0/dd2/vector__bc__projector_8f90_sour
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../d0/dd2/vector__bc__projector_8f90.html">vector_bc_projector.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

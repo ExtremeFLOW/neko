@@ -1,5 +1,5 @@
 <map id="entropy_viscosity_device::entropy_viscosity_compute_residual_device" name="entropy_viscosity_device::entropy_viscosity_compute_residual_device">
-<area shape="rect" id="Node000001" title="Compute entropy residual on device." alt="" coords="5,27,215,82"/>
+<area shape="rect" id="Node000001" title="Compute entropy residual on a device." alt="" coords="5,27,215,82"/>
 <area shape="rect" id="Node000002" href="$d8/d84/entropy__viscosity_8cu.html#aa3902b56acb5624462672bc4227f9113" title=" " alt="" coords="465,5,672,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,45,452,30,452,35,215,51"/>
 <area shape="rect" id="Node000004" href="$dd/d01/entropy__viscosity_8c.html#a691fef02927008a3b78d1c367e055a2e" title=" " alt="" coords="263,63,417,103"/>

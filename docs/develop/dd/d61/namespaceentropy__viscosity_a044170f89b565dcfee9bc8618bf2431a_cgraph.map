@@ -1,8 +1,8 @@
 <map id="entropy_viscosity::entropy_viscosity_apply_element_max" name="entropy_viscosity::entropy_viscosity_apply_element_max">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,45,185,100"/>
+<area shape="rect" id="Node000001" title="Replace nodal viscosity values by the maximum in each element." alt="" coords="5,45,185,100"/>
 <area shape="rect" id="Node000002" href="$d4/d05/namespaceentropy__viscosity__cpu.html#ad2f208edbdaeacbf93e34df9bfa0d7d8" title="Apply element&#45;wise maximum on CPU." alt="" coords="233,5,421,60"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,54,219,49,220,54,186,60"/>
-<area shape="rect" id="Node000003" href="$d0/d70/namespaceentropy__viscosity__device.html#aa5c7b1e697f359ba494c7d53ab9832f1" title="Apply element&#45;wise maximum on device." alt="" coords="233,84,421,139"/>
+<area shape="rect" id="Node000003" href="$d0/d70/namespaceentropy__viscosity__device.html#aa5c7b1e697f359ba494c7d53ab9832f1" title="Apply the element&#45;wise maximum on a device." alt="" coords="233,84,421,139"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,85,220,91,219,96,186,90"/>
 <area shape="rect" id="Node000004" href="$d8/d84/entropy__viscosity_8cu.html#a435574cf967d0ba5061e55cc73ac20eb" title=" " alt="" coords="680,62,867,102"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="421,103,666,86,667,92,422,108"/>

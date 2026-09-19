@@ -1,8 +1,8 @@
 var searchData=
 [
   ['el_5ffinder_2ef90_0',['el_finder.f90',['../d2/dd8/el__finder_8f90.html',1,'']]],
-  ['elem_5fblock_2eh_1',['elem_block.h',['../d1/d1c/hip_2elem__block_8h.html',1,'(Global Namespace)'],['../d9/d87/cuda_2elem__block_8h.html',1,'(Global Namespace)']]],
-  ['elem_5fblock_5ftune_2eh_2',['elem_block_tune.h',['../d7/df2/hip_2elem__block__tune_8h.html',1,'(Global Namespace)'],['../db/d36/cuda_2elem__block__tune_8h.html',1,'(Global Namespace)']]],
+  ['elem_5fblock_2eh_1',['elem_block.h',['../d9/d87/cuda_2elem__block_8h.html',1,'(Global Namespace)'],['../d1/d1c/hip_2elem__block_8h.html',1,'(Global Namespace)']]],
+  ['elem_5fblock_5ftune_2eh_2',['elem_block_tune.h',['../db/d36/cuda_2elem__block__tune_8h.html',1,'(Global Namespace)'],['../d7/df2/hip_2elem__block__tune_8h.html',1,'(Global Namespace)']]],
   ['element_2ef90_3',['element.f90',['../de/d31/element_8f90.html',1,'']]],
   ['elementwise_5ffilter_2ef90_4',['elementwise_filter.f90',['../df/d9a/elementwise__filter_8f90.html',1,'']]],
   ['entity_2ef90_5',['entity.f90',['../d4/d42/entity_8f90.html',1,'']]],

@@ -110,7 +110,8 @@ var index =
         ] ],
         [ "Simulation components", "dd/d33/case-file.html#autotoc_md113", null ],
         [ "Point zones", "dd/d33/case-file.html#autotoc_md114", null ],
-        [ "Runtime statistics", "dd/d33/case-file.html#autotoc_md115", null ]
+        [ "Runtime statistics", "dd/d33/case-file.html#autotoc_md115", null ],
+        [ "Viscous regularization", "dd/d33/case-file.html#case-file_viscous-regularization", null ]
       ] ],
       [ "User File", "d6/def/user-file.html", [
         [ "Compiling and running", "d6/def/user-file.html#autotoc_md207", null ],
@@ -175,7 +176,8 @@ var index =
           [ "Spatial average", "d3/d84/simcomps.html#simcomp_spatial_average", null ],
           [ "Spectral error indicator", "d3/d84/simcomps.html#simcomp_speri", null ],
           [ "Data streamer", "d3/d84/simcomps.html#simcomp_data_streamer", null ],
-          [ "Field subsampler", "d3/d84/simcomps.html#simcomp_field_subsampler", null ]
+          [ "Field subsampler", "d3/d84/simcomps.html#simcomp_field_subsampler", null ],
+          [ "artificial_viscosity_model", "d3/d84/simcomps.html#simcomp_avm", null ]
         ] ]
       ] ],
       [ "Point zones", "da/dd0/point-zones.html", [

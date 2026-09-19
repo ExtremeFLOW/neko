@@ -7,6 +7,7 @@ var structfacet__normal_1_1facet__normal__t =
     [ "apply_scalar_generic", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#ac688ded193b5e9265d838a671e1f9802", null ],
     [ "apply_surfvec", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a6b7155468e8f788c2b750a25623cfb3d", null ],
     [ "apply_surfvec_dev", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a3c7ced9a1c4cfaa7548f06a194ad161c", null ],
+    [ "apply_surfvec_sub", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a38d278a79c339bc42a49576424671c60", null ],
     [ "apply_vector", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#aca01313e3fa26077db1411a40fd3ff36", null ],
     [ "apply_vector", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a2e984718a05d95ee20f8352e3b2a01a5", null ],
     [ "apply_vector_dev", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a53a44051829738ce6356d5d51693ebb7", null ],

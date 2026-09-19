@@ -9,5 +9,6 @@ var ax__helm_8c =
     [ "STR", "de/d16/ax__helm_8c.html#aae57f17e11e61cf0519e2004414f5629", null ],
     [ "opencl_ax_helm", "de/d16/ax__helm_8c.html#a45e57ab00f502da38c078cec253edb54", null ],
     [ "opencl_ax_helm_vector", "de/d16/ax__helm_8c.html#a0927c20bbf6236b8042fa8062909b205", null ],
+    [ "opencl_ax_helm_vector_part2", "de/d16/ax__helm_8c.html#a713d08570a31f5b090f44c24358650a9", null ],
     [ "autotune_ax_helm", "de/d16/ax__helm_8c.html#a6429e6ed0a61aa45b97d6c3f078eeef6", null ]
 ];

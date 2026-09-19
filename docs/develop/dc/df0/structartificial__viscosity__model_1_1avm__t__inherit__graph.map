@@ -1,0 +1,5 @@
+<map id="artificial_viscosity_model::avm_t" name="artificial_viscosity_model::avm_t">
+<area shape="rect" id="Node000001" title="Base abstract type for artificial viscosity models." alt="" coords="10,5,150,45"/>
+<area shape="rect" id="Node000002" href="$da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html" title="Entropy&#45;based artificial viscosity model for compressible flow." alt="" coords="5,93,155,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="83,59,83,93,77,93,77,59"/>
+</map>

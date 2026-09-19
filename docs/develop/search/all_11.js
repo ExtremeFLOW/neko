@@ -257,7 +257,7 @@ var searchData=
   ['neko_5fm_5fln2_254',['neko_m_ln2',['../dd/d47/namespacemath.html#aa0d29e9848fb4462d771c530376239a9',1,'math']]],
   ['neko_5fmaterial_5fproperties_5fcb_255',['neko_material_properties_cb',['../da/d03/neko_8h.html#ac2cc24c8dcf3acbf2e3b9ecd655f9714',1,'neko.h']]],
   ['neko_5fmetric_5fcond_5fsp_256',['neko_metric_cond_sp',['../d6/dbe/namespacecoefs.html#ac218afed6e2fc2dd7e59121cb2de18d2',1,'coefs']]],
-  ['neko_5fmfma_5fcandidates_257',['neko_mfma_candidates',['../d7/d35/mfma__kernel_8h.html#a7b256ea31a80c4a43a6c0e5beae2f151',1,'neko_mfma_candidates():&#160;mfma_kernel.h'],['../d7/d35/mfma__kernel_8h.html#a6cfd568deb2842ed2fea9af7588fa812',1,'NEKO_MFMA_CANDIDATES:&#160;mfma_kernel.h']]],
+  ['neko_5fmfma_5fcandidates_257',['neko_mfma_candidates',['../d7/d35/mfma__kernel_8h.html#a6cfd568deb2842ed2fea9af7588fa812',1,'NEKO_MFMA_CANDIDATES:&#160;mfma_kernel.h'],['../d7/d35/mfma__kernel_8h.html#a7b256ea31a80c4a43a6c0e5beae2f151',1,'neko_mfma_candidates():&#160;mfma_kernel.h']]],
   ['neko_5fmfma_5fcube_5fn_258',['NEKO_MFMA_CUBE_N',['../d7/d35/mfma__kernel_8h.html#a434f3d2b7c999309e72699eacee4e6bc',1,'mfma_kernel.h']]],
   ['neko_5fmfma_5fdmat_5fn_259',['NEKO_MFMA_DMAT_N',['../d7/d35/mfma__kernel_8h.html#afb6f26131897a2edb0ae04cd4af88017',1,'mfma_kernel.h']]],
   ['neko_5fmfma_5feb_260',['NEKO_MFMA_EB',['../d7/d35/mfma__kernel_8h.html#ab0e4c27779bfa845a8201024b50c0f32',1,'mfma_kernel.h']]],

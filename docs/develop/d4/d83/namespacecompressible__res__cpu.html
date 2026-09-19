@@ -116,12 +116,12 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a97f4d91ee2dafadca4d3865ee272fa1c" id="r_a97f4d91ee2dafadca4d3865ee272fa1c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d83/namespacecompressible__res__cpu.html#a97f4d91ee2dafadca4d3865ee272fa1c">advance_primitive_variables_cpu</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rho_field</a>, m_x, m_y, m_z, e, p, u, v, w, ax, ax_stress, coef, gs, h, artificial_visc, mu, kappa, bcs_vel, time, rk_scheme, dt)</td></tr>
-<tr class="memdesc:a97f4d91ee2dafadca4d3865ee272fa1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advances the primitive variables (density, momentum, energy) in time using a Runge-Kutta scheme.  <br /></td></tr>
-<tr class="separator:a97f4d91ee2dafadca4d3865ee272fa1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a758165caa9c40474f1011ad71633f123" id="r_a758165caa9c40474f1011ad71633f123"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d83/namespacecompressible__res__cpu.html#a758165caa9c40474f1011ad71633f123">evaluate_rhs_cpu</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_rho_field</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_m_x</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_m_y</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_m_z</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_e</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rho_field</a>, m_x, m_y, m_z, e, p, u, v, w, ax, ax_stress, coef, gs, h, artificial_visc, mu, kappa)</td></tr>
-<tr class="memdesc:a758165caa9c40474f1011ad71633f123"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluates the right-hand side of the compressible equations. Inviscid terms are evaluated through div(). Stabilization is always the existing scalar Laplacian. In navier-stokes mode, physical mu and kappa add a separate compressible Navier-Stokes viscous flux.  <br /></td></tr>
-<tr class="separator:a758165caa9c40474f1011ad71633f123"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35a0bbc442c4c17ab97413a56da367e3" id="r_a35a0bbc442c4c17ab97413a56da367e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d83/namespacecompressible__res__cpu.html#a35a0bbc442c4c17ab97413a56da367e3">advance_primitive_variables_cpu</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rho_field</a>, m_x, m_y, m_z, e, p, u, v, w, ax, ax_stress, coef, gs, artificial_visc, mu, kappa, bcs_vel, time, rk_scheme, dt)</td></tr>
+<tr class="memdesc:a35a0bbc442c4c17ab97413a56da367e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advances the primitive variables (density, momentum, energy) in time using a Runge-Kutta scheme.  <br /></td></tr>
+<tr class="separator:a35a0bbc442c4c17ab97413a56da367e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae51fb68a855fdc7b456753fc8a5dac9d" id="r_ae51fb68a855fdc7b456753fc8a5dac9d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d83/namespacecompressible__res__cpu.html#ae51fb68a855fdc7b456753fc8a5dac9d">evaluate_rhs_cpu</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_rho_field</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_m_x</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_m_y</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_m_z</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs_e</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rho_field</a>, m_x, m_y, m_z, e, p, u, v, w, ax, ax_stress, coef, gs, artificial_visc, mu, kappa)</td></tr>
+<tr class="memdesc:ae51fb68a855fdc7b456753fc8a5dac9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluates the right-hand side of the compressible equations. Inviscid terms are evaluated through div(). Stabilization is always the existing scalar Laplacian. In navier-stokes mode, physical mu and kappa add a separate compressible Navier-Stokes viscous flux.  <br /></td></tr>
+<tr class="separator:ae51fb68a855fdc7b456753fc8a5dac9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a157c7aac3b25131e4e2b34085f9b4705" id="r_a157c7aac3b25131e4e2b34085f9b4705"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d83/namespacecompressible__res__cpu.html#a157c7aac3b25131e4e2b34085f9b4705">add_navier_stokes_flux_cpu</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">visc_m_x</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">visc_m_y</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">visc_m_z</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">visc_e</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rho_field</a>, p, u, v, w, mu, kappa, ax, ax_stress, coef)</td></tr>
 <tr class="memdesc:a157c7aac3b25131e4e2b34085f9b4705"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add the physical Navier-Stokes flux contribution to the viscous residual.  <br /></td></tr>
 <tr class="separator:a157c7aac3b25131e4e2b34085f9b4705"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -264,7 +264,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html#l00511">511</a> of file <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html">compressible_res_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html#l00509">509</a> of file <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html">compressible_res_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -302,17 +302,17 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../d4/d83/namespacecompressible__res__cpu_a157c7aac3b25131e4e2b34085f9b4705_icgraph.png" border="0" usemap="#ad4/d83/namespacecompressible__res__cpu_a157c7aac3b25131e4e2b34085f9b4705_icgraph" alt=""/></div>
 <map name="ad4/d83/namespacecompressible__res__cpu_a157c7aac3b25131e4e2b34085f9b4705_icgraph" id="ad4/d83/namespacecompressible__res__cpu_a157c7aac3b25131e4e2b34085f9b4705_icgraph">
 <area shape="rect" title="Add the physical Navier&#45;Stokes flux contribution to the viscous residual." alt="" coords="516,5,728,45"/>
-<area shape="rect" href="../../d4/d83/namespacecompressible__res__cpu.html#a758165caa9c40474f1011ad71633f123" title="Evaluates the right&#45;hand side of the compressible equations. Inviscid terms are evaluated through div..." alt="" coords="301,5,468,45"/>
+<area shape="rect" href="../../d4/d83/namespacecompressible__res__cpu.html#ae51fb68a855fdc7b456753fc8a5dac9d" title="Evaluates the right&#45;hand side of the compressible equations. Inviscid terms are evaluated through div..." alt="" coords="301,5,468,45"/>
 <area shape="poly" title=" " alt="" coords="502,28,468,28,468,23,502,23"/>
-<area shape="rect" href="../../d4/d83/namespacecompressible__res__cpu.html#a97f4d91ee2dafadca4d3865ee272fa1c" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="5,5,253,45"/>
+<area shape="rect" href="../../d4/d83/namespacecompressible__res__cpu.html#a35a0bbc442c4c17ab97413a56da367e3" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="5,5,253,45"/>
 <area shape="poly" title=" " alt="" coords="288,28,254,28,254,23,288,23"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a97f4d91ee2dafadca4d3865ee272fa1c" name="a97f4d91ee2dafadca4d3865ee272fa1c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a97f4d91ee2dafadca4d3865ee272fa1c">&#9670;&#160;</a></span>advance_primitive_variables_cpu()</h2>
+<a id="a35a0bbc442c4c17ab97413a56da367e3" name="a35a0bbc442c4c17ab97413a56da367e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35a0bbc442c4c17ab97413a56da367e3">&#9670;&#160;</a></span>advance_primitive_variables_cpu()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -402,12 +402,6 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>h</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>artificial_visc</em>, </td>
         </tr>
         <tr>
@@ -468,7 +462,6 @@ Here is the caller graph for this function:</div>
     <tr><td class="paramname">Ax</td><td>Matrix-vector product operator </td></tr>
     <tr><td class="paramname">coef</td><td>Coefficients for spatial discretization </td></tr>
     <tr><td class="paramname">gs</td><td>Gather-scatter operator for parallel communication </td></tr>
-    <tr><td class="paramname">h</td><td>Mesh size field </td></tr>
     <tr><td class="paramname">artificial_visc</td><td>Artificial viscosity field (entropy viscosity, min with low-order) </td></tr>
     <tr><td class="paramname">mu</td><td>Dynamic viscosity field (physical viscosity for momentum) </td></tr>
     <tr><td class="paramname">kappa</td><td>Thermal conductivity field (physical viscosity for energy) </td></tr>
@@ -480,18 +473,18 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html">compressible_res_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html">compressible_res_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d4/d83/namespacecompressible__res__cpu_a97f4d91ee2dafadca4d3865ee272fa1c_cgraph.png" border="0" usemap="#ad4/d83/namespacecompressible__res__cpu_a97f4d91ee2dafadca4d3865ee272fa1c_cgraph" alt=""/></div>
-<map name="ad4/d83/namespacecompressible__res__cpu_a97f4d91ee2dafadca4d3865ee272fa1c_cgraph" id="ad4/d83/namespacecompressible__res__cpu_a97f4d91ee2dafadca4d3865ee272fa1c_cgraph">
+<div class="center"><img src="../../d4/d83/namespacecompressible__res__cpu_a35a0bbc442c4c17ab97413a56da367e3_cgraph.png" border="0" usemap="#ad4/d83/namespacecompressible__res__cpu_a35a0bbc442c4c17ab97413a56da367e3_cgraph" alt=""/></div>
+<map name="ad4/d83/namespacecompressible__res__cpu_a35a0bbc442c4c17ab97413a56da367e3_cgraph" id="ad4/d83/namespacecompressible__res__cpu_a35a0bbc442c4c17ab97413a56da367e3_cgraph">
 <area shape="rect" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="5,91,253,131"/>
 <area shape="rect" href="../../d7/d6d/namespacecompressible__ops__cpu.html#aecc5889ce91b499748b42392c1d27b89" title="Update m_x, m_y, m_z, p, ruvw, fields." alt="" coords="301,5,479,60"/>
 <area shape="poly" title=" " alt="" coords="196,89,287,61,289,66,197,94"/>
 <area shape="rect" href="../../d7/d6d/namespacecompressible__ops__cpu.html#a326ff5f3bbac430dfbfa0f588519f826" title="Update u,v,w fields." alt="" coords="301,84,479,139"/>
 <area shape="poly" title=" " alt="" coords="254,109,288,109,288,114,254,114"/>
-<area shape="rect" href="../../d4/d83/namespacecompressible__res__cpu.html#a758165caa9c40474f1011ad71633f123" title="Evaluates the right&#45;hand side of the compressible equations. Inviscid terms are evaluated through div..." alt="" coords="307,163,473,203"/>
+<area shape="rect" href="../../d4/d83/namespacecompressible__res__cpu.html#ae51fb68a855fdc7b456753fc8a5dac9d" title="Evaluates the right&#45;hand side of the compressible equations. Inviscid terms are evaluated through div..." alt="" coords="307,163,473,203"/>
 <area shape="poly" title=" " alt="" coords="203,129,304,157,303,162,202,134"/>
 <area shape="rect" href="../../d4/d83/namespacecompressible__res__cpu.html#a157c7aac3b25131e4e2b34085f9b4705" title="Add the physical Navier&#45;Stokes flux contribution to the viscous residual." alt="" coords="527,163,739,203"/>
 <area shape="poly" title=" " alt="" coords="474,181,513,181,513,186,474,186"/>
@@ -523,8 +516,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="a758165caa9c40474f1011ad71633f123" name="a758165caa9c40474f1011ad71633f123"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a758165caa9c40474f1011ad71633f123">&#9670;&#160;</a></span>evaluate_rhs_cpu()</h2>
+<a id="ae51fb68a855fdc7b456753fc8a5dac9d" name="ae51fb68a855fdc7b456753fc8a5dac9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae51fb68a855fdc7b456753fc8a5dac9d">&#9670;&#160;</a></span>evaluate_rhs_cpu()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -644,12 +637,6 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>h</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>artificial_visc</em>, </td>
         </tr>
         <tr>
@@ -695,7 +682,6 @@ Here is the call graph for this function:</div>
     <tr><td class="paramname">Ax</td><td>Matrix-vector product operator for Laplacian terms </td></tr>
     <tr><td class="paramname">coef</td><td>Spatial discretization coefficients </td></tr>
     <tr><td class="paramname">gs</td><td>Gather-scatter operator for parallel communication </td></tr>
-    <tr><td class="paramname">h</td><td>Mesh size field </td></tr>
     <tr><td class="paramname">artificial_visc</td><td>Artificial viscosity field </td></tr>
     <tr><td class="paramname">mu</td><td>Dynamic viscosity field for physical momentum diffusion </td></tr>
     <tr><td class="paramname">kappa</td><td>Thermal conductivity field for physical energy diffusion </td></tr>
@@ -706,12 +692,12 @@ Here is the call graph for this function:</div>
 <p>m = m - dt * div(rho * u * u^T + p*I)</p>
 <p>E = E - dt * div(u * (E + p))</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html#l00317">317</a> of file <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html">compressible_res_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html#l00315">315</a> of file <a class="el" href="../../d6/d6e/compressible__res__cpu_8f90_source.html">compressible_res_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d4/d83/namespacecompressible__res__cpu_a758165caa9c40474f1011ad71633f123_cgraph.png" border="0" usemap="#ad4/d83/namespacecompressible__res__cpu_a758165caa9c40474f1011ad71633f123_cgraph" alt=""/></div>
-<map name="ad4/d83/namespacecompressible__res__cpu_a758165caa9c40474f1011ad71633f123_cgraph" id="ad4/d83/namespacecompressible__res__cpu_a758165caa9c40474f1011ad71633f123_cgraph">
+<div class="center"><img src="../../d4/d83/namespacecompressible__res__cpu_ae51fb68a855fdc7b456753fc8a5dac9d_cgraph.png" border="0" usemap="#ad4/d83/namespacecompressible__res__cpu_ae51fb68a855fdc7b456753fc8a5dac9d_cgraph" alt=""/></div>
+<map name="ad4/d83/namespacecompressible__res__cpu_ae51fb68a855fdc7b456753fc8a5dac9d_cgraph" id="ad4/d83/namespacecompressible__res__cpu_ae51fb68a855fdc7b456753fc8a5dac9d_cgraph">
 <area shape="rect" title="Evaluates the right&#45;hand side of the compressible equations. Inviscid terms are evaluated through div..." alt="" coords="5,111,172,151"/>
 <area shape="rect" href="../../d4/d83/namespacecompressible__res__cpu.html#a157c7aac3b25131e4e2b34085f9b4705" title="Add the physical Navier&#45;Stokes flux contribution to the viscous residual." alt="" coords="220,111,432,151"/>
 <area shape="poly" title=" " alt="" coords="172,129,206,129,206,134,172,134"/>
@@ -743,10 +729,10 @@ Here is the call graph for this function:</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d4/d83/namespacecompressible__res__cpu_a758165caa9c40474f1011ad71633f123_icgraph.png" border="0" usemap="#ad4/d83/namespacecompressible__res__cpu_a758165caa9c40474f1011ad71633f123_icgraph" alt=""/></div>
-<map name="ad4/d83/namespacecompressible__res__cpu_a758165caa9c40474f1011ad71633f123_icgraph" id="ad4/d83/namespacecompressible__res__cpu_a758165caa9c40474f1011ad71633f123_icgraph">
+<div class="center"><img src="../../d4/d83/namespacecompressible__res__cpu_ae51fb68a855fdc7b456753fc8a5dac9d_icgraph.png" border="0" usemap="#ad4/d83/namespacecompressible__res__cpu_ae51fb68a855fdc7b456753fc8a5dac9d_icgraph" alt=""/></div>
+<map name="ad4/d83/namespacecompressible__res__cpu_ae51fb68a855fdc7b456753fc8a5dac9d_icgraph" id="ad4/d83/namespacecompressible__res__cpu_ae51fb68a855fdc7b456753fc8a5dac9d_icgraph">
 <area shape="rect" title="Evaluates the right&#45;hand side of the compressible equations. Inviscid terms are evaluated through div..." alt="" coords="301,5,468,45"/>
-<area shape="rect" href="../../d4/d83/namespacecompressible__res__cpu.html#a97f4d91ee2dafadca4d3865ee272fa1c" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="5,5,253,45"/>
+<area shape="rect" href="../../d4/d83/namespacecompressible__res__cpu.html#a35a0bbc442c4c17ab97413a56da367e3" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="5,5,253,45"/>
 <area shape="poly" title=" " alt="" coords="288,28,254,28,254,23,288,23"/>
 </map>
 </div>
@@ -816,7 +802,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d4/d83/namespacecompressible__res__cpu.html">compressible_res_cpu</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

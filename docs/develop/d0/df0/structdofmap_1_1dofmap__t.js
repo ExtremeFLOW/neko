@@ -13,11 +13,8 @@ var structdofmap_1_1dofmap__t =
     [ "msh_subset", "d0/df0/structdofmap_1_1dofmap__t.html#a4eec4dc2aac6a12434c0247cf7e3fd24", null ],
     [ "ntot", "d0/df0/structdofmap_1_1dofmap__t.html#a51ceee7bc9c41e5e0a0bbb11731c9847", null ],
     [ "shared_dof", "d0/df0/structdofmap_1_1dofmap__t.html#ab20ce88def486ab4728b72372fd042b7", null ],
-    [ "x", "d0/df0/structdofmap_1_1dofmap__t.html#ab4b45caa23175c8f6bb7f8b898d0af6d", null ],
-    [ "x_d", "d0/df0/structdofmap_1_1dofmap__t.html#aacb868e8d82d438f9b6572832b4886d5", null ],
+    [ "x", "d0/df0/structdofmap_1_1dofmap__t.html#a117878cd1b98a1097966b90604aa066f", null ],
     [ "xh", "d0/df0/structdofmap_1_1dofmap__t.html#a8d8a3416b6ed32f33f76e4a19a44e44e", null ],
-    [ "y", "d0/df0/structdofmap_1_1dofmap__t.html#a52ef62e583b0561449b36160e967122b", null ],
-    [ "y_d", "d0/df0/structdofmap_1_1dofmap__t.html#acf83f7e41a9a58b524b85f97429a3727", null ],
-    [ "z", "d0/df0/structdofmap_1_1dofmap__t.html#a619e42f3bef0448d1456dc2363c1ec47", null ],
-    [ "z_d", "d0/df0/structdofmap_1_1dofmap__t.html#ab911393190bb5ccff1bb45d35d874241", null ]
+    [ "y", "d0/df0/structdofmap_1_1dofmap__t.html#a040c286c237d3f2a98f5c9335c1e1980", null ],
+    [ "z", "d0/df0/structdofmap_1_1dofmap__t.html#a28a31c8590c421bbb92e66eebe5efa97", null ]
 ];

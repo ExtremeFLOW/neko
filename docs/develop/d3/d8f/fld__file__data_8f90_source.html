@@ -619,20 +619,20 @@ $(document).ready(function(){initNavTree('d3/d8f/fld__file__data_8f90_source.htm
 <div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>       center_y = 0d0</div>
 <div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>       center_z = 0d0</div>
 <div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>       <span class="keywordflow">do</span> i = 1, to_xh%lxyz</div>
-<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>          center_x = center_x + to_dof%x(i, 1, 1, e)</div>
-<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>          center_y = center_y + to_dof%y(i, 1, 1, e)</div>
-<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>          center_z = center_z + to_dof%z(i, 1, 1, e)</div>
+<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>          center_x = center_x + to_dof%x%x(i, 1, 1, e)</div>
+<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>          center_y = center_y + to_dof%y%x(i, 1, 1, e)</div>
+<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>          center_z = center_z + to_dof%z%x(i, 1, 1, e)</div>
 <div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span>       center_x = center_x / to_xh%lxyz</div>
 <div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>       center_y = center_y / to_xh%lxyz</div>
 <div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span>       center_z = center_z / to_xh%lxyz</div>
 <div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>       <span class="keywordflow">do</span> i = 1, to_xh%lxyz</div>
-<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>          x_coords(i, 1, 1, e) = to_dof%x(i, 1, 1, e) - &amp;</div>
-<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>               tol_ * (to_dof%x(i, 1, 1, e) - center_x)</div>
-<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>          y_coords(i, 1, 1, e) = to_dof%y(i, 1, 1, e) - &amp;</div>
-<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>               tol_ * (to_dof%y(i, 1, 1, e) - center_y)</div>
-<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>          z_coords(i, 1, 1, e) = to_dof%z(i, 1, 1, e) - &amp;</div>
-<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span>               tol_ * (to_dof%z(i, 1, 1, e) - center_z)</div>
+<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>          x_coords(i, 1, 1, e) = to_dof%x%x(i, 1, 1, e) - &amp;</div>
+<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>               tol_ * (to_dof%x%x(i, 1, 1, e) - center_x)</div>
+<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>          y_coords(i, 1, 1, e) = to_dof%y%x(i, 1, 1, e) - &amp;</div>
+<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>               tol_ * (to_dof%y%x(i, 1, 1, e) - center_y)</div>
+<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>          z_coords(i, 1, 1, e) = to_dof%z%x(i, 1, 1, e) - &amp;</div>
+<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span>               tol_ * (to_dof%z%x(i, 1, 1, e) - center_z)</div>
 <div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span> </div>
@@ -700,7 +700,7 @@ $(document).ready(function(){initNavTree('d3/d8f/fld__file__data_8f90_source.htm
 <div class="ttc" id="anamespaceutils_html_a0962746ef1c8f4a3a6e83aae5ef2d7a0"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0">utils::extract_fld_file_index</a></div><div class="ttdeci">integer function, public extract_fld_file_index(fld_filename, default_index)</div><div class="ttdoc">Extracts the index of a field file. For example, &quot;myfield.f00045&quot; will return 45. If the suffix of th...</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00208">utils.f90:209</a></div></div>
 <div class="ttc" id="anamespaceutils_html_a76ff64218112fb6d5a8a02d15b2628e7"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a76ff64218112fb6d5a8a02d15b2628e7">utils::neko_fname_len</a></div><div class="ttdeci">integer, parameter, public neko_fname_len</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacevector_html"><div class="ttname"><a href="../../d7/d34/namespacevector.html">vector</a></div><div class="ttdoc">Defines a vector.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/db2/vector_8f90_source.html#l00034">vector.f90:34</a></div></div>
-<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00057">dofmap.f90:57</a></div></div>
+<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00058">dofmap.f90:58</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00048">field.f90:48</a></div></div>
 <div class="ttc" id="astructfield__list_1_1field__list__t_html"><div class="ttname"><a href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list::field_list_t</a></div><div class="ttdoc">field_list_t, To be able to group fields together</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d13/field__list_8f90_source.html#l00047">field_list.f90:47</a></div></div>
 <div class="ttc" id="astructfld__file__data_1_1fld__file__data__t_html"><div class="ttname"><a href="../../db/da1/structfld__file__data_1_1fld__file__data__t.html">fld_file_data::fld_file_data_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d8f/fld__file__data_8f90_source.html#l00028">fld_file_data.f90:28</a></div></div>
@@ -716,7 +716,7 @@ $(document).ready(function(){initNavTree('d3/d8f/fld__file__data_8f90_source.htm
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../d3/d8f/fld__file__data_8f90.html">fld_file_data.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

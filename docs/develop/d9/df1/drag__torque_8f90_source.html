@@ -240,7 +240,7 @@ $(document).ready(function(){initNavTree('d9/df1/drag__torque_8f90_source.html',
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    <span class="keywordflow">do</span> mem = 1, zone%size</div>
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>       ie = zone%facet_el(mem)%x(2)</div>
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>       ifc = zone%facet_el(mem)%x(1)</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d0/d6f/namespacedrag__torque.html#a4b33e188d75f2f7f1e723291c1c069fd">drag_torque_facet</a>(dgtq, coef%dof%x, coef%dof%y, coef%dof%z, &amp;</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d0/d6f/namespacedrag__torque.html#a4b33e188d75f2f7f1e723291c1c069fd">drag_torque_facet</a>(dgtq, coef%dof%x%x, coef%dof%y%x, coef%dof%z%x, &amp;</div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>            center, s11, s22, s33, s12, s13, s23, p%x, visc, ifc, ie, coef, &amp;</div>
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>            coef%Xh)</div>
 <div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span> </div>
@@ -602,7 +602,7 @@ $(document).ready(function(){initNavTree('d9/df1/drag__torque_8f90_source.html',
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_9c6b613226289d4f549a5bc7de136af8.html">qoi</a></li><li class="navelem"><a class="el" href="../../d9/df1/drag__torque_8f90.html">drag_torque.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -379,9 +379,9 @@ $(document).ready(function(){initNavTree('d9/daf/point__zone_8f90_source.html','
 <div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    i = 1</div>
 <div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <span class="keywordflow">do</span> <span class="keywordflow">while</span> (i &lt;= dof%size())</div>
 <div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>       nlindex = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(i, lx, lx, lx)</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>       x = dof%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>       y = dof%y(nlindex(1), nlindex(2), nlindex(3), nlindex(4))</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>       z = dof%z(nlindex(1), nlindex(2), nlindex(3), nlindex(4))</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>       x = dof%x%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>       y = dof%y%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>       z = dof%z%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))</div>
 <div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>       ix = nlindex(1)</div>
 <div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>       iy = nlindex(2)</div>
 <div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>       iz = nlindex(3)</div>
@@ -440,7 +440,7 @@ $(document).ready(function(){initNavTree('d9/daf/point__zone_8f90_source.html','
 <div class="ttc" id="anamespacestack_html"><div class="ttname"><a href="../../d9/d30/namespacestack.html">stack</a></div><div class="ttdoc">Implements a dynamic stack ADT.</div><div class="ttdef"><b>Definition</b> <a href="../../de/de6/stack_8f90_source.html#l00049">stack.f90:49</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
 <div class="ttc" id="anamespaceutils_html_a4c8e13ce7a50b4ecdbc01c590018bea7"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7">utils::linear_index</a></div><div class="ttdeci">pure integer function, public linear_index(i, j, k, l, lx, ly, lz)</div><div class="ttdoc">Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00288">utils.f90:289</a></div></div>
-<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00057">dofmap.f90:57</a></div></div>
+<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00058">dofmap.f90:58</a></div></div>
 <div class="ttc" id="astructmask_1_1mask__t_html"><div class="ttname"><a href="../../d2/df5/structmask_1_1mask__t.html">mask::mask_t</a></div><div class="ttdoc">Type for consistently handling masks in Neko. This type encapsulates the mask array and its associate...</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00051">mask.f90:51</a></div></div>
 <div class="ttc" id="astructpoint__zone_1_1point__zone__pointer__t_html"><div class="ttname"><a href="../../dd/dae/structpoint__zone_1_1point__zone__pointer__t.html">point_zone::point_zone_pointer_t</a></div><div class="ttdoc">A helper type to build a list of pointers to point_zones.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00091">point_zone.f90:91</a></div></div>
 <div class="ttc" id="astructpoint__zone_1_1point__zone__t_html"><div class="ttname"><a href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone::point_zone_t</a></div><div class="ttdoc">Base abstract type for point zones.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00048">point_zone.f90:48</a></div></div>
@@ -452,7 +452,7 @@ $(document).ready(function(){initNavTree('d9/daf/point__zone_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../d9/daf/point__zone_8f90.html">point_zone.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

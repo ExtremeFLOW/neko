@@ -271,7 +271,7 @@ $(document).ready(function(){initNavTree('d4/dd2/field__subsampler_8f90_source.h
 <div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <span class="comment">! Check the dofmap</span></div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    is_valid = (this%dof%global_size() .gt. 0 .and. <span class="keyword">allocated</span>(this%dof%x))</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    is_valid = (this%dof%global_size() .gt. 0 .and. <span class="keyword">allocated</span>(this%dof%x%x))</div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    <span class="keywordflow">if</span> (.not. is_valid) <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Dofmap not initialized or empty&quot;</span>)</div>
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
 <div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="comment">! Check the internal field list, pointing to the fields in the registry</span></div>
@@ -765,7 +765,7 @@ $(document).ready(function(){initNavTree('d4/dd2/field__subsampler_8f90_source.h
 <div class="ttc" id="anamespaceutils_html_ac6d1705f20d3a1fce16eb7a745d88eb3"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#ac6d1705f20d3a1fce16eb7a745d88eb3">utils::neko_varname_len</a></div><div class="ttdeci">integer, parameter, public neko_varname_len</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00043">utils.f90:43</a></div></div>
 <div class="ttc" id="astructcase_1_1case__t_html"><div class="ttname"><a href="../../db/d7a/structcase_1_1case__t.html">case::case_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00072">case.f90:72</a></div></div>
 <div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00093">coef.f90:93</a></div></div>
-<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00057">dofmap.f90:57</a></div></div>
+<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00058">dofmap.f90:58</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00048">field.f90:48</a></div></div>
 <div class="ttc" id="astructfield__list_1_1field__list__t_html"><div class="ttname"><a href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list::field_list_t</a></div><div class="ttdoc">field_list_t, To be able to group fields together</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d13/field__list_8f90_source.html#l00047">field_list.f90:47</a></div></div>
 <div class="ttc" id="astructfield__subsampler_1_1field__subsampler__t_html"><div class="ttname"><a href="../../df/df8/structfield__subsampler_1_1field__subsampler__t.html">field_subsampler::field_subsampler_t</a></div><div class="ttdoc">Implements the field_subsampler_t simulation components, which allows for masking regions of the doma...</div><div class="ttdef"><b>Definition</b> <a href="../../d4/dd2/field__subsampler_8f90_source.html#l00071">field_subsampler.f90:71</a></div></div>
@@ -784,7 +784,7 @@ $(document).ready(function(){initNavTree('d4/dd2/field__subsampler_8f90_source.h
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_702567638a028346607c31c39047d6bd.html">simulation_components</a></li><li class="navelem"><a class="el" href="../../d4/dd2/field__subsampler_8f90.html">field_subsampler.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

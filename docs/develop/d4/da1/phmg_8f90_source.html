@@ -658,11 +658,11 @@ $(document).ready(function(){initNavTree('d4/da1/phmg_8f90_source.html','../../'
 <div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span>    <span class="keyword">call </span>profiler_start_region(<span class="stringliteral">&#39;PHMG_update_geometry&#39;</span>)</div>
 <div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>    associate(mg =&gt; this%phmg_hrchy%lvl, nelv =&gt; this%msh%nelv)</div>
 <div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>      <span class="keywordflow">do</span> i = 1, this%nlvls - 1</div>
-<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>         <span class="keyword">call </span>this%crd_intrp(i)%map(mg(i)%dm_Xh%x, mg(0)%dm_Xh%x, &amp;</div>
+<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>         <span class="keyword">call </span>this%crd_intrp(i)%map(mg(i)%dm_Xh%x%x, mg(0)%dm_Xh%x%x, &amp;</div>
 <div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>              nelv, mg(i)%Xh)</div>
-<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>         <span class="keyword">call </span>this%crd_intrp(i)%map(mg(i)%dm_Xh%y, mg(0)%dm_Xh%y, &amp;</div>
+<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>         <span class="keyword">call </span>this%crd_intrp(i)%map(mg(i)%dm_Xh%y%x, mg(0)%dm_Xh%y%x, &amp;</div>
 <div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>              nelv, mg(i)%Xh)</div>
-<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>         <span class="keyword">call </span>this%crd_intrp(i)%map(mg(i)%dm_Xh%z, mg(0)%dm_Xh%z, &amp;</div>
+<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>         <span class="keyword">call </span>this%crd_intrp(i)%map(mg(i)%dm_Xh%z%x, mg(0)%dm_Xh%z%x, &amp;</div>
 <div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>              nelv, mg(i)%Xh)</div>
 <div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span> </div>
 <div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>         <span class="keyword">call </span>mg(i)%coef%recompute_metrics()</div>
@@ -1085,7 +1085,7 @@ $(document).ready(function(){initNavTree('d4/da1/phmg_8f90_source.html','../../'
 <div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00093">coef.f90:93</a></div></div>
 <div class="ttc" id="astructdevice__jacobi_1_1device__jacobi__t_html"><div class="ttname"><a href="../../d8/dca/structdevice__jacobi_1_1device__jacobi__t.html">device_jacobi::device_jacobi_t</a></div><div class="ttdoc">Defines a jacobi preconditioner.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dd3/pc__jacobi__device_8F90_source.html#l00049">pc_jacobi_device.F90:49</a></div></div>
 <div class="ttc" id="astructdirichlet_1_1dirichlet__t_html"><div class="ttname"><a href="../../df/dd9/structdirichlet_1_1dirichlet__t.html">dirichlet::dirichlet_t</a></div><div class="ttdoc">Generic Dirichlet boundary condition  on .</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d69/dirichlet_8f90_source.html#l00049">dirichlet.f90:49</a></div></div>
-<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00057">dofmap.f90:57</a></div></div>
+<div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00058">dofmap.f90:58</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00048">field.f90:48</a></div></div>
 <div class="ttc" id="astructgather__scatter_1_1gs__t_html"><div class="ttname"><a href="../../dd/db8/structgather__scatter_1_1gs__t.html">gather_scatter::gs_t</a></div><div class="ttdoc">Gather-scatter kernel.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d7e/gather__scatter_8f90_source.html#l00090">gather_scatter.f90:90</a></div></div>
 <div class="ttc" id="astructinterpolation_1_1interpolator__t_html"><div class="ttname"><a href="../../db/d74/structinterpolation_1_1interpolator__t.html">interpolation::interpolator_t</a></div><div class="ttdoc">Interpolation between two space::space_t.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dbb/interpolation_8f90_source.html#l00053">interpolation.f90:53</a></div></div>
@@ -1108,7 +1108,7 @@ $(document).ready(function(){initNavTree('d4/da1/phmg_8f90_source.html','../../'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e7871f939970ad66f8f2efbe2c80ad83.html">multigrid</a></li><li class="navelem"><a class="el" href="../../d4/da1/phmg_8f90.html">phmg.f90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

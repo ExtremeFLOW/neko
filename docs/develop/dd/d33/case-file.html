@@ -165,6 +165,7 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 <li class="level1"><a href="#autotoc_md113">Simulation components</a></li>
 <li class="level1"><a href="#autotoc_md114">Point zones</a></li>
 <li class="level1"><a href="#autotoc_md115">Runtime statistics</a></li>
+<li class="level1"><a href="#case-file_viscous-regularization">Viscous regularization</a></li>
 </ul>
 </div>
 <div class="textblock"><p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is hierarchical and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use of objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
@@ -475,21 +476,16 @@ Compressible flows</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>kappa</code>   </td><td class="markdownTableBodyNone">Constant physical thermal conductivity   </td><td class="markdownTableBodyNone">Non-negative real   </td><td class="markdownTableBodyNone"><code>0.0</code>   </td></tr>
 </table>
-<p>Additional numerics parameters specific to compressible flows:</p>
-<table class="markdownTable">
-<tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>c_avisc_low</code>   </td><td class="markdownTableBodyNone">Coefficient for low-order artificial viscosity   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>0.5</code>    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>c_avisc_entropy</code>   </td><td class="markdownTableBodyNone">Coefficient for entropy-based artificial viscosity   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>1.0</code>   </td></tr>
-</table>
 <p>The compressible solver uses variable time-stepping controlled by the CFL number. Set <code>variable_timestep</code> to <code>true</code> and specify <code>target_cfl</code> in the time control object.</p>
 <p>Constant physical viscosity and thermal conductivity can be specified as <code>mu</code> and <code>kappa</code> in the fluid section of the case file. Alternatively, they can be set via the <code>material_properties</code> user interface in the user file, which also allows spatially or temporally varying values. When a user material-properties routine is provided, it takes precedence over the constant JSON values. Stabilization uses the existing Laplacian artificial viscosity, computed as the minimum of entropy-based and low-order viscosities. When <code>fluid_mu</code> or <code>fluid_kappa</code> are nonzero, the solver also applies the compressible Navier-Stokes viscous stress flux and conductive energy flux. If neither property is provided, both default to zero and no physical viscous flux is added. See the user file documentation for details on implementing <code>material_properties</code>.</p>
 <p>Example configuration: </p><div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;fluid&quot;: {</div>
 <div class="line">    &quot;scheme&quot;: &quot;compressible&quot;,</div>
 <div class="line">    &quot;gamma&quot;: 1.4,</div>
+<div class="line">    &quot;viscous_regularization&quot;:{</div>
+<div class="line">        &quot;type&quot;: &quot;artificial_viscosity&quot;,</div>
+<div class="line">        &quot;reg_coeff_name&quot;: &quot;entropy_viscosity&quot;</div>
+<div class="line">    },</div>
 <div class="line">    &quot;initial_condition&quot;: {</div>
 <div class="line">      &quot;type&quot;: &quot;user&quot;</div>
 <div class="line">    },</div>
@@ -513,12 +509,13 @@ Compressible flows</h2>
 <div class="line">    &quot;output_control&quot;: &quot;nsamples&quot;,</div>
 <div class="line">    &quot;output_value&quot;: 20</div>
 <div class="line">  },</div>
-<div class="line">  &quot;numerics&quot;: {</div>
-<div class="line">    &quot;time_order&quot;: 3,</div>
-<div class="line">    &quot;polynomial_order&quot;: 5,</div>
-<div class="line">    &quot;c_avisc_low&quot;: 0.5,</div>
-<div class="line">    &quot;c_avisc_entropy&quot;: 0.5</div>
-<div class="line">  }</div>
+<div class="line">  &quot;simulation_components&quot;: [</div>
+<div class="line">    {</div>
+<div class="line">      &quot;type&quot;: &quot;artificial_viscosity_model&quot;,</div>
+<div class="line">      &quot;model&quot;: &quot;entropy_viscosity&quot;,</div>
+<div class="line">      &quot;field_name&quot;: &quot;entropy_viscosity&quot;</div>
+<div class="line">    }</div>
+<div class="line">  ]</div>
 <div class="line">}</div>
 </div><!-- fragment --><h3><a class="anchor" id="autotoc_md88"></a>
 Compressible boundary conditions</h3>
@@ -1818,56 +1815,54 @@ Full parameter table</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>source_terms</code>   </td><td class="markdownTableBodyNone">Array of JSON objects, defining additional source terms.   </td><td class="markdownTableBodyNone">See list of source terms above   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code>   </td><td class="markdownTableBodyNone">Array of JSON objects, defining additional gradient jump penalty.   </td><td class="markdownTableBodyNone">See list of gradient jump penalty above   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>boundary_types</code>   </td><td class="markdownTableBodyNone">Boundary types/conditions labels.   </td><td class="markdownTableBodyNone">Array of strings   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.type</code>   </td><td class="markdownTableBodyNone">Linear solver for the momentum equation.   </td><td class="markdownTableBodyNone"><code>cg</code>, <code>pipecg</code>, <code>bicgstab</code>, <code>coupled_bicgstab</code>, <code>coupled_cg</code>, <code>cacg</code>, <code>gmres</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>velocity_solver.preconditioner.type</code>   </td><td class="markdownTableBodyNone">Linear solver preconditioner for the momentum equation.   </td><td class="markdownTableBodyNone"><code>ident</code>, <code>hsmg</code>, <code>jacobi</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.absolute_tolerance</code>   </td><td class="markdownTableBodyNone">Linear solver convergence criterion for the momentum equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>velocity_solver.maxiter</code>   </td><td class="markdownTableBodyNone">Linear solver max iteration count for the momentum equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">800    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.projection_space_size</code>   </td><td class="markdownTableBodyNone">Projection space size for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">0    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>velocity_solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.monitor</code>   </td><td class="markdownTableBodyNone">Monitor residuals in the linear solver for the momentum equation.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.type</code>   </td><td class="markdownTableBodyNone">Linear solver for the pressure equation.   </td><td class="markdownTableBodyNone"><code>cg</code>, <code>pipecg</code>, <code>bicgstab</code>, <code>cacg</code>, <code>gmres</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.preconditioner.type</code>   </td><td class="markdownTableBodyNone">Linear solver preconditioner for the pressure equation.   </td><td class="markdownTableBodyNone"><code>ident</code>, <code>hsmg</code>, <code>jacobi</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.absolute_tolerance</code>   </td><td class="markdownTableBodyNone">Linear solver convergence criterion for the pressure equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.maxiter</code>   </td><td class="markdownTableBodyNone">Linear solver max iteration count for the pressure equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">800    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.projection_space_size</code>   </td><td class="markdownTableBodyNone">Projection space size for the pressure equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">0    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the pressure equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.projection_reorthogonalize_basis</code>   </td><td class="markdownTableBodyNone">Whether to enable pressure projection basis reorthogonalization.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.monitor</code>   </td><td class="markdownTableBodyNone">Monitor residuals in the linear solver for the pressure equation.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>flow_rate_force.direction</code>   </td><td class="markdownTableBodyNone">Direction of the forced flow.   </td><td class="markdownTableBodyNone">0, 1, 2   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>flow_rate_force.value</code>   </td><td class="markdownTableBodyNone">Bulk velocity or volumetric flow rate.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>flow_rate_force.use_averaged_flow</code>   </td><td class="markdownTableBodyNone">Whether bulk velocity or volumetric flow rate is given by the <code>value</code> parameter.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>flow_rate_force.log</code>   </td><td class="markdownTableBodyNone">Whether to print the flow-rate forcing log message during the volume-flow adjustment.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>freeze</code>   </td><td class="markdownTableBodyNone">Whether to fix the velocity field at initial conditions.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>strict_convergence</code>   </td><td class="markdownTableBodyNone">Whether to enforce strict convergence in the linear solvers.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>allow_stabilization</code>   </td><td class="markdownTableBodyNone">Whether to allow an initial stabilization phase before enforcing strict convergence.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>advection</code>   </td><td class="markdownTableBodyNone">Whether to compute the advection term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>allow_stabilization</code>   </td><td class="markdownTableBodyNone">Whether to allow an initial stabilization phase before enforcing strict convergence.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>advection</code>   </td><td class="markdownTableBodyNone">Whether to compute the advection term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>full_stress_formulation</code>   </td><td class="markdownTableBodyNone">Whether to use the full form of the visous stress tensor term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>   </td></tr>
 </table>
 <h1><a class="anchor" id="case-file_scalar"></a>
@@ -2034,14 +2029,41 @@ Runtime statistics</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_profile</code>   </td><td class="markdownTableBodyNone">Whether to output all gathered profiling data as a CSV file   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>   </td></tr>
 </table>
-</div></div><!-- contents -->
+<h1><a class="anchor" id="case-file_viscous-regularization"></a>
+Viscous regularization</h1>
+<p>Users can use the viscous regularization object to enhance the smoothness or the numerical stability of the solution via a diffusion term. For example, artificial viscosity can be set up by this object to perform shock capturing. Note that some regularization techniques do not have a diffusive mathematical form, for example gradient jump penalty and high-pass filter relaxation terms, and they are included in the source terms instead. The viscous regularization can be set up with the following options:</p>
+<ul>
+<li><code>type</code>, the viscous regularization type.<ul>
+<li><code><a class="el" href="../../d7/d6b/namespaceartificial__viscosity.html" title="Implements artificial_viscosity_t.">artificial_viscosity</a></code>, the standard second-order diffusion term, $\frac{\partial}{\partial x}\left(\mu_\mathrm{artificial}\frac{\partial u}{\partial x}\right)$.</li>
+</ul>
+</li>
+<li><code>reg_coeff_name</code>, name of the $\mu_\mathrm{artificial}$ field, usually computed by a simulation component.</li>
+</ul>
+<p>Viscous regularization is currently supported by the compressible fluid solver. Artificial viscosity requires both the regularization object that consumes the coefficient and a simulation component that computes it. The <code>reg_coeff_name</code> and <code>field_name</code> values must match:</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;fluid&quot;: {</div>
+<div class="line">    &quot;scheme&quot;: &quot;compressible&quot;,</div>
+<div class="line">    &quot;viscous_regularization&quot;: {</div>
+<div class="line">      &quot;type&quot;: &quot;artificial_viscosity&quot;,</div>
+<div class="line">      &quot;reg_coeff_name&quot;: &quot;entropy_viscosity&quot;</div>
+<div class="line">    }</div>
+<div class="line">  },</div>
+<div class="line">  &quot;simulation_components&quot;: [</div>
+<div class="line">    {</div>
+<div class="line">      &quot;type&quot;: &quot;artificial_viscosity_model&quot;,</div>
+<div class="line">      &quot;model&quot;: &quot;entropy_viscosity&quot;,</div>
+<div class="line">      &quot;field_name&quot;: &quot;entropy_viscosity&quot;</div>
+<div class="line">    }</div>
+<div class="line">  ]</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

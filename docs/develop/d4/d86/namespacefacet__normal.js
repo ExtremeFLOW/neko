@@ -5,6 +5,7 @@ var namespacefacet__normal =
     [ "facet_normal_apply_scalar_dev", "d4/d86/namespacefacet__normal.html#a545dc94946757f3858f621945a9e7bba", null ],
     [ "facet_normal_apply_surfvec", "d4/d86/namespacefacet__normal.html#aa1b09bfe2d1e76f83355991d164df7cc", null ],
     [ "facet_normal_apply_surfvec_dev", "d4/d86/namespacefacet__normal.html#a93d2f3b5fd10d1a5338fc2b2712a4149", null ],
+    [ "facet_normal_apply_surfvec_sub", "d4/d86/namespacefacet__normal.html#a38b75933bcce001a39046983d3dfe184", null ],
     [ "facet_normal_apply_vector", "d4/d86/namespacefacet__normal.html#ac3cb92360f87b34254c0f96f8283a804", null ],
     [ "facet_normal_apply_vector_dev", "d4/d86/namespacefacet__normal.html#a0dfb152292d34a404a140d4889b70369", null ],
     [ "facet_normal_finalize", "d4/d86/namespacefacet__normal.html#a768766317a7dac05358d4cf78d62793f", null ],

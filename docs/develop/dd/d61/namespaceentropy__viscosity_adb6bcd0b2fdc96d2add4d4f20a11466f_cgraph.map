@@ -1,0 +1,18 @@
+<map id="entropy_viscosity::entropy_viscosity_compute_entropy" name="entropy_viscosity::entropy_viscosity_compute_entropy">
+<area shape="rect" id="Node000001" title="Compute entropy from the current pressure and density." alt="" coords="5,45,207,100"/>
+<area shape="rect" id="Node000002" href="$d7/d6d/namespacecompressible__ops__cpu.html#aa0c5b9b50066ee6171a1493ec32f2fea" title="Compute entropy field S = 1/(gamma&#45;1) * rho * (log(p) &#45; gamma * log(rho)) on CPU." alt="" coords="265,5,442,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,54,251,47,252,52,207,59"/>
+<area shape="rect" id="Node000003" href="$dc/da9/namespacecompressible__ops__device.html#a1ad819b1bfd41a2fcc598b3246825363" title="Compute entropy field S = 1/(gamma&#45;1) * rho * (log(p) &#45; gamma * log(rho)) on device." alt="" coords="255,84,452,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="207,86,242,91,241,96,206,91"/>
+<area shape="rect" id="Node000004" href="$db/de5/compressible__ops__compute__entropy_8cu.html#a0ab2a3e31e801c696cd71590e7fc7363" title=" " alt="" coords="735,73,909,99"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="452,103,721,89,721,94,453,109"/>
+<area shape="rect" id="Node000006" href="$d7/d3d/compressible__ops__compute__entropy_8c.html#a6f6e2de97955aaf3553cab3cfde549e1" title=" " alt="" coords="500,124,687,149"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="453,119,487,123,486,128,452,124"/>
+<area shape="rect" id="Node000005" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="957,117,1109,157"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="877,96,944,113,943,118,875,101"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="994,117,991,107,998,98,1012,92,1033,90,1058,93,1071,100,1069,105,1056,98,1033,95,1013,97,1001,102,997,108,999,116"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="687,134,944,134,944,139,687,139"/>
+<area shape="rect" id="Node000007" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="756,175,888,200"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="652,147,751,169,750,174,651,152"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="875,172,943,155,944,161,877,177"/>
+</map>

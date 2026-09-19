@@ -16,6 +16,7 @@ var hierarchy =
     [ "ale_rigid_kinematics::ale_body_t", "da/d9d/structale__rigid__kinematics_1_1ale__body__t.html", null ],
     [ "ale_rigid_kinematics::ale_config_t", "d1/d1b/structale__rigid__kinematics_1_1ale__config__t.html", null ],
     [ "ale_manager::ale_manager_t", "dd/d75/structale__manager_1_1ale__manager__t.html", null ],
+    [ "artificial_viscosity_model::allocator_entry", "d7/d49/structartificial__viscosity__model_1_1allocator__entry.html", null ],
     [ "les_model::allocator_entry", "d2/ddc/structles__model_1_1allocator__entry.html", null ],
     [ "point_zone::allocator_entry", "d0/d86/structpoint__zone_1_1allocator__entry.html", null ],
     [ "simulation_component::allocator_entry", "d9/df3/structsimulation__component_1_1allocator__entry.html", null ],
@@ -30,6 +31,14 @@ var hierarchy =
     [ "neko_api_user::api_user_cb", "da/d5d/structneko__api__user_1_1api__user__cb.html", null ],
     [ "structs::array_ptr_t", "dd/d8c/structstructs_1_1array__ptr__t.html", null ],
     [ "time_based_controller::assignment(=)", "da/d69/interfacetime__based__controller_1_1assignment_07_0a_08.html", null ],
+    [ "artificial_viscosity_model::avm_allocate", "d3/dda/interfaceartificial__viscosity__model_1_1avm__allocate.html", null ],
+    [ "artificial_viscosity_model::avm_compute", "dd/d1e/interfaceartificial__viscosity__model_1_1avm__compute.html", null ],
+    [ "artificial_viscosity_model::avm_free", "df/da5/interfaceartificial__viscosity__model_1_1avm__free.html", null ],
+    [ "artificial_viscosity_model::avm_init", "de/d28/interfaceartificial__viscosity__model_1_1avm__init.html", null ],
+    [ "artificial_viscosity_model::avm_preprocess", "df/dde/interfaceartificial__viscosity__model_1_1avm__preprocess.html", null ],
+    [ "artificial_viscosity_model::avm_t", "d0/d38/structartificial__viscosity__model_1_1avm__t.html", [
+      [ "entropy_viscosity::entropy_viscosity_t", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html", null ]
+    ] ],
     [ "ax_product::ax_compute", "dd/def/interfaceax__product_1_1ax__compute.html", null ],
     [ "ax_product::ax_compute_vector", "d1/d2e/interfaceax__product_1_1ax__compute__vector.html", null ],
     [ "ax_product::ax_helm_allocate", "d8/df9/interfaceax__product_1_1ax__helm__allocate.html", null ],
@@ -1000,14 +1009,11 @@ var hierarchy =
     ] ],
     [ "rea::rea_t", "d1/db3/structrea_1_1rea__t.html", null ],
     [ "utils::read_duration", "dd/d91/interfaceutils_1_1read__duration.html", null ],
-    [ "regularization::reg_compute", "d3/d52/interfaceregularization_1_1reg__compute.html", null ],
-    [ "regularization::reg_free", "d4/d81/interfaceregularization_1_1reg__free.html", null ],
-    [ "regularization::reg_init", "d1/dbb/interfaceregularization_1_1reg__init.html", null ],
+    [ "viscous_regularization::reg_free", "d3/d50/interfaceviscous__regularization_1_1reg__free.html", null ],
+    [ "viscous_regularization::reg_init", "da/d03/interfaceviscous__regularization_1_1reg__init.html", null ],
+    [ "viscous_regularization::reg_update", "d4/d6d/interfaceviscous__regularization_1_1reg__update.html", null ],
     [ "registry_entry::registry_entry_t", "df/db9/structregistry__entry_1_1registry__entry__t.html", null ],
     [ "registry::registry_t", "db/d1a/structregistry_1_1registry__t.html", null ],
-    [ "regularization::regularization_t", "d0/d2d/structregularization_1_1regularization__t.html", [
-      [ "entropy_viscosity::entropy_viscosity_t", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html", null ]
-    ] ],
     [ "math::relcmp", "d9/d4d/interfacemath_1_1relcmp.html", null ],
     [ "math::reord", "d6/d4c/interfacemath_1_1reord.html", null ],
     [ "rhs_maker::rhs_maker_bdf", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf.html", null ],
@@ -1129,6 +1135,7 @@ var hierarchy =
     [ "simulation_component::simulation_component_free", "d7/d7f/interfacesimulation__component_1_1simulation__component__free.html", null ],
     [ "simulation_component::simulation_component_init", "d6/deb/interfacesimulation__component_1_1simulation__component__init.html", null ],
     [ "simulation_component::simulation_component_t", "dc/d0d/structsimulation__component_1_1simulation__component__t.html", [
+      [ "avm_simcomp::avm_simcomp_t", "da/d55/structavm__simcomp_1_1avm__simcomp__t.html", null ],
       [ "boundary_data_writer_simcomp::boundary_data_writer_t", "df/df7/structboundary__data__writer__simcomp_1_1boundary__data__writer__t.html", null ],
       [ "boundary_flux::boundary_flux_t", "d7/df8/structboundary__flux_1_1boundary__flux__t.html", null ],
       [ "boundary_operation::boundary_operation_t", "d0/d23/structboundary__operation_1_1boundary__operation__t.html", null ],
@@ -1302,6 +1309,9 @@ var hierarchy =
     [ "vector_series::vector_series_t", "d3/dba/structvector__series_1_1vector__series__t.html", null ],
     [ "vector::vector_t", "d3/d5b/structvector_1_1vector__t.html", null ],
     [ "pnpn_residual::vel_res", "dd/d55/interfacepnpn__residual_1_1vel__res.html", null ],
+    [ "viscous_regularization::viscous_regularization_t", "d1/d62/structviscous__regularization_1_1viscous__regularization__t.html", [
+      [ "artificial_viscosity::artificial_viscosity_t", "dd/d51/structartificial__viscosity_1_1artificial__viscosity__t.html", null ]
+    ] ],
     [ "wall_model::wall_model_allocate", "d6/dee/interfacewall__model_1_1wall__model__allocate.html", null ],
     [ "wall_model::wall_model_compute", "dc/dae/interfacewall__model_1_1wall__model__compute.html", null ],
     [ "wall_model::wall_model_finalize", "dc/dcb/interfacewall__model_1_1wall__model__finalize.html", null ],

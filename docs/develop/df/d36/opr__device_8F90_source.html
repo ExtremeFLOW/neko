@@ -1207,22 +1207,22 @@ $(document).ready(function(){initNavTree('df/d36/opr__device_8F90_source.html','
 <div class="line"><a id="l01068" name="l01068"></a><span class="lineno"> 1068</span> </div>
 <div class="line"><a id="l01069" name="l01069"></a><span class="lineno"> 1069</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
 <div class="line"><a id="l01070" name="l01070"></a><span class="lineno"> 1070</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d1/dea/interfaceopr__device_1_1hip__rotate__cyc.html">hip_rotate_cyc</a>(vx_d, vy_d, vz_d, &amp;</div>
-<div class="line"><a id="l01071" name="l01071"></a><span class="lineno"> 1071</span>         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l01071" name="l01071"></a><span class="lineno"> 1071</span>         coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &amp;</div>
 <div class="line"><a id="l01072" name="l01072"></a><span class="lineno"> 1072</span>         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &amp;</div>
 <div class="line"><a id="l01073" name="l01073"></a><span class="lineno"> 1073</span>         ncyc, idir)</div>
 <div class="line"><a id="l01074" name="l01074"></a><span class="lineno"> 1074</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
 <div class="line"><a id="l01075" name="l01075"></a><span class="lineno"> 1075</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../de/d68/opr__rotate__cyc_8cu.html#a03227187d2a29859b2f5f36d015463ad">cuda_rotate_cyc</a>(vx_d, vy_d, vz_d, &amp;</div>
-<div class="line"><a id="l01076" name="l01076"></a><span class="lineno"> 1076</span>         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l01076" name="l01076"></a><span class="lineno"> 1076</span>         coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &amp;</div>
 <div class="line"><a id="l01077" name="l01077"></a><span class="lineno"> 1077</span>         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &amp;</div>
 <div class="line"><a id="l01078" name="l01078"></a><span class="lineno"> 1078</span>         ncyc, idir)</div>
 <div class="line"><a id="l01079" name="l01079"></a><span class="lineno"> 1079</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
 <div class="line"><a id="l01080" name="l01080"></a><span class="lineno"> 1080</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../da/d90/opr__rotate__cyc_8c.html#ab163fe706f63e20201bf827315c2919c">opencl_rotate_cyc</a>(vx_d, vy_d, vz_d, &amp;</div>
-<div class="line"><a id="l01081" name="l01081"></a><span class="lineno"> 1081</span>         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l01081" name="l01081"></a><span class="lineno"> 1081</span>         coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &amp;</div>
 <div class="line"><a id="l01082" name="l01082"></a><span class="lineno"> 1082</span>         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &amp;</div>
 <div class="line"><a id="l01083" name="l01083"></a><span class="lineno"> 1083</span>         ncyc, idir)</div>
 <div class="line"><a id="l01084" name="l01084"></a><span class="lineno"> 1084</span><span class="preprocessor">#elif HAVE_METAL</span></div>
 <div class="line"><a id="l01085" name="l01085"></a><span class="lineno"> 1085</span><span class="preprocessor"></span>    <span class="keyword">call </span>metal_rotate_cyc(vx_d, vy_d, vz_d, &amp;</div>
-<div class="line"><a id="l01086" name="l01086"></a><span class="lineno"> 1086</span>         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l01086" name="l01086"></a><span class="lineno"> 1086</span>         coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &amp;</div>
 <div class="line"><a id="l01087" name="l01087"></a><span class="lineno"> 1087</span>         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &amp;</div>
 <div class="line"><a id="l01088" name="l01088"></a><span class="lineno"> 1088</span>         ncyc, idir)</div>
 <div class="line"><a id="l01089" name="l01089"></a><span class="lineno"> 1089</span><span class="preprocessor">#else</span></div>
@@ -1353,7 +1353,7 @@ $(document).ready(function(){initNavTree('df/d36/opr__device_8F90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../df/d36/opr__device_8F90.html">opr_device.F90</a></li>
-    <li class="footer">Generated on Fri Sep 18 2026 03:41:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Sep 19 2026 03:40:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
