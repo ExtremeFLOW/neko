@@ -1,6 +1,11 @@
 # Changelog
 
 ## Develop
+- Removed false sharing in the CPU GMRES Gram-Schmidt step: per-thread
+  partial sums now live in a private array and are published once per
+  thread. Results are unchanged bit for bit.
+- The default `--enable-blk_size` now depends on the working precision:
+  2048 for `dp`, 4096 for `sp`/`ssp`, 1024 for `qp` (previously 1024).
 - The CPU vector and full stress Helmholtz operators apply the mass term
   `h2 * B * u` inside their element kernels rather than in a separate pass
   over the whole field afterwards, so an `lx = 8` double precision velocity
