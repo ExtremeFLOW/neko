@@ -484,19 +484,13 @@ the eddy viscosity field divided by the chosen turbulent Prandtl number:
 # Note to users {#note-to-users}
 
 The general recommendation is to always use weighted averages to analyse the
-statistics. When using an arithmetic average, it is important to keep in mind
-the following two characteristics of the `stats0` files:
+statistics.
 
-1. If one computes statistics from time 0 (`"start_time": 0.0`), the first
-   sample will be zero-filled (both for scalar and fluid
-   statistics). This issue has been discussed more in detail in
-   [#2378](https://github.com/ExtremeFLOW/neko/issues/2378).
-
-2. When `"end_time"` is an exact multiple of `"output_value"` (e.g.
-   `"end_time": 1000.0`, `"output_value": 100.0`), the resulting `.csv` file
-   has the last timestep repeated twice, with the second one having zeros
-   everywhere (both for fluid and scalar statistics).
-   This is the intended behaviour of `output_at_end` - please see
-   [the case file documentation](https://neko.cfd/docs/develop/dd/d33/case-file.html).
-   This issue has been discussed more in detail in
-   [#2278](https://github.com/ExtremeFLOW/neko/issues/2278).
+Every sample in the `stats0` files covers the interval between two writes.
+The first covers only from `start_time` to the first scheduled output after
+it, and nothing is written at `start_time` itself, where the average would be
+empty ([#2378](https://github.com/ExtremeFLOW/neko/issues/2378)). The write
+forced at the end of a run is skipped when the last time step has written a
+sample already, so a run whose `"end_time"` is a multiple of its
+`"output_value"` ends with one sample rather than a zero filled duplicate of
+it ([#2278](https://github.com/ExtremeFLOW/neko/issues/2278)).
