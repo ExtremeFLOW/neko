@@ -1,6 +1,11 @@
 # Changelog
 
 ## Develop
+- Removed false sharing in the CPU GMRES Gram-Schmidt step: per-thread
+  partial sums now live in a private array and are published once per
+  thread.
+- The default `--enable-blk_size` now depends on the working precision:
+  2048 for `dp`, 4096 for `sp`/`ssp`, 1024 for `qp` (previously 1024).
 - Added the possibility to request a scratch field pointing to a specific
   dofmap. This essentially unlock the scratch registry to be used for any field.
   Existing interface remain unchanged, a field requested without specifying a
