@@ -5,6 +5,30 @@ neko_fortran_SOURCES = \
 	ale/ale_manager.f90\
 	ale/bcknd/cpu/ale_routines_cpu.f90\
 	ale/bcknd/device/ale_routines_device.F90\
+	adjoint/adjoint_case.f90\
+	adjoint/adjoint_output.f90\
+	adjoint/adjoint_fluid_scheme.f90\
+	adjoint/adjoint_fluid_scheme_incompressible.f90\
+	adjoint/adjoint_fluid_fctry.f90\
+	adjoint/adjoint_fluid_pnpn.f90\
+	adjoint/adjoint_fluid_pnpn_bc_fctry.f90\
+	adjoint/adjoint_source_term.f90\
+	adjoint/adv_adjoint_no_dealias.f90\
+	adjoint/adv_adjoint_dealias.f90\
+	adjoint/advection_adjoint.f90\
+	adjoint/advection_adjoint_fctry.f90\
+	adjoint/adjoint_scalar_scheme.f90\
+	adjoint/adjoint_scalar_pnpn.f90\
+	adjoint/adjoint_scalar_pnpn_bc_fctry.f90\
+	adjoint/adjoint_scalars.f90\
+	adjoint/adjoint_pnpn_res.f90\
+	adjoint/adjoint_pnpn_res_fctry.f90\
+	adjoint/bcknd/cpu/adjoint_pnpn_res_cpu.f90\
+	adjoint/bcknd/device/adjoint_pnpn_res_device.F90\
+	common/json_utils_ext.f90\
+	bc/normal_vec_bcs.f90\
+	source_terms/adjoint_scalar_convection_source_term.f90\
+	simulation_adjoint.f90\
 	api/neko_api.f90\
 	api/neko_api_user.f90\
 	config/num_types.f90\
