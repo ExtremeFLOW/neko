@@ -11,47 +11,35 @@ inputs:
   install-dir:
     description: "The directory to install the HDF5 library."
     required: false
-    default: "${{ runner.workspace }}/pkg/hdf5"
-
+    default: "${{ runner.workspace }}/pkg"
   working-dir:
     description: "The directory to work in."
     required: false
-    default: "${{ runner.workspace }}/tmp/hdf5"
-
+    default: "${{ runner.workspace }}/tmp"
   os:
     description: "The operating system to use."
     required: false
     default: "${{ runner.os }}"
-
   compiler:
     description: "The compiler to use."
     required: false
-    default: "gfortran"
-
+    default: "mpif90"
   compiler-flags:
     description: "The compiler flag to use."
     required: false
     default: "-O3"
-
-  c-compiler:
-    description: "The C compiler to use."
-    required: false
-    default: "gcc"
-
   build-options:
     description: "The build option to use."
     required: false
-    default: "--parallel"
-
-  install-options:
-    description: "The install option to use."
-    required: false
-    default: ""
-
+    default: "--parallel $(nproc)"
   version:
     description: "The version of the HDF5 library to use."
     required: false
     default: "2.0.0"
+  arch:
+    description: "The architecture to use."
+    required: false
+    default: "${{ runner.arch }}"
 
 outputs:
   install-dir:
@@ -117,32 +105,12 @@ runs:
         echo "install-dir=$(echo $(realpath $INSTALL_DIR))" >> $GITHUB_OUTPUT
         echo "tag=$(echo $TAG)" >> $GITHUB_OUTPUT
 
-    # ------------------------------------------------------------------------ #
-    # Setup the cache for the HDF5 library.
-    # All following steps should look if the cache was hit and skip if it was.
-
-    - name: Create cache key based on version, OS, and compiler
-      id: create-key
-      shell: bash
-      env:
-        VERSION: ${{ inputs.version }}
-        OS: ${{ inputs.os }}
-        COMPILER: ${{ inputs.compiler }}
-        C_COMPILER: ${{ inputs.c-compiler }}
-        COMPILER_FLAGS: ${{ inputs.compiler-flags }}
-        REPO: https://github.com/HDFGroup/hdf5.git
-      run: |
-        # Get the GIT sha for the current commit
-        SHA=$(git ls-remote $REPO $VERSION | awk '{print $1}')
-        key="hdf5-$SHA-$OS-$COMPILER-${COMPILER_FLAGS// /_}-$C_COMPILER"
-        printf "key=%s\n" "$key" | tee -a $GITHUB_OUTPUT
-
     - name: Cache
       id: cache-hdf5
       uses: actions/cache@v5
       with:
         path: ${{ steps.setup-env.outputs.install-dir }}
-        key: ${{ steps.create-key.outputs.key }}
+        key: ${{ steps.setup-env.outputs.tag }}
 
     - name: Clone
       if: ${{ steps.cache-hdf5.outputs.cache-hit != 'true' }}
@@ -172,11 +140,8 @@ runs:
       env:
         INSTALL_DIR: ${{ steps.setup-env.outputs.install-dir }}
         WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
-        FC: mpifort
+        FC: ${{ inputs.compiler }}
         FCFLAGS: ${{ inputs.compiler-flags }}
-        CC: mpicc
-        OMPI_FC: ${{ inputs.compiler }}
-        OMPI_CC: ${{ inputs.c-compiler }}
       run: |
         cmake -B $WORKING_DIR/build -S $WORKING_DIR -G Ninja \
             --install-prefix $INSTALL_DIR -DHDF5_ENABLE_PARALLEL=ON \
@@ -187,19 +152,23 @@ runs:
       shell: bash
       env:
         WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
-        BUILD_OPTIONS: ${{ inputs.build-options }}
-        OMPI_FC: ${{ inputs.compiler }}
-        OMPI_CC: ${{ inputs.c-compiler }}
-      run: cmake --build $WORKING_DIR/build --config Release $BUILD_OPTIONS
+      run: cmake --build $WORKING_DIR/build --config Release
 
     - name: Install
       if: ${{ steps.cache-hdf5.outputs.cache-hit != 'true' }}
       shell: bash
       env:
         WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
-        INSTALL_OPTIONS: ${{ inputs.install-options }}
       run: |
-        cmake --install $WORKING_DIR/build --config Release $INSTALL_OPTIONS
+        cmake --install $WORKING_DIR/build --config Release
+
+    - name: Cleanup
+      if: ${{ steps.cache-pfunit.outputs.cache-hit != 'true' }}
+      shell: bash
+      env:
+        WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
+      run: |
+        rm -fr $WORKING_DIR/build
 
     # ------------------------------------------------------------------------ #
     # Cleanup and set the output.
