@@ -101,12 +101,12 @@ program mesh_checker
   call MPI_Allreduce(msh%periodic%size, periodic_size, 1, &
        MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
-  xmin = glmin(dofmap%x, dofmap%size())
-  ymin = glmin(dofmap%y, dofmap%size())
-  zmin = glmin(dofmap%z, dofmap%size())
-  xmax = glmax(dofmap%x, dofmap%size())
-  ymax = glmax(dofmap%y, dofmap%size())
-  zmax = glmax(dofmap%z, dofmap%size())
+  xmin = glmin(dofmap%x%x, dofmap%size())
+  ymin = glmin(dofmap%y%x, dofmap%size())
+  zmin = glmin(dofmap%z%x, dofmap%size())
+  xmax = glmax(dofmap%x%x, dofmap%size())
+  ymax = glmax(dofmap%y%x, dofmap%size())
+  zmax = glmax(dofmap%z%x, dofmap%size())
 
   if (pe_rank .eq. 0) then
      write(*,*) ''

@@ -237,9 +237,9 @@ contains
     lz = coef%Xh%lz
     do i = 1, this%n_nodes
        idx = nonlinear_index(msk(i), lx, ly, lz)
-       xw = coef%dof%x(idx(1), idx(2), idx(3), idx(4))
-       yw = coef%dof%y(idx(1), idx(2), idx(3), idx(4))
-       zw = coef%dof%z(idx(1), idx(2), idx(3), idx(4))
+       xw = coef%dof%x%x(idx(1), idx(2), idx(3), idx(4))
+       yw = coef%dof%y%x(idx(1), idx(2), idx(3), idx(4))
+       zw = coef%dof%z%x(idx(1), idx(2), idx(3), idx(4))
        fid = facet(i)
        do j = 1, this%n_samples
           p = (i - 1) * this%n_samples + j
@@ -275,9 +275,9 @@ contains
           sample_idx(p) = linear_index(sample(1), sample(2), sample(3), &
                sample(4), lx, ly, lz)
 
-          dx = coef%dof%x(sample(1), sample(2), sample(3), sample(4)) - xw
-          dy = coef%dof%y(sample(1), sample(2), sample(3), sample(4)) - yw
-          dz = coef%dof%z(sample(1), sample(2), sample(3), sample(4)) - zw
+          dx = coef%dof%x%x(sample(1), sample(2), sample(3), sample(4)) - xw
+          dy = coef%dof%y%x(sample(1), sample(2), sample(3), sample(4)) - yw
+          dz = coef%dof%z%x(sample(1), sample(2), sample(3), sample(4)) - zw
           this%h%x(p) = -(dx*n_x%x(i) + dy*n_y%x(i) + dz*n_z%x(i))
        end do
     end do

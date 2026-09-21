@@ -271,9 +271,9 @@ contains
 
     pi = acos(-1.0_rp)
     if (msh%nelv .gt. 0) then
-       theta_min = minval(modulo(atan2(dm_Xh%y, dm_Xh%x) + &
+       theta_min = minval(modulo(atan2(dm_Xh%y%x, dm_Xh%x%x) + &
             2.0_rp * pi, 2.0_rp * pi))
-       theta_max = maxval(modulo(atan2(dm_Xh%y, dm_Xh%x) + &
+       theta_max = maxval(modulo(atan2(dm_Xh%y%x, dm_Xh%x%x) + &
             2.0_rp * pi, 2.0_rp * pi))
     else
        theta_min = huge(0.0_rp)
