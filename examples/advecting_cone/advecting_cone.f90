@@ -27,8 +27,8 @@ contains
        w => fields%get("w")
 
        do i = 1, u%dof%size()
-          x = u%dof%x(i,1,1,1)
-          y = u%dof%y(i,1,1,1)
+          x = u%dof%x%x(i,1,1,1)
+          y = u%dof%y%x(i,1,1,1)
 
           ! Angular velocity is pi, giving a full rotation in 2 sec
           u%x(i,1,1,1) = -y*pi
@@ -44,8 +44,8 @@ contains
        cone_radius = 0.5
 
        do i = 1, s%dof%size()
-          x = dof%x(i,1,1,1) - mux
-          y = dof%y(i,1,1,1) - muy
+          x = dof%x%x(i,1,1,1) - mux
+          y = dof%y%x(i,1,1,1) - muy
 
           r = sqrt(x**2 + y**2)
           theta = atan2(y, x)
