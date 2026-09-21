@@ -10,8 +10,6 @@
   their mesh and function space, while generic arrays retain a fixed logical
   extent. The `.chkp` format remains available through a single-scalar
   compatibility view, and existing flat HDF5 checkpoints remain readable.
-- Fixed several OpenMP races in the boundary conditions, including a Neumann
-  flux accumulated once per thread.
 - Reworked when outputs are written: the times are now a schedule fixed by
   the case rather than derived from how many writes have been performed so
   far. The entries below are what that fixes.
