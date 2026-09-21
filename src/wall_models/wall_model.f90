@@ -147,7 +147,7 @@ module wall_model
        import wall_model_t, json_file, dofmap_t, coef_t, rp
        class(wall_model_t), intent(inout) :: this
        character(len=*), intent(in) :: scheme_name
-       type(coef_t), intent(in), target :: coef
+       type(coef_t), intent(in) :: coef
        integer, intent(in) :: msk(:)
        integer, intent(in) :: facet(:)
        type(json_file), intent(inout) :: json
@@ -163,7 +163,7 @@ module wall_model
      subroutine wall_model_partial_init(this, coef, scheme_name, json)
        import wall_model_t, json_file, dofmap_t, coef_t, rp, user_t
        class(wall_model_t), intent(inout) :: this
-       type(coef_t), intent(in), target :: coef
+       type(coef_t), intent(in) :: coef
        character(len=*), intent(in) :: scheme_name
        type(json_file), intent(inout) :: json
      end subroutine wall_model_partial_init
@@ -204,7 +204,7 @@ module wall_model
           facet, json)
        class(wall_model_t), allocatable, intent(inout) :: object
        character(len=*), intent(in) :: scheme_name
-       type(coef_t), intent(in), target :: coef
+       type(coef_t), intent(in) :: coef
        integer, intent(in) :: msk(:)
        integer, intent(in) :: facet(:)
        type(json_file), intent(inout) :: json

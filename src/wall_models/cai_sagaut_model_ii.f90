@@ -101,7 +101,7 @@ contains
        json)
     class(cai_sagaut_model_ii_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     type(json_file), intent(inout) :: json
@@ -123,7 +123,7 @@ contains
   !! @param json The case-file parameters for this wall model.
   subroutine cai_sagaut_model_ii_partial_init(this, coef, scheme_name, json)
     class(cai_sagaut_model_ii_t), intent(inout) :: this
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     character(len=*), intent(in) :: scheme_name
     type(json_file), intent(inout) :: json
     call this%partial_init_base(coef, scheme_name, json)
@@ -166,7 +166,7 @@ contains
        msk, facet, sampler, kappa, B, p, s)
     class(cai_sagaut_model_ii_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     class(wall_sampler_t), allocatable, intent(inout) :: sampler

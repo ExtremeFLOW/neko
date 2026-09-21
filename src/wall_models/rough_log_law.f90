@@ -103,7 +103,7 @@ contains
        json)
     class(rough_log_law_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     type(json_file), intent(inout) :: json
@@ -124,7 +124,7 @@ contains
   !! @param json A dictionary with parameters.
   subroutine rough_log_law_partial_init(this, coef, scheme_name, json)
     class(rough_log_law_t), intent(inout) :: this
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     character(len=*), intent(in) :: scheme_name
     type(json_file), intent(inout) :: json
     character(len=LOG_SIZE) :: log_buf
@@ -195,7 +195,7 @@ contains
        facet, sampler, kappa, B, z0)
     class(rough_log_law_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     class(wall_sampler_t), allocatable, intent(inout) :: sampler

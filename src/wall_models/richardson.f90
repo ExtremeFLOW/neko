@@ -116,7 +116,7 @@ contains
        json)
     class(richardson_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     type(json_file), intent(inout) :: json
@@ -169,7 +169,7 @@ contains
   !! @param json A dictionary with parameters.
   subroutine richardson_partial_init(this, coef, scheme_name, json)
     class(richardson_t), intent(inout) :: this
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     character(len=*), intent(in) :: scheme_name
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: g_tmp(:)
@@ -295,7 +295,7 @@ contains
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
     character(len=*), intent(in) :: scalar_name
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     class(wall_sampler_t), allocatable, intent(inout) :: sampler

@@ -62,7 +62,7 @@ contains
        json)
     class(wall_model_t), allocatable, intent(inout) :: object
     character(len=*), intent(in) :: scheme_name
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     type(json_file), intent(inout) :: json

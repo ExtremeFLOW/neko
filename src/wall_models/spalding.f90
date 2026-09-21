@@ -98,7 +98,7 @@ contains
   subroutine spalding_init(this, scheme_name, coef, msk, facet, json)
     class(spalding_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     type(json_file), intent(inout) :: json
@@ -118,7 +118,7 @@ contains
   !! @param json A dictionary with parameters.
   subroutine spalding_partial_init(this, coef, scheme_name, json)
     class(spalding_t), intent(inout) :: this
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     character(len=*), intent(in) :: scheme_name
     type(json_file), intent(inout) :: json
     character(len=LOG_SIZE) :: log_buf
@@ -169,7 +169,7 @@ contains
        facet, sampler, kappa, B)
     class(spalding_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     class(wall_sampler_t), allocatable, intent(inout) :: sampler
