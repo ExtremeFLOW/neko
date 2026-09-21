@@ -439,7 +439,7 @@ contains
 
     if (this%preprocess_controller%check(time)) then
        call this%preprocess_(time)
-       call this%preprocess_controller%register_execution()
+       call this%preprocess_controller%register_execution(time)
     end if
   end subroutine simulation_component_preprocess_wrapper
 
@@ -452,7 +452,7 @@ contains
 
     if (this%compute_controller%check(time)) then
        call this%compute_(time)
-       call this%compute_controller%register_execution()
+       call this%compute_controller%register_execution(time)
     end if
   end subroutine simulation_component_compute_wrapper
 
@@ -462,6 +462,7 @@ contains
     class(simulation_component_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
+    call this%preprocess_controller%set_counter(time)
     call this%compute_controller%set_counter(time)
     call this%output_controller%set_counter(time)
     call this%restart_(time)
