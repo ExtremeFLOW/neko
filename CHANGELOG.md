@@ -3,7 +3,7 @@
 ## Develop
 - Removed false sharing in the CPU GMRES Gram-Schmidt step: per-thread
   partial sums now live in a private array and are published once per
-  thread. Results are unchanged bit for bit.
+  thread.
 - The default `--enable-blk_size` now depends on the working precision:
   2048 for `dp`, 4096 for `sp`/`ssp`, 1024 for `qp` (previously 1024).
 - The CPU vector and full stress Helmholtz operators apply the mass term
