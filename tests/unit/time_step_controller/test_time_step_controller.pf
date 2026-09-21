@@ -301,8 +301,8 @@ contains
     end do
   end subroutine test_landing_steps_one
 
-  !> A floor on the step takes precedence over landing, except for the last
-  !! step of the run, which may be as short as it needs to be.
+  !> A floor on the step at the step asked for takes precedence over the
+  !! landing, which is then without effect.
   @test
   subroutine test_min_timestep_respected()
     type(time_step_controller_t) :: dtc
@@ -320,11 +320,11 @@ contains
 
     @assertEqual(runs(1)%nexec, 11)
     @assertTrue(max_error(runs(1), 0.0_dp, 0.1_dp) .gt. 1e-5_dp)
-    @assertEqual(steps%t_final, 1.0_dp, tolerance=1e-12_dp)
-    do k = 1, steps%n - 1
+    @assertTrue(steps%t_final .ge. 1.0_dp)
+    @assertTrue(steps%t_final .lt. 1.0_dp + 7.3e-4_dp)
+    do k = 1, steps%n
        @assertEqual(steps%dt(k), 7.3e-4_dp, tolerance=1e-15_dp)
     end do
-    @assertTrue(steps%dt(steps%n) .lt. 7.3e-4_dp)
   end subroutine test_min_timestep_respected
 
   !> Two scheduled times closer to each other than a tenth of the step: the

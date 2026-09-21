@@ -703,38 +703,4 @@ contains
     @assertEqual(ctrl%time_to_next(time, 0.1_dp), 0.63_dp, tolerance=1e-12_dp)
   end subroutine test_time_to_next_start
 
-  !> The write forced at the end of the run is not repeated when the write
-  !! scheduled for end_time was performed at the step before, within the
-  !! tolerance of the check.
-  @test
-  subroutine test_forced_end_not_repeated()
-    type(time_based_controller_t) ctrl
-    real(kind=dp) :: t_out(64)
-    integer :: n
-
-    ! Scheduled at 0, 0.5 and 1.0. The third step, to 0.99, is within the
-    ! tolerance of 1.0 and performs the write scheduled there; the fourth
-    ! step, to 1.32, ends the run and must not write again.
-    call ctrl%init(0.0_dp, 1.0_dp, "nsamples", 2.0_dp)
-    call collect(ctrl, 0.0_dp, 1.0_dp, 0.33_dp, .true., t_out, n)
-    @assertEqual(n, 3)
-    @assertEqual(t_out(3), 0.99_dp, tolerance=1e-8_dp)
-    @assertTrue(ctrl%end_executed())
-
-    ! With end_time not scheduled, the forced write is an extra one
-    call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.4_dp)
-    call collect(ctrl, 0.0_dp, 1.0_dp, 0.33_dp, .true., t_out, n)
-    @assertEqual(n, 4)
-    @assertEqual(t_out(3), 0.99_dp, tolerance=1e-8_dp)
-    @assertEqual(t_out(4), 1.32_dp, tolerance=1e-8_dp)
-    @assertFalse(ctrl%end_executed())
-
-    ! A run that stops before end_time still gets its forced write
-    call ctrl%init(0.0_dp, 1.0_dp, "nsamples", 2.0_dp)
-    call collect(ctrl, 0.0_dp, 0.7_dp, 0.1_dp, .true., t_out, n)
-    @assertEqual(n, 3)
-    @assertEqual(t_out(3), 0.7_dp, tolerance=1e-8_dp)
-    @assertFalse(ctrl%end_executed())
-  end subroutine test_forced_end_not_repeated
-
 end module test_time_based_controller

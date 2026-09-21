@@ -34,6 +34,7 @@
 module time_step_controller
   use num_types, only : dp
   use logger, only : neko_log, LOG_SIZE
+  use utils, only : neko_error
   use json_module, only : json_file
   use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
   use time_state, only : time_state_t
@@ -109,7 +110,7 @@ contains
   subroutine time_step_controller_init(this, params)
     class(time_step_controller_t), intent(inout) :: this
     type(json_file), intent(inout) :: params
-    integer :: exact_any, exact_all, ierr
+    integer :: flags_any(2), flags_all(2), ierr
 
     this%dt_last_change = -1
     call json_get_or_default(params, 'variable_timestep', &
@@ -144,28 +145,40 @@ contains
     if (this%exact_output_time) then
        call json_get_or_lookup_or_default(params, 'output_landing_steps', &
             this%landing_steps, 10)
-       if (this%landing_steps .lt. 1) then
-          call neko_log%error('output_landing_steps must be at least 1')
+       if (this%landing_steps .lt. 1 .or. &
+            this%landing_steps .gt. 1000000) then
+          call neko_error('output_landing_steps must be between 1 and &
+               &1000000')
        end if
     end if
 
-    ! In an MPMD run the landing takes a collective at every step, so the
-    ! coupled simulations have to agree on it, or the ones landing would
-    ! wait forever for the ones that do not.
-    if (pe_size .ne. global_pe_size) then
-       exact_any = merge(1, 0, this%exact_output_time)
-       exact_all = exact_any
-       call MPI_Allreduce(MPI_IN_PLACE, exact_any, 1, MPI_INTEGER, &
+    ! A variable time step and the landing on the scheduled times each take
+    ! a collective at every step in an MPMD run, so the coupled simulations
+    ! have to agree on both, or their collectives would not match up.
+    if (is_mpmd()) then
+       flags_any = merge(1, 0, [this%is_variable_dt, this%exact_output_time])
+       flags_all = flags_any
+       call MPI_Allreduce(MPI_IN_PLACE, flags_any, 2, MPI_INTEGER, &
             MPI_MAX, NEKO_GLOBAL_COMM, ierr)
-       call MPI_Allreduce(MPI_IN_PLACE, exact_all, 1, MPI_INTEGER, &
+       call MPI_Allreduce(MPI_IN_PLACE, flags_all, 2, MPI_INTEGER, &
             MPI_MIN, NEKO_GLOBAL_COMM, ierr)
-       if (exact_any .ne. exact_all) then
-          call neko_log%error('exact_output_time must be set in all the &
-               &coupled cases of an MPMD run, or in none')
+       if (any(flags_any .ne. flags_all)) then
+          call neko_error('variable_timestep and exact_output_time must &
+               &each be set in all the coupled cases of an MPMD run, or in &
+               &none')
        end if
     end if
 
   end subroutine time_step_controller_init
+
+  !> Whether this is one of several simulations coupled in an MPMD run, in
+  !! which case the time step is agreed on across them at every step.
+  pure function is_mpmd() result(mpmd)
+    logical :: mpmd
+
+    mpmd = global_pe_size .gt. 0 .and. pe_size .ne. global_pe_size
+
+  end function is_mpmd
 
   !> The first time step of a variable time step run: the one giving the
   !! target CFL number, limited by `timestep`, `max_timestep` and
@@ -179,7 +192,8 @@ contains
     real(kind=dp), intent(in) :: cfl
     real(kind=dp) :: dt
 
-    dt = min(this%cfl_trg / cfl * time%dt, this%init_dt)
+    dt = this%init_dt
+    if (cfl .gt. 0.0_dp) dt = min(this%cfl_trg / cfl * time%dt, dt)
     dt = max(min(dt, this%max_dt), this%min_dt)
 
   end function time_step_controller_first_dt
@@ -284,7 +298,7 @@ contains
        end if
 
        ! If running in mpmd, the new dt is the minimum across simulations
-       if (pe_size .ne. global_pe_size) then
+       if (is_mpmd()) then
           global_min_dt = time%dt
           call MPI_Allreduce(MPI_IN_PLACE, global_min_dt, 1, &
                MPI_DOUBLE_PRECISION, MPI_MIN, NEKO_GLOBAL_COMM, ierr)
@@ -325,17 +339,16 @@ contains
   !! No step is shorter than `TIME_TOL` times the step asked for, or than
   !! `min_timestep`. A scheduled time closer than that to another one, which
   !! takes two controllers with unrelated intervals, or to `end_time`, is
-  !! executed within that shortest step of its time instead of landed on.
-  !! The last step of the simulation is exempt from the floor, so that a run
-  !! started closer than that to `end_time` still ends exactly there. In an
-  !! MPMD run the shortened step is the smallest one over the simulations, so
-  !! that they keep advancing in lockstep.
+  !! executed within that shortest step of its time instead of landed on,
+  !! and a run started closer than that to `end_time` ends within that step
+  !! past it. In an MPMD run the shortened step is the smallest one over the
+  !! simulations, so that they keep advancing in lockstep.
   subroutine time_step_controller_land(this, time, time_to_next)
     class(time_step_controller_t), intent(inout) :: this
     type(time_state_t), intent(inout) :: time
     real(kind=dp), intent(in) :: time_to_next
     real(kind=dp) :: dt, dt_new, dt_min, direction, remaining, global_min_dt
-    real(kind=dp) :: remaining_end, window
+    real(kind=dp) :: remaining_end, window, growth
     character(len=LOG_SIZE) :: log_buf
     integer :: nsteps, ierr
     logical :: landing_on_end, adjusted
@@ -349,11 +362,10 @@ contains
     remaining = huge(0.0_dp)
 
     if (dt .gt. 0.0_dp) then
-       ! Also the end of the simulation is landed on. Nothing follows the
-       ! last step, so it may be as short as it needs to be, and the end is
-       ! the target whenever it is within the shortest step allowed of the
-       ! next scheduled time: that time is then executed at the end, rather
-       ! than landed on and followed by a step too short to be worth taking.
+       ! Also the end of the simulation is landed on, and it is the target
+       ! whenever it is within the shortest step allowed of the next
+       ! scheduled time: that time is then executed at the end, rather than
+       ! landed on and followed by a step too short to be allowed.
        dt_min = min(dt, max(TIME_TOL * dt, this%min_dt))
        remaining_end = direction * (time%end_time - time%t)
        landing_on_end = remaining_end .le. time_to_next + dt_min
@@ -363,15 +375,17 @@ contains
           remaining = time_to_next
        end if
 
-       ! The landing is engaged at least (1 + TIME_TOL) steps ahead of the
-       ! target: a full step from closer than that would leave less than the
-       ! shortest step allowed, and the target would be passed by a fraction
-       ! of a step instead of landed on. With a variable step the step can
-       ! grow before the next one is taken, which the window accounts for.
-       window = 1.0_dp + TIME_TOL
+       ! The landing is engaged at least one step plus the shortest step
+       ! allowed ahead of the target: a full step from closer than that would
+       ! leave less than the shortest step, and the target would be passed by
+       ! a fraction of a step instead of landed on. With a variable step the
+       ! step can grow before the next one is taken, which the window
+       ! accounts for.
+       growth = 1.0_dp
        if (this%is_variable_dt) then
-          window = 1.0_dp + TIME_TOL * max(1.0_dp, this%max_dt_increase_factor)
+          growth = max(1.0_dp, this%max_dt_increase_factor)
        end if
+       window = 1.0_dp + max(TIME_TOL * growth, this%min_dt / dt)
        window = max(real(this%landing_steps, dp), window) * &
             (1.0_dp + LANDING_TOL)
 
@@ -389,17 +403,14 @@ contains
              adjusted = .true.
           end if
 
-          ! A scheduled time closer than the shortest step allowed is passed,
-          ! except by the last step of the run.
-          if (.not. (landing_on_end .and. nsteps .eq. 1)) then
-             dt_new = max(dt_new, dt_min)
-          end if
+          ! A time closer than the shortest step allowed is passed.
+          dt_new = max(dt_new, dt_min)
           adjusted = adjusted .and. abs(dt_new - dt) .gt. 0.0_dp
        end if
     end if
 
     ! If running in mpmd, the shortened step is the minimum across simulations
-    if (pe_size .ne. global_pe_size) then
+    if (is_mpmd()) then
        global_min_dt = dt_new
        call MPI_Allreduce(MPI_IN_PLACE, global_min_dt, 1, &
             MPI_DOUBLE_PRECISION, MPI_MIN, NEKO_GLOBAL_COMM, ierr)

@@ -154,9 +154,6 @@ module time_based_controller
           time_based_controller_time_to_next
      !> The tolerance used when comparing times.
      procedure, pass(this) :: tolerance => time_based_controller_tolerance
-     !> Whether the execution scheduled for `end_time` has been performed.
-     procedure, pass(this) :: end_executed => &
-          time_based_controller_end_executed
   end type time_based_controller_t
 
 contains
@@ -313,12 +310,11 @@ contains
   !! @details The result is `.true.` at the first time step at which the next
   !! scheduled time has been reached, within a tolerance of `TIME_TOL * dt`.
   !! A forced execution is performed unless the time is before `start_time`,
-  !! an execution has already been registered for the current time step, or
-  !! the execution scheduled for `end_time` has been performed already. The
-  !! latter two keep the forced execution at the end of a simulation from
-  !! repeating a scheduled one, at the same step or at the step before it
-  !! within the tolerance. Forcing does override a `never` control, which is
-  !! how `output_at_end` writes an output that is otherwise never written.
+  !! or an execution has already been registered for the current time step.
+  !! The latter keeps the forced execution at the end of a simulation from
+  !! repeating a scheduled one at the same step. Forcing does override a
+  !! `never` control, which is how `output_at_end` writes an output that is
+  !! otherwise never written.
   pure function time_based_controller_check(this, time, force) &
        result(check)
     class(time_based_controller_t), intent(in) :: this
@@ -351,10 +347,7 @@ contains
     if (progress .lt. t_start - tol) return
 
     if (ifforce) then
-       ! The execution scheduled for end_time may have been performed already,
-       ! within the tolerance, at the step before the one reaching end_time,
-       ! in which case forcing it again would repeat it.
-       check = .not. this%end_executed()
+       check = .true.
     else if (this%nsteps .gt. 0) then
        nstep = time%tstep - this%tstep_offset
        check = nstep .ge. this%next_index * this%nsteps
@@ -375,26 +368,6 @@ contains
     end if
 
   end function time_based_controller_check
-
-  !> Whether `end_time` is one of the scheduled times and the execution
-  !! scheduled for it has been performed.
-  pure function time_based_controller_end_executed(this) result(executed)
-    class(time_based_controller_t), intent(in) :: this
-    logical :: executed
-    real(kind=dp) :: t_end, tol
-    integer(kind=i8) :: k_end
-
-    executed = .false.
-    if (this%time_interval .le. 0.0_dp) return
-
-    t_end = this%direction * (this%end_time - this%anchor_time)
-    tol = SPAN_TOL * max(abs(t_end), this%time_interval)
-    k_end = floor((t_end + tol) / this%time_interval, kind = i8)
-    if (abs(real(k_end, dp) * this%time_interval - t_end) .gt. tol) return
-
-    executed = this%first_index + this%next_index .gt. k_end
-
-  end function time_based_controller_end_executed
 
   !> The number of scheduled times at or before the given time, counted from
   !! `first_index`. Assigning it to `next_index` after an execution makes the
@@ -555,9 +528,9 @@ contains
   !! An execution that is due at the current time already, which happens for
   !! the components that do not execute before the time loop, is performed
   !! at the coming step wherever it lands, so the time to land on is the
-  !! scheduled time after it. The two are then executed together, exactly at
-  !! the later one, rather than the first somewhere within the step and the
-  !! second passed by.
+  !! scheduled time after it, which would otherwise be passed by. When the
+  !! landing takes a single step the two are executed together, exactly at
+  !! the later one.
   pure function time_based_controller_time_to_next(this, time, dt) &
        result(t_to_next)
     class(time_based_controller_t), intent(in) :: this

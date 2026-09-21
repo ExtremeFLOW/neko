@@ -317,8 +317,10 @@ checkpoint and simulation component outputs, and the `preprocess_control`,
 `simulationtime` and `nsamples` controls. The `tsteps` control counts steps
 and has no time to land on. An interval shorter than the time step executes
 at every step, as without the option, and does not shorten the step to the
-interval. The schedules are a property of the case, so a restart lands on the
-same times as the uninterrupted run.
+interval; an interval between one and two time steps is landed on with two
+steps each, so the run then takes up to twice the steps. The schedules are a
+property of the case, so a restart lands on the same times as the
+uninterrupted run.
 
 Once the next scheduled time is within `output_landing_steps` time steps, the
 remaining time is divided into the smallest whole number of equal steps that
@@ -330,21 +332,25 @@ the step the CFL controller settles on, and the controller keeps working on it
 as if the step had not been shortened. With the default of ten steps the step
 changes by at most a tenth when a scheduled time is approached from further
 away than that, which is the usual case. With `output_landing_steps` set to
-`1`, only the last step before the scheduled time is shortened, down to a
-tenth of the step asked for.
+`1`, only the last step or two before the scheduled time are shortened, down
+to a tenth of the step asked for. Even when the time step divides the
+interval, the last step before a scheduled time absorbs the round-off of the
+accumulated time, so it differs from the step asked for by round-off.
 
 No step is shorter than a tenth of the step asked for or, with a variable time
-step, than `min_timestep`. Two schedules with unrelated intervals can schedule
-times closer to each other than that shortest step; the first is landed on,
-and the second is executed within that shortest step of its time, before or
-after it. Likewise, a scheduled time closer than that to `end_time` is
-executed at `end_time`. The last step of the run is exempt from the floor, so
-that a run started closer than that to `end_time` still ends exactly there.
+step, than `min_timestep`; a `min_timestep` at the step the CFL controller
+settles on therefore leaves the option without effect. Two schedules with
+unrelated intervals can schedule times closer to each other than that shortest
+step; the first is landed on, and the second is executed within that shortest
+step of its time, before or after it. Likewise, a scheduled time closer than
+that to `end_time` is executed at `end_time`, and a run that comes closer than
+that to `end_time` without landing on it, such as one started there, ends
+within that step past it.
 
 A change of the time step invalidates the projection spaces of the velocity
 and pressure solves, as it does with a variable time step, so they are cleared
 at each change and rebuilt over the following steps. Expect somewhat more
-solver iterations around each scheduled time. In an MPMD run the option should
+solver iterations around each scheduled time. In an MPMD run the option must
 be set in all the coupled cases, which then take the shortened steps together.
 
 ### Restarts and joblimit

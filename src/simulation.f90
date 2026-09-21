@@ -135,7 +135,7 @@ contains
     type(time_step_controller_t), intent(inout) :: dt_controller
     real(kind=dp), optional, intent(in) :: tstep_loop_start_time
     real(kind=dp) :: start_time, end_time, tstep_start_time
-    real(kind=dp) :: cfl
+    real(kind=dp) :: cfl, dt_previous
     character(len=LOG_SIZE) :: log_buf
 
     ! Setup the time step, and start time
@@ -144,6 +144,7 @@ contains
     tstep_start_time = start_time
 
     ! Compute the next time step size
+    dt_previous = C%time%dt
     cfl = C%fluid%compute_cfl(C%time%dt)
     call dt_controller%set_dt(C%time, cfl)
 
@@ -154,9 +155,8 @@ contains
             neko_simcomps%time_to_next(C%time, C%time%dt)))
     end if
 
-    if (dt_controller%is_variable_dt .or. dt_controller%dt_is_landing) then
-       cfl = C%fluid%compute_cfl(C%time%dt)
-    end if
+    ! The CFL number of the step about to be taken, for the log
+    if (C%time%dt .ne. dt_previous) cfl = C%fluid%compute_cfl(C%time%dt)
 
     ! Advance time step from t to t+dt and print the status
     call simulation_settime(C%time, C%fluid%ext_bdf)
