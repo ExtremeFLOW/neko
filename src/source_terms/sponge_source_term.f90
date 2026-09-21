@@ -96,12 +96,15 @@ module sponge_source_term
      !> Initialize a sponge with a constant baseflow.
      procedure, pass(this) :: init_constant => &
           sponge_init_constant
-     !> Initialize a sponge with a baseflow imported from the initial condition.
+     !> Initialize a sponge with a baseflow imported by the user.
      procedure, pass(this) :: init_user => &
           sponge_init_user
      !> Initialize a sponge with a baseflow imported from a field file.
      procedure, pass(this) :: init_field => &
           sponge_init_field
+     !> Initialize a sponge with a baseflow from another sponge object.
+     procedure, pass(this) :: init_noop => &
+          sponge_init_noop
      !> Common constructor.
      procedure, pass(this) :: init_common => &
           sponge_init_common
@@ -205,6 +208,13 @@ contains
        call this%init_user(fields, coef, start_time, end_time, amplitudes, &
             fringe_registry_name, bf_registry_pref, dump_fields, dump_fname)
 
+       ! Let the user set the base flow.
+    case ("no-op")
+
+       call this%init_noop(fields, coef, start_time, end_time, &
+            amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
+            dump_fname)
+
     case default
        call neko_error("(SPONGE) " // trim(baseflow_method) // &
             " is not a valid method")
@@ -213,6 +223,42 @@ contains
     call neko_log%end_section(lvl = NEKO_LOG_INFO)
 
   end subroutine sponge_init_from_json
+
+  !> Initialize a sponge with a constant baseflow.
+  subroutine sponge_init_noop(this, fields, coef, start_time, end_time, &
+       amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
+       dump_fname)
+    class(sponge_source_term_t), intent(inout) :: this
+    type(field_list_t), intent(in), target :: fields
+    type(coef_t), intent(in), target :: coef
+    real(kind=rp), intent(in) :: start_time, end_time
+    real(kind=rp), intent(in) :: amplitudes(:)
+    character(len=*), intent(in) :: fringe_registry_name, dump_fname, &
+         bf_registry_pref
+    logical, intent(in) :: dump_fields
+    character(len=LOG_SIZE) :: log_buf
+    integer :: i
+
+    !
+    ! Common constructor
+    !
+    call sponge_init_common(this, fields, coef, start_time, end_time, &
+         amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
+         dump_fname)
+
+    !
+    ! Create the base flow fields in the registry
+    !
+    this%u_bf => neko_registry%get_field(trim(bf_registry_pref) // "_u")
+    this%v_bf => neko_registry%get_field(trim(bf_registry_pref) // "_v")
+    this%w_bf => neko_registry%get_field(trim(bf_registry_pref) // "_w")
+
+    call neko_log%message("Baseflow       : from existing sponge", lvl = NEKO_LOG_INFO)
+
+    this%baseflow_set = .true.
+
+  end subroutine sponge_init_noop
+
 
   !> Initialize a sponge with a constant baseflow.
   subroutine sponge_init_constant(this, fields, coef, start_time, end_time, &
