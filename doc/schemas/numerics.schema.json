@@ -43,12 +43,6 @@
         },
         "oifs_target_cfl": {
           "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
-        },
-        "c_avisc_low": {
-          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
-        },
-        "c_avisc_entropy": {
-          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
         }
       },
       "additionalProperties": false

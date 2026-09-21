@@ -95,6 +95,7 @@ module gs_device_crystal
      procedure, pass(this) :: nbsend => gs_device_crystal_nbsend
      procedure, pass(this) :: nbrecv => gs_device_crystal_nbrecv
      procedure, pass(this) :: nbwait => gs_device_crystal_nbwait
+     procedure, pass(this) :: init_vec => gs_device_crystal_init_vec
      procedure, pass(this) :: nbsend_vec => gs_device_crystal_nbsend_vec
      procedure, pass(this) :: nbrecv_vec => gs_device_crystal_nbrecv_vec
      procedure, pass(this) :: nbwait_vec => gs_device_crystal_nbwait_vec
@@ -258,12 +259,6 @@ contains
     sz = c_sizeof(rp_dummy) * this%plan%nsmax
     call device_alloc(this%sbuf_d, sz)
 
-    sz = c_sizeof(rp_dummy) * GS_VEC_NC * this%plan%nwrk
-    call device_alloc(this%buf_v_d(1), sz)
-    call device_alloc(this%buf_v_d(2), sz)
-    sz = c_sizeof(rp_dummy) * GS_VEC_NC * this%plan%nsmax
-    call device_alloc(this%sbuf_v_d, sz)
-
     ! The first stage gathers straight out of the shared vector
     if (this%plan%nstage .gt. 0) then
        call cr_upload(this%pack_keep_d, this%plan%pack_keep_dof, &
@@ -300,8 +295,27 @@ contains
     end do
 
     this%vec_supported = .true.
+    this%vec_ready = .false.
 
   end subroutine gs_device_crystal_init
+
+  !> Allocate the fused vector working and send buffers in device memory,
+  !! sized for GS_VEC_NC components. Deferred to the first fused exchange,
+  !! see gs_comm_t. The nc-scaled stage index lists are uploaded separately,
+  !! on the first exchange of a given nc (see vec_nc), and the routing plan
+  !! is shared with the scalar exchange, so this stays rank local.
+  subroutine gs_device_crystal_init_vec(this)
+    class(gs_device_crystal_t), intent(inout) :: this
+    integer(c_size_t) :: sz
+    real(c_rp) :: rp_dummy
+
+    sz = c_sizeof(rp_dummy) * GS_VEC_NC * this%plan%nwrk
+    call device_alloc(this%buf_v_d(1), sz)
+    call device_alloc(this%buf_v_d(2), sz)
+    sz = c_sizeof(rp_dummy) * GS_VEC_NC * this%plan%nsmax
+    call device_alloc(this%sbuf_v_d, sz)
+
+  end subroutine gs_device_crystal_init_vec
 
   !> Deallocate crystal router based device communication
   subroutine gs_device_crystal_free(this)
@@ -333,6 +347,7 @@ contains
     if (allocated(this%send_idx_v_d)) deallocate(this%send_idx_v_d)
 
     this%vec_nc = 0
+    this%vec_ready = .false.
 
     call this%plan%free()
 

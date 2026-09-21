@@ -10,9 +10,153 @@
   also makes the simulation stop exactly at `end_time`. The number of steps
   ahead of a target at which `dt` starts being reduced is set with
   `case.time.output_landing_steps`, defaulting to 10.
+- Reworked when outputs are written: the times are now a schedule fixed by
+  the case rather than derived from how many writes have been performed so
+  far. The entries below are what that fixes.
+- `output_at_end` no longer duplicates a scheduled write that lands on the
+  last time step, which gave two files for one output time and, for the
+  statistics, a second file of zeros
+  ([#2278](https://github.com/ExtremeFLOW/neko/issues/2278)).
+- Fixed a restart skipping everything scheduled within `0.1` time units of
+  it. The write counter was reconstructed with a tolerance of `0.1 * dt`,
+  where `dt` is the placeholder a variable time step run starts from; it now
+  uses the step that wrote the checkpoint.
+- Checkpoints and statistics are no longer written at the start of a
+  simulation, where a checkpoint holds nothing the initial condition does not
+  and an average has nothing to average over
+  ([#2378](https://github.com/ExtremeFLOW/neko/issues/2378)). The fluid and
+  the simulation components still write it.
+- Fixed the write scheduled for `end_time` being dropped when the last time
+  step overshoots it, which it does whenever the step does not divide the
+  simulated interval.
+- A `simulationtime` schedule is anchored at zero, so its writes land on
+  whole multiples of the interval regardless of the time the run started from:
+  starting at t = 10.5 and writing every 1.0 now gives 11.0, 12.0, ... rather
+  than 11.5, 12.5, ... `nsamples` still divides the simulated interval.
+- Added `case.output_at_start`, whether the initial state of the simulation
+  is written. Defaults to `true`.
+- Fixed `output_at_end` forcing a write of an output whose `start_time` the
+  simulation has not reached.
+- A restart warns when the first file an output is about to write already
+  exists, which happens when a run repeats an interval or the output
+  frequency was changed at the restart.
+- Fixed the `start_time` of an output having no effect: the condition meant
+  to gate it cancelled out algebraically, so the output was written from the
+  beginning of the run.
+- Fixed an output with an interval smaller than the time step building up a
+  backlog of writes instead of skipping the times the step jumped over.
+- A `tsteps` output no longer writes at the step a restart resumes from. Its
+  phase still cannot survive a restart, as the checkpoint does not store the
+  time step index.
+- Fixed `time_state_t%is_done` taking one time step more than asked for when
+  the accumulated time fell a few ulps short of `end_time`, and ending a
+  simulation marching backwards in time after its first step.
+- Made the `user_stats` integration test compare its average of a random
+  field against a two-sided tolerance that covers the sampling noise; the
+  one-sided `1e-4` passed or failed roughly at random.
+
+- The CPU vector and full stress Helmholtz operators apply the mass term
+  `h2 * B * u` inside their element kernels rather than in a separate pass
+  over the whole field afterwards, so an `lx = 8` double precision velocity
+  `Ax` moves 144 bytes per grid point instead of 216. The term is added in
+  the same place and in the same order as before, so results are unchanged
+  bit for bit, and the `ifh2 = .false.` path taken by the pressure solve is
+  untouched.
+- Fixed further OpenMP races outside the boundary-condition update blocks:
+  the symmetry, shear stress and non-normal vector conditions lacked
+  worksharing inside the `bc_list` parallel region, `facet_normal` and the
+  `nu=4` tensor contraction left a loop-body index shared, the wall model
+  stress update ran on every thread, and the coupled CG shared its residual
+  reduction temporaries.
+- The OpenCL vector Helmholtz operator applies its mass term in one fused
+  kernel, as the CUDA, HIP and Metal backends already did, rather than in
+  three `device_addcol4` calls that re-read `h2` and `B` once per component.
+  An interface for the kernel had been declared but never implemented, so
+  the operator fell through to the generic path and moved 224 bytes per grid
+  point at `lx = 8` in double precision where the other backends moved 192.
+- Sped up the CPU dealiasing tensor contractions. `tnsr3d_cpu` gained unrolled
+  `nu = 8` and `nu = 12` kernels covering the 3/2-rule pair, and the generic
+  kernel hoists its reduction index out of the innermost loop so that loop is
+  unit-stride. Results move by about one ulp wherever the compiler contracts
+  the restructured expressions into FMAs differently.
+- The Pn-Pn pressure residual now subtracts the facet-normal surface terms
+  directly into it through the new `facet_normal_t%apply_surfvec_sub`, rather
+  than staging them through six full-length scratch fields, and the velocity
+  residual uses the fused `compute_vector` the device and stress backends
+  already used.
+- Modularized the entropy viscosity in the compressible Navier-Stokes solver
+  by computing it in simcomp as an `artificial viscosity model` and
+  applying it via a new object `viscous_regularization`.
+- *BREAKING* Modularized entropy viscosity in the compressible Navier-Stokes
+  solver. The obsolete `case.numerics.c_avisc_low` and
+  `case.numerics.c_avisc_entropy` options are now rejected. Configure an
+  `artificial_viscosity_model` simulation component with those coefficients
+  and enable its field through the fluid `viscous_regularization` object.
 - Added runtime registration of user-defined scalar boundary-condition types
   through `register_scalar_pnpn_bc`.
+- The staged cubes and derivative matrices of the HIP matrix core Helmholtz
+  kernels are padded to an odd stride wherever a bank model says that pays. A
+  contraction walks its free index across the lanes one stride apart, so an
+  even stride puts them on the same shared memory banks --- an eight-way
+  conflict at `lx = 8` in double precision. Padding an odd order would
+  introduce one instead, so the layout follows the order rather than a rule of
+  thumb, and the staging, pointwise and write-back passes now walk
+  shared-memory slots rather than element points to stay conflict free too.
+  With the operand hoist below, the modelled shared-memory cycles of one
+  `lx = 8` double precision element go from 2976 to 1220 and of an `lx = 12`
+  one from 8964 to 4752. `-DNEKO_MFMA_PAD=0` builds the old layout for an A/B.
+- The batched `v_mfma_f64_4x4x4f64` contraction keeps one accumulator per
+  M-tile and reads its second operand once per column group and K-step,
+  instead of re-reading it for every M-tile --- it never depended on the
+  M-tile. That was two to three times the shared memory operand traffic, and
+  it made the K loop a single accumulate chain, which this instruction charges
+  four cycles a step for. Each accumulator sums in the same order as before,
+  so results are unchanged bit for bit.
+- The HIP matrix core kernels gained a 16 wavefront candidate, the 1024 thread
+  workgroup maximum on CDNA. The ladder stopped at 512 threads and so topped
+  out at three wavefronts per SIMD, where the 1d kernel that beats it at
+  `lx = 8` reaches eight from a larger shared memory footprint. The elements
+  per block that surplus wavefronts buy are now clamped by the 64 kB workgroup
+  limit as well as by the column group count.
+- The first divergence contraction of the HIP matrix core Helmholtz kernels
+  overwrites its accumulator instead of adding to it, which removes the pass
+  that cleared the cube and the barrier after it. The scalar kernel also
+  issues the seven geometric factors ahead of the gradient contractions rather
+  than behind the barrier that follows them, where the register budget allows
+  it; the auto-tuner reports which mode each candidate ran in, as it already
+  did for the vector kernel.
+- Fixed `opr_dudxyz`, `opr_cdtp`, `opr_conv1` and `opr_opgrad` on the HIP
+  backend not listing `mfma_kernel.h` among their dependencies, so a change to
+  the matrix core primitives left those four objects holding the previous
+  version of them.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.
+- The matrix core tile used by the HIP Helmholtz operator is now an
+  auto-tuner candidate rather than a build-time choice. It was fixed to the
+  batched `v_mfma_f64_4x4x4f64` tile on the argument that it fills `M = lx`
+  exactly where `v_mfma_f64_16x16x4f64` wastes half its rows; that tile in
+  fact runs at half the FLOP rate, owes four cycles on every step of an
+  accumulate chain and re-reads its second operand once per M-tile, which
+  cancels the utilisation gain around `lx = 8` and reverses it above.
+  A double precision build therefore now times eight matrix core candidates
+  per order instead of four, and `NEKO_MFMA_TILE` pins the tile when
+  `NEKO_AUTOTUNE=MFMA` pins the formulation. Single precision has no 4x4x4
+  instruction, so the dimension collapses there and the candidate count is
+  unchanged. `-DMFMA_F64_USE_16X16` still builds without the 4x4x4 path, and
+  now also removes it from the sweep instead of selecting between them.
+- Added a matrix core (`MFMA`) variant of the vector Helmholtz operator on the
+  HIP backend, as a candidate in the `Autotune Ax vector` search alongside the
+  elements per block sweep of its kstep variant, and pinnable with
+  `NEKO_AUTOTUNE=MFMA` and `NEKO_MFMA_NWF`. It runs the three components
+  through one set of staged cubes and keeps the shared geometric factors in
+  registers across them where they fit a register budget, re-reading them per
+  component where they do not. Same scope as the scalar variant: either
+  precision, `4 <= lx <= 12`, on a gfx90a or gfx942 device.
+- The vector Helmholtz auto-tuner on the HIP backend now reports the
+  formulation it chose and labels its kstep candidates, as the scalar one and
+  the CUDA copy do, and `NEKO_EB` on its own no longer pins the kstep
+  geometry --- it is read when `NEKO_AUTOTUNE=KSTEP` pins the formulation,
+  which is what it is documented to do. An unrecognised `NEKO_AUTOTUNE` value
+  is reported as an error there rather than silently pinning kstep.
 - The gather-scatter comm. backend autotuning now covers the device-resident
   backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks
   `MPIGPU`, `NCCL` and `CRYSTALGPU` (`NVSHMEM` only when asked for) alongside
@@ -56,6 +200,16 @@
   staged (`DMMA_TMA`) formulations to the `opgrad`, `dudxyz`, `conv1` and
   `cdtp` operators, again as auto-tuner candidates selected per operator,
   polynomial order and element count.
+- *BREAKING* `NEKO_AUTOTUNE` now narrows the SEM operator search to the named
+  formulation instead of skipping the search outright. The geometry of that
+  formulation --- chunk size, elements per block, warps or wavefronts per
+  block --- is still swept and reported, where pinning a formulation used to
+  silently fix it at candidate 0. `NEKO_EB`, `NEKO_CHUNKS`, `NEKO_DMMA_NW`,
+  `NEKO_DMMA_TMA_NW` and `NEKO_MFMA_NWF` now pin that geometry whenever their
+  formulation is measured, rather than only when it is the pinned one, and
+  setting one alongside `NEKO_AUTOTUNE` leaves nothing to measure and skips
+  the search as before. So an A/B run of two formulations compares each at its
+  own best geometry; to get the old behaviour, set the geometry variable too.
 - *BREAKING* The `ax_helm_factory` is renamed to `ax_helm_allocator`. It now
   selects matrix-vector product types by name instead of a `full_formulation`
   logical argument, and supports runtime registration of user-defined `ax_t`
@@ -117,6 +271,13 @@
 - *BREAKING* Renamed the allocation-only `precon_factory` API to
   `precon_allocator`. Added runtime registration of user-defined
   preconditioner and Krylov solver types.
+
+## 1.1.2 [2026-09-14]
+- Fixed several OpenMP races in the boundary conditions, including a Neumann
+  flux accumulated once per thread.
+- Fixed a leaked MPI file handle in the fld reader, which never closed the
+  file it opened.
+
 ## 1.1.1 [2026-09-08]
 - Fixed the fused three-component Helmholtz operator on the CPU backend
   (`ax_helm_cpu_t%compute_vector`) at polynomial orders 3 and 8, where a
@@ -164,7 +325,8 @@
   reports the name of the next output via `get_next_output_fname`. Also fixed
   `user_stats` ignoring `output_directory`, and the counter of the `.bp`
   output starting at -1.
-## 1.1.0 [2026-07-21]  
+
+## 1.1.0 [2026-07-21]
 - Added opt-in zero-copy unified memory mapping for the HIP backend on AMD
   MI300A APUs: with `NEKO_HIP_ZEROCOPY=1` (and `HSA_XNACK=1`), mapped arrays
   alias their host allocation instead of being replicated on the device,
@@ -228,8 +390,7 @@
 - Added HIP and CUDA support for ALE.
 - Added `spatial_average` simcomp for spatially averaging a list of registered
   fields.
-- Changed the normal vectors argument type in `setup_normals` to `vector_t` and 
-  added copy to device in the routine.
+- Changed the normal vectors argument type in `setup_normals` to `vector_t` and added copy to device in the routine.
 - Added new math operator for device. device_masked_copy_aligned, which performs
   a masked copy of data from one field to another, for a point zone mask.
 - Job control time limits can now be specified by a flexible string format, e.g.
@@ -292,17 +453,10 @@
 - Added optional log output from the flow_rate_force, controlled by the `log`
   parameter.
 - Increased precision of the time value in the log.
-- Added a script to add new unit tests under `contrib/add_unit_test`. The same
-  script can add a .pf file to an existing suite.
-- Bugfix: Fixed a bug in the `unmap` subroutine, where the device pointer was
-  used to check if the field was mapped, which lead to a crash when trying to
-  unmap an array that was not associated with a device. Correctly does nothing
-  now.
 - Added an AI policy to the contribution guidelines.
 - Added simple support for VTKHDF. For now it can be used for fluid outputs.
   Simple restarts are supported with fixed mesh and MPI configuration.
   The VTKHDF output format is still experimental and will change in the future.
-- Added templates for serial and parallel unit tests.
 - Added code review instructions for LLMs in a copilot-friendly location.
 - Improved pixi installation. Added support to create a Python environment
   inside the pixi shell. Added support to choose real precision.
@@ -376,6 +530,7 @@
 - Fix cyclic boundary rotation device bug, which tried to launch kernels
   with zero threads for ranks not containing cyclic boundaries.
 - Change default parameters for tamg and phmg to be less expensive.
+
 ## 1.0.0 [2025-12-05] 
 ### Deprecated features
 - `operator::dudxyz` calls with implicit device arrays are deprecated. Please

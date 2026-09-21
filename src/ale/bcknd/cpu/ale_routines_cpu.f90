@@ -107,9 +107,9 @@ contains
           do k = 1, lz
              do j = 1, ly
                 do i = 1, lx
-                   x1 = coef%dof%x(i, j, k, e)
-                   y1 = coef%dof%y(i, j, k, e)
-                   z1 = coef%dof%z(i, j, k, e)
+                   x1 = coef%dof%x%x(i, j, k, e)
+                   y1 = coef%dof%y%x(i, j, k, e)
+                   z1 = coef%dof%z%x(i, j, k, e)
                    i0 = max(1, i - 1)
                    i1 = min(lx, i + 1)
                    j0 = max(1, j - 1)
@@ -121,9 +121,9 @@ contains
                          do ii = i0, i1
                             if ((ii .eq. i) .and. (jj .eq. j) .and. &
                                  (kk .eq. k)) cycle
-                            x2 = coef%dof%x(ii, jj, kk, e)
-                            y2 = coef%dof%y(ii, jj, kk, e)
-                            z2 = coef%dof%z(ii, jj, kk, e)
+                            x2 = coef%dof%x%x(ii, jj, kk, e)
+                            y2 = coef%dof%y%x(ii, jj, kk, e)
+                            z2 = coef%dof%z%x(ii, jj, kk, e)
                             dtmp = d4(ii, jj, kk, e) + &
                                  sqrt((x1 - x2)**2 + &
                                  (y1 - y2)**2 + (z1 - z2)**2)
@@ -207,9 +207,9 @@ contains
              do k = 1, lz
                 do j = 1, ly
                    do i = 1, lx
-                      x1 = coef%dof%x(i, j, k, e)
-                      y1 = coef%dof%y(i, j, k, e)
-                      z1 = coef%dof%z(i, j, k, e)
+                      x1 = coef%dof%x%x(i, j, k, e)
+                      y1 = coef%dof%y%x(i, j, k, e)
+                      z1 = coef%dof%z%x(i, j, k, e)
                       i0 = max(1, i - 1)
                       i1 = min(lx, i + 1)
                       j0 = max(1, j - 1)
@@ -222,9 +222,9 @@ contains
                                if ((ii .eq. i) .and. (jj .eq. j) .and. &
                                     (kk .eq. k)) cycle
 
-                               x2 = coef%dof%x(ii, jj, kk, e)
-                               y2 = coef%dof%y(ii, jj, kk, e)
-                               z2 = coef%dof%z(ii, jj, kk, e)
+                               x2 = coef%dof%x%x(ii, jj, kk, e)
+                               y2 = coef%dof%y%x(ii, jj, kk, e)
+                               z2 = coef%dof%z%x(ii, jj, kk, e)
 
                                dtmp = dist_field%x(ii, jj, kk, e) + &
                                     sqrt((x1 - x2)**2 + &
@@ -282,7 +282,7 @@ contains
     real(kind=rp) :: rx_target, ry_target, rz_target
     real(kind=rp) :: p_val
     n = phi%dof%size()
-    associate (x => coef%dof%x, y => coef%dof%y, z => coef%dof%z)
+    associate (x => coef%dof%x%x, y => coef%dof%y%x, z => coef%dof%z%x)
       !$omp parallel do private(i, rx, ry, rz, v_tan_x, v_tan_y, v_tan_z, &
       !$omp& dx_ref, dy_ref, dz_ref, rx_target, ry_target, rz_target, p_val)
       do i = 1, n
@@ -372,19 +372,19 @@ contains
 
     !$omp parallel do private(i, j)
     do i = 1, n
-       c_Xh%dof%x(i, 1, 1, 1) = c_Xh%dof%x(i, 1, 1, 1) + &
+       c_Xh%dof%x%x(i, 1, 1, 1) = c_Xh%dof%x%x(i, 1, 1, 1) + &
             time%dt * ab_coeffs(1) * wm_x%x(i, 1, 1, 1)
-       c_Xh%dof%y(i, 1, 1, 1) = c_Xh%dof%y(i, 1, 1, 1) + &
+       c_Xh%dof%y%x(i, 1, 1, 1) = c_Xh%dof%y%x(i, 1, 1, 1) + &
             time%dt * ab_coeffs(1) * wm_y%x(i, 1, 1, 1)
-       c_Xh%dof%z(i, 1, 1, 1) = c_Xh%dof%z(i, 1, 1, 1) + &
+       c_Xh%dof%z%x(i, 1, 1, 1) = c_Xh%dof%z%x(i, 1, 1, 1) + &
             time%dt * ab_coeffs(1) * wm_z%x(i, 1, 1, 1)
 
        do j = 2, nadv
-          c_Xh%dof%x(i, 1, 1, 1) = c_Xh%dof%x(i, 1, 1, 1) + &
+          c_Xh%dof%x%x(i, 1, 1, 1) = c_Xh%dof%x%x(i, 1, 1, 1) + &
                time%dt * ab_coeffs(j) * wm_x_lag%lf(j - 1)%x(i, 1, 1, 1)
-          c_Xh%dof%y(i, 1, 1, 1) = c_Xh%dof%y(i, 1, 1, 1) + &
+          c_Xh%dof%y%x(i, 1, 1, 1) = c_Xh%dof%y%x(i, 1, 1, 1) + &
                time%dt * ab_coeffs(j) * wm_y_lag%lf(j - 1)%x(i, 1, 1, 1)
-          c_Xh%dof%z(i, 1, 1, 1) = c_Xh%dof%z(i, 1, 1, 1) + &
+          c_Xh%dof%z%x(i, 1, 1, 1) = c_Xh%dof%z%x(i, 1, 1, 1) + &
                time%dt * ab_coeffs(j) * wm_z_lag%lf(j - 1)%x(i, 1, 1, 1)
        end do
 

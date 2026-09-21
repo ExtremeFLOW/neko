@@ -76,9 +76,9 @@ contains
     call neko_scratch_registry%request_field(tmp_cz, tmp_index(6), .false.)
 
     ! displacement with respect to reference point
-    call device_cadd2(tmp_rx%x_d, dof%x_d, -ref_point(1), n)
-    call device_cadd2(tmp_ry%x_d, dof%y_d, -ref_point(2), n)
-    call device_cadd2(tmp_rz%x_d, dof%z_d, -ref_point(3), n)
+    call device_cadd2(tmp_rx%x_d, dof%x%x_d, -ref_point(1), n)
+    call device_cadd2(tmp_ry%x_d, dof%y%x_d, -ref_point(2), n)
+    call device_cadd2(tmp_rz%x_d, dof%z%x_d, -ref_point(3), n)
 
     ! Omega x r
     call device_add3s2(tmp_cx%x_d, tmp_rz%x_d, tmp_ry%x_d, omega(2), &

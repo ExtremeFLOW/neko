@@ -337,8 +337,8 @@ contains
     real(kind=rp), intent(inout) :: ym(:)
     real(kind=rp), intent(inout) :: zm(:)
 
-    call gather_coords(bc%msk, bc%msk(0), bc%dof%x, bc%dof%y, bc%dof%z, &
-         size(bc%dof%x), xm, ym, zm)
+    call gather_coords(bc%msk, bc%msk(0), bc%dof%x%x, bc%dof%y%x, bc%dof%z%x, &
+         bc%dof%size(), xm, ym, zm)
 
   end subroutine expression_mask_coords
 
