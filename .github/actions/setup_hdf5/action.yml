@@ -65,6 +65,58 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Check the environment
+      env:
+        INSTALL_DIR: ${{ inputs.install-dir }}
+        WORKING_DIR: ${{ inputs.working-dir }}
+        OS: ${{ inputs.os }}
+        COMPILER: ${{ inputs.compiler }}
+        VERSION: ${{ inputs.version }}
+        ARCH: ${{ inputs.arch }}
+      shell: bash
+      run: |
+        if [ -z "$INSTALL_DIR" ]; then
+          echo "install-dir is not set" >&2
+          exit 1
+        fi
+        if [ -z "$WORKING_DIR" ]; then
+          echo "working-dir is not set" >&2
+          exit 1
+        fi
+        if [ -z "$OS" ]; then
+          echo "os is not set" >&2
+          exit 1
+        fi
+        if [ -z "$COMPILER" ]; then
+          echo "compiler is not set" >&2
+          exit 1
+        fi
+        if [ -z "$VERSION" ]; then
+          echo "version is not set" >&2
+          exit 1
+        fi
+        if [ -z "$ARCH" ]; then
+          echo "arch is not set" >&2
+          exit 1
+        fi
+
+    - name: Set up environment
+      id: setup-env
+      shell: bash
+      env:
+        WORKING_DIR: ${{ inputs.working-dir }}
+        INSTALL_DIR: ${{ inputs.install-dir }}
+      run: |
+        TAG=${{ inputs.version }}-${{ inputs.os }}-${{ inputs.arch }}-${{ inputs.compiler }}
+        WORKING_DIR=$WORKING_DIR/hdf5-$TAG
+        INSTALL_DIR=$INSTALL_DIR/hdf5-$TAG
+
+        mkdir -p $WORKING_DIR $INSTALL_DIR
+
+        echo "working-dir=$(echo $(realpath $WORKING_DIR))" >> $GITHUB_OUTPUT
+        echo "install-dir=$(echo $(realpath $INSTALL_DIR))" >> $GITHUB_OUTPUT
+        echo "tag=$(echo $TAG)" >> $GITHUB_OUTPUT
+
     # ------------------------------------------------------------------------ #
     # Setup the cache for the HDF5 library.
     # All following steps should look if the cache was hit and skip if it was.
@@ -89,14 +141,14 @@ runs:
       id: cache-hdf5
       uses: actions/cache@v5
       with:
-        path: ${{ inputs.install-dir }}
+        path: ${{ steps.setup-env.outputs.install-dir }}
         key: ${{ steps.create-key.outputs.key }}
 
     - name: Clone
       if: ${{ steps.cache-hdf5.outputs.cache-hit != 'true' }}
       shell: bash
       env:
-        WORKING_DIR: ${{ inputs.working-dir }}
+        WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
         REPO: https://github.com/HDFGroup/hdf5.git
         VERSION: ${{ inputs.version }}
       run: |
@@ -118,8 +170,8 @@ runs:
       if: ${{ steps.cache-hdf5.outputs.cache-hit != 'true' }}
       shell: bash
       env:
-        INSTALL_DIR: ${{ inputs.install-dir }}
-        WORKING_DIR: ${{ inputs.working-dir }}
+        INSTALL_DIR: ${{ steps.setup-env.outputs.install-dir }}
+        WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
         FC: mpifort
         FCFLAGS: ${{ inputs.compiler-flags }}
         CC: mpicc
@@ -134,7 +186,7 @@ runs:
       if: ${{ steps.cache-hdf5.outputs.cache-hit != 'true' }}
       shell: bash
       env:
-        WORKING_DIR: ${{ inputs.working-dir }}
+        WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
         BUILD_OPTIONS: ${{ inputs.build-options }}
         OMPI_FC: ${{ inputs.compiler }}
         OMPI_CC: ${{ inputs.c-compiler }}
@@ -144,7 +196,7 @@ runs:
       if: ${{ steps.cache-hdf5.outputs.cache-hit != 'true' }}
       shell: bash
       env:
-        WORKING_DIR: ${{ inputs.working-dir }}
+        WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
         INSTALL_OPTIONS: ${{ inputs.install-options }}
       run: |
         cmake --install $WORKING_DIR/build --config Release $INSTALL_OPTIONS
@@ -156,7 +208,7 @@ runs:
       id: set-output
       shell: bash
       env:
-        INSTALL_DIR: ${{ inputs.install-dir }}
+        INSTALL_DIR: ${{ steps.setup-env.outputs.install-dir }}
       run: |
 
         if [ ! -d ${INSTALL_DIR}/lib ]; then
