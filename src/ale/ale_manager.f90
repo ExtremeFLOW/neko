@@ -180,7 +180,7 @@ contains
   !> Sets up solver, registers fields, solves for base shape, etc.
   subroutine ale_manager_init(this, coef, json, user, chkp)
     class(ale_manager_t), intent(inout), target :: this
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), target, intent(inout) :: coef
     type(json_file), intent(inout) :: json
     type(user_t), intent(in) :: user
     type(chkp_t), intent(inout) :: chkp
@@ -2259,7 +2259,7 @@ contains
   !! @param checkpoint Checkpoint in which to register the ALE payload.
   subroutine register_checkpoint_fields(this, coef, checkpoint)
     class(ale_manager_t), intent(inout), target :: this
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), target, intent(inout) :: coef
     type(chkp_t), intent(inout) :: checkpoint
     type(checkpoint_payload_t), pointer :: payload
 

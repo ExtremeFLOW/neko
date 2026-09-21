@@ -290,6 +290,16 @@ contains
 
   end subroutine checkpoint_payload_add_series
 
+  ! The dummies below are `target` but deliberately not `contiguous`. The
+  ! payload keeps the address of the array for the lifetime of the run, so
+  ! the dummy has to alias the actual argument. gfortran 12 passes a pointer
+  ! array to a `contiguous` dummy through a temporary copy, and the stored
+  ! address then points at memory that is freed on return; the rigid-body
+  ! arrays and the lagged mass matrices in ale_manager are pointer arrays.
+  ! A plain `target` dummy is never copied, so `c_loc` of its first element
+  ! is the actual's address. Every registered array is whole and contiguous,
+  ! which is_contiguous checks.
+
   !> Add a rank-one real array.
   !! @param name Dataset name within the payload.
   !! @param x Contiguous local array storage.
@@ -301,13 +311,17 @@ contains
        device_ptr, replicated)
     class(checkpoint_payload_t), intent(inout) :: this
     character(len=*), intent(in) :: name
-    real(kind=rp), contiguous, target, intent(inout) :: x(:)
+    real(kind=rp), target, intent(inout) :: x(:)
     integer(kind=i8), intent(in), optional :: global_count, offset
     type(c_ptr), intent(in), optional :: device_ptr
     logical, intent(in), optional :: replicated
     real(kind=rp), pointer :: flat(:)
 
-    call c_f_pointer(c_loc(x), flat, [size(x)])
+    if (.not. is_contiguous(x)) then
+       call neko_error("Checkpoint array '" // trim(name) // "' must be " // &
+            "contiguous")
+    end if
+    call c_f_pointer(c_loc(x(1)), flat, [size(x)])
     call checkpoint_payload_add_array(this, name, flat, global_count, &
          offset, device_ptr, replicated)
 
@@ -324,13 +338,17 @@ contains
        device_ptr, replicated)
     class(checkpoint_payload_t), intent(inout) :: this
     character(len=*), intent(in) :: name
-    real(kind=rp), contiguous, target, intent(inout) :: x(:,:)
+    real(kind=rp), target, intent(inout) :: x(:,:)
     integer(kind=i8), intent(in), optional :: global_count, offset
     type(c_ptr), intent(in), optional :: device_ptr
     logical, intent(in), optional :: replicated
     real(kind=rp), pointer :: flat(:)
 
-    call c_f_pointer(c_loc(x), flat, [size(x)])
+    if (.not. is_contiguous(x)) then
+       call neko_error("Checkpoint array '" // trim(name) // "' must be " // &
+            "contiguous")
+    end if
+    call c_f_pointer(c_loc(x(1,1)), flat, [size(x)])
     call checkpoint_payload_add_array(this, name, flat, global_count, &
          offset, device_ptr, replicated)
 
@@ -347,13 +365,17 @@ contains
        device_ptr, replicated)
     class(checkpoint_payload_t), intent(inout) :: this
     character(len=*), intent(in) :: name
-    real(kind=rp), contiguous, target, intent(inout) :: x(:,:,:)
+    real(kind=rp), target, intent(inout) :: x(:,:,:)
     integer(kind=i8), intent(in), optional :: global_count, offset
     type(c_ptr), intent(in), optional :: device_ptr
     logical, intent(in), optional :: replicated
     real(kind=rp), pointer :: flat(:)
 
-    call c_f_pointer(c_loc(x), flat, [size(x)])
+    if (.not. is_contiguous(x)) then
+       call neko_error("Checkpoint array '" // trim(name) // "' must be " // &
+            "contiguous")
+    end if
+    call c_f_pointer(c_loc(x(1,1,1)), flat, [size(x)])
     call checkpoint_payload_add_array(this, name, flat, global_count, &
          offset, device_ptr, replicated)
 
@@ -370,13 +392,17 @@ contains
        device_ptr, replicated)
     class(checkpoint_payload_t), intent(inout) :: this
     character(len=*), intent(in) :: name
-    real(kind=rp), contiguous, target, intent(inout) :: x(:,:,:,:)
+    real(kind=rp), target, intent(inout) :: x(:,:,:,:)
     integer(kind=i8), intent(in), optional :: global_count, offset
     type(c_ptr), intent(in), optional :: device_ptr
     logical, intent(in), optional :: replicated
     real(kind=rp), pointer :: flat(:)
 
-    call c_f_pointer(c_loc(x), flat, [size(x)])
+    if (.not. is_contiguous(x)) then
+       call neko_error("Checkpoint array '" // trim(name) // "' must be " // &
+            "contiguous")
+    end if
+    call c_f_pointer(c_loc(x(1,1,1,1)), flat, [size(x)])
     call checkpoint_payload_add_array(this, name, flat, global_count, &
          offset, device_ptr, replicated)
 
@@ -391,7 +417,7 @@ contains
   subroutine add_mesh_array_4d(this, name, x, msh, Xh, device_ptr)
     class(checkpoint_payload_t), intent(inout) :: this
     character(len=*), intent(in) :: name
-    real(kind=rp), contiguous, target, intent(inout) :: x(:,:,:,:)
+    real(kind=rp), target, intent(inout) :: x(:,:,:,:)
     type(mesh_t), target, intent(in) :: msh
     type(space_t), target, intent(in) :: Xh
     type(c_ptr), intent(in), optional :: device_ptr
@@ -401,7 +427,11 @@ contains
        call neko_error("Checkpoint mesh array must have shape " // &
             "(lx, ly, lz, nelv)")
     end if
-    call c_f_pointer(c_loc(x), flat, [size(x)])
+    if (.not. is_contiguous(x)) then
+       call neko_error("Checkpoint array '" // trim(name) // "' must be " // &
+            "contiguous")
+    end if
+    call c_f_pointer(c_loc(x(1,1,1,1)), flat, [size(x)])
     call checkpoint_payload_add_mesh_array(this, name, flat, msh, Xh, &
          device_ptr)
 
