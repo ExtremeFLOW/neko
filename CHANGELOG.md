@@ -1,6 +1,27 @@
 # Changelog
 
 ## Develop
+- Fixed the compressible solver never evaluating the physical Navier-Stokes
+  fluxes on any device backend. Both `compressible_res_*` backends decided
+  whether to add the viscous stress and the heat flux with
+  `any(mu%x .ne. 0)`, which reads the *host* mirror of the material property
+  fields. Device backends never write those mirrors: `field_cfill` fills only
+  `%x_d`, and the memcpy that used to follow the `material_properties` hook
+  was removed in #2695 so that user files can call `device_math` directly.
+  Both switches were therefore always false on CUDA, HIP, OpenCL and Metal,
+  and the solver silently ran Euler plus artificial viscosity. As a
+  side-effect the test also cost three full single-threaded host passes over
+  the field per time step, with no work in flight on the device.
+  The decision now lives in `fluid_scheme_compressible_t%update_physical_flux`
+  and is taken from the device-resident arrays, and it is only re-evaluated
+  when the material properties can have changed, i.e. once at setup and
+  thereafter only when a user `material_properties` hook is registered.
+  `mu`, `kappa` and whether the Navier-Stokes fluxes are active are now
+  reported in the `Fluid` section of the log.
+- Added `glamax`, `vlamax` and `device_glamax`, the maximum absolute value of
+  a vector, with kernels for CUDA, HIP, OpenCL and Metal. Unlike an `any()`
+  over a host array it is an exact, reduced test for "are all entries zero"
+  that never touches the host copy.
 - The CPU vector and full stress Helmholtz operators apply the mass term
   `h2 * B * u` inside their element kernels rather than in a separate pass
   over the whole field afterwards, so an `lx = 8` double precision velocity
