@@ -38,8 +38,9 @@ module time_step_controller
   use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
   use time_state, only : time_state_t
   use time_based_controller, only : TIME_TOL
-  use comm, only : pe_size, global_pe_size, NEKO_GLOBAL_COMM, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_MIN, MPI_IN_PLACE, MPI_Allreduce, MPI_DOUBLE_PRECISION
+  use comm, only : pe_size, global_pe_size, NEKO_GLOBAL_COMM
+  use mpi_f08, only : MPI_MIN, MPI_MAX, MPI_IN_PLACE, MPI_Allreduce, &
+       MPI_DOUBLE_PRECISION, MPI_INTEGER
   implicit none
   private
 
@@ -91,6 +92,8 @@ module time_step_controller
      procedure, pass(this) :: init => time_step_controller_init
      !> Set time stepping
      procedure, pass(this) :: set_dt => time_step_controller_set_dt
+     !> The first time step of a variable time step run.
+     procedure, pass(this) :: first_dt => time_step_controller_first_dt
      !> Shorten the time step to land on the next scheduled time.
      procedure, pass(this) :: land => time_step_controller_land
      !> Whether the time step can change during the run.
@@ -106,6 +109,7 @@ contains
   subroutine time_step_controller_init(this, params)
     class(time_step_controller_t), intent(inout) :: this
     type(json_file), intent(inout) :: params
+    integer :: exact_any, exact_all, ierr
 
     this%dt_last_change = -1
     call json_get_or_default(params, 'variable_timestep', &
@@ -145,7 +149,40 @@ contains
        end if
     end if
 
+    ! In an MPMD run the landing takes a collective at every step, so the
+    ! coupled simulations have to agree on it, or the ones landing would
+    ! wait forever for the ones that do not.
+    if (pe_size .ne. global_pe_size) then
+       exact_any = merge(1, 0, this%exact_output_time)
+       exact_all = exact_any
+       call MPI_Allreduce(MPI_IN_PLACE, exact_any, 1, MPI_INTEGER, &
+            MPI_MAX, NEKO_GLOBAL_COMM, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, exact_all, 1, MPI_INTEGER, &
+            MPI_MIN, NEKO_GLOBAL_COMM, ierr)
+       if (exact_any .ne. exact_all) then
+          call neko_log%error('exact_output_time must be set in all the &
+               &coupled cases of an MPMD run, or in none')
+       end if
+    end if
+
   end subroutine time_step_controller_init
+
+  !> The first time step of a variable time step run: the one giving the
+  !! target CFL number, limited by `timestep`, `max_timestep` and
+  !! `min_timestep` where given.
+  !! @param time The time state, whose `dt` is the step the CFL number was
+  !! computed with.
+  !! @param cfl The CFL number of that step.
+  pure function time_step_controller_first_dt(this, time, cfl) result(dt)
+    class(time_step_controller_t), intent(in) :: this
+    type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: cfl
+    real(kind=dp) :: dt
+
+    dt = min(this%cfl_trg / cfl * time%dt, this%init_dt)
+    dt = max(min(dt, this%max_dt), this%min_dt)
+
+  end function time_step_controller_first_dt
 
   !> Whether the time step can change during the run, as it does with a
   !! variable time step and when landing on the scheduled times. If so,
@@ -184,7 +221,9 @@ contains
     ! was computed with the shortened step and is proportional to it, so it is
     ! rescaled to the step the controller asked for.
     if (this%dt_is_landing) then
-       if (time%dt .ne. 0.0_dp) cfl_nominal = cfl * this%dt_nominal / time%dt
+       if (abs(time%dt) .gt. 0.0_dp) then
+          cfl_nominal = cfl * this%dt_nominal / time%dt
+       end if
        time%dt = this%dt_nominal
        this%dt_is_landing = .false.
     end if
@@ -201,8 +240,7 @@ contains
 
           ! Set the first dt for desired cfl, or use the provided initial dt if
           ! it is smaller. Then clamp between max and min dt if provided.
-          time%dt = min(this%cfl_trg / cfl_nominal * time%dt, this%init_dt)
-          time%dt = max(min(time%dt, this%max_dt), this%min_dt)
+          time%dt = this%first_dt(time, cfl_nominal)
           this%dt_last_change = 0
           this%cfl_avg = cfl_nominal
 
@@ -285,12 +323,13 @@ contains
   !! equal. The step asked for is restored by the next call to `set_dt`.
   !!
   !! No step is shorter than `TIME_TOL` times the step asked for, or than
-  !! `min_timestep`. A scheduled time closer than that, which takes two
-  !! controllers with unrelated intervals, is passed by less than that step,
-  !! and the controller counts it as reached. The last step of the
-  !! simulation is exempt: it may be as short as it needs to be to end
-  !! exactly at `end_time`. In an MPMD run the shortened step is the smallest
-  !! one over the simulations, so that they keep advancing in lockstep.
+  !! `min_timestep`. A scheduled time closer than that to another one, which
+  !! takes two controllers with unrelated intervals, or to `end_time`, is
+  !! executed within that shortest step of its time instead of landed on.
+  !! The last step of the simulation is exempt from the floor, so that a run
+  !! started closer than that to `end_time` still ends exactly there. In an
+  !! MPMD run the shortened step is the smallest one over the simulations, so
+  !! that they keep advancing in lockstep.
   subroutine time_step_controller_land(this, time, time_to_next)
     class(time_step_controller_t), intent(inout) :: this
     type(time_state_t), intent(inout) :: time
@@ -299,55 +338,62 @@ contains
     real(kind=dp) :: remaining_end, window
     character(len=LOG_SIZE) :: log_buf
     integer :: nsteps, ierr
-    logical :: landing_on_end
+    logical :: landing_on_end, adjusted
 
     if (.not. this%exact_output_time) return
 
     dt = abs(time%dt)
-    if (dt .le. 0.0_dp) return
     direction = sign(1.0_dp, time%dt)
-
-    ! Also the end of the simulation is landed on. Nothing follows the last
-    ! step, so it may be as short as it needs to be, and the end is the
-    ! target whenever it is within the shortest step a scheduled time is
-    ! landed on: whatever is scheduled in between is executed at the end.
-    dt_min = min(dt, max(TIME_TOL * dt, this%min_dt))
-    remaining_end = direction * (time%end_time - time%t)
-    landing_on_end = remaining_end .le. max(time_to_next, dt_min)
-    if (landing_on_end) then
-       remaining = remaining_end
-    else
-       remaining = time_to_next
-    end if
-
-    ! The landing is engaged at least (1 + TIME_TOL) steps ahead of the
-    ! target: a full step from closer than that would leave less than the
-    ! shortest step allowed, and the target would be passed by a fraction of
-    ! a step instead of landed on. With a variable step the step can grow
-    ! before the next one is taken, which the window accounts for.
-    window = 1.0_dp + TIME_TOL
-    if (this%is_variable_dt) then
-       window = 1.0_dp + TIME_TOL * max(1.0_dp, this%max_dt_increase_factor)
-    end if
-    window = max(real(this%landing_steps, dp), window) * (1.0_dp + LANDING_TOL)
-
     dt_new = dt
-    if (remaining .gt. 0.0_dp .and. remaining .le. window * dt) then
-       nsteps = max(1, ceiling(remaining / dt - LANDING_TOL))
-       dt_new = remaining / real(nsteps, dp)
+    adjusted = .false.
+    remaining = huge(0.0_dp)
 
-       ! Leave the step alone while the change is round-off, so that a step
-       ! that divides the remaining time already is not registered as changed
-       ! at every step. The last step is always taken, as it is the one that
-       ! has to be exact.
-       if (nsteps .gt. 1 .and. abs(dt_new - dt) .le. LANDING_TOL * dt) then
-          dt_new = dt
+    if (dt .gt. 0.0_dp) then
+       ! Also the end of the simulation is landed on. Nothing follows the
+       ! last step, so it may be as short as it needs to be, and the end is
+       ! the target whenever it is within the shortest step allowed of the
+       ! next scheduled time: that time is then executed at the end, rather
+       ! than landed on and followed by a step too short to be worth taking.
+       dt_min = min(dt, max(TIME_TOL * dt, this%min_dt))
+       remaining_end = direction * (time%end_time - time%t)
+       landing_on_end = remaining_end .le. time_to_next + dt_min
+       if (landing_on_end) then
+          remaining = remaining_end
+       else
+          remaining = time_to_next
        end if
 
-       ! A scheduled time closer than the shortest step allowed is passed,
-       ! except by the last step of the run.
-       if (.not. (landing_on_end .and. nsteps .eq. 1)) then
-          dt_new = max(dt_new, dt_min)
+       ! The landing is engaged at least (1 + TIME_TOL) steps ahead of the
+       ! target: a full step from closer than that would leave less than the
+       ! shortest step allowed, and the target would be passed by a fraction
+       ! of a step instead of landed on. With a variable step the step can
+       ! grow before the next one is taken, which the window accounts for.
+       window = 1.0_dp + TIME_TOL
+       if (this%is_variable_dt) then
+          window = 1.0_dp + TIME_TOL * max(1.0_dp, this%max_dt_increase_factor)
+       end if
+       window = max(real(this%landing_steps, dp), window) * &
+            (1.0_dp + LANDING_TOL)
+
+       if (remaining .gt. 0.0_dp .and. remaining .le. window * dt) then
+          nsteps = max(1, ceiling(remaining / dt - LANDING_TOL))
+          dt_new = remaining / real(nsteps, dp)
+
+          ! Leave the step alone while the change is round-off, so that a
+          ! step that divides the remaining time already is not registered
+          ! as changed at every step. The last step is always taken, as it
+          ! is the one that has to be exact.
+          if (nsteps .gt. 1 .and. abs(dt_new - dt) .le. LANDING_TOL * dt) then
+             dt_new = dt
+          else
+             adjusted = .true.
+          end if
+
+          ! A scheduled time closer than the shortest step allowed is passed,
+          ! except by the last step of the run.
+          if (.not. (landing_on_end .and. nsteps .eq. 1)) then
+             dt_new = max(dt_new, dt_min)
+          end if
        end if
     end if
 
@@ -356,14 +402,17 @@ contains
        global_min_dt = dt_new
        call MPI_Allreduce(MPI_IN_PLACE, global_min_dt, 1, &
             MPI_DOUBLE_PRECISION, MPI_MIN, NEKO_GLOBAL_COMM, ierr)
-       dt_new = global_min_dt
+       if (global_min_dt .lt. dt_new) then
+          dt_new = global_min_dt
+          adjusted = .true.
+       end if
     end if
 
-    if (dt_new .ne. dt) then
+    if (adjusted) then
        this%dt_is_landing = .true.
        time%dt = direction * dt_new
        ! Report each scheduled time landed on once
-       if (remaining .gt. 0.0_dp .and. remaining .lt. huge(0.0_dp) .and. &
+       if (remaining .lt. huge(0.0_dp) .and. &
             abs(time%t + direction * remaining - this%landing_target) .gt. &
             LANDING_TOL * dt) then
           this%landing_target = time%t + direction * remaining

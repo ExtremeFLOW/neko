@@ -330,14 +330,16 @@ the step the CFL controller settles on, and the controller keeps working on it
 as if the step had not been shortened. With the default of ten steps the step
 changes by at most a tenth when a scheduled time is approached from further
 away than that, which is the usual case. With `output_landing_steps` set to
-`1`, only the last step before the scheduled time is shortened, down to a half
-of the step asked for.
+`1`, only the last step before the scheduled time is shortened, down to a
+tenth of the step asked for.
 
 No step is shorter than a tenth of the step asked for or, with a variable time
-step, than `min_timestep`, except for the last step of the run, which may be
-as short as it needs to be. Two schedules with unrelated intervals can
-schedule times closer to each other than that shortest step; the first is
-landed on, and the second is passed by less than that step and executed there.
+step, than `min_timestep`. Two schedules with unrelated intervals can schedule
+times closer to each other than that shortest step; the first is landed on,
+and the second is executed within that shortest step of its time, before or
+after it. Likewise, a scheduled time closer than that to `end_time` is
+executed at `end_time`. The last step of the run is exempt from the floor, so
+that a run started closer than that to `end_time` still ends exactly there.
 
 A change of the time step invalidates the projection spaces of the velocity
 and pressure solves, as it does with a variable time step, so they are cleared

@@ -96,8 +96,10 @@ contains
     ! With a variable time step, set the first step before the initial
     ! output. A scheduled time is counted as reached within a fraction of the
     ! step, and the placeholder the run starts from is a whole time unit.
+    ! The first step of the loop arrives at the same step from this one.
     if (dt_controller%is_variable_dt) then
-       call dt_controller%set_dt(C%time, C%fluid%compute_cfl(C%time%dt))
+       C%time%dt = dt_controller%first_dt(C%time, &
+            C%fluid%compute_cfl(C%time%dt))
     end if
     call C%output_controller%execute(C%time)
 

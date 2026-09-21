@@ -255,6 +255,7 @@ contains
     type(time_state_t) :: time
     type(ctrl_run_t) :: runs(1)
     type(steps_t) :: steps
+    real(kind=dp) :: bound
     integer :: k
 
     dtc = variable_dt_controller(.true., 10)
@@ -271,7 +272,8 @@ contains
     do k = 30, steps%n
        @assertTrue(steps%dt_nominal(k) .gt. 0.5e-3_dp)
        @assertTrue(steps%dt_nominal(k) .lt. 2.5e-3_dp)
-       @assertTrue(steps%dt(k) .le. steps%dt_nominal(k) * (1.0_dp + 2.0_dp * LANDING_TOL))
+       bound = steps%dt_nominal(k) * (1.0_dp + 2.0_dp * LANDING_TOL)
+       @assertTrue(steps%dt(k) .le. bound)
     end do
   end subroutine test_land_variable_dt
 
@@ -364,9 +366,40 @@ contains
        if (steps%dt(k) .le. TIME_TOL * dt * (1.0_dp + 1e-9_dp)) k_floor = k
     end do
     ! The step at the floor is followed by a full step
-    @assertTrue(k_floor .gt. 0)
+    @assertTrue(k_floor .gt. 0 .and. k_floor .lt. steps%n)
     @assertEqual(steps%dt(k_floor + 1), dt, tolerance=1e-15_dp)
   end subroutine test_close_targets
+
+  !> A scheduled time closer to end_time than the shortest step allowed is
+  !! executed at end_time, rather than landed on and followed by a step too
+  !! short to be worth taking.
+  @test
+  subroutine test_end_near_scheduled_time()
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+    real(kind=dp), parameter :: dt = 1.0e-2_dp
+    real(kind=dp) :: t_k
+    integer :: k
+
+    dtc = fixed_dt_controller(.true., 10)
+    call time%init(0.0_dp, 1.0_dp, dt)
+    ! Scheduled at 0.2, 0.4, 0.6, 0.8 and 1e-7 before the end
+    call runs(1)%ctrl%init(0.0_dp, 1.0_dp, "simulationtime", &
+         (1.0_dp - 1.0e-7_dp) / 5.0_dp)
+
+    call run_loop(dtc, time, runs, steps, .true.)
+
+    @assertEqual(steps%t_final, 1.0_dp, tolerance=1e-12_dp)
+    @assertEqual(runs(1)%nexec, 6)
+    t_k = 4.0_dp * (1.0_dp - 1.0e-7_dp) / 5.0_dp
+    @assertEqual(runs(1)%t_exec(5), t_k, tolerance=1e-12_dp)
+    @assertEqual(runs(1)%t_exec(6), 1.0_dp, tolerance=1e-12_dp)
+    do k = 1, steps%n
+       @assertTrue(steps%dt(k) .ge. TIME_TOL * dt * (1.0_dp - 1e-9_dp))
+    end do
+  end subroutine test_end_near_scheduled_time
 
   !> An interval shorter than the step executes at every step and does not
   !! shorten the step to the interval.
@@ -457,6 +490,7 @@ contains
     type(time_state_t) :: time
     type(ctrl_run_t) :: runs(1)
     type(steps_t) :: steps
+    real(kind=dp) :: err
 
     dtc = fixed_dt_controller(.true., 10)
     call time%init(1.0_dp, 0.0_dp, -0.073_dp)
@@ -465,7 +499,8 @@ contains
     call run_loop(dtc, time, runs, steps, .true.)
 
     @assertEqual(runs(1)%nexec, 11)
-    @assertEqual(max_error(runs(1), 1.0_dp, -0.1_dp), 0.0_dp, tolerance=1e-12_dp)
+    err = max_error(runs(1), 1.0_dp, -0.1_dp)
+    @assertEqual(err, 0.0_dp, tolerance=1e-12_dp)
     @assertEqual(steps%t_final, 0.0_dp, tolerance=1e-12_dp)
   end subroutine test_backwards_in_time
 
