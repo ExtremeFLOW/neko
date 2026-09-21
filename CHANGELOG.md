@@ -5,8 +5,6 @@
   dofmap. This essentially unlock the scratch registry to be used for any field.
   Existing interface remain unchanged, a field requested without specifying a
   dofmap will be allocated on the default dofmap.
-- Fixed several OpenMP races in the boundary conditions, including a Neumann
-  flux accumulated once per thread.
 - The CPU vector and full stress Helmholtz operators apply the mass term
   `h2 * B * u` inside their element kernels rather than in a separate pass
   over the whole field afterwards, so an `lx = 8` double precision velocity
