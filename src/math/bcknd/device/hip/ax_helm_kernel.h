@@ -770,7 +770,8 @@ ax_helm_kernel_mfma(T * __restrict__ w,
  * Vector versions
  */
 
-template< typename T, const int LX, const int EB >
+template< typename T, const int LX, const int EB,
+          const bool ACCUMULATE = false >
 __global__ void NEKO_EB_BOUNDS(LX*LX*EB)
 ax_helm_kernel_vector_kstep(T * __restrict__ au,
                             T * __restrict__ av,
@@ -976,14 +977,21 @@ ax_helm_kernel_vector_kstep(T * __restrict__ au,
   if (active) {
 #pragma unroll
     for (int k = 0; k < LX; ++k){
-      au[ij + k*LX*LX + ele] = ruw[k];
-      av[ij + k*LX*LX + ele] = rvw[k];
-      aw[ij + k*LX*LX + ele] = rww[k];
+      if (ACCUMULATE) {
+        au[ij + k*LX*LX + ele] += ruw[k];
+        av[ij + k*LX*LX + ele] += rvw[k];
+        aw[ij + k*LX*LX + ele] += rww[k];
+      } else {
+        au[ij + k*LX*LX + ele] = ruw[k];
+        av[ij + k*LX*LX + ele] = rvw[k];
+        aw[ij + k*LX*LX + ele] = rww[k];
+      }
     }
   }
 }
 
-template< typename T, const int LX, const int EB >
+template< typename T, const int LX, const int EB,
+          const bool ACCUMULATE = false >
 __global__ void NEKO_EB_BOUNDS(LX*LX*EB)
 ax_helm_kernel_vector_kstep_padded(T * __restrict__ au,
                                    T * __restrict__ av,
@@ -1191,9 +1199,15 @@ ax_helm_kernel_vector_kstep_padded(T * __restrict__ au,
   if (active) {
 #pragma unroll
     for (int k = 0; k < LX; ++k){
-      au[ij + k*LX*LX + ele] = ruw[k];
-      av[ij + k*LX*LX + ele] = rvw[k];
-      aw[ij + k*LX*LX + ele] = rww[k];
+      if (ACCUMULATE) {
+        au[ij + k*LX*LX + ele] += ruw[k];
+        av[ij + k*LX*LX + ele] += rvw[k];
+        aw[ij + k*LX*LX + ele] += rww[k];
+      } else {
+        au[ij + k*LX*LX + ele] = ruw[k];
+        av[ij + k*LX*LX + ele] = rvw[k];
+        aw[ij + k*LX*LX + ele] = rww[k];
+      }
     }
   }
 }
@@ -1234,7 +1248,8 @@ ax_helm_kernel_vector_kstep_padded(T * __restrict__ au,
 
 /* Matrix-core vector axhelm for one element of order LX-1 (T = float or
  * double), see ax_helm_mfma_elem for the block geometry this shares. */
-template< typename T, const int LX, const int NWF, const int TILE >
+template< typename T, const int LX, const int NWF, const int TILE,
+          const bool ACCUMULATE = false >
 __device__ void ax_helm_mfma_vector_elem(T * __restrict__ au,
                                          T * __restrict__ av,
                                          T * __restrict__ aw,
@@ -1422,8 +1437,12 @@ __device__ void ax_helm_mfma_vector_elem(T * __restrict__ au,
     if (active) {
 #pragma unroll
       for (int q = 0; q < SPT; q++) {
-        if (goff[q] >= 0)
-          cout[goff[q] + ele] = shc[sh + gtid + q * GNTHR];
+        if (goff[q] >= 0) {
+          if (ACCUMULATE)
+            cout[goff[q] + ele] += shc[sh + gtid + q * GNTHR];
+          else
+            cout[goff[q] + ele] = shc[sh + gtid + q * GNTHR];
+        }
       }
     }
 
@@ -1450,7 +1469,8 @@ __device__ void ax_helm_mfma_vector_elem(T * __restrict__ au,
  * autotuner only offers the strategy where mfma_lx_supported() and
  * hip_have_mfma() both say yes, which is exactly the set instantiated below.
  */
-template< typename T, const int LX, const int NWF, const int TILE >
+template< typename T, const int LX, const int NWF, const int TILE,
+          const bool ACCUMULATE = false >
 struct ax_helm_mfma_vector_dispatch {
   __device__ static void run(T *, T *, T *,
                              const T *, const T *, const T *,
@@ -1463,8 +1483,9 @@ struct ax_helm_mfma_vector_dispatch {
 
 /* Keep in sync with mfma_lx_supported() in mfma_kernel.h */
 #define NEKO_AX_HELM_MFMA_VECTOR_DISPATCH(TYPE, LXV)                           \
-  template< const int NWF, const int TILE >                                    \
-  struct ax_helm_mfma_vector_dispatch< TYPE, LXV, NWF, TILE > {                \
+  template< const int NWF, const int TILE, const bool ACCUMULATE >             \
+  struct ax_helm_mfma_vector_dispatch< TYPE, LXV, NWF, TILE,                 \
+                                        ACCUMULATE > {                         \
     __device__ static void run(TYPE *au, TYPE *av, TYPE *aw,                   \
                                const TYPE *u, const TYPE *v, const TYPE *w,    \
                                const TYPE *dx, const TYPE *dy,                 \
@@ -1473,7 +1494,8 @@ struct ax_helm_mfma_vector_dispatch {
                                const TYPE *g33, const TYPE *g12,               \
                                const TYPE *g13, const TYPE *g23,               \
                                const int nelv) {                               \
-      ax_helm_mfma_vector_elem< TYPE, LXV, NWF, TILE >(au, av, aw, u, v, w,    \
+      ax_helm_mfma_vector_elem< TYPE, LXV, NWF, TILE, ACCUMULATE >(           \
+                                                 au, av, aw, u, v, w,          \
                                                  dx, dy, dz, h1,               \
                                                  g11, g22, g33,                \
                                                  g12, g13, g23, nelv);         \
@@ -1509,7 +1531,8 @@ NEKO_AX_HELM_MFMA_VECTOR_DISPATCH(float, 12);
    ax_helm_kernel_mfma: the three waves per SIMD the kstep kernels ask for
    would tighten the register budget of a kernel whose occupancy is already
    set by its LDS footprint */
-template< typename T, const int LX, const int NWF, const int TILE >
+template< typename T, const int LX, const int NWF, const int TILE,
+          const bool ACCUMULATE = false >
 __global__ void __launch_bounds__(64 * NWF)
 ax_helm_kernel_mfma_vector(T * __restrict__ au,
                            T * __restrict__ av,
@@ -1529,10 +1552,9 @@ ax_helm_kernel_mfma_vector(T * __restrict__ au,
                            const T * __restrict__ g23,
                            const int nelv) {
 
-  ax_helm_mfma_vector_dispatch< T, LX, NWF, TILE >::run(au, av, aw, u, v, w,
-                                                        dx, dy, dz, h1,
-                                                        g11, g22, g33,
-                                                        g12, g13, g23, nelv);
+  ax_helm_mfma_vector_dispatch< T, LX, NWF, TILE, ACCUMULATE >::run(
+      au, av, aw, u, v, w, dx, dy, dz, h1,
+      g11, g22, g33, g12, g13, g23, nelv);
 }
 
 template< typename T >
