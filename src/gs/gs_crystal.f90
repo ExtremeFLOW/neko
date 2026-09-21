@@ -88,6 +88,7 @@ module gs_crystal
      procedure, pass(this) :: nbsend => gs_crystal_nbsend
      procedure, pass(this) :: nbrecv => gs_crystal_nbrecv
      procedure, pass(this) :: nbwait => gs_crystal_nbwait
+     procedure, pass(this) :: init_vec => gs_crystal_init_vec
      procedure, pass(this) :: nbsend_vec => gs_crystal_nbsend_vec
      procedure, pass(this) :: nbrecv_vec => gs_crystal_nbrecv_vec
      procedure, pass(this) :: nbwait_vec => gs_crystal_nbwait_vec
@@ -109,12 +110,23 @@ contains
 
     allocate(this%buf(2*this%plan%nwrk))
     allocate(this%sbuf(this%plan%nsmax))
+
+    this%vec_supported = .true.
+    this%vec_ready = .false.
+
+  end subroutine gs_crystal_init
+
+  !> Allocate the fused vector working and send buffers, sized for GS_VEC_NC
+  !! components. Deferred to the first fused exchange, see gs_comm_t. The
+  !! routing plan is shared with the scalar exchange and is not rebuilt
+  !! here, so this stays rank local.
+  subroutine gs_crystal_init_vec(this)
+    class(gs_crystal_t), intent(inout) :: this
+
     allocate(this%buf_v(2*GS_VEC_NC*this%plan%nwrk))
     allocate(this%sbuf_v(GS_VEC_NC*this%plan%nsmax))
 
-    this%vec_supported = .true.
-
-  end subroutine gs_crystal_init
+  end subroutine gs_crystal_init_vec
 
   !> Deallocate crystal router based communication method
   subroutine gs_crystal_free(this)
@@ -124,6 +136,7 @@ contains
     if (allocated(this%sbuf)) deallocate(this%sbuf)
     if (allocated(this%buf_v)) deallocate(this%buf_v)
     if (allocated(this%sbuf_v)) deallocate(this%sbuf_v)
+    this%vec_ready = .false.
 
     call this%plan%free()
 
