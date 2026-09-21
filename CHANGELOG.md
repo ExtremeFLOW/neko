@@ -5,8 +5,6 @@
   are used when requesting scratch arrays of these types. `c_ptr` and
   `real(kind=rp), pointer` should be used rather than the wrappers
   `host_array_t` and `device_array_t`.
-- Fixed several OpenMP races in the boundary conditions, including a Neumann
-  flux accumulated once per thread.
 - The CPU vector and full stress Helmholtz operators apply the mass term
   `h2 * B * u` inside their element kernels rather than in a separate pass
   over the whole field afterwards, so an `lx = 8` double precision velocity
