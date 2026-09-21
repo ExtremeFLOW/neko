@@ -1,183 +1,512 @@
 !> Unit tests for the time step controller, in particular for landing exactly
-!! on the sampling and output times.
+!! on the scheduled sampling and output times.
 module test_time_step_controller
   use pfunit
   use num_types, only : dp
+  use json_module, only : json_file
   use time_state, only : time_state_t
-  use time_based_controller, only : time_based_controller_t, &
-       time_based_controller_reset_schedules
-  use time_step_controller, only : time_step_controller_t
+  use time_based_controller, only : time_based_controller_t, TIME_TOL
+  use time_step_controller, only : time_step_controller_t, LANDING_TOL
   implicit none
 
   !> Safety net, so that a broken time step does not hang the test suite.
   integer, parameter :: MAX_STEPS = 100000
+  integer, parameter :: MAX_EXEC = 4096
+
+  !> A controller driven by the time loop, and the times it executed at.
+  type ctrl_run_t
+     type(time_based_controller_t) :: ctrl
+     !> Whether it is checked before the loop, as the outputs are.
+     logical :: at_start = .true.
+     integer :: nexec = 0
+     real(kind=dp) :: t_exec(MAX_EXEC) = 0.0_dp
+  end type ctrl_run_t
+
+  !> The steps the time loop took.
+  type steps_t
+     integer :: n = 0
+     real(kind=dp), allocatable :: dt(:)
+     real(kind=dp), allocatable :: dt_nominal(:)
+     real(kind=dp) :: t_final = 0.0_dp
+  end type steps_t
 
 contains
 
-  !> Advance a case with a single output controller from start to end, and
-  !! report how far the output times ended up from the requested ones.
-  !! @param dt_controller The time step controller under test.
-  !! @param dt_nominal The time step asked for, kept fixed unless the
-  !! controller is set up for a variable time step.
-  !! @param interval Time between two outputs.
-  !! @param max_error Largest distance between an output time and the time it
-  !! was requested at.
-  !! @param min_dt Smallest time step that was taken.
-  !! @param nwrites Number of outputs during the loop.
-  !! @param t_end Time at which the loop stopped.
-  subroutine run_loop(dt_controller, dt_nominal, interval, max_error, min_dt, &
-       nwrites, t_end)
-    type(time_step_controller_t), intent(inout) :: dt_controller
-    real(kind=dp), intent(in) :: dt_nominal
-    real(kind=dp), intent(in) :: interval
-    real(kind=dp), intent(out) :: max_error
-    real(kind=dp), intent(out) :: min_dt
-    integer, intent(out) :: nwrites
-    real(kind=dp), intent(out) :: t_end
+  !> A fixed step controller.
+  function fixed_dt_controller(exact, landing_steps) result(dtc)
+    logical, intent(in) :: exact
+    integer, intent(in) :: landing_steps
+    type(time_step_controller_t) :: dtc
 
-    type(time_state_t) :: time
-    type(time_based_controller_t) :: ctrl
-    real(kind=dp) :: cfl
+    dtc%is_variable_dt = .false.
+    dtc%dt_last_change = -1
+    dtc%exact_output_time = exact
+    dtc%landing_steps = landing_steps
+  end function fixed_dt_controller
 
-    call time_based_controller_reset_schedules()
-    call time%init(0.0_dp, 1.0_dp, dt_nominal)
-    call ctrl%init(0.0_dp, 1.0_dp, "simulationtime", interval)
+  !> A variable step controller aiming at a CFL of 0.5.
+  function variable_dt_controller(exact, landing_steps) result(dtc)
+    logical, intent(in) :: exact
+    integer, intent(in) :: landing_steps
+    type(time_step_controller_t) :: dtc
 
-    max_error = 0.0_dp
-    min_dt = huge(0.0_dp)
-    nwrites = 0
+    dtc%is_variable_dt = .true.
+    dtc%dt_last_change = -1
+    dtc%exact_output_time = exact
+    dtc%landing_steps = landing_steps
+    dtc%cfl_trg = 0.5_dp
+    dtc%init_dt = huge(0.0_dp)
+    dtc%max_dt = huge(0.0_dp)
+    dtc%min_dt = 0.0_dp
+    dtc%alpha = 0.5_dp
+    dtc%max_dt_increase_factor = 1.2_dp
+    dtc%min_dt_decrease_factor = 0.5_dp
+    dtc%dev_tol = 0.2_dp
+    dtc%max_update_frequency = 0
+    dtc%min_update_frequency = huge(0)
+  end function variable_dt_controller
 
-    ! The output that is done before the time loop is entered
-    if (ctrl%check(time)) call ctrl%register_execution()
+  !> A synthetic CFL number, proportional to the step and varying in time so
+  !! that the variable step controller has something to react to. It aims
+  !! the controller at a step between 2/3 and 2 times 1e-3.
+  function cfl(time) result(c)
+    type(time_state_t), intent(in) :: time
+    real(kind=dp) :: c
+    c = abs(time%dt) * 500.0_dp * (1.0_dp + 0.5_dp * sin(6.0_dp * time%t))
+  end function cfl
 
-    do while (.not. time%is_done() .and. time%tstep .lt. MAX_STEPS)
-       ! A cfl that is proportional to dt and varies in time, so that the
-       ! variable time step controller has something to react to.
-       cfl = time%dt * (400.0_dp + 200.0_dp * sin(6.0_dp * time%t))
-       call dt_controller%set_dt(time, cfl)
+  !> Check the controllers at the current time and execute them.
+  subroutine execute(runs, time, at_start_only, force)
+    type(ctrl_run_t), intent(inout) :: runs(:)
+    type(time_state_t), intent(in) :: time
+    logical, intent(in) :: at_start_only, force
+    integer :: i
 
-       time%tstep = time%tstep + 1
-       time%t = time%t + time%dt
-       min_dt = min(min_dt, time%dt)
-
-       if (ctrl%check(time)) then
-          max_error = max(max_error, &
-               abs(time%t - ctrl%nexecutions * interval))
-          nwrites = nwrites + 1
-          call ctrl%register_execution()
+    do i = 1, size(runs)
+       if (at_start_only .and. .not. runs(i)%at_start) cycle
+       if (runs(i)%ctrl%check(time, force)) then
+          runs(i)%nexec = runs(i)%nexec + 1
+          if (runs(i)%nexec .le. MAX_EXEC) then
+             runs(i)%t_exec(runs(i)%nexec) = time%t
+          end if
+          call runs(i)%ctrl%register_execution(time)
        end if
     end do
+  end subroutine execute
 
-    t_end = time%t
-    call time_based_controller_reset_schedules()
+  !> Run the time loop from the given time state to its end time, as the
+  !! simulation does: the outputs before the loop, then per step the time
+  !! step controller, the landing on the next scheduled time, the advance of
+  !! the time and the controllers, and finally the forced execution at the
+  !! end. A variable step is set before the outputs at the start, as in the
+  !! simulation.
+  !! @param dtc The time step controller under test.
+  !! @param time The time state to start from, advanced to the end.
+  !! @param runs The controllers to drive.
+  !! @param steps The steps taken.
+  !! @param force_at_end Whether the outputs are forced at the end.
+  subroutine run_loop(dtc, time, runs, steps, force_at_end)
+    type(time_step_controller_t), intent(inout) :: dtc
+    type(time_state_t), intent(inout) :: time
+    type(ctrl_run_t), intent(inout) :: runs(:)
+    type(steps_t), intent(out) :: steps
+    logical, intent(in) :: force_at_end
+    real(kind=dp) :: t_to_next
+    integer :: i
 
+    allocate(steps%dt(MAX_STEPS), steps%dt_nominal(MAX_STEPS))
+    steps%n = 0
+
+    if (dtc%is_variable_dt) call dtc%set_dt(time, cfl(time))
+    call execute(runs, time, .true., .false.)
+
+    do while (.not. time%is_done() .and. steps%n .lt. MAX_STEPS)
+       call dtc%set_dt(time, cfl(time))
+       if (dtc%exact_output_time) then
+          t_to_next = huge(0.0_dp)
+          do i = 1, size(runs)
+             t_to_next = min(t_to_next, &
+                  runs(i)%ctrl%time_to_next(time, time%dt))
+          end do
+          call dtc%land(time, t_to_next)
+       end if
+
+       do i = 10, 2, -1
+          time%tlag(i) = time%tlag(i-1)
+          time%dtlag(i) = time%dtlag(i-1)
+       end do
+       time%dtlag(1) = time%dt
+       time%tlag(1) = time%t
+       time%tstep = time%tstep + 1
+       time%t = time%t + time%dt
+
+       steps%n = steps%n + 1
+       steps%dt(steps%n) = abs(time%dt)
+       steps%dt_nominal(steps%n) = abs(dtc%dt_nominal)
+
+       call execute(runs, time, .false., .false.)
+    end do
+
+    if (force_at_end) call execute(runs, time, .true., .true.)
+    steps%t_final = time%t
   end subroutine run_loop
 
-  !> With a fixed dt, the output times should be hit exactly.
+  !> The largest distance between the executions of a controller and the
+  !! times `t_begin + k * interval`.
+  function max_error(run, t_begin, interval) result(err)
+    type(ctrl_run_t), intent(in) :: run
+    real(kind=dp), intent(in) :: t_begin, interval
+    real(kind=dp) :: err
+    integer :: i
+
+    err = 0.0_dp
+    do i = 1, min(run%nexec, MAX_EXEC)
+       err = max(err, abs(run%t_exec(i) - t_begin - &
+            nint((run%t_exec(i) - t_begin) / interval) * interval))
+    end do
+  end function max_error
+
+  !> The options are read from the case file.
+  @test
+  subroutine test_init()
+    type(time_step_controller_t) :: dtc
+    type(json_file) :: params
+
+    call params%load_from_string('{"variable_timestep": false, ' // &
+         '"timestep": 0.01, "exact_output_time": true, ' // &
+         '"output_landing_steps": 3}')
+    call dtc%init(params)
+    @assertFalse(dtc%is_variable_dt)
+    @assertTrue(dtc%exact_output_time)
+    @assertEqual(dtc%landing_steps, 3)
+    @assertTrue(dtc%dt_may_change())
+
+    call params%load_from_string('{"variable_timestep": false, ' // &
+         '"timestep": 0.01}')
+    call dtc%init(params)
+    @assertFalse(dtc%exact_output_time)
+    @assertEqual(dtc%landing_steps, 10)
+    @assertFalse(dtc%dt_may_change())
+
+    call params%load_from_string('{"variable_timestep": true, ' // &
+         '"target_cfl": 0.5}')
+    call dtc%init(params)
+    @assertTrue(dtc%dt_may_change())
+  end subroutine test_init
+
+  !> With a fixed step that does not divide the output interval, the
+  !! scheduled times and the end are hit exactly, and the step is only ever
+  !! shortened, by at most a half.
   @test
   subroutine test_land_fixed_dt()
-    type(time_step_controller_t) :: dt_controller
-    real(kind=dp) :: max_error, min_dt, t_end
-    integer :: nwrites
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+    integer :: k
 
-    dt_controller%is_variable_dt = .false.
-    dt_controller%dt_last_change = -1
-    dt_controller%exact_output_time = .true.
-    dt_controller%landing_steps = 10
+    dtc = fixed_dt_controller(.true., 10)
+    call time%init(0.0_dp, 1.0_dp, 7.3e-4_dp)
+    call runs(1)%ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.1_dp)
 
-    ! A dt that does not divide the output interval
-    call run_loop(dt_controller, 7.3e-4_dp, 0.1_dp, max_error, min_dt, &
-         nwrites, t_end)
+    call run_loop(dtc, time, runs, steps, .true.)
 
-    @assertEqual(nwrites, 10)
-    @assertEqual(max_error, 0.0_dp, tolerance = 1e-15_dp)
-    @assertEqual(t_end, 1.0_dp, tolerance = 1e-15_dp)
-    ! The step is only ever made smaller, never larger
-    @assertTrue(min_dt .le. 7.3e-4_dp)
-    @assertTrue(min_dt .ge. 0.5_dp * 7.3e-4_dp)
-
+    @assertEqual(runs(1)%nexec, 11)
+    @assertEqual(max_error(runs(1), 0.0_dp, 0.1_dp), 0.0_dp, tolerance=1e-12_dp)
+    @assertEqual(steps%t_final, 1.0_dp, tolerance=1e-12_dp)
+    @assertTrue(steps%n .le. 1370 + 11)
+    do k = 1, steps%n
+       @assertTrue(steps%dt(k) .le. 7.3e-4_dp * (1.0_dp + 2.0_dp * LANDING_TOL))
+       @assertTrue(steps%dt(k) .ge. 0.5_dp * 7.3e-4_dp)
+    end do
+    @assertTrue(dtc%dt_may_change())
   end subroutine test_land_fixed_dt
 
-  !> Without the option, the outputs land on the first step past the
-  !! requested time, which is the default behaviour.
+  !> Without the option, the step is left alone and the outputs come at the
+  !! first step past their times.
   @test
   subroutine test_no_landing_fixed_dt()
-    type(time_step_controller_t) :: dt_controller
-    real(kind=dp) :: max_error, min_dt, t_end
-    integer :: nwrites
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+    integer :: k
 
-    dt_controller%is_variable_dt = .false.
-    dt_controller%dt_last_change = -1
-    dt_controller%exact_output_time = .false.
+    dtc = fixed_dt_controller(.false., 10)
+    call time%init(0.0_dp, 1.0_dp, 7.3e-4_dp)
+    call runs(1)%ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.1_dp)
 
-    call run_loop(dt_controller, 7.3e-4_dp, 0.1_dp, max_error, min_dt, &
-         nwrites, t_end)
+    call run_loop(dtc, time, runs, steps, .true.)
 
-    ! The step overshoots the end time, so the output requested there is
-    ! missed entirely, which is what landing on the output times also fixes
-    @assertEqual(nwrites, 9)
-    @assertTrue(max_error .gt. 1e-6_dp)
-    ! dt is untouched
-    @assertEqual(min_dt, 7.3e-4_dp, tolerance = 1e-15_dp)
-
+    @assertEqual(runs(1)%nexec, 11)
+    @assertTrue(max_error(runs(1), 0.0_dp, 0.1_dp) .gt. 1e-5_dp)
+    do k = 1, steps%n
+       @assertEqual(steps%dt(k), 7.3e-4_dp, tolerance=1e-15_dp)
+    end do
+    @assertFalse(dtc%dt_may_change())
+    @assertEqual(dtc%dt_last_change, -1)
   end subroutine test_no_landing_fixed_dt
 
-  !> The output times should also be hit exactly with a variable dt, and the
-  !! reduction applied to land on them must not accumulate.
+  !> With a variable step the scheduled times are hit exactly as well, and
+  !! the shortened steps do not feed back into the CFL controller.
   @test
   subroutine test_land_variable_dt()
-    type(time_step_controller_t) :: dt_controller
-    real(kind=dp) :: max_error, min_dt, t_end
-    integer :: nwrites
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+    integer :: k
 
-    dt_controller%is_variable_dt = .true.
-    dt_controller%dt_last_change = -1
-    dt_controller%exact_output_time = .true.
-    dt_controller%landing_steps = 10
-    dt_controller%cfl_trg = 0.5_dp
-    dt_controller%init_dt = 1.0e-3_dp
-    dt_controller%max_dt = 4.0e-3_dp
-    dt_controller%min_dt = 0.0_dp
-    dt_controller%alpha = 0.5_dp
-    dt_controller%max_dt_increase_factor = 1.2_dp
-    dt_controller%min_dt_decrease_factor = 0.5_dp
-    dt_controller%dev_tol = 0.2_dp
-    dt_controller%max_update_frequency = 0
-    dt_controller%min_update_frequency = huge(0)
+    dtc = variable_dt_controller(.true., 10)
+    call time%init(0.0_dp, 1.0_dp, 1.0_dp)
+    call runs(1)%ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.1_dp)
 
-    call run_loop(dt_controller, 1.0e-3_dp, 0.1_dp, max_error, min_dt, &
-         nwrites, t_end)
+    call run_loop(dtc, time, runs, steps, .true.)
 
-    @assertEqual(nwrites, 10)
-    @assertEqual(max_error, 0.0_dp, tolerance = 1e-15_dp)
-    @assertEqual(t_end, 1.0_dp, tolerance = 1e-15_dp)
-    ! The controller should have been free to grow dt beyond the initial one
-    @assertTrue(dt_controller%dt_nominal .gt. 1.0e-3_dp)
-
+    @assertEqual(runs(1)%nexec, 11)
+    @assertEqual(max_error(runs(1), 0.0_dp, 0.1_dp), 0.0_dp, tolerance=1e-12_dp)
+    @assertEqual(steps%t_final, 1.0_dp, tolerance=1e-12_dp)
+    ! The CFL controller keeps aiming at its own step, between 2/3 and 2
+    ! times 1e-3, whatever the landing does to the steps taken
+    do k = 30, steps%n
+       @assertTrue(steps%dt_nominal(k) .gt. 0.5e-3_dp)
+       @assertTrue(steps%dt_nominal(k) .lt. 2.5e-3_dp)
+       @assertTrue(steps%dt(k) .le. steps%dt_nominal(k) * (1.0_dp + 2.0_dp * LANDING_TOL))
+    end do
   end subroutine test_land_variable_dt
 
-  !> A time step floor takes precedence over landing on the output time.
+  !> A single landing step is enough for exactness, at the price of a step
+  !! down to a tenth of the one asked for.
+  @test
+  subroutine test_landing_steps_one()
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+    integer :: k
+
+    dtc = fixed_dt_controller(.true., 1)
+    call time%init(0.0_dp, 1.0_dp, 7.3e-4_dp)
+    call runs(1)%ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.1_dp)
+
+    call run_loop(dtc, time, runs, steps, .true.)
+
+    @assertEqual(runs(1)%nexec, 11)
+    @assertEqual(max_error(runs(1), 0.0_dp, 0.1_dp), 0.0_dp, tolerance=1e-12_dp)
+    @assertEqual(steps%t_final, 1.0_dp, tolerance=1e-12_dp)
+    do k = 1, steps%n
+       @assertTrue(steps%dt(k) .ge. TIME_TOL * 7.3e-4_dp * (1.0_dp - 1e-9_dp))
+    end do
+  end subroutine test_landing_steps_one
+
+  !> A floor on the step takes precedence over landing, except for the last
+  !! step of the run, which may be as short as it needs to be.
   @test
   subroutine test_min_timestep_respected()
-    type(time_step_controller_t) :: dt_controller
-    real(kind=dp) :: max_error, min_dt, t_end
-    integer :: nwrites
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+    integer :: k
 
-    dt_controller%is_variable_dt = .false.
-    dt_controller%dt_last_change = -1
-    dt_controller%exact_output_time = .true.
-    dt_controller%landing_steps = 10
-    dt_controller%min_dt = 7.3e-4_dp
+    dtc = fixed_dt_controller(.true., 10)
+    dtc%min_dt = 7.3e-4_dp
+    call time%init(0.0_dp, 1.0_dp, 7.3e-4_dp)
+    call runs(1)%ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.1_dp)
 
-    call run_loop(dt_controller, 7.3e-4_dp, 0.1_dp, max_error, min_dt, &
-         nwrites, t_end)
+    call run_loop(dtc, time, runs, steps, .true.)
 
-    ! No target can be reached without going below the floor, so this behaves
-    ! exactly as if the option had not been switched on at all
-    @assertEqual(nwrites, 9)
-    @assertEqual(min_dt, 7.3e-4_dp, tolerance = 1e-15_dp)
-    @assertTrue(max_error .gt. 1e-6_dp)
-
+    @assertEqual(runs(1)%nexec, 11)
+    @assertTrue(max_error(runs(1), 0.0_dp, 0.1_dp) .gt. 1e-5_dp)
+    @assertEqual(steps%t_final, 1.0_dp, tolerance=1e-12_dp)
+    do k = 1, steps%n - 1
+       @assertEqual(steps%dt(k), 7.3e-4_dp, tolerance=1e-15_dp)
+    end do
+    @assertTrue(steps%dt(steps%n) .lt. 7.3e-4_dp)
   end subroutine test_min_timestep_respected
+
+  !> Two scheduled times closer to each other than a tenth of the step: the
+  !! first is landed on, the second is passed by less than that tenth, and
+  !! the step never gets shorter than that.
+  @test
+  subroutine test_close_targets()
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(2)
+    type(steps_t) :: steps
+    real(kind=dp), parameter :: dt = 1.0e-3_dp
+    integer :: k, k_floor
+
+    dtc = fixed_dt_controller(.true., 10)
+    call time%init(0.0_dp, 0.25_dp, dt)
+    ! Scheduled at 0.1005 and 0.201
+    call runs(1)%ctrl%init(0.0_dp, 0.25_dp, "simulationtime", 0.1005_dp)
+    ! Scheduled at 0.100597, 0.097 dt after the first, and at 0.201194
+    call runs(2)%ctrl%init(0.0_dp, 0.25_dp, "simulationtime", 0.100597_dp)
+
+    call run_loop(dtc, time, runs, steps, .true.)
+
+    @assertEqual(runs(1)%nexec, 4)
+    @assertEqual(runs(1)%t_exec(2), 0.1005_dp, tolerance=1e-12_dp)
+    @assertEqual(runs(1)%t_exec(3), 0.201_dp, tolerance=1e-12_dp)
+    @assertEqual(steps%t_final, 0.25_dp, tolerance=1e-12_dp)
+
+    @assertEqual(runs(2)%nexec, 4)
+    ! Passed, by less than a tenth of the step
+    @assertTrue(runs(2)%t_exec(2) .gt. 0.100597_dp)
+    @assertTrue(runs(2)%t_exec(2) .le. 0.100597_dp + TIME_TOL * dt)
+    ! Far enough from the other schedule to be landed on
+    @assertEqual(runs(2)%t_exec(3), 0.201194_dp, tolerance=1e-12_dp)
+
+    k_floor = 0
+    do k = 1, steps%n
+       @assertTrue(steps%dt(k) .ge. TIME_TOL * dt * (1.0_dp - 1e-9_dp))
+       if (steps%dt(k) .le. TIME_TOL * dt * (1.0_dp + 1e-9_dp)) k_floor = k
+    end do
+    ! The step at the floor is followed by a full step
+    @assertTrue(k_floor .gt. 0)
+    @assertEqual(steps%dt(k_floor + 1), dt, tolerance=1e-15_dp)
+  end subroutine test_close_targets
+
+  !> An interval shorter than the step executes at every step and does not
+  !! shorten the step to the interval.
+  @test
+  subroutine test_interval_shorter_than_step()
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+    integer :: k
+
+    dtc = fixed_dt_controller(.true., 10)
+    call time%init(0.0_dp, 1.0_dp, 7.3e-4_dp)
+    call runs(1)%ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 3.0e-4_dp)
+
+    call run_loop(dtc, time, runs, steps, .true.)
+
+    ! Once at the start, then at every step
+    @assertEqual(runs(1)%nexec, steps%n + 1)
+    ! Only the approach to the end shortens the step
+    do k = 1, steps%n - 11
+       @assertEqual(steps%dt(k), 7.3e-4_dp, tolerance=1e-15_dp)
+    end do
+    @assertEqual(steps%t_final, 1.0_dp, tolerance=1e-12_dp)
+  end subroutine test_interval_shorter_than_step
+
+  !> The run ends exactly at end_time, and an output scheduled there is not
+  !! written a second time by the forced write at the end.
+  @test
+  subroutine test_end_exact()
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+
+    dtc = fixed_dt_controller(.true., 10)
+    call time%init(0.0_dp, 1.0_dp, 0.33_dp)
+    call runs(1)%ctrl%init(0.0_dp, 1.0_dp, "nsamples", 2.0_dp)
+
+    call run_loop(dtc, time, runs, steps, .true.)
+
+    @assertEqual(steps%t_final, 1.0_dp, tolerance=1e-12_dp)
+    @assertEqual(runs(1)%nexec, 3)
+    @assertEqual(runs(1)%t_exec(2), 0.5_dp, tolerance=1e-12_dp)
+    @assertEqual(runs(1)%t_exec(3), 1.0_dp, tolerance=1e-12_dp)
+  end subroutine test_end_exact
+
+  !> A restart continues the landing without repeating or skipping a write.
+  @test
+  subroutine test_restart()
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time, time_chkp
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+    integer :: nexec_part1
+
+    dtc = fixed_dt_controller(.true., 10)
+    ! The first run ends at 0.146, in between two scheduled times
+    call time%init(0.0_dp, 0.146_dp, 7.3e-4_dp)
+    call runs(1)%ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.1_dp)
+    call run_loop(dtc, time, runs, steps, .false.)
+    @assertEqual(runs(1)%nexec, 2)
+    nexec_part1 = runs(1)%nexec
+    time_chkp = time
+
+    ! The restart: the time and its lags come from the checkpoint, the step
+    ! index and the step from the case
+    dtc = fixed_dt_controller(.true., 10)
+    call time%init(0.0_dp, 1.0_dp, 7.3e-4_dp)
+    time%t = time_chkp%t
+    time%tlag = time_chkp%tlag
+    time%dtlag = time_chkp%dtlag
+    call runs(1)%ctrl%init(0.0_dp, 1.0_dp, "simulationtime", 0.1_dp)
+    call runs(1)%ctrl%set_counter(time)
+    runs(1)%nexec = 0
+    call run_loop(dtc, time, runs, steps, .true.)
+
+    @assertEqual(runs(1)%nexec + nexec_part1, 11)
+    @assertEqual(runs(1)%t_exec(1), 0.2_dp, tolerance=1e-12_dp)
+    @assertEqual(max_error(runs(1), 0.0_dp, 0.1_dp), 0.0_dp, tolerance=1e-12_dp)
+    @assertEqual(steps%t_final, 1.0_dp, tolerance=1e-12_dp)
+  end subroutine test_restart
+
+  !> Backwards in time the scheduled times are landed on as well.
+  @test
+  subroutine test_backwards_in_time()
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+
+    dtc = fixed_dt_controller(.true., 10)
+    call time%init(1.0_dp, 0.0_dp, -0.073_dp)
+    call runs(1)%ctrl%init(1.0_dp, 0.0_dp, "nsamples", 10.0_dp)
+
+    call run_loop(dtc, time, runs, steps, .true.)
+
+    @assertEqual(runs(1)%nexec, 11)
+    @assertEqual(max_error(runs(1), 1.0_dp, -0.1_dp), 0.0_dp, tolerance=1e-12_dp)
+    @assertEqual(steps%t_final, 0.0_dp, tolerance=1e-12_dp)
+  end subroutine test_backwards_in_time
+
+  !> The steps since the step last changed are counted also for a fixed step
+  !! when landing, as the projection spaces rely on them.
+  @test
+  subroutine test_dt_last_change()
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+
+    dtc = fixed_dt_controller(.true., 10)
+    call time%init(0.0_dp, 1.0_dp, 1.0e-3_dp)
+
+    ! A target 5.5 steps ahead: six equal steps, a change at the first
+    call dtc%set_dt(time, 0.5_dp)
+    call dtc%land(time, 5.5e-3_dp)
+    @assertEqual(time%dt, 5.5e-3_dp / 6.0_dp, tolerance=1e-15_dp)
+    @assertTrue(dtc%dt_is_landing)
+    @assertEqual(dtc%dt_last_change, 0)
+    @assertEqual(dtc%dt_nominal, 1.0e-3_dp, tolerance=1e-15_dp)
+
+    ! The next step of the approach takes the same step: no change
+    time%t = time%t + time%dt
+    call dtc%set_dt(time, 0.5_dp)
+    @assertEqual(time%dt, 1.0e-3_dp, tolerance=1e-15_dp)
+    call dtc%land(time, 5.5e-3_dp - 5.5e-3_dp / 6.0_dp)
+    @assertEqual(time%dt, 5.5e-3_dp / 6.0_dp, tolerance=1e-15_dp)
+    @assertEqual(dtc%dt_last_change, 1)
+
+    ! Nothing to land on: the step is restored, which is a change
+    time%t = time%t + time%dt
+    call dtc%set_dt(time, 0.5_dp)
+    call dtc%land(time, huge(0.0_dp))
+    @assertEqual(time%dt, 1.0e-3_dp, tolerance=1e-15_dp)
+    @assertFalse(dtc%dt_is_landing)
+    @assertEqual(dtc%dt_last_change, 0)
+
+    time%t = time%t + time%dt
+    call dtc%set_dt(time, 0.5_dp)
+    call dtc%land(time, huge(0.0_dp))
+    @assertEqual(dtc%dt_last_change, 1)
+  end subroutine test_dt_last_change
 
 end module test_time_step_controller

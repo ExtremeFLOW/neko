@@ -124,7 +124,7 @@ contains
     ! Here we assume the projection space sizes and activate steps
     ! for all three velocity equations are the same
     if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
-       if ((.not. dt_controller%is_variable_dt) .or. &
+       if ((.not. dt_controller%dt_may_change()) .or. &
             (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
           call this%project_back(x_u, x_v, x_w, Ax, coef, bc_projector, gs_h, n)
        end if

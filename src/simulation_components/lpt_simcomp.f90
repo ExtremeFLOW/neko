@@ -36,6 +36,7 @@ module lpt_simcomp
   use simulation_component, only : simulation_component_t
   use case, only : case_t
   use time_state, only : time_state_t
+  use num_types, only : dp
   use lpt, only : lpt_t
   implicit none
   private
@@ -53,6 +54,8 @@ module lpt_simcomp
      procedure, pass(this) :: preprocess_ => lpt_simcomp_preprocess
      !> Main compute hook.
      procedure, pass(this) :: compute_ => lpt_simcomp_compute
+     !> The time until the next scheduled execution, output included.
+     procedure, pass(this) :: time_to_next => lpt_simcomp_time_to_next
   end type lpt_simcomp_t
 
 contains
@@ -70,6 +73,24 @@ contains
     this%lpt%output_controller = this%output_controller
     this%name = this%lpt%name
   end subroutine lpt_simcomp_init_from_json
+
+  !> The time until the next scheduled execution, including the output of
+  !! the particle tracker, which is driven by a controller of its own.
+  !! @param time The current time.
+  !! @param dt The time step about to be taken, before it is shortened to
+  !! land on a scheduled time.
+  function lpt_simcomp_time_to_next(this, time, dt) result(t)
+    class(lpt_simcomp_t), intent(in) :: this
+    type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: dt
+    real(kind=dp) :: t
+
+    t = min(this%preprocess_controller%time_to_next(time, dt), &
+         this%compute_controller%time_to_next(time, dt), &
+         this%output_controller%time_to_next(time, dt), &
+         this%lpt%output_controller%time_to_next(time, dt))
+
+  end function lpt_simcomp_time_to_next
 
   !> Free the component.
   subroutine lpt_simcomp_free(this)

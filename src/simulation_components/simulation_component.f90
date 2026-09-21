@@ -89,6 +89,9 @@ module simulation_component
      !> Wrapper for calling `compute_` based on the `compute_controller`.
      !! Serves as the public interface.
      procedure, pass(this) :: compute => simulation_component_compute_wrapper
+     !> The time until the next scheduled execution of any of the controllers.
+     procedure, pass(this) :: time_to_next => &
+          simulation_component_time_to_next
      !> The common constructor using a JSON dictionary.
      procedure(simulation_component_init), pass(this), deferred :: init
      !> Destructor.
@@ -455,6 +458,26 @@ contains
        call this%compute_controller%register_execution(time)
     end if
   end subroutine simulation_component_compute_wrapper
+
+  !> The time until the next scheduled execution of `preprocess`, `compute`
+  !! or the output, whichever comes first, or `huge(0.0_dp)` if there is
+  !! none. Used to make the time step land exactly on it. A component that
+  !! drives a controller of its own, apart from the three of the base class,
+  !! should override this and include it.
+  !! @param time The current time.
+  !! @param dt The time step about to be taken, before it is shortened to
+  !! land on a scheduled time.
+  function simulation_component_time_to_next(this, time, dt) result(t)
+    class(simulation_component_t), intent(in) :: this
+    type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: dt
+    real(kind=dp) :: t
+
+    t = min(this%preprocess_controller%time_to_next(time, dt), &
+         this%compute_controller%time_to_next(time, dt), &
+         this%output_controller%time_to_next(time, dt))
+
+  end function simulation_component_time_to_next
 
   !> Wrapper for calling `set_counter_` based for the controllers.
   !! @param time The current time.

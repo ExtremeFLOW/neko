@@ -37,20 +37,23 @@ module time_step_controller
   use json_module, only : json_file
   use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
   use time_state, only : time_state_t
-  use time_based_controller, only : time_based_controller_next_scheduled_time
+  use time_based_controller, only : TIME_TOL
   use comm, only : pe_size, global_pe_size, NEKO_GLOBAL_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_MIN, MPI_IN_PLACE, MPI_Allreduce, MPI_DOUBLE_PRECISION
   implicit none
   private
 
-  !> Relative tolerance used when splitting the remaining time up to an output
-  !! into an integer number of steps, so that an interval that is already a
-  !! whole multiple of dt is not split one step too finely.
-  real(kind=dp), parameter :: LANDING_TOL = 1.0e-9_dp
+  !> Relative tolerance on the time step when landing on a scheduled time.
+  !! The remaining time up to a scheduled time is split into steps that may
+  !! exceed the step asked for by this fraction, so that round-off in the
+  !! accumulation of the time does not split a remaining time that is a whole
+  !! number of steps already into one step more. It is also the largest
+  !! change of the step that is not registered as a change.
+  real(kind=dp), public, parameter :: LANDING_TOL = 1.0e-6_dp
 
   !> Provides a tool to set time step dt
   type, public :: time_step_controller_t
-     logical :: is_variable_dt
+     logical :: is_variable_dt = .false.
      real(kind=dp) :: cfl_trg = 0.0_dp
      real(kind=dp) :: cfl_avg = 0.0_dp
      real(kind=dp) :: init_dt = huge(0.0_dp)
@@ -58,31 +61,41 @@ module time_step_controller
      real(kind=dp) :: min_dt = 0.0_dp
      integer :: max_update_frequency = 0
      integer :: min_update_frequency = 0
-     integer :: dt_last_change = 0
+     !> Number of time steps since the time step last changed, 0 at the step
+     !! it changed. -1 until the first time step, or as long as the time step
+     !! cannot change, see `dt_may_change`.
+     integer :: dt_last_change = -1
      real(kind=dp) :: alpha = 0.0_dp !< coefficient of running average
      real(kind=dp) :: max_dt_increase_factor = 0.0_dp
      real(kind=dp) :: min_dt_decrease_factor = 0.0_dp
      real(kind=dp) :: dev_tol = 0.0_dp
-     !> Whether to shrink dt so that sampling and output times are hit exactly.
+     !> Whether to shorten the time step so that the scheduled sampling and
+     !! output times are reached exactly.
      logical :: exact_output_time = .false.
-     !> Number of steps ahead of an output time at which dt starts to be
-     !! shrunk to land on it.
+     !> Number of time steps ahead of a scheduled time over which the step is
+     !! shortened to land on it.
      integer :: landing_steps = 10
-     !> The dt asked for by the user or the CFL controller, i.e. before any
-     !! reduction applied to land on an output time.
+     !> The time step asked for by the case or set by the CFL controller,
+     !! before it is shortened to land on a scheduled time.
      real(kind=dp) :: dt_nominal = 0.0_dp
-     !> Whether dt is currently reduced to land on an output time.
+     !> Whether the time step about to be taken is shortened to land on a
+     !! scheduled time.
      logical :: dt_is_landing = .false.
-     !> The output time currently being landed on, only used for logging.
+     !> The time step taken last, to tell whether the one about to be taken
+     !! differs from it.
+     real(kind=dp) :: dt_previous = 0.0_dp
+     !> The scheduled time being landed on, only used for the log.
      real(kind=dp) :: landing_target = huge(0.0_dp)
    contains
      !> Initialize object.
      procedure, pass(this) :: init => time_step_controller_init
      !> Set time stepping
      procedure, pass(this) :: set_dt => time_step_controller_set_dt
-     !> Reduce dt to land exactly on the next sampling or output time.
-     procedure, pass(this) :: land_on_output => &
-          time_step_controller_land_on_output
+     !> Shorten the time step to land on the next scheduled time.
+     procedure, pass(this) :: land => time_step_controller_land
+     !> Whether the time step can change during the run.
+     procedure, pass(this) :: dt_may_change => &
+          time_step_controller_dt_may_change
 
   end type time_step_controller_t
 
@@ -120,9 +133,10 @@ contains
             this%dev_tol, 0.2_dp)
     end if
 
-    ! Landing on the output times works both for a fixed and a variable dt.
+    ! Landing on the scheduled times works for a fixed and a variable step.
     call json_get_or_default(params, 'exact_output_time', &
          this%exact_output_time, .false.)
+    this%landing_steps = 10
     if (this%exact_output_time) then
        call json_get_or_lookup_or_default(params, 'output_landing_steps', &
             this%landing_steps, 10)
@@ -133,37 +147,48 @@ contains
 
   end subroutine time_step_controller_init
 
+  !> Whether the time step can change during the run, as it does with a
+  !! variable time step and when landing on the scheduled times. If so,
+  !! `dt_last_change` counts the steps since it last did.
+  pure function time_step_controller_dt_may_change(this) result(may_change)
+    class(time_step_controller_t), intent(in) :: this
+    logical :: may_change
+
+    may_change = this%is_variable_dt .or. this%exact_output_time
+
+  end function time_step_controller_dt_may_change
+
   !> Set new dt based on cfl if requested
-  !! @param dt time step in case_t.
+  !! @param time The time state, whose `dt` is the step taken last on entry
+  !! and the step about to be taken on exit.
   !! @param cfl courant number of current iteration.
-  !! @param tstep the current time step.
   !! @Algorithm:
   !! 1. Set the first time step such that cfl is the set one;
   !! 2. During time-stepping, adjust dt when cfl_avg is offset by 20%.
-  !! 3. If requested, shrink dt so that the next sampling or output time is
-  !!    reached exactly.
+  !! A step shortened to land on a scheduled time (see `land`) is undone
+  !! first, so that the controller always works on the step it asked for, and
+  !! the shortening never carries over to the following steps.
   subroutine time_step_controller_set_dt(this, time, cfl)
     class(time_step_controller_t), intent(inout) :: this
     type(time_state_t), intent(inout) :: time
     real(kind=dp), intent(in) :: cfl
     real(kind=dp) :: dt_old, scaling_factor, global_min_dt
-    real(kind=dp) :: dt_entry, cfl_nominal
+    real(kind=dp) :: cfl_nominal
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr
 
-    dt_entry = time%dt
+    this%dt_previous = time%dt
     cfl_nominal = cfl
 
-    ! Undo the reduction that was applied to land on an output time, so that
-    ! the CFL controller always works with the dt it asked for. The cfl is
-    ! proportional to dt, so it can simply be rescaled to the unreduced step.
+    ! Undo the shortening applied to land on a scheduled time. The CFL number
+    ! was computed with the shortened step and is proportional to it, so it is
+    ! rescaled to the step the controller asked for.
     if (this%dt_is_landing) then
-       if (time%dt .gt. 0.0_dp) cfl_nominal = cfl * this%dt_nominal / time%dt
+       if (time%dt .ne. 0.0_dp) cfl_nominal = cfl * this%dt_nominal / time%dt
        time%dt = this%dt_nominal
        this%dt_is_landing = .false.
     end if
 
-    ! Check if variable dt is requested
     if (this%is_variable_dt) then
 
        ! Reset the average cfl if it is the first time step since the last
@@ -232,72 +257,129 @@ contains
              this%dt_last_change = 0
           end if
        end if
+
+    else if (this%exact_output_time) then
+       ! The step is fixed, but landing on the scheduled times can shorten
+       ! it, so keep counting the steps since it last changed.
+       this%dt_last_change = this%dt_last_change + 1
     end if
 
-    ! The dt the controller settled on, before landing on an output time.
+    ! The step the controller settled on, before landing on a scheduled time.
     this%dt_nominal = time%dt
-
-    if (this%exact_output_time) call this%land_on_output(time)
-
-    ! Whatever the reason, a change of dt invalidates e.g. the projection space
-    if (time%dt .ne. dt_entry) this%dt_last_change = 0
 
   end subroutine time_step_controller_set_dt
 
-  !> Reduce dt such that the next sampling or output time is reached exactly.
-  !! @details Once the target is within `landing_steps` time steps, the
-  !! remaining time is split into the smallest integer number of equal steps
-  !! that are no larger than the dt asked for. The step size therefore only
-  !! ever decreases, which keeps the scheme stable, and the time value seen by
-  !! the outputs is the requested one rather than the first one past it.
-  !! The reduction is undone by `set_dt` on the following step.
-  !! @param time Current time, whose `dt` is modified in place.
-  subroutine time_step_controller_land_on_output(this, time)
+  !> Shorten the time step so that the next scheduled sampling or output
+  !! time, and the end of the simulation, are reached exactly.
+  !! @param time The time state, whose `dt` is the step about to be taken and
+  !! is shortened in place.
+  !! @param time_to_next The time until the next scheduled time, as
+  !! `time_to_next` of the controllers gives it, `huge(0.0_dp)` if there is
+  !! none. The end of the simulation is a target of its own and needs not
+  !! be included.
+  !! @details To be called after `set_dt`, whose step is the one shortened.
+  !! Once the target is within `landing_steps` steps, the remaining time is
+  !! split into the smallest whole number of equal steps that do not exceed
+  !! the step asked for (by more than `LANDING_TOL`), so the step only ever
+  !! gets shorter, never longer, and the steps up to the target are all
+  !! equal. The step asked for is restored by the next call to `set_dt`.
+  !!
+  !! No step is shorter than `TIME_TOL` times the step asked for, or than
+  !! `min_timestep`. A scheduled time closer than that, which takes two
+  !! controllers with unrelated intervals, is passed by less than that step,
+  !! and the controller counts it as reached. The last step of the
+  !! simulation is exempt: it may be as short as it needs to be to end
+  !! exactly at `end_time`. In an MPMD run the shortened step is the smallest
+  !! one over the simulations, so that they keep advancing in lockstep.
+  subroutine time_step_controller_land(this, time, time_to_next)
     class(time_step_controller_t), intent(inout) :: this
     type(time_state_t), intent(inout) :: time
-    real(kind=dp) :: t_target, remaining, dt_new
+    real(kind=dp), intent(in) :: time_to_next
+    real(kind=dp) :: dt, dt_new, dt_min, direction, remaining, global_min_dt
+    real(kind=dp) :: remaining_end, window
     character(len=LOG_SIZE) :: log_buf
-    integer :: nsteps
+    integer :: nsteps, ierr
+    logical :: landing_on_end
 
-    if (time%dt .le. 0.0_dp) return
+    if (.not. this%exact_output_time) return
 
-    ! The first of the scheduled sampling and output times, but never past the
-    ! end of the simulation, which is a target in its own right.
-    t_target = time_based_controller_next_scheduled_time(time)
-    if (time%end_time .gt. time%t) t_target = min(t_target, time%end_time)
-    if (t_target .ge. huge(0.0_dp)) return
+    dt = abs(time%dt)
+    if (dt .le. 0.0_dp) return
+    direction = sign(1.0_dp, time%dt)
 
-    remaining = t_target - time%t
-    if (remaining .le. 0.0_dp) return
-
-    ! Leave dt alone until the target is within reach.
-    if (remaining .gt. this%landing_steps * time%dt) return
-
-    nsteps = max(ceiling(remaining / time%dt - LANDING_TOL), 1)
-    dt_new = remaining / nsteps
-
-    ! Never go below the floor the user asked for.
-    if (dt_new .lt. this%min_dt) return
-
-    ! Leave dt alone while the adjustment is pure round-off, so that a dt that
-    ! already divides the interval is not flagged as changed on every step.
-    ! The last step is always taken, since it is the one that has to be exact.
-    if (nsteps .gt. 1 .and. &
-         abs(dt_new - time%dt) .le. LANDING_TOL * time%dt) return
-
-    if (t_target .ne. this%landing_target) then
-       write(log_buf, '(A,E15.7,1x,A,E15.7)') &
-            'Landing on output time:', t_target, 'New dt:', dt_new
-       call neko_log%message(log_buf)
-       this%landing_target = t_target
+    ! Also the end of the simulation is landed on. Nothing follows the last
+    ! step, so it may be as short as it needs to be, and the end is the
+    ! target whenever it is within the shortest step a scheduled time is
+    ! landed on: whatever is scheduled in between is executed at the end.
+    dt_min = min(dt, max(TIME_TOL * dt, this%min_dt))
+    remaining_end = direction * (time%end_time - time%t)
+    landing_on_end = remaining_end .le. max(time_to_next, dt_min)
+    if (landing_on_end) then
+       remaining = remaining_end
+    else
+       remaining = time_to_next
     end if
 
-    time%dt = dt_new
-    this%dt_is_landing = .true.
+    ! The landing is engaged at least (1 + TIME_TOL) steps ahead of the
+    ! target: a full step from closer than that would leave less than the
+    ! shortest step allowed, and the target would be passed by a fraction of
+    ! a step instead of landed on. With a variable step the step can grow
+    ! before the next one is taken, which the window accounts for.
+    window = 1.0_dp + TIME_TOL
+    if (this%is_variable_dt) then
+       window = 1.0_dp + TIME_TOL * max(1.0_dp, this%max_dt_increase_factor)
+    end if
+    window = max(real(this%landing_steps, dp), window) * (1.0_dp + LANDING_TOL)
 
-  end subroutine time_step_controller_land_on_output
+    dt_new = dt
+    if (remaining .gt. 0.0_dp .and. remaining .le. window * dt) then
+       nsteps = max(1, ceiling(remaining / dt - LANDING_TOL))
+       dt_new = remaining / real(nsteps, dp)
 
+       ! Leave the step alone while the change is round-off, so that a step
+       ! that divides the remaining time already is not registered as changed
+       ! at every step. The last step is always taken, as it is the one that
+       ! has to be exact.
+       if (nsteps .gt. 1 .and. abs(dt_new - dt) .le. LANDING_TOL * dt) then
+          dt_new = dt
+       end if
 
+       ! A scheduled time closer than the shortest step allowed is passed,
+       ! except by the last step of the run.
+       if (.not. (landing_on_end .and. nsteps .eq. 1)) then
+          dt_new = max(dt_new, dt_min)
+       end if
+    end if
 
+    ! If running in mpmd, the shortened step is the minimum across simulations
+    if (pe_size .ne. global_pe_size) then
+       global_min_dt = dt_new
+       call MPI_Allreduce(MPI_IN_PLACE, global_min_dt, 1, &
+            MPI_DOUBLE_PRECISION, MPI_MIN, NEKO_GLOBAL_COMM, ierr)
+       dt_new = global_min_dt
+    end if
+
+    if (dt_new .ne. dt) then
+       this%dt_is_landing = .true.
+       time%dt = direction * dt_new
+       ! Report each scheduled time landed on once
+       if (remaining .gt. 0.0_dp .and. remaining .lt. huge(0.0_dp) .and. &
+            abs(time%t + direction * remaining - this%landing_target) .gt. &
+            LANDING_TOL * dt) then
+          this%landing_target = time%t + direction * remaining
+          write(log_buf, '(A,E15.7,1x,A,E15.7)') &
+               'Landing on output time:', this%landing_target, &
+               'New dt:', time%dt
+          call neko_log%message(log_buf)
+       end if
+    end if
+
+    ! The projection spaces watch for a change of the step, whatever its
+    ! reason. The equal steps up to a target differ by round-off only.
+    if (abs(time%dt - this%dt_previous) .gt. LANDING_TOL * dt) then
+       this%dt_last_change = 0
+    end if
+
+  end subroutine time_step_controller_land
 
 end module time_step_controller

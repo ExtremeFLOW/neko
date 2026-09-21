@@ -2,14 +2,23 @@
 
 ## Develop
 
-- Added `case.time.exact_output_time`, which makes the time-step controller
-  shrink `dt` so that sampling and output times are reached exactly instead of
-  at the first step past them. It covers every time-based controller in the
-  case (fluid and checkpoint outputs, and the `preprocess_control`,
-  `compute_control` and `output_control` of all simulation components) and
-  also makes the simulation stop exactly at `end_time`. The number of steps
-  ahead of a target at which `dt` starts being reduced is set with
-  `case.time.output_landing_steps`, defaulting to 10.
+- Added `case.time.exact_output_time`, which shortens the time step so that
+  the sampling and output times of every time based schedule in the case, and
+  `end_time`, are reached exactly instead of at the first step past them. The
+  remaining time up to a scheduled time is divided into equal steps over the
+  last `case.time.output_landing_steps` steps (default 10), so the step only
+  ever gets shorter, and never below a tenth of the one asked for. It works
+  with a fixed and with a variable time step, whose CFL controller is not
+  affected by the shortened steps.
+- The projection spaces are cleared whenever the time step changes, and no
+  longer only with a variable time step.
+- The write forced by `output_at_end` is no longer repeated when the write
+  scheduled for `end_time` was performed at the step before, within the
+  tolerance of the schedule.
+- A variable time step run sets its first time step before the initial
+  output. The scheduled times used to be checked there against the
+  placeholder step of one time unit, so an output scheduled within a tenth of
+  its interval after the start was written at the start instead.
 - Reworked when outputs are written: the times are now a schedule fixed by
   the case rather than derived from how many writes have been performed so
   far. The entries below are what that fixes.

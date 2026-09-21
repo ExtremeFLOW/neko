@@ -6,9 +6,14 @@ units, and runs from 0 to 0.1 with a time step of 0.01, with
 `output_at_end` on. Note that accumulating that time step ten times lands a
 few ulps short of the end time, which used to buy the run an eleventh step
 past `end_time` and, with it, a duplicate of every output.
+
+The last part runs with a time step of 0.007, which does not divide the
+output interval, and `exact_output_time` on, so that the time step is
+shortened to land exactly on the scheduled times and on `end_time`.
 """
 
 import json
+import re
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -30,6 +35,14 @@ def _write_case(path, case, output_dir, mesh, restart_file=None):
 def _files(directory, pattern):
     """The names of the files matching a pattern, in order."""
     return sorted(path.name for path in directory.glob(pattern))
+
+
+def _step_times(log_file):
+    """The simulation time at the end of each time step, from the log."""
+    pattern = re.compile(r"Step\s*=\s*\d+\s+t\s*=\s*([-+0-9.eEdD]+)")
+    with open(log_file, encoding="utf-8") as stream:
+        return [float(match.group(1)) for match in map(pattern.search, stream)
+                if match]
 
 
 def test_output_schedule(launcher_script, request, tmp_path):
@@ -143,4 +156,49 @@ def test_output_schedule(launcher_script, request, tmp_path):
     ], (
         f"Unexpected field files without the initial state: "
         f"{_files(part3_dir, 'field0.f*')}"
+    )
+
+    #
+    # Part 4, a time step that does not divide the output interval, shortened
+    # to land exactly on the scheduled times
+    #
+    part4_dir = work_dir / "part4"
+    part4_dir.mkdir()
+    case_exact = json.loads(json.dumps(case))
+    case_exact["case"]["time"]["timestep"] = 0.007
+    case_exact["case"]["time"]["exact_output_time"] = True
+    part4_case = _write_case(
+        tmp_path / "part4.case", case_exact, part4_dir, mesh
+    )
+    part4_log = log_dir / f"{request.node.name}_part4.log"
+    result = run_neko(
+        launcher_script, nprocs, str(part4_case), neko, str(part4_log)
+    )
+    assert result.returncode == 0, (
+        f"neko process failed with exit code {result.returncode}"
+    )
+
+    # The same files as with a step that divides the interval
+    assert _files(part4_dir, "field0.f*") == [
+        "field0.f00000",
+        "field0.f00001",
+        "field0.f00002",
+    ], f"Unexpected field files: {_files(part4_dir, 'field0.f*')}"
+    assert _files(part4_dir, "chkp*.chkp") == [
+        "chkp00000.chkp",
+        "chkp00001.chkp",
+    ], f"Unexpected checkpoints: {_files(part4_dir, 'chkp*.chkp')}"
+
+    # The steps land exactly on t = 0.05, and the run ends exactly at
+    # t = 0.1 rather than at the first step past it
+    times = _step_times(part4_log)
+    assert times, f"No time steps found in {part4_log}"
+    assert any(abs(t - 0.05) <= 1e-14 for t in times), (
+        f"No step landed on t = 0.05: {times}"
+    )
+    assert abs(times[-1] - 0.1) <= 1e-14, (
+        f"The run did not end at t = 0.1: {times[-1]}"
+    )
+    assert all(t <= 0.1 + 1e-14 for t in times), (
+        f"A step went past end_time: {times}"
     )

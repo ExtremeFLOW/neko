@@ -277,7 +277,7 @@ everywhere, typically because of a division by zero or the square root of a
 negative number, is also reported as an error, at setup if it does not depend on
 time and otherwise every time it is evaluated.
 
-### Time control
+### Time control {#case-file_time-control}
 The `time` object is used to define the time-stepping of the simulation,
 including the time-step size, the start and end time, and the variables related
 to the variable time-stepping algorithm. For the variable timestep, one can
@@ -299,41 +299,51 @@ smallest of `timestep` and the value calculated from the target CFL number.
 | `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                            | Positive real less than `1`       | `0.5`         |
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                   | Positive real less than `1`       | `0.2`         |
 | `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
-| `exact_output_time`        | Whether to shrink dt so that sampling and output times are hit exactly                      | `true` or `false`                 | `false`       |
-| `output_landing_steps`     | Number of steps ahead of an output time at which dt starts being shrunk                     | Positive integer                  | `10`          |
+| `exact_output_time`        | Whether to shorten `dt` so that the sampling and output times are reached exactly           | `true` or `false`                 | `false`       |
+| `output_landing_steps`     | Steps ahead of a sampling or output time over which `dt` is shortened to land on it         | Positive integer                  | `10`          |
 
 #### Landing exactly on the output times
 
-By default an output or a statistics sample is taken at the first time step
-that is at (or past) the requested time, so the time actually written is
-somewhere between the requested time and one time step after it. Setting
-`exact_output_time` to `true` makes the time-step controller adjust `dt` such
-that the requested times are reached exactly.
+By default an output is written, and a statistic is sampled, at the first time
+step that reaches the scheduled time, so the time actually written lies
+somewhere between the scheduled time and one time step after it. Setting
+`exact_output_time` to `true` shortens the time step where needed, so that the
+scheduled times are reached exactly. The same holds for `end_time`, at which
+the simulation then ends exactly rather than at the first step past it.
 
-The adjustment applies to every time-based controller in the case, which
-includes the fluid and checkpoint outputs as well as the `compute_control`,
-`preprocess_control` and `output_control` of all simulation components, and it
-also makes the simulation stop exactly at `end_time`. Controllers using the
-`tsteps` control mode have no time-based schedule and are not considered.
+The adjustment applies to every time based schedule in the case: the fluid,
+checkpoint and simulation component outputs, and the `preprocess_control`,
+`compute_control` and `output_control` of the simulation components, with the
+`simulationtime` and `nsamples` controls. The `tsteps` control counts steps
+and has no time to land on. An interval shorter than the time step executes
+at every step, as without the option, and does not shorten the step to the
+interval. The schedules are a property of the case, so a restart lands on the
+same times as the uninterrupted run.
 
-Once the next such time is less than `output_landing_steps` time steps away,
-the remaining time is divided into the smallest whole number of equal steps
-that are no larger than the `dt` that was asked for. The time step therefore
-only ever gets smaller, never larger, so the scheme stays stable, and the
-original `dt` is restored right after the target has been reached. With a
-variable time step, the CFL controller keeps working on the unreduced `dt`, so
-the reduction does not accumulate.
+Once the next scheduled time is within `output_landing_steps` time steps, the
+remaining time is divided into the smallest whole number of equal steps that
+are no longer than the time step asked for. The step therefore only ever gets
+shorter, never longer (a relative `1e-6` is allowed, to absorb round-off), and
+it is back to the one asked for right after the scheduled time. With a fixed
+time step that is the `timestep` of the case; with a variable time step it is
+the step the CFL controller settles on, and the controller keeps working on it
+as if the step had not been shortened. With the default of ten steps the step
+changes by at most a tenth when a scheduled time is approached from further
+away than that, which is the usual case. With `output_landing_steps` set to
+`1`, only the last step before the scheduled time is shortened, down to a half
+of the step asked for.
 
-@note If several controllers request times that are very close to each other
-but not equal, landing on both of them requires one very short time step in
-between. Set `min_timestep` to put a floor on how short a step may become; a
-target that cannot be reached without going below that floor is simply passed
-as it would be without this option.
+No step is shorter than a tenth of the step asked for or, with a variable time
+step, than `min_timestep`, except for the last step of the run, which may be
+as short as it needs to be. Two schedules with unrelated intervals can
+schedule times closer to each other than that shortest step; the first is
+landed on, and the second is passed by less than that step and executed there.
 
-@note Since the simulation now stops exactly at `end_time`, an output whose
-schedule falls on `end_time` is written twice when `output_at_end` is `true`
-(the default): once by its own schedule and once by the forced write at the
-end of the run. Set `output_at_end` to `false` if that duplicate is unwanted.
+A change of the time step invalidates the projection spaces of the velocity
+and pressure solves, as it does with a variable time step, so they are cleared
+at each change and rebuilt over the following steps. Expect somewhat more
+solver iterations around each scheduled time. In an MPMD run the option should
+be set in all the coupled cases, which then take the shortened steps together.
 
 ### Restarts and joblimit
 Restarts will restart the simulation from the exact state at a given time that

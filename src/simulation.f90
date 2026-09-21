@@ -85,10 +85,20 @@ contains
        write(log_buf, '(A, E15.7)') 'CFL :  ', dt_controller%cfl_trg
     end if
     call neko_log%message(log_buf)
+    if (dt_controller%exact_output_time) then
+       call neko_log%message('dt is shortened to land on the output times')
+    end if
 
     ! Execute outputs and user-init before time loop
     call neko_log%section('Preprocessing')
     call C%user%initialize(C%time)
+
+    ! With a variable time step, set the first step before the initial
+    ! output. A scheduled time is counted as reached within a fraction of the
+    ! step, and the placeholder the run starts from is a whole time unit.
+    if (dt_controller%is_variable_dt) then
+       call dt_controller%set_dt(C%time, C%fluid%compute_cfl(C%time%dt))
+    end if
     call C%output_controller%execute(C%time)
 
     call neko_log%end_section()
@@ -134,7 +144,17 @@ contains
     ! Compute the next time step size
     cfl = C%fluid%compute_cfl(C%time%dt)
     call dt_controller%set_dt(C%time, cfl)
-    if (dt_controller%is_variable_dt) cfl = C%fluid%compute_cfl(C%time%dt)
+
+    ! Shorten the step to land exactly on the next sampling or output time
+    if (dt_controller%exact_output_time) then
+       call dt_controller%land(C%time, &
+            min(C%output_controller%time_to_next(C%time, C%time%dt), &
+            neko_simcomps%time_to_next(C%time, C%time%dt)))
+    end if
+
+    if (dt_controller%is_variable_dt .or. dt_controller%dt_is_landing) then
+       cfl = C%fluid%compute_cfl(C%time%dt)
+    end if
 
     ! Advance time step from t to t+dt and print the status
     call simulation_settime(C%time, C%fluid%ext_bdf)
