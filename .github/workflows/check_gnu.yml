@@ -245,6 +245,7 @@ jobs:
 
       - name: Dependencies - Get HDF5
         id: get-hdf5
+        if: matrix.backend == 'cpu' || matrix.backend == 'metal'
         uses: ./.github/actions/setup_hdf5
         with:
           version: ${{ steps.setup-deps.outputs.hdf5-version }}
@@ -316,7 +317,7 @@ jobs:
         env:
           OS: ${{ matrix.os }}
         run: |
-          export HAVE_HDF5=$($OS == 'ubuntu-24.04' && echo "1" || echo "0")
+          export HAVE_HDF5=1
           chmod +x $MAKENEKO_EXEC
           cd tests/integration
           pytest --max_nprocs=2 --real_precision=${RP}
