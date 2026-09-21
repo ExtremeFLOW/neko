@@ -1,6 +1,20 @@
 # Changelog
 
 ## Develop
+- Fused the viscous accumulation at the end of the compressible device
+  residual into the one kernel the CPU backend already uses. It cost sixteen
+  launches per Runge-Kutta stage and 2.4x the memory traffic, because the
+  five components went through separate `col2`/`cmult`/`sub2` passes that
+  wrote `visc_*` back although it is scratch released immediately after. The
+  `div` and `grad` calls there now take device pointers rather than the
+  deprecated implicit-device host-array path.
+- The compressible residual on the device backends hands `glb_cmd_event` to
+  its gather-scatter operations, as the Pn-Pn solver already did. Without an
+  event the shared scatter ends in `device_sync`, draining the command queue
+  right after every exchange; it now records the event and the host waits
+  only just before the next exchange reuses the shared staging buffers, so
+  the coefficient multiplication and the three Helmholtz applies in between
+  are issued while the exchange is still in flight. Results are unchanged.
 - Fixed the compressible solver never evaluating the physical Navier-Stokes
   fluxes on any device backend. Both `compressible_res_*` backends decided
   whether to add the viscous stress and the heat flux with
