@@ -1,7 +1,10 @@
 # Changelog
 
 ## Develop
-
+- Added the possibility to request a scratch field pointing to a specific
+  dofmap. This essentially unlock the scratch registry to be used for any field.
+  Existing interface remain unchanged, a field requested without specifying a
+  dofmap will be allocated on the default dofmap.
 - Reworked when outputs are written: the times are now a schedule fixed by
   the case rather than derived from how many writes have been performed so
   far. The entries below are what that fixes.
