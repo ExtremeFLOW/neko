@@ -156,8 +156,10 @@ runs:
       env:
         INSTALL_DIR: ${{ steps.setup-env.outputs.install-dir }}
         WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
-        FC: ${{ inputs.compiler }}
-        CC: ${{ inputs.c-compiler }}
+        CC: mpicc
+        FC: mpif90
+        OMPI_FC: ${{ inputs.compiler }}
+        OMPI_CC: ${{ inputs.c-compiler }}
         FCFLAGS: ${{ inputs.compiler-flags }}
         CFLAGS: ${{ inputs.c-compiler-flags }}
       run: |
