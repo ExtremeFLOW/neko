@@ -394,6 +394,7 @@ contains
           if (.not. (landing_on_end .and. nsteps .eq. 1)) then
              dt_new = max(dt_new, dt_min)
           end if
+          adjusted = adjusted .and. abs(dt_new - dt) .gt. 0.0_dp
        end if
     end if
 
