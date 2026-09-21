@@ -28,6 +28,14 @@ inputs:
     description: "The compiler flag to use."
     required: false
     default: "-O3"
+  c-compiler:
+    description: "The C compiler to use."
+    required: false
+    default: "mpicc"
+  c-compiler-flags:
+    description: "The C compiler flag to use."
+    required: false
+    default: "-O3"
   build-options:
     description: "The build option to use."
     required: false
@@ -59,6 +67,9 @@ runs:
         WORKING_DIR: ${{ inputs.working-dir }}
         OS: ${{ inputs.os }}
         COMPILER: ${{ inputs.compiler }}
+        COMPILER_FLAGS: ${{ inputs.compiler-flags }}
+        C_COMPILER: ${{ inputs.c-compiler }}
+        C_COMPILER_FLAGS: ${{ inputs.c-compiler-flags }}
         VERSION: ${{ inputs.version }}
         ARCH: ${{ inputs.arch }}
       shell: bash
@@ -79,6 +90,10 @@ runs:
           echo "compiler is not set" >&2
           exit 1
         fi
+        if [ -z "$C_COMPILER" ]; then
+          echo "c-compiler is not set" >&2
+          exit 1
+        fi
         if [ -z "$VERSION" ]; then
           echo "version is not set" >&2
           exit 1
@@ -95,7 +110,8 @@ runs:
         WORKING_DIR: ${{ inputs.working-dir }}
         INSTALL_DIR: ${{ inputs.install-dir }}
       run: |
-        TAG=${{ inputs.version }}-${{ inputs.os }}-${{ inputs.arch }}-${{ inputs.compiler }}
+        TAG=${{ inputs.version }}-${{ inputs.os }}-${{ inputs.arch }}
+        TAG=${TAG}-${{ inputs.compiler }}-${{ inputs.c-compiler }}
         WORKING_DIR=$WORKING_DIR/hdf5-$TAG
         INSTALL_DIR=$INSTALL_DIR/hdf5-$TAG
 
@@ -141,7 +157,9 @@ runs:
         INSTALL_DIR: ${{ steps.setup-env.outputs.install-dir }}
         WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
         FC: ${{ inputs.compiler }}
+        CC: ${{ inputs.c-compiler }}
         FCFLAGS: ${{ inputs.compiler-flags }}
+        CFLAGS: ${{ inputs.c-compiler-flags }}
       run: |
         cmake -B $WORKING_DIR/build -S $WORKING_DIR -G Ninja \
             --install-prefix $INSTALL_DIR -DHDF5_ENABLE_PARALLEL=ON \
@@ -152,7 +170,8 @@ runs:
       shell: bash
       env:
         WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
-      run: cmake --build $WORKING_DIR/build --config Release
+      run: |
+        cmake --build $WORKING_DIR/build --config Release
 
     - name: Install
       if: ${{ steps.cache-hdf5.outputs.cache-hit != 'true' }}
@@ -162,6 +181,9 @@ runs:
       run: |
         cmake --install $WORKING_DIR/build --config Release
 
+    # ------------------------------------------------------------------------ #
+    # Cleanup and set the output.
+
     - name: Cleanup
       if: ${{ steps.cache-pfunit.outputs.cache-hit != 'true' }}
       shell: bash
@@ -169,9 +191,6 @@ runs:
         WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
       run: |
         rm -fr $WORKING_DIR/build
-
-    # ------------------------------------------------------------------------ #
-    # Cleanup and set the output.
 
     - name: Set output
       id: set-output
