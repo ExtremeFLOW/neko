@@ -245,7 +245,7 @@ jobs:
 
       - name: Dependencies - Get HDF5
         id: get-hdf5
-        if: matrix.backend == 'cpu' || matrix.backend == 'metal'
+        if: matrix.backend == 'cpu'
         uses: ./.github/actions/setup_hdf5
         with:
           version: ${{ steps.setup-deps.outputs.hdf5-version }}
@@ -292,7 +292,7 @@ jobs:
 
           elif [ "$BACKEND" == 'metal' ]; then
 
-            ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-metal --with-pfunit=$PFUNIT_DIR --with-hdf5=$HDF5_DIR
+            ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-metal --with-pfunit=$PFUNIT_DIR
 
           else
 
@@ -316,8 +316,9 @@ jobs:
         if: matrix.backend == 'cpu'
         env:
           OS: ${{ matrix.os }}
+          HAVE_HDF5: ${{ matrix.backend == 'cpu' && '1' || '0' }}
+
         run: |
-          export HAVE_HDF5=1
           chmod +x $MAKENEKO_EXEC
           cd tests/integration
           pytest --max_nprocs=2 --real_precision=${RP}
