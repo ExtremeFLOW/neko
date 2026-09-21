@@ -118,9 +118,9 @@ contains
 
     !$omp parallel do private(id, p, distance)
     do id = 1, total_size
-       p(1) = field_data%dof%x(id, 1, 1, 1)
-       p(2) = field_data%dof%y(id, 1, 1, 1)
-       p(3) = field_data%dof%z(id, 1, 1, 1)
+       p(1) = field_data%dof%x%x(id, 1, 1, 1)
+       p(2) = field_data%dof%y%x(id, 1, 1, 1)
+       p(3) = field_data%dof%z%x(id, 1, 1, 1)
 
        distance = tri_mesh_aabb_tree(search_tree, mesh%el, p, max_distance)
 

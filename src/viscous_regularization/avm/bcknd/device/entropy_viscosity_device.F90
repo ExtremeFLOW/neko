@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -278,7 +278,15 @@ module entropy_viscosity_device
 
 contains
 
-  !> Compute entropy residual on device
+  !> Compute entropy residual on a device.
+  !! @param entropy_residual_d Device entropy residual field.
+  !! @param S_d Device current entropy field.
+  !! @param S_lag1_d Device first lagged entropy field.
+  !! @param S_lag2_d Device second lagged entropy field.
+  !! @param S_lag3_d Device third lagged entropy field.
+  !! @param bdf_coeffs BDF time-scheme coefficients.
+  !! @param dt Time-step size.
+  !! @param n Number of points.
   subroutine entropy_viscosity_compute_residual_device(entropy_residual_d, &
        S_d, S_lag1_d, S_lag2_d, S_lag3_d, bdf_coeffs, dt, n)
     type(c_ptr), intent(in) :: entropy_residual_d
@@ -308,7 +316,13 @@ contains
 #endif
   end subroutine entropy_viscosity_compute_residual_device
 
-  !> Compute viscosity from entropy residual on device
+  !> Compute viscosity from an entropy residual on a device.
+  !! @param reg_coeff_d Device regularization coefficient field.
+  !! @param entropy_residual_d Device entropy residual field.
+  !! @param h_d Device mesh-size field.
+  !! @param c_avisc_entropy Entropy viscosity coefficient.
+  !! @param n_S Entropy normalization factor.
+  !! @param n Number of points.
   subroutine entropy_viscosity_compute_viscosity_device(reg_coeff_d, &
        entropy_residual_d, h_d, c_avisc_entropy, n_S, n)
     type(c_ptr), intent(in) :: reg_coeff_d, entropy_residual_d, h_d
@@ -332,7 +346,10 @@ contains
 #endif
   end subroutine entropy_viscosity_compute_viscosity_device
 
-  !> Apply element-wise maximum on device
+  !> Apply the element-wise maximum on a device.
+  !! @param reg_coeff_d Device regularization coefficient field.
+  !! @param lx Number of points per element direction.
+  !! @param nelv Number of local elements.
   subroutine entropy_viscosity_apply_element_max_device(reg_coeff_d, lx, nelv)
     type(c_ptr), intent(in) :: reg_coeff_d
     integer, intent(in) :: lx, nelv
@@ -350,7 +367,12 @@ contains
 #endif
   end subroutine entropy_viscosity_apply_element_max_device
 
-  !> Clamp regularization coefficient to low-order viscosity on device
+  !> Clamp the coefficient to low-order viscosity on a device.
+  !! @param reg_coeff_d Device regularization coefficient field.
+  !! @param h_d Device mesh-size field.
+  !! @param max_wave_speed_d Device maximum wave-speed field.
+  !! @param c_avisc_low Low-order viscosity coefficient.
+  !! @param n Number of points.
   subroutine entropy_viscosity_clamp_to_low_order_device(reg_coeff_d, &
        h_d, max_wave_speed_d, c_avisc_low, n)
     type(c_ptr), intent(in) :: reg_coeff_d, h_d, max_wave_speed_d
@@ -374,7 +396,11 @@ contains
 #endif
   end subroutine entropy_viscosity_clamp_to_low_order_device
 
-  !> Divide by multiplicity for smoothing on device
+  !> Divide by gather-scatter multiplicity on a device.
+  !! @param reg_coeff_d Device regularization coefficient field.
+  !! @param temp_field_d Device field containing summed values.
+  !! @param mult_field_d Device multiplicity field.
+  !! @param n Number of points.
   subroutine entropy_viscosity_smooth_divide_device(reg_coeff_d, &
        temp_field_d, mult_field_d, n)
     type(c_ptr), intent(in) :: reg_coeff_d, temp_field_d, mult_field_d

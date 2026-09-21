@@ -263,23 +263,23 @@ contains
     type(dofmap_t), intent(inout) :: dm
     integer :: i, j, k, l
 
-    write(unit, fmt = '(A,I8,A)') 'POINTS', size(dm%x), ' double'
+    write(unit, fmt = '(A,I8,A)') 'POINTS', dm%size(), ' double'
 
     do i = 1, dm%msh%nelv
        do l = 1, dm%Xh%lz
           do k = 1, dm%Xh%ly
              do j = 1, dm%Xh%lx
                 write(unit, fmt = '(F15.8,F15.8,F15.8)') &
-                     real(dm%x(j,k,l,i), dp), &
-                     real(dm%y(j,k,l,i), dp), &
-                     real(dm%z(j,k,l,i), dp)
+                     real(dm%x%x(j,k,l,i), dp), &
+                     real(dm%y%x(j,k,l,i), dp), &
+                     real(dm%z%x(j,k,l,i), dp)
              end do
           end do
        end do
     end do
 
-    write(unit, fmt = '(A,I8,I8)') 'VERTICES', size(dm%x), 2*size(dm%x)
-    do i = 1, size(dm%x)
+    write(unit, fmt = '(A,I8,I8)') 'VERTICES', dm%size(), 2*dm%size()
+    do i = 1, dm%size()
        write(unit, fmt = '(I8,I8)') 1, i-1
     end do
 

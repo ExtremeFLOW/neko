@@ -319,7 +319,7 @@ contains
          alpha = rtz1 / pap
          tmp_xp = 0.0_xp
 
-         !$omp parallel private (i)
+         !$omp parallel private (i, r1_xp, r2_xp, r3_xp, mult_xp)
          !$omp do
          do i = 1, n
             x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * p1(i)
