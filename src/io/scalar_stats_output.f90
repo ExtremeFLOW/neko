@@ -34,7 +34,7 @@
 module scalar_stats_output
   use scalar_stats, only : scalar_stats_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use map_1d, only : map_1d_t
   use map_2d, only : map_2d_t
   use fld_file_data, only : fld_file_data_t
@@ -54,7 +54,7 @@ module scalar_stats_output
      type(map_1d_t) :: map_1d
      !> Space averaging object for 1 homogeneous direction.
      type(map_2d_t) :: map_2d
-     real(kind=rp) :: T_begin
+     real(kind=dp) :: T_begin
      !> The dimension of the output fields. Either 1, 2, or 3.
      integer :: output_dim
    contains
@@ -73,7 +73,7 @@ contains
   subroutine scalar_stats_output_init(this, stats, T_begin, hom_dir, name, path)
     class(scalar_stats_output_t), intent(inout) :: this
     type(scalar_stats_t), intent(inout), target :: stats
-    real(kind=rp), intent(in) :: T_begin
+    real(kind=dp), intent(in) :: T_begin
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
@@ -144,7 +144,7 @@ contains
   !> Sample scalar_stats at time @a t
   subroutine scalar_stats_output_sample(this, t)
     class(scalar_stats_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
     integer :: i
     type(matrix_t) :: avg_output_1d
     type(fld_file_data_t) :: output_2d

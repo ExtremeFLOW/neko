@@ -33,7 +33,7 @@
 !> Implements the `boundary_data_writer_t` type.
 module boundary_data_writer_simcomp
   use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use simulation_component, only : simulation_component_t
@@ -105,7 +105,7 @@ module boundary_data_writer_simcomp
      !> The output file.
      type(file_t) :: fout
      !> Time after which to start writing.
-     real(kind=rp) :: start_time = 0.0_rp
+     real(kind=dp) :: start_time = 0.0_dp
      !> Whether the mesh geometry changes during the run.
      logical :: mesh_has_changed = .false.
      !> Whether the geometry is part of every sample.
@@ -149,7 +149,7 @@ contains
     character(len=:), allocatable :: name, output_filename
     character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
     integer, allocatable :: zone_indices(:)
-    real(kind=rp) :: start_time
+    real(kind=dp) :: start_time
     logical :: output_normals
     logical :: output_area
     logical :: append_out
@@ -170,14 +170,14 @@ contains
             "'output_value' to set how often the data is written.")
     end if
     call this%compute_controller%init(case%time%start_time, &
-         case%time%end_time, "tsteps", 1.0_rp)
+         case%time%end_time, "tsteps", 1.0_dp)
 
     call json_get(json, "zone_indices", zone_indices)
     call json_get(json, "output_filename", output_filename)
     call json_get_or_default(json, "output_normals", output_normals, .true.)
     call json_get_or_default(json, "output_area", output_area, .true.)
     call json_get_or_default(json, "append_output", append_out, .true.)
-    call json_get_or_default(json, "start_time", start_time, 0.0_rp)
+    call json_get_or_default(json, "start_time", start_time, 0.0_dp)
 
     call json_get(json, "fields", fields)
 
@@ -220,7 +220,7 @@ contains
     logical, intent(in) :: output_normals
     logical, intent(in) :: output_area
     logical, intent(in) :: append_out
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
 
     call this%free()
 
@@ -260,11 +260,11 @@ contains
     class(case_t), intent(inout), target :: case
     integer, intent(in) :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: output_value
     type(coef_t), intent(inout), target :: coef
     integer, intent(in) :: zone_indices(:)
     character(len=*), intent(in) :: fields(:)
@@ -272,7 +272,7 @@ contains
     logical, intent(in) :: output_normals
     logical, intent(in) :: output_area
     logical, intent(in) :: append_out
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
 
     call this%free()
 
@@ -306,7 +306,7 @@ contains
     logical, intent(in) :: output_normals
     logical, intent(in) :: output_area
     logical, intent(in) :: append_out
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
     character(len=LOG_SIZE) :: log_buf
     character(len=80) :: suffix
     integer :: i, col, ierr, offset, n_geom
@@ -640,7 +640,7 @@ contains
     type(time_state_t), intent(in) :: time
     integer :: i, col, n_rows, out_int
     character(len=80) :: group_name
-    real(kind=rp) :: time_
+    real(kind=dp) :: time_
     type(vector_t) :: vec_time
 
     if (time%t .lt. this%start_time) then

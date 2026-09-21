@@ -7,7 +7,6 @@ module scalar_residual_cpu
   use space, only : space_t
   use mesh, only : mesh_t
   use num_types, only : rp
-  use math, only : copy
   use field, only : field_t
   use mesh, only : mesh_t
   use ax_product, only : ax_t
@@ -53,18 +52,30 @@ contains
     integer, intent(in) :: n
     integer :: i
 
-    call copy(c_Xh%h1, lambda%x, n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do
     do i = 1, n
+       c_Xh%h1(i,1,1,1) = lambda%x(i,1,1,1)
        c_Xh%h2(i,1,1,1) = rho_cp%x(i,1,1,1) * bd / dt
     end do
+    !$omp end parallel do
 
     c_Xh%ifh2 = .true.
 
     call Ax%compute(s_res%x, s%x, c_Xh, msh, Xh)
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do
     do i = 1, n
        s_res%x(i,1,1,1) = (-s_res%x(i,1,1,1)) + f_Xh%x(i,1,1,1)
     end do
+    !$omp end parallel do
 
   end subroutine scalar_residual_cpu_compute
 

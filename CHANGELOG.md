@@ -1,10 +1,180 @@
 # Changelog
 
 ## Develop
-
+- The CPU vector and full stress Helmholtz operators apply the mass term
+  `h2 * B * u` inside their element kernels rather than in a separate pass
+  over the whole field afterwards, so an `lx = 8` double precision velocity
+  `Ax` moves 144 bytes per grid point instead of 216. The term is added in
+  the same place and in the same order as before, so results are unchanged
+  bit for bit, and the `ifh2 = .false.` path taken by the pressure solve is
+  untouched.
+- Fixed further OpenMP races outside the boundary-condition update blocks:
+  the symmetry, shear stress and non-normal vector conditions lacked
+  worksharing inside the `bc_list` parallel region, `facet_normal` and the
+  `nu=4` tensor contraction left a loop-body index shared, the wall model
+  stress update ran on every thread, and the coupled CG shared its residual
+  reduction temporaries.
+- The OpenCL vector Helmholtz operator applies its mass term in one fused
+  kernel, as the CUDA, HIP and Metal backends already did, rather than in
+  three `device_addcol4` calls that re-read `h2` and `B` once per component.
+  An interface for the kernel had been declared but never implemented, so
+  the operator fell through to the generic path and moved 224 bytes per grid
+  point at `lx = 8` in double precision where the other backends moved 192.
+- Sped up the CPU dealiasing tensor contractions. `tnsr3d_cpu` gained unrolled
+  `nu = 8` and `nu = 12` kernels covering the 3/2-rule pair, and the generic
+  kernel hoists its reduction index out of the innermost loop so that loop is
+  unit-stride. Results move by about one ulp wherever the compiler contracts
+  the restructured expressions into FMAs differently.
+- The Pn-Pn pressure residual now subtracts the facet-normal surface terms
+  directly into it through the new `facet_normal_t%apply_surfvec_sub`, rather
+  than staging them through six full-length scratch fields, and the velocity
+  residual uses the fused `compute_vector` the device and stress backends
+  already used.
+- Modularized the entropy viscosity in the compressible Navier-Stokes solver
+  by computing it in simcomp as an `artificial viscosity model` and
+  applying it via a new object `viscous_regularization`.
+- *BREAKING* Modularized entropy viscosity in the compressible Navier-Stokes
+  solver. The obsolete `case.numerics.c_avisc_low` and
+  `case.numerics.c_avisc_entropy` options are now rejected. Configure an
+  `artificial_viscosity_model` simulation component with those coefficients
+  and enable its field through the fluid `viscous_regularization` object.
+- Added runtime registration of user-defined scalar boundary-condition types
+  through `register_scalar_pnpn_bc`.
+- The staged cubes and derivative matrices of the HIP matrix core Helmholtz
+  kernels are padded to an odd stride wherever a bank model says that pays. A
+  contraction walks its free index across the lanes one stride apart, so an
+  even stride puts them on the same shared memory banks --- an eight-way
+  conflict at `lx = 8` in double precision. Padding an odd order would
+  introduce one instead, so the layout follows the order rather than a rule of
+  thumb, and the staging, pointwise and write-back passes now walk
+  shared-memory slots rather than element points to stay conflict free too.
+  With the operand hoist below, the modelled shared-memory cycles of one
+  `lx = 8` double precision element go from 2976 to 1220 and of an `lx = 12`
+  one from 8964 to 4752. `-DNEKO_MFMA_PAD=0` builds the old layout for an A/B.
+- The batched `v_mfma_f64_4x4x4f64` contraction keeps one accumulator per
+  M-tile and reads its second operand once per column group and K-step,
+  instead of re-reading it for every M-tile --- it never depended on the
+  M-tile. That was two to three times the shared memory operand traffic, and
+  it made the K loop a single accumulate chain, which this instruction charges
+  four cycles a step for. Each accumulator sums in the same order as before,
+  so results are unchanged bit for bit.
+- The HIP matrix core kernels gained a 16 wavefront candidate, the 1024 thread
+  workgroup maximum on CDNA. The ladder stopped at 512 threads and so topped
+  out at three wavefronts per SIMD, where the 1d kernel that beats it at
+  `lx = 8` reaches eight from a larger shared memory footprint. The elements
+  per block that surplus wavefronts buy are now clamped by the 64 kB workgroup
+  limit as well as by the column group count.
+- The first divergence contraction of the HIP matrix core Helmholtz kernels
+  overwrites its accumulator instead of adding to it, which removes the pass
+  that cleared the cube and the barrier after it. The scalar kernel also
+  issues the seven geometric factors ahead of the gradient contractions rather
+  than behind the barrier that follows them, where the register budget allows
+  it; the auto-tuner reports which mode each candidate ran in, as it already
+  did for the vector kernel.
+- Fixed `opr_dudxyz`, `opr_cdtp`, `opr_conv1` and `opr_opgrad` on the HIP
+  backend not listing `mfma_kernel.h` among their dependencies, so a change to
+  the matrix core primitives left those four objects holding the previous
+  version of them.
+- Added a coupled CPU BiCGStab solver for three-component vector systems.
+- The matrix core tile used by the HIP Helmholtz operator is now an
+  auto-tuner candidate rather than a build-time choice. It was fixed to the
+  batched `v_mfma_f64_4x4x4f64` tile on the argument that it fills `M = lx`
+  exactly where `v_mfma_f64_16x16x4f64` wastes half its rows; that tile in
+  fact runs at half the FLOP rate, owes four cycles on every step of an
+  accumulate chain and re-reads its second operand once per M-tile, which
+  cancels the utilisation gain around `lx = 8` and reverses it above.
+  A double precision build therefore now times eight matrix core candidates
+  per order instead of four, and `NEKO_MFMA_TILE` pins the tile when
+  `NEKO_AUTOTUNE=MFMA` pins the formulation. Single precision has no 4x4x4
+  instruction, so the dimension collapses there and the candidate count is
+  unchanged. `-DMFMA_F64_USE_16X16` still builds without the 4x4x4 path, and
+  now also removes it from the sweep instead of selecting between them.
+- Added a matrix core (`MFMA`) variant of the vector Helmholtz operator on the
+  HIP backend, as a candidate in the `Autotune Ax vector` search alongside the
+  elements per block sweep of its kstep variant, and pinnable with
+  `NEKO_AUTOTUNE=MFMA` and `NEKO_MFMA_NWF`. It runs the three components
+  through one set of staged cubes and keeps the shared geometric factors in
+  registers across them where they fit a register budget, re-reading them per
+  component where they do not. Same scope as the scalar variant: either
+  precision, `4 <= lx <= 12`, on a gfx90a or gfx942 device.
+- The vector Helmholtz auto-tuner on the HIP backend now reports the
+  formulation it chose and labels its kstep candidates, as the scalar one and
+  the CUDA copy do, and `NEKO_EB` on its own no longer pins the kstep
+  geometry --- it is read when `NEKO_AUTOTUNE=KSTEP` pins the formulation,
+  which is what it is documented to do. An unrecognised `NEKO_AUTOTUNE` value
+  is reported as an error there rather than silently pinning kstep.
+- The gather-scatter comm. backend autotuning now covers the device-resident
+  backends. With `NEKO_GS_COMM` unset, a CUDA or HIP build benchmarks
+  `MPIGPU`, `NCCL` and `CRYSTALGPU` (`NVSHMEM` only when asked for) alongside
+  the host backends and keeps the fastest, instead of defaulting to device
+  MPI whenever the build had it. The host backends stay in the comparison and
+  are measured staging the halo through the host, which is how they run on
+  such a build.
+- The device MPI synchronisation strategy (`NEKO_GS_STRTGY`) is benchmarked
+  as part of measuring the `MPIGPU` candidate, so the backend is compared on
+  its best strategy's time rather than the default strategy's, and the
+  strategy is reported on that candidate's line of the comparison rather than
+  above it. Pinning device MPI with `NEKO_GS_COMM=MPIGPU` benchmarks no
+  backends and keeps the `Avg. strtgy` / `Env. strtgy` line as before.
+- `NEKO_GS_TUNE` accepts the device backend names `MPIGPU`, `NCCL`,
+  `CRYSTALGPU` and `NVSHMEM`. `SHMEM` there always names the host OpenSHMEM
+  backend and `NVSHMEM` the device one, since a GPU build can have both as
+  candidates, unlike `NEKO_GS_COMM` where `SHMEM` picks one by build.
+- Fixed the gather-scatter halo staging (`gs_bcknd_t%shared_on_host`) being
+  derived from `NEKO_GS_COMM` rather than from the comm. backend actually
+  selected, which left the halo on the host when a device backend was
+  requested through the `comm_bcknd` argument of `gs%init`.
+- Added crystal router gather-scatter communication backends,
+  `NEKO_GS_COMM=CRYSTAL` on the host and `CRYSTALGPU` on the device. They
+  route the halo in recursive-bisection stages instead of sending one message
+  per peer, trading forwarded volume for message count, which pays where
+  per-message overhead dominates. The routing is worked out once at
+  initialisation, so the exchange itself neither negotiates sizes nor
+  allocates. Both are default candidates in the comm. autotuning
+  (`NEKO_GS_TUNE=-CRYSTAL` and `-CRYSTALGPU` drop them).
+- Fixed facet masks for some simulation components.
+- *BREAKING*, normal_outflow conditions now require specifying `value`, which
+  is used to set the value of the tangential components of velocity.
+- Added fp64 tensor core (`DMMA`) and matrix core (`MFMA`) variants of the
+  Helmholtz operator on the CUDA and HIP backends, and on Hopper two TMA
+  staged forms of the CUDA one --- `DMMA_TMA` for the scalar and vector
+  operators and the batched `DMMA_TMA_BATCH` for the vector operator --- all
+  of them candidates in the operator auto-tuner. New environment variables
+  `NEKO_DMMA_NW`, `NEKO_DMMA_TMA_NW`, `NEKO_MFMA_NWF` and `NEKO_MFMA_TUNE`
+  control them, and `NEKO_AUTOTUNE` accepts the four new formulation names.
+- Extended the tensor core (`DMMA`), matrix core (`MFMA`) and Hopper TMA
+  staged (`DMMA_TMA`) formulations to the `opgrad`, `dudxyz`, `conv1` and
+  `cdtp` operators, again as auto-tuner candidates selected per operator,
+  polynomial order and element count.
+- *BREAKING* `NEKO_AUTOTUNE` now narrows the SEM operator search to the named
+  formulation instead of skipping the search outright. The geometry of that
+  formulation --- chunk size, elements per block, warps or wavefronts per
+  block --- is still swept and reported, where pinning a formulation used to
+  silently fix it at candidate 0. `NEKO_EB`, `NEKO_CHUNKS`, `NEKO_DMMA_NW`,
+  `NEKO_DMMA_TMA_NW` and `NEKO_MFMA_NWF` now pin that geometry whenever their
+  formulation is measured, rather than only when it is the pinned one, and
+  setting one alongside `NEKO_AUTOTUNE` leaves nothing to measure and skips
+  the search as before. So an A/B run of two formulations compares each at its
+  own best geometry; to get the old behaviour, set the geometry variable too.
+- *BREAKING* The `ax_helm_factory` is renamed to `ax_helm_allocator`. It now
+  selects matrix-vector product types by name instead of a `full_formulation`
+  logical argument, and supports runtime registration of user-defined `ax_t`
+  descendants.
+- Hardened the CPU BiCGStab solver with scale-aware breakdown checks and correct
+  handling of converged initial guesses and negative `omega` values.
+- *BREAKING* Changed all time-related variables to double precision. 
+  As a result, checkpoint (chkp) files generated by versions of the code 
+  prior to this change are no longer compatible and cannot be read.
+- Fixed a bug that caused `import_fields` to not read the mesh file if the 
+  mesh file name and the field file name had the same counter (e.g. 
+  `mesh0.f00000` and `field0.f00000`).
 - Added configurable wall-model field samplers. Wall models can now sample at
   GLL nodes or physical wall-normal distances using global interpolation. The
   sampling values can also be supplied per wall node through new user hooks.
+- Added the asymmetric spectral vanishing viscosity formulation for implicit
+- Added the one-sided spectral vanishing viscosity formulation for implicit
+  fluid and scalar solves, including the full-stress fluid operator, on CPU,
+  CUDA, and HIP backends.
 - The CUDA and HIP auto-tuners for `ax_helm` and the SEM operators (`opgrad`,
   `dudxyz`, `cdtp`, `conv1`, `convect_scalar`, `lambda2`) now also sweep the
   thread block geometry, not just the kernel formulation: chunk size for the
@@ -35,7 +205,6 @@
 - Added `NEKO_GS_CAF_SIGNALING=auto`, selecting the fastest coarray
   signalling mode by benchmarking. Bound once per program, and only in
   effect when the comm. backend is autotuned as well.
-- Fixed a data race in openMP block in `adv_dealias` for scalar and ALE.
 - Added `phmg_update` to propagate mesh change to coarse level grids.
 - Fixed extrusion of curved edges when reading a 2D .nmsh file.
 - Added mathematical expressions as case file values, available as the
@@ -45,11 +214,65 @@
   elementary functions, and any scalar declared under `case.constants`, so
   simple spatially varying conditions no longer require a user file.
 - Added integration test for ALE (test_ale).
-- Updated simulation_components documentation to mirror the latest codebase.
-- Fixed stale accumulator in the SX gather-scatter backend (min/max/mul).
 - *BREAKING* Renamed the allocation-only `precon_factory` API to
   `precon_allocator`. Added runtime registration of user-defined
   preconditioner and Krylov solver types.
+
+## 1.1.2 [2026-09-14]
+- Fixed several OpenMP races in the boundary conditions, including a Neumann
+  flux accumulated once per thread.
+- Fixed a leaked MPI file handle in the fld reader, which never closed the
+  file it opened.
+
+## 1.1.1 [2026-09-08]
+- Fixed the fused three-component Helmholtz operator on the CPU backend
+  (`ax_helm_cpu_t%compute_vector`) at polynomial orders 3 and 8, where a
+  component mix-up gave wrong momentum results. This affected the compressible
+  solver, the coupled velocity solvers and velocity projection on the CPU, but
+  not the GPU backends.
+- Fixed the `log` option of the overset interface boundary conditions, which
+  was read into the component itself instead of the local variable passed on
+  to `init_from_components`, and therefore had no effect.
+- Fixed the loop determining `uniform_0` in `neumann_finalize`, which was
+  hardcoded to three components instead of the size of the flux array.
+- Fixed a data race in openMP block in `adv_dealias` for scalar and ALE.
+- Updated simulation_components documentation to mirror the latest codebase.
+- Documented zero-copy mapping in the `neko` man page, including the
+  `NEKO_HIP_ZEROCOPY` and `NEKO_METAL_ZEROCOPY` environment variables and the
+  synchronisation requirement it puts on host code.
+- Removed the device memcpy of `mu` and `kappa` after `material_properties`
+  in the compressible solver. Constant properties are filled directly on the
+  device by `field_cfill` and were then overwritten by the copy from the host,
+  silently reducing Navier-Stokes to Euler on devices. Non-constant properties
+  computed in the user file can now also be set with `device_math` directly,
+  without a copy.
+- Fixed stale accumulator in the SX gather-scatter backend (min/max/mul).
+- Fixed a race in the OpenCL local interpolation kernel when the work group is
+  wider than the SIMD group width.
+- Fixed truncated global reductions in the Metal backend, which silently
+  dropped data for `n > 1048576`, making every global reduction wrong on
+  meshes above ~1M points.
+- Silenced the obsolete autoconf macro warnings emitted by `autoreconf`
+  (`AC_TRY_COMPILE`, `AC_HELP_STRING` and the expansion order of `AC_PROG_CXX`
+  relative to `LT_INIT`), so that `autoconf -Wall` is clean. The generated
+  `configure` is unchanged in behaviour.
+- Fixed the OIFS selection for scalars, which looked for `case.numerics.oifs`
+  in the scalar's own json object rather than `oifs` in the numerics one, and
+  thus always selected the standard time-integration scheme.
+- Fixed the turbulent viscosity computed by `sigma_cpu`, which used the
+  multiplicity of the first element for all elements.
+- Reworked the workaround for the Fujitsu Fortran runtime memory leak. It is
+  now applied by `sh patches/fujitsu_memleak.sh` instead of `git apply`, with
+  the hook in `neko_init` and the entry in `src/.depends` inserted by pattern,
+  so that the workaround survives unrelated changes to the surrounding code.
+  The script is idempotent.
+- Fixed the output file names reported in the log, which were printed before
+  the write routine had incremented the file counter. Each file type now
+  reports the name of the next output via `get_next_output_fname`. Also fixed
+  `user_stats` ignoring `output_directory`, and the counter of the `.bp`
+  output starting at -1.
+
+## 1.1.0 [2026-07-21]
 - Added opt-in zero-copy unified memory mapping for the HIP backend on AMD
   MI300A APUs: with `NEKO_HIP_ZEROCOPY=1` (and `HSA_XNACK=1`), mapped arrays
   alias their host allocation instead of being replicated on the device,
@@ -140,8 +363,7 @@
   for hip and cuda.
 - Added the `hpfrt` source term for high-pass filter-based stabilization.
 - Added the `data_streamer` simulation component, allowing data streaming
-- Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal`
-  for hip and cuda.
+  with ADIOS2.
 - Added the Richardson wall model.
 - Added the variable NEKO_VARNAME_LEN in `common/utils.f90` to set a fixed
   size for `name` attributes in e.g. `field_t` and `vector_t`.
@@ -151,10 +373,7 @@
 - Modify field_writer and probes to by default output in
   `case.output_directory`
 - Added MOST wall model and added diagnostics for the wall models.
-- Added the `data_streamer` simulation component, allowing data streaming
-  with ADIOS2.
 - Fixed a bug (mu_msk) in `device_calc_force_array` in `force_torque.f90`.
-- Added MOST wall model and added diagnostics for the wall models.
 - Added ALE framework.
 - Added masked I/O capabilities for the field_writer via the optional
   `point_zone` JSON keyword.
@@ -180,17 +399,10 @@
 - Added optional log output from the flow_rate_force, controlled by the `log`
   parameter.
 - Increased precision of the time value in the log.
-- Added a script to add new unit tests under `contrib/add_unit_test`. The same
-  script can add a .pf file to an existing suite.
-- Bugfix: Fixed a bug in the `unmap` subroutine, where the device pointer was
-  used to check if the field was mapped, which lead to a crash when trying to
-  unmap an array that was not associated with a device. Correctly does nothing
-  now.
 - Added an AI policy to the contribution guidelines.
 - Added simple support for VTKHDF. For now it can be used for fluid outputs.
   Simple restarts are supported with fixed mesh and MPI configuration.
   The VTKHDF output format is still experimental and will change in the future.
-- Added templates for serial and parallel unit tests.
 - Added code review instructions for LLMs in a copilot-friendly location.
 - Improved pixi installation. Added support to create a Python environment
   inside the pixi shell. Added support to choose real precision.
@@ -265,6 +477,7 @@
   with zero threads for ranks not containing cyclic boundaries.
 - Change default parameters for tamg and phmg to be less expensive.
 
+## 1.0.0 [2025-12-05] 
 ### Deprecated features
 - `operator::dudxyz` calls with implicit device arrays are deprecated. Please
   use `opr_device_dudxyz` instead.

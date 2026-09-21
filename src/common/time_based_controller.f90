@@ -32,7 +32,7 @@
 !
 !> Contains the `time_based_controller_t` type.
 module time_based_controller
-  use num_types, only : rp
+  use num_types, only : dp
   use utils, only : neko_error
   use time_state, only : time_state_t
   implicit none
@@ -47,15 +47,15 @@ module time_based_controller
   !! step.
   type, public :: time_based_controller_t
      !> Frequency of execution.
-     real(kind=rp) :: frequency = 0.0_rp
+     real(kind=dp) :: frequency = 0.0_dp
      !> Time interval between executions.
-     real(kind=rp) :: time_interval = 0.0_rp
+     real(kind=dp) :: time_interval = 0.0_dp
      !> Number of time steps in between executions.
      integer :: nsteps = 0
      !> Simulation start time.
-     real(kind=rp) :: start_time = 0.0_rp
+     real(kind=dp) :: start_time = 0.0_dp
      !> Simulation end time.
-     real(kind=rp) :: end_time = 0.0_rp
+     real(kind=dp) :: end_time = 0.0_dp
      !> Number of times already executed.
      integer :: nexecutions = 0
      !> Whether to never output.
@@ -64,7 +64,7 @@ module time_based_controller
      !> Can be `simulationtime`, `tsteps`, `nsamples` or `never`.
      character(len=:), allocatable :: control_mode
      !> Defines the frequency of writes.
-     real(kind=rp) :: control_value
+     real(kind=dp) :: control_value
 
    contains
      !> Constructor.
@@ -95,10 +95,10 @@ contains
   subroutine time_based_controller_init(this, start_time, end_time, &
        control_mode, control_value)
     class(time_based_controller_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: start_time
-    real(kind=rp), intent(in) :: end_time
+    real(kind=dp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: end_time
     character(len=*), intent(in) :: control_mode
-    real(kind=rp), intent(in) :: control_value
+    real(kind=dp), intent(in) :: control_value
 
     this%start_time = start_time
     this%end_time = end_time
@@ -115,7 +115,7 @@ contains
        end if
 
        this%frequency = control_value / (end_time - start_time)
-       this%time_interval = 1.0_rp / this%frequency
+       this%time_interval = 1.0_dp / this%frequency
        this%nsteps = 0
     else if (trim(control_mode) .eq. 'tsteps') then
        this%nsteps = control_value
@@ -138,11 +138,11 @@ contains
        deallocate(this%control_mode)
     end if
 
-    this%frequency = 0.0_rp
-    this%time_interval = 0.0_rp
+    this%frequency = 0.0_dp
+    this%time_interval = 0.0_dp
     this%nsteps = 0
-    this%start_time = 0.0_rp
-    this%end_time = 0.0_rp
+    this%start_time = 0.0_dp
+    this%end_time = 0.0_dp
     this%nexecutions = 0
     this%never = .false.
   end subroutine time_based_controller_free
@@ -160,9 +160,9 @@ contains
     class(time_based_controller_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     logical, intent(in), optional :: force
-    real(kind=rp) :: t
+    real(kind=dp) :: t
     integer :: tstep
-    real(kind=rp) :: dt
+    real(kind=dp) :: dt
     logical :: check
     logical :: ifforce
 
@@ -184,7 +184,7 @@ contains
     else if (time%t - this%start_time .gt. this%end_time - this%start_time) then
        check = .false.
     else if ( (this%nsteps .eq. 0) .and. &
-         (t .ge. this%nexecutions * this%time_interval - 0.1_rp * dt) ) then
+         (t .ge. this%nexecutions * this%time_interval - 0.1_dp * dt) ) then
        check = .true.
     else if (this%nsteps .gt. 0) then
        if (mod(tstep, this%nsteps) .eq. 0) then
@@ -223,7 +223,7 @@ contains
     type(time_state_t) :: time
 
     if (this%nsteps .eq. 0) then
-       this%nexecutions = int(((time%t - time%start_time) + 0.1_rp*time%dt) &
+       this%nexecutions = int(((time%t - time%start_time) + 0.1_dp*time%dt) &
             / this%time_interval) + 1
     end if
 

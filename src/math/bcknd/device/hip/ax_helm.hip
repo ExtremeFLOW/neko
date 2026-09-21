@@ -49,27 +49,30 @@ template < const int>
 int tune(void *w, void *u, void *dx, void *dy, void *dz,
          void *dxt, void *dyt, void *dzt, void *h1,
          void *g11, void *g22, void *g33, void *g12,
-         void *g13, void *g23, int *nelv, int *lx, int *eb_sel, int *ch_sel);
+         void *g13, void *g23, int *nelv, int *lx, int *eb_sel, int *ch_sel,
+         int *nwf_sel);
 
 template < const int>
 int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
                 void *dxt, void *dyt, void *dzt, void *h1,
                 void *g11, void *g22, void *g33, void *g12,
                 void *g13, void *g23, int *nelv, int *lx, int *eb_sel,
-                int *ch_sel);
+                int *ch_sel, int *nwf_sel);
 
 template < const int>
 int tune_vector(void *au, void *av, void *aw, void *u, void *v, void *w,
                 void *dx, void *dy, void *dz, void *h1,
                 void *g11, void *g22, void *g33, void *g12,
-                void *g13, void *g23, int *nelv, int *lx);
+                void *g13, void *g23, int *nelv, int *lx, int *eb_sel,
+                int *nwf_sel);
 
 template < const int>
 int tune_vector_padded(void *au, void *av, void *aw,
                        void *u, void *v, void *w,
                        void *dx, void *dy, void *dz, void *h1,
                        void *g11, void *g22, void *g33, void *g12,
-                       void *g13, void *g23, int *nelv, int *lx);
+                       void *g13, void *g23, int *nelv, int *lx, int *eb_sel,
+                       int *nwf_sel);
 
 extern "C" {
 
@@ -87,6 +90,8 @@ extern "C" {
     static int autotune_eb[13] = { 0 };
     /* chunk candidate chosen for the 1d variant */
     static int autotune_ch[13] = { 0 };
+    /* wavefronts per block candidate chosen for the mfma variant */
+    static int autotune_nwf[13] = { 0 };
 
     const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nblcks_1d((*nelv), 1, 1);
@@ -134,6 +139,43 @@ extern "C" {
                         (real *) g12, (real *) g13, (real *) g23, *nelv);       \
     HIP_CHECK(hipGetLastError());
 
+#define CASE_MFMA(LX, C)                                                        \
+    hipLaunchKernelGGL( HIP_KERNEL_NAME(                                        \
+                          ax_helm_kernel_mfma<real, LX, NEKO_MFMA_NWF(C),       \
+                                              NEKO_MFMA_TILE(C)> ),             \
+                        NEKO_MFMA_NBLCKS(*nelv, LX, C), NEKO_MFMA_NTHRDS(C), 0, \
+                        (hipStream_t) glb_cmd_queue,                            \
+                        (real *) w, (real *) u,                                 \
+                        (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
+                        (real *) g11, (real *) g22, (real *) g33,               \
+                        (real *) g12, (real *) g13, (real *) g23, *nelv);       \
+    HIP_CHECK(hipGetLastError());
+
+/* Runtime dispatch onto the tuned candidate, which names both the wavefronts
+   per block and the matrix core tile, see NEKO_MFMA_TILE in mfma_kernel.h */
+#define CASE_MFMA_SEL(LX, SEL)                                                  \
+    switch (SEL) {                                                              \
+    case 0:  CASE_MFMA(LX, 0); break;                                           \
+    case 1:  CASE_MFMA(LX, 1); break;                                           \
+    case 2:  CASE_MFMA(LX, 2); break;                                           \
+    case 3:  CASE_MFMA(LX, 3); break;                                           \
+    case 4:  CASE_MFMA(LX, 4); break;                                           \
+    case 5:  CASE_MFMA(LX, 5); break;                                           \
+    case 6:  CASE_MFMA(LX, 6); break;                                           \
+    case 7:  CASE_MFMA(LX, 7); break;                                           \
+    case 8:  CASE_MFMA(LX, 8); break;                                           \
+    default: CASE_MFMA(LX, 9); break;                                           \
+    }
+
+/* The switch above has to name every candidate. A candidate that fell
+   through to the default arm would launch its own grid and block shape --
+   NEKO_MFMA_NBLCKS and NEKO_MFMA_NTHRDS are evaluated at the call site --
+   at a kernel compiled for a different wavefront count, which is a launch
+   failure where the block is bigger and silent corruption where it is not.
+   Raising the candidate count without extending the switch stops here. */
+static_assert(NEKO_MFMA_CANDIDATES == 10,
+              "CASE_MFMA_SEL does not cover the candidate space");
+
 /* Runtime dispatch onto the tuned elements per block candidate */
 #define CASE_KSTEP_SEL(LX, SEL)                                                 \
     switch (SEL) {                                                              \
@@ -157,11 +199,14 @@ extern "C" {
                                dxt, dyt, dzt,h1,                                \
                                g11, g22, g33,                                   \
                                g12, g13, g23, nelv, lx,                         \
-                               &autotune_eb[LX], &autotune_ch[LX]);             \
+                               &autotune_eb[LX], &autotune_ch[LX],              \
+                               &autotune_nwf[LX]);                              \
       } else if (autotune[LX] == 1 ) {                                          \
         CASE_1D_SEL(LX, autotune_ch[LX]);                                       \
       } else if (autotune[LX] == 2 ) {                                          \
         CASE_KSTEP_SEL(LX, autotune_eb[LX]);                                    \
+      } else if (autotune[LX] == 3 ) {                                          \
+        CASE_MFMA_SEL(LX, autotune_nwf[LX]);                                    \
       }                                                                         \
       break
 
@@ -173,11 +218,14 @@ extern "C" {
                                      dxt, dyt, dzt,h1,                          \
                                      g11, g22, g33,                             \
                                      g12, g13, g23,nelv,lx,                     \
-                                     &autotune_eb[LX], &autotune_ch[LX]);       \
+                                     &autotune_eb[LX], &autotune_ch[LX],        \
+                                     &autotune_nwf[LX]);                        \
       } else if (autotune[LX] == 1 ) {                                          \
         CASE_1D_SEL(LX, autotune_ch[LX]);                                       \
       } else if (autotune[LX] == 2 ) {                                          \
         CASE_KSTEP_PADDED_SEL(LX, autotune_eb[LX]);                             \
+      } else if (autotune[LX] == 3 ) {                                          \
+        CASE_MFMA_SEL(LX, autotune_nwf[LX]);                                    \
       }                                                                         \
       break
 
@@ -241,10 +289,14 @@ extern "C" {
                            void *g33, void *g12, void *g13,
                            void *g23, int *nelv, int *lx) {
 
-    /* 0 = untuned, otherwise the chosen candidate plus one. Unlike the
-       scalar Ax there is no 1d variant to fall back on, so the tuner only
-       sweeps the elements per block candidates */
+    /* Strategy chosen by the autotuner: 0 untuned, 2 kstep, 3 mfma. There
+       is no 1d variant of the vector operator, so the kstep family is the
+       baseline and the matrix core variant the only alternative */
     static int autotune_v[17] = { 0 };
+    /* elements per block candidate chosen for the kstep variant */
+    static int autotune_v_eb[17] = { 0 };
+    /* wavefronts per block candidate chosen for the mfma variant */
+    static int autotune_v_nwf[17] = { 0 };
 
 #define CASE_VECTOR_KSTEP(LX, C)                                                \
     hipLaunchKernelGGL( HIP_KERNEL_NAME(                                        \
@@ -272,41 +324,89 @@ extern "C" {
                         (real *) g12, (real *) g13, (real *) g23, *nelv);       \
     HIP_CHECK(hipGetLastError());
 
-#define CASE_VECTOR_SEL(LX, SEL)                                                \
+/* The matrix core variant: same grid and wavefronts per block candidates as
+   the scalar CASE_MFMA, see mfma_kernel.h */
+#define CASE_VECTOR_MFMA(LX, C)                                                 \
+    hipLaunchKernelGGL( HIP_KERNEL_NAME(                                        \
+                          ax_helm_kernel_mfma_vector<real, LX,                  \
+                                                     NEKO_MFMA_NWF(C),          \
+                                                     NEKO_MFMA_TILE(C)> ),      \
+                        NEKO_MFMA_NBLCKS(*nelv, LX, C), NEKO_MFMA_NTHRDS(C), 0, \
+                        (hipStream_t) glb_cmd_queue,                            \
+                        (real *) au, (real *) av, (real *) aw,                  \
+                        (real *) u, (real *) v, (real *) w,                     \
+                        (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
+                        (real *) g11, (real *) g22, (real *) g33,               \
+                        (real *) g12, (real *) g13, (real *) g23, *nelv);       \
+    HIP_CHECK(hipGetLastError());
+
+#define CASE_VECTOR_KSTEP_SEL(LX, SEL)                                          \
     switch (SEL) {                                                              \
     case 0:  CASE_VECTOR_KSTEP(LX, 0); break;                                   \
     case 1:  CASE_VECTOR_KSTEP(LX, 1); break;                                   \
     default: CASE_VECTOR_KSTEP(LX, 2); break;                                   \
     }
 
-#define CASE_VECTOR_PADDED_SEL(LX, SEL)                                         \
+#define CASE_VECTOR_KSTEP_PADDED_SEL(LX, SEL)                                   \
     switch (SEL) {                                                              \
     case 0:  CASE_VECTOR_KSTEP_PADDED(LX, 0); break;                            \
     case 1:  CASE_VECTOR_KSTEP_PADDED(LX, 1); break;                            \
     default: CASE_VECTOR_KSTEP_PADDED(LX, 2); break;                            \
     }
 
+/* Runtime dispatch onto the tuned candidate, see CASE_MFMA_SEL */
+#define CASE_VECTOR_MFMA_SEL(LX, SEL)                                           \
+    switch (SEL) {                                                              \
+    case 0:  CASE_VECTOR_MFMA(LX, 0); break;                                    \
+    case 1:  CASE_VECTOR_MFMA(LX, 1); break;                                    \
+    case 2:  CASE_VECTOR_MFMA(LX, 2); break;                                    \
+    case 3:  CASE_VECTOR_MFMA(LX, 3); break;                                    \
+    case 4:  CASE_VECTOR_MFMA(LX, 4); break;                                    \
+    case 5:  CASE_VECTOR_MFMA(LX, 5); break;                                    \
+    case 6:  CASE_VECTOR_MFMA(LX, 6); break;                                    \
+    case 7:  CASE_VECTOR_MFMA(LX, 7); break;                                    \
+    case 8:  CASE_VECTOR_MFMA(LX, 8); break;                                    \
+    default: CASE_VECTOR_MFMA(LX, 9); break;                                    \
+    }
+
+/* The switch above has to name every candidate. A candidate that fell
+   through to the default arm would launch its own grid and block shape --
+   NEKO_MFMA_NBLCKS and NEKO_MFMA_NTHRDS are evaluated at the call site --
+   at a kernel compiled for a different wavefront count, which is a launch
+   failure where the block is bigger and silent corruption where it is not.
+   Raising the candidate count without extending the switch stops here. */
+static_assert(NEKO_MFMA_CANDIDATES == 10,
+              "CASE_VECTOR_MFMA_SEL does not cover the candidate space");
+
 #define CASE_VECTOR(LX)                                                         \
     case LX:                                                                    \
       if (autotune_v[LX] == 0) {                                                \
-        autotune_v[LX] = 1 + tune_vector<LX>(au, av, aw, u, v, w,               \
-                                             dx, dy, dz, h1,                    \
-                                             g11, g22, g33,                     \
-                                             g12, g13, g23, nelv, lx);          \
-      } else {                                                                  \
-        CASE_VECTOR_SEL(LX, autotune_v[LX] - 1);                                \
+        autotune_v[LX] = tune_vector<LX>(au, av, aw, u, v, w,                   \
+                                         dx, dy, dz, h1,                        \
+                                         g11, g22, g33,                         \
+                                         g12, g13, g23, nelv, lx,               \
+                                         &autotune_v_eb[LX],                    \
+                                         &autotune_v_nwf[LX]);                  \
+      } else if (autotune_v[LX] == 2) {                                         \
+        CASE_VECTOR_KSTEP_SEL(LX, autotune_v_eb[LX]);                           \
+      } else if (autotune_v[LX] == 3) {                                         \
+        CASE_VECTOR_MFMA_SEL(LX, autotune_v_nwf[LX]);                           \
       }                                                                         \
       break
 
 #define CASE_VECTOR_PADDED(LX)                                                  \
     case LX:                                                                    \
       if (autotune_v[LX] == 0) {                                                \
-        autotune_v[LX] = 1 + tune_vector_padded<LX>(au, av, aw, u, v, w,        \
-                                                    dx, dy, dz, h1,             \
-                                                    g11, g22, g33,              \
-                                                    g12, g13, g23, nelv, lx);   \
-      } else {                                                                  \
-        CASE_VECTOR_PADDED_SEL(LX, autotune_v[LX] - 1);                         \
+        autotune_v[LX] = tune_vector_padded<LX>(au, av, aw, u, v, w,            \
+                                                dx, dy, dz, h1,                 \
+                                                g11, g22, g33,                  \
+                                                g12, g13, g23, nelv, lx,        \
+                                                &autotune_v_eb[LX],             \
+                                                &autotune_v_nwf[LX]);           \
+      } else if (autotune_v[LX] == 2) {                                         \
+        CASE_VECTOR_KSTEP_PADDED_SEL(LX, autotune_v_eb[LX]);                    \
+      } else if (autotune_v[LX] == 3) {                                         \
+        CASE_VECTOR_MFMA_SEL(LX, autotune_v_nwf[LX]);                           \
       }                                                                         \
       break
 
@@ -358,14 +458,29 @@ template < const int LX >
 int tune(void *w, void *u, void *dx, void *dy, void *dz,
          void *dxt, void *dyt, void *dzt, void *h1,
          void *g11, void *g22, void *g33, void *g12,
-         void *g13, void *g23, int *nelv, int *lx, int *eb_sel, int *ch_sel) {
+         void *g13, void *g23, int *nelv, int *lx, int *eb_sel, int *ch_sel,
+         int *nwf_sel) {
   hipEvent_t start,stop;
   float time1[NEKO_CHUNKS_CANDIDATES];
   int best1 = 0;
   float time2[NEKO_EB_CANDIDATES];
+  float time3[NEKO_MFMA_CANDIDATES];
+  int best3 = 0;
   const int rounds = neko_tune_rounds();
   const int iters = neko_tune_iters();
-  const int sweep = neko_eb_sweep();
+  /* Candidates of the kstep sweep, one -- the unblocked shape -- when the
+     elements per block sweep is off */
+  const int eb_cand = neko_eb_sweep() ? NEKO_EB_CANDIDATES : 1;
+  /* Candidates of the matrix core sweep, see neko_mfma_candidates() */
+  const int mfma_cand = neko_mfma_candidates();
+  /* Geometry pinned by each formulation's own variable, -1 to sweep it */
+  const int ch_pin = neko_chunks_pin();
+  const int eb_pin = neko_eb_pin();
+  const int nwf_pin = neko_mfma_pin();
+  /* Formulation pinned by NEKO_AUTOTUNE, as the identifier tune() returns */
+  int strat = 0;
+  /* Hardware capability, which the explicit NEKO_AUTOTUNE=MFMA pin needs */
+  const bool mfma = mfma_lx_supported<LX>() && hip_have_mfma();
   int best = 0;
   int retval;
 
@@ -374,6 +489,9 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   }
   for (int c = 0; c < NEKO_CHUNKS_CANDIDATES; c++) {
     time1[c] = NEKO_TUNE_INIT;
+  }
+  for (int c = 0; c < NEKO_MFMA_CANDIDATES; c++) {
+    time3[c] = NEKO_TUNE_INIT;
   }
 
   const dim3 nthrds_1d(1024, 1, 1);
@@ -390,30 +508,77 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
 
   *eb_sel = 0;
   *ch_sel = 0;
+  *nwf_sel = 0;
 
+  /*
+   * NEKO_AUTOTUNE names a formulation, and that is all it does: the sweep
+   * below is narrowed to that one kernel family, but its geometry -- the
+   * chunk size, the elements per block, the wavefronts per block -- is still
+   * measured candidate against candidate. A formulation this build or this
+   * device does not have is reported and ignored, leaving the full sweep.
+   */
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
-      *ch_sel = neko_chunks_env();
-      CASE_1D_SEL(LX, *ch_sel);
-      sprintf(neko_log_buf,"Set by env   : 1 (1D, %d chunk)",
-              NEKO_CHUNKS_SEL(LX, *ch_sel));
-      log_message(neko_log_buf);
-      log_end_section();
-      return 1;
+      strat = 1;
     } else if( !strcmp(env_value,"KSTEP") ) {
-      const int c = neko_eb_env();
-      *eb_sel = c;
-      CASE_KSTEP_SEL(LX, c);
-      sprintf(neko_log_buf,"Set by env   : 2 (KSTEP, %d elem/block)",
-              NEKO_EB_SEL(LX, c));
-      log_message(neko_log_buf);
-      log_end_section();
-      return 2;
+      strat = 2;
+    } else if( !strcmp(env_value,"MFMA") ) {
+      if (mfma) {
+        strat = 3;
+      } else {
+        sprintf(neko_log_buf, "MFMA strategy not available for this config");
+        log_error(neko_log_buf);
+      }
     } else {
        sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
        log_error(neko_log_buf);
     }
   }
+
+  /* Geometry of the pinned formulation, if its own variable fixes that too.
+     Both pinned leaves nothing to measure, so the kernel is launched once and
+     reported, which is what pinning has always done */
+  const int pin = (strat == 1) ? ch_pin : (strat == 2) ? eb_pin :
+                  (strat == 3) ? nwf_pin : -1;
+
+  if (pin >= 0) {
+    switch (strat) {
+    case 1:
+      *ch_sel = pin;
+      CASE_1D_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 1 (1D, %d chunk)",
+              NEKO_CHUNKS_SEL(LX, pin));
+      break;
+    case 2:
+      *eb_sel = pin;
+      CASE_KSTEP_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 2 (KSTEP, %d elem/block)",
+              NEKO_EB_SEL(LX, pin));
+      break;
+    default:
+      *nwf_sel = pin;
+      CASE_MFMA_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 3 (MFMA %s, %d wf, %d elem/blk)",
+              mfma_tile_name(pin), NEKO_MFMA_NWF(pin), NEKO_MFMA_EB(LX, pin));
+      break;
+    }
+    log_message(neko_log_buf);
+    log_end_section();
+    return strat;
+  }
+
+  if (strat) {
+    sprintf(neko_log_buf, "Set by env   : %d (%s)", strat, env_value);
+    log_message(neko_log_buf);
+  }
+
+  /* Formulations the sweep considers, see NEKO_TUNE_FOR(). NEKO_MFMA_TUNE
+     keeps the matrix core variant out of an unpinned sweep, but naming it
+     explicitly still measures it */
+  const bool try_1d = (strat == 0 || strat == 1);
+  const bool try_kstep = (strat == 0 || strat == 2);
+  const bool try_mfma = mfma && ((strat == 3) ||
+                                 (strat == 0 && neko_mfma_sweep()));
 
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
@@ -422,42 +587,51 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
      be resident and the clocks at steady state, or whichever variant is
      timed first is measured on a colder part */
   for (int i = 0; i < NEKO_TUNE_WARMUP; i++) {
-    CASE_1D(LX, 0);
-    CASE_1D(LX, 1);
-    CASE_1D(LX, 2);
-    CASE_1D(LX, 3);
-    CASE_KSTEP(LX, 0);
-    if (sweep) {
-      CASE_KSTEP(LX, 1);
-      CASE_KSTEP(LX, 2);
+    NEKO_TUNE_FOR(c, try_1d, ch_pin, NEKO_CHUNKS_CANDIDATES) {
+      CASE_1D_SEL(LX, c);
+    }
+    NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+      CASE_KSTEP_SEL(LX, c);
+    }
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, mfma_cand) {
+      CASE_MFMA_SEL(LX, c);
     }
   }
 
   /* Interleaved rounds, best time per variant: timing them one after another
      in a fixed order lets clock drift bias the comparison by position */
   for (int r = 0; r < rounds; r++) {
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 0, iters);
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 1, iters);
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 2, iters);
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 3, iters);
-    NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 0, iters);
-    if (sweep) {
-      NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 1, iters);
-      NEKO_TUNE_TIME(time2, CASE_KSTEP, LX, 2, iters);
+    NEKO_TUNE_FOR(c, try_1d, ch_pin, NEKO_CHUNKS_CANDIDATES) {
+      NEKO_TUNE_TIME(time1, CASE_1D_SEL, LX, c, iters);
+    }
+    NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+      NEKO_TUNE_TIME(time2, CASE_KSTEP_SEL, LX, c, iters);
+    }
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, mfma_cand) {
+      NEKO_TUNE_TIME(time3, CASE_MFMA_SEL, LX, c, iters);
     }
   }
 
   NEKO_TUNE_LOG(LX, time1, time2);
+  NEKO_TUNE_LOG_MFMA(LX, time3);
 
   NEKO_TUNE_BEST(time1, best1, NEKO_CHUNKS_CANDIDATES);
   NEKO_TUNE_BEST(time2, best, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_BEST(time3, best3, NEKO_MFMA_CANDIDATES);
   *eb_sel = best;
   *ch_sel = best1;
+  *nwf_sel = best3;
 
   if (time1[best1] < time2[best]) {
-     retval = 1;
+    retval = 1;
   } else {
     retval = 2;
+  }
+
+  /* The mfma variant joins the comparison only where it exists, its
+     candidates are left at NEKO_TUNE_INIT otherwise */
+  if (time3[best3] < ((retval == 1) ? time1[best1] : time2[best])) {
+    retval = 3;
   }
 
   HIP_CHECK(hipEventDestroy(start));
@@ -467,16 +641,22 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
      sum in the same order, so leave the output of the chosen kernel in w */
   if (retval == 1) {
     CASE_1D_SEL(LX, best1);
-  } else {
+  } else if (retval == 2) {
     CASE_KSTEP_SEL(LX, best);
+  } else {
+    CASE_MFMA_SEL(LX, best3);
   }
 
   if (retval == 1) {
     sprintf(neko_log_buf, "Chose        : 1 (1D, %d chunk)",
             NEKO_CHUNKS_SEL(LX, best1));
-  } else {
+  } else if (retval == 2) {
     sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
             NEKO_EB_SEL(LX, best));
+  } else {
+    sprintf(neko_log_buf, "Chose        : 3 (MFMA %s, %d wf, %d elem/blk)",
+            mfma_tile_name(best3), NEKO_MFMA_NWF(best3),
+            NEKO_MFMA_EB(LX, best3));
   }
   log_message(neko_log_buf);
   log_end_section();
@@ -487,14 +667,28 @@ template < const int LX >
 int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
                 void *dxt, void *dyt, void *dzt, void *h1,
                 void *g11, void *g22, void *g33, void *g12,
-                void *g13, void *g23, int *nelv, int *lx, int *eb_sel, int *ch_sel) {
+                void *g13, void *g23, int *nelv, int *lx,
+                int *eb_sel, int *ch_sel, int *nwf_sel) {
   hipEvent_t start, stop;
   float time1[NEKO_CHUNKS_CANDIDATES];
   int best1 = 0;
   float time2[NEKO_EB_CANDIDATES];
+  float time3[NEKO_MFMA_CANDIDATES];
+  int best3 = 0;
   const int rounds = neko_tune_rounds();
   const int iters = neko_tune_iters();
-  const int sweep = neko_eb_sweep();
+  /* Candidates of the kstep sweep, see tune() */
+  const int eb_cand = neko_eb_sweep() ? NEKO_EB_CANDIDATES : 1;
+  /* Candidates of the matrix core sweep, see neko_mfma_candidates() */
+  const int mfma_cand = neko_mfma_candidates();
+  /* Geometry pinned by each formulation's own variable, -1 to sweep it */
+  const int ch_pin = neko_chunks_pin();
+  const int eb_pin = neko_eb_pin();
+  const int nwf_pin = neko_mfma_pin();
+  /* Formulation pinned by NEKO_AUTOTUNE, as the identifier this returns */
+  int strat = 0;
+  /* Hardware capability, which the explicit NEKO_AUTOTUNE=MFMA pin needs */
+  const bool mfma = mfma_lx_supported<LX>() && hip_have_mfma();
   int best = 0;
   int retval;
 
@@ -503,6 +697,9 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   }
   for (int c = 0; c < NEKO_CHUNKS_CANDIDATES; c++) {
     time1[c] = NEKO_TUNE_INIT;
+  }
+  for (int c = 0; c < NEKO_MFMA_CANDIDATES; c++) {
+    time3[c] = NEKO_TUNE_INIT;
   }
 
   const dim3 nthrds_1d(1024, 1, 1);
@@ -519,30 +716,67 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
 
   *eb_sel = 0;
   *ch_sel = 0;
+  *nwf_sel = 0;
 
+  /* NEKO_AUTOTUNE names a formulation and nothing more, see tune() */
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
-      *ch_sel = neko_chunks_env();
-      CASE_1D_SEL(LX, *ch_sel);
-      sprintf(neko_log_buf,"Set by env   : 1 (1D, %d chunk)",
-              NEKO_CHUNKS_SEL(LX, *ch_sel));
-      log_message(neko_log_buf);
-      log_end_section();
-      return 1;
-     } else if( !strcmp(env_value,"KSTEP") ) {
-      const int c = neko_eb_env();
-      *eb_sel = c;
-      CASE_KSTEP_PADDED_SEL(LX, c);
-      sprintf(neko_log_buf,"Set by env   : 2 (KSTEP, %d elem/block)",
-              NEKO_EB_SEL(LX, c));
-      log_message(neko_log_buf);
-      log_end_section();
-      return 2;
+      strat = 1;
+    } else if( !strcmp(env_value,"KSTEP") ) {
+      strat = 2;
+    } else if( !strcmp(env_value,"MFMA") ) {
+      if (mfma) {
+        strat = 3;
+      } else {
+        sprintf(neko_log_buf, "MFMA strategy not available for this config");
+        log_error(neko_log_buf);
+      }
     } else {
       sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
       log_error(neko_log_buf);
     }
   }
+
+  /* Formulation and geometry both pinned leaves nothing to measure */
+  const int pin = (strat == 1) ? ch_pin : (strat == 2) ? eb_pin :
+                  (strat == 3) ? nwf_pin : -1;
+
+  if (pin >= 0) {
+    switch (strat) {
+    case 1:
+      *ch_sel = pin;
+      CASE_1D_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 1 (1D, %d chunk)",
+              NEKO_CHUNKS_SEL(LX, pin));
+      break;
+    case 2:
+      *eb_sel = pin;
+      CASE_KSTEP_PADDED_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 2 (KSTEP, %d elem/block)",
+              NEKO_EB_SEL(LX, pin));
+      break;
+    default:
+      *nwf_sel = pin;
+      CASE_MFMA_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 3 (MFMA %s, %d wf, %d elem/blk)",
+              mfma_tile_name(pin), NEKO_MFMA_NWF(pin), NEKO_MFMA_EB(LX, pin));
+      break;
+    }
+    log_message(neko_log_buf);
+    log_end_section();
+    return strat;
+  }
+
+  if (strat) {
+    sprintf(neko_log_buf, "Set by env   : %d (%s)", strat, env_value);
+    log_message(neko_log_buf);
+  }
+
+  /* Formulations the sweep considers, see NEKO_TUNE_FOR() */
+  const bool try_1d = (strat == 0 || strat == 1);
+  const bool try_kstep = (strat == 0 || strat == 2);
+  const bool try_mfma = mfma && ((strat == 3) ||
+                                 (strat == 0 && neko_mfma_sweep()));
 
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
@@ -551,42 +785,51 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
      be resident and the clocks at steady state, or whichever variant is
      timed first is measured on a colder part */
   for (int i = 0; i < NEKO_TUNE_WARMUP; i++) {
-    CASE_1D(LX, 0);
-    CASE_1D(LX, 1);
-    CASE_1D(LX, 2);
-    CASE_1D(LX, 3);
-    CASE_KSTEP_PADDED(LX, 0);
-    if (sweep) {
-      CASE_KSTEP_PADDED(LX, 1);
-      CASE_KSTEP_PADDED(LX, 2);
+    NEKO_TUNE_FOR(c, try_1d, ch_pin, NEKO_CHUNKS_CANDIDATES) {
+      CASE_1D_SEL(LX, c);
+    }
+    NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+      CASE_KSTEP_PADDED_SEL(LX, c);
+    }
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, mfma_cand) {
+      CASE_MFMA_SEL(LX, c);
     }
   }
 
   /* Interleaved rounds, best time per variant: timing them one after another
      in a fixed order lets clock drift bias the comparison by position */
   for (int r = 0; r < rounds; r++) {
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 0, iters);
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 1, iters);
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 2, iters);
-    NEKO_TUNE_TIME(time1, CASE_1D, LX, 3, iters);
-    NEKO_TUNE_TIME(time2, CASE_KSTEP_PADDED, LX, 0, iters);
-    if (sweep) {
-      NEKO_TUNE_TIME(time2, CASE_KSTEP_PADDED, LX, 1, iters);
-      NEKO_TUNE_TIME(time2, CASE_KSTEP_PADDED, LX, 2, iters);
+    NEKO_TUNE_FOR(c, try_1d, ch_pin, NEKO_CHUNKS_CANDIDATES) {
+      NEKO_TUNE_TIME(time1, CASE_1D_SEL, LX, c, iters);
+    }
+    NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+      NEKO_TUNE_TIME(time2, CASE_KSTEP_PADDED_SEL, LX, c, iters);
+    }
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, mfma_cand) {
+      NEKO_TUNE_TIME(time3, CASE_MFMA_SEL, LX, c, iters);
     }
   }
 
   NEKO_TUNE_LOG(LX, time1, time2);
+  NEKO_TUNE_LOG_MFMA(LX, time3);
 
   NEKO_TUNE_BEST(time1, best1, NEKO_CHUNKS_CANDIDATES);
   NEKO_TUNE_BEST(time2, best, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_BEST(time3, best3, NEKO_MFMA_CANDIDATES);
   *eb_sel = best;
   *ch_sel = best1;
+  *nwf_sel = best3;
 
   if (time1[best1] < time2[best]) {
-    retval=1;
+    retval = 1;
   } else {
-    retval=2;
+    retval = 2;
+  }
+
+  /* The mfma variant joins the comparison only where it exists, its
+     candidates are left at NEKO_TUNE_INIT otherwise */
+  if (time3[best3] < ((retval == 1) ? time1[best1] : time2[best])) {
+    retval = 3;
   }
 
   HIP_CHECK(hipEventDestroy(start));
@@ -595,16 +838,22 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   /* Leave the output of the chosen kernel in w, see tune() */
   if (retval == 1) {
     CASE_1D_SEL(LX, best1);
-  } else {
+  } else if (retval == 2) {
     CASE_KSTEP_PADDED_SEL(LX, best);
+  } else {
+    CASE_MFMA_SEL(LX, best3);
   }
 
   if (retval == 1) {
     sprintf(neko_log_buf, "Chose        : 1 (1D, %d chunk)",
             NEKO_CHUNKS_SEL(LX, best1));
-  } else {
+  } else if (retval == 2) {
     sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
             NEKO_EB_SEL(LX, best));
+  } else {
+    sprintf(neko_log_buf, "Chose        : 3 (MFMA %s, %d wf, %d elem/blk)",
+            mfma_tile_name(best3), NEKO_MFMA_NWF(best3),
+            NEKO_MFMA_EB(LX, best3));
   }
   log_message(neko_log_buf);
   log_end_section();
@@ -612,158 +861,346 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
 }
 
 /*
- * The vector Ax has no 1d variant, so these only sweep the elements per
- * block candidates. Setting NEKO_AUTOTUNE to anything pins candidate 0,
- * i.e. the one element per block shape these kernels have always had,
- * which is the A/B baseline for the blocking.
+ * The vector Ax has no 1d variant, so the tuner picks between the kstep
+ * family -- one element per block, plus the blocked candidates when the
+ * elements per block sweep is on -- and the matrix core variant, where the
+ * device and the polynomial order allow it. NEKO_AUTOTUNE=KSTEP (or 1D,
+ * there being nothing else to pin it to) narrows the sweep to the kstep
+ * variant, NEKO_AUTOTUNE=MFMA to the matrix core one, and in both cases the
+ * geometry candidates of the named variant are still measured -- it takes
+ * NEKO_EB or NEKO_MFMA_NWF to fix that too, as for the scalar operator.
+ *
+ * @note The section title has to fit the 30 character header field in
+ * log_section(), which truncates rather than wraps -- hence "Ax vector"
+ * rather than the "Ax helm vector" it reads as. It matches the CUDA copy.
  */
 template < const int LX >
 int tune_vector(void *au, void *av, void *aw, void *u, void *v, void *w,
                 void *dx, void *dy, void *dz, void *h1,
                 void *g11, void *g22, void *g33, void *g12,
-                void *g13, void *g23, int *nelv, int *lx) {
+                void *g13, void *g23, int *nelv, int *lx, int *eb_sel,
+                int *nwf_sel) {
   hipEvent_t start, stop;
-  float time[NEKO_EB_CANDIDATES];
+  float time2[NEKO_EB_CANDIDATES];
+  int best2 = 0;
+  float time3[NEKO_MFMA_CANDIDATES];
+  int best3 = 0;
   const int rounds = neko_tune_rounds();
   const int iters = neko_tune_iters();
   const int sweep = neko_eb_sweep();
-  int best = 0;
+  /* Candidates of the kstep sweep, one -- the unblocked shape -- when the
+     elements per block sweep is off */
+  const int eb_cand = sweep ? NEKO_EB_CANDIDATES : 1;
+  /* Candidates of the matrix core sweep, see neko_mfma_candidates() */
+  const int mfma_cand = neko_mfma_candidates();
+  /* Geometry pinned by each formulation's own variable, -1 to sweep it */
+  const int eb_pin = neko_eb_pin();
+  const int nwf_pin = neko_mfma_pin();
+  /* Formulation pinned by NEKO_AUTOTUNE, as the identifier this returns */
+  int strat = 0;
+  /* Hardware capability, which the explicit NEKO_AUTOTUNE=MFMA pin needs */
+  const bool mfma = mfma_lx_supported<LX>() && hip_have_mfma();
+  int retval;
 
   for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
-    time[c] = NEKO_TUNE_INIT;
+    time2[c] = NEKO_TUNE_INIT;
+  }
+  for (int c = 0; c < NEKO_MFMA_CANDIDATES; c++) {
+    time3[c] = NEKO_TUNE_INIT;
   }
 
   const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+  char *env_value = NULL;
   char neko_log_buf[80];
 
-  sprintf(neko_log_buf, "Autotune Ax helm vector (lx: %d)", *lx);
+  env_value = getenv("NEKO_AUTOTUNE");
+
+  sprintf(neko_log_buf, "Autotune Ax vector (lx: %d)", *lx);
   log_section(neko_log_buf);
 
-  /*
-   * Default to one element per block, as on the CUDA backend. These kernels
-   * carry six T[LX] register arrays against the scalar kernels' two, so they
-   * reach the register file limit -- and start spilling to scratch -- well
-   * before a wider block can buy anything. Sweeping them by default was a
-   * regression. Set NEKO_EB_TUNE=1 to opt back into the sweep
-   */
-  if (getenv("NEKO_AUTOTUNE") ||
-      getenv("NEKO_EB") || !neko_eb_sweep()) {
-    const int c = neko_eb_env();
-    CASE_VECTOR_SEL(LX, c);
-    sprintf(neko_log_buf, "Vector Ax    : %d elem/block (untuned)",
-            NEKO_EB_SEL(LX, c));
+  *eb_sel = 0;
+  *nwf_sel = 0;
+
+  /* NEKO_AUTOTUNE names a formulation and nothing more, see tune() */
+  if (env_value) {
+    if ( !strcmp(env_value, "KSTEP") || !strcmp(env_value, "1D") ) {
+      /* No 1d variant here, so either pin lands on kstep */
+      strat = 2;
+    } else if ( !strcmp(env_value, "MFMA") ) {
+      if (mfma) {
+        strat = 3;
+      } else {
+        sprintf(neko_log_buf, "MFMA strategy not available for this config");
+        log_error(neko_log_buf);
+      }
+    } else {
+      sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
+      log_error(neko_log_buf);
+    }
+  }
+
+  /* Formulation and geometry both pinned leaves nothing to measure */
+  const int pin = (strat == 2) ? eb_pin : (strat == 3) ? nwf_pin : -1;
+
+  if (pin >= 0) {
+    if (strat == 2) {
+      *eb_sel = pin;
+      CASE_VECTOR_KSTEP_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 2 (KSTEP, %d elem/block)",
+              NEKO_EB_SEL(LX, pin));
+    } else {
+      *nwf_sel = pin;
+      CASE_VECTOR_MFMA_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 3 (MFMA %s, %d wf, %d elem/blk)",
+              mfma_tile_name(pin), NEKO_MFMA_NWF(pin), NEKO_MFMA_EB(LX, pin));
+    }
     log_message(neko_log_buf);
     log_end_section();
-    return c;
+    return strat;
+  }
+
+  if (strat) {
+    sprintf(neko_log_buf, "Set by env   : %d (%s)", strat, env_value);
+    log_message(neko_log_buf);
+  }
+
+  /* Formulations the sweep considers, see NEKO_TUNE_FOR(). NEKO_MFMA_TUNE
+     keeps the matrix core variant out of an unpinned sweep, but naming it
+     explicitly still measures it */
+  const bool try_kstep = (strat == 0 || strat == 2);
+  const bool try_mfma = mfma && ((strat == 3) ||
+                                 (strat == 0 && neko_mfma_sweep()));
+
+  /* With neither the blocking sweep nor a matrix core variant there is one
+     candidate, which is what these kernels have always run */
+  if (!sweep && !try_mfma) {
+    CASE_VECTOR_KSTEP(LX, 0);
+    sprintf(neko_log_buf, "Vector Ax    : %d elem/block (untuned)",
+            NEKO_EB_SEL(LX, 0));
+    log_message(neko_log_buf);
+    log_end_section();
+    return 2;
   }
 
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
 
+  /* Warm every variant before timing anything, see tune() */
   for (int i = 0; i < NEKO_TUNE_WARMUP; i++) {
-    CASE_VECTOR_KSTEP(LX, 0);
-    CASE_VECTOR_KSTEP(LX, 1);
-    CASE_VECTOR_KSTEP(LX, 2);
+    NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+      CASE_VECTOR_KSTEP_SEL(LX, c);
+    }
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, mfma_cand) {
+      CASE_VECTOR_MFMA_SEL(LX, c);
+    }
   }
 
+  /* Interleaved rounds, best time per variant, see tune() */
   for (int r = 0; r < rounds; r++) {
-    NEKO_TUNE_TIME(time, CASE_VECTOR_KSTEP, LX, 0, iters);
-    NEKO_TUNE_TIME(time, CASE_VECTOR_KSTEP, LX, 1, iters);
-    NEKO_TUNE_TIME(time, CASE_VECTOR_KSTEP, LX, 2, iters);
+    NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+      NEKO_TUNE_TIME(time2, CASE_VECTOR_KSTEP_SEL, LX, c, iters);
+    }
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, mfma_cand) {
+      NEKO_TUNE_TIME(time3, CASE_VECTOR_MFMA_SEL, LX, c, iters);
+    }
   }
 
-  for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
-    sprintf(neko_log_buf, "eb=%-4d      : %9.2f us/call",
-            NEKO_EB_SEL(LX, c), time[c] * 10.0);
-    log_message(neko_log_buf);
-  }
+  NEKO_TUNE_LOG_KSTEP(LX, time2);
+  NEKO_TUNE_LOG_MFMA_VEC(LX, time3);
 
-  NEKO_TUNE_BEST(time, best, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_BEST(time2, best2, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_BEST(time3, best3, NEKO_MFMA_CANDIDATES);
+  *eb_sel = best2;
+  *nwf_sel = best3;
+
+  /* The mfma variant joins the comparison only where it exists, its
+     candidates are left at NEKO_TUNE_INIT otherwise */
+  retval = (time3[best3] < time2[best2]) ? 3 : 2;
 
   HIP_CHECK(hipEventDestroy(start));
   HIP_CHECK(hipEventDestroy(stop));
 
-  /* Leave the output of the chosen kernel in au/av/aw */
-  CASE_VECTOR_SEL(LX, best);
-
-  sprintf(neko_log_buf, "Chose        : %d elem/block", NEKO_EB_SEL(LX, best));
+  /* The tuner stands in for a real Ax evaluation, and the variants do not
+     sum in the same order, so leave the output of the chosen kernel in
+     au, av and aw */
+  if (retval == 2) {
+    CASE_VECTOR_KSTEP_SEL(LX, best2);
+    sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
+            NEKO_EB_SEL(LX, best2));
+  } else {
+    CASE_VECTOR_MFMA_SEL(LX, best3);
+    sprintf(neko_log_buf, "Chose        : 3 (MFMA %s, %d wf, %d elem/blk)",
+            mfma_tile_name(best3), NEKO_MFMA_NWF(best3),
+            NEKO_MFMA_EB(LX, best3));
+  }
   log_message(neko_log_buf);
   log_end_section();
-  return best;
+  return retval;
 }
 
+/* Padded variant of tune_vector(), for the orders whose kstep kernel stages
+   with a padded stride. The matrix core variant is the same either way */
 template < const int LX >
 int tune_vector_padded(void *au, void *av, void *aw,
                        void *u, void *v, void *w,
                        void *dx, void *dy, void *dz, void *h1,
                        void *g11, void *g22, void *g33, void *g12,
-                       void *g13, void *g23, int *nelv, int *lx) {
+                       void *g13, void *g23, int *nelv, int *lx, int *eb_sel,
+                       int *nwf_sel) {
   hipEvent_t start, stop;
-  float time[NEKO_EB_CANDIDATES];
+  float time2[NEKO_EB_CANDIDATES];
+  int best2 = 0;
+  float time3[NEKO_MFMA_CANDIDATES];
+  int best3 = 0;
   const int rounds = neko_tune_rounds();
   const int iters = neko_tune_iters();
   const int sweep = neko_eb_sweep();
-  int best = 0;
+  /* Candidates of the kstep sweep, one -- the unblocked shape -- when the
+     elements per block sweep is off */
+  const int eb_cand = sweep ? NEKO_EB_CANDIDATES : 1;
+  /* Candidates of the matrix core sweep, see neko_mfma_candidates() */
+  const int mfma_cand = neko_mfma_candidates();
+  /* Geometry pinned by each formulation's own variable, -1 to sweep it */
+  const int eb_pin = neko_eb_pin();
+  const int nwf_pin = neko_mfma_pin();
+  /* Formulation pinned by NEKO_AUTOTUNE, as the identifier this returns */
+  int strat = 0;
+  /* Hardware capability, which the explicit NEKO_AUTOTUNE=MFMA pin needs */
+  const bool mfma = mfma_lx_supported<LX>() && hip_have_mfma();
+  int retval;
 
   for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
-    time[c] = NEKO_TUNE_INIT;
+    time2[c] = NEKO_TUNE_INIT;
+  }
+  for (int c = 0; c < NEKO_MFMA_CANDIDATES; c++) {
+    time3[c] = NEKO_TUNE_INIT;
   }
 
   const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+  char *env_value = NULL;
   char neko_log_buf[80];
 
-  sprintf(neko_log_buf, "Autotune Ax helm vector (lx: %d)", *lx);
+  env_value = getenv("NEKO_AUTOTUNE");
+
+  sprintf(neko_log_buf, "Autotune Ax vector (lx: %d)", *lx);
   log_section(neko_log_buf);
 
-  /*
-   * Default to one element per block, as on the CUDA backend. These kernels
-   * carry six T[LX] register arrays against the scalar kernels' two, so they
-   * reach the register file limit -- and start spilling to scratch -- well
-   * before a wider block can buy anything. Sweeping them by default was a
-   * regression. Set NEKO_EB_TUNE=1 to opt back into the sweep
-   */
-  if (getenv("NEKO_AUTOTUNE") ||
-      getenv("NEKO_EB") || !neko_eb_sweep()) {
-    const int c = neko_eb_env();
-    CASE_VECTOR_PADDED_SEL(LX, c);
-    sprintf(neko_log_buf, "Vector Ax    : %d elem/block (untuned)",
-            NEKO_EB_SEL(LX, c));
+  *eb_sel = 0;
+  *nwf_sel = 0;
+
+  /* NEKO_AUTOTUNE names a formulation and nothing more, see tune() */
+  if (env_value) {
+    if ( !strcmp(env_value, "KSTEP") || !strcmp(env_value, "1D") ) {
+      /* No 1d variant here, so either pin lands on kstep */
+      strat = 2;
+    } else if ( !strcmp(env_value, "MFMA") ) {
+      if (mfma) {
+        strat = 3;
+      } else {
+        sprintf(neko_log_buf, "MFMA strategy not available for this config");
+        log_error(neko_log_buf);
+      }
+    } else {
+      sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
+      log_error(neko_log_buf);
+    }
+  }
+
+  /* Formulation and geometry both pinned leaves nothing to measure */
+  const int pin = (strat == 2) ? eb_pin : (strat == 3) ? nwf_pin : -1;
+
+  if (pin >= 0) {
+    if (strat == 2) {
+      *eb_sel = pin;
+      CASE_VECTOR_KSTEP_PADDED_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 2 (KSTEP, %d elem/block)",
+              NEKO_EB_SEL(LX, pin));
+    } else {
+      *nwf_sel = pin;
+      CASE_VECTOR_MFMA_SEL(LX, pin);
+      sprintf(neko_log_buf, "Set by env   : 3 (MFMA %s, %d wf, %d elem/blk)",
+              mfma_tile_name(pin), NEKO_MFMA_NWF(pin), NEKO_MFMA_EB(LX, pin));
+    }
     log_message(neko_log_buf);
     log_end_section();
-    return c;
+    return strat;
+  }
+
+  if (strat) {
+    sprintf(neko_log_buf, "Set by env   : %d (%s)", strat, env_value);
+    log_message(neko_log_buf);
+  }
+
+  /* Formulations the sweep considers, see NEKO_TUNE_FOR(). NEKO_MFMA_TUNE
+     keeps the matrix core variant out of an unpinned sweep, but naming it
+     explicitly still measures it */
+  const bool try_kstep = (strat == 0 || strat == 2);
+  const bool try_mfma = mfma && ((strat == 3) ||
+                                 (strat == 0 && neko_mfma_sweep()));
+
+  /* One candidate, see tune_vector() */
+  if (!sweep && !try_mfma) {
+    CASE_VECTOR_KSTEP_PADDED(LX, 0);
+    sprintf(neko_log_buf, "Vector Ax    : %d elem/block (untuned)",
+            NEKO_EB_SEL(LX, 0));
+    log_message(neko_log_buf);
+    log_end_section();
+    return 2;
   }
 
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
 
+  /* Warm every variant before timing anything, see tune() */
   for (int i = 0; i < NEKO_TUNE_WARMUP; i++) {
-    CASE_VECTOR_KSTEP_PADDED(LX, 0);
-    CASE_VECTOR_KSTEP_PADDED(LX, 1);
-    CASE_VECTOR_KSTEP_PADDED(LX, 2);
+    NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+      CASE_VECTOR_KSTEP_PADDED_SEL(LX, c);
+    }
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, mfma_cand) {
+      CASE_VECTOR_MFMA_SEL(LX, c);
+    }
   }
 
+  /* Interleaved rounds, best time per variant, see tune() */
   for (int r = 0; r < rounds; r++) {
-    NEKO_TUNE_TIME(time, CASE_VECTOR_KSTEP_PADDED, LX, 0, iters);
-    NEKO_TUNE_TIME(time, CASE_VECTOR_KSTEP_PADDED, LX, 1, iters);
-    NEKO_TUNE_TIME(time, CASE_VECTOR_KSTEP_PADDED, LX, 2, iters);
+    NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+      NEKO_TUNE_TIME(time2, CASE_VECTOR_KSTEP_PADDED_SEL, LX, c, iters);
+    }
+    NEKO_TUNE_FOR(c, try_mfma, nwf_pin, mfma_cand) {
+      NEKO_TUNE_TIME(time3, CASE_VECTOR_MFMA_SEL, LX, c, iters);
+    }
   }
 
-  for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {
-    sprintf(neko_log_buf, "eb=%-4d      : %9.2f us/call",
-            NEKO_EB_SEL(LX, c), time[c] * 10.0);
-    log_message(neko_log_buf);
-  }
+  NEKO_TUNE_LOG_KSTEP(LX, time2);
+  NEKO_TUNE_LOG_MFMA_VEC(LX, time3);
 
-  NEKO_TUNE_BEST(time, best, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_BEST(time2, best2, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_BEST(time3, best3, NEKO_MFMA_CANDIDATES);
+  *eb_sel = best2;
+  *nwf_sel = best3;
+
+  /* The mfma variant joins the comparison only where it exists, its
+     candidates are left at NEKO_TUNE_INIT otherwise */
+  retval = (time3[best3] < time2[best2]) ? 3 : 2;
 
   HIP_CHECK(hipEventDestroy(start));
   HIP_CHECK(hipEventDestroy(stop));
 
-  /* Leave the output of the chosen kernel in au/av/aw */
-  CASE_VECTOR_PADDED_SEL(LX, best);
-
-  sprintf(neko_log_buf, "Chose        : %d elem/block", NEKO_EB_SEL(LX, best));
+  /* Leave the output of the chosen kernel in au, av and aw, see
+     tune_vector() */
+  if (retval == 2) {
+    CASE_VECTOR_KSTEP_PADDED_SEL(LX, best2);
+    sprintf(neko_log_buf, "Chose        : 2 (KSTEP, %d elem/block)",
+            NEKO_EB_SEL(LX, best2));
+  } else {
+    CASE_VECTOR_MFMA_SEL(LX, best3);
+    sprintf(neko_log_buf, "Chose        : 3 (MFMA %s, %d wf, %d elem/blk)",
+            mfma_tile_name(best3), NEKO_MFMA_NWF(best3),
+            NEKO_MFMA_EB(LX, best3));
+  }
   log_message(neko_log_buf);
   log_end_section();
-  return best;
+  return retval;
 }

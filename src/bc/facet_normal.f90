@@ -39,7 +39,7 @@ module facet_normal
        device_masked_scatter_copy_0
   use vector, only : vector_t
   use coefs, only : coef_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use utils, only : neko_error, nonlinear_index
   use json_module, only : json_file
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated
@@ -64,6 +64,8 @@ module facet_normal
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
      procedure, pass(this) :: apply_surfvec_dev => &
           facet_normal_apply_surfvec_dev
+     procedure, pass(this) :: apply_surfvec_sub => &
+          facet_normal_apply_surfvec_sub
      ! > Recompute normals
      procedure, pass(this) :: recompute_normals => facet_normal_recompute_normals
      !> Constructor.
@@ -97,6 +99,7 @@ contains
     type(coef_t), target, intent(in) :: coef
 
     call this%init_base(coef)
+    this%bc_type = BC_DIRICHLET
   end subroutine facet_normal_init_from_components
 
   !> No-op scalar apply
@@ -153,13 +156,12 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: v
     real(kind=rp), intent(inout), dimension(n) :: w
     type(time_state_t), intent(in), optional :: time
-    integer :: i, m, k, idx(4), facet
-    real(kind=rp) :: normal(3), area
+    integer :: i, m, k
 
     m = this%unique_mask(0)
     ! Since apply_surfvec is called outside of the parallel region, we
     ! need to open a separate parallel region here
-    !$omp parallel do
+    !$omp parallel do private(k)
     do i = 1, m
        k = this%unique_mask(i)
        x(k) = u(k) * this%nx%x(i)
@@ -169,6 +171,49 @@ contains
     !$omp end parallel do
 
   end subroutine facet_normal_apply_surfvec
+
+  !> Subtract the normal projection of a vector from a scalar field, on the
+  !! facet nodes only.
+  !! @details Computes `res(k) = res(k) - c * (u,v,w)(k) . n(k)` over the
+  !! unique facet-node mask. This is the fused form of zeroing three full
+  !! fields, calling apply_surfvec into them, and then reading all three back
+  !! across the whole domain: the surface term is nonzero only on the mask, so
+  !! the full-field traffic carries nothing. Safe to accumulate in place
+  !! because unique_mask visits every dof exactly once, with the normals of
+  !! all adjoining faces already summed into nx/ny/nz (see finalize).
+  !!
+  !! @note This carries orphaned worksharing rather than opening its own
+  !! parallel region, so the caller can cover several of these and the loops
+  !! around them with one region. The trailing barrier of the `!$omp do` is
+  !! required: consecutive calls read and write the same `res` entries wherever
+  !! two facet masks meet. Encountered outside a parallel region it still gives
+  !! the right answer, just on one thread.
+  !! @param res Scalar field to subtract from.
+  !! @param u First component of the vector.
+  !! @param v Second component of the vector.
+  !! @param w Third component of the vector.
+  !! @param c Scalar coefficient applied to the projection.
+  !! @param n Number of entries in each array.
+  subroutine facet_normal_apply_surfvec_sub(this, res, u, v, w, c, n)
+    class(facet_normal_t), intent(in) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: res
+    real(kind=rp), intent(in), dimension(n) :: u
+    real(kind=rp), intent(in), dimension(n) :: v
+    real(kind=rp), intent(in), dimension(n) :: w
+    real(kind=rp), intent(in) :: c
+    integer :: i, m, k
+
+    m = this%unique_mask(0)
+    !$omp do
+    do i = 1, m
+       k = this%unique_mask(i)
+       res(k) = res(k) - c * (u(k) * this%nx%x(i) &
+            + v(k) * this%ny%x(i) + w(k) * this%nz%x(i))
+    end do
+    !$omp end do
+
+  end subroutine facet_normal_apply_surfvec_sub
 
   !> Apply in facet normal direction (vector valued, device version)
   subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, &
@@ -230,21 +275,17 @@ contains
   end subroutine facet_normal_free
 
   !> Finalize
-  subroutine facet_normal_finalize(this, only_facets)
+  subroutine facet_normal_finalize(this)
     class(facet_normal_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
     type(htable_i4_t) :: unique_point_idx
     integer :: htable_data, rcode, i, j, idx(4), facet
     real(kind=rp) :: area, normal(3)
 
-    if (present(only_facets)) then
-       if (.not. only_facets) then
-          call neko_error("For facet_normal_t, only_facets has to be true.")
-       end if
-    end if
+    ! Here and in recompute_normals(), which only runs after this
+    call this%coef%require_facets('facet_normal')
 
-    call this%finalize_base(.true.)
+    call this%finalize_base()
+
     ! This part is purely needed to ensure that contributions
     ! for all faces a point is on is properly summed up.
     ! If one simply uses the original mask, if a point is on a corner
@@ -252,7 +293,7 @@ contains
     ! one will only get the contribution from one face, not both
     ! We solve this by adding up the normals of both faces for these points
     ! and storing this sum in this%nx, this%ny, this%nz.
-    ! As both contrbutions are added already,
+    ! As both contributions are added already,
     ! we also ensure that we only visit each point once
     ! and create a new mask with only unique points (this%unique_mask).
     if (allocated(this%unique_mask)) then
@@ -263,13 +304,14 @@ contains
     end if
     if (allocated(this%msk_to_unique)) deallocate(this%msk_to_unique)
 
-    call unique_point_idx%init(this%msk(0), htable_data)
+    call unique_point_idx%init(this%facet_node_msk(0), htable_data)
     j = 0
-    do i = 1, this%msk(0)
-       if (unique_point_idx%get(this%msk(i), htable_data) .ne. 0) then
+    do i = 1, this%facet_node_msk(0)
+       if (unique_point_idx%get(this%facet_node_msk(i), &
+            htable_data) .ne. 0) then
           j = j + 1
           htable_data = j
-          call unique_point_idx%set(this%msk(i), j)
+          call unique_point_idx%set(this%facet_node_msk(i), j)
        end if
     end do
 
@@ -281,7 +323,7 @@ contains
        call this%work%init(unique_point_idx%num_entries())
     end if
     allocate(this%unique_mask(0:unique_point_idx%num_entries()))
-    allocate(this%msk_to_unique(this%msk(0)))
+    allocate(this%msk_to_unique(this%facet_node_msk(0)))
 
     this%unique_mask(0) = unique_point_idx%num_entries()
     do i = 1, this%unique_mask(0)
@@ -289,16 +331,17 @@ contains
     end do
 
 
-    do i = 1, this%msk(0)
-       rcode = unique_point_idx%get(this%msk(i), htable_data)
+    do i = 1, this%facet_node_msk(0)
+       rcode = unique_point_idx%get(this%facet_node_msk(i), htable_data)
        if (rcode .ne. 0) call neko_error("Facet normal: htable get failed.")
-       this%unique_mask(htable_data) = this%msk(i)
+       this%unique_mask(htable_data) = this%facet_node_msk(i)
 
        ! Save the slot so recompute_normals can use it without the hash table.
        this%msk_to_unique(i) = htable_data
        facet = this%facet(i)
 
-       idx = nonlinear_index(this%msk(i), this%Xh%lx, this%Xh%lx, this%Xh%lx)
+       idx = nonlinear_index(this%facet_node_msk(i), this%Xh%lx, this%Xh%lx, &
+            this%Xh%lx)
        normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
        area = this%coef%get_area(idx(1), idx(2), idx(3), idx(4), facet)
        normal = normal * area !Scale normal by area
@@ -340,11 +383,12 @@ contains
        this%nz%x(i) = 0.0_rp
     end do
 
-    do i = 1, this%msk(0)
+    do i = 1, this%facet_node_msk(0)
        htable_data = this%msk_to_unique(i)
        facet = this%facet(i)
 
-       idx = nonlinear_index(this%msk(i), this%Xh%lx, this%Xh%lx, this%Xh%lx)
+       idx = nonlinear_index(this%facet_node_msk(i), this%Xh%lx, this%Xh%lx, &
+            this%Xh%lx)
        normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
        area = this%coef%get_area(idx(1), idx(2), idx(3), idx(4), facet)
        normal = normal * area !Scale normal by area

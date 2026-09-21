@@ -32,7 +32,7 @@
 !
 !> Defines the abstract interface for wall-model field samplers.
 module wall_sampler
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field, only : field_t
   use coefs, only : coef_t
   use vector, only : vector_t
@@ -147,7 +147,7 @@ contains
        call neko_error('Wall sampler distances have an invalid size')
     end if
 
-    call this%h%free()
+    call this%h%init(h%size())
     this%n_nodes = n_nodes
     this%n_samples = n_samples
     this%user_values = .false.
@@ -193,7 +193,7 @@ contains
 
     call output%init(rp, 'wall_model_h_' // trim(bc_name), 1)
     call output%fields%assign_to_ptr(1, h_field)
-    call output%sample(0.0_rp)
+    call output%sample(0.0_dp)
     call output%free()
 
     call neko_scratch_registry%relinquish_field(scratch_index)

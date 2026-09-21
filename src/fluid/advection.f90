@@ -32,7 +32,7 @@
 !
 !> Subroutines to add advection terms to the RHS of a transport equation.
 module advection
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use space, only : space_t
   use field, only : field_t
   use coefs, only : coef_t
@@ -73,8 +73,8 @@ module advection
        type(json_file), intent(inout) :: json
        type(coef_t), intent(inout), target :: coef
        type(field_series_t), intent(in), target :: ulag, vlag, wlag
-       real(kind=rp), intent(in), target :: dtlag(10)
-       real(kind=rp), intent(in), target :: tlag(10)
+       real(kind=dp), intent(in), target :: dtlag(10)
+       real(kind=dp), intent(in), target :: tlag(10)
        type(time_scheme_controller_t), intent(in), target :: time_scheme
        logical, optional, intent(in) :: use_dummy
        type(field_series_t), target, optional, intent(in) :: slag
@@ -158,7 +158,7 @@ module advection
      !! @param n Typically the size of the mesh.
      !! @param dt Current time step used in OIFS method.
      subroutine compute_ale_adv(this, vx, vy, vz, wm_x, wm_y, wm_z, &
-                                           fx, fy, fz, Xh, coef, n, dt)
+          fx, fy, fz, Xh, coef, n, dt)
        import :: advection_t
        import :: coef_t
        import :: space_t

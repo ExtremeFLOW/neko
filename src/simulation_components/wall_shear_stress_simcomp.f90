@@ -32,7 +32,7 @@
 !
 !> Implements the `wall_shear_stress_t` type.
 module wall_shear_stress_simcomp
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use simulation_component, only : simulation_component_t
@@ -305,11 +305,11 @@ contains
     class(case_t), intent(inout), target :: case
     integer, intent(in) :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: output_value
     character(len=*), intent(in) :: computed_field
     character(len=*), intent(in) :: viscosity_field
     integer, intent(in) :: zone_indices(:)
@@ -398,7 +398,6 @@ contains
     if (this%want_mag) this%tau_mag => &
          neko_registry%get_field_by_name(trim(computed_field) // "_mag")
 
-    ! only_facets = .true.
     ! The normals are requested in the `coef` convention, pointing out of the
     ! fluid domain, because that is what `calc_force_array` expects. The
     ! outward convention would flip the sign of the computed traction.

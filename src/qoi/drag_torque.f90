@@ -143,7 +143,7 @@ contains
     do mem = 1, zone%size
        ie = zone%facet_el(mem)%x(2)
        ifc = zone%facet_el(mem)%x(1)
-       call drag_torque_facet(dgtq, coef%dof%x, coef%dof%y, coef%dof%z, &
+       call drag_torque_facet(dgtq, coef%dof%x%x, coef%dof%y%x, coef%dof%z%x, &
             center, s11, s22, s33, s12, s13, s23, p%x, visc, ifc, ie, coef, &
             coef%Xh)
 
@@ -473,11 +473,13 @@ contains
     real(kind=rp) :: normal(3), area
     integer :: i
 
+    call coef%require_facets('drag_torque')
+
     do i = 1, n_pts
        fid = facets(i)
        if ( (fid .lt. 1) .or. (fid .gt. 6)) then
           call neko_error('setup_normals: invalid facet id. ' // &
-               'Finalize the bc with only_facets = .true.')
+               'Pass bc%facet_node_msk, not bc%msk.')
        end if
        idx = nonlinear_index(mask(i), coef%Xh%lx, coef%Xh%lx, coef%Xh%lx)
        normal = coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)

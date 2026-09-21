@@ -6,7 +6,7 @@ program average_fields_in_time
 
   character(len=NEKO_FNAME_LEN) :: in_fname, out_fname, inputchar
   character(len=80) :: extension
-  real(kind=rp) :: start_time
+  real(kind=dp) :: start_time
   integer :: argc
 
   argc = command_argument_count()
@@ -88,11 +88,12 @@ contains
   !! start to be sampled.
   subroutine avg_flds_in_time_fld(fld_fname, output_fname, start_time)
     character(len=NEKO_FNAME_LEN), intent(in) :: fld_fname, output_fname
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
 
     type(file_t) :: fld_file, output_file
     type(fld_file_data_t) :: fld_data, fld_data_avg
     character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: dt
     integer :: i
 
     call fld_file%init(trim(fld_fname))
@@ -105,19 +106,25 @@ contains
     write (log_buf, '(A, g0)') "dt: ", fld_data_avg%time - start_time
     call neko_log%message(log_buf)
 
-    call fld_data_avg%scale(fld_data_avg%time-start_time)
+    dt = real(fld_data_avg%time - start_time, kind=rp)
+    call fld_data_avg%scale(dt)
 
     do i = 1, fld_data_avg%meta_nsamples-1
        call fld_file%read(fld_data)
-       call fld_data%scale(fld_data%time-fld_data_avg%time)
+
+       dt = real(fld_data%time - fld_data_avg%time, kind=rp)
+       call fld_data%scale(dt)
        call fld_data_avg%add(fld_data)
 
-       write (log_buf, '(A, g0)') "dt: ", fld_data%time - fld_data_avg%time
+       write (log_buf, '(A, g0)') "dt: ", dt
        call neko_log%message(log_buf)
 
        fld_data_avg%time = fld_data%time
     end do
-    call fld_data_avg%scale(1.0_rp/(fld_data_avg%time-start_time))
+
+    ! Divide the sum by the total length of the signal
+    dt = real(1.0_dp/(fld_data_avg%time-start_time), kind=rp)
+    call fld_data_avg%scale(dt)
 
     call output_file%init(trim(output_fname))
 
@@ -148,7 +155,7 @@ contains
   !!       etc...
   subroutine avg_flds_in_time_csv(in_fname, out_fname, start_time)
     character(len=NEKO_FNAME_LEN), intent(in) :: in_fname, out_fname
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
 
     type(file_t) :: out_file
     type(matrix_t) :: data, avg_data
@@ -184,11 +191,13 @@ contains
 
        block
          integer :: i
-         real(kind=rp) :: dt, ta, tb
+         real(kind=dp) :: ta, tb
+         real(kind=rp) :: dt
 
          tb = data%x(1,1) ! First time stamp
          ta = start_time ! User defined
-         dt = tb - ta ! First "sampling length"
+         dt = real(tb - ta, kind=rp) ! First "sampling length"
+
          write (log_buf, '(A,I0,A,I0,A,g0)') "Length of sample ", 1, "/", &
               n_samples, ": ", dt
          call neko_log%message(log_buf)
@@ -200,7 +209,7 @@ contains
 
             ta = data%x(sample_size*(i-1) + 1, 1) ! Previous time stamp
             tb = data%x(sample_size* i + 1, 1) ! Current time stamp
-            dt = tb - ta ! Sampling time for the current sample
+            dt = real(tb - ta, kind=rp) ! Sampling time for the current sample
 
             write (log_buf, '(A,I0,A,I0,A,g0)') "Length of sample ", i+1, "/", &
                  n_samples, ": ", dt

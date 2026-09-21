@@ -32,7 +32,7 @@
 !
 !> Implements type spectral_error_t.
 module spectral_error
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field, only : field_t
   use coefs, only : coef_t
   use field_list, only : field_list_t
@@ -348,7 +348,7 @@ contains
   !! @param t Current simulation time.
   subroutine spectral_error_write(this, t)
     class(spectral_error_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
 
     integer i, e
     integer lx, ly, lz, nelv

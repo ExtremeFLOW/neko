@@ -32,7 +32,7 @@
 !
 !> Implements type field_subsampler_t.
 module field_subsampler
-  use num_types, only : rp
+  use num_types, only : dp
   use field, only : field_t
   use coefs, only : coef_t
   use time_state, only : time_state_t
@@ -194,7 +194,7 @@ contains
     end if
 
     ! Check the dofmap
-    is_valid = (this%dof%global_size() .gt. 0 .and. allocated(this%dof%x))
+    is_valid = (this%dof%global_size() .gt. 0 .and. allocated(this%dof%x%x))
     if (.not. is_valid) call neko_error("Dofmap not initialized or empty")
 
     ! Check the internal field list, pointing to the fields in the registry
@@ -629,11 +629,11 @@ contains
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: output_value
     character(len=*), intent(in) :: which_fields(:)
     integer, intent(in), optional :: lx
     class(point_zone_t), pointer, intent(in), optional :: point_zone

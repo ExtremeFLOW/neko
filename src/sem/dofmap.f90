@@ -37,10 +37,11 @@ module dofmap
   use mesh, only : mesh_t
   use mask, only : mask_t
   use space, only : space_t, GLL
-  use tuple, only : tuple_i4_t, tuple4_i4_t
+  use tuple, only : tuple4_i4_t
   use num_types, only : i4, i8, rp, xp
   use utils, only : neko_error, neko_warning
   use fast3d, only : fd_weights_full
+  use tensor4, only: tensor4_t
   use tensor, only : tensr3, tnsr2d_el, trsp, addtnsr
   use device, only : device_map, device_memcpy, HOST_TO_DEVICE, device_unmap, &
        DEVICE_TO_HOST
@@ -57,21 +58,14 @@ module dofmap
   type, public :: dofmap_t
      integer(kind=i8), allocatable :: dof(:,:,:,:) !< Mapping to unique dof
      logical, allocatable :: shared_dof(:,:,:,:) !< True if the dof is shared
-     real(kind=rp), allocatable :: x(:,:,:,:) !< Mapping to x-coordinates
-     real(kind=rp), allocatable :: y(:,:,:,:) !< Mapping to y-coordinates
-     real(kind=rp), allocatable :: z(:,:,:,:) !< Mapping to z-coordinates
+     type(tensor4_t) :: x !< Mapping to x-coordinates
+     type(tensor4_t) :: y !< Mapping to y-coordinates
+     type(tensor4_t) :: z !< Mapping to z-coordinates
      integer, private :: ntot !< Local number of dofs
 
      type(mesh_t), pointer :: msh
      type(mesh_t), allocatable :: msh_subset
      type(space_t), pointer :: Xh
-
-     !
-     ! Device pointers (if present)
-     !
-     type(c_ptr) :: x_d = C_NULL_PTR
-     type(c_ptr) :: y_d = C_NULL_PTR
-     type(c_ptr) :: z_d = C_NULL_PTR
 
    contains
      !> Constructor.
@@ -134,29 +128,16 @@ contains
     ! Generate x,y,z-coordinates for all dofs
     !
 
-    allocate(this%x(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
-    allocate(this%y(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
-    allocate(this%z(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
+    call this%x%init(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    call this%y%init(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    call this%z%init(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    this%x = 0d0
-    this%y = 0d0
-    this%z = 0d0
+    this%x = 0.0_rp
+    this%y = 0.0_rp
+    this%z = 0.0_rp
+
     !> @note should be intialised differently in axissymmetric case
-
     call dofmap_generate_xyz(this)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%x, this%x_d, this%ntot)
-       call device_map(this%y, this%y_d, this%ntot)
-       call device_map(this%z, this%z_d, this%ntot)
-
-       call device_memcpy(this%x, this%x_d, this%ntot, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%y, this%y_d, this%ntot, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%z, this%z_d, this%ntot, &
-            HOST_TO_DEVICE, sync = .false.)
-    end if
 
   end subroutine dofmap_init
 
@@ -176,29 +157,16 @@ contains
     if (dof%Xh%lxyz .ne. this%Xh%lxyz) then
        call interpolator%init(this%Xh, dof%Xh)
 
-       call interpolator%map(this%x, &
-            dof%x, &
-            this%msh%nelv, this%Xh)
-       call interpolator%map(this%y, &
-            dof%y, &
-            this%msh%nelv, this%Xh)
-       call interpolator%map(this%z, &
-            dof%z, &
-            this%msh%nelv, this%Xh)
+       call interpolator%map(this%x%x, dof%x%x, this%msh%nelv, this%Xh)
+       call interpolator%map(this%y%x, dof%y%x, this%msh%nelv, this%Xh)
+       call interpolator%map(this%z%x, dof%z%x, this%msh%nelv, this%Xh)
 
        call interpolator%free()
 
     else
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_copy(this%x_d, dof%x_d, this%ntot)
-          call device_copy(this%y_d, dof%y_d, this%ntot)
-          call device_copy(this%z_d, dof%z_d, this%ntot)
-       else
-          call copy(this%x, dof%x, this%ntot)
-          call copy(this%y, dof%y, this%ntot)
-          call copy(this%z, dof%z, this%ntot)
-       end if
-
+       this%x = dof%x
+       this%y = dof%y
+       this%z = dof%z
     end if
 
   end subroutine dofmap_init_and_map
@@ -215,26 +183,9 @@ contains
        deallocate(this%shared_dof)
     end if
 
-    if (allocated(this%x)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%x, this%x_d)
-       end if
-       deallocate(this%x)
-    end if
-
-    if (allocated(this%y)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%y, this%y_d)
-       end if
-       deallocate(this%y)
-    end if
-
-    if (allocated(this%z)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%z, this%z_d)
-       end if
-       deallocate(this%z)
-    end if
+    call this%x%free()
+    call this%y%free()
+    call this%z%free()
 
     nullify(this%msh)
     nullify(this%Xh)
@@ -269,16 +220,17 @@ contains
 
     msh => this%msh
     Xh => this%Xh
+    !$omp parallel do private(il,jl,ix,iy,iz)
     do il = 1, msh%nelv
        do jl = 1, msh%npts
           ix = mod(jl - 1, 2) * (Xh%lx - 1) + 1
           iy = (mod(jl - 1, 4)/2) * (Xh%ly - 1) + 1
           iz = ((jl - 1)/4) * (Xh%lz - 1) + 1
           this%dof(ix, iy, iz, il) = int(msh%elements(il)%e%pts(jl)%p%id(), i8)
-          this%shared_dof(ix, iy, iz, il) = &
-               msh%is_shared(msh%elements(il)%e%pts(jl)%p)
+          this%shared_dof(ix, iy, iz, il) = msh%is_shared_point(il, jl)
        end do
     end do
+    !$omp end parallel do
   end subroutine dofmap_number_points
 
   !> Assing numbers to dofs on edges
@@ -288,7 +240,6 @@ contains
     type(space_t), pointer :: Xh
     integer :: i,j,k
     integer :: global_id
-    type(tuple_i4_t) :: edge
     integer(kind=i8) :: num_dofs_edges(3) ! #dofs for each dir (r, s, t)
     integer(kind=i8) :: edge_id, edge_offset
     logical :: shared_dof
@@ -302,7 +253,7 @@ contains
     num_dofs_edges(3) = int(Xh%lz - 2, i8)
     edge_offset = int(msh%glb_mpts, i8) + int(1, i8)
 
-    !$omp parallel do private(i,j,k,global_id,edge,edge_id,shared_dof)
+    !$omp parallel do private(i,j,k,global_id,edge_id,shared_dof)
     do i = 1, msh%nelv
 
        select type (ep => msh%elements(i)%e)
@@ -310,12 +261,11 @@ contains
           !
           ! Number edges in r-direction
           !
-          call ep%edge_id(edge, 1)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 1)
+          global_id = msh%get_global_edge(i, 1)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           !Reverse order of tranversal if edge is reversed
-          if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
+          if (this%dof(1,1,1,i) .gt. this%dof(Xh%lx, 1, 1, i)) then
              do concurrent (j = 2:Xh%lx - 1)
                 k = Xh%lx+1-j
                 this%dof(k, 1, 1, i) = edge_id + (j-2)
@@ -329,11 +279,10 @@ contains
              end do
           end if
 
-          call ep%edge_id(edge, 3)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 3)
+          global_id = msh%get_global_edge(i, 3)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          if (int(edge%x(1), i8) .ne. this%dof(1, 1, Xh%lz, i)) then
+          if (this%dof(1, 1, Xh%lz, i) .gt. this%dof(Xh%lx, 1, Xh%lz, i)) then
              do concurrent (j = 2:Xh%lx - 1)
                 k = Xh%lx+1-j
                 this%dof(k, 1, Xh%lz, i) = edge_id + (j-2)
@@ -347,11 +296,10 @@ contains
              end do
           end if
 
-          call ep%edge_id(edge, 2)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 2)
+          global_id = msh%get_global_edge(i, 2)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          if (int(edge%x(1), i8) .ne. this%dof(1, Xh%ly, 1, i)) then
+          if (this%dof(1, Xh%ly, 1, i) .gt. this%dof(Xh%lx, Xh%ly, 1, i)) then
              do concurrent (j = 2:Xh%lx - 1)
                 k = Xh%lx+1-j
                 this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
@@ -365,11 +313,11 @@ contains
              end do
           end if
 
-          call ep%edge_id(edge, 4)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 4)
+          global_id = msh%get_global_edge(i, 4)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          if (int(edge%x(1), i8) .ne. this%dof(1, Xh%ly, Xh%lz, i)) then
+          if (this%dof(1, Xh%ly, Xh%lz, i) .gt. &
+               this%dof(Xh%lx, Xh%ly, Xh%lz, i)) then
              do concurrent (j = 2:Xh%lx - 1)
                 k = Xh%lx+1-j
                 this%dof(k, Xh%ly, Xh%lz, i) = edge_id + (j-2)
@@ -387,11 +335,10 @@ contains
           !
           ! Number edges in s-direction
           !
-          call ep%edge_id(edge, 5)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 5)
+          global_id = msh%get_global_edge(i, 5)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
+          if (this%dof(1,1,1,i) .gt. this%dof(1, Xh%ly, 1, i)) then
              do concurrent (j = 2:Xh%ly - 1)
                 k = Xh%ly+1-j
                 this%dof(1, k, 1, i) = edge_id + (j-2)
@@ -405,11 +352,10 @@ contains
              end do
           end if
 
-          call ep%edge_id(edge, 7)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 7)
+          global_id = msh%get_global_edge(i, 7)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          if (int(edge%x(1), i8) .ne. this%dof(1, 1, Xh%lz, i)) then
+          if (this%dof(1, 1, Xh%lz, i) .gt. this%dof(1, Xh%ly, Xh%lz, i)) then
              do concurrent (j = 2:Xh%ly - 1)
                 k = Xh%ly+1-j
                 this%dof(1, k, Xh%lz, i) = edge_id + (j-2)
@@ -423,11 +369,10 @@ contains
              end do
           end if
 
-          call ep%edge_id(edge, 6)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 6)
+          global_id = msh%get_global_edge(i, 6)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx, 1, 1, i)) then
+          if (this%dof(Xh%lx, 1, 1, i) .gt. this%dof(Xh%lx, Xh%ly, 1, i)) then
              do concurrent (j = 2:Xh%ly - 1)
                 k = Xh%ly+1-j
                 this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
@@ -441,11 +386,11 @@ contains
              end do
           end if
 
-          call ep%edge_id(edge, 8)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 8)
+          global_id = msh%get_global_edge(i, 8)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx, 1, Xh%lz, i)) then
+          if (this%dof(Xh%lx, 1, Xh%lz, i) .gt. &
+               this%dof(Xh%lx, Xh%ly, Xh%lz, i)) then
              do concurrent (j = 2:Xh%ly - 1)
                 k = Xh%lz+1-j
                 this%dof(Xh%lx, k, Xh%lz, i) = edge_id + (j-2)
@@ -462,11 +407,10 @@ contains
           !
           ! Number edges in t-direction
           !
-          call ep%edge_id(edge, 9)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 9)
+          global_id = msh%get_global_edge(i, 9)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
+          if (this%dof(1,1,1,i) .gt. this%dof(1, 1, Xh%lz, i)) then
              do concurrent (j = 2:Xh%lz - 1)
                 k = Xh%lz+1-j
                 this%dof(1, 1, k, i) = edge_id + (j-2)
@@ -480,11 +424,10 @@ contains
              end do
           end if
 
-          call ep%edge_id(edge, 10)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 10)
+          global_id = msh%get_global_edge(i, 10)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) then
+          if (this%dof(Xh%lx,1,1,i) .gt. this%dof(Xh%lx, 1, Xh%lz, i)) then
              do concurrent (j = 2:Xh%lz - 1)
                 k = Xh%lz+1-j
                 this%dof(Xh%lx, 1, k, i) = edge_id + (j-2)
@@ -498,11 +441,10 @@ contains
              end do
           end if
 
-          call ep%edge_id(edge, 11)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 11)
+          global_id = msh%get_global_edge(i, 11)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          if (int(edge%x(1), i8) .ne. this%dof(1, Xh%ly, 1, i)) then
+          if (this%dof(1, Xh%ly, 1, i) .gt. this%dof(1, Xh%ly, Xh%lz, i)) then
              do concurrent (j = 2:Xh%lz - 1)
                 k = Xh%lz+1-j
                 this%dof(1, Xh%ly, k, i) = edge_id + (j-2)
@@ -516,11 +458,11 @@ contains
              end do
           end if
 
-          call ep%edge_id(edge, 12)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 12)
+          global_id = msh%get_global_edge(i, 12)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx, Xh%ly, 1, i)) then
+          if (this%dof(Xh%lx, Xh%ly, 1, i) .gt. &
+               this%dof(Xh%lx, Xh%ly, Xh%lz, i)) then
              do concurrent (j = 2:Xh%lz - 1)
                 k = Xh%lz+1-j
                 this%dof(Xh%lx, Xh%ly, k, i) = edge_id + (j-2)
@@ -537,12 +479,11 @@ contains
           !
           ! Number edges in r-direction
           !
-          call ep%facet_id(edge, 3)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 3)
+          global_id = msh%get_global_edge(i, 3)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           !Reverse order of tranversal if edge is reversed
-          if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
+          if (this%dof(1,1,1,i) .gt. this%dof(Xh%lx, 1, 1, i)) then
              do concurrent (j = 2:Xh%lx - 1)
                 k = Xh%lx+1-j
                 this%dof(k, 1, 1, i) = edge_id + (j-2)
@@ -556,11 +497,10 @@ contains
              end do
           end if
 
-          call ep%facet_id(edge, 4)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 4)
+          global_id = msh%get_global_edge(i, 4)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          if (int(edge%x(1), i8) .ne. this%dof(1, Xh%ly, 1, i)) then
+          if (this%dof(1, Xh%ly, 1, i) .gt. this%dof(Xh%lx, Xh%ly, 1, i)) then
              do concurrent (j = 2:Xh%lx - 1)
                 k = Xh%lx+1-j
                 this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
@@ -577,11 +517,10 @@ contains
           !
           ! Number edges in s-direction
           !
-          call ep%facet_id(edge, 1)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 1)
+          global_id = msh%get_global_edge(i, 1)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
+          if (this%dof(1,1,1,i) .gt. this%dof(1, Xh%ly, 1, i)) then
              do concurrent (j = 2:Xh%ly - 1)
                 k = Xh%ly+1-j
                 this%dof(1, k, 1, i) = edge_id + (j-2)
@@ -595,11 +534,10 @@ contains
              end do
           end if
 
-          call ep%facet_id(edge, 2)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
+          shared_dof = msh%is_shared_edge(i, 2)
+          global_id = msh%get_global_edge(i, 2)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) then
+          if (this%dof(Xh%lx,1,1,i) .gt. this%dof(Xh%lx, Xh%ly, 1, i)) then
              do concurrent (j = 2:Xh%ly - 1)
                 k = Xh%ly+1-j
                 this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
@@ -650,8 +588,8 @@ contains
        !
        call msh%elements(i)%e%facet_id(face, 1)
        call msh%elements(i)%e%facet_order(face_order, 1)
-       shared_dof = msh%is_shared(face)
-       global_id = msh%get_global(face)
+       shared_dof = msh%is_shared_facet(i, 1)
+       global_id = msh%get_global_facet(i, 1)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%ly - 1
@@ -663,8 +601,8 @@ contains
 
        call msh%elements(i)%e%facet_id(face, 2)
        call msh%elements(i)%e%facet_order(face_order, 2)
-       shared_dof = msh%is_shared(face)
-       global_id = msh%get_global(face)
+       shared_dof = msh%is_shared_facet(i, 2)
+       global_id = msh%get_global_facet(i, 2)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%ly - 1
@@ -680,8 +618,8 @@ contains
        !
        call msh%elements(i)%e%facet_id(face, 3)
        call msh%elements(i)%e%facet_order(face_order, 3)
-       shared_dof = msh%is_shared(face)
-       global_id = msh%get_global(face)
+       shared_dof = msh%is_shared_facet(i, 3)
+       global_id = msh%get_global_facet(i, 3)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
@@ -693,8 +631,8 @@ contains
 
        call msh%elements(i)%e%facet_id(face, 4)
        call msh%elements(i)%e%facet_order(face_order, 4)
-       shared_dof = msh%is_shared(face)
-       global_id = msh%get_global(face)
+       shared_dof = msh%is_shared_facet(i, 4)
+       global_id = msh%get_global_facet(i, 4)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
@@ -710,8 +648,8 @@ contains
        !
        call msh%elements(i)%e%facet_id(face, 5)
        call msh%elements(i)%e%facet_order(face_order, 5)
-       shared_dof = msh%is_shared(face)
-       global_id = msh%get_global(face)
+       shared_dof = msh%is_shared_facet(i, 5)
+       global_id = msh%get_global_facet(i, 5)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
        do k = 2, Xh%ly - 1
           do j = 2, Xh%lx - 1
@@ -723,8 +661,8 @@ contains
 
        call msh%elements(i)%e%facet_id(face, 6)
        call msh%elements(i)%e%facet_order(face_order, 6)
-       shared_dof = msh%is_shared(face)
-       global_id = msh%get_global(face)
+       shared_dof = msh%is_shared_facet(i, 6)
+       global_id = msh%get_global_facet(i, 6)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
        do k = 2, Xh%ly - 1
           do j = 2, Xh%lx - 1
@@ -816,8 +754,8 @@ contains
 
     !$omp parallel do
     do i = 1, msh%nelv
-       call dofmap_xyzlin(Xh, msh, msh%elements(i)%e, this%x(1,1,1,i), &
-            this%y(1,1,1,i), this%z(1,1,1,i))
+       call dofmap_xyzlin(Xh, msh, msh%elements(i)%e, this%x%x(1,1,1,i), &
+            this%y%x(1,1,1,i), this%z%x(1,1,1,i))
     end do
     !$omp end parallel do
 
@@ -833,8 +771,8 @@ contains
        end do
        if (midpoint .and. Xh%lx .gt. 2) then
           call dofmap_xyzquad(Xh, msh, msh%elements(el_idx)%e, &
-               this%x(1, 1, 1, el_idx), this%y(1, 1, 1, el_idx), &
-               this%z(1 ,1, 1, el_idx), curve_type, curve_data_tot)
+               this%x%x(1, 1, 1, el_idx), this%y%x(1, 1, 1, el_idx), &
+               this%z%x(1 ,1, 1, el_idx), curve_type, curve_data_tot)
        end if
     end do
     do i = 1, msh%curve%size
@@ -843,16 +781,20 @@ contains
           if (msh%curve%curve_el(i)%curve_type(j) .eq. 3) then
              rp_curve_data = msh%curve%curve_el(i)%curve_data(1:5,j)
              call arc_surface(j, rp_curve_data, &
-                  this%x(1, 1, 1, el_idx), &
-                  this%y(1, 1, 1, el_idx), &
-                  this%z(1, 1, 1, el_idx), &
+                  this%x%x(1, 1, 1, el_idx), &
+                  this%y%x(1, 1, 1, el_idx), &
+                  this%z%x(1, 1, 1, el_idx), &
                   Xh, msh%elements(el_idx)%e, msh%gdim)
           end if
        end do
     end do
     if (associated(msh%apply_deform)) then
-       call msh%apply_deform(this%x, this%y, this%z, Xh%lx, Xh%ly, Xh%lz)
+       call msh%apply_deform(this%x%x, this%y%x, this%z%x, Xh%lx, Xh%ly, Xh%lz)
     end if
+
+    call this%x%copy_from(HOST_TO_DEVICE, .false.)
+    call this%y%copy_from(HOST_TO_DEVICE, .false.)
+    call this%z%copy_from(HOST_TO_DEVICE, .true.)
   end subroutine dofmap_generate_xyz
 
   !> Generate the x, y, z coordinates of the dofs in a signle element, assuming
@@ -1339,30 +1281,27 @@ contains
     ! Overwrite dofmap in case it has been updated and
     ! the mesh has not.
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_masked_gather_copy_aligned(other%x_d, &
-            this%x_d, mask%get_d(), &
+       call device_masked_gather_copy_aligned(other%x%x_d, &
+            this%x%x_d, mask%get_d(), &
             this%size(), mask%size())
-       call device_masked_gather_copy_aligned(other%y_d, &
-            this%y_d, mask%get_d(), &
+       call device_masked_gather_copy_aligned(other%y%x_d, &
+            this%y%x_d, mask%get_d(), &
             this%size(), mask%size())
-       call device_masked_gather_copy_aligned(other%z_d, &
-            this%z_d, mask%get_d(), &
+       call device_masked_gather_copy_aligned(other%z%x_d, &
+            this%z%x_d, mask%get_d(), &
             this%size(), mask%size())
 
        ! Sync with host
-       call device_memcpy(other%x, other%x_d, other%ntot, &
-            DEVICE_TO_HOST, sync = .false.)
-       call device_memcpy(other%y, other%y_d, other%ntot, &
-            DEVICE_TO_HOST, sync = .false.)
-       call device_memcpy(other%z, other%z_d, other%ntot, &
-            DEVICE_TO_HOST, sync = .true.)
+       call other%x%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call other%y%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call other%z%copy_from(DEVICE_TO_HOST, sync = .true.)
 
     else
-       call masked_gather_copy(other%x, this%x, mask%get(), &
+       call masked_gather_copy(other%x%x, this%x%x, mask%get(), &
             this%size(), mask%size())
-       call masked_gather_copy(other%y, this%y, mask%get(), &
+       call masked_gather_copy(other%y%x, this%y%x, mask%get(), &
             this%size(), mask%size())
-       call masked_gather_copy(other%z, this%z, mask%get(), &
+       call masked_gather_copy(other%z%x, this%z%x, mask%get(), &
             this%size(), mask%size())
     end if
 

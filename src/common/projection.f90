@@ -65,7 +65,7 @@ module projection
   use math, only : rzero, glsc3, add2, add2s2, copy, cmult
   use coefs, only : coef_t
   use ax_product, only : ax_t
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BLK_SIZE, &
        NEKO_DEVICE_MPI, NEKO_BCKND_OPENCL
@@ -78,7 +78,6 @@ module projection
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : LOG_SIZE, neko_log
   use utils, only : neko_warning
-  use bc_list, only : bc_list_t
   use time_step_controller, only : time_step_controller_t
   use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wtime
@@ -241,7 +240,7 @@ contains
     integer, intent(in) :: tstep
     class(coef_t), intent(inout) :: coef
     type(time_step_controller_t), intent(in) :: dt_controller
-    class(bc_list_t), optional, intent(inout) :: bclst
+    class(scalar_bc_projector_t), optional, intent(inout) :: bclst
     type(gs_t), optional, intent(inout) :: gs_h
     class(Ax_t), optional, intent(in) :: Ax
     character(len=*), optional :: string
@@ -254,7 +253,7 @@ contains
           else if (dt_controller%dt_last_change .gt. this%activ_step - 1) then
              ! Re-orthogonalize basis if requested
              if (this%prj_reorthogonalize_basis .and. present(gs_h) &
-                  .and. present(Ax) .and.present(bclst)) then
+                  .and. present(Ax) .and. present(bclst)) then
                 call this%reortho_basis(Ax, coef, gs_h, bclst, n)
              end if
              ! activate projection some steps after dt is changed
@@ -267,7 +266,7 @@ contains
        else
           ! Re-orthogonalize basis if requested
           if (this%prj_reorthogonalize_basis .and. present(gs_h) &
-               .and. present(Ax) .and.present(bclst)) then
+               .and. present(Ax) .and. present(bclst)) then
              call this%reortho_basis(Ax, coef, gs_h, bclst, n)
           end if
           call this%project_on(b, coef, n)
@@ -285,7 +284,7 @@ contains
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
-    class(bc_list_t), intent(inout) :: bclst
+    class(scalar_bc_projector_t), intent(inout) :: bclst
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: x
     integer, intent(in) :: tstep
@@ -319,7 +318,7 @@ contains
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
-    class(bc_list_t), intent(inout) :: bclst
+    class(scalar_bc_projector_t), intent(inout) :: bclst
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: x
     type(c_ptr) :: x_d
@@ -351,7 +350,7 @@ contains
 
     call Ax%compute(this%bb(1, this%m), x, coef, coef%msh, coef%Xh)
     call gs_h%gs_op_vector(this%bb(1, this%m), n, GS_OP_ADD)
-    call bclst%apply_scalar(this%bb(1, this%m), n)
+    call bclst%apply(this%bb(1, this%m), n)
 
     call proj_ortho(this, coef, n)
     call profiler_end_region('Project back', 17)
@@ -362,7 +361,7 @@ contains
     class(ax_t), intent(in) :: Ax
     class(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs_h
-    type(bc_list_t), intent(inout) :: blst
+    type(scalar_bc_projector_t), intent(inout) :: blst
     integer, intent(in) :: n
 
     call profiler_start_region('Project reortho basis')
@@ -379,7 +378,7 @@ contains
     class(ax_t), intent(in) :: Ax
     class(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs_h
-    type(bc_list_t), intent(inout) :: blst
+    type(scalar_bc_projector_t), intent(inout) :: blst
     integer, intent(in) :: n
     character(len=1000) :: msg
 
@@ -396,7 +395,7 @@ contains
       do i = 1, this%m
          call Ax%compute(bb(1,i), xx(1,i), coef, coef%msh, coef%Xh)
          call gs_h%gs_op_vector(bb(1,i), n, GS_OP_ADD)
-         call blst%apply_scalar(bb(1,i), n)
+         call blst%apply(bb(1,i), n)
       end do
 
       ! Modified Gram-Schmidt
@@ -428,7 +427,7 @@ contains
     class(ax_t), intent(in) :: Ax
     class(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs_h
-    type(bc_list_t), intent(inout) :: blst
+    type(scalar_bc_projector_t), intent(inout) :: blst
     integer, intent(in) :: n
     character(len=1000) :: msg
 
@@ -445,7 +444,7 @@ contains
       do i = 1, this%m
          call Ax%compute(this%bb(1,i), this%xx(1,i), coef, coef%msh, coef%Xh)
          call gs_h%gs_op_vector(this%bb(1,i), n, GS_OP_ADD)
-         call blst%apply_scalar(this%bb(1,i), n)
+         call blst%apply(this%bb(1,i), n)
       end do
 
       ! Modified Gram-Schmidt
@@ -704,7 +703,7 @@ contains
 
       else !New vector is not linearly independent, forget about it
          if (pe_rank .eq. 0) then
-            call neko_warning('New vector not linearly indepependent!')
+            call neko_warning('New vector not linearly independent!')
          end if
          m = m - 1 !Remove column
       end if
@@ -824,7 +823,7 @@ contains
       else !New vector is not linearly independent, forget about it
          k = m !location of rank deficient column
          if (pe_rank .eq. 0) then
-            call neko_warning('New vector not linearly indepependent!')
+            call neko_warning('New vector not linearly independent!')
          end if
          m = m - 1 !Remove column
       end if

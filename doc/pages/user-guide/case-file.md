@@ -313,7 +313,7 @@ Used to define the properties of the numerical discretization.
 
 | Name                         | Description                                                                                                     | Admissible values          | Default value                   |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------- |
-| `polynomial_order`           | The order of the polynomial basis.                                                                              | Integers, typically 5 to 9 | -                               |
+| `polynomial_order`           | The order of the polynomial basis.                                                                              | Integers >= 3 for `pnpn`; integers >= 1 for `compressible` (typically 5 to 9) | -                               |
 | `time_order`                 | The order of the time integration scheme. Refer to the `time_scheme_controller` type documentation for details. | 1, 2, 3                    | -                               |
 | `dealias`                    | Whether to apply dealiasing to advection terms.                                                                 | `true` or `false`          | `false`                         |
 | `dealiased_polynomial order` | The polynomial order in the higher-order space used in the dealising.                                           | Integer                    | `3/2(polynomial_order + 1) - 1` |
@@ -357,6 +357,89 @@ coupled manner, which requires an appropriate linear solver. By default, Neko
 will use the simplified form of the tensor, and the full one must be selected
 by the user by setting `full_stress_formulation` to true.
 
+### Spectral vanishing viscosity {#case-file-svv}
+
+Spectral vanishing viscosity (SVV) selectively adds dissipation to the
+high-frequency content of the solution. It was first proposed by Tadmor (1989)
+and later introduced to the spectral element method (SEM) community by Kirby
+and Sherwin (2006). Neko currently supports only the one-sided formulation,
+which applies the high-pass operator to the trial-function gradient in physical
+space (i.e., to gradients in the x, y, and z directions). The full-stress
+formulation is also supported for velocity and requires `coupled_cg` (or
+`fused_coupled_cg` on CUDA/HIP). For fluid solves, SVV is available with the
+implicit `pnpn` scheme.
+
+For the fluid equations, add `svv` to the `fluid` object. For a scalar, add the
+same object directly to that scalar's configuration:
+
+```json
+{
+  "svv": {
+    "enabled": true,
+    "formulation": "one-sided",
+    "direction": "rst",
+    "kernel": {
+      "type": "power",
+      "power_coefficient": 0.5
+    },
+    "nu": {
+      "type": "value",
+      "value": 1.0e-3
+    }
+  }
+}
+```
+
+The optional `formulation` entry defaults to `one-sided`;
+it is shown above to make the operator choice explicit. The required `kernel`
+object selects the modal transfer function through its `type`; currently, only
+`power` is supported.  For the `power` kernel, the required `power_coefficient`
+controls the modal transfer function; larger values confine the added
+dissipation to modes nearer the polynomial cut-off.
+The `direction` selects the reference-element directions
+in which the modal filter is applied and defaults to `rst`.
+The SVV viscosity `nu` is multiplied by density internally and may be
+either a constant `value` or a registered `field`. A field configuration uses
+`field_name`:
+
+```json
+{
+  "svv": {
+    "enabled": true,
+    "formulation": "one-sided",
+    "direction": "rst",
+    "kernel": {
+      "type": "power",
+      "power_coefficient": 0.5
+    },
+    "nu": {
+      "type": "field",
+      "time_variable": true,
+      "field_name": "some_viscosity"
+    }
+  }
+}
+```
+
+For a field-valued viscosity, the optional `time_variable` entry controls
+whether the field is refreshed at every time step and defaults to `true`.
+
+The SVV operator, including its full-stress variant, is implemented for
+CPU, CUDA, and HIP backends. It is not currently available with the SX, XSMM,
+OpenCL, or Metal backends.
+
+<details>
+<summary><b><u>References</u></b></summary>
+
+- Eitan Tadmor. “Convergence of spectral methods for nonlinear conservation
+  laws.” *SIAM Journal on Numerical Analysis*, 26(1):30–44, 1989.
+- Robert M. Kirby and Spencer J. Sherwin. “Stabilisation of spectral/hp element
+  methods through spectral vanishing viscosity: Application to fluid mechanics
+  modelling.” *Computer Methods in Applied Mechanics and Engineering*,
+  195(23):3128–3144, 2006.
+
+</details>
+
 ### Compressible flows
 
 Neko supports compressible flow simulations via the compressible solver.
@@ -372,13 +455,6 @@ The compressible solver accepts the following parameters:
 | `gamma` | Ratio of specific heats for ideal gas            | Positive reals    | `1.4`         |
 | `mu`    | Constant physical dynamic viscosity              | Non-negative real | `0.0`         |
 | `kappa` | Constant physical thermal conductivity           | Non-negative real | `0.0`         |
-
-Additional numerics parameters specific to compressible flows:
-
-| Name              | Description                                        | Admissible values | Default value |
-| ----------------- | -------------------------------------------------- | ----------------- | ------------- |
-| `c_avisc_low`     | Coefficient for low-order artificial viscosity     | Positive reals    | `0.5`         |
-| `c_avisc_entropy` | Coefficient for entropy-based artificial viscosity | Positive reals    | `1.0`         |
 
 The compressible solver uses variable time-stepping controlled by the CFL
 number. Set `variable_timestep` to `true` and specify `target_cfl` in the time
@@ -403,6 +479,10 @@ Example configuration:
   "fluid": {
     "scheme": "compressible",
     "gamma": 1.4,
+    "viscous_regularization":{
+        "type": "artificial_viscosity",
+        "reg_coeff_name": "entropy_viscosity"
+    },
     "initial_condition": {
       "type": "user"
     },
@@ -426,12 +506,13 @@ Example configuration:
     "output_control": "nsamples",
     "output_value": 20
   },
-  "numerics": {
-    "time_order": 3,
-    "polynomial_order": 5,
-    "c_avisc_low": 0.5,
-    "c_avisc_entropy": 0.5
-  }
+  "simulation_components": [
+    {
+      "type": "artificial_viscosity_model",
+      "model": "entropy_viscosity",
+      "field_name": "entropy_viscosity"
+    }
+  ]
 }
 ~~~~~~~~~~~~~~~
 
@@ -445,6 +526,7 @@ The compressible solver supports the following boundary conditions:
 | density_value      | Dirichlet condition for density           |
 | pressure_value     | Dirichlet condition for pressure          |
 | no_slip            | Zero velocity wall                        |
+| slip               | A slip wall                               |
 | symmetry           | Symmetry plane                            |
 | outflow            | Pressure outlet (zero gradient)           |
 | normal_outflow     | Normal outflow condition                  |
@@ -464,8 +546,9 @@ the governing equations to feature the full viscous stress tensor, as required
 for a variable viscosity field.
 
 Note that the full viscous stress tensor requires the equations for the 3
-velocity components to be solved in a coupled manner. Therefore, the `coupled_cg`
-(or `fused_coupled_cg`) solver should be used for velocity.
+velocity components to be solved in a coupled manner. Therefore,
+`coupled_bicgstab`, `coupled_cg`, or `fused_coupled_cg` should be used for
+velocity. The `coupled_bicgstab` solver is currently available on CPUs only.
 
 ### Schwarz iterations
 This feature is enabled by setting the `schwarz_iterations` keyword inside
@@ -521,36 +604,36 @@ It is possible to assign specific names to the boundary conditions through the
 `name` keyword. Boundary conditions can then be retireved in the code by using
 the name or the `zone_index` where it is applied.
 
-The default name of the boundary conditions is given by the `<variable>_bc_<zone_index>`
-pattern. i.e., the pressure boundary condition that applies in zone index 5 can be
-retrieved by the `pressure_bc_5` name.
+The default name of the boundary conditions is given by the
+`<variable>_bc_<zone_index>` pattern. i.e., the pressure boundary condition that
+applies in zone index 5 can be retrieved by the `pressure_bc_5` name.
 
 #### Available conditions
 The conditions to apply is specified by `type` keyword inside each of the JSON
 objects. The full list of possible conditions for the fluid is specified in the
 table below.
 
-| Boundary Condition  | Description                                                                                                                                            |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| symmetry            | A symmetry plane. Must be axis-aligned.                                                                                                                |
-| velocity_value      | A Dirichlet condition for velocity.                                                                                                                    |
-| no_slip             | A no-slip wall. It can be stationary or moving.                                                                                                        |
-| outflow             | A pressure outlet.                                                                                                                                     |
-| normal_outflow      | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned. |
-| outflow+user        | Same as `outflow` but with user-specified pressure.                                                                                                    |
-| normal_outflow+user | Same as `normal_outflow` but with user-specified pressure.                                                                                             |
-| outflow+dong        | A pressure outlet with the Dong condition applied.                                                                                                     |
-| normal_outflow+dong | The `normal_outflow` with the Dong condition applied. Must be axis-aligned.                                                                            |
-| shear_stress        | Prescribed wall shear stress. Must be axis-aligned.                                                                                                    |
-| wall_model          | Shear stress condition based on a wall model for large-eddy simulation.                                                                                |
-| blasius_profile     | A Blasius velocity profile.                                                                                                                            |
-| user_velocity       | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                                          |
-| user_pressure       | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                                                 |
-| overset_interface   | A Dirichlet condition that prescribes values from another neko simulation running concurrently.                                                        |
+| Boundary Condition  | Description                                                                                                                      |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------|
+| symmetry            | A symmetry plane. Must be axis-aligned.                                                                                          |
+| velocity_value      | A Dirichlet condition for velocity.                                                                                              |
+| no_slip             | A no-slip wall. Either stationary or moving.                                                                                     |
+| outflow             | A pressure outlet.                                                                                                               |
+| normal_outflow      | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. |
+| outflow+user        | Same as `outflow` but with user-specified pressure.                                                                              |
+| normal_outflow+user | Same as `normal_outflow` but with user-specified pressure.                                                                       |
+| outflow+dong        | A pressure outlet with the Dong condition applied.                                                                               |
+| normal_outflow+dong | The `normal_outflow` with the Dong condition applied.                                                                            |
+| shear_stress        | Prescribed wall shear stress.                                                                                                    |
+| wall_model          | Shear stress condition based on a wall model for large-eddy simulation.                                                          |
+| blasius_profile     | A Blasius velocity profile.                                                                                                      |
+| user_velocity       | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                    |
+| user_pressure       | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                           |
+| overset_interface   | A Dirichlet condition that prescribes values from another Neko simulation running concurrently.                                  |
 
 A more detailed description of each boundary condition is provided below.
 
-* `symmetry`. A symmetry plane that must be axis-aligned. Sets the
+* `symmetry`. A symmetry plane. Sets the
   surface-normal velocity to 0 and applies a homogenous Neumann condition to the
   surface-parallel components. Requires no additional keywords.
   ```json
@@ -616,14 +699,54 @@ A more detailed description of each boundary condition is provided below.
 * `normal_outflow`. The condition lets the flow escape through the boundary by
   setting a homogeneous Neumann condition for the surface-normal velocity
   component, but fixes the values of the surface-parallel components. The latter
-  values are not prescribed in the boundary condition's JSON, but are instead
-  taken from the initial conditions. The boundary must be axis-aligned.
+  values are prescribed in the boundary condition's JSON. There are two
+  alternative ways to do the tangential components. One is to simply provide a
+  `value` vector. This vector is defined in global Cartesian coordinates and
+  internally a projection onto the local basis is performed. Afterwards, the
+  local tangential values are enforced. This works both in the axis-aligned and
+  in the fully general mixed-boundary implementation.
+
   ```json
   {
     "type": "normal_outflow",
+    "value": [1.0, 0.0, 0.0],
     "zone_indices": [1, 2]
   }
   ```
+
+  The second option is to provide the values through a field file using the
+  `file_name` keyword. This is currently supported only by the axis-aligned
+  implementation. The file must contain a three-component vector field in global
+  Cartesian coordinates. Internally, only the tangential components are enforced
+  on the boundary. The `file_name` and `mesh_file_name` values use Neko's
+  field-sample naming convention, for example `field0.f00000`. The
+  `mesh_file_name` is an optional field sample containing the source mesh
+  coordinates; it can be omitted when the source field contains its own
+  coordinates. Optional interpolation settings are the same as for other
+  field-imported data:
+
+  * `interpolate`. Logical flag controlling whether interpolation is used.
+  * `mesh_file_name`. Optional sampled field containing the source mesh
+    coordinates when the source field is defined on a different mesh.
+  * `interpolation.tolerance`. Tolerance for the interpolation search.
+  * `interpolation.padding`. Padding used in the interpolation search.
+
+  ```json
+  {
+    "type": "normal_outflow",
+    "file_name": "outlet_velocity0.f00000",
+    "interpolate": true,
+    "mesh_file_name": "coarse_box0.f00000",
+    "interpolation": {
+      "tolerance": 1.0e-8,
+      "padding": 0.01
+    },
+    "zone_indices": [1, 2]
+  }
+  ```
+
+  Exactly one of `value` or `file_name` must be provided. If `value` is used,
+  it must be an array of three reals.
 * `outflow+user`. Same as `outflow`, but with user-specified
   pressure. The pressure is specified via the same interface as `user_pressure`,
   see the
@@ -632,9 +755,17 @@ A more detailed description of each boundary condition is provided below.
 * `normal_outflow+user`. Same as `normal_outflow`, but with user-specified
   pressure. The pressure profile is specified via the same interface as
   `user_pressure`, see
-  the [relevant section](#user-file_field-dirichlet-update) for more information.
-  Note that, similarly to `normal_outflow`, surface-parallel velocity components
-  are taken from the initial conditions.
+  the [relevant section](#user-file_field-dirichlet-update) for more
+  information. The tangential velocity values are prescribed exactly as for
+  `normal_outflow`, i.e. using either `value` or `file_name`.
+
+  ```json
+  {
+    "type": "normal_outflow+user",
+    "value": [1.0, 0.0, 0.0],
+    "zone_indices": [1, 2]
+  }
+  ```
 
 * `outflow+dong`. Same as `outflow`, but additionally applies the Dong boundary
   condition on the pressure. This is a way to prevent backflow and therefore
@@ -642,8 +773,17 @@ A more detailed description of each boundary condition is provided below.
   outlet.
 
 * `normal_outflow+dong`. Same as `normal_outflow`, but additionally applies the
-  Dong boundary condition for the pressure to prevent backflow. Must be
-  axis-aligned.
+  Dong boundary condition for the pressure to prevent backflow. The tangential
+  velocity values are prescribed exactly as for `normal_outflow`, i.e. using
+  either `value` or `file_name`.
+
+  ```json
+  {
+    "type": "normal_outflow+dong",
+    "value": [1.0, 0.0, 0.0],
+    "zone_indices": [1, 2]
+  }
+  ```
 
 * `shear_stress`. Non-penetration condition combined with a set shear stress
    vector. Only works with axis-aligned boundaries. The stress value is
@@ -738,35 +878,66 @@ A more detailed description of each boundary condition is provided below.
     "zone_indices": [1, 2]
   }
   ```
+@anchor case-file_overset-interface
 * `overset_interface`, a Dirichlet boundary condition that retrieves values
-  from another simulation with an overlapping domain. For this case, it is
-  recommended that all zone indices that need to be considered as an overset
-  interface are included in one boundary. This avoids repeated calls to
-  interpolation routines.
+  from another simulation with an overlapping domain. All zone indices that
+  belong to the same overset interface should normally be included in one
+  boundary object, avoiding repeated calls to the interpolation routines.
 
-  As a note, both meshes must be overlapping with at least one element.
+  The meshes must overlap by at least one element. Since the donor values come
+  from another concurrent simulation, Neko must be executed in
+  [multiple-program-multiple-data (MPMD)](#user-file_tips_mpmd) mode. The
+  simulations otherwise remain independent. They must use the same fixed
+  timestep; variable timesteps are not currently supported for overset
+  coupling.
 
-  Since this requires another concurrent simulation, you must execute neko in
-  [multiple-program-multiple-data (MPMD)](#user-file_tips_mpmd) mode. Note that both simulations are otherwise
-  independent, therefore the rest of the user case can be modified as seen fit.
+  The available inputs are:
 
-  The *time-step* must be the same between the simulations. A variable time-step is not
-  supported at the moment.
+  | Name | Description | Admissible values | Default |
+  | ---- | ----------- | ----------------- | ------- |
+  | `zone_indices` | Face zones comprising the overset interface. | Integer array. | Required |
+  | `name` | Name assigned to the boundary condition. | Non-empty string. | Generated from the first zone index. |
+  | `couple_pressure` | Also interpolate and impose pressure from the overlapping simulation. | `true` or `false`. | `false` |
+  | `order` | Order of the IEXT temporal extrapolation applied on the first interface update of each timestep. | Integer from 1 to 3. | `1` |
+  | `relaxation` | Under-relaxation factor for subsequent Schwarz corrections within the same timestep. | Real in \f$(0,1]\f$. | `1.0` |
+  | `interpolation.tolerance` | Tolerance used by the global point search. | Positive real. | `NEKO_EPS*1e3` |
+  | `interpolation.padding` | Padding used by the global point search. | Positive real. | `1e-2` |
+  | `log` | Log the interface RMSE between the current receiver trace and newly interpolated donor data. | `true` or `false`. | `false` |
 
-  The keyword `couple_pressure` is `false` by default and controls whether the pressure BC is also set from
-  the coupled simulation. This should, for the time being, be left as `false`.
+  Pressure coupling is supported and uses the scalar overset implementation.
+  Setting `couple_pressure` to `true` applies the same interpolation, IEXT
+  order, relaxation factor, and logging controls to pressure.
 
-  The keyword `order` is `1` by default and defines the interface extrapolation scheme order at every timestep.
-  Generally, you want to keep the order of the extrapolation consistent with your time integration scheme,
-  however, note that a higher order might need help with stabilization, specifically by increasing the number
-  of `Schwarz-like` iterations.
+  In the first interface update of every physical timestep, the IEXT prediction
+  is applied without relaxation. On subsequent Schwarz iterations at the same
+  timestep, the new donor value \f$\hat{g}^{k+1}\f$ is blended with the
+  previously applied interface value \f$g^k\f$ according to
+
+  \f[
+  g^{k+1} = (1 - \omega)g^k + \omega\hat{g}^{k+1},
+  \qquad 0 < \omega \leq 1,
+  \f]
+
+  where `relaxation` is \f$\omega\f$. Thus, relaxation does not filter data
+  between physical timesteps and does not affect a case with zero Schwarz
+  iterations. A value of `1.0` recovers the original unrelaxed behavior. Lower
+  values can stabilize an oscillatory Schwarz iteration, but may slow an
+  already contractive iteration. The IEXT `order` should generally be
+  consistent with the time-integration scheme; higher-order extrapolation may
+  require more Schwarz iterations for stability.
 
   ```json
   {
     "type": "overset_interface",
     "zone_indices": [1, 2],
-    "couple_pressure" : false,
-    "order" : 3
+    "couple_pressure": false,
+    "order": 3,
+    "relaxation": 1.0,
+    "interpolation": {
+      "tolerance": 1.0e-12,
+      "padding": 0.01
+    },
+    "log": true
   }
   ```
 
@@ -1831,6 +2002,8 @@ The following keywords are used, with the corresponding options.
   - `cg`, a conjugate gradient solver.
   - `pipecg`, a pipelined conjugate gradient solver.
   - `bicgstab`, a bi-conjugate gradient stabilized solver.
+  - `coupled_bicgstab`, a coupled bi-conjugate gradient stabilized solver for
+    CPU backends. It can be used for velocity when viscosity varies in space.
   - `cacg`, a communication-avoiding conjugate gradient solver.
   - `coupled_cg`, a coupled conjugate gradient solver. Must be used for velocity
     when viscosity varies in space.
@@ -1949,27 +2122,27 @@ concisely directly in the table.
 | `nut_field`                                        | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                                   | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                                     | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
-| `output_format`                                    | The file format of field data.                                                                     | `nek5000`, `adios2`, or `vtkhdf`                            | `nek5000`     |
+| `output_format`                                    | The file format of field data.                                                                    | `nek5000`, `adios2`, or `vtkhdf`                            | `nek5000`     |
 | `output_mesh_in_all_files`                         | Indicates if the mesh should be written in every output fld file.                                 | `true` or `false`                                           | `false`       |
 | `output_filename`                                  | The output filename.                                                                              | String                                                      | `field`       |
 | `output_subdivide`                                 | Whether to subdivide spectral elements into linear sub-cells for VTKHDF output.                   | `true` or `false`                                           | `false`       |
 | `inflow_condition.type`                            | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
 | `inflow_condition.value`                           | Value of the inflow velocity.                                                                     | Vector of 3 reals                                           | -             |
-| `initial_condition.type`                           | Initial condition type.                                                                           | `user`, `uniform`, `expression`, `blasius`, `point_zone`, `field` | -             |
+| `initial_condition.type`                           | Initial condition type.                                                                           | `user`, `uniform`, `expression`, `blasius`, `point_zone`, `field` | -       |
 | `initial_condition.value`                          | Value of the velocity initial condition.                                                          | Vector of 3 reals, or of 3 strings if `"type" = "expression"` | -             |
-| `initial_condition.file_name`                      | If `"type" = "field"`, the path to the field file to read from.                                   | String ending with `.fld`, `.chkp`, `.nek5000` or `f*****`. | -             |
-| `initial_condition.sample_index`                   | If `"type" = "field"`, and file type is `fld` or `nek5000`, the index of the file to sampled.     | Positive integer.                                           | -1            |
-| `initial_condition.previous_mesh`                  | If `"type" = "field"`, and file type is `chkp`, the previous mesh from which to interpolate.      | String ending with `.nmsh`.                                 | -             |
-| `initial_condition.tolerance`                      | If `"type" = "field"`, and file type is `chkp`, tolerance to use for mesh interpolation.          | Positive real.                                              | 1e-6          |
+| `initial_condition.file_name`                      | If `"type"="field"`, the name of the field file to use (e.g. `myfield0.f00034`).                  | String ending with `f*****`                                 | -             |
+| `initial_condition.interpolate`                    | If `"type"="field"`, whether to enable interpolation on the current mesh.                         | `true` or `false`                                           | `false`       |
+| `initial_condition.mesh_file_name`                 | If `"type"="field"` and interpolation is enabled, the name of the field file that contains the mesh coordinates.       | Strings ending with `f*****`                                | `file_name`   |
+| `initial_condition.interpolation.tolerance`        | If `"type"="field"` and interpolation is enabled, the tolerance for the point search.             | Positive real.                                              | `NEKO_EPS*1e3`|
+| `initial_condition.interpolation.padding`          | If `"type"="field"` and interpolation is enabled, the padding for the point search.               | Positive real.                                              | `1e-2`        |
 | `blasius.delta`                                    | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                               | -             |
 | `blasius.freestream_velocity`                      | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                           | -             |
 | `blasius.approximation`                            | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin`, `tanh`    | -             |
 | `shear_stress.value`                               | The shear stress vector value for `sh` boundaries                                                 | Vector of 3 reals                                           | `[0, 0, 0]`   |
 | `wall_modelling.type`                              | The wall model type for `wm` boundaries. See documentation for additional config parameters.      | `rough_log_law`, `spalding`                                 | -             |
 | `source_terms`                                     | Array of JSON objects, defining additional source terms.                                          | See list of source terms above                              | -             |
-| `gradient_jump_penalty`                            | Array of JSON objects, defining additional gradient jump penalty.                                 | See list of gradient jump penalty above                     | -             |
 | `boundary_types`                                   | Boundary types/conditions labels.                                                                 | Array of strings                                            | -             |
-| `velocity_solver.type`                             | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`                 | -             |
+| `velocity_solver.type`                             | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `coupled_bicgstab`, `coupled_cg`, `cacg`, `gmres` | -             |
 | `velocity_solver.preconditioner.type`              | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
 | `velocity_solver.absolute_tolerance`               | Linear solver convergence criterion for the momentum equation.                                    | Positive real                                               | -             |
 | `velocity_solver.maxiter`                          | Linear solver max iteration count for the momentum equation.                                      | Positive real                                               | 800           |
@@ -2042,7 +2215,7 @@ user could set it up by the following manner to include an eddy diffusivity fiel
 }
 ```
 
-### Boundary conditions
+### Boundary conditions {#case-file_scalar-boundary-conditions}
 
 The boundary conditions for the scalar are specified through the
 `boundary_conditions` keyword, which follows the same format as the fluid, for
@@ -2075,11 +2248,48 @@ The following types of conditions are available for the scalar:
     "zone_indices": [1, 2]
   }
   ```
-* `user`. User boundary condition, see [further documentation](#user-file_field-dirichlet-update).
+* `user_dirichlet`. User-updated Dirichlet boundary condition, see the
+  [user-file documentation](@ref user-file_field-dirichlet-update).
   ```json
   {
-    "type": "user",
+    "type": "user_dirichlet",
     "zone_indices": [1, 2]
+  }
+  ```
+* `user_neumann`. User-updated Neumann boundary condition, see the
+  [user-file documentation](@ref user-file_field-neumann-update).
+  ```json
+  {
+    "type": "user_neumann",
+    "zone_indices": [1, 2]
+  }
+  ```
+* `user_neumann`. User-defined scalar flux, configured through the
+  [user-file Neumann callback](@ref user-file_field-neumann-update).
+  ```json
+  {
+    "type": "user_neumann",
+    "zone_indices": [1, 2]
+  }
+  ```
+* `overset_interface`. Retrieves scalar Dirichlet data from another concurrent
+  Neko simulation on an overlapping domain. It accepts `name`, `order`,
+  `relaxation`, `interpolation.tolerance`, `interpolation.padding`, and `log`
+  with the same meanings and defaults as the
+  [fluid overset interface](@ref case-file_overset-interface). The first IEXT
+  update of each physical timestep is unrelaxed; relaxation is applied only if
+  the boundary is updated again at the same timestep.
+  ```json
+  {
+    "type": "overset_interface",
+    "zone_indices": [1, 2],
+    "order": 3,
+    "relaxation": 0.7,
+    "interpolation": {
+      "tolerance": 1.0e-8,
+      "padding": 0.01
+    },
+    "log": false
   }
   ```
 
@@ -2184,3 +2394,43 @@ currently supports 50 regions, with id 1..25 being reserved for internal use.
 | ---------------- | ----------------------------------------------------------- | ----------------- | ------------- |
 | `enabled`        | Whether to enable gathering of runtime statistics           | `true` or `false` | `false`       |
 | `output_profile` | Whether to output all gathered profiling data as a CSV file | `true` or `false` | `false`       |
+
+## Viscous regularization {#case-file_viscous-regularization}
+
+Users can use the viscous regularization object to enhance the smoothness or 
+the numerical stability of the solution via a diffusion term. For example, 
+artificial viscosity can be set up by this object to perform shock capturing.
+Note that some regularization techniques do not have a diffusive mathematical 
+form, for example gradient jump penalty and high-pass filter relaxation terms,
+and they are included in the source terms instead. The viscous regularization
+can be set up with the following options:
+
+* `type`, the viscous regularization type.
+  - `artificial_viscosity`, the standard second-order diffusion term,
+    $\frac{\partial}{\partial x}\left(\mu_\mathrm{artificial}\frac{\partial u}{\partial x}\right)$.
+* `reg_coeff_name`, name of the $\mu_\mathrm{artificial}$ field, usually 
+computed by a simulation component.
+
+Viscous regularization is currently supported by the compressible fluid
+solver. Artificial viscosity requires both the regularization object that
+consumes the coefficient and a simulation component that computes it. The
+`reg_coeff_name` and `field_name` values must match:
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "fluid": {
+    "scheme": "compressible",
+    "viscous_regularization": {
+      "type": "artificial_viscosity",
+      "reg_coeff_name": "entropy_viscosity"
+    }
+  },
+  "simulation_components": [
+    {
+      "type": "artificial_viscosity_model",
+      "model": "entropy_viscosity",
+      "field_name": "entropy_viscosity"
+    }
+  ]
+}
+~~~~~~~~~~~~~~~

@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.99.8])
+AC_INIT([neko],[1.99.9])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -361,14 +361,18 @@ AX_ROCTX
 # Checks for HDF5
 if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
    AX_CRAY_HDF5_PARALLEL
-else
-   AX_HDF5
+fi
+
+if (test "x${have_cray_hdf5}" != xyes); then
+    AX_HDF5
 fi
 
 # Checks for OpenSHMEM
 if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
    AX_CRAY_SHMEM
-else
+fi
+
+if (test "x${have_cray_shmem}" != xyes); then
    AX_SHMEM
 fi
 
@@ -460,6 +464,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/global_interpolation/Makefile\
         tests/unit/mean_field/Makefile\
         tests/unit/gather_scatter/Makefile\
+        tests/unit/ax/Makefile\
         tests/unit/krylov/Makefile\
         tests/unit/bc/Makefile\
         tests/unit/signal/Makefile\
@@ -473,6 +478,8 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/octree/Makefile\
         tests/unit/vector/Makefile\
         tests/unit/matrix/Makefile\
+        tests/unit/tensor3/Makefile\
+        tests/unit/tensor4/Makefile\
         tests/unit/case_file_utils/Makefile\
         tests/unit/scratch_registry/Makefile\
         tests/unit/registry/Makefile\
@@ -486,6 +493,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/expression/Makefile\
         tests/unit/point_interpolation/Makefile\
         tests/unit/templates/parallel/Makefile\
+        tests/unit/bc_projector/Makefile\
         tests/unit/boundary_operation/Makefile\
         tests/unit/wall_sampling/Makefile\
         tests/unit/templates/serial/Makefile])
