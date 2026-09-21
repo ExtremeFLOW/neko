@@ -550,13 +550,18 @@ static inline bool dmma_tma_conv1_aligned(const void *du, const void *u,
                                   drdz, dsdz, dtdz);
 }
 
-/* Forced candidate, used when NEKO_AUTOTUNE pins the DMMA_TMA variant. The
-   warps per block candidates are the DMMA ones, see NEKO_DMMA_NW() */
-static int neko_dmma_tma_env()
+/* Warps per block candidate pinned by NEKO_DMMA_TMA_NW, or -1 to leave it to
+   the sweep. The candidates are the DMMA ones, see NEKO_DMMA_NW() */
+static int neko_dmma_tma_pin()
 {
   const char *v = getenv("NEKO_DMMA_TMA_NW");
-  int c = (v != NULL) ? atoi(v) : 0;
+  int c;
 
+  if (v == NULL) {
+    return -1;
+  }
+
+  c = atoi(v);
   if (c < 0 || c >= NEKO_DMMA_CANDIDATES) {
     c = 0;
   }

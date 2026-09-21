@@ -66,6 +66,17 @@ module gs_comm
      !! halo exchange (nbsend_vec/nbrecv_vec/nbwait_vec). When .false., the
      !! gs_op_r3 caller falls back to nc independent scalar exchanges.
      logical :: vec_supported = .false.
+     !> Whether the buffers the fused vector exchange needs are in place.
+     !! They are sized GS_VEC_NC times the halo, quadrupling what the
+     !! backend holds, and only gs_op_r3 ever touches them, so a backend
+     !! that can allocate them on its own defers that to the first fused
+     !! exchange (see init_vec) rather than paying for it in every run. A
+     !! backend whose vector buffers are part of an allocation the whole
+     !! run has to agree on -- symmetric memory, coarrays, registered
+     !! memory, an RMA window -- cannot defer, since a rank with no shared
+     !! dofs never reaches the first fused exchange; those allocate in init
+     !! and set this there.
+     logical :: vec_ready = .false.
    contains
      procedure(gs_comm_init), pass(this), deferred :: init
      procedure(gs_comm_free), pass(this), deferred :: free
@@ -80,6 +91,7 @@ module gs_comm
      procedure, pass(this) :: init_schedule
      !> Fused vector halo exchange. Default implementations abort; backends
      !! that set vec_supported = .true. override them.
+     procedure, pass(this) :: init_vec => gs_init_vec
      procedure, pass(this) :: nbsend_vec => gs_nbsend_vec
      procedure, pass(this) :: nbrecv_vec => gs_nbrecv_vec
      procedure, pass(this) :: nbwait_vec => gs_nbwait_vec
@@ -302,6 +314,17 @@ contains
     call recv_pe%free()
 
   end subroutine init_schedule
+
+  !> Default deferred allocation of the fused vector buffers. Reached only
+  !! on a backend that advertises vec_supported without either allocating
+  !! its vector buffers in init (setting vec_ready there) or overriding
+  !! this, which is a backend bug rather than a run-time condition.
+  !! @note Rank local by contract: a rank with no shared dofs skips the
+  !! fused exchange entirely, so an override must not communicate.
+  subroutine gs_init_vec(this)
+    class(gs_comm_t), intent(inout) :: this
+    call neko_error('Vector gather-scatter not supported by this comm backend')
+  end subroutine gs_init_vec
 
   !> Default fused vector send. Abort unless a backend overrides it.
   !! @param u compact shared buffer, component-outer: u((c-1)*n + idx)

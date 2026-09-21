@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2024, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,7 @@ module scalar_pnpn
   use gather_scatter, only : gs_t, GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_allocator
+  use ax_helm_svv, only : ax_helm_svv_t
   use field_series, only : field_series_t
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
@@ -67,6 +68,7 @@ module scalar_pnpn
   use time_state, only : time_state_t
   use utils, only : neko_error
   use bc, only : bc_t, BC_DIRICHLET
+  use utils, only : NEKO_VARNAME_LEN
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
@@ -144,14 +146,65 @@ module scalar_pnpn
      !! @param[in] scheme The `scalar_pnpn` scheme.
      !! @param[inout] json JSON object for initializing the bc.
      !! @param[in] coef SEM coefficients.
-     module subroutine bc_factory(object, scheme, json, coef, user)
+     !! @param[in] user The user interface.
+     module subroutine scalar_pnpn_bc_factory(object, scheme, json, coef, user)
        class(bc_t), pointer, intent(inout) :: object
        type(scalar_pnpn_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), target, intent(in) :: coef
        type(user_t), intent(in) :: user
-     end subroutine bc_factory
+     end subroutine scalar_pnpn_bc_factory
   end interface
+
+  interface
+     !> Scalar Pn/Pn boundary condition allocator.
+     !! @param[inout] object The object to be allocated.
+     !! @param[in] type_name The name of the boundary condition type.
+     module subroutine scalar_pnpn_bc_allocator(object, type_name)
+       class(bc_t), pointer, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+     end subroutine scalar_pnpn_bc_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for a scalar Pn/Pn boundary condition allocator.
+  !! Implemented in user modules, it should allocate `obj` to the custom user
+  !! type.
+  abstract interface
+     subroutine scalar_pnpn_bc_allocate(obj)
+       import bc_t
+       class(bc_t), pointer, intent(inout) :: obj
+     end subroutine scalar_pnpn_bc_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     !! @param[in] type_name The name of the boundary condition type.
+     !! @param[in] allocator The allocator for the custom user type.
+     module subroutine register_scalar_pnpn_bc(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(scalar_pnpn_bc_allocate), pointer, intent(in) :: allocator
+     end subroutine register_scalar_pnpn_bc
+  end interface
+
+  !> A name-allocator pair for user-defined scalar Pn/Pn boundary conditions.
+  type scalar_pnpn_bc_allocator_entry
+     character(len=NEKO_VARNAME_LEN) :: type_name
+     procedure(scalar_pnpn_bc_allocate), pointer, nopass :: allocator => null()
+  end type scalar_pnpn_bc_allocator_entry
+
+  !> Registry of scalar Pn/Pn boundary condition allocators.
+  type(scalar_pnpn_bc_allocator_entry), allocatable, private :: &
+       scalar_pnpn_bc_registry(:)
+
+  !> The size of `scalar_pnpn_bc_registry`.
+  integer, private :: scalar_pnpn_bc_registry_size = 0
+
+  public :: scalar_pnpn_bc_allocator, scalar_pnpn_bc_allocate, &
+       register_scalar_pnpn_bc
 
 contains
 
@@ -191,7 +244,15 @@ contains
     call this%scheme_init(msh, coef, gs, params, scheme, user, rho)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_allocator(this%ax, type_name = "standard")
+    if (this%svv_enabled) then
+       call ax_helm_allocator(this%ax, type_name = "standard_svv")
+       select type (operator => this%ax)
+       class is (ax_helm_svv_t)
+          operator%svv => this%svv
+       end select
+    else
+       call ax_helm_allocator(this%ax, type_name = "standard")
+    end if
 
     ! Setup backend dependent scalar residual routines
     call scalar_residual_factory(this%res)
@@ -272,8 +333,9 @@ contains
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)
-    integer :: n
+    integer :: i, n
     type(field_t), pointer :: temp_field
+    class(bc_t), pointer :: bc_i
     dtlag = chkp%dtlag
     tlag = chkp%tlag
 
@@ -303,10 +365,24 @@ contains
     call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
     call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
 
+    ! Restore scalar bcs that need it. This is a no op in most bcs.
+    do i = 1, this%bcs%size()
+       bc_i => this%bcs%get(i)
+       call bc_i%restart(this%s, this%slag)
+    end do
+
+    nullify(bc_i)
+
   end subroutine scalar_pnpn_restart
 
   subroutine scalar_pnpn_free(this)
     class(scalar_pnpn_t), intent(inout) :: this
+
+    ! Release operator references before scheme_free deallocates their targets.
+    if (allocated(this%Ax)) then
+       call this%Ax%free()
+       deallocate(this%Ax)
+    end if
 
     !Deallocate scalar field
     call this%scheme_free()
@@ -331,10 +407,6 @@ contains
     nullify(this%ulag)
     nullify(this%vlag)
     nullify(this%wlag)
-
-    if (allocated(this%Ax)) then
-       deallocate(this%Ax)
-    end if
 
     if (allocated(this%res)) then
        deallocate(this%res)
@@ -390,6 +462,11 @@ contains
       ! Update material properties and their pointwise product.
       call this%update_material_properties(time)
       call field_col3(rho_cp, rho, cp, n)
+
+      ! Update the SVV coefficient if SVV is enabled.
+      if (this%svv_enabled) then
+         call this%svv%update(rho_cp, tstep)
+      end if
 
       ! Compute the source terms
       call this%source_term%compute(time)
@@ -555,7 +632,7 @@ contains
 
           bc_i => null()
 
-          call bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
+          call scalar_pnpn_bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
           call this%bcs%append(bc_i)
        end do
 

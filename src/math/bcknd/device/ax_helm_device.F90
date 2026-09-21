@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ module ax_helm_device
 
   type, public, extends(ax_helm_t) :: ax_helm_device_t
    contains
-     procedure, nopass :: compute => ax_helm_device_compute
+     procedure, pass(this) :: compute => ax_helm_device_compute
      procedure, pass(this) :: compute_vector => ax_helm_device_compute_vector
   end type ax_helm_device_t
 
@@ -213,7 +213,8 @@ module ax_helm_device
 
 contains
 
-  subroutine ax_helm_device_compute(w, u, coef, msh, Xh)
+  subroutine ax_helm_device_compute(this, w, u, coef, msh, Xh)
+    class(ax_helm_device_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
@@ -312,13 +313,12 @@ contains
 #elif HAVE_CUDA
        call cuda_ax_helm_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
             coef%h2_d, coef%B_d, coef%dof%size())
+#elif HAVE_OPENCL
+       call opencl_ax_helm_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
+            coef%h2_d, coef%B_d, coef%dof%size())
 #elif HAVE_METAL
        call metal_ax_helm_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
             coef%h2_d, coef%B_d, coef%dof%size())
-#else
-       call device_addcol4(au_d ,coef%h2_d, coef%B_d, u_d, coef%dof%size())
-       call device_addcol4(av_d ,coef%h2_d, coef%B_d, v_d, coef%dof%size())
-       call device_addcol4(aw_d ,coef%h2_d, coef%B_d, w_d, coef%dof%size())
 #endif
     end if
 
