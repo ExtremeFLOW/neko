@@ -936,10 +936,11 @@ contains
     logical :: dataset_exists, shape_exists
 
     ! Mesh arrays hold ALE state (mesh coordinates, lagged mass matrices),
-    ! which has no meaning on a different mesh. Same restriction as chkp_file.
+    ! which has no meaning on a different mesh. Same check and message as
+    ! chkp_file.
     if (layout%mesh2mesh) then
-       call neko_error("ALE does not yet support mesh-to-mesh " // &
-            "interpolation for restart")
+       call neko_error('ALE does not yet support mesh2mesh ' // &
+            'interpolation for restart!')
     end if
 
     call h5lexists_f(group_id, trim(array%name), dataset_exists, ierr)

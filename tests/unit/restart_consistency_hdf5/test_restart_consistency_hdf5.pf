@@ -25,6 +25,11 @@
 !! are summed changes between runs and two otherwise identical runs differ
 !! by a few ulp. Jacobi has no such step: with it two uninterrupted runs
 !! agree exactly, so any difference reported here comes from the restart.
+!!
+!! A passive scalar rides along and is compared like the velocity and
+!! pressure. Its restart goes through `scalar_pnpn_restart`, a separate
+!! code path with its own continuity fix-up, which a fluid-only case
+!! would never exercise.
 !! This is the format the bug lived in: the reader once re-ran an
 !! interpolation fix-up on every restart, which is the identity in exact
 !! arithmetic but left about one ulp of error on each shared degree of
@@ -122,7 +127,7 @@ contains
   @test(npes=[1])
   subroutine restart_matches_run_h5(this)
     class(test_restart_consistency_hdf5_case), intent(inout) :: this
-    real(kind=rp) :: err(4), ref_norm
+    real(kind=rp) :: err(5), ref_norm
     integer :: failing_step
     character(len=256) :: msg
 
@@ -134,10 +139,10 @@ contains
          'Reference run produced a trivial velocity field, norm = ', ref_norm
     @assertTrue(ref_norm .gt. 1.0e-6_rp, trim(msg))
 
-    write(msg, '(A,I0,A,4(ES12.4,1X),A)') &
+    write(msg, '(A,I0,A,5(ES12.4,1X),A)') &
          'Restarted step ', failing_step, &
-         ' differs from the uninterrupted run (u/v/w/p RMSE = ', &
-         err(1), err(2), err(3), err(4), ')'
+         ' differs from the uninterrupted run (u/v/w/p/s RMSE = ', &
+         err(1), err(2), err(3), err(4), err(5), ')'
     @assertEqual(0, failing_step, trim(msg))
   end subroutine restart_matches_run_h5
 
@@ -149,12 +154,12 @@ contains
   !! @param checkpoint The checkpoint file to write and restart from; its
   !! suffix selects the checkpoint format.
   !! @param failing_step First step whose fields differ, or 0 if none do.
-  !! @param err The u/v/w/p RMSE at that step, or at the last step checked.
+  !! @param err The u/v/w/p/s RMSE at that step, or at the last step checked.
   !! @param ref_norm Velocity norm at the end of the reference run.
   subroutine run_restart_check(checkpoint, failing_step, err, ref_norm)
     character(len=*), intent(in) :: checkpoint
     integer, intent(out) :: failing_step
-    real(kind=rp), intent(out) :: err(4)
+    real(kind=rp), intent(out) :: err(5)
     real(kind=rp), intent(out) :: ref_norm
 
     type(case_t), target :: neko_case
@@ -165,7 +170,7 @@ contains
     ! pointer to its dofmap, and the reference case's dofmap dies with the
     ! case, well before the comparison happens.
     type(vector_t), allocatable :: u_ref(:), v_ref(:)
-    type(vector_t), allocatable :: w_ref(:), p_ref(:)
+    type(vector_t), allocatable :: w_ref(:), p_ref(:), s_ref(:)
     character(len=1024) :: chkp_written
     integer :: i, k, n_after, n_glb, n_loc
 
@@ -186,12 +191,13 @@ contains
     n_loc = neko_case%fluid%u%dof%size()
 
     allocate(u_ref(n_after), v_ref(n_after))
-    allocate(w_ref(n_after), p_ref(n_after))
+    allocate(w_ref(n_after), p_ref(n_after), s_ref(n_after))
     do i = 1, n_after
        call u_ref(i)%init(n_loc)
        call v_ref(i)%init(n_loc)
        call w_ref(i)%init(n_loc)
        call p_ref(i)%init(n_loc)
+       call s_ref(i)%init(n_loc)
     end do
 
     call dt_controller%init(neko_case%params)
@@ -219,12 +225,16 @@ contains
           call neko_case%fluid%u%copy_from(DEVICE_TO_HOST, .false.)
           call neko_case%fluid%v%copy_from(DEVICE_TO_HOST, .false.)
           call neko_case%fluid%w%copy_from(DEVICE_TO_HOST, .false.)
-          call neko_case%fluid%p%copy_from(DEVICE_TO_HOST, .true.)
+          call neko_case%fluid%p%copy_from(DEVICE_TO_HOST, .false.)
+          call neko_case%scalars%scalar_fields(1)%scalar%s%copy_from( &
+               DEVICE_TO_HOST, .true.)
 
           call copy(u_ref(k)%x, neko_case%fluid%u%x, n_loc)
           call copy(v_ref(k)%x, neko_case%fluid%v%x, n_loc)
           call copy(w_ref(k)%x, neko_case%fluid%w%x, n_loc)
           call copy(p_ref(k)%x, neko_case%fluid%p%x, n_loc)
+          call copy(s_ref(k)%x, &
+               neko_case%scalars%scalar_fields(1)%scalar%s%x, n_loc)
        end if
     end do
 
@@ -260,12 +270,16 @@ contains
        call neko_case%fluid%u%copy_from(DEVICE_TO_HOST, .false.)
        call neko_case%fluid%v%copy_from(DEVICE_TO_HOST, .false.)
        call neko_case%fluid%w%copy_from(DEVICE_TO_HOST, .false.)
-       call neko_case%fluid%p%copy_from(DEVICE_TO_HOST, .true.)
+       call neko_case%fluid%p%copy_from(DEVICE_TO_HOST, .false.)
+       call neko_case%scalars%scalar_fields(1)%scalar%s%copy_from( &
+            DEVICE_TO_HOST, .true.)
 
        err(1) = rmse(u_ref(k)%x, neko_case%fluid%u%x, n_loc, n_glb)
        err(2) = rmse(v_ref(k)%x, neko_case%fluid%v%x, n_loc, n_glb)
        err(3) = rmse(w_ref(k)%x, neko_case%fluid%w%x, n_loc, n_glb)
        err(4) = rmse(p_ref(k)%x, neko_case%fluid%p%x, n_loc, n_glb)
+       err(5) = rmse(s_ref(k)%x, &
+            neko_case%scalars%scalar_fields(1)%scalar%s%x, n_loc, n_glb)
 
        if (maxval(err) .gt. NEKO_EPS) then
           failing_step = i
@@ -281,8 +295,9 @@ contains
        call v_ref(i)%free()
        call w_ref(i)%free()
        call p_ref(i)%free()
+       call s_ref(i)%free()
     end do
-    deallocate(u_ref, v_ref, w_ref, p_ref)
+    deallocate(u_ref, v_ref, w_ref, p_ref, s_ref)
 
   end subroutine run_restart_check
 
@@ -308,7 +323,8 @@ contains
 
   !> Build an in-memory Taylor-Green vortex case for the restart test.
   !! The generated case uses the periodic box written above, a third-order
-  !! time scheme, seventh-order elements, and expression initial conditions.
+  !! time scheme, seventh-order elements, expression initial conditions, and
+  !! a passive scalar advected by the flow.
   !! @param params The JSON object to populate.
   !! @param restart Whether to add `case.restart_file`.
   !! @param checkpoint Checkpoint file to restart from when `restart`.
@@ -357,7 +373,14 @@ contains
          '  "preconditioner": {"type": "jacobi"},' // &
          '  "projection_space_size": 0,' // &
          '  "absolute_tolerance": 1e-7, "max_iterations": 800},' // &
-         ' "output_control": "never"}}}'
+         ' "output_control": "never"},' // &
+         '"scalar": {"enabled": true, "Pe": 360.0,' // &
+         ' "initial_condition": {"type": "expression",' // &
+         '  "value": "cos(x)*cos(y)*cos(z)"},' // &
+         ' "solver": {"type": "cg",' // &
+         '  "preconditioner": {"type": "jacobi"},' // &
+         '  "projection_space_size": 0,' // &
+         '  "absolute_tolerance": 1e-12, "max_iterations": 800}}}}'
 
     call params%load_from_string(json_str)
   end subroutine build_case_json
