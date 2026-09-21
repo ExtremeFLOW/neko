@@ -1,6 +1,10 @@
 # Changelog
 
 ## Develop
+- Added the possibility to request a scratch field pointing to a specific
+  dofmap. This essentially unlock the scratch registry to be used for any field.
+  Existing interface remain unchanged, a field requested without specifying a
+  dofmap will be allocated on the default dofmap.
 - Fixed several OpenMP races in the boundary conditions, including a Neumann
   flux accumulated once per thread.
 - Fixed further OpenMP races outside the boundary-condition update blocks:
