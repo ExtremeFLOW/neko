@@ -89,7 +89,7 @@ contains
     call device_col2(wk%x_d, fringe%x_d, n)
     call device_add2s2(fw%x_d, wk%x_d, a_z, n)
 
-    call neko_scratch_registry%relinquish_field(tmp_index)
+    call neko_scratch_registry%relinquish(tmp_index)
 
   end subroutine sponge_source_term_compute_device
 
