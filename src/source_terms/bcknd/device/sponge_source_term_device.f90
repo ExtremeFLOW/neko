@@ -37,6 +37,7 @@ module sponge_source_term_device
   use field, only : field_t
   use device_math, only : device_sub3, device_col2, device_add2s2
   use scratch_registry, only : neko_scratch_registry
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -63,9 +64,9 @@ contains
     integer :: n
     type(field_t), pointer :: fu, fv, fw
     integer :: tmp_index
-    type(field_t), pointer :: wk
+    type(c_ptr), pointer :: wk
 
-    call neko_scratch_registry%request_field(wk, tmp_index, .false.)
+    call neko_scratch_registry%request(wk, tmp_index, n, .false.)
 
     ! The RHS components
     fu => fields%get_by_index(1)
@@ -75,19 +76,19 @@ contains
     n = fu%size()
 
     ! wk = u_bf - u
-    call device_sub3(wk%x_d, u_bf%x_d, u%x_d, n)
+    call device_sub3(wk, u_bf%x_d, u%x_d, n)
     ! wk = fringe * wk = fringe * (u_bf - u)
-    call device_col2(wk%x_d, fringe%x_d, n)
+    call device_col2(wk, fringe%x_d, n)
     ! fu = fu + a_x*wk = fu + a_x*fringe*(u_bf - u)
-    call device_add2s2(fu%x_d, wk%x_d, a_x, n)
+    call device_add2s2(fu%x_d, wk, a_x, n)
 
-    call device_sub3(wk%x_d, v_bf%x_d, v%x_d, n)
-    call device_col2(wk%x_d, fringe%x_d, n)
-    call device_add2s2(fv%x_d, wk%x_d, a_y, n)
+    call device_sub3(wk, v_bf%x_d, v%x_d, n)
+    call device_col2(wk, fringe%x_d, n)
+    call device_add2s2(fv%x_d, wk, a_y, n)
 
-    call device_sub3(wk%x_d, w_bf%x_d, w%x_d, n)
-    call device_col2(wk%x_d, fringe%x_d, n)
-    call device_add2s2(fw%x_d, wk%x_d, a_z, n)
+    call device_sub3(wk, w_bf%x_d, w%x_d, n)
+    call device_col2(wk, fringe%x_d, n)
+    call device_add2s2(fw%x_d, wk, a_z, n)
 
     call neko_scratch_registry%relinquish(tmp_index)
 
