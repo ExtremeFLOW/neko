@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2025, The Neko Authors
+ Copyright (c) 2025-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -725,6 +725,35 @@ kernel void glmax_kernel(device const float *a[[ buffer(0) ]],
     uint num_simd = (tg_size + 31) / 32;
     if (simd_id == 0) {
         val = (simd_lane < num_simd) ? shared[simd_lane] : -HUGE_VALF;
+        val = simd_max(val);
+        if (simd_lane == 0) buf[tg_id] = val;
+    }
+}
+
+kernel void glamax_kernel(device const float *a[[ buffer(0) ]],
+                          device float *buf[[ buffer(1) ]],
+                          constant int &n[[ buffer(2) ]],
+                          uint gid [[ thread_position_in_grid ]],
+                          uint tid [[ thread_index_in_threadgroup ]],
+                          uint tg_id [[ threadgroup_position_in_grid ]],
+                          uint tg_size [[ threads_per_threadgroup ]],
+                          uint simd_lane [[ thread_index_in_simdgroup ]],
+                          uint simd_id [[ simdgroup_index_in_threadgroup ]],
+                          uint num_tg [[ threadgroups_per_grid ]]) {
+    float val = 0.0f;
+    for (uint i = gid; i < (uint)n; i += tg_size * num_tg) {
+        val = max(val, fabs(a[i]));
+    }
+
+    val = simd_max(val);
+
+    threadgroup float shared[32];
+    if (simd_lane == 0) shared[simd_id] = val;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    uint num_simd = (tg_size + 31) / 32;
+    if (simd_id == 0) {
+        val = (simd_lane < num_simd) ? shared[simd_lane] : 0.0f;
         val = simd_max(val);
         if (simd_lane == 0) buf[tg_id] = val;
     }
