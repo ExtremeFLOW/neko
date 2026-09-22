@@ -1,0 +1,5 @@
+<map id="time_based_controller::next_index_after" name="time_based_controller::next_index_after">
+<area shape="rect" id="Node000001" title="The number of scheduled times at or before the given time, counted from first_index...." alt="" coords="228,13,395,53"/>
+<area shape="rect" id="Node000002" href="$d5/d11/namespacetime__based__controller.html#a9a4bcd237b52451ab59b933ca986a79b" title="Increment nexecutions and advance next_index past the current time." alt="" coords="5,5,180,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,35,180,35,180,30,214,30"/>
+</map>

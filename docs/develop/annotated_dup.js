@@ -1892,7 +1892,6 @@ var annotated_dup =
       [ "tet_mesh_t", "db/d3a/structtet__mesh_1_1tet__mesh__t.html", "db/d3a/structtet__mesh_1_1tet__mesh__t" ]
     ] ],
     [ "time_based_controller", "d5/d11/namespacetime__based__controller.html", [
-      [ "assignment(=)", "da/d69/interfacetime__based__controller_1_1assignment_07_0a_08.html", "da/d69/interfacetime__based__controller_1_1assignment_07_0a_08" ],
       [ "time_based_controller_t", "db/de7/structtime__based__controller_1_1time__based__controller__t.html", "db/de7/structtime__based__controller_1_1time__based__controller__t" ]
     ] ],
     [ "time_interpolator", "d7/d12/namespacetime__interpolator.html", [

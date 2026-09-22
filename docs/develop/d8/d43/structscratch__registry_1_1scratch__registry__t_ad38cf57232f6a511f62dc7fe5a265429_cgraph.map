@@ -1,19 +1,21 @@
 <map id="scratch_registry::scratch_registry_t::request" name="scratch_registry::scratch_registry_t::request">
-<area shape="rect" id="Node000001" title="Generic request procedure." alt="" coords="5,197,185,237"/>
+<area shape="rect" id="Node000001" title="Generic request procedure." alt="" coords="5,229,185,269"/>
 <area shape="rect" id="Node000002" href="$d7/dda/namespacescratch__registry.html#acfea81da46d6f5c58a6a914ee18d6f5f" title="Get a device_array from the registry by assigning it to a pointer." alt="" coords="233,5,416,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,196,156,127,191,89,232,55,241,49,244,54,235,59,195,93,160,131,111,199"/>
-<area shape="rect" id="Node000003" href="$d7/dda/namespacescratch__registry.html#a3323d64c81fd680132b725888d8d8d16" title="Get a field from the registry by assigning it to a pointer." alt="" coords="233,69,416,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="119,195,170,157,232,119,246,112,249,117,235,124,173,162,123,199"/>
-<area shape="rect" id="Node000004" href="$d7/dda/namespacescratch__registry.html#a68ad7eb7e444ec99369f1fa935802c0a" title="Get a host_array from the registry by assigning it to a pointer." alt="" coords="233,133,416,173"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="167,195,239,174,240,180,168,200"/>
-<area shape="rect" id="Node000006" href="$d7/dda/namespacescratch__registry.html#ab56e8bccbcc5ed446b6a1c0fab6979bb" title="Get a matrix from the registry by assigning it to a pointer." alt="" coords="233,197,416,237"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="186,215,219,215,219,220,186,220"/>
-<area shape="rect" id="Node000007" href="$d7/dda/namespacescratch__registry.html#a0b8cf47bd6089863be86491e1ec7ca16" title="Get a tensor3 from the registry by assigning it to a pointer." alt="" coords="233,261,416,301"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="168,235,240,255,239,260,167,240"/>
-<area shape="rect" id="Node000008" href="$d7/dda/namespacescratch__registry.html#a703f2b145acc6459b266efe18e881fa4" title="Get a tensor4 from the registry by assigning it to a pointer." alt="" coords="233,325,416,365"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="123,235,173,273,235,311,249,318,246,323,232,316,170,277,119,240"/>
-<area shape="rect" id="Node000009" href="$d7/dda/namespacescratch__registry.html#abb82d6f812046c663d7068b900e88998" title="Get a vector from the registry by assigning it to a pointer." alt="" coords="233,389,416,429"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="111,236,160,304,195,342,235,375,244,381,241,385,232,379,191,346,156,307,107,239"/>
-<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="464,141,561,166"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="416,151,450,151,450,156,416,156"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,228,123,191,151,145,187,97,232,55,239,50,242,54,235,59,191,101,155,148,127,194,108,230"/>
+<area shape="rect" id="Node000003" href="$d7/dda/namespacescratch__registry.html#a01e74b7f3e6220716608f72c7d1e41ca" title="Get a field from the registry by assigning it to a pointer." alt="" coords="233,69,416,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="111,227,162,174,195,145,232,119,244,113,246,117,235,124,199,149,166,178,115,231"/>
+<area shape="rect" id="Node000004" href="$d7/dda/namespacescratch__registry.html#af3a088033a406fc890afb53fa378506f" title="Get a field from the registry by assigning it to a pointer." alt="" coords="233,133,416,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="136,227,232,183,251,176,253,181,234,188,138,232"/>
+<area shape="rect" id="Node000005" href="$d7/dda/namespacescratch__registry.html#a68ad7eb7e444ec99369f1fa935802c0a" title="Get a host_array from the registry by assigning it to a pointer." alt="" coords="233,197,416,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="185,234,219,229,220,235,186,239"/>
+<area shape="rect" id="Node000007" href="$d7/dda/namespacescratch__registry.html#ab56e8bccbcc5ed446b6a1c0fab6979bb" title="Get a matrix from the registry by assigning it to a pointer." alt="" coords="233,261,416,301"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="186,259,220,264,219,269,185,265"/>
+<area shape="rect" id="Node000008" href="$d7/dda/namespacescratch__registry.html#a0b8cf47bd6089863be86491e1ec7ca16" title="Get a tensor3 from the registry by assigning it to a pointer." alt="" coords="233,325,416,365"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="138,267,234,311,253,318,251,323,232,316,136,272"/>
+<area shape="rect" id="Node000009" href="$d7/dda/namespacescratch__registry.html#a703f2b145acc6459b266efe18e881fa4" title="Get a tensor4 from the registry by assigning it to a pointer." alt="" coords="233,389,416,429"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="115,268,166,321,199,350,235,375,246,381,244,386,232,380,195,354,162,324,111,271"/>
+<area shape="rect" id="Node000010" href="$d7/dda/namespacescratch__registry.html#abb82d6f812046c663d7068b900e88998" title="Get a vector from the registry by assigning it to a pointer." alt="" coords="233,453,416,493"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="108,269,127,305,155,351,191,398,235,439,242,444,239,449,232,443,187,402,151,354,123,308,104,271"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="464,205,561,230"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="416,215,450,215,450,220,416,220"/>
 </map>

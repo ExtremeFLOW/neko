@@ -30,7 +30,6 @@ var hierarchy =
     [ "neko_api_user::api_ic_callback", "de/d85/interfaceneko__api__user_1_1api__ic__callback.html", null ],
     [ "neko_api_user::api_user_cb", "da/d5d/structneko__api__user_1_1api__user__cb.html", null ],
     [ "structs::array_ptr_t", "dd/d8c/structstructs_1_1array__ptr__t.html", null ],
-    [ "time_based_controller::assignment(=)", "da/d69/interfacetime__based__controller_1_1assignment_07_0a_08.html", null ],
     [ "artificial_viscosity_model::avm_allocate", "d3/dda/interfaceartificial__viscosity__model_1_1avm__allocate.html", null ],
     [ "artificial_viscosity_model::avm_compute", "dd/d1e/interfaceartificial__viscosity__model_1_1avm__compute.html", null ],
     [ "artificial_viscosity_model::avm_free", "df/da5/interfaceartificial__viscosity__model_1_1avm__free.html", null ],
