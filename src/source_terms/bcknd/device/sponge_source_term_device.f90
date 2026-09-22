@@ -65,8 +65,6 @@ contains
     type(field_t), pointer :: fu, fv, fw
     integer :: tmp_index
     type(c_ptr) :: wk
-
-    
     ! The RHS components
     fu => fields%get_by_index(1)
     fv => fields%get_by_index(2)
