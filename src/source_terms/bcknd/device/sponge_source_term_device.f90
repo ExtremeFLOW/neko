@@ -48,9 +48,13 @@ contains
   !! @param u The x component of velocity.
   !! @param v The y component of velocity.
   !! @param w The z component of velocity.
-  !! @param fields The right-hand side, which should be the velocity components.
-  !! @param omega The rotation vector.
-  !! @param omega The geostrophic wind.
+  !! @param u_bf The x component of the baseflow.
+  !! @param v_bf The y component of the baseflow.
+  !! @param w_bf The z component of the baseflow.
+  !! @param fringe The fringe field
+  !! @param a_x The amplitude in the x-direction
+  !! @param a_y The amplitude in the y-direction
+  !! @param a_z The amplitude in the z-direction
   subroutine sponge_source_term_compute_device(fields, u, v, w, &
        u_bf, v_bf, w_bf, fringe, a_x, a_y, a_z)
     type(field_list_t), intent(inout) :: fields

@@ -47,6 +47,9 @@ contains
   !! @param u The x component of velocity.
   !! @param v The y component of velocity.
   !! @param w The z component of velocity.
+  !! @param u_bf The x component of the baseflow.
+  !! @param v_bf The y component of the baseflow.
+  !! @param w_bf The z component of the baseflow.
   !! @param fringe The fringe field
   !! @param a_x The amplitude in the x-direction
   !! @param a_y The amplitude in the y-direction
