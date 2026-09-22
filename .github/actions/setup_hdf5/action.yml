@@ -163,6 +163,12 @@ runs:
       shell: bash
       env:
         WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
+        CC: mpicc
+        FC: mpif90
+        OMPI_FC: ${{ inputs.compiler }}
+        OMPI_CC: ${{ inputs.c-compiler }}
+        FCFLAGS: ${{ inputs.compiler-flags }}
+        CFLAGS: ${{ inputs.c-compiler-flags }}
       run: |
         cmake --build $WORKING_DIR/build --config Release
 
@@ -171,6 +177,12 @@ runs:
       shell: bash
       env:
         WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
+        CC: mpicc
+        FC: mpif90
+        OMPI_FC: ${{ inputs.compiler }}
+        OMPI_CC: ${{ inputs.c-compiler }}
+        FCFLAGS: ${{ inputs.compiler-flags }}
+        CFLAGS: ${{ inputs.c-compiler-flags }}
       run: |
         cmake --install $WORKING_DIR/build --config Release
 

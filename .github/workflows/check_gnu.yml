@@ -97,7 +97,7 @@ jobs:
 
           - os: macos-15
             setup-env: |
-              brew install openmpi automake libtool
+              brew install openmpi automake libtool cmake
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
@@ -245,7 +245,7 @@ jobs:
 
       - name: Dependencies - Get HDF5
         id: get-hdf5
-        if: matrix.backend == 'cpu' && ( matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm' )
+        if: matrix.backend == 'cpu'
         uses: ./.github/actions/setup_hdf5
         with:
           version: ${{ steps.setup-deps.outputs.hdf5-version }}
