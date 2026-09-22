@@ -65,8 +65,6 @@ module scratch_registry
      logical, private, allocatable :: inuse(:)
      !> Number of registered objects
      integer, private :: n_entries = 0
-     !> Number of objects in use
-     integer, private :: n_inuse = 0
      !> The size the objects array is increased by upon reallocation
      integer, private :: expansion_size = 10
      !> Dofmap
@@ -224,7 +222,6 @@ contains
 
     ! Reset to default values
     this%n_entries = 0
-    this%n_inuse = 0
     this%expansion_size = 10
 
   end subroutine scratch_registry_free
@@ -258,7 +255,7 @@ contains
   !> Get the number of objects currently in use
   pure function get_n_inuse(this) result(n)
     class(scratch_registry_t), intent(in) :: this
-    integer :: n, i
+    integer :: n
 
     n = count(this%inuse)
   end function get_n_inuse
@@ -334,8 +331,7 @@ contains
     logical, intent(in) :: clear
     type(host_array_t), pointer :: v_scratch
 
-    associate(entries => this%entries, n_entries => this%n_entries, &
-         n_inuse => this%n_inuse)
+    associate(entries => this%entries, n_entries => this%n_entries)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
@@ -355,7 +351,6 @@ contains
 
             if (clear) call rzero(v_scratch%x, v_scratch%size())
             this%inuse(index) = .true.
-            this%n_inuse = this%n_inuse + 1
             ptr => v_scratch%x
             nullify(v_scratch)
             return
@@ -366,7 +361,6 @@ contains
       index = n_entries + 1
       call this%expand()
       n_entries = n_entries + 1
-      n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_host_array(n)
       v_scratch => this%entries(n_entries)%get_host_array()
@@ -390,8 +384,7 @@ contains
     logical, intent(in) :: clear
     type(device_array_t), pointer :: v_tmp
 
-    associate(entries => this%entries, n_entries => this%n_entries, &
-         n_inuse => this%n_inuse)
+    associate(entries => this%entries, n_entries => this%n_entries)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
@@ -412,7 +405,6 @@ contains
             ptr = v_tmp%x_d
             if (clear) call device_rzero(ptr, n)
             this%inuse(index) = .true.
-            this%n_inuse = this%n_inuse + 1
             nullify(v_tmp)
             return
          end if
@@ -422,7 +414,6 @@ contains
       index = n_entries + 1
       call this%expand()
       n_entries = n_entries + 1
-      n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_device_array(n)
       v_tmp => this%entries(n_entries)%get_device_array()
@@ -444,8 +435,7 @@ contains
     integer, intent(in) :: n
     logical, intent(in) :: clear
 
-    associate(entries => this%entries, n_entries => this%n_entries, &
-         n_inuse => this%n_inuse)
+    associate(entries => this%entries, n_entries => this%n_entries)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
@@ -465,7 +455,6 @@ contains
 
             if (clear) call vector_rzero(ptr)
             this%inuse(index) = .true.
-            this%n_inuse = this%n_inuse + 1
             return
          end if
       end do
@@ -474,7 +463,6 @@ contains
       index = n_entries + 1
       call this%expand()
       n_entries = n_entries + 1
-      n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_vector(n)
       ptr => this%entries(n_entries)%get_vector()
@@ -495,8 +483,7 @@ contains
     integer, intent(in) :: nrows, ncols
     logical, intent(in) :: clear
 
-    associate(entries => this%entries, n_entries => this%n_entries, &
-         n_inuse => this%n_inuse)
+    associate(entries => this%entries, n_entries => this%n_entries)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
@@ -517,7 +504,6 @@ contains
 
             if (clear) call matrix_rzero(ptr)
             this%inuse(index) = .true.
-            this%n_inuse = this%n_inuse + 1
             return
          end if
       end do
@@ -526,7 +512,6 @@ contains
       index = n_entries + 1
       call this%expand()
       n_entries = n_entries + 1
-      n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_matrix(nrows, ncols)
       ptr => this%entries(n_entries)%get_matrix()
@@ -548,8 +533,7 @@ contains
     integer, intent(in) :: n, m, l
     logical, intent(in) :: clear
 
-    associate(entries => this%entries, n_entries => this%n_entries, &
-         n_inuse => this%n_inuse)
+    associate(entries => this%entries, n_entries => this%n_entries)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
@@ -575,7 +559,6 @@ contains
                call rzero(ptr%x, ptr%size())
             end if
             this%inuse(index) = .true.
-            this%n_inuse = this%n_inuse + 1
             return
          end if
       end do
@@ -584,7 +567,6 @@ contains
       index = n_entries + 1
       call this%expand()
       n_entries = n_entries + 1
-      n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_tensor3(n, m, l)
       ptr => this%entries(n_entries)%get_tensor3()
@@ -607,8 +589,7 @@ contains
     integer, intent(in) :: n, m, l, k
     logical, intent(in) :: clear
 
-    associate(entries => this%entries, n_entries => this%n_entries, &
-         n_inuse => this%n_inuse)
+    associate(entries => this%entries, n_entries => this%n_entries)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
@@ -635,7 +616,6 @@ contains
                call rzero(ptr%x, ptr%size())
             end if
             this%inuse(index) = .true.
-            this%n_inuse = this%n_inuse + 1
             return
          end if
       end do
@@ -644,7 +624,6 @@ contains
       index = n_entries + 1
       call this%expand()
       n_entries = n_entries + 1
-      n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_tensor4(n, m, l, k)
       ptr => this%entries(n_entries)%get_tensor4()
@@ -668,8 +647,7 @@ contains
             // "No dofmap assigned to scratch registry.")
     end if
 
-    associate(entries => this%entries, n_entries => this%n_entries, &
-         n_inuse => this%n_inuse)
+    associate(entries => this%entries, n_entries => this%n_entries)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
@@ -685,7 +663,6 @@ contains
             ptr => entries(index)%get_field()
             if (clear) call field_rzero(ptr)
             this%inuse(index) = .true.
-            this%n_inuse = this%n_inuse + 1
             return
          end if
       end do
@@ -694,7 +671,6 @@ contains
       index = n_entries + 1
       call this%expand()
       n_entries = n_entries + 1
-      n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       write (name, "(A3,I0.3)") "wrk", index
       call this%entries(n_entries)%init_field(this%dof, trim(name))
@@ -716,8 +692,7 @@ contains
     logical, intent(in) :: clear
     character(len=10) :: name
 
-    associate(entries => this%entries, n_entries => this%n_entries, &
-         n_inuse => this%n_inuse)
+    associate(entries => this%entries, n_entries => this%n_entries)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
@@ -738,7 +713,6 @@ contains
 
             if (clear) call field_rzero(ptr)
             this%inuse(index) = .true.
-            this%n_inuse = this%n_inuse + 1
             return
          end if
       end do
@@ -748,7 +722,6 @@ contains
       index = n_entries + 1
       call this%expand()
       n_entries = n_entries + 1
-      n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       write (name, "(A3,I0.3)") "wrk", index
       call this%entries(n_entries)%init_field(dof, trim(name))
@@ -769,7 +742,6 @@ contains
     end if
 
     this%inuse(index) = .false.
-    this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_host_array_single
 
   !> Relinquish the use of multiple host_arrays in the registry
@@ -787,7 +759,6 @@ contains
 
        this%inuse(indices(i)) = .false.
     end do
-    this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_host_array_multiple
 
   !> Relinquish the use of a device_array in the registry
@@ -802,7 +773,6 @@ contains
     end if
 
     this%inuse(index) = .false.
-    this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_device_array_single
 
   !> Relinquish the use of multiple device_arrays in the registry
@@ -820,7 +790,6 @@ contains
 
        this%inuse(indices(i)) = .false.
     end do
-    this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_device_array_multiple
 
   !> Relinquish the use of a vector in the registry
@@ -835,7 +804,6 @@ contains
     end if
 
     this%inuse(index) = .false.
-    this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_vector_single
 
   !> Relinquish the use of multiple vectors in the registry
@@ -853,7 +821,6 @@ contains
 
        this%inuse(indices(i)) = .false.
     end do
-    this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_vector_multiple
 
   !> Relinquish the use of a matrix in the registry
@@ -868,7 +835,6 @@ contains
     end if
 
     this%inuse(index) = .false.
-    this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_matrix_single
 
   !> Relinquish the use of multiple matrices in the registry
@@ -886,7 +852,6 @@ contains
 
        this%inuse(indices(i)) = .false.
     end do
-    this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_matrix_multiple
 
   !> Relinquish the use of a tensor3 in the registry
@@ -901,7 +866,6 @@ contains
     end if
 
     this%inuse(index) = .false.
-    this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_tensor3_single
 
   !> Relinquish the use of multiple tensor3s in the registry
@@ -919,7 +883,6 @@ contains
 
        this%inuse(indices(i)) = .false.
     end do
-    this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_tensor3_multiple
 
   !> Relinquish the use of a tensor4 in the registry
@@ -934,7 +897,6 @@ contains
     end if
 
     this%inuse(index) = .false.
-    this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_tensor4_single
 
   !> Relinquish the use of multiple tensor4s in the registry
@@ -952,7 +914,6 @@ contains
 
        this%inuse(indices(i)) = .false.
     end do
-    this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_tensor4_multiple
 
   !> Relinquish the use of a field in the registry
@@ -967,7 +928,6 @@ contains
     end if
 
     this%inuse(index) = .false.
-    this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_field_single
 
   !> Relinquish the use of multiple fields in the registry
@@ -985,7 +945,6 @@ contains
 
        this%inuse(indices(i)) = .false.
     end do
-    this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_field_multiple
 
   !> Relinquish the use of an object in the registry
@@ -995,7 +954,6 @@ contains
     integer, intent(inout) :: index
 
     this%inuse(index) = .false.
-    this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_single
 
   !> Relinquish the use of multiple objects in the registry
@@ -1008,7 +966,6 @@ contains
     do i = 1, size(indices)
        this%inuse(indices(i)) = .false.
     end do
-    this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_multiple
 
 end module scratch_registry
