@@ -402,7 +402,8 @@ contains
     integer(kind=i8) :: nparts_read(2), partoffs_read(2)
     integer(kind=i8) :: ptoffs_read(2), celloffs_read(2)
     integer(kind=i8) :: connoffs_read(2), pdoffs_read(2)
-    real(rp) :: read_rp(2)
+    real(kind=rp) :: read_rp(2)
+    real(kind=dp) :: read_dp(2)
     logical :: link_exists
 
     ! Expected values: same Lagrange geometry as non-temporal, 2 timesteps
