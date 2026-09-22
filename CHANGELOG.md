@@ -36,6 +36,10 @@
   a vector, with kernels for CUDA, HIP, OpenCL and Metal. Unlike an `any()`
   over a host array it is an exact, reduced test for "are all entries zero"
   that never touches the host copy.
+- Updated interfaces for scratch host and device arrays. Now the canonical types
+  are used when requesting scratch arrays of these types. `c_ptr` and
+  `real(kind=rp), pointer` should be used rather than the wrappers
+  `host_array_t` and `device_array_t`.
 - Removed false sharing in the CPU GMRES Gram-Schmidt step: per-thread
   partial sums now live in a private array and are published once per
   thread.
