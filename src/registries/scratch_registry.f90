@@ -975,19 +975,19 @@ contains
   !> Relinquish a single index based on a specified type.
   !! @param index The index of the object to free
   !! @param type The type of the object to free
-  subroutine relinquish_single_by_type(this, index, type)
+  subroutine relinquish_type(this, index, type)
     class(scratch_registry_t), intent(inout) :: this
     integer, intent(in) :: index
     character(len=*), intent(in) :: type
     character(len=:), allocatable :: msg
 
     if (trim(this%entries(index)%get_type()) .ne. type) then
-       write(msg, "(A,1X,A,1x,A,A)") "scratch_registry::relinquish:", &
+       write(msg, "(A,1X,A,1X,A,A)") "scratch_registry::relinquish:", &
             "Entry is not a", trim(type), "."
        call neko_error(msg)
     end if
 
     this%inuse(index) = .false.
-  end subroutine relinquish_single_by_type
+  end subroutine relinquish_type
 
 end module scratch_registry
