@@ -11,15 +11,15 @@ On the unit cube, periodic in y and z, with the velocity prescribed at
 
     u = 1 + 0.3 sin(2 pi x),  v = 0.3 sin(2 pi y),  w = 0
 
-is the gradient part of a Helmholtz--Leray decomposition plus
+decomposes into a gradient and the divergence-free field
 
     u = 1 - 0.3 cos(2 pi y) sinh(2 pi x) / cosh(2 pi),
     v = 0.3 sin(2 pi y) cosh(2 pi x) / cosh(2 pi),  w = 0,
 
-which is the field the projection must produce; on the probed centre line
-y = 0.5 its v vanishes. It leaves the prescribed inflow at ``x = 0``
-untouched while changing the interior, so the comparison also pins down the
-boundary treatment of the projection.
+which the projection must produce. At ``x = 0`` it has the prescribed u = 1
+but not the prescribed v, which the masked projection keeps, so the probes sit
+on the centre line y = 0.5 where v vanishes in both. The comparison also pins
+down the boundary conditions of the Poisson problem.
 """
 
 import json
@@ -55,7 +55,7 @@ SOLVE_TOLERANCE = {"dp": 1.0e-9, "sp": 1.0e-6}
 # tangential velocity there disagrees with the divergence-free interior, and
 # the correction is masked on the boundary as in the time loop, so a one-point
 # layer of divergence remains at the inflow and bounds the reduction. Without
-# boundaries the reduction is only limited by the solve.
+# boundaries it is limited by the resolution (about 1e5 here), not by the solve.
 DIVERGENCE_REDUCTION = {"analytic": 10.0, "periodic": 1.0e4}
 
 CENTRE_LINE = [(x, 0.5, 0.5) for x in (0.0, 0.5, 1.0)]
@@ -79,7 +79,7 @@ def _solver(solver_type, preconditioner):
 
 
 def _case(mesh, output_directory, project, kind, points):
-    """Build the case file for one of three initial conditions.
+    """Build the case file for one of four setups.
 
     ``analytic`` and ``uniform`` run on a mesh periodic in y and z with an
     inflow prescribing exactly the values of the initial condition, so that
@@ -220,9 +220,9 @@ def _read_probes(probe_file, npoints):
     """Return the last sampled (u, v, w) keyed by probe coordinates.
 
     The file opens with a header and one line of coordinates per point, then
-    one line of ``time, u, v, w`` per point and sample. The points are not
-    necessarily in the order they were requested, so the values are matched to
-    the coordinates by position.
+    one line of ``time, u, v, w`` per point and sample. The sample lines follow
+    the order of the coordinate lines, which is not the requested order, so
+    the values are keyed by the coordinates read from the file.
     """
     rows = [
         line.strip()
@@ -278,7 +278,7 @@ def _div_norms(log):
 
 @pytest.fixture(scope="module")
 def div_free_assets(tmp_path_factory, request):
-    """Generate the two meshes shared by the tests."""
+    """Generate the three meshes shared by the tests."""
     workdir = tmp_path_factory.mktemp("div_free_ic")
     neko = Path(get_neko()).resolve()
     genmeshbox = Path(get_genmeshbox()).resolve()
@@ -331,8 +331,7 @@ def test_divergence_free_initial_condition(div_free_assets):
 
 
 def test_divergence_free_periodic_box(div_free_assets):
-    """In a fully periodic box the divergent part is the whole perturbation,
-    and the projection returns the uniform mean flow."""
+    """In a fully periodic box the projection returns the uniform mean flow."""
     tolerance = VALUE_TOLERANCE[conftest.RP]
     points = [(0.37, 0.61, 0.25), (0.8, 0.2, 0.7)]
 
@@ -347,7 +346,7 @@ def test_divergence_free_periodic_box(div_free_assets):
     before, after = _div_norms(log)
     assert after * DIVERGENCE_REDUCTION["periodic"] < before, \
         f"{before} -> {after}"
-    # The pure Neumann path reports the net boundary flux, zero here.
+    # The pure Neumann path reports the net boundary flux.
     assert "Net boundary flux" in log
 
 
@@ -364,10 +363,12 @@ def test_divergence_free_leaves_a_good_field_alone(div_free_assets):
         assert v == pytest.approx(0.0, abs=tolerance), point
         assert w == pytest.approx(0.0, abs=tolerance), point
 
-    # The correction has to stay at the level of the initial divergence, the
-    # projection must not introduce any of its own.
+    # A uniform field is divergence free to round-off. The projection detects
+    # this from the size of its right-hand side and skips the solve, so this
+    # covers the early exit rather than a solve on a divergence-free field.
+    assert "Already divergence free" in log
     before, after = _div_norms(log)
-    assert after < max(1.0e3 * before, tolerance), f"{before} -> {after}"
+    assert before < tolerance and after == before, f"{before} -> {after}"
 
 
 def test_divergence_free_imposes_the_boundary_conditions(div_free_assets):

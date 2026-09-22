@@ -291,7 +291,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     call neko_log%message("Type : uniform")
-    write (log_buf, '(A, 3(ES12.6, A))') "Value: [", &
+    write (log_buf, '(A, 3(ES13.6, A))') "Value: [", &
          (uinf(i), ", ", i = 1, 2), uinf(3), "]"
     call neko_log%message(log_buf)
 
@@ -373,7 +373,7 @@ contains
     write (log_buf, '(A,ES12.6)') "delta        : ", delta
     call neko_log%message(log_buf)
     call neko_log%message("Approximation : " // trim(type))
-    write (log_buf, '(A,"[",2(ES12.6,","),ES12.6,"]")') "Value         : ", &
+    write (log_buf, '(A,"[",2(ES13.6,","),ES13.6,"]")') "Value         : ", &
          uinf(1), uinf(2), uinf(3)
     call neko_log%message(log_buf)
 
@@ -442,11 +442,11 @@ contains
     integer :: size
 
     call neko_log%message("Type       : point_zone")
-    write (log_buf, '(A,"[",2(ES12.6,","),ES12.6," ]")') "Base value : ", &
+    write (log_buf, '(A,"[",2(ES13.6,","),ES13.6," ]")') "Base value : ", &
          base_value(1), base_value(2), base_value(3)
     call neko_log%message(log_buf)
     call neko_log%message("Zone name : " // trim(zone_name))
-    write (log_buf, '(A,"[",2(ES12.6,","),ES12.6," ]")') "Value      : ", &
+    write (log_buf, '(A,"[",2(ES13.6,","),ES13.6," ]")') "Value      : ", &
          zone_value(1), zone_value(2), zone_value(3)
     call neko_log%message(log_buf)
 

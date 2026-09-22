@@ -495,7 +495,8 @@ contains
 
   end subroutine fluid_scheme_validate
 
-  !> Apply all boundary conditions defined for velocity
+  !> Apply the velocity boundary conditions, all of `bcs_vel` unless a subset
+  !! is given in `bcs`.
   !! Here we perform additional gs operations to take care of
   !! shared points between elements that have different BCs, as done in Nek5000.
   !! @todo Why can't we call the interface here?

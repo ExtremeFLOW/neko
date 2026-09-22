@@ -1116,71 +1116,61 @@ file documentation.
    Interpolation will always be performed if `"interpolate"` is set
    to `true`, even if the field file matches with the current simulation.
 
-Regardless of the type, `make_divergence_free` projects the initial velocity
-onto the divergence-free subspace, see
+For any `type`, setting `make_divergence_free` to `true` projects the initial
+velocity onto the divergence-free subspace, see
 [divergence-free initial conditions](@ref case-file_fluid-div-free-ic).
 
 #### Divergence-free initial conditions {#case-file_fluid-div-free-ic}
 
-An initial velocity that does not satisfy continuity, typically one
-interpolated from another mesh or assembled by hand, causes a large pressure
-transient over the first steps. `make_divergence_free` removes its divergent
-part up front:
+An initial velocity that does not satisfy continuity, e.g. one interpolated
+from another mesh, causes a large pressure transient over the first steps.
+`make_divergence_free` removes its divergent part before the first step:
 
 ~~~~~~~~~~~~~~~{.json}
 "initial_condition": {
     "type": "field",
     "file_name": "myfield0.f00034",
-    "make_divergence_free": true,
-    "divergence_free_tolerance": 1e-6,
-    "divergence_free_max_iterations": 500
+    "make_divergence_free": true
 }
 ~~~~~~~~~~~~~~~
 
-The velocity boundary conditions are imposed first, then a potential
-\f$ \phi \f$ is solved for from
+The velocity boundary conditions are imposed first, except `user_velocity` and
+`overset_interface`, which are evaluated through user hooks; there the initial
+condition is kept as it is. Then a potential \f$ \phi \f$ is solved for from
 
 \f{eqnarray*}{
-   \nabla^2 \phi &=& \nabla \cdot \mathbf{u} \quad &\text{in } \Omega, \\
-   \partial_n \phi &=& 0 \quad &\text{where the velocity is prescribed}, \\
-   \phi &=& 0 \quad &\text{where the pressure is prescribed},
+   \nabla^2 \phi &=& \nabla \cdot \mathbf{u} \quad \text{in } \Omega, \\
+   \partial_n \phi &=& 0 \quad \text{where the velocity is prescribed}, \\
+   \phi &=& 0 \quad \text{where the pressure is prescribed},
 \f}
 
-and \f$ \mathbf{u} \leftarrow \mathbf{u} - \nabla \phi \f$, with the
-correction masked on the boundaries where the velocity is prescribed. This is
-the Helmholtz--Leray decomposition, assembled with the operators and boundary
-conditions of the Pn-Pn pressure step, so the result is divergence free in the
-sense the solver enforces and keeps the imposed velocity conditions exactly, an
-inflow profile in particular. The pressure is not touched, it has no influence
-on the solution since the pressure step solves for an increment.
+and \f$ \mathbf{u} \leftarrow \mathbf{u} - \nabla \phi \f$ except on the
+boundaries where the velocity is prescribed, which keep their values. The
+operators and boundary conditions are those of the `pnpn` pressure step. The
+pressure is left unchanged; the pressure step solves for an increment, so it
+does not affect the solution.
 
-Conditions whose values come from user code, `user_velocity` and
-`overset_interface`, are not imposed before the projection, since such hooks
-commonly set themselves up at the first time step; the initial condition is
-then expected to satisfy them.
+The Poisson problem is solved with the `pressure_solver`, but to a relative
+residual reduction of `divergence_free_tolerance` within
+`divergence_free_max_iterations`, in place of the solver's
+`absolute_tolerance` and `max_iterations` (`cheby` always runs all
+iterations, `bicgstab` never goes below a relative \f$ 10^{-9} \f$). The
+residual and \f$ \sqrt{\int (\nabla \cdot \mathbf{u})^2 \, dV} \f$ before
+and after are logged, with a warning if the tolerance is not reached.
 
-The Poisson problem is solved with the `pressure_solver` of the case, but to a
-*relative* residual reduction, `divergence_free_tolerance` (default
-\f$ 10^{-6} \f$, \f$ 1.2 \cdot 10^{-5} \f$ in single precision), within
-`divergence_free_max_iterations` (default 500; the `cheby` solver always runs
-them all). The solver's own absolute tolerance is tuned for the pressure
-increment of a time step and is meaningless for this cold solve, and an
-under-converged potential adds divergence rather than removing it. The
-residual and the norm \f$ \sqrt{\int (\nabla \cdot \mathbf{u})^2 \, dV} \f$
-before and after are logged, and a warning is issued if the tolerance is not
-reached.
-
-@note Only for the `pnpn` scheme, and inactive on restart. Where no pressure is
-prescribed the problem is pure Neumann and needs zero net boundary flux, which
-is then reported. The projection removes the divergence the polynomial space
-can represent: a discontinuous initial condition, e.g. two fields spliced
-together, or a field violating the boundary conditions imposed on it, carries
-divergence in a one-point layer that no projection can remove, and only sees
-its divergence reduced. Blending a seam over about one element recovers the
-full reduction. The correction from a localised source decays away from it
-like the slowest mode of the cross-section, e.g. with an e-folding length of
-\f$ H/\pi \f$ in a channel of height \f$ H \f$ with no spanwise variation, so
-a developed region a few heights away is left effectively untouched.
+@note Only available for the `pnpn` scheme (other schemes stop with an error),
+and skipped on restart. Without a pressure boundary the problem is pure
+Neumann: the net flux through the velocity boundaries is logged, and a nonzero
+one, which triggers a warning, remains as uniform divergence. Keeping the
+prescribed velocities drops the tangential part of the correction on those
+boundaries, so a one-point layer of divergence remains along them, as in the
+time loop. The same holds for divergence the mesh does not resolve, such as a
+seam between spliced fields or an initial condition that disagrees with the
+prescribed values; blending a seam over about one element avoids this. A
+flow-rate mismatch is corrected uniformly up to the nearest pressure boundary;
+the rest of the correction decays away from its source, with an e-folding
+length of \f$ H/\pi \f$ in a channel of height \f$ H \f$ without spanwise
+variation.
 
 ### Source terms {#case-file_fluid-source-term}
 The `source_terms` object should be used to specify the source terms in the
@@ -2172,7 +2162,7 @@ concisely directly in the table.
 | `initial_condition.interpolation.tolerance`        | If `"type"="field"` and interpolation is enabled, the tolerance for the point search.             | Positive real.                                              | `NEKO_EPS*1e3`|
 | `initial_condition.interpolation.padding`          | If `"type"="field"` and interpolation is enabled, the padding for the point search.               | Positive real.                                              | `1e-2`        |
 | `initial_condition.make_divergence_free`           | Project the initial velocity onto the divergence-free subspace, see [divergence-free initial conditions](@ref case-file_fluid-div-free-ic). | `true` or `false`      | `false`       |
-| `initial_condition.divergence_free_tolerance`      | Relative residual reduction of the projection's Poisson solve.                                    | Positive real.                                              | `1e-6` (`1.2e-5` in single precision) |
+| `initial_condition.divergence_free_tolerance`      | Relative residual reduction of the projection's Poisson solve.                                    | Positive real.                                              | `1e-6` (`100*NEKO_EPS` in single precision) |
 | `initial_condition.divergence_free_max_iterations` | Iteration cap of the projection's Poisson solve.                                                  | Positive integer.                                           | `500`         |
 | `blasius.delta`                                    | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                               | -             |
 | `blasius.freestream_velocity`                      | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                           | -             |

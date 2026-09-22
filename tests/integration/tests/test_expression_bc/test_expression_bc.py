@@ -29,10 +29,16 @@ ELEMENTS = (3, 3, 3)
 INFLOW_U = 1.0
 SCALAR_VALUE = 3.5
 
+# Length of the run, in steps. A value that is written into the field but not
+# enforced by the solver drifts away within one step, so a few are enough.
+NSTEPS = 10
+TIMESTEP = 1.0e-3
+
 TOLERANCE = {"dp": 1.0e-9, "sp": 1.0e-5}
 
 
 def _solver(solver_type):
+    """Return the linear-solver configuration used for all runs."""
     return {
         "type": solver_type,
         "preconditioner": {"type": "jacobi"},
@@ -42,8 +48,7 @@ def _solver(solver_type):
 
 
 def _case(mesh, output_directory, expression):
-    """Build a duct case, prescribing the inflow either by value or by
-    expression. Both spell out exactly the same boundary values."""
+    """Build a duct case, prescribing the same inflow by value or expression."""
     if expression:
         inflow = {
             "type": "expression_velocity",
@@ -75,7 +80,7 @@ def _case(mesh, output_directory, expression):
             "output_boundary": False,
             "output_checkpoints": False,
             "output_at_end": False,
-            "time": {"end_time": 1.0e-2, "timestep": 1.0e-3},
+            "time": {"end_time": NSTEPS * TIMESTEP, "timestep": TIMESTEP},
             "numerics": {
                 "time_order": 3,
                 "polynomial_order": 5,
@@ -169,14 +174,15 @@ def _run(assets, expression, name):
             encoding="utf-8").splitlines()
         if line.strip()
     ]
-    # One header line, one line of coordinates, then time, u, s per sample.
+    # One header line, one line of coordinates, then time, u, s per step.
     samples = [[float(e) for e in r.split(",")] for r in rows[2:]]
-    assert len(samples) >= 5, rows
+    assert len(samples) >= NSTEPS - 1, rows
     return [(s[1], s[2]) for s in samples]
 
 
 @pytest.fixture(scope="module")
 def expression_bc_assets(tmp_path_factory, request):
+    """Generate the mesh shared by both runs."""
     workdir = tmp_path_factory.mktemp("expression_bc")
     neko = Path(get_neko()).resolve()
     genmeshbox = Path(get_genmeshbox()).resolve()
@@ -190,8 +196,7 @@ def expression_bc_assets(tmp_path_factory, request):
 
 
 def test_expression_boundary_conditions_are_enforced(expression_bc_assets):
-    """An expression Dirichlet value has to hold for every step, and match the
-    plain Dirichlet condition prescribing the same thing."""
+    """The expression conditions hold every step, like the plain ones."""
     tolerance = TOLERANCE[conftest.RP]
     by_value = _run(expression_bc_assets, False, "by_value")
     by_expression = _run(expression_bc_assets, True, "by_expression")

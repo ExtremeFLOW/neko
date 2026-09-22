@@ -193,10 +193,12 @@ module fluid_pnpn
      !> Whether to use the full formulation of the viscous stress term
      logical :: full_stress_formulation = .false.
 
-     !> Divergence-free projection of the initial condition: whether to do
-     !! it, the relative residual reduction to solve to and the iteration cap.
+     !> Whether to project the initial velocity onto the divergence-free
+     !! subspace.
      logical :: div_free_ic = .false.
+     !> Relative residual reduction the projection is solved to.
      real(kind=rp) :: div_free_tol = 0.0_rp
+     !> Iteration cap of the projection's solve.
      integer :: div_free_max_iter = 0
 
    contains
@@ -635,14 +637,16 @@ contains
     class(bc_t), pointer :: bc_i
     integer :: i
 
+    call neko_log%section('Divergence-free projection')
+
     call bcs%init(max(1, this%bcs_vel%size()))
     do i = 1, this%bcs_vel%size()
        bc_i => this%bcs_vel%get(i)
        select type (bc_i)
-       type is (field_dirichlet_vector_t)
+       class is (field_dirichlet_vector_t)
           call neko_log%message('Not imposed before the projection: ' // &
                trim(bc_i%name))
-       type is (overset_interface_vector_t)
+       class is (overset_interface_vector_t)
           call neko_log%message('Not imposed before the projection: ' // &
                trim(bc_i%name))
        class default
@@ -657,6 +661,8 @@ contains
          this%bcs_vel_projector, this%bc_prs_surface, this%prs_dirichlet, &
          this%glb_n_points, this%rho%x(1,1,1,1), this%div_free_tol, &
          this%div_free_max_iter)
+
+    call neko_log%end_section()
 
   end subroutine fluid_pnpn_make_div_free
 
@@ -1292,7 +1298,6 @@ contains
     use inflow, only : inflow_t
     use field_dirichlet, only : field_dirichlet_t
     use blasius, only : blasius_t
-    use field_dirichlet_vector, only : field_dirichlet_vector_t
     use dong_outflow, only : dong_outflow_t
     use no_slip, only : no_slip_t
     class(fluid_pnpn_t), target, intent(inout) :: this

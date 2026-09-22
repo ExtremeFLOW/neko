@@ -2,17 +2,18 @@
 
 ## Develop
 
-- Added `case.fluid.initial_condition.make_divergence_free`, a Leray
-  projection of the initial velocity onto the divergence-free subspace, using
-  the pressure solver and the boundary conditions of the Pn-Pn scheme. The
-  built-in velocity boundary conditions are imposed first. For fields that
-  do not satisfy continuity, e.g. a field interpolated from another mesh.
-- Fixed `expression_velocity`, `expression_pressure` and the scalar
-  `expression_dirichlet` boundary conditions not being enforced: they never
-  set `bc_type`, so the linear solves left their degrees of freedom
-  unconstrained and the prescribed value was solved away within a step.
-- Fixed the `point_zone` fluid initial condition aborting on a malformed log
-  format.
+- Added `case.fluid.initial_condition.make_divergence_free`, which imposes the
+  velocity boundary conditions on the initial velocity and projects it onto
+  the divergence-free subspace with the `pnpn` pressure solver, e.g. for a
+  field interpolated from another mesh. `divergence_free_tolerance` and
+  `divergence_free_max_iterations` control the solve.
+- Fixed the `expression_velocity`, `expression_pressure` and
+  `expression_dirichlet` boundary conditions not being enforced by the linear
+  solves.
+- Fixed the `point_zone` fluid initial condition aborting while logging its
+  `base_value`.
+- Fixed the `cheby` solver returning an undefined iteration count and
+  residual.
 - Added runtime registration of user-defined scalar boundary-condition types
   through `register_scalar_pnpn_bc`.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.
