@@ -224,17 +224,33 @@ contains
          ! flag elements; just geometrical context
          do il = 1, nelv
             ! sphere
-            dst = sqrt((dm_Xh%x(2, 2, 2, il) -1.0_rp)**2 + &
-                 (dm_Xh%y(2, 2, 2, il) - 0.5_rp)**2 + &
-                 (dm_Xh%z(2, 2, 2, il) - 0.5_rp)**2)
+            !dst = sqrt((dm_Xh%x(2, 2, 2, il) -1.0_rp)**2 + &
+            !     (dm_Xh%y(2, 2, 2, il) - 0.5_rp)**2 + &
+            !     (dm_Xh%z(2, 2, 2, il) - 0.5_rp)**2)
+            !if (dst .le. 0.3_rp) then
+            !   ref_mark(il) = amr_flg_h_ref
+            !end if
+            ! box
+            !if (dm_Xh%x(2, 2, 2, il) .ge. 0.75_rp .and. &
+            !     dm_Xh%x(2, 2, 2, il) .le. 1.25_rp .and. &
+            !     dm_Xh%y(2, 2, 2, il) .ge. 0.25_rp .and. &
+            !     dm_Xh%y(2, 2, 2, il) .le. 0.75_rp .and. &
+            !     dm_Xh%z(2, 2, 2, il) .ge. 0.25_rp .and. &
+            !     dm_Xh%z(2, 2, 2, il) .le. 0.75_rp) then
+            !   ref_mark(il) = amr_flg_h_ref
+            !end if
             ! column
-            !dst = sqrt(dm_Xh%x(2, 2, 2, il)**2 + dm_Xh%y(2, 2, 2, il)**2)
-            if (dst .le. 0.3_rp) then
+            if (dm_Xh%x(2, 2, 2, il) .ge. 0.75_rp .and. &
+                 dm_Xh%x(2, 2, 2, il) .le. 1.25_rp .and. &
+                 dm_Xh%y(2, 2, 2, il) .ge. 0.25_rp .and. &
+                 dm_Xh%y(2, 2, 2, il) .le. 0.75_rp .and. &
+                 dm_Xh%z(2, 2, 2, il) .ge. 0.0_rp .and. &
+                 dm_Xh%z(2, 2, 2, il) .le. 0.75_rp) then
                ref_mark(il) = amr_flg_h_ref
             end if
-            ! wall
-            !if (dm_Xh%x(2, 2, 2, il) .le. 0.0_rp .and. &
-            !     dm_Xh%x(2, 2, 2, il) .ge. -1.6_rp) then
+            ! section
+            !if (dm_Xh%x(2, 2, 2, il) .ge. 0.75_rp .and. &
+            !     dm_Xh%x(2, 2, 2, il) .le. 1.25_rp) then
             !   ref_mark(il) = amr_flg_h_ref
             !end if
          end do
