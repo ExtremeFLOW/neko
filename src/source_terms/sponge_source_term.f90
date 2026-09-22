@@ -210,7 +210,7 @@ contains
        call this%init_user(fields, coef, start_time, end_time, amplitudes, &
             fringe_registry_name, bf_registry_pref, dump_fields, dump_fname)
 
-       ! Let the user set the base flow.
+       ! Use an already existing baseflow from another sponge object
     case ("no-op")
 
        call this%init_noop(fields, coef, start_time, end_time, &
@@ -226,7 +226,8 @@ contains
 
   end subroutine sponge_init_from_json
 
-  !> Initialize a sponge with a constant baseflow.
+  !> Initialize a sponge that reuses an already existing baseflow in the
+  !! registry.
   subroutine sponge_init_noop(this, fields, coef, start_time, end_time, &
        amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
        dump_fname)
@@ -249,7 +250,7 @@ contains
          dump_fname)
 
     !
-    ! Create the base flow fields in the registry
+    ! Reuse existing baseflows
     !
     this%u_bf => neko_registry%get_field(trim(bf_registry_pref) // "_u")
     this%v_bf => neko_registry%get_field(trim(bf_registry_pref) // "_v")
