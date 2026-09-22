@@ -74,7 +74,7 @@ contains
     call device_sub3(wk%x_d, u_bf%x_d, u%x_d, n)
     ! wk = fringe * wk = fringe * (u_bf - u)
     call device_col2(wk%x_d, fringe%x_d, n)
-    ! fu = fu + amplitude(1)*wk = fu + amplitude(1)*fringe*(u_bf - u)
+    ! fu = fu + a_x*wk = fu + a_x*fringe*(u_bf - u)
     call device_add2s2(fu%x_d, wk%x_d, a_x, n)
 
     call device_sub3(wk%x_d, v_bf%x_d, v%x_d, n)
