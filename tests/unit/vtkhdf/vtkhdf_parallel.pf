@@ -655,9 +655,9 @@ contains
     @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, values_read, h5dims(1:1), hdferr)
     message = "Values(1) must be 0.0"
-    @assertEqual(0.0_rp, values_read(1), message = message)
+    @assertEqual(0.0_dp, values_read(1), message = message)
     message = "Values(2) must be 1.0"
-    @assertEqual(1.0_rp, values_read(2), message = message)
+    @assertEqual(1.0_dp, values_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
@@ -1030,9 +1030,9 @@ contains
     call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, values_read, &
          h5dims(1:1), hdferr)
     message = "Values(1) must be 0.0 (subdivide)"
-    @assertEqual(0.0_rp, values_read(1), message = message)
+    @assertEqual(0.0_dp, values_read(1), message = message)
     message = "Values(2) must be 1.0 (subdivide)"
-    @assertEqual(1.0_rp, values_read(2), message = message)
+    @assertEqual(1.0_dp, values_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
