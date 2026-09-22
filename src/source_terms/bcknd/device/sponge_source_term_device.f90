@@ -64,16 +64,17 @@ contains
     integer :: n
     type(field_t), pointer :: fu, fv, fw
     integer :: tmp_index
-    type(c_ptr), pointer :: wk
+    type(c_ptr) :: wk
 
-    call neko_scratch_registry%request(wk, tmp_index, n, .false.)
-
+    
     ! The RHS components
     fu => fields%get_by_index(1)
     fv => fields%get_by_index(2)
     fw => fields%get_by_index(3)
-
+    
     n = fu%size()
+
+    call neko_scratch_registry%request(wk, tmp_index, n, .false.)
 
     ! wk = u_bf - u
     call device_sub3(wk, u_bf%x_d, u%x_d, n)
