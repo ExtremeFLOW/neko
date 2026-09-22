@@ -993,25 +993,21 @@ contains
           ! faces
           itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
           if (itmp .gt. 0) then
-             do jl = this%hang_fcs_off(il), this%hang_fcs_off(il + 1) - 1
-                call face_to_vector(vec(:, :, :, this%hang_el(il)), &
-                     this%face_tmp, this%hang_fcs(jl), this%lx)
-                this%face_tmp(:, :) = cnst_f * this%face_tmp(:, :)
-                call vector_to_face(vec(:, :, :, this%hang_el(il)), &
-                     this%face_tmp, this%hang_fcs(jl), this%lx)
-             end do
+             call gs_interp_cpu_scale_children_elem_face(this%lx, &
+                  vec(:, :, :, this%hang_el(il)), itmp, &
+                  this%hang_fcs(this%hang_fcs_off(il) : &
+                  this%hang_fcs_off(il + 1) - 1), cnst_f, &
+                  this%facein(:, :, 1 : itmp))
           end if
 
           ! edges
           itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
           if (itmp .gt. 0) then
-             do jl = this%hang_edg_off(il), this%hang_edg_off(il + 1) - 1
-                call edge_to_vector(vec(:, :, :, this%hang_el(il)), &
-                     this%edge_tmp, this%hang_edg(jl), this%lx)
-                this%edge_tmp(:) = cnst_e * this%edge_tmp(:)
-                call vector_to_edge(vec(:, :, :, this%hang_el(il)), &
-                     this%edge_tmp, this%hang_edg(jl), this%lx)
-             end do
+             call gs_interp_cpu_scale_children_elem_edge(this%lx, &
+                  vec(:, :, :, this%hang_el(il)), itmp, &
+                  this%hang_edg(this%hang_edg_off(il) : &
+                  this%hang_edg_off(il + 1) - 1), cnst_e, &
+                  this%edgein(:, 1 : itmp))
           end if
        end do
     end if
@@ -1029,6 +1025,72 @@ contains
     call this%scale_children_r4(up, cnst_f, cnst_e)
 
   end subroutine gs_interp_cpu_scale_children_r1
+
+  !> Perform face scaling in a single element
+  !! @param[in]     lx        number of points in 1D
+  !! @param[inout]  elem      field element
+  !! @param[in]     nface     face number
+  !! @param[in]     facelist  list of faces
+  !! @param[in]     cnst      scaling constant
+  !! @param[inout]  face      work arrays
+  subroutine gs_interp_cpu_scale_children_elem_face(lx, elem, nface, facelist, &
+       cnst, face)
+    integer, intent(in) :: lx, nface
+    real(rp), dimension(lx, lx, lx), intent(inout) :: elem
+    integer, dimension(nface), intent(in) :: facelist
+    real(rp), intent(in) :: cnst
+    real(rp), dimension(lx, lx, nface), intent(inout) :: face
+    integer :: il
+
+    ! extract faces
+    do il = 1, nface
+       call face_to_vector(elem, face(:, :, il), facelist(il), lx)
+    end do
+
+    ! interpolate faces
+    do il = 1, nface
+       face(:, :, il) = cnst * face(:, :, il)
+    end do
+
+    ! put faces back
+    do il = 1, nface
+       call vector_to_face(elem, face(:, :, il), facelist(il), lx)
+    end do
+
+  end subroutine gs_interp_cpu_scale_children_elem_face
+
+  !> Perform edge scaling in a single element
+  !! @param[in]     lx        number of points in 1D
+  !! @param[inout]  elem      field element
+  !! @param[in]     nedge     edge number
+  !! @param[in]     edgelist  list of edges
+  !! @param[in]     cnst      scaling constant
+  !! @param[inout]  edge      work arrays
+  subroutine gs_interp_cpu_scale_children_elem_edge(lx, elem, nedge, edgelist, &
+       cnst, edge)
+    integer, intent(in) :: lx, nedge
+    real(rp), dimension(lx, lx, lx), intent(inout) :: elem
+    integer, dimension(nedge), intent(in) :: edgelist
+    real(rp), intent(in) :: cnst
+    real(rp), dimension(lx, 1, nedge), intent(inout) :: edge
+    integer :: il
+
+    ! extract edges
+    do il = 1, nedge
+       call edge_to_vector(elem, edge(:, 1, il), edgelist(il), lx)
+    end do
+
+    ! interpolate edges
+    do il = 1, nedge
+       edge(:, :, il) = cnst * edge(:, :, il)
+    end do
+
+    ! put edges back
+    do il = 1, nedge
+       call vector_to_edge(elem, edge(:, 1, il), edgelist(il), lx)
+    end do
+
+  end subroutine gs_interp_cpu_scale_children_elem_edge
 
   !> Add multiplicity for H1 using field
   !! @param[inout]  field    field for face interpolation
