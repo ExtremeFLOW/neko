@@ -245,7 +245,7 @@ jobs:
 
       - name: Dependencies - Get HDF5
         id: get-hdf5
-        if: matrix.backend == 'cpu'
+        if: matrix.backend == 'cpu' && ( matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm' )
         uses: ./.github/actions/setup_hdf5
         with:
           version: ${{ steps.setup-deps.outputs.hdf5-version }}
