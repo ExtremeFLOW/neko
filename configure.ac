@@ -28,8 +28,9 @@ AC_ARG_ENABLE(real,
             [enable_real=${enableval}], [enable_real=dp])
 
 AC_ARG_ENABLE(blk_size,
-              AS_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
-              [blk_size=${enableval}], [blk_size="1024"])
+              AS_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory
+                    (default: 2048 for dp, 4096 for sp/ssp, 1024 for qp)]),
+              [blk_size=${enableval}], [blk_size=""])
 
 AC_ARG_ENABLE(device-mpi,
           AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
@@ -247,6 +248,16 @@ else
    fi
 fi
 
+# Default block size (in elements) unless given: keep the per-block
+# working set of the blocked Krylov kernels (two resident vectors plus
+# one streamed) at roughly 48 KiB regardless of the working precision.
+if test "x$blk_size" = x; then
+   case "$enable_real" in
+      ssp|sp) blk_size=4096 ;;
+      qp) blk_size=1024 ;;
+      *) blk_size=2048 ;;
+   esac
+fi
 AC_SUBST(blk_size, ${blk_size})
 
 # Checks for libxsmm backend
@@ -361,14 +372,18 @@ AX_ROCTX
 # Checks for HDF5
 if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
    AX_CRAY_HDF5_PARALLEL
-else
-   AX_HDF5
+fi
+
+if (test "x${have_cray_hdf5}" != xyes); then
+    AX_HDF5
 fi
 
 # Checks for OpenSHMEM
 if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
    AX_CRAY_SHMEM
-else
+fi
+
+if (test "x${have_cray_shmem}" != xyes); then
    AX_SHMEM
 fi
 

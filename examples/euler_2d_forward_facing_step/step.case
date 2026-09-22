@@ -14,14 +14,16 @@
 
         "numerics": {
             "time_order": 3,
-            "polynomial_order": 5,
-            "c_avisc_low": 0.5,
-            "c_avisc_entropy": 0.5
+            "polynomial_order": 5
         },
 
         "fluid": {
             "scheme": "compressible",
             "gamma": 1.4,
+            "viscous_regularization":{
+                "type": "artificial_viscosity",
+                "reg_coeff_name": "entropy_viscosity"
+            },
 
             "initial_condition": {
                 "type": "user"
@@ -54,6 +56,10 @@
         },
 
         "simulation_components": [
+            {
+                "type": "artificial_viscosity_model",
+                "model": "entropy_viscosity"
+            },
             {
                 "type": "field_writer",
                 "fields": ["fluid_rho", "S", "artificial_visc", "max_wave_speed"], // s2, s3, s4, s5 in Paraview

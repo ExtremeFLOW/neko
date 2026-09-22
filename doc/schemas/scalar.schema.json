@@ -302,6 +302,12 @@
               "minimum": 1,
               "maximum": 3
             },
+            "relaxation": {
+              "type": "number",
+              "x-neko-real": true,
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
             "log": {
               "type": "boolean"
             }

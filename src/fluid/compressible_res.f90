@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ module compressible_residual
   !> Abstract interface to evaluate rhs
   abstract interface
      subroutine compressible_rhs(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
-          Ax_stress, coef, gs, h, artificial_visc, mu, kappa, bcs_vel, time, &
+          Ax_stress, coef, gs, artificial_visc, mu, kappa, bcs_vel, time, &
           rk_scheme, dt)
        import field_t
        import Ax_t
@@ -63,7 +63,7 @@ module compressible_residual
        import bc_list_t
        import time_state_t
        type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
-       type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
+       type(field_t), intent(in) :: p, u, v, w, artificial_visc, mu, kappa
        class(Ax_t), intent(inout) :: Ax, Ax_stress
        type(coef_t), intent(inout) :: coef
        type(gs_t), intent(inout) :: gs
@@ -80,8 +80,21 @@ module compressible_residual
        class(compressible_rhs_t), allocatable, intent(inout) :: object
        real(kind=rp), intent(in) :: gamma
      end subroutine compressible_rhs_factory
+
+     !> Select whether the physical Navier-Stokes fluxes are evaluated.
+     !! @details The backends cannot decide this themselves: on a device
+     !! backend the host copies of `mu` and `kappa` are not kept in sync
+     !! with the device arrays the kernels read, so inspecting them would
+     !! silently reduce the solver to Euler. The owning scheme decides
+     !! instead, see `fluid_scheme_compressible_t%update_physical_flux`.
+     !! @param add_flux Whether to add the viscous and heat fluxes.
+     !! @param add_stress Whether to add the viscous stress.
+     module subroutine compressible_rhs_set_physical_flux(add_flux, add_stress)
+       logical, intent(in) :: add_flux
+       logical, intent(in) :: add_stress
+     end subroutine compressible_rhs_set_physical_flux
   end interface
 
-  public :: compressible_rhs_factory
+  public :: compressible_rhs_factory, compressible_rhs_set_physical_flux
 
 end module compressible_residual

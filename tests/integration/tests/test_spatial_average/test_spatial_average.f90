@@ -26,9 +26,9 @@ contains
 
        n = u%size()
        do i = 1, n
-          x = u%dof%x(i,1,1,1)
-          y = u%dof%y(i,1,1,1)
-          z = u%dof%z(i,1,1,1)
+          x = u%dof%x%x(i,1,1,1)
+          y = u%dof%y%x(i,1,1,1)
+          z = u%dof%z%x(i,1,1,1)
 
           u%x(i,1,1,1) = x + 2.0_rp * y + 3.0_rp * z
           v%x(i,1,1,1) = 0.0_rp
@@ -39,9 +39,9 @@ contains
 
        n = s%size()
        do i = 1, n
-          x = s%dof%x(i,1,1,1)
-          y = s%dof%y(i,1,1,1)
-          z = s%dof%z(i,1,1,1)
+          x = s%dof%x%x(i,1,1,1)
+          y = s%dof%y%x(i,1,1,1)
+          z = s%dof%z%x(i,1,1,1)
 
           s%x(i,1,1,1) = 2.0_rp * x - y + 0.5_rp * z
        end do
