@@ -57,6 +57,8 @@ module sponge_source_term
   use scratch_registry, only : neko_scratch_registry
   use comm, only : pe_rank
   use fld_file_output, only : fld_file_output_t
+  use sponge_source_term_cpu, only : sponge_source_term_compute_cpu
+  use sponge_source_term_device, only : sponge_source_term_compute_device
   implicit none
   private
 
@@ -437,7 +439,7 @@ contains
     call neko_log%message("Baseflow prefix: " // trim(bf_registry_pref), &
          lvl = NEKO_LOG_INFO)
 
-    write (log_buf, "(A,L1)") "Dump fields: ", this%dump_fields
+    write (log_buf, "(A,L1)") "Dump fields    : ", this%dump_fields
     call neko_log%message(log_buf, lvl=NEKO_LOG_INFO)
 
     this%u => neko_registry%get_field_by_name("u")
@@ -547,50 +549,20 @@ contains
 
     end if
 
-
     !
     ! Start computation of source term
     !
-
-    fu => this%fields%get(1)
-    fv => this%fields%get(2)
-    fw => this%fields%get(3)
-
-    call neko_scratch_registry%request_field(wk, tmp_index, .false.)
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       ! wk = u_bf - u
-       call device_sub3(wk%x_d, this%u_bf%x_d, this%u%x_d, this%u%size())
-       ! wk = fringe * wk = fringe * (u_bf - u)
-       call device_col2(wk%x_d, this%fringe%x_d, this%fringe%size())
-       ! fu = fu + amplitude(1)*wk = fu + amplitude(1)*fringe*(u_bf - u)
-       call device_add2s2(fu%x_d, wk%x_d, this%amplitudes(1), &
-            fu%dof%size())
-
-       call device_sub3(wk%x_d, this%v_bf%x_d, this%v%x_d, this%v%size())
-       call device_col2(wk%x_d, this%fringe%x_d, this%fringe%size())
-       call device_add2s2(fv%x_d, wk%x_d, this%amplitudes(2), &
-            fv%dof%size())
-
-       call device_sub3(wk%x_d, this%w_bf%x_d, this%w%x_d, this%w%size())
-       call device_col2(wk%x_d, this%fringe%x_d, this%fringe%size())
-       call device_add2s2(fw%x_d, wk%x_d, this%amplitudes(3), &
-            fw%dof%size())
+       call sponge_source_term_compute_device(this%fields, &
+            this%u, this%v, this%w, this%u_bf, this%v_bf, this%w_bf, &
+            this%fringe, &
+            this%amplitudes(1), this%amplitudes(2), this%amplitudes(3))
     else
-       call sub3(wk%x, this%u_bf%x, this%u%x, this%u%size())
-       call col2(wk%x, this%fringe%x, this%fringe%size())
-       call add2s2(fu%x, wk%x, this%amplitudes(1), fu%dof%size())
-
-       call sub3(wk%x, this%v_bf%x, this%v%x, this%v%size())
-       call col2(wk%x, this%fringe%x, this%fringe%size())
-       call add2s2(fv%x, wk%x, this%amplitudes(2), fv%dof%size())
-
-       call sub3(wk%x, this%w_bf%x, this%w%x, this%w%size())
-       call col2(wk%x, this%fringe%x, this%fringe%size())
-       call add2s2(fw%x, wk%x, this%amplitudes(3), fw%dof%size())
+       call sponge_source_term_compute_cpu(this%fields, &
+            this%u, this%v, this%w, this%u_bf, this%v_bf, this%w_bf, &
+            this%fringe, &
+            this%amplitudes(1), this%amplitudes(2), this%amplitudes(3))
     end if
-
-    call neko_scratch_registry%relinquish_field(tmp_index)
 
   end subroutine sponge_compute
 
