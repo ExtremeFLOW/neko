@@ -338,45 +338,49 @@ contains
     integer, intent(inout) :: index
     integer, intent(in) :: n
     logical, intent(in) :: clear
-    type(host_array_t), pointer :: v_scratch
+    type(host_array_t), pointer :: scratch_entry
 
-    associate(entries => this%entries, n_entries => this%n_entries)
+    ! Look for a compatible, unused object in the registry.
+    !$omp critical
+    do index = 1, this%get_size()
 
-      do index = 1, this%get_size()
-         if (.not. this%inuse(index)) then
+       ! Check for unused or unallocated objects.
+       if (this%inuse(index)) then
+          cycle
+       else if (.not. this%entries(index)%is_allocated()) then
+          call this%entries(index)%init_host_array(n)
+          this%n_entries = this%n_entries + 1
+       else if (trim(this%entries(index)%get_type()) .ne. 'host_array') then
+          cycle
+       end if
 
-            if (.not. entries(index)%is_allocated()) then
-               call entries(index)%init_host_array(n)
-               n_entries = n_entries + 1
-            else if (trim(entries(index)%get_type()) .ne. 'host_array') then
-               cycle
-            end if
+       ! Check compatibility of the object size.
+       scratch_entry => this%entries(index)%get_host_array()
+       if (scratch_entry%size() .eq. n) then
+          exit
+       end if
+       nullify(scratch_entry)
+    end do
+    !$omp end critical
 
-            v_scratch => entries(index)%get_host_array()
-            if (v_scratch%size() .ne. n) then
-               nullify(v_scratch)
-               cycle
-            end if
+    ! If no compatible, unused objects are found, expand and create a new one.
+    if (.not. associated(scratch_entry)) then
+       index = this%get_size() + 1
+       call this%expand()
+       !$omp critical
+       call this%entries(index)%init_host_array(n)
+       !$omp end critical
+       this%n_entries = this%n_entries + 1
+       scratch_entry => this%entries(index)%get_host_array()
+    end if
 
-            if (clear) call rzero(v_scratch%x, v_scratch%size())
-            this%inuse(index) = .true.
-            ptr => v_scratch%x
-            nullify(v_scratch)
-            return
-         end if
-      end do
+    ! Assign the pointer to the entry and clear the values if requested.
+    ptr => scratch_entry%x
+    if (clear) call rzero(ptr, n)
+    this%inuse(index) = .true.
 
-      ! all existing host_arrays in use, we need to expand to add a new one
-      index = n_entries + 1
-      call this%expand()
-      n_entries = n_entries + 1
-      this%inuse(n_entries) = .true.
-      call this%entries(n_entries)%init_host_array(n)
-      v_scratch => this%entries(n_entries)%get_host_array()
-      ptr => v_scratch%x
-      nullify(v_scratch)
+    nullify(scratch_entry)
 
-    end associate
   end subroutine request_host_array
 
   !> Get a device array from the registry by assigning it to a pointer.
