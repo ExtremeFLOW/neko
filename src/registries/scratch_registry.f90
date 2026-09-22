@@ -166,6 +166,9 @@ module scratch_registry
      procedure, pass(this) :: relinquish_multiple
      !> Generic relinquish procedure
      generic :: relinquish => relinquish_single, relinquish_multiple
+
+     !> Internal relinquish type procedure for single objects
+     procedure, pass(this), private :: relinquish_type
   end type scratch_registry_t
 
   !> Global scratch registry
@@ -804,225 +807,155 @@ contains
   !> Relinquish the use of a host_array in the registry
   !! @param index The index of the host_array to free
   subroutine relinquish_host_array_single(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
 
-    if (trim(this%entries(index)%get_type()) .ne. 'host_array') then
-       call neko_error("scratch_registry::relinquish_host_array_single: " &
-            // "Register entry is not a host_array.")
-    end if
-
-    this%inuse(index) = .false.
+    call this%relinquish_type(index, 'host_array')
   end subroutine relinquish_host_array_single
 
   !> Relinquish the use of multiple host_arrays in the registry
   !! @param indices The indices of the host_arrays to free
   subroutine relinquish_host_array_multiple(this, indices)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%entries(indices(i))%get_type()) .ne. 'host_array') then
-          call neko_error("scratch_registry::relinquish_host_array_single: " &
-               // "Register entry is not a host_array.")
-       end if
-
-       this%inuse(indices(i)) = .false.
+       call this%relinquish_type(indices(i), 'host_array')
     end do
   end subroutine relinquish_host_array_multiple
 
   !> Relinquish the use of a device_array in the registry
   !! @param index The index of the device_array to free
   subroutine relinquish_device_array_single(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
 
-    if (trim(this%entries(index)%get_type()) .ne. 'device_array') then
-       call neko_error("scratch_registry::relinquish_device_array_single: " &
-            // "Register entry is not a device_array.")
-    end if
-
-    this%inuse(index) = .false.
+    call this%relinquish_type(index, 'device_array')
   end subroutine relinquish_device_array_single
 
   !> Relinquish the use of multiple device_arrays in the registry
   !! @param indices The indices of the device_arrays to free
   subroutine relinquish_device_array_multiple(this, indices)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%entries(indices(i))%get_type()) .ne. 'device_array') then
-          call neko_error("scratch_registry::relinquish_device_array_single: " &
-               // "Register entry is not a device_array.")
-       end if
-
-       this%inuse(indices(i)) = .false.
+       call this%relinquish_type(indices(i), 'device_array')
     end do
   end subroutine relinquish_device_array_multiple
 
   !> Relinquish the use of a vector in the registry
   !! @param index The index of the vector to free
   subroutine relinquish_vector_single(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
 
-    if (trim(this%entries(index)%get_type()) .ne. 'vector') then
-       call neko_error("scratch_registry::relinquish_vector_single: " &
-            // "Register entry is not a vector.")
-    end if
-
-    this%inuse(index) = .false.
+    call this%relinquish_type(index, 'vector')
   end subroutine relinquish_vector_single
 
   !> Relinquish the use of multiple vectors in the registry
   !! @param indices The indices of the vectors to free
   subroutine relinquish_vector_multiple(this, indices)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%entries(indices(i))%get_type()) .ne. 'vector') then
-          call neko_error("scratch_registry::relinquish_vector_single: " &
-               // "Register entry is not a vector.")
-       end if
-
-       this%inuse(indices(i)) = .false.
+       call this%relinquish_type(indices(i), 'vector')
     end do
   end subroutine relinquish_vector_multiple
 
   !> Relinquish the use of a matrix in the registry
   !! @param index The index of the matrix to free
   subroutine relinquish_matrix_single(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
 
-    if (trim(this%entries(index)%get_type()) .ne. 'matrix') then
-       call neko_error("scratch_registry::relinquish_matrix_single: " &
-            // "Register entry is not a matrix.")
-    end if
-
-    this%inuse(index) = .false.
+    call this%relinquish_type(index, 'matrix')
   end subroutine relinquish_matrix_single
 
   !> Relinquish the use of multiple matrices in the registry
   !! @param indices The indices of the matrices to free
   subroutine relinquish_matrix_multiple(this, indices)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%entries(indices(i))%get_type()) .ne. 'matrix') then
-          call neko_error("scratch_registry::relinquish_matrix_single: " &
-               // "Register entry is not a matrix.")
-       end if
-
-       this%inuse(indices(i)) = .false.
+       call this%relinquish_type(indices(i), 'matrix')
     end do
   end subroutine relinquish_matrix_multiple
 
   !> Relinquish the use of a tensor3 in the registry
   !! @param index The index of the tensor3 to free
   subroutine relinquish_tensor3_single(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
 
-    if (trim(this%entries(index)%get_type()) .ne. 'tensor3') then
-       call neko_error("scratch_registry::relinquish_tensor3_single: " &
-            // "Register entry is not a tensor3.")
-    end if
-
-    this%inuse(index) = .false.
+    call this%relinquish_type(index, 'tensor3')
   end subroutine relinquish_tensor3_single
 
   !> Relinquish the use of multiple tensor3s in the registry
   !! @param indices The indices of the tensor3s to free
   subroutine relinquish_tensor3_multiple(this, indices)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%entries(indices(i))%get_type()) .ne. 'tensor3') then
-          call neko_error("scratch_registry::relinquish_tensor3_single: " &
-               // "Register entry is not a tensor3.")
-       end if
-
-       this%inuse(indices(i)) = .false.
+       call this%relinquish_type(indices(i), 'tensor3')
     end do
   end subroutine relinquish_tensor3_multiple
 
   !> Relinquish the use of a tensor4 in the registry
   !! @param index The index of the tensor4 to free
   subroutine relinquish_tensor4_single(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
 
-    if (trim(this%entries(index)%get_type()) .ne. 'tensor4') then
-       call neko_error("scratch_registry::relinquish_tensor4_single: " &
-            // "Register entry is not a tensor4.")
-    end if
-
-    this%inuse(index) = .false.
+    call this%relinquish_type(index, 'tensor4')
   end subroutine relinquish_tensor4_single
 
   !> Relinquish the use of multiple tensor4s in the registry
   !! @param indices The indices of the tensor4s to free
   subroutine relinquish_tensor4_multiple(this, indices)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%entries(indices(i))%get_type()) .ne. 'tensor4') then
-          call neko_error("scratch_registry::relinquish_tensor4_single: " &
-               // "Register entry is not a tensor4.")
-       end if
-
-       this%inuse(indices(i)) = .false.
+       call this%relinquish_type(indices(i), 'tensor4')
     end do
   end subroutine relinquish_tensor4_multiple
 
   !> Relinquish the use of a field in the registry
   !! @param index The index of the field to free
   subroutine relinquish_field_single(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
 
-    if (trim(this%entries(index)%get_type()) .ne. 'field') then
-       call neko_error("scratch_registry::relinquish_field_single: " &
-            // "Register entry is not a field.")
-    end if
-
-    this%inuse(index) = .false.
+    call this%relinquish_type(index, 'field')
   end subroutine relinquish_field_single
 
   !> Relinquish the use of multiple fields in the registry
   !! @param indices The indices of the fields to free
   subroutine relinquish_field_multiple(this, indices)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%entries(indices(i))%get_type()) .ne. 'field') then
-          call neko_error("scratch_registry::relinquish_field_single: " &
-               // "Register entry is not a field.")
-       end if
-
-       this%inuse(indices(i)) = .false.
+       call this%relinquish_type(indices(i), 'field')
     end do
   end subroutine relinquish_field_multiple
 
   !> Relinquish the use of an object in the registry
   !! @param index The index of the object to free
   subroutine relinquish_single(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
 
     this%inuse(index) = .false.
   end subroutine relinquish_single
@@ -1030,13 +963,31 @@ contains
   !> Relinquish the use of multiple objects in the registry
   !! @param indices The indices of the objects to free
   subroutine relinquish_multiple(this, indices)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
        this%inuse(indices(i)) = .false.
     end do
   end subroutine relinquish_multiple
+
+  !> Relinquish a single index based on a specified type.
+  !! @param index The index of the object to free
+  !! @param type The type of the object to free
+  subroutine relinquish_single_by_type(this, index, type)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
+    character(len=*), intent(in) :: type
+    character(len=:), allocatable :: msg
+
+    if (trim(this%entries(index)%get_type()) .ne. type) then
+       write(msg, "(A,1X,A,1x,A,A)") "scratch_registry::relinquish:", &
+            "Entry is not a", trim(type), "."
+       call neko_error(msg)
+    end if
+
+    this%inuse(index) = .false.
+  end subroutine relinquish_single_by_type
 
 end module scratch_registry
