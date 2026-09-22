@@ -301,6 +301,7 @@ contains
     logical, allocatable :: temp2(:)
     integer :: i, n
 
+    !$omp critical
     n = this%get_size()
 
     if (n .gt. 0) then
@@ -321,6 +322,7 @@ contains
 
     if (allocated(temp)) deallocate(temp)
     if (allocated(temp2)) deallocate(temp2)
+    !$omp end critical
 
   end subroutine expand
 
