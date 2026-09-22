@@ -499,14 +499,23 @@ contains
   !! Here we perform additional gs operations to take care of
   !! shared points between elements that have different BCs, as done in Nek5000.
   !! @todo Why can't we call the interface here?
-  subroutine fluid_scheme_bc_apply_vel(this, time, strong)
-    class(fluid_scheme_incompressible_t), intent(inout) :: this
+  subroutine fluid_scheme_bc_apply_vel(this, time, strong, bcs)
+    class(fluid_scheme_incompressible_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     logical, intent(in) :: strong
+    !> The conditions to apply, `bcs_vel` unless given.
+    type(bc_list_t), target, intent(inout), optional :: bcs
     integer :: i
     class(bc_t), pointer :: b
+    type(bc_list_t), pointer :: bcs_
 
-    call this%bcs_vel%apply_vector(&
+    if (present(bcs)) then
+       bcs_ => bcs
+    else
+       bcs_ => this%bcs_vel
+    end if
+
+    call bcs_%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
 
     call rotate_cyc(this%u, this%v, this%w, 1, this%c_Xh)
@@ -520,8 +529,8 @@ contains
 
     ! Double pass for Dirichlet bcs only.
     b => null()
-    do i = 1, this%bcs_vel%size()
-       b => this%bcs_vel%get(i)
+    do i = 1, bcs_%size()
+       b => bcs_%get(i)
        if (b%bc_type .eq. BC_DIRICHLET) then
           call b%apply_vector_generic(this%u, this%v, this%w,time, strong)
        end if
@@ -536,8 +545,8 @@ contains
     call device_event_sync(glb_cmd_event)
     call rotate_cyc(this%u, this%v, this%w, 0, this%c_Xh)
 
-    do i = 1, this%bcs_vel%size()
-       b => this%bcs_vel%get(i)
+    do i = 1, bcs_%size()
+       b => bcs_%get(i)
        b%updated = .false.
     end do
     nullify(b)

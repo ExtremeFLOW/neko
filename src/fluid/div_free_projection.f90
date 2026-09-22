@@ -30,12 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Leray projection of a velocity field onto the discretely divergence-free
-!! subspace.
-!!
-!! @note Not to be confused with the module `projection`, which implements the
-!! Krylov-subspace projection used to generate good initial guesses for the
-!! linear solvers. This module implements the Helmholtz--Leray decomposition.
+!> Leray projection of a velocity field onto the divergence-free subspace.
+!! Unrelated to the module `projection`, which projects Krylov solutions.
 module div_free_projection
   use num_types, only : rp, i8
   use field, only : field_t
@@ -45,16 +41,17 @@ module div_free_projection
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t
   use facet_normal, only : facet_normal_t
   use operators, only : cdtp, opgrad, ortho, div, rotate_cyc
   use opr_device, only : device_ortho
   use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only : add2, sub2, col2, copy, rzero, glsc3, glsum, cfill
+  use math, only : add2, sub2, col2, cmult, rzero, glsc3, glsum, cfill, &
+       NEKO_EPS
   use device_math, only : device_add2, device_sub2, device_col2, &
-       device_copy, device_rzero, device_glsc3, device_glsum, device_cfill
+       device_cmult, device_rzero, device_glsc3, device_glsum, device_cfill
   use scratch_registry, only : neko_scratch_registry
   use logger, only : neko_log, LOG_SIZE
-  use utils, only : neko_warning
   implicit none
   private
 
@@ -62,68 +59,57 @@ module div_free_projection
 
 contains
 
-  !> Project a velocity field onto the space of (weakly) divergence-free
-  !! fields, using the same discrete operators as the Pn-Pn pressure step.
+  !> Project a velocity field onto the divergence-free subspace.
   !!
-  !! @details
-  !! The Helmholtz--Leray decomposition of the velocity field reads
-  !! \f$ \mathbf{u} = \mathbf{u}_{df} + \nabla \phi \f$, where
-  !! \f$ \mathbf{u}_{df} \f$ is divergence free. The potential \f$ \phi \f$
-  !! solves the Poisson problem
-  !! \f{eqnarray*}{
-  !!    \nabla^2 \phi &=& \nabla \cdot \mathbf{u} \quad &\text{in } \Omega, \\
-  !!    \partial_n \phi &=& 0 \quad &\text{on } \Gamma_D, \\
-  !!    \phi &=& 0 \quad &\text{on } \Gamma_{out},
-  !! \f}
-  !! with \f$ \Gamma_D \f$ the boundaries where the velocity is prescribed
-  !! (walls, inflow) and \f$ \Gamma_{out} \f$ the boundaries where the
-  !! pressure is prescribed (outflow). The homogeneous Neumann condition
-  !! guarantees that the correction has no normal component on \f$ \Gamma_D
-  !! \f$, so a prescribed inflow profile is left untouched. The tangential
-  !! velocity on \f$ \Gamma_D \f$ is in general modified by the projection.
-  !!
-  !! Discretely, the weak form
+  !! @details Solves \f$ \nabla^2 \phi = \nabla \cdot \mathbf{u} \f$ with
+  !! \f$ \partial_n \phi = 0 \f$ where the velocity is prescribed and
+  !! \f$ \phi = 0 \f$ where the pressure is, then sets \f$ \mathbf{u}
+  !! \leftarrow \mathbf{u} - \nabla \phi \f$. The weak form,
   !! \f$ (\nabla \phi, \nabla \psi) = (\mathbf{u}, \nabla \psi) -
-  !! \langle \mathbf{u}\cdot\mathbf{n}, \psi \rangle_{\Gamma_D} \f$
-  !! is assembled with `cdtp` and the facet-normal surface operator, i.e. with
-  !! exactly the operators that build the Pn-Pn pressure residual. The
-  !! resulting field is therefore divergence free in the same discrete sense
-  !! that the pressure step of the time loop enforces, which is the strongest
-  !! statement available for an equal-order (Pn-Pn) discretisation.
+  !! \langle \mathbf{u} \cdot \mathbf{n}, \psi \rangle_{\Gamma_D} \f$,
+  !! is assembled with the operators, boundary conditions and \f$ 1/\rho \f$
+  !! scaling of the Pn-Pn pressure step, and the correction is masked on the
+  !! strong velocity boundaries as the pressure gradient is in the time loop,
+  !! so the result is divergence free in the sense the time loop enforces and
+  !! keeps the velocity conditions imposed on it.
   !!
-  !! @param u The x component of the velocity, modified in place.
-  !! @param v The y component of the velocity, modified in place.
-  !! @param w The z component of the velocity, modified in place.
-  !! @param phi Work field holding the projection potential on exit.
-  !! @param rhs Work field for the right-hand side of the Poisson problem.
-  !! @param coef The SEM coefficients.
-  !! @param gs The gather-scatter handle.
-  !! @param Ax The Helmholtz operator used for the pressure.
-  !! @param ksp The Krylov solver used for the pressure.
-  !! @param pc The preconditioner used for the pressure.
-  !! @param bc_prs_projector Projector zeroing the strong pressure boundaries.
-  !! @param bc_prs_surface Facet-normal operator on the velocity Dirichlet
-  !! boundaries, as used by the pressure residual.
-  !! @param prs_dirichlet Whether any strong pressure boundary is present.
-  !! @param glb_n_points The global number of non-unique GLL points.
-  subroutine project_div_free(u, v, w, phi, rhs, coef, gs, Ax, ksp, pc, &
-       bc_prs_projector, bc_prs_surface, prs_dirichlet, glb_n_points)
+  !! @param u, v, w The velocity, modified in place.
+  !! @param coef, gs SEM coefficients and gather-scatter handle.
+  !! @param Ax, ksp, pc Operator, solver and preconditioner of the pressure.
+  !! @param bc_prs_projector Projector onto the strong pressure boundaries.
+  !! @param bc_vel_projector Projector onto the strong velocity boundaries.
+  !! @param bc_prs_surface Facet normals of the strong velocity boundaries.
+  !! @param prs_dirichlet Whether any strong pressure boundary exists.
+  !! @param glb_n_points Global number of (non-unique) GLL points.
+  !! @param rho The (constant) density.
+  !! @param rel_tol Residual reduction to solve to, relative to the initial
+  !! residual. The solver's own tolerance is absolute and tuned for the
+  !! pressure increment of a time step, which can be orders of magnitude off
+  !! for this cold solve.
+  !! @param max_iter Iteration cap for the solve.
+  subroutine project_div_free(u, v, w, coef, gs, Ax, ksp, pc, &
+       bc_prs_projector, bc_vel_projector, bc_prs_surface, prs_dirichlet, &
+       glb_n_points, rho, rel_tol, max_iter)
     type(field_t), intent(inout) :: u, v, w
-    type(field_t), intent(inout) :: phi, rhs
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
     class(ax_t), intent(in) :: Ax
     class(ksp_t), intent(inout) :: ksp
     class(pc_t), intent(inout) :: pc
     class(scalar_bc_projector_t), intent(inout) :: bc_prs_projector
+    class(vector_bc_projector_t), intent(inout) :: bc_vel_projector
     type(facet_normal_t), intent(in) :: bc_prs_surface
     logical, intent(in) :: prs_dirichlet
     integer(kind=i8), intent(in) :: glb_n_points
-    type(field_t), pointer :: ta1, ta2, ta3
+    real(kind=rp), intent(in) :: rho
+    real(kind=rp), intent(in) :: rel_tol
+    integer, intent(in) :: max_iter
+    type(field_t), pointer :: ta1, ta2, ta3, phi, rhs
     type(ksp_monitor_t) :: ksp_result
     character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: div_before, div_after, net_flux
-    integer :: temp_indices(3)
+    real(kind=rp) :: div_before, div_after, net_flux, rhs_norm, scale
+    real(kind=rp) :: abs_tol, target
+    integer :: temp_indices(5), ksp_max_iter
     integer :: n
 
     n = coef%dof%size()
@@ -135,41 +121,43 @@ contains
     call neko_scratch_registry%request_field(ta1, temp_indices(1), .false.)
     call neko_scratch_registry%request_field(ta2, temp_indices(2), .false.)
     call neko_scratch_registry%request_field(ta3, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(phi, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(rhs, temp_indices(5), .false.)
 
-    !
-    ! The Poisson operator is the plain (unscaled) stiffness matrix. The
-    ! density drops out of the projection, so there is no need to weight it.
-    !
+    ! The operator of the pressure step, 1/rho times the stiffness matrix. The
+    ! scaling makes no difference to the projection, but the preconditioner
+    ! may estimate spectral bounds on its first use and keep them.
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(coef%h1_d, 1.0_rp, n)
+       call device_cfill(coef%h1_d, 1.0_rp / rho, n)
        call device_rzero(coef%h2_d, n)
     else
-       call cfill(coef%h1, 1.0_rp, n)
+       call cfill(coef%h1, 1.0_rp / rho, n)
        call rzero(coef%h2, n)
     end if
     coef%ifh2 = .false.
 
-    !
-    ! Volume contribution, (u, grad(psi)), assembled exactly as the
-    ! divergence term of the pressure residual.
-    !
+    ! Volume term (u, grad psi), as in the pressure residual. The size of its
+    ! parts tells a right-hand side that is pure round-off from a real one.
     call cdtp(rhs%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call cdtp(ta1%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call cdtp(ta2%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       scale = sqrt(device_glsc3(rhs%x_d, coef%mult_d, rhs%x_d, n)) &
+            + sqrt(device_glsc3(ta1%x_d, coef%mult_d, ta1%x_d, n)) &
+            + sqrt(device_glsc3(ta2%x_d, coef%mult_d, ta2%x_d, n))
        call device_add2(rhs%x_d, ta1%x_d, n)
        call device_add2(rhs%x_d, ta2%x_d, n)
     else
+       scale = sqrt(glsc3(rhs%x, coef%mult, rhs%x, n)) &
+            + sqrt(glsc3(ta1%x, coef%mult, ta1%x, n)) &
+            + sqrt(glsc3(ta2%x, coef%mult, ta2%x, n))
        call add2(rhs%x, ta1%x, n)
        call add2(rhs%x, ta2%x, n)
     end if
 
-    !
-    ! Surface contribution, -<u.n, psi> on the boundaries where the velocity
-    ! is prescribed. Without it the projection would drive the normal velocity
-    ! to zero on those boundaries, wiping out a prescribed inflow.
-    !
+    ! Surface term -<u.n, psi> on the strong velocity boundaries. Without it
+    ! the normal velocity there, e.g. an inflow, would be driven to zero.
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rzero(ta1%x_d, n)
        call device_rzero(ta2%x_d, n)
@@ -190,11 +178,8 @@ contains
        call sub2(rhs%x, ta3%x, n)
     end if
 
-    !
-    ! With no strong pressure boundary the problem is a pure Neumann one. It
-    ! is solvable only if the net flux through the boundary vanishes, so warn
-    ! when it does not and remove the resulting constant from the residual.
-    !
+    ! Pure Neumann problem: report the net flux, which has to vanish for the
+    ! problem to be solvable, and remove the constant mode.
     if (.not. prs_dirichlet) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           net_flux = device_glsum(rhs%x_d, n)
@@ -215,17 +200,41 @@ contains
     call gs%op(rhs, GS_OP_ADD)
     call bc_prs_projector%apply(rhs%x, n)
 
-    !
-    ! Solve for the projection potential.
-    !
+    ! Solve to a residual reduction of rel_tol. The initial residual is
+    ! measured the way the solvers measure theirs, and the solver's absolute
+    ! tolerance and iteration cap are set for the duration of this solve. A
+    ! right-hand side at the round-off of the terms it is summed from means
+    ! the field is already divergence free, and there is nothing to solve for.
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       rhs_norm = device_glsc3(rhs%x_d, coef%mult_d, rhs%x_d, n)
        call device_rzero(phi%x_d, n)
     else
+       rhs_norm = glsc3(rhs%x, coef%mult, rhs%x, n)
        call rzero(phi%x, n)
     end if
+    rhs_norm = sqrt(max(rhs_norm, 0.0_rp) / coef%volume)
+    scale = scale / sqrt(coef%volume)
 
+    if (rhs_norm .le. 100.0_rp * NEKO_EPS * scale) then
+       write (log_buf, '(A,ES10.3,A)') '||div u||_L2      : ', div_before, &
+            ' -> unchanged'
+       call neko_log%message(log_buf)
+       call neko_log%message('Already divergence free to working precision')
+       call neko_scratch_registry%relinquish_field(temp_indices)
+       call neko_log%end_section()
+       return
+    end if
+
+    target = rel_tol * rhs_norm
+    abs_tol = ksp%abs_tol
+    ksp_max_iter = ksp%max_iter
+    ksp%abs_tol = target
+    ksp%max_iter = max_iter
     call pc%update()
-    ksp_result = ksp%solve(Ax, phi, rhs%x, n, coef, bc_prs_projector, gs)
+    ksp_result = ksp%solve(Ax, phi, rhs%x, n, coef, bc_prs_projector, gs, &
+         niter = max_iter)
+    ksp%abs_tol = abs_tol
+    ksp%max_iter = ksp_max_iter
 
     if (.not. prs_dirichlet) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -235,32 +244,35 @@ contains
        end if
     end if
 
-    write (log_buf, '(A,I6,2(A,ES13.6))') 'Poisson solve     : iters ', &
-         ksp_result%iter, ', res ', ksp_result%res_start, ' -> ', &
-         ksp_result%res_final
+    write (log_buf, '(A,I5,A,ES9.2,A,ES9.2,A,ES8.1,A)') &
+         'Poisson solve: ', ksp_result%iter, ' iters, res ', &
+         ksp_result%res_start, ' -> ', ksp_result%res_final, &
+         ' (target ', target, ')'
     call neko_log%message(log_buf)
 
-    if (.not. ksp_result%converged) then
-       call neko_warning('The divergence-free projection did not converge, ' &
-            // 'the initial condition may still be divergent.')
+    if (ksp_result%res_final .gt. target) then
+       call neko_log%warning('The divergence-free projection did not reach ' &
+            // 'its tolerance, raise divergence_free_max_iterations or use ' &
+            // 'a stronger pressure preconditioner')
     end if
 
-    !
-    ! Subtract the gradient of the potential. `opgrad` returns the weak
-    ! gradient, so it is assembled and scaled by the inverse mass matrix to
-    ! recover a continuous, point-wise gradient, mirroring how the velocity is
-    ! corrected by the pressure gradient in the time loop.
-    !
+    ! u <- u - grad(phi) / rho. opgrad is the weak gradient, so assemble it,
+    ! mask it on the strong velocity boundaries and scale it by the inverse
+    ! mass matrix, as the velocity correction of the time loop does.
     call opgrad(ta1%x, ta2%x, ta3%x, phi%x, coef)
 
-    call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, coef)
+    call rotate_cyc(ta1, ta2, ta3, 1, coef)
     call gs%op(ta1%x, ta2%x, ta3%x, n, GS_OP_ADD)
-    call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, coef)
+    call rotate_cyc(ta1, ta2, ta3, 0, coef)
+    call bc_vel_projector%apply(ta1%x, ta2%x, ta3%x, n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(ta1%x_d, coef%Binv_d, n)
        call device_col2(ta2%x_d, coef%Binv_d, n)
        call device_col2(ta3%x_d, coef%Binv_d, n)
+       call device_cmult(ta1%x_d, 1.0_rp / rho, n)
+       call device_cmult(ta2%x_d, 1.0_rp / rho, n)
+       call device_cmult(ta3%x_d, 1.0_rp / rho, n)
        call device_sub2(u%x_d, ta1%x_d, n)
        call device_sub2(v%x_d, ta2%x_d, n)
        call device_sub2(w%x_d, ta3%x_d, n)
@@ -268,6 +280,9 @@ contains
        call col2(ta1%x, coef%Binv, n)
        call col2(ta2%x, coef%Binv, n)
        call col2(ta3%x, coef%Binv, n)
+       call cmult(ta1%x, 1.0_rp / rho, n)
+       call cmult(ta2%x, 1.0_rp / rho, n)
+       call cmult(ta3%x, 1.0_rp / rho, n)
        call sub2(u%x, ta1%x, n)
        call sub2(v%x, ta2%x, n)
        call sub2(w%x, ta3%x, n)
@@ -277,22 +292,19 @@ contains
 
     div_after = div_norm(u, v, w, coef, gs)
 
-    write (log_buf, '(A,ES13.6)') 'div(u) L2, before :', div_before
-    call neko_log%message(log_buf)
-    write (log_buf, '(A,ES13.6)') 'div(u) L2, after  :', div_after
+    write (log_buf, '(A,2(ES10.3,A))') '||div u||_L2      : ', &
+         div_before, ' -> ', div_after, ''
     call neko_log%message(log_buf)
 
     call neko_log%end_section()
 
   end subroutine project_div_free
 
-  !> Compute the \f$ L^2 \f$ norm of the point-wise divergence of a velocity
-  !! field, \f$ \sqrt{\int_\Omega (\nabla \cdot \mathbf{u})^2 \, dV} \f$.
-  !! @param u The x component of the velocity.
-  !! @param v The y component of the velocity.
-  !! @param w The z component of the velocity.
-  !! @param coef The SEM coefficients.
-  !! @param gs The gather-scatter handle.
+  !> The \f$ L^2 \f$ norm \f$ \sqrt{\int_\Omega (\nabla \cdot \mathbf{u})^2
+  !! \, dV} \f$ of the point-wise divergence, made continuous by averaging
+  !! across elements before the mass-weighted integral.
+  !! @param u, v, w The velocity.
+  !! @param coef, gs SEM coefficients and gather-scatter handle.
   function div_norm(u, v, w, coef, gs) result(norm)
     type(field_t), intent(in) :: u, v, w
     type(coef_t), intent(in) :: coef

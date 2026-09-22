@@ -76,6 +76,7 @@ module fluid_pnpn
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use mathops, only : opadd2cm, opcolv
+  use math, only : NEKO_EPS
   use zero_dirichlet, only : zero_dirichlet_t
   use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
@@ -88,6 +89,9 @@ module fluid_pnpn
   use operators, only : ortho, rotate_cyc
   use opr_device, only : device_ortho
   use div_free_projection, only : project_div_free
+  use bc_list, only : bc_list_t
+  use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use overset_interface_vector, only : overset_interface_vector_t
   use time_state, only : time_state_t
   use comm, only : NEKO_COMM
   use ale_manager, only : ale_manager_t
@@ -189,9 +193,11 @@ module fluid_pnpn
      !> Whether to use the full formulation of the viscous stress term
      logical :: full_stress_formulation = .false.
 
-     !> Whether to project the initial condition onto the divergence-free
-     !! subspace before the first time step.
+     !> Divergence-free projection of the initial condition: whether to do
+     !! it, the relative residual reduction to solve to and the iteration cap.
      logical :: div_free_ic = .false.
+     real(kind=rp) :: div_free_tol = 0.0_rp
+     integer :: div_free_max_iter = 0
 
    contains
      !> Constructor.
@@ -293,6 +299,19 @@ contains
     call json_get_or_default(params, &
          "case.fluid.initial_condition.make_divergence_free", &
          this%div_free_ic, .false.)
+    if (this%div_free_ic) then
+       call json_get_or_lookup_or_default(params, &
+            "case.fluid.initial_condition.divergence_free_tolerance", &
+            this%div_free_tol, max(1.0e-6_rp, 100.0_rp * NEKO_EPS))
+       call json_get_or_lookup_or_default(params, &
+            "case.fluid.initial_condition.divergence_free_max_iterations", &
+            this%div_free_max_iter, 500)
+       if (this%div_free_tol .le. 0.0_rp .or. &
+            this%div_free_max_iter .lt. 1) then
+          call neko_error("divergence_free_tolerance has to be positive " // &
+               "and divergence_free_max_iterations at least one")
+       end if
+    end if
 
     ! Setup backend dependent Ax routines for the velocity
     call fluid_pnpn_ax_vel_factory(this)
@@ -600,22 +619,44 @@ contains
 
   end subroutine fluid_pnpn_restart
 
-  !> Project the velocity onto the space of discretely divergence-free fields.
-  !! @details Solves a Poisson problem for a scalar potential and subtracts its
-  !! gradient from the velocity, reusing the pressure solver, preconditioner
-  !! and boundary conditions of the scheme. Intended to clean up an initial
-  !! condition, e.g. one read from a field file, that does not satisfy the
-  !! continuity equation. The normal velocity on boundaries where the velocity
-  !! is prescribed is left unchanged, the tangential one is not, so the
-  !! velocity boundary conditions should be re-applied afterwards, as the time
-  !! loop does at the start of every step.
-  subroutine fluid_pnpn_make_div_free(this)
+  !> Impose the velocity boundary conditions and project the velocity onto
+  !! the divergence-free subspace, with the pressure solver of the scheme.
+  !! @details Meant for an initial condition that does not satisfy continuity
+  !! or the boundary conditions, e.g. a field file read onto another mesh. The
+  !! conditions go first so that the projection keeps the prescribed values,
+  !! as in the time loop. Conditions evaluated through user hooks
+  !! (`user_velocity`, `overset_interface`) are left out, since the hooks
+  !! commonly set themselves up at the first time step.
+  !! @param time The time state, for time dependent boundary conditions.
+  subroutine fluid_pnpn_make_div_free(this, time)
     class(fluid_pnpn_t), target, intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    type(bc_list_t) :: bcs
+    class(bc_t), pointer :: bc_i
+    integer :: i
 
-    call project_div_free(this%u, this%v, this%w, this%dp, this%p_res, &
-         this%c_Xh, this%gs_Xh, this%Ax_prs, this%ksp_prs, this%pc_prs, &
-         this%bcs_prs_projector, this%bc_prs_surface, this%prs_dirichlet, &
-         this%glb_n_points)
+    call bcs%init(max(1, this%bcs_vel%size()))
+    do i = 1, this%bcs_vel%size()
+       bc_i => this%bcs_vel%get(i)
+       select type (bc_i)
+       type is (field_dirichlet_vector_t)
+          call neko_log%message('Not imposed before the projection: ' // &
+               trim(bc_i%name))
+       type is (overset_interface_vector_t)
+          call neko_log%message('Not imposed before the projection: ' // &
+               trim(bc_i%name))
+       class default
+          call bcs%append(bc_i)
+       end select
+    end do
+    call this%bc_apply_vel(time, strong = .true., bcs = bcs)
+    call bcs%free()
+
+    call project_div_free(this%u, this%v, this%w, this%c_Xh, this%gs_Xh, &
+         this%Ax_prs, this%ksp_prs, this%pc_prs, this%bcs_prs_projector, &
+         this%bcs_vel_projector, this%bc_prs_surface, this%prs_dirichlet, &
+         this%glb_n_points, this%rho%x(1,1,1,1), this%div_free_tol, &
+         this%div_free_max_iter)
 
   end subroutine fluid_pnpn_make_div_free
 

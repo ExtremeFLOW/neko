@@ -45,6 +45,12 @@
             "make_divergence_free": {
               "type": "boolean"
             },
+            "divergence_free_tolerance": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "divergence_free_max_iterations": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+            },
             "type": {
               "const": "user"
             }
@@ -60,6 +66,12 @@
           "properties": {
             "make_divergence_free": {
               "type": "boolean"
+            },
+            "divergence_free_tolerance": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "divergence_free_max_iterations": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
             },
             "type": {
               "const": "uniform"
@@ -79,6 +91,12 @@
           "properties": {
             "make_divergence_free": {
               "type": "boolean"
+            },
+            "divergence_free_tolerance": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "divergence_free_max_iterations": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
             },
             "type": {
               "const": "expression"
@@ -105,6 +123,12 @@
           "properties": {
             "make_divergence_free": {
               "type": "boolean"
+            },
+            "divergence_free_tolerance": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "divergence_free_max_iterations": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
             },
             "type": {
               "const": "blasius"
@@ -141,6 +165,12 @@
             "make_divergence_free": {
               "type": "boolean"
             },
+            "divergence_free_tolerance": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "divergence_free_max_iterations": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+            },
             "type": {
               "const": "point_zone"
             },
@@ -166,6 +196,12 @@
           "properties": {
             "make_divergence_free": {
               "type": "boolean"
+            },
+            "divergence_free_tolerance": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "divergence_free_max_iterations": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
             },
             "type": {
               "const": "field"

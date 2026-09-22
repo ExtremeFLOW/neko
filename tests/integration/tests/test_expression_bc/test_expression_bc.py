@@ -1,11 +1,11 @@
 """Integration coverage for the expression boundary conditions.
 
-``expression_velocity``, ``expression_pressure`` and the scalar
-``expression_dirichlet`` are strong Dirichlet conditions, so the value they
-prescribe has to survive the linear solve, not merely be written into the field
-before it. A condition that is applied but not registered as Dirichlet with the
-scheme is left unconstrained by the solver and drifts away within one step,
-silently, which is what this test guards against.
+``expression_velocity`` and the scalar ``expression_dirichlet`` are strong
+Dirichlet conditions, so the value they prescribe has to survive the linear
+solve, not merely be written into the field before it. A condition that is
+applied but not registered as Dirichlet with the scheme is left unconstrained
+by the solver and drifts away within one step, silently, which is what this
+test guards against.
 """
 
 import json
@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 
+import conftest
 from testlib import (
     configure_nprocs,
     get_genmeshbox,
@@ -28,7 +29,7 @@ ELEMENTS = (3, 3, 3)
 INFLOW_U = 1.0
 SCALAR_VALUE = 3.5
 
-TOLERANCE = 1.0e-9
+TOLERANCE = {"dp": 1.0e-9, "sp": 1.0e-5}
 
 
 def _solver(solver_type):
@@ -191,12 +192,13 @@ def expression_bc_assets(tmp_path_factory, request):
 def test_expression_boundary_conditions_are_enforced(expression_bc_assets):
     """An expression Dirichlet value has to hold for every step, and match the
     plain Dirichlet condition prescribing the same thing."""
+    tolerance = TOLERANCE[conftest.RP]
     by_value = _run(expression_bc_assets, False, "by_value")
     by_expression = _run(expression_bc_assets, True, "by_expression")
 
     for step, ((u_v, s_v), (u_e, s_e)) in enumerate(
             zip(by_value, by_expression), start=1):
-        assert u_v == pytest.approx(INFLOW_U, abs=TOLERANCE), f"step {step}"
-        assert s_v == pytest.approx(SCALAR_VALUE, abs=TOLERANCE), f"step {step}"
-        assert u_e == pytest.approx(INFLOW_U, abs=TOLERANCE), f"step {step}"
-        assert s_e == pytest.approx(SCALAR_VALUE, abs=TOLERANCE), f"step {step}"
+        assert u_v == pytest.approx(INFLOW_U, abs=tolerance), f"step {step}"
+        assert s_v == pytest.approx(SCALAR_VALUE, abs=tolerance), f"step {step}"
+        assert u_e == pytest.approx(INFLOW_U, abs=tolerance), f"step {step}"
+        assert s_e == pytest.approx(SCALAR_VALUE, abs=tolerance), f"step {step}"

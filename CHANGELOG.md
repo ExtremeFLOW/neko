@@ -2,24 +2,17 @@
 
 ## Develop
 
-- Added `case.fluid.initial_condition.make_divergence_free`, which projects the
-  initial velocity onto the divergence-free subspace before the first time
-  step. A Poisson problem for a scalar potential is solved with the case's
-  pressure solver and its gradient subtracted from the velocity, using the same
-  discrete operators and boundary conditions as the pressure step of the time
-  loop. Useful for initial conditions read from a field file, in particular one
-  interpolated from another mesh, which do not satisfy the continuity equation
-  and otherwise provoke a large initial pressure transient.
+- Added `case.fluid.initial_condition.make_divergence_free`, a Leray
+  projection of the initial velocity onto the divergence-free subspace, using
+  the pressure solver and the boundary conditions of the Pn-Pn scheme. The
+  built-in velocity boundary conditions are imposed first. For fields that
+  do not satisfy continuity, e.g. a field interpolated from another mesh.
 - Fixed `expression_velocity`, `expression_pressure` and the scalar
-  `expression_dirichlet` boundary conditions not being enforced. They
-  never set `bc_type`, so the schemes did not recognise them as strong
-  Dirichlet conditions and left their degrees of freedom unconstrained
-  in the linear solve. The prescribed value was written into the field
-  and then immediately solved away, silently. The Pn-Pn pressure
-  equation also lost its surface term on those boundaries.
-- Fixed the `point_zone` fluid initial condition aborting with a Fortran
-  runtime error, its log message wrote a three-component vector with a
-  format holding a single edit descriptor.
+  `expression_dirichlet` boundary conditions not being enforced: they never
+  set `bc_type`, so the linear solves left their degrees of freedom
+  unconstrained and the prescribed value was solved away within a step.
+- Fixed the `point_zone` fluid initial condition aborting on a malformed log
+  format.
 - Added runtime registration of user-defined scalar boundary-condition types
   through `register_scalar_pnpn_bc`.
 - Added a coupled CPU BiCGStab solver for three-component vector systems.

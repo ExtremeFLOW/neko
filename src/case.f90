@@ -386,15 +386,18 @@ contains
 
     ! Project the initial condition onto the divergence-free subspace, and add
     ! the initial conditions to the BDF scheme (if present)
-    call json_get_or_default(this%params, &
-         'case.fluid.initial_condition.make_divergence_free', logical_val, &
-         .false.)
+    logical_val = .false.
+    if (this%params%valid_path( &
+         'case.fluid.initial_condition.make_divergence_free')) then
+       call json_get(this%params, &
+            'case.fluid.initial_condition.make_divergence_free', logical_val)
+    end if
 
     select type (f => this%fluid)
     type is (fluid_pnpn_t)
        if (f%div_free_ic .and. &
             .not. this%params%valid_path('case.restart_file')) then
-          call f%make_div_free()
+          call f%make_div_free(this%time)
        end if
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
