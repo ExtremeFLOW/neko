@@ -402,7 +402,7 @@ contains
     integer(kind=i8) :: nparts_read(2), partoffs_read(2)
     integer(kind=i8) :: ptoffs_read(2), celloffs_read(2)
     integer(kind=i8) :: connoffs_read(2), pdoffs_read(2)
-    real(rp) :: values_read(2)
+    real(rp) :: read_rp(2)
     logical :: link_exists
 
     ! Expected values: same Lagrange geometry as non-temporal, 2 timesteps
@@ -653,11 +653,11 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "Values size must be num steps"
     @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, values_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, read_dp, h5dims(1:1), hdferr)
     message = "Values(1) must be 0.0"
-    @assertEqual(0.0_dp, values_read(1), message = message)
+    @assertEqual(0.0_dp, read_dp(1), message = message)
     message = "Values(2) must be 1.0"
-    @assertEqual(1.0_dp, values_read(2), message = message)
+    @assertEqual(1.0_dp, read_dp(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
@@ -803,7 +803,8 @@ contains
     integer(kind=i8) :: nparts_read(2), partoffs_read(2)
     integer(kind=i8) :: ptoffs_read(2), celloffs_read(2)
     integer(kind=i8) :: connoffs_read(2), pdoffs_read(2)
-    real(rp) :: values_read(2)
+    real(kind=rp) :: read_rp(2)
+    real(kind=dp) :: read_dp(2)
     logical :: link_exists
 
     ! Expected values with subdivision: each rank has 2 elements, LX=4, 3D
@@ -1027,12 +1028,12 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "Values size (subdivide)"
     @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, values_read, &
+    call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, read_dp, &
          h5dims(1:1), hdferr)
     message = "Values(1) must be 0.0 (subdivide)"
-    @assertEqual(0.0_dp, values_read(1), message = message)
+    @assertEqual(0.0_dp, read_dp(1), message = message)
     message = "Values(2) must be 1.0 (subdivide)"
-    @assertEqual(1.0_dp, values_read(2), message = message)
+    @assertEqual(1.0_dp, read_dp(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
