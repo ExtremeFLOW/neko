@@ -401,7 +401,7 @@ contains
           this%csv_row%x(2) = time%t
           this%csv_row%x(3) = this%flux
           call this%csv_output%write(this%csv_row)
-          call this%output_controller%register_execution()
+          call this%output_controller%register_execution(time)
        end if
     end if
   end subroutine boundary_flux_compute
