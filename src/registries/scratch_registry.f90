@@ -718,7 +718,7 @@ contains
 
     associate(entries => this%entries, n_entries => this%n_entries, &
          n_inuse => this%n_inuse)
-
+      !$omp critical (scratch_registry_request_field_free_dof)
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
 
@@ -752,7 +752,7 @@ contains
       write (name, "(A3,I0.3)") "wrk", index
       call this%entries(n_entries)%init_field(dof, trim(name))
       f => this%entries(n_entries)%get_field()
-
+      !$omp end critical (scratch_registry_request_field_free_dof)
     end associate
   end subroutine request_field_free_dof
 
