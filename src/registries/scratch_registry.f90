@@ -61,31 +61,37 @@ module scratch_registry
   type, public :: scratch_registry_t
      !> List of scratch objects
      type(registry_entry_t), private, allocatable :: entries(:)
-     !> Tracks which objects are used
+     !> Tracks which objects are in use
      logical, private, allocatable :: inuse(:)
-     !> Number of registered objects
+     !> Number of allocated objects
      integer, private :: n_entries = 0
      !> The size the objects array is increased by upon reallocation
      integer, private :: expansion_size = 10
      !> Dofmap
      type(dofmap_t), pointer :: dof => null()
    contains
-     procedure, private, pass(this) :: expand
      !> Constructor
      procedure, pass(this) :: init => scratch_registry_init
      !> Destructor
      procedure, pass(this) :: free => scratch_registry_free
+     !> Expand the registry by expansion_size
+     procedure, private, pass(this) :: expand
+
      !> Assign a dofmap to the scratch registry
      procedure, pass(this) :: set_dofmap => scratch_registry_set_dofmap
-     !> Getter for n_entries
+     !> Assign a new expansion size to the scratch registry
+     procedure, pass(this) :: set_expansion_size => &
+          scratch_registry_set_expansion_size
+
+     !> Return the number of allocated entries in the registry
      procedure, pass(this) :: get_n_entries
-     !> Getter for n_inuse
+     !> Return the number of entries currently in use
      procedure, pass(this) :: get_n_inuse
-     !> Getter for expansion_size
+     !> Return the expansion size of the registry
      procedure, pass(this) :: get_expansion_size
-     !> Return size of allocated fields
+     !> Return the current capacity of the registry (size of the entries array)
      procedure, pass(this) :: get_size
-     !> Get value of inuse for a given index
+     !> Return the inuse status of a given index
      procedure, pass(this) :: get_inuse
 
      !> Get a new scratch host array
@@ -180,20 +186,20 @@ contains
     integer, optional, intent(in) :: size
     integer, optional, intent(in) :: expansion_size
     type(dofmap_t), target, intent(in), optional :: dof
-    integer :: s
+    integer :: initial_size
 
     call this%free()
 
-    s = 10
-    if (present(size)) s = size
+    ! Assign the dofmap and expansion size if provided
     if (present(dof)) this%dof => dof
-
-    allocate(this%entries(s))
-    allocate(this%inuse(s))
-    this%inuse(:) = .false.
-
-    this%expansion_size = 10
     if (present(expansion_size)) this%expansion_size = expansion_size
+
+    ! Allocate the entries and inuse arrays with the initial size
+    initial_size = this%expansion_size
+    if (present(size)) initial_size = size
+
+    allocate(this%entries(initial_size))
+    allocate(this%inuse(initial_size), source = .false.)
 
   end subroutine scratch_registry_init
 
@@ -202,22 +208,19 @@ contains
     class(scratch_registry_t), intent(inout):: this
     integer :: i
 
-    if (allocated(this%inuse)) then
-       if(any(this%inuse)) then
-          call neko_error("scratch_registry::free: " // &
-               "Cannot free scratch registry with in-use entries.")
-       end if
-       deallocate(this%inuse)
+    if (this%get_n_inuse() .ne. 0) then
+       call neko_error("scratch_registry::free: " // &
+            "Cannot free scratch registry with entries still in use.")
     end if
 
     if (allocated(this%entries)) then
        do i = 1, this%n_entries
           call this%entries(i)%free()
        end do
-
        deallocate(this%entries)
     end if
 
+    if (allocated(this%inuse)) deallocate(this%inuse)
     if (associated(this%dof)) nullify(this%dof)
 
     ! Reset to default values
@@ -257,7 +260,11 @@ contains
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
-    n = count(this%inuse)
+    if (allocated(this%inuse)) then
+       n = count(this%inuse)
+    else
+       n = 0
+    end if
   end function get_n_inuse
 
   !> Get the size of the objects array
