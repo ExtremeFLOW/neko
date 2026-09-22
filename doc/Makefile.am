@@ -15,10 +15,10 @@ clean-local:
 
 html-local: doxygen.stamp
 
-EXTRA_DIST = pages/appendices/governing-equations.md \
-			pages/appendices/mixed-boundary-condition-resolution.md \
+EXTRA_DIST = pages/methods/governing-equations.md \
+			pages/methods/mixed-boundary-condition-resolution.md \
 			schemas \
-			pages/appendices/publications.md \
+			pages/reference/publications.md \
 			pages/developer-guide \
 			pages/developer-guide/accelerators.md \
 			pages/developer-guide/run_time_selectable_types.md \
@@ -29,6 +29,9 @@ EXTRA_DIST = pages/appendices/governing-equations.md \
 			pages/developer-guide/testing.md \
 			pages/user-guide \
 			pages/user-guide/case-file.md \
+			pages/user-guide/case-file/fluid-incompressible.md \
+			pages/user-guide/case-file/fluid-compressible.md \
+			pages/user-guide/case-file/scalar.md \
 			pages/user-guide/installation.md \
 			pages/user-guide/meshing.md \
 			pages/user-guide/io.md \
@@ -37,7 +40,8 @@ EXTRA_DIST = pages/appendices/governing-equations.md \
 			pages/user-guide/statistics-guide.md \
 			pages/user-guide/user-file.md \
 			pages/user-guide/extension.md \
-			pages/appendices.md \
+			pages/reference.md \
+			pages/methods.md \
 			pages/developer-guide.md \
 			pages/index.md \
 			pages/user-guide.md

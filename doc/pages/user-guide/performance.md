@@ -477,7 +477,7 @@ where the blocked variants do spill it simply rejects them. `NEKO_EB_TUNE`
 turns the sweep off if the extra tuning time is not wanted.
 
 The tuning behaviour is controlled by the environment variables
-described in the @ref appendices_env-var reference: `NEKO_AUTOTUNE`
+described in the @ref reference_env-var reference: `NEKO_AUTOTUNE`
 narrows the search to one formulation, whose geometry is still swept,
 `NEKO_EB_TUNE` and
 `NEKO_MFMA_TUNE` enable or disable the elements per block and matrix
