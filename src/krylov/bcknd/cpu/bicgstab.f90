@@ -42,7 +42,6 @@ module bicgstab
   use scalar_bc_projector, only : scalar_bc_projector_t
   use vector_bc_projector, only : vector_bc_projector_t, &
        vector_bc_projector_components
-  use host_array, only : host_array_t
   use scratch_registry, only : neko_scratch_registry
   use math, only : glsc3, copy, NEKO_EPS, add2s2, p_update
   use utils, only : neko_error
@@ -171,8 +170,6 @@ contains
     real(kind=rp) :: beta, alpha, omega, rho_1, rho_2
     ! Extra-precision accumulator for the fused residual reductions
     real(kind=xp) :: res_sum
-    type(host_array_t), pointer :: p_tmp, p_hat_tmp, r_tmp
-    type(host_array_t), pointer :: s_hat_tmp, t_tmp, v_tmp
     integer :: temp_indices(6)
 
     if (present(niter)) then
@@ -182,25 +179,12 @@ contains
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
-    call neko_scratch_registry%request_host_array(p_tmp, temp_indices(1), &
-         n, .false.)
-    call neko_scratch_registry%request_host_array(p_hat_tmp, &
-         temp_indices(2), n, .false.)
-    call neko_scratch_registry%request_host_array(r_tmp, temp_indices(3), &
-         n, .false.)
-    call neko_scratch_registry%request_host_array(s_hat_tmp, &
-         temp_indices(4), n, .false.)
-    call neko_scratch_registry%request_host_array(t_tmp, temp_indices(5), &
-         n, .false.)
-    call neko_scratch_registry%request_host_array(v_tmp, temp_indices(6), &
-         n, .false.)
-
-    this%p => p_tmp%x
-    this%p_hat => p_hat_tmp%x
-    this%r => r_tmp%x
-    this%s_hat => s_hat_tmp%x
-    this%t => t_tmp%x
-    this%v => v_tmp%x
+    call neko_scratch_registry%request(this%p, temp_indices(1), n, .false.)
+    call neko_scratch_registry%request(this%p_hat, temp_indices(2), n, .false.)
+    call neko_scratch_registry%request(this%r, temp_indices(3), n, .false.)
+    call neko_scratch_registry%request(this%s_hat, temp_indices(4), n, .false.)
+    call neko_scratch_registry%request(this%t, temp_indices(5), n, .false.)
+    call neko_scratch_registry%request(this%v, temp_indices(6), n, .false.)
 
     associate(p => this%p, p_hat => this%p_hat, r => this%r, &
          s_hat => this%s_hat, t => this%t, v => this%v)
