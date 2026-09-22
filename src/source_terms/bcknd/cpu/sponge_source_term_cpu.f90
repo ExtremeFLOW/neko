@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the cpu kernel for the `sponge_source_term_t` type.
-!! Maintainer: Timofey Mukha.
 
 module sponge_source_term_cpu
   use num_types, only : rp
