@@ -1,6 +1,23 @@
 # Changelog
 
 ## Develop
+
+
+- Added a setup-time conditioning diagnostic for the geometric factors, on
+  `COEF_FULL` coefficient sets only. `coef_metric_condition` logs the worst
+  metric condition number over the mesh, the worst for its Jacobi scaled
+  form, the perturbation single precision factors would put on the element
+  operator, and whether that is within tolerance (`coef_t%metric_sp_safe`).
+  The unscaled number bounds reduced precision *arithmetic* and grows as the
+  element aspect ratio squared; the scaled one bounds *storage* and depends
+  on skew alone. A single precision build warns past `NEKO_METRIC_COND_SP` or
+  `NEKO_METRIC_PERTURB_MAX`, and a non positive definite metric is an error
+  in any precision.
+- Added closed-form symmetric eigenvalue helpers `eig_sym2` and `eig_sym3` to
+  `math`, used by the metric conditioning diagnostic. Both work in double
+  precision regardless of `rp`, since the smallest root is a difference of
+  terms of order the largest eigenvalue and its relative accuracy therefore
+  degrades as `eps * kappa`.
 - Fused the viscous accumulation at the end of the compressible device
   residual into the one kernel the CPU backend already uses. It cost sixteen
   launches per Runge-Kutta stage and 2.4x the memory traffic, because the
@@ -93,7 +110,6 @@
 - Made the `user_stats` integration test compare its average of a random
   field against a two-sided tolerance that covers the sampling noise; the
   one-sided `1e-4` passed or failed roughly at random.
-
 - The CPU vector and full stress Helmholtz operators apply the mass term
   `h2 * B * u` inside their element kernels rather than in a separate pass
   over the whole field afterwards, so an `lx = 8` double precision velocity
