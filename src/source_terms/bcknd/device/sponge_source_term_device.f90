@@ -35,7 +35,7 @@ module sponge_source_term_device
   use num_types, only : rp
   use field_list, only : field_list_t
   use field, only : field_t
-  use device_math, only : device_copy, device_add3s2, device_add2, device_cadd
+  use device_math, only : device_sub3, device_col2, device_add2s2
   use scratch_registry, only : neko_scratch_registry
   implicit none
   private
