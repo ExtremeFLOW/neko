@@ -666,7 +666,7 @@ contains
     if (this%output_enabled) then
        if (this%output_controller%check(time)) then
           call this%write_output(time)
-          call this%output_controller%register_execution()
+          call this%output_controller%register_execution(time)
        end if
     end if
   end subroutine lpt_compute
