@@ -1,6 +1,45 @@
 # Changelog
 
 ## Develop
+- Fused the viscous accumulation at the end of the compressible device
+  residual into the one kernel the CPU backend already uses. It cost sixteen
+  launches per Runge-Kutta stage and 2.4x the memory traffic, because the
+  five components went through separate `col2`/`cmult`/`sub2` passes that
+  wrote `visc_*` back although it is scratch released immediately after. The
+  `div` and `grad` calls there now take device pointers rather than the
+  deprecated implicit-device host-array path.
+- The compressible residual on the device backends hands `glb_cmd_event` to
+  its gather-scatter operations, as the Pn-Pn solver already did. Without an
+  event the shared scatter ends in `device_sync`, draining the command queue
+  right after every exchange; it now records the event and the host waits
+  only just before the next exchange reuses the shared staging buffers, so
+  the coefficient multiplication and the three Helmholtz applies in between
+  are issued while the exchange is still in flight. Results are unchanged.
+- Fixed the compressible solver never evaluating the physical Navier-Stokes
+  fluxes on any device backend. Both `compressible_res_*` backends decided
+  whether to add the viscous stress and the heat flux with
+  `any(mu%x .ne. 0)`, which reads the *host* mirror of the material property
+  fields. Device backends never write those mirrors: `field_cfill` fills only
+  `%x_d`, and the memcpy that used to follow the `material_properties` hook
+  was removed in #2695 so that user files can call `device_math` directly.
+  Both switches were therefore always false on CUDA, HIP, OpenCL and Metal,
+  and the solver silently ran Euler plus artificial viscosity. As a
+  side-effect the test also cost three full single-threaded host passes over
+  the field per time step, with no work in flight on the device.
+  The decision now lives in `fluid_scheme_compressible_t%update_physical_flux`
+  and is taken from the device-resident arrays, and it is only re-evaluated
+  when the material properties can have changed, i.e. once at setup and
+  thereafter only when a user `material_properties` hook is registered.
+  `mu`, `kappa` and whether the Navier-Stokes fluxes are active are now
+  reported in the `Fluid` section of the log.
+- Added `glamax`, `vlamax` and `device_glamax`, the maximum absolute value of
+  a vector, with kernels for CUDA, HIP, OpenCL and Metal. Unlike an `any()`
+  over a host array it is an exact, reduced test for "are all entries zero"
+  that never touches the host copy.
+- Updated interfaces for scratch host and device arrays. Now the canonical types
+  are used when requesting scratch arrays of these types. `c_ptr` and
+  `real(kind=rp), pointer` should be used rather than the wrappers
+  `host_array_t` and `device_array_t`.
 - Removed false sharing in the CPU GMRES Gram-Schmidt step: per-thread
   partial sums now live in a private array and are published once per
   thread.

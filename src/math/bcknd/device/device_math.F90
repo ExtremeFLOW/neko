@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -68,8 +68,8 @@ module device_math
        device_invcol3, device_cdiv, device_cdiv2, device_glsubnorm, &
        device_pwmax2, device_pwmax3, device_cpwmax2, device_cpwmax3, &
        device_pwmin2, device_pwmin3, device_cpwmin2, device_cpwmin3, &
-       device_glmax, device_glmin, device_cwrap, device_sqrt_inplace, &
-       device_power
+       device_glmax, device_glmin, device_glamax, device_cwrap, &
+       device_sqrt_inplace, device_power
 
 contains
 
@@ -1661,6 +1661,48 @@ contains
     end if
 #endif
   end function device_glmin
+
+  !> Max of the absolute value of a vector of length n
+  !! @details Returns \f$ \max_i |a_i| \f$ reduced over all ranks. Useful as
+  !! an exact test for "are all entries zero" without touching the host copy
+  !! of the array.
+  function device_glamax(a_d, n, strm) result(res)
+    type(c_ptr) :: a_d
+    integer :: n, ierr
+    real(kind=rp) :: res
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) then
+       res = 0.0_rp
+       return
+    end if
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    res = hip_glamax(a_d, n, strm_)
+#elif HAVE_CUDA
+    res = cuda_glamax(a_d, n, strm_)
+#elif HAVE_OPENCL
+    res = opencl_glamax(a_d, n, strm_)
+#elif HAVE_METAL
+    res = metal_glamax(a_d, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+#ifndef HAVE_DEVICE_MPI
+    if (pe_size .gt. 1) then
+       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
+            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    end if
+#endif
+  end function device_glamax
 
   subroutine device_absval(a_d, n, strm)
     integer, intent(in) :: n
