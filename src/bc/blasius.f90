@@ -197,8 +197,8 @@ contains
        strong_ = .true.
     end if
 
-    associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
-         zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
+    associate(xc => this%coef%dof%x%x, yc => this%coef%dof%y%x, &
+         zc => this%coef%dof%z%x, nx => this%coef%nx, ny => this%coef%ny, &
          nz => this%coef%nz, lx => this%coef%Xh%lx)
       m = this%facet_node_msk(0)
       if (strong_) then
@@ -250,8 +250,8 @@ contains
        strong_ = .true.
     end if
 
-    associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
-         zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
+    associate(xc => this%coef%dof%x%x, yc => this%coef%dof%y%x, &
+         zc => this%coef%dof%z%x, nx => this%coef%nx, ny => this%coef%ny, &
          nz => this%coef%nz, lx => this%coef%Xh%lx , &
          blax_d => this%blax_d, blay_d => this%blay_d, &
          blaz_d => this%blaz_d)

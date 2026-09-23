@@ -931,7 +931,7 @@ contains
     integer :: edge_len, edge_idx, node_idx
     real(kind=rp) :: normal(3), t1_vec(3), t2_vec(3), len, bc_type
     real(kind=rp), parameter :: normal_tol = 100.0_rp * epsilon(1.0_rp)
-    character(len=LOG_SIZE) :: error_msg
+    character(len=1024) :: error_msg
 
     call this%clear_basis()
 

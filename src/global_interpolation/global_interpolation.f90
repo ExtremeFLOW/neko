@@ -292,11 +292,11 @@ contains
 
     ! Store the number of dofs
     this%n_dof = dof%size()
-    ! NOTE: Passing dof%x(:,1,1,1), etc in init_xyz passes down the entire
+    ! NOTE: Passing dof%x%x(:,1,1,1), etc in init_xyz passes down the entire
     ! dof%x array and not a slice. It is done this way for
     ! to get the right dimension (see global_interpolation_init_xyz).
     if (.not. present(mask)) then
-       call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
+       call this%init_xyz(dof%x%x(:,1,1,1), dof%y%x(:,1,1,1), dof%z%x(:,1,1,1), &
             dof%msh%gdim, dof%msh%nelv, dof%Xh, comm = comm, &
             tol = tol, pad = pad)
     else
@@ -310,8 +310,8 @@ contains
                " elements in the mesh.")
        end if
        ! Initialize with the masked coordinates
-       call this%init_xyz(dof%x(mask%get(),1,1,1), dof%y(mask%get(),1,1,1), &
-            dof%z(mask%get(),1,1,1), dof%msh%gdim, temp_nelv, dof%Xh, &
+       call this%init_xyz(dof%x%x(mask%get(),1,1,1), dof%y%x(mask%get(),1,1,1), &
+            dof%z%x(mask%get(),1,1,1), dof%msh%gdim, temp_nelv, dof%Xh, &
             comm = comm, tol = tol, pad = pad)
     end if
 
