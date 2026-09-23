@@ -751,9 +751,9 @@ contains
 
     !$omp parallel do
     do i = 1, msh%nelv
-       x_el => this%x%x(:,:,:,i)
-       y_el => this%y%x(:,:,:,i)
-       z_el => this%z%x(:,:,:,i)
+       x_el(1:,1:,1:) => this%x%x(:,:,:,i)
+       y_el(1:,1:,1:) => this%y%x(:,:,:,i)
+       z_el(1:,1:,1:) => this%z%x(:,:,:,i)
        call dofmap_xyzlin(Xh, msh, msh%elements(i)%e, x_el, y_el, z_el)
     end do
     !$omp end parallel do
@@ -769,9 +769,9 @@ contains
           end if
        end do
        if (midpoint .and. Xh%lx .gt. 2) then
-          x_el => this%x%x(:,:,:,el_idx)
-          y_el => this%y%x(:,:,:,el_idx)
-          z_el => this%z%x(:,:,:,el_idx)
+          x_el(1:,1:,1:) => this%x%x(:,:,:,el_idx)
+          y_el(1:,1:,1:) => this%y%x(:,:,:,el_idx)
+          z_el(1:,1:,1:) => this%z%x(:,:,:,el_idx)
           call dofmap_xyzquad(Xh, msh, msh%elements(el_idx)%e, &
                x_el, y_el, z_el, curve_type, curve_data_tot)
        end if
@@ -781,9 +781,9 @@ contains
        do j = 1, 8
           if (msh%curve%curve_el(i)%curve_type(j) .eq. 3) then
              rp_curve_data = msh%curve%curve_el(i)%curve_data(1:5,j)
-             x_el => this%x%x(:,:,:,el_idx)
-             y_el => this%y%x(:,:,:,el_idx)
-             z_el => this%z%x(:,:,:,el_idx)
+             x_el(1:,1:,1:) => this%x%x(:,:,:,el_idx)
+             y_el(1:,1:,1:) => this%y%x(:,:,:,el_idx)
+             z_el(1:,1:,1:) => this%z%x(:,:,:,el_idx)
              call arc_surface(j, rp_curve_data, &
                   x_el, y_el, z_el, Xh, msh%elements(el_idx)%e, msh%gdim)
           end if
@@ -793,7 +793,9 @@ contains
        call msh%apply_deform(this%x%x, this%y%x, this%z%x, Xh%lx, Xh%ly, Xh%lz)
     end if
 
-    nullify(x_el, y_el, z_el)
+    nullify(x_el)
+    nullify(y_el)
+    nullify(z_el)
     call this%x%copy_from(HOST_TO_DEVICE, .false.)
     call this%y%copy_from(HOST_TO_DEVICE, .false.)
     call this%z%copy_from(HOST_TO_DEVICE, .true.)
