@@ -522,10 +522,10 @@ contains
     to_Xh => to_dof%Xh
 
     ! Safeguard in case we didn't read mesh information
-    if (.not. allocated(this%x%x) .or. &
-         .not. allocated(this%y%x) .or. &
-         .not. allocated(this%z%x)) call neko_error("Unable to retrieve &
-    &mesh information from fld data.")
+    if (.not. this%x%is_allocated() .or. .not. this%y%is_allocated() .or. &
+         .not. this%z%is_allocated()) then
+       call neko_error("Unable to retrieve mesh information from fld data.")
+    end if
 
     ! Create a space based on the fld data
     call fld_Xh%init(GLL, this%lx, this%ly, this%lz)

@@ -509,8 +509,7 @@ contains
             end if
 
             m => entries(index)%get_matrix()
-            if (m%get_nrows() .ne. nrows .or. &
-                 m%get_ncols() .ne. ncols) then
+            if (any(m%get_dims() .ne. [nrows, ncols])) then
                nullify(m)
                cycle
             end if
@@ -562,9 +561,7 @@ contains
             end if
 
             t => entries(index)%get_tensor3()
-            if (t%get_n1() .ne. n .or. &
-                 t%get_n2() .ne. m .or. &
-                 t%get_n3() .ne. l) then
+            if (any(t%get_dims() .ne. [n, m, l])) then
                nullify(t)
                cycle
             end if
@@ -621,10 +618,7 @@ contains
             end if
 
             t => entries(index)%get_tensor4()
-            if (t%get_n1() .ne. n .or. &
-                 t%get_n2() .ne. m .or. &
-                 t%get_n3() .ne. l .or. &
-                 t%get_n4() .ne. k) then
+            if (any(t%get_dims() .ne. [n, m, l, k])) then
                nullify(t)
                cycle
             end if

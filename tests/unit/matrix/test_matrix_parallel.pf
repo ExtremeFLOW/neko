@@ -45,7 +45,7 @@ contains
     integer :: ierr
 
     call v%init(n,m)
-    @assertTrue(allocated(v%x))
+    @assertTrue(associated(v%x))
     @assertEqual(size(v%x), n*m)
     @assertEqual(v%size(), n*m)
     @assertEqual(v%get_nrows(), n)
@@ -69,7 +69,7 @@ contains
 
     call v%init(n, m)
     call v%free()
-    @assertFalse(allocated(v%x))
+    @assertFalse(associated(v%x))
     @assertEqual(v%size(), 0)
     @assertEqual(v%get_nrows(), 0)
     @assertEqual(v%get_ncols(), 0)
@@ -79,60 +79,6 @@ contains
     end if
 
   end subroutine test_matrix_free
-
-  @test(npes=[1])
-  subroutine test_matrix_assign_matrix(this)
-    class (test_matrix), intent(inout) :: this
-    integer, parameter :: n = 42
-    integer, parameter :: m = 4711
-    type(matrix_t) :: v, w
-
-    call w%init(n,m)
-    v = w
-    @assertEqual(v%size(), w%size())
-    @assertEqual(v%get_nrows(), n)
-    @assertEqual(v%get_ncols(), m)
-    @assertEqual(v%get_nrows(), w%get_nrows())
-    @assertEqual(v%get_ncols(), w%get_ncols())
-    @assertEqual(v%size(), n*m)
-    @assertTrue(allocated(v%x))
-
-    call w%free()
-    call w%init(m,n)
-
-    v = w
-    @assertEqual(v%size(), w%size())
-    @assertEqual(v%get_nrows(), m)
-    @assertEqual(v%get_ncols(), n)
-    @assertEqual(v%get_nrows(), w%get_nrows())
-    @assertEqual(v%get_ncols(), w%get_ncols())
-    @assertEqual(v%size(), m*n)
-    @assertTrue(allocated(v%x))
-
-  end subroutine test_matrix_assign_matrix
-
-  @test(npes[1])
-  subroutine test_matrix_assign_scalar(this)
-    class (test_matrix), intent(inout) :: this
-    integer, parameter :: n = 4711, m = 42
-    real(kind=rp), parameter :: s =42.0_rp
-    type(matrix_t) :: v
-    integer :: i, j
-
-    call v%init(n, m)
-    v = s
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(v%x, v%x_d, n*m, DEVICE_TO_HOST, sync=.true.)
-    end if
-
-    do j = 1, m
-       do i = 1, n
-          @assertEqual(42.0_rp, v%x(i,j), tolerance=NEKO_EPS)
-       end do
-    end do
-
-  end subroutine test_matrix_assign_scalar
 
   ! @test(npes=[1])
   ! subroutine test_matrix_add_matrix(this)

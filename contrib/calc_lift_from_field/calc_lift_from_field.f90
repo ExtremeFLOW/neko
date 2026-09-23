@@ -6,7 +6,8 @@
 !! Martin Karp 17/01-24
 program calc_lift_from_field
   use neko
-  use matrix
+  use matrix, only : matrix_t
+  use matrix_math, only : matrix_rzero
   implicit none
 
   character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname, field_fname, hom_dir, output_fname
@@ -142,7 +143,7 @@ program calc_lift_from_field
      call copy(v%x,field_data%v%x,dof%size())
      call copy(w%x,field_data%w%x,dof%size())
      call copy(p%x,field_data%p%x,dof%size())
-     drag_torq = 0.0_rp
+     call matrix_rzero(drag_torq)
      !set coords to somoething big
      drag_torq%x(:,2) = 1e15
 
