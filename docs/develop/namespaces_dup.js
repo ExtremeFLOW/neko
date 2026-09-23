@@ -892,6 +892,12 @@ var namespaces_dup =
     [ "spectral_vanishing_viscosity", "db/d19/namespacespectral__vanishing__viscosity.html", "db/d19/namespacespectral__vanishing__viscosity" ],
     [ "sphere_point_zone", "d9/dfe/namespacesphere__point__zone.html", "d9/dfe/namespacesphere__point__zone" ],
     [ "sponge_source_term", "de/dfc/namespacesponge__source__term.html", "de/dfc/namespacesponge__source__term" ],
+    [ "sponge_source_term_cpu", "dd/d4d/namespacesponge__source__term__cpu.html", [
+      [ "sponge_source_term_compute_cpu", "dd/d4d/namespacesponge__source__term__cpu.html#a424fe2ab5250e03b16d6b8894ea2f353", null ]
+    ] ],
+    [ "sponge_source_term_device", "d5/d09/namespacesponge__source__term__device.html", [
+      [ "sponge_source_term_compute_device", "d5/d09/namespacesponge__source__term__device.html#a744e3d283e64e3848e1a8e01e4dab5d4", null ]
+    ] ],
     [ "stack", "d9/d30/namespacestack.html", "d9/d30/namespacestack" ],
     [ "stats", "d4/de4/namespacestats.html", "d4/de4/namespacestats" ],
     [ "stats_quant", "dc/d65/namespacestats__quant.html", "dc/d65/namespacestats__quant" ],

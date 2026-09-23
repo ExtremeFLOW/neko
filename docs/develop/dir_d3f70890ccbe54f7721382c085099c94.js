@@ -7,5 +7,6 @@ var dir_d3f70890ccbe54f7721382c085099c94 =
     [ "centrifugal_source_term_device.f90", "da/d21/centrifugal__source__term__device_8f90.html", "da/d21/centrifugal__source__term__device_8f90" ],
     [ "const_source_term_device.f90", "d7/db8/const__source__term__device_8f90.html", "d7/db8/const__source__term__device_8f90" ],
     [ "coriolis_source_term_device.f90", "dc/da8/coriolis__source__term__device_8f90.html", "dc/da8/coriolis__source__term__device_8f90" ],
-    [ "device_gradient_jump_penalty.F90", "d4/d4a/device__gradient__jump__penalty_8F90.html", "d4/d4a/device__gradient__jump__penalty_8F90" ]
+    [ "device_gradient_jump_penalty.F90", "d4/d4a/device__gradient__jump__penalty_8F90.html", "d4/d4a/device__gradient__jump__penalty_8F90" ],
+    [ "sponge_source_term_device.f90", "d6/daf/sponge__source__term__device_8f90.html", "d6/daf/sponge__source__term__device_8f90" ]
 ];

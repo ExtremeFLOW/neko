@@ -1,7 +1,9 @@
 <map id="cuda_rzero" name="cuda_rzero">
-<area shape="rect" id="Node000001" title=" " alt="" coords="155,31,248,56"/>
-<area shape="rect" id="Node000002" href="$de/d1e/math_8cu.html#af64a158bac10b01ca74f3c5f84112173" title=" " alt="" coords="5,5,107,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,36,106,29,107,24,142,30"/>
-<area shape="rect" id="Node000003" href="$de/d1e/math_8cu.html#a2e74d9e1a6ccf5c295800cf3756eff54" title=" " alt="" coords="7,55,105,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="142,56,105,62,104,57,141,51"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="163,55,256,80"/>
+<area shape="rect" id="Node000002" href="$de/d1e/math_8cu.html#ac7a82695fe92c5dabdf68354c53babff" title=" " alt="" coords="5,5,115,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,53,99,33,100,28,158,48"/>
+<area shape="rect" id="Node000003" href="$de/d1e/math_8cu.html#af64a158bac10b01ca74f3c5f84112173" title=" " alt="" coords="9,55,111,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="149,70,111,70,111,65,149,65"/>
+<area shape="rect" id="Node000004" href="$de/d1e/math_8cu.html#a2e74d9e1a6ccf5c295800cf3756eff54" title=" " alt="" coords="11,104,109,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="158,87,100,106,99,101,157,82"/>
 </map>

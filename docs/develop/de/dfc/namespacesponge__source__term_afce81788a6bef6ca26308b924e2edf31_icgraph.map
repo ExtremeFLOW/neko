@@ -1,9 +1,11 @@
 <map id="sponge_source_term::sponge_init_common" name="sponge_source_term::sponge_init_common">
-<area shape="rect" id="Node000001" title="Common constructor." alt="" coords="221,69,391,109"/>
+<area shape="rect" id="Node000001" title="Common constructor." alt="" coords="221,101,391,141"/>
 <area shape="rect" id="Node000002" href="$de/dfc/namespacesponge__source__term.html#ab5c63e0bcf52841eb22eaf609b3b0614" title="Initialize a sponge with a constant baseflow." alt="" coords="5,5,173,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,68,157,48,158,43,226,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="252,97,172,60,143,48,145,43,174,55,254,93"/>
 <area shape="rect" id="Node000003" href="$de/dfc/namespacesponge__source__term.html#ad0e5c2614fef154816a3c80d7baa06a6" title="Initialize a sponge with a baseflow imported from a field file." alt="" coords="11,69,168,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,92,168,92,168,87,208,87"/>
-<area shape="rect" id="Node000004" href="$de/dfc/namespacesponge__source__term.html#a4540438d534750d1242934306957023c" title="Initialize a sponge with a baseflow set by the user." alt="" coords="11,133,168,173"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="226,116,158,136,157,131,224,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,110,168,104,169,98,208,104"/>
+<area shape="rect" id="Node000004" href="$de/dfc/namespacesponge__source__term.html#a23a9e8dac80c4e86551b670c8efd23f8" title="Initialize a sponge that reuses an already existing baseflow in the registry." alt="" coords="11,133,168,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="208,138,169,144,168,139,208,133"/>
+<area shape="rect" id="Node000005" href="$de/dfc/namespacesponge__source__term.html#a4540438d534750d1242934306957023c" title="Initialize a sponge with a baseflow set by the user." alt="" coords="11,197,168,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="254,150,174,188,145,200,143,195,172,183,252,145"/>
 </map>

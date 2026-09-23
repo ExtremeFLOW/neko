@@ -31,6 +31,7 @@ var namespacedevice__math =
     [ "device_cpwmin3", "d2/d73/namespacedevice__math.html#abc1b3ba3858e026dceb33d5485174f44", null ],
     [ "device_cwrap", "d2/d73/namespacedevice__math.html#ac2cc79d6e963d221736dbad216a4e78f", null ],
     [ "device_face_masked_gather_copy_0", "d2/d73/namespacedevice__math.html#ac6108a5b30639044935c1e74e57ba1ab", null ],
+    [ "device_glamax", "d2/d73/namespacedevice__math.html#af264c6c3a730030264328947cb0cbc84", null ],
     [ "device_glmax", "d2/d73/namespacedevice__math.html#a1ee50aeefd384889cdfcbec9e2c22eae", null ],
     [ "device_glmin", "d2/d73/namespacedevice__math.html#af00b600598c7ff6b471bd19815e11d1c", null ],
     [ "device_glsc2", "d2/d73/namespacedevice__math.html#acf1634c9bad3b3a0d6215c9a076629aa", null ],

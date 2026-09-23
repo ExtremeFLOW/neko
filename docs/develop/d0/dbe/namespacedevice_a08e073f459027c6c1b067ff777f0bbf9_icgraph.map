@@ -1,23 +1,27 @@
 <map id="device::device_event_sync" name="device::device_event_sync">
-<area shape="rect" id="Node000001" title="Synchronize an event." alt="" coords="479,269,676,294"/>
-<area shape="rect" id="Node000002" href="$db/d3d/namespacecg__cpld__device.html#aee48cbe7ca732d6096b89bae72a0d968" title="Standard PCG solve." alt="" coords="249,5,397,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="564,257,545,214,516,160,477,106,454,81,429,60,396,42,399,38,432,55,458,77,481,103,520,158,550,211,569,255"/>
-<area shape="rect" id="Node000003" href="$d6/d60/namespacecg__device.html#ae0dce602ffa645c2ba6380f6ed7d6d09" title="Standard PCG solve." alt="" coords="243,69,403,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="558,259,506,191,470,155,429,124,403,110,405,106,432,119,473,151,510,188,562,255"/>
-<area shape="rect" id="Node000004" href="$d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b" title=" " alt="" coords="242,133,405,173"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="547,262,494,225,430,188,400,176,402,171,432,183,497,220,551,258"/>
-<area shape="rect" id="Node000006" href="$d7/dff/namespacefluid__scheme__incompressible.html#aa72fc8bdc7d2e0828eb5346cf1cfab23" title="Apply all boundary conditions defined for pressure." alt="" coords="216,197,431,237"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="512,268,403,240,404,235,513,263"/>
-<area shape="rect" id="Node000007" href="$d7/dff/namespacefluid__scheme__incompressible.html#a766ce3e2535420af9beaca4ea70b603c" title="Apply all boundary conditions defined for velocity Here we perform additional gs operations to take c..." alt="" coords="216,261,431,301"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="465,284,431,284,431,279,465,279"/>
-<area shape="rect" id="Node000008" href="$d3/dbc/namespacefusedcg__cpld__device.html#a39dc1f4bba3936b653a587b2ed212c59" title="Pipelined PCG solve coupled solve." alt="" coords="241,326,406,381"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="519,300,407,333,405,327,518,295"/>
-<area shape="rect" id="Node000009" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="251,405,395,430"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="555,306,502,351,468,374,432,394,397,407,395,402,430,390,465,370,498,347,552,302"/>
-<area shape="rect" id="Node000010" href="$da/d46/namespacepipecg__device.html#a7668ed15eabc2865fb0bc57ad3c1f8f5" title="Pipelined PCG solve." alt="" coords="240,455,407,495"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="562,307,510,375,473,412,432,444,406,457,404,452,429,439,470,408,506,371,558,304"/>
-<area shape="rect" id="Node000011" href="$d8/dea/namespacepnpn__res__device.html#a3e57cd69551328b4f51766b33d4b4d3d" title=" " alt="" coords="228,519,419,559"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="569,308,550,352,520,406,481,461,458,487,432,509,412,521,409,516,429,505,454,483,477,458,516,403,545,349,564,306"/>
-<area shape="rect" id="Node000005" href="$d2/da7/namespacedevice__jacobi.html#a08dd6669e156ff25024b500bf81a5106" title=" " alt="" coords="5,133,168,173"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="228,156,168,156,168,151,228,151"/>
+<area shape="rect" id="Node000001" title="Synchronize an event." alt="" coords="535,301,732,326"/>
+<area shape="rect" id="Node000002" href="$db/d3d/namespacecg__cpld__device.html#aee48cbe7ca732d6096b89bae72a0d968" title="Standard PCG solve." alt="" coords="305,5,453,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="622,288,604,239,576,177,537,114,512,85,485,59,453,42,455,37,488,55,516,81,541,111,581,175,609,237,627,286"/>
+<area shape="rect" id="Node000003" href="$d6/d60/namespacecg__device.html#ae0dce602ffa645c2ba6380f6ed7d6d09" title="Standard PCG solve." alt="" coords="299,69,459,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="617,289,597,252,567,208,529,162,485,124,458,109,461,105,488,119,533,158,571,204,601,250,622,287"/>
+<area shape="rect" id="Node000004" href="$d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b" title=" " alt="" coords="298,133,461,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="610,292,557,240,522,212,485,188,460,176,462,171,488,183,525,207,560,236,614,288"/>
+<area shape="rect" id="Node000006" href="$df/dcd/namespacecompressible__res__device.html#a903fd97843ea532a9268469191340aa8" title=" " alt="" coords="286,197,473,237"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="592,297,486,252,451,240,453,235,488,247,594,292"/>
+<area shape="rect" id="Node000008" href="$d7/dff/namespacefluid__scheme__incompressible.html#aa72fc8bdc7d2e0828eb5346cf1cfab23" title="Apply all boundary conditions defined for pressure." alt="" coords="272,261,487,301"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="521,302,487,298,487,292,522,297"/>
+<area shape="rect" id="Node000009" href="$d7/dff/namespacefluid__scheme__incompressible.html#a766ce3e2535420af9beaca4ea70b603c" title="Apply all boundary conditions defined for velocity Here we perform additional gs operations to take c..." alt="" coords="272,325,487,365"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="522,330,487,334,487,329,521,325"/>
+<area shape="rect" id="Node000010" href="$d3/dbc/namespacefusedcg__cpld__device.html#a39dc1f4bba3936b653a587b2ed212c59" title="Pipelined PCG solve coupled solve." alt="" coords="297,390,462,445"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="593,334,488,380,456,392,454,387,486,375,591,329"/>
+<area shape="rect" id="Node000011" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="307,469,451,494"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="617,339,564,400,528,432,488,460,453,474,451,469,485,455,525,428,560,396,613,335"/>
+<area shape="rect" id="Node000012" href="$da/d46/namespacepipecg__device.html#a7668ed15eabc2865fb0bc57ad3c1f8f5" title="Pipelined PCG solve." alt="" coords="296,519,463,559"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="622,340,601,378,571,423,533,469,488,509,464,522,462,517,485,504,530,466,567,420,597,375,617,337"/>
+<area shape="rect" id="Node000013" href="$d8/dea/namespacepnpn__res__device.html#a3e57cd69551328b4f51766b33d4b4d3d" title=" " alt="" coords="284,583,475,623"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="627,340,610,390,581,452,541,517,516,547,488,573,469,585,467,580,485,569,512,543,537,514,576,450,605,388,622,339"/>
+<area shape="rect" id="Node000005" href="$d2/da7/namespacedevice__jacobi.html#a08dd6669e156ff25024b500bf81a5106" title=" " alt="" coords="33,129,196,169"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="284,155,196,153,196,148,285,149"/>
+<area shape="rect" id="Node000007" href="$df/dcd/namespacecompressible__res__device.html#a4cd55df45e21856441b4b2520e65055a" title=" " alt="" coords="5,194,224,249"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="272,222,224,222,224,217,272,216"/>
 </map>

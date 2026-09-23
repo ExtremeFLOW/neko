@@ -135,7 +135,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a1b615b359ab35faee3c6522857bdac33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate geometric data for the given mesh.  <br /></td></tr>
 <tr class="separator:a1b615b359ab35faee3c6522857bdac33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab213da30e14982fe1d5f8f43ab8863ae" id="r_ab213da30e14982fe1d5f8f43ab8863ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae">coef_metric_condition</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
-<tr class="memdesc:ab213da30e14982fe1d5f8f43ab8863ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the largest condition number of the metric tensor over the mesh.  <br /></td></tr>
+<tr class="memdesc:ab213da30e14982fe1d5f8f43ab8863ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the metric tensor condition numbers over the mesh.  <br /></td></tr>
 <tr class="separator:ab213da30e14982fe1d5f8f43ab8863ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acfa0af3d1e6b50af3fa7dbddd9e9d4cf" id="r_acfa0af3d1e6b50af3fa7dbddd9e9d4cf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dbe/namespacecoefs.html#acfa0af3d1e6b50af3fa7dbddd9e9d4cf">coef_generate_geo_compressed</a> (c)</td></tr>
 <tr class="memdesc:acfa0af3d1e6b50af3fa7dbddd9e9d4cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute processor-local compressed versions of mappings Gij.  <br /></td></tr>
@@ -170,8 +170,11 @@ Functions/Subroutines</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:ac218afed6e2fc2dd7e59121cb2de18d2" id="r_ac218afed6e2fc2dd7e59121cb2de18d2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dbe/namespacecoefs.html#ac218afed6e2fc2dd7e59121cb2de18d2">neko_metric_cond_sp</a> = 1.0e4_rp</td></tr>
-<tr class="memdesc:ac218afed6e2fc2dd7e59121cb2de18d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest metric condition number for which single precision storage of the geometric factors \( G_{ij} \) is considered safe.  <br /></td></tr>
+<tr class="memdesc:ac218afed6e2fc2dd7e59121cb2de18d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest metric condition number for which single precision <em>arithmetic</em> on the geometric factors \( G_{ij} \) is considered safe, i.e. an <em>rp</em> = <em>sp</em> build.  <br /></td></tr>
 <tr class="separator:ac218afed6e2fc2dd7e59121cb2de18d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab18a023f50f810b07e1b0b2ca61957b3" id="r_ab18a023f50f810b07e1b0b2ca61957b3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dbe/namespacecoefs.html#ab18a023f50f810b07e1b0b2ca61957b3">neko_metric_perturb_max</a> = 1.0e-5<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">_rp</a></td></tr>
+<tr class="memdesc:ab18a023f50f810b07e1b0b2ca61957b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest predicted relative perturbation of the element Helmholtz operator, in its own energy norm, for which single precision geometric factors are considered safe.  <br /></td></tr>
+<tr class="separator:ab18a023f50f810b07e1b0b2ca61957b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a07a820be7478b4195685972287a9771e" id="r_a07a820be7478b4195685972287a9771e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dbe/namespacecoefs.html#a07a820be7478b4195685972287a9771e">coef_full</a> = 0</td></tr>
 <tr class="memdesc:a07a820be7478b4195685972287a9771e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retain every coefficient. The default, and the only scope that supports recompute_metrics(), generate_cyclic_bc(), get_area(), get_normal() and any consumer of jac, jacinv, Binv or the derivative arrays.  <br /></td></tr>
 <tr class="separator:a07a820be7478b4195685972287a9771e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -204,7 +207,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01873">1873</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l02050">2050</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -232,7 +235,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00529">529</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00589">589</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -260,7 +263,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01600">1600</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01777">1777</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -300,7 +303,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01776">1776</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01953">1953</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -338,7 +341,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00941">941</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01001">1001</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -416,7 +419,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>Current implementation assumes regular shaped hex elements </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01130">1130</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01190">1190</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -457,7 +460,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>This could be faster with various tweaks </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01402">1402</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01579">1579</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -487,7 +490,7 @@ Here is the caller graph for this function:</div>
 <dl class="section note"><dt>Note</dt><dd>This is also a stapleholder, we need to go through the coef class properly. </dd></dl>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000033">Todo:</a></b></dt><dd>cleanup once we have device math in place </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01480">1480</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01657">1657</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -562,7 +565,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>Pure, see the note on <a class="el" href="../../d6/dbe/namespacecoefs.html#a4d34532e89acebdb72fddd6f72f8090d" title="Facet normal at a point.">coef_get_normal()</a>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01583">1583</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01760">1760</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -625,7 +628,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>Pure, so it cannot reject a <a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...">coef_t</a> that lacks the normals. Consumers assert that themselves at setup, see <a class="el" href="../../d6/dbe/namespacecoefs.html#ac1f20a6fb2255ce94759199ec7637bc4" title="Abort unless this coef holds the facet areas and normals.">coef_require_facets()</a>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01559">1559</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01736">1736</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -678,7 +681,7 @@ Here is the caller graph for this function:</div>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000032">Todo:</a></b></dt><dd>Be clever and try to avoid allocating zeroed geom. factors </dd></dl>
 <p>Default values correspond to no rotation</p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00300">300</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00360">360</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -697,7 +700,7 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="134,489,226,468,227,474,135,495"/>
 <area shape="rect" href="../../d6/dbe/namespacecoefs.html#af4bc052c7d759da9d20f84872216f462" title="Generate mass matrix B for the given mesh and space." alt="" coords="197,492,397,517"/>
 <area shape="poly" title=" " alt="" coords="150,502,184,502,184,507,150,507"/>
-<area shape="rect" href="../../d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae" title="Compute the largest condition number of the metric tensor over the mesh." alt="" coords="226,542,369,582"/>
+<area shape="rect" href="../../d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae" title="Compute the metric tensor condition numbers over the mesh." alt="" coords="226,542,369,582"/>
 <area shape="poly" title=" " alt="" coords="128,515,213,537,212,543,126,520"/>
 <area shape="rect" href="../../d6/dbe/namespacecoefs.html#a3a141a5760f7f1290e2acddf139ac88a" title="Release the coefficients that COEF_OPERATOR does not retain." alt="" coords="223,606,371,646"/>
 <area shape="poly" title=" " alt="" coords="94,516,139,553,199,592,213,598,211,603,196,596,136,557,91,520"/>
@@ -773,7 +776,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00251">251</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00311">311</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -801,17 +804,19 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 <p>The stored geometric factors are \( G = w_3 J M \), where \( M \) is the metric matrix at a quadrature point. Both \( w_3 \) and the Jacobian are scalar multipliers, so \( \kappa(G) = \kappa(M) \) and the condition number of the stored \( G_{ij} \) is a pure property of the element geometry.</p>
-<p>It matters when \( G_{ij} \) is stored in a lower precision than it was computed in. Rounding each entry perturbs it by the unit roundoff \( \epsilon \), hence the eigenvalues by up to \( \epsilon \lambda_{max} \), so the rounded tensor stays positive definite &ndash; and the Helmholtz operator therefore stays a valid SPD discretisation &ndash; only while \( \kappa(G) \ll 1/\epsilon \): about \( 1.7\times 10^{7} \) in single precision against \( 9\times 10^{15} \) in double. Below that limit the rounding is a \( \sim\epsilon \) perturbation of the diffusion coefficient and the solution moves by the same order; past it the local operator can turn indefinite and a Krylov solve breaks down rather than degrading.</p>
-<p>\( \kappa \) grows as the square of the element aspect ratio, and skew compounds it, so a wall resolved boundary layer can come within a factor of ten of the single precision limit while remaining ten orders clear of the double precision one.</p>
+<p>Two numbers are computed, because reduced precision <em>arithmetic</em> and reduced precision <em>storage</em> are limited by different properties of the element.</p>
+<p>metric_cond is \( \kappa(G) \) and it governs the arithmetic. Applying \( D^T G D \) in precision \( \epsilon \) accumulates a quadratic form whose smallest eigendirection contributes a term of relative size \( 1/\kappa(G) \), which is lost once \( \kappa(G) \gtrsim 1/\epsilon \): about \( 1.7\times 10^{7} \) in single precision against \( 9\times 10^{15} \) in double. Below that the error grows as \( \epsilon\kappa(G) \); past it the local operator can turn indefinite and a Krylov solve breaks down rather than degrading. \( \kappa(G) \) grows as the square of the element aspect ratio, so a wall resolved boundary layer can approach the single precision limit while remaining ten orders clear of the double precision one. The single precision warning below is keyed on it.</p>
+<p>metric_scaled_cond is \( \kappa(C) \) for the Jacobi scaled metric \( C_{ij} = G_{ij}/\sqrt{G_{ii}G_{jj}} \), the matrix of cosines between the contravariant basis vectors, and it governs storage. Rounding \( G_{ij} \) to a lower precision is a componentwise <em>relative</em> perturbation, so writing \( G = \Delta C \Delta \) with \( \Delta = \mathrm{diag}(\sqrt{G_{ii}}) \) the diagonal scaling passes through the rounding unchanged and cancels in every quadratic form. What remains bounds the relative perturbation of the element operator in its own energy norm by \( \epsilon\kappa(C) \), independent of the aspect ratio, of \( \kappa(G) \), of h and of the polynomial order: element stretching is invisible to storage rounding and only skew matters. Definiteness survives while \( \lambda_{min}(C) &gt; 3\epsilon \), which in two dimensions means element edges more than about \( 0.02^\circ \) from parallel, so for storage this is a degenerate element test rather than an aspect ratio limit.</p>
+<p>The two combine <em>additively</em> rather than as a pair of thresholds, because they are multiplied by different unit roundoffs &ndash; that of the precision \( G_{ij} \) is held in, and that of the precision the contraction accumulates in. metric_perturb reports \( \epsilon_{sp}\kappa(C) + \epsilon_{rp}\kappa(G) \), the predicted relative perturbation of the element operator were the factors held in single precision, and metric_sp_safe thresholds that against NEKO_METRIC_PERTURB_MAX. Gating on \( \kappa(G) \) alone is conservative by the square of the aspect ratio on a double precision build; gating on \( \kappa(C) \) alone would call an <em>rp</em> = <em>sp</em> build safe on a wall resolved mesh, which it is not.</p>
 <dl class="section note"><dt>Note</dt><dd>On device builds the host copy of \( G_{ij} \) is only refreshed at initialization, so this refreshes it itself when called later. It is not called from recompute_metrics(); a moving mesh that deforms significantly should invoke it explicitly. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01288">1288</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01377">1377</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d6/dbe/namespacecoefs_ab213da30e14982fe1d5f8f43ab8863ae_icgraph.png" border="0" usemap="#ad6/dbe/namespacecoefs_ab213da30e14982fe1d5f8f43ab8863ae_icgraph" alt=""/></div>
 <map name="ad6/dbe/namespacecoefs_ab213da30e14982fe1d5f8f43ab8863ae_icgraph" id="ad6/dbe/namespacecoefs_ab213da30e14982fe1d5f8f43ab8863ae_icgraph">
-<area shape="rect" title="Compute the largest condition number of the metric tensor over the mesh." alt="" coords="197,5,340,45"/>
+<area shape="rect" title="Compute the metric tensor condition numbers over the mesh." alt="" coords="197,5,340,45"/>
 <area shape="rect" href="../../d6/dbe/namespacecoefs.html#a4fd6fc1c4fc98d7fa254f37aedf70f92" title="Initialize coefficients." alt="" coords="5,13,149,38"/>
 <area shape="poly" title=" " alt="" coords="183,28,150,28,150,23,183,23"/>
 </map>
@@ -843,7 +848,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01852">1852</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l02029">2029</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -920,7 +925,7 @@ Here is the call graph for this function:</div>
 <p>The derivative arrays, the Jacobian and its inverse are scratch for \( G_{ij} \) and B, and are dead once those exist. Binv, the facet areas and the normals are never read when applying an operator. Called at the end of init; a no-op under COEF_FULL.</p>
 <dl class="section note"><dt>Note</dt><dd>area and the normals are not allocated at all under COEF_OPERATOR. They are listed here so the set of released coefficients is stated in one place. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00807">807</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00867">867</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -974,7 +979,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01544">1544</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01721">1721</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1002,7 +1007,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01910">1910</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l02087">2087</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1019,7 +1024,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00076">76</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00118">118</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1034,10 +1039,10 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>The derivative arrays, jac and jacinv are scratch for \( G_{ij} \) and B, and Binv, area and the facet normals are never read by an operator, so all of them are released once the metrics are built. The work feeding only those is skipped as well: the facet metrics, the gather-scatter behind Binv, the volume reduction and the metric condition estimate.</p>
+<p>The derivative arrays, jac and jacinv are scratch for \( G_{ij} \) and B, and Binv, area and the facet normals are never read by an operator, so all of them are released once the metrics are built. The work feeding only those is skipped as well: the facet metrics, the gather-scatter behind Binv, the volume reduction and the metric conditioning diagnostic.</p>
 <p>Intended for multigrid levels, which read nothing else &ndash; see hsmg_init() and phmg_init(). The geometry cannot be rebuilt without the derivative arrays, so this scope is incompatible with a moving mesh. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00089">89</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00131">131</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1052,9 +1057,34 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>The hard limit is \( 1/\epsilon_{sp} \approx 1.7\times 10^{7} \), past which rounding swamps the smallest eigenvalue of the metric and the element operator can lose positive definiteness. This keeps three orders of margin, which accepts isotropic, graded and channel interior meshes and rejects wall resolved ones. See <a class="el" href="../../d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae" title="Compute the largest condition number of the metric tensor over the mesh.">coef_metric_condition()</a>. </p>
+<p>The hard limit is \( 1/\epsilon_{sp} \approx 1.7\times 10^{7} \), past which the smallest eigendirection of the metric is lost in the quadratic form and the element operator can lose positive definiteness. This keeps three orders of margin, which accepts isotropic, graded and channel interior meshes and rejects wall resolved ones; at the threshold itself the element operator already carries a relative error of order \( \epsilon_{sp}\kappa(G) \sim 10^{-3} \).</p>
+<p>This threshold is about definiteness margin and is used only for the warning in <a class="el" href="../../d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae" title="Compute the metric tensor condition numbers over the mesh.">coef_metric_condition()</a>. Whether reduced precision is <em>accurate</em> enough on a given mesh is a separate question, answered by NEKO_METRIC_PERTURB_MAX and metric_sp_safe. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00071">71</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00079">79</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+
+</div>
+</div>
+<a id="ab18a023f50f810b07e1b0b2ca61957b3" name="ab18a023f50f810b07e1b0b2ca61957b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab18a023f50f810b07e1b0b2ca61957b3">&#9670;&#160;</a></span>neko_metric_perturb_max</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> coefs::neko_metric_perturb_max = 1.0e-5<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">_rp</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The two metric condition numbers do not compete for a single threshold: they are multiplied by different unit roundoffs. Rounding \( G_{ij} \) for <em>storage</em> is a componentwise relative perturbation, and once the diagonal scaling in \( G = \Delta C \Delta \) cancels it contributes \( \epsilon_{store}\kappa(C) \) &ndash; element skew only. <em>Accumulating</em> \( D^T G D \) loses the smallest eigendirection of the metric and contributes \( \epsilon_{accum}\kappa(G) \) &ndash; aspect ratio squared. So the estimate is additive,</p>
+<p class="formulaDsp">
+\[ \delta \approx \epsilon_{store}\kappa(C)
+                  + \epsilon_{accum}\kappa(G), \]
+</p>
+<p>which needs no test on the build: an all double build is limited by neither term until \( \kappa(G) \sim 10^{13} \), a double build holding \( G_{ij} \) in single is limited by skew, and an <em>rp</em> = <em>sp</em> build is limited by aspect ratio, as it should be.</p>
+<p>At \( 10^{-5} \) the storage term alone admits \( \kappa(C) \) up to about 84, i.e. element edges down to roughly \( 12^\circ \) apart, which is every mesh that is not close to degenerate. A well resolved double precision run whose discretisation error is smaller than this may want it tighter; <a class="el" href="../../d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae" title="Compute the metric tensor condition numbers over the mesh.">coef_metric_condition()</a> logs the estimate itself every run, so the value on a given mesh can be read rather than guessed, and reports when it is exceeded.</p>
+<dl class="section note"><dt>Note</dt><dd>The storage term is a genuine bound. The accumulation term is a bound up to a modest \( O(l_x) \) constant &ndash; measured about 4 at \( l_x = 6 \) &ndash; so leave margin. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00113">113</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1064,7 +1094,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/dbe/namespacecoefs.html">coefs</a></li>
-    <li class="footer">Generated on Tue Sep 22 2026 03:42:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Sep 23 2026 03:42:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

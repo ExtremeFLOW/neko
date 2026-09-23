@@ -12,7 +12,7 @@
 <area shape="poly" id="edge19_Node000001_Node000017" title=" " alt="" coords="134,489,226,468,227,474,135,495"/>
 <area shape="rect" id="Node000018" href="$d6/dbe/namespacecoefs.html#af4bc052c7d759da9d20f84872216f462" title="Generate mass matrix B for the given mesh and space." alt="" coords="197,492,397,517"/>
 <area shape="poly" id="edge20_Node000001_Node000018" title=" " alt="" coords="150,502,184,502,184,507,150,507"/>
-<area shape="rect" id="Node000019" href="$d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae" title="Compute the largest condition number of the metric tensor over the mesh." alt="" coords="226,542,369,582"/>
+<area shape="rect" id="Node000019" href="$d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae" title="Compute the metric tensor condition numbers over the mesh." alt="" coords="226,542,369,582"/>
 <area shape="poly" id="edge21_Node000001_Node000019" title=" " alt="" coords="128,515,213,537,212,543,126,520"/>
 <area shape="rect" id="Node000020" href="$d6/dbe/namespacecoefs.html#a3a141a5760f7f1290e2acddf139ac88a" title="Release the coefficients that COEF_OPERATOR does not retain." alt="" coords="223,606,371,646"/>
 <area shape="poly" id="edge22_Node000001_Node000020" title=" " alt="" coords="94,516,139,553,199,592,213,598,211,603,196,596,136,557,91,520"/>

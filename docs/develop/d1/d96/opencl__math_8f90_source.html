@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
   <div class="headertitle"><div class="title">opencl_math.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../d1/d96/opencl__math_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2024-2025, The Neko Authors</span></div>
+<a href="../../d1/d96/opencl__math_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2024-2026, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -695,115 +695,126 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="line"><a id="l00485" name="l00485"></a><span class="lineno">  485</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../d8/d4d/interfaceopencl__math_1_1opencl__glmax.html">opencl_glmax</a></div>
 <div class="line"><a id="l00486" name="l00486"></a><span class="lineno">  486</span> </div>
 <div class="foldopen" id="foldopen00487" data-start="" data-end="">
-<div class="line"><a id="l00487" name="l00487"></a><span class="lineno"><a class="line" href="../../d8/d32/interfaceopencl__math_1_1opencl__glmin.html#ac33aceae278e75765736582e106acda0">  487</a></span><span class="keywordtype">     real</span>(c_rp) function <a class="code hl_interface" href="../../d8/d32/interfaceopencl__math_1_1opencl__glmin.html">opencl_glmin</a>(a_d, n, strm) &amp;</div>
-<div class="line"><a id="l00488" name="l00488"></a><span class="lineno">  488</span>          bind(c, name = <span class="stringliteral">&#39;opencl_glmin&#39;</span>)</div>
+<div class="line"><a id="l00487" name="l00487"></a><span class="lineno"><a class="line" href="../../d8/d2f/interfaceopencl__math_1_1opencl__glamax.html#aa0ff07a9a8a7b96baba196e72b845ecb">  487</a></span><span class="keywordtype">     real</span>(c_rp) function <a class="code hl_interface" href="../../d8/d2f/interfaceopencl__math_1_1opencl__glamax.html">opencl_glamax</a>(a_d, n, strm) &amp;</div>
+<div class="line"><a id="l00488" name="l00488"></a><span class="lineno">  488</span>          bind(c, name = <span class="stringliteral">&#39;opencl_glamax&#39;</span>)</div>
 <div class="line"><a id="l00489" name="l00489"></a><span class="lineno">  489</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00490" name="l00490"></a><span class="lineno">  490</span>       <span class="keywordtype">import </span>c_rp</div>
 <div class="line"><a id="l00491" name="l00491"></a><span class="lineno">  491</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00492" name="l00492"></a><span class="lineno">  492</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
 <div class="line"><a id="l00493" name="l00493"></a><span class="lineno">  493</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00494" name="l00494"></a><span class="lineno">  494</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../d8/d32/interfaceopencl__math_1_1opencl__glmin.html">opencl_glmin</a></div>
+<div class="line"><a id="l00494" name="l00494"></a><span class="lineno">  494</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../d8/d2f/interfaceopencl__math_1_1opencl__glamax.html">opencl_glamax</a></div>
 <div class="line"><a id="l00495" name="l00495"></a><span class="lineno">  495</span> </div>
 <div class="foldopen" id="foldopen00496" data-start="" data-end="">
-<div class="line"><a id="l00496" name="l00496"></a><span class="lineno"><a class="line" href="../../d9/d62/interfaceopencl__math_1_1opencl__absval.html#ae9a94451e8022031c7b707d6866c93d6">  496</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/d62/interfaceopencl__math_1_1opencl__absval.html">opencl_absval</a>(a_d, n, strm) &amp;</div>
-<div class="line"><a id="l00497" name="l00497"></a><span class="lineno">  497</span>          bind(c, name = <span class="stringliteral">&#39;opencl_absval&#39;</span>)</div>
+<div class="line"><a id="l00496" name="l00496"></a><span class="lineno"><a class="line" href="../../d8/d32/interfaceopencl__math_1_1opencl__glmin.html#ac33aceae278e75765736582e106acda0">  496</a></span><span class="keywordtype">     real</span>(c_rp) function <a class="code hl_interface" href="../../d8/d32/interfaceopencl__math_1_1opencl__glmin.html">opencl_glmin</a>(a_d, n, strm) &amp;</div>
+<div class="line"><a id="l00497" name="l00497"></a><span class="lineno">  497</span>          bind(c, name = <span class="stringliteral">&#39;opencl_glmin&#39;</span>)</div>
 <div class="line"><a id="l00498" name="l00498"></a><span class="lineno">  498</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
-<div class="line"><a id="l00499" name="l00499"></a><span class="lineno">  499</span>       <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
-<div class="line"><a id="l00501" name="l00501"></a><span class="lineno">  501</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00499" name="l00499"></a><span class="lineno">  499</span>       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span>       <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00501" name="l00501"></a><span class="lineno">  501</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d9/d62/interfaceopencl__math_1_1opencl__absval.html">opencl_absval</a></div>
-<div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../d8/d32/interfaceopencl__math_1_1opencl__glmin.html">opencl_glmin</a></div>
 <div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span> </div>
-<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>  <span class="comment">! ========================================================================== !</span></div>
-<div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>  <span class="comment">! Interfaces for the pointwise operations.</span></div>
-<div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span> </div>
-<div class="line"><a id="l00508" name="l00508"></a><span class="lineno">  508</span>  <span class="keyword">interface</span></div>
-<div class="foldopen" id="foldopen00509" data-start="" data-end="">
-<div class="line"><a id="l00509" name="l00509"></a><span class="lineno"><a class="line" href="../../d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2.html#af3da98b4b500a4ae6fd6dc36463a5a2f">  509</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2.html">opencl_pwmax_vec2</a>(a_d, b_d, n, strm) &amp;</div>
-<div class="line"><a id="l00510" name="l00510"></a><span class="lineno">  510</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmax_vec2&#39;</span>)</div>
-<div class="line"><a id="l00511" name="l00511"></a><span class="lineno">  511</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
-<div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
-<div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="foldopen" id="foldopen00505" data-start="" data-end="">
+<div class="line"><a id="l00505" name="l00505"></a><span class="lineno"><a class="line" href="../../d9/d62/interfaceopencl__math_1_1opencl__absval.html#ae9a94451e8022031c7b707d6866c93d6">  505</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/d62/interfaceopencl__math_1_1opencl__absval.html">opencl_absval</a>(a_d, n, strm) &amp;</div>
+<div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>          bind(c, name = <span class="stringliteral">&#39;opencl_absval&#39;</span>)</div>
+<div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
+<div class="line"><a id="l00508" name="l00508"></a><span class="lineno">  508</span>       <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00509" name="l00509"></a><span class="lineno">  509</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00510" name="l00510"></a><span class="lineno">  510</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2.html">opencl_pwmax_vec2</a></div>
-<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span> </div>
-<div class="foldopen" id="foldopen00516" data-start="" data-end="">
-<div class="line"><a id="l00516" name="l00516"></a><span class="lineno"><a class="line" href="../../d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3.html#a71a3a4b0ac9561e972415d6c8869ab10">  516</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3.html">opencl_pwmax_vec3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
-<div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmax_vec3&#39;</span>)</div>
-<div class="line"><a id="l00518" name="l00518"></a><span class="lineno">  518</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
-<div class="line"><a id="l00519" name="l00519"></a><span class="lineno">  519</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
-<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00511" name="l00511"></a><span class="lineno">  511</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d9/d62/interfaceopencl__math_1_1opencl__absval.html">opencl_absval</a></div>
+<div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span> </div>
+<div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>  <span class="comment">! ========================================================================== !</span></div>
+<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>  <span class="comment">! Interfaces for the pointwise operations.</span></div>
+<div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span> </div>
+<div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>  <span class="keyword">interface</span></div>
+<div class="foldopen" id="foldopen00518" data-start="" data-end="">
+<div class="line"><a id="l00518" name="l00518"></a><span class="lineno"><a class="line" href="../../d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2.html#af3da98b4b500a4ae6fd6dc36463a5a2f">  518</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2.html">opencl_pwmax_vec2</a>(a_d, b_d, n, strm) &amp;</div>
+<div class="line"><a id="l00519" name="l00519"></a><span class="lineno">  519</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmax_vec2&#39;</span>)</div>
+<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
+<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3.html">opencl_pwmax_vec3</a></div>
-<div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span> </div>
-<div class="foldopen" id="foldopen00523" data-start="" data-end="">
-<div class="line"><a id="l00523" name="l00523"></a><span class="lineno"><a class="line" href="../../d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2.html#a91c9896db440a51bc3b959ab4ad69a7b">  523</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2.html">opencl_pwmax_sca2</a>(a_d, c_d, n, strm) &amp;</div>
-<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmax_sca2&#39;</span>)</div>
-<div class="line"><a id="l00525" name="l00525"></a><span class="lineno">  525</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
-<div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span>       <span class="keywordtype">import </span>c_rp</div>
-<div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
-<div class="line"><a id="l00528" name="l00528"></a><span class="lineno">  528</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
+<div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2.html">opencl_pwmax_vec2</a></div>
+<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span> </div>
+<div class="foldopen" id="foldopen00525" data-start="" data-end="">
+<div class="line"><a id="l00525" name="l00525"></a><span class="lineno"><a class="line" href="../../d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3.html#a71a3a4b0ac9561e972415d6c8869ab10">  525</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3.html">opencl_pwmax_vec3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmax_vec3&#39;</span>)</div>
+<div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
+<div class="line"><a id="l00528" name="l00528"></a><span class="lineno">  528</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
 <div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2.html">opencl_pwmax_sca2</a></div>
+<div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3.html">opencl_pwmax_vec3</a></div>
 <div class="line"><a id="l00531" name="l00531"></a><span class="lineno">  531</span> </div>
 <div class="foldopen" id="foldopen00532" data-start="" data-end="">
-<div class="line"><a id="l00532" name="l00532"></a><span class="lineno"><a class="line" href="../../d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3.html#af0fad7ebb19cac2fea69a7df4e47a66b">  532</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3.html">opencl_pwmax_sca3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
-<div class="line"><a id="l00533" name="l00533"></a><span class="lineno">  533</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmax_sca3&#39;</span>)</div>
+<div class="line"><a id="l00532" name="l00532"></a><span class="lineno"><a class="line" href="../../d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2.html#a91c9896db440a51bc3b959ab4ad69a7b">  532</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2.html">opencl_pwmax_sca2</a>(a_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00533" name="l00533"></a><span class="lineno">  533</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmax_sca2&#39;</span>)</div>
 <div class="line"><a id="l00534" name="l00534"></a><span class="lineno">  534</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
 <div class="line"><a id="l00535" name="l00535"></a><span class="lineno">  535</span>       <span class="keywordtype">import </span>c_rp</div>
-<div class="line"><a id="l00536" name="l00536"></a><span class="lineno">  536</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00536" name="l00536"></a><span class="lineno">  536</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
 <div class="line"><a id="l00537" name="l00537"></a><span class="lineno">  537</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
 <div class="line"><a id="l00538" name="l00538"></a><span class="lineno">  538</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00539" name="l00539"></a><span class="lineno">  539</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3.html">opencl_pwmax_sca3</a></div>
+<div class="line"><a id="l00539" name="l00539"></a><span class="lineno">  539</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2.html">opencl_pwmax_sca2</a></div>
 <div class="line"><a id="l00540" name="l00540"></a><span class="lineno">  540</span> </div>
 <div class="foldopen" id="foldopen00541" data-start="" data-end="">
-<div class="line"><a id="l00541" name="l00541"></a><span class="lineno"><a class="line" href="../../d1/dfd/interfaceopencl__math_1_1opencl__pwmin__vec2.html#aa2394998c3398b685ba3c3f187041923">  541</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/dfd/interfaceopencl__math_1_1opencl__pwmin__vec2.html">opencl_pwmin_vec2</a>(a_d, b_d, n, strm) &amp;</div>
-<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmin_vec2&#39;</span>)</div>
+<div class="line"><a id="l00541" name="l00541"></a><span class="lineno"><a class="line" href="../../d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3.html#af0fad7ebb19cac2fea69a7df4e47a66b">  541</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3.html">opencl_pwmax_sca3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmax_sca3&#39;</span>)</div>
 <div class="line"><a id="l00543" name="l00543"></a><span class="lineno">  543</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
-<div class="line"><a id="l00544" name="l00544"></a><span class="lineno">  544</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
-<div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00544" name="l00544"></a><span class="lineno">  544</span>       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00546" name="l00546"></a><span class="lineno">  546</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
+<div class="line"><a id="l00547" name="l00547"></a><span class="lineno">  547</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00546" name="l00546"></a><span class="lineno">  546</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d1/dfd/interfaceopencl__math_1_1opencl__pwmin__vec2.html">opencl_pwmin_vec2</a></div>
-<div class="line"><a id="l00547" name="l00547"></a><span class="lineno">  547</span> </div>
-<div class="foldopen" id="foldopen00548" data-start="" data-end="">
-<div class="line"><a id="l00548" name="l00548"></a><span class="lineno"><a class="line" href="../../d8/dfc/interfaceopencl__math_1_1opencl__pwmin__vec3.html#a4b4847f19c1ea3f7d642e17622431553">  548</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d8/dfc/interfaceopencl__math_1_1opencl__pwmin__vec3.html">opencl_pwmin_vec3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
-<div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmin_vec3&#39;</span>)</div>
-<div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
-<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
-<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00548" name="l00548"></a><span class="lineno">  548</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3.html">opencl_pwmax_sca3</a></div>
+<div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span> </div>
+<div class="foldopen" id="foldopen00550" data-start="" data-end="">
+<div class="line"><a id="l00550" name="l00550"></a><span class="lineno"><a class="line" href="../../d1/dfd/interfaceopencl__math_1_1opencl__pwmin__vec2.html#aa2394998c3398b685ba3c3f187041923">  550</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/dfd/interfaceopencl__math_1_1opencl__pwmin__vec2.html">opencl_pwmin_vec2</a>(a_d, b_d, n, strm) &amp;</div>
+<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmin_vec2&#39;</span>)</div>
+<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
+<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d8/dfc/interfaceopencl__math_1_1opencl__pwmin__vec3.html">opencl_pwmin_vec3</a></div>
-<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span> </div>
-<div class="foldopen" id="foldopen00555" data-start="" data-end="">
-<div class="line"><a id="l00555" name="l00555"></a><span class="lineno"><a class="line" href="../../da/d8b/interfaceopencl__math_1_1opencl__pwmin__sca2.html#a6ef283b59da0eed32c4da7062d881f7b">  555</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../da/d8b/interfaceopencl__math_1_1opencl__pwmin__sca2.html">opencl_pwmin_sca2</a>(a_d, c_d, n, strm) &amp;</div>
-<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmin_sca2&#39;</span>)</div>
-<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
-<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>       <span class="keywordtype">import </span>c_rp</div>
-<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
-<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
+<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d1/dfd/interfaceopencl__math_1_1opencl__pwmin__vec2.html">opencl_pwmin_vec2</a></div>
+<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span> </div>
+<div class="foldopen" id="foldopen00557" data-start="" data-end="">
+<div class="line"><a id="l00557" name="l00557"></a><span class="lineno"><a class="line" href="../../d8/dfc/interfaceopencl__math_1_1opencl__pwmin__vec3.html#a4b4847f19c1ea3f7d642e17622431553">  557</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d8/dfc/interfaceopencl__math_1_1opencl__pwmin__vec3.html">opencl_pwmin_vec3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmin_vec3&#39;</span>)</div>
+<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
+<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
 <div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../da/d8b/interfaceopencl__math_1_1opencl__pwmin__sca2.html">opencl_pwmin_sca2</a></div>
+<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d8/dfc/interfaceopencl__math_1_1opencl__pwmin__vec3.html">opencl_pwmin_vec3</a></div>
 <div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span> </div>
 <div class="foldopen" id="foldopen00564" data-start="" data-end="">
-<div class="line"><a id="l00564" name="l00564"></a><span class="lineno"><a class="line" href="../../da/d27/interfaceopencl__math_1_1opencl__pwmin__sca3.html#accf2f512875ffa652f7eea1c7770707f">  564</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../da/d27/interfaceopencl__math_1_1opencl__pwmin__sca3.html">opencl_pwmin_sca3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
-<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmin_sca3&#39;</span>)</div>
+<div class="line"><a id="l00564" name="l00564"></a><span class="lineno"><a class="line" href="../../da/d8b/interfaceopencl__math_1_1opencl__pwmin__sca2.html#a6ef283b59da0eed32c4da7062d881f7b">  564</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../da/d8b/interfaceopencl__math_1_1opencl__pwmin__sca2.html">opencl_pwmin_sca2</a>(a_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmin_sca2&#39;</span>)</div>
 <div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
 <div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>       <span class="keywordtype">import </span>c_rp</div>
-<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
 <div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
 <div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../da/d27/interfaceopencl__math_1_1opencl__pwmin__sca3.html">opencl_pwmin_sca3</a></div>
+<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../da/d8b/interfaceopencl__math_1_1opencl__pwmin__sca2.html">opencl_pwmin_sca2</a></div>
 <div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span> </div>
-<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span> </div>
-<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../de/d3f/namespaceopencl__math.html">opencl_math</a></div>
-<div class="ttc" id="ainterfaceopencl__math_1_1opencl__absval_html"><div class="ttname"><a href="../../d9/d62/interfaceopencl__math_1_1opencl__absval.html">opencl_math::opencl_absval</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00496">opencl_math.f90:496</a></div></div>
+<div class="foldopen" id="foldopen00573" data-start="" data-end="">
+<div class="line"><a id="l00573" name="l00573"></a><span class="lineno"><a class="line" href="../../da/d27/interfaceopencl__math_1_1opencl__pwmin__sca3.html#accf2f512875ffa652f7eea1c7770707f">  573</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../da/d27/interfaceopencl__math_1_1opencl__pwmin__sca3.html">opencl_pwmin_sca3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmin_sca3&#39;</span>)</div>
+<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
+<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+</div>
+<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../da/d27/interfaceopencl__math_1_1opencl__pwmin__sca3.html">opencl_pwmin_sca3</a></div>
+<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span> </div>
+<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span> </div>
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../de/d3f/namespaceopencl__math.html">opencl_math</a></div>
+<div class="ttc" id="ainterfaceopencl__math_1_1opencl__absval_html"><div class="ttname"><a href="../../d9/d62/interfaceopencl__math_1_1opencl__absval.html">opencl_math::opencl_absval</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00505">opencl_math.f90:505</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__add2_html"><div class="ttname"><a href="../../d7/dae/interfaceopencl__math_1_1opencl__add2.html">opencl_math::opencl_add2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00228">opencl_math.f90:228</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__add2s1_html"><div class="ttname"><a href="../../d2/d3e/interfaceopencl__math_1_1opencl__add2s1.html">opencl_math::opencl_add2s1</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00244">opencl_math.f90:244</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__add2s2__many_html"><div class="ttname"><a href="../../d0/dab/interfaceopencl__math_1_1opencl__add2s2__many.html">opencl_math::opencl_add2s2_many</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00264">opencl_math.f90:264</a></div></div>
@@ -829,8 +840,9 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__copy_html"><div class="ttname"><a href="../../d6/d58/interfaceopencl__math_1_1opencl__copy.html">opencl_math::opencl_copy</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00039">opencl_math.f90:39</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__cwrap_html"><div class="ttname"><a href="../../d5/d75/interfaceopencl__math_1_1opencl__cwrap.html">opencl_math::opencl_cwrap</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00174">opencl_math.f90:174</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__face__masked__gather__copy_html"><div class="ttname"><a href="../../d6/d92/interfaceopencl__math_1_1opencl__face__masked__gather__copy.html">opencl_math::opencl_face_masked_gather_copy</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00074">opencl_math.f90:74</a></div></div>
+<div class="ttc" id="ainterfaceopencl__math_1_1opencl__glamax_html"><div class="ttname"><a href="../../d8/d2f/interfaceopencl__math_1_1opencl__glamax.html">opencl_math::opencl_glamax</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00487">opencl_math.f90:487</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__glmax_html"><div class="ttname"><a href="../../d8/d4d/interfaceopencl__math_1_1opencl__glmax.html">opencl_math::opencl_glmax</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00478">opencl_math.f90:478</a></div></div>
-<div class="ttc" id="ainterfaceopencl__math_1_1opencl__glmin_html"><div class="ttname"><a href="../../d8/d32/interfaceopencl__math_1_1opencl__glmin.html">opencl_math::opencl_glmin</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00487">opencl_math.f90:487</a></div></div>
+<div class="ttc" id="ainterfaceopencl__math_1_1opencl__glmin_html"><div class="ttname"><a href="../../d8/d32/interfaceopencl__math_1_1opencl__glmin.html">opencl_math::opencl_glmin</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00496">opencl_math.f90:496</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__glsc2_html"><div class="ttname"><a href="../../d5/d41/interfaceopencl__math_1_1opencl__glsc2.html">opencl_math::opencl_glsc2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00451">opencl_math.f90:451</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__glsc3__many_html"><div class="ttname"><a href="../../df/d22/interfaceopencl__math_1_1opencl__glsc3__many.html">opencl_math::opencl_glsc3_many</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00441">opencl_math.f90:441</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__glsc3_html"><div class="ttname"><a href="../../df/d06/interfaceopencl__math_1_1opencl__glsc3.html">opencl_math::opencl_glsc3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00432">opencl_math.f90:432</a></div></div>
@@ -847,14 +859,14 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__masked__scatter__copy__aligned_html"><div class="ttname"><a href="../../dd/dec/interfaceopencl__math_1_1opencl__masked__scatter__copy__aligned.html">opencl_math::opencl_masked_scatter_copy_aligned</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00089">opencl_math.f90:89</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__masked__scatter__copy_html"><div class="ttname"><a href="../../d5/d45/interfaceopencl__math_1_1opencl__masked__scatter__copy.html">opencl_math::opencl_masked_scatter_copy</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00082">opencl_math.f90:82</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__power_html"><div class="ttname"><a href="../../d9/d21/interfaceopencl__math_1_1opencl__power.html">opencl_math::opencl_power</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00193">opencl_math.f90:193</a></div></div>
-<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmax__sca2_html"><div class="ttname"><a href="../../d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2.html">opencl_math::opencl_pwmax_sca2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00523">opencl_math.f90:523</a></div></div>
-<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmax__sca3_html"><div class="ttname"><a href="../../d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3.html">opencl_math::opencl_pwmax_sca3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00532">opencl_math.f90:532</a></div></div>
-<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmax__vec2_html"><div class="ttname"><a href="../../d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2.html">opencl_math::opencl_pwmax_vec2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00509">opencl_math.f90:509</a></div></div>
-<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmax__vec3_html"><div class="ttname"><a href="../../d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3.html">opencl_math::opencl_pwmax_vec3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00516">opencl_math.f90:516</a></div></div>
-<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmin__sca2_html"><div class="ttname"><a href="../../da/d8b/interfaceopencl__math_1_1opencl__pwmin__sca2.html">opencl_math::opencl_pwmin_sca2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00555">opencl_math.f90:555</a></div></div>
-<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmin__sca3_html"><div class="ttname"><a href="../../da/d27/interfaceopencl__math_1_1opencl__pwmin__sca3.html">opencl_math::opencl_pwmin_sca3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00564">opencl_math.f90:564</a></div></div>
-<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmin__vec2_html"><div class="ttname"><a href="../../d1/dfd/interfaceopencl__math_1_1opencl__pwmin__vec2.html">opencl_math::opencl_pwmin_vec2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00541">opencl_math.f90:541</a></div></div>
-<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmin__vec3_html"><div class="ttname"><a href="../../d8/dfc/interfaceopencl__math_1_1opencl__pwmin__vec3.html">opencl_math::opencl_pwmin_vec3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00548">opencl_math.f90:548</a></div></div>
+<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmax__sca2_html"><div class="ttname"><a href="../../d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2.html">opencl_math::opencl_pwmax_sca2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00532">opencl_math.f90:532</a></div></div>
+<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmax__sca3_html"><div class="ttname"><a href="../../d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3.html">opencl_math::opencl_pwmax_sca3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00541">opencl_math.f90:541</a></div></div>
+<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmax__vec2_html"><div class="ttname"><a href="../../d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2.html">opencl_math::opencl_pwmax_vec2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00518">opencl_math.f90:518</a></div></div>
+<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmax__vec3_html"><div class="ttname"><a href="../../d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3.html">opencl_math::opencl_pwmax_vec3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00525">opencl_math.f90:525</a></div></div>
+<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmin__sca2_html"><div class="ttname"><a href="../../da/d8b/interfaceopencl__math_1_1opencl__pwmin__sca2.html">opencl_math::opencl_pwmin_sca2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00564">opencl_math.f90:564</a></div></div>
+<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmin__sca3_html"><div class="ttname"><a href="../../da/d27/interfaceopencl__math_1_1opencl__pwmin__sca3.html">opencl_math::opencl_pwmin_sca3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00573">opencl_math.f90:573</a></div></div>
+<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmin__vec2_html"><div class="ttname"><a href="../../d1/dfd/interfaceopencl__math_1_1opencl__pwmin__vec2.html">opencl_math::opencl_pwmin_vec2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00550">opencl_math.f90:550</a></div></div>
+<div class="ttc" id="ainterfaceopencl__math_1_1opencl__pwmin__vec3_html"><div class="ttname"><a href="../../d8/dfc/interfaceopencl__math_1_1opencl__pwmin__vec3.html">opencl_math::opencl_pwmin_vec3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00557">opencl_math.f90:557</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__radd_html"><div class="ttname"><a href="../../df/dc7/interfaceopencl__math_1_1opencl__radd.html">opencl_math::opencl_radd</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00145">opencl_math.f90:145</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__rone_html"><div class="ttname"><a href="../../de/d53/interfaceopencl__math_1_1opencl__rone.html">opencl_math::opencl_rone</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00221">opencl_math.f90:221</a></div></div>
 <div class="ttc" id="ainterfaceopencl__math_1_1opencl__rzero_html"><div class="ttname"><a href="../../d0/d46/interfaceopencl__math_1_1opencl__rzero.html">opencl_math::opencl_rzero</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d96/opencl__math_8f90_source.html#l00214">opencl_math.f90:214</a></div></div>
@@ -875,7 +887,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_a753435b69305af25b1972a8c16b18f4.html">opencl</a></li><li class="navelem"><a class="el" href="../../d1/d96/opencl__math_8f90.html">opencl_math.f90</a></li>
-    <li class="footer">Generated on Tue Sep 22 2026 03:42:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Sep 23 2026 03:42:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

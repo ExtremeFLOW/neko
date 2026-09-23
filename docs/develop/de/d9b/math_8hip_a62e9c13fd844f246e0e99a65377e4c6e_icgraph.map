@@ -1,5 +1,7 @@
 <map id="hip_global_reduce_max" name="hip_global_reduce_max">
-<area shape="rect" id="Node000001" title=" " alt="" coords="144,5,320,31"/>
-<area shape="rect" id="Node000002" href="$de/d9b/math_8hip.html#a10a0295dde2f468e56b2b4340a946ec8" title=" " alt="" coords="5,5,96,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,21,96,21,96,15,130,15"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="152,31,328,56"/>
+<area shape="rect" id="Node000002" href="$de/d9b/math_8hip.html#a4aad67a439fd53e2bcf7d8c56deb413e" title=" " alt="" coords="5,5,104,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,32,104,27,104,22,139,27"/>
+<area shape="rect" id="Node000003" href="$de/d9b/math_8hip.html#a10a0295dde2f468e56b2b4340a946ec8" title=" " alt="" coords="9,55,100,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="139,59,101,64,100,59,138,54"/>
 </map>

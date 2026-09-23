@@ -28,6 +28,7 @@ var cuda_2math__kernel_8h =
     [ "face_gather_idx", "d9/d50/cuda_2math__kernel_8h.html#a4f999997eeae7272be23d9c07cac9c88", null ],
     [ "face_gather_nonlinear_index", "d9/d50/cuda_2math__kernel_8h.html#a2bcab113056673f4a32bf2d79cd3adc9", null ],
     [ "face_masked_gather_copy_kernel", "d9/d50/cuda_2math__kernel_8h.html#a21a2346368659893c78cfcb9f81d6bd3", null ],
+    [ "glamax_kernel", "d9/d50/cuda_2math__kernel_8h.html#afdbc64786de94c38e481a1ce917c6c1a", null ],
     [ "glmax_kernel", "d9/d50/cuda_2math__kernel_8h.html#aca1b897b4d0d339e2ee5ecf0aae66157", null ],
     [ "glmin_kernel", "d9/d50/cuda_2math__kernel_8h.html#a971ed11ab2089b33e00ac9997e846248", null ],
     [ "glsc2_kernel", "d9/d50/cuda_2math__kernel_8h.html#a1a2826effe8966d5c8c7ad3b33c99208", null ],

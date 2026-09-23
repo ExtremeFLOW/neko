@@ -7,5 +7,6 @@ var sponge__source__term_8f90 =
     [ "sponge_init_constant", "df/def/sponge__source__term_8f90.html#ab5c63e0bcf52841eb22eaf609b3b0614", null ],
     [ "sponge_init_field", "df/def/sponge__source__term_8f90.html#ad0e5c2614fef154816a3c80d7baa06a6", null ],
     [ "sponge_init_from_json", "df/def/sponge__source__term_8f90.html#a306763ef32005b4ce26b14d6f6b57ec5", null ],
+    [ "sponge_init_noop", "df/def/sponge__source__term_8f90.html#a23a9e8dac80c4e86551b670c8efd23f8", null ],
     [ "sponge_init_user", "df/def/sponge__source__term_8f90.html#a4540438d534750d1242934306957023c", null ]
 ];

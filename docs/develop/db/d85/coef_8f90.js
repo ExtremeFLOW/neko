@@ -20,5 +20,6 @@ var coef_8f90 =
     [ "coef_update_lagged_mass", "db/d85/coef_8f90.html#a5a2d17b84e74e75b4c2228464a6a5850", null ],
     [ "coef_full", "db/d85/coef_8f90.html#a07a820be7478b4195685972287a9771e", null ],
     [ "coef_operator", "db/d85/coef_8f90.html#a3b291e180f1af9b8321657a3c52d6964", null ],
-    [ "neko_metric_cond_sp", "db/d85/coef_8f90.html#ac218afed6e2fc2dd7e59121cb2de18d2", null ]
+    [ "neko_metric_cond_sp", "db/d85/coef_8f90.html#ac218afed6e2fc2dd7e59121cb2de18d2", null ],
+    [ "neko_metric_perturb_max", "db/d85/coef_8f90.html#ab18a023f50f810b07e1b0b2ca61957b3", null ]
 ];

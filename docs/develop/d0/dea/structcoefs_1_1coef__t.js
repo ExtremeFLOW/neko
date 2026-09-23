@@ -95,6 +95,8 @@ var structcoefs_1_1coef__t =
     [ "jacinv_d", "d0/dea/structcoefs_1_1coef__t.html#ac40d5f427bded12d49c00a69a8373112", null ],
     [ "metric_cond", "d0/dea/structcoefs_1_1coef__t.html#ade229f745ae9c40d2e61aef0001ad366", null ],
     [ "metric_degenerate", "d0/dea/structcoefs_1_1coef__t.html#a36f8cddfcbb13410a10252693629dbfa", null ],
+    [ "metric_perturb", "d0/dea/structcoefs_1_1coef__t.html#ad693e06c670b5c39e6ef592a494cd2bf", null ],
+    [ "metric_scaled_cond", "d0/dea/structcoefs_1_1coef__t.html#ab98dcb53b63f82ab7b5e01153678e05b", null ],
     [ "metric_sp_safe", "d0/dea/structcoefs_1_1coef__t.html#a2d9befe06f774321e68702c6943abbde", null ],
     [ "metrics_version", "d0/dea/structcoefs_1_1coef__t.html#a9aebeb1e40d86f346eea5e6f6b6d8738", null ],
     [ "msh", "d0/dea/structcoefs_1_1coef__t.html#afd082e678309a76f3e8021c246bb60d2", null ],

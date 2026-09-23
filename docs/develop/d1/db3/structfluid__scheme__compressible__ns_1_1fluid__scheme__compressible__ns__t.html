@@ -328,6 +328,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a11d1439624b61e927f1cfd7478496e3f" id="r_a11d1439624b61e927f1cfd7478496e3f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(update_material_properties), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a11d1439624b61e927f1cfd7478496e3f">update_material_properties</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
 <tr class="memdesc:a11d1439624b61e927f1cfd7478496e3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set rho and mu.  <br /></td></tr>
 <tr class="separator:a11d1439624b61e927f1cfd7478496e3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11973f297ee7e8a9aa7bd37cad87acb7" id="r_a11973f297ee7e8a9aa7bd37cad87acb7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a11973f297ee7e8a9aa7bd37cad87acb7">update_physical_flux</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a11973f297ee7e8a9aa7bd37cad87acb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refresh the physical-flux switches from the material properties.  <br /></td></tr>
+<tr class="separator:a11973f297ee7e8a9aa7bd37cad87acb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b84da9c664a3d1d7cf9c28aec661de8" id="r_a6b84da9c664a3d1d7cf9c28aec661de8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a6b84da9c664a3d1d7cf9c28aec661de8">compute_max_wave_speed</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a6b84da9c664a3d1d7cf9c28aec661de8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute maximum wave speed.  <br /></td></tr>
 <tr class="separator:a6b84da9c664a3d1d7cf9c28aec661de8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -417,6 +420,21 @@ Public Attributes</h2></td></tr>
 <tr class="separator:ae143af3c4c885b6b6575b2daacf39305"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a056b88ad58adc4ef5c46f1e973e4132d" id="r_a056b88ad58adc4ef5c46f1e973e4132d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a056b88ad58adc4ef5c46f1e973e4132d">gamma</a></td></tr>
 <tr class="separator:a056b88ad58adc4ef5c46f1e973e4132d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a300b4ad748b29677ac8d94045e8e81ae" id="r_a300b4ad748b29677ac8d94045e8e81ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a300b4ad748b29677ac8d94045e8e81ae">mu_amax</a> = 0.0_rp</td></tr>
+<tr class="memdesc:a300b4ad748b29677ac8d94045e8e81ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest magnitude of the dynamic viscosity over the domain.  <br /></td></tr>
+<tr class="separator:a300b4ad748b29677ac8d94045e8e81ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6a7f7073e2ee6ded4f1db850e42c182" id="r_af6a7f7073e2ee6ded4f1db850e42c182"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#af6a7f7073e2ee6ded4f1db850e42c182">kappa_amax</a> = 0.0_rp</td></tr>
+<tr class="memdesc:af6a7f7073e2ee6ded4f1db850e42c182"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest magnitude of the thermal conductivity over the domain.  <br /></td></tr>
+<tr class="separator:af6a7f7073e2ee6ded4f1db850e42c182"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36819820a1369d1190f2334ab2eabb6a" id="r_a36819820a1369d1190f2334ab2eabb6a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a36819820a1369d1190f2334ab2eabb6a">add_physical_flux</a> = .false.</td></tr>
+<tr class="memdesc:a36819820a1369d1190f2334ab2eabb6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the physical viscous and heat fluxes are evaluated.  <br /></td></tr>
+<tr class="separator:a36819820a1369d1190f2334ab2eabb6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06f7b1e70ecedc0b98a937f04131843f" id="r_a06f7b1e70ecedc0b98a937f04131843f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a06f7b1e70ecedc0b98a937f04131843f">add_physical_stress</a> = .false.</td></tr>
+<tr class="memdesc:a06f7b1e70ecedc0b98a937f04131843f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the physical viscous stress is evaluated.  <br /></td></tr>
+<tr class="separator:a06f7b1e70ecedc0b98a937f04131843f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae15b6df5ce8b5afab9d46552c42a8961" id="r_ae15b6df5ce8b5afab9d46552c42a8961"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#ae15b6df5ce8b5afab9d46552c42a8961">variable_material_properties</a> = .false.</td></tr>
+<tr class="memdesc:ae15b6df5ce8b5afab9d46552c42a8961"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether a user routine re-evaluates the material properties every time-step, in which case the switches above have to be refreshed.  <br /></td></tr>
+<tr class="separator:ae15b6df5ce8b5afab9d46552c42a8961"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f2e4657346ecb83191d32b7fa3fb4ec" id="r_a5f2e4657346ecb83191d32b7fa3fb4ec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>(kind=i8)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a5f2e4657346ecb83191d32b7fa3fb4ec">glb_n_points</a></td></tr>
 <tr class="memdesc:a5f2e4657346ecb83191d32b7fa3fb4ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Global number of GLL points for the fluid (not unique)  <br /></td></tr>
 <tr class="separator:a5f2e4657346ecb83191d32b7fa3fb4ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -593,7 +611,7 @@ Private Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Computed CFL number </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00109">109</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -627,7 +645,7 @@ Private Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00103">103</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00121">121</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -892,7 +910,7 @@ Private Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00106">106</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00124">124</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -1002,7 +1020,7 @@ Private Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00104">104</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -1075,7 +1093,7 @@ Private Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00102">102</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -1127,7 +1145,7 @@ Private Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00097">97</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00112">112</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -1425,7 +1443,43 @@ Private Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00100">100</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00115">115</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+
+</div>
+</div>
+<a id="a11973f297ee7e8a9aa7bd37cad87acb7" name="a11973f297ee7e8a9aa7bd37cad87acb7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11973f297ee7e8a9aa7bd37cad87acb7">&#9670;&#160;</a></span>update_physical_flux()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) fluid_scheme_compressible::fluid_scheme_compressible_t::update_physical_flux </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html">fluid_scheme_compressible_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Decides whether the physical Navier-Stokes viscous and heat fluxes have to be evaluated at all, by testing \( \max_i |\mu_i| \) and \( \max_i |\kappa_i| \) against zero.</p>
+<p>On a device backend the reduction runs as a kernel over the device resident arrays. Inspecting the host mirrors <code>mux</code> and <code>kappax</code> instead would be wrong as well as slow: <code>field_cfill</code>, and the <code><a class="el" href="../../d2/d73/namespacedevice__math.html">device_math</a></code> routines a user file calls, only write <code>x_d</code>, so the host copies stay at their initial zero and the solver would silently degrade to Euler.</p>
+<p>The reduction is global, so all ranks agree on the branch taken even when the viscosity is non-zero on only some of them. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The compressible fluid scheme object </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00118">118</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -1487,11 +1541,59 @@ Private Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00092">92</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00107">107</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
+<a id="a36819820a1369d1190f2334ab2eabb6a" name="a36819820a1369d1190f2334ab2eabb6a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a36819820a1369d1190f2334ab2eabb6a">&#9670;&#160;</a></span>add_physical_flux</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a> fluid_scheme_compressible::fluid_scheme_compressible_t::add_physical_flux = .false.</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+
+</div>
+</div>
+<a id="a06f7b1e70ecedc0b98a937f04131843f" name="a06f7b1e70ecedc0b98a937f04131843f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06f7b1e70ecedc0b98a937f04131843f">&#9670;&#160;</a></span>add_physical_stress</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a> fluid_scheme_compressible::fluid_scheme_compressible_t::add_physical_stress = .false.</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00090">90</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+
+</div>
+</div>
 <a id="a7a838f173ab8ba4c0545ee25a5d64f92" name="a7a838f173ab8ba4c0545ee25a5d64f92"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7a838f173ab8ba4c0545ee25a5d64f92">&#9670;&#160;</a></span>adv</h2>
 
@@ -1528,7 +1630,7 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -1856,7 +1958,7 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -2000,7 +2102,7 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -2024,7 +2126,7 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -2048,7 +2150,7 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00098">98</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -2112,7 +2214,31 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+
+</div>
+</div>
+<a id="af6a7f7073e2ee6ded4f1db850e42c182" name="af6a7f7073e2ee6ded4f1db850e42c182"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6a7f7073e2ee6ded4f1db850e42c182">&#9670;&#160;</a></span>kappa_amax</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) fluid_scheme_compressible::fluid_scheme_compressible_t::kappa_amax = 0.0_rp</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -2153,7 +2279,7 @@ Private Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>x-component of Momentum </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -2193,7 +2319,7 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -2233,7 +2359,7 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -2297,7 +2423,7 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -2346,6 +2472,30 @@ Private Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00102">102</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+
+</div>
+</div>
+<a id="a300b4ad748b29677ac8d94045e8e81ae" name="a300b4ad748b29677ac8d94045e8e81ae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a300b4ad748b29677ac8d94045e8e81ae">&#9670;&#160;</a></span>mu_amax</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) fluid_scheme_compressible::fluid_scheme_compressible_t::mu_amax = 0.0_rp</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -2497,7 +2647,7 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -2595,6 +2745,30 @@ Private Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+
+</div>
+</div>
+<a id="ae15b6df5ce8b5afab9d46552c42a8961" name="ae15b6df5ce8b5afab9d46552c42a8961"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae15b6df5ce8b5afab9d46552c42a8961">&#9670;&#160;</a></span>variable_material_properties</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a> fluid_scheme_compressible::fluid_scheme_compressible_t::variable_material_properties = .false.</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html#l00093">93</a> of file <a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90_source.html">fluid_scheme_compressible.f90</a>.</p>
 
 </div>
 </div>
@@ -2719,7 +2893,7 @@ Private Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d2/de6/namespacefluid__scheme__compressible__ns.html">fluid_scheme_compressible_ns</a></li><li class="navelem"><a class="el" href="../../d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html">fluid_scheme_compressible_ns_t</a></li>
-    <li class="footer">Generated on Tue Sep 22 2026 03:42:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Sep 23 2026 03:42:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

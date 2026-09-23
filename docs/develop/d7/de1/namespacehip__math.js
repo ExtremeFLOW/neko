@@ -26,6 +26,7 @@ var namespacehip__math =
     [ "hip_copy", "dc/d2b/interfacehip__math_1_1hip__copy.html", "dc/d2b/interfacehip__math_1_1hip__copy" ],
     [ "hip_cwrap", "db/da5/interfacehip__math_1_1hip__cwrap.html", "db/da5/interfacehip__math_1_1hip__cwrap" ],
     [ "hip_face_masked_gather_copy", "d6/d57/interfacehip__math_1_1hip__face__masked__gather__copy.html", "d6/d57/interfacehip__math_1_1hip__face__masked__gather__copy" ],
+    [ "hip_glamax", "d4/de2/interfacehip__math_1_1hip__glamax.html", "d4/de2/interfacehip__math_1_1hip__glamax" ],
     [ "hip_glmax", "d2/d0b/interfacehip__math_1_1hip__glmax.html", "d2/d0b/interfacehip__math_1_1hip__glmax" ],
     [ "hip_glmin", "d5/d4d/interfacehip__math_1_1hip__glmin.html", "d5/d4d/interfacehip__math_1_1hip__glmin" ],
     [ "hip_glsc2", "d8/d3d/interfacehip__math_1_1hip__glsc2.html", "d8/d3d/interfacehip__math_1_1hip__glsc2" ],

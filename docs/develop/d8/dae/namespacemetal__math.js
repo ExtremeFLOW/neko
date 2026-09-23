@@ -26,6 +26,7 @@ var namespacemetal__math =
     [ "metal_copy", "da/dc2/interfacemetal__math_1_1metal__copy.html", "da/dc2/interfacemetal__math_1_1metal__copy" ],
     [ "metal_cwrap", "de/d8c/interfacemetal__math_1_1metal__cwrap.html", "de/d8c/interfacemetal__math_1_1metal__cwrap" ],
     [ "metal_face_masked_gather_copy", "d6/d25/interfacemetal__math_1_1metal__face__masked__gather__copy.html", "d6/d25/interfacemetal__math_1_1metal__face__masked__gather__copy" ],
+    [ "metal_glamax", "d4/dc6/interfacemetal__math_1_1metal__glamax.html", "d4/dc6/interfacemetal__math_1_1metal__glamax" ],
     [ "metal_glmax", "df/dfc/interfacemetal__math_1_1metal__glmax.html", "df/dfc/interfacemetal__math_1_1metal__glmax" ],
     [ "metal_glmin", "d1/d25/interfacemetal__math_1_1metal__glmin.html", "d1/d25/interfacemetal__math_1_1metal__glmin" ],
     [ "metal_glsc2", "d7/d21/interfacemetal__math_1_1metal__glsc2.html", "d7/d21/interfacemetal__math_1_1metal__glsc2" ],

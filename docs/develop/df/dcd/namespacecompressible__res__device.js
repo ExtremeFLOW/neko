@@ -11,7 +11,7 @@ var namespacecompressible__res__device =
     [ "add_navier_stokes_flux_device", "df/dcd/namespacecompressible__res__device.html#ace767f94b7d0070906c0e98aef7f7dfc", null ],
     [ "advance_primitive_variables_device", "df/dcd/namespacecompressible__res__device.html#a4cd55df45e21856441b4b2520e65055a", null ],
     [ "evaluate_rhs_device", "df/dcd/namespacecompressible__res__device.html#a903fd97843ea532a9268469191340aa8", null ],
-    [ "compressible_res_device_add_physical_flux", "df/dcd/namespacecompressible__res__device.html#ae45e699bb0ac8d183527915e5dde0c92", null ],
-    [ "compressible_res_device_add_physical_stress", "df/dcd/namespacecompressible__res__device.html#ad8d527fbc52839887db908dab5c70359", null ],
+    [ "compressible_res_device_add_physical_flux", "df/dcd/namespacecompressible__res__device.html#a458def8ec61d0ffb576a7ec9817d281a", null ],
+    [ "compressible_res_device_add_physical_stress", "df/dcd/namespacecompressible__res__device.html#abda75f6d174ab8d4f33115280994e35a", null ],
     [ "compressible_res_device_gamma", "df/dcd/namespacecompressible__res__device.html#a7275680123f19e5667b5bf9f8ce8dc1c", null ]
 ];

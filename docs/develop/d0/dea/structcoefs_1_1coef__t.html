@@ -217,7 +217,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a466860c614181e79c0dda9b83a9a384d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recompute and update geometric factors (ALE)  <br /></td></tr>
 <tr class="separator:a466860c614181e79c0dda9b83a9a384d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aefcda31d036dd834426e21d442ebab22" id="r_aefcda31d036dd834426e21d442ebab22"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html#aefcda31d036dd834426e21d442ebab22">metric_condition</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
-<tr class="memdesc:aefcda31d036dd834426e21d442ebab22"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the largest condition number of the metric tensor over the mesh.  <br /></td></tr>
+<tr class="memdesc:aefcda31d036dd834426e21d442ebab22"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the metric tensor condition numbers over the mesh.  <br /></td></tr>
 <tr class="separator:aefcda31d036dd834426e21d442ebab22"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8c8fdd0ec0c831f0ed99cac410e8ca6" id="r_af8c8fdd0ec0c831f0ed99cac410e8ca6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html#af8c8fdd0ec0c831f0ed99cac410e8ca6">enable_b_history</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:af8c8fdd0ec0c831f0ed99cac410e8ca6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable separate memory for lagged B matrices if needed. For eg. when mesh moves.  <br /></td></tr>
@@ -253,13 +253,19 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:a588cfc8b40a0208d9ef0bbc2723375f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Geometric factors \( G_{23} \).  <br /></td></tr>
 <tr class="separator:a588cfc8b40a0208d9ef0bbc2723375f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ade229f745ae9c40d2e61aef0001ad366" id="r_ade229f745ae9c40d2e61aef0001ad366"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html#ade229f745ae9c40d2e61aef0001ad366">metric_cond</a> = 0.0_rp</td></tr>
-<tr class="memdesc:ade229f745ae9c40d2e61aef0001ad366"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest condition number of the metric tensor over the mesh, global across ranks. Zero until <a class="el" href="../../d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae" title="Compute the largest condition number of the metric tensor over the mesh.">coef_metric_condition()</a> has been called.  <br /></td></tr>
+<tr class="memdesc:ade229f745ae9c40d2e61aef0001ad366"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest condition number of the metric tensor over the mesh, global across ranks. Zero until <a class="el" href="../../d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae" title="Compute the metric tensor condition numbers over the mesh.">coef_metric_condition()</a> has been called. Governs single precision arithmetic, see NEKO_METRIC_COND_SP.  <br /></td></tr>
 <tr class="separator:ade229f745ae9c40d2e61aef0001ad366"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab98dcb53b63f82ab7b5e01153678e05b" id="r_ab98dcb53b63f82ab7b5e01153678e05b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html#ab98dcb53b63f82ab7b5e01153678e05b">metric_scaled_cond</a> = 0.0_rp</td></tr>
+<tr class="memdesc:ab98dcb53b63f82ab7b5e01153678e05b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest condition number of the Jacobi scaled metric tensor \( C_{ij} = G_{ij}/\sqrt{G_{ii}G_{jj}} \) over the mesh, global across ranks. Zero until <a class="el" href="../../d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae" title="Compute the metric tensor condition numbers over the mesh.">coef_metric_condition()</a> has been called. Unlike metric_cond this is independent of the element aspect ratio, and it is the term that governs single precision <em>storage</em>; it enters metric_perturb weighted by the storage roundoff.  <br /></td></tr>
+<tr class="separator:ab98dcb53b63f82ab7b5e01153678e05b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a36f8cddfcbb13410a10252693629dbfa" id="r_a36f8cddfcbb13410a10252693629dbfa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html#a36f8cddfcbb13410a10252693629dbfa">metric_degenerate</a> = 0</td></tr>
 <tr class="memdesc:a36f8cddfcbb13410a10252693629dbfa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Quadrature points whose metric tensor is not positive definite, i.e. degenerate or inverted elements. Global across ranks.  <br /></td></tr>
 <tr class="separator:a36f8cddfcbb13410a10252693629dbfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad693e06c670b5c39e6ef592a494cd2bf" id="r_ad693e06c670b5c39e6ef592a494cd2bf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html#ad693e06c670b5c39e6ef592a494cd2bf">metric_perturb</a> = 0.0_rp</td></tr>
+<tr class="memdesc:ad693e06c670b5c39e6ef592a494cd2bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Predicted relative perturbation of the element Helmholtz operator, in its own energy norm, from holding \( G_{ij} \) in single precision and accumulating in <em>rp</em>, i.e. \( \epsilon_{sp}\kappa(C) + \epsilon_{rp}\kappa(G) \). Zero until <a class="el" href="../../d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae" title="Compute the metric tensor condition numbers over the mesh.">coef_metric_condition()</a> has been called. See NEKO_METRIC_PERTURB_MAX.  <br /></td></tr>
+<tr class="separator:ad693e06c670b5c39e6ef592a494cd2bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d9befe06f774321e68702c6943abbde" id="r_a2d9befe06f774321e68702c6943abbde"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html#a2d9befe06f774321e68702c6943abbde">metric_sp_safe</a> = .false.</td></tr>
-<tr class="memdesc:a2d9befe06f774321e68702c6943abbde"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the metric is well enough conditioned to store \( G_{ij} \) in single precision, i.e. metric_cond &lt;= NEKO_METRIC_COND_SP and no degenerate points. <a class="el" href="../../d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae" title="Compute the largest condition number of the metric tensor over the mesh.">coef_metric_condition()</a> warns when a single precision build trips the condition limit; a future reduced precision storage path on a double precision build should gate on this flag and report when it declines.  <br /></td></tr>
+<tr class="memdesc:a2d9befe06f774321e68702c6943abbde"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether single precision geometric factors are safe on this mesh, i.e. metric_perturb &lt;= NEKO_METRIC_PERTURB_MAX and no degenerate points. Because metric_perturb carries the accumulation term as well as the storage term, this is correct on an <em>rp</em> = <em>sp</em> build as well as on a double precision build holding \( G_{ij} \) in single. A reduced precision storage path should gate on this flag and report its own decision. <a class="el" href="../../d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae" title="Compute the metric tensor condition numbers over the mesh.">coef_metric_condition()</a> logs the flag every run beside the two condition numbers and the estimate that produce it, and warns separately &ndash; on definiteness grounds &ndash; when a single precision build trips NEKO_METRIC_COND_SP.  <br /></td></tr>
 <tr class="separator:a2d9befe06f774321e68702c6943abbde"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a28b0d6290006580567e09650acd99d7d" id="r_a28b0d6290006580567e09650acd99d7d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:,:,:,:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html#a28b0d6290006580567e09650acd99d7d">g11_compressed</a></td></tr>
 <tr class="memdesc:a28b0d6290006580567e09650acd99d7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compressed geometric factors \( G_{11} \).  <br /></td></tr>
@@ -486,7 +492,7 @@ Private Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00093">93</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00135">135</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="af8c8fdd0ec0c831f0ed99cac410e8ca6" name="af8c8fdd0ec0c831f0ed99cac410e8ca6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af8c8fdd0ec0c831f0ed99cac410e8ca6">&#9670;&#160;</a></span>enable_b_history()</h2>
@@ -504,7 +510,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00243">243</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00303">303</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -524,7 +530,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00236">236</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00296">296</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -544,7 +550,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00240">240</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00300">300</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -599,7 +605,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>Pure, see the note on <a class="el" href="../../d6/dbe/namespacecoefs.html#a4d34532e89acebdb72fddd6f72f8090d" title="Facet normal at a point.">coef_get_normal()</a>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00238">238</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00298">298</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -654,7 +660,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>Pure, so it cannot reject a <a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...">coef_t</a> that lacks the normals. Consumers assert that themselves at setup, see <a class="el" href="../../d6/dbe/namespacecoefs.html#ac1f20a6fb2255ce94759199ec7637bc4" title="Abort unless this coef holds the facet areas and normals.">coef_require_facets()</a>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00237">237</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00297">297</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -697,7 +703,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00245">245</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00305">305</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -733,7 +739,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00245">245</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00305">305</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -784,7 +790,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00235">235</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00295">295</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -828,7 +834,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00234">234</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00294">294</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -848,11 +854,13 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>The stored geometric factors are \( G = w_3 J M \), where \( M \) is the metric matrix at a quadrature point. Both \( w_3 \) and the Jacobian are scalar multipliers, so \( \kappa(G) = \kappa(M) \) and the condition number of the stored \( G_{ij} \) is a pure property of the element geometry.</p>
-<p>It matters when \( G_{ij} \) is stored in a lower precision than it was computed in. Rounding each entry perturbs it by the unit roundoff \( \epsilon \), hence the eigenvalues by up to \( \epsilon \lambda_{max} \), so the rounded tensor stays positive definite &ndash; and the Helmholtz operator therefore stays a valid SPD discretisation &ndash; only while \( \kappa(G) \ll 1/\epsilon \): about \( 1.7\times 10^{7} \) in single precision against \( 9\times 10^{15} \) in double. Below that limit the rounding is a \( \sim\epsilon \) perturbation of the diffusion coefficient and the solution moves by the same order; past it the local operator can turn indefinite and a Krylov solve breaks down rather than degrading.</p>
-<p>\( \kappa \) grows as the square of the element aspect ratio, and skew compounds it, so a wall resolved boundary layer can come within a factor of ten of the single precision limit while remaining ten orders clear of the double precision one.</p>
+<p>Two numbers are computed, because reduced precision <em>arithmetic</em> and reduced precision <em>storage</em> are limited by different properties of the element.</p>
+<p>metric_cond is \( \kappa(G) \) and it governs the arithmetic. Applying \( D^T G D \) in precision \( \epsilon \) accumulates a quadratic form whose smallest eigendirection contributes a term of relative size \( 1/\kappa(G) \), which is lost once \( \kappa(G) \gtrsim 1/\epsilon \): about \( 1.7\times 10^{7} \) in single precision against \( 9\times 10^{15} \) in double. Below that the error grows as \( \epsilon\kappa(G) \); past it the local operator can turn indefinite and a Krylov solve breaks down rather than degrading. \( \kappa(G) \) grows as the square of the element aspect ratio, so a wall resolved boundary layer can approach the single precision limit while remaining ten orders clear of the double precision one. The single precision warning below is keyed on it.</p>
+<p>metric_scaled_cond is \( \kappa(C) \) for the Jacobi scaled metric \( C_{ij} = G_{ij}/\sqrt{G_{ii}G_{jj}} \), the matrix of cosines between the contravariant basis vectors, and it governs storage. Rounding \( G_{ij} \) to a lower precision is a componentwise <em>relative</em> perturbation, so writing \( G = \Delta C \Delta \) with \( \Delta = \mathrm{diag}(\sqrt{G_{ii}}) \) the diagonal scaling passes through the rounding unchanged and cancels in every quadratic form. What remains bounds the relative perturbation of the element operator in its own energy norm by \( \epsilon\kappa(C) \), independent of the aspect ratio, of \( \kappa(G) \), of h and of the polynomial order: element stretching is invisible to storage rounding and only skew matters. Definiteness survives while \( \lambda_{min}(C) &gt; 3\epsilon \), which in two dimensions means element edges more than about \( 0.02^\circ \) from parallel, so for storage this is a degenerate element test rather than an aspect ratio limit.</p>
+<p>The two combine <em>additively</em> rather than as a pair of thresholds, because they are multiplied by different unit roundoffs &ndash; that of the precision \( G_{ij} \) is held in, and that of the precision the contraction accumulates in. metric_perturb reports \( \epsilon_{sp}\kappa(C) + \epsilon_{rp}\kappa(G) \), the predicted relative perturbation of the element operator were the factors held in single precision, and metric_sp_safe thresholds that against NEKO_METRIC_PERTURB_MAX. Gating on \( \kappa(G) \) alone is conservative by the square of the aspect ratio on a double precision build; gating on \( \kappa(C) \) alone would call an <em>rp</em> = <em>sp</em> build safe on a wall resolved mesh, which it is not.</p>
 <dl class="section note"><dt>Note</dt><dd>On device builds the host copy of \( G_{ij} \) is only refreshed at initialization, so this refreshes it itself when called later. It is not called from <a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html#a466860c614181e79c0dda9b83a9a384d" title="Recompute and update geometric factors (ALE)">recompute_metrics()</a>; a moving mesh that deforms significantly should invoke it explicitly. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00242">242</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00302">302</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -872,7 +880,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00241">241</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00301">301</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -908,7 +916,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00239">239</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00299">299</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -928,7 +936,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00244">244</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00304">304</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -945,7 +953,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00160">160</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00220">220</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -961,7 +969,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00222">222</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00282">282</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -977,7 +985,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00156">156</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00216">216</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -993,7 +1001,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00218">218</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00278">278</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1009,7 +1017,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00157">157</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00217">217</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1025,7 +1033,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00221">221</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00281">281</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1041,7 +1049,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00158">158</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00218">218</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1057,7 +1065,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00219">219</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00279">279</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1073,7 +1081,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00159">159</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00219">219</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1089,7 +1097,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00220">220</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00280">280</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1113,7 +1121,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00170">170</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00230">230</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1129,7 +1137,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00133">133</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00193">193</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1145,7 +1153,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00165">165</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00225">225</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1161,7 +1169,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00226">226</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00286">286</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1177,7 +1185,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00164">164</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00224">224</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1193,7 +1201,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00182">182</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00242">242</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1209,7 +1217,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00146">146</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00206">206</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1225,7 +1233,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00204">204</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00264">264</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1241,7 +1249,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00146">146</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00206">206</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1257,7 +1265,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00205">205</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00265">265</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1273,7 +1281,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00146">146</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00206">206</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1289,7 +1297,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00206">206</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00266">266</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1305,7 +1313,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00147">147</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00207">207</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1321,7 +1329,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00207">207</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00267">267</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1337,7 +1345,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00147">147</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00207">207</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1353,7 +1361,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00208">208</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00268">268</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1369,7 +1377,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00147">147</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00207">207</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1385,7 +1393,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00209">209</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00269">269</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1401,7 +1409,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00148">148</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00208">208</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1417,7 +1425,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00210">210</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00270">270</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1433,7 +1441,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00148">148</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00208">208</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1449,7 +1457,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00211">211</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00271">271</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1465,7 +1473,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00148">148</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00208">208</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1481,7 +1489,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00212">212</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00272">272</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1497,7 +1505,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00140">140</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00200">200</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1513,7 +1521,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00195">195</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00255">255</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1529,7 +1537,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00141">141</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00201">201</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1545,7 +1553,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00198">198</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00258">258</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1561,7 +1569,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00142">142</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00202">202</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1577,7 +1585,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00201">201</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00261">261</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1593,7 +1601,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00140">140</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00200">200</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1609,7 +1617,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00196">196</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00256">256</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1625,7 +1633,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00141">141</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00201">201</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1641,7 +1649,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00199">199</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00259">259</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1657,7 +1665,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00142">142</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00202">202</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1673,7 +1681,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00202">202</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00262">262</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1689,7 +1697,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00140">140</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00200">200</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1705,7 +1713,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00197">197</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00257">257</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1721,7 +1729,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00141">141</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00201">201</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1737,7 +1745,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00200">200</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00260">260</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1753,7 +1761,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00142">142</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00202">202</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1769,7 +1777,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00203">203</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00263">263</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1785,7 +1793,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00095">95</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00137">137</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1801,7 +1809,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00121">121</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00181">181</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1817,7 +1825,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00189">189</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00249">249</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1833,7 +1841,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00101">101</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00143">143</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1849,7 +1857,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00127">127</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00187">187</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1865,7 +1873,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00192">192</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00252">252</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1881,7 +1889,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00103">103</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00145">145</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1897,7 +1905,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00129">129</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00189">189</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1913,7 +1921,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00193">193</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00253">253</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1929,7 +1937,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00097">97</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00139">139</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1945,7 +1953,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00123">123</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00183">183</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1961,7 +1969,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00190">190</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00250">250</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1977,7 +1985,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00105">105</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00147">147</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -1993,7 +2001,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00131">131</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00191">191</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2009,7 +2017,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00194">194</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00254">254</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2025,7 +2033,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00099">99</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00141">141</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2041,7 +2049,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00125">125</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00185">185</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2057,7 +2065,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00191">191</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00251">251</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2073,7 +2081,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00183">183</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00243">243</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2089,7 +2097,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00150">150</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00210">210</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2105,7 +2113,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00214">214</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00274">274</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2121,7 +2129,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00151">151</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00211">211</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2137,7 +2145,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00215">215</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00275">275</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2153,7 +2161,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00152">152</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00212">212</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2169,7 +2177,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00154">154</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00214">214</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2185,7 +2193,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00216">216</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00276">276</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2201,7 +2209,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00155">155</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00215">215</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2217,7 +2225,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00217">217</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00277">277</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2233,7 +2241,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00109">109</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00152">152</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2249,7 +2257,39 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00112">112</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00162">162</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+
+</div>
+</div>
+<a id="ad693e06c670b5c39e6ef592a494cd2bf" name="ad693e06c670b5c39e6ef592a494cd2bf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad693e06c670b5c39e6ef592a494cd2bf">&#9670;&#160;</a></span>metric_perturb</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) coefs::coef_t::metric_perturb = 0.0_rp</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00168">168</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+
+</div>
+</div>
+<a id="ab98dcb53b63f82ab7b5e01153678e05b" name="ab98dcb53b63f82ab7b5e01153678e05b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab98dcb53b63f82ab7b5e01153678e05b">&#9670;&#160;</a></span>metric_scaled_cond</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) coefs::coef_t::metric_scaled_cond = 0.0_rp</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00159">159</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2265,7 +2305,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00119">119</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00179">179</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2281,7 +2321,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00231">231</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00291">291</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2297,7 +2337,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00181">181</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00241">241</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2313,7 +2353,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00135">135</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00195">195</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2329,7 +2369,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00213">213</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00273">273</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2345,7 +2385,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00161">161</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00221">221</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2361,7 +2401,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00223">223</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00283">283</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2377,7 +2417,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00162">162</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00222">222</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2393,7 +2433,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00224">224</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00284">284</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2409,7 +2449,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00163">163</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00223">223</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2425,7 +2465,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00225">225</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00285">285</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2441,7 +2481,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00166">166</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00226">226</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2457,7 +2497,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00227">227</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00287">287</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2473,7 +2513,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00167">167</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00227">227</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2489,7 +2529,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00228">228</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00288">288</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2505,7 +2545,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00174">174</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00234">234</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2521,7 +2561,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00178">178</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00238">238</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2537,7 +2577,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00180">180</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00240">240</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -2550,7 +2590,7 @@ Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/dbe/namespacecoefs.html">coefs</a></li><li class="navelem"><a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a></li>
-    <li class="footer">Generated on Tue Sep 22 2026 03:42:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Sep 23 2026 03:42:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

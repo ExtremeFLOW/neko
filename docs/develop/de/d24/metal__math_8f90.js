@@ -48,6 +48,7 @@ var metal__math_8f90 =
     [ "metal_math::metal_glsubnorm2", "da/d67/interfacemetal__math_1_1metal__glsubnorm2.html", "da/d67/interfacemetal__math_1_1metal__glsubnorm2" ],
     [ "metal_math::metal_glsum", "d6/de3/interfacemetal__math_1_1metal__glsum.html", "d6/de3/interfacemetal__math_1_1metal__glsum" ],
     [ "metal_math::metal_glmax", "df/dfc/interfacemetal__math_1_1metal__glmax.html", "df/dfc/interfacemetal__math_1_1metal__glmax" ],
+    [ "metal_math::metal_glamax", "d4/dc6/interfacemetal__math_1_1metal__glamax.html", "d4/dc6/interfacemetal__math_1_1metal__glamax" ],
     [ "metal_math::metal_glmin", "d1/d25/interfacemetal__math_1_1metal__glmin.html", "d1/d25/interfacemetal__math_1_1metal__glmin" ],
     [ "metal_math::metal_absval", "de/dcc/interfacemetal__math_1_1metal__absval.html", "de/dcc/interfacemetal__math_1_1metal__absval" ],
     [ "metal_math::metal_pwmax_vec2", "db/d2a/interfacemetal__math_1_1metal__pwmax__vec2.html", "db/d2a/interfacemetal__math_1_1metal__pwmax__vec2" ],

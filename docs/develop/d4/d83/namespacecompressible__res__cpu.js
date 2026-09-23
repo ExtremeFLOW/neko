@@ -4,7 +4,7 @@ var namespacecompressible__res__cpu =
     [ "add_navier_stokes_flux_cpu", "d4/d83/namespacecompressible__res__cpu.html#a157c7aac3b25131e4e2b34085f9b4705", null ],
     [ "advance_primitive_variables_cpu", "d4/d83/namespacecompressible__res__cpu.html#a35a0bbc442c4c17ab97413a56da367e3", null ],
     [ "evaluate_rhs_cpu", "d4/d83/namespacecompressible__res__cpu.html#ae51fb68a855fdc7b456753fc8a5dac9d", null ],
-    [ "compressible_res_cpu_add_physical_flux", "d4/d83/namespacecompressible__res__cpu.html#a786d29ccb89317582f35a9ab596286a2", null ],
-    [ "compressible_res_cpu_add_physical_stress", "d4/d83/namespacecompressible__res__cpu.html#ab2aa053c41362b0796d9d205163a9d20", null ],
+    [ "compressible_res_cpu_add_physical_flux", "d4/d83/namespacecompressible__res__cpu.html#a5804b795784241bc59180ba96bb48d27", null ],
+    [ "compressible_res_cpu_add_physical_stress", "d4/d83/namespacecompressible__res__cpu.html#a5533aac83d7624971231b4980119ddee", null ],
     [ "compressible_res_cpu_gamma", "d4/d83/namespacecompressible__res__cpu.html#ad789e8c1f559b070a610a579d684c14a", null ]
 ];
