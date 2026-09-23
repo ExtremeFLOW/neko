@@ -132,10 +132,6 @@ contains
     call this%y%init(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     call this%z%init(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    this%x = 0.0_rp
-    this%y = 0.0_rp
-    this%z = 0.0_rp
-
     !> @note should be intialised differently in axissymmetric case
     call dofmap_generate_xyz(this)
 
@@ -740,6 +736,7 @@ contains
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
     real(kind=rp) :: rp_curve_data(5), curve_data_tot(5,12)
+    real(kind=rp), pointer :: x_el(:,:,:), y_el(:,:,:), z_el(:,:,:)
     logical :: midpoint
     integer :: n_edge, curve_type(12)
 
@@ -754,8 +751,10 @@ contains
 
     !$omp parallel do
     do i = 1, msh%nelv
-       call dofmap_xyzlin(Xh, msh, msh%elements(i)%e, this%x%x(1,1,1,i), &
-            this%y%x(1,1,1,i), this%z%x(1,1,1,i))
+       x_el => this%x%x(:,:,:,i)
+       y_el => this%y%x(:,:,:,i)
+       z_el => this%z%x(:,:,:,i)
+       call dofmap_xyzlin(Xh, msh, msh%elements(i)%e, x_el, y_el, z_el)
     end do
     !$omp end parallel do
 
@@ -770,9 +769,11 @@ contains
           end if
        end do
        if (midpoint .and. Xh%lx .gt. 2) then
+          x_el => this%x%x(:,:,:,el_idx)
+          y_el => this%y%x(:,:,:,el_idx)
+          z_el => this%z%x(:,:,:,el_idx)
           call dofmap_xyzquad(Xh, msh, msh%elements(el_idx)%e, &
-               this%x%x(1, 1, 1, el_idx), this%y%x(1, 1, 1, el_idx), &
-               this%z%x(1 ,1, 1, el_idx), curve_type, curve_data_tot)
+               x_el, y_el, z_el, curve_type, curve_data_tot)
        end if
     end do
     do i = 1, msh%curve%size
@@ -780,11 +781,11 @@ contains
        do j = 1, 8
           if (msh%curve%curve_el(i)%curve_type(j) .eq. 3) then
              rp_curve_data = msh%curve%curve_el(i)%curve_data(1:5,j)
+             x_el => this%x%x(:,:,:,el_idx)
+             y_el => this%y%x(:,:,:,el_idx)
+             z_el => this%z%x(:,:,:,el_idx)
              call arc_surface(j, rp_curve_data, &
-                  this%x%x(1, 1, 1, el_idx), &
-                  this%y%x(1, 1, 1, el_idx), &
-                  this%z%x(1, 1, 1, el_idx), &
-                  Xh, msh%elements(el_idx)%e, msh%gdim)
+                  x_el, y_el, z_el, Xh, msh%elements(el_idx)%e, msh%gdim)
           end if
        end do
     end do
@@ -792,6 +793,7 @@ contains
        call msh%apply_deform(this%x%x, this%y%x, this%z%x, Xh%lx, Xh%ly, Xh%lz)
     end if
 
+    nullify(x_el, y_el, z_el)
     call this%x%copy_from(HOST_TO_DEVICE, .false.)
     call this%y%copy_from(HOST_TO_DEVICE, .false.)
     call this%z%copy_from(HOST_TO_DEVICE, .true.)
