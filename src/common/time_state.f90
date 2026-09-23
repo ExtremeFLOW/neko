@@ -78,8 +78,7 @@ contains
     if (.not. is_variable) then
        call json_get_or_lookup(params, 'timestep', time_step)
     else
-       ! randomly set an initial dt to get cfl when dt is variable
-       time_step = 1.0_dp
+       call json_get_or_lookup_or_default(params, 'timestep', time_step, 1.0_dp)
     end if
 
     call this%init_from_components(start_time, end_time, time_step)
