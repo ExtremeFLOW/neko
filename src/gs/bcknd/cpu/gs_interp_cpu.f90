@@ -109,17 +109,24 @@ module gs_interp_cpu
           gs_interp_cpu_zero_children_r4
      procedure, pass(this) :: zero_children_r1 => &
           gs_interp_cpu_zero_children_r1
-     !> Set children's nonconforming faces/edges
+     !> Set children's nonconforming faces/edges to constant
      procedure, pass(this) :: set_children_fld => gs_interp_cpu_set_children_fld
      procedure, pass(this) :: set_children_r4 => gs_interp_cpu_set_children_r4
      procedure, pass(this) :: set_children_r1 => gs_interp_cpu_set_children_r1
-     !> Scale children's nonconforming faces/edges
+     !> Scale children's nonconforming faces/edges with constant
      procedure, pass(this) :: scale_children_fld => &
           gs_interp_cpu_scale_children_fld
      procedure, pass(this) :: scale_children_r4 => &
           gs_interp_cpu_scale_children_r4
      procedure, pass(this) :: scale_children_r1 => &
           gs_interp_cpu_scale_children_r1
+     !> Copy children's nonconforming faces/edges between fields
+     procedure, pass(this) :: copy_children_fld => &
+          gs_interp_cpu_copy_children_fld
+     procedure, pass(this) :: copy_children_r4 => &
+          gs_interp_cpu_copy_children_r4
+     procedure, pass(this) :: copy_children_r1 => &
+          gs_interp_cpu_copy_children_r1
      !> Remove multiplicity for H1
      procedure, pass(this) :: remove_mult_h1_fld => &
           gs_interp_cpu_remove_mult_h1_fld
@@ -986,7 +993,7 @@ contains
     class(gs_interp_cpu_t), intent(inout) :: this
     real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
     real(rp), intent(in) :: cnst_f, cnst_e
-    integer :: il, jl, itmp
+    integer :: il, itmp
 
     if (this%ifhang) then
        do il = 1, this%nhang_el
@@ -1091,6 +1098,111 @@ contains
     end do
 
   end subroutine gs_interp_cpu_scale_children_elem_edge
+
+  !> Copy children's nonconforming faces/edges between fields
+  !! @param[inout]  field_in     input field
+  !! @param[inout]  field_out    output field
+  subroutine gs_interp_cpu_copy_children_fld(this, field_in, field_out)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    type(field_t), intent(inout) :: field_in, field_out
+
+    call this%copy_children_r4(field_in%x, field_out%x)
+
+  end subroutine gs_interp_cpu_copy_children_fld
+
+  !> Copy children's nonconforming faces/edges between vectors
+  !! @param[inout]  vec_in       input vector
+  !! @param[inout]  vec_out      output vector
+  subroutine gs_interp_cpu_copy_children_r4(this, vec_in, vec_out)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec_in, &
+         vec_out
+    integer :: il, itmp
+
+    if (this%ifhang) then
+       do il = 1, this%nhang_el
+          ! faces
+          itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
+          if (itmp .gt. 0) then
+             call gs_interp_cpu_copy_children_elem_face(this%lx, &
+                  vec_in(:, :, :, this%hang_el(il)), &
+                  vec_out(:, :, :, this%hang_el(il)), itmp, &
+                  this%hang_fcs(this%hang_fcs_off(il) : &
+                  this%hang_fcs_off(il + 1) - 1), this%facein(:, :, 1))
+          end if
+
+          ! edges
+          itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
+          if (itmp .gt. 0) then
+             call gs_interp_cpu_copy_children_elem_edge(this%lx, &
+                  vec_in(:, :, :, this%hang_el(il)), &
+                  vec_out(:, :, :, this%hang_el(il)), itmp, &
+                  this%hang_edg(this%hang_edg_off(il) : &
+                  this%hang_edg_off(il + 1) - 1), this%edgein(:, 1))
+          end if
+       end do
+    end if
+
+  end subroutine gs_interp_cpu_copy_children_r4
+
+  subroutine gs_interp_cpu_copy_children_r1(this, vec_in, vec_out, ntot)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    integer, intent(in) :: ntot
+    real(rp), target, dimension(ntot), intent(inout) :: vec_in, vec_out
+    real(kind=rp), dimension(:, :, :, :), pointer :: up_in, up_out
+
+    up_in(1 : this%lx, 1 : this%lx, 1 : this%lx, 1 : this%nel) => vec_in(:)
+    up_out(1 : this%lx, 1 : this%lx, 1 : this%lx, 1 : this%nel) => vec_out(:)
+    call this%copy_children_r4(up_in, up_out)
+
+  end subroutine gs_interp_cpu_copy_children_r1
+
+  !> Perform face copy in a single element
+  !! @param[in]     lx        number of points in 1D
+  !! @param[inout]  elem_in   field element
+  !! @param[inout]  elem_out  field element
+  !! @param[in]     nface     face number
+  !! @param[in]     facelist  list of faces
+  !! @param[inout]  face      work arrays
+  subroutine gs_interp_cpu_copy_children_elem_face(lx, elem_in, elem_out, &
+       nface, facelist, face)
+    integer, intent(in) :: lx, nface
+    real(rp), dimension(lx, lx, lx), intent(inout) :: elem_in, elem_out
+    integer, dimension(nface), intent(in) :: facelist
+    real(rp), dimension(lx, lx), intent(inout) :: face
+    integer :: il
+
+    ! copy faces
+    do il = 1, nface
+       call face_to_vector(elem_in, face(:, :), facelist(il), lx)
+       call vector_to_face(elem_out, face(:, :), facelist(il), lx)
+    end do
+
+  end subroutine gs_interp_cpu_copy_children_elem_face
+
+  !> Perform edge copy in a single element
+  !! @param[in]     lx        number of points in 1D
+  !! @param[inout]  elem_in   field element
+  !! @param[inout]  elem_out  field element
+  !! @param[in]     nedge     edge number
+  !! @param[in]     edgelist  list of edges
+  !! @param[in]     cnst      scaling constant
+  !! @param[inout]  edge      work arrays
+  subroutine gs_interp_cpu_copy_children_elem_edge(lx, elem_in, elem_out, &
+       nedge, edgelist, edge)
+    integer, intent(in) :: lx, nedge
+    real(rp), dimension(lx, lx, lx), intent(inout) :: elem_in, elem_out
+    integer, dimension(nedge), intent(in) :: edgelist
+    real(rp), dimension(lx, 1), intent(inout) :: edge
+    integer :: il
+
+    ! extract edges
+    do il = 1, nedge
+       call edge_to_vector(elem_in, edge(:, 1), edgelist(il), lx)
+       call vector_to_edge(elem_out, edge(:, 1), edgelist(il), lx)
+    end do
+
+  end subroutine gs_interp_cpu_copy_children_elem_edge
 
   !> Add multiplicity for H1 using field
   !! @param[inout]  field    field for face interpolation

@@ -115,18 +115,24 @@ module gs_interp
      procedure(gs_interp_apply_r1), pass(this), deferred :: zero_children_r1
      generic :: zero_children => zero_children_fld, zero_children_r4, &
           zero_children_r1
-     !> Set children's nonconforming faces/edges
+     !> Set children's nonconforming faces/edges to constant
      procedure(gs_interp_set_fld), pass(this), deferred :: set_children_fld
      procedure(gs_interp_set_r4), pass(this), deferred :: set_children_r4
      procedure(gs_interp_set_r1), pass(this), deferred :: set_children_r1
      generic :: set_children => set_children_fld, set_children_r4, &
           set_children_r1
-     !> Scale children's nonconforming faces/edges
+     !> Scale children's nonconforming faces/edges with constant
      procedure(gs_interp_scale_fld), pass(this), deferred :: scale_children_fld
      procedure(gs_interp_scale_r4), pass(this), deferred :: scale_children_r4
      procedure(gs_interp_scale_r1), pass(this), deferred :: scale_children_r1
      generic :: scale_children => scale_children_fld, scale_children_r4, &
           scale_children_r1
+     !> Copy children's nonconforming faces/edges between fields
+     procedure(gs_interp_copy_fld), pass(this), deferred :: copy_children_fld
+     procedure(gs_interp_copy_r4), pass(this), deferred :: copy_children_r4
+     procedure(gs_interp_copy_r1), pass(this), deferred :: copy_children_r1
+     generic :: copy_children => copy_children_fld, copy_children_r4, &
+          copy_children_r1
      !> Remove multiplicity for H1
      procedure(gs_interp_apply_fld), pass(this), deferred :: remove_mult_h1_fld
      procedure(gs_interp_apply_r4), pass(this), deferred :: remove_mult_h1_r4
@@ -186,7 +192,7 @@ module gs_interp
      subroutine gs_interp_apply_r4(this, vec)
        import gs_interp_t, rp
        class(gs_interp_t), intent(inout) :: this
-       real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+       real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
      end subroutine gs_interp_apply_r4
 
      subroutine gs_interp_apply_r1(this, vec, ntot)
@@ -196,7 +202,7 @@ module gs_interp
        real(rp), target, dimension(ntot), intent(inout) :: vec
      end subroutine gs_interp_apply_r1
 
-     !> Children's nonconforming face/edge filling
+     !> Children's nonconforming face/edge filling with constant
      subroutine gs_interp_set_fld(this, field, cnst)
        import gs_interp_t, field_t, rp
        class(gs_interp_t), intent(inout) :: this
@@ -207,7 +213,7 @@ module gs_interp
      subroutine gs_interp_set_r4(this, vec, cnst)
        import gs_interp_t, rp
        class(gs_interp_t), intent(inout) :: this
-       real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+       real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
        real(rp), intent(in) :: cnst
      end subroutine gs_interp_set_r4
 
@@ -219,7 +225,7 @@ module gs_interp
        real(rp), intent(in) :: cnst
      end subroutine gs_interp_set_r1
 
-     !> Children's nonconforming face/edge scaling
+     !> Children's nonconforming face/edge scaling with constant
      subroutine gs_interp_scale_fld(this, field, cnst_f, cnst_e)
        import gs_interp_t, field_t, rp
        class(gs_interp_t), intent(inout) :: this
@@ -230,7 +236,7 @@ module gs_interp
      subroutine gs_interp_scale_r4(this, vec, cnst_f, cnst_e)
        import gs_interp_t, rp
        class(gs_interp_t), intent(inout) :: this
-       real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+       real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec
        real(rp), intent(in) :: cnst_f, cnst_e
      end subroutine gs_interp_scale_r4
 
@@ -241,6 +247,27 @@ module gs_interp
        real(rp), target, dimension(ntot), intent(inout) :: vec
        real(rp), intent(in) :: cnst_f, cnst_e
      end subroutine gs_interp_scale_r1
+
+     !> Copy children's nonconforming face/edge between fields
+     subroutine gs_interp_copy_fld(this, field_in, field_out)
+       import gs_interp_t, field_t
+       class(gs_interp_t), intent(inout) :: this
+       type(field_t), intent(inout) :: field_in, field_out
+     end subroutine gs_interp_copy_fld
+
+     subroutine gs_interp_copy_r4(this, vec_in, vec_out)
+       import gs_interp_t, rp
+       class(gs_interp_t), intent(inout) :: this
+       real(rp), contiguous, dimension(:, :, :, :), intent(inout) :: vec_in, &
+            vec_out
+     end subroutine gs_interp_copy_r4
+
+     subroutine gs_interp_copy_r1(this, vec_in, vec_out, ntot)
+       import gs_interp_t, rp
+       class(gs_interp_t), intent(inout) :: this
+       integer, intent(in) :: ntot
+       real(rp), target, dimension(ntot), intent(inout) :: vec_in, vec_out
+     end subroutine gs_interp_copy_r1
   end interface
 
 contains
