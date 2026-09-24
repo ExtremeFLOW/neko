@@ -361,9 +361,27 @@ contains
     end do
   end subroutine cartesian_el_finder_find_candidates
 
-  ! In order to get more cache hits
   subroutine cartesian_el_finder_find_candidates_batch(this, points, n_points, &
        all_el_candidates, n_el_cands)
+    class(cartesian_el_finder_t), intent(inout) :: this
+    integer, intent(in) :: n_points
+    real(kind=rp), intent(in) :: points(3, n_points)
+    type(stack_i4_t), intent(inout) :: all_el_candidates
+    integer, intent(inout) :: n_el_cands(n_points)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call cartesian_el_finder_find_candidates_batch_device( &
+            this, points, n_points, all_el_candidates, n_el_cands)
+    else
+       call cartesian_el_finder_find_candidates_batch_cpu( &
+            this, points, n_points, all_el_candidates, n_el_cands)
+    end if
+
+  end subroutine cartesian_el_finder_find_candidates_batch
+
+  ! In order to get more cache hits
+  subroutine cartesian_el_finder_find_candidates_batch_cpu(this, points, &
+       n_points, all_el_candidates, n_el_cands)
     class(cartesian_el_finder_t), intent(inout) :: this
     integer, intent(in) :: n_points
     real(kind=rp), intent(in) :: points(3, n_points)
@@ -393,6 +411,18 @@ contains
        end if
     end do
 
-  end subroutine cartesian_el_finder_find_candidates_batch
+  end subroutine cartesian_el_finder_find_candidates_batch_cpu
+
+  subroutine cartesian_el_finder_find_candidates_batch_device( &
+       this, points, n_points, all_el_candidates, n_el_cands)
+    class(cartesian_el_finder_t), intent(inout) :: this
+    integer, intent(in) :: n_points
+    real(kind=rp), intent(in) :: points(3, n_points)
+    type(stack_i4_t), intent(inout) :: all_el_candidates
+    integer, intent(inout) :: n_el_cands(n_points)
+
+    call neko_error("Cartesian element finder device backend not implemented")
+
+  end subroutine cartesian_el_finder_find_candidates_batch_device
 
 end module cartesian_el_finder
