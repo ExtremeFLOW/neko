@@ -47,6 +47,7 @@ viscous_regularization/avm/bcknd/device/hip/entropy_viscosity.lo : viscous_regul
 scalar/bcknd/device/hip/scalar_residual.lo : scalar/bcknd/device/hip/scalar_residual.hip scalar/bcknd/device/hip/scalar_residual_update_kernel.h
 sem/bcknd/device/hip/coef.lo : sem/bcknd/device/hip/coef.hip sem/bcknd/device/hip/coef_kernel.h
 sem/bcknd/device/hip/local_interpolation.lo : sem/bcknd/device/hip/local_interpolation.hip
+global_interpolation/bcknd/device/hip/cartesian_el_finder.lo : global_interpolation/bcknd/device/hip/cartesian_el_finder.hip global_interpolation/bcknd/device/hip/cartesian_el_finder.h
 lpt/bcknd/device/hip/lpt_periodic_bc.lo : lpt/bcknd/device/hip/lpt_periodic_bc.hip lpt/bcknd/device/hip/lpt_periodic_bc_kernel.h
 lpt/bcknd/device/hip/lpt_wall_collision.lo : lpt/bcknd/device/hip/lpt_wall_collision.hip lpt/bcknd/device/hip/lpt_wall_collision_kernel.h sem/bcknd/device/hip/coef_kernel.h
 les/bcknd/device/hip/dynamic_smagorinsky_nut.lo : les/bcknd/device/hip/dynamic_smagorinsky_nut.hip les/bcknd/device/hip/dynamic_smagorinsky_nut_kernel.h
@@ -111,6 +112,7 @@ source_terms/bcknd/device/cuda/gradient_jump_penalty.lo : source_terms/bcknd/dev
 scalar/bcknd/device/cuda/scalar_residual.lo : scalar/bcknd/device/cuda/scalar_residual.cu scalar/bcknd/device/cuda/scalar_residual_update_kernel.h
 sem/bcknd/device/cuda/coef.lo : sem/bcknd/device/cuda/coef.cu sem/bcknd/device/cuda/coef_kernel.h
 sem/bcknd/device/cuda/local_interpolation.lo : sem/bcknd/device/cuda/local_interpolation.cu
+global_interpolation/bcknd/device/cuda/cartesian_el_finder.lo : global_interpolation/bcknd/device/cuda/cartesian_el_finder.cu global_interpolation/bcknd/device/cuda/cartesian_el_finder.h
 lpt/bcknd/device/cuda/lpt_periodic_bc.lo : lpt/bcknd/device/cuda/lpt_periodic_bc.cu lpt/bcknd/device/cuda/lpt_periodic_bc_kernel.h
 lpt/bcknd/device/cuda/lpt_wall_collision.lo : lpt/bcknd/device/cuda/lpt_wall_collision.cu lpt/bcknd/device/cuda/lpt_wall_collision_kernel.h sem/bcknd/device/cuda/coef_kernel.h
 les/bcknd/device/cuda/dynamic_smagorinsky_nut.lo : les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu les/bcknd/device/cuda/dynamic_smagorinsky_nut_kernel.h

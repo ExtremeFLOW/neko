@@ -1390,15 +1390,6 @@ include_HEADERS = api/neko.h
 # Fortran deps. (updated with makedepf90 via target 'depend')
 include	.depends
 
-global_interpolation/cartesian_el_finder.lo: \
-	global_interpolation/bcknd/device/device_cartesian_el_finder.lo
-
-global_interpolation/bcknd/device/cuda/cartesian_el_finder.lo: \
-	global_interpolation/bcknd/device/cuda/cartesian_el_finder.h
-
-global_interpolation/bcknd/device/hip/cartesian_el_finder.lo: \
-	global_interpolation/bcknd/device/hip/cartesian_el_finder.h
-
 # Device deps. (manually updated)
 include .depends_device
 
