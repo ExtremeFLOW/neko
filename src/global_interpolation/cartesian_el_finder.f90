@@ -44,6 +44,8 @@ module cartesian_el_finder
   use mpi_f08, only : MPI_Wtime
   use tensor_cpu, only : tnsr3d_cpu
   use fast3d, only : setup_intp
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_associated, C_NULL_PTR
+  use device, only : device_map, HOST_TO_DEVICE, device_memcpy, device_unmap
   implicit none
   private
 
@@ -57,6 +59,11 @@ module cartesian_el_finder
      real(kind=xp) :: max_z, min_z
      real(kind=xp) :: x_res, y_res, z_res
      real(kind=xp) :: padding
+     !> arrays of el_map for device implementation
+     integer, allocatable :: el_map_offset(:)
+     integer, allocatable :: el_map_data(:)
+     type(c_ptr) :: el_map_offset_d = C_NULL_PTR
+     type(c_ptr) :: el_map_data_d   = C_NULL_PTR
    contains
      procedure, pass(this) :: init => cartesian_el_finder_init
      procedure, pass(this) :: free => cartesian_el_finder_free
@@ -93,6 +100,8 @@ contains
     real(kind=rp) :: min_bb_x, max_bb_x
     real(kind=rp) :: min_bb_y, max_bb_y
     real(kind=rp) :: min_bb_z, max_bb_z
+    integer :: n_entries
+    integer, pointer :: el_cands(:)
 
     call this%free()
     ! Ensure n_boxes is within a reasonable range
@@ -232,6 +241,31 @@ contains
           end do
        end do
     end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       allocate(this%el_map_offset(this%n_boxes**3 + 1))
+       this%el_map_offset(1) = 0
+       do i = 1, this%n_boxes**3
+          this%el_map_offset(i+1) = this%el_map_offset(i) + &
+                                    this%el_map(i)%size()
+       end do
+       n_entries = this%el_map_offset(this%n_boxes**3 + 1)
+       allocate(this%el_map_data(n_entries))
+       k = 1
+       do i = 1, this%n_boxes**3
+          el_cands => this%el_map(i)%array()
+          do j = 1, this%el_map(i)%size()
+             this%el_map_data(k) = el_cands(j)
+             k = k + 1
+          end do
+       end do
+       call device_map(this%el_map_offset, this%el_map_offset_d, &
+                       this%n_boxes**3 + 1)
+       call device_map(this%el_map_data, this%el_map_data_d, n_entries)
+       call device_memcpy(this%el_map_offset, this%el_map_offset_d, &
+                          this%n_boxes**3 + 1, HOST_TO_DEVICE, .true.)
+       call device_memcpy(this%el_map_data, this%el_map_data_d, &
+                          n_entries, HOST_TO_DEVICE, .true.)
+    end if
     call marked_box%free()
     !print *, "Time for cartesian_el_finder_init: ", MPI_Wtime() - time_start
   end subroutine cartesian_el_finder_init
@@ -240,6 +274,20 @@ contains
     class(cartesian_el_finder_t), intent(inout) :: this
     integer :: i
 
+    if (allocated(this%el_map_offset)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+            c_associated(this%el_map_offset_d)) then
+          call device_unmap(this%el_map_offset, this%el_map_offset_d)
+       end if
+       deallocate(this%el_map_offset)
+    end if
+    if (allocated(this%el_map_data)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+            c_associated(this%el_map_data_d)) then
+          call device_unmap(this%el_map_data, this%el_map_data_d)
+       end if
+       deallocate(this%el_map_data)
+    end if
     if (allocated(this%el_map)) then
        do i = 1, size(this%el_map)
           call this%el_map(i)%free()
