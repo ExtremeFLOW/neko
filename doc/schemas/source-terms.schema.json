@@ -500,6 +500,7 @@
               "enum": [
                 "constant",
                 "field",
+                "no-op",
                 "user"
               ]
             },
