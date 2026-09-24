@@ -39,7 +39,7 @@ module coefs
   use dofmap, only : dofmap_t
   use space, only : space_t
   use math, only : rone, invcol1, addcol3, subcol3, copy, &
-       chsign, rzero, invers2, glsum, glmax, NEKO_EPS, &
+       chsign, rzero, invers2, glsum, glmax, NEKO_EPS, NEKO_EPS_SP, &
        eig_sym2, eig_sym3
   use logger, only : neko_log, LOG_SIZE
   use mesh, only : mesh_t
@@ -60,15 +60,57 @@ module coefs
   implicit none
   private
 
-  !> Largest metric condition number for which single precision storage of the
-  !! geometric factors \f$ G_{ij} \f$ is considered safe.
+  !> Largest metric condition number for which single precision *arithmetic*
+  !! on the geometric factors \f$ G_{ij} \f$ is considered safe, i.e. an
+  !! \a rp = \a sp build.
   !!
   !! The hard limit is \f$ 1/\epsilon_{sp} \approx 1.7\times 10^{7} \f$, past
-  !! which rounding swamps the smallest eigenvalue of the metric and the element
-  !! operator can lose positive definiteness. This keeps three orders of margin,
-  !! which accepts isotropic, graded and channel interior meshes and rejects
-  !! wall resolved ones. See coef_metric_condition().
+  !! which the smallest eigendirection of the metric is lost in the quadratic
+  !! form and the element operator can lose positive definiteness. This keeps
+  !! three orders of margin, which accepts isotropic, graded and channel
+  !! interior meshes and rejects wall resolved ones; at the threshold itself
+  !! the element operator already carries a relative error of order
+  !! \f$ \epsilon_{sp}\kappa(G) \sim 10^{-3} \f$.
+  !!
+  !! This threshold is about definiteness margin and is used only for the
+  !! warning in coef_metric_condition(). Whether reduced precision is
+  !! *accurate* enough on a given mesh is a separate question, answered by
+  !! NEKO_METRIC_PERTURB_MAX and metric_sp_safe.
   real(kind=rp), public, parameter :: NEKO_METRIC_COND_SP = 1.0e4_rp
+
+  !> Largest predicted relative perturbation of the element Helmholtz
+  !! operator, in its own energy norm, for which single precision geometric
+  !! factors are considered safe.
+  !!
+  !! The two metric condition numbers do not compete for a single threshold:
+  !! they are multiplied by different unit roundoffs. Rounding
+  !! \f$ G_{ij} \f$ for *storage* is a componentwise relative perturbation,
+  !! and once the diagonal scaling in \f$ G = \Delta C \Delta \f$ cancels it
+  !! contributes \f$ \epsilon_{store}\kappa(C) \f$ -- element skew only.
+  !! *Accumulating* \f$ D^T G D \f$ loses the smallest eigendirection of the
+  !! metric and contributes \f$ \epsilon_{accum}\kappa(G) \f$ -- aspect ratio
+  !! squared. So the estimate is additive,
+  !!
+  !! \f[ \delta \approx \epsilon_{store}\kappa(C)
+  !!                  + \epsilon_{accum}\kappa(G), \f]
+  !!
+  !! which needs no test on the build: an all double build is limited by
+  !! neither term until \f$ \kappa(G) \sim 10^{13} \f$, a double build
+  !! holding \f$ G_{ij} \f$ in single is limited by skew, and an
+  !! \a rp = \a sp build is limited by aspect ratio, as it should be.
+  !!
+  !! At \f$ 10^{-5} \f$ the storage term alone admits \f$ \kappa(C) \f$ up to
+  !! about 84, i.e. element edges down to roughly \f$ 12^\circ \f$ apart,
+  !! which is every mesh that is not close to degenerate. A well resolved
+  !! double precision run whose discretisation error is smaller than this may
+  !! want it tighter; coef_metric_condition() logs the estimate itself every
+  !! run, so the value on a given mesh can be read rather than guessed, and
+  !! reports when it is exceeded.
+  !!
+  !! @note The storage term is a genuine bound. The accumulation term is a
+  !! bound up to a modest \f$ O(l_x) \f$ constant -- measured about 4 at
+  !! \f$ l_x = 6 \f$ -- so leave margin.
+  real(kind=rp), public, parameter :: NEKO_METRIC_PERTURB_MAX = 1.0e-5_rp
 
   !> Retain every coefficient. The default, and the only scope that supports
   !! recompute_metrics(), generate_cyclic_bc(), get_area(), get_normal() and
@@ -81,7 +123,7 @@ module coefs
   !! B, and Binv, area and the facet normals are never read by an operator, so
   !! all of them are released once the metrics are built. The work feeding only
   !! those is skipped as well: the facet metrics, the gather-scatter behind
-  !! Binv, the volume reduction and the metric condition estimate.
+  !! Binv, the volume reduction and the metric conditioning diagnostic.
   !!
   !! Intended for multigrid levels, which read nothing else -- see hsmg_init()
   !! and phmg_init(). The geometry cannot be rebuilt without the derivative
@@ -106,16 +148,34 @@ module coefs
 
      !> Largest condition number of the metric tensor over the mesh, global
      !! across ranks. Zero until coef_metric_condition() has been called.
+     !! Governs single precision arithmetic, see NEKO_METRIC_COND_SP.
      real(kind=rp) :: metric_cond = 0.0_rp
+     !> Largest condition number of the Jacobi scaled metric tensor
+     !! \f$ C_{ij} = G_{ij}/\sqrt{G_{ii}G_{jj}} \f$ over the mesh, global
+     !! across ranks. Zero until coef_metric_condition() has been called.
+     !! Unlike metric_cond this is independent of the element aspect ratio,
+     !! and it is the term that governs single precision *storage*; it enters
+     !! metric_perturb weighted by the storage roundoff.
+     real(kind=rp) :: metric_scaled_cond = 0.0_rp
      !> Quadrature points whose metric tensor is not positive definite, i.e.
      !! degenerate or inverted elements. Global across ranks.
      integer :: metric_degenerate = 0
-     !> Whether the metric is well enough conditioned to store \f$ G_{ij} \f$
-     !! in single precision, i.e. metric_cond <= NEKO_METRIC_COND_SP and no
-     !! degenerate points. coef_metric_condition() warns when a single
-     !! precision build trips the condition limit; a future reduced precision
-     !! storage path on a double precision build should gate on this flag and
-     !! report when it declines.
+     !> Predicted relative perturbation of the element Helmholtz operator, in
+     !! its own energy norm, from holding \f$ G_{ij} \f$ in single precision
+     !! and accumulating in \a rp, i.e.
+     !! \f$ \epsilon_{sp}\kappa(C) + \epsilon_{rp}\kappa(G) \f$. Zero until
+     !! coef_metric_condition() has been called. See NEKO_METRIC_PERTURB_MAX.
+     real(kind=rp) :: metric_perturb = 0.0_rp
+     !> Whether single precision geometric factors are safe on this mesh,
+     !! i.e. metric_perturb <= NEKO_METRIC_PERTURB_MAX and no degenerate
+     !! points. Because metric_perturb carries the accumulation term as well
+     !! as the storage term, this is correct on an \a rp = \a sp build as
+     !! well as on a double precision build holding \f$ G_{ij} \f$ in single.
+     !! A reduced precision storage path should gate on this flag and report
+     !! its own decision. coef_metric_condition() logs the flag every run
+     !! beside the two condition numbers and the estimate that produce it, and
+     !! warns separately -- on definiteness grounds -- when a single precision
+     !! build trips NEKO_METRIC_COND_SP.
      logical :: metric_sp_safe = .false.
      !> Compressed geometric factors \f$ G_{11} \f$
      real(kind=rp), allocatable :: G11_compressed(:,:,:,:)
@@ -445,8 +505,8 @@ contains
     ! call coef_generate_geo_compressed(this)
 
     ! Both are dead weight under COEF_OPERATOR: nothing reads the facet
-    ! metrics, and the condition estimate is a per-point eigenvalue solve
-    ! plus two reductions spent on a diagnostic no one consumes.
+    ! metrics, and the conditioning diagnostic is two per-point eigenvalue
+    ! solves plus three reductions spent on something no one consumes yet.
     if (this%scope .eq. COEF_FULL) then
        call coef_metric_condition(this)
 
@@ -1256,7 +1316,7 @@ contains
 
   end subroutine coef_generate_geo
 
-  !> Compute the largest condition number of the metric tensor over the mesh
+  !> Compute the metric tensor condition numbers over the mesh
   !!
   !! The stored geometric factors are \f$ G = w_3 J M \f$, where \f$ M \f$ is
   !! the metric matrix at a quadrature point. Both \f$ w_3 \f$ and the Jacobian
@@ -1264,22 +1324,51 @@ contains
   !! number of the stored \f$ G_{ij} \f$ is a pure property of the element
   !! geometry.
   !!
-  !! It matters when \f$ G_{ij} \f$ is stored in a lower precision than it was
-  !! computed in. Rounding each entry perturbs it by the unit roundoff
-  !! \f$ \epsilon \f$, hence the eigenvalues by up to
-  !! \f$ \epsilon \lambda_{max} \f$, so the rounded tensor stays positive
-  !! definite -- and the Helmholtz operator therefore stays a valid SPD
-  !! discretisation -- only while \f$ \kappa(G) \ll 1/\epsilon \f$: about
-  !! \f$ 1.7\times 10^{7} \f$ in single precision against
-  !! \f$ 9\times 10^{15} \f$ in double. Below that limit the rounding is a
-  !! \f$ \sim\epsilon \f$ perturbation of the diffusion coefficient and the
-  !! solution moves by the same order; past it the local operator can turn
-  !! indefinite and a Krylov solve breaks down rather than degrading.
+  !! Two numbers are computed, because reduced precision *arithmetic* and
+  !! reduced precision *storage* are limited by different properties of the
+  !! element.
   !!
-  !! \f$ \kappa \f$ grows as the square of the element aspect ratio, and skew
-  !! compounds it, so a wall resolved boundary layer can come within a factor
-  !! of ten of the single precision limit while remaining ten orders clear of
-  !! the double precision one.
+  !! metric_cond is \f$ \kappa(G) \f$ and it governs the arithmetic. Applying
+  !! \f$ D^T G D \f$ in precision \f$ \epsilon \f$ accumulates a quadratic
+  !! form whose smallest eigendirection contributes a term of relative size
+  !! \f$ 1/\kappa(G) \f$, which is lost once
+  !! \f$ \kappa(G) \gtrsim 1/\epsilon \f$: about \f$ 1.7\times 10^{7} \f$ in
+  !! single precision against \f$ 9\times 10^{15} \f$ in double. Below that
+  !! the error grows as \f$ \epsilon\kappa(G) \f$; past it the local operator
+  !! can turn indefinite and a Krylov solve breaks down rather than
+  !! degrading. \f$ \kappa(G) \f$ grows as the square of the element aspect
+  !! ratio, so a wall resolved boundary layer can approach the single
+  !! precision limit while remaining ten orders clear of the double precision
+  !! one. The single precision warning below is keyed on it.
+  !!
+  !! metric_scaled_cond is \f$ \kappa(C) \f$ for the Jacobi scaled metric
+  !! \f$ C_{ij} = G_{ij}/\sqrt{G_{ii}G_{jj}} \f$, the matrix of cosines
+  !! between the contravariant basis vectors, and it governs storage.
+  !! Rounding \f$ G_{ij} \f$ to a lower precision is a componentwise
+  !! *relative* perturbation, so writing \f$ G = \Delta C \Delta \f$ with
+  !! \f$ \Delta = \mathrm{diag}(\sqrt{G_{ii}}) \f$ the diagonal scaling
+  !! passes through the rounding unchanged and cancels in every quadratic
+  !! form. What remains bounds the relative perturbation of the element
+  !! operator in its own energy norm by \f$ \epsilon\kappa(C) \f$,
+  !! independent of the aspect ratio, of \f$ \kappa(G) \f$, of h and of the
+  !! polynomial order: element stretching is invisible to storage rounding
+  !! and only skew matters. Definiteness survives while
+  !! \f$ \lambda_{min}(C) > 3\epsilon \f$, which in two dimensions means
+  !! element edges more than about \f$ 0.02^\circ \f$ from parallel, so for
+  !! storage this is a degenerate element test rather than an aspect ratio
+  !! limit.
+  !!
+  !! The two combine *additively* rather than as a pair of thresholds,
+  !! because they are multiplied by different unit roundoffs -- that of the
+  !! precision \f$ G_{ij} \f$ is held in, and that of the precision the
+  !! contraction accumulates in. metric_perturb reports
+  !! \f$ \epsilon_{sp}\kappa(C) + \epsilon_{rp}\kappa(G) \f$, the predicted
+  !! relative perturbation of the element operator were the factors held in
+  !! single precision, and metric_sp_safe thresholds that against
+  !! NEKO_METRIC_PERTURB_MAX. Gating on \f$ \kappa(G) \f$ alone is
+  !! conservative by the square of the aspect ratio on a double precision
+  !! build; gating on \f$ \kappa(C) \f$ alone would call an \a rp = \a sp
+  !! build safe on a wall resolved mesh, which it is not.
   !!
   !! @note On device builds the host copy of \f$ G_{ij} \f$ is only refreshed
   !! at initialization, so this refreshes it itself when called later. It is
@@ -1288,7 +1377,8 @@ contains
   subroutine coef_metric_condition(this)
     class(coef_t), intent(inout) :: this
     real(kind=dp) :: e1, e2, e3, scal
-    real(kind=rp) :: kmax, tmp(1)
+    real(kind=dp) :: c1, c2, c3, c12, c13, c23
+    real(kind=rp) :: kmax, kcmax, tmp(1)
     integer :: i, j, k, e, n, ndeg, ndeg_glb, ierr
     character(len=LOG_SIZE) :: log_buf
 
@@ -1311,6 +1401,7 @@ contains
     end if
 
     kmax = 0.0_rp
+    kcmax = 0.0_rp
     ndeg = 0
 
     do e = 1, this%msh%nelv
@@ -1350,6 +1441,40 @@ contains
                    ndeg = ndeg + 1
                 else
                    kmax = max(kmax, real(e1 / e3, rp))
+
+                   ! Jacobi scale the metric: C_ij = G_ij/sqrt(G_ii G_jj).
+                   ! kappa(C) is what bounds the effect of rounding G to a
+                   ! lower precision, and unlike kappa(G) it is independent
+                   ! of the element aspect ratio. The point is positive
+                   ! definite here, so the diagonal is strictly positive and
+                   ! the square roots are safe. An orthogonal element gives
+                   ! the identity, which eig_sym3 returns exactly through
+                   ! its isotropic branch.
+                   c12 = real(this%G12(i,j,k,e), dp) &
+                        / sqrt(real(this%G11(i,j,k,e), dp) &
+                        * real(this%G22(i,j,k,e), dp))
+
+                   if (this%msh%gdim .eq. 2) then
+                      call eig_sym2(1.0_dp, 1.0_dp, c12, c1, c3)
+                   else
+                      c13 = real(this%G13(i,j,k,e), dp) &
+                           / sqrt(real(this%G11(i,j,k,e), dp) &
+                           * real(this%G33(i,j,k,e), dp))
+                      c23 = real(this%G23(i,j,k,e), dp) &
+                           / sqrt(real(this%G22(i,j,k,e), dp) &
+                           * real(this%G33(i,j,k,e), dp))
+                      call eig_sym3(1.0_dp, 1.0_dp, 1.0_dp, &
+                           c12, c13, c23, c1, c2, c3)
+                   end if
+
+                   if (c3 .gt. 0.0_dp) then
+                      kcmax = max(kcmax, real(c1 / c3, rp))
+                   else
+                      ! C is a positive diagonal congruence of a metric
+                      ! already found definite, so this is unreachable
+                      ! analytically. Fail safe rather than underreport.
+                      kcmax = huge(0.0_rp)
+                   end if
                 end if
 
              end do
@@ -1360,22 +1485,47 @@ contains
     tmp(1) = kmax
     this%metric_cond = glmax(tmp, 1)
 
+    tmp(1) = kcmax
+    this%metric_scaled_cond = glmax(tmp, 1)
+
     call MPI_Allreduce(ndeg, ndeg_glb, 1, MPI_INTEGER, MPI_SUM, &
          NEKO_COMM, ierr)
     this%metric_degenerate = ndeg_glb
 
+    ! The two condition numbers enter through different unit roundoffs, so
+    ! the estimate is additive: storage rounding of G contributes
+    ! eps_sp*kappa(C) and accumulation in rp contributes eps_rp*kappa(G).
+    ! On a double build the second term all but vanishes and skew decides; on
+    ! an rp = sp build it dominates and aspect ratio decides. No test on the
+    ! build is needed, which is the point of writing it this way.
+    this%metric_perturb = real(NEKO_EPS_SP, rp) * this%metric_scaled_cond &
+         + NEKO_EPS * this%metric_cond
+
     this%metric_sp_safe = (this%metric_degenerate .eq. 0) .and. &
-         (this%metric_cond .le. NEKO_METRIC_COND_SP)
+         (this%metric_perturb .le. NEKO_METRIC_PERTURB_MAX)
 
     write(log_buf, '(A,ES12.5)') 'Metric condition : ', this%metric_cond
     call neko_log%message(log_buf)
+    write(log_buf, '(A,ES12.5)') 'Metric skew cond : ', &
+         this%metric_scaled_cond
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES12.5)') 'Metric perturb   : ', this%metric_perturb
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,L1)') 'Metric fp32 safe : ', this%metric_sp_safe
+    call neko_log%message(log_buf)
 
-    ! G_ij is stored in rp, so the limit only bites on a single precision
-    ! build. Reported rather than fatal: the threshold keeps three
-    ! orders of margin below 1/eps_sp, so crossing it makes the loss of
-    ! positive definiteness possible, not certain, and the run may well be
-    ! fine. On a double precision build there is nothing at risk yet, and a
-    ! warning on every wall resolved mesh would be pure noise.
+    ! Three independent questions, reported independently: can the solve
+    ! break down, how far wrong is the operator, and is the mesh valid at
+    ! all. They are not grades of one thing, so none suppresses another -- a
+    ! wall resolved boundary layer in a single precision build trips the
+    ! first two at once, and both are worth saying, because the definiteness
+    ! limit is a possibility while the perturbation is a certainty.
+
+    ! Past the arithmetic limit the local operator can lose positive
+    ! definiteness and a Krylov solve can break down rather than degrade,
+    ! which is only reachable when rp is sp. Reported rather than fatal: the
+    ! threshold keeps three orders of margin below 1/eps_sp, so crossing it
+    ! makes breakdown possible, not certain, and the run may well be fine.
     if (rp .eq. sp .and. this%metric_cond .gt. NEKO_METRIC_COND_SP) then
        write(log_buf, '(A,ES12.5)') &
             'Metric too ill conditioned for single precision, limit ', &
@@ -1383,6 +1533,33 @@ contains
        call neko_log%warning(log_buf)
        call neko_log%message('Geometric factors may lose positive ' // &
             'definiteness, consider a double precision build')
+    end if
+
+    ! How much the single precision factors actually perturb the operator,
+    ! regardless of whether the definiteness limit above was also crossed.
+    ! On a single precision build that error is being incurred now, so it
+    ! warrants a warning; on a double precision build it describes a storage
+    ! path that may not be in use, so it is recorded without one. Which of
+    ! the two terms dominates is the actionable part: skew is a meshing
+    ! problem, aspect ratio is a precision problem, and they have different
+    ! remedies.
+    if (this%metric_perturb .gt. NEKO_METRIC_PERTURB_MAX) then
+       if (rp .eq. sp) then
+          write(log_buf, '(A,ES12.5,A,ES12.5)') &
+               'Single precision metric error ', this%metric_perturb, &
+               ', tolerance ', NEKO_METRIC_PERTURB_MAX
+          call neko_log%warning(log_buf)
+       else
+          call neko_log%message('Single precision storage of the ' // &
+               'geometric factors would exceed the error tolerance')
+       end if
+
+       if (real(NEKO_EPS_SP, rp) * this%metric_scaled_cond .ge. &
+            NEKO_EPS * this%metric_cond) then
+          call neko_log%message('Dominated by element skew')
+       else
+          call neko_log%message('Dominated by element aspect ratio')
+       end if
     end if
 
     ! A metric that is not positive definite is a degenerate or inverted

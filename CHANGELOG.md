@@ -10,6 +10,70 @@
   their mesh and function space, while generic arrays retain a fixed logical
   extent. The `.chkp` format remains available through a single-scalar
   compatibility view, and existing flat HDF5 checkpoints remain readable.
+
+- Added a setup-time conditioning diagnostic for the geometric factors, on
+  `COEF_FULL` coefficient sets only. `coef_metric_condition` logs the worst
+  metric condition number over the mesh, the worst for its Jacobi scaled
+  form, the perturbation single precision factors would put on the element
+  operator, and whether that is within tolerance (`coef_t%metric_sp_safe`).
+  The unscaled number bounds reduced precision *arithmetic* and grows as the
+  element aspect ratio squared; the scaled one bounds *storage* and depends
+  on skew alone. A single precision build warns past `NEKO_METRIC_COND_SP` or
+  `NEKO_METRIC_PERTURB_MAX`, and a non positive definite metric is an error
+  in any precision.
+- Added closed-form symmetric eigenvalue helpers `eig_sym2` and `eig_sym3` to
+  `math`, used by the metric conditioning diagnostic. Both work in double
+  precision regardless of `rp`, since the smallest root is a difference of
+  terms of order the largest eigenvalue and its relative accuracy therefore
+  degrades as `eps * kappa`.
+- Fused the viscous accumulation at the end of the compressible device
+  residual into the one kernel the CPU backend already uses. It cost sixteen
+  launches per Runge-Kutta stage and 2.4x the memory traffic, because the
+  five components went through separate `col2`/`cmult`/`sub2` passes that
+  wrote `visc_*` back although it is scratch released immediately after. The
+  `div` and `grad` calls there now take device pointers rather than the
+  deprecated implicit-device host-array path.
+- The compressible residual on the device backends hands `glb_cmd_event` to
+  its gather-scatter operations, as the Pn-Pn solver already did. Without an
+  event the shared scatter ends in `device_sync`, draining the command queue
+  right after every exchange; it now records the event and the host waits
+  only just before the next exchange reuses the shared staging buffers, so
+  the coefficient multiplication and the three Helmholtz applies in between
+  are issued while the exchange is still in flight. Results are unchanged.
+- Fixed the compressible solver never evaluating the physical Navier-Stokes
+  fluxes on any device backend. Both `compressible_res_*` backends decided
+  whether to add the viscous stress and the heat flux with
+  `any(mu%x .ne. 0)`, which reads the *host* mirror of the material property
+  fields. Device backends never write those mirrors: `field_cfill` fills only
+  `%x_d`, and the memcpy that used to follow the `material_properties` hook
+  was removed in #2695 so that user files can call `device_math` directly.
+  Both switches were therefore always false on CUDA, HIP, OpenCL and Metal,
+  and the solver silently ran Euler plus artificial viscosity. As a
+  side-effect the test also cost three full single-threaded host passes over
+  the field per time step, with no work in flight on the device.
+  The decision now lives in `fluid_scheme_compressible_t%update_physical_flux`
+  and is taken from the device-resident arrays, and it is only re-evaluated
+  when the material properties can have changed, i.e. once at setup and
+  thereafter only when a user `material_properties` hook is registered.
+  `mu`, `kappa` and whether the Navier-Stokes fluxes are active are now
+  reported in the `Fluid` section of the log.
+- Added `glamax`, `vlamax` and `device_glamax`, the maximum absolute value of
+  a vector, with kernels for CUDA, HIP, OpenCL and Metal. Unlike an `any()`
+  over a host array it is an exact, reduced test for "are all entries zero"
+  that never touches the host copy.
+- Updated interfaces for scratch host and device arrays. Now the canonical types
+  are used when requesting scratch arrays of these types. `c_ptr` and
+  `real(kind=rp), pointer` should be used rather than the wrappers
+  `host_array_t` and `device_array_t`.
+- Removed false sharing in the CPU GMRES Gram-Schmidt step: per-thread
+  partial sums now live in a private array and are published once per
+  thread.
+- The default `--enable-blk_size` now depends on the working precision:
+  2048 for `dp`, 4096 for `sp`/`ssp`, 1024 for `qp` (previously 1024).
+- Added the possibility to request a scratch field pointing to a specific
+  dofmap. This essentially unlock the scratch registry to be used for any field.
+  Existing interface remain unchanged, a field requested without specifying a
+  dofmap will be allocated on the default dofmap.
 - Reworked when outputs are written: the times are now a schedule fixed by
   the case rather than derived from how many writes have been performed so
   far. The entries below are what that fixes.
@@ -54,7 +118,6 @@
 - Made the `user_stats` integration test compare its average of a random
   field against a two-sided tolerance that covers the sampling noise; the
   one-sided `1e-4` passed or failed roughly at random.
-
 - The CPU vector and full stress Helmholtz operators apply the mass term
   `h2 * B * u` inside their element kernels rather than in a separate pass
   over the whole field afterwards, so an `lx = 8` double precision velocity
