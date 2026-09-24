@@ -194,6 +194,7 @@ neko_fortran_SOURCES = \
 	global_interpolation/aabb_pe_finder.f90\
 	global_interpolation/aabb_el_finder.f90\
 	global_interpolation/cartesian_el_finder.f90\
+	global_interpolation/bcknd/device/device_cartesian_el_finder.F90\
 	global_interpolation/cartesian_pe_finder.f90\
 	global_interpolation/el_finder.f90\
 	global_interpolation/pe_finder.f90\
@@ -657,6 +658,7 @@ libneko_la_SOURCES += \
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu\
 	sem/bcknd/device/cuda/local_interpolation.cu\
+	global_interpolation/bcknd/device/cuda/cartesian_el_finder.cu\
 	filter/bcknd/device/cuda/mappings.cu\
 	lpt/bcknd/device/cuda/lpt_periodic_bc.cu\
 	lpt/bcknd/device/cuda/lpt_wall_collision.cu\
@@ -1097,6 +1099,7 @@ endif
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
     ale/bcknd/device/cuda/ale_kinematics_kernel.h\
+	global_interpolation/bcknd/device/cuda/cartesian_el_finder.h\
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
 	bc/bcknd/device/cuda/zero_dirichlet_kernel.h\
@@ -1384,6 +1387,12 @@ include_HEADERS = api/neko.h
 
 # Fortran deps. (updated with makedepf90 via target 'depend')
 include	.depends
+
+global_interpolation/cartesian_el_finder.lo: \
+	global_interpolation/bcknd/device/device_cartesian_el_finder.lo
+
+global_interpolation/bcknd/device/cuda/cartesian_el_finder.lo: \
+	global_interpolation/bcknd/device/cuda/cartesian_el_finder.h
 
 # Device deps. (manually updated)
 include .depends_device
