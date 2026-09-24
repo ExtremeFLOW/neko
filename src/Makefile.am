@@ -585,6 +585,7 @@ libneko_la_SOURCES += \
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip\
 	sem/bcknd/device/hip/local_interpolation.hip\
+	global_interpolation/bcknd/device/hip/cartesian_el_finder.hip\
 	filter/bcknd/device/hip/mappings.hip\
 	lpt/bcknd/device/hip/lpt_periodic_bc.hip\
 	lpt/bcknd/device/hip/lpt_wall_collision.hip\
@@ -1163,6 +1164,7 @@ EXTRA_DIST = \
 	wall_models/bcknd/device/cuda/most_kernel.h\
 	wall_models/bcknd/device/cuda/richardson_kernel.h\
 	viscous_regularization/avm/bcknd/device/cuda/entropy_viscosity_kernel.h\
+	global_interpolation/bcknd/device/hip/cartesian_el_finder.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/zero_dirichlet_kernel.h\
@@ -1393,6 +1395,9 @@ global_interpolation/cartesian_el_finder.lo: \
 
 global_interpolation/bcknd/device/cuda/cartesian_el_finder.lo: \
 	global_interpolation/bcknd/device/cuda/cartesian_el_finder.h
+
+global_interpolation/bcknd/device/hip/cartesian_el_finder.lo: \
+	global_interpolation/bcknd/device/hip/cartesian_el_finder.h
 
 # Device deps. (manually updated)
 include .depends_device
