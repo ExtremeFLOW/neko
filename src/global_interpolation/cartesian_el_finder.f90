@@ -66,7 +66,7 @@ module cartesian_el_finder
      integer, allocatable :: el_map_offset(:)
      integer, allocatable :: el_map_data(:)
      type(c_ptr) :: el_map_offset_d = C_NULL_PTR
-     type(c_ptr) :: el_map_data_d   = C_NULL_PTR
+     type(c_ptr) :: el_map_data_d = C_NULL_PTR
    contains
      procedure, pass(this) :: init => cartesian_el_finder_init
      procedure, pass(this) :: free => cartesian_el_finder_free
@@ -249,7 +249,7 @@ contains
        this%el_map_offset(1) = 0
        do i = 1, this%n_boxes**3
           this%el_map_offset(i+1) = this%el_map_offset(i) + &
-                                    this%el_map(i)%size()
+               this%el_map(i)%size()
        end do
        n_entries = this%el_map_offset(this%n_boxes**3 + 1)
        allocate(this%el_map_data(n_entries))
@@ -262,12 +262,12 @@ contains
           end do
        end do
        call device_map(this%el_map_offset, this%el_map_offset_d, &
-                       this%n_boxes**3 + 1)
+            this%n_boxes**3 + 1)
        call device_map(this%el_map_data, this%el_map_data_d, n_entries)
        call device_memcpy(this%el_map_offset, this%el_map_offset_d, &
-                          this%n_boxes**3 + 1, HOST_TO_DEVICE, .true.)
+            this%n_boxes**3 + 1, HOST_TO_DEVICE, .true.)
        call device_memcpy(this%el_map_data, this%el_map_data_d, &
-                          n_entries, HOST_TO_DEVICE, .true.)
+            n_entries, HOST_TO_DEVICE, .true.)
     end if
     call marked_box%free()
     !print *, "Time for cartesian_el_finder_init: ", MPI_Wtime() - time_start
