@@ -33,10 +33,11 @@
 !> Contains the `scalar_pnpn_t` type.
 
 module scalar_pnpn
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
        rhs_maker_ext_fctry, rhs_maker_bdf_fctry, rhs_maker_oifs_fctry
   use scalar_scheme, only : scalar_scheme_t
+  use checkpoint_payload, only : checkpoint_payload_t
   use checkpoint, only : chkp_t
   use field, only : field_t
   use scalar_bc_projector, only : scalar_bc_projector_t
@@ -237,6 +238,7 @@ contains
     class(bc_t), pointer :: bc_i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     logical :: advection
+    real(kind=dp), pointer :: tlag(:), dtlag(:)
 
     call this%free()
 
@@ -310,21 +312,24 @@ contains
     this%vlag => vlag
     this%wlag => wlag
 
+    call chkp%get_time_history(tlag, dtlag)
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
-         ulag, vlag, wlag, this%chkp%dtlag, &
-         this%chkp%tlag, time_scheme, .not. advection, &
+         ulag, vlag, wlag, dtlag, &
+         tlag, time_scheme, .not. advection, &
          this%slag)
   end subroutine scalar_pnpn_init
 
   !> Register this scalar scheme with the checkpoint.
-  subroutine scalar_pnpn_register_checkpoint(this, chkp, index, n_scalars)
+  subroutine scalar_pnpn_register_checkpoint(this, chkp)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
-    integer, intent(in) :: index
-    integer, intent(in) :: n_scalars
+    type(checkpoint_payload_t), pointer :: payload
 
-    call chkp%add_scalar(this%s, this%slag, this%abx1, this%abx2, &
-         index = index, n_scalars = n_scalars)
+    payload => chkp%add_payload("scalars/" // trim(this%name))
+    call payload%add_field(this%s)
+    call payload%add_series(this%slag)
+    call payload%add_field(this%abx1)
+    call payload%add_field(this%abx2)
 
   end subroutine scalar_pnpn_register_checkpoint
 
@@ -332,20 +337,29 @@ contains
   subroutine scalar_pnpn_restart(this, chkp)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
-    real(kind=rp) :: dtlag(10), tlag(10)
     integer :: i, n
-    type(field_t), pointer :: temp_field
     class(bc_t), pointer :: bc_i
-    dtlag = chkp%dtlag
-    tlag = chkp%tlag
+    logical :: interpolated
 
     n = this%s%dof%size()
 
     ! Lag fields are restored through the checkpoint's fsp mechanism
 
-    call col2(this%s%x, this%c_Xh%mult, n)
-    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
-    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
+    ! The restored fields are continuous unless the checkpoint was written
+    ! on another mesh or at another polynomial order and was interpolated
+    ! on the way in. Only then do the copies of a node shared between
+    ! elements need averaging: scale by the inverse multiplicity, then sum
+    ! the copies with a gather-scatter. On a plain restart that is the
+    ! identity in exact arithmetic but not in floating point, and would put
+    ! about one ulp of error on every shared node. Same guard as the fluid.
+    interpolated = allocated(chkp%previous_mesh%elements) .or. &
+         chkp%previous_Xh%lx .ne. this%Xh%lx
+
+    if (interpolated) then
+       call col2(this%s%x, this%c_Xh%mult, n)
+       call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
+       call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
+    end if
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
             n, HOST_TO_DEVICE, sync = .false.)
@@ -361,9 +375,11 @@ contains
             n, HOST_TO_DEVICE, sync = .false.)
     end if
 
-    call this%gs_Xh%op(this%s, GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
+    if (interpolated) then
+       call this%gs_Xh%op(this%s, GS_OP_ADD)
+       call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
+       call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
+    end if
 
     ! Restore scalar bcs that need it. This is a no op in most bcs.
     do i = 1, this%bcs%size()

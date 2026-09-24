@@ -459,6 +459,8 @@ AC_CONFIG_FILES([Makefile\
 
 # Config tests/unit
 AC_CONFIG_FILES([tests/unit/stack/Makefile\
+        tests/unit/restart_consistency/Makefile\
+        tests/unit/restart_consistency_hdf5/Makefile\
         tests/unit/tuple/Makefile\
         tests/unit/point/Makefile\
         tests/unit/htable/Makefile\
@@ -506,6 +508,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/templates/parallel/Makefile\
         tests/unit/bc_projector/Makefile\
         tests/unit/boundary_operation/Makefile\
+        tests/unit/checkpoint_payload/Makefile\
         tests/unit/wall_sampling/Makefile\
         tests/unit/templates/serial/Makefile])
 

@@ -30,11 +30,13 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> HDF5 file format
+!> HDF5 file format.
 module hdf5_file
-  use num_types, only : rp, dp, sp
+  use num_types, only : rp, dp, sp, i8
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
+  use checkpoint_payload, only : checkpoint_payload_t, checkpoint_array_t, &
+       checkpoint_mesh_array_t
   use utils, only : neko_error, neko_warning, filename_suffix_pos, &
        filename_split
   use mesh, only : mesh_t
@@ -42,18 +44,19 @@ module hdf5_file
   use field_list, only : field_list_t
   use field_series, only : field_series_t, field_series_ptr_t
   use dofmap, only : dofmap_t
+  use space, only : neko_space_t => space_t, GLL
+  use interpolation, only : interpolator_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use vector, only : vector_t
   use matrix, only : matrix_t
   use datadist, only : linear_dist_t
-  use space, only : GLL
-  use interpolation, only : interpolator_t
   use global_interpolation, only : global_interpolation_t
   use math, only : rzero
-  use comm, only : pe_rank, pe_size, NEKO_COMM
+  use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
        MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
-       MPI_Barrier, MPI_INTEGER8, MPI_Scan
+       MPI_Barrier, MPI_INTEGER8, MPI_Scan, MPI_Bcast, &
+       MPI_DOUBLE_PRECISION
   use hdf5_session, only : hdf5_session_init, hdf5_session_finalize
 #ifdef HAVE_HDF5
   use hdf5
@@ -77,7 +80,9 @@ module hdf5_file
 
    contains
      ! General methods for reading/writing HDF5 files
+     !> Read data in HDF5 format.
      procedure :: read => hdf5_file_read
+     !> Write data in HDF5 format.
      procedure :: write => hdf5_file_write
      procedure :: get_next_output_fname => hdf5_file_get_next_output_fname
      procedure :: set_overwrite => hdf5_file_set_overwrite
@@ -101,6 +106,27 @@ module hdf5_file
      procedure :: write_attribute => hdf5_file_write_attribute
      procedure :: read_attribute => hdf5_file_read_attribute
   end type hdf5_file_t
+
+  !> Where the data in a checkpoint file sits and how it maps onto the
+  !! running case. Built once per read and shared by every dataset in the
+  !! file, so a mesh-to-mesh point search happens once rather than per field.
+  type :: hdf5_checkpoint_layout_t
+     !> Mesh whose element ordering and offsets the file is laid out in:
+     !! the running case's mesh unless `case.restart_mesh_file` named the
+     !! mesh the checkpoint was written on.
+     type(mesh_t), pointer :: msh => null()
+     !> Function space the file was written in.
+     type(neko_space_t) :: Xh
+     !> Whether `msh` is a different mesh from the running case's.
+     logical :: mesh2mesh = .false.
+     !> Dofmap of the file's discretisation, needed for the point search.
+     type(dofmap_t) :: src_dof
+     !> Evaluates data given on `msh` at the running case's nodes.
+     type(global_interpolation_t) :: global_interp
+   contains
+     !> Release the interpolation state and the function space.
+     procedure, pass(this) :: free => hdf5_checkpoint_layout_free
+  end type hdf5_checkpoint_layout_t
 
 contains
 
@@ -162,6 +188,21 @@ contains
     this%precision = precision
   end subroutine hdf5_file_set_precision
 
+  !> Release the interpolation state and the function space of a layout.
+  !! The mesh is only referenced; it belongs to the case or the checkpoint.
+  subroutine hdf5_checkpoint_layout_free(this)
+    class(hdf5_checkpoint_layout_t), intent(inout) :: this
+
+    if (this%mesh2mesh) then
+       call this%global_interp%free()
+       call this%src_dof%free()
+    end if
+    call this%Xh%free()
+    nullify(this%msh)
+    this%mesh2mesh = .false.
+
+  end subroutine hdf5_checkpoint_layout_free
+
 
 #ifdef HAVE_HDF5
 
@@ -169,7 +210,9 @@ contains
   ! General methods
   ! ===============
 
-  !> Write data in HDF5 format
+  !> Write data in HDF5 format.
+  !! @param data Data object to write.
+  !! @param[optional] t Simulation time.
   subroutine hdf5_file_write(this, data, t)
     class(hdf5_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
@@ -181,15 +224,22 @@ contains
     real(kind=dp), pointer :: dtlag(:)
     real(kind=dp), pointer :: tlag(:)
     integer :: ierr, info, drank, i, j
-    integer(hid_t) :: plist_id, file_id, dset_id, grp_id, attr_id
-    integer(hid_t) :: filespace, memspace, dspace_id, fapl_id
+    integer(hid_t) :: plist_id, fapl_id
+    integer(hid_t) :: file_id, dset_id, grp_id, attr_id
+    integer(hid_t) :: filespace, dspace_id, memspace
     integer(hid_t) :: H5T_NEKO_REAL
     integer(hsize_t), dimension(1) :: ddim, dcount, doffset
     integer :: suffix_pos
     character(len=5) :: id_str
     character(len=1024) :: fname
+    logical :: checkpoint_data
 
     call hdf5_file_determine_data(data, msh, dof, fp, fsp, dtlag, tlag)
+    checkpoint_data = .false.
+    select type (data)
+    type is (chkp_t)
+       checkpoint_data = .true.
+    end select
 
     if (.not. this%overwrite) call this%increment_counter()
     fname = trim(this%get_fname())
@@ -298,7 +348,15 @@ contains
     !
     ! Write fields group
     !
-    if (allocated(fp) .or. allocated(fsp)) then
+    if (checkpoint_data) then
+       select type (data)
+       type is (chkp_t)
+          call hdf5_checkpoint_write_payloads( &
+               file_id, plist_id, H5T_NEKO_REAL, data)
+       end select
+       if (allocated(fp)) deallocate(fp)
+       if (allocated(fsp)) deallocate(fsp)
+    else if (allocated(fp) .or. allocated(fsp)) then
        call h5gcreate_f(file_id, "Fields", grp_id, ierr, &
             lcpl_id = h5p_default_f, gcpl_id = h5p_default_f, &
             gapl_id = h5p_default_f)
@@ -363,38 +421,30 @@ contains
 
   end subroutine hdf5_file_write
 
-  !> Read data in HDF5 format
+  !> Read data in HDF5 format.
+  !! @param data Data object to populate.
   subroutine hdf5_file_read(this, data)
     class(hdf5_file_t) :: this
     class(*), target, intent(inout) :: data
-    integer(hid_t) :: plist_id, file_id, dset_id, grp_id, attr_id
-    integer(hid_t) :: filespace, memspace, fapl_id
+    integer(hid_t) :: plist_id, fapl_id
+    integer(hid_t) :: file_id, dset_id, grp_id, attr_id
+    integer(hid_t) :: filespace, memspace
     integer(hid_t) :: H5T_NEKO_REAL
     integer(hsize_t), dimension(1) :: ddim, dcount, doffset
     integer :: i,j, ierr, info, glb_nelv, gdim, lx, drank
-    ! Not LOG_SIZE: that is 79 characters, which these messages overflow,
-    ! and an overflowing internal write is a runtime error rather than a
-    ! truncation -- the guard below would abort with `End of record`
-    ! instead of saying what was actually wrong.
-    character(len=256) :: err_msg
-    ! Interpolation state, mirroring chkp_file's. `src_*` describe the
-    ! discretisation the checkpoint was written on, which is only the
-    ! running case's when no interpolation is called for.
-    type(interpolator_t) :: space_interp
-    type(global_interpolation_t) :: global_interp
-    type(dofmap_t) :: src_dof
-    type(mesh_t), pointer :: src_msh
-    real(kind=rp), allocatable :: read_buf(:)
-    logical :: mesh2mesh, interp_space
-    integer :: nel_src, lxyz_src, n_src
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
     type(field_ptr_t), allocatable :: fp(:)
     type(field_series_ptr_t), allocatable :: fsp(:)
+    type(hdf5_checkpoint_layout_t), target :: layout
     real(kind=dp), pointer :: dtlag(:)
     real(kind=dp), pointer :: tlag(:)
     real(kind=dp) :: t
     character(len=1024) :: fname
+    ! Not LOG_SIZE: these messages are longer than 79 characters, and an
+    ! overflowing internal write is a runtime error, not a truncation.
+    character(len=256) :: err_msg
+    logical :: payloads_exist
 
     fname = trim(this%get_fname())
 
@@ -412,6 +462,8 @@ contains
     call h5fopen_f(fname, H5F_ACC_RDONLY_F, &
          file_id, ierr, access_prp = fapl_id)
     call h5pclose_f(fapl_id, ierr)
+
+    call h5lexists_f(file_id, 'Payloads', payloads_exist, ierr)
 
     call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, ierr)
     call h5pset_dxpl_mpio_f(plist_id, H5FD_MPIO_COLLECTIVE_F, ierr)
@@ -441,82 +493,54 @@ contains
     call h5aclose_f(attr_id, ierr)
     call h5gclose_f(grp_id, ierr)
 
-    !
-    ! Work out what discretisation the checkpoint was written on, and set
-    ! up interpolation into the running case's if it differs. This mirrors
-    ! chkp_file: the header carries the polynomial order, element count and
-    ! dimension precisely so a restart can adapt to them rather than assume
-    ! they match.
-    !
-    ! Defaults describe "same discretisation, read straight in", which is
-    ! also what the non-checkpoint data types want.
-    !
-    mesh2mesh = .false.
-    interp_space = .false.
-    lxyz_src = 0
-    nullify(src_msh)
+    ! A mesh supplied through `case.restart_mesh_file` is the one the
+    ! checkpoint was written on, and the file's layout follows it.
+    layout%msh => msh
+    layout%mesh2mesh = .false.
+    select type (data)
+    type is (chkp_t)
+       if (allocated(data%previous_mesh%elements)) then
+          layout%msh => data%previous_mesh
+          layout%mesh2mesh = .true.
+       end if
+    end select
+
+    if (gdim .ne. layout%msh%gdim) then
+       write(err_msg, '(A,I0,A,I0,A)') 'HDF5 checkpoint is for a ', gdim, &
+            'D mesh but this case is ', layout%msh%gdim, 'D'
+       call neko_error(trim(err_msg))
+    end if
+
+    if (glb_nelv .ne. layout%msh%glb_nelv) then
+       write(err_msg, '(A,I0,A,I0,A)') 'HDF5 checkpoint has ', glb_nelv, &
+            ' elements but the mesh it is read on has ', &
+            layout%msh%glb_nelv, '; set case.restart_mesh_file to the ' // &
+            'mesh the checkpoint was written on'
+       call neko_error(trim(err_msg))
+    end if
+
+    if (gdim .eq. 3) then
+       call layout%Xh%init(GLL, lx, lx, lx)
+    else
+       call layout%Xh%init(GLL, lx, lx)
+    end if
 
     select type (data)
     type is (chkp_t)
-       ! A mesh supplied through `case.restart_mesh_file` means the
-       ! checkpoint belongs to a different mesh, and its own mesh is the
-       ! one the file's layout is expressed in.
-       if (allocated(data%previous_mesh%elements)) then
-          src_msh => data%previous_mesh
-          mesh2mesh = .true.
-       else
-          src_msh => msh
-       end if
-
-       if (gdim .ne. src_msh%gdim) then
-          write(err_msg, '(A,I0,A,I0,A)') &
-               'HDF5 checkpoint is for a ', gdim, &
-               'D mesh but this case is ', src_msh%gdim, 'D'
-          call neko_error(trim(err_msg))
-       end if
-
-       if (glb_nelv .ne. src_msh%glb_nelv) then
-          write(err_msg, '(A,I0,A,I0,A)') &
-               'HDF5 checkpoint has ', glb_nelv, &
-               ' elements but this case has ', src_msh%glb_nelv, &
-               '; supply case.restart_mesh_file to interpolate from ' // &
-               'another mesh'
-          call neko_error(trim(err_msg))
-       end if
-
-       ! Record the order the checkpoint was written at. Beyond driving the
-       ! interpolation below, `fluid_scheme%restart` and `ale_manager`
-       ! compare `previous_Xh%lx` against the running case to decide
-       ! whether the restored fields need their continuity fix-up; leaving
-       ! it uninitialised made that comparison spuriously true even when
-       ! the orders matched, so every HDF5 restart ran a fix-up it did not
-       ! need -- the identity in exact arithmetic, but about one ulp on
-       ! every shared degree of freedom in practice.
        if (gdim .eq. 3) then
           call data%previous_Xh%init(GLL, lx, lx, lx)
        else
           call data%previous_Xh%init(GLL, lx, lx)
        end if
-       lxyz_src = data%previous_Xh%lxyz
 
-       if (mesh2mesh) then
-          call src_dof%init(src_msh, data%previous_Xh)
-          call global_interp%init(src_dof, NEKO_COMM, &
+       if (layout%mesh2mesh) then
+          call layout%src_dof%init(layout%msh, layout%Xh)
+          call layout%global_interp%init(layout%src_dof, NEKO_COMM, &
                tol = data%mesh2mesh_tol)
-          call global_interp%find_points(dof%x%x, dof%y%x, dof%z%x, dof%size())
-       else if (data%previous_Xh%lx .ne. dof%Xh%lx) then
-          call space_interp%init(dof%Xh, data%previous_Xh)
-          interp_space = .true.
+          call layout%global_interp%find_points(dof%x%x, dof%y%x, dof%z%x, &
+               dof%size())
        end if
     end select
-
-    ! Sizes of the data as it sits in the file, which is the running case's
-    ! layout unless one of the branches above said otherwise.
-    if (.not. associated(src_msh)) src_msh => msh
-    if (lxyz_src .eq. 0) lxyz_src = dof%Xh%lxyz
-    nel_src = src_msh%nelv
-    n_src = lxyz_src * nel_src
-
 
     if (associated(tlag) .and. associated(dtlag)) then
        drank = 1
@@ -551,63 +575,603 @@ contains
        call h5gclose_f(grp_id, ierr)
     end if
 
-    if (allocated(fp) .or. allocated(fsp)) then
+    if (payloads_exist) then
+       select type (data)
+       type is (chkp_t)
+          call hdf5_checkpoint_read_payloads( &
+               file_id, plist_id, H5T_NEKO_REAL, data, layout)
+       class default
+          call neko_error( &
+               "HDF5 payload checkpoints require a checkpoint object")
+       end select
+       if (allocated(fp)) deallocate(fp)
+       if (allocated(fsp)) deallocate(fsp)
+    else if (allocated(fp) .or. allocated(fsp)) then
        call h5gopen_f(file_id, 'Fields', grp_id, ierr, gapl_id = h5p_default_f)
-
-       ! Hyperslabs are sized and offset by the checkpoint's own layout,
-       ! not the running case's, so that a file written at a different
-       ! polynomial order or on a different mesh is still read whole.
-       ! `lxyz` rather than `lx**3`: they agree in 3D, but a 2D case has
-       ! `lz = 1` and `lx**3` would read three-dimensionally past its data.
-       drank = 1
-       dcount(1) = int(n_src, 8)
-       doffset(1) = int(src_msh%offset_el, 8) * int(lxyz_src, 8)
-       ddim(1) = int(lxyz_src, 8) * int(src_msh%glb_nelv, 8)
-
-       call h5screate_simple_f(drank, dcount, memspace, ierr)
-
-       allocate(read_buf(n_src))
 
        if (allocated(fp)) then
           do i = 1, size(fp)
-             call hdf5_read_field(grp_id, fp(i)%ptr%name, read_buf, &
-                  fp(i)%ptr%x, H5T_NEKO_REAL, ddim, dcount, doffset, &
-                  memspace, plist_id, nel_src, mesh2mesh, interp_space, &
-                  space_interp, global_interp, dof)
+             call hdf5_checkpoint_read_field(grp_id, plist_id, &
+                  H5T_NEKO_REAL, fp(i)%ptr, layout)
           end do
        end if
 
        if (allocated(fsp)) then
           do i = 1, size(fsp)
              do j = 1, fsp(i)%ptr%size()
-                call hdf5_read_field(grp_id, fsp(i)%ptr%lf(j)%name, &
-                     read_buf, fsp(i)%ptr%lf(j)%x, H5T_NEKO_REAL, ddim, &
-                     dcount, doffset, memspace, plist_id, nel_src, &
-                     mesh2mesh, interp_space, space_interp, global_interp, &
-                     dof)
+                call hdf5_checkpoint_read_field(grp_id, plist_id, &
+                     H5T_NEKO_REAL, fsp(i)%ptr%lf(j), layout)
              end do
           end do
        end if
-
-       deallocate(read_buf)
-       call h5sclose_f(memspace, ierr)
        call h5gclose_f(grp_id, ierr)
-    end if
-
-    if (mesh2mesh) then
-       call global_interp%free()
-       call src_dof%free()
-    else if (interp_space) then
-       call space_interp%free()
     end if
 
     call h5pclose_f(plist_id, ierr)
     call h5fclose_f(file_id, ierr)
+
+    call layout%free()
+
     call hdf5_session_finalize()
 
   end subroutine hdf5_file_read
 
+  !> Write the format-independent checkpoint payload hierarchy.
+  !! @param file_id Open HDF5 checkpoint file.
+  !! @param plist_id Collective dataset transfer property list.
+  !! @param h5_neko_real HDF5 datatype corresponding to `rp`.
+  !! @param chkp Registered checkpoint payloads to write.
+  subroutine hdf5_checkpoint_write_payloads(file_id, plist_id, &
+       h5_neko_real, chkp)
+    integer(hid_t), intent(in) :: file_id, plist_id, h5_neko_real
+    type(chkp_t), intent(in) :: chkp
+    integer(hid_t) :: payloads_id, payload_id
+    integer :: i, j, k, ierr
 
+    call h5gcreate_f(file_id, "Payloads", payloads_id, ierr)
+
+    do i = 1, chkp%payload_count()
+       call hdf5_checkpoint_open_group(payloads_id, &
+            chkp%payloads(i)%ptr%name, .true., payload_id)
+
+       do j = 1, chkp%payloads(i)%ptr%field_count()
+          call hdf5_checkpoint_write_field(payload_id, plist_id, &
+               h5_neko_real, chkp%payloads(i)%ptr%fields(j)%ptr)
+       end do
+
+       do j = 1, chkp%payloads(i)%ptr%series_count()
+          do k = 1, chkp%payloads(i)%ptr%series(j)%ptr%size()
+             call hdf5_checkpoint_write_field(payload_id, plist_id, &
+                  h5_neko_real, &
+                  chkp%payloads(i)%ptr%series(j)%ptr%lf(k))
+          end do
+       end do
+
+       do j = 1, chkp%payloads(i)%ptr%mesh_array_count()
+          call hdf5_checkpoint_write_mesh_array(payload_id, plist_id, &
+               h5_neko_real, chkp%payloads(i)%ptr%mesh_arrays(j)%ptr)
+       end do
+
+       do j = 1, chkp%payloads(i)%ptr%array_count()
+          call hdf5_checkpoint_write_array(payload_id, plist_id, &
+               h5_neko_real, chkp%payloads(i)%ptr%arrays(j)%ptr)
+       end do
+
+       call h5gclose_f(payload_id, ierr)
+    end do
+
+    call h5gclose_f(payloads_id, ierr)
+
+  end subroutine hdf5_checkpoint_write_payloads
+
+  !> Read the format-independent checkpoint payload hierarchy.
+  !! @param file_id Open HDF5 checkpoint file.
+  !! @param plist_id Collective dataset transfer property list.
+  !! @param h5_neko_real HDF5 datatype corresponding to `rp`.
+  !! @param chkp Registered checkpoint payloads to populate.
+  !! @param layout Layout of the file and its mapping onto the running case.
+  subroutine hdf5_checkpoint_read_payloads(file_id, plist_id, &
+       h5_neko_real, chkp, layout)
+    integer(hid_t), intent(in) :: file_id, plist_id, h5_neko_real
+    type(chkp_t), intent(inout) :: chkp
+    type(hdf5_checkpoint_layout_t), target, intent(inout) :: layout
+    integer(hid_t) :: payloads_id, payload_id
+    integer :: i, j, k, ierr
+
+    call h5gopen_f(file_id, "Payloads", payloads_id, ierr)
+
+    do i = 1, chkp%payload_count()
+       call hdf5_checkpoint_open_group(payloads_id, &
+            chkp%payloads(i)%ptr%name, .false., payload_id)
+
+       do j = 1, chkp%payloads(i)%ptr%field_count()
+          call hdf5_checkpoint_read_field(payload_id, plist_id, &
+               h5_neko_real, chkp%payloads(i)%ptr%fields(j)%ptr, &
+               layout)
+       end do
+
+       do j = 1, chkp%payloads(i)%ptr%series_count()
+          do k = 1, chkp%payloads(i)%ptr%series(j)%ptr%size()
+             call hdf5_checkpoint_read_field(payload_id, plist_id, &
+                  h5_neko_real, &
+                  chkp%payloads(i)%ptr%series(j)%ptr%lf(k), layout)
+          end do
+       end do
+
+       do j = 1, chkp%payloads(i)%ptr%mesh_array_count()
+          call hdf5_checkpoint_read_mesh_array(payload_id, plist_id, &
+               h5_neko_real, chkp%payloads(i)%ptr%mesh_arrays(j)%ptr, &
+               layout)
+       end do
+
+       do j = 1, chkp%payloads(i)%ptr%array_count()
+          call hdf5_checkpoint_read_array(payload_id, plist_id, &
+               h5_neko_real, chkp%payloads(i)%ptr%arrays(j)%ptr)
+       end do
+
+       call h5gclose_f(payload_id, ierr)
+    end do
+
+    call h5gclose_f(payloads_id, ierr)
+
+  end subroutine hdf5_checkpoint_read_payloads
+
+  !> Open a nested group path, optionally creating missing groups.
+  !! @param root_id HDF5 group from which the path is resolved.
+  !! @param path Slash-separated relative group path.
+  !! @param create Whether missing groups should be created.
+  !! @param group_id Open HDF5 group at `path`.
+  subroutine hdf5_checkpoint_open_group(root_id, path, create, group_id)
+    integer(hid_t), intent(in) :: root_id
+    character(len=*), intent(in) :: path
+    logical, intent(in) :: create
+    integer(hid_t), intent(out) :: group_id
+    integer(hid_t) :: current_id, next_id
+    integer :: first, last, slash, path_len, ierr
+    logical :: group_exists
+    character(len=:), allocatable :: group_name
+
+    current_id = root_id
+    first = 1
+    path_len = len_trim(path)
+
+    do
+       slash = index(path(first:path_len), "/")
+       if (slash .eq. 0) then
+          last = path_len
+       else
+          last = first + slash - 2
+       end if
+
+       group_name = path(first:last)
+       call h5lexists_f(current_id, group_name, group_exists, ierr)
+       if (group_exists) then
+          call h5gopen_f(current_id, group_name, next_id, ierr)
+       else if (create) then
+          call h5gcreate_f(current_id, group_name, next_id, ierr)
+       else
+          call neko_error("Checkpoint payload group '" // trim(path) // &
+               "' is missing")
+       end if
+
+       if (current_id .ne. root_id) call h5gclose_f(current_id, ierr)
+       current_id = next_id
+
+       if (slash .eq. 0) exit
+       first = last + 2
+    end do
+
+    group_id = current_id
+
+  end subroutine hdf5_checkpoint_open_group
+
+  !> Write one checkpoint field under its native field name.
+  !! @param group_id Open HDF5 payload group.
+  !! @param plist_id Collective dataset transfer property list.
+  !! @param h5_neko_real HDF5 datatype corresponding to `rp`.
+  !! @param fld Field to write.
+  subroutine hdf5_checkpoint_write_field(group_id, plist_id, &
+       h5_neko_real, fld)
+    integer(hid_t), intent(in) :: group_id, plist_id, h5_neko_real
+    type(field_t), intent(in) :: fld
+    integer(hid_t) :: dset_id, filespace, memspace
+    integer(hsize_t), dimension(1) :: ddim, dcount, doffset
+    integer :: ierr
+
+    dcount(1) = int(fld%dof%size(), 8)
+    doffset(1) = int(fld%msh%offset_el, 8) * int(fld%Xh%lxyz, 8)
+    ddim = dcount
+    call MPI_Allreduce(MPI_IN_PLACE, ddim(1), 1, &
+         MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
+
+    call h5screate_simple_f(1, ddim, filespace, ierr)
+    call h5screate_simple_f(1, dcount, memspace, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+         doffset, dcount, ierr)
+    call h5dcreate_f(group_id, trim(fld%name), h5_neko_real, &
+         filespace, dset_id, ierr)
+    call h5dwrite_f(dset_id, h5_neko_real, fld%x(1,1,1,1), &
+         dcount, ierr, file_space_id = filespace, mem_space_id = memspace, &
+         xfer_prp = plist_id)
+
+    call h5dclose_f(dset_id, ierr)
+    call h5sclose_f(filespace, ierr)
+    call h5sclose_f(memspace, ierr)
+
+  end subroutine hdf5_checkpoint_write_field
+
+  !> Read one checkpoint field by its native field name.
+  !! @param group_id Open HDF5 payload group.
+  !! @param plist_id Collective dataset transfer property list.
+  !! @param h5_neko_real HDF5 datatype corresponding to `rp`.
+  !! @param fld Field to populate.
+  !! @param layout Layout of the file and its mapping onto the running case.
+  subroutine hdf5_checkpoint_read_field(group_id, plist_id, &
+       h5_neko_real, fld, layout)
+    integer(hid_t), intent(in) :: group_id, plist_id, h5_neko_real
+    type(field_t), intent(inout) :: fld
+    type(hdf5_checkpoint_layout_t), target, intent(inout) :: layout
+    integer(hid_t) :: dset_id, filespace, memspace
+    integer(hsize_t), dimension(1) :: dcount, doffset
+    real(kind=rp), allocatable :: checkpoint_data(:)
+    type(interpolator_t) :: space_interp
+    integer :: ierr
+    logical :: dataset_exists
+
+    call h5lexists_f(group_id, trim(fld%name), dataset_exists, ierr)
+    if (.not. dataset_exists) then
+       call neko_error("Checkpoint field '" // trim(fld%name) // &
+            "' is missing")
+    end if
+
+    call h5dopen_f(group_id, trim(fld%name), dset_id, ierr)
+    call h5dget_space_f(dset_id, filespace, ierr)
+
+    ! The hyperslab follows the file's own layout, which coincides with
+    ! the running case's only when neither the mesh nor the order changed.
+    dcount(1) = int(layout%msh%nelv, hsize_t) * int(layout%Xh%lxyz, hsize_t)
+    doffset(1) = int(layout%msh%offset_el, hsize_t) * &
+         int(layout%Xh%lxyz, hsize_t)
+    call h5screate_simple_f(1, dcount, memspace, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+         doffset, dcount, ierr)
+
+    if (layout%mesh2mesh) then
+       allocate(checkpoint_data(int(dcount(1))))
+       call h5dread_f(dset_id, h5_neko_real, checkpoint_data, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+       call rzero(fld%x, fld%dof%size())
+       call layout%global_interp%evaluate(fld%x, checkpoint_data, .true.)
+       deallocate(checkpoint_data)
+    else if (layout%Xh%lxyz .ne. fld%Xh%lxyz) then
+       allocate(checkpoint_data(int(dcount(1))))
+       call h5dread_f(dset_id, h5_neko_real, checkpoint_data, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+       call space_interp%init(fld%Xh, layout%Xh)
+       call space_interp%map_host(fld%x, checkpoint_data, fld%msh%nelv, &
+            fld%Xh)
+       call space_interp%free()
+       deallocate(checkpoint_data)
+    else
+       call h5dread_f(dset_id, h5_neko_real, fld%x(1,1,1,1), &
+            dcount, ierr, file_space_id = filespace, &
+            mem_space_id = memspace, xfer_prp = plist_id)
+    end if
+
+    call h5dclose_f(dset_id, ierr)
+    call h5sclose_f(filespace, ierr)
+    call h5sclose_f(memspace, ierr)
+
+  end subroutine hdf5_checkpoint_read_field
+
+  !> Write one nodal mesh array using its mesh distribution.
+  !! @param group_id Open HDF5 payload group.
+  !! @param plist_id Collective dataset transfer property list.
+  !! @param h5_neko_real HDF5 datatype corresponding to `rp`.
+  !! @param array Mesh-array descriptor to write.
+  subroutine hdf5_checkpoint_write_mesh_array(group_id, plist_id, &
+       h5_neko_real, array)
+    integer(hid_t), intent(in) :: group_id, plist_id, h5_neko_real
+    type(checkpoint_mesh_array_t), intent(in) :: array
+    integer(hid_t) :: dset_id, filespace, memspace, attr_id, attr_space
+    integer(hsize_t), dimension(1) :: ddim, dcount, doffset, attr_dims
+    integer :: nodal_shape(3)
+    integer :: ierr
+
+    dcount(1) = int(size(array%x), hsize_t)
+    doffset(1) = int(array%msh%offset_el, hsize_t) * &
+         int(array%Xh%lxyz, hsize_t)
+    ddim(1) = int(array%msh%glb_nelv, hsize_t) * &
+         int(array%Xh%lxyz, hsize_t)
+
+    call h5screate_simple_f(1, ddim, filespace, ierr)
+    call h5screate_simple_f(1, dcount, memspace, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+         doffset, dcount, ierr)
+    call h5dcreate_f(group_id, trim(array%name), h5_neko_real, &
+         filespace, dset_id, ierr)
+
+    nodal_shape = [array%Xh%lx, array%Xh%ly, array%Xh%lz]
+    attr_dims(1) = size(nodal_shape)
+    call h5screate_simple_f(1, attr_dims, attr_space, ierr)
+    call h5acreate_f(dset_id, "NodalShape", H5T_NATIVE_INTEGER, &
+         attr_space, attr_id, ierr)
+    call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, nodal_shape, &
+         attr_dims, ierr)
+    call h5aclose_f(attr_id, ierr)
+    call h5sclose_f(attr_space, ierr)
+
+    call h5dwrite_f(dset_id, h5_neko_real, array%x, dcount, ierr, &
+         file_space_id = filespace, mem_space_id = memspace, &
+         xfer_prp = plist_id)
+
+    call h5dclose_f(dset_id, ierr)
+    call h5sclose_f(filespace, ierr)
+    call h5sclose_f(memspace, ierr)
+
+  end subroutine hdf5_checkpoint_write_mesh_array
+
+  !> Read and optionally interpolate one nodal mesh array.
+  !! @param group_id Open HDF5 payload group.
+  !! @param plist_id Collective dataset transfer property list.
+  !! @param h5_neko_real HDF5 datatype corresponding to `rp`.
+  !! @param array Mesh-array descriptor to populate.
+  !! @param layout Layout of the file and its mapping onto the running case.
+  subroutine hdf5_checkpoint_read_mesh_array(group_id, plist_id, &
+       h5_neko_real, array, layout)
+    integer(hid_t), intent(in) :: group_id, plist_id, h5_neko_real
+    type(checkpoint_mesh_array_t), intent(inout) :: array
+    type(hdf5_checkpoint_layout_t), target, intent(inout) :: layout
+    integer(hid_t) :: dset_id, filespace, memspace, attr_id, attr_space
+    integer(hsize_t), dimension(1) :: dcount, doffset
+    integer(hsize_t), dimension(1) :: dataset_dims, dataset_maxdims
+    integer(hsize_t), dimension(1) :: attr_dims, attr_maxdims
+    integer :: stored_shape(3)
+    real(kind=rp), allocatable :: stored_data(:)
+    type(neko_space_t), target :: stored_Xh
+    type(interpolator_t) :: space_interp
+    integer :: ierr
+    logical :: dataset_exists, shape_exists
+
+    ! Mesh arrays hold ALE state (mesh coordinates, lagged mass matrices),
+    ! which has no meaning on a different mesh. Same check and message as
+    ! chkp_file.
+    if (layout%mesh2mesh) then
+       call neko_error('ALE does not yet support mesh2mesh ' // &
+            'interpolation for restart!')
+    end if
+
+    call h5lexists_f(group_id, trim(array%name), dataset_exists, ierr)
+    if (.not. dataset_exists) then
+       call neko_error("Checkpoint mesh array '" // trim(array%name) // &
+            "' is missing")
+    end if
+
+    call h5dopen_f(group_id, trim(array%name), dset_id, ierr)
+    call h5dget_space_f(dset_id, filespace, ierr)
+    call h5sget_simple_extent_dims_f(filespace, dataset_dims, &
+         dataset_maxdims, ierr)
+
+    stored_shape = [layout%Xh%lx, layout%Xh%ly, layout%Xh%lz]
+    call h5aexists_f(dset_id, "NodalShape", shape_exists, ierr)
+    if (shape_exists) then
+       call h5aopen_f(dset_id, "NodalShape", attr_id, ierr)
+    else
+       ! Compatibility with development checkpoints using generic blocks.
+       call h5aexists_f(dset_id, "BlockShape", shape_exists, ierr)
+       if (shape_exists) then
+          call h5aopen_f(dset_id, "BlockShape", attr_id, ierr)
+       end if
+    end if
+    if (shape_exists) then
+       call h5aget_space_f(attr_id, attr_space, ierr)
+       call h5sget_simple_extent_dims_f(attr_space, attr_dims, &
+            attr_maxdims, ierr)
+       if (attr_dims(1) .ne. 3) then
+          call neko_error("Checkpoint mesh-array nodal shape must have " // &
+               "three dimensions")
+       end if
+       call h5aread_f(attr_id, H5T_NATIVE_INTEGER, stored_shape, &
+            attr_dims, ierr)
+       call h5sclose_f(attr_space, ierr)
+       call h5aclose_f(attr_id, ierr)
+    end if
+
+    if (any(stored_shape .le. 0)) then
+       call neko_error("Checkpoint mesh-array nodal shape must be positive")
+    end if
+    if (array%msh%gdim .eq. 3) then
+       call stored_Xh%init(GLL, stored_shape(1), stored_shape(2), &
+            stored_shape(3))
+    else
+       if (stored_shape(3) .ne. 1) then
+          call neko_error("Two-dimensional checkpoint mesh arrays must " // &
+               "have one nodal plane")
+       end if
+       call stored_Xh%init(GLL, stored_shape(1), stored_shape(2))
+    end if
+
+    if (int(dataset_dims(1), i8) .ne. &
+         int(layout%msh%glb_nelv, i8) * int(stored_Xh%lxyz, i8)) then
+       call neko_error("Checkpoint mesh array '" // trim(array%name) // &
+            "' does not match the current mesh")
+    end if
+
+    dcount(1) = int(layout%msh%nelv, hsize_t) * &
+         int(stored_Xh%lxyz, hsize_t)
+    doffset(1) = int(layout%msh%offset_el, hsize_t) * &
+         int(stored_Xh%lxyz, hsize_t)
+    call h5screate_simple_f(1, dcount, memspace, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+         doffset, dcount, ierr)
+
+    if (stored_Xh%lxyz .eq. array%Xh%lxyz) then
+       call h5dread_f(dset_id, h5_neko_real, array%x, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+    else
+       allocate(stored_data(int(dcount(1))))
+       call h5dread_f(dset_id, h5_neko_real, stored_data, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+       call space_interp%init(array%Xh, stored_Xh)
+       call space_interp%map_host(array%x, stored_data, array%msh%nelv, &
+            array%Xh)
+       call space_interp%free()
+       deallocate(stored_data)
+    end if
+
+    call stored_Xh%free()
+    call h5dclose_f(dset_id, ierr)
+    call h5sclose_f(filespace, ierr)
+    call h5sclose_f(memspace, ierr)
+
+  end subroutine hdf5_checkpoint_read_mesh_array
+
+  !> Write one generic real array using its caller-provided distribution.
+  !! @param group_id Open HDF5 payload group.
+  !! @param plist_id Collective dataset transfer property list.
+  !! @param h5_neko_real HDF5 datatype corresponding to `rp`.
+  !! @param array Array descriptor to write.
+  subroutine hdf5_checkpoint_write_array(group_id, plist_id, &
+       h5_neko_real, array)
+    integer(hid_t), intent(in) :: group_id, plist_id, h5_neko_real
+    type(checkpoint_array_t), intent(in) :: array
+    integer(hid_t) :: dset_id, filespace, memspace, h5_type
+    integer(hsize_t), dimension(1) :: ddim, dcount, doffset
+    integer :: ierr
+    logical :: stored_dp
+
+    ! Arrays registered through `add_array_dp` keep double precision in the
+    ! file whatever `rp` is, so that the time history survives a restart into
+    ! a build of the other precision.
+    stored_dp = associated(array%x_dp)
+    if (stored_dp) then
+       h5_type = H5T_NATIVE_DOUBLE
+       dcount(1) = int(size(array%x_dp), hsize_t)
+    else
+       h5_type = h5_neko_real
+       dcount(1) = int(size(array%x), hsize_t)
+    end if
+    ddim(1) = int(array%global_count, hsize_t)
+    doffset(1) = int(array%offset, hsize_t)
+
+    call h5screate_simple_f(1, ddim, filespace, ierr)
+    call h5screate_simple_f(1, dcount, memspace, ierr)
+    call h5dcreate_f(group_id, trim(array%name), h5_type, &
+         filespace, dset_id, ierr)
+
+    if (array%replicated .and. pe_rank .ne. 0) then
+       call h5sselect_none_f(filespace, ierr)
+       call h5sselect_none_f(memspace, ierr)
+    else
+       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+            doffset, dcount, ierr)
+    end if
+
+    if (stored_dp) then
+       call h5dwrite_f(dset_id, h5_type, array%x_dp, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+    else
+       call h5dwrite_f(dset_id, h5_type, array%x, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+    end if
+
+    call h5dclose_f(dset_id, ierr)
+    call h5sclose_f(filespace, ierr)
+    call h5sclose_f(memspace, ierr)
+
+  end subroutine hdf5_checkpoint_write_array
+
+  !> Read one generic real array using its caller-provided distribution.
+  !! @param group_id Open HDF5 payload group.
+  !! @param plist_id Collective dataset transfer property list.
+  !! @param h5_neko_real HDF5 datatype corresponding to `rp`.
+  !! @param array Array descriptor to populate.
+  subroutine hdf5_checkpoint_read_array(group_id, plist_id, &
+       h5_neko_real, array)
+    integer(hid_t), intent(in) :: group_id, plist_id, h5_neko_real
+    type(checkpoint_array_t), intent(inout) :: array
+    integer(hid_t) :: dset_id, filespace, memspace, h5_type
+    integer(hsize_t), dimension(1) :: dcount, doffset
+    integer(hsize_t), dimension(1) :: dataset_dims, dataset_maxdims
+    integer :: ierr
+    logical :: dataset_exists, stored_dp
+
+    call h5lexists_f(group_id, trim(array%name), dataset_exists, ierr)
+    if (.not. dataset_exists) then
+       call neko_error("Checkpoint array '" // trim(array%name) // &
+            "' is missing")
+    end if
+
+    call h5dopen_f(group_id, trim(array%name), dset_id, ierr)
+    call h5dget_space_f(dset_id, filespace, ierr)
+    call h5sget_simple_extent_dims_f(filespace, dataset_dims, &
+         dataset_maxdims, ierr)
+
+    if (int(dataset_dims(1), i8) .ne. array%global_count) then
+       call neko_error("Checkpoint array '" // trim(array%name) // &
+            "' has an incompatible global extent")
+    end if
+
+    stored_dp = associated(array%x_dp)
+    if (stored_dp) then
+       h5_type = H5T_NATIVE_DOUBLE
+       dcount(1) = int(size(array%x_dp), hsize_t)
+    else
+       h5_type = h5_neko_real
+       dcount(1) = int(size(array%x), hsize_t)
+    end if
+    doffset(1) = int(array%offset, hsize_t)
+    call h5screate_simple_f(1, dcount, memspace, ierr)
+
+    if (array%replicated .and. pe_rank .ne. 0) then
+       call h5sselect_none_f(filespace, ierr)
+       call h5sselect_none_f(memspace, ierr)
+    else
+       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+            doffset, dcount, ierr)
+    end if
+    if (stored_dp) then
+       call h5dread_f(dset_id, h5_type, array%x_dp, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+    else
+       call h5dread_f(dset_id, h5_type, array%x, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+    end if
+
+    call h5dclose_f(dset_id, ierr)
+    call h5sclose_f(filespace, ierr)
+    call h5sclose_f(memspace, ierr)
+
+    ! Only rank zero selected the dataset above, so the copy every rank holds
+    ! has to come from there.
+    if (array%replicated) then
+       if (stored_dp) then
+          call MPI_Bcast(array%x_dp, size(array%x_dp), &
+               MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
+       else
+          call MPI_Bcast(array%x, size(array%x), MPI_REAL_PRECISION, 0, &
+               NEKO_COMM, ierr)
+       end if
+    end if
+
+  end subroutine hdf5_checkpoint_read_array
+
+  !> Determine mesh, fields, and histories represented by a data object.
+  !! @param data Data object to inspect.
+  !! @param msh Associated mesh, if available.
+  !! @param dof Associated degree-of-freedom map, if available.
+  !! @param fp Individual fields represented by `data`.
+  !! @param fsp Field series represented by `data`.
+  !! @param dtlag Previous time-step sizes, if available.
+  !! @param tlag Previous simulation times, if available.
   subroutine hdf5_file_determine_data(data, msh, dof, fp, fsp, dtlag, tlag)
     class(*), target, intent(in) :: data
     type(mesh_t), pointer, intent(inout) :: msh
@@ -616,8 +1180,7 @@ contains
     type(field_series_ptr_t), allocatable, intent(inout) :: fsp(:)
     real(kind=dp), pointer, intent(inout) :: dtlag(:)
     real(kind=dp), pointer, intent(inout) :: tlag(:)
-    integer :: i, j, fp_size, fp_cur, fsp_size, fsp_cur, scalar_count, ab_count
-    character(len=32) :: scalar_name
+    integer :: i, j, fp_size, fp_cur, fsp_size, fsp_cur
 
     select type (data)
     type is (field_t)
@@ -649,203 +1212,52 @@ contains
        nullify(tlag)
 
     type is (chkp_t)
+       block
+         type(checkpoint_payload_t), pointer :: fluid
+         type(field_t), pointer :: u
 
-       if ( .not. associated(data%u) .or. &
-            .not. associated(data%v) .or. &
-            .not. associated(data%w) .or. &
-            .not. associated(data%p) ) then
-          call neko_error('Checkpoint not initialized')
-       end if
+         fluid => data%get_payload("fluid")
+         u => fluid%find_field("u")
+         if (.not. associated(u) .or. &
+              .not. associated(fluid%find_field("v")) .or. &
+              .not. associated(fluid%find_field("w")) .or. &
+              .not. associated(fluid%find_field("p"))) then
+            call neko_error("Checkpoint not initialized")
+         end if
+         dof => u%dof
+         msh => u%msh
 
-       fp_size = 4
+         fp_size = 0
+         fsp_size = 0
+         do i = 1, data%payload_count()
+            fp_size = fp_size + data%payloads(i)%ptr%field_count()
+            fsp_size = fsp_size + data%payloads(i)%ptr%series_count()
+         end do
 
-       if (allocated(data%scalar_lags%items) .and. &
-            data%scalar_lags%size() > 0) then
-          scalar_count = data%scalar_lags%size()
-       else if (associated(data%s)) then
-          scalar_count = 1
-       else
-          scalar_count = 0
-       end if
+         if (fp_size .gt. 0) allocate(fp(fp_size))
+         if (fsp_size .gt. 0) allocate(fsp(fsp_size))
 
-       if (scalar_count .gt. 1) then
-          fp_size = fp_size + scalar_count
-
-          ! Add abx1 and abx2 fields for each scalar
-          fp_size = fp_size + (scalar_count * 2)
-       else if (associated(data%s)) then
-          ! Single scalar support
-          fp_size = fp_size + 1
-          if (associated(data%abs1)) then
-             fp_size = fp_size + 2
-          end if
-       end if
-
-       if (associated(data%abx1)) then
-          fp_size = fp_size + 6
-       end if
-
-       allocate(fp(fp_size))
-
-       fsp_size = 0
-       if (associated(data%ulag)) then
-          fsp_size = fsp_size + 3
-       end if
-
-       if (scalar_count .gt. 1) then
-          if (allocated(data%scalar_lags%items)) then
-             fsp_size = fsp_size + data%scalar_lags%size()
-          end if
-       else if (associated(data%slag)) then
-          fsp_size = fsp_size + 1
-       end if
-
-       if (fsp_size .gt. 0) then
-          allocate(fsp(fsp_size))
-          fsp_cur = 1
-       end if
-
-       dof => data%u%dof
-       msh => data%u%msh
-
-       fp(1)%ptr => data%u
-       fp(2)%ptr => data%v
-       fp(3)%ptr => data%w
-       fp(4)%ptr => data%p
-
-       fp_cur = 5
-
-       if (scalar_count .gt. 1) then
-          block
-            type(field_series_t), pointer :: slag
-            do i = 1, scalar_count
-               slag => data%scalar_lags%get(i)
-               fp(fp_cur)%ptr => slag%f
+         fp_cur = 1
+         fsp_cur = 1
+         do i = 1, data%payload_count()
+            do j = 1, data%payloads(i)%ptr%field_count()
+               fp(fp_cur)%ptr => data%payloads(i)%ptr%fields(j)%ptr
                fp_cur = fp_cur + 1
             end do
-          end block
+            do j = 1, data%payloads(i)%ptr%series_count()
+               fsp(fsp_cur)%ptr => data%payloads(i)%ptr%series(j)%ptr
+               fsp_cur = fsp_cur + 1
+            end do
+         end do
 
-          do i = 1, scalar_count
-             fp(fp_cur)%ptr => data%scalar_abx1(i)%ptr
-             fp_cur = fp_cur + 1
-             fp(fp_cur)%ptr => data%scalar_abx2(i)%ptr
-             fp_cur = fp_cur + 1
-          end do
-       else if (associated(data%s)) then
-          ! Single scalar support
-          fp(fp_cur)%ptr => data%s
-          fp_cur = fp_cur + 1
-
-          if (associated(data%abs1)) then
-             fp(fp_cur)%ptr => data%abs1
-             fp(fp_cur+1)%ptr => data%abs2
-             fp_cur = fp_cur + 2
-          end if
-       end if
-
-       if (associated(data%abx1)) then
-          fp(fp_cur)%ptr => data%abx1
-          fp(fp_cur+1)%ptr => data%abx2
-          fp(fp_cur+2)%ptr => data%aby1
-          fp(fp_cur+3)%ptr => data%aby2
-          fp(fp_cur+4)%ptr => data%abz1
-          fp(fp_cur+5)%ptr => data%abz2
-          fp_cur = fp_cur + 6
-       end if
-
-       if (associated(data%ulag)) then
-          fsp(fsp_cur)%ptr => data%ulag
-          fsp(fsp_cur+1)%ptr => data%vlag
-          fsp(fsp_cur+2)%ptr => data%wlag
-          fsp_cur = fsp_cur + 3
-       end if
-
-
-       if (scalar_count .gt. 1) then
-          if (allocated(data%scalar_lags%items)) then
-             do j = 1, data%scalar_lags%size()
-                fsp(fsp_cur)%ptr => data%scalar_lags%get(j)
-                fsp_cur = fsp_cur + 1
-             end do
-          end if
-       else if (associated(data%slag)) then
-          fsp(fsp_cur)%ptr => data%slag
-          fsp_cur = fsp_cur + 1
-       end if
-
-       if (associated(data%tlag)) then
-          tlag => data%tlag
-          dtlag => data%dtlag
-       end if
+         call data%get_time_history(tlag, dtlag)
+       end block
 
     class default
        call neko_log%error('Invalid data')
     end select
 
   end subroutine hdf5_file_determine_data
-
-  !> Read one field from the open `Fields` group and place it into its
-  !! destination, interpolating when the checkpoint was written on a
-  !! different discretisation. Mirrors `chkp_file`'s `read_field`.
-  !! @param grp_id The open `Fields` group.
-  !! @param name Dataset name, which is the field's own name.
-  !! @param read_buf Scratch sized to the checkpoint's local degrees of
-  !! freedom; the raw data lands here before any interpolation.
-  !! @param dst The field data to fill.
-  !! @param h5_real HDF5 type matching the working precision.
-  !! @param ddim Global size of the dataset.
-  !! @param dcount This rank's share of it.
-  !! @param doffset Where this rank's share starts.
-  !! @param memspace Dataspace describing `read_buf`.
-  !! @param plist_id Dataset transfer property list.
-  !! @param nel Elements in the checkpoint's mesh, locally.
-  !! @param mesh2mesh Whether to interpolate between two meshes.
-  !! @param interp_space Whether to interpolate between polynomial orders.
-  !! @param space_interp Interpolator between orders, when used.
-  !! @param global_interp Interpolator between meshes, when used.
-  !! @param dof The running case's dofmap.
-  subroutine hdf5_read_field(grp_id, name, read_buf, dst, h5_real, ddim, &
-       dcount, doffset, memspace, plist_id, nel, mesh2mesh, interp_space, &
-       space_interp, global_interp, dof)
-    integer(hid_t), intent(in) :: grp_id
-    character(len=*), intent(in) :: name
-    real(kind=rp), intent(inout) :: read_buf(:)
-    real(kind=rp), intent(inout) :: dst(:,:,:,:)
-    integer(hid_t), intent(in) :: h5_real
-    integer(hsize_t), intent(in) :: ddim(1), dcount(1), doffset(1)
-    integer(hid_t), intent(in) :: memspace, plist_id
-    integer, intent(in) :: nel
-    logical, intent(in) :: mesh2mesh, interp_space
-    type(interpolator_t), intent(inout) :: space_interp
-    type(global_interpolation_t), intent(inout) :: global_interp
-    type(dofmap_t), intent(in) :: dof
-
-    integer(hid_t) :: dset_id, filespace
-    integer :: ierr, k
-    logical, parameter :: interp_on_host = .true.
-
-    call h5dopen_f(grp_id, trim(name), dset_id, ierr)
-    call h5dget_space_f(dset_id, filespace, ierr)
-    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
-         doffset, dcount, ierr)
-    call h5dread_f(dset_id, h5_real, read_buf, ddim, ierr, &
-         file_space_id = filespace, mem_space_id = memspace, &
-         xfer_prp = plist_id)
-    call h5dclose_f(dset_id, ierr)
-    call h5sclose_f(filespace, ierr)
-
-    if (mesh2mesh) then
-       call rzero(dst, dof%size())
-       call global_interp%evaluate(dst, read_buf, interp_on_host)
-    else if (interp_space) then
-       call space_interp%map_host(dst, read_buf, nel, dof%Xh)
-    else
-       do k = 1, size(read_buf)
-          dst(k, 1, 1, 1) = read_buf(k)
-       end do
-    end if
-
-  end subroutine hdf5_read_field
 
   !> Determine hdf5 real type corresponding to NEKO_REAL
   !! @note This must be called after h5open_f, otherwise
@@ -1879,7 +2291,9 @@ contains
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_set_group
 
-  !> Write data in HDF5 format
+  !> Write data in HDF5 format.
+  !! @param data Data object to write.
+  !! @param[optional] t Simulation time.
   subroutine hdf5_file_write(this, data, t)
     class(hdf5_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
@@ -1887,7 +2301,8 @@ contains
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_write
 
-  !> Read data in HDF5 format
+  !> Read data in HDF5 format.
+  !! @param data Data object to populate.
   subroutine hdf5_file_read(this, data)
     class(hdf5_file_t) :: this
     class(*), target, intent(inout) :: data
