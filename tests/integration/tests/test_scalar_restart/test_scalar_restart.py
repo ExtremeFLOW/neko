@@ -204,13 +204,13 @@ def test_scalar_hdf5_restart_different_polynomial_order(
         f"neko process failed with exit code {result.returncode}"
     )
 
+    # No checkpoint is written at t=0 any more: the first one is t=0.05.
     checkpoints = sorted(checkpoint_dir.glob("scalar_restart*.h5"))
-    assert len(checkpoints) == 3, (
-        "Expected initial, t=0.05, and t=0.10 checkpoints, "
-        f"found {checkpoints}"
+    assert len(checkpoints) == 2, (
+        f"Expected the t=0.05 and t=0.10 checkpoints, found {checkpoints}"
     )
 
-    case["case"]["restart_file"] = str(checkpoints[1])
+    case["case"]["restart_file"] = str(checkpoints[0])
     case["case"]["output_checkpoints"] = False
     del case["case"]["checkpoint_control"]
     del case["case"]["checkpoint_value"]

@@ -70,10 +70,10 @@ def test_ale_hdf5_restart_different_polynomial_order(
         f"neko process failed with exit code {result.returncode}"
     )
 
+    # One checkpoint per step, none at t=0: two steps give two files.
     checkpoints = sorted(checkpoint_dir.glob("ale_restart*.h5"))
-    assert len(checkpoints) >= 3, (
-        "Expected initial and per-step ALE checkpoints, "
-        f"found {checkpoints}"
+    assert len(checkpoints) >= 2, (
+        f"Expected per-step ALE checkpoints, found {checkpoints}"
     )
 
     case["case"]["restart_file"] = str(checkpoints[-2])
