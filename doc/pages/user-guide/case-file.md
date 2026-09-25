@@ -641,27 +641,35 @@ The default name of the boundary conditions is given by the
 applies in zone index 5 can be retrieved by the `pressure_bc_5` name.
 
 #### Available conditions
-The conditions to apply is specified by `type` keyword inside each of the JSON
-objects. The full list of possible conditions for the fluid is specified in the
-table below.
+The conditions to apply are specified by the `type` keyword inside each of the
+JSON objects. Each type sets both the velocity and the pressure condition on
+the zone, and the table below lists what each type corresponds to. An empty
+entry means the natural condition of the scheme for that field: a homogeneous
+Neumann condition for the velocity, or a Neumann condition for the pressure
+with the normal gradient given by the momentum equation. These combinations
+cover the standard cases. It is also possible to set the velocity and the
+pressure condition separately, see
+[below](@ref case-file_fluid-split-boundary-conditions).
 
-| Boundary Condition  | Description                                                                                                                      |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------|
-| symmetry            | A symmetry plane. Must be axis-aligned.                                                                                          |
-| velocity_value      | A Dirichlet condition for velocity.                                                                                              |
-| no_slip             | A no-slip wall. Either stationary or moving.                                                                                     |
-| outflow             | A pressure outlet.                                                                                                               |
-| normal_outflow      | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. |
-| outflow+user        | Same as `outflow` but with user-specified pressure.                                                                              |
-| normal_outflow+user | Same as `normal_outflow` but with user-specified pressure.                                                                       |
-| outflow+dong        | A pressure outlet with the Dong condition applied.                                                                               |
-| normal_outflow+dong | The `normal_outflow` with the Dong condition applied.                                                                            |
-| shear_stress        | Prescribed wall shear stress.                                                                                                    |
-| wall_model          | Shear stress condition based on a wall model for large-eddy simulation.                                                          |
-| blasius_profile     | A Blasius velocity profile.                                                                                                      |
-| user_velocity       | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                    |
-| user_pressure       | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                           |
-| overset_interface   | A Dirichlet condition that prescribes values from another Neko simulation running concurrently.                                  |
+| Boundary Condition  | Velocity            | Pressure         | Description                                                                                                                      |
+| ------------------- | ------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| symmetry            | `symmetry`          |                  | A symmetry plane. Must be axis-aligned.                                                                                          |
+| velocity_value      | `dirichlet`         |                  | A Dirichlet condition for velocity.                                                                                              |
+| expression_velocity | `expression`        |                  | A Dirichlet condition for velocity given by mathematical expressions.                                                            |
+| expression_pressure |                     | `expression`     | A Dirichlet condition for pressure given by a mathematical expression.                                                           |
+| no_slip             | `no_slip`           |                  | A no-slip wall. Either stationary or moving.                                                                                     |
+| outflow             |                     | `zero_dirichlet` | A pressure outlet.                                                                                                               |
+| normal_outflow      | `non_normal`        | `zero_dirichlet` | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. |
+| outflow+user        |                     | `user_dirichlet` | Same as `outflow` but with user-specified pressure.                                                                              |
+| normal_outflow+user | `non_normal`        | `user_dirichlet` | Same as `normal_outflow` but with user-specified pressure.                                                                       |
+| outflow+dong        |                     | `dong`           | A pressure outlet with the Dong condition applied.                                                                               |
+| normal_outflow+dong | `non_normal`        | `dong`           | The `normal_outflow` with the Dong condition applied.                                                                            |
+| shear_stress        | `shear_stress`      |                  | Prescribed wall shear stress.                                                                                                    |
+| wall_model          | `wall_model`        |                  | Shear stress condition based on a wall model for large-eddy simulation.                                                          |
+| blasius_profile     | `blasius_profile`   |                  | A Blasius velocity profile.                                                                                                      |
+| user_velocity       | `user_dirichlet`    |                  | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                    |
+| user_pressure       |                     | `user_dirichlet` | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                           |
+| overset_interface   | `overset_interface` | `overset_interface` (if `couple_pressure`) | A Dirichlet condition that prescribes values from another Neko simulation running concurrently.        |
 
 A more detailed description of each boundary condition is provided below.
 
@@ -1107,6 +1115,79 @@ The keywords for this wall model are the same as for the [MOST model](#most-wall
 
   Mauritsen, T., Svensson, G., Zilitinkevich, S. S., Esau, I., Enger, L., & Grisogono, B. (2007). A Total Turbulent Energy Closure Model for Neutrally and Stably Stratified Atmospheric Boundary Layers. Journal of the Atmospheric Sciences, 64(11), 4113–4126. https://doi.org/10.1175/2007JAS2294.1.
   </details>
+
+
+#### Separate velocity and pressure conditions {#case-file_fluid-split-boundary-conditions}
+
+Instead of a joint `type`, a boundary condition object can hold a `velocity`
+object and a `pressure` object, each with its own `type`. Both must be
+present in this form. This allows combinations that are not covered by the
+joint types, for example a `non_normal` velocity condition with a pressure
+given by an expression.
+
+```json
+{
+  "zone_indices": [4],
+  "velocity": {
+    "type": "non_normal",
+    "value": [1.0, 0.0, 0.0]
+  },
+  "pressure": {
+    "type": "expression",
+    "value": "p_0*sin(2*pi*f*t)"
+  }
+}
+```
+
+The natural conditions of the scheme are selected with the `neumann` type.
+For the velocity it is a homogeneous Neumann condition, i.e. no constraint.
+For the pressure it is the Neumann condition of the Pn/Pn scheme, with the
+normal gradient given by the momentum equation, as on velocity Dirichlet
+boundaries. In both cases the flux is set by the scheme, so the `neumann` type
+takes no keywords. Keywords at the top level of the object, such as
+`zone_indices` and `name`, apply to both conditions. Keywords inside
+`velocity` and `pressure` apply to that condition only and take precedence
+over the top-level ones. A joint `type` cannot be combined with a `velocity`
+or `pressure` object in the same entry.
+
+The combinations defined by the joint types are the ones that are tested. When
+combining conditions separately, it is up to the user to make sure that the
+combination is well posed. In particular, the pressure is only de-meaned when
+no zone has a Dirichlet pressure condition.
+
+The available velocity condition types are listed below. The keywords they
+accept are the same as for the corresponding joint types.
+
+| Velocity condition  | Description                                                                                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| dirichlet           | A Dirichlet condition with a constant `value`. Same as `velocity_value`.                                                                               |
+| expression          | A Dirichlet condition given by expressions. Same as `expression_velocity`.                                                                             |
+| no_slip             | A no-slip wall, see `no_slip`.                                                                                                                         |
+| symmetry            | A symmetry plane, see `symmetry`.                                                                                                                      |
+| non_normal          | A homogeneous Neumann condition for the surface-normal component combined with a Dirichlet for the surface-parallel components, see `normal_outflow`. |
+| neumann             | A homogeneous Neumann condition, i.e. no constraint. Takes no keywords.                                                                                |
+| shear_stress        | Prescribed wall shear stress, see `shear_stress`.                                                                                                      |
+| wall_model          | Shear stress from a wall model, see `wall_model`.                                                                                                      |
+| blasius_profile     | A Blasius velocity profile, see `blasius_profile`.                                                                                                     |
+| user_dirichlet      | The user-defined Dirichlet condition. Same as `user_velocity`.                                                                                         |
+| overset_interface   | Values from another Neko simulation, see `overset_interface`.                                                                                          |
+
+The available pressure condition types are the following.
+
+| Pressure condition  | Description                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------ |
+| dirichlet           | A Dirichlet condition with a constant `value`.                                       |
+| zero_dirichlet      | A zero pressure. The pressure part of `outflow`.                                     |
+| expression          | A Dirichlet condition given by an expression. Same as `expression_pressure`.         |
+| dong                | The Dong outflow condition. The pressure part of `outflow+dong`.                     |
+| neumann             | The Neumann condition of the Pn/Pn scheme, with the normal gradient given by the momentum equation. Takes no keywords. |
+| user_dirichlet      | The user-defined Dirichlet condition. Same as `user_pressure`.                       |
+| overset_interface   | Values from another Neko simulation, see `overset_interface`.                        |
+
+Custom velocity and pressure condition types can be added from user modules
+with the `register_fluid_pnpn_velocity_bc` and `register_fluid_pnpn_pressure_bc`
+routines. See `fluid_pnpn_bc_template.f90` in the
+`examples/programming/user_type_templates` directory for a template.
 
 ### Initial conditions {#case-file_fluid-ic}
 The object `initial_condition` is used to provide initial conditions.
