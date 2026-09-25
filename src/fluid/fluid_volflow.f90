@@ -69,7 +69,7 @@ module fluid_volflow
   use coefs, only : coef_t
   use time_state, only : time_state_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use math, only : copy, glsc2, glmin, glmax, add2, abscmp, cmult, NEKO_EPS
+  use math, only : copy, glsc2, glmin, glmax, add2, abscmp, cmult
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_rzero, device_copy, &
        device_add2, device_add2s2, device_glsc2, device_cmult
@@ -512,8 +512,8 @@ contains
   !! @details Meant for the initial condition, so that the forcing does not
   !! have to correct it impulsively at the first step. A field whose flow rate
   !! is zero, opposite or more than a factor of ten off is left as it is, and
-  !! so is one already at the target. Prescribed boundary values are scaled
-  !! too, so the caller has to impose the boundary conditions again.
+  !! so is one at the target to a relative 1e-6. Prescribed boundary values
+  !! are scaled too, so the caller has to impose the boundary conditions again.
   !! @param u,v,w The velocity, modified in place.
   !! @param c_Xh SEM coefficients.
   !! @param scaled Whether the field was changed.
@@ -522,8 +522,9 @@ contains
     type(field_t), intent(inout) :: u, v, w
     type(coef_t), intent(in) :: c_Xh
     logical, intent(out) :: scaled
-    real(kind=rp) :: current_flow, flow_rate, factor
+    real(kind=rp) :: current_flow, flow_rate, factor, current, target
     character(len=LOG_SIZE) :: log_buf
+    character(len=13) :: label
     integer :: n
 
     scaled = .false.
@@ -532,20 +533,31 @@ contains
     current_flow = this%current(u, v, w, c_Xh)
     flow_rate = this%target_rate(c_Xh)
 
+    ! Report in the units the target was given in.
+    if (this%avflow) then
+       label = 'Bulk velocity'
+       current = current_flow * (this%domain_length / c_Xh%volume)
+       target = this%flow_rate
+    else
+       label = 'Flow rate'
+       current = current_flow
+       target = flow_rate
+    end if
+
     factor = 0.0_rp
     if (current_flow * flow_rate .gt. 0.0_rp) then
        factor = flow_rate / current_flow
     end if
 
     if (factor .lt. 0.1_rp .or. factor .gt. 10.0_rp) then
-       write (log_buf, '(A,ES11.4,A,ES11.4,A)') 'Flow rate ', current_flow, &
-            ' not scaled to ', flow_rate, ', the forcing takes over'
-       if (this%log) call neko_log%message(log_buf)
+       write (log_buf, '(A,ES11.4,A,ES11.4,A)') trim(label) // ' ', current, &
+            ' not scaled to ', target, ', the forcing takes over'
+       call neko_log%message(log_buf)
        return
-    else if (abs(factor - 1.0_rp) .le. 100.0_rp * NEKO_EPS) then
-       write (log_buf, '(A,ES11.4,A)') 'Flow rate ', current_flow, &
+    else if (abs(factor - 1.0_rp) .le. 1.0e-6_rp) then
+       write (log_buf, '(A,ES11.4,A)') trim(label) // ' ', current, &
             ', at the target'
-       if (this%log) call neko_log%message(log_buf)
+       call neko_log%message(log_buf)
        return
     end if
 
@@ -564,9 +576,9 @@ contains
     end if
 
     scaled = .true.
-    write (log_buf, '(A,ES11.4,A,ES11.4)') 'Flow rate ', current_flow, &
-         ' scaled to ', flow_rate
-    if (this%log) call neko_log%message(log_buf)
+    write (log_buf, '(A,ES11.4,A,ES11.4)') trim(label) // ' ', current, &
+         ' scaled to ', target
+    call neko_log%message(log_buf)
 
   end subroutine fluid_vol_flow_scale
 

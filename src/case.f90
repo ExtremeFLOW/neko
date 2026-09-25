@@ -390,7 +390,9 @@ contains
        if (.not. this%params%valid_path('case.restart_file')) then
           if (f%forced_flow_rate .and. .not. f%freeze) then
              call f%vol_flow%scale(f%u, f%v, f%w, f%c_Xh, ic_scaled)
-             if (ic_scaled) call f%bc_apply_ic(this%time)
+             if (ic_scaled .and. .not. f%div_free_ic) then
+                call f%bc_apply_ic(this%time)
+             end if
           end if
           if (f%div_free_ic) call f%make_div_free(this%time)
        end if

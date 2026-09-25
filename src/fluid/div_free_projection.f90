@@ -55,7 +55,7 @@ module div_free_projection
   implicit none
   private
 
-  public :: project_div_free, div_norm
+  public :: project_div_free
 
 contains
 

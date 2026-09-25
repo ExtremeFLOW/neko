@@ -216,8 +216,9 @@ module fluid_pnpn
      !> Write a field with boundary condition specifications.
      procedure, pass(this) :: write_boundary_conditions => &
           fluid_pnpn_write_boundary_conditions
-     !> Project the velocity onto the divergence-free subspace.
+     !> Impose the velocity boundary conditions on the initial condition.
      procedure, pass(this) :: bc_apply_ic => fluid_pnpn_bc_apply_ic
+     !> Project the initial condition onto the divergence-free subspace.
      procedure, pass(this) :: make_div_free => fluid_pnpn_make_div_free
   end type fluid_pnpn_t
 
