@@ -36,8 +36,6 @@ test-suite.log
 **.log
 **.trs
 
-!error_redirection/error_redirection.F90
-
 bc/bc_test
 bc/bc_suite
 case_file_utils/case_file_utils_test

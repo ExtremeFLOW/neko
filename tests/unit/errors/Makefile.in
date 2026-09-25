@@ -1,31 +1,42 @@
 ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
 include @PFUNIT_DIR@/include/PFUNIT.mk
 endif
-FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) @NEKO_PKG_FCFLAGS@ -I@top_builddir@/src
 FC = @FC@
 
-%.o : %.F90
+# Depend on the library so the test objects follow any change to Neko.
+NEKO_LIB := $(wildcard @top_builddir@/src/libneko.la)
+
+%.o : %.F90 $(NEKO_LIB)
 	$(FC) -c $(FFLAGS) $<
+
+../fixtures/error_redirection.o : ../fixtures/error_redirection.f90 $(NEKO_LIB)
+	$(FC) -c $(FFLAGS) -o $@ $<
 
 
 check: errors_test
 
+# Regenerate this Makefile from Makefile.in via config.status
+# whenever it changes.
+SUBDIR := $(patsubst $(abspath @top_builddir@)/%,%,$(CURDIR))
+
+Makefile: Makefile.in @top_builddir@/config.status
+	cd @top_builddir@ && $(SHELL) ./config.status $(SUBDIR)/Makefile
+
 errors_test_TESTS := test_errors.pf
-errors_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs/ -lneko @LDFLAGS@ @LIBS@
-errors_test_OTHER_SRCS := error_redirection.F90
+errors_test_OTHER_SOURCES = ../fixtures/error_redirection.f90
+errors_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
+# Redirect errors and warnings to pFUnit exceptions before the tests run.
 errors_test_EXTRA_USE := error_redirection
 errors_test_EXTRA_INITIALIZE := redirect_errors
-
-errors_test_driver.o: error_redirection.o
-
-error_redirection.F90: ../error_redirection/error_redirection.F90
-	cp $< $@
-
 $(eval $(call make_pfunit_test,errors_test))
+errors_test.inc: Makefile
+errors_test_driver.o: ../fixtures/error_redirection.o
+test_errors.o: ../fixtures/error_redirection.o
 
 distclean:
 clean:
-	$(RM) *.o *.mod *.a  *.inc *.F90 errors_test
+	$(RM) *.o *.mod *.a *.inc *.F90 errors_test ../fixtures/error_redirection.o
 
 
 

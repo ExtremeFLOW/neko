@@ -171,6 +171,7 @@ EXTRA_DIST = \
 	registry/test_vector_registry.pf\
 	registry/test_matrix_registry.pf\
 	errors/test_errors.pf\
+	fixtures/error_redirection.f90\
 	scratch_registry/test_scratch_registry.pf\
 	scratch_registry/test_field_scratch_registry.pf\
 	scratch_registry/test_vector_scratch_registry.pf\

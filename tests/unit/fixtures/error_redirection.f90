@@ -1,3 +1,9 @@
+!> Redirects Neko errors and warnings to pFUnit exceptions.
+!! @details Point throw_error and throw_warning in utils at a routine that
+!! raises a pFUnit exception instead of stopping execution, so that tests can
+!! check for error emission with @assertExceptionRaised(). Call
+!! redirect_errors from a suite's PFUNIT_EXTRA_INITIALIZE hook, see
+!! tests/unit/errors/Makefile.in.
 module error_redirection
   use utils, only : throw_error, throw_warning, throw_intf
   use funit, only : SourceLocation, throw
