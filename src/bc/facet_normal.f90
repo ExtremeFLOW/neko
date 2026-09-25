@@ -101,51 +101,51 @@ contains
   end subroutine facet_normal_init_from_components
 
   !> No-op scalar apply
-  subroutine facet_normal_apply_scalar(this, x, n, time, strong)
-    class(facet_normal_t), intent(inout) :: this
+  subroutine facet_normal_apply_scalar(this, x, n, time, strong, ifgs)
+    class(facet_normal_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
   end subroutine facet_normal_apply_scalar
 
   !> No-op scalar apply on device
-  subroutine facet_normal_apply_scalar_dev(this, x_d, time, strong, strm)
+  subroutine facet_normal_apply_scalar_dev(this, x_d, time, strong, strm, ifgs)
     class(facet_normal_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
 
   end subroutine facet_normal_apply_scalar_dev
 
   !> No-op vector apply on device
   subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, time, &
-       strong, strm)
+       strong, strm, ifgs)
     class(facet_normal_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(c_ptr), intent(inout) :: y_d
     type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
 
   end subroutine facet_normal_apply_vector_dev
 
   !> No-op vector apply
-  subroutine facet_normal_apply_vector(this, x, y, z, n, time, strong)
-    class(facet_normal_t), intent(inout) :: this
+  subroutine facet_normal_apply_vector(this, x, y, z, n, time, strong, ifgs)
+    class(facet_normal_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
   end subroutine facet_normal_apply_vector
 
   !> Apply in facet normal direction (vector valued)
-  subroutine facet_normal_apply_surfvec(this, x, y, z, u, v, w, n, time)
-    class(facet_normal_t), intent(in) :: this
+  subroutine facet_normal_apply_surfvec(this, x, y, z, u, v, w, n, time, ifgs)
+    class(facet_normal_t), intent(in), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
@@ -154,8 +154,15 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: v
     real(kind=rp), intent(inout), dimension(n) :: w
     type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: ifgs
     integer :: i, m, k, idx(4), facet
     real(kind=rp) :: normal(3), area
+
+    ! THIS IS NOT DONE FOR IFGS YET
+    if (present(ifgs)) then
+       if (ifgs) call neko_log%message('Warning: facet normal not updated &
+            &for ifgs')
+    end if
 
     m = this%unique_mask(0)
     ! Since apply_surfvec is called outside of the parallel region, we
@@ -173,13 +180,20 @@ contains
 
   !> Apply in facet normal direction (vector valued, device version)
   subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, &
-       u_d, v_d, w_d, time, strm)
+       u_d, v_d, w_d, time, strm, ifgs)
     class(facet_normal_t), intent(in), target :: this
     type(c_ptr) :: x_d, y_d, z_d, u_d, v_d, w_d
     type(time_state_t), intent(in), optional :: time
     type(c_ptr), optional :: strm
+    logical, intent(in), optional :: ifgs
     type(c_ptr) :: strm_
     integer :: n, m
+
+    ! THIS IS NOT DONE FOR IFGS YET
+    if (present(ifgs)) then
+       if (ifgs) call neko_log%message('Warning: facet normal not updated &
+            &for ifgs')
+    end if
 
     n = this%coef%dof%size()
     m = this%unique_mask(0)
@@ -350,28 +364,7 @@ contains
        end if
        call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
-       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, time)
-       ! reconstruct coef; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, time)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ! added utils module; could be removed
-          call neko_error('Facet normal:: Nothing done for device.')
-       end if
-
-       ! free space
-       if (allocated(this%msk)) deallocate(this%msk)
-       if (allocated(this%facet)) deallocate(this%facet)
-!       call this%marked_facet%free()
-!       call this%marked_facet%init()
-       call this%marked_facet%clear()
-
-       this%iffinalised = .false.
+       call this%amr_restart_base(reconstruct, counter, time)
 
        ! get zones
        do il = 1, size(this%zone_indices)
@@ -388,26 +381,7 @@ contains
        end if
        call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
-       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, time)
-       ! reconstruct coef; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, time)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ! added utils module; could be removed
-          call neko_error('Facet normal:: Nothing done for device.')
-       end if
-
-       ! free space
-       if (allocated(this%msk)) deallocate(this%msk)
-       if (allocated(this%facet)) deallocate(this%facet)
-!       call this%marked_facet%free()
-!       call this%marked_facet%init()
-       call this%marked_facet%clear()
+       call this%amr_restart_base(reconstruct, counter, time)
 
        if (allocated(this%unique_mask)) then
           deallocate(this%unique_mask)
@@ -417,8 +391,6 @@ contains
        call this%ny%free()
        call this%nz%free()
        call this%work%free()
-
-       this%iffinalised = .false.
 
     end if
 

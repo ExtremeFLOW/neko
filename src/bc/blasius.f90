@@ -167,34 +167,35 @@ contains
   end subroutine blasius_free
 
   !> No-op scalar apply
-  subroutine blasius_apply_scalar(this, x, n, time, strong)
-    class(blasius_t), intent(inout) :: this
+  subroutine blasius_apply_scalar(this, x, n, time, strong, ifgs)
+    class(blasius_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
   end subroutine blasius_apply_scalar
 
   !> No-op scalar apply (device version)
-  subroutine blasius_apply_scalar_dev(this, x_d, time, strong, strm)
+  subroutine blasius_apply_scalar_dev(this, x_d, time, strong, strm, ifgs)
     class(blasius_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
   end subroutine blasius_apply_scalar_dev
 
   !> Apply blasius conditions (vector valued)
-  subroutine blasius_apply_vector(this, x, y, z, n, time, strong)
-    class(blasius_t), intent(inout) :: this
+  subroutine blasius_apply_vector(this, x, y, z, n, time, strong, ifgs)
+    class(blasius_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     integer :: i, m, k, idx(4), facet
-    logical :: strong_
+    logical :: strong_, ifgs_
+    integer, dimension(:), pointer :: msk_
 
     if (present(strong)) then
        strong_ = strong
@@ -202,14 +203,26 @@ contains
        strong_ = .true.
     end if
 
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (ifgs_) then
+       msk_(0 : this%msk_gs(0)) => this%msk_gs(0 : this%msk_gs(0))
+    else
+       msk_(0 : this%msk(0)) => this%msk(0 : this%msk(0))
+    end if
+
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
          zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
          nz => this%coef%nz, lx => this%coef%Xh%lx)
-      m = this%msk(0)
+      m = msk_(0)
       if (strong_) then
          !$omp do
          do i = 1, m
-            k = this%msk(i)
+            k = msk_(i)
             facet = this%facet(i)
             idx = nonlinear_index(k, lx, lx, lx)
             select case (facet)
@@ -236,23 +249,37 @@ contains
   end subroutine blasius_apply_vector
 
   !> Apply blasius conditions (vector valued) (device version)
-  subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d, time, strong, strm)
+  subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d, time, strong, strm, &
+       ifgs)
     class(blasius_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(c_ptr), intent(inout) :: y_d
     type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     integer :: i, m, k, idx(4), facet
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: bla_x(:), bla_y(:), bla_z(:)
-    logical :: strong_
+    logical :: strong_, ifgs_
     type(c_ptr), intent(inout) :: strm
+    integer, dimension(:), pointer :: msk_
 
     if (present(strong)) then
        strong_ = strong
     else
        strong_ = .true.
+    end if
+
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (ifgs_) then
+       msk_(0 : this%msk_gs(0)) => this%msk_gs(0 : this%msk_gs(0))
+    else
+       msk_(0 : this%msk(0)) => this%msk(0 : this%msk(0))
     end if
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
@@ -261,7 +288,7 @@ contains
          blax_d => this%blax_d, blay_d => this%blay_d, &
          blaz_d => this%blaz_d)
 
-      m = this%msk(0)
+      m = msk_(0)
 
 
       ! Pretabulate values during first call to apply
@@ -279,7 +306,7 @@ contains
          call device_alloc(blaz_d, s)
          !$omp parallel do private(k, facet, idx)
          do i = 1, m
-            k = this%msk(i)
+            k = msk_(i)
             facet = this%facet(i)
             idx = nonlinear_index(k, lx, lx, lx)
             select case (facet)
@@ -309,9 +336,14 @@ contains
          deallocate(bla_x, bla_y, bla_z)
       end if
 
-      if (strong_ .and. this%msk(0) .gt. 0) then
-         call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-              blax_d, blay_d, blaz_d, m, strm)
+      if (strong_ .and. msk_(0) .gt. 0) then
+         if (ifgs_) then
+            call device_inhom_dirichlet_apply_vector(this%msk_gs_d, x_d, y_d, &
+                 z_d, blax_d, blay_d, blaz_d, m, strm)
+         else
+            call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, &
+                 z_d, blax_d, blay_d, blaz_d, m, strm)
+         end if
       end if
 
     end associate

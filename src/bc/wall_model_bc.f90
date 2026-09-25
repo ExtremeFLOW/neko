@@ -73,12 +73,12 @@ module wall_model_bc
 contains
 
   !> Apply shear stress for a scalar field @a x.
-  subroutine wall_model_bc_apply_scalar(this, x, n, time, strong)
-    class(wall_model_bc_t), intent(inout) :: this
+  subroutine wall_model_bc_apply_scalar(this, x, n, time, strong, ifgs)
+    class(wall_model_bc_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
 
     call neko_error("The wall model bc is not applicable to scalar fields.")
 
@@ -91,14 +91,14 @@ contains
   !! @param n The size of the right-hand side arrays.
   !! @param t The time value.
   !! @param tstep The time step.
-  subroutine wall_model_bc_apply_vector(this, x, y, z, n, time, strong)
-    class(wall_model_bc_t), intent(inout) :: this
+  subroutine wall_model_bc_apply_vector(this, x, y, z, n, time, strong, ifgs)
+    class(wall_model_bc_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     integer :: i, m, k, fid
     real(kind=rp) :: magtau
     logical :: strong_
@@ -127,17 +127,18 @@ contains
     end if
 
     ! Either add the stress to the RHS or apply the non-penetration condition
-    call this%shear_stress_t%apply_vector(x, y, z, n, time, strong_)
+    call this%shear_stress_t%apply_vector(x, y, z, n, time, strong_, &
+         ifgs = ifgs)
 
   end subroutine wall_model_bc_apply_vector
 
   !> Boundary condition apply for a generic wall_model_bc condition
   !! to a vector @a x (device version)
-  subroutine wall_model_bc_apply_scalar_dev(this, x_d, time, strong, strm)
+  subroutine wall_model_bc_apply_scalar_dev(this, x_d, time, strong, strm, ifgs)
     class(wall_model_bc_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
 
     call neko_error("The wall model bc is not applicable to scalar fields.")
@@ -147,13 +148,13 @@ contains
   !> Boundary condition apply for a generic wall_model_bc condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine wall_model_bc_apply_vector_dev(this, x_d, y_d, z_d, time, &
-       strong, strm)
+       strong, strm, ifgs)
     class(wall_model_bc_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(c_ptr), intent(inout) :: y_d
     type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     logical :: strong_
     type(c_ptr), intent(inout) :: strm
 
@@ -182,7 +183,7 @@ contains
 
     ! Either add the stress to the RHS or apply the non-penetration condition
     call this%shear_stress_t%apply_vector_dev(x_d, y_d, z_d, &
-         time, strong_, strm)
+         time, strong_, strm, ifgs = ifgs)
 
   end subroutine wall_model_bc_apply_vector_dev
 

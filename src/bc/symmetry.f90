@@ -209,12 +209,12 @@ contains
   !! @param n The size of x.
   !! @param time Current time state.
   !! @param strong Whether we are setting a strong or a weak bc.
-  subroutine symmetry_apply_scalar(this, x, n, time, strong)
-    class(symmetry_t), intent(inout) :: this
+  subroutine symmetry_apply_scalar(this, x, n, time, strong, ifgs)
+    class(symmetry_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
   end subroutine symmetry_apply_scalar
 
   !> Apply symmetry conditions (axis aligned)
@@ -224,14 +224,14 @@ contains
   !! @param n The size of x, y, and z.
   !! @param time Current time state.
   !! @param strong Whether we are setting a strong or a weak bc.
-  subroutine symmetry_apply_vector(this, x, y, z, n, time, strong)
-    class(symmetry_t), intent(inout) :: this
+  subroutine symmetry_apply_vector(this, x, y, z, n, time, strong, ifgs)
+    class(symmetry_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     logical :: strong_
 
     if (present(strong)) then
@@ -241,9 +241,9 @@ contains
     end if
 
     if (strong_) then
-       call this%bc_x%apply_scalar(x, n)
-       call this%bc_y%apply_scalar(y, n)
-       call this%bc_z%apply_scalar(z, n)
+       call this%bc_x%apply_scalar(x, n, ifgs = ifgs)
+       call this%bc_y%apply_scalar(y, n, ifgs = ifgs)
+       call this%bc_z%apply_scalar(z, n, ifgs = ifgs)
     end if
 
   end subroutine symmetry_apply_vector
@@ -252,11 +252,11 @@ contains
   !! @param x_d Device pointer to the field.
   !! @param time The time state.
   !! @param strong Whether we are setting a strong or a weak bc.
-  subroutine symmetry_apply_scalar_dev(this, x_d, time, strong, strm)
+  subroutine symmetry_apply_scalar_dev(this, x_d, time, strong, strm, ifgs)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
   end subroutine symmetry_apply_scalar_dev
 
@@ -267,15 +267,15 @@ contains
   !! @param time The time state.
   !! @param strong Whether we are setting a strong or a weak bc.
   subroutine symmetry_apply_vector_dev(this, x_d, y_d, z_d, &
-       time, strong, strm)
+       time, strong, strm, ifgs)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(c_ptr), intent(inout) :: y_d
     type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
-    logical :: strong_
+    logical :: strong_, ifgs_
 
     if (present(strong)) then
        strong_ = strong
@@ -283,10 +283,25 @@ contains
        strong_ = .true.
     end if
 
-    if (strong_ .and. (this%msk(0) .gt. 0)) then
-       call device_symmetry_apply_vector(this%bc_x%msk_d, this%bc_y%msk_d, &
-            this%bc_z%msk_d, x_d, y_d, z_d, &
-            this%bc_x%msk(0), this%bc_y%msk(0), this%bc_z%msk(0), strm)
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (strong_) then
+       if (ifgs_) then
+          if (this%msk_gs(0) .gt. 0) &
+               call device_symmetry_apply_vector(this%bc_x%msk_gs_d, &
+               this%bc_y%msk_gs_d, this%bc_z%msk_gs_d, x_d, y_d, z_d, &
+               this%bc_x%msk_gs(0), this%bc_y%msk_gs(0), this%bc_z%msk_gs(0), &
+               strm)
+       else
+          if (this%msk(0) .gt. 0) &
+               call device_symmetry_apply_vector(this%bc_x%msk_d, &
+               this%bc_y%msk_d, this%bc_z%msk_d, x_d, y_d, z_d, &
+               this%bc_x%msk(0), this%bc_y%msk(0), this%bc_z%msk(0), strm)
+       end if
     end if
   end subroutine symmetry_apply_vector_dev
 
@@ -331,26 +346,7 @@ contains
        end if
        call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 
-       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, time)
-       ! reconstruct coef; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, time)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ! added utils module; could be removed
-          call neko_error('Symmetry:: Nothing done for device.')
-       end if
-
-       ! free space
-       if (allocated(this%msk)) deallocate(this%msk)
-       if (allocated(this%facet)) deallocate(this%facet)
-!       call this%marked_facet%free()
-!       call this%marked_facet%init()
-       call this%marked_facet%clear()
+       call this%amr_restart_base(reconstruct, counter, time)
 
        ! Clean all bc components
        ! there should be no allocated zones
@@ -361,8 +357,6 @@ contains
        call this%bc_x%amr_restart(reconstruct, counter, time)
        call this%bc_y%amr_restart(reconstruct, counter, time)
        call this%bc_z%amr_restart(reconstruct, counter, time)
-
-       this%iffinalised = .false.
 
        ! get zones
        do il = 1, size(this%zone_indices)
@@ -380,26 +374,7 @@ contains
        end if
        call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 
-       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, time)
-       ! reconstruct coef; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, time)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ! added utils module; could be removed
-          call neko_error('Symmetry:: Nothing done for device.')
-       end if
-
-       ! free space
-       if (allocated(this%msk)) deallocate(this%msk)
-       if (allocated(this%facet)) deallocate(this%facet)
-!       call this%marked_facet%free()
-!       call this%marked_facet%init()
-       call this%marked_facet%clear()
+       call this%amr_restart_base(reconstruct, counter, time)
 
        ! Clean all bc components
        ! there should be no allocated zones
@@ -410,8 +385,6 @@ contains
        call this%bc_x%amr_restart(reconstruct, counter, time)
        call this%bc_y%amr_restart(reconstruct, counter, time)
        call this%bc_z%amr_restart(reconstruct, counter, time)
-
-       this%iffinalised = .false.
 
        call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
     end if

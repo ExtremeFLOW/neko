@@ -41,7 +41,6 @@ module inflow
   use json_utils, only : json_get_or_lookup
   use time_state, only : time_state_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use utils, only : neko_error !! temporary
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use amr_reconstruct, only : amr_reconstruct_t
   implicit none
@@ -82,34 +81,35 @@ contains
   end subroutine inflow_init
 
   !> No-op scalar apply
-  subroutine inflow_apply_scalar(this, x, n, time, strong)
-    class(inflow_t), intent(inout) :: this
+  subroutine inflow_apply_scalar(this, x, n, time, strong, ifgs)
+    class(inflow_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
   end subroutine inflow_apply_scalar
 
   !> No-op scalar apply (device version)
-  subroutine inflow_apply_scalar_dev(this, x_d, time, strong, strm)
+  subroutine inflow_apply_scalar_dev(this, x_d, time, strong, strm, ifgs)
     class(inflow_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
   end subroutine inflow_apply_scalar_dev
 
   !> Apply inflow conditions (vector valued)
-  subroutine inflow_apply_vector(this, x, y, z, n, time, strong)
-    class(inflow_t), intent(inout) :: this
+  subroutine inflow_apply_vector(this, x, y, z, n, time, strong, ifgs)
+    class(inflow_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     integer :: i, m, k
-    logical :: strong_
+    logical :: strong_, ifgs_
+    integer, dimension(:), pointer :: msk_
 
     if (present(strong)) then
        strong_ = strong
@@ -117,12 +117,18 @@ contains
        strong_ = .true.
     end if
 
-    m = this%msk(0)
+    if (ifgs_) then
+       msk_(0 : this%msk_gs(0)) => this%msk_gs(0 : this%msk_gs(0))
+    else
+       msk_(0 : this%msk(0)) => this%msk(0 : this%msk(0))
+    end if
+
+    m = msk_(0)
 
     if (strong_) then
        !$omp do
        do i = 1, m
-          k = this%msk(i)
+          k = msk_(i)
           x(k) = this%x(1)
           y(k) = this%x(2)
           z(k) = this%x(3)
@@ -133,15 +139,15 @@ contains
 
   !> Apply inflow conditions (vector valued) (device version)
   subroutine inflow_apply_vector_dev(this, x_d, y_d, z_d, &
-       time, strong, strm)
+       time, strong, strm, ifgs)
     class(inflow_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(c_ptr), intent(inout) :: y_d
     type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
-    logical :: strong_
+    logical :: strong_, ifgs_
 
     if (present(strong)) then
        strong_ = strong
@@ -149,9 +155,22 @@ contains
        strong_ = .true.
     end if
 
-    if (strong_ .and. (this%msk(0) .gt. 0)) then
-       call device_inflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
-            c_loc(this%x), this%msk(0), strm)
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (strong_) then
+       if (ifgs_) then
+          if (this%msk_gs(0) .gt. 0) &
+               call device_inflow_apply_vector(this%msk_gs_d, x_d, y_d, z_d, &
+               c_loc(this%x), this%msk_gs(0), strm)
+       else
+          if (this%msk(0) .gt. 0) &
+               call device_inflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
+               c_loc(this%x), this%msk(0), strm)
+       end if
     end if
 
   end subroutine inflow_apply_vector_dev
@@ -211,28 +230,7 @@ contains
        end if
        call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
-       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, time)
-       ! reconstruct coef; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, time)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ! added utils module; could be removed
-          call neko_error('Inflow:: Nothing done for device.')
-       end if
-
-       ! free space
-       if (allocated(this%msk)) deallocate(this%msk)
-       if (allocated(this%facet)) deallocate(this%facet)
-!       call this%marked_facet%free()
-!       call this%marked_facet%init()
-       call this%marked_facet%clear()
-
-       this%iffinalised = .false.
+       call this%amr_restart_base(reconstruct, counter, time)
 
        ! get zones
        do il = 1, size(this%zone_indices)
@@ -248,28 +246,7 @@ contains
        end if
        call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
-       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, time)
-       ! reconstruct coef; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, time)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ! added utils module; could be removed
-          call neko_error('Inflow:: Nothing done for device.')
-       end if
-
-       ! free space
-       if (allocated(this%msk)) deallocate(this%msk)
-       if (allocated(this%facet)) deallocate(this%facet)
-!       call this%marked_facet%free()
-!       call this%marked_facet%init()
-       call this%marked_facet%clear()
-
-       this%iffinalised = .false.
+       call this%amr_restart_base(reconstruct, counter, time)
 
     end if
 

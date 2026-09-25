@@ -174,20 +174,34 @@ contains
   !! @param x Field to which the weak neumann contribution is added.
   !! @param n Size of the array `x`.
   !! @param time The current time state.
-  subroutine field_neumann_apply_scalar(this, x, n, time, strong)
-    class(field_neumann_t), intent(inout) :: this
+  !! @param ifgs Do we use gs specific masking (nonconforming meshes only)
+  subroutine field_neumann_apply_scalar(this, x, n, time, strong, ifgs)
+    class(field_neumann_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     integer :: i, m, k, facet
     integer :: idx(4)
-    logical :: strong_
+    logical :: strong_, ifgs_
+    integer, dimension(:), pointer :: msk_
 
     if (present(strong)) then
        strong_ = strong
     else
        strong_ = .true.
+    end if
+
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (ifgs_) then
+       msk_(0 : this%msk_gs(0)) => this%msk_gs(0 : this%msk_gs(0))
+    else
+       msk_(0 : this%msk(0)) => this%msk(0 : this%msk(0))
     end if
 
     if (.not. strong_) then
@@ -198,10 +212,10 @@ contains
           this%updated = .true.
        end if
 
-       m = this%msk(0)
+       m = msk_(0)
        !$omp do
        do i = 1, m
-          k = this%msk(i)
+          k = msk_(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
@@ -229,18 +243,25 @@ contains
   !! @param x_d Device pointer to the field to update.
   !! @param time The current time state.
   !! @param strm Device stream.
-  subroutine field_neumann_apply_scalar_dev(this, x_d, time, strong, strm)
+  !! @param ifgs Do we use gs specific masking (nonconforming meshes only)
+  subroutine field_neumann_apply_scalar_dev(this, x_d, time, strong, strm, ifgs)
     class(field_neumann_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
-    logical :: strong_
+    logical :: strong_, ifgs_
 
     if (present(strong)) then
        strong_ = strong
     else
        strong_ = .true.
+    end if
+
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
     end if
 
     if (.not. strong_) then
@@ -250,24 +271,32 @@ contains
           this%updated = .true.
        end if
 
-       if (this%msk(0) .gt. 0) then
-          call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
-               this%flux%x_d, this%coef%area_d, this%coef%Xh%lx, &
-               size(this%msk), strm)
+       if (ifgs_) then
+          if (this%msk_gs(0) .gt. 0) then
+             call device_neumann_apply_scalar(this%msk_gs_d, this%facet_d, &
+                  x_d, this%flux%x_d, this%coef%area_d, this%coef%Xh%lx, &
+                  size(this%msk_gs), strm)
+          end if
+       else
+          if (this%msk(0) .gt. 0) then
+             call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
+                  this%flux%x_d, this%coef%area_d, this%coef%Xh%lx, &
+                  size(this%msk), strm)
+          end if
        end if
     end if
 
   end subroutine field_neumann_apply_scalar_dev
 
   !> (No-op) Apply vector.
-  subroutine field_neumann_apply_vector(this, x, y, z, n, time, strong)
-    class(field_neumann_t), intent(inout) :: this
+  subroutine field_neumann_apply_vector(this, x, y, z, n, time, strong, ifgs)
+    class(field_neumann_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
 
     call neko_error("field_neumann cannot apply vector BCs.")
 
@@ -275,13 +304,13 @@ contains
 
   !> (No-op) Apply vector (device).
   subroutine field_neumann_apply_vector_dev(this, x_d, y_d, z_d, time, &
-       strong, strm)
+       strong, strm, ifgs)
     class(field_neumann_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(c_ptr), intent(inout) :: y_d
     type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
 
     call neko_error("field_neumann cannot apply vector BCs.")

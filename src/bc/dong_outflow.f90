@@ -101,15 +101,16 @@ contains
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x
-  subroutine dong_outflow_apply_scalar(this, x, n, time, strong)
-    class(dong_outflow_t), intent(inout) :: this
+  subroutine dong_outflow_apply_scalar(this, x, n, time, strong, ifgs)
+    class(dong_outflow_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     integer :: i, m, k, facet, idx(4)
     real(kind=rp) :: vn, S0, ux, uy, uz, normal_xyz(3)
-    logical :: strong_
+    logical :: strong_, ifgs_
+    integer, dimension(:), pointer :: msk_
 
     if (present(strong)) then
        strong_ = strong
@@ -117,12 +118,24 @@ contains
        strong_ = .true.
     end if
 
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (ifgs_) then
+       msk_(0 : this%msk_gs(0)) => this%msk_gs(0 : this%msk_gs(0))
+    else
+       msk_(0 : this%msk(0)) => this%msk(0 : this%msk(0))
+    end if
+
     !Im actually not sure what to do if one has two dong that share a corner.
     if (strong_) then
-       m = this%msk(0)
+       m = msk_(0)
        !$omp do
        do i = 1, m
-          k = this%msk(i)
+          k = msk_(i)
           facet = this%facet(i)
           ux = this%u%x(k,1,1,1)
           uy = this%v%x(k,1,1,1)
@@ -141,26 +154,26 @@ contains
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to vectors @a x, @a y and @a z
-  subroutine dong_outflow_apply_vector(this, x, y, z, n, time, strong)
-    class(dong_outflow_t), intent(inout) :: this
+  subroutine dong_outflow_apply_vector(this, x, y, z, n, time, strong, ifgs)
+    class(dong_outflow_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
 
   end subroutine dong_outflow_apply_vector
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x (device version)
-  subroutine dong_outflow_apply_scalar_dev(this, x_d, time, strong, strm)
+  subroutine dong_outflow_apply_scalar_dev(this, x_d, time, strong, strm, ifgs)
     class(dong_outflow_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
-    logical :: strong_
+    logical :: strong_, ifgs_
 
     if (present(strong)) then
        strong_ = strong
@@ -168,12 +181,28 @@ contains
        strong_ = .true.
     end if
 
-    if (strong_ .and. this%msk(0) .gt. 0) then
-       call device_dong_outflow_apply_scalar(this%msk_d, x_d, &
-            this%normal_x_d, this%normal_y_d, this%normal_z_d, &
-            this%u%x_d, this%v%x_d, this%w%x_d, &
-            this%uinf, this%delta, &
-            this%msk(0), strm)
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (strong_) then
+       if (present(ifgs)) then
+          if (this%msk_gs(0) .gt. 0) &
+               call device_dong_outflow_apply_scalar(this%msk_gs_d, x_d, &
+               this%normal_x_d, this%normal_y_d, this%normal_z_d, &
+               this%u%x_d, this%v%x_d, this%w%x_d, &
+               this%uinf, this%delta, &
+               this%msk_gs(0), strm)
+       else
+          if (this%msk(0) .gt. 0) &
+               call device_dong_outflow_apply_scalar(this%msk_d, x_d, &
+               this%normal_x_d, this%normal_y_d, this%normal_z_d, &
+               this%u%x_d, this%v%x_d, this%w%x_d, &
+               this%uinf, this%delta, &
+               this%msk(0), strm)
+       end if
     end if
 
   end subroutine dong_outflow_apply_scalar_dev
@@ -181,13 +210,13 @@ contains
   !> Boundary condition apply for a generic Dirichlet condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine dong_outflow_apply_vector_dev(this, x_d, y_d, z_d, time, &
-       strong, strm)
+       strong, strm, ifgs)
     class(dong_outflow_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(c_ptr), intent(inout) :: y_d
     type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
 
     !call device_dong_outflow_apply_vector(this%msk_d, x_d, y_d, z_d, &

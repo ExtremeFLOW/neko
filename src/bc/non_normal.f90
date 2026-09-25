@@ -172,26 +172,7 @@ contains
        end if
        call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 
-       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, time)
-       ! reconstruct coef; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, time)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ! added utils module; could be removed
-          call neko_error('Non normal:: Nothing done for device.')
-       end if
-
-       ! free space
-       if (allocated(this%msk)) deallocate(this%msk)
-       if (allocated(this%facet)) deallocate(this%facet)
-!       call this%marked_facet%free()
-!       call this%marked_facet%init()
-       call this%marked_facet%clear()
+       call this%amr_restart_base(reconstruct, counter, time)
 
        ! Clean all bc components
        ! there should be no allocated zones
@@ -202,8 +183,6 @@ contains
        call this%bc_x%amr_restart(reconstruct, counter, time)
        call this%bc_y%amr_restart(reconstruct, counter, time)
        call this%bc_z%amr_restart(reconstruct, counter, time)
-
-       this%iffinalised = .false.
 
        ! get zones
        do il = 1, size(this%zone_indices)
@@ -221,26 +200,7 @@ contains
        end if
        call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 
-       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, time)
-       ! reconstruct coef; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, time)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ! added utils module; could be removed
-          call neko_error('Non normal:: Nothing done for device.')
-       end if
-
-       ! free space
-       if (allocated(this%msk)) deallocate(this%msk)
-       if (allocated(this%facet)) deallocate(this%facet)
-!       call this%marked_facet%free()
-!       call this%marked_facet%init()
-       call this%marked_facet%clear()
+       call this%amr_restart_base(reconstruct, counter, time)
 
        ! Clean all bc components
        ! there should be no allocated zones
@@ -251,8 +211,6 @@ contains
        call this%bc_x%amr_restart(reconstruct, counter, time)
        call this%bc_y%amr_restart(reconstruct, counter, time)
        call this%bc_z%amr_restart(reconstruct, counter, time)
-
-       this%iffinalised = .false.
 
        call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
     end if

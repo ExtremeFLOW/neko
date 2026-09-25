@@ -167,16 +167,17 @@ contains
 
   !> Boundary condition apply for a generic Neumann condition
   !! to a vector @a x
-  subroutine neumann_apply_scalar(this, x, n, time, strong)
-    class(neumann_t), intent(inout) :: this
+  subroutine neumann_apply_scalar(this, x, n, time, strong, ifgs)
+    class(neumann_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     integer :: i, m, k, facet
     ! Store non-linear index
     integer :: idx(4)
-    logical :: strong_
+    logical :: strong_, ifgs_
+    integer, dimension(:), pointer :: msk_
 
     if (present(strong)) then
        strong_ = strong
@@ -184,11 +185,23 @@ contains
        strong_ = .true.
     end if
 
-    m = this%msk(0)
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (ifgs_) then
+       msk_(0 : this%msk_gs(0)) => this%msk_gs(0 : this%msk_gs(0))
+    else
+       msk_(0 : this%msk(0)) => this%msk(0 : this%msk(0))
+    end if
+
+    m = msk_(0)
     if (.not. strong_) then
        !$omp do
        do i = 1,m
-          k = this%msk(i)
+          k = msk_(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
@@ -213,18 +226,19 @@ contains
 
   !> Boundary condition apply for a generic Neumann condition
   !! to vectors @a x, @a y and @a z
-  subroutine neumann_apply_vector(this, x, y, z, n, time, strong)
-    class(neumann_t), intent(inout) :: this
+  subroutine neumann_apply_vector(this, x, y, z, n, time, strong, ifgs)
+    class(neumann_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     integer :: i, m, k, facet
     ! Store non-linear index
     integer :: idx(4)
-    logical :: strong_
+    logical :: strong_, ifgs_
+    integer, dimension(:), pointer :: msk_
 
     if (present(strong)) then
        strong_ = strong
@@ -232,11 +246,23 @@ contains
        strong_ = .true.
     end if
 
-    m = this%msk(0)
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (ifgs_) then
+       msk_(0 : this%msk_gs(0)) => this%msk_gs(0 : this%msk_gs(0))
+    else
+       msk_(0 : this%msk(0)) => this%msk(0 : this%msk(0))
+    end if
+
+    m = msk_(0)
     if (.not. strong_) then
        !$omp parallel do private(k, facet, idx)
        do i = 1, m
-          k = this%msk(i)
+          k = msk_(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
@@ -279,13 +305,13 @@ contains
 
   !> Boundary condition apply for a generic Neumann condition
   !! to a vector @a x (device version)
-  subroutine neumann_apply_scalar_dev(this, x_d, time, strong, strm)
+  subroutine neumann_apply_scalar_dev(this, x_d, time, strong, strm, ifgs)
     class(neumann_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
-    logical :: strong_
+    logical :: strong_, ifgs_
 
     if (present(strong)) then
        strong_ = strong
@@ -293,26 +319,39 @@ contains
        strong_ = .true.
     end if
 
-    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &
-         .not. strong_) then
-       call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
-            this%flux(1)%x_d, this%coef%area_d, this%coef%Xh%lx, &
-            size(this%msk), strm)
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (.not. this%uniform_0 .and. .not. strong_) then
+       if (ifgs_) then
+          if (this%msk_gs(0) .gt. 0) &
+               call device_neumann_apply_scalar(this%msk_gs_d, this%facet_d, &
+               x_d, this%flux(1)%x_d, this%coef%area_d, this%coef%Xh%lx, &
+               size(this%msk_gs), strm)
+       else
+          if (this%msk(0) .gt. 0) &
+               call device_neumann_apply_scalar(this%msk_d, this%facet_d, &
+               x_d, this%flux(1)%x_d, this%coef%area_d, this%coef%Xh%lx, &
+               size(this%msk), strm)
+       end if
     end if
   end subroutine neumann_apply_scalar_dev
 
   !> Boundary condition apply for a generic Neumann condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine neumann_apply_vector_dev(this, x_d, y_d, z_d, &
-       time, strong, strm)
+       time, strong, strm, ifgs)
     class(neumann_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(c_ptr), intent(inout) :: y_d
     type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
-    logical :: strong_
+    logical :: strong_, ifgs_
 
     if (present(strong)) then
        strong_ = strong
@@ -320,13 +359,28 @@ contains
        strong_ = .true.
     end if
 
-    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &
-         .not. strong_) then
-       call device_neumann_apply_vector(this%msk_d, this%facet_d, &
-            x_d, y_d, z_d, &
-            this%flux(1)%x_d, this%flux(2)%x_d, this%flux(3)%x_d, &
-            this%coef%area_d, this%coef%Xh%lx, &
-            size(this%msk), strm)
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (.not. this%uniform_0 .and. .not. strong_) then
+       if (ifgs_) then
+          if (this%msk_gs(0) .gt. 0) &
+               call device_neumann_apply_vector(this%msk_gs_d, this%facet_d, &
+               x_d, y_d, z_d, &
+               this%flux(1)%x_d, this%flux(2)%x_d, this%flux(3)%x_d, &
+               this%coef%area_d, this%coef%Xh%lx, &
+               size(this%msk_gs), strm)
+       else
+          if (this%msk(0) .gt. 0) &
+               call device_neumann_apply_vector(this%msk_d, this%facet_d, &
+               x_d, y_d, z_d, &
+               this%flux(1)%x_d, this%flux(2)%x_d, this%flux(3)%x_d, &
+               this%coef%area_d, this%coef%Xh%lx, &
+               size(this%msk), strm)
+       end if
     end if
 
   end subroutine neumann_apply_vector_dev

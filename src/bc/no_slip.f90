@@ -93,55 +93,81 @@ contains
     end if
   end subroutine no_slip_init
 
-
-  subroutine no_slip_apply_vector(this, x, y, z, n, time, strong)
-    class(no_slip_t), intent(inout) :: this
+  subroutine no_slip_apply_vector(this, x, y, z, n, time, strong, ifgs)
+    class(no_slip_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x, y, z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
-    logical :: strong_
+    logical, intent(in), optional :: strong, ifgs
+    logical :: strong_, ifgs_
 
     strong_ = .true.
     if (present(strong)) strong_ = strong
     if (.not. strong_) return
+
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
 
     if (this%is_moving) then
        ! moving wall: u_wall = w_mesh
-       call masked_copy_0(x, this%wx%x, this%msk, n, this%msk(0))
-       call masked_copy_0(y, this%wy%x, this%msk, n, this%msk(0))
-       call masked_copy_0(z, this%wz%x, this%msk, n, this%msk(0))
+       if (ifgs_) then
+          call masked_copy_0(x, this%wx%x, this%msk_gs, n, this%msk_gs(0))
+          call masked_copy_0(y, this%wy%x, this%msk_gs, n, this%msk_gs(0))
+          call masked_copy_0(z, this%wz%x, this%msk_gs, n, this%msk_gs(0))
+       else
+          call masked_copy_0(x, this%wx%x, this%msk, n, this%msk(0))
+          call masked_copy_0(y, this%wy%x, this%msk, n, this%msk(0))
+          call masked_copy_0(z, this%wz%x, this%msk, n, this%msk(0))
+       end if
     else
-       call this%zero_dirichlet_t%apply_vector(x, y, z, n, time, strong_)
+       call this%zero_dirichlet_t%apply_vector(x, y, z, n, time, strong_, &
+            ifgs = ifgs)
     end if
   end subroutine no_slip_apply_vector
 
-
-  subroutine no_slip_apply_vector_dev(this, x_d, y_d, z_d, time, strong, strm)
+  subroutine no_slip_apply_vector_dev(this, x_d, y_d, z_d, time, strong, strm, &
+       ifgs)
     class(no_slip_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d, y_d, z_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
-    logical :: strong_
+    logical :: strong_, ifgs_
 
     strong_ = .true.
     if (present(strong)) strong_ = strong
     if (.not. strong_) return
 
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
     if (this%is_moving) then
-       call device_masked_copy_0(x_d, this%wx%x_d, this%msk_d, &
-            this%wx%dof%size(), this%msk(0), strm)
-       call device_masked_copy_0(y_d, this%wy%x_d, this%msk_d, &
-            this%wy%dof%size(), this%msk(0), strm)
-       call device_masked_copy_0(z_d, this%wz%x_d, this%msk_d, &
-            this%wz%dof%size(), this%msk(0), strm)
+       if (ifgs_) then
+          call device_masked_copy_0(x_d, this%wx%x_d, this%msk_gs_d, &
+               this%wx%dof%size(), this%msk_gs(0), strm)
+          call device_masked_copy_0(y_d, this%wy%x_d, this%msk_gs_d, &
+               this%wy%dof%size(), this%msk_gs(0), strm)
+          call device_masked_copy_0(z_d, this%wz%x_d, this%msk_gs_d, &
+               this%wz%dof%size(), this%msk_gs(0), strm)
+       else
+          call device_masked_copy_0(x_d, this%wx%x_d, this%msk_d, &
+               this%wx%dof%size(), this%msk(0), strm)
+          call device_masked_copy_0(y_d, this%wy%x_d, this%msk_d, &
+               this%wy%dof%size(), this%msk(0), strm)
+          call device_masked_copy_0(z_d, this%wz%x_d, this%msk_d, &
+               this%wz%dof%size(), this%msk(0), strm)
+       end if
     else
        call this%zero_dirichlet_t%apply_vector_dev(x_d, y_d, z_d, time, &
-            strong_, strm)
+            strong_, strm, ifgs = ifgs)
     end if
   end subroutine no_slip_apply_vector_dev
-
 
   subroutine no_slip_free(this)
     class(no_slip_t), intent(inout), target :: this

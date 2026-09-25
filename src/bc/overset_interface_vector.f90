@@ -52,8 +52,8 @@ module overset_interface_vector
   use vector, only : vector_t
   use vector_list, only : vector_list_t
   use vector_series, only: vector_series_t
-  use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy, vector_add2s2, &
-       vector_cmult2
+  use vector_math, only : vector_masked_gather_copy, &
+       vector_masked_scatter_copy, vector_add2s2, vector_cmult2
   use math, only : copy
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use vector_math, only : vector_copy
@@ -103,7 +103,8 @@ module overset_interface_vector
 
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
-     procedure(morph_overset_interface), nopass, pointer :: morph_interface => null()
+     procedure(morph_overset_interface), nopass, pointer :: &
+          morph_interface => null()
 
    contains
      !> Constructor.
@@ -132,9 +133,11 @@ module overset_interface_vector
      !> Build the masks for the overset interface.
      procedure, pass(this), private :: build_masks_ => build_masks_
      !> Gather the dofs at the interface.
-     procedure, pass(this), private :: gather_interface_dofs_ => gather_interface_dofs_
+     procedure, pass(this), private :: gather_interface_dofs_ => &
+          gather_interface_dofs_
      !> Set up the interpolator.
-     procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
+     procedure, pass(this), private :: setup_interpolator_ => &
+          setup_interpolator_
      !> AMR restart
      procedure, pass(this) :: amr_restart => &
           overset_interface_vector_amr_restart
@@ -258,12 +261,13 @@ contains
   !! @param x Field onto which to copy the values (e.g. u,v,w,p or s).
   !! @param n Size of the array `x`.
   !! @param t Current time state.
-  subroutine overset_interface_vector_apply_scalar(this, x, n, time, strong)
-    class(overset_interface_vector_t), intent(inout) :: this
+  subroutine overset_interface_vector_apply_scalar(this, x, n, time, strong, &
+       ifgs)
+    class(overset_interface_vector_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
 
     call neko_error("overset_interface_vector cannot apply scalar BCs.&
     & Use overset_interface_vector::apply_vector instead!")
@@ -274,11 +278,11 @@ contains
   !! @param x_d Device pointer to the field onto which to copy the values.
   !! @param time The current time state.
   subroutine overset_interface_vector_apply_scalar_dev(this, x_d, time, &
-       strong, strm)
+       strong, strm, ifgs)
     class(overset_interface_vector_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
 
     call neko_error("overset_interface_vector cannot apply scalar BCs.&
@@ -293,20 +297,26 @@ contains
   !! @param n Size of the `x`, `y` and `z` arrays.
   !! @param time The current time state.
   subroutine overset_interface_vector_apply_vector(this, x, y, z, n, time, &
-       strong)
-    class(overset_interface_vector_t), intent(inout) :: this
+       strong, ifgs)
+    class(overset_interface_vector_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
-    logical :: strong_
+    logical, intent(in), optional :: strong, ifgs
+    logical :: strong_, ifgs_
 
     if (present(strong)) then
        strong_ = strong
     else
        strong_ = .true.
+    end if
+
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
     end if
 
     if (strong_) then
@@ -319,9 +329,18 @@ contains
        end if
 
        !> TODO: Change the mask to mask_t
-       call masked_copy_0(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
-       call masked_copy_0(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
-       call masked_copy_0(z, this%bc_w%field_bc%x, this%msk, n, this%msk(0))
+       if (ifgs_) then
+          call masked_copy_0(x, this%bc_u%field_bc%x, this%msk_gs, n, &
+               this%msk_gs(0))
+          call masked_copy_0(y, this%bc_v%field_bc%x, this%msk_gs, n, &
+               this%msk_gs(0))
+          call masked_copy_0(z, this%bc_w%field_bc%x, this%msk_gs, n, &
+               this%msk_gs(0))
+       else
+          call masked_copy_0(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
+          call masked_copy_0(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
+          call masked_copy_0(z, this%bc_w%field_bc%x, this%msk, n, this%msk(0))
+       end if
     end if
 
   end subroutine overset_interface_vector_apply_vector
@@ -333,20 +352,26 @@ contains
   !! @param time The current time state.
   !! @param strm Device stream
   subroutine overset_interface_vector_apply_vector_dev(this, x_d, y_d, z_d, &
-       time, strong, strm)
+       time, strong, strm, ifgs)
     class(overset_interface_vector_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(c_ptr), intent(inout) :: y_d
     type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
-    logical :: strong_
+    logical :: strong_, ifgs_
 
     if (present(strong)) then
        strong_ = strong
     else
        strong_ = .true.
+    end if
+
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
     end if
 
     if (strong_) then
@@ -355,13 +380,28 @@ contains
           this%updated = .true.
        end if
 
-       if (this%msk(0) .gt. 0) then
-          call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, &
-               this%bc_u%msk_d, this%bc_u%dof%size(), this%msk(0), strm) ! adperez: change the masks used here
-          call device_masked_copy_0(y_d, this%bc_v%field_bc%x_d, &
-               this%bc_v%msk_d, this%bc_v%dof%size(), this%msk(0), strm)
-          call device_masked_copy_0(z_d, this%bc_w%field_bc%x_d, &
-               this%bc_w%msk_d, this%bc_w%dof%size(), this%msk(0), strm)
+       if (ifgs_) then
+          if (this%msk_gs(0) .gt. 0) then
+             call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, &
+                  this%bc_u%msk_gs_d, this%bc_u%dof%size(), this%msk_gs(0), &
+                  strm) ! adperez: change the masks used here
+             call device_masked_copy_0(y_d, this%bc_v%field_bc%x_d, &
+                  this%bc_v%msk_gs_d, this%bc_v%dof%size(), this%msk_gs(0), &
+                  strm)
+             call device_masked_copy_0(z_d, this%bc_w%field_bc%x_d, &
+                  this%bc_w%msk_gs_d, this%bc_w%dof%size(), this%msk_gs(0), &
+                  strm)
+          end if
+       else
+          if (this%msk(0) .gt. 0) then
+             call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, &
+                  this%bc_u%msk_d, this%bc_u%dof%size(), this%msk(0), &
+                  strm) ! adperez: change the masks used here
+             call device_masked_copy_0(y_d, this%bc_v%field_bc%x_d, &
+                  this%bc_v%msk_d, this%bc_v%dof%size(), this%msk(0), strm)
+             call device_masked_copy_0(z_d, this%bc_w%field_bc%x_d, &
+                  this%bc_w%msk_d, this%bc_w%dof%size(), this%msk(0), strm)
+          end if
        end if
     end if
 

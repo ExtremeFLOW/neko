@@ -167,18 +167,24 @@ contains
   !! @param x Field onto which to copy the values (e.g. u,v,w,p or s).
   !! @param n Size of the array `x`.
   !! @param time The current time state.
-  subroutine field_dirichlet_apply_scalar(this, x, n, time, strong)
-    class(field_dirichlet_t), intent(inout) :: this
+  subroutine field_dirichlet_apply_scalar(this, x, n, time, strong, ifgs)
+    class(field_dirichlet_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
-    logical :: strong_
+    logical, intent(in), optional :: strong, ifgs
+    logical :: strong_, ifgs_
 
     if (present(strong)) then
        strong_ = strong
     else
        strong_ = .true.
+    end if
+
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
     end if
 
     if (strong_) then
@@ -187,8 +193,11 @@ contains
           call this%update(this%field_list, this, time)
           this%updated = .true.
        end if
-
-       call masked_copy_0(x, this%field_bc%x, this%msk, n, this%msk(0))
+       if (ifgs_) then
+          call masked_copy_0(x, this%field_bc%x, this%msk_gs, n, this%msk_gs(0))
+       else
+          call masked_copy_0(x, this%field_bc%x, this%msk, n, this%msk(0))
+       end if
     end if
 
   end subroutine field_dirichlet_apply_scalar
@@ -197,18 +206,25 @@ contains
   !! @param x_d Device pointer to the field onto which to copy the values.
   !! @param time The current time state.
   !! @param strm Device stream
-  subroutine field_dirichlet_apply_scalar_dev(this, x_d, time, strong, strm)
+  subroutine field_dirichlet_apply_scalar_dev(this, x_d, time, strong, strm, &
+       ifgs)
     class(field_dirichlet_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
-    logical :: strong_
+    logical :: strong_, ifgs_
 
     if (present(strong)) then
        strong_ = strong
     else
        strong_ = .true.
+    end if
+
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
     end if
 
     if (strong_) then
@@ -217,9 +233,16 @@ contains
           this%updated = .true.
        end if
 
-       if (this%msk(0) .gt. 0) then
-          call device_masked_copy_0(x_d, this%field_bc%x_d, this%msk_d, &
-               this%field_bc%dof%size(), this%msk(0), strm)
+       if (ifgs_) then
+          if (this%msk_gs(0) .gt. 0) then
+             call device_masked_copy_0(x_d, this%field_bc%x_d, this%msk_gs_d, &
+                  this%field_bc%dof%size(), this%msk_gs(0), strm)
+          end if
+       else
+          if (this%msk(0) .gt. 0) then
+             call device_masked_copy_0(x_d, this%field_bc%x_d, this%msk_d, &
+                  this%field_bc%dof%size(), this%msk(0), strm)
+          end if
        end if
     end if
 
@@ -231,14 +254,14 @@ contains
   !! @param z z-component of the field onto which to apply the values.
   !! @param n Size of the `x`, `y` and `z` arrays.
   !! @param time The current time state.
-  subroutine field_dirichlet_apply_vector(this, x, y, z, n, time, strong)
-    class(field_dirichlet_t), intent(inout) :: this
+  subroutine field_dirichlet_apply_vector(this, x, y, z, n, time, strong, ifgs)
+    class(field_dirichlet_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
 
     call neko_error("field_dirichlet cannot apply vector BCs.&
     & Use field_dirichlet_vector instead!")
@@ -252,13 +275,13 @@ contains
   !! @param time The current time state.
   !! @param strm Device stream
   subroutine field_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, time, &
-       strong, strm)
+       strong, strm, ifgs)
     class(field_dirichlet_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(c_ptr), intent(inout) :: y_d
     type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
     call neko_error("field_dirichlet cannot apply vector BCs.&
     & Use field_dirichlet_vector instead!")
@@ -308,30 +331,9 @@ contains
        end if
        call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
-       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, time)
-       ! reconstruct coef; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, time)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ! added utils module; could be removed
-          call neko_error('Field Dirichlet:: Nothing done for device.')
-       end if
-
-       ! free space
-       if (allocated(this%msk)) deallocate(this%msk)
-       if (allocated(this%facet)) deallocate(this%facet)
-!       call this%marked_facet%free()
-!       call this%marked_facet%init()
-       call this%marked_facet%clear()
+       call this%amr_restart_base(reconstruct, counter, time)
 
        call this%field_bc%amr_reallocate(reconstruct, counter, time)
-
-       this%iffinalised = .false.
 
        ! get zones
        do il = 1, size(this%zone_indices)
@@ -347,30 +349,9 @@ contains
        end if
        call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
-       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, time)
-       ! reconstruct coef; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, time)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ! added utils module; could be removed
-          call neko_error('Field Dirichlet:: Nothing done for device.')
-       end if
-
-       ! free space
-       if (allocated(this%msk)) deallocate(this%msk)
-       if (allocated(this%facet)) deallocate(this%facet)
-!       call this%marked_facet%free()
-!       call this%marked_facet%init()
-       call this%marked_facet%clear()
+       call this%amr_restart_base(reconstruct, counter, time)
 
        call this%field_bc%amr_reallocate(reconstruct, counter, time)
-
-       this%iffinalised = .false.
 
     end if
 

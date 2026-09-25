@@ -229,12 +229,13 @@ contains
   !! @param strong Filter for strong or weak boundary conditions. Default is to
   !! apply the whole list.
   !! @param strm Device strm
-  subroutine bc_list_apply_scalar_array(this, x, n, time, strong, strm)
+  !! @param ifgs Do we use gs specific masking (for nonconforming meshes only)
+  subroutine bc_list_apply_scalar_array(this, x, n, time, strong, strm, ifgs)
     class(bc_list_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout), optional :: strm
     logical :: strong_
     type(c_ptr) :: x_d
@@ -245,7 +246,7 @@ contains
        x_d = device_get_ptr(x)
 
        call this%apply_scalar_device(x_d, time = time, &
-            strong = strong, strm = strm)
+            strong = strong, strm = strm, ifgs = ifgs)
     else
        ! Resolve strong into a concrete, always-present local before opening
        ! the parallel region. CCE's outlined region prologue dereferences a
@@ -261,13 +262,14 @@ contains
           !$omp parallel
           do i = 1, this%size_
              call this%items(i)%ptr%apply_scalar(x, n, time = time, &
-                  strong = strong_)
+                  strong = strong_, ifgs = ifgs)
           end do
           !$omp end parallel
        else
           !$omp parallel
           do i = 1, this%size_
-             call this%items(i)%ptr%apply_scalar(x, n, strong = strong_)
+             call this%items(i)%ptr%apply_scalar(x, n, strong = strong_, &
+                  ifgs = ifgs)
           end do
           !$omp end parallel
        end if
@@ -283,14 +285,16 @@ contains
   !! @param strong Filter for strong or weak boundary conditions. Default is to
   !! apply the whole list.
   !! @param strm Device stream
-  subroutine bc_list_apply_vector_array(this, x, y, z, n, time, strong, strm)
+  !! @param ifgs Do we use gs specific masking (for nonconforming meshes only)
+  subroutine bc_list_apply_vector_array(this, x, y, z, n, time, strong, strm, &
+       ifgs)
     class(bc_list_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout), optional :: strm
     logical :: strong_
     type(c_ptr) :: x_d
@@ -305,7 +309,7 @@ contains
        z_d = device_get_ptr(z)
 
        call this%apply_vector_device(x_d, y_d, z_d, time = time, &
-            strong = strong, strm = strm)
+            strong = strong, strm = strm, ifgs = ifgs)
     else
        ! Resolve strong into a concrete, always-present local before opening
        ! the parallel region. CCE's outlined region prologue dereferences a
@@ -321,13 +325,14 @@ contains
           !$omp parallel
           do i = 1, this%size_
              call this%items(i)%ptr%apply_vector(x, y, z, n, time = time, &
-                  strong = strong_)
+                  strong = strong_, ifgs = ifgs)
           end do
           !$omp end parallel
        else
           !$omp parallel
           do i = 1, this%size_
-             call this%items(i)%ptr%apply_vector(x, y, z, n, strong = strong_)
+             call this%items(i)%ptr%apply_vector(x, y, z, n, strong = strong_, &
+                  ifgs = ifgs)
           end do
           !$omp end parallel
        end if
@@ -341,11 +346,12 @@ contains
   !! @param strong Filter for strong or weak boundary conditions. Default is to
   !! apply the whole list.
   !! @param strm Device strm
-  subroutine bc_list_apply_scalar_device(this, x_d, time, strong, strm)
+  !! @param ifgs Do we use gs specific masking (for nonconforming meshes only)
+  subroutine bc_list_apply_scalar_device(this, x_d, time, strong, strm, ifgs)
     class(bc_list_t), intent(inout) :: this
     type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout), optional :: strm
     type(c_ptr) :: strm_
     integer :: i
@@ -358,7 +364,7 @@ contains
 
     do i = 1, this%size_
        call this%items(i)%ptr%apply_scalar_dev(x_d, time = time, &
-            strong = strong, strm = strm_)
+            strong = strong, strm = strm_, ifgs = ifgs)
     end do
 
   end subroutine bc_list_apply_scalar_device
@@ -371,14 +377,15 @@ contains
   !! @param strong Filter for strong or weak boundary conditions. Default is to
   !! apply the whole list.
   !! @param strm Device stream
+  !! @param ifgs Do we use gs specific masking (for nonconforming meshes only)
   subroutine bc_list_apply_vector_device(this, x_d, y_d, z_d, time, strong, &
-       strm)
+       strm, ifgs)
     class(bc_list_t), intent(inout) :: this
     type(c_ptr), intent(inout) :: x_d
     type(c_ptr), intent(inout) :: y_d
     type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout), optional :: strm
     type(c_ptr) :: strm_
     integer :: i
@@ -391,7 +398,7 @@ contains
 
     do i = 1, this%size_
        call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, time = time, &
-            strong = strong, strm = strm_)
+            strong = strong, strm = strm_, ifgs = ifgs)
     end do
 
   end subroutine bc_list_apply_vector_device
@@ -402,11 +409,12 @@ contains
   !! @param strong Filter for strong or weak boundary conditions. Default is to
   !! apply the whole list.
   !! @param strm Device stream
-  subroutine bc_list_apply_scalar_field(this, x, time, strong, strm)
+  !! @param ifgs Do we use gs specific masking (for nonconforming meshes only)
+  subroutine bc_list_apply_scalar_field(this, x, time, strong, strm, ifgs)
     class(bc_list_t), intent(inout) :: this
     type(field_t), intent(inout) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout), optional :: strm
     logical :: strong_
     type(c_ptr) :: strm_
@@ -428,14 +436,14 @@ contains
        !$omp parallel if (.not. omp_in_parallel())
        do i = 1, this%size_
           call this%items(i)%ptr%apply_scalar_generic(x, time = time, &
-               strong = strong_, strm = strm_)
+               strong = strong_, strm = strm_, ifgs = ifgs)
        end do
        !$omp end parallel
     else
        !$omp parallel if (.not. omp_in_parallel())
        do i = 1, this%size_
           call this%items(i)%ptr%apply_scalar_generic(x, &
-               strong = strong_, strm = strm_)
+               strong = strong_, strm = strm_, ifgs = ifgs)
        end do
        !$omp end parallel
     end if
@@ -450,13 +458,14 @@ contains
   !! @param strong Filter for strong or weak boundary conditions. Default is to
   !! apply the whole list.
   !! @param strm Device stream
-  subroutine bc_list_apply_vector_field(this, x, y, z, time, strong, strm)
+  !! @param ifgs Do we use gs specific masking (for nonconforming meshes only)
+  subroutine bc_list_apply_vector_field(this, x, y, z, time, strong, strm, ifgs)
     class(bc_list_t), intent(inout) :: this
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout), optional :: strm
     logical :: strong_
     type(c_ptr) :: strm_
@@ -478,14 +487,14 @@ contains
        !$omp parallel if (.not. omp_in_parallel())
        do i = 1, this%size_
           call this%items(i)%ptr%apply_vector_generic(x, y, z, time = time, &
-               strong = strong_, strm = strm_)
+               strong = strong_, strm = strm_, ifgs = ifgs)
        end do
        !$omp end parallel
     else
        !$omp parallel if (.not. omp_in_parallel())
        do i = 1, this%size_
           call this%items(i)%ptr%apply_vector_generic(x, y, z, &
-               strong = strong_, strm = strm_)
+               strong = strong_, strm = strm_, ifgs = ifgs)
        end do
        !$omp end parallel
     end if

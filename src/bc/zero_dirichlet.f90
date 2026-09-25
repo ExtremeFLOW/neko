@@ -41,7 +41,6 @@ module zero_dirichlet
   use json_module, only : json_file
   use time_state, only : time_state_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use utils, only : neko_error !! temporary
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use amr_reconstruct, only : amr_reconstruct_t
   implicit none
@@ -95,14 +94,15 @@ contains
 
   !> Apply boundary condition to a scalar field.
   !! to a vector @a x
-  subroutine zero_dirichlet_apply_scalar(this, x, n, time, strong)
-    class(zero_dirichlet_t), intent(inout) :: this
+  subroutine zero_dirichlet_apply_scalar(this, x, n, time, strong, ifgs)
+    class(zero_dirichlet_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     integer :: i, m, k
-    logical :: strong_
+    logical :: strong_, ifgs_
+    integer, dimension(:), pointer :: msk_
 
     if (present(strong)) then
        strong_ = strong
@@ -110,12 +110,24 @@ contains
        strong_ = .true.
     end if
 
-    m = this%msk(0)
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (ifgs_) then
+       msk_(0 : this%msk_gs(0)) => this%msk_gs(0 : this%msk_gs(0))
+    else
+       msk_(0 : this%msk(0)) => this%msk(0 : this%msk(0))
+    end if
+
+    m = msk_(0)
 
     if (strong_) then
        !$omp do
        do i = 1, m
-          k = this%msk(i)
+          k = msk_(i)
           x(k) = 0d0
        end do
        !$omp end do
@@ -124,16 +136,17 @@ contains
   end subroutine zero_dirichlet_apply_scalar
 
   !> Apply boundary condition to a vector field.
-  subroutine zero_dirichlet_apply_vector(this, x, y, z, n, time, strong)
-    class(zero_dirichlet_t), intent(inout) :: this
+  subroutine zero_dirichlet_apply_vector(this, x, y, z, n, time, strong, ifgs)
+    class(zero_dirichlet_t), intent(inout), target :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     integer :: i, m, k
-    logical :: strong_
+    logical :: strong_, ifgs_
+    integer, dimension(:), pointer :: msk_
 
     if (present(strong)) then
        strong_ = strong
@@ -141,11 +154,23 @@ contains
        strong_ = .true.
     end if
 
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (ifgs_) then
+       msk_(0 : this%msk_gs(0)) => this%msk_gs(0 : this%msk_gs(0))
+    else
+       msk_(0 : this%msk(0)) => this%msk(0 : this%msk(0))
+    end if
+
     if (strong_) then
-       m = this%msk(0)
+       m = msk_(0)
        !$omp do
        do i = 1, m
-          k = this%msk(i)
+          k = msk_(i)
           x(k) = 0d0
           y(k) = 0d0
           z(k) = 0d0
@@ -156,13 +181,14 @@ contains
   end subroutine zero_dirichlet_apply_vector
 
   !> Apply boundary condition to a scalar field, device version.
-  subroutine zero_dirichlet_apply_scalar_dev(this, x_d, time, strong, strm)
+  subroutine zero_dirichlet_apply_scalar_dev(this, x_d, time, strong, strm, &
+       ifgs)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
-    logical :: strong_
+    logical :: strong_, ifgs_
 
     if (present(strong)) then
        strong_ = strong
@@ -170,24 +196,37 @@ contains
        strong_ = .true.
     end if
 
-    if (strong_ .and. (this%msk(0) .gt. 0)) then
-       call device_zero_dirichlet_apply_scalar(this%msk_d, x_d, &
-            size(this%msk), strm)
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (strong_) then
+       if (ifgs_) then
+          if (this%msk_gs(0) .gt. 0) &
+               call device_zero_dirichlet_apply_scalar(this%msk_gs_d, x_d, &
+               size(this%msk_gs), strm)
+       else
+          if (this%msk(0) .gt. 0) &
+               call device_zero_dirichlet_apply_scalar(this%msk_d, x_d, &
+               size(this%msk), strm)
+       end if
     end if
 
   end subroutine zero_dirichlet_apply_scalar_dev
 
   !> Apply boundary condition to a vector field, device version.
   subroutine zero_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, time, &
-       strong, strm)
+       strong, strm, ifgs)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
     type(c_ptr), intent(inout) :: y_d
     type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout) :: strm
-    logical :: strong_
+    logical :: strong_, ifgs_
 
     if (present(strong)) then
        strong_ = strong
@@ -195,9 +234,22 @@ contains
        strong_ = .true.
     end if
 
-    if (strong_ .and. (this%msk(0) .gt. 0)) then
-       call device_zero_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-            size(this%msk), strm)
+    if (present(ifgs)) then
+       ifgs_ = ifgs
+    else
+       ifgs_ = .false.
+    end if
+
+    if (strong_) then
+       if (ifgs_) then
+          if (this%msk_gs(0) .gt. 0) &
+               call device_zero_dirichlet_apply_vector(this%msk_gs_d, x_d, &
+               y_d, z_d, size(this%msk_gs), strm)
+       else
+          if (this%msk(0) .gt. 0) &
+               call device_zero_dirichlet_apply_vector(this%msk_d, x_d, y_d, &
+               z_d, size(this%msk), strm)
+       end if
     end if
 
   end subroutine zero_dirichlet_apply_vector_dev
@@ -255,28 +307,7 @@ contains
        end if
        call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
-       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, time)
-       ! reconstruct coef; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, time)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ! added utils module; could be removed
-          call neko_error('Zero dirichlet:: Nothing done for device.')
-       end if
-
-       ! free space
-       if (allocated(this%msk)) deallocate(this%msk)
-       if (allocated(this%facet)) deallocate(this%facet)
-!       call this%marked_facet%free()
-!       call this%marked_facet%init()
-       call this%marked_facet%clear()
-
-       this%iffinalised = .false.
+       call this%amr_restart_base(reconstruct, counter, time)
 
        ! get zones
        do il = 1, size(this%zone_indices)
@@ -292,28 +323,7 @@ contains
        end if
        call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
-       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, time)
-       ! reconstruct coef; No problem, as AMR restart prevents recursive
-       ! reconstructions
-       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, time)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ! added utils module; could be removed
-          call neko_error('Zero dirichlet:: Nothing done for device.')
-       end if
-
-       ! free space
-       if (allocated(this%msk)) deallocate(this%msk)
-       if (allocated(this%facet)) deallocate(this%facet)
-!       call this%marked_facet%free()
-!       call this%marked_facet%init()
-       call this%marked_facet%clear()
-
-       this%iffinalised = .false.
+       call this%amr_restart_base(reconstruct, counter, time)
 
     end if
 

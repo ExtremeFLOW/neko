@@ -55,6 +55,7 @@ module bc
   use field, only : field_t
   use file, only : file_t
   use amr_restart_component, only : amr_restart_component_t
+  use amr_reconstruct, only : amr_reconstruct_t
 
   implicit none
   private
@@ -69,8 +70,10 @@ module bc
      logical :: only_facets = .false.
      !> Finalisation flag
      logical :: iffinalised
-     !> The linear index of each node in each boundary facet
+     !> The linear index of each node in each boundary facet; geometry based
      integer, allocatable :: msk(:)
+     !> The gs specific mask; for nonconforming meshes only; topology based
+     integer, pointer :: msk_gs(:) => null()
      !> A list of facet ids (1 to 6), one for each element in msk
      integer, allocatable :: facet(:)
      !> Map of degrees of freedom
@@ -85,6 +88,8 @@ module bc
      type(stack_i4t2_t) :: marked_facet
      !> Device pointer for msk
      type(c_ptr) :: msk_d = C_NULL_PTR
+     !> Device pointer for msk_gs
+     type(c_ptr) :: msk_gs_d = C_NULL_PTR
      !> Device pointer for facet
      type(c_ptr) :: facet_d = C_NULL_PTR
      !> Wether the bc is strongly enforced. Essentially valid for all Dirichlet
@@ -134,6 +139,8 @@ module bc
      procedure(bc_constructor), pass(this), deferred :: init
      !> Deferred finalizer.
      procedure(bc_finalize), pass(this), deferred :: finalize
+     !> AMR restart
+     procedure, pass(this) :: amr_restart_base => bc_amr_restart_base
   end type bc_t
 
   !> Pointer to a @ref `bc_t`.
@@ -180,14 +187,15 @@ module bc
      !! @param n The size of x.
      !! @param time Current time state.
      !! @param strong Whether we are setting a strong or a weak bc.
-     subroutine bc_apply_scalar(this, x, n, time, strong)
+     !! @param ifgs Do we use gs specific masking (nonconforming meshes only)
+     subroutine bc_apply_scalar(this, x, n, time, strong, ifgs)
        import :: bc_t, time_state_t
        import :: rp
-       class(bc_t), intent(inout) :: this
+       class(bc_t), intent(inout), target :: this
        integer, intent(in) :: n
        real(kind=rp), intent(inout), dimension(n) :: x
        type(time_state_t), intent(in), optional :: time
-       logical, intent(in), optional :: strong
+       logical, intent(in), optional :: strong, ifgs
      end subroutine bc_apply_scalar
   end interface
 
@@ -200,16 +208,17 @@ module bc
      !! @param t Current time.
      !! @param tstep Current time-step.
      !! @param strong Whether we are setting a strong or a weak bc.
-     subroutine bc_apply_vector(this, x, y, z, n, time, strong)
+     !! @param ifgs Do we use gs specific masking (nonconforming meshes only)
+     subroutine bc_apply_vector(this, x, y, z, n, time, strong, ifgs)
        import :: bc_t, time_state_t
        import :: rp
-       class(bc_t), intent(inout) :: this
+       class(bc_t), intent(inout), target :: this
        integer, intent(in) :: n
        real(kind=rp), intent(inout), dimension(n) :: x
        real(kind=rp), intent(inout), dimension(n) :: y
        real(kind=rp), intent(inout), dimension(n) :: z
        type(time_state_t), intent(in), optional :: time
-       logical, intent(in), optional :: strong
+       logical, intent(in), optional :: strong, ifgs
      end subroutine bc_apply_vector
   end interface
 
@@ -219,14 +228,15 @@ module bc
      !! @param time The time state.
      !! @param strong Whether we are setting a strong or a weak bc.
      !! @param strm Device stream
-     subroutine bc_apply_scalar_dev(this, x_d, time, strong, strm)
+     !! @param ifgs Do we use gs specific masking (nonconforming meshes only)
+     subroutine bc_apply_scalar_dev(this, x_d, time, strong, strm, ifgs)
        import :: c_ptr
        import :: bc_t, time_state_t
        import :: rp
        class(bc_t), intent(inout), target :: this
        type(c_ptr), intent(inout) :: x_d
        type(time_state_t), intent(in), optional :: time
-       logical, intent(in), optional :: strong
+       logical, intent(in), optional :: strong, ifgs
        type(c_ptr), intent(inout) :: strm
      end subroutine bc_apply_scalar_dev
   end interface
@@ -239,7 +249,9 @@ module bc
      !! @param time The time state.
      !! @param strong Whether we are setting a strong or a weak bc.
      !! @param strm Device stream
-     subroutine bc_apply_vector_dev(this, x_d, y_d, z_d, time, strong, strm)
+     !! @param ifgs Do we use gs specific masking (nonconforming meshes only)
+     subroutine bc_apply_vector_dev(this, x_d, y_d, z_d, time, strong, strm, &
+          ifgs)
        import :: c_ptr, bc_t, time_state_t
        import :: rp
        class(bc_t), intent(inout), target :: this
@@ -247,7 +259,7 @@ module bc
        type(c_ptr), intent(inout) :: y_d
        type(c_ptr), intent(inout) :: z_d
        type(time_state_t), intent(in), optional :: time
-       logical, intent(in), optional :: strong
+       logical, intent(in), optional :: strong, ifgs
        type(c_ptr), intent(inout) :: strm
      end subroutine bc_apply_vector_dev
   end interface
@@ -293,6 +305,8 @@ contains
     this%only_facets = .false.
     this%iffinalised = .false.
 
+    call bc_free_gs(this)
+
     if (allocated(this%msk)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_unmap(this%msk, this%msk_d)
@@ -311,7 +325,31 @@ contains
        deallocate(this%name)
     end if
 
+    call this%free_amr_base()
+
   end subroutine bc_free_base
+
+  !> Destructor for gs related objects.
+  subroutine bc_free_gs(this)
+    class(bc_t), target, intent(inout) :: this
+
+    if (associated(this%msk_gs) .and. &
+         .not. associated(this%msk_gs, this%msk)) then
+       if (c_associated(this%msk_gs_d) .and. &
+            .not. c_associated(this%msk_gs_d, this%msk_d)) then
+          call device_unmap(this%msk_gs, this%msk_gs_d)
+       end if
+       deallocate(this%msk_gs)
+    end if
+    nullify(this%msk_gs)
+
+    if (c_associated(this%msk_gs_d) .and. &
+         .not. c_associated(this%msk_gs_d, this%msk_gs_d)) then
+       this%msk_gs_d = C_NULL_PTR
+    end if
+    this%msk_gs_d = C_NULL_PTR
+
+  end subroutine bc_free_gs
 
   !> Apply the boundary condition to a vector field. Dispatches to the CPU
   !! or the device version.
@@ -321,13 +359,14 @@ contains
   !! @param time Current time state.
   !! @param strong Whether we are setting a strong or a weak bc.
   !! @param Device stream
-  subroutine bc_apply_vector_generic(this, x, y, z, time, strong, strm)
+  !! @param ifgs Do we use gs specific masking (nonconforming meshes only)
+  subroutine bc_apply_vector_generic(this, x, y, z, time, strong, strm, ifgs)
     class(bc_t), intent(inout) :: this
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout), optional :: strm
     type(c_ptr) :: strm_
     integer :: n
@@ -352,9 +391,10 @@ contains
        end if
 
        call this%apply_vector_dev(x%x_d, y%x_d, z%x_d, time = time, &
-            strong = strong, strm = strm_)
+            strong = strong, strm = strm_, ifgs = ifgs)
     else
-       call this%apply_vector(x%x, y%x, z%x, n, time = time, strong = strong)
+       call this%apply_vector(x%x, y%x, z%x, n, time = time, strong = strong, &
+            ifgs = ifgs)
     end if
 
   end subroutine bc_apply_vector_generic
@@ -365,11 +405,12 @@ contains
   !! @param time Current time state.
   !! @param strong Whether we are setting a strong or a weak bc.
   !! @param strm Device stream
-  subroutine bc_apply_scalar_generic(this, x, time, strong, strm)
+  !! @param ifgs Do we use gs specific masking (nonconforming meshes only)
+  subroutine bc_apply_scalar_generic(this, x, time, strong, strm, ifgs)
     class(bc_t), intent(inout) :: this
     type(field_t), intent(inout) :: x
     type(time_state_t), intent(in), optional :: time
-    logical, intent(in), optional :: strong
+    logical, intent(in), optional :: strong, ifgs
     type(c_ptr), intent(inout), optional :: strm
     type(c_ptr) :: strm_
     integer :: n
@@ -386,9 +427,9 @@ contains
        end if
 
        call this%apply_scalar_dev(x%x_d, time = time, strong = strong, &
-            strm = strm_)
+            strm = strm_, ifgs = ifgs)
     else
-       call this%apply_scalar(x%x, n, time = time)
+       call this%apply_scalar(x%x, n, time = time, ifgs = ifgs)
     end if
 
   end subroutine bc_apply_scalar_generic
@@ -451,9 +492,9 @@ contains
     integer :: i, j, k, l, msk_c
     integer :: lx, ly, lz, n
     character(len=LOG_SIZE) :: log_buf
-    ! threshold to identify boundary points; should be rather low due to
-    ! interpolation used at nonconforming interfaces; this value can restrict
-    ! max polynomial order of the run
+    ! threshold to identify geometrical boundary points; should be rather
+    ! low due to interpolation used at nonconforming interfaces; this value
+    ! can restrict max polynomial order of the run
     real(rp), parameter :: thrshld = 0.1
     lx = this%Xh%lx
     ly = this%Xh%ly
@@ -559,7 +600,6 @@ contains
        if (allocated(this%coef%gs_h%interp)) then
           call this%coef%gs_h%gs_op_vector(test_field%x, this%dof%size(), &
                GS_OP_MUL)
-          call this%coef%gs_h%interp%apply_j(test_field)
        else
           call this%coef%gs_h%op(test_field, GS_OP_MUL)
        end if
@@ -567,6 +607,35 @@ contains
           call device_memcpy(test_field%x, test_field%x_d, n, &
                DEVICE_TO_HOST, sync = .true.)
        end if
+
+       ! For gs mask there is no interpolation here for nonconforming
+       ! faces, as for consistency reason it is critical to mark all
+       ! the children touching the boundary in topological context,
+       ! even though in the geometrical one the child is not at the
+       ! boundary. It is important for interpolation in gs_op
+       if (allocated(this%coef%gs_h%interp)) then
+          msk_c = 0
+          do i = 1, this%dof%size()
+             if (test_field%x(i,1,1,1) .lt. thrshld) then
+                msk_c = msk_c + 1
+             end if
+          end do
+          !Allocate new mask_gs
+          allocate(this%msk_gs(0:msk_c))
+          j = 1
+          do i = 1, this%dof%size()
+             if (test_field%x(i,1,1,1) .lt. thrshld) then
+                this%msk_gs(j) = i
+                j = j + 1
+             end if
+          end do
+          this%msk_gs(0) = msk_c
+       end if
+
+       ! For geometrical context mask
+       if (allocated(this%coef%gs_h%interp)) &
+            call this%coef%gs_h%interp%apply_j(test_field)
+
        msk_c = 0
        do i = 1, this%dof%size()
           if (test_field%x(i,1,1,1) .lt. thrshld) then
@@ -588,12 +657,22 @@ contains
     end if
 
     this%msk(0) = msk_c
+    if (.not. associated(this%msk_gs)) this%msk_gs => this%msk
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       n = msk_c + 1
+       n = this%msk(0) + 1
        call device_map(this%msk, this%msk_d, n)
        call device_memcpy(this%msk, this%msk_d, n, &
             HOST_TO_DEVICE, sync = .true.)
+       if (associated(this%msk_gs) .and. &
+            .not. associated(this%msk_gs, this%msk)) then
+          n = this%msk_gs(0) + 1
+          call device_map(this%msk_gs, this%msk_gs_d, n)
+          call device_memcpy(this%msk_gs, this%msk_gs_d, n, &
+               HOST_TO_DEVICE, sync = .true.)
+       else
+          this%msk_gs_d = this%msk_d
+       end if
     end if
 
     this%iffinalised = .true.
@@ -634,4 +713,40 @@ contains
     call dump_file%write(bdry_field)
 
   end subroutine bc_debug_mask
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine bc_amr_restart_base(this, reconstruct, counter, time)
+    class(bc_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! reconstruct dofmap; No problem, as AMR restart prevents recursive
+    ! reconstructions
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
+         counter, time)
+    ! reconstruct coef; No problem, as AMR restart prevents recursive
+    ! reconstructions
+    if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+         counter, time)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('BC base:: Nothing done for device.')
+    end if
+
+    ! free space
+    call bc_free_gs(this)
+    if (allocated(this%msk)) deallocate(this%msk)
+    if (allocated(this%facet)) deallocate(this%facet)
+    call this%marked_facet%clear()
+
+    this%iffinalised = .false.
+
+  end subroutine bc_amr_restart_base
+
 end module bc
