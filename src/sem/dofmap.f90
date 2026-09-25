@@ -238,7 +238,7 @@ contains
     type(dofmap_t), target :: this
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
-    integer :: i, j
+    integer :: i,j,k
     integer :: global_id
     integer(kind=i8) :: num_dofs_edges(3) ! #dofs for each dir (r, s, t)
     integer(kind=i8) :: edge_id, edge_offset
@@ -253,7 +253,7 @@ contains
     num_dofs_edges(3) = int(Xh%lz - 2, i8)
     edge_offset = int(msh%glb_mpts, i8) + int(1, i8)
 
-    !$omp parallel do private(i,j,global_id,edge_id,shared_dof)
+    !$omp parallel do private(i,j,k,global_id,edge_id,shared_dof)
     do i = 1, msh%nelv
 
        select type (ep => msh%elements(i)%e)
@@ -267,13 +267,15 @@ contains
           !Reverse order of tranversal if edge is reversed
           if (this%dof(1,1,1,i) .gt. this%dof(Xh%lx, 1, 1, i)) then
              do concurrent (j = 2:Xh%lx - 1)
-                this%dof(Xh%lx+1-j, 1, 1, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx+1-j, 1, 1, i) = shared_dof
+                k = Xh%lx+1-j
+                this%dof(k, 1, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, 1, 1, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%lx - 1)
-                this%dof(j, 1, 1, i) = edge_id + (j-2)
-                this%shared_dof(j, 1, 1, i) = shared_dof
+                k = j
+                this%dof(k, 1, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, 1, 1, i) = shared_dof
              end do
           end if
 
@@ -282,13 +284,15 @@ contains
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           if (this%dof(1, 1, Xh%lz, i) .gt. this%dof(Xh%lx, 1, Xh%lz, i)) then
              do concurrent (j = 2:Xh%lx - 1)
-                this%dof(Xh%lx+1-j, 1, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx+1-j, 1, Xh%lz, i) = shared_dof
+                k = Xh%lx+1-j
+                this%dof(k, 1, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(k, 1, Xh%lz, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%lx - 1)
-                this%dof(j, 1, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(j, 1, Xh%lz, i) = shared_dof
+                k = j
+                this%dof(k, 1, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(k, 1, Xh%lz, i) = shared_dof
              end do
           end if
 
@@ -297,13 +301,15 @@ contains
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           if (this%dof(1, Xh%ly, 1, i) .gt. this%dof(Xh%lx, Xh%ly, 1, i)) then
              do concurrent (j = 2:Xh%lx - 1)
-                this%dof(Xh%lx+1-j, Xh%ly, 1, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx+1-j, Xh%ly, 1, i) = shared_dof
+                k = Xh%lx+1-j
+                this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, Xh%ly, 1, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%lx - 1)
-                this%dof(j, Xh%ly, 1, i) = edge_id + (j-2)
-                this%shared_dof(j, Xh%ly, 1, i) = shared_dof
+                k = j
+                this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, Xh%ly, 1, i) = shared_dof
              end do
           end if
 
@@ -313,13 +319,15 @@ contains
           if (this%dof(1, Xh%ly, Xh%lz, i) .gt. &
                this%dof(Xh%lx, Xh%ly, Xh%lz, i)) then
              do concurrent (j = 2:Xh%lx - 1)
-                this%dof(Xh%lx+1-j, Xh%ly, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx+1-j, Xh%ly, Xh%lz, i) = shared_dof
+                k = Xh%lx+1-j
+                this%dof(k, Xh%ly, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(k, Xh%ly, Xh%lz, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%lx - 1)
-                this%dof(j, Xh%ly, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(j, Xh%ly, Xh%lz, i) = shared_dof
+                k = j
+                this%dof(k, Xh%ly, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(k, Xh%ly, Xh%lz, i) = shared_dof
              end do
           end if
 
@@ -332,13 +340,15 @@ contains
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           if (this%dof(1,1,1,i) .gt. this%dof(1, Xh%ly, 1, i)) then
              do concurrent (j = 2:Xh%ly - 1)
-                this%dof(1, Xh%ly+1-j, 1, i) = edge_id + (j-2)
-                this%shared_dof(1, Xh%ly+1-j, 1, i) = shared_dof
+                k = Xh%ly+1-j
+                this%dof(1, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(1, k, 1, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%ly - 1)
-                this%dof(1, j, 1, i) = edge_id + (j-2)
-                this%shared_dof(1, j, 1, i) = shared_dof
+                k = j
+                this%dof(1, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(1, k, 1, i) = shared_dof
              end do
           end if
 
@@ -347,13 +357,15 @@ contains
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           if (this%dof(1, 1, Xh%lz, i) .gt. this%dof(1, Xh%ly, Xh%lz, i)) then
              do concurrent (j = 2:Xh%ly - 1)
-                this%dof(1, Xh%ly+1-j, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(1, Xh%ly+1-j, Xh%lz, i) = shared_dof
+                k = Xh%ly+1-j
+                this%dof(1, k, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(1, k, Xh%lz, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%ly - 1)
-                this%dof(1, j, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(1, j, Xh%lz, i) = shared_dof
+                k = j
+                this%dof(1, k, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(1, k, Xh%lz, i) = shared_dof
              end do
           end if
 
@@ -362,13 +374,15 @@ contains
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           if (this%dof(Xh%lx, 1, 1, i) .gt. this%dof(Xh%lx, Xh%ly, 1, i)) then
              do concurrent (j = 2:Xh%ly - 1)
-                this%dof(Xh%lx, Xh%ly+1-j, 1, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, Xh%ly+1-j, 1, i) = shared_dof
+                k = Xh%ly+1-j
+                this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, k, 1, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%ly - 1)
-                this%dof(Xh%lx, j, 1, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, j, 1, i) = shared_dof
+                k = j
+                this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, k, 1, i) = shared_dof
              end do
           end if
 
@@ -378,13 +392,15 @@ contains
           if (this%dof(Xh%lx, 1, Xh%lz, i) .gt. &
                this%dof(Xh%lx, Xh%ly, Xh%lz, i)) then
              do concurrent (j = 2:Xh%ly - 1)
-                this%dof(Xh%lx, Xh%lz+1-j, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, Xh%lz+1-j, Xh%lz, i) = shared_dof
+                k = Xh%lz+1-j
+                this%dof(Xh%lx, k, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, k, Xh%lz, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%ly - 1)
-                this%dof(Xh%lx, j, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, j, Xh%lz, i) = shared_dof
+                k = j
+                this%dof(Xh%lx, k, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, k, Xh%lz, i) = shared_dof
              end do
           end if
 
@@ -396,13 +412,15 @@ contains
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
           if (this%dof(1,1,1,i) .gt. this%dof(1, 1, Xh%lz, i)) then
              do concurrent (j = 2:Xh%lz - 1)
-                this%dof(1, 1, Xh%lz+1-j, i) = edge_id + (j-2)
-                this%shared_dof(1, 1, Xh%lz+1-j, i) = shared_dof
+                k = Xh%lz+1-j
+                this%dof(1, 1, k, i) = edge_id + (j-2)
+                this%shared_dof(1, 1, k, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%lz - 1)
-                this%dof(1, 1, j, i) = edge_id + (j-2)
-                this%shared_dof(1, 1, j, i) = shared_dof
+                k = j
+                this%dof(1, 1, k, i) = edge_id + (j-2)
+                this%shared_dof(1, 1, k, i) = shared_dof
              end do
           end if
 
@@ -411,13 +429,15 @@ contains
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
           if (this%dof(Xh%lx,1,1,i) .gt. this%dof(Xh%lx, 1, Xh%lz, i)) then
              do concurrent (j = 2:Xh%lz - 1)
-                this%dof(Xh%lx, 1, Xh%lz+1-j, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, 1, Xh%lz+1-j, i) = shared_dof
+                k = Xh%lz+1-j
+                this%dof(Xh%lx, 1, k, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, 1, k, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%lz - 1)
-                this%dof(Xh%lx, 1, j, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, 1, j, i) = shared_dof
+                k = j
+                this%dof(Xh%lx, 1, k, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, 1, k, i) = shared_dof
              end do
           end if
 
@@ -426,13 +446,15 @@ contains
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
           if (this%dof(1, Xh%ly, 1, i) .gt. this%dof(1, Xh%ly, Xh%lz, i)) then
              do concurrent (j = 2:Xh%lz - 1)
-                this%dof(1, Xh%ly, Xh%lz+1-j, i) = edge_id + (j-2)
-                this%shared_dof(1, Xh%ly, Xh%lz+1-j, i) = shared_dof
+                k = Xh%lz+1-j
+                this%dof(1, Xh%ly, k, i) = edge_id + (j-2)
+                this%shared_dof(1, Xh%ly, k, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%lz - 1)
-                this%dof(1, Xh%ly, j, i) = edge_id + (j-2)
-                this%shared_dof(1, Xh%ly, j, i) = shared_dof
+                k = j
+                this%dof(1, Xh%ly, k, i) = edge_id + (j-2)
+                this%shared_dof(1, Xh%ly, k, i) = shared_dof
              end do
           end if
 
@@ -442,13 +464,15 @@ contains
           if (this%dof(Xh%lx, Xh%ly, 1, i) .gt. &
                this%dof(Xh%lx, Xh%ly, Xh%lz, i)) then
              do concurrent (j = 2:Xh%lz - 1)
-                this%dof(Xh%lx, Xh%ly, Xh%lz+1-j, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, Xh%ly, Xh%lz+1-j, i) = shared_dof
+                k = Xh%lz+1-j
+                this%dof(Xh%lx, Xh%ly, k, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, Xh%ly, k, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%lz - 1)
-                this%dof(Xh%lx, Xh%ly, j, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, Xh%ly, j, i) = shared_dof
+                k = j
+                this%dof(Xh%lx, Xh%ly, k, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, Xh%ly, k, i) = shared_dof
              end do
           end if
        type is (quad_t)
@@ -461,13 +485,15 @@ contains
           !Reverse order of tranversal if edge is reversed
           if (this%dof(1,1,1,i) .gt. this%dof(Xh%lx, 1, 1, i)) then
              do concurrent (j = 2:Xh%lx - 1)
-                this%dof(Xh%lx+1-j, 1, 1, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx+1-j, 1, 1, i) = shared_dof
+                k = Xh%lx+1-j
+                this%dof(k, 1, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, 1, 1, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%lx - 1)
-                this%dof(j, 1, 1, i) = edge_id + (j-2)
-                this%shared_dof(j, 1, 1, i) = shared_dof
+                k = j
+                this%dof(k, 1, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, 1, 1, i) = shared_dof
              end do
           end if
 
@@ -476,13 +502,15 @@ contains
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           if (this%dof(1, Xh%ly, 1, i) .gt. this%dof(Xh%lx, Xh%ly, 1, i)) then
              do concurrent (j = 2:Xh%lx - 1)
-                this%dof(Xh%lx+1-j, Xh%ly, 1, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx+1-j, Xh%ly, 1, i) = shared_dof
+                k = Xh%lx+1-j
+                this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, Xh%ly, 1, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%lx - 1)
-                this%dof(j, Xh%ly, 1, i) = edge_id + (j-2)
-                this%shared_dof(j, Xh%ly, 1, i) = shared_dof
+                k = j
+                this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, Xh%ly, 1, i) = shared_dof
              end do
           end if
 
@@ -494,13 +522,15 @@ contains
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           if (this%dof(1,1,1,i) .gt. this%dof(1, Xh%ly, 1, i)) then
              do concurrent (j = 2:Xh%ly - 1)
-                this%dof(1, Xh%ly+1-j, 1, i) = edge_id + (j-2)
-                this%shared_dof(1, Xh%ly+1-j, 1, i) = shared_dof
+                k = Xh%ly+1-j
+                this%dof(1, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(1, k, 1, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%ly - 1)
-                this%dof(1, j, 1, i) = edge_id + (j-2)
-                this%shared_dof(1, j, 1, i) = shared_dof
+                k = j
+                this%dof(1, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(1, k, 1, i) = shared_dof
              end do
           end if
 
@@ -509,13 +539,15 @@ contains
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           if (this%dof(Xh%lx,1,1,i) .gt. this%dof(Xh%lx, Xh%ly, 1, i)) then
              do concurrent (j = 2:Xh%ly - 1)
-                this%dof(Xh%lx, Xh%ly+1-j, 1, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, Xh%ly+1-j, 1, i) = shared_dof
+                k = Xh%ly+1-j
+                this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, k, 1, i) = shared_dof
              end do
           else
              do concurrent (j = 2:Xh%ly - 1)
-                this%dof(Xh%lx, j, 1, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, j, 1, i) = shared_dof
+                k = j
+                this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, k, 1, i) = shared_dof
              end do
           end if
        end select
@@ -657,11 +689,6 @@ contains
     j = j1 - 2
     lk = lk1 - 2
     lj = lj1 - 2
-
-    ! face is the sorted version of face_order, so face%x(1) always matches one
-    ! of the entries of face_order and one of the branches below is taken. The
-    ! initialisation only keeps the result defined if that ever stops holding.
-    facet_idx = facet_id
 
     ! Given the indexes k,j for a GLL point on the inner part of the
     ! face, we assign a unique number to it that depends on the
@@ -943,6 +970,7 @@ contains
     real(kind=rp), intent(inout) :: e(n, n, n)
     real(kind=rp), intent(inout) :: v(n, n, n)
     integer :: gh_type, ntot, kk, jj, ii, k, j, i
+    real(kind=xp) :: si, sj, sk, hi, hj, hk
 
     !
     !  Build vertex interpolant
@@ -954,13 +982,10 @@ contains
 
     do concurrent (i = 1:n, j = 1:n, k = 1:n, &
          ii = 1:n:n-1, jj = 1:n:n-1, kk = 1:n:n-1)
-       block
-         real(kind=xp) :: si, sj, sk
-         si = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-         sj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-         sk = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-         v(i,j,k) = v(i,j,k) + si * sj* sk * x(ii, jj, kk)
-       end block
+       si = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       sj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       sk = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       v(i,j,k) = v(i,j,k) + si * sj* sk * x(ii, jj, kk)
     end do
 
     if (gh_type .eq. 1) then
@@ -979,34 +1004,25 @@ contains
     !  x-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, jj = 1:n:n-1, kk = 1:n:n-1)
-       block
-         real(kind=xp) :: hj, hk
-         hj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-         hk = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-         e(i,j,k) = e(i,j,k) + hj*hk*(x(i, jj, kk) - v(i, jj, kk))
-       end block
+       hj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       hk = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       e(i,j,k) = e(i,j,k) + hj*hk*(x(i, jj, kk) - v(i, jj, kk))
     end do
     !
     !  y-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1, kk = 1:n:n-1)
-       block
-         real(kind=xp) :: hi, hk
-         hi = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-         hk = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-         e(i,j,k) = e(i,j,k) + hi*hk*(x(ii, j, kk) - v(ii, j, kk))
-       end block
+       hi = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       hk = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       e(i,j,k) = e(i,j,k) + hi*hk*(x(ii, j, kk) - v(ii, j, kk))
     end do
     !
     !  z-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1, jj = 1:n:n-1)
-       block
-         real(kind=xp) :: hi, hj
-         hi = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-         hj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-         e(i,j,k) = e(i,j,k) + hi*hj*(x(ii, jj, k) - v(ii, jj, k))
-       end block
+       hi = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       hj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       e(i,j,k) = e(i,j,k) + hi*hj*(x(ii, jj, k) - v(ii, jj, k))
     end do
 
     do concurrent (i = 1:ntot)
@@ -1029,33 +1045,24 @@ contains
     !  x-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1)
-       block
-         real(kind=xp) :: hi
-         hi = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-         v(i,j,k) = v(i,j,k) + hi*(x(ii,j,k)-e(ii,j,k))
-       end block
+       hi = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       v(i,j,k) = v(i,j,k) + hi*(x(ii,j,k)-e(ii,j,k))
     end do
 
     !
     ! y-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, jj = 1:n:n-1)
-       block
-         real(kind=xp) :: hj
-         hj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-         v(i,j,k) = v(i,j,k) + hj*(x(i, jj, k) - e(i, jj, k))
-       end block
+       hj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       v(i,j,k) = v(i,j,k) + hj*(x(i, jj, k) - e(i, jj, k))
     end do
 
     !
     !  z-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, kk = 1:n:n-1)
-       block
-         real(kind=xp) :: hk
-         hk = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-         v(i,j,k) = v(i,j,k) + hk*(x(i, j, kk) - e(i, j, kk))
-       end block
+       hk = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       v(i,j,k) = v(i,j,k) + hk*(x(i, j, kk) - e(i, j, kk))
     end do
 
     do concurrent (i = 1:ntot)

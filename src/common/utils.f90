@@ -573,6 +573,11 @@ contains
     ! Read the days field.
     if (has_days) then
        sep = index(time_string, '-')
+       if (.not. duration_field_is_digits(time_string(1:sep - 1))) then
+          call set_error_or_throw( &
+               'Error parsing duration: Invalid days value', ierr)
+          return
+       end if
        read(time_string(1:sep - 1), *, iostat=ios) read_int
        if (ios .ne. 0 .or. read_int .lt. 0) then
           call set_error_or_throw( &
@@ -587,6 +592,11 @@ contains
     ! Read the hours.
     if (has_hours) then
        sep = index(time_string, ':')
+       if (.not. duration_field_is_digits(time_string(1:sep - 1))) then
+          call set_error_or_throw( &
+               'Error parsing duration: Invalid hours value', ierr)
+          return
+       end if
        read(time_string(1:sep - 1), *, iostat=ios) read_int
        if (ios .ne. 0 .or. read_int .lt. 0 .or. &
             (has_days .and. read_int .gt. 23)) then
@@ -602,6 +612,11 @@ contains
     ! Read the minutes.
     if (has_minutes) then
        sep = index(time_string, ':')
+       if (.not. duration_field_is_digits(time_string(1:sep - 1))) then
+          call set_error_or_throw( &
+               'Error parsing duration: Invalid minutes value', ierr)
+          return
+       end if
        read(time_string(1:sep - 1), *, iostat=ios) read_int
        if (ios .ne. 0 .or. read_int .lt. 0 .or. &
             (has_hours .and. read_int .gt. 59)) then
@@ -628,6 +643,28 @@ contains
 
     if (allocated(time_string)) deallocate(time_string)
   end function read_duration_internal
+
+  !> Check that a duration field holds nothing but decimal digits.
+  !! A list-directed read stops at the first character it cannot use, so
+  !! reading an integer from '1d' yields 1 with iostat 0 on some compilers
+  !! and an error on others. The fields are screened here so that a bad
+  !! duration is rejected the same way everywhere.
+  pure function duration_field_is_digits(field) result(res)
+    character(len=*), intent(in) :: field
+    logical :: res
+    character(len=:), allocatable :: digits
+    integer :: i
+
+    res = .false.
+    digits = trim(adjustl(field))
+    if (len(digits) .eq. 0) return
+
+    do i = 1, len(digits)
+       if (digits(i:i) .lt. '0' .or. digits(i:i) .gt. '9') return
+    end do
+
+    res = .true.
+  end function duration_field_is_digits
 
   !> Raise parser error or set ierr, depending on call mode.
   subroutine set_error_or_throw(message, ierr)

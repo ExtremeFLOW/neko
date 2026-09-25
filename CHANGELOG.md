@@ -4,16 +4,24 @@
 
 - Enabled the unit and integration test suites in the Intel CI workflow, which
   previously only compiled Neko. The workflow now builds against pFUnit, runs
-  `make check` and the pytest integration tests, and archives the logs.
+  `make check` and the pytest integration tests, and archives the logs. Intel
+  MPI is pinned to 2021.17 there, because 2021.18 segfaults inside
+  `mpi_file_open_f08` for every `MPI_File_open` issued through the `mpi_f08`
+  bindings, which is how Neko reads and writes meshes, fields and checkpoints.
 
-- Removed the shared scalars that `dofmap_number_edges` and
-  `gh_face_extend_3d` assigned inside their `do concurrent` loops. A variable
-  written in one iteration and read in the same one is left undefined after
-  the loop and lets the compiler reorder the stores freely. That is
-  standard-conforming but fragile, and a suspect for the wrong dof numbering
-  seen with `ifx`. The edge loops now index with the loop variable directly
-  and the interpolation loops declare their temporaries in a `block` inside
-  the loop body.
+- Renamed the `interpolation` test procedure in
+  `test_point_interpolation_parallel.pf`, which `ifx` rejects because the name
+  collides with the `interpolation` module in the same scope.
+
+- Initialised the Neko communicator in the serial registry and scratch registry
+  unit tests. They build a mesh and a dofmap, whose collectives were reaching
+  MPI with an uninitialised `NEKO_COMM`. Open MPI tolerates the null handle and
+  Intel MPI aborts on it.
+
+- Rejected duration fields containing anything but decimal digits in
+  `read_duration`. A list-directed read stops at the first unusable character,
+  so a string such as `1d-00:00:00` was accepted as one day by compilers whose
+  read returns success for `1d`, and rejected by the rest.
 
 - Added format-independent checkpoint payloads for registering named fields,
   field histories, nodal mesh arrays, and distributed or replicated real
