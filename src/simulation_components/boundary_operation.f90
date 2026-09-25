@@ -484,7 +484,7 @@ contains
              output_col = output_col + 1
           end do
           call this%csv_output%write(this%csv_row)
-          call this%output_controller%register_execution()
+          call this%output_controller%register_execution(time)
        end if
     end if
   end subroutine boundary_operation_compute

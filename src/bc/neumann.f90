@@ -174,6 +174,7 @@ contains
     integer :: i, m, k, facet
     ! Store non-linear index
     integer :: idx(4)
+    real(kind=rp) :: area
     logical :: strong_
 
     if (present(strong)) then
@@ -190,20 +191,17 @@ contains
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
+          area = 0.0_rp
           select case (facet)
           case (1,2)
-             x(k) = x(k) + &
-                  this%flux(1)%x(i) * &
-                  this%coef%area(idx(2), idx(3), facet, idx(4))
+             area = this%coef%area(idx(2), idx(3), facet, idx(4))
           case (3,4)
-             x(k) = x(k) + &
-                  this%flux(1)%x(i) * &
-                  this%coef%area(idx(1), idx(3), facet, idx(4))
+             area = this%coef%area(idx(1), idx(3), facet, idx(4))
           case (5,6)
-             x(k) = x(k) + &
-                  this%flux(1)%x(i) * &
-                  this%coef%area(idx(1), idx(2), facet, idx(4))
+             area = this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
+          !$omp atomic
+          x(k) = x(k) + this%flux(1)%x(i) * area
        end do
        !$omp end do
     end if
@@ -222,6 +220,7 @@ contains
     integer :: i, m, k, facet
     ! Store non-linear index
     integer :: idx(4)
+    real(kind=rp) :: area
     logical :: strong_
 
     if (present(strong)) then
@@ -232,46 +231,29 @@ contains
 
     m = this%facet_node_msk(0)
     if (.not. strong_) then
-       !$omp parallel do private(k, facet, idx)
+       !$omp do
        do i = 1, m
           k = this%facet_node_msk(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
+          area = 0.0_rp
           select case (facet)
           case (1,2)
-             x(k) = x(k) + &
-                  this%flux(1)%x(i) * &
-                  this%coef%area(idx(2), idx(3), facet, idx(4))
-             y(k) = y(k) + &
-                  this%flux(2)%x(i) * &
-                  this%coef%area(idx(2), idx(3), facet, idx(4))
-             z(k) = z(k) + &
-                  this%flux(3)%x(i) * &
-                  this%coef%area(idx(2), idx(3), facet, idx(4))
+             area = this%coef%area(idx(2), idx(3), facet, idx(4))
           case (3,4)
-             x(k) = x(k) + &
-                  this%flux(1)%x(i) * &
-                  this%coef%area(idx(1), idx(3), facet, idx(4))
-             y(k) = y(k) + &
-                  this%flux(2)%x(i) * &
-                  this%coef%area(idx(1), idx(3), facet, idx(4))
-             z(k) = z(k) + &
-                  this%flux(3)%x(i) * &
-                  this%coef%area(idx(1), idx(3), facet, idx(4))
+             area = this%coef%area(idx(1), idx(3), facet, idx(4))
           case (5,6)
-             x(k) = x(k) + &
-                  this%flux(1)%x(i) * &
-                  this%coef%area(idx(1), idx(2), facet, idx(4))
-             y(k) = y(k) + &
-                  this%flux(2)%x(i) * &
-                  this%coef%area(idx(1), idx(2), facet, idx(4))
-             z(k) = z(k) + &
-                  this%flux(3)%x(i) * &
-                  this%coef%area(idx(1), idx(2), facet, idx(4))
+             area = this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
+          !$omp atomic
+          x(k) = x(k) + this%flux(1)%x(i) * area
+          !$omp atomic
+          y(k) = y(k) + this%flux(2)%x(i) * area
+          !$omp atomic
+          z(k) = z(k) + this%flux(3)%x(i) * area
        end do
-       !$omp end parallel do
+       !$omp end do
     end if
   end subroutine neumann_apply_vector
 

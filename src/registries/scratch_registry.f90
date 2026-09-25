@@ -35,12 +35,15 @@
 !! often and you don't want to create temporary objects (work arrays) inside
 !! it on each call.
 module scratch_registry
+  use num_types, only : rp
   use registry_entry, only : registry_entry_t
   use host_array, only : host_array_t
   use device_array, only : device_array_t
   use field, only : field_t
   use vector, only : vector_t
   use matrix, only : matrix_t
+  use tensor3, only : tensor3_t
+  use tensor4, only : tensor4_t
 
   use math, only : rzero
   use device_math, only : device_rzero
@@ -50,6 +53,8 @@ module scratch_registry
 
   use dofmap, only : dofmap_t
   use utils, only : neko_error
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -117,18 +122,43 @@ module scratch_registry
      generic :: relinquish_matrix => relinquish_matrix_single, &
           relinquish_matrix_multiple
 
-     !> Get a new scratch field
-     procedure, pass(this) :: request_field
+     !> Get a new scratch tensor3
+     procedure, pass(this) :: request_tensor3
+     procedure, pass(this) :: relinquish_tensor3_single
+     procedure, pass(this) :: relinquish_tensor3_multiple
+     !> Free a tensor3 for later reuse
+     generic :: relinquish_tensor3 => relinquish_tensor3_single, &
+          relinquish_tensor3_multiple
+
+     !> Get a new scratch tensor4
+     procedure, pass(this) :: request_tensor4
+     procedure, pass(this) :: relinquish_tensor4_single
+     procedure, pass(this) :: relinquish_tensor4_multiple
+     !> Free a tensor4 for later reuse
+     generic :: relinquish_tensor4 => relinquish_tensor4_single, &
+          relinquish_tensor4_multiple
+
+     !> Get a new scratch field based on the stored dofmap
+     procedure, pass(this) :: request_field_stored_dof
+     !> Get a new scratch field based on a provided dofmap
+     procedure, pass(this) :: request_field_free_dof
      procedure, pass(this) :: relinquish_field_single
      procedure, pass(this) :: relinquish_field_multiple
+     !> Get a new scratch field
+     generic :: request_field => request_field_stored_dof, &
+          request_field_free_dof
      !> Free a field for later reuse
      generic :: relinquish_field => relinquish_field_single, &
           relinquish_field_multiple
 
      !> Generic request procedure
      generic :: request => request_host_array, request_device_array, &
-          request_vector, request_matrix, request_field
+          request_vector, request_matrix, request_tensor3, request_tensor4, &
+          request_field_stored_dof, request_field_free_dof
+
+     !> Generic relinquish procedure for single objects
      procedure, pass(this) :: relinquish_single
+     !> Generic relinquish procedure for multiple objects
      procedure, pass(this) :: relinquish_multiple
      !> Generic relinquish procedure
      generic :: relinquish => relinquish_single, relinquish_multiple
@@ -290,18 +320,19 @@ contains
 
   end subroutine expand
 
-  !> Get a host_array from the registry by assigning it to a pointer.
-  !! @param v Pointer to the requested host_array.
+  !> Get a host array from the registry by assigning it to a pointer.
+  !! @param v Pointer to the requested host array.
   !! @param index Index of the host array in the registry (for
   !! relinquishing later).
   !! @param n Size of the requested host_array.
   !! @param clear If true, the host_array values are set to zero upon request.
   subroutine request_host_array(this, v, index, n, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    type(host_array_t), pointer, intent(inout) :: v
+    real(kind=rp), pointer, dimension(:), intent(inout) :: v
     integer, intent(inout) :: index
     integer, intent(in) :: n
     logical, intent(in) :: clear
+    type(host_array_t), pointer :: v_scratch
 
     associate(entries => this%entries, n_entries => this%n_entries, &
          n_inuse => this%n_inuse)
@@ -316,15 +347,17 @@ contains
                cycle
             end if
 
-            v => entries(index)%get_host_array()
-            if (v%size() .ne. n) then
-               nullify(v)
+            v_scratch => entries(index)%get_host_array()
+            if (v_scratch%size() .ne. n) then
+               nullify(v_scratch)
                cycle
             end if
 
-            if (clear) call rzero(v%x, v%size())
+            if (clear) call rzero(v_scratch%x, v_scratch%size())
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
+            v => v_scratch%x
+            nullify(v_scratch)
             return
          end if
       end do
@@ -336,23 +369,26 @@ contains
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_host_array(n)
-      v => this%entries(n_entries)%get_host_array()
+      v_scratch => this%entries(n_entries)%get_host_array()
+      v => v_scratch%x
+      nullify(v_scratch)
 
     end associate
   end subroutine request_host_array
 
-  !> Get a device_array from the registry by assigning it to a pointer.
-  !! @param v Pointer to the requested device_array.
-  !! @param index Index of the device_array in the registry (for
+  !> Get a device array from the registry by assigning it to a pointer.
+  !! @param v Pointer to the requested device array.
+  !! @param index Index of the device array in the registry (for
   !! relinquishing later).
-  !! @param n Size of the requested device_array.
-  !! @param clear If true, the device_array values are set to zero upon request.
+  !! @param n Size of the requested device array.
+  !! @param clear If true, the device array values are set to zero upon request.
   subroutine request_device_array(this, v, index, n, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    type(device_array_t), pointer, intent(inout) :: v
+    type(c_ptr), intent(inout) :: v
     integer, intent(inout) :: index
     integer, intent(in) :: n
     logical, intent(in) :: clear
+    type(device_array_t), pointer :: v_tmp
 
     associate(entries => this%entries, n_entries => this%n_entries, &
          n_inuse => this%n_inuse)
@@ -367,15 +403,17 @@ contains
                cycle
             end if
 
-            v => entries(index)%get_device_array()
-            if (v%size() .ne. n) then
-               nullify(v)
+            v_tmp => entries(index)%get_device_array()
+            if (v_tmp%size() .ne. n) then
+               nullify(v_tmp)
                cycle
             end if
 
-            if (clear) call device_rzero(v%x_d, v%size())
+            v = v_tmp%x_d
+            if (clear) call device_rzero(v, n)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
+            nullify(v_tmp)
             return
          end if
       end do
@@ -387,7 +425,9 @@ contains
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_device_array(n)
-      v => this%entries(n_entries)%get_device_array()
+      v_tmp => this%entries(n_entries)%get_device_array()
+      v = v_tmp%x_d
+      nullify(v_tmp)
 
     end associate
   end subroutine request_device_array
@@ -494,12 +534,129 @@ contains
     end associate
   end subroutine request_matrix
 
+  !> Get a tensor3 from the registry by assigning it to a pointer.
+  !! @param t Pointer to the requested tensor3.
+  !! @param index Index of the tensor3 in the registry (for relinquishing later).
+  !! @param n Number of rows of the requested tensor3.
+  !! @param m Number of columns of the requested tensor3.
+  !! @param l Number of layers of the requested tensor3.
+  !! @param clear If true, the tensor3 values are set to zero upon request.
+  subroutine request_tensor3(this, t, index, n, m, l, clear)
+    class(scratch_registry_t), target, intent(inout) :: this
+    type(tensor3_t), pointer, intent(inout) :: t
+    integer, intent(inout) :: index
+    integer, intent(in) :: n, m, l
+    logical, intent(in) :: clear
+
+    associate(entries => this%entries, n_entries => this%n_entries, &
+         n_inuse => this%n_inuse)
+
+      do index = 1, this%get_size()
+         if (.not. this%inuse(index)) then
+
+            if (.not. entries(index)%is_allocated()) then
+               call entries(index)%init_tensor3(n, m, l)
+               n_entries = n_entries + 1
+            else if (trim(entries(index)%get_type()) .ne. 'tensor3') then
+               cycle
+            end if
+
+            t => entries(index)%get_tensor3()
+            if (t%get_n1() .ne. n .or. &
+                 t%get_n2() .ne. m .or. &
+                 t%get_n3() .ne. l) then
+               nullify(t)
+               cycle
+            end if
+
+            if (clear .and. NEKO_BCKND_DEVICE .eq. 1) then
+               call device_rzero(t%x_d, t%size())
+            else if (clear) then
+               call rzero(t%x, t%size())
+            end if
+            this%inuse(index) = .true.
+            this%n_inuse = this%n_inuse + 1
+            return
+         end if
+      end do
+
+      ! all existing matrices in use, we need to expand to add a new one
+      index = n_entries + 1
+      call this%expand()
+      n_entries = n_entries + 1
+      n_inuse = n_inuse + 1
+      this%inuse(n_entries) = .true.
+      call this%entries(n_entries)%init_tensor3(n, m, l)
+      t => this%entries(n_entries)%get_tensor3()
+
+    end associate
+  end subroutine request_tensor3
+
+  !> Get a tensor4 from the registry by assigning it to a pointer.
+  !! @param t Pointer to the requested tensor4.
+  !! @param index Index of the tensor4 in the registry (for relinquishing later).
+  !! @param n Number of rows of the requested tensor4.
+  !! @param m Number of columns of the requested tensor4.
+  !! @param l Number of layers of the requested tensor4.
+  !! @param k Number of slices of the requested tensor4.
+  !! @param clear If true, the tensor4 values are set to zero upon request.
+  subroutine request_tensor4(this, t, index, n, m, l, k, clear)
+    class(scratch_registry_t), target, intent(inout) :: this
+    type(tensor4_t), pointer, intent(inout) :: t
+    integer, intent(inout) :: index
+    integer, intent(in) :: n, m, l, k
+    logical, intent(in) :: clear
+
+    associate(entries => this%entries, n_entries => this%n_entries, &
+         n_inuse => this%n_inuse)
+
+      do index = 1, this%get_size()
+         if (.not. this%inuse(index)) then
+
+            if (.not. entries(index)%is_allocated()) then
+               call entries(index)%init_tensor4(n, m, l, k)
+               n_entries = n_entries + 1
+            else if (trim(entries(index)%get_type()) .ne. 'tensor4') then
+               cycle
+            end if
+
+            t => entries(index)%get_tensor4()
+            if (t%get_n1() .ne. n .or. &
+                 t%get_n2() .ne. m .or. &
+                 t%get_n3() .ne. l .or. &
+                 t%get_n4() .ne. k) then
+               nullify(t)
+               cycle
+            end if
+
+            if (clear .and. NEKO_BCKND_DEVICE .eq. 1) then
+               call device_rzero(t%x_d, t%size())
+            else if (clear) then
+               call rzero(t%x, t%size())
+            end if
+            this%inuse(index) = .true.
+            this%n_inuse = this%n_inuse + 1
+            return
+         end if
+      end do
+
+      ! all existing matrices in use, we need to expand to add a new one
+      index = n_entries + 1
+      call this%expand()
+      n_entries = n_entries + 1
+      n_inuse = n_inuse + 1
+      this%inuse(n_entries) = .true.
+      call this%entries(n_entries)%init_tensor4(n, m, l, k)
+      t => this%entries(n_entries)%get_tensor4()
+
+    end associate
+  end subroutine request_tensor4
 
   !> Get a field from the registry by assigning it to a pointer
   !! @param f Pointer to the requested field.
   !! @param index Index of the field in the registry (for relinquishing later).
   !! @param clear If true, the field values are set to zero upon request.
-  subroutine request_field(this, f, index, clear)
+  subroutine request_field_stored_dof(this, f, index, clear)
     class(scratch_registry_t), target, intent(inout) :: this
     type(field_t), pointer, intent(inout) :: f
     integer, intent(inout) :: index
@@ -507,7 +664,7 @@ contains
     character(len=10) :: name
 
     if (.not. associated(this%dof)) then
-       call neko_error("scratch_registry::request_field: "&
+       call neko_error("scratch_registry::request_field_stored_dof: "&
             // "No dofmap assigned to scratch registry.")
     end if
 
@@ -544,7 +701,60 @@ contains
       f => this%entries(n_entries)%get_field()
 
     end associate
-  end subroutine request_field
+  end subroutine request_field_stored_dof
+
+  !> Get a field from the registry by assigning it to a pointer
+  !! @param f Pointer to the requested field.
+  !! @param index Index of the field in the registry (for relinquishing later).
+  !! @param dof Dofmap to use for the field.
+  !! @param clear If true, the field values are set to zero upon request.
+  subroutine request_field_free_dof(this, f, index, dof, clear)
+    class(scratch_registry_t), target, intent(inout) :: this
+    type(field_t), pointer, intent(inout) :: f
+    integer, intent(inout) :: index
+    type(dofmap_t), target, intent(in) :: dof
+    logical, intent(in) :: clear
+    character(len=10) :: name
+
+    associate(entries => this%entries, n_entries => this%n_entries, &
+         n_inuse => this%n_inuse)
+
+      do index = 1, this%get_size()
+         if (.not. this%inuse(index)) then
+
+            if (.not. entries(index)%is_allocated()) then
+               write(name, "(A3,I0.3)") "wrk", index
+               call entries(index)%init_field(dof, trim(name))
+               n_entries = n_entries + 1
+            else if (entries(index)%get_type() .ne. 'field') then
+               cycle
+            end if
+
+            f => entries(index)%get_field()
+            if (.not. associated(f%dof, dof)) then
+               nullify(f)
+               cycle
+            end if
+
+            if (clear) call field_rzero(f)
+            this%inuse(index) = .true.
+            this%n_inuse = this%n_inuse + 1
+            return
+         end if
+      end do
+
+      ! all existing fields in use, we need to expand to add a new one
+      index = n_entries + 1
+      call this%expand()
+      n_entries = n_entries + 1
+      n_inuse = n_inuse + 1
+      this%inuse(n_entries) = .true.
+      write (name, "(A3,I0.3)") "wrk", index
+      call this%entries(n_entries)%init_field(dof, trim(name))
+      f => this%entries(n_entries)%get_field()
+
+    end associate
+  end subroutine request_field_free_dof
 
   !> Relinquish the use of a host_array in the registry
   !! @param index The index of the host_array to free
@@ -677,6 +887,72 @@ contains
     end do
     this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_matrix_multiple
+
+  !> Relinquish the use of a tensor3 in the registry
+  !! @param index The index of the tensor3 to free
+  subroutine relinquish_tensor3_single(this, index)
+    class(scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: index
+
+    if (trim(this%entries(index)%get_type()) .ne. 'tensor3') then
+       call neko_error("scratch_registry::relinquish_tensor3_single: " &
+            // "Register entry is not a tensor3.")
+    end if
+
+    this%inuse(index) = .false.
+    this%n_inuse = this%n_inuse - 1
+  end subroutine relinquish_tensor3_single
+
+  !> Relinquish the use of multiple tensor3s in the registry
+  !! @param indices The indices of the tensor3s to free
+  subroutine relinquish_tensor3_multiple(this, indices)
+    class(scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: indices(:)
+    integer :: i
+
+    do i = 1, size(indices)
+       if (trim(this%entries(indices(i))%get_type()) .ne. 'tensor3') then
+          call neko_error("scratch_registry::relinquish_tensor3_single: " &
+               // "Register entry is not a tensor3.")
+       end if
+
+       this%inuse(indices(i)) = .false.
+    end do
+    this%n_inuse = this%n_inuse - size(indices)
+  end subroutine relinquish_tensor3_multiple
+
+  !> Relinquish the use of a tensor4 in the registry
+  !! @param index The index of the tensor4 to free
+  subroutine relinquish_tensor4_single(this, index)
+    class(scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: index
+
+    if (trim(this%entries(index)%get_type()) .ne. 'tensor4') then
+       call neko_error("scratch_registry::relinquish_tensor4_single: " &
+            // "Register entry is not a tensor4.")
+    end if
+
+    this%inuse(index) = .false.
+    this%n_inuse = this%n_inuse - 1
+  end subroutine relinquish_tensor4_single
+
+  !> Relinquish the use of multiple tensor4s in the registry
+  !! @param indices The indices of the tensor4s to free
+  subroutine relinquish_tensor4_multiple(this, indices)
+    class(scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: indices(:)
+    integer :: i
+
+    do i = 1, size(indices)
+       if (trim(this%entries(indices(i))%get_type()) .ne. 'tensor4') then
+          call neko_error("scratch_registry::relinquish_tensor4_single: " &
+               // "Register entry is not a tensor4.")
+       end if
+
+       this%inuse(indices(i)) = .false.
+    end do
+    this%n_inuse = this%n_inuse - size(indices)
+  end subroutine relinquish_tensor4_multiple
 
   !> Relinquish the use of a field in the registry
   !! @param index The index of the field to free
