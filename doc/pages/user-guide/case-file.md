@@ -1140,11 +1140,12 @@ given by an expression.
 ```
 
 The natural conditions of the scheme are selected with the `neumann` type.
-For the velocity it is a homogeneous Neumann condition, i.e. no constraint.
-For the pressure it is the Neumann condition of the Pn/Pn scheme, with the
-normal gradient given by the momentum equation, as on velocity Dirichlet
-boundaries. In both cases the flux is set by the scheme, so the `neumann` type
-takes no keywords. Keywords at the top level of the object, such as
+For the velocity it is a Neumann condition on the viscous traction, which is
+homogeneous, i.e. no constraint, unless a constant `flux` is given. For the
+pressure it is the Neumann condition of the Pn/Pn scheme, with the normal
+gradient given by the momentum equation, as on velocity Dirichlet boundaries.
+There the flux is set by the scheme, so the pressure `neumann` type takes no
+keywords. Keywords at the top level of the object, such as
 `zone_indices` and `name`, apply to both conditions. Keywords inside
 `velocity` and `pressure` apply to that condition only and take precedence
 over the top-level ones. A joint `type` cannot be combined with a `velocity`
@@ -1165,7 +1166,7 @@ accept are the same as for the corresponding joint types.
 | no_slip             | A no-slip wall, see `no_slip`.                                                                                                                         |
 | symmetry            | A symmetry plane, see `symmetry`.                                                                                                                      |
 | non_normal          | A homogeneous Neumann condition for the surface-normal component combined with a Dirichlet for the surface-parallel components, see `normal_outflow`. |
-| neumann             | A homogeneous Neumann condition, i.e. no constraint. Takes no keywords.                                                                                |
+| neumann             | A Neumann condition on the viscous traction. Without keywords it is homogeneous, i.e. no constraint. The optional `flux`, an array of 3 reals, prescribes a constant traction per unit area, added to the right-hand side of the momentum equation. |
 | shear_stress        | Prescribed wall shear stress, see `shear_stress`.                                                                                                      |
 | wall_model          | Shear stress from a wall model, see `wall_model`.                                                                                                      |
 | blasius_profile     | A Blasius velocity profile, see `blasius_profile`.                                                                                                     |

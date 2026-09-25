@@ -21,6 +21,7 @@ module test_fluid_pnpn_bc
   use dirichlet, only : dirichlet_t
   use dong_outflow, only : dong_outflow_t
   use blasius, only : blasius_t
+  use neumann, only : neumann_t
   implicit none
 
 contains
@@ -247,6 +248,14 @@ contains
     correct_type = .false.
     select type (object)
     type is (non_normal_t)
+       correct_type = .true.
+    end select
+    @assertTrue(correct_type)
+
+    call fluid_pnpn_velocity_bc_allocator(object, "neumann", .false.)
+    correct_type = .false.
+    select type (object)
+    type is (neumann_t)
        correct_type = .true.
     end select
     @assertTrue(correct_type)

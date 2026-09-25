@@ -43,6 +43,8 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
        coupled_vector_bc_projector_t
   use user_intf, only : user_t
   use utils, only : neko_type_error, neko_type_registration_error
+  use json_module, only : json_array
+  use neumann, only : neumann_t
   use field_dirichlet, only : field_dirichlet_t
   use inflow, only : inflow_t
   use blasius, only : blasius_t
@@ -280,6 +282,8 @@ contains
        allocate(inflow_t::object)
     case ("expression")
        allocate(expression_dirichlet_vector_t::object)
+    case ("neumann")
+       allocate(neumann_t::object)
     case ("no_slip")
        allocate(no_slip_t::object)
     case ("symmetry")
@@ -458,7 +462,13 @@ contains
     call json_get(json, "type", type)
 
     if (trim(type) .eq. "neumann") then
-       call fluid_pnpn_bc_check_no_flux(json, "pressure")
+       ! The flux is set by the scheme and is not a user input.
+       if (json%valid_path("flux")) then
+          call neko_error("The 'neumann' pressure boundary condition " // &
+               "does not accept a 'flux' keyword, the flux is set by the " // &
+               "scheme.")
+       end if
+
        if (associated(object)) then
           call object%free()
           deallocate(object)
@@ -505,8 +515,10 @@ contains
   !! @details Allocates the condition based on the `type` keyword, connects
   !! the user routines where needed, initializes the object from `json`, marks
   !! the zones in `zone_indices`, sets the name and finalizes. The `neumann`
-  !! type is a homogeneous Neumann condition, i.e. no constraint, which needs
-  !! no object, so `object` is left unassociated for it.
+  !! type without a `flux` keyword is a homogeneous Neumann condition, i.e. no
+  !! constraint, which needs no object, so `object` is left unassociated for
+  !! it. With a `flux` keyword, which must be an array of 3 reals, a
+  !! `neumann_t` is created that adds the flux to the momentum right-hand side.
   !! @param[inout] object The boundary condition to be allocated.
   !! @param[in] scheme The `fluid_pnpn_t` scheme.
   !! @param[inout] json The velocity part of the boundary condition entry.
@@ -524,16 +536,26 @@ contains
     character(len=:), allocatable :: default_name
     character(len=:), allocatable :: bc_name
     character(len=64) :: buf
+    integer :: var_type, n_children
 
     call json_get(json, "type", type)
 
     if (trim(type) .eq. "neumann") then
-       call fluid_pnpn_bc_check_no_flux(json, "velocity")
-       if (associated(object)) then
-          call object%free()
-          deallocate(object)
+       if (.not. json%valid_path("flux")) then
+          if (associated(object)) then
+             call object%free()
+             deallocate(object)
+          end if
+          return
        end if
-       return
+
+       ! neumann_t applies the flux component-wise to a vector, so a scalar
+       ! flux is not enough.
+       call json%info("flux", var_type = var_type, n_children = n_children)
+       if (var_type .ne. json_array .or. n_children .ne. 3) then
+          call neko_error("The 'flux' of the 'neumann' velocity boundary " // &
+               "condition must be an array of 3 reals.")
+       end if
     end if
 
     call fluid_pnpn_velocity_bc_allocator(object, type, &
@@ -580,22 +602,5 @@ contains
     deallocate(default_name)
     deallocate(bc_name)
   end subroutine velocity_bc_factory
-
-  !> Check that a `neumann` condition does not prescribe a flux.
-  !! @details The `neumann` type selects the natural condition of the scheme,
-  !! which needs no object: no constraint for the velocity, and for the
-  !! pressure the Neumann condition with the normal gradient given by the
-  !! momentum equation. The flux is therefore not a user input.
-  !! @param[inout] json The velocity or pressure part of the entry.
-  !! @param[in] field Either `velocity` or `pressure`, for the error message.
-  subroutine fluid_pnpn_bc_check_no_flux(json, field)
-    type(json_file), intent(inout) :: json
-    character(len=*), intent(in) :: field
-
-    if (json%valid_path("flux")) then
-       call neko_error("The 'neumann' " // field // " boundary condition " // &
-            "does not accept a 'flux' keyword, the flux is set by the scheme.")
-    end if
-  end subroutine fluid_pnpn_bc_check_no_flux
 
 end submodule fluid_pnpn_bc_fctry
