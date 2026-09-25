@@ -78,14 +78,14 @@ contains
     !> Create a local tree for each element at this rank
     call this%local_aabb_tree%init(nel)
     do i = 1, nel
-       id1 = lx*ly*lz*(i-1)+1
+       id1 = lx*ly*lz*(i - 1) + 1
        id2 = lx*ly*lz*(i)
-       call this%local_aabb(i)%init( real((/minval(x(id1:id2)), &
+       call this%local_aabb(i)%init(real([minval(x(id1:id2)), &
             minval(y(id1:id2)), &
-            minval(z(id1:id2))/), dp), &
-            real((/maxval(x(id1:id2)), &
+            minval(z(id1:id2))], dp), &
+            real([maxval(x(id1:id2)), &
             maxval(y(id1:id2)), &
-            maxval(z(id1:id2))/), dp))
+            maxval(z(id1:id2))], dp))
     end do
     call this%local_aabb_tree%build_from_aabb(this%local_aabb, padding)
   end subroutine aabb_el_finder_init
@@ -133,7 +133,7 @@ contains
     n_el_cands = 0
 
     do i = 1, n_points
-       pt_xyz = (/ points(1,i), points(2,i), points(3,i) /)
+       pt_xyz = [points(1, i), points(2, i), points(3, i)]
        call my_point%init(pt_xyz)
        call el_candidates%clear()
        call this%find(my_point, el_candidates)

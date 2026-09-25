@@ -63,37 +63,38 @@ module ax_helm_xsmm
   use coefs, only : coef_t
   use space, only : space_t
   use mesh, only : mesh_t
-  use mxm_wrapper
-  use num_types
+  use mxm_wrapper, only : mxm
 #ifdef HAVE_LIBXSMM
-  use libxsmm, libxsmm_mmcall => libxsmm_dmmcall_abc
+  use libxsmm, only : libxsmm_mmcall => libxsmm_dmmcall_abc, &
+       libxsmm_dispatch, libxsmm_dmmfunction, LIBXSMM_PREFETCH_AUTO
 #endif
   implicit none
   private
 
   type, public, extends(ax_helm_t) :: ax_helm_xsmm_t
    contains
-     procedure, nopass :: compute => ax_helm_xsmm_compute
+     procedure, pass(this) :: compute => ax_helm_xsmm_compute
   end type ax_helm_xsmm_t
 
 contains
 
-  subroutine ax_helm_xsmm_compute(w, u, coef, msh, Xh)
+  subroutine ax_helm_xsmm_compute(this, w, u, coef, msh, Xh)
+    class(ax_helm_xsmm_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 #ifdef HAVE_LIBXSMM
-    real(kind=rp) :: dudr(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=rp) :: duds(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=rp) :: dudt(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=rp) :: tmp1(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=rp) :: tmp2(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=rp) :: tmp3(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=rp) :: tm1(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=rp) :: tm2(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=rp) :: tm3(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp) :: dudr(Xh%lx, Xh%ly, Xh%lz)
+    real(kind=rp) :: duds(Xh%lx, Xh%ly, Xh%lz)
+    real(kind=rp) :: dudt(Xh%lx, Xh%ly, Xh%lz)
+    real(kind=rp) :: tmp1(Xh%lx, Xh%ly, Xh%lz)
+    real(kind=rp) :: tmp2(Xh%lx, Xh%ly, Xh%lz)
+    real(kind=rp) :: tmp3(Xh%lx, Xh%ly, Xh%lz)
+    real(kind=rp) :: tm1(Xh%lx, Xh%ly, Xh%lz)
+    real(kind=rp) :: tm2(Xh%lx, Xh%ly, Xh%lz)
+    real(kind=rp) :: tm3(Xh%lx, Xh%ly, Xh%lz)
     integer :: e, k, lxy, lxz, lyz, lxyz
     type(libxsmm_dmmfunction), save :: ax_helm_xmm1
     type(libxsmm_dmmfunction), save :: ax_helm_xmm2
@@ -108,19 +109,19 @@ contains
 
     if (.not. ax_helm_xsmm_init .or. (ax_helm_xsmm_lx .ne. Xh%lx)) then
        call libxsmm_dispatch(ax_helm_xmm1, Xh%lx, Xh%ly*Xh%lz, Xh%lx, &
-            alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH_AUTO)
+            alpha = 1d0, beta = 0d0, prefetch = LIBXSMM_PREFETCH_AUTO)
        call libxsmm_dispatch(ax_helm_xmm2, Xh%lx, Xh%ly, Xh%ly, &
-            alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH_AUTO)
+            alpha = 1d0, beta = 0d0, prefetch = LIBXSMM_PREFETCH_AUTO)
        call libxsmm_dispatch(ax_helm_xmm3, Xh%lx*Xh%ly, Xh%lz, Xh%lz, &
-            alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH_AUTO)
+            alpha = 1d0, beta = 0d0, prefetch = LIBXSMM_PREFETCH_AUTO)
        ax_helm_xsmm_init = .true.
        ax_helm_xsmm_lx = Xh%lx
     end if
 
 
     do e = 1, msh%nelv
-       if(msh%gdim .eq. 2) then
-          call mxm(Xh%dx, Xh%lx,u(1,1,1,e), Xh%lx, dudr, lyz)
+       if (msh%gdim .eq. 2) then
+          call mxm(Xh%dx, Xh%lx, u(1,1,1,e), Xh%lx, dudr, lyz)
           call mxm(u(1,1,1,e), Xh%lx, Xh%dyt, Xh%ly, duds, Xh%ly)
           call col3(tmp1, dudr, coef%G11(1,1,1,e), lxyz)
           call col3(tmp2, duds, coef%G22(1,1,1,e), lxyz)
@@ -137,8 +138,9 @@ contains
           ! 3D evaluation!
        else
           call libxsmm_mmcall(ax_helm_xmm1, Xh%dx, u(1,1,1,e), dudr)
-          do k = 1,Xh%lz
-             call libxsmm_mmcall(ax_helm_xmm2, u(1,1,k,e), Xh%dyt, duds(1,1,k))
+          do k = 1, Xh%lz
+             call libxsmm_mmcall(ax_helm_xmm2, u(1,1,k,e), Xh%dyt, &
+                  duds(1,1,k))
           end do
           call libxsmm_mmcall(ax_helm_xmm3, u(1,1,1,e), Xh%dzt, dudt)
           call col3(tmp1, dudr, coef%G11(1,1,1,e), lxyz)
@@ -156,15 +158,16 @@ contains
           call col2(tmp2, coef%h1(1,1,1,e), lxyz)
           call col2(tmp3, coef%h1(1,1,1,e), lxyz)
           call libxsmm_mmcall(ax_helm_xmm1, Xh%dxt, tmp1, tm1)
-          do k = 1,Xh%lz
-             call libxsmm_mmcall(ax_helm_xmm2, tmp2(1,1,k), Xh%dy, tm2(1,1,k))
+          do k = 1, Xh%lz
+             call libxsmm_mmcall(ax_helm_xmm2, tmp2(1,1,k), Xh%dy, &
+                  tm2(1,1,k))
           end do
           call libxsmm_mmcall(ax_helm_xmm3, tmp3, Xh%dz, tm3)
           call add4(w(1,1,1,e), tm1, tm2, tm3, lxyz)
        end if
     end do
 
-    if (coef%ifh2) call addcol4 (w,coef%h2,coef%B,u,coef%dof%n_dofs)
+    if (coef%ifh2) call addcol4 (w, coef%h2, coef%B, u, coef%dof%n_dofs)
 #endif
 
   end subroutine ax_helm_xsmm_compute

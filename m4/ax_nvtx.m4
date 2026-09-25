@@ -45,10 +45,27 @@ AC_DEFUN([AX_NVTX],[
 	      AC_CHECK_LIB(nvToolsExt, nvtxRangePop,
 	                   [have_nvtx=yes;NVTX_LIBS="-lnvToolsExt"],
                            [have_nvtx=no],[])
+
+              # CUDA 12.9+ drops libnvToolsExt; fall back to header-only NVTX3
+              if test x"${have_nvtx}" != xyes; then
+                 AC_MSG_CHECKING([for NVTX3 header-only library])
+                 AC_COMPILE_IFELSE(
+                    [AC_LANG_PROGRAM([[#include <nvtx3/nvToolsExt.h>]],
+                                     [[nvtxRangePop();]])],
+                    [have_nvtx=yes; have_nvtx3=yes; NVTX_LIBS=""
+                     AC_MSG_RESULT([yes])],
+                    [AC_MSG_RESULT([no])])
+              fi
+
               AC_SUBST(have_nvtx)
               if test x"${have_nvtx}" = xyes; then
                  nvtx_bcknd="1"
                  AC_DEFINE(HAVE_NVTX,1,[Define if you have NVTX.])
+                 NVTX_CFLAGS="$NVTX_CFLAGS -DHAVE_NVTX"
+                 if test x"${have_nvtx3}" = xyes; then
+                    AC_DEFINE(HAVE_NVTX3,1,[Define if NVTX3 (header-only) is used.])
+                    NVTX_CFLAGS="$NVTX_CFLAGS -DHAVE_NVTX3"
+                 fi
                  LIBS="$NVTX_LIBS $_LIBS"
                  CUDA_CFLAGS="$CUDA_CFLAGS $NVTX_CFLAGS"
               else

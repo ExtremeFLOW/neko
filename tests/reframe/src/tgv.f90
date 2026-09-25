@@ -59,13 +59,16 @@ contains
 
     ntot = dof%size()
     do i = 1, ntot
-       uvw = tgv_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1))
+       uvw = tgv_ic(u%dof%x%x(i,1,1,1),u%dof%y%x(i,1,1,1),u%dof%z%x(i,1,1,1))
        u%x(i,1,1,1) = uvw(1)
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
     end do
 
     call field_rzero(p)
+
+    nullify(dof, u, v, w, p)
+
   end subroutine initial_conditions
 
   function tgv_ic(x, y, z) result(uvw)
@@ -92,6 +95,8 @@ contains
     ! call usercheck and vorticity simcomp also for tstep=0
     call neko_simcomps%simcomps(1)%simcomp%compute(time)
     call user_calc_quantities(time)
+
+    nullify(u)
 
   end subroutine user_initialize
 
@@ -156,15 +161,17 @@ contains
     call field_addcol3(w1, omega_z, omega_z)
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       e2 = 0.5 * device_glsc2(w1%x_d, coef%B_d, w1%size()) / coef%volume
+       e2 = 0.5_rp * device_glsc2(w1%x_d, coef%B_d, w1%size()) / coef%volume
     else
-       e2 = 0.5 * glsc2(w1%x, coef%B, w1%size()) / coef%volume
+       e2 = 0.5_rp * glsc2(w1%x, coef%B, w1%size()) / coef%volume
     end if
 
     if (pe_rank .eq. 0) then
        write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
             'POST: t:', time%t, ' Ekin:', e1, ' enst:', e2
     end if
+
+    nullify(omega_x, omega_y, omega_z, u, v, w, coef)
 
   end subroutine user_calc_quantities
 

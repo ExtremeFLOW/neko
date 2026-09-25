@@ -40,7 +40,7 @@ module device_neumann
   interface
      subroutine hip_neumann_apply_scalar(msk, facet, x, flux, area, &
           lx, m, strm) &
-          bind(c, name='hip_neumann_apply_scalar')
+          bind(c, name = 'hip_neumann_apply_scalar')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
@@ -49,7 +49,7 @@ module device_neumann
 
      subroutine hip_neumann_apply_vector(msk, facet, x, y, z, flux_x, flux_y,&
           flux_z, area, lx, m, strm) &
-          bind(c, name='hip_neumann_apply_vector')
+          bind(c, name = 'hip_neumann_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
@@ -61,7 +61,7 @@ module device_neumann
   interface
      subroutine cuda_neumann_apply_scalar(msk, facet, x, flux, area, &
           lx, m, strm) &
-          bind(c, name='cuda_neumann_apply_scalar')
+          bind(c, name = 'cuda_neumann_apply_scalar')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
@@ -70,7 +70,7 @@ module device_neumann
 
      subroutine cuda_neumann_apply_vector(msk, facet, x, y, z, flux_x, flux_y, &
           flux_z, area, lx, m, strm) &
-          bind(c, name='cuda_neumann_apply_vector')
+          bind(c, name = 'cuda_neumann_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
@@ -82,7 +82,7 @@ module device_neumann
   interface
      subroutine opencl_neumann_apply_scalar(msk, facet, x, flux, area, &
           lx, m, strm) &
-          bind(c, name='opencl_neumann_apply_scalar')
+          bind(c, name = 'opencl_neumann_apply_scalar')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
@@ -91,13 +91,34 @@ module device_neumann
 
      subroutine opencl_neumann_apply_vector(msk, facet, x, y, z, flux_x, &
           flux_y, flux_z, area, lx, m, strm) &
-          bind(c, name='opencl_neumann_apply_vector')
+          bind(c, name = 'opencl_neumann_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
        type(c_ptr), value :: msk, facet, x, y, z, flux_x, flux_y, flux_z, &
             area, strm
      end subroutine opencl_neumann_apply_vector
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_neumann_apply_scalar(msk, facet, x, flux, area, &
+          lx, m, strm) &
+          bind(c, name = 'metal_neumann_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, lx
+       type(c_ptr), value :: msk, facet, x, flux, area, strm
+     end subroutine metal_neumann_apply_scalar
+
+     subroutine metal_neumann_apply_vector(msk, facet, x, y, z, flux_x, &
+          flux_y, flux_z, area, lx, m, strm) &
+          bind(c, name = 'metal_neumann_apply_vector')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, lx
+       type(c_ptr), value :: msk, facet, x, y, z, flux_x, flux_y, flux_z, &
+            area, strm
+     end subroutine metal_neumann_apply_vector
   end interface
 #endif
 
@@ -116,6 +137,8 @@ contains
     call cuda_neumann_apply_scalar(msk, facet, x, flux, area, lx, m, strm)
 #elif HAVE_OPENCL
     call opencl_neumann_apply_scalar(msk, facet, x, flux, area, lx, m, strm)
+#elif HAVE_METAL
+    call metal_neumann_apply_scalar(msk, facet, x, flux, area, lx, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -136,6 +159,9 @@ contains
          flux_z, area, lx, m, strm)
 #elif HAVE_OPENCL
     call opencl_neumann_apply_vector(msk, facet, x, y, z, flux_x, flux_y, &
+         flux_z, area, lx, m, strm)
+#elif HAVE_METAL
+    call metal_neumann_apply_vector(msk, facet, x, y, z, flux_x, flux_y, &
          flux_z, area, lx, m, strm)
 #else
     call neko_error('No device backend configured')

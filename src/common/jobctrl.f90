@@ -35,7 +35,7 @@ module jobctrl
   use num_types, only : rp, dp
   use signal, only : signal_timeout, signal_usr, signal_trap_usr, &
        signal_set_timeout, signal_trap_cpulimit
-  use utils, onlY : neko_error
+  use utils, only : neko_error, read_duration
   use mpi_f08, only : MPI_Bcast, MPI_LOGICAL, MPI_WTIME
   use comm, only : NEKO_COMM
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
@@ -66,28 +66,15 @@ contains
 
   end subroutine jobctrl_init
 
-  !> Set a job's time limit (in walltime 'HH:MM:SS')
+  !> Set a job's time limit from a duration string.
   subroutine jobctrl_set_time_limit_str(limit_str)
-    character(len=*) limit_str
-    integer :: str_len, sep_h, h, m, s
+    character(len=*), intent(in) :: limit_str
+    real(kind=rp) :: limit_sec
+    integer :: ierr
 
-    str_len = len_trim(limit_str)
-
-    if (str_len .lt. 8) then
-       call neko_error('Invalid job limit')
-    end if
-
-    ! hour
-    sep_h = scan(trim(limit_str), ':')
-    read(limit_str(1:sep_h-1), *) h
-
-    !min
-    read(limit_str(sep_h+1:sep_h+2), *) m
-
-    !sec
-    read(limit_str(sep_h+4:str_len), *) s
-
-    call jobctrl_set_time_limit_sec(h*3600 + m * 60 + s)
+    limit_sec = 0.0_rp
+    call read_duration(limit_str, limit_sec)
+    call jobctrl_set_time_limit_sec(int(limit_sec))
 
   end subroutine jobctrl_set_time_limit_str
 

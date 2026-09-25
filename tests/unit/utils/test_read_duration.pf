@@ -1,0 +1,222 @@
+module test_read_duration
+  use pfunit
+  use math, only: NEKO_EPS
+  use num_types, only: rp
+  use utils, only: read_duration
+
+  implicit none
+
+contains
+
+  subroutine assert_invalid_runtime_string(input)
+    character(len=*), intent(in) :: input
+    real(kind=rp) :: runtime
+    integer :: ierr
+    character(len=256) :: msg
+
+    runtime = 42.0_rp
+    call read_duration(input, runtime, ierr)
+
+    write(msg, '(A,A)') 'Expected error for invalid time string: ', trim(input)
+    @assertNotEqual(0, ierr, message=trim(msg))
+
+    write(msg, '(A,A)') 'Runtime changed for invalid string: ', trim(input)
+    @assertEqual(42.0_rp, runtime, NEKO_EPS, message=trim(msg))
+  end subroutine assert_invalid_runtime_string
+
+  @test
+  subroutine parse_dd_hh_mm_ss()
+    real(kind=rp) :: runtime
+    integer :: ierr
+
+    runtime = -1.0_rp
+    call read_duration('1-02:03:04', runtime, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(93784.0_rp, runtime, NEKO_EPS)
+  end subroutine parse_dd_hh_mm_ss
+
+  @test
+  subroutine parse_dd_scalar()
+    real(kind=rp) :: runtime
+    integer :: ierr
+
+    runtime = -1.0_rp
+    call read_duration('1-00:00:00', runtime, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(86400.0_rp, runtime, NEKO_EPS)
+  end subroutine parse_dd_scalar
+
+  @test
+  subroutine parse_hh_mm_ss()
+    real(kind=rp) :: runtime
+    integer :: ierr
+
+    runtime = -1.0_rp
+    call read_duration('12:34:56', runtime, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(45296.0_rp, runtime, NEKO_EPS)
+
+    runtime = -1.0_rp
+    call read_duration('25:00:00', runtime, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(90000.0_rp, runtime, NEKO_EPS)
+
+  end subroutine parse_hh_mm_ss
+
+  @test
+  subroutine parse_mm_ss()
+    real(kind=rp) :: runtime
+    integer :: ierr
+
+    runtime = -1.0_rp
+    call read_duration('05:30', runtime, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(330.0_rp, runtime, NEKO_EPS)
+
+    runtime = -1.0_rp
+    call read_duration('90:00', runtime, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(5400.0_rp, runtime, NEKO_EPS)
+
+  end subroutine parse_mm_ss
+
+  @test
+  subroutine parse_numeric_seconds()
+    real(kind=rp) :: runtime
+    integer :: ierr
+
+    runtime = -1.0_rp
+    call read_duration('171900.0', runtime, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(171900.0_rp, runtime, NEKO_EPS)
+  end subroutine parse_numeric_seconds
+
+  @test
+  subroutine parse_components_dd_hh_mm_ss()
+    real(kind=rp) :: values(4)
+    integer :: ierr
+
+    values = -1.0_rp
+    call read_duration('1-02:03:04', values, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(1.0_rp, values(1), NEKO_EPS)
+    @assertEqual(2.0_rp, values(2), NEKO_EPS)
+    @assertEqual(3.0_rp, values(3), NEKO_EPS)
+    @assertEqual(4.0_rp, values(4), NEKO_EPS)
+  end subroutine parse_components_dd_hh_mm_ss
+
+  @test
+  subroutine parse_components_hh_mm_ss_short_array()
+    real(kind=rp) :: values(3)
+    integer :: ierr
+
+    values = -1.0_rp
+    call read_duration('1-00:00:00', values, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(24.0_rp, values(1), NEKO_EPS)
+    @assertEqual(0.0_rp, values(2), NEKO_EPS)
+    @assertEqual(0.0_rp, values(3), NEKO_EPS)
+  end subroutine parse_components_hh_mm_ss_short_array
+
+  @test
+  subroutine parse_components_mm_ss_short_array()
+    real(kind=rp) :: values(2)
+    integer :: ierr
+
+    values = -1.0_rp
+    call read_duration('1-00:00:00', values, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(1440.0_rp, values(1), NEKO_EPS)
+    @assertEqual(0.0_rp, values(2), NEKO_EPS)
+  end subroutine parse_components_mm_ss_short_array
+
+  @test
+  subroutine parse_components_ss_short_array()
+    real(kind=rp) :: values(1)
+    integer :: ierr
+
+    values = -1.0_rp
+    call read_duration('1-00:00:00', values, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(86400.0_rp, values(1), NEKO_EPS)
+  end subroutine parse_components_ss_short_array
+
+  @test
+  subroutine reject_invalid_time_string()
+    call assert_invalid_runtime_string('1-25:00:00')
+    call assert_invalid_runtime_string('12:60:00')
+    call assert_invalid_runtime_string('12:34:60')
+    call assert_invalid_runtime_string('1:2:3:4')
+    call assert_invalid_runtime_string('abc')
+    call assert_invalid_runtime_string('1d-00:00:00')
+
+    ! Missing or extra separator/fields.
+    call assert_invalid_runtime_string('1-')
+    call assert_invalid_runtime_string('-01:00:00')
+    call assert_invalid_runtime_string('1-02:03')
+    call assert_invalid_runtime_string('12::34')
+    call assert_invalid_runtime_string(':12')
+    call assert_invalid_runtime_string('12:')
+    call assert_invalid_runtime_string('1-02:03:04:05')
+
+    ! Sign and token corruption cases.
+    call assert_invalid_runtime_string('-10')
+    call assert_invalid_runtime_string('12:-3:00')
+    call assert_invalid_runtime_string('1--02:03:04')
+
+  end subroutine reject_invalid_time_string
+
+  @test
+  subroutine reject_invalid_component_array_size()
+    real(kind=rp) :: values(5)
+    integer :: ierr
+
+    values = 7.0_rp
+    call read_duration('1-00:00:00', values, ierr)
+
+    @assertNotEqual(0, ierr)
+    @assertEqual(7.0_rp, values(1), NEKO_EPS)
+    @assertEqual(7.0_rp, values(2), NEKO_EPS)
+    @assertEqual(7.0_rp, values(3), NEKO_EPS)
+    @assertEqual(7.0_rp, values(4), NEKO_EPS)
+    @assertEqual(7.0_rp, values(5), NEKO_EPS)
+  end subroutine reject_invalid_component_array_size
+
+  @test
+  subroutine parse_empty_string_keeps_value()
+    real(kind=rp) :: runtime
+    integer :: ierr
+
+    runtime = 314.0_rp
+    call read_duration('', runtime, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(314.0_rp, runtime, NEKO_EPS)
+  end subroutine parse_empty_string_keeps_value
+
+  @test
+  subroutine parse_empty_string_keeps_components()
+    real(kind=rp) :: values(3)
+    integer :: ierr
+
+    values = [11.0_rp, 22.0_rp, 33.0_rp]
+    call read_duration('', values, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(11.0_rp, values(1), NEKO_EPS)
+    @assertEqual(22.0_rp, values(2), NEKO_EPS)
+    @assertEqual(33.0_rp, values(3), NEKO_EPS)
+  end subroutine parse_empty_string_keeps_components
+
+end module test_read_duration

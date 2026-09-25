@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module fdm_device
-  use num_types
-  use utils
+  use num_types, only : rp
+  use utils, only : neko_error
   use device, only : device_get_ptr, glb_cmd_queue
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
@@ -65,6 +65,15 @@ module fdm_device
        integer(c_int) :: nl, nelv
      end subroutine opencl_fdm_do_fast
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv, stream) &
+          bind(c, name='metal_fdm_do_fast')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: e_d, r_d, s_d, d_d, stream
+       integer(c_int) :: nl, nelv
+     end subroutine metal_fdm_do_fast
+  end interface
 #endif
 
   public :: fdm_do_fast_device
@@ -93,6 +102,8 @@ contains
     call cuda_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv, stream)
 #elif HAVE_OPENCL
     call opencl_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv, stream)
+#elif HAVE_METAL
+    call metal_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv, stream)
 #else
     call neko_error('No device backend configured')
 #endif

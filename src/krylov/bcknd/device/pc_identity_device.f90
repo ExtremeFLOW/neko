@@ -32,8 +32,8 @@
 !
 !> Identity Krylov preconditioner for accelerators
 module device_identity
-  use device
-  use device_math
+  use device, only : device_get_ptr
+  use device_math, only : device_copy
   use precon, only : pc_t
   use num_types, only : rp
   use, intrinsic :: iso_c_binding, only : c_ptr

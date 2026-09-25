@@ -1,0 +1,125 @@
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 545aa290957..1e52ff87b68 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -475,6 +475,7 @@ neko_fortran_SOURCES = \
+ 	wall_models/bcknd/cpu/richardson_cpu.f90\
+ 	wall_models/bcknd/device/richardson_device.F90\
+ 	wall_models/wall_model_fctry.f90\
++	common/fujitsu_memleak.f90\
+ 	neko.f90
+ 
+ neko_c_SOURCES = \
+diff --git a/src/common/fujitsu_memleak.f90 b/src/common/fujitsu_memleak.f90
+new file mode 100644
+index 00000000000..5e17141c25b
+--- /dev/null
++++ b/src/common/fujitsu_memleak.f90
+@@ -0,0 +1,107 @@
++!> Workaround for a memory-leak bug in the Fujitsu Fortran compiler.
++!! @details The Fujitsu runtime leaks memory each time an object of a
++!! derived type with (non-polymorphic) allocatable ultimate components is
++!! bound to a polymorphic entity — passed to a `class` dummy argument,
++!! invoked through a type-bound procedure, or assigned to a polymorphic
++!! variable — unless the type's runtime descriptor has already been
++!! materialised by a polymorphic declaration. Nullifying a polymorphic
++!! pointer of each affected type at startup materialises the descriptors
++!! once and suppresses the leak.
++!! For details, see https://www.fugaku.r-ccs.riken.jp/bug/20260120_01
++module fujitsu_memleak
++  use htable, only : htable_fujitsu_memleak_workaround
++  use mesh, only : mesh_fujitsu_memleak_workaround
++  use tree_amg, only : tree_amg_fujitsu_memleak_workaround
++  use tree_amg_multigrid, only : tree_amg_multigrid_fujitsu_memleak_workaround
++  use glb_intrp_comm, only : glb_intrp_comm_fujitsu_memleak_workaround
++  use cartesian_pe_finder, only : &
++       cartesian_pe_finder_fujitsu_memleak_workaround
++  use stack, only : stack_i4_t, stack_i8_t, stack_r8_t, stack_i4t2_t, &
++       stack_i4t4_t, stack_i4r8t2_t, stack_2i4r8t3_t, stack_curve_t, &
++       stack_nq_t, stack_nh_t, stack_nz_t, stack_nc_t, stack_pt_t
++  use uset, only : uset_i4_t, uset_i8_t, uset_r8_t
++  use gather_scatter, only : gs_t
++  use field, only : field_t
++  use field_series, only : field_series_t
++  use ale_rigid_kinematics, only : ale_body_t, ale_config_t
++  implicit none
++  private
++
++  public :: fujitsu_memleak_workaround
++
++contains
++
++  !> Apply the workaround for the Fujitsu compiler memory leak.
++  !!
++  !! Initialises dummy polymorphic pointers of the affected types to prevent
++  !! memory leaks with the Fujitsu compiler. Must be called once, before any
++  !! of the affected types is bound to a polymorphic entity, i.e. as the
++  !! first step of initialisation.
++  !!
++  !! @attention The set of types below was derived from a scan for the
++  !!            documented occurrence conditions (same-module derived-type
++  !!            pairs with nested non-polymorphic allocatable components)
++  !!            together with the types most frequently bound to polymorphic
++  !!            entities in the time loop, as of July 2026. There is no
++  !!            guarantee it stays complete as the code evolves. If slow
++  !!            memory growth is observed again with the Fujitsu compiler,
++  !!            extend the lists here and in the
++  !!            *_fujitsu_memleak_workaround routines. Types private to
++  !!            their module are handled by the
++  !!            *_fujitsu_memleak_workaround routine of the respective
++  !!            module.
++  subroutine fujitsu_memleak_workaround()
++    class(stack_i4_t), pointer :: tmp_stack_i4_t
++    class(stack_i8_t), pointer :: tmp_stack_i8_t
++    class(stack_r8_t), pointer :: tmp_stack_r8_t
++    class(stack_i4t2_t), pointer :: tmp_stack_i4t2_t
++    class(stack_i4t4_t), pointer :: tmp_stack_i4t4_t
++    class(stack_i4r8t2_t), pointer :: tmp_stack_i4r8t2_t
++    class(stack_2i4r8t3_t), pointer :: tmp_stack_2i4r8t3_t
++    class(stack_curve_t), pointer :: tmp_stack_curve_t
++    class(stack_nq_t), pointer :: tmp_stack_nq_t
++    class(stack_nh_t), pointer :: tmp_stack_nh_t
++    class(stack_nz_t), pointer :: tmp_stack_nz_t
++    class(stack_nc_t), pointer :: tmp_stack_nc_t
++    class(stack_pt_t), pointer :: tmp_stack_pt_t
++    class(uset_i4_t), pointer :: tmp_uset_i4_t
++    class(uset_i8_t), pointer :: tmp_uset_i8_t
++    class(uset_r8_t), pointer :: tmp_uset_r8_t
++    class(gs_t), pointer :: tmp_gs_t
++    class(field_t), pointer :: tmp_field_t
++    class(field_series_t), pointer :: tmp_field_series_t
++    class(ale_body_t), pointer :: tmp_ale_body_t
++    class(ale_config_t), pointer :: tmp_ale_config_t
++
++    tmp_stack_i4_t => null()
++    tmp_stack_i8_t => null()
++    tmp_stack_r8_t => null()
++    tmp_stack_i4t2_t => null()
++    tmp_stack_i4t4_t => null()
++    tmp_stack_i4r8t2_t => null()
++    tmp_stack_2i4r8t3_t => null()
++    tmp_stack_curve_t => null()
++    tmp_stack_nq_t => null()
++    tmp_stack_nh_t => null()
++    tmp_stack_nz_t => null()
++    tmp_stack_nc_t => null()
++    tmp_stack_pt_t => null()
++    tmp_uset_i4_t => null()
++    tmp_uset_i8_t => null()
++    tmp_uset_r8_t => null()
++    tmp_gs_t => null()
++    tmp_field_t => null()
++    tmp_field_series_t => null()
++    tmp_ale_body_t => null()
++    tmp_ale_config_t => null()
++
++    call htable_fujitsu_memleak_workaround()
++    call mesh_fujitsu_memleak_workaround()
++    call tree_amg_fujitsu_memleak_workaround()
++    call tree_amg_multigrid_fujitsu_memleak_workaround()
++    call glb_intrp_comm_fujitsu_memleak_workaround()
++    call cartesian_pe_finder_fujitsu_memleak_workaround()
++
++  end subroutine fujitsu_memleak_workaround
++
++end module fujitsu_memleak

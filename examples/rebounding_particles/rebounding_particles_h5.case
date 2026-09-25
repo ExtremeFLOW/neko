@@ -1,0 +1,79 @@
+{
+  "version": 1.0,
+  "case": {
+    "mesh_file": "box.nmsh",
+    "output_at_end": false,
+    "output_boundary": false,
+    "output_checkpoints": false,
+    "time": {
+        "end_time": 4.0001,
+        "timestep": 0.001
+    },
+    "numerics": {
+      "time_order": 3,
+      "polynomial_order": 3,
+      "dealias": true
+    },
+    "fluid": {
+      "scheme": "pnpn",
+      "mu": 1.0,
+      "rho": 1.0,
+      "freeze": true,
+      "wall_zone_indices": [2],
+      "initial_condition": {
+        "type": "uniform",
+        "value": [0.0, 0.0, 0.0]
+      },
+      "boundary_conditions": [
+          {
+              "type": "velocity_value",
+              "value": [ 0.0, 0.0, 0.0 ],
+              "zone_indices": [ 1,2 ]
+          },
+      ],
+      "velocity_solver": {
+        "type": "cg",
+        "preconditioner": {
+            "type": "jacobi"
+        },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-07,
+        "max_iterations": 800
+      },
+      "pressure_solver": {
+        "type": "gmres",
+        "preconditioner": {
+            "type": "hsmg"
+        },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-07,
+        "max_iterations": 800
+      },
+      "output_control": "never",
+      "output_value": 10
+    },
+    "simulation_components": [
+      {
+        "type": "lagrangian_particles",
+        "name": "tracers",
+        "inertia": true,
+        "nonlinear_coefficient": 0.15,
+        "nonlinear_exponent": 0.687,
+        "log": true,
+        "coordinates": [0.0, 0.0, 0.0, 
+                        0.0, 0.0, 0.0,
+                        0.0, 0.0, 0.0],
+        "velocities":  [1.0, 0.0, 0.0, 
+                        1.5, 0.0, 0.0,
+                        0.7, 0.0, 0.0],
+        "diameters": [1e-3, 1e-3, 1e-3],
+        "densities": [1e7, 1e7, 1e7],
+        "output_filename": "tracers",
+        "output_format": "h5",
+        "snapshots_per_file": "all",
+        "output_control": "tsteps",
+        "output_value": 1
+      }
+    ]
+  }
+}

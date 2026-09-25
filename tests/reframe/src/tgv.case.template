@@ -47,6 +47,7 @@
   [
     {
       "type": "vorticity",
+      "computed_field": "omega",
       "compute_control": "tsteps",
       "compute_value": 50
     }

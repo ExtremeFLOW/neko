@@ -51,7 +51,7 @@ module parmetis
      integer (c_int) function parmetis_v3_partmeshkway &
           (elmdist, eptr, eind, elmwgt, wgtflag, numflag, ncon, &
           ncommonnodes, nparts, tpwgts, ubvec, options, edgecut, part) &
-          bind(c, name='ParMETIS_V3_PartMeshKway_wrapper')
+          bind(c, name = 'ParMETIS_V3_PartMeshKway_wrapper')
        use, intrinsic :: iso_c_binding
        implicit none
        ! idx_t variables
@@ -65,7 +65,7 @@ module parmetis
   interface
      integer (c_int) function parmetis_v3_partgeom &
           (vtxdist, ndims, xyz, part) &
-          bind(c, name='ParMETIS_V3_PartGeom_wrapper')
+          bind(c, name = 'ParMETIS_V3_PartGeom_wrapper')
        use, intrinsic :: iso_c_binding
        implicit none
        ! idx_t variables

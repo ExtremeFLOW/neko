@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module fluid_scheme_base
-  use coefs, only: coef_t
+  use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use dofmap, only : dofmap_t
   use field, only : field_t
@@ -39,7 +39,7 @@ module fluid_scheme_base
   use gather_scatter, only : gs_t
   use json_module, only : json_file
   use logger, only : LOG_SIZE
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use checkpoint, only : chkp_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBL_LEN
   use space, only : space_t
@@ -49,7 +49,7 @@ module fluid_scheme_base
   use utils, only : neko_error
   use bc_list, only : bc_list_t
   use field_list, only : field_list_t
-  use time_state, only: time_state_t
+  use time_state, only : time_state_t
   implicit none
   private
   public :: fluid_scheme_base_t, fluid_scheme_base_factory
@@ -126,9 +126,11 @@ module fluid_scheme_base
      !> Set the user inflow
      procedure(validate_intrf), pass(this), deferred :: validate
      !> Compute the CFL number
-     procedure(fluid_scheme_base_compute_cfl_intrf), pass(this), deferred :: compute_cfl
+     procedure(fluid_scheme_base_compute_cfl_intrf), pass(this), deferred :: &
+          compute_cfl
      !> Set rho and mu
-     procedure(update_material_properties), pass(this), deferred:: update_material_properties
+     procedure(update_material_properties), pass(this), deferred :: &
+          update_material_properties
   end type fluid_scheme_base_t
 
   !> Initialize all fields
@@ -274,10 +276,10 @@ module fluid_scheme_base
   abstract interface
      function fluid_scheme_base_compute_cfl_intrf(this, dt) result(c)
        import fluid_scheme_base_t
-       import rp
+       import dp
        class(fluid_scheme_base_t), intent(in) :: this
-       real(kind=rp), intent(in) :: dt
-       real(kind=rp) :: c
+       real(kind=dp), intent(in) :: dt
+       real(kind=dp) :: c
      end function fluid_scheme_base_compute_cfl_intrf
   end interface
 

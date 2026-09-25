@@ -33,7 +33,7 @@
 !> Factory for all fluid schemes
 submodule (fluid_scheme_base) fluid_base_fctry
   use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme_compressible_euler, only : fluid_scheme_compressible_euler_t
+  use fluid_scheme_compressible_ns, only : fluid_scheme_compressible_ns_t
   use utils, only : neko_type_error
 
   ! List of all possible types created by the factory routine
@@ -46,13 +46,17 @@ contains
   module subroutine fluid_scheme_base_factory(object, type_name)
     class(fluid_scheme_base_t), intent(inout), allocatable :: object
     character(len=*) :: type_name
-    character(len=:), allocatable :: type_string
+
+    if (allocated(object)) then
+       call object%free()
+       deallocate(object)
+    end if
 
     select case (trim(type_name))
     case ('pnpn')
        allocate(fluid_pnpn_t::object)
     case ('compressible')
-       allocate(fluid_scheme_compressible_euler_t::object)
+       allocate(fluid_scheme_compressible_ns_t::object)
     case default
        call neko_type_error("fluid scheme base", type_name, FLUID_KNOWN_TYPES)
     end select

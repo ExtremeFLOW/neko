@@ -1,4 +1,4 @@
-! Copyright (c) 2023-2024, The Neko Authors
+! Copyright (c) 2023-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,9 @@ module vreman_device
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
   use device_math, only : device_col2
-  use device_vreman_nut, only : device_vreman_nut_compute
+  use device_vreman_nut, only : device_vreman_nut_compute, &
+       device_vreman_nut_compute_buoy
+
   implicit none
   private
 
@@ -57,7 +59,14 @@ contains
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
-  subroutine vreman_compute_device(if_ext, t, tstep, coef, nut, delta, c)
+  !! @param if_corr Whether to apply buoyancy correction.
+  !! @param scalar_name The name of the scalar field for buoyancy correction.
+  !! @param ri_c Critical Richardson number.
+  !! @param ref_temp Reference temperature for Richardson number.
+  !! @param g The gravity vector.
+  subroutine vreman_compute_device(if_ext, t, tstep, coef, nut, delta, c,&
+       if_corr, scalar_name, ri_c, ref_temp, g)
+
     logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
@@ -65,9 +74,15 @@ contains
     type(field_t), intent(inout) :: nut
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: c
+    logical, intent(in) :: if_corr
+    character(len=*), intent(in) :: scalar_name
+    real(kind=rp), intent(in) :: ri_c, ref_temp
+    real(kind=rp), intent(in) :: g(3)
+
     ! This is the alpha tensor in the paper
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     type(field_t), pointer :: u, v, w
+    type(field_t), pointer :: temperature, dTdx, dTdy, dTdz
 
     type(field_t), pointer :: beta11
     type(field_t), pointer :: beta12
@@ -77,7 +92,7 @@ contains
     type(field_t), pointer :: beta33
     type(field_t), pointer :: b_beta
     type(field_t), pointer :: aijaij
-    integer :: temp_indices(9)
+    integer :: temp_indices(9), temp_indices_buoy(3)
     integer :: e, i
 
     if (if_ext .eqv. .true.) then
@@ -101,17 +116,17 @@ contains
     call neko_scratch_registry%request_field(a33, temp_indices(9), .false.)
 
     ! Compute the derivatives of the velocity (the alpha tensor)
-    call dudxyz (a11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(a11%x_d, u%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call dudxyz(a12%x_d, u%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call dudxyz(a13%x_d, u%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
-    call dudxyz (a21%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a22%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a23%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(a21%x_d, v%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call dudxyz(a22%x_d, v%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call dudxyz(a23%x_d, v%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
-    call dudxyz (a31%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(a31%x_d, w%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call dudxyz(a32%x_d, w%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call dudxyz(a33%x_d, w%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
     call coef%gs_h%op(a11, GS_OP_ADD)
     call coef%gs_h%op(a12, GS_OP_ADD)
@@ -123,11 +138,38 @@ contains
     call coef%gs_h%op(a32, GS_OP_ADD)
     call coef%gs_h%op(a33, GS_OP_ADD)
 
-    call device_vreman_nut_compute(a11%x_d, a12%x_d, a13%x_d, &
-         a21%x_d, a22%x_d, a23%x_d, &
-         a31%x_d, a32%x_d, a33%x_d, &
-         delta%x_d, nut%x_d, coef%mult_d, &
-         c, NEKO_EPS, a11%dof%size())
+    if (if_corr) then
+       temperature => neko_registry%get_field_by_name(scalar_name)
+
+       call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), &
+            .false.)
+       call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), &
+            .false.)
+       call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), &
+            .false.)
+
+       call dudxyz(dTdx%x_d, temperature%x_d, coef%drdx_d, coef%dsdx_d, &
+            coef%dtdx_d, coef)
+       call dudxyz(dTdy%x_d, temperature%x_d, coef%drdy_d, coef%dsdy_d, &
+            coef%dtdy_d, coef)
+       call dudxyz(dTdz%x_d, temperature%x_d, coef%drdz_d, coef%dsdz_d, &
+            coef%dtdz_d, coef)
+
+       call device_vreman_nut_compute_buoy(a11%x_d, a12%x_d, a13%x_d, &
+            a21%x_d, a22%x_d, a23%x_d, &
+            a31%x_d, a32%x_d, a33%x_d, &
+            delta%x_d, nut%x_d, coef%mult_d, &
+            c, NEKO_EPS, a11%dof%size(), &
+            dTdx%x_d, dTdy%x_d, dTdz%x_d, &
+            g, ri_c, ref_temp)
+       call neko_scratch_registry%relinquish_field(temp_indices_buoy)
+    else
+       call device_vreman_nut_compute(a11%x_d, a12%x_d, a13%x_d, &
+            a21%x_d, a22%x_d, a23%x_d, &
+            a31%x_d, a32%x_d, a33%x_d, &
+            delta%x_d, nut%x_d, coef%mult_d, &
+            c, NEKO_EPS, a11%dof%size())
+    end if
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
@@ -136,4 +178,3 @@ contains
   end subroutine vreman_compute_device
 
 end module vreman_device
-

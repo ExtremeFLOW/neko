@@ -134,6 +134,7 @@ contains
     type(field_t), pointer :: field
     type(vector_t), pointer :: vector
     type(matrix_t), pointer :: matrix
+    real(kind=rp), pointer :: scalar
 
     call test_registry_gen_msh(msh)
 
@@ -145,24 +146,30 @@ contains
     call registry%add_field(dm, 'test_field')
     call registry%add_vector(42, 'test_vector')
     call registry%add_matrix(3, 7, 'test_matrix')
+    call registry%add_real_scalar(3.0_rp, 'test_scalar')
 
     @assertEqual(1, registry%n_fields())
     @assertEqual(1, registry%n_vectors())
     @assertEqual(1, registry%n_matrices())
-    @assertEqual(3, registry%n_entries())
+    @assertEqual(1, registry%n_real_scalars())
+    @assertEqual(0, registry%n_integer_scalars())
+    @assertEqual(4, registry%n_entries())
 
     @assertEqual(.true., registry%entry_exists('test_matrix'))
     @assertEqual(.true., registry%entry_exists('test_vector'))
     @assertEqual(.true., registry%entry_exists('test_field'))
+    @assertEqual(.true., registry%entry_exists('test_scalar'))
 
     field => registry%get_field('test_field')
     vector => registry%get_vector('test_vector')
     matrix => registry%get_matrix('test_matrix')
+    scalar => registry%get_real_scalar('test_scalar')
 
     @assertEqual('test_field', field%name)
     @assertEqual(42, vector%size())
     @assertEqual(3, matrix%get_nrows())
     @assertEqual(7, matrix%get_ncols())
+    @assertEqual(3.0_rp, scalar)
 
     call registry%add_field(dm, 'test_field', ignore_existing=.true.)
     call registry%add_vector(42, 'test_vector', ignore_existing=.true.)
@@ -171,8 +178,9 @@ contains
     @assertEqual(1, registry%n_fields())
     @assertEqual(1, registry%n_vectors())
     @assertEqual(1, registry%n_matrices())
+    @assertEqual(1, registry%n_real_scalars())
 
-    @assertEqual(3, registry%n_entries())
+    @assertEqual(4, registry%n_entries())
 
     call registry%free()
     @assertEqual(0, registry%get_size())
@@ -180,6 +188,8 @@ contains
     @assertEqual(0, registry%n_fields())
     @assertEqual(0, registry%n_vectors())
     @assertEqual(0, registry%n_matrices())
+    @assertEqual(0, registry%n_real_scalars())
+    @assertEqual(0, registry%n_integer_scalars())
     @assertEqual(0, registry%n_aliases())
     @assertEqual(5, registry%get_expansion_size())
   end subroutine test_registry_add_objects
@@ -194,6 +204,7 @@ contains
     type(registry_t) :: registry
     type(field_t), pointer :: field, alias_ptr
     type(vector_t), pointer :: vector
+    real(kind=rp) :: scalar
 
     call test_registry_gen_msh(msh)
 
@@ -205,21 +216,25 @@ contains
     call registry%add_field(dm, 'test_field')
     call registry%add_vector(42, 'test_vector')
     call registry%add_matrix(3, 7, 'test_matrix')
+    call registry%add_real_scalar(3.0_rp, 'test_scalar')
 
     @assertEqual(.true., registry%entry_exists('test_field'))
     @assertEqual(.true., registry%entry_exists('test_vector'))
     @assertEqual(.true., registry%entry_exists('test_matrix'))
+    @assertEqual(.true., registry%entry_exists('test_scalar'))
 
     call registry%add_alias('test_alias', 'test_field')
     call registry%add_alias('test_alias2', 'test_vector')
+    call registry%add_alias('test_alias3', 'test_scalar')
 
     @assertEqual(1, registry%n_fields())
     @assertEqual(1, registry%n_vectors())
     @assertEqual(1, registry%n_matrices())
-    @assertEqual(2, registry%n_aliases())
-    @assertEqual(3, registry%n_entries())
+    @assertEqual(3, registry%n_aliases())
+    @assertEqual(4, registry%n_entries())
     @assertEqual(.true., registry%field_exists('test_alias'))
     @assertEqual(.true., registry%vector_exists('test_alias2'))
+    @assertEqual(.true., registry%real_scalar_exists('test_alias3'))
 
 
     field => registry%get_field('test_alias')
@@ -227,6 +242,9 @@ contains
 
     vector => registry%get_vector('test_alias2')
     @assertEqual(42, vector%size())
+
+    scalar = registry%get_real_scalar('test_alias3')
+    @assertEqual(3.0_rp, scalar)
 
     field => registry%get_field('test_field')
     alias_ptr => registry%get_field('test_alias')

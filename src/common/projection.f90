@@ -59,18 +59,18 @@
 !
 !> Project x onto X, the space of old solutions and back again
 !! @note In this code we assume that the matrix project for the
-!! pressure Ax does not vary in time.
+!! pressure Ax can vary in time if reortho_basis is used.
 module projection
   use num_types, only : rp, c_rp
-  use math, only : rzero, glsc3, add2, copy, cmult
+  use math, only : rzero, glsc3, add2, add2s2, copy, cmult
   use coefs, only : coef_t
   use ax_product, only : ax_t
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BLK_SIZE, &
        NEKO_DEVICE_MPI, NEKO_BCKND_OPENCL
   use device, only : device_alloc, HOST_TO_DEVICE, device_memcpy, &
-       device_get_ptr, device_free, device_map
+       device_get_ptr, device_free, device_map, device_unmap
   use device_math, only : device_glsc3, device_add2s2, device_cmult, &
        device_rzero, device_copy, device_add2, device_add2s2_many, &
        device_glsc3_many
@@ -78,10 +78,9 @@ module projection
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : LOG_SIZE, neko_log
   use utils, only : neko_warning
-  use bc_list, only : bc_list_t
   use time_step_controller, only : time_step_controller_t
   use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wtime
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, &
        c_sizeof, C_NULL_PTR, c_loc, c_associated
   implicit none
@@ -104,6 +103,7 @@ module projection
      real(kind=rp) :: proj_res
      integer :: proj_m = 0
      integer :: activ_step ! steps to activate projection
+     logical :: prj_reorthogonalize_basis = .false.
    contains
      procedure, pass(this) :: clear => bcknd_clear
      procedure, pass(this) :: project_on => bcknd_project_on
@@ -113,15 +113,17 @@ module projection
      procedure, pass(this) :: free => projection_free
      procedure, pass(this) :: pre_solving => projection_pre_solving
      procedure, pass(this) :: post_solving => projection_post_solving
+     procedure, pass(this) :: reortho_basis => bcknd_reorthogonalize_basis
   end type projection_t
 
 contains
 
-  subroutine projection_init(this, n, L, activ_step)
+  subroutine projection_init(this, n, L, activ_step, reorthogonalize_basis)
     class(projection_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: L
     integer, optional, intent(in) :: activ_step
+    logical, optional, intent(in) :: reorthogonalize_basis
     integer :: i
     integer(c_size_t) :: ptr_size
     type(c_ptr) :: ptr
@@ -137,6 +139,10 @@ contains
        this%activ_step = 5
     end if
 
+    if (present(reorthogonalize_basis)) then
+       this%prj_reorthogonalize_basis = reorthogonalize_basis
+    end if
+
     this%m = 0
 
     ! Return if the space is 0, to avoid allocating zero sized
@@ -148,14 +154,15 @@ contains
     allocate(this%xx(n, this%L))
     allocate(this%bb(n, this%L))
     allocate(this%xbar(n))
-    allocate(this%xx_d(this%L))
-    allocate(this%bb_d(this%L))
     call rzero(this%xbar, n)
     do i = 1, this%L
        call rzero(this%xx(1, i), n)
        call rzero(this%bb(1, i), n)
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
+
+       allocate(this%xx_d(this%L))
+       allocate(this%bb_d(this%L))
 
        call device_map(this%xbar, this%xbar_d, n)
        call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L, c_size_t))
@@ -189,54 +196,53 @@ contains
   subroutine projection_free(this)
     class(projection_t), intent(inout) :: this
     integer :: i
-    if (allocated(this%xx)) then
-       deallocate(this%xx)
-    end if
-    if (allocated(this%bb)) then
-       deallocate(this%bb)
-    end if
-    if (allocated(this%xbar)) then
-       deallocate(this%xbar)
-    end if
-    if (allocated(this%xx_d)) then
-       do i = 1, this%L
-          if (c_associated(this%xx_d(i))) then
-             call device_free(this%xx_d(i))
-          end if
-       end do
-       deallocate(this%xx_d)
-    end if
     if (c_associated(this%xx_d_d)) then
        call device_free(this%xx_d_d)
     end if
-    if (c_associated(this%xbar_d)) then
-       call device_free(this%xbar_d)
+    if (c_associated(this%bb_d_d)) then
+       call device_free(this%bb_d_d)
     end if
     if (c_associated(this%alpha_d)) then
        call device_free(this%alpha_d)
     end if
-    if (allocated(this%bb_d)) then
-       do i = 1, this%L
-          if (c_associated(this%bb_d(i))) then
-             call device_free(this%bb_d(i))
-          end if
-       end do
-       deallocate(this%bb_d)
+    if (allocated(this%xx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          do i = 1, this%L
+             call device_unmap(this%xx(:, i), this%xx_d(i))
+          end do
+          deallocate(this%xx_d)
+       end if
+       deallocate(this%xx)
     end if
-    if (c_associated(this%bb_d_d)) then
-       call device_free(this%bb_d_d)
+    if (allocated(this%xbar)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%xbar, this%xbar_d)
+       end if
+       deallocate(this%xbar)
+    end if
+    if (allocated(this%bb)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          do i = 1, this%L
+             call device_unmap(this%bb(:, i), this%bb_d(i))
+          end do
+          deallocate(this%bb_d)
+       end if
+       deallocate(this%bb)
     end if
 
   end subroutine projection_free
 
   subroutine projection_pre_solving(this, b, tstep, coef, n, dt_controller, &
-       string)
+       string, Ax, gs_h, bclst)
     class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
     real(kind=rp), intent(inout), dimension(n) :: b
     integer, intent(in) :: tstep
     class(coef_t), intent(inout) :: coef
     type(time_step_controller_t), intent(in) :: dt_controller
+    class(scalar_bc_projector_t), optional, intent(inout) :: bclst
+    type(gs_t), optional, intent(inout) :: gs_h
+    class(Ax_t), optional, intent(in) :: Ax
     character(len=*), optional :: string
 
     if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
@@ -245,6 +251,11 @@ contains
           if (dt_controller%dt_last_change .eq. 0) then
              call this%clear(n)
           else if (dt_controller%dt_last_change .gt. this%activ_step - 1) then
+             ! Re-orthogonalize basis if requested
+             if (this%prj_reorthogonalize_basis .and. present(gs_h) &
+                  .and. present(Ax) .and. present(bclst)) then
+                call this%reortho_basis(Ax, coef, gs_h, bclst, n)
+             end if
              ! activate projection some steps after dt is changed
              ! note that dt_last_change start from 0
              call this%project_on(b, coef, n)
@@ -253,6 +264,11 @@ contains
              end if
           end if
        else
+          ! Re-orthogonalize basis if requested
+          if (this%prj_reorthogonalize_basis .and. present(gs_h) &
+               .and. present(Ax) .and. present(bclst)) then
+             call this%reortho_basis(Ax, coef, gs_h, bclst, n)
+          end if
           call this%project_on(b, coef, n)
           if (present(string)) then
              call this%log_info(string, tstep)
@@ -268,7 +284,7 @@ contains
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
-    class(bc_list_t), intent(inout) :: bclst
+    class(scalar_bc_projector_t), intent(inout) :: bclst
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: x
     integer, intent(in) :: tstep
@@ -302,7 +318,7 @@ contains
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
-    class(bc_list_t), intent(inout) :: bclst
+    class(scalar_bc_projector_t), intent(inout) :: bclst
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: x
     type(c_ptr) :: x_d
@@ -334,12 +350,126 @@ contains
 
     call Ax%compute(this%bb(1, this%m), x, coef, coef%msh, coef%Xh)
     call gs_h%gs_op_vector(this%bb(1, this%m), n, GS_OP_ADD)
-    call bclst%apply_scalar(this%bb(1, this%m), n)
+    call bclst%apply(this%bb(1, this%m), n)
 
     call proj_ortho(this, coef, n)
     call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back
 
+  subroutine bcknd_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
+    class(projection_t), intent(inout) :: this
+    class(ax_t), intent(in) :: Ax
+    class(coef_t), intent(in) :: coef
+    type(gs_t), intent(inout) :: gs_h
+    type(scalar_bc_projector_t), intent(inout) :: blst
+    integer, intent(in) :: n
+
+    call profiler_start_region('Project reortho basis')
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
+    else
+       call cpu_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
+    end if
+    call profiler_end_region('Project reortho basis')
+  end subroutine bcknd_reorthogonalize_basis
+
+  subroutine cpu_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
+    class(projection_t), intent(inout) :: this
+    class(ax_t), intent(in) :: Ax
+    class(coef_t), intent(in) :: coef
+    type(gs_t), intent(inout) :: gs_h
+    type(scalar_bc_projector_t), intent(inout) :: blst
+    integer, intent(in) :: n
+    character(len=1000) :: msg
+
+    integer :: i, j
+    real(kind=rp) :: alpha, s, norm_fac
+    real(kind=rp) :: start_time, end_time, time
+
+    if (this%m .le. 0) return
+
+    associate(xx => this%xx, bb => this%bb)
+      start_time = MPI_WTIME()
+
+      ! Recompute B = A_new * X using the new mesh metrics
+      do i = 1, this%m
+         call Ax%compute(bb(1,i), xx(1,i), coef, coef%msh, coef%Xh)
+         call gs_h%gs_op_vector(bb(1,i), n, GS_OP_ADD)
+         call blst%apply(bb(1,i), n)
+      end do
+
+      ! Modified Gram-Schmidt
+      do i = 1, this%m
+
+         ! Orthogonalize against previous vectors
+         do j = 1, i - 1
+            alpha = glsc3(xx(1,i), bb(1,j), coef%mult, n)
+            call add2s2(xx(1,i), xx(1,j), -alpha, n)
+            call add2s2(bb(1,i), bb(1,j), -alpha, n)
+         end do
+
+         s = glsc3(xx(1,i), bb(1,i), coef%mult, n)
+         norm_fac = 1.0_rp / sqrt(s)
+         call cmult(xx(1,i), norm_fac, n)
+         call cmult(bb(1,i), norm_fac, n)
+
+      end do
+      end_time = MPI_WTIME()
+      time = end_time - start_time
+      write(msg, '(A, E15.7)') &
+           "Projection basis reorthogonalization (s):  ", time
+      call neko_log%message(trim(msg))
+    end associate
+  end subroutine cpu_reorthogonalize_basis
+
+  subroutine device_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
+    class(projection_t), intent(inout) :: this
+    class(ax_t), intent(in) :: Ax
+    class(coef_t), intent(in) :: coef
+    type(gs_t), intent(inout) :: gs_h
+    type(scalar_bc_projector_t), intent(inout) :: blst
+    integer, intent(in) :: n
+    character(len=1000) :: msg
+
+    integer :: i, j
+    real(kind=rp) :: alpha, s, norm_fac
+    real(kind=rp) :: start_time, end_time, time
+
+    if (this%m .le. 0) return
+
+    associate(xx_d => this%xx_d, bb_d => this%bb_d)
+      start_time = MPI_WTIME()
+
+      ! Recompute B = A_new * X using the new mesh metrics
+      do i = 1, this%m
+         call Ax%compute(this%bb(1,i), this%xx(1,i), coef, coef%msh, coef%Xh)
+         call gs_h%gs_op_vector(this%bb(1,i), n, GS_OP_ADD)
+         call blst%apply(this%bb(1,i), n)
+      end do
+
+      ! Modified Gram-Schmidt
+      do i = 1, this%m
+
+         ! Orthogonalize against previous vectors
+         do j = 1, i - 1
+            alpha = device_glsc3(xx_d(i), bb_d(j), coef%mult_d, n)
+            call device_add2s2(xx_d(i), xx_d(j), -alpha, n)
+            call device_add2s2(bb_d(i), bb_d(j), -alpha, n)
+         end do
+
+         s = device_glsc3(xx_d(i), bb_d(i), coef%mult_d, n)
+         norm_fac = 1.0_rp / sqrt(s)
+         call device_cmult(xx_d(i), norm_fac, n)
+         call device_cmult(bb_d(i), norm_fac, n)
+
+      end do
+      end_time = MPI_WTIME()
+      time = end_time - start_time
+      write(msg, '(A, E15.7)') &
+           "Projection basis reorthogonalization (s):  ", time
+      call neko_log%message(trim(msg))
+    end associate
+  end subroutine device_reorthogonalize_basis
 
 
   subroutine cpu_project_on(this, b, coef, n)
@@ -359,6 +489,7 @@ contains
       call rzero(alpha, this%m)
       this%proj_res = sqrt(glsc3(b, b, coef%mult, n) / coef%volume)
       this%proj_m = this%m
+      !$omp parallel do private(j, k, l, s) reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, this%m
@@ -369,6 +500,7 @@ contains
             alpha(k) = alpha(k) + s
          end do
       end do
+      !$omp end parallel do
 
       !First one outside loop to avoid zeroing xbar and bbar
       call MPI_Allreduce(MPI_IN_PLACE, alpha, this%m, &
@@ -376,6 +508,7 @@ contains
 
       call rzero(work, this%m)
 
+      !$omp parallel do private(j, k, l, s) reduction(+:work)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do l = 0, (j-1)
@@ -397,10 +530,12 @@ contains
             work(k) = work(k) + s
          end do
       end do
+      !$omp end parallel do
 
       call MPI_Allreduce(work, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
+      !$omp parallel do private(j, k, l)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, this%m
@@ -410,6 +545,7 @@ contains
             end do
          end do
       end do
+      !$omp end parallel do
     end associate
   end subroutine cpu_project_on
 
@@ -567,7 +703,7 @@ contains
 
       else !New vector is not linearly independent, forget about it
          if (pe_rank .eq. 0) then
-            call neko_warning('New vector not linearly indepependent!')
+            call neko_warning('New vector not linearly independent!')
          end if
          m = m - 1 !Remove column
       end if
@@ -582,7 +718,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n, this%L), intent(inout) :: xx, bb
     real(kind=rp), dimension(n), intent(in) :: w
-    real(kind=rp) :: nrm, scl1, scl2, c, s
+    real(kind=rp) :: nrm, scl1, scl2, c, s, alpha_m
     real(kind=rp) :: alpha(this%L), beta(this%L)
     integer :: i, j, k, l, h, ierr
 
@@ -593,6 +729,7 @@ contains
       ! AX = B
       ! Calculate dx, db: dx = x-XX^Tb, db=b-BX^Tb
       call rzero(alpha, m)
+      !$omp parallel do private(j, k, l, s, c) reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, m !First round CGS
@@ -605,6 +742,7 @@ contains
             alpha(k) = alpha(k) + 0.5_rp * (s + c)
          end do
       end do
+      !$omp end parallel do
 
       call MPI_Allreduce(MPI_IN_PLACE, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
@@ -612,6 +750,7 @@ contains
       nrm = sqrt(alpha(m)) !Calculate A-norm of new vector
 
 
+      !$omp parallel do private(j, k, l)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, m-1
@@ -621,8 +760,10 @@ contains
             end do
          end do
       end do
+      !$omp end parallel do
       call rzero(beta,m)
 
+      !$omp parallel do private(j, k, l, s, c) reduction(+:beta)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, m-1
@@ -635,12 +776,14 @@ contains
             beta(k) = beta(k) + 0.5_rp * (s + c)
          end do
       end do
+      !$omp end parallel do
 
       call MPI_Allreduce(MPI_IN_PLACE, beta, this%m-1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
-      alpha(m) = 0.0_rp
+      alpha_m = 0.0_rp
 
+      !$omp parallel do private(j, k, l, s) reduction(+:alpha_m)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE,n-i+1)
          do k = 1, m-1
@@ -653,8 +796,10 @@ contains
          do l = 0, (j-1)
             s = s + xx(i+l,m) * w(i+l) * bb(i+l,m)
          end do
-         alpha(m) = alpha(m) + s
+         alpha_m = alpha_m + s
       end do
+      !$omp end parallel do
+      alpha(m) = alpha_m
       do k = 1, m-1
          alpha(k) = alpha(k) + beta(k)
       end do
@@ -668,15 +813,17 @@ contains
       if (alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent
          !Normalize dx and db
          scl1 = 1.0_rp / alpha(m)
+         !$omp parallel do
          do i = 0, (n - 1)
             xx(1+i,m) = scl1 * xx(1+i,m)
             bb(1+i,m) = scl1 * bb(1+i,m)
          end do
+         !$omp end parallel do
 
       else !New vector is not linearly independent, forget about it
          k = m !location of rank deficient column
          if (pe_rank .eq. 0) then
-            call neko_warning('New vector not linearly indepependent!')
+            call neko_warning('New vector not linearly independent!')
          end if
          m = m - 1 !Remove column
       end if
@@ -715,7 +862,7 @@ contains
     do i = 1, this%L
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_rzero(this%xx_d(i), n)
-          call device_rzero(this%xx_d(i), n)
+          call device_rzero(this%bb_d(i), n)
        else
           do j = 1, n
              this%xx(j,i) = 0.0_rp

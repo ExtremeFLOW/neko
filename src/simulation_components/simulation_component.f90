@@ -36,11 +36,12 @@
 !! @note
 !! The canonical way to abbreviate simulation_component is simcomp.
 module simulation_component
-  use num_types, only : rp
+  use num_types, only : dp
   use json_module, only : json_file
   use case, only : case_t
   use time_based_controller, only : time_based_controller_t
-  use json_utils, only : json_get_or_default, json_get
+  use json_utils, only : json_get_or_default, json_get, &
+       json_get_or_lookup_or_default, json_get_or_lookup
   use time_state, only : time_state_t
   implicit none
   private
@@ -57,6 +58,8 @@ module simulation_component
      type(time_based_controller_t) :: output_controller
      !> The execution order, lowest excutes first.
      integer :: order
+     !> Unique name of the simcomp.
+     character(:), allocatable :: name
    contains
      !> Constructor for the simulation_component_t (base) class.
      procedure, pass(this) :: init_base => simulation_component_init_base
@@ -103,8 +106,19 @@ module simulation_component
   !> A helper type that is needed to have an array of polymorphic objects
   type, public :: simulation_component_wrapper_t
      class(simulation_component_t), allocatable :: simcomp
+   contains
+     !> Constructor. Initializes the object.
+     procedure, pass(this) :: init => simulation_component_wrapper_init
+     !> Destructor. Just deallocates the pointer.
+     procedure, pass(this) :: free => simulation_component_wrapper_free
+     !> Move operator for the wrapper, needed for storing simcomps
+     !! in lists and arrays.
+     procedure, pass(this) :: move_from => &
+          simulation_component_wrapper_move_from
+     !> Return allocation status.
+     procedure, pass(this) :: is_allocated => &
+          simulation_component_wrapper_is_allocated
   end type simulation_component_wrapper_t
-
 
   abstract interface
      !> The common constructor using a JSON dictionary.
@@ -197,7 +211,7 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: preprocess_control, compute_control, &
          output_control
-    real(kind=rp) :: preprocess_value, compute_value, output_value
+    real(kind=dp) :: preprocess_value, compute_value, output_value
     integer :: order
 
     call this%parse_json(json, case%params, preprocess_control, &
@@ -229,11 +243,11 @@ contains
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: output_value
 
     this%case => case
     this%order = order
@@ -285,41 +299,120 @@ contains
     type(json_file), intent(inout) :: json
     type(json_file), intent(inout) :: case_params
     character(len=:), allocatable, intent(inout) :: preprocess_control
-    real(kind=rp), intent(out) :: preprocess_value
+    real(kind=dp), intent(out) :: preprocess_value
     character(len=:), allocatable, intent(inout) :: compute_control
-    real(kind=rp), intent(out) :: compute_value
+    real(kind=dp), intent(out) :: compute_value
     character(len=:), allocatable, intent(inout) :: output_control
-    real(kind=rp), intent(out) :: output_value
+    real(kind=dp), intent(out) :: output_value
+    integer :: preprocess_value_int, compute_value_int, output_value_int
+    character(len=:), allocatable :: json_path
+    type(json_file) :: json_object
 
-    ! We default to preprocess every time-step
+    !
+    ! Preprocess
+    !
+
+    ! Get the preprocess control, defaulting to tsteps, pin to fluid if
+    ! requested
     call json_get_or_default(json, "preprocess_control", preprocess_control, &
          "tsteps")
-    call json_get_or_default(json, "preprocess_value", preprocess_value, 1.0_rp)
 
-    ! We default to compute every time-step
+    json_path = "preprocess_value"
+    json_object = json
+    if (preprocess_control .eq. "fluid_output") then
+       call json_get(case_params, 'case.fluid.output_control', &
+            preprocess_control)
+       json_path = "case.fluid.output_value"
+       json_object = case_params
+    end if
+
+    ! Read preprocess value based on control type
+    if ((preprocess_control .eq. "tsteps") .or. &
+         (preprocess_control .eq. "nsamples")) then
+       ! Read it is an interger, and convert to real
+       call json_get_or_lookup_or_default(json_object, json_path, &
+            preprocess_value_int, 1)
+       preprocess_value = real(preprocess_value_int, kind=dp)
+    else if (preprocess_control .eq. "simulationtime") then
+       ! Read as real
+       call json_get_or_lookup_or_default(json_object, json_path, &
+            preprocess_value, 1.0_dp)
+    else if (preprocess_control .eq. "never") then
+       ! Dummy value
+       preprocess_value = 0.0_dp
+    end if
+
+    !
+    ! Compute
+    !
+
+    ! Get the compute control, defaulting to tsteps, pin to fluid if
+    ! requested
     call json_get_or_default(json, "compute_control", compute_control, &
          "tsteps")
-    call json_get_or_default(json, "compute_value", compute_value, 1.0_rp)
 
+    json_path = "compute_value"
+    json_object = json
     if (compute_control .eq. "fluid_output") then
        call json_get(case_params, 'case.fluid.output_control', &
             compute_control)
-       call json_get(case_params, 'case.fluid.output_value', &
-            compute_value)
+       json_path = "case.fluid.output_value"
+       json_object = case_params
     end if
 
-    ! We default to output whenever we execute
+    ! Read compute value based on control type
+    if ((compute_control .eq. "tsteps") .or. &
+         (compute_control .eq. "nsamples")) then
+       ! Read it is an interger, and convert to real
+       call json_get_or_lookup_or_default(json_object, json_path, &
+            compute_value_int, 1)
+       compute_value = real(compute_value_int, kind=dp)
+    else if (compute_control .eq. "simulationtime") then
+       ! Read as real
+       call json_get_or_lookup_or_default(json_object, json_path, &
+            compute_value, 1.0_dp)
+       compute_value_int = int(compute_value)
+    else if (compute_control .eq. "never") then
+       ! Dummy value
+       compute_value = 0.0_dp
+       compute_value_int = 0
+    end if
+
+    !
+    ! Output
+    !
+
+    ! We default to output whenever we execute, pin to fluid if requested
     call json_get_or_default(json, "output_control", output_control, &
          compute_control)
-    call json_get_or_default(json, "output_value", output_value, &
-         compute_value)
 
-    if (output_control == "global") then
+    json_path = "output_value"
+    json_object = json
+    if (output_control .eq. "global") then
        call json_get(case_params, 'case.fluid.output_control', &
             output_control)
-       call json_get(case_params, 'case.fluid.output_value', &
-            output_value)
+       json_path = "case.fluid.output_value"
+       json_object = case_params
     end if
+
+
+    ! Read output value based on control type. We default to compute_value
+    if ((output_control .eq. "tsteps") .or. &
+         (output_control .eq. "nsamples")) then
+       ! Read it is an interger, and convert to real
+       call json_get_or_lookup_or_default(json_object, json_path, &
+            output_value_int, compute_value_int)
+       output_value = real(output_value_int, kind=dp)
+    else if (output_control .eq. "simulationtime") then
+       ! Read as real
+       call json_get_or_lookup_or_default(json_object, json_path, &
+            output_value, compute_value)
+    else if (output_control .eq. "never") then
+       ! Dummy value
+       output_value = 0.0_dp
+    end if
+
+    deallocate(json_path)
   end subroutine simulation_component_parse_json
 
   !> Destructor for the `simulation_component_t` (base) class.
@@ -327,6 +420,10 @@ contains
     class(simulation_component_t), intent(inout) :: this
 
     nullify(this%case)
+
+    if (allocated(this%name)) then
+       deallocate(this%name)
+    end if
 
     call this%preprocess_controller%free()
     call this%compute_controller%free()
@@ -342,7 +439,7 @@ contains
 
     if (this%preprocess_controller%check(time)) then
        call this%preprocess_(time)
-       call this%preprocess_controller%register_execution()
+       call this%preprocess_controller%register_execution(time)
     end if
   end subroutine simulation_component_preprocess_wrapper
 
@@ -355,7 +452,7 @@ contains
 
     if (this%compute_controller%check(time)) then
        call this%compute_(time)
-       call this%compute_controller%register_execution()
+       call this%compute_controller%register_execution(time)
     end if
   end subroutine simulation_component_compute_wrapper
 
@@ -365,6 +462,7 @@ contains
     class(simulation_component_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
+    call this%preprocess_controller%set_counter(time)
     call this%compute_controller%set_counter(time)
     call this%output_controller%set_counter(time)
     call this%restart_(time)
@@ -397,4 +495,51 @@ contains
 
     ! Do nothing
   end subroutine compute_
+
+  ! ========================================================================== !
+  ! Simulation component wrapper type methods
+
+  !> Constructor. Initializes the object.
+  subroutine simulation_component_wrapper_init(this, json, case)
+    class(simulation_component_wrapper_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    class(case_t), intent(inout), target :: case
+
+    call this%free()
+    call simulation_component_factory(this%simcomp, json, case)
+
+  end subroutine simulation_component_wrapper_init
+
+  !> Destructor. Just deallocates the pointer.
+  subroutine simulation_component_wrapper_free(this)
+    class(simulation_component_wrapper_t), intent(inout) :: this
+
+    if (allocated(this%simcomp)) then
+       call this%simcomp%free()
+       deallocate(this%simcomp)
+    end if
+
+  end subroutine simulation_component_wrapper_free
+
+  !> Move assignment operator for the wrapper, needed for storing simcomps
+  !! in lists and arrays.
+  !! @param this The wrapper to move to.
+  !! @param other The other wrapper to move from. Will be deallocated.
+  subroutine simulation_component_wrapper_move_from(this, other)
+    class(simulation_component_wrapper_t), intent(inout) :: this
+    class(simulation_component_wrapper_t), intent(inout) :: other
+
+    ! Move the pointer
+    call move_alloc(other%simcomp, this%simcomp)
+
+  end subroutine simulation_component_wrapper_move_from
+
+  !> Return allocation status.
+  !! @param this The wrapper to check.
+  function simulation_component_wrapper_is_allocated(this) result(is_alloc)
+    class(simulation_component_wrapper_t), intent(in) :: this
+    logical :: is_alloc
+    is_alloc = allocated(this%simcomp)
+  end function simulation_component_wrapper_is_allocated
+
 end module simulation_component

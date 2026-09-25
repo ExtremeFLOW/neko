@@ -61,6 +61,7 @@ test-cpu:
       - ml py-numpy/2.3.5-gcc-15.1.0-5pnviny
       - ml py-json5/0.12.1-none-none-quj4i7l
       - ml py-pytest/9.0.0-none-none-cfustsz
+      - ml py-jsonschema/4.23.0-none-none-22rzm2g      
   script:
     - export PATH=${CI_BUILDS_DIR}/pkg/bin:${PATH}
     - export PKG_CONFIG_PATH=${CI_BUILDS_DIR}/pkg/lib/pkgconfig:${PKG_CONFIG_PATH}
@@ -86,7 +87,7 @@ build-cuda:
       - ml pfunit/4.15.0-gcc-14.3.0-oai37od
   script:
     - ./regen.sh
-    - ./configure FC=mpif90 CC=mpicc FCFLAGS="-O3" --with-pfunit=${PFUNIT_ROOT}/PFUNIT-4.15/ --with-parmetis --with-metis --with-cuda=/usr/local/cuda --enable-device-mpi --prefix=${CI_BUILDS_DIR}/pkg
+    - ./configure FC=mpif90 CC=mpicc FCFLAGS="-O3" CUDA_ARCH="-arch sm_90" --with-pfunit=${PFUNIT_ROOT}/PFUNIT-4.15/ --with-parmetis --with-metis --with-cuda=/usr/local/cuda --enable-device-mpi --prefix=${CI_BUILDS_DIR}/pkg
     - make -j 128 install
   cache:
     key: "$CI_COMMIT_REF_SLUG+cuda"
@@ -130,6 +131,7 @@ test-cuda:
       - ml py-numpy/2.3.5-gcc-14.3.0-bf4inqx
       - ml py-json5/0.12.1-none-none-llimmsb
       - ml py-pytest/9.0.0-none-none-ghl4yrn
+      - ml py-jsonschema/4.25.1-none-none-p22tdny      
   script:
     - export PATH=${CI_BUILDS_DIR}/pkg/bin:${PATH}
     - export PKG_CONFIG_PATH=${CI_BUILDS_DIR}/pkg/lib/pkgconfig:${PKG_CONFIG_PATH}
@@ -199,6 +201,7 @@ test-opencl:
       - ml py-numpy/2.3.5-gcc-14.3.0-bf4inqx
       - ml py-json5/0.12.1-none-none-llimmsb
       - ml py-pytest/9.0.0-none-none-ghl4yrn
+      - ml py-jsonschema/4.25.1-none-none-p22tdny      
   script:
     - export PATH=${CI_BUILDS_DIR}/pkg/bin:${PATH}
     - export PKG_CONFIG_PATH=${CI_BUILDS_DIR}/pkg/lib/pkgconfig:${PKG_CONFIG_PATH}
@@ -275,6 +278,7 @@ test-hip:
       - ml py-numpy/2.3.5-gcc-14.3.0-bf4inqx
       - ml py-json5/0.12.1-none-none-llimmsb
       - ml py-pytest/9.0.0-none-none-ghl4yrn
+      - ml py-jsonschema/4.25.1-none-none-p22tdny      
   script:
     - export PATH=/opt/rocm/bin:${PATH}
     - export LD_LIBRARY_PATH=/opt/rocm/lib:${LD_LIBRARY_PATH}

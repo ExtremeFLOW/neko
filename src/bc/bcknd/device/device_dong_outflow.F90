@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_dong_outflow
-  use num_types
-  use utils
+  use num_types, only : c_rp
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -41,7 +41,7 @@ module device_dong_outflow
   interface
      subroutine hip_dong_outflow_apply_scalar(msk, x, normal_x, normal_y, &
           normal_z, u, v, w, uinf, delta, m, strm) &
-          bind(c, name='hip_dong_outflow_apply_scalar')
+          bind(c, name = 'hip_dong_outflow_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -54,7 +54,7 @@ module device_dong_outflow
   interface
      subroutine cuda_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
           normal_z, u, v, w, uinf, delta, m, strm) &
-          bind(c, name='cuda_dong_outflow_apply_scalar')
+          bind(c, name = 'cuda_dong_outflow_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -67,7 +67,7 @@ module device_dong_outflow
   interface
      subroutine opencl_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
           normal_z, u, v, w, uinf, delta, m, strm) &
-          bind(c, name='opencl_dong_outflow_apply_scalar')
+          bind(c, name = 'opencl_dong_outflow_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -75,6 +75,19 @@ module device_dong_outflow
        real(kind=c_rp) :: uinf, delta
        type(c_ptr), value :: msk, x, u, v, w, normal_x, normal_y, normal_z, strm
      end subroutine opencl_dong_outflow_apply_scalar
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
+          normal_z, u, v, w, uinf, delta, m, strm) &
+          bind(c, name = 'metal_dong_outflow_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       integer(c_int) :: m
+       real(kind=c_rp) :: uinf, delta
+       type(c_ptr), value :: msk, x, u, v, w, normal_x, normal_y, normal_z, strm
+     end subroutine metal_dong_outflow_apply_scalar
   end interface
 #endif
 
@@ -96,6 +109,10 @@ contains
          normal_z, u, v, w, uinf, delta, m, strm)
 #elif HAVE_OPENCL
     call opencl_dong_outflow_apply_scalar(msk, x, normal_x, normal_y, &
+         normal_z, u, v, w, uinf, delta, m, strm)
+
+#elif HAVE_METAL
+    call metal_dong_outflow_apply_scalar(msk, x, normal_x, normal_y, &
          normal_z, u, v, w, uinf, delta, m, strm)
 
 #else

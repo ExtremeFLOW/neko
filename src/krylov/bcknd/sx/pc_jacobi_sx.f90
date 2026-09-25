@@ -105,7 +105,7 @@ contains
 
       select case(lx)
       case (14)
-         call sx_update_lx13(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
+         call sx_update_lx14(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
               coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, nelv)
       case (13)
          call sx_update_lx13(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &

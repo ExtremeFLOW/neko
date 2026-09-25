@@ -173,6 +173,12 @@ correct order in the case file, as demonstrated in the code snippet below.
 ]
 ~~~~~~~~~~~~~~~
 
+### Including full element data
+By setting the keyword `full_elements` to `true`, you can indicate that you want to
+select all the points in an element if even 1 of them meets the `criterion`.
+
+Useful to perform full element operation on just certain parts of the domain.
+
 
 ## User-defined geometrical shapes
 

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022-2025, The Neko Authors
+ Copyright (c) 2022-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
 #include <device/opencl/prgm_lib.h>
@@ -99,6 +100,11 @@ void opencl_schwarz_extrude(void *arr1, int *l1, real *f1,
     CASE(14);
     CASE(15);
     CASE(16);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *nx);
+      exit(1);
+    }
   }
 }
 

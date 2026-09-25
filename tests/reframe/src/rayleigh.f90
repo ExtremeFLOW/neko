@@ -50,7 +50,7 @@ contains
     s => fields%items(1)%ptr
 
     do i = 1, s%dof%size()
-       s%x(i,1,1,1) = 1 - s%dof%z(i,1,1,1)
+       s%x(i,1,1,1) = 1 - s%dof%z%x(i,1,1,1)
     end do
 
     ! perturb not on element boundaries
@@ -63,15 +63,17 @@ contains
                 !call random_number(rand)
                 !Somewhat random
                 rand = cos(real(e + s%msh%offset_el, rp) * real(i*j*k, rp))
-                z = s%dof%z(i,j,k,e)
+                z = s%dof%z%x(i,j,k,e)
                 s%x(i,j,k,e) = 1 - z + 0.0001*rand* &
-                     sin(4*pi/4.5 * s%dof%x(i,j,k,e)) &
-                     * sin(4*pi/4.5 * s%dof%y(i,j,k,e))
+                     sin(4*pi/4.5 * s%dof%x%x(i,j,k,e)) &
+                     * sin(4*pi/4.5 * s%dof%y%x(i,j,k,e))
 
              end do
           end do
        end do
     end do
+
+    nullify(s)
 
   end subroutine initial_conditions
 
@@ -101,6 +103,8 @@ contains
        call field_cmult2(rhs_u, v, Ta2Pr)
        call field_cmult2(rhs_v, u, Ta2Pr)
        call field_cmult2(rhs_w, s, rapr)
+
+       nullify(u, v, w, s, rhs_u, rhs_v, rhs_w)
     end if
   end subroutine source_term
 end module user

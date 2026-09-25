@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,12 +35,19 @@ module gs_comm
   use num_types, only : rp
   use comm, only : pe_size
   use stack, only : stack_i4_t
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
   integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2, &
-       GS_COMM_NCCL = 3, GS_COMM_NVSHMEM = 4
+       GS_COMM_NCCL = 3, GS_COMM_NVSHMEM = 4, GS_COMM_OPENSHMEM = 5, &
+       GS_COMM_CAF = 6, GS_COMM_NEIGHBOUR = 7, GS_COMM_UTOFU = 8, &
+       GS_COMM_MPIRMA = 9, GS_COMM_CRYSTAL = 10, GS_COMM_CRYSTALGPU = 11
+
+  !> Maximum number of components handled by the fused vector (multi-component)
+  !! halo exchange used by gs_op_r3. Sizes the backend vector buffers.
+  integer, public, parameter :: GS_VEC_NC = 3
 
   !> Gather-scatter communication method
   type, public, abstract :: gs_comm_t
@@ -55,6 +62,21 @@ module gs_comm
      integer, allocatable :: send_pe(:)
      !> array of ranks that this process will receive messages from
      integer, allocatable :: recv_pe(:)
+     !> Whether this backend implements the fused vector (multi-component)
+     !! halo exchange (nbsend_vec/nbrecv_vec/nbwait_vec). When .false., the
+     !! gs_op_r3 caller falls back to nc independent scalar exchanges.
+     logical :: vec_supported = .false.
+     !> Whether the buffers the fused vector exchange needs are in place.
+     !! They are sized GS_VEC_NC times the halo, quadrupling what the
+     !! backend holds, and only gs_op_r3 ever touches them, so a backend
+     !! that can allocate them on its own defers that to the first fused
+     !! exchange (see init_vec) rather than paying for it in every run. A
+     !! backend whose vector buffers are part of an allocation the whole
+     !! run has to agree on -- symmetric memory, coarrays, registered
+     !! memory, an RMA window -- cannot defer, since a rank with no shared
+     !! dofs never reaches the first fused exchange; those allocate in init
+     !! and set this there.
+     logical :: vec_ready = .false.
    contains
      procedure(gs_comm_init), pass(this), deferred :: init
      procedure(gs_comm_free), pass(this), deferred :: free
@@ -65,6 +87,14 @@ module gs_comm
      procedure, pass(this) :: free_dofs
      procedure, pass(this) :: init_order
      procedure, pass(this) :: free_order
+     procedure, pass(this) :: take_schedule
+     procedure, pass(this) :: init_schedule
+     !> Fused vector halo exchange. Default implementations abort; backends
+     !! that set vec_supported = .true. override them.
+     procedure, pass(this) :: init_vec => gs_init_vec
+     procedure, pass(this) :: nbsend_vec => gs_nbsend_vec
+     procedure, pass(this) :: nbrecv_vec => gs_nbrecv_vec
+     procedure, pass(this) :: nbwait_vec => gs_nbwait_vec
   end type gs_comm_t
 
   !> Abstract interface for initializing a Gather-scatter communication method
@@ -95,7 +125,7 @@ module gs_comm
   !! @param deps, gather_event (for device aware mpi)
   !! @param strm, device stream to execute operation on
   abstract interface
-     subroutine gs_nbsend(this, u, n, deps, strm)
+     subroutine gs_nbsend(this, u, n, tag, deps, strm)
        import gs_comm_t
        import stack_i4_t
        import c_ptr
@@ -103,6 +133,7 @@ module gs_comm
        class(gs_comm_t), intent(inout) :: this
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(inout) :: u
+       integer, intent(in) :: tag
        type(c_ptr), intent(inout) :: deps
        type(c_ptr), intent(inout) :: strm
      end subroutine gs_nbsend
@@ -112,9 +143,10 @@ module gs_comm
   !> Abstract interface for initiating non-blocking recieve operations
   !! Posts non-blocking recieve of values and puts the values into buffers
   abstract interface
-     subroutine gs_nbrecv(this)
+     subroutine gs_nbrecv(this, tag)
        import gs_comm_t
        class(gs_comm_t), intent(inout) :: this
+       integer, intent(in) :: tag
      end subroutine gs_nbrecv
   end interface
 
@@ -217,5 +249,112 @@ contains
     end if
 
   end subroutine free_order
+
+  !> Take over the gather-scatter schedule (dof lists and peer order) of
+  !! @a src, avoiding a second (expensive) pass over the connectivity. The
+  !! data is moved rather than copied, so @a src is left without a schedule
+  !! and must not be used for communication afterwards (it can still be
+  !! freed). No communication resources are set up here; complete the
+  !! handover with @a init_schedule once @a src has been freed, so that the
+  !! two backends never hold their resources at the same time.
+  !! @param src the backend to take the schedule from, left without one
+  subroutine take_schedule(this, src)
+    class(gs_comm_t), intent(inout) :: this
+    class(gs_comm_t), intent(inout) :: src
+
+    if (.not. allocated(src%send_dof) .or. .not. allocated(src%recv_dof) .or. &
+         .not. allocated(src%send_pe) .or. .not. allocated(src%recv_pe)) then
+       call neko_error('Gather-scatter comm. method has no schedule')
+    end if
+
+    call this%free_dofs()
+    call this%free_order()
+
+    call move_alloc(src%send_dof, this%send_dof)
+    call move_alloc(src%recv_dof, this%recv_dof)
+    call move_alloc(src%send_pe, this%send_pe)
+    call move_alloc(src%recv_pe, this%recv_pe)
+
+  end subroutine take_schedule
+
+  !> Set up this communication method for the schedule taken over by
+  !! @a take_schedule. Collective, as @a init is.
+  subroutine init_schedule(this)
+    class(gs_comm_t), intent(inout) :: this
+    type(stack_i4_t) :: send_pe, recv_pe
+    integer, allocatable :: sp(:), rp(:)
+    integer :: i, pe
+
+    if (.not. allocated(this%send_pe) .or. .not. allocated(this%recv_pe)) then
+       call neko_error('Gather-scatter comm. method has no schedule')
+    end if
+
+    ! init_order allocates send_pe/recv_pe from the stacks, so hand the
+    ! peer lists back as stacks and leave the arrays deallocated
+    call move_alloc(this%send_pe, sp)
+    call move_alloc(this%recv_pe, rp)
+
+    call send_pe%init(max(size(sp), 1))
+    do i = 1, size(sp)
+       pe = sp(i)
+       call send_pe%push(pe)
+    end do
+
+    call recv_pe%init(max(size(rp), 1))
+    do i = 1, size(rp)
+       pe = rp(i)
+       call recv_pe%push(pe)
+    end do
+
+    deallocate(sp, rp)
+
+    call this%init(send_pe, recv_pe)
+
+    call send_pe%free()
+    call recv_pe%free()
+
+  end subroutine init_schedule
+
+  !> Default deferred allocation of the fused vector buffers. Reached only
+  !! on a backend that advertises vec_supported without either allocating
+  !! its vector buffers in init (setting vec_ready there) or overriding
+  !! this, which is a backend bug rather than a run-time condition.
+  !! @note Rank local by contract: a rank with no shared dofs skips the
+  !! fused exchange entirely, so an override must not communicate.
+  subroutine gs_init_vec(this)
+    class(gs_comm_t), intent(inout) :: this
+    call neko_error('Vector gather-scatter not supported by this comm backend')
+  end subroutine gs_init_vec
+
+  !> Default fused vector send. Abort unless a backend overrides it.
+  !! @param u compact shared buffer, component-outer: u((c-1)*n + idx)
+  !! @param n number of shared dofs (per component)
+  !! @param nc number of components
+  subroutine gs_nbsend_vec(this, u, n, nc, tag, deps, strm)
+    class(gs_comm_t), intent(inout) :: this
+    integer, intent(in) :: n, nc
+    real(kind=rp), dimension(nc*n), intent(inout) :: u
+    integer, intent(in) :: tag
+    type(c_ptr), intent(inout) :: deps
+    type(c_ptr), intent(inout) :: strm
+    call neko_error('Vector gather-scatter not supported by this comm backend')
+  end subroutine gs_nbsend_vec
+
+  !> Default fused vector receive. Abort unless a backend overrides it.
+  subroutine gs_nbrecv_vec(this, tag, nc)
+    class(gs_comm_t), intent(inout) :: this
+    integer, intent(in) :: tag, nc
+    call neko_error('Vector gather-scatter not supported by this comm backend')
+  end subroutine gs_nbrecv_vec
+
+  !> Default fused vector wait/reduce. Abort unless a backend overrides it.
+  subroutine gs_nbwait_vec(this, u, n, nc, op, strm)
+    class(gs_comm_t), intent(inout) :: this
+    integer, intent(in) :: n, nc
+    real(kind=rp), dimension(nc*n), intent(inout) :: u
+    integer :: op
+    type(c_ptr), intent(inout) :: strm
+    call neko_error('Vector gather-scatter not supported by this comm backend')
+  end subroutine gs_nbwait_vec
 
 end module gs_comm

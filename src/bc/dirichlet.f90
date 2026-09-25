@@ -32,12 +32,13 @@
 !
 !> Defines a dirichlet boundary condition
 module dirichlet
-  use device_dirichlet
+  use device_dirichlet, only : device_dirichlet_apply_scalar, &
+       device_dirichlet_apply_vector
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use coefs, only : coef_t
   use json_module, only : json_file
-  use json_utils, only : json_get
+  use json_utils, only : json_get_or_lookup
   use, intrinsic :: iso_c_binding, only : c_ptr
   use time_state, only : time_state_t
   implicit none
@@ -76,9 +77,9 @@ contains
     real(kind=rp) :: g
 
     call this%init_base(coef)
-    call json_get(json , "value", g)
+    call json_get_or_lookup(json , "value", g)
 
-    this%g = g
+    call this%init_from_components(coef, g)
   end subroutine dirichlet_init
 
   !> Constructor from components.
@@ -91,6 +92,7 @@ contains
 
     call this%init_base(coef)
     this%g = g
+    this%bc_type = BC_DIRICHLET
   end subroutine dirichlet_init_from_components
 
   !> Boundary condition apply for a generic Dirichlet condition
@@ -112,10 +114,12 @@ contains
 
     if (strong_) then
        m = this%msk(0)
+       !$omp do
        do i = 1, m
           k = this%msk(i)
           x(k) = this%g
        end do
+       !$omp end do
     end if
   end subroutine dirichlet_apply_scalar
 
@@ -140,12 +144,14 @@ contains
 
     if (strong_) then
        m = this%msk(0)
+       !$omp do
        do i = 1, m
           k = this%msk(i)
           x(k) = this%g
           y(k) = this%g
           z(k) = this%g
        end do
+       !$omp end do
     end if
 
   end subroutine dirichlet_apply_vector
@@ -217,18 +223,9 @@ contains
   end subroutine dirichlet_free
 
   !> Finalize
-  subroutine dirichlet_finalize(this, only_facets)
+  subroutine dirichlet_finalize(this)
     class(dirichlet_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
-
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
   end subroutine dirichlet_finalize
 
 end module dirichlet

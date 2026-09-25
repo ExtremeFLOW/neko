@@ -25,7 +25,7 @@ The simulation runs until `t = 0.2`.
 The case uses the compressible Euler equations with:
 
 - `γ = 1.4` (ratio of specific heats)
-- 1D domain `[0,1]`
+- 1D domain `[0, 1]`
 - Zero velocity initial condition
 - Transmissive boundary conditions
 
@@ -33,10 +33,10 @@ The initial conditions are set in the user file `sod.f90`.
 
 ## Running the case
 
-1. Generate the mesh (100 x 1 x 1 with grid size 0.01) using:
+1. Generate the mesh (1000 x 1 x 1 with fine grid) using:
 
 ```bash
-genmeshbox 0 1 0 0.01 0 0.01 100 1 1 .false. .true. .true.
+genmeshbox 0 1 0 0.001 0 0.001 1000 1 1 .false. .true. .true.
 ```
 
 2. Run the simulation:

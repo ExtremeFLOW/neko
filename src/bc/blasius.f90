@@ -36,13 +36,15 @@ module blasius
   use coefs, only : coef_t
   use utils, only : nonlinear_index
   use device, only : HOST_TO_DEVICE, device_memcpy, device_free, device_alloc
-  use device_inhom_dirichlet
-  use flow_profile
+  use device_inhom_dirichlet, only : device_inhom_dirichlet_apply_vector
+  use flow_profile, only : blasius_profile, blasius_linear, blasius_quadratic, &
+       blasius_cubic, blasius_quartic, blasius_sin, blasius_tanh
+  use utils, only : neko_error
   use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use json_module, only : json_file
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_lookup
   use time_state, only : time_state_t
   implicit none
   private
@@ -89,9 +91,9 @@ contains
 
     call this%init_base(coef)
 
-    call json_get(json, 'delta', delta)
+    call json_get_or_lookup(json, 'delta', delta)
     call json_get(json, 'approximation', approximation)
-    call json_get(json, 'freestream_velocity', uinf)
+    call json_get_or_lookup(json, 'freestream_velocity', uinf)
 
     if (size(uinf) .ne. 3) then
        call neko_error("The uinf keyword for the blasius profile should be an &
@@ -116,6 +118,7 @@ contains
     character(len=*) :: approximation
 
     call this%init_base(coef)
+    this%bc_type = BC_DIRICHLET
 
     this%delta = delta
     this%uinf = uinf
@@ -194,13 +197,14 @@ contains
        strong_ = .true.
     end if
 
-    associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
-         zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
+    associate(xc => this%coef%dof%x%x, yc => this%coef%dof%y%x, &
+         zc => this%coef%dof%z%x, nx => this%coef%nx, ny => this%coef%ny, &
          nz => this%coef%nz, lx => this%coef%Xh%lx)
-      m = this%msk(0)
+      m = this%facet_node_msk(0)
       if (strong_) then
+         !$omp do
          do i = 1, m
-            k = this%msk(i)
+            k = this%facet_node_msk(i)
             facet = this%facet(i)
             idx = nonlinear_index(k, lx, lx, lx)
             select case (facet)
@@ -221,6 +225,7 @@ contains
                     this%delta, this%uinf(3))
             end select
          end do
+         !$omp end do
       end if
     end associate
   end subroutine blasius_apply_vector
@@ -245,17 +250,17 @@ contains
        strong_ = .true.
     end if
 
-    associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
-         zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
+    associate(xc => this%coef%dof%x%x, yc => this%coef%dof%y%x, &
+         zc => this%coef%dof%z%x, nx => this%coef%nx, ny => this%coef%ny, &
          nz => this%coef%nz, lx => this%coef%Xh%lx , &
          blax_d => this%blax_d, blay_d => this%blay_d, &
          blaz_d => this%blaz_d)
 
-      m = this%msk(0)
+      m = this%facet_node_msk(0)
 
 
       ! Pretabulate values during first call to apply
-      if (.not. c_associated(blax_d) .and. strong_ .and. this%msk(0) .gt. 0) then
+      if (.not. c_associated(blax_d) .and. strong_ .and. m .gt. 0) then
          allocate(bla_x(m), bla_y(m), bla_z(m)) ! Temp arrays
 
          if (rp .eq. REAL32) then
@@ -267,9 +272,9 @@ contains
          call device_alloc(blax_d, s)
          call device_alloc(blay_d, s)
          call device_alloc(blaz_d, s)
-
+         !$omp parallel do private(k, facet, idx)
          do i = 1, m
-            k = this%msk(i)
+            k = this%facet_node_msk(i)
             facet = this%facet(i)
             idx = nonlinear_index(k, lx, lx, lx)
             select case (facet)
@@ -290,6 +295,7 @@ contains
                     this%delta, this%uinf(3))
             end select
          end do
+         !$omp end parallel do
 
          call device_memcpy(bla_x, blax_d, m, HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(bla_y, blay_d, m, HOST_TO_DEVICE, sync = .false.)
@@ -335,17 +341,8 @@ contains
   end subroutine blasius_set_params
 
   !> Finalize
-  subroutine blasius_finalize(this, only_facets)
+  subroutine blasius_finalize(this)
     class(blasius_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
-
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
   end subroutine blasius_finalize
 end module blasius

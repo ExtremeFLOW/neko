@@ -157,6 +157,6 @@ extension provides an integration.
 
 ```sh
 pip install findent
-findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- --ws_remred --indent_ampersand --openmp=0 < file.f90 > file.f90.tmp
+findent -Rr -i2 -d3 -f3 -s3 -c3 -w3 -t3 -j3 -k- --ws_remred --openmp=0 <file.f90 >file.f90.tmp
 mv file.f90.tmp file.f90
 ```

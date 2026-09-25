@@ -37,10 +37,10 @@ module gradient_jump_penalty
   use utils, only : neko_error
   use json_utils, only : json_get_or_default
   use json_module, only : json_file
-  use math, only: add2, col2, col3, invcol2, add3, copy, absval
+  use math, only : add2, col2, col3, invcol2, add3, copy, absval
   use point, only : point_t
   use field, only : field_t
-  use dofmap , only : dofmap_t
+  use dofmap, only : dofmap_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use coefs, only : coef_t
   use element, only : element_t
@@ -49,7 +49,7 @@ module gradient_jump_penalty
   use gs_ops, only : GS_OP_ADD
   use space, only : space_t, GLL
   use gather_scatter, only : gs_t
-  use device, only : device_map, HOST_TO_DEVICE, device_memcpy, device_free
+  use device, only : device_map, HOST_TO_DEVICE, device_memcpy, device_unmap
   use device_math, only : device_col2, device_add2, device_add2s2, &
        device_col3, device_add3s2, device_invcol2, device_absval
   use device_gradient_jump_penalty, only : device_pick_facet_value_hex, &
@@ -59,7 +59,7 @@ module gradient_jump_penalty
   use registry, only : neko_registry
   use time_state, only : time_state_t
   use operators, only : dudxyz
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
 
   implicit none
   private
@@ -206,6 +206,9 @@ contains
     integer :: i, j, k, l
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
     real(kind=rp) :: normal(3)
+
+    ! Here, and in facet_factor_init() and dist2_quadrature_hex() below
+    call coef%require_facets('gradient_jump_penalty')
 
     call this%free()
 
@@ -465,16 +468,16 @@ contains
        n11 = normal1(1)
        n12 = normal1(2)
        n13 = normal1(3)
-       x1 = dm%x(1, l, k, i)
-       y1 = dm%y(1, l, k, i)
-       z1 = dm%z(1, l, k, i)
+       x1 = dm%x%x(1, l, k, i)
+       y1 = dm%y%x(1, l, k, i)
+       z1 = dm%z%x(1, l, k, i)
        normal2 = coef%get_normal(1, l, k, i, 2)
        n21 = normal2(1)
        n22 = normal2(2)
        n23 = normal2(3)
-       x2 = dm%x(n, l, k, i)
-       y2 = dm%y(n, l, k, i)
-       z2 = dm%z(n, l, k, i)
+       x2 = dm%x%x(n, l, k, i)
+       y2 = dm%y%x(n, l, k, i)
+       z2 = dm%z%x(n, l, k, i)
     case (2)
        ! now the facet pair share the same value for h
        ! but just let it be here for furture possible changes
@@ -482,76 +485,76 @@ contains
        n11 = normal1(1)
        n12 = normal1(2)
        n13 = normal1(3)
-       x1 = dm%x(n, l, k, i)
-       y1 = dm%y(n, l, k, i)
-       z1 = dm%z(n, l, k, i)
+       x1 = dm%x%x(n, l, k, i)
+       y1 = dm%y%x(n, l, k, i)
+       z1 = dm%z%x(n, l, k, i)
        normal2 = coef%get_normal(1, l, k, i, 1)
        n21 = normal2(1)
        n22 = normal2(2)
        n23 = normal2(3)
-       x2 = dm%x(1, l, k, i)
-       y2 = dm%y(1, l, k, i)
-       z2 = dm%z(1, l, k, i)
+       x2 = dm%x%x(1, l, k, i)
+       y2 = dm%y%x(1, l, k, i)
+       z2 = dm%z%x(1, l, k, i)
     case (3)
        normal1 = coef%get_normal(1, l, k, i, 3)
        n11 = normal1(1)
        n12 = normal1(2)
        n13 = normal1(3)
-       x1 = dm%x(l, 1, k, i)
-       y1 = dm%y(l, 1, k, i)
-       z1 = dm%z(l, 1, k, i)
+       x1 = dm%x%x(l, 1, k, i)
+       y1 = dm%y%x(l, 1, k, i)
+       z1 = dm%z%x(l, 1, k, i)
        normal2 = coef%get_normal(1, l, k, i, 4)
        n21 = normal2(1)
        n22 = normal2(2)
        n23 = normal2(3)
-       x2 = dm%x(l, n, k, i)
-       y2 = dm%y(l, n, k, i)
-       z2 = dm%z(l, n, k, i)
+       x2 = dm%x%x(l, n, k, i)
+       y2 = dm%y%x(l, n, k, i)
+       z2 = dm%z%x(l, n, k, i)
     case (4)
        normal1 = coef%get_normal(1, l, k, i, 4)
        n11 = normal1(1)
        n12 = normal1(2)
        n13 = normal1(3)
-       x1 = dm%x(l, n, k, i)
-       y1 = dm%y(l, n, k, i)
-       z1 = dm%z(l, n, k, i)
+       x1 = dm%x%x(l, n, k, i)
+       y1 = dm%y%x(l, n, k, i)
+       z1 = dm%z%x(l, n, k, i)
        normal2 = coef%get_normal(1, l, k, i, 3)
        n21 = normal2(1)
        n22 = normal2(2)
        n23 = normal2(3)
-       x2 = dm%x(l, 1, k, i)
-       y2 = dm%y(l, 1, k, i)
-       z2 = dm%z(l, 1, k, i)
+       x2 = dm%x%x(l, 1, k, i)
+       y2 = dm%y%x(l, 1, k, i)
+       z2 = dm%z%x(l, 1, k, i)
     case (5)
        normal1 = coef%get_normal(1, l, k, i, 5)
        n11 = normal1(1)
        n12 = normal1(2)
        n13 = normal1(3)
-       x1 = dm%x(l, k, 1, i)
-       y1 = dm%y(l, k, 1, i)
-       z1 = dm%z(l, k, 1, i)
+       x1 = dm%x%x(l, k, 1, i)
+       y1 = dm%y%x(l, k, 1, i)
+       z1 = dm%z%x(l, k, 1, i)
        normal2 = coef%get_normal(1, l, k, i, 6)
        n21 = normal2(1)
        n22 = normal2(2)
        n23 = normal2(3)
-       x2 = dm%x(l, k, n, i)
-       y2 = dm%y(l, k, n, i)
-       z2 = dm%z(l, k, n, i)
+       x2 = dm%x%x(l, k, n, i)
+       y2 = dm%y%x(l, k, n, i)
+       z2 = dm%z%x(l, k, n, i)
     case (6)
        normal1 = coef%get_normal(1, l, k, i, 6)
        n11 = normal1(1)
        n12 = normal1(2)
        n13 = normal1(3)
-       x1 = dm%x(l, k, n, i)
-       y1 = dm%y(l, k, n, i)
-       z1 = dm%z(l, k, n, i)
+       x1 = dm%x%x(l, k, n, i)
+       y1 = dm%y%x(l, k, n, i)
+       z1 = dm%z%x(l, k, n, i)
        normal2 = coef%get_normal(1, l, k, i, 5)
        n21 = normal2(1)
        n22 = normal2(2)
        n23 = normal2(3)
-       x2 = dm%x(l, k, 1, i)
-       y2 = dm%y(l, k, 1, i)
-       z2 = dm%z(l, k, 1, i)
+       x2 = dm%x%x(l, k, 1, i)
+       y2 = dm%y%x(l, k, 1, i)
+       z2 = dm%z%x(l, k, 1, i)
     case default
        call neko_error("The face index is not correct")
     end select
@@ -667,71 +670,28 @@ contains
 
     call this%free_base
 
-    if (c_associated(this%dphidxi_d)) then
-       call device_free(this%dphidxi_d)
-    end if
-    if (c_associated(this%penalty_d)) then
-       call device_free(this%penalty_d)
-    end if
-    if (c_associated(this%grad1_d)) then
-       call device_free(this%grad1_d)
-    end if
-    if (c_associated(this%grad2_d)) then
-       call device_free(this%grad2_d)
-    end if
-    if (c_associated(this%grad3_d)) then
-       call device_free(this%grad3_d)
-    end if
-    if (c_associated(this%penalty_facet_d)) then
-       call device_free(this%penalty_facet_d)
-    end if
-    if (c_associated(this%G_d)) then
-       call device_free(this%G_d)
-    end if
-    if (c_associated(this%flux1_d)) then
-       call device_free(this%flux1_d)
-    end if
-    if (c_associated(this%flux2_d)) then
-       call device_free(this%flux2_d)
-    end if
-    if (c_associated(this%flux3_d)) then
-       call device_free(this%flux3_d)
-    end if
-    if (c_associated(this%volflux1_d)) then
-       call device_free(this%volflux1_d)
-    end if
-    if (c_associated(this%volflux2_d)) then
-       call device_free(this%volflux2_d)
-    end if
-    if (c_associated(this%volflux3_d)) then
-       call device_free(this%volflux3_d)
-    end if
-    if (c_associated(this%absvolflux_d)) then
-       call device_free(this%absvolflux_d)
-    end if
-    if (c_associated(this%n1_d)) then
-       call device_free(this%n1_d)
-    end if
-    if (c_associated(this%n2_d)) then
-       call device_free(this%n2_d)
-    end if
-    if (c_associated(this%n3_d)) then
-       call device_free(this%n3_d)
-    end if
-    if (c_associated(this%facet_factor_d)) then
-       call device_free(this%facet_factor_d)
-    end if
-
     if (allocated(this%penalty)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%penalty, this%penalty_d)
+       end if
        deallocate(this%penalty)
     end if
     if (allocated(this%grad1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%grad1, this%grad1_d)
+       end if
        deallocate(this%grad1)
     end if
     if (allocated(this%grad2)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%grad2, this%grad2_d)
+       end if
        deallocate(this%grad2)
     end if
     if (allocated(this%grad3)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%grad3, this%grad3_d)
+       end if
        deallocate(this%grad3)
     end if
     if (allocated(this%h2)) then
@@ -741,45 +701,87 @@ contains
        deallocate(this%n_facet)
     end if
     if (allocated(this%dphidxi)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%dphidxi, this%dphidxi_d)
+       end if
        deallocate(this%dphidxi)
     end if
     if (allocated(this%penalty_facet)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%penalty_facet, this%penalty_facet_d)
+       end if
        deallocate(this%penalty_facet)
     end if
     if (allocated(this%G)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%G, this%G_d)
+       end if
        deallocate(this%G)
     end if
     if (allocated(this%flux1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%flux1, this%flux1_d)
+       end if
        deallocate(this%flux1)
     end if
     if (allocated(this%flux2)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%flux2, this%flux2_d)
+       end if
        deallocate(this%flux2)
     end if
     if (allocated(this%flux3)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%flux3, this%flux3_d)
+       end if
        deallocate(this%flux3)
     end if
     if (allocated(this%volflux1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%volflux1, this%volflux1_d)
+       end if
        deallocate(this%volflux1)
     end if
     if (allocated(this%volflux2)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%volflux2, this%volflux2_d)
+       end if
        deallocate(this%volflux2)
     end if
     if (allocated(this%volflux3)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%volflux3, this%volflux3_d)
+       end if
        deallocate(this%volflux3)
     end if
     if (allocated(this%absvolflux)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%absvolflux, this%absvolflux_d)
+       end if
        deallocate(this%absvolflux)
     end if
     if (allocated(this%n1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%n1, this%n1_d)
+       end if
        deallocate(this%n1)
     end if
     if (allocated(this%n2)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%n2, this%n2_d)
+       end if
        deallocate(this%n2)
     end if
     if (allocated(this%n3)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%n3, this%n3_d)
+       end if
        deallocate(this%n3)
     end if
     if (allocated(this%facet_factor)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%facet_factor, this%facet_factor_d)
+       end if
        deallocate(this%facet_factor)
     end if
 
@@ -882,27 +884,35 @@ contains
     real(kind=rp), intent(in) :: wa(lx + 2, lx + 2, lx + 2, nelv)
     real(kind=rp), intent(in) :: dphidxi(lx, lx)
 
-    integer :: i, j, k
+    integer :: e, i, j, k
 
-    do i = 1, lx
-       do j = 1, lx
-          do k = 1, lx
-             penalty(i, j, k, :) = &
-                  wa(1, j + 1, k + 1, :) * &
-                  dphidxi(1, i) + &
-                  wa(lx + 2, j + 1, k + 1, :) * &
-                  dphidxi(lx, i) + &
-                  wa(i + 1, 1, k + 1, :) * &
-                  dphidxi(1, j) + &
-                  wa(i + 1, lx + 2, k + 1, :) * &
-                  dphidxi(lx, j) + &
-                  wa(i + 1, j + 1, 1, :) * &
-                  dphidxi(1, k) + &
-                  wa(i + 1, j + 1, lx + 2, :) * &
-                  dphidxi(lx, k)
+    !$omp parallel do private(e, i, j, k)
+    do e = 1, nelv
+       do k = 1, lx
+          do j = 1, lx
+             !OCL NORECURRENCE, NOVREC, NOALIAS
+             !DIR$ CONCURRENT
+             !DIR$ IVDEP
+             !GCC$ ivdep
+             do i = 1, lx
+                penalty(i, j, k, e) = &
+                     wa(1, j + 1, k + 1, e) * &
+                     dphidxi(1, i) + &
+                     wa(lx + 2, j + 1, k + 1, e) * &
+                     dphidxi(lx, i) + &
+                     wa(i + 1, 1, k + 1, e) * &
+                     dphidxi(1, j) + &
+                     wa(i + 1, lx + 2, k + 1, e) * &
+                     dphidxi(lx, j) + &
+                     wa(i + 1, j + 1, 1, e) * &
+                     dphidxi(1, k) + &
+                     wa(i + 1, j + 1, lx + 2, e) * &
+                     dphidxi(lx, k)
+             end do
           end do
        end do
     end do
+    !$omp end parallel do
 
   end subroutine gradient_jump_penalty_finalize_hex
 

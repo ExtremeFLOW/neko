@@ -33,13 +33,13 @@
 !
 !> Implements the `scalar_source_term_t` type.
 module scalar_source_term
-  use user_source_term, only: user_source_term_t
-  use source_term, only: source_term_t
-  use source_term_handler, only: source_term_handler_t
-  use field, only: field_t
-  use field_list, only: field_list_t
-  use coefs, only: coef_t
-  use user_intf, only: user_t
+  use user_source_term, only : user_source_term_t
+  use source_term, only : source_term_t
+  use source_term_handler, only : source_term_handler_t
+  use field, only : field_t
+  use field_list, only : field_list_t
+  use coefs, only : coef_t
+  use user_intf, only : user_t
   implicit none
   private
 
@@ -81,7 +81,8 @@ contains
   !! @param coef The SEM coefs.
   !! "user_poinwise".
   !! @param user The user type containing the user source term routines.
-  !! @param scheme_name The name of the scalar scheme that owns this source term.
+  !! @param scheme_name The name of the scalar scheme that owns this
+  !! source term.
   subroutine scalar_init_user_source(source_term, rhs_fields, coef, user, &
        scheme_name)
     class(source_term_t), allocatable, intent(inout) :: source_term

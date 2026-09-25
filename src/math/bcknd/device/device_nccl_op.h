@@ -8,5 +8,6 @@
 
 #define DEVICE_NCCL_SUM 0
 #define DEVICE_NCCL_MAX 1
+#define DEVICE_NCCL_MIN 2
 
 #endif 

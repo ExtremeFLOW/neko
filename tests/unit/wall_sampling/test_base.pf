@@ -1,0 +1,133 @@
+!> Unit tests for state shared by all wall samplers and their factory.
+module test_base
+  use pfunit
+  use num_types, only : rp
+  use vector, only : vector_t
+  use json_module, only : json_file
+  use wall_sampler, only : wall_sampler_t
+  use wall_sampler_fctry, only : wall_sampler_factory
+  use wall_gll_sampler, only : wall_gll_sampler_t
+  use wall_distance_sampler, only : wall_distance_sampler_t
+  use device, only : device_init, device_finalize, HOST_TO_DEVICE, &
+       DEVICE_TO_HOST
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
+  implicit none
+  real(kind=rp), parameter :: tol = 1.0e-5_rp
+
+  @TestCase
+  type, extends(MPITestCase) :: test_base_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_base_case
+
+contains
+
+  !> Initialise Neko state required by the vector and sampler tests.
+  subroutine setUp(this)
+    class(test_base_case), intent(inout) :: this
+
+    call comm_init_test(this%getMpiCommunicator())
+    if (NEKO_BCKND_DEVICE .eq. 1) call device_init
+    call neko_mpi_types_init()
+  end subroutine setUp
+
+  !> Release Neko state initialised for the vector and sampler tests.
+  subroutine tearDown(this)
+    class(test_base_case), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) call device_finalize
+    call neko_mpi_types_free()
+    call comm_free_test()
+  end subroutine tearDown
+
+  !> Verify that `init_base` copies resolved sampler dimensions and distances.
+  @test(npes=[1])
+  subroutine test_base_initialises_resolved_state(this)
+    class(test_base_case), intent(inout) :: this
+    type(wall_gll_sampler_t) :: sampler
+    type(vector_t) :: h
+
+    ! Use two wall nodes and two samples to exercise the flattened layout.
+    call h%init(4)
+    h%x = [0.1_rp, 0.2_rp, 0.3_rp, 0.4_rp]
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call h%copy_from(HOST_TO_DEVICE, sync = .true.)
+    end if
+
+    call sampler%init_base(2, 2, h, .true.)
+
+    ! Changing the source verifies that the sampler owns its vector copy.
+    h%x = 0.0_rp
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call h%copy_from(HOST_TO_DEVICE, sync = .true.)
+       call sampler%h%copy_from(DEVICE_TO_HOST, sync = .true.)
+    end if
+
+    @assertEqual(sampler%n_nodes, 2)
+    @assertEqual(sampler%n_samples, 2)
+    @assertEqual(sampler%h%size(), 4)
+    @assertEqual(sampler%h%x(1), 0.1_rp, tolerance=tol)
+    @assertEqual(sampler%h%x(4), 0.4_rp, tolerance=tol)
+
+    call sampler%free()
+    ! The inherited destructor must leave the sampler reusable.
+    @assertEqual(sampler%n_nodes, 0)
+    @assertEqual(sampler%n_samples, 0)
+    @assertEqual(sampler%h%size(), 0)
+    call h%free()
+  end subroutine test_base_initialises_resolved_state
+
+  !> Verify factory allocation for both sampler types and legacy GLL input.
+  @test(npes=[1])
+  subroutine test_sampler_factory_configuration(this)
+    class(test_base_case), intent(inout) :: this
+    class(wall_sampler_t), allocatable :: sampler
+    type(json_file) :: json
+
+    ! The legacy path has no sampling object and therefore selects GLL.
+    call json%load_from_string('{"h_index":2}')
+    call wall_sampler_factory(sampler, json)
+
+    select type (sampler)
+    type is (wall_gll_sampler_t)
+       @assertEqual(sampler%n_samples, 1)
+       @assertEqual(sampler%indices(1), 2)
+    class default
+       @assertTrue(.false.)
+    end select
+
+    call sampler%free()
+    deallocate(sampler)
+
+    ! Explicit sampler types must allocate their matching concrete classes.
+    call json%load_from_string('{"sampling":{"type":"gll","value":1}}')
+
+    call wall_sampler_factory(sampler, json)
+    select type (sampler)
+    type is (wall_gll_sampler_t)
+       @assertEqual(sampler%n_samples, 1)
+    class default
+       @assertTrue(.false.)
+    end select
+    call sampler%free()
+    deallocate(sampler)
+
+    call json%load_from_string( &
+         '{"sampling":{"type":"distance","value":0.25}}')
+    call wall_sampler_factory(sampler, json)
+
+    select type (sampler)
+    type is (wall_distance_sampler_t)
+       @assertEqual(sampler%n_samples, 1)
+    class default
+       @assertTrue(.false.)
+    end select
+    call sampler%free()
+    deallocate(sampler)
+  end subroutine test_sampler_factory_configuration
+
+end module test_base

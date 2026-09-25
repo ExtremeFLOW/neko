@@ -16,8 +16,8 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "mu": 1,
-            "rho": 1,
+            "mu": 1.0,
+            "rho": 1.0,
             "freeze": true,
             "initial_condition": {
                 "type": "user"
@@ -44,7 +44,7 @@
                 {
                     "type": "velocity_value",
                     "zone_indices": [ 1, 2 ],
-                    "value": [ 1, 0, 0 ]
+                    "value": [ 1.0, 0.0, 0.0 ]
                 }
 
             ],
@@ -54,7 +54,7 @@
         "scalar": {
             "enabled": true,
             "lambda": 0.01,
-            "cp": 1,
+            "cp": 1.0,
             "initial_condition": {
                 "type": "user"
             },
@@ -74,7 +74,7 @@
                 {
                     "type": "constant",
                     "values": [
-                        "1.0"
+                        1.0
                     ]
                 }
             ],
@@ -82,7 +82,7 @@
                 {
                     "type": "dirichlet",
                     "zone_indices": [ 1 ],
-                    "value": 0
+                    "value": 0.0
                 },
                 {
                     "type": "neumann",

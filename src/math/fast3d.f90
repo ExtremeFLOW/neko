@@ -59,8 +59,8 @@
 !
 !> Fast diagonalization methods from NEKTON
 module fast3d
-  use num_types, only : rp
-  use speclib
+  use num_types, only : rp, xp
+  use speclib, only : zwgll, zwgl
   use math, only : rzero
   implicit none
   private
@@ -87,7 +87,8 @@ contains
   !! @note - Setting \f$m=0\f$ makes this a polynomial interpolation routine.
   !! It is the fastest such routine possible for a single interpolation point,
   !! according to the above reference.
-  !! @note - The name `_full` refers to the fact that we use the values \f$f(x_j)\f$
+  !! @note - The name `_full` refers to the fact that we use the
+  !! values \f$f(x_j)\f$
   !! at all available nodes \f$x\f$ to construct the expansion. So we always
   !! get the finite difference stencil of maximum order possible.
   !!
@@ -172,7 +173,7 @@ contains
     real(kind=rp), intent(inout) :: c(0:n,0:n)
     real(kind=rp), intent(inout) :: d(0:n,0:n)
     real(kind=rp), intent(inout) :: z(0:n)
-    real(kind=rp), intent(inout) :: dgll(0:n,1:n-1),jgll(0:n,1:n-1)
+    real(kind=rp), intent(inout) :: dgll(0:n,1:n-1), jgll(0:n,1:n-1)
     real(kind=rp), intent(inout) :: bgl(1:n-1)
     real(kind=rp), intent(inout) :: zgl(1:n-1)
     real(kind=rp), intent(inout) :: dgl(1:n-1,0:n)
@@ -190,11 +191,11 @@ contains
        end do
     end do
 
-    if (n.eq.1) return !  No interpolation for n=1
+    if (n .eq. 1) return ! No interpolation for n = 1
 
     do i = 0,n
        call fd_weights_full(z(i), z(1), n2, 1, w(1))
-       do j = 1,nm
+       do j = 1, nm
           jgll(i,j) = w(j) ! Interpolation matrix
           dgll(i,j) = w(j + nm) ! Derivative matrix
        end do
@@ -238,7 +239,8 @@ contains
   !! @param z_from Quadrature points.
   !! @param n_to Number of points in `z_to`.
   !! @param n_from Number of points in `z_from`.
-  !! @param derivative Specifies if we want the derivative interpolation instead, e.g.
+  !! @param derivative Specifies if we want the derivative
+  !! interpolation instead, e.g.
   !! `derivative = 1` refers to the first derivative etc.
   subroutine setup_intp(jh, jht, z_to, z_from, n_to, n_from, derivative)
     implicit none

@@ -30,6 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
+!> Device backend wrappers for inhomogeneous Dirichlet boundary conditions.
 module device_inhom_dirichlet
   use num_types, only : rp, c_rp
   use utils, only : neko_error
@@ -40,7 +41,7 @@ module device_inhom_dirichlet
   interface
      subroutine hip_inhom_dirichlet_apply_vector(msk, x, y, z, &
           bla_x, bla_y, bla_z, m, strm) &
-          bind(c, name='hip_inhom_dirichlet_apply_vector')
+          bind(c, name = 'hip_inhom_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -52,7 +53,7 @@ module device_inhom_dirichlet
   interface
      subroutine cuda_inhom_dirichlet_apply_vector(msk, x, y, z, &
           bla_x, bla_y, bla_z, m, strm) &
-          bind(c, name='cuda_inhom_dirichlet_apply_vector')
+          bind(c, name = 'cuda_inhom_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -64,7 +65,7 @@ module device_inhom_dirichlet
   interface
      subroutine opencl_inhom_dirichlet_apply_vector(msk, x, y, z, &
           bla_x, bla_y, bla_z, m, strm) &
-          bind(c, name='opencl_inhom_dirichlet_apply_vector')
+          bind(c, name = 'opencl_inhom_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -73,12 +74,25 @@ module device_inhom_dirichlet
      end subroutine opencl_inhom_dirichlet_apply_vector
   end interface
 
+#elif HAVE_METAL
+  interface
+     subroutine metal_inhom_dirichlet_apply_vector(msk, x, y, z, &
+          bla_x, bla_y, bla_z, m, strm) &
+          bind(c, name = 'metal_inhom_dirichlet_apply_vector')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, y, z, bla_x, bla_y, bla_z, strm
+     end subroutine metal_inhom_dirichlet_apply_vector
+  end interface
+
 #endif
 
 #ifdef HAVE_HIP
   interface
      subroutine hip_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm) &
-          bind(c, name='hip_inhom_dirichlet_apply_scalar')
+          bind(c, name = 'hip_inhom_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -89,7 +103,7 @@ module device_inhom_dirichlet
 #elif HAVE_CUDA
   interface
      subroutine cuda_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm) &
-          bind(c, name='cuda_inhom_dirichlet_apply_scalar')
+          bind(c, name = 'cuda_inhom_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -100,7 +114,7 @@ module device_inhom_dirichlet
 #elif HAVE_OPENCL
   interface
      subroutine opencl_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm) &
-          bind(c, name='opencl_inhom_dirichlet_apply_scalar')
+          bind(c, name = 'opencl_inhom_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -108,10 +122,31 @@ module device_inhom_dirichlet
        type(c_ptr), value :: msk, x, bla_x, strm
      end subroutine opencl_inhom_dirichlet_apply_scalar
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm) &
+          bind(c, name = 'metal_inhom_dirichlet_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, bla_x, strm
+     end subroutine metal_inhom_dirichlet_apply_scalar
+  end interface
 #endif
 
 contains
 
+  !> Apply an inhomogeneous Dirichlet condition to a vector field on the device.
+  !! @param msk Device pointer to the boundary-condition mask.
+  !! @param x Device pointer to the x component.
+  !! @param y Device pointer to the y component.
+  !! @param z Device pointer to the z component.
+  !! @param bla_x Device pointer to the prescribed x values.
+  !! @param bla_y Device pointer to the prescribed y values.
+  !! @param bla_z Device pointer to the prescribed z values.
+  !! @param m Number of constrained entries in the mask.
+  !! @param strm Device stream or queue handle.
   subroutine device_inhom_dirichlet_apply_vector(msk, x, y, z, &
        bla_x, bla_y, bla_z, m, strm)
     integer, intent(in) :: m
@@ -127,12 +162,21 @@ contains
 #elif HAVE_OPENCL
     call opencl_inhom_dirichlet_apply_vector(msk, x, y, z, &
          bla_x, bla_y, bla_z, m, strm)
+#elif HAVE_METAL
+    call metal_inhom_dirichlet_apply_vector(msk, x, y, z, &
+         bla_x, bla_y, bla_z, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif
 
   end subroutine device_inhom_dirichlet_apply_vector
 
+  !> Apply an inhomogeneous Dirichlet condition to a scalar field on the device.
+  !! @param msk Device pointer to the boundary-condition mask.
+  !! @param x Device pointer to the scalar field.
+  !! @param bla_x Device pointer to the prescribed scalar values.
+  !! @param m Number of constrained entries in the mask.
+  !! @param strm Device stream or queue handle.
   subroutine device_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm)
     integer, intent(in) :: m
     type(c_ptr) :: msk, x, bla_x, strm
@@ -144,6 +188,8 @@ contains
     call cuda_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm)
 #elif HAVE_OPENCL
     call opencl_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm)
+#elif HAVE_METAL
+    call metal_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif

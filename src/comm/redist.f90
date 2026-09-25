@@ -248,7 +248,7 @@ contains
     ! We should use the %array() procedure, which works great for
     ! GNU, Intel and NEC, but it breaks horribly on Cray when using
     ! certain data types
-    select type(zp => new_zone_dist(pe_rank)%data)
+    select type (zp => new_zone_dist(pe_rank)%data)
     type is (nmsh_zone_t)
        do i = 1, new_zone_dist(pe_rank)%size()
           if (zp(i)%type .eq. 5) then
@@ -310,15 +310,15 @@ contains
           if (el_map%get(zp(i)%e, new_el_idx) .gt. 0) then
              call neko_error('Missing element after redistribution')
           end if
-          select case(zp(i)%type)
-          case(5)
+          select case (zp(i)%type)
+          case (5)
              if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
                 call neko_error('Missing periodic element after redistribution')
              end if
 
              call msh%mark_periodic_facet(zp(i)%f, new_el_idx, &
                   zp(i)%p_f, zp(i)%p_e, zp(i)%glb_pt_ids)
-          case(7)
+          case (7)
              call msh%mark_labeled_facet(zp(i)%f, new_el_idx, zp(i)%p_f)
           end select
        end do
@@ -326,8 +326,8 @@ contains
           if (el_map%get(zp(i)%e, new_el_idx) .gt. 0) then
              call neko_error('Missing element after redistribution')
           end if
-          select case(zp(i)%type)
-          case(5)
+          select case (zp(i)%type)
+          case (5)
              if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
                 call neko_error('Missing periodic element after redistribution')
              end if
@@ -382,7 +382,7 @@ contains
        lbl = 0
     end if
 
-    select type(zp => z)
+    select type (zp => z)
     type is (facet_zone_periodic_t)
        do i = 1, zp%size
           zone_el = zp%facet_el(i)%x(2)

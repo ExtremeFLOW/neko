@@ -7,8 +7,8 @@
     "output_directory": "tests/test_scalar_stats",
     "output_checkpoints": false,
     "time": {
-        "end_time": 1000,
-        "timestep": 1
+        "end_time": 1000.0,
+        "timestep": 1.0
     },
     "numerics": {
       "time_order": 2,
@@ -17,8 +17,8 @@
     },
     "fluid": {
       "scheme": "pnpn",
-      "mu": 1,
-      "rho": 1,
+      "mu": 1.0,
+      "rho": 1.0,
       "freeze": true,
       "initial_condition": {
         "type": "user"
@@ -65,6 +65,7 @@
     "simulation_components": [
       {
         "type": "scalar_stats",
+        "name": "1d",
         "set_of_stats": "basic",
         "avg_direction": "xy",
         "compute_control": "tsteps",
@@ -75,6 +76,7 @@
       },
       {
         "type": "scalar_stats",
+        "name": "2d",
         "output_filename": "stats2d",
         "set_of_stats": "basic",
         "avg_direction": "y",
@@ -86,6 +88,7 @@
       },
       {
         "type": "scalar_stats",
+        "name": "3d",
         "output_filename": "stats3d",
         "set_of_stats": "basic",
         "compute_control": "tsteps",

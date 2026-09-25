@@ -38,25 +38,25 @@ module signal
   private
 
   public :: signal_timeout, signal_set_timeout, signal_trap_cpulimit,&
-            signal_trap_usr, signal_usr
+       signal_trap_usr, signal_usr
 
   interface
      integer (c_int8_t) function sighdl_timeout() &
-          bind(c, name='sighdl_timeout')
+          bind(c, name = 'sighdl_timeout')
        use, intrinsic :: iso_c_binding
      end function sighdl_timeout
   end interface
 
   interface
      integer (c_int8_t) function sighdl_usr() &
-          bind(c, name='sighdl_usr')
+          bind(c, name = 'sighdl_usr')
        use, intrinsic :: iso_c_binding
      end function sighdl_usr
   end interface
 
   interface
      integer (c_int) function sighdl_set_timeout(sec) &
-          bind(c, name='sighdl_set_timeout')
+          bind(c, name = 'sighdl_set_timeout')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: sec
@@ -65,14 +65,14 @@ module signal
 
   interface
      integer (c_int) function sighdl_trap_cpulimit() &
-          bind(c, name='sighdl_trap_cpulimit')
+          bind(c, name = 'sighdl_trap_cpulimit')
        use, intrinsic :: iso_c_binding
      end function sighdl_trap_cpulimit
   end interface
 
   interface
      integer (c_int) function sighdl_trap_usr() &
-          bind(c, name='sighdl_trap_usr')
+          bind(c, name = 'sighdl_trap_usr')
        use, intrinsic :: iso_c_binding
      end function sighdl_trap_usr
   end interface
@@ -83,7 +83,7 @@ contains
   function signal_timeout() result(timeout)
     logical :: timeout
 
-    if (sighdl_timeout() .gt. 0)  then
+    if (sighdl_timeout() .gt. 0) then
        timeout = .true.
     else
        timeout = .false.

@@ -34,16 +34,17 @@
 
 #include <device/device_config.h>
 #include <device/cuda/check.h>
+#include <device/cuda/buffer.h>
 
 #include "projection_kernel.h"
 #include <math/bcknd/device/cuda/math_kernel.h>
 
 
 /*
- * Reduction buffer
+ * Device-only reduction buffer, owned by the device layer and
+ * released on device teardown (cuda_buffer_free_all in cuda_finalize)
  */
-int proj_red_s = 0;
-real * proj_bufred_d = NULL;
+cuda_buffer_t proj_bufred = CUDA_BUFFER_INIT_DEV;
 
 extern "C" {
 
@@ -62,13 +63,8 @@ extern "C" {
     const dim3 glsc3_nthrds(pow2, nt, 1);
     const dim3 glsc3_nblcks(((*n)+nt - 1)/nt, 1, 1);
     const int glsc3_nb = ((*n) + nt - 1)/nt;
-    if((*j)*glsc3_nb>proj_red_s){
-      proj_red_s = (*j)*glsc3_nb;
-      if (proj_bufred_d != NULL) {
-	CUDA_CHECK(cudaFree(proj_bufred_d));
-      }
-      CUDA_CHECK(cudaMalloc(&proj_bufred_d, (*j)*glsc3_nb*sizeof(real)));
-    }
+    cuda_buffer_reserve(&proj_bufred, (*j)*glsc3_nb*sizeof(real));
+    real *proj_bufred_d = (real *) proj_bufred.dev;
 
     /* First glsc3_many call */
     glsc3_many_kernel<real>
@@ -137,13 +133,8 @@ extern "C" {
     const dim3 glsc3_nthrds(pow2, nt, 1);
     const dim3 glsc3_nblcks(((*n)+nt - 1)/nt, 1, 1);
     const int glsc3_nb = ((*n) + nt - 1)/nt;
-    if((*j)*glsc3_nb>proj_red_s){
-      proj_red_s = (*j)*glsc3_nb;
-      if (proj_bufred_d != NULL) {
-	CUDA_CHECK(cudaFree(proj_bufred_d));
-      }
-      CUDA_CHECK(cudaMalloc(&proj_bufred_d, (*j)*glsc3_nb*sizeof(real)));
-    }
+    cuda_buffer_reserve(&proj_bufred, (*j)*glsc3_nb*sizeof(real));
+    real *proj_bufred_d = (real *) proj_bufred.dev;
 
     /* First glsc3_many call */
     glsc3_many_kernel<real>

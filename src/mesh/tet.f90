@@ -34,15 +34,15 @@
 module tet
   use num_types, only : dp
   use element, only : element_t
-  use tuple
+  use tuple, only : tuple_t, tuple3_i4_t, tuple_i4_t
   use point, only : point_t
   implicit none
   private
 
-  integer, public, parameter :: NEKO_TET_NPTS = 4  !< Number of points
-  integer, public, parameter :: NEKO_TET_NFCS = 4  !< Number of faces
+  integer, public, parameter :: NEKO_TET_NPTS = 4 !< Number of points
+  integer, public, parameter :: NEKO_TET_NFCS = 4 !< Number of faces
   integer, public, parameter :: NEKO_TET_NEDS = 6 !< Number of edges
-  integer, public, parameter :: NEKO_TET_GDIM = 3  !< Geometric dimension
+  integer, public, parameter :: NEKO_TET_GDIM = 3 !< Geometric dimension
 
 
   !> Tetrahedral element
@@ -90,10 +90,10 @@ module tet
   !! @endverbatim
   !! @note Local node numbering (points)
   integer, parameter, dimension(3, 4) :: face_nodes = reshape((/1,3,4,&
-                                                                2,3,4,&
-                                                                1,2,4,&
-                                                                1,2,3/),&
-                                                                (/3,4/))
+       2,3,4,&
+       1,2,4,&
+       1,2,3/),&
+       (/3,4/))
 
   !> Edge node ids
   !! @details
@@ -112,12 +112,12 @@ module tet
   !!
   !! @endverbatim
   integer, parameter, dimension(2, 6) :: edge_nodes = reshape((/1,2,&
-                                                                1,3,&
-                                                                2,3,&
-                                                                3,4,&
-                                                                1,4,&
-                                                                2,4/),&
-                                                                (/2,6/))
+       1,3,&
+       2,3,&
+       3,4,&
+       1,4,&
+       2,4/),&
+       (/2,6/))
 
 contains
 

@@ -49,6 +49,7 @@ contains
     character(len=*), intent(in) :: known_types(:)
     integer :: i
 
+    flush(output_unit)
     write(error_unit, *) '*** ERROR WHEN SELECTING TYPE ***'
     write(error_unit, *) 'Type ', wrong_type, ' does not exist for ', base_type
     write(error_unit, *) 'Valid types are:'
@@ -56,6 +57,7 @@ contains
        write(error_unit, *) "    ", known_types(i)
     end do
 
+    flush(error_unit)
     if (.not. associated(throw_error)) throw_error => default_throw_error
     call throw_error('errors.f90', -1, message='')
   end subroutine neko_type_error
@@ -69,6 +71,7 @@ contains
     character(len=*),intent(in) :: wrong_type
     logical, intent(in) :: known
 
+    flush(output_unit)
     write(error_unit, *) '*** ERROR WHEN REGISTERING TYPE ***'
     write(error_unit, *) 'Type name ', wrong_type, &
          ' conflicts with and already existing ', base_type, " type"
@@ -79,6 +82,7 @@ contains
             ' Make all custom type names unique!'
     end if
 
+    flush(error_unit)
     if (.not. associated(throw_error)) throw_error => default_throw_error
     call throw_error('errors.f90', -1, message='')
   end subroutine neko_type_registration_error
@@ -87,7 +91,8 @@ contains
   !! @param warning_msg The warning message to report.
   module subroutine neko_warning(warning_msg)
     character(len=*) :: warning_msg
-    write(output_unit, *) '*** WARNING: ', warning_msg, ' ***'
+    write(output_unit, *) '*** WARNING: ', trim(warning_msg), ' ***'
+    flush(output_unit)
 
     if (.not. associated(throw_warning)) throw_warning => default_throw_warning
     call throw_warning('errors.f90', -1, message='')
@@ -98,12 +103,17 @@ contains
   module subroutine neko_error_plain(error_code)
     integer, optional, intent(in) :: error_code
 
+    ! Persist buffered log output before aborting, such that the error
+    ! appears after any preceding log messages
+    flush(output_unit)
+
     if (present(error_code)) then
        write(error_unit, *) '*** ERROR ***', error_code
     else
        write(error_unit, *) '*** ERROR ***'
     end if
 
+    flush(error_unit)
     if (.not. associated(throw_error)) throw_error => default_throw_error
     call throw_error('errors.f90', -1, message='')
   end subroutine neko_error_plain
@@ -112,8 +122,11 @@ contains
   !! @param error_msg The error message to report.
   module subroutine neko_error_msg(error_msg)
     character(len=*), intent(in) :: error_msg
-    write(error_unit, *) '*** ERROR: ', error_msg, ' ***'
 
+    flush(output_unit)
+    write(error_unit, *) '*** ERROR: ', trim(error_msg), ' ***'
+
+    flush(error_unit)
     if (.not. associated(throw_error)) throw_error => default_throw_error
     call throw_error('errors.f90', -1, message='')
   end subroutine neko_error_msg

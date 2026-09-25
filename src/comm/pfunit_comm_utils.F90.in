@@ -1,0 +1,135 @@
+module pfunit_comm_utils
+  use mpi
+  use comm, only : NEKO_COMM, NEKO_GLOBAL_COMM, MPI_REAL_PRECISION, &
+       MPI_EXTRA_PRECISION, pe_rank, pe_size, nio, global_pe_rank, &
+       global_pe_size, NEKO_MPI_THREAD_PROVIDED
+  use utils, only : neko_error
+  implicit none
+  private
+
+  logical :: comm_test_active = .false.
+
+  interface comm_init_test
+     module procedure comm_init_test_f
+  end interface comm_init_test
+
+  public :: comm_init_test, comm_free_test
+
+  interface
+     subroutine neko_comm_wrapper_init(fcomm) &
+          bind(c, name='neko_comm_wrapper_init')
+       use, intrinsic :: iso_c_binding, only : c_int
+       integer(c_int), value :: fcomm
+     end subroutine neko_comm_wrapper_init
+  end interface
+
+contains
+
+  !> Initialize Neko communicator state from an externally owned integer
+  !! communicator, as returned by pFUnit builds using the legacy mpi module.
+  subroutine comm_init_test_f(ext_comm)
+    integer, intent(in) :: ext_comm
+    integer :: ierr
+
+    call comm_test_precheck()
+    if (ext_comm .eq. MPI_COMM_NULL) then
+       call neko_error('Cannot initialize test communicator from MPI_COMM_NULL')
+    end if
+
+#ifndef HAVE_MPI_PARAM_DTYPE
+    MPI_REAL_PRECISION%mpi_val = @NEKO_MPI_REAL_TYPE@
+    MPI_EXTRA_PRECISION%mpi_val = @NEKO_MPI_XREAL_TYPE@
+#endif
+
+    call MPI_Comm_dup(ext_comm, NEKO_GLOBAL_COMM%mpi_val, ierr)
+    if (ierr .ne. MPI_SUCCESS) then
+       call neko_error('Failed to duplicate test global communicator')
+    end if
+    call MPI_Comm_dup(ext_comm, NEKO_COMM%mpi_val, ierr)
+    if (ierr .ne. MPI_SUCCESS) then
+       call neko_error('Failed to duplicate test communicator')
+    end if
+    call comm_test_set_state()
+  end subroutine comm_init_test_f
+
+  !> Free communicator state initialized by comm_init_test without finalizing
+  !! MPI.
+  subroutine comm_free_test
+    integer :: ierr
+    logical :: initialized, finalized
+
+    if (.not. comm_test_active) return
+
+    call MPI_Initialized(initialized, ierr)
+    call comm_test_check(ierr, 'Failed to query MPI initialization state')
+    call MPI_Finalized(finalized, ierr)
+    call comm_test_check(ierr, 'Failed to query MPI finalization state')
+    if ((.not. initialized) .or. finalized) then
+       call neko_error('MPI is not active during comm_free_test')
+    end if
+
+    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
+    call comm_test_check(ierr, 'Failed to synchronize test communicator')
+    call MPI_Comm_free(NEKO_COMM%mpi_val, ierr)
+    call comm_test_check(ierr, 'Failed to free test communicator')
+    call MPI_Comm_free(NEKO_GLOBAL_COMM%mpi_val, ierr)
+    call comm_test_check(ierr, 'Failed to free test global communicator')
+
+    call neko_comm_wrapper_init(MPI_COMM_NULL)
+    pe_rank = -1
+    pe_size = 0
+    global_pe_rank = -1
+    global_pe_size = 0
+    nio = .false.
+    comm_test_active = .false.
+  end subroutine comm_free_test
+
+  subroutine comm_test_precheck()
+    integer :: ierr
+    logical :: initialized, finalized
+
+    if (comm_test_active) then
+       call neko_error('Test communicator is already initialized')
+    end if
+
+    call MPI_Initialized(initialized, ierr)
+    call comm_test_check(ierr, 'Failed to query MPI initialization state')
+    if (.not. initialized) then
+       call neko_error('MPI must be initialized before comm_init_test')
+    end if
+
+    call MPI_Finalized(finalized, ierr)
+    call comm_test_check(ierr, 'Failed to query MPI finalization state')
+    if (finalized) then
+       call neko_error('MPI is finalized before comm_init_test')
+    end if
+
+    call MPI_Query_thread(NEKO_MPI_THREAD_PROVIDED, ierr)
+    call comm_test_check(ierr, 'Failed to query MPI thread support')
+  end subroutine comm_test_precheck
+
+  subroutine comm_test_set_state()
+    integer :: ierr
+
+    call MPI_Comm_rank(NEKO_GLOBAL_COMM%mpi_val, global_pe_rank, ierr)
+    call comm_test_check(ierr, 'Failed to query test global rank')
+    call MPI_Comm_size(NEKO_GLOBAL_COMM%mpi_val, global_pe_size, ierr)
+    call comm_test_check(ierr, 'Failed to query test global size')
+    call MPI_Comm_rank(NEKO_COMM%mpi_val, pe_rank, ierr)
+    call comm_test_check(ierr, 'Failed to query test rank')
+    call MPI_Comm_size(NEKO_COMM%mpi_val, pe_size, ierr)
+    call comm_test_check(ierr, 'Failed to query test size')
+
+    nio = .false.
+    call neko_comm_wrapper_init(NEKO_COMM%mpi_val)
+    comm_test_active = .true.
+  end subroutine comm_test_set_state
+
+  subroutine comm_test_check(ierr, msg)
+    integer, intent(in) :: ierr
+    character(len=*), intent(in) :: msg
+
+    if (ierr .ne. MPI_SUCCESS) call neko_error(msg)
+  end subroutine comm_test_check
+
+end module pfunit_comm_utils

@@ -32,7 +32,7 @@
 
 !> Cuda interface binding for mappings
 module cuda_mappings
-  use num_types, only: c_rp
+  use num_types, only : c_rp
   implicit none
   private
 
@@ -42,7 +42,7 @@ module cuda_mappings
   interface
      subroutine cuda_smooth_step(x, edge0, edge1, n) &
           bind(c, name = "cuda_smooth_step")
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: x
        real(c_rp) :: edge0, edge1
@@ -51,7 +51,7 @@ module cuda_mappings
 
      subroutine cuda_step_function(x, edge, left, right, n) &
           bind(c, name = "cuda_step_function")
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: x
        real(c_rp) :: edge, left, right
@@ -60,7 +60,7 @@ module cuda_mappings
 
      subroutine cuda_permeability(x, k_0, k_1, q, n) &
           bind(c, name = "cuda_permeability")
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: x
        real(c_rp) :: k_0, k_1, q

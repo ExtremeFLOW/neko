@@ -38,7 +38,7 @@ module device_jacobi
   use num_types, only : rp
   use device_math, only : device_col2, device_addcol3, device_invcol1,&
        device_col3
-  use device, only : device_map, device_event_create, device_free, &
+  use device, only : device_map, device_event_create, device_unmap, &
        device_event_sync, device_get_ptr, device_event_destroy
   use gather_scatter, only : gs_t, GS_OP_ADD
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
@@ -93,6 +93,17 @@ module device_jacobi
      end subroutine opencl_jacobi_update
   end interface
 
+  interface
+     subroutine metal_jacobi_update(d_d, dxt_d, dyt_d, dzt_d, &
+          G11_d, G22_d, G33_d, G12_d, G13_d, G23_d, nelv, lx) &
+          bind(c, name='metal_jacobi_update')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: d_d, dxt_d, dyt_d, dzt_d
+       type(c_ptr), value :: G11_d, G22_d, G33_d, G12_d, G13_d, G23_d
+       integer(c_int) :: nelv, lx
+     end subroutine metal_jacobi_update
+  end interface
+
 contains
 
   subroutine device_jacobi_init(this, coef, dof, gs_h)
@@ -120,12 +131,10 @@ contains
   subroutine device_jacobi_free(this)
     class(device_jacobi_t), intent(inout) :: this
 
-    if (c_associated(this%d_d)) then
-       call device_free(this%d_d)
-       this%d_d = C_NULL_PTR
-    end if
-
     if (allocated(this%d)) then
+       if (c_associated(this%d_d)) then
+          call device_unmap(this%d, this%d_d)
+       end if
        deallocate(this%d)
     end if
 
@@ -176,6 +185,11 @@ contains
            nelv, lx)
 #elif HAVE_OPENCL
       call opencl_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
+           coef%G11_d, coef%G22_d, coef%G33_d, &
+           coef%G12_d, coef%G13_d, coef%G23_d, &
+           nelv, lx)
+#elif HAVE_METAL
+      call metal_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
            coef%G11_d, coef%G22_d, coef%G33_d, &
            coef%G12_d, coef%G13_d, coef%G23_d, &
            nelv, lx)

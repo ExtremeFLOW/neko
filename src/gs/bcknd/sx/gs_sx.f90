@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,9 @@
 !
 !> Generic Gather-scatter backend for NEC Vector Engines
 module gs_sx
-  use num_types
-  use gs_bcknd
-  use gs_ops
+  use num_types, only : rp
+  use gs_bcknd, only : gs_bcknd_t
+  use gs_ops, only : GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -90,7 +90,7 @@ contains
   end subroutine gs_sx_free
 
   !> Gather kernel
-  subroutine gs_gather_sx(this, v, m, o, dg, u, n, gd, nb, b, op, shrd)
+  subroutine gs_gather_sx(this, v, m, o, dg, u, n, gd, nb, b, bo, op, shrd)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -100,6 +100,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: bo
     integer, intent(in) :: o
     integer, intent(in) :: op
     logical, intent(in) :: shrd
@@ -165,7 +166,7 @@ contains
        end do
     else
        do i = o, m, 2
-          tmp  = u(gd(i)) + u(gd(i+1))
+          tmp = u(gd(i)) + u(gd(i+1))
           v(dg(i)) = tmp
        end do
     end if
@@ -188,6 +189,7 @@ contains
     integer :: i
     real(kind=rp) :: tmp
 
+    v = 1d0
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
     end do
@@ -202,7 +204,7 @@ contains
        end do
     else
        do i = o, m, 2
-          tmp  = u(gd(i)) * u(gd(i+1))
+          tmp = u(gd(i)) * u(gd(i+1))
           v(dg(i)) = tmp
        end do
     end if
@@ -225,6 +227,7 @@ contains
     integer :: i
     real(kind=rp) :: tmp
 
+    v = huge(0.0_rp)
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
     end do
@@ -239,7 +242,7 @@ contains
        end do
     else
        do i = o, m, 2
-          tmp  = min(u(gd(i)), u(gd(i+1)))
+          tmp = min(u(gd(i)), u(gd(i+1)))
           v(dg(i)) = tmp
        end do
     end if
@@ -262,6 +265,7 @@ contains
     integer :: i
     real(kind=rp) :: tmp
 
+    v = -huge(0.0_rp)
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
     end do
@@ -276,7 +280,7 @@ contains
        end do
     else
        do i = o, m, 2
-          tmp  = max(u(gd(i)), u(gd(i+1)))
+          tmp = max(u(gd(i)), u(gd(i+1)))
           v(dg(i)) = tmp
        end do
     end if
@@ -284,7 +288,7 @@ contains
   end subroutine gs_gather_kernel_max
 
   !> Scatter kernel  @todo Make the kernel abstract
-  subroutine gs_scatter_sx(this, v, m, dg, u, n, gd, nb, b, shrd, event)
+  subroutine gs_scatter_sx(this, v, m, dg, u, n, gd, nb, b, bo, shrd, event)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -294,6 +298,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: bo
     logical, intent(in) :: shrd
     type(c_ptr) :: event
 

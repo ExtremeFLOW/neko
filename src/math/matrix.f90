@@ -32,20 +32,19 @@
 !
 !> Defines a matrix
 module matrix
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use math, only: sub3, chsign, add3, cmult2, cadd2
-  use num_types, only: rp, xp
-  use device, only: device_map, device_free, device_memcpy, &
-       device_deassociate, device_sync
-  use device_math, only: device_copy, device_cfill, device_cmult, &
-       device_sub3, device_cmult2, device_add3, device_cadd2
-  use utils, only: neko_error
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp, xp
+  use device, only : device_map, device_unmap, device_memcpy, &
+       device_sync
+  use device_math, only : device_copy, device_cfill
+  use utils, only : neko_error, NEKO_VARNAME_LEN
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
   type, public :: matrix_t
      real(kind=rp), allocatable :: x(:,:) !< Matrix entries.
+     character(len=NEKO_VARNAME_LEN) :: name = "" !< Name of the matrix
      type(c_ptr) :: x_d = C_NULL_PTR !< Device pointer.
      integer, private :: nrows = 0 !< Number of matrix rows.
      integer, private :: ncols = 0 !< Number of matrix columns.
@@ -87,16 +86,24 @@ contains
   !> Initialise a matrix of size `nrows*ncols`.
   !! @param nrows Number of rows.
   !! @param ncols Number of columns.
-  subroutine matrix_init(m, nrows, ncols)
+  subroutine matrix_init(m, nrows, ncols, name)
     class(matrix_t), intent(inout) :: m
     integer, intent(in) :: nrows
     integer, intent(in) :: ncols
+    character(len=*), intent(in), optional :: name
 
+    ! m%alloc zeroes the device side (and synchronizes) before any
+    ! host-side touch: under zero-copy the device then faults the
+    ! pages (device first touch), which gives contiguous physical
+    ! mappings and thus better GPU TLB utilisation; rewriting the
+    ! zeros on the host afterwards is benign
     call m%alloc(nrows, ncols)
     m%x = 0.0_rp
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(m%x_d, 0.0_rp, m%n)
+
+    if (present(name)) then
+       m%name = name
     end if
+
 
   end subroutine matrix_init
 
@@ -128,17 +135,16 @@ contains
     class(matrix_t), intent(inout) :: m
 
     if (allocated(m%x)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(m%x, m%x_d)
+       end if
        deallocate(m%x)
-    end if
-
-    if (c_associated(m%x_d)) then
-       call device_deassociate(m%x)
-       call device_free(m%x_d)
     end if
 
     m%nrows = 0
     m%ncols = 0
     m%n = 0
+    m%name = ""
 
   end subroutine matrix_free
 
@@ -206,6 +212,8 @@ contains
     else
        m%x = w%x
     end if
+
+    m%name = w%name
 
   end subroutine matrix_assign_matrix
 
@@ -321,7 +329,7 @@ contains
     end do
 
     ! Unscramble matrix
-    do j= m%nrows, 1, -1
+    do j = m%nrows, 1, -1
        if (indr(j) .ne. indc(j)) then
           do i = 1, m%nrows
              tmp = m%x(i, indr(j))

@@ -1,7 +1,7 @@
 !> Tensor operations SX-Aurora backend
 module tensor_sx
-  use num_types
-  use mxm_wrapper
+  use num_types, only : rp
+  use mxm_wrapper, only : mxm
   implicit none
   private
 
@@ -160,7 +160,7 @@ contains
           do ie = 1, nelv
              ii = i + nv * (j - 1)
              work(ii, ie) = A(i,1) * u(1 + nu * (j - 1), ie) &
-                          + A(i,2) * u(2 + nu * (j - 1), ie)
+                  + A(i,2) * u(2 + nu * (j - 1), ie)
           end do
        end do
     end do
@@ -187,7 +187,7 @@ contains
           do ie = 1, nelv
              jj = i + nvnv * (j - 1)
              v(jj, ie) = work2(i + nvnv * (1 - 1),ie) * Ct(1, j) &
-                       + work2(i + nvnv * (2 - 1),ie) * Ct(2, j)
+                  + work2(i + nvnv * (2 - 1),ie) * Ct(2, j)
           end do
        end do
     end do
@@ -213,9 +213,9 @@ contains
           do ie = 1, nelv
              ii = i + nv * (j - 1)
              work(ii, ie) = A(i,1) * u(1 + nu * (j - 1), ie) &
-                          + A(i,2) * u(2 + nu * (j - 1), ie) &
-                          + A(i,3) * u(3 + nu * (j - 1), ie) &
-                          + A(i,4) * u(4 + nu * (j - 1), ie)
+                  + A(i,2) * u(2 + nu * (j - 1), ie) &
+                  + A(i,3) * u(3 + nu * (j - 1), ie) &
+                  + A(i,4) * u(4 + nu * (j - 1), ie)
           end do
        end do
     end do
@@ -242,9 +242,9 @@ contains
           do ie = 1, nelv
              jj = i + nvnv * (j - 1)
              v(jj, ie) = work2(i + nvnv * (1 - 1),ie) * Ct(1, j) &
-                       + work2(i + nvnv * (2 - 1),ie) * Ct(2, j) &
-                       + work2(i + nvnv * (3 - 1),ie) * Ct(3, j) &
-                       + work2(i + nvnv * (4 - 1),ie) * Ct(4, j)
+                  + work2(i + nvnv * (2 - 1),ie) * Ct(2, j) &
+                  + work2(i + nvnv * (3 - 1),ie) * Ct(3, j) &
+                  + work2(i + nvnv * (4 - 1),ie) * Ct(4, j)
           end do
        end do
     end do
@@ -359,9 +359,9 @@ contains
              iu = (ie-1)*nununu
              ii = i + nv * (j - 1)
              work(ii, ie) = A(i,1) * v(1 + nu * (j - 1) + iu) &
-                          + A(i,2) * v(2 + nu * (j - 1) + iu) &
-                          + A(i,3) * v(3 + nu * (j - 1) + iu) &
-                          + A(i,4) * v(4 + nu * (j - 1) + iu)
+                  + A(i,2) * v(2 + nu * (j - 1) + iu) &
+                  + A(i,3) * v(3 + nu * (j - 1) + iu) &
+                  + A(i,4) * v(4 + nu * (j - 1) + iu)
           end do
        end do
     end do
@@ -389,9 +389,9 @@ contains
              iv = (ie-1)*nvnvnv
              jj = i + nvnv * (j - 1) + iv
              v(jj) = work2(i + nvnv * (1 - 1),ie) * Ct(1, j) &
-                   + work2(i + nvnv * (2 - 1),ie) * Ct(2, j) &
-                   + work2(i + nvnv * (3 - 1),ie) * Ct(3, j) &
-                   + work2(i + nvnv * (4 - 1),ie) * Ct(4, j)
+                  + work2(i + nvnv * (2 - 1),ie) * Ct(2, j) &
+                  + work2(i + nvnv * (3 - 1),ie) * Ct(3, j) &
+                  + work2(i + nvnv * (4 - 1),ie) * Ct(4, j)
           end do
        end do
     end do

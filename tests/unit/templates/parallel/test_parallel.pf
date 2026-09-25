@@ -1,0 +1,52 @@
+module test_parallel
+  use mpi
+  use pfunit
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
+  implicit none
+
+  @TestCase
+  type, extends(MPITestCase) :: parallel_template_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type parallel_template_case
+
+contains
+
+  subroutine setUp(this)
+    class(parallel_template_case), intent(inout) :: this
+    call comm_init_test(this%getMpiCommunicator())
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call neko_mpi_types_init()
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(parallel_template_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+    call neko_mpi_types_free()
+    call comm_free_test()
+  end subroutine tearDown
+
+  !> Verify that the parallel test template is wired correctly.
+  @test(npes=[1])
+  subroutine test_parallel_template_passes(this)
+    class(parallel_template_case), intent(inout) :: this
+    integer :: ierr, comm_size
+
+    call MPI_Comm_size(NEKO_COMM%mpi_val, comm_size, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(1, pe_size)
+    @assertEqual(1, comm_size)
+    @assertTrue(pe_rank >= 0)
+  end subroutine test_parallel_template_passes
+
+end module test_parallel

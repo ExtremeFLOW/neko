@@ -32,18 +32,18 @@
 !
 !> Defines user dirichlet condition for a scalar field.
 module field_dirichlet
-  use num_types, only: rp
-  use coefs, only: coef_t
-  use dirichlet, only: dirichlet_t
-  use bc, only: bc_t
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use dirichlet, only : dirichlet_t
+  use bc, only : bc_t, BC_DIRICHLET
   use bc_list, only : bc_list_t
-  use utils, only: split_string
+  use utils, only : split_string
   use field, only : field_t
   use field_list, only : field_list_t
-  use math, only: masked_copy_0
-  use device_math, only: device_masked_copy_0
+  use math, only : masked_copy_0
+  use device_math, only : device_masked_copy_0
   use dofmap, only : dofmap_t
-  use utils, only: neko_error
+  use utils, only : neko_error
   use json_module, only : json_file
   use field_list, only : field_list_t
   use json_utils, only : json_get
@@ -136,6 +136,7 @@ contains
     character(len=*), intent(in) :: field_name
 
     call this%init_base(coef)
+    this%bc_type = BC_DIRICHLET
 
     call this%field_bc%init(this%dof, field_name)
     call this%field_list%init(1)
@@ -177,10 +178,12 @@ contains
 
     if (strong_) then
 
+       !$omp single
        if (.not. this%updated) then
           call this%update(this%field_list, this, time)
           this%updated = .true.
        end if
+       !$omp end single
 
        call masked_copy_0(x, this%field_bc%x, this%msk, n, this%msk(0))
     end if
@@ -206,10 +209,12 @@ contains
     end if
 
     if (strong_) then
+       !$omp single
        if (.not. this%updated) then
           call this%update(this%field_list, this, time)
           this%updated = .true.
        end if
+       !$omp end single
 
        if (this%msk(0) .gt. 0) then
           call device_masked_copy_0(x_d, this%field_bc%x_d, this%msk_d, &
@@ -260,17 +265,8 @@ contains
   end subroutine field_dirichlet_apply_vector_dev
 
   !> Finalize
-  subroutine field_dirichlet_finalize(this, only_facets)
+  subroutine field_dirichlet_finalize(this)
     class(field_dirichlet_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
-
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
   end subroutine field_dirichlet_finalize
 end module field_dirichlet

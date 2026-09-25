@@ -173,7 +173,7 @@ contains
   subroutine tnsr3d_el(v, nv, u, nu, A, Bt, Ct)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv*nv), u(nu*nu*nu)
-    real(kind=rp), intent(inout) :: A(nv,nu),Bt(nu, nv),Ct(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
 
     if (NEKO_BCKND_SX .eq. 1) then
        call tnsr3d_el_sx(v, nv, u, nu, A, Bt, Ct)
@@ -201,13 +201,13 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        do i = 1, n_pt
-          call tnsr3d_el_sx(v(1,i), nv, u(1,el_list(i)), &
-               nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+          call tnsr3d_el_sx(v(1, i), nv, u(1, el_list(i)), &
+               nu, A(1, 1, i), Bt(1, 1, i), Ct(1, 1, i))
        end do
     else if (NEKO_BCKND_XSMM .eq. 1) then
        do i = 1, n_pt
-          call tnsr3d_el_xsmm(v(1,i), nv, u(1,el_list(i)), &
-               nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+          call tnsr3d_el_xsmm(v(1, i), nv, u(1, el_list(i)), &
+               nu, A(1, 1, i), Bt(1, 1, i), Ct(1, 1, i))
        end do
     else if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
        v_d = device_get_ptr(v)
@@ -221,8 +221,8 @@ contains
     else
        do i = 1, n_pt
           ! Note the use of el_list(i) + 1, because of the gslib C interface
-          call tnsr3d_el_cpu(v(1,i), nv, u(1,el_list(i)+1), &
-               nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+          call tnsr3d_el_cpu(v(1, i), nv, u(1, el_list(i) + 1), &
+               nu, A(1, 1, i), Bt(1, 1, i), Ct(1, 1, i))
        end do
     end if
 
@@ -232,9 +232,9 @@ contains
   !!`nelv` elements.
   subroutine tnsr3d(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
-    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv, nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu, nelv)
+    real(kind=rp), intent(in) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d
 
     if (nelv .eq. 0) return
@@ -260,7 +260,7 @@ contains
   subroutine tnsr1_3d(v, nv, nu, A, Bt, Ct, nelv)
     integer, intent(inout) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
 
     if (nelv .eq. 0) return
 
@@ -284,11 +284,11 @@ contains
     real(kind=rp) :: hh
     integer :: ix, iy, iz
 
-    do iz = 1,nz
-       do iy = 1,ny
+    do iz = 1, nz
+       do iy = 1, ny
           hh = h2(iy)*h3(iz)
-          do ix = 1,nx
-             s(ix,iy,iz) = s(ix,iy,iz)+hh*h1(ix)
+          do ix = 1, nx
+             s(ix, iy, iz) = s(ix, iy, iz) + hh * h1(ix)
           end do
        end do
     end do

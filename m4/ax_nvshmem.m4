@@ -42,15 +42,21 @@ AC_DEFUN([AX_NVSHMEM],[
               CFLAGS=""
 	      LIBS=""
 
-	      AC_CHECK_LIB(nvshmem, nvshmem_quiet,
-	                   [have_nvshmem=yes;NVSHMEM_LIBS="-lnvshmem"],
+	      AC_CHECK_LIB(nvshmem_host, nvshmem_quiet,
+	                   [have_nvshmem=yes;
+                            NVSHMEM_LIBS="-lnvshmem_host -lnvshmem_device -lcudadevrt"],
                            [have_nvshmem=no],[])
+              if test x"${have_nvshmem}" != xyes; then
+	         AC_CHECK_LIB(nvshmem, nvshmem_quiet,
+	                      [have_nvshmem=yes;NVSHMEM_LIBS="-lnvshmem -lcudadevrt"],
+                              [have_nvshmem=no],[])
+              fi
               AC_SUBST(have_nvshmem)
               if test x"${have_nvshmem}" = xyes; then
                  nvshmem_bcknd="1"
                  AC_DEFINE(HAVE_NVSHMEM,1,[Define if you have NVSHMEM.])
                  LIBS="$NVSHMEM_LIBS $_LIBS"
-                 CUDA_CFLAGS="$CUDA_CFLAGS $NVSHMEM_CFLAGS -DHAVE_NVSHMEM=1"
+                 CUDA_CFLAGS="$NVSHMEM_CFLAGS $CUDA_CFLAGS -DHAVE_NVSHMEM=1"
                  CFLAGS="$_CFLAGS $NVSHMEM_CFLAGS"
               else
                  AC_MSG_ERROR([NVSHMEM not found])
@@ -60,5 +66,6 @@ AC_DEFUN([AX_NVSHMEM],[
 
               AC_LANG_POP([C])
         fi
-        AC_SUBST(nvshmem_bcknd)      
+        AC_SUBST(NVSHMEM_LDFLAGS)
+        AC_SUBST(nvshmem_bcknd)
 ])

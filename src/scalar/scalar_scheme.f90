@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2025, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,46 +35,42 @@
 module scalar_scheme
   use gather_scatter, only : gs_t
   use checkpoint, only : chkp_t
-  use num_types, only: rp
+  use checkpoint_payload, only : checkpoint_payload_t
+  use num_types, only : rp
   use field, only : field_t
-  use field_list, only: field_list_t
+  use field_list, only : field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
   use coefs, only : coef_t
-  use dirichlet, only : dirichlet_t
-  use neumann, only : neumann_t
   use jacobi, only : jacobi_t
   use device_jacobi, only : device_jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use hsmg, only : hsmg_t
-  use bc, only : bc_t
   use bc_list, only : bc_list_t
-  use precon, only : pc_t, precon_factory, precon_destroy
-  use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
-  use facet_zone, only : facet_zone_t
+  use bc, only : bc_t
+  use precon, only : pc_t, precon_allocator, precon_destroy
+  use mesh, only : mesh_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use registry, only : neko_registry
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup, &
+       json_get_or_lookup_or_default
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
-  use utils, only : neko_error, neko_warning
-  use comm, only: NEKO_COMM
-  use mpi_f08, only : MPI_INTEGER, MPI_SUM
+  use utils, only : neko_error
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
-  use math, only : cfill, add2s2
   use field_math, only : field_cmult2, field_col3, field_cfill, field_add3, &
        field_copy, field_col2
-  use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use device, only : device_memcpy, DEVICE_TO_HOST
+  use scalar_ic, only : set_scalar_ic
+  use spectral_vanishing_viscosity, only : svv_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -115,8 +111,8 @@ module scalar_scheme
      class(pc_t), allocatable :: pc
      !> List of boundary conditions, including the user one.
      type(bc_list_t) :: bcs
-     !> Case paramters.
-     type(json_file), pointer :: params
+     !> Case parameters.
+     type(json_file), pointer :: params => null()
      !> Mesh.
      type(mesh_t), pointer :: msh => null()
      !> Checkpoint for restarts.
@@ -141,6 +137,10 @@ module scalar_scheme
           user_material_properties => null()
      !> Freeze the scheme, i.e. do nothing in step()
      logical :: freeze = .false.
+     !> Whether spectral vanishing viscosity is enabled.
+     logical :: svv_enabled = .false.
+     !> Spectral vanishing viscosity data.
+     type(svv_t), allocatable :: svv
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -148,6 +148,12 @@ module scalar_scheme
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
+     !> Set the initial condition.
+     procedure, pass(this) :: set_initial_condition => &
+          scalar_scheme_set_initial_condition
+     !> Register the scheme fields for checkpointing.
+     procedure, pass(this) :: register_checkpoint => &
+          scalar_scheme_register_checkpoint
      !> Set lambda and cp
      procedure, pass(this) :: set_material_properties => &
           scalar_scheme_set_material_properties
@@ -228,6 +234,104 @@ module scalar_scheme
      end subroutine scalar_scheme_step_intrf
   end interface
 
+  ! ========================================================================== !
+  ! Helper functions and types for scalar_scheme_t
+  ! ========================================================================== !
+
+  !> A helper type that is needed to have an array of polymorphic objects
+  type, public :: scalar_scheme_wrapper_t
+     class(scalar_scheme_t), allocatable :: scalar
+   contains
+     !> Constructor. Just allocates the object.
+     procedure, pass(this) :: init => scalar_scheme_wrapper_init
+     !> Destructor. Just deallocates the object.
+     procedure, pass(this) :: free => scalar_scheme_wrapper_free
+     !> Move operator for the wrapper, needed for storing schemes
+     !! in lists and arrays.
+     procedure, pass(this) :: move_from => &
+          scalar_scheme_wrapper_move_from
+     !> Return allocation status.
+     procedure, pass(this) :: is_allocated => &
+          scalar_scheme_wrapper_is_allocated
+  end type scalar_scheme_wrapper_t
+
+
+  interface
+     !> Scalar scheme factory.
+     !! Both constructs and initializes the object.
+     !! @param object The object to be created and initialized.
+     !! @param msh The mesh.
+     !! @param coef The coefficients.
+     !! @param gs The gather-scatter.
+     !! @param params The parameter dictionary in json.
+     !! @param numerics_params The numerical parameter dictionary in json.
+     !! @param user Type with user-defined procedures.
+     !! @param chkp Checkpoint for restarts.
+     !! @param ulag, vlag, wlag The lagged velocity fields.
+     !! @param time_scheme The time scheme controller.
+     !! @param rho The density field.
+     module subroutine scalar_scheme_factory(object, msh, coef, gs, params, &
+          numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+       class(scalar_scheme_t), allocatable, intent(inout) :: object
+       type(mesh_t), target, intent(in) :: msh
+       type(coef_t), target, intent(in) :: coef
+       type(gs_t), target, intent(inout) :: gs
+       type(json_file), target, intent(inout) :: params
+       type(json_file), target, intent(inout) :: numerics_params
+       type(user_t), target, intent(in) :: user
+       type(chkp_t), target, intent(inout) :: chkp
+       type(field_series_t), target, intent(in) :: ulag, vlag, wlag
+       type(time_scheme_controller_t), target, intent(in) :: time_scheme
+       type(field_t), target, intent(in) :: rho
+     end subroutine scalar_scheme_factory
+  end interface
+
+  interface
+     !> Scalar scheme allocator.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the scalar scheme type.
+     module subroutine scalar_scheme_allocator(object, type_name)
+       class(scalar_scheme_t), allocatable, intent(inout) :: object
+       character(len=*), intent(in):: type_name
+     end subroutine scalar_scheme_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for an object allocator.
+  !! Implemented in the user modules, should allocate the `obj` to the custom
+  !! user type.
+  abstract interface
+     subroutine scalar_scheme_allocate(obj)
+       import scalar_scheme_t
+       class(scalar_scheme_t), allocatable, intent(inout) :: obj
+     end subroutine scalar_scheme_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_scalar_scheme(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(scalar_scheme_allocate), pointer, intent(in) :: allocator
+     end subroutine register_scalar_scheme
+  end interface
+
+  ! A name-allocator pair for user-defined types. A helper type to define a
+  ! registry of custom allocators.
+  type scalar_scheme_allocator_entry
+     character(len=20) :: type_name
+     procedure(scalar_scheme_allocate), pointer, nopass :: allocator
+  end type scalar_scheme_allocator_entry
+
+  !> Registry of allocators for user-defined types
+  type(scalar_scheme_allocator_entry), allocatable, private :: &
+       scalar_scheme_registry(:)
+
+  !> The size of the `scalar_scheme_registry`
+  integer, private :: scalar_scheme_registry_size = 0
+
 contains
 
   !> Initialize all related components of the current scheme
@@ -277,13 +381,13 @@ contains
     call json_get(params, 'solver.preconditioner.type', &
          solver_precon)
     call json_get(params, 'solver.preconditioner', precon_params)
-    call json_get(params, 'solver.absolute_tolerance', &
+    call json_get_or_lookup(params, 'solver.absolute_tolerance', &
          solver_abstol)
 
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'solver.projection_space_size', &
          this%projection_dim, 0)
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'solver.projection_hold_steps', &
          this%projection_activ_step, 5)
 
@@ -299,7 +403,11 @@ contains
 
     this%Xh => this%u%Xh
     this%dm_Xh => this%u%dof
-    this%params => params
+    if (associated(this%params)) then
+       deallocate(this%params)
+    end if
+    allocate(this%params)
+    this%params = params
     this%msh => msh
 
     call neko_registry%add_field(this%dm_Xh, this%name, &
@@ -317,6 +425,18 @@ contains
     !
     call this%set_material_properties(params, user)
 
+    !
+    ! Spectral vanishing viscosity
+    !
+    if (params%valid_path('svv')) then
+       call json_get_or_default(params, 'svv.enabled', this%svv_enabled, &
+            .false.)
+       if (this%svv_enabled) then
+          allocate(this%svv)
+          call this%svv%init(params, this%c_Xh, this%rho)
+       end if
+    end if
+
 
     !
     ! Turbulence modelling
@@ -327,7 +447,7 @@ contains
        call json_get(this%params, 'alphat', json_subdict)
        call json_get(json_subdict, 'nut_dependency', nut_dependency)
        if (nut_dependency) then
-          call json_get(json_subdict, 'Pr_t', this%pr_turb)
+          call json_get_or_lookup(json_subdict, 'Pr_t', this%pr_turb)
           call json_get(json_subdict, 'nut_field', this%nut_field_name)
        else
           call json_get(json_subdict, 'alphat_field', this%alphat_field_name)
@@ -345,7 +465,7 @@ contains
     call this%source_term%add(params, 'source_terms')
 
     ! todo parameter file ksp tol should be added
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'solver.max_iterations', &
          integer_val, KSP_MAX_ITER)
     call json_get_or_default(params, &
@@ -361,16 +481,68 @@ contains
 
   end subroutine scalar_scheme_init
 
+  !> Set the initial condition.
+  !! @param user Type with user-defined procedures.
+  !! @param scalar_index Index of the scalar in a field file.
+  subroutine scalar_scheme_set_initial_condition(this, user, scalar_index)
+    class(scalar_scheme_t), intent(inout) :: this
+    type(user_t), intent(in) :: user
+    integer, intent(in) :: scalar_index
+    character(len=:), allocatable :: ic_type
+    type(json_file) :: ic_params
+
+    call json_get(this%params, 'initial_condition.type', ic_type)
+    call json_get(this%params, 'initial_condition', ic_params)
+
+    if (trim(ic_type) .ne. 'user') then
+       call set_scalar_ic(this%s, this%c_Xh, this%gs_Xh, ic_type, &
+            ic_params, scalar_index)
+    else
+       call set_scalar_ic(this%name, this%s, this%c_Xh, this%gs_Xh, &
+            user%initial_conditions)
+    end if
+
+    call ic_params%destroy()
+    deallocate(ic_type)
+
+  end subroutine scalar_scheme_set_initial_condition
+
+  !> Register this scalar scheme with the checkpoint.
+  !! @param chkp Checkpoint object to register with.
+  subroutine scalar_scheme_register_checkpoint(this, chkp)
+    class(scalar_scheme_t), target, intent(inout) :: this
+    type(chkp_t), intent(inout) :: chkp
+    type(checkpoint_payload_t), pointer :: payload
+
+    payload => chkp%add_payload("scalars/" // trim(this%name))
+    call payload%add_field(this%s)
+    call payload%add_series(this%slag)
+
+  end subroutine scalar_scheme_register_checkpoint
+
 
   !> Deallocate a scalar formulation
   subroutine scalar_scheme_free(this)
     class(scalar_scheme_t), intent(inout) :: this
+    class(bc_t), pointer :: bc
+    integer :: i
+
+    bc => null()
+
+    if (allocated(this%svv)) then
+       call this%svv%free()
+       deallocate(this%svv)
+    end if
+    this%svv_enabled = .false.
 
     nullify(this%Xh)
     nullify(this%dm_Xh)
     nullify(this%gs_Xh)
     nullify(this%c_Xh)
-    nullify(this%params)
+    if (associated(this%params)) then
+       deallocate(this%params)
+       nullify(this%params)
+    end if
 
     if (allocated(this%ksp)) then
        call this%ksp%free()
@@ -388,12 +560,35 @@ contains
 
     call this%source_term%free()
 
+    if (associated(this%f_Xh)) then
+       call this%f_Xh%free()
+       deallocate(this%f_Xh)
+    end if
+
+    do i = 1, this%bcs%size()
+       bc => this%bcs%get(i)
+       if (associated(bc)) then
+          call bc%free()
+          deallocate(bc)
+       end if
+    end do
+
     call this%bcs%free()
     call this%slag%free()
+    call this%material_properties%free()
+
+    if (allocated(this%nut_field_name)) then
+       deallocate(this%nut_field_name)
+    end if
+
+    if (allocated(this%alphat_field_name)) then
+       deallocate(this%alphat_field_name)
+    end if
 
     nullify(this%cp)
     nullify(this%lambda)
     nullify(this%lambda_tot)
+    nullify(bc)
 
   end subroutine scalar_scheme_free
 
@@ -467,7 +662,7 @@ contains
     character(len=*) :: pctype
     type(json_file), intent(inout) :: pcparams
 
-    call precon_factory(pc, pctype)
+    call precon_allocator(pc, pctype)
 
     select type (pcp => pc)
     type is (jacobi_t)
@@ -535,7 +730,7 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%cp%x, this%cp%x_d, this%cp%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     end if
 
   end subroutine scalar_scheme_update_material_properties
@@ -589,13 +784,13 @@ contains
           write(log_buf, '(A)') 'Non-dimensional scalar material properties' //&
                ' input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
-          write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
+          write(log_buf, '(A)') 'Specific heat capacity will be set to 1, '
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'conductivity to 1/Pe. Assumes density is 1.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Pe into lambda for further manipulation.
-          call json_get(params, 'Pe', const_lambda)
+          call json_get_or_lookup(params, 'Pe', const_lambda)
           write(log_buf, '(A,ES13.6)') 'Pe         :', const_lambda
           call neko_log%message(log_buf)
 
@@ -605,8 +800,8 @@ contains
           const_lambda = 1.0_rp/const_lambda
           ! Dimensional case
        else
-          call json_get(params, 'lambda', const_lambda)
-          call json_get(params, 'cp', const_cp)
+          call json_get_or_lookup(params, 'lambda', const_lambda)
+          call json_get_or_lookup(params, 'cp', const_cp)
        end if
     end if
     ! We need to fill the fields based on the parsed const values
@@ -631,8 +826,64 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%cp%x, this%cp%x_d, this%cp%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine scalar_scheme_set_material_properties
+
+  ! ========================================================================== !
+  ! Scalar scheme wrapper type methods
+
+  !> Constructor. Initializes the object.
+  subroutine scalar_scheme_wrapper_init(this, msh, coef, gs, params, &
+       numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+    class(scalar_scheme_wrapper_t), intent(inout) :: this
+    type(mesh_t), target, intent(in) :: msh
+    type(coef_t), target, intent(in) :: coef
+    type(gs_t), target, intent(inout) :: gs
+    type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
+    type(user_t), target, intent(in) :: user
+    type(chkp_t), target, intent(inout) :: chkp
+    type(field_series_t), target, intent(in) :: ulag, vlag, wlag
+    type(time_scheme_controller_t), target, intent(in) :: time_scheme
+    type(field_t), target, intent(in) :: rho
+
+    call this%free()
+    call scalar_scheme_factory(this%scalar, msh, coef, gs, params, &
+         numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+
+  end subroutine scalar_scheme_wrapper_init
+
+  !> Destructor. Just deallocates the pointer.
+  subroutine scalar_scheme_wrapper_free(this)
+    class(scalar_scheme_wrapper_t), intent(inout) :: this
+
+    if (allocated(this%scalar)) then
+       call this%scalar%free()
+       deallocate(this%scalar)
+    end if
+
+  end subroutine scalar_scheme_wrapper_free
+
+  !> Move assignment operator for the wrapper, needed for storing schemes
+  !! in lists and arrays.
+  !! @param this The wrapper to move to.
+  !! @param other The other wrapper to move from. Will be deallocated.
+  subroutine scalar_scheme_wrapper_move_from(this, other)
+    class(scalar_scheme_wrapper_t), intent(inout) :: this
+    class(scalar_scheme_wrapper_t), intent(inout) :: other
+
+    ! Move the pointer
+    call move_alloc(other%scalar, this%scalar)
+
+  end subroutine scalar_scheme_wrapper_move_from
+
+  !> Return allocation status.
+  !! @param this The wrapper to check.
+  function scalar_scheme_wrapper_is_allocated(this) result(is_alloc)
+    class(scalar_scheme_wrapper_t), intent(in) :: this
+    logical :: is_alloc
+    is_alloc = allocated(this%scalar)
+  end function scalar_scheme_wrapper_is_allocated
 
 end module scalar_scheme

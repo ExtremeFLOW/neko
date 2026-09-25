@@ -39,8 +39,11 @@ module spalding
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
+  use wall_sampler, only : wall_sampler_t
+  use wall_sampler_fctry, only : wall_sampler_factory
+  use user_intf, only : user_t
   use registry, only : neko_registry
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get_or_default, json_get_or_lookup
   use spalding_cpu, only : spalding_compute_cpu
   use spalding_device, only : spalding_compute_device
   use field_math, only: field_invcol3
@@ -48,6 +51,7 @@ module spalding
   use math, only: masked_gather_copy_0
   use device_math, only: device_masked_gather_copy_0
   use scratch_registry, only : neko_scratch_registry
+  use logger, only : LOG_SIZE, neko_log
 
   implicit none
   private
@@ -61,6 +65,10 @@ module spalding
      real(kind=rp) :: B = 5.2_rp
      !> The kinematic viscosity.
      type(vector_t) :: nu
+     ! The fluid density at the boundary
+     type(vector_t) :: rho_w
+     !> Velocity sampled away from the wall.
+     type(vector_t) :: u_s, v_s, w_s
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => spalding_init
@@ -86,49 +94,67 @@ contains
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
-  subroutine spalding_init(this, scheme_name, coef, msk, facet, h_index, json)
+  subroutine spalding_init(this, scheme_name, coef, msk, facet, json)
     class(spalding_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, B
+    class(wall_sampler_t), allocatable :: sampler
 
-    call json_get_or_default(json, "kappa", kappa, 0.41_rp)
-    call json_get_or_default(json, "B", B, 5.2_rp)
+    call json_get_or_lookup(json, "kappa", kappa)
+    call json_get_or_lookup(json, "B", B)
 
-    call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
+    call wall_sampler_factory(sampler, json)
+    call this%init_from_components(scheme_name, coef, msk, facet, sampler, &
          kappa, B)
   end subroutine spalding_init
 
   !> Constructor from JSON.
   !! @param coef SEM coefficients.
   !! @param json A dictionary with parameters.
-  subroutine spalding_partial_init(this, coef, json)
+  subroutine spalding_partial_init(this, coef, scheme_name, json)
     class(spalding_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
+    character(len=*), intent(in) :: scheme_name
     type(json_file), intent(inout) :: json
+    character(len=LOG_SIZE) :: log_buf
 
-    call this%partial_init_base(coef, json)
-    call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
-    call json_get_or_default(json, "B", this%B, 5.2_rp)
+    call this%partial_init_base(coef, scheme_name, json)
+    call json_get_or_lookup(json, "kappa", this%kappa)
+    call json_get_or_lookup(json, "B", this%B)
+
+    call neko_log%section('Wall model')
+    write(log_buf, '(A)') 'Model : Spalding'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'kappa : ', this%kappa
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'B : ', this%B
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
 
   end subroutine spalding_partial_init
 
   !> Finalize the construction using the mask and facet arrays of the bc.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  subroutine spalding_finalize(this, msk, facet)
+  subroutine spalding_finalize(this, msk, facet, bc_name, user)
     class(spalding_t), intent(inout) :: this
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
+    character(len=*), optional, intent(in) :: bc_name
+    type(user_t), target, optional, intent(in) :: user
 
-    call this%finalize_base(msk, facet)
+    call this%finalize_base(msk, facet, bc_name, user)
     call this%nu%init(this%n_nodes)
+    call this%rho_w%init(this%n_nodes)
+    call this%validate_single_sample()
+    call this%u_s%init(this%n_nodes)
+    call this%v_s%init(this%n_nodes)
+    call this%w_s%init(this%n_nodes)
   end subroutine spalding_finalize
 
   !> Constructor from components.
@@ -136,27 +162,32 @@ contains
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param h_index The off-wall index of the sampling cell.
+  !! @param sampler The sampling strategy. Ownership is transferred.
   !! @param kappa The von Karman coefficient.
   !! @param B The log-law intercept.
   subroutine spalding_init_from_components(this, scheme_name, coef, msk, &
-       facet, h_index, kappa, B)
+       facet, sampler, kappa, B)
     class(spalding_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    integer, intent(in) :: h_index
+    class(wall_sampler_t), allocatable, intent(inout) :: sampler
     real(kind=rp), intent(in) :: kappa
     real(kind=rp), intent(in) :: B
 
     call this%free()
-    call this%init_base(scheme_name, coef, msk, facet, h_index)
+    call this%init_base(scheme_name, coef, msk, facet, sampler)
 
     this%kappa = kappa
     this%B = B
 
     call this%nu%init(this%n_nodes)
+    call this%rho_w%init(this%n_nodes)
+    call this%validate_single_sample()
+    call this%u_s%init(this%n_nodes)
+    call this%v_s%init(this%n_nodes)
+    call this%w_s%init(this%n_nodes)
   end subroutine spalding_init_from_components
 
   !> Compute the kinematic viscosity vector.
@@ -171,9 +202,14 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_masked_gather_copy_0(this%nu%x_d, temp%x_d, this%msk_d, &
             temp%size(), this%nu%size())
+       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, &
+            this%msk_d, &
+            this%rho%size(), this%rho_w%size())
     else
        call masked_gather_copy_0(this%nu%x, temp%x, this%msk, temp%size(), &
             this%nu%size())
+       call masked_gather_copy_0(this%rho_w%x, this%rho%x, this%msk, &
+            this%rho%size(), this%rho_w%size())
     end if
 
     call neko_scratch_registry%relinquish_field(idx)
@@ -183,6 +219,11 @@ contains
   subroutine spalding_free(this)
     class(spalding_t), intent(inout) :: this
 
+    call this%nu%free()
+    call this%rho_w%free()
+    call this%u_s%free()
+    call this%v_s%free()
+    call this%w_s%free()
     call this%free_base()
 
   end subroutine spalding_free
@@ -197,8 +238,6 @@ contains
     type(field_t), pointer :: u
     type(field_t), pointer :: v
     type(field_t), pointer :: w
-    integer :: i
-    real(kind=rp) :: ui, vi, wi, magu, utau, normu, guess
 
     call this%compute_nu()
 
@@ -206,23 +245,28 @@ contains
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
 
+    call this%sampler%sample(u, this%u_s)
+    call this%sampler%sample(v, this%v_s)
+    call this%sampler%sample(w, this%w_s)
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call spalding_compute_device(u%x_d, v%x_d, w%x_d, this%ind_r_d, &
-            this%ind_s_d, this%ind_t_d, this%ind_e_d, &
+       call spalding_compute_device(this%u_s%x_d, this%v_s%x_d, &
+            this%w_s%x_d, &
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
-            this%nu%x_d, this%h%x_d, &
+            this%nu%x_d, this%rho_w%x_d, this%sampler%h%x_d, &
             this%tau_x%x_d, this%tau_y%x_d, this%tau_z%x_d, &
-            this%n_nodes, u%Xh%lx, &
+            this%n_nodes, &
             this%kappa, this%B, tstep)
     else
-       call spalding_compute_cpu(u%x, v%x, w%x, &
-            this%ind_r, this%ind_s, this%ind_t, this%ind_e, &
+       call spalding_compute_cpu(this%u_s%x, this%v_s%x, this%w_s%x, &
             this%n_x%x, this%n_y%x, this%n_z%x, &
-            this%nu%x, this%h%x, &
+            this%nu%x, this%rho_w%x, this%sampler%h%x, &
             this%tau_x%x, this%tau_y%x, this%tau_z%x, &
-            this%n_nodes, u%Xh%lx, u%msh%nelv, &
+            this%n_nodes, &
             this%kappa, this%B, tstep)
     end if
+
+    nullify(u, v, w)
 
   end subroutine spalding_compute
 end module spalding

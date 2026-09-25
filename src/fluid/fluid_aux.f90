@@ -32,7 +32,7 @@
 
 !> Auxiliary routines for fluid solvers
 module fluid_aux
-  use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
+  use, intrinsic :: ieee_arithmetic, only : ieee_is_nan
   use krylov, only : ksp_monitor_t
   use logger, only : neko_log, LOG_SIZE
   use utils, only : neko_error, neko_warning
@@ -50,12 +50,13 @@ contains
   !> Prints for prs, velx, vely, velz the following:
   !! Number of iterations, start residual, end residual
   subroutine fluid_step_info(time, ksp_results, full_stress_formulation, &
-       strict_convergence, allow_stabilization)
+       strict_convergence, allow_stabilization, iteration)
     type(ksp_monitor_t), dimension(:), intent(in) :: ksp_results
     type(time_state_t), intent(in) :: time
     logical, intent(in) :: full_stress_formulation
     logical, intent(in), optional :: strict_convergence
     logical, intent(in), optional :: allow_stabilization
+    integer, intent(in), optional :: iteration
     logical :: converged, strict_conv, allow_stab
     character(len=LOG_SIZE) :: log_buf
     integer :: i, n
@@ -73,6 +74,13 @@ contains
        allow_stab = allow_stabilization
     else
        allow_stab = .false.
+    end if
+
+    if (present(iteration)) then
+       if (iteration .gt. 1) then
+          write(log_buf, '(A,I3)') 'Schwarz-like iteration ', iteration - 1
+          call neko_log%message(log_buf)
+       end if
     end if
 
     ! Do the printing

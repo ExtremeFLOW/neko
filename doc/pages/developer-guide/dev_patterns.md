@@ -209,11 +209,59 @@ so, code repetition is fine, it will eventually cease to exist naturally.
    True code duplication is when a change in one place will also necessary a
    change in the other.
 
+## F. Complex and Polymorphic arrays.
 
+We often need to use arrays of complex or polymorphic types. Objects which
+support this, must implement a wrapper type following one of the two patterns
+below. 
+- A wrapper type, maintain the lifetime of the object it wraps, allocating and
+  deallocating it as needed.
+- A pointer type, which just holds a pointer to an object managed elsewhere.
+  These can be good to group a bunch of objects for easier access elsewhere.
 
+### F.1. Object wrapper pattern
+```fortran
+type :: object_wrapper_t
+   type(object_t), pointer :: obj => null()
+contains
+   procedure, pass(this) :: init => object_wrapper_init
+   procedure, pass(this) :: free => object_wrapper_free
+end type
 
+subroutine object_wrapper_init(this, args, ...)
+     type(object_wrapper_t) :: this
+     call this%free()
+     allocate(this%obj)                    ! For polymorphic types
+     call this%obj%init(args, ...)         ! use a factory method instead
+end subroutine
 
+subroutine object_wrapper_free(this)
+     type(object_wrapper_t) :: this
+     if (associated(this%obj)) then
+          call this%obj%free()
+          deallocate(this%obj)
+     end if
+end subroutine
+```
 
+### F.2. Object pointer pattern
+```fortran
+type :: object_ptr_t
+   type(object_t), pointer :: ptr => null()
+contains
+   procedure, pass(this) :: init => object_ptr_init
+   procedure, pass(this) :: free => object_ptr_free
+end type
 
+subroutine object_ptr_init(this, object)
+     type(object_ptr_t) :: this
+     type(object_t), target :: object
+     call this%free()
+     this%ptr_ => object
+end subroutine
 
-
+subroutine object_ptr_free(this)
+     type(object_ptr_t) :: this
+     if (associated(this%ptr)) nullify(this%ptr)
+end subroutine
+```

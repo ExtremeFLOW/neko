@@ -59,9 +59,8 @@
 !
 !> Backward-differencing scheme for time integration.
 module bdf_time_scheme
-  use neko_config
   use num_types, only : rp
-  use time_scheme, only: time_scheme_t
+  use time_scheme, only : time_scheme_t
   use math, only : rzero
   use utils, only : neko_error
   implicit none
@@ -127,14 +126,14 @@ contains
     case (2)
        coeffs(1) = (1 + dt(1)/(dt(1) + dt(2)))
        coeffs(3) = -dt(1)**2/dt(2)/(dt(1) + dt(2))
-       coeffs(2) =  coeffs(1) - coeffs(3)
+       coeffs(2) = coeffs(1) - coeffs(3)
     case (3)
        coeffs(2) = (dt(1) + dt(2)) * (dt(1) + dt(2) + dt(3)) / &
-                   (dt(1) * dt(2) * (dt(2) + dt(3)))
+            (dt(1) * dt(2) * (dt(2) + dt(3)))
        coeffs(3) = -dt(1) * (dt(1) + dt(2) + dt(3)) / &
-                   (dt(2) * dt(3) * (dt(1) + dt(2)))
+            (dt(2) * dt(3) * (dt(1) + dt(2)))
        coeffs(4) = dt(1) * (dt(1) + dt(2)) / &
-                   (dt(3) * (dt(2) + dt(3)) * (dt(1) + dt(2) + dt(3)))
+            (dt(3) * (dt(2) + dt(3)) * (dt(1) + dt(2) + dt(3)))
        coeffs(1) = coeffs(2) + coeffs(3) + coeffs(4)
        coeffs = coeffs * dt(1)
     case default

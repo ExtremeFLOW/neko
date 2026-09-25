@@ -37,18 +37,19 @@ module sponge_source_term
   use json_module, only : json_file
   use registry, only : neko_registry
   use field, only : field_t
-  use json_utils, only : json_get, json_get_or_default, json_get
+  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup, &
+       json_get_subdict_or_empty
   use utils, only : neko_error
   use device, only : device_memcpy, HOST_TO_DEVICE
   use device_math, only : device_sub3, device_col2, device_add2s2
   use time_state, only : time_state_t
   use math, only : sub3, col2, add2s2
-  use logger, only : neko_log, NEKO_LOG_DEBUG
+  use logger, only : neko_log, NEKO_LOG_DEBUG, NEKO_LOG_INFO, LOG_SIZE
   use neko_config, only : NEKO_BCKND_DEVICE
   use source_term, only : source_term_t
   use case, only : case_t
   use simcomp_executor, only : neko_simcomps
-  use flow_ic, only : set_flow_ic_fld, set_flow_ic
+  use import_field_utils, only : import_fields
   use field_list, only : field_list_t
   use coefs, only : coef_t
   use utils, only : NEKO_FNAME_LEN
@@ -56,6 +57,8 @@ module sponge_source_term
   use scratch_registry, only : neko_scratch_registry
   use comm, only : pe_rank
   use fld_file_output, only : fld_file_output_t
+  use sponge_source_term_cpu, only : sponge_source_term_compute_cpu
+  use sponge_source_term_device, only : sponge_source_term_compute_device
   implicit none
   private
 
@@ -95,12 +98,15 @@ module sponge_source_term
      !> Initialize a sponge with a constant baseflow.
      procedure, pass(this) :: init_constant => &
           sponge_init_constant
-     !> Initialize a sponge with a baseflow imported from the initial condition.
+     !> Initialize a sponge with a baseflow imported by the user.
      procedure, pass(this) :: init_user => &
           sponge_init_user
      !> Initialize a sponge with a baseflow imported from a field file.
      procedure, pass(this) :: init_field => &
           sponge_init_field
+     !> Initialize a sponge with a baseflow from another sponge object.
+     procedure, pass(this) :: init_noop => &
+          sponge_init_noop
      !> Common constructor.
      procedure, pass(this) :: init_common => &
           sponge_init_common
@@ -133,7 +139,7 @@ contains
     type(json_file) :: baseflow_subdict
     integer :: i, izone
 
-    call neko_log%section("SPONGE SOURCE TERM", LVL = NEKO_LOG_DEBUG)
+    call neko_log%section("Sponge source term", LVL = NEKO_LOG_INFO)
 
     call json_get_or_default(json, "dump_fields", dump_fields, .false.)
     call json_get_or_default(json, "dump_file_name", dump_fname, &
@@ -141,7 +147,7 @@ contains
     call json_get_or_default(json, "fringe_registry_name", &
          fringe_registry_name, "sponge_fringe")
 
-    call json_get(json, "amplitudes", amplitudes)
+    call json_get_or_lookup(json, "amplitudes", amplitudes)
     if (size(amplitudes) .ne. 3) then
        call neko_error("(SPONGE) Expected 3 elements for 'amplitudes'")
     end if
@@ -172,20 +178,24 @@ contains
        fname = trim(read_str)
        call json_get_or_default(baseflow_subdict, 'interpolate', interpolate, &
             .false.)
-       call json_get_or_default(baseflow_subdict, 'tolerance', tolerance, &
-            0.000001_rp)
        call json_get_or_default(baseflow_subdict, 'mesh_file_name', read_str, &
             "none")
        mesh_fname = trim(read_str)
 
-       call this%init_field(fields, coef, start_time, end_time, amplitudes, &
-            fringe_registry_name, bf_registry_pref, dump_fields, dump_fname, &
-            fname, interpolate, tolerance, mesh_fname)
+       block
+         type(json_file) :: interp_subdict
+         call json_get_subdict_or_empty(baseflow_subdict, "interpolation", &
+              interp_subdict)
+
+         call this%init_field(fields, coef, start_time, end_time, amplitudes, &
+              fringe_registry_name, bf_registry_pref, dump_fields, dump_fname, &
+              fname, interpolate, mesh_fname, interp_subdict)
+       end block
 
        ! Constant base flow
     case ("constant")
 
-       call json_get(baseflow_subdict, "value", constant_value)
+       call json_get_or_lookup(baseflow_subdict, "value", constant_value)
        if (size(constant_value) .lt. 3) then
           call neko_error("(SPONGE) Expected 3 elements for 'value'")
        end if
@@ -200,14 +210,58 @@ contains
        call this%init_user(fields, coef, start_time, end_time, amplitudes, &
             fringe_registry_name, bf_registry_pref, dump_fields, dump_fname)
 
+       ! Use an already existing baseflow from another sponge object
+    case ("no-op")
+
+       call this%init_noop(fields, coef, start_time, end_time, &
+            amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
+            dump_fname)
+
     case default
        call neko_error("(SPONGE) " // trim(baseflow_method) // &
             " is not a valid method")
     end select
 
-    call neko_log%end_section(lvl = NEKO_LOG_DEBUG)
+    call neko_log%end_section(lvl = NEKO_LOG_INFO)
 
   end subroutine sponge_init_from_json
+
+  !> Initialize a sponge that reuses an already existing baseflow in the
+  !! registry.
+  subroutine sponge_init_noop(this, fields, coef, start_time, end_time, &
+       amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
+       dump_fname)
+    class(sponge_source_term_t), intent(inout) :: this
+    type(field_list_t), intent(in), target :: fields
+    type(coef_t), intent(in), target :: coef
+    real(kind=rp), intent(in) :: start_time, end_time
+    real(kind=rp), intent(in) :: amplitudes(:)
+    character(len=*), intent(in) :: fringe_registry_name, dump_fname, &
+         bf_registry_pref
+    logical, intent(in) :: dump_fields
+    character(len=LOG_SIZE) :: log_buf
+    integer :: i
+
+    !
+    ! Common constructor
+    !
+    call sponge_init_common(this, fields, coef, start_time, end_time, &
+         amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
+         dump_fname)
+
+    !
+    ! Reuse existing baseflows
+    !
+    this%u_bf => neko_registry%get_field(trim(bf_registry_pref) // "_u")
+    this%v_bf => neko_registry%get_field(trim(bf_registry_pref) // "_v")
+    this%w_bf => neko_registry%get_field(trim(bf_registry_pref) // "_w")
+
+    call neko_log%message("Baseflow       : from existing sponge", lvl = NEKO_LOG_INFO)
+
+    this%baseflow_set = .true.
+
+  end subroutine sponge_init_noop
+
 
   !> Initialize a sponge with a constant baseflow.
   subroutine sponge_init_constant(this, fields, coef, start_time, end_time, &
@@ -222,6 +276,8 @@ contains
          bf_registry_pref
     logical, intent(in) :: dump_fields
     real(kind=rp), intent(in) :: constant_values(:)
+    character(len=LOG_SIZE) :: log_buf
+    integer :: i
 
     !
     ! Common constructor
@@ -233,9 +289,6 @@ contains
     !
     ! Create the base flow fields in the registry
     !
-    call neko_log%message("Initializing bf fields", &
-         lvl = NEKO_LOG_DEBUG)
-
     call neko_registry%add_field(this%u%dof, &
          trim(bf_registry_pref) // "_u")
     call neko_registry%add_field(this%v%dof, &
@@ -254,6 +307,11 @@ contains
     this%v_bf = constant_values(2)
     this%w_bf = constant_values(3)
 
+    call neko_log%message("Baseflow       : constant", lvl = NEKO_LOG_INFO)
+    write (log_buf, '(A, 3(ES12.6, A))') "Value          : [", &
+         (constant_values(i), ", ", i = 1, 2), constant_values(3), "]"
+    call neko_log%message(log_buf, lvl = NEKO_LOG_INFO)
+
     this%baseflow_set = .true.
 
   end subroutine sponge_init_constant
@@ -261,7 +319,7 @@ contains
   !> Initialize a sponge with a baseflow imported from a field file.
   subroutine sponge_init_field(this, fields, coef, start_time, end_time, &
        amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
-       dump_fname, file_name, interpolate, tolerance, mesh_file_name)
+       dump_fname, file_name, interpolate, mesh_file_name, interp_subdict)
     class(sponge_source_term_t), intent(inout) :: this
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
@@ -272,8 +330,8 @@ contains
     logical, intent(in) :: dump_fields
     character(len=*), intent(in) :: file_name
     logical, intent(in) :: interpolate
-    real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
+    type(json_file), intent(inout) :: interp_subdict
 
     type(field_t) :: wk
     integer :: tmp_index
@@ -285,12 +343,11 @@ contains
          amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
          dump_fname)
 
+    call neko_log%message("Baseflow       : field", lvl = NEKO_LOG_INFO)
+
     !
     ! Create the base flow fields in the registry
     !
-    call neko_log%message("Initializing bf fields", &
-         lvl = NEKO_LOG_DEBUG)
-
     call neko_registry%add_field(this%u%dof, &
          trim(bf_registry_pref) // "_u")
     call neko_registry%add_field(this%v%dof, &
@@ -303,28 +360,16 @@ contains
     this%w_bf => neko_registry%get_field(trim(bf_registry_pref) // "_w")
 
     !
-    ! Use the initial condition field subroutine to set a field as baseflow
+    ! Import the u,v,w baseflows from fld
     !
-
-    ! TODO
-    ! This is a bit awkward, because the init for the source terms occurs
-    ! before the init of the scratch registry.
-    ! So we can't use the scratch registry here.
-    ! call neko_scratch_registry%request_field(wk, tmp_index)
-    call wk%init(this%u%dof)
-
-    call set_flow_ic_fld(this%u_bf, this%v_bf, this%w_bf, wk, &
-         file_name, interpolate, tolerance, mesh_file_name)
-
-    call wk%free()
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%u_bf%x, this%u_bf%x_d, this%u_bf%size(), &
-            HOST_TO_DEVICE, .false.)
-       call device_memcpy(this%v_bf%x, this%v_bf%x_d, this%v_bf%size(), &
-            HOST_TO_DEVICE, .false.)
-       call device_memcpy(this%w_bf%x, this%w_bf%x_d, this%w_bf%size(), &
-            HOST_TO_DEVICE, .true.)
+    if (trim(mesh_file_name) .eq. 'none') then
+       call import_fields(file_name, interp_subdict, &
+            u = this%u_bf, v = this%v_bf, w = this%w_bf, &
+            interpolate = interpolate)
+    else
+       call import_fields(file_name, interp_subdict, mesh_file_name, &
+            u = this%u_bf, v = this%v_bf, w = this%w_bf, &
+            interpolate = interpolate)
     end if
 
     this%baseflow_set = .true.
@@ -351,6 +396,8 @@ contains
          amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
          dump_fname)
 
+    call neko_log%message("Baseflow       : user", lvl = NEKO_LOG_INFO)
+
   end subroutine sponge_init_user
 
   !> Common constructor.
@@ -366,7 +413,11 @@ contains
          bf_registry_pref
     logical, intent(in) :: dump_fields
 
+    character(len=LOG_SIZE) :: log_buf
+
     integer :: i
+
+    call neko_log%message("Initializing sponge", lvl = NEKO_LOG_DEBUG)
 
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
@@ -375,15 +426,23 @@ contains
     this%amplitudes(2) = amplitudes(2)
     this%amplitudes(3) = amplitudes(3)
 
+    write (log_buf, '(A, 3(ES12.6, A))') "Amplitudes     : [", &
+         (amplitudes(i), ", ", i = 1, 2), amplitudes(3), "]"
+    call neko_log%message(log_buf, lvl=NEKO_LOG_INFO)
+
     this%fringe_registry_name = trim(fringe_registry_name)
     this%bf_rgstry_pref = trim(bf_registry_pref)
     this%dump_fields = dump_fields
     this%dump_fname = trim(dump_fname)
 
-    call neko_log%message("Initializing sponge", lvl = NEKO_LOG_DEBUG)
+    call neko_log%message("Fringe name    : " // trim(fringe_registry_name), &
+         lvl = NEKO_LOG_INFO)
+    call neko_log%message("Baseflow prefix: " // trim(bf_registry_pref), &
+         lvl = NEKO_LOG_INFO)
 
-    call neko_log%message("Pointing at fields u,v,w", &
-         lvl = NEKO_LOG_DEBUG)
+    write (log_buf, "(A,L1)") "Dump fields    : ", this%dump_fields
+    call neko_log%message(log_buf, lvl=NEKO_LOG_INFO)
+
     this%u => neko_registry%get_field_by_name("u")
     this%v => neko_registry%get_field_by_name("v")
     this%w => neko_registry%get_field_by_name("w")
@@ -460,7 +519,7 @@ contains
        if (.not. neko_registry%field_exists( &
             trim(this%fringe_registry_name))) then
           call neko_error("SPONGE: No fringe field set (" // &
-               this%fringe_registry_name // " not found)")
+               trim(this%fringe_registry_name) // " not found)")
        end if
 
        ! This will throw an error if the user hasn't added 'sponge_fringe'
@@ -491,50 +550,20 @@ contains
 
     end if
 
-
     !
     ! Start computation of source term
     !
-
-    fu => this%fields%get(1)
-    fv => this%fields%get(2)
-    fw => this%fields%get(3)
-
-    call neko_scratch_registry%request_field(wk, tmp_index, .false.)
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       ! wk = u_bf - u
-       call device_sub3(wk%x_d, this%u_bf%x_d, this%u%x_d, this%u%size())
-       ! wk = fringe * wk = fringe * (u_bf - u)
-       call device_col2(wk%x_d, this%fringe%x_d, this%fringe%size())
-       ! fu = fu + amplitude(1)*wk = fu + amplitude(1)*fringe*(u_bf - u)
-       call device_add2s2(fu%x_d, wk%x_d, this%amplitudes(1), &
-            fu%dof%size())
-
-       call device_sub3(wk%x_d, this%v_bf%x_d, this%v%x_d, this%v%size())
-       call device_col2(wk%x_d, this%fringe%x_d, this%fringe%size())
-       call device_add2s2(fv%x_d, wk%x_d, this%amplitudes(2), &
-            fv%dof%size())
-
-       call device_sub3(wk%x_d, this%w_bf%x_d, this%w%x_d, this%w%size())
-       call device_col2(wk%x_d, this%fringe%x_d, this%fringe%size())
-       call device_add2s2(fw%x_d, wk%x_d, this%amplitudes(3), &
-            fw%dof%size())
+       call sponge_source_term_compute_device(this%fields, &
+            this%u, this%v, this%w, this%u_bf, this%v_bf, this%w_bf, &
+            this%fringe, &
+            this%amplitudes(1), this%amplitudes(2), this%amplitudes(3))
     else
-       call sub3(wk%x, this%u_bf%x, this%u%x, this%u%size())
-       call col2(wk%x, this%fringe%x, this%fringe%size())
-       call add2s2(fu%x, wk%x, this%amplitudes(1), fu%dof%size())
-
-       call sub3(wk%x, this%v_bf%x, this%v%x, this%v%size())
-       call col2(wk%x, this%fringe%x, this%fringe%size())
-       call add2s2(fv%x, wk%x, this%amplitudes(2), fv%dof%size())
-
-       call sub3(wk%x, this%w_bf%x, this%w%x, this%w%size())
-       call col2(wk%x, this%fringe%x, this%fringe%size())
-       call add2s2(fw%x, wk%x, this%amplitudes(3), fw%dof%size())
+       call sponge_source_term_compute_cpu(this%fields, &
+            this%u, this%v, this%w, this%u_bf, this%v_bf, this%w_bf, &
+            this%fringe, &
+            this%amplitudes(1), this%amplitudes(2), this%amplitudes(3))
     end if
-
-    call neko_scratch_registry%relinquish_field(tmp_index)
 
   end subroutine sponge_compute
 

@@ -6,10 +6,10 @@
         "output_at_end": true,
         "output_checkpoints": false,
         "time": {
-            "end_time": 2,
+            "end_time": 2.0,
             "timestep": 1e-4,
             "variable_timestep": true,
-            "target_cfl": 0.2,
+            "target_cfl": 0.1
         },
 
         "numerics": {
@@ -20,6 +20,10 @@
         "fluid": {
             "scheme": "compressible",
             "gamma": 1.4,
+            "viscous_regularization":{
+                "type": "artificial_viscosity",
+                "reg_coeff_name": "entropy_viscosity"
+            },
 
             "initial_condition": {
                 "type": "user"
@@ -29,7 +33,7 @@
                 {
                     "type": "velocity_value",
                     "zone_indices": [ 1 ],
-                    "value": [ 1.1, 0, 0 ]
+                    "value": [ 1.1, 0.0, 0.0 ]
                 },
                 {
                     "type": "density_value",
@@ -39,7 +43,7 @@
                 {
                     "type": "pressure_value",
                     "zone_indices": [ 1 ],
-                    "value": 1
+                    "value": 1.0
                 },
                 {
                     "type": "no_slip",
@@ -53,6 +57,19 @@
 
             "output_control": "nsamples",
             "output_value": 100
-        }
+        },
+
+        "simulation_components": [
+            {
+                "type": "artificial_viscosity_model",
+                "model": "entropy_viscosity"
+            },
+            {
+                "type": "field_writer",
+                "fields": ["fluid_rho", "S", "artificial_visc"], // s2, s3, s4 in Paraview
+                "output_control": "nsamples",
+                "output_value": 100
+            }
+        ]
     }
 }

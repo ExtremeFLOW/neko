@@ -33,8 +33,8 @@
 !> Defines an output for a checkpoint
 module chkp_output
   use checkpoint, only : chkp_t
-  use output
-  use num_types, only : rp
+  use output, only : output_t
+  use num_types, only : dp
   implicit none
   private
 
@@ -42,6 +42,7 @@ module chkp_output
      type(chkp_t), pointer :: chkp
    contains
      procedure, pass(this) :: init => chkp_output_init
+     procedure, pass(this) :: free => chkp_output_free
      procedure, pass(this) :: sample => chkp_output_sample
   end type chkp_output_t
 
@@ -73,10 +74,18 @@ contains
     this%chkp => chkp
   end subroutine chkp_output_init
 
+  subroutine chkp_output_free(this)
+    class(chkp_output_t), intent(inout) :: this
+
+    call this%free_base()
+    nullify(this%chkp)
+
+  end subroutine chkp_output_free
+
   !> Sample a checkpoint at time @a t
   subroutine chkp_output_sample(this, t)
     class(chkp_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
 
     call this%chkp%sync_host()
     call this%file_%write(this%chkp, t)

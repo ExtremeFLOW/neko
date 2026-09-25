@@ -35,15 +35,14 @@
 #include "pipecg_kernel.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
+#include <device/cuda/buffer.h>
 
 /**
- * @todo Make sure that this gets deleted at some point...
+ * Reduction buffer, owned by the device layer and released on device
+ * teardown (cuda_buffer_free_all in cuda_finalize); the device side
+ * holds the three partial-reduction arrays back to back
  */
-real *buf = NULL;
-real *buf_d1 = NULL;
-real *buf_d2 = NULL;
-real *buf_d3 = NULL;
-int buf_len = 0;
+cuda_buffer_t pipecg_buf = CUDA_BUFFER_INIT;
 
 extern "C" {
   
@@ -73,21 +72,11 @@ extern "C" {
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    if (buf != NULL && buf_len < nb) {
-      CUDA_CHECK(cudaFreeHost(buf));
-      CUDA_CHECK(cudaFree(buf_d1));
-      CUDA_CHECK(cudaFree(buf_d2));
-      CUDA_CHECK(cudaFree(buf_d3));
-      buf = NULL;
-    }
-
-    if (buf == NULL){
-      CUDA_CHECK(cudaMallocHost(&buf, 3*sizeof(real)));
-      CUDA_CHECK(cudaMalloc(&buf_d1, nb*sizeof(real)));
-      CUDA_CHECK(cudaMalloc(&buf_d2, nb*sizeof(real)));
-      CUDA_CHECK(cudaMalloc(&buf_d3, nb*sizeof(real)));
-      buf_len = nb;
-    }
+    cuda_buffer_reserve(&pipecg_buf, 3*nb*sizeof(real));
+    real *buf = (real *) pipecg_buf.host;
+    real *buf_d1 = (real *) pipecg_buf.dev;
+    real *buf_d2 = buf_d1 + nb;
+    real *buf_d3 = buf_d1 + 2*nb;
      
     pipecg_vecops_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) p, (real *) q,

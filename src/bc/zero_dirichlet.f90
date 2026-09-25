@@ -32,9 +32,10 @@
 !
 !> Defines a zero-valued Dirichlet boundary condition.
 module zero_dirichlet
-  use device_zero_dirichlet
+  use device_zero_dirichlet, only : device_zero_dirichlet_apply_scalar, &
+       device_zero_dirichlet_apply_vector
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use, intrinsic :: iso_c_binding, only : c_ptr
   use coefs, only : coef_t
   use json_module, only : json_file
@@ -84,6 +85,7 @@ contains
     type(coef_t), target, intent(in) :: coef
 
     call this%init_base(coef)
+    this%bc_type = BC_DIRICHLET
   end subroutine zero_dirichlet_init_from_components
 
   !> Apply boundary condition to a scalar field.
@@ -106,10 +108,12 @@ contains
     m = this%msk(0)
 
     if (strong_) then
+       !$omp do
        do i = 1, m
           k = this%msk(i)
           x(k) = 0d0
        end do
+       !$omp end do
     end if
 
   end subroutine zero_dirichlet_apply_scalar
@@ -134,12 +138,14 @@ contains
 
     if (strong_) then
        m = this%msk(0)
+       !$omp do
        do i = 1, m
           k = this%msk(i)
           x(k) = 0d0
           y(k) = 0d0
           z(k) = 0d0
        end do
+       !$omp end do
     end if
 
   end subroutine zero_dirichlet_apply_vector
@@ -200,18 +206,9 @@ contains
   end subroutine zero_dirichlet_free
 
   !> Finalize
-  subroutine zero_dirichlet_finalize(this, only_facets)
+  subroutine zero_dirichlet_finalize(this)
     class(zero_dirichlet_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
-
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
   end subroutine zero_dirichlet_finalize
 
 end module zero_dirichlet

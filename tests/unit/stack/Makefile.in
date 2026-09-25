@@ -1,28 +1,42 @@
 ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
 include @PFUNIT_DIR@/include/PFUNIT.mk
 endif
-FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) @NEKO_PKG_FCFLAGS@ -I@top_builddir@/src
 FC = @FC@
 
-%.o : %.F90
+# Depend on the library so the test objects follow any change to Neko.
+NEKO_LIB := $(wildcard @top_builddir@/src/libneko.la)
+
+%.o : %.F90 $(NEKO_LIB)
 	$(FC) -c $(FFLAGS) $<
 
 
 check: stack_test
 
+# Regenerate this Makefile from Makefile.in via config.status
+# whenever it changes.
+SUBDIR := $(patsubst $(abspath @top_builddir@)/%,%,$(CURDIR))
 
-stack_test_TESTS := stack_i4.pf\
-		    stack_i8.pf\
-		    stack_r8.pf\
-		    stack_i4t2.pf\
-		    stack_i4t4.pf\
-		    stack_i4r8t2.pf\
-		    stack_2i4r8t3.pf\
-		    stack_nq.pf\
-		    stack_nh.pf\
-		    stack_pt.pf
-stack_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko
+Makefile: Makefile.in @top_builddir@/config.status
+	cd @top_builddir@ && $(SHELL) ./config.status $(SUBDIR)/Makefile
+
+
+stack_test_TESTS := test_stack_i4.pf\
+		    test_stack_i8.pf\
+		    test_stack_r8.pf\
+		    test_stack_i4t2.pf\
+		    test_stack_i4t4.pf\
+		    test_stack_i4r8t2.pf\
+		    test_stack_2i4r8t3.pf\
+		    test_stack_curve.pf\
+		    test_stack_nq.pf\
+		    test_stack_nh.pf\
+		    test_stack_nz.pf\
+		    test_stack_nc.pf\
+		    test_stack_pt.pf
+stack_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,stack_test))
+stack_test.inc: Makefile
 
 distclean:
 clean:

@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_dirichlet
-  use num_types
-  use utils
+  use num_types, only : rp, c_rp
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
@@ -40,7 +40,7 @@ module device_dirichlet
 #ifdef HAVE_HIP
   interface
      subroutine hip_dirichlet_apply_scalar(msk, x, g, m, strm) &
-          bind(c, name='hip_dirichlet_apply_scalar')
+          bind(c, name = 'hip_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -52,7 +52,7 @@ module device_dirichlet
 
   interface
      subroutine hip_dirichlet_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='hip_dirichlet_apply_vector')
+          bind(c, name = 'hip_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -64,7 +64,7 @@ module device_dirichlet
 #elif HAVE_CUDA
   interface
      subroutine cuda_dirichlet_apply_scalar(msk, x, g, m, strm) &
-          bind(c, name='cuda_dirichlet_apply_scalar')
+          bind(c, name = 'cuda_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -76,7 +76,7 @@ module device_dirichlet
 
   interface
      subroutine cuda_dirichlet_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='cuda_dirichlet_apply_vector')
+          bind(c, name = 'cuda_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -88,7 +88,7 @@ module device_dirichlet
 #elif HAVE_OPENCL
   interface
      subroutine opencl_dirichlet_apply_scalar(msk, x, g, m, strm) &
-          bind(c, name='opencl_dirichlet_apply_scalar')
+          bind(c, name = 'opencl_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -100,7 +100,7 @@ module device_dirichlet
 
   interface
      subroutine opencl_dirichlet_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='opencl_dirichlet_apply_vector')
+          bind(c, name = 'opencl_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -108,6 +108,30 @@ module device_dirichlet
        integer(c_int) :: m
        type(c_ptr), value :: msk, x, y, z, strm
      end subroutine opencl_dirichlet_apply_vector
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_dirichlet_apply_scalar(msk, x, g, m, strm) &
+          bind(c, name = 'metal_dirichlet_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       real(c_rp) :: g
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, strm
+     end subroutine metal_dirichlet_apply_scalar
+  end interface
+
+  interface
+     subroutine metal_dirichlet_apply_vector(msk, x, y, z, g, m, strm) &
+          bind(c, name = 'metal_dirichlet_apply_vector')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       real(c_rp) :: g
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, y, z, strm
+     end subroutine metal_dirichlet_apply_vector
   end interface
 #endif
 
@@ -126,6 +150,8 @@ contains
     call cuda_dirichlet_apply_scalar(msk, x, g, m, strm)
 #elif HAVE_OPENCL
     call opencl_dirichlet_apply_scalar(msk, x, g, m, strm)
+#elif HAVE_METAL
+    call metal_dirichlet_apply_scalar(msk, x, g, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -143,6 +169,8 @@ contains
     call cuda_dirichlet_apply_vector(msk, x, y, z, g, m, strm)
 #elif HAVE_OPENCL
     call opencl_dirichlet_apply_vector(msk, x, y, z, g, m, strm)
+#elif HAVE_METAL
+    call metal_dirichlet_apply_vector(msk, x, y, z, g, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif

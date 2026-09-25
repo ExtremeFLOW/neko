@@ -32,19 +32,19 @@
 !
 !> Defines inflow dirichlet conditions
 module field_dirichlet_vector
-  use num_types, only: rp
-  use coefs, only: coef_t
-  use dirichlet, only: dirichlet_t
-  use bc, only: bc_t
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use dirichlet, only : dirichlet_t
+  use bc, only : bc_t, BC_DIRICHLET
   use bc_list, only : bc_list_t
-  use utils, only: split_string
+  use utils, only : split_string
   use field, only : field_t
   use field_list, only : field_list_t
-  use math, only: masked_copy_0
-  use device_math, only: device_masked_copy_0
+  use math, only : masked_copy_0
+  use device_math, only : device_masked_copy_0
   use dofmap, only : dofmap_t
-  use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
-  use utils, only: neko_error
+  use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
+  use utils, only : neko_error
   use json_module, only : json_file
   use field_list, only : field_list_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
@@ -111,6 +111,7 @@ contains
     type(coef_t), intent(in) :: coef
 
     call this%init_base(coef)
+    this%bc_type = BC_DIRICHLET
 
     call this%bc_u%init_from_components(coef, "u")
     call this%bc_v%init_from_components(coef, "v")
@@ -130,6 +131,7 @@ contains
   subroutine field_dirichlet_vector_free(this)
     class(field_dirichlet_vector_t), target, intent(inout) :: this
 
+    call this%free_base()
     call this%bc_u%free()
     call this%bc_v%free()
     call this%bc_w%free()
@@ -200,10 +202,12 @@ contains
 
        ! We can send any of the 3 bcs we have as argument, since they are all
        ! the same boundary.
+       !$omp single
        if (.not. this%updated) then
           call this%update(this%field_list, this%bc_u, time)
           this%updated = .true.
        end if
+       !$omp end single
 
        call masked_copy_0(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy_0(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
@@ -236,44 +240,37 @@ contains
     end if
 
     if (strong_) then
+       !$omp single
        if (.not. this%updated) then
           call this%update(this%field_list, this%bc_u, time)
           this%updated = .true.
        end if
+       !$omp end single
 
        if (this%msk(0) .gt. 0) then
-          call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d,&
-               this%bc_u%dof%size(), this%msk(0), strm)
-          call device_masked_copy_0(y_d, this%bc_v%field_bc%x_d, this%bc_v%msk_d,&
-               this%bc_v%dof%size(), this%msk(0), strm)
-          call device_masked_copy_0(z_d, this%bc_w%field_bc%x_d, this%bc_w%msk_d,&
-               this%bc_w%dof%size(), this%msk(0), strm)
+          call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, &
+               this%bc_u%msk_d, this%bc_u%dof%size(), this%msk(0), strm)
+          call device_masked_copy_0(y_d, this%bc_v%field_bc%x_d, &
+               this%bc_v%msk_d, this%bc_v%dof%size(), this%msk(0), strm)
+          call device_masked_copy_0(z_d, this%bc_w%field_bc%x_d, &
+               this%bc_w%msk_d, this%bc_w%dof%size(), this%msk(0), strm)
        end if
     end if
 
   end subroutine field_dirichlet_vector_apply_vector_dev
 
   !> Finalize by building the mask arrays and propagating to underlying bcs.
-  subroutine field_dirichlet_vector_finalize(this, only_facets)
+  subroutine field_dirichlet_vector_finalize(this)
     class(field_dirichlet_vector_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
-
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
 
     call this%bc_u%mark_facets(this%marked_facet)
     call this%bc_v%mark_facets(this%marked_facet)
     call this%bc_w%mark_facets(this%marked_facet)
 
-    call this%bc_u%finalize(only_facets_)
-    call this%bc_v%finalize(only_facets_)
-    call this%bc_w%finalize(only_facets_)
+    call this%bc_u%finalize()
+    call this%bc_v%finalize()
+    call this%bc_w%finalize()
 
   end subroutine field_dirichlet_vector_finalize
 

@@ -6,7 +6,7 @@
     "output_boundary": false,
     "output_checkpoints": false,
     "time": {
-        "end_time": 2,
+        "end_time": 2.0,
         "timestep": 0.001
     },
     "numerics": {
@@ -16,8 +16,8 @@
     },
     "fluid": {
       "scheme": "pnpn",
-      "mu": 1,
-      "rho": 1,
+      "mu": 1.0,
+      "rho": 1.0,
       "freeze": true,
       "initial_condition": {
         "type": "user"

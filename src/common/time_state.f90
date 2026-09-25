@@ -32,22 +32,22 @@
 
 !> Module with things related to the simulation time
 module time_state
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
-  use checkpoint, only : chkp_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get_or_lookup, json_get_or_default, &
+       json_get_or_lookup_or_default
   implicit none
   private
 
   !> A struct that contains all info about the time, expand as needed
   type, public :: time_state_t
-     real(kind=rp), dimension(10) :: tlag = 0.0_rp !< Old times
-     real(kind=rp), dimension(10) :: dtlag = 0.0_rp !< Old dts
-     real(kind=rp) :: t = 0.0_rp !< Current time
-     real(kind=rp) :: dt = 0.0_rp !< Current dt
-     real(kind=rp) :: start_time = 0.0_rp !< Start time
-     real(kind=rp) :: end_time = 0.0_rp !< End time
+     real(kind=dp), dimension(10) :: tlag = 0.0_dp !< Old times
+     real(kind=dp), dimension(10) :: dtlag = 0.0_dp !< Old dts
+     real(kind=dp) :: t = 0.0_dp !< Current time
+     real(kind=dp) :: dt = 0.0_dp !< Current dt
+     real(kind=dp) :: start_time = 0.0_dp !< Start time
+     real(kind=dp) :: end_time = 0.0_dp !< End time
      integer :: tstep = 0 !< Current timestep
 
    contains
@@ -56,7 +56,6 @@ module time_state
           time_state_init_from_components
      procedure, pass(this) :: init_from_json => time_state_init_from_json
      procedure, pass(this) :: reset => time_state_reset
-     procedure, pass(this) :: restart => time_state_restart
      procedure, pass(this) :: status => time_state_status
      procedure, pass(this) :: is_done => time_state_is_done
   end type time_state_t
@@ -68,19 +67,19 @@ contains
     class(time_state_t), intent(inout) :: this
     type(json_file), intent(inout) :: params
 
-    real(kind=rp) :: time_step
-    real(kind=rp) :: start_time
-    real(kind=rp) :: end_time
+    real(kind=dp) :: time_step
+    real(kind=dp) :: start_time
+    real(kind=dp) :: end_time
     logical :: is_variable
 
-    call json_get_or_default(params, 'start_time', start_time, 0.0_rp)
-    call json_get(params, 'end_time', end_time)
+    call json_get_or_lookup_or_default(params, 'start_time', start_time, 0.0_dp)
+    call json_get_or_lookup(params, 'end_time', end_time)
     call json_get_or_default(params, 'variable_timestep', is_variable, .false.)
     if (.not. is_variable) then
-       call json_get(params, 'timestep', time_step)
+       call json_get_or_lookup(params, 'timestep', time_step)
     else
        ! randomly set an initial dt to get cfl when dt is variable
-       time_step = 1.0_rp
+       time_step = 1.0_dp
     end if
 
     call this%init_from_components(start_time, end_time, time_step)
@@ -90,12 +89,12 @@ contains
   !> Initialize time state
   subroutine time_state_init_from_components(this, start_time, end_time, dt)
     class(time_state_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: start_time
-    real(kind=rp), intent(in) :: end_time
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: end_time
+    real(kind=dp), intent(in) :: dt
 
-    if (dt .gt. 0.0_rp .and. start_time .gt. end_time .or. &
-         dt .lt. 0.0_rp .and. start_time .lt. end_time) then
+    if (dt .gt. 0.0_dp .and. start_time .gt. end_time .or. &
+         dt .lt. 0.0_dp .and. start_time .lt. end_time) then
        call neko_log%error('Time step size must match direction of time.')
     end if
 
@@ -121,28 +120,24 @@ contains
 
   end subroutine time_state_reset
 
-  !> Restart time state
-  subroutine time_state_restart(this, chkp)
-    class(time_state_t), intent(inout) :: this
-    type(chkp_t), intent(in) :: chkp
-
-    this%t = chkp%t
-    this%dtlag = chkp%dtlag
-    this%tlag = chkp%tlag
-  end subroutine time_state_restart
-
   !> Write status banner
   subroutine time_state_status(this)
     class(time_state_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf
-    character(len=38) :: log_fmt
-    real(kind=rp) :: t_prog
+    character(len=64) :: log_fmt
+    real(kind=dp) :: t_prog
+    integer :: time_digits, time_width, pad_width
 
-    t_prog = 100.0_rp * (this%t - this%start_time) / &
+    t_prog = 100.0_dp * (this%t - this%start_time) / &
          (this%end_time - this%start_time)
 
-    write(log_fmt, '(A,I2,A)') &
-         '(A7,1X,I10,1X,A4,E15.7,', LOG_SIZE - 50, 'X,A2,F6.2,A3)'
+    time_digits = precision(this%t)
+    time_width = time_digits + 8
+    pad_width = max(1, LOG_SIZE - (34 + time_width) - 1)
+
+    write(log_fmt, '(A,I0,A,I0,A,I0,A,I0,A)') &
+         '(A7,1X,I10,1X,A4,ES', time_width, '.', time_digits, ',', &
+         pad_width, 'X,A2,F6.2,A3)'
     write(log_buf, log_fmt) 'Step = ', this%tstep, 't = ', this%t, &
          '[ ', t_prog, '% ]'
 
@@ -153,11 +148,21 @@ contains
   end subroutine time_state_status
 
   !> Check if the simulation is done
+  !! @note The comparison is made on the progress from the start time in the
+  !! direction of the simulation, so that it also holds for a simulation
+  !! marching backwards in time. The tolerance keeps a time a few ulps short
+  !! of the end time from adding one more time step, which would overshoot
+  !! the end time by almost `dt` and produce an output past it.
   pure function time_state_is_done(this) result(is_done)
     class(time_state_t), intent(in) :: this
     logical :: is_done
+    real(kind=dp) :: span, tol
 
-    is_done = this%t - this%start_time .ge. this%end_time - this%start_time &
+    span = abs(this%end_time - this%start_time)
+    tol = 1.0e-9_dp * max(span, abs(this%dt))
+
+    is_done = sign(1.0_dp, this%end_time - this%start_time) * &
+         (this%t - this%start_time) .ge. span - tol &
          .and. this%tstep .gt. 0
 
   end function time_state_is_done

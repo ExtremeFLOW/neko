@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ module gs_device
        device_free, device_event_destroy, device_event_create, &
        device_event_record, device_get_ptr, glb_cmd_queue, &
        device_sync, HOST_TO_DEVICE, DEVICE_TO_HOST
-  use utils, only: neko_error
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, C_NULL_PTR, &
        c_associated, c_sizeof, c_size_t
   implicit none
@@ -46,8 +46,6 @@ module gs_device
 
   !> Gather-scatter backend for offloading devices
   type, public, extends(gs_bcknd_t) :: gs_device_t
-     integer, allocatable :: local_blk_off(:) !< Local block offset
-     integer, allocatable :: shared_blk_off(:) !< Shared block offset
      type(c_ptr) :: local_gs_d = C_NULL_PTR !< Dev. ptr local gs-ops
      type(c_ptr) :: local_dof_gs_d = C_NULL_PTR !< Dev. ptr local dof to gs map.
      type(c_ptr) :: local_gs_dof_d = C_NULL_PTR !< Dev. ptr local gs to dof map.
@@ -60,7 +58,6 @@ module gs_device
      type(c_ptr) :: shared_blk_off_d = C_NULL_PTR!< Dev. ptr shared blk offset
      integer :: nlocal
      integer :: nshared
-     logical :: shared_on_host !< Shared points are handled on host
    contains
      procedure, pass(this) :: init => gs_device_init
      procedure, pass(this) :: free => gs_device_free
@@ -71,7 +68,7 @@ module gs_device
 #ifdef HAVE_HIP
   interface
      subroutine hip_gather_kernel(v, m, o, dg, u, n, gd, nb, b, bo, op, strm) &
-          bind(c, name='hip_gather_kernel')
+          bind(c, name = 'hip_gather_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, nb, o, op
@@ -81,7 +78,7 @@ module gs_device
 
   interface
      subroutine hip_scatter_kernel(v, m, dg, u, n, gd, nb, b, bo, strm) &
-          bind(c, name='hip_scatter_kernel')
+          bind(c, name = 'hip_scatter_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, nb
@@ -92,7 +89,7 @@ module gs_device
 #elif HAVE_CUDA
   interface
      subroutine cuda_gather_kernel(v, m, o, dg, u, n, gd, nb, b, bo, op, strm) &
-          bind(c, name='cuda_gather_kernel')
+          bind(c, name = 'cuda_gather_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, nb, o, op
@@ -102,7 +99,7 @@ module gs_device
 
   interface
      subroutine cuda_scatter_kernel(v, m, dg, u, n, gd, nb, b, bo, strm) &
-          bind(c, name='cuda_scatter_kernel')
+          bind(c, name = 'cuda_scatter_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, nb
@@ -111,8 +108,8 @@ module gs_device
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_gather_kernel(v, m, o, dg, u, n, gd, nb, b, bo, op, strm) &
-          bind(c, name='opencl_gather_kernel')
+     subroutine opencl_gather_kernel(v, m, o, dg, u, n, gd, nb, b, bo, op, &
+          strm) bind(c, name = 'opencl_gather_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, nb, o, op
@@ -122,12 +119,32 @@ module gs_device
 
   interface
      subroutine opencl_scatter_kernel(v, m, dg, u, n, gd, nb, b, bo, strm) &
-          bind(c, name='opencl_scatter_kernel')
+          bind(c, name = 'opencl_scatter_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, nb
        type(c_ptr), value :: v, u, dg, gd, b, bo, strm
      end subroutine opencl_scatter_kernel
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_gather_kernel(v, m, o, dg, u, n, gd, nb, b, bo, op, &
+          strm) bind(c, name = 'metal_gather_kernel')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n, nb, o, op
+       type(c_ptr), value :: v, u, dg, gd, b, bo, strm
+     end subroutine metal_gather_kernel
+  end interface
+
+  interface
+     subroutine metal_scatter_kernel(v, m, dg, u, n, gd, nb, b, bo, strm) &
+          bind(c, name = 'metal_scatter_kernel')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n, nb
+       type(c_ptr), value :: v, u, dg, gd, b, bo, strm
+     end subroutine metal_scatter_kernel
   end interface
 #endif
 
@@ -146,9 +163,6 @@ contains
     this%nlocal = nlocal
     this%nshared = nshared
 
-    allocate(this%local_blk_off(nlcl_blks))
-    allocate(this%shared_blk_off(nshrd_blks))
-
     this%local_gs_d = C_NULL_PTR
     this%local_dof_gs_d = C_NULL_PTR
     this%local_gs_dof_d = C_NULL_PTR
@@ -162,7 +176,7 @@ contains
 
     this%shared_on_host = .true.
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_METAL)
     call device_event_create(this%gather_event, 2)
     call device_event_create(this%scatter_event, 2)
 #endif
@@ -175,14 +189,6 @@ contains
   subroutine gs_device_free(this)
     class(gs_device_t), intent(inout) :: this
 
-    if (allocated(this%local_blk_off)) then
-       deallocate(this%local_blk_off)
-    end if
-
-    if (allocated(this%shared_blk_off)) then
-       deallocate(this%shared_blk_off)
-    end if
-
     if (c_associated(this%local_gs_d)) then
        call device_free(this%local_gs_d)
     end if
@@ -193,6 +199,18 @@ contains
 
     if (c_associated(this%local_gs_dof_d)) then
        call device_free(this%local_gs_dof_d)
+    end if
+
+    if (c_associated(this%shared_gs_d)) then
+       call device_free(this%shared_gs_d)
+    end if
+
+    if (c_associated(this%shared_dof_gs_d)) then
+       call device_free(this%shared_dof_gs_d)
+    end if
+
+    if (c_associated(this%shared_gs_dof_d)) then
+       call device_free(this%shared_gs_dof_d)
     end if
 
     if (c_associated(this%local_blk_len_d)) then
@@ -214,7 +232,7 @@ contains
     this%nlocal = 0
     this%nshared = 0
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_METAL)
     if (c_associated(this%gather_event)) then
        call device_event_destroy(this%gather_event)
     end if
@@ -231,7 +249,7 @@ contains
   end subroutine gs_device_free
 
   !> Gather kernel
-  subroutine gs_gather_device(this, v, m, o, dg, u, n, gd, nb, b, op, shrd)
+  subroutine gs_gather_device(this, v, m, o, dg, u, n, gd, nb, b, bo, op, shrd)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -241,6 +259,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: bo
     integer, intent(in) :: o
     integer, intent(in) :: op
     logical, intent(in) :: shrd
@@ -250,10 +269,9 @@ contains
     u_d = device_get_ptr(u)
 
     if (.not. shrd) then
-       associate(v_d=>this%local_gs_d, dg_d=>this%local_dof_gs_d, &
-            gd_d=>this%local_gs_dof_d, b_d=>this%local_blk_len_d, &
-            bo=>this%local_blk_off, bo_d=>this%local_blk_off_d, &
-            strm=>this%gs_stream)
+       associate(v_d => this%local_gs_d, dg_d => this%local_dof_gs_d, &
+            gd_d => this%local_gs_dof_d, b_d => this%local_blk_len_d, &
+            bo_d => this%local_blk_off_d, strm => this%gs_stream)
 
          if (.not. c_associated(v_d)) then
             call device_map(v, v_d, m)
@@ -268,30 +286,26 @@ contains
          if (.not. c_associated(dg_d)) then
             call device_map(dg, dg_d, m)
             call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE, &
-                 sync=.false., strm=strm)
+                 sync = .false., strm = strm)
          end if
 
          if (.not. c_associated(gd_d)) then
             call device_map(gd, gd_d, m)
             call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE, &
-                 sync=.false., strm=strm)
+                 sync = .false., strm = strm)
          end if
 
          if (nb .gt. 0) then
             if (.not. c_associated(b_d)) then
                call device_map(b, b_d, nb)
                call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, &
-                    sync=.false., strm=strm)
+                    sync = .false., strm = strm)
             end if
 
             if (.not. c_associated(bo_d)) then
                call device_map(bo, bo_d, nb)
-               bo(1) = 0
-               do i = 2, nb
-                  bo(i) = bo(i - 1) + b(i - 1)
-               end do
                call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, &
-                    sync=.false., strm=strm)
+                    sync = .false., strm = strm)
             end if
          end if
 
@@ -303,6 +317,9 @@ contains
               nb, b_d, bo_d, op, strm)
 #elif HAVE_OPENCL
          call opencl_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
+              nb, b_d, bo_d, op, strm)
+#elif HAVE_METAL
+         call metal_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
               nb, b_d, bo_d, op, strm)
 #else
          call neko_error('No device backend configured')
@@ -310,10 +327,9 @@ contains
 
        end associate
     else if (shrd) then
-       associate(v_d=>this%shared_gs_d, dg_d=>this%shared_dof_gs_d, &
-            gd_d=>this%shared_gs_dof_d, b_d=>this%shared_blk_len_d, &
-            bo=>this%shared_blk_off, bo_d=>this%shared_blk_off_d, &
-            strm=>this%gs_stream)
+       associate(v_d => this%shared_gs_d, dg_d => this%shared_dof_gs_d, &
+            gd_d => this%shared_gs_dof_d, b_d => this%shared_blk_len_d, &
+            bo_d => this%shared_blk_off_d, strm => this%gs_stream)
 
          if (.not. c_associated(v_d)) then
             call device_map(v, v_d, m)
@@ -328,30 +344,26 @@ contains
          if (.not. c_associated(dg_d)) then
             call device_map(dg, dg_d, m)
             call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE, &
-                 sync=.false., strm=strm)
+                 sync = .false., strm = strm)
          end if
 
          if (.not. c_associated(gd_d)) then
             call device_map(gd, gd_d, m)
             call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE, &
-                 sync=.false., strm=strm)
+                 sync = .false., strm = strm)
          end if
 
          if (nb .gt. 0) then
             if (.not. c_associated(b_d)) then
                call device_map(b, b_d, nb)
                call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, &
-                    sync=.false., strm=strm)
+                    sync = .false., strm = strm)
             end if
 
             if (.not. c_associated(bo_d)) then
                call device_map(bo, bo_d, nb)
-               bo(1) = 0
-               do i = 2, nb
-                  bo(i) = bo(i - 1) + b(i - 1)
-               end do
                call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, &
-                    sync=.false., strm=strm)
+                    sync = .false., strm = strm)
             end if
          end if
 
@@ -365,18 +377,22 @@ contains
 #elif HAVE_OPENCL
          call opencl_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
               nb, b_d, bo_d, op, strm)
+#elif HAVE_METAL
+         call metal_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
+              nb, b_d, bo_d, op, strm)
 #else
          call neko_error('No device backend configured')
 #endif
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
+         defined(HAVE_OPENCL) || defined(HAVE_METAL)
          call device_event_record(this%gather_event, strm)
 #endif
 
          if (this%shared_on_host) then
             if (this%nshared .eq. m) then
                call device_memcpy(v, v_d, m, DEVICE_TO_HOST, &
-                    sync=.true., strm=strm)
+                    sync = .true., strm = strm)
             end if
          end if
 
@@ -386,7 +402,7 @@ contains
   end subroutine gs_gather_device
 
   !> Scatter kernel
-  subroutine gs_scatter_device(this, v, m, dg, u, n, gd, nb, b, shrd, event)
+  subroutine gs_scatter_device(this, v, m, dg, u, n, gd, nb, b, bo, shrd, event)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -396,6 +412,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: bo
     logical, intent(in) :: shrd
     type(c_ptr) :: event
     type(c_ptr) :: u_d
@@ -403,42 +420,55 @@ contains
     u_d = device_get_ptr(u)
 
     if (.not. shrd) then
-       associate(v_d=>this%local_gs_d, dg_d=>this%local_dof_gs_d, &
-            gd_d=>this%local_gs_dof_d, b_d=>this%local_blk_len_d, &
-            bo_d=>this%local_blk_off_d, strm=>this%gs_stream)
+       associate(v_d => this%local_gs_d, dg_d => this%local_dof_gs_d, &
+            gd_d => this%local_gs_dof_d, b_d => this%local_blk_len_d, &
+            bo_d => this%local_blk_off_d, strm => this%gs_stream)
 #ifdef HAVE_HIP
-         call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, strm)
+         call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, &
+              strm)
 #elif HAVE_CUDA
-         call cuda_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, strm)
+         call cuda_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, &
+              strm)
 #elif HAVE_OPENCL
-         call opencl_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, strm)
+         call opencl_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, &
+              bo_d, strm)
+#elif HAVE_METAL
+         call metal_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, &
+              bo_d, strm)
 #else
          call neko_error('No device backend configured')
 #endif
        end associate
     else if (shrd) then
-       associate(v_d=>this%shared_gs_d, dg_d=>this%shared_dof_gs_d, &
-            gd_d=>this%shared_gs_dof_d, b_d=>this%shared_blk_len_d, &
-            bo_d=>this%shared_blk_off_d, strm=>this%gs_stream)
+       associate(v_d => this%shared_gs_d, dg_d => this%shared_dof_gs_d, &
+            gd_d => this%shared_gs_dof_d, b_d => this%shared_blk_len_d, &
+            bo_d => this%shared_blk_off_d, strm => this%gs_stream)
 
          if (this%shared_on_host) then
             call device_memcpy(v, v_d, m, HOST_TO_DEVICE, &
-                 sync=.false., strm=strm)
+                 sync = .false., strm = strm)
          end if
 
 #ifdef HAVE_HIP
-         call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, strm)
+         call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, &
+              strm)
 #elif HAVE_CUDA
-         call cuda_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, strm)
+         call cuda_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, &
+              strm)
 #elif HAVE_OPENCL
-         call opencl_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, strm)
+         call opencl_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, &
+              bo_d, strm)
+#elif HAVE_METAL
+         call metal_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, &
+              bo_d, strm)
 #else
          call neko_error('No device backend configured')
 #endif
        end associate
     end if
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
+    defined(HAVE_OPENCL) || defined(HAVE_METAL)
     if (c_associated(event)) then
        call device_event_record(event, this%gs_stream)
     else

@@ -32,8 +32,8 @@
 !
 !> Fast Diagonalization SX-Aurora backend
 module fdm_sx
-  use num_types
-  use tensor_sx
+  use num_types, only : rp
+  use tensor_sx, only : tnsr2d_el_sx
   implicit none
   private
 
@@ -45,18 +45,20 @@ contains
     integer, intent(in) :: nl, nelv, ldim
     real(kind=rp), intent(inout) :: e(nl**ldim, nelv)
     real(kind=rp), intent(inout) :: r(nl**ldim, nelv)
-    real(kind=rp), intent(inout) :: s(nl*nl,2,ldim, nelv)
+    real(kind=rp), intent(inout) :: s(nl*nl, 2, ldim, nelv)
     real(kind=rp), intent(inout) :: d(nl**ldim, nelv)
-    integer ::  ie, nn, i
+    integer :: ie, nn, i
 
     nn = nl**ldim
-    if(.not. ldim .eq. 3) then
+    if (.not. ldim .eq. 3) then
        do ie = 1, nelv
-          call tnsr2d_el_sx(e(1,ie), nl, r(1,ie), nl, s(1,2,1,ie), s(1,1,2,ie))
+          call tnsr2d_el_sx(e(1, ie), nl, r(1, ie), nl, &
+               s(1, 2, 1, ie), s(1, 1, 2, ie))
           do i = 1, nn
-             r(i,ie) = d(i,ie) * e(i,ie)
+             r(i, ie) = d(i, ie) * e(i, ie)
           end do
-          call tnsr2d_el_sx(e(1,ie), nl, r(1,ie), nl, s(1,1,1,ie), s(1,2,2,ie))
+          call tnsr2d_el_sx(e(1, ie), nl, r(1, ie), nl, &
+               s(1, 1, 1, ie), s(1, 2, 2, ie))
        end do
     else
        select case (nl)
@@ -96,10 +98,10 @@ contains
     integer, intent(in) :: nelv, n
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv), tmp
-    integer ::  ie, i, j, k, l, ii, jj, nn, nnn
+    integer :: ie, i, j, k, l, ii, jj, nn, nnn
 
     nn = n**2
     nnn = n**3
@@ -111,7 +113,7 @@ contains
              ii = i + n * (j - 1)
              tmp = 0.0_rp
              do k = 1, n
-                tmp = tmp + s(i,k,2,1,ie) * r(k + n * (j - 1), ie)
+                tmp = tmp + s(i, k, 2, 1, ie) * r(k + n * (j - 1), ie)
              end do
              wrk(ii, ie) = tmp
           end do
@@ -126,9 +128,9 @@ contains
                 tmp = 0.0_rp
                 do k = 1, n
                    tmp = tmp + wrk(l + n * (k - 1) + nn * (i - 1), ie) &
-                               * s(k,j,1,2,ie)
+                               * s(k, j, 1, 2, ie)
                 end do
-                wrk2(ii,ie) = tmp
+                wrk2(ii, ie) = tmp
              end do
           end do
        end do
@@ -142,13 +144,13 @@ contains
              do k = 1, n
                 tmp = tmp + wrk2(i + nn * (k - 1), ie) * s(k, j, 1, 3, ie)
              end do
-             e(jj,ie) = tmp
+             e(jj, ie) = tmp
           end do
        end do
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
@@ -157,7 +159,7 @@ contains
              ii = i + n * (j - 1)
              tmp = 0.0_rp
              do k = 1, n
-                tmp = tmp + s(i,k,1,1,ie) * r(k + n * (j - 1), ie)
+                tmp = tmp + s(i, k, 1, 1, ie) * r(k + n * (j - 1), ie)
              end do
              wrk(ii, ie) = tmp
           end do
@@ -172,9 +174,9 @@ contains
                 tmp = 0.0_rp
                 do k = 1, n
                    tmp = tmp + wrk(l + n * (k - 1) + nn * (i - 1), ie) &
-                               * s(k,j,2,2,ie)
+                               * s(k, j, 2, 2, ie)
                 end do
-                wrk2(ii,ie) = tmp
+                wrk2(ii, ie) = tmp
              end do
           end do
        end do
@@ -188,7 +190,7 @@ contains
              do k = 1, n
                 tmp = tmp + wrk2(i + nn * (k - 1), ie) * s(k, j, 2, 3, ie)
              end do
-             e(jj,ie) = tmp
+             e(jj, ie) = tmp
           end do
        end do
     end do
@@ -202,29 +204,29 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, l, ii, jj
+    integer :: ie, i, j, l, ii, jj
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,2,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,2,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,2,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,2,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,2,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,2,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,2,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,2,1,ie) * r(8 + n * (j - 1), ie) &
-                         + s(i,9,2,1,ie) * r(9 + n * (j - 1), ie) &
-                         + s(i,10,2,1,ie) * r(10 + n * (j - 1), ie) &
-                         + s(i,11,2,1,ie) * r(11 + n * (j - 1), ie) &
-                         + s(i,12,2,1,ie) * r(12 + n * (j - 1), ie) &
-                         + s(i,13,2,1,ie) * r(13 + n * (j - 1), ie) &
-                         + s(i,14,2,1,ie) * r(14 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 2, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 2, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 2, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 2, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 2, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 2, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 2, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 2, 1, ie) * r(8 + n * (j - 1), ie) &
+                         + s(i, 9, 2, 1, ie) * r(9 + n * (j - 1), ie) &
+                         + s(i, 10, 2, 1, ie) * r(10 + n * (j - 1), ie) &
+                         + s(i, 11, 2, 1, ie) * r(11 + n * (j - 1), ie) &
+                         + s(i, 12, 2, 1, ie) * r(12 + n * (j - 1), ie) &
+                         + s(i, 13, 2, 1, ie) * r(13 + n * (j - 1), ie) &
+                         + s(i, 14, 2, 1, ie) * r(14 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -234,34 +236,34 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,1,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 1, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,1,2,ie) &
+                              * s(2, j, 1, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,1,2,ie) &
+                              * s(3, j, 1, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,1,2,ie) &
+                              * s(4, j, 1, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,1,2,ie) &
+                              * s(5, j, 1, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,1,2,ie) &
+                              * s(6, j, 1, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,1,2,ie) &
+                              * s(7, j, 1, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,1,2,ie) &
+                              * s(8, j, 1, 2, ie) &
                             + wrk(l + n * (9 - 1) + nn * (i - 1), ie) &
-                              * s(9,j,1,2,ie) &
+                              * s(9, j, 1, 2, ie) &
                             + wrk(l + n * (10 - 1) + nn * (i - 1), ie) &
-                              * s(10,j,1,2,ie) &
+                              * s(10, j, 1, 2, ie) &
                             + wrk(l + n * (11 - 1) + nn * (i - 1), ie) &
-                              * s(11,j,1,2,ie) &
+                              * s(11, j, 1, 2, ie) &
                             + wrk(l + n * (12 - 1) + nn * (i - 1), ie) &
-                              * s(12,j,1,2,ie) &
+                              * s(12, j, 1, 2, ie) &
                             + wrk(l + n * (13 - 1) + nn * (i - 1), ie) &
-                              * s(13,j,1,2,ie) &
+                              * s(13, j, 1, 2, ie) &
                             + wrk(l + n * (14 - 1) + nn * (i - 1), ie) &
-                              * s(14,j,1,2,ie)
+                              * s(14, j, 1, 2, ie)
              end do
           end do
        end do
@@ -271,7 +273,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 1, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 1, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 1, 3, ie) &
@@ -290,27 +292,27 @@ contains
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,1,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,1,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,1,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,1,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,1,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,1,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,1,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,1,1,ie) * r(8 + n * (j - 1), ie) &
-                         + s(i,9,1,1,ie) * r(9 + n * (j - 1), ie) &
-                         + s(i,10,1,1,ie) * r(10 + n * (j - 1), ie) &
-                         + s(i,11,1,1,ie) * r(11 + n * (j - 1), ie) &
-                         + s(i,12,1,1,ie) * r(12 + n * (j - 1), ie) &
-                         + s(i,13,1,1,ie) * r(13 + n * (j - 1), ie) &
-                         + s(i,14,1,1,ie) * r(14 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 1, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 1, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 1, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 1, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 1, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 1, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 1, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 1, 1, ie) * r(8 + n * (j - 1), ie) &
+                         + s(i, 9, 1, 1, ie) * r(9 + n * (j - 1), ie) &
+                         + s(i, 10, 1, 1, ie) * r(10 + n * (j - 1), ie) &
+                         + s(i, 11, 1, 1, ie) * r(11 + n * (j - 1), ie) &
+                         + s(i, 12, 1, 1, ie) * r(12 + n * (j - 1), ie) &
+                         + s(i, 13, 1, 1, ie) * r(13 + n * (j - 1), ie) &
+                         + s(i, 14, 1, 1, ie) * r(14 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -320,34 +322,34 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,2,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 2, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,2,2,ie) &
+                              * s(2, j, 2, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,2,2,ie) &
+                              * s(3, j, 2, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,2,2,ie) &
+                              * s(4, j, 2, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,2,2,ie) &
+                              * s(5, j, 2, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,2,2,ie) &
+                              * s(6, j, 2, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,2,2,ie) &
+                              * s(7, j, 2, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,2,2,ie) &
+                              * s(8, j, 2, 2, ie) &
                             + wrk(l + n * (9 - 1) + nn * (i - 1), ie) &
-                              * s(9,j,2,2,ie) &
+                              * s(9, j, 2, 2, ie) &
                             + wrk(l + n * (10 - 1) + nn * (i - 1), ie) &
-                              * s(10,j,2,2,ie) &
+                              * s(10, j, 2, 2, ie) &
                             + wrk(l + n * (11 - 1) + nn * (i - 1), ie) &
-                              * s(11,j,2,2,ie) &
+                              * s(11, j, 2, 2, ie) &
                             + wrk(l + n * (12 - 1) + nn * (i - 1), ie) &
-                              * s(12,j,2,2,ie) &
+                              * s(12, j, 2, 2, ie) &
                             + wrk(l + n * (13 - 1) + nn * (i - 1), ie) &
-                              * s(13,j,2,2,ie) &
+                              * s(13, j, 2, 2, ie) &
                             + wrk(l + n * (14 - 1) + nn * (i - 1), ie) &
-                              * s(14,j,2,2,ie)
+                              * s(14, j, 2, 2, ie)
              end do
           end do
        end do
@@ -357,7 +359,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 2, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 2, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 2, 3, ie) &
@@ -385,28 +387,28 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, l, ii, jj
+    integer :: ie, i, j, l, ii, jj
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,2,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,2,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,2,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,2,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,2,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,2,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,2,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,2,1,ie) * r(8 + n * (j - 1), ie) &
-                         + s(i,9,2,1,ie) * r(9 + n * (j - 1), ie) &
-                         + s(i,10,2,1,ie) * r(10 + n * (j - 1), ie) &
-                         + s(i,11,2,1,ie) * r(11 + n * (j - 1), ie) &
-                         + s(i,12,2,1,ie) * r(12 + n * (j - 1), ie) &
-                         + s(i,13,2,1,ie) * r(13 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 2, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 2, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 2, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 2, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 2, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 2, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 2, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 2, 1, ie) * r(8 + n * (j - 1), ie) &
+                         + s(i, 9, 2, 1, ie) * r(9 + n * (j - 1), ie) &
+                         + s(i, 10, 2, 1, ie) * r(10 + n * (j - 1), ie) &
+                         + s(i, 11, 2, 1, ie) * r(11 + n * (j - 1), ie) &
+                         + s(i, 12, 2, 1, ie) * r(12 + n * (j - 1), ie) &
+                         + s(i, 13, 2, 1, ie) * r(13 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -416,32 +418,32 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,1,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 1, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,1,2,ie) &
+                              * s(2, j, 1, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,1,2,ie) &
+                              * s(3, j, 1, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,1,2,ie) &
+                              * s(4, j, 1, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,1,2,ie) &
+                              * s(5, j, 1, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,1,2,ie) &
+                              * s(6, j, 1, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,1,2,ie) &
+                              * s(7, j, 1, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,1,2,ie) &
+                              * s(8, j, 1, 2, ie) &
                             + wrk(l + n * (9 - 1) + nn * (i - 1), ie) &
-                              * s(9,j,1,2,ie) &
+                              * s(9, j, 1, 2, ie) &
                             + wrk(l + n * (10 - 1) + nn * (i - 1), ie) &
-                              * s(10,j,1,2,ie) &
+                              * s(10, j, 1, 2, ie) &
                             + wrk(l + n * (11 - 1) + nn * (i - 1), ie) &
-                              * s(11,j,1,2,ie) &
+                              * s(11, j, 1, 2, ie) &
                             + wrk(l + n * (12 - 1) + nn * (i - 1), ie) &
-                              * s(12,j,1,2,ie) &
+                              * s(12, j, 1, 2, ie) &
                             + wrk(l + n * (13 - 1) + nn * (i - 1), ie) &
-                              * s(13,j,1,2,ie)
+                              * s(13, j, 1, 2, ie)
              end do
           end do
        end do
@@ -451,7 +453,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 1, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 1, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 1, 3, ie) &
@@ -469,26 +471,26 @@ contains
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,1,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,1,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,1,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,1,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,1,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,1,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,1,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,1,1,ie) * r(8 + n * (j - 1), ie) &
-                         + s(i,9,1,1,ie) * r(9 + n * (j - 1), ie) &
-                         + s(i,10,1,1,ie) * r(10 + n * (j - 1), ie) &
-                         + s(i,11,1,1,ie) * r(11 + n * (j - 1), ie) &
-                         + s(i,12,1,1,ie) * r(12 + n * (j - 1), ie) &
-                         + s(i,13,1,1,ie) * r(13 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 1, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 1, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 1, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 1, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 1, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 1, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 1, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 1, 1, ie) * r(8 + n * (j - 1), ie) &
+                         + s(i, 9, 1, 1, ie) * r(9 + n * (j - 1), ie) &
+                         + s(i, 10, 1, 1, ie) * r(10 + n * (j - 1), ie) &
+                         + s(i, 11, 1, 1, ie) * r(11 + n * (j - 1), ie) &
+                         + s(i, 12, 1, 1, ie) * r(12 + n * (j - 1), ie) &
+                         + s(i, 13, 1, 1, ie) * r(13 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -498,32 +500,32 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,2,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 2, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,2,2,ie) &
+                              * s(2, j, 2, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,2,2,ie) &
+                              * s(3, j, 2, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,2,2,ie) &
+                              * s(4, j, 2, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,2,2,ie) &
+                              * s(5, j, 2, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,2,2,ie) &
+                              * s(6, j, 2, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,2,2,ie) &
+                              * s(7, j, 2, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,2,2,ie) &
+                              * s(8, j, 2, 2, ie) &
                             + wrk(l + n * (9 - 1) + nn * (i - 1), ie) &
-                              * s(9,j,2,2,ie) &
+                              * s(9, j, 2, 2, ie) &
                             + wrk(l + n * (10 - 1) + nn * (i - 1), ie) &
-                              * s(10,j,2,2,ie) &
+                              * s(10, j, 2, 2, ie) &
                             + wrk(l + n * (11 - 1) + nn * (i - 1), ie) &
-                              * s(11,j,2,2,ie) &
+                              * s(11, j, 2, 2, ie) &
                             + wrk(l + n * (12 - 1) + nn * (i - 1), ie) &
-                              * s(12,j,2,2,ie) &
+                              * s(12, j, 2, 2, ie) &
                             + wrk(l + n * (13 - 1) + nn * (i - 1), ie) &
-                              * s(13,j,2,2,ie)
+                              * s(13, j, 2, 2, ie)
              end do
           end do
        end do
@@ -533,7 +535,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 2, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 2, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 2, 3, ie) &
@@ -560,27 +562,27 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, l, ii, jj
+    integer :: ie, i, j, l, ii, jj
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,2,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,2,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,2,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,2,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,2,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,2,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,2,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,2,1,ie) * r(8 + n * (j - 1), ie) &
-                         + s(i,9,2,1,ie) * r(9 + n * (j - 1), ie) &
-                         + s(i,10,2,1,ie) * r(10 + n * (j - 1), ie) &
-                         + s(i,11,2,1,ie) * r(11 + n * (j - 1), ie) &
-                         + s(i,12,2,1,ie) * r(12 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 2, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 2, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 2, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 2, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 2, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 2, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 2, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 2, 1, ie) * r(8 + n * (j - 1), ie) &
+                         + s(i, 9, 2, 1, ie) * r(9 + n * (j - 1), ie) &
+                         + s(i, 10, 2, 1, ie) * r(10 + n * (j - 1), ie) &
+                         + s(i, 11, 2, 1, ie) * r(11 + n * (j - 1), ie) &
+                         + s(i, 12, 2, 1, ie) * r(12 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -590,30 +592,30 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,1,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 1, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,1,2,ie) &
+                              * s(2, j, 1, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,1,2,ie) &
+                              * s(3, j, 1, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,1,2,ie) &
+                              * s(4, j, 1, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,1,2,ie) &
+                              * s(5, j, 1, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,1,2,ie) &
+                              * s(6, j, 1, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,1,2,ie) &
+                              * s(7, j, 1, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,1,2,ie) &
+                              * s(8, j, 1, 2, ie) &
                             + wrk(l + n * (9 - 1) + nn * (i - 1), ie) &
-                              * s(9,j,1,2,ie) &
+                              * s(9, j, 1, 2, ie) &
                             + wrk(l + n * (10 - 1) + nn * (i - 1), ie) &
-                              * s(10,j,1,2,ie) &
+                              * s(10, j, 1, 2, ie) &
                             + wrk(l + n * (11 - 1) + nn * (i - 1), ie) &
-                              * s(11,j,1,2,ie) &
+                              * s(11, j, 1, 2, ie) &
                             + wrk(l + n * (12 - 1) + nn * (i - 1), ie) &
-                              * s(12,j,1,2,ie)
+                              * s(12, j, 1, 2, ie)
              end do
           end do
        end do
@@ -623,7 +625,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 1, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 1, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 1, 3, ie) &
@@ -640,25 +642,25 @@ contains
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,1,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,1,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,1,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,1,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,1,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,1,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,1,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,1,1,ie) * r(8 + n * (j - 1), ie) &
-                         + s(i,9,1,1,ie) * r(9 + n * (j - 1), ie) &
-                         + s(i,10,1,1,ie) * r(10 + n * (j - 1), ie) &
-                         + s(i,11,1,1,ie) * r(11 + n * (j - 1), ie) &
-                         + s(i,12,1,1,ie) * r(12 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 1, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 1, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 1, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 1, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 1, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 1, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 1, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 1, 1, ie) * r(8 + n * (j - 1), ie) &
+                         + s(i, 9, 1, 1, ie) * r(9 + n * (j - 1), ie) &
+                         + s(i, 10, 1, 1, ie) * r(10 + n * (j - 1), ie) &
+                         + s(i, 11, 1, 1, ie) * r(11 + n * (j - 1), ie) &
+                         + s(i, 12, 1, 1, ie) * r(12 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -668,30 +670,30 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,2,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 2, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,2,2,ie) &
+                              * s(2, j, 2, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,2,2,ie) &
+                              * s(3, j, 2, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,2,2,ie) &
+                              * s(4, j, 2, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,2,2,ie) &
+                              * s(5, j, 2, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,2,2,ie) &
+                              * s(6, j, 2, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,2,2,ie) &
+                              * s(7, j, 2, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,2,2,ie) &
+                              * s(8, j, 2, 2, ie) &
                             + wrk(l + n * (9 - 1) + nn * (i - 1), ie) &
-                              * s(9,j,2,2,ie) &
+                              * s(9, j, 2, 2, ie) &
                             + wrk(l + n * (10 - 1) + nn * (i - 1), ie) &
-                              * s(10,j,2,2,ie) &
+                              * s(10, j, 2, 2, ie) &
                             + wrk(l + n * (11 - 1) + nn * (i - 1), ie) &
-                              * s(11,j,2,2,ie) &
+                              * s(11, j, 2, 2, ie) &
                             + wrk(l + n * (12 - 1) + nn * (i - 1), ie) &
-                              * s(12,j,2,2,ie)
+                              * s(12, j, 2, 2, ie)
              end do
           end do
        end do
@@ -701,7 +703,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 2, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 2, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 2, 3, ie) &
@@ -727,26 +729,26 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, l, ii, jj
+    integer :: ie, i, j, l, ii, jj
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,2,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,2,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,2,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,2,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,2,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,2,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,2,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,2,1,ie) * r(8 + n * (j - 1), ie) &
-                         + s(i,9,2,1,ie) * r(9 + n * (j - 1), ie) &
-                         + s(i,10,2,1,ie) * r(10 + n * (j - 1), ie) &
-                         + s(i,11,2,1,ie) * r(11 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 2, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 2, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 2, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 2, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 2, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 2, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 2, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 2, 1, ie) * r(8 + n * (j - 1), ie) &
+                         + s(i, 9, 2, 1, ie) * r(9 + n * (j - 1), ie) &
+                         + s(i, 10, 2, 1, ie) * r(10 + n * (j - 1), ie) &
+                         + s(i, 11, 2, 1, ie) * r(11 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -756,28 +758,28 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,1,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 1, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,1,2,ie) &
+                              * s(2, j, 1, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,1,2,ie) &
+                              * s(3, j, 1, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,1,2,ie) &
+                              * s(4, j, 1, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,1,2,ie) &
+                              * s(5, j, 1, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,1,2,ie) &
+                              * s(6, j, 1, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,1,2,ie) &
+                              * s(7, j, 1, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,1,2,ie) &
+                              * s(8, j, 1, 2, ie) &
                             + wrk(l + n * (9 - 1) + nn * (i - 1), ie) &
-                              * s(9,j,1,2,ie) &
+                              * s(9, j, 1, 2, ie) &
                             + wrk(l + n * (10 - 1) + nn * (i - 1), ie) &
-                              * s(10,j,1,2,ie) &
+                              * s(10, j, 1, 2, ie) &
                             + wrk(l + n * (11 - 1) + nn * (i - 1), ie) &
-                              * s(11,j,1,2,ie)
+                              * s(11, j, 1, 2, ie)
              end do
           end do
        end do
@@ -787,7 +789,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 1, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 1, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 1, 3, ie) &
@@ -803,24 +805,24 @@ contains
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,1,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,1,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,1,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,1,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,1,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,1,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,1,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,1,1,ie) * r(8 + n * (j - 1), ie) &
-                         + s(i,9,1,1,ie) * r(9 + n * (j - 1), ie) &
-                         + s(i,10,1,1,ie) * r(10 + n * (j - 1), ie) &
-                         + s(i,11,1,1,ie) * r(11 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 1, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 1, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 1, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 1, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 1, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 1, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 1, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 1, 1, ie) * r(8 + n * (j - 1), ie) &
+                         + s(i, 9, 1, 1, ie) * r(9 + n * (j - 1), ie) &
+                         + s(i, 10, 1, 1, ie) * r(10 + n * (j - 1), ie) &
+                         + s(i, 11, 1, 1, ie) * r(11 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -830,28 +832,28 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,2,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 2, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,2,2,ie) &
+                              * s(2, j, 2, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,2,2,ie) &
+                              * s(3, j, 2, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,2,2,ie) &
+                              * s(4, j, 2, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,2,2,ie) &
+                              * s(5, j, 2, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,2,2,ie) &
+                              * s(6, j, 2, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,2,2,ie) &
+                              * s(7, j, 2, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,2,2,ie) &
+                              * s(8, j, 2, 2, ie) &
                             + wrk(l + n * (9 - 1) + nn * (i - 1), ie) &
-                              * s(9,j,2,2,ie) &
+                              * s(9, j, 2, 2, ie) &
                             + wrk(l + n * (10 - 1) + nn * (i - 1), ie) &
-                              * s(10,j,2,2,ie) &
+                              * s(10, j, 2, 2, ie) &
                             + wrk(l + n * (11 - 1) + nn * (i - 1), ie) &
-                              * s(11,j,2,2,ie)
+                              * s(11, j, 2, 2, ie)
              end do
           end do
        end do
@@ -861,7 +863,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 2, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 2, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 2, 3, ie) &
@@ -886,25 +888,25 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, l, ii, jj
+    integer :: ie, i, j, l, ii, jj
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,2,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,2,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,2,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,2,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,2,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,2,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,2,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,2,1,ie) * r(8 + n * (j - 1), ie) &
-                         + s(i,9,2,1,ie) * r(9 + n * (j - 1), ie) &
-                         + s(i,10,2,1,ie) * r(10 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 2, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 2, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 2, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 2, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 2, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 2, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 2, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 2, 1, ie) * r(8 + n * (j - 1), ie) &
+                         + s(i, 9, 2, 1, ie) * r(9 + n * (j - 1), ie) &
+                         + s(i, 10, 2, 1, ie) * r(10 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -914,26 +916,26 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,1,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 1, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,1,2,ie) &
+                              * s(2, j, 1, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,1,2,ie) &
+                              * s(3, j, 1, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,1,2,ie) &
+                              * s(4, j, 1, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,1,2,ie) &
+                              * s(5, j, 1, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,1,2,ie) &
+                              * s(6, j, 1, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,1,2,ie) &
+                              * s(7, j, 1, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,1,2,ie) &
+                              * s(8, j, 1, 2, ie) &
                             + wrk(l + n * (9 - 1) + nn * (i - 1), ie) &
-                              * s(9,j,1,2,ie) &
+                              * s(9, j, 1, 2, ie) &
                             + wrk(l + n * (10 - 1) + nn * (i - 1), ie) &
-                              * s(10,j,1,2,ie)
+                              * s(10, j, 1, 2, ie)
              end do
           end do
        end do
@@ -943,7 +945,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 1, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 1, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 1, 3, ie) &
@@ -958,23 +960,23 @@ contains
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,1,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,1,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,1,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,1,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,1,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,1,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,1,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,1,1,ie) * r(8 + n * (j - 1), ie) &
-                         + s(i,9,1,1,ie) * r(9 + n * (j - 1), ie) &
-                         + s(i,10,1,1,ie) * r(10 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 1, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 1, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 1, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 1, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 1, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 1, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 1, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 1, 1, ie) * r(8 + n * (j - 1), ie) &
+                         + s(i, 9, 1, 1, ie) * r(9 + n * (j - 1), ie) &
+                         + s(i, 10, 1, 1, ie) * r(10 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -984,26 +986,26 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,2,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 2, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,2,2,ie) &
+                              * s(2, j, 2, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,2,2,ie) &
+                              * s(3, j, 2, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,2,2,ie) &
+                              * s(4, j, 2, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,2,2,ie) &
+                              * s(5, j, 2, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,2,2,ie) &
+                              * s(6, j, 2, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,2,2,ie) &
+                              * s(7, j, 2, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,2,2,ie) &
+                              * s(8, j, 2, 2, ie) &
                             + wrk(l + n * (9 - 1) + nn * (i - 1), ie) &
-                              * s(9,j,2,2,ie) &
+                              * s(9, j, 2, 2, ie) &
                             + wrk(l + n * (10 - 1) + nn * (i - 1), ie) &
-                              * s(10,j,2,2,ie)
+                              * s(10, j, 2, 2, ie)
              end do
           end do
        end do
@@ -1013,7 +1015,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 2, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 2, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 2, 3, ie) &
@@ -1037,24 +1039,24 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, l, ii, jj
+    integer :: ie, i, j, l, ii, jj
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,2,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,2,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,2,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,2,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,2,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,2,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,2,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,2,1,ie) * r(8 + n * (j - 1), ie) &
-                         + s(i,9,2,1,ie) * r(9 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 2, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 2, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 2, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 2, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 2, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 2, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 2, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 2, 1, ie) * r(8 + n * (j - 1), ie) &
+                         + s(i, 9, 2, 1, ie) * r(9 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1064,24 +1066,24 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,1,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 1, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,1,2,ie) &
+                              * s(2, j, 1, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,1,2,ie) &
+                              * s(3, j, 1, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,1,2,ie) &
+                              * s(4, j, 1, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,1,2,ie) &
+                              * s(5, j, 1, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,1,2,ie) &
+                              * s(6, j, 1, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,1,2,ie) &
+                              * s(7, j, 1, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,1,2,ie) &
+                              * s(8, j, 1, 2, ie) &
                             + wrk(l + n * (9 - 1) + nn * (i - 1), ie) &
-                              * s(9,j,1,2,ie)
+                              * s(9, j, 1, 2, ie)
              end do
           end do
        end do
@@ -1091,7 +1093,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 1, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 1, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 1, 3, ie) &
@@ -1105,22 +1107,22 @@ contains
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,1,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,1,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,1,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,1,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,1,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,1,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,1,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,1,1,ie) * r(8 + n * (j - 1), ie) &
-                         + s(i,9,1,1,ie) * r(9 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 1, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 1, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 1, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 1, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 1, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 1, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 1, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 1, 1, ie) * r(8 + n * (j - 1), ie) &
+                         + s(i, 9, 1, 1, ie) * r(9 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1130,24 +1132,24 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,2,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 2, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,2,2,ie) &
+                              * s(2, j, 2, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,2,2,ie) &
+                              * s(3, j, 2, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,2,2,ie) &
+                              * s(4, j, 2, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,2,2,ie) &
+                              * s(5, j, 2, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,2,2,ie) &
+                              * s(6, j, 2, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,2,2,ie) &
+                              * s(7, j, 2, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,2,2,ie) &
+                              * s(8, j, 2, 2, ie) &
                             + wrk(l + n * (9 - 1) + nn * (i - 1), ie) &
-                              * s(9,j,2,2,ie)
+                              * s(9, j, 2, 2, ie)
              end do
           end do
        end do
@@ -1157,7 +1159,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 2, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 2, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 2, 3, ie) &
@@ -1180,23 +1182,23 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, l, ii, jj
+    integer :: ie, i, j, l, ii, jj
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,2,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,2,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,2,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,2,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,2,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,2,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,2,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,2,1,ie) * r(8 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 2, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 2, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 2, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 2, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 2, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 2, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 2, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 2, 1, ie) * r(8 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1206,22 +1208,22 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,1,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 1, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,1,2,ie) &
+                              * s(2, j, 1, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,1,2,ie) &
+                              * s(3, j, 1, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,1,2,ie) &
+                              * s(4, j, 1, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,1,2,ie) &
+                              * s(5, j, 1, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,1,2,ie) &
+                              * s(6, j, 1, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,1,2,ie) &
+                              * s(7, j, 1, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,1,2,ie)
+                              * s(8, j, 1, 2, ie)
              end do
           end do
        end do
@@ -1231,7 +1233,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 1, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 1, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 1, 3, ie) &
@@ -1244,21 +1246,21 @@ contains
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,1,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,1,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,1,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,1,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,1,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,1,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,1,1,ie) * r(7 + n * (j - 1), ie) &
-                         + s(i,8,1,1,ie) * r(8 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 1, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 1, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 1, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 1, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 1, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 1, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 1, 1, ie) * r(7 + n * (j - 1), ie) &
+                         + s(i, 8, 1, 1, ie) * r(8 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1268,22 +1270,22 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,2,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 2, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,2,2,ie) &
+                              * s(2, j, 2, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,2,2,ie) &
+                              * s(3, j, 2, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,2,2,ie) &
+                              * s(4, j, 2, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,2,2,ie) &
+                              * s(5, j, 2, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,2,2,ie) &
+                              * s(6, j, 2, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,2,2,ie) &
+                              * s(7, j, 2, 2, ie) &
                             + wrk(l + n * (8 - 1) + nn * (i - 1), ie) &
-                              * s(8,j,2,2,ie)
+                              * s(8, j, 2, 2, ie)
              end do
           end do
        end do
@@ -1293,7 +1295,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 2, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 2, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 2, 3, ie) &
@@ -1315,22 +1317,22 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, l, ii, jj
+    integer :: ie, i, j, l, ii, jj
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,2,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,2,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,2,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,2,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,2,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,2,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,2,1,ie) * r(7 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 2, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 2, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 2, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 2, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 2, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 2, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 2, 1, ie) * r(7 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1340,20 +1342,20 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,1,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 1, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,1,2,ie) &
+                              * s(2, j, 1, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,1,2,ie) &
+                              * s(3, j, 1, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,1,2,ie) &
+                              * s(4, j, 1, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,1,2,ie) &
+                              * s(5, j, 1, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,1,2,ie) &
+                              * s(6, j, 1, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,1,2,ie)
+                              * s(7, j, 1, 2, ie)
              end do
           end do
        end do
@@ -1363,7 +1365,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 1, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 1, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 1, 3, ie) &
@@ -1375,20 +1377,20 @@ contains
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,1,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,1,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,1,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,1,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,1,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,1,1,ie) * r(6 + n * (j - 1), ie) &
-                         + s(i,7,1,1,ie) * r(7 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 1, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 1, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 1, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 1, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 1, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 1, 1, ie) * r(6 + n * (j - 1), ie) &
+                         + s(i, 7, 1, 1, ie) * r(7 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1398,20 +1400,20 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,2,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 2, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,2,2,ie) &
+                              * s(2, j, 2, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,2,2,ie) &
+                              * s(3, j, 2, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,2,2,ie) &
+                              * s(4, j, 2, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,2,2,ie) &
+                              * s(5, j, 2, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,2,2,ie) &
+                              * s(6, j, 2, 2, ie) &
                             + wrk(l + n * (7 - 1) + nn * (i - 1), ie) &
-                              * s(7,j,2,2,ie)
+                              * s(7, j, 2, 2, ie)
              end do
           end do
        end do
@@ -1421,7 +1423,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 2, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 2, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 2, 3, ie) &
@@ -1442,21 +1444,21 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, l, ii, jj
+    integer :: ie, i, j, l, ii, jj
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,2,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,2,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,2,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,2,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,2,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,2,1,ie) * r(6 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 2, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 2, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 2, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 2, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 2, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 2, 1, ie) * r(6 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1466,18 +1468,18 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,1,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 1, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,1,2,ie) &
+                              * s(2, j, 1, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,1,2,ie) &
+                              * s(3, j, 1, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,1,2,ie) &
+                              * s(4, j, 1, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,1,2,ie) &
+                              * s(5, j, 1, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,1,2,ie)
+                              * s(6, j, 1, 2, ie)
              end do
           end do
        end do
@@ -1487,7 +1489,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 1, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 1, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 1, 3, ie) &
@@ -1498,19 +1500,19 @@ contains
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,1,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,1,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,1,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,1,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,1,1,ie) * r(5 + n * (j - 1), ie) &
-                         + s(i,6,1,1,ie) * r(6 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 1, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 1, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 1, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 1, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 1, 1, ie) * r(5 + n * (j - 1), ie) &
+                         + s(i, 6, 1, 1, ie) * r(6 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1520,18 +1522,18 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,2,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 2, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,2,2,ie) &
+                              * s(2, j, 2, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,2,2,ie) &
+                              * s(3, j, 2, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,2,2,ie) &
+                              * s(4, j, 2, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,2,2,ie) &
+                              * s(5, j, 2, 2, ie) &
                             + wrk(l + n * (6 - 1) + nn * (i - 1), ie) &
-                              * s(6,j,2,2,ie)
+                              * s(6, j, 2, 2, ie)
              end do
           end do
        end do
@@ -1541,7 +1543,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 2, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 2, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 2, 3, ie) &
@@ -1561,20 +1563,20 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, l, ii, jj
+    integer :: ie, i, j, l, ii, jj
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,2,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,2,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,2,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,2,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,2,1,ie) * r(5 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 2, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 2, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 2, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 2, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 2, 1, ie) * r(5 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1584,16 +1586,16 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,1,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 1, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,1,2,ie) &
+                              * s(2, j, 1, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,1,2,ie) &
+                              * s(3, j, 1, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,1,2,ie) &
+                              * s(4, j, 1, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,1,2,ie)
+                              * s(5, j, 1, 2, ie)
              end do
           end do
        end do
@@ -1603,7 +1605,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 1, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 1, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 1, 3, ie) &
@@ -1613,18 +1615,18 @@ contains
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,1,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,1,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,1,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,1,1,ie) * r(4 + n * (j - 1), ie) &
-                         + s(i,5,1,1,ie) * r(5 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 1, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 1, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 1, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 1, 1, ie) * r(4 + n * (j - 1), ie) &
+                         + s(i, 5, 1, 1, ie) * r(5 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1634,16 +1636,16 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,2,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 2, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,2,2,ie) &
+                              * s(2, j, 2, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,2,2,ie) &
+                              * s(3, j, 2, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,2,2,ie) &
+                              * s(4, j, 2, 2, ie) &
                             + wrk(l + n * (5 - 1) + nn * (i - 1), ie) &
-                              * s(5,j,2,2,ie)
+                              * s(5, j, 2, 2, ie)
              end do
           end do
        end do
@@ -1653,7 +1655,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 2, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 2, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 2, 3, ie) &
@@ -1672,19 +1674,19 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, l, ii, jj
+    integer :: ie, i, j, l, ii, jj
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,2,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,2,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,2,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,2,1,ie) * r(4 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 2, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 2, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 2, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 2, 1, ie) * r(4 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1694,14 +1696,14 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,1,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 1, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,1,2,ie) &
+                              * s(2, j, 1, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,1,2,ie) &
+                              * s(3, j, 1, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,1,2,ie)
+                              * s(4, j, 1, 2, ie)
              end do
           end do
        end do
@@ -1711,7 +1713,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 1, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 1, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 1, 3, ie)
@@ -1720,17 +1722,17 @@ contains
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,1,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,1,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,1,1,ie) * r(3 + n * (j - 1), ie) &
-                         + s(i,4,1,1,ie) * r(4 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 1, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 1, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 1, 1, ie) * r(3 + n * (j - 1), ie) &
+                         + s(i, 4, 1, 1, ie) * r(4 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1740,14 +1742,14 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,2,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 2, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,2,2,ie) &
+                              * s(2, j, 2, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,2,2,ie) &
+                              * s(3, j, 2, 2, ie) &
                             + wrk(l + n * (4 - 1) + nn * (i - 1), ie) &
-                              * s(4,j,2,2,ie)
+                              * s(4, j, 2, 2, ie)
              end do
           end do
        end do
@@ -1757,7 +1759,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 2, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 2, 3, ie) &
                       + wrk2(i + nn * (4 - 1), ie) * s(4, j, 2, 3, ie)
@@ -1775,18 +1777,18 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, l, ii, jj
+    integer :: ie, i, j, l, ii, jj
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,2,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,2,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,2,1,ie) * r(3 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 2, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 2, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 2, 1, ie) * r(3 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1796,12 +1798,12 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,1,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 1, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,1,2,ie) &
+                              * s(2, j, 1, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,1,2,ie)
+                              * s(3, j, 1, 2, ie)
              end do
           end do
        end do
@@ -1811,7 +1813,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 1, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 1, 3, ie)
           end do
@@ -1819,16 +1821,16 @@ contains
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,1,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,1,1,ie) * r(2 + n * (j - 1), ie) &
-                         + s(i,3,1,1,ie) * r(3 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 1, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 1, 1, ie) * r(2 + n * (j - 1), ie) &
+                         + s(i, 3, 1, 1, ie) * r(3 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1838,12 +1840,12 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,2,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 2, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,2,2,ie) &
+                              * s(2, j, 2, 2, ie) &
                             + wrk(l + n * (3 - 1) + nn * (i - 1), ie) &
-                              * s(3,j,2,2,ie)
+                              * s(3, j, 2, 2, ie)
              end do
           end do
        end do
@@ -1853,7 +1855,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 2, 3, ie) &
                       + wrk2(i + nn * (3 - 1), ie) * s(3, j, 2, 3, ie)
           end do
@@ -1870,17 +1872,17 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: e(n**3, nelv)
     real(kind=rp), intent(inout) :: r(n**3, nelv)
-    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: s(n, n, 2, 3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, l, ii, jj
+    integer :: ie, i, j, l, ii, jj
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,2,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,2,1,ie) * r(2 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 2, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 2, 1, ie) * r(2 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1890,10 +1892,10 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,1,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 1, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,1,2,ie)
+                              * s(2, j, 1, 2, ie)
              end do
           end do
        end do
@@ -1903,22 +1905,22 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 1, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 1, 3, ie)
           end do
        end do
     end do
 
     do i = 1, nnn * nelv
-       r(i,1) = d(i,1) * e(i,1)
+       r(i, 1) = d(i, 1) * e(i, 1)
     end do
 
     do j = 1, nn
        do i = 1, n
           do ie = 1, nelv
              ii = i + n * (j - 1)
-             wrk(ii, ie) = s(i,1,1,1,ie) * r(1 + n * (j - 1), ie) &
-                         + s(i,2,1,1,ie) * r(2 + n * (j - 1), ie)
+             wrk(ii, ie) = s(i, 1, 1, 1, ie) * r(1 + n * (j - 1), ie) &
+                         + s(i, 2, 1, 1, ie) * r(2 + n * (j - 1), ie)
           end do
        end do
     end do
@@ -1928,10 +1930,10 @@ contains
           do l = 1, n
              do ie = 1, nelv
                 ii = l + n * (j - 1) + nn * (i - 1)
-                wrk2(ii,ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
-                              * s(1,j,2,2,ie) &
+                wrk2(ii, ie) = wrk(l + n * (1 - 1) + nn * (i - 1), ie) &
+                              * s(1, j, 2, 2, ie) &
                             + wrk(l + n * (2 - 1) + nn * (i - 1), ie) &
-                              * s(2,j,2,2,ie)
+                              * s(2, j, 2, 2, ie)
              end do
           end do
        end do
@@ -1941,7 +1943,7 @@ contains
        do i = 1, nn
           do ie = 1, nelv
              jj = i + nn * (j - 1)
-             e(jj,ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
+             e(jj, ie) = wrk2(i + nn * (1 - 1), ie) * s(1, j, 2, 3, ie) &
                       + wrk2(i + nn * (2 - 1), ie) * s(2, j, 2, 3, ie)
           end do
        end do

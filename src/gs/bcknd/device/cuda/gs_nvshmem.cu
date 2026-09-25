@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2024-2025, The Neko Authors
+ Copyright (c) 2024-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@
 #include <device/cuda/check.h>
 #ifdef HAVE_NVSHMEM
 #include <nvshmem.h>
+#include "gs_kernels.h"
 #include "gs_nvshmem_kernels.h"
 #endif
 
@@ -48,40 +49,99 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
     cudaMemset(*ptr, 0, size);
     CUDA_CHECK(cudaGetLastError());
-  }    
-  
+  }
+
   void cudafree_nvshmem(void** ptr, size_t size)
   {
     nvshmem_free(*ptr);
     CUDA_CHECK(cudaGetLastError());
   }
-  
-  void cuda_gs_pack_and_push(void *u_d, void *sbuf_d, void *sdof_d,
-                             int soffset, int n, cudaStream_t stream,
-                             int srank,  void *rbuf_d, int roffset, int* remote_offset,
-			     int rrank, int counter, void* notifyDone, void* notifyReady,
-			     int iter)
 
+  /**
+   * Bulk-pack every peer's slab into one parity half of the double-buffered
+   * send buffer. boffset is the parity slab offset (in elements); the dof
+   * map always starts at 0 and covers all peers. Launched on the main
+   * stream in nbsend, before any per-peer work, so every read of u
+   * precedes any unpack write to u (see gs_nvshmem_kernels.h).
+   */
+  void cuda_gs_nvshmem_pack(void *u_d, void *buf_d, void *dof_d,
+                            int boffset, int n, cudaStream_t stream)
   {
-    
-    const int nthrds = 1024;
-    const int nblcks = (n+nthrds-1)/nthrds;
+    if (n == 0) return;
 
-    pack_pushShmemKernel<real>
-      <<<nblcks,nthrds,0,stream>>>((real *) u_d,
-                                   (real *) rbuf_d + remote_offset[iter-1],
-                                   (real *) sbuf_d + soffset,
-                                   (int *) sdof_d + soffset,
-                                   srank, rrank, n, counter,
-                                   (uint64_t*) notifyDone,
-                                   (uint64_t*) notifyReady);         
+    const int nthrds = 1024;
+    const int nblcks = (n + nthrds - 1) / nthrds;
+
+    gs_pack_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) buf_d + boffset,
+                                      (int *) dof_d, n);
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void cuda_gs_pack_and_push_wait(cudaStream_t stream, int counter, void* notifyDone)
+  /**
+   * Fused nc-component bulk pack (see cuda_gs_nvshmem_pack). u_d is the
+   * compact shared buffer (component-outer, per-component stride ns);
+   * buf_d is interleaved (nc per position).
+   */
+  void cuda_gs_nvshmem_pack_vec(void *u_d, void *buf_d, void *dof_d,
+                                int boffset, int n, int nc, int ns,
+                                cudaStream_t stream)
   {
-    uint64_t counter_ = (uint64_t) counter;
-    pushShmemKernelWait<<<1,1,0,stream>>>(counter_,(uint64_t*) notifyDone);
+    if (n == 0) return;
+
+    const int nthrds = 1024;
+    const int nblcks = (n + nthrds - 1) / nthrds;
+
+    gs_pack_vec_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) buf_d + boffset,
+                                      (int *) dof_d, n, nc, ns);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  /**
+   * Push one packed peer slab with rank-indexed signaling. soffset/roffset/n
+   * are in elements (the fused vector path passes nc-scaled values); roffset
+   * is the offset in the destination's recv buffer where our slab lands;
+   * done_d and ready_d are the symmetric rank-indexed signal arrays; mype is
+   * our rank. Single-block launch (see gs_nvshmem_kernels.h).
+   */
+  void cuda_gs_push(void *sbuf_d, int soffset, int n, cudaStream_t stream,
+                    int destRank, void *rbuf_d, int roffset, int iter,
+                    void *done_d, void *ready_d, int mype)
+  {
+    const int nthrds = 1024;
+
+    pushShmemKernel<real>
+      <<<1,nthrds,0,stream>>>((real *) rbuf_d + roffset,
+                              (real *) sbuf_d + soffset,
+                              (size_t) n, destRank, (uint64_t) iter,
+                              (uint64_t *) done_d + mype,
+                              (uint64_t *) ready_d + destRank);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  /**
+   * Wait until the slab from srcRank has landed (our local done_sig[srcRank]
+   * reaches iter).
+   */
+  void cuda_gs_push_wait(cudaStream_t stream, int iter,
+                         void *done_d, int srcRank)
+  {
+    pushShmemKernelWait<<<1,1,0,stream>>>((uint64_t) iter,
+                                          (uint64_t *) done_d + srcRank);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  /**
+   * Post our ready signal to srcRank (sets ready_sig[mype] = iter there),
+   * allowing it to overwrite its send slab for the next round. Launch after
+   * the unpack on the same stream.
+   */
+  void cuda_gs_post_ready(cudaStream_t stream, int iter, void *ready_d,
+                          int mype, int srcRank)
+  {
+    postReadyShmemKernel<<<1,1,0,stream>>>((uint64_t *) ready_d + mype,
+                                           (uint64_t) iter, srcRank);
     CUDA_CHECK(cudaGetLastError());
   }
 #endif
