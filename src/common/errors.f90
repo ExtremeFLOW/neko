@@ -32,8 +32,9 @@
 !
 !> Errors that can be thrown by Neko.
 !! @details Various error handling routines that can be used in the code.
-!! They use the throw_error and throw_warning mechanisms defined in utils.f90
-!! in order to allow pFUnit to catch them during testing.
+!! They report through raise_error and raise_warning defined in utils.f90,
+!! which call the throw_error and throw_warning procedure pointers, so that
+!! pFUnit can catch them during testing.
 submodule (utils) errors
   implicit none
 
@@ -58,8 +59,7 @@ contains
     end do
 
     flush(error_unit)
-    if (.not. associated(throw_error)) throw_error => default_throw_error
-    call throw_error('errors.f90', -1, message='')
+    call raise_error('errors.f90', -1, message='')
   end subroutine neko_type_error
 
   !> Reports a type registration error and stops execution.
@@ -83,8 +83,7 @@ contains
     end if
 
     flush(error_unit)
-    if (.not. associated(throw_error)) throw_error => default_throw_error
-    call throw_error('errors.f90', -1, message='')
+    call raise_error('errors.f90', -1, message='')
   end subroutine neko_type_registration_error
 
   !> Reports a warning to standard output
@@ -94,8 +93,7 @@ contains
     write(output_unit, *) '*** WARNING: ', trim(warning_msg), ' ***'
     flush(output_unit)
 
-    if (.not. associated(throw_warning)) throw_warning => default_throw_warning
-    call throw_warning('errors.f90', -1, message='')
+    call raise_warning('errors.f90', -1, message='')
   end subroutine neko_warning
 
   !> Reports an error and stops execution.
@@ -114,8 +112,7 @@ contains
     end if
 
     flush(error_unit)
-    if (.not. associated(throw_error)) throw_error => default_throw_error
-    call throw_error('errors.f90', -1, message='')
+    call raise_error('errors.f90', -1, message='')
   end subroutine neko_error_plain
 
   !> Reports an error and stops execution.
@@ -127,8 +124,7 @@ contains
     write(error_unit, *) '*** ERROR: ', trim(error_msg), ' ***'
 
     flush(error_unit)
-    if (.not. associated(throw_error)) throw_error => default_throw_error
-    call throw_error('errors.f90', -1, message='')
+    call raise_error('errors.f90', -1, message='')
   end subroutine neko_error_msg
 
 

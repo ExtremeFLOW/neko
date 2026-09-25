@@ -46,6 +46,11 @@ module utils
      module procedure neko_error_plain, neko_error_msg
   end interface neko_error
 
+  interface read_duration
+     module procedure read_duration_scalar
+     module procedure read_duration_components
+  end interface read_duration
+
   !! Interfaces for error and warning routines found in the
   !! errors submodule.
   interface
@@ -111,8 +116,8 @@ module utils
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
        concat_string_array, extract_fld_file_index, neko_type_error, &
        neko_type_registration_error, throw_error, throw_warning, throw_intf, &
-       default_throw_error, default_throw_warning, NEKO_VARNAME_LEN, mkdir, &
-       read_duration
+       default_throw_error, default_throw_warning, raise_error, raise_warning, &
+       NEKO_VARNAME_LEN, mkdir, read_duration
 
   interface
      function c_mkdir(path, mode) bind(C, name="mkdir")
@@ -142,6 +147,40 @@ contains
 
     error stop
   end subroutine default_throw_error
+
+  !> Call the procedure that throw_error points to, after making sure the
+  !! pointer is associated.
+  !! @details This wrapper exists so that the errors submodule never
+  !! references throw_error directly. With gfortran on aarch64 and
+  !! optimisation enabled, a procedure pointer variable referenced inside a
+  !! submodule gets a private copy in the submodule object file, so a
+  !! redirection performed through the module variable (as done by the unit
+  !! tests) would not be visible there.
+  !! @param filename Name of the file raising the error.
+  !! @param line_number Line number in the file raising the error.
+  !! @param message Optional message passed on to the throw procedure.
+  subroutine raise_error(filename, line_number, message)
+    character(len=*), intent(in) :: filename
+    integer, intent(in) :: line_number
+    character(len=*), optional, intent(in) :: message
+
+    if (.not. associated(throw_error)) throw_error => default_throw_error
+    call throw_error(filename, line_number, message)
+  end subroutine raise_error
+
+  !> Call the procedure that throw_warning points to, after making sure the
+  !! pointer is associated. See raise_error for why this wrapper exists.
+  !! @param filename Name of the file raising the warning.
+  !! @param line_number Line number in the file raising the warning.
+  !! @param message Optional message passed on to the throw procedure.
+  subroutine raise_warning(filename, line_number, message)
+    character(len=*), intent(in) :: filename
+    integer, intent(in) :: line_number
+    character(len=*), optional, intent(in) :: message
+
+    if (.not. associated(throw_warning)) throw_warning => default_throw_warning
+    call throw_warning(filename, line_number, message)
+  end subroutine raise_warning
 
 
   !> Find position (in the string) of a filename's suffix

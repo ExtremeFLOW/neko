@@ -1,6 +1,6 @@
 module error_redirection
-  use utils, only: throw_error, throw_warning, throw_intf
-  use funit, only: SourceLocation, throw
+  use utils, only : throw_error, throw_warning, throw_intf
+  use funit, only : SourceLocation, throw
 
   implicit none
   private
@@ -24,7 +24,7 @@ contains
     if (present(message)) then
        msg = message
     else
-       msg = '<no message>'
+       msg = '(no message)'
     end if
 
     call throw(msg, SourceLocation(filename, line))
