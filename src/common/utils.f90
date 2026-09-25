@@ -51,48 +51,6 @@ module utils
      module procedure read_duration_components
   end interface read_duration
 
-  !! Interfaces for error and warning routines found in the
-  !! errors submodule.
-  interface
-     !> Reports an error and stops execution.
-     !! @param[optional] error_code The error code to report.
-     module subroutine neko_error_plain(error_code)
-       integer, optional, intent(in) :: error_code
-     end subroutine neko_error_plain
-
-     !> Reports an error and stops execution.
-     !! @param error_msg The error message to report.
-     module subroutine neko_error_msg(error_msg)
-       character(len=*), intent(in) :: error_msg
-     end subroutine neko_error_msg
-     !> Reports a type selection error and stops execution.
-     !! @param base_type The base type for which the selection was attempted.
-     !! @param wrong_type The type that was attempted to be selected.
-     !! @param known_types An array of known valid types.
-     module subroutine neko_type_error(base_type, wrong_type, known_types)
-       character(len=*), intent(in) :: base_type
-       character(len=*), intent(in) :: wrong_type
-       character(len=*), intent(in) :: known_types(:)
-     end subroutine neko_type_error
-
-     !> Reports a type registration error and stops execution.
-     !! @param base_type The base type for which the registration was attempted.
-     !! @param wrong_type The type that was attempted to be registered.
-     !! @param known Whether the conflicting type is known (standard) or custom.
-     module subroutine neko_type_registration_error(base_type, wrong_type, &
-          known)
-       character(len=*), intent(in) :: base_type
-       character(len=*),intent(in) :: wrong_type
-       logical, intent(in) :: known
-     end subroutine neko_type_registration_error
-
-     !> Reports a warning to standard output
-     !! @param warning_msg The warning message to report.
-     module subroutine neko_warning(warning_msg)
-       character(len=*) :: warning_msg
-     end subroutine neko_warning
-  end interface
-
   abstract interface
      !> Interface for the throw procedure. Follows pFunit conventions.
      subroutine throw_intf(filename, line_number, message)
@@ -116,8 +74,8 @@ module utils
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
        concat_string_array, extract_fld_file_index, neko_type_error, &
        neko_type_registration_error, throw_error, throw_warning, throw_intf, &
-       default_throw_error, default_throw_warning, raise_error, raise_warning, &
-       NEKO_VARNAME_LEN, mkdir, read_duration
+       default_throw_error, default_throw_warning, NEKO_VARNAME_LEN, mkdir, &
+       read_duration
 
   interface
      function c_mkdir(path, mode) bind(C, name="mkdir")
@@ -147,41 +105,6 @@ contains
 
     error stop
   end subroutine default_throw_error
-
-  !> Call the procedure that throw_error points to, after making sure the
-  !! pointer is associated.
-  !! @details This wrapper exists so that the errors submodule never
-  !! references throw_error directly. With gfortran on aarch64 and
-  !! optimisation enabled, a procedure pointer variable referenced inside a
-  !! submodule gets a private copy in the submodule object file, so a
-  !! redirection performed through the module variable (as done by the unit
-  !! tests) would not be visible there.
-  !! @param filename Name of the file raising the error.
-  !! @param line_number Line number in the file raising the error.
-  !! @param message Optional message passed on to the throw procedure.
-  subroutine raise_error(filename, line_number, message)
-    character(len=*), intent(in) :: filename
-    integer, intent(in) :: line_number
-    character(len=*), optional, intent(in) :: message
-
-    if (.not. associated(throw_error)) throw_error => default_throw_error
-    call throw_error(filename, line_number, message)
-  end subroutine raise_error
-
-  !> Call the procedure that throw_warning points to, after making sure the
-  !! pointer is associated. See raise_error for why this wrapper exists.
-  !! @param filename Name of the file raising the warning.
-  !! @param line_number Line number in the file raising the warning.
-  !! @param message Optional message passed on to the throw procedure.
-  subroutine raise_warning(filename, line_number, message)
-    character(len=*), intent(in) :: filename
-    integer, intent(in) :: line_number
-    character(len=*), optional, intent(in) :: message
-
-    if (.not. associated(throw_warning)) throw_warning => default_throw_warning
-    call throw_warning(filename, line_number, message)
-  end subroutine raise_warning
-
 
   !> Find position (in the string) of a filename's suffix
   pure function filename_suffix_pos(fname) result(suffix_pos)
@@ -445,6 +368,94 @@ contains
     end select
 
   end function index_is_on_facet
+
+  !> Reports an error and calls throw_error, which stops execution by default.
+  !! @param[optional] error_code The error code to report.
+  subroutine neko_error_plain(error_code)
+    integer, optional :: error_code
+
+    ! Persist buffered log output before aborting, such that the error
+    ! appears after any preceding log messages
+    flush(output_unit)
+
+    if (present(error_code)) then
+       write(error_unit, *) '*** ERROR ***', error_code
+    else
+       write(error_unit, *) '*** ERROR ***'
+    end if
+    flush(error_unit)
+
+    if (.not. associated(throw_error)) throw_error => default_throw_error
+    call throw_error('utils.f90', -1, message='')
+  end subroutine neko_error_plain
+
+  !> Reports an error and calls throw_error, which stops execution by default.
+  !! @param error_msg The error message to report.
+  subroutine neko_error_msg(error_msg)
+    character(len=*) :: error_msg
+
+    ! Persist buffered log output before aborting, such that the error
+    ! appears after any preceding log messages
+    flush(output_unit)
+    write(error_unit, *) '*** ERROR: ', trim(error_msg), ' ***'
+    flush(error_unit)
+    if (.not. associated(throw_error)) throw_error => default_throw_error
+    call throw_error('utils.f90', -1, message='')
+  end subroutine neko_error_msg
+
+  !> Reports an error allocating a type for a particular base pointer class.
+  !! @details Should be used in factories.
+  !! @param base_type The base type of the object, which the factory tried to
+  !! construct.
+  !! @param wrong_type The type that was attempted to construct.
+  !! @param known_types A list of the types that are known.
+  subroutine neko_type_error(base_type, wrong_type, known_types)
+    character(len=*), intent(in) :: base_type
+    character(len=*), intent(in) :: wrong_type
+    character(len=*), intent(in) :: known_types(:)
+    integer :: i
+
+    flush(output_unit)
+    write(error_unit, *) '*** ERROR WHEN SELECTING TYPE ***'
+    write(error_unit, *) 'Type ', wrong_type, ' does not exist for ', base_type
+    write(error_unit, *) 'Valid types are:'
+    do i = 1, size(known_types)
+       write(error_unit, *) "    ", known_types(i)
+    end do
+    flush(error_unit)
+    if (.not. associated(throw_error)) throw_error => default_throw_error
+    call throw_error('utils.f90', -1, message='')
+  end subroutine neko_type_error
+
+  subroutine neko_type_registration_error(base_type, wrong_type, known)
+    character(len=*), intent(in) :: base_type
+    character(len=*), intent(in) :: wrong_type
+    logical, intent(in) :: known
+
+    flush(output_unit)
+    write(error_unit, *) '*** ERROR WHEN REGISTERING TYPE ***'
+    write(error_unit, *) 'Type name ', wrong_type, &
+         ' conflicts with and already existing ', base_type, " type"
+    if (known) then
+       write(error_unit, *) 'Please rename your custom type.'
+    else
+       write(error_unit, *) 'The already existing type is also custom.' // &
+            ' Make all custom type names unique!'
+    end if
+    flush(error_unit)
+    if (.not. associated(throw_error)) throw_error => default_throw_error
+    call throw_error('utils.f90', -1, message='')
+  end subroutine neko_type_registration_error
+
+  !> Reports a warning to standard output
+  subroutine neko_warning(warning_msg)
+    character(len=*) :: warning_msg
+    write(output_unit, *) '*** WARNING: ', trim(warning_msg), ' ***'
+    flush(output_unit)
+
+    if (.not. associated(throw_warning)) throw_warning => default_throw_warning
+    call throw_warning('utils.f90', -1, message='')
+  end subroutine neko_warning
 
   !> Concatenate an array of strings into one string with array items
   !! separated by spaces.

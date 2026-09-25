@@ -28,7 +28,6 @@ neko_fortran_SOURCES = \
 	common/datadist.f90\
 	common/distdata.f90\
 	common/utils.f90\
-	common/errors.f90\
 	common/time_state.f90\
 	common/json_utils.f90\
 	common/case_file_utils.f90\
