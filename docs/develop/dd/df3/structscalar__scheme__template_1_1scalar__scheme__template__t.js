@@ -4,7 +4,7 @@ var structscalar__scheme__template_1_1scalar__scheme__template__t =
     [ "free", "dd/df3/structscalar__scheme__template_1_1scalar__scheme__template__t.html#a5ff2f211aa47d8ae13a27f4cc041d36b", null ],
     [ "init", "dd/df3/structscalar__scheme__template_1_1scalar__scheme__template__t.html#ada3e2a39d87813d0519696ee9d2d068e", null ],
     [ "init", "dd/df3/structscalar__scheme__template_1_1scalar__scheme__template__t.html#a298a556a5ac032d139ed543bd0513165", null ],
-    [ "register_checkpoint", "dd/df3/structscalar__scheme__template_1_1scalar__scheme__template__t.html#a24c74f356b8fbd8a102f2fb7d467facc", null ],
+    [ "register_checkpoint", "dd/df3/structscalar__scheme__template_1_1scalar__scheme__template__t.html#a932c443d25e577cca5bb0ca373fe6c4c", null ],
     [ "restart", "dd/df3/structscalar__scheme__template_1_1scalar__scheme__template__t.html#a81040a29ad1faa9f7496d269f67d355a", null ],
     [ "restart", "dd/df3/structscalar__scheme__template_1_1scalar__scheme__template__t.html#a69289e93472837772290ae6726eed137", null ],
     [ "scheme_free", "dd/df3/structscalar__scheme__template_1_1scalar__scheme__template__t.html#a8c84513b624e230d446a679e43e87c2b", null ],

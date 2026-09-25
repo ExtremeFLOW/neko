@@ -1,0 +1,7 @@
+<map id="chkp_file::chkp_build_legacy_view" name="chkp_file::chkp_build_legacy_view">
+<area shape="rect" id="Node000001" title="Build the fixed legacy view from format&#45;independent payloads." alt="" coords="236,27,395,67"/>
+<area shape="rect" id="Node000002" href="$dc/dcb/namespacechkp__file.html#a4fee4d082fd1bdc65e9873aa954d7108" title="Load a Neko legacy checkpoint." alt="" coords="5,5,188,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,37,188,33,189,28,222,32"/>
+<area shape="rect" id="Node000003" href="$dc/dcb/namespacechkp__file.html#a4c185a9e0ef7d3da7ac1eccae3411f42" title="Write a Neko legacy checkpoint." alt="" coords="23,55,170,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="222,62,170,69,170,63,221,57"/>
+</map>

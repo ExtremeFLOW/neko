@@ -2,7 +2,7 @@ var structscalar__scheme_1_1scalar__scheme__t =
 [
     [ "free", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a5ff2f211aa47d8ae13a27f4cc041d36b", null ],
     [ "init", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a298a556a5ac032d139ed543bd0513165", null ],
-    [ "register_checkpoint", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a24c74f356b8fbd8a102f2fb7d467facc", null ],
+    [ "register_checkpoint", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a932c443d25e577cca5bb0ca373fe6c4c", null ],
     [ "restart", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a69289e93472837772290ae6726eed137", null ],
     [ "scheme_free", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a8c84513b624e230d446a679e43e87c2b", null ],
     [ "scheme_init", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#aa8d60bc429438d68cdac7528b5d242e4", null ],

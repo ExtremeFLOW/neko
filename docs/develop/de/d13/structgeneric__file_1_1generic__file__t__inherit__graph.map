@@ -2,7 +2,7 @@
 <area shape="rect" id="Node000001" title="A generic file handler." alt="" coords="5,270,159,310"/>
 <area shape="rect" id="Node000002" href="$db/d38/structbp__file_1_1bp__file__t.html" title="Interface for ADIOS2 bp files." alt="" coords="227,5,355,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,256,102,208,126,150,159,91,181,64,205,40,225,28,228,32,208,44,185,67,164,94,130,152,107,210,93,258"/>
-<area shape="rect" id="Node000003" href="$dd/dd2/structchkp__file_1_1chkp__file__t.html" title="Interface for Neko checkpoint files." alt="" coords="211,55,370,80"/>
+<area shape="rect" id="Node000003" href="$dd/dd2/structchkp__file_1_1chkp__file__t.html" title="Interface for Neko legacy checkpoint files." alt="" coords="211,55,370,80"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="93,256,109,217,134,172,166,128,205,89,225,78,228,82,208,93,170,131,138,175,114,220,97,258"/>
 <area shape="rect" id="Node000004" href="$d3/d88/structcsv__file_1_1csv__file__t.html" title=" " alt="" coords="221,104,361,129"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="99,257,143,196,172,165,205,138,228,127,230,132,208,143,175,169,147,200,104,260"/>

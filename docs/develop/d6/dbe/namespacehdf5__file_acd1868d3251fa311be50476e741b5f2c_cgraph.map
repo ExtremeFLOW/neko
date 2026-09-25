@@ -1,0 +1,17 @@
+<map id="hdf5_file::hdf5_checkpoint_layout_free" name="hdf5_file::hdf5_checkpoint_layout_free">
+<area shape="rect" id="Node000001" title="Release the interpolation state and the function space of a layout. The mesh is only referenced; it b..." alt="" coords="5,119,199,159"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacehdf5__file.html#a0a53b70eacc7db0ae404d09f20311313" title="Return the file name with the start counter." alt="" coords="251,23,386,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,117,259,67,261,71,149,122"/>
+<area shape="rect" id="Node000006" href="$d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba" title="Finalize the global HDF5 session." alt="" coords="247,87,391,127"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="199,122,232,117,233,123,199,128"/>
+<area shape="rect" id="Node000007" href="$d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395" title="Initialise the global HDF5 session HDF5 does not maintain a global reference count,..." alt="" coords="247,151,391,191"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="199,151,233,156,232,161,199,156"/>
+<area shape="rect" id="Node000008" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="270,216,367,241"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="147,157,248,201,268,209,266,214,246,206,145,162"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a85683446e8c3ce364595da95f5bf70e9" title="Extract file name components." alt="" coords="439,31,589,56"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="386,41,425,41,425,46,386,46"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="639,5,827,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="589,32,625,28,625,33,590,37"/>
+<area shape="rect" id="Node000005" href="$d6/d84/namespaceutils.html#ad9815de9718b5cfbff1bc1da8ea997e4" title="Find position (in the string) of a filename&#39;s trailing slash." alt="" coords="637,55,828,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="590,49,624,53,623,58,589,54"/>
+</map>

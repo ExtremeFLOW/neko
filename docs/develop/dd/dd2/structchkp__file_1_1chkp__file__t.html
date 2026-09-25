@@ -107,14 +107,14 @@ $(document).ready(function(){initNavTree('dd/dd2/structchkp__file_1_1chkp__file_
 </div><!--header-->
 <div class="contents">
 
-<p>Interface for Neko checkpoint files.  
+<p>Interface for Neko legacy checkpoint files.  
  <a href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for chkp_file::chkp_file_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../db/dfc/structchkp__file_1_1chkp__file__t__inherit__graph.png" border="0" usemap="#achkp__file_1_1chkp__file__t_inherit__map" alt="Inheritance graph"/></div>
 <map name="achkp__file_1_1chkp__file__t_inherit__map" id="achkp__file_1_1chkp__file__t_inherit__map">
-<area shape="rect" title="Interface for Neko checkpoint files." alt="" coords="5,93,164,119"/>
+<area shape="rect" title="Interface for Neko legacy checkpoint files." alt="" coords="5,93,164,119"/>
 <area shape="rect" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html" title="A generic file handler." alt="" coords="8,5,161,45"/>
 <area shape="poly" title=" " alt="" coords="87,59,87,93,82,93,82,59"/>
 </map>
@@ -124,7 +124,7 @@ Collaboration diagram for chkp_file::chkp_file_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d6/d5a/structchkp__file_1_1chkp__file__t__coll__graph.png" border="0" usemap="#achkp__file_1_1chkp__file__t_coll__map" alt="Collaboration graph"/></div>
 <map name="achkp__file_1_1chkp__file__t_coll__map" id="achkp__file_1_1chkp__file__t_coll__map">
-<area shape="rect" title="Interface for Neko checkpoint files." alt="" coords="1217,154,1376,179"/>
+<area shape="rect" title="Interface for Neko legacy checkpoint files." alt="" coords="1217,154,1376,179"/>
 <area shape="rect" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html" title="A generic file handler." alt="" coords="917,57,1071,97"/>
 <area shape="poly" title=" " alt="" coords="1085,88,1139,99,1194,115,1237,133,1274,151,1272,156,1235,137,1192,120,1138,104,1084,93"/>
 <area shape="rect" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="243,277,362,302"/>
@@ -172,17 +172,19 @@ Collaboration diagram for chkp_file::chkp_file_t:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aceff416c3f0c7de932fa778f711d922e" id="r_aceff416c3f0c7de932fa778f711d922e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html#aceff416c3f0c7de932fa778f711d922e">read</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, data)</td></tr>
-<tr class="memdesc:aceff416c3f0c7de932fa778f711d922e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a checkpoint from file.  <br /></td></tr>
+<tr class="memdesc:aceff416c3f0c7de932fa778f711d922e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a Neko legacy checkpoint.  <br /></td></tr>
 <tr class="separator:aceff416c3f0c7de932fa778f711d922e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe6be4e45e0c1772afc172c0f2adca7c" id="r_afe6be4e45e0c1772afc172c0f2adca7c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html#afe6be4e45e0c1772afc172c0f2adca7c">read_field</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, fh, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">byte_offset</a>, x, nel)</td></tr>
+<tr class="memdesc:afe6be4e45e0c1772afc172c0f2adca7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read and optionally interpolate one legacy checkpoint field.  <br /></td></tr>
 <tr class="separator:afe6be4e45e0c1772afc172c0f2adca7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca08725cdd104354e4ef8c82d24bbbca" id="r_aca08725cdd104354e4ef8c82d24bbbca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html#aca08725cdd104354e4ef8c82d24bbbca">write</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, data, t)</td></tr>
-<tr class="memdesc:aca08725cdd104354e4ef8c82d24bbbca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a Neko checkpoint.  <br /></td></tr>
+<tr class="memdesc:aca08725cdd104354e4ef8c82d24bbbca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a Neko legacy checkpoint.  <br /></td></tr>
 <tr class="separator:aca08725cdd104354e4ef8c82d24bbbca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74cd87467ea8343ffb30573a0af59ac3" id="r_a74cd87467ea8343ffb30573a0af59ac3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html#a74cd87467ea8343ffb30573a0af59ac3">get_next_output_fname</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a74cd87467ea8343ffb30573a0af59ac3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the physical file name generated by the next write.  <br /></td></tr>
 <tr class="separator:a74cd87467ea8343ffb30573a0af59ac3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4260b8d62365eb8ec6a22c62d3bb2558" id="r_a4260b8d62365eb8ec6a22c62d3bb2558"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html#a4260b8d62365eb8ec6a22c62d3bb2558">set_overwrite</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a83d94631b6a99d757b267bb39198d020">overwrite</a>)</td></tr>
+<tr class="memdesc:a4260b8d62365eb8ec6a22c62d3bb2558"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set whether checkpoint files may be overwritten.  <br /></td></tr>
 <tr class="separator:a4260b8d62365eb8ec6a22c62d3bb2558"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a97b49155861328f0d439579245505ff3" id="r_a97b49155861328f0d439579245505ff3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a97b49155861328f0d439579245505ff3">init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a799a56687f86ad7540b4e5ab92a78230">fname</a>)</td></tr>
 <tr class="memdesc:a97b49155861328f0d439579245505ff3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic file constructor.  <br /></td></tr>
@@ -232,13 +234,13 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:a14dde2dfb24f2d73f73730250428166c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function space used in the simulation.  <br /></td></tr>
 <tr class="separator:a14dde2dfb24f2d73f73730250428166c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac389703b2bfd3d1cc509b3e6f4b2e4bb" id="r_ac389703b2bfd3d1cc509b3e6f4b2e4bb"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../db/d74/structinterpolation_1_1interpolator__t.html">interpolator_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html#ac389703b2bfd3d1cc509b3e6f4b2e4bb">space_interp</a></td></tr>
-<tr class="memdesc:ac389703b2bfd3d1cc509b3e6f4b2e4bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interpolation when only changing lx.  <br /></td></tr>
+<tr class="memdesc:ac389703b2bfd3d1cc509b3e6f4b2e4bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interpolation used when only the polynomial order changes.  <br /></td></tr>
 <tr class="separator:ac389703b2bfd3d1cc509b3e6f4b2e4bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae23b0a52a44f640efc2ba0dbe31a06a" id="r_aae23b0a52a44f640efc2ba0dbe31a06a"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html#aae23b0a52a44f640efc2ba0dbe31a06a">global_interp</a></td></tr>
-<tr class="memdesc:aae23b0a52a44f640efc2ba0dbe31a06a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interpolation for different meshes.  <br /></td></tr>
+<tr class="memdesc:aae23b0a52a44f640efc2ba0dbe31a06a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interpolation used when the mesh changes.  <br /></td></tr>
 <tr class="separator:aae23b0a52a44f640efc2ba0dbe31a06a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a63f2e33ab30f00fd264b3c010cbedeae" id="r_a63f2e33ab30f00fd264b3c010cbedeae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html#a63f2e33ab30f00fd264b3c010cbedeae">mesh2mesh</a></td></tr>
-<tr class="memdesc:a63f2e33ab30f00fd264b3c010cbedeae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag if previous mesh difers from current.  <br /></td></tr>
+<tr class="memdesc:a63f2e33ab30f00fd264b3c010cbedeae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the checkpoint mesh differs from the simulation mesh.  <br /></td></tr>
 <tr class="separator:a63f2e33ab30f00fd264b3c010cbedeae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5c58822d2a60425c9c0a508f0ce7ac36" id="r_a5c58822d2a60425c9c0a508f0ce7ac36"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a5c58822d2a60425c9c0a508f0ce7ac36">serial</a> = .false.</td></tr>
 <tr class="memdesc:a5c58822d2a60425c9c0a508f0ce7ac36"><td class="mdescLeft">&#160;</td><td class="mdescRight">File format is serial.  <br /></td></tr>
@@ -257,7 +259,7 @@ Private Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00061">61</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00095">95</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a6019f3063f90b496f9ab9d84a4bb472b" name="a6019f3063f90b496f9ab9d84a4bb472b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6019f3063f90b496f9ab9d84a4bb472b">&#9670;&#160;</a></span>check_exists()</h2>
@@ -387,7 +389,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00076">76</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00114">114</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -539,8 +541,14 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Checkpoint data to populate. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00073">73</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00108">108</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -625,8 +633,17 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fh</td><td>Open MPI file handle. </td></tr>
+    <tr><td class="paramname">byte_offset</td><td>Byte offset of the rank-local field data. </td></tr>
+    <tr><td class="paramname">x</td><td>Simulation-space field storage to populate. </td></tr>
+    <tr><td class="paramname">nel</td><td>Number of local elements. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00074">74</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00110">110</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -693,8 +710,14 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">overwrite</td><td>Whether existing files may be overwritten. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00077">77</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00116">116</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -805,8 +828,15 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Checkpoint data to write. </td></tr>
+    <tr><td class="paramname">[optional]</td><td>t Simulation time. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00075">75</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00112">112</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -867,7 +897,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00063">63</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00097">97</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -931,7 +961,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00069">69</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00103">103</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -947,7 +977,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00071">71</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00105">105</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -1011,7 +1041,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00065">65</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00099">99</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -1027,7 +1057,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00067">67</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00101">101</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -1064,7 +1094,7 @@ Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/dcb/namespacechkp__file.html">chkp_file</a></li><li class="navelem"><a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html">chkp_file_t</a></li>
-    <li class="footer">Generated on Thu Sep 24 2026 03:42:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Sep 25 2026 03:43:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,5 +1,5 @@
 <map id="chkp_file::chkp_file_t" name="chkp_file::chkp_file_t">
-<area shape="rect" id="Node000001" title="Interface for Neko checkpoint files." alt="" coords="1217,154,1376,179"/>
+<area shape="rect" id="Node000001" title="Interface for Neko legacy checkpoint files." alt="" coords="1217,154,1376,179"/>
 <area shape="rect" id="Node000002" href="$d5/d37/structgeneric__file_1_1generic__file__t.html" title="A generic file handler." alt="" coords="917,57,1071,97"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1085,88,1139,99,1194,115,1237,133,1274,151,1272,156,1235,137,1192,120,1138,104,1084,93"/>
 <area shape="rect" id="Node000003" href="$da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="243,277,362,302"/>

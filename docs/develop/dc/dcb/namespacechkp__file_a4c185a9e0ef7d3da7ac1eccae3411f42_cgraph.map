@@ -1,0 +1,7 @@
+<map id="chkp_file::chkp_file_write" name="chkp_file::chkp_file_write">
+<area shape="rect" id="Node000001" title="Write a Neko legacy checkpoint." alt="" coords="5,5,152,45"/>
+<area shape="rect" id="Node000002" href="$dc/dcb/namespacechkp__file.html#ac8e5c80d28809b5024f9412b19a1338f" title="Build the fixed legacy view from format&#45;independent payloads." alt="" coords="200,5,359,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,23,187,23,187,28,152,28"/>
+<area shape="rect" id="Node000003" href="$dc/dcb/namespacechkp__file.html#a774c47a3488d8c2d6913de5e055bbc05" title="Find a payload without making its absence an error." alt="" coords="407,5,557,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="359,23,393,23,393,28,359,28"/>
+</map>

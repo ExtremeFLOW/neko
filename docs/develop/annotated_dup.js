@@ -246,8 +246,17 @@ var annotated_dup =
     [ "checkpoint", "d3/d51/namespacecheckpoint.html", [
       [ "chkp_t", "d9/d88/structcheckpoint_1_1chkp__t.html", "d9/d88/structcheckpoint_1_1chkp__t" ]
     ] ],
+    [ "checkpoint_payload", "de/d70/namespacecheckpoint__payload.html", [
+      [ "checkpoint_array_ptr_t", "d3/d56/structcheckpoint__payload_1_1checkpoint__array__ptr__t.html", "d3/d56/structcheckpoint__payload_1_1checkpoint__array__ptr__t" ],
+      [ "checkpoint_array_t", "dc/d65/structcheckpoint__payload_1_1checkpoint__array__t.html", "dc/d65/structcheckpoint__payload_1_1checkpoint__array__t" ],
+      [ "checkpoint_mesh_array_ptr_t", "d9/dfe/structcheckpoint__payload_1_1checkpoint__mesh__array__ptr__t.html", "d9/dfe/structcheckpoint__payload_1_1checkpoint__mesh__array__ptr__t" ],
+      [ "checkpoint_mesh_array_t", "d1/db5/structcheckpoint__payload_1_1checkpoint__mesh__array__t.html", "d1/db5/structcheckpoint__payload_1_1checkpoint__mesh__array__t" ],
+      [ "checkpoint_payload_ptr_t", "dd/d0d/structcheckpoint__payload_1_1checkpoint__payload__ptr__t.html", "dd/d0d/structcheckpoint__payload_1_1checkpoint__payload__ptr__t" ],
+      [ "checkpoint_payload_t", "d5/db0/structcheckpoint__payload_1_1checkpoint__payload__t.html", "d5/db0/structcheckpoint__payload_1_1checkpoint__payload__t" ]
+    ] ],
     [ "chkp_file", "dc/dcb/namespacechkp__file.html", [
-      [ "chkp_file_t", "dd/dd2/structchkp__file_1_1chkp__file__t.html", "dd/dd2/structchkp__file_1_1chkp__file__t" ]
+      [ "chkp_file_t", "dd/dd2/structchkp__file_1_1chkp__file__t.html", "dd/dd2/structchkp__file_1_1chkp__file__t" ],
+      [ "legacy_checkpoint_view_t", "d6/dfe/structchkp__file_1_1legacy__checkpoint__view__t.html", "d6/dfe/structchkp__file_1_1legacy__checkpoint__view__t" ]
     ] ],
     [ "chkp_output", "dc/d4e/namespacechkp__output.html", [
       [ "chkp_output_t", "da/d51/structchkp__output_1_1chkp__output__t.html", "da/d51/structchkp__output_1_1chkp__output__t" ]
@@ -895,6 +904,7 @@ var annotated_dup =
       [ "gs_utofu_t", "d8/dce/structgs__utofu_1_1gs__utofu__t.html", "d8/dce/structgs__utofu_1_1gs__utofu__t" ]
     ] ],
     [ "hdf5_file", "d6/dbe/namespacehdf5__file.html", [
+      [ "hdf5_checkpoint_layout_t", "d4/d26/structhdf5__file_1_1hdf5__checkpoint__layout__t.html", "d4/d26/structhdf5__file_1_1hdf5__checkpoint__layout__t" ],
       [ "hdf5_file_t", "df/d0b/structhdf5__file_1_1hdf5__file__t.html", "df/d0b/structhdf5__file_1_1hdf5__file__t" ]
     ] ],
     [ "hex", "d3/da1/namespacehex.html", [

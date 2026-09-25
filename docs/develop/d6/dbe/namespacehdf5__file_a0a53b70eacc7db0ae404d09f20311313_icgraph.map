@@ -1,5 +1,5 @@
 <map id="hdf5_file::file_get_fname" name="hdf5_file::file_get_fname">
-<area shape="rect" id="Node000001" title="Return the file name with the start counter." alt="" coords="196,5,331,45"/>
-<area shape="rect" id="Node000002" href="$d6/dbe/namespacehdf5__file.html#a95bf02a33958bdd43f371b3bc5ff9026" title="Set the precision for the output (single or double)" alt="" coords="5,5,148,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,28,148,28,148,23,182,23"/>
+<area shape="rect" id="Node000001" title="Return the file name with the start counter." alt="" coords="247,5,381,45"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacehdf5__file.html#acd1868d3251fa311be50476e741b5f2c" title="Release the interpolation state and the function space of a layout. The mesh is only referenced; it b..." alt="" coords="5,5,199,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,28,199,28,199,23,233,23"/>
 </map>

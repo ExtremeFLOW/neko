@@ -1,7 +1,9 @@
 var hdf5__file_8F90 =
 [
     [ "hdf5_file::hdf5_file_t", "df/d0b/structhdf5__file_1_1hdf5__file__t.html", "df/d0b/structhdf5__file_1_1hdf5__file__t" ],
+    [ "hdf5_file::hdf5_checkpoint_layout_t", "d4/d26/structhdf5__file_1_1hdf5__checkpoint__layout__t.html", "d4/d26/structhdf5__file_1_1hdf5__checkpoint__layout__t" ],
     [ "file_get_fname", "d7/d55/hdf5__file_8F90.html#a0a53b70eacc7db0ae404d09f20311313", null ],
+    [ "hdf5_checkpoint_layout_free", "d7/d55/hdf5__file_8F90.html#acd1868d3251fa311be50476e741b5f2c", null ],
     [ "hdf5_file_close", "d7/d55/hdf5__file_8F90.html#ab2a4dc599cb5d2b4ad76f3d230407974", null ],
     [ "hdf5_file_get_next_output_fname", "d7/d55/hdf5__file_8F90.html#aa44c643164d9b716ecc49cdd5a96f2e5", null ],
     [ "hdf5_file_open", "d7/d55/hdf5__file_8F90.html#a0340581982a41f8a5fee1b625dd88de4", null ],

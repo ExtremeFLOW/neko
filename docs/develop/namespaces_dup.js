@@ -87,6 +87,7 @@ var namespaces_dup =
     [ "cheby", "d8/dec/namespacecheby.html", "d8/dec/namespacecheby" ],
     [ "cheby_device", "d4/dc5/namespacecheby__device.html", "d4/dc5/namespacecheby__device" ],
     [ "checkpoint", "d3/d51/namespacecheckpoint.html", "d3/d51/namespacecheckpoint" ],
+    [ "checkpoint_payload", "de/d70/namespacecheckpoint__payload.html", "de/d70/namespacecheckpoint__payload" ],
     [ "chkp_file", "dc/dcb/namespacechkp__file.html", "dc/dcb/namespacechkp__file" ],
     [ "chkp_output", "dc/d4e/namespacechkp__output.html", "dc/d4e/namespacechkp__output" ],
     [ "coefs", "d6/dbe/namespacecoefs.html", "d6/dbe/namespacecoefs" ],
