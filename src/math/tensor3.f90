@@ -65,6 +65,8 @@ module tensor3
      procedure, pass(t) :: get_n2 => tensor3_n2
      !> Returns the size of the third dimension.
      procedure, pass(t) :: get_n3 => tensor3_n3
+     !> Returns the dimensions of the tensor.
+     procedure, pass(t) :: get_dims => tensor3_get_dims
      !> Assignment \f$ t = w \f$
      procedure, pass(t) :: tensor3_assign_tensor3
      !> Assignment \f$ t = s \f$.
@@ -208,6 +210,14 @@ contains
     integer :: n3
     n3 = t%n3
   end function tensor3_n3
+
+  !> Returns the dimensions of the tensor.
+  !! @param t Tensor to query.
+  pure function tensor3_get_dims(t) result(dims)
+    class(tensor3_t), intent(in) :: t
+    integer :: dims(3)
+    dims = [t%n1, t%n2, t%n3]
+  end function tensor3_get_dims
 
   !> Assignment \f$ t = w \f$
   !! @param t Tensor to assign to.

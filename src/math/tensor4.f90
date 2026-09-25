@@ -74,6 +74,8 @@ module tensor4
      procedure, pass(t) :: get_n3 => tensor4_n3
      !> Returns the size of the fourth dimension.
      procedure, pass(t) :: get_n4 => tensor4_n4
+     !> Returns the dimensions of the tensor.
+     procedure, pass(t) :: get_dims => tensor4_get_dims
      !> Assignment \f$ t = w \f$
      procedure, pass(t) :: tensor4_assign_tensor4
      !> Assignment \f$ t = s \f$.
@@ -231,6 +233,14 @@ contains
     integer :: n4
     n4 = t%n4
   end function tensor4_n4
+
+  !> Returns the dimensions of the tensor.
+  !! @param t Tensor to query.
+  pure function tensor4_get_dims(t) result(dims)
+    class(tensor4_t), intent(in) :: t
+    integer :: dims(4)
+    dims = [t%n1, t%n2, t%n3, t%n4]
+  end function tensor4_get_dims
 
   !> Assignment \f$ t = w \f$
   !! @param t Tensor to assign to.
