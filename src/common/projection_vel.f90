@@ -248,9 +248,12 @@ contains
             this%proj_v%bb(:, this%proj_v%m), &
             this%proj_w%bb(:, this%proj_w%m), 0, coef)
 
-       call bclst_u%apply_scalar(this%proj_u%bb(1, this%proj_u%m), n)
-       call bclst_v%apply_scalar(this%proj_v%bb(1, this%proj_v%m), n)
-       call bclst_w%apply_scalar(this%proj_w%bb(1, this%proj_w%m), n)
+       call bclst_u%apply_scalar(this%proj_u%bb(1, this%proj_u%m), n, &
+            ifgs = .true.)
+       call bclst_v%apply_scalar(this%proj_v%bb(1, this%proj_v%m), n, &
+            ifgs = .true.)
+       call bclst_w%apply_scalar(this%proj_w%bb(1, this%proj_w%m), n, &
+            ifgs = .true.)
 
        call gs_h%interp%apply_j(this%proj_u%bb(:, this%proj_u%m), n)
        call gs_h%interp%apply_j(this%proj_v%bb(:, this%proj_v%m), n)

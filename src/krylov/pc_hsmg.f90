@@ -620,7 +620,8 @@ contains
                this%grids(1)%dof%size())
           call this%grids(1)%gs_h%gs_op_vector(this%r, &
                this%grids(1)%dof%size(), GS_OP_ADD)
-          call this%grids(1)%bclst%apply(this%r, this%grids(1)%dof%size())
+          call this%grids(1)%bclst%apply(this%r, this%grids(1)%dof%size(), &
+               ifgs = .true.)
           call this%grids(1)%gs_h%interp%apply_j(this%r, &
                this%grids(1)%dof%size())
        else

@@ -229,7 +229,7 @@ contains
       if (allocated(gs_h%interp)) then
          call gs_h%interp%apply_jt(w, n)
          call gs_h%gs_op_vector(w, n, GS_OP_ADD)
-         call blst%apply(w, n)
+         call blst%apply(w, n, ifgs = .true.)
          call gs_h%interp%apply_j(w, n)
       else
          call gs_h%op(w, n, GS_OP_ADD)
@@ -248,7 +248,7 @@ contains
       if (allocated(gs_h%interp)) then
          call gs_h%interp%remove_mult_h1(w, n)
          call gs_h%gs_op_vector(w, n, GS_OP_ADD)
-         call blst%apply(w, n)
+         call blst%apply(w, n, ifgs = .true.)
          call gs_h%interp%apply_j(w, n)
       end if
       call copy(d, w, n)
@@ -263,7 +263,7 @@ contains
          if (allocated(gs_h%interp)) then
             call gs_h%interp%apply_jt(w, n)
             call gs_h%gs_op_vector(w, n, GS_OP_ADD)
-            call blst%apply(w, n)
+            call blst%apply(w, n, ifgs = .true.)
             call gs_h%interp%apply_j(w, n)
          else
             call gs_h%op(w, n, GS_OP_ADD)
@@ -275,7 +275,7 @@ contains
          if (allocated(gs_h%interp)) then
             call gs_h%interp%remove_mult_h1(w, n)
             call gs_h%gs_op_vector(w, n, GS_OP_ADD)
-            call blst%apply(w, n)
+            call blst%apply(w, n, ifgs = .true.)
             call gs_h%interp%apply_j(w, n)
          end if
 
@@ -296,7 +296,7 @@ contains
       if (allocated(gs_h%interp)) then
          call gs_h%interp%apply_jt(w, n)
          call gs_h%gs_op_vector(w, n, GS_OP_ADD)
-         call blst%apply(w, n)
+         call blst%apply(w, n, ifgs = .true.)
          call gs_h%interp%apply_j(w, n)
       else
          call gs_h%op(w, n, GS_OP_ADD)

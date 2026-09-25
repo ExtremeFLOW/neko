@@ -264,7 +264,7 @@ contains
     if (allocated(this%coef%gs_h%interp)) then
        call this%coef%gs_h%interp%apply_jt(RHS)
        call this%coef%gs_h%gs_op_vector(RHS%x, n, GS_OP_ADD)
-       call this%bclst_filt%apply_scalar(RHS%x, n)
+       call this%bclst_filt%apply_scalar(RHS%x, n, ifgs = .true.)
        call this%coef%gs_h%interp%apply_j(RHS)
     else
        ! gather scatter

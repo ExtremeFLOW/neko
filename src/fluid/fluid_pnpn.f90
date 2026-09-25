@@ -874,7 +874,8 @@ contains
             call gs_Xh%interp%apply_jt(p_res)
             call gs_Xh%gs_op_vector(p_res%x, p%dof%size(), GS_OP_ADD, event)
             call device_event_sync(event)
-            call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
+            call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time, &
+                 ifgs = .true.)
             call gs_Xh%interp%apply_j(p_res)
          else
             call gs_Xh%op(p_res, GS_OP_ADD, event)
@@ -938,7 +939,8 @@ contains
             call device_event_sync(event)
             call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 
-            call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
+            call this%bclst_vel_res%apply(u_res, v_res, w_res, time, &
+                 ifgs = .true.)
 
             call gs_Xh%interp%apply_j(u_res)
             call gs_Xh%interp%apply_j(v_res)

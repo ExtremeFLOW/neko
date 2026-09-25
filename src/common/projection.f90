@@ -360,7 +360,7 @@ contains
     if (allocated(gs_h%interp)) then
        call gs_h%interp%apply_jt(this%bb(:, this%m), n)
        call gs_h%gs_op_vector(this%bb(:, this%m), n, GS_OP_ADD)
-       call bclst%apply_scalar(this%bb(1, this%m), n)
+       call bclst%apply_scalar(this%bb(1, this%m), n, ifgs = .true.)
        call gs_h%interp%apply_j(this%bb(:, this%m), n)
     else
        call gs_h%gs_op_vector(this%bb(1, this%m), n, GS_OP_ADD)
@@ -413,7 +413,7 @@ contains
          if (allocated(gs_h%interp)) then
             call gs_h%interp%apply_jt(this%bb(:, i), n)
             call gs_h%gs_op_vector(this%bb(:, i), n, GS_OP_ADD)
-            call blst%apply_scalar(this%bb(1, i), n)
+            call blst%apply_scalar(this%bb(1, i), n, ifgs = .true.)
             call gs_h%interp%apply_j(this%bb(:, i), n)
          else
             call gs_h%gs_op_vector(bb(1, i), n, GS_OP_ADD)
