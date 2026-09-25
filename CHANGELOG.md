@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Error and warning routines are now hooked to pFUnit's exceptions, making it
+  possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,
   field histories, nodal mesh arrays, and distributed or replicated real
   arrays. HDF5 checkpoints now preserve the payload hierarchy and support
