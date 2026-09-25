@@ -768,6 +768,7 @@ libneko_la_SOURCES += \
 	scalar/bcknd/device/opencl/scalar_residual.c\
 	sem/bcknd/device/opencl/coef.c\
 	sem/bcknd/device/opencl/local_interpolation.c\
+	global_interpolation/bcknd/device/opencl/cartesian_el_finder.c\
 	filter/bcknd/device/opencl/mappings.c\
 	les/bcknd/device/opencl/smagorinsky_nut.c\
 	les/bcknd/device/opencl/wale_nut.c\
@@ -837,6 +838,7 @@ METAL_OBJS = \
 	gs/bcknd/device/metal/gs.lo\
 	sem/bcknd/device/metal/coef.lo\
 	sem/bcknd/device/metal/local_interpolation.lo\
+	global_interpolation/bcknd/device/metal/cartesian_el_finder.lo\
 	bc/bcknd/device/metal/dirichlet.lo\
 	bc/bcknd/device/metal/inflow.lo\
 	bc/bcknd/device/metal/zero_dirichlet.lo\
@@ -901,6 +903,7 @@ dist_noinst_DATA = \
 	gs/bcknd/device/metal/gs.m\
 	sem/bcknd/device/metal/coef.m\
 	sem/bcknd/device/metal/local_interpolation.m\
+	global_interpolation/bcknd/device/metal/cartesian_el_finder.m\
 	bc/bcknd/device/metal/dirichlet.m\
 	bc/bcknd/device/metal/inflow.m\
 	bc/bcknd/device/metal/zero_dirichlet.m\
@@ -962,6 +965,7 @@ METAL_KERNELS = \
 	gs/bcknd/device/metal/gs_kernels.metal\
 	sem/bcknd/device/metal/coef_kernel.metal\
 	sem/bcknd/device/metal/local_interpolation_kernel.metal\
+	global_interpolation/bcknd/device/metal/cartesian_el_finder_kernel.metal\
 	bc/bcknd/device/metal/dirichlet_kernel.metal\
 	bc/bcknd/device/metal/inflow_kernel.metal\
 	bc/bcknd/device/metal/zero_dirichlet_kernel.metal\
@@ -1079,6 +1083,7 @@ CLEANFILES += \
 	viscous_regularization/avm/bcknd/device/opencl/*.cl.h\
 	scalar/bcknd/device/opencl/*.cl.h\
 	sem/bcknd/device/opencl/*.cl.h\
+	global_interpolation/bcknd/device/opencl/*.cl.h\
 	source_terms/bcknd/device/opencl/*.cl.h\
 	wall_models/bcknd/device/opencl/*.cl.h\
 	filter/bcknd/device/opencl/*.cl.h\
@@ -1277,6 +1282,7 @@ EXTRA_DIST = \
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	sem/bcknd/device/opencl/local_interpolation_kernel.cl\
+	global_interpolation/bcknd/device/opencl/cartesian_el_finder_kernel.cl\
 	les/bcknd/device/opencl/smagorinsky_nut_kernel.cl\
 	les/bcknd/device/opencl/wale_nut_kernel.cl\
 	les/bcknd/device/opencl/sigma_nut_kernel.cl\
@@ -1337,6 +1343,7 @@ EXTRA_DIST = \
 	gs/bcknd/device/metal/gs_kernels.metal\
 	sem/bcknd/device/metal/coef_kernel.metal\
 	sem/bcknd/device/metal/local_interpolation_kernel.metal\
+	global_interpolation/bcknd/device/metal/cartesian_el_finder_kernel.metal\
 	bc/bcknd/device/metal/dirichlet_kernel.metal\
 	bc/bcknd/device/metal/inflow_kernel.metal\
 	bc/bcknd/device/metal/zero_dirichlet_kernel.metal\

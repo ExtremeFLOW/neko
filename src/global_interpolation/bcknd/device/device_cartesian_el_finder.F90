@@ -92,6 +92,58 @@ module device_cartesian_el_finder
        integer(c_int), intent(in) :: n_points
      end subroutine hip_cartesian_el_finder_fill
   end interface
+#elif HAVE_OPENCL
+  interface
+     subroutine opencl_cartesian_el_finder_count(points_d, el_map_offset_d, &
+          point_box_d, n_el_cands_d, min_x, min_y, min_z, &
+          x_res, y_res, z_res, n_boxes, n_points, xp_bytes) &
+          bind(c, name='opencl_cartesian_el_finder_count')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_xp
+       type(c_ptr), value :: points_d, el_map_offset_d
+       type(c_ptr), value :: point_box_d, n_el_cands_d
+       real(c_xp), intent(in) :: min_x, min_y, min_z
+       real(c_xp), intent(in) :: x_res, y_res, z_res
+       integer(c_int), intent(in) :: n_boxes, n_points, xp_bytes
+     end subroutine opencl_cartesian_el_finder_count
+
+     subroutine opencl_cartesian_el_finder_fill(point_box_d, &
+          candidate_offsets_d, el_map_offset_d, el_map_data_d, &
+          candidate_array_d, n_points) &
+          bind(c, name='opencl_cartesian_el_finder_fill')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       type(c_ptr), value :: point_box_d, candidate_offsets_d
+       type(c_ptr), value :: el_map_offset_d, el_map_data_d
+       type(c_ptr), value :: candidate_array_d
+       integer(c_int), intent(in) :: n_points
+     end subroutine opencl_cartesian_el_finder_fill
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_cartesian_el_finder_count(points_d, el_map_offset_d, &
+          point_box_d, n_el_cands_d, min_x, min_y, min_z, &
+          x_res, y_res, z_res, n_boxes, n_points, xp_bytes) &
+          bind(c, name='metal_cartesian_el_finder_count')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_xp
+       type(c_ptr), value :: points_d, el_map_offset_d
+       type(c_ptr), value :: point_box_d, n_el_cands_d
+       real(c_xp), intent(in) :: min_x, min_y, min_z
+       real(c_xp), intent(in) :: x_res, y_res, z_res
+       integer(c_int), intent(in) :: n_boxes, n_points, xp_bytes
+     end subroutine metal_cartesian_el_finder_count
+
+     subroutine metal_cartesian_el_finder_fill(point_box_d, &
+          candidate_offsets_d, el_map_offset_d, el_map_data_d, &
+          candidate_array_d, n_points) &
+          bind(c, name='metal_cartesian_el_finder_fill')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       type(c_ptr), value :: point_box_d, candidate_offsets_d
+       type(c_ptr), value :: el_map_offset_d, el_map_data_d
+       type(c_ptr), value :: candidate_array_d
+       integer(c_int), intent(in) :: n_points
+     end subroutine metal_cartesian_el_finder_fill
+  end interface
 #endif
 
 contains
@@ -113,8 +165,16 @@ contains
     call hip_cartesian_el_finder_count(points_d, el_map_offset_d, &
          point_box_d, n_el_cands_d, min_x, min_y, min_z, &
          x_res, y_res, z_res, n_boxes, n_points)
+#elif HAVE_OPENCL
+    call opencl_cartesian_el_finder_count(points_d, el_map_offset_d, &
+         point_box_d, n_el_cands_d, min_x, min_y, min_z, &
+         x_res, y_res, z_res, n_boxes, n_points, storage_size(min_x)/8)
+#elif HAVE_METAL
+    call metal_cartesian_el_finder_count(points_d, el_map_offset_d, &
+         point_box_d, n_el_cands_d, min_x, min_y, min_z, &
+         x_res, y_res, z_res, n_boxes, n_points, storage_size(min_x)/8)
 #else
-    call neko_error('Cartesian element finder requires CUDA or HIP')
+    call neko_error('No Cartesian element finder device backend configured')
 #endif
   end subroutine device_cartesian_el_finder_count
 
@@ -132,8 +192,14 @@ contains
 #elif HAVE_HIP
     call hip_cartesian_el_finder_fill(point_box_d, candidate_offsets_d, &
          el_map_offset_d, el_map_data_d, candidate_array_d, n_points)
+#elif HAVE_OPENCL
+    call opencl_cartesian_el_finder_fill(point_box_d, candidate_offsets_d, &
+         el_map_offset_d, el_map_data_d, candidate_array_d, n_points)
+#elif HAVE_METAL
+    call metal_cartesian_el_finder_fill(point_box_d, candidate_offsets_d, &
+         el_map_offset_d, el_map_data_d, candidate_array_d, n_points)
 #else
-    call neko_error('Cartesian element finder requires CUDA or HIP')
+    call neko_error('No Cartesian element finder device backend configured')
 #endif
   end subroutine device_cartesian_el_finder_fill
 

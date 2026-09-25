@@ -165,6 +165,7 @@ viscous_regularization/avm/bcknd/device/opencl/entropy_viscosity.lo : viscous_re
 scalar/bcknd/device/opencl/scalar_residual.lo : scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
 sem/bcknd/device/opencl/coef.lo : sem/bcknd/device/opencl/coef.c sem/bcknd/device/opencl/coef_kernel.cl.h
 sem/bcknd/device/opencl/local_interpolation.lo : sem/bcknd/device/opencl/local_interpolation.c sem/bcknd/device/opencl/local_interpolation_kernel.cl.h
+global_interpolation/bcknd/device/opencl/cartesian_el_finder.lo : global_interpolation/bcknd/device/opencl/cartesian_el_finder.c global_interpolation/bcknd/device/opencl/cartesian_el_finder_kernel.cl.h
 filter/bcknd/device/cuda/mappings.lo : filter/bcknd/device/cuda/mappings.cu filter/bcknd/device/cuda/mapping_kernels.h
 filter/bcknd/device/hip/mappings.lo : filter/bcknd/device/hip/mappings.hip filter/bcknd/device/hip/mapping_kernels.h
 filter/bcknd/device/opencl/mappings.lo : filter/bcknd/device/opencl/mappings.c filter/bcknd/device/opencl/mapping_kernels.cl.h
@@ -245,6 +246,7 @@ fluid/regularization/bcknd/device/metal/entropy_viscosity.lo : fluid/regularizat
 filter/bcknd/device/metal/mappings.lo : filter/bcknd/device/metal/mappings.m device/metal/check.h
 bc/bcknd/device/metal/constrain_mixed_bc.lo : bc/bcknd/device/metal/constrain_mixed_bc.m bc/bcknd/device/metal/bc_utils.h
 les/bcknd/device/metal/smagorinsky_nut.lo : les/bcknd/device/metal/smagorinsky_nut.m device/metal/kernel_utils.h
+global_interpolation/bcknd/device/metal/cartesian_el_finder.lo : global_interpolation/bcknd/device/metal/cartesian_el_finder.m device/metal/kernel_utils.h
 les/bcknd/device/metal/wale_nut.lo : les/bcknd/device/metal/wale_nut.m device/metal/kernel_utils.h
 les/bcknd/device/metal/sigma_nut.lo : les/bcknd/device/metal/sigma_nut.m device/metal/kernel_utils.h
 les/bcknd/device/metal/vreman_nut.lo : les/bcknd/device/metal/vreman_nut.m device/metal/kernel_utils.h
