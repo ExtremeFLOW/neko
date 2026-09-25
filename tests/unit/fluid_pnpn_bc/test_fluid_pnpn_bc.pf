@@ -1,0 +1,326 @@
+!> Tests for the fluid Pn/Pn boundary condition setup: splitting of case
+!! file entries into velocity and pressure parts, the allocators and the
+!! user type registries.
+module test_fluid_pnpn_bc
+  use pfunit
+  use num_types, only : rp
+  use bc, only : bc_t
+  use json_module, only : json_file
+  use json_utils, only : json_get
+  use fluid_pnpn, only : fluid_pnpn_bc_split, &
+       fluid_pnpn_velocity_bc_allocator, fluid_pnpn_pressure_bc_allocator, &
+       fluid_pnpn_bc_allocate, register_fluid_pnpn_velocity_bc, &
+       register_fluid_pnpn_pressure_bc
+  use no_slip, only : no_slip_t
+  use inflow, only : inflow_t
+  use symmetry, only : symmetry_t
+  use symmetry_aligned, only : symmetry_aligned_t
+  use non_normal, only : non_normal_t
+  use non_normal_aligned, only : non_normal_aligned_t
+  use zero_dirichlet, only : zero_dirichlet_t
+  use dirichlet, only : dirichlet_t
+  use dong_outflow, only : dong_outflow_t
+  use blasius, only : blasius_t
+  implicit none
+
+contains
+
+  !> Load a boundary condition entry from a string.
+  subroutine load_entry(entry, string)
+    type(json_file), intent(inout) :: entry
+    character(len=*), intent(in) :: string
+
+    call entry%initialize(strict_type_checking = .true.)
+    call entry%load_from_string(string)
+  end subroutine load_entry
+
+  !> Allocator for the custom velocity type used in the registry test.
+  subroutine custom_velocity_allocate(obj)
+    class(bc_t), pointer, intent(inout) :: obj
+
+    allocate(blasius_t::obj)
+  end subroutine custom_velocity_allocate
+
+  !> Allocator for the custom pressure type used in the registry test.
+  subroutine custom_pressure_allocate(obj)
+    class(bc_t), pointer, intent(inout) :: obj
+
+    allocate(dirichlet_t::obj)
+  end subroutine custom_pressure_allocate
+
+  @test
+  subroutine test_split_joint_pressure_only()
+    type(json_file) :: entry, velocity_json, pressure_json
+    logical :: has_velocity, has_pressure
+    character(len=:), allocatable :: type, name
+    integer, allocatable :: zone_indices(:)
+
+    call load_entry(entry, &
+         '{"type": "outflow", "zone_indices": [3, 4], "name": "outlet"}')
+    call fluid_pnpn_bc_split(entry, velocity_json, pressure_json, &
+         has_velocity, has_pressure)
+
+    @assertFalse(has_velocity)
+    @assertTrue(has_pressure)
+
+    call json_get(pressure_json, "type", type)
+    @assertEqual("zero_dirichlet", type)
+    call json_get(pressure_json, "zone_indices", zone_indices)
+    @assertEqual([3, 4], zone_indices)
+    call json_get(pressure_json, "name", name)
+    @assertEqual("outlet", name)
+    @assertFalse(pressure_json%valid_path("velocity"))
+    @assertFalse(pressure_json%valid_path("pressure"))
+  end subroutine test_split_joint_pressure_only
+
+  @test
+  subroutine test_split_joint_velocity_only()
+    type(json_file) :: entry, velocity_json, pressure_json
+    logical :: has_velocity, has_pressure
+    character(len=:), allocatable :: type
+    logical :: moving
+
+    call load_entry(entry, &
+         '{"type": "no_slip", "zone_indices": [1], "moving": true}')
+    call fluid_pnpn_bc_split(entry, velocity_json, pressure_json, &
+         has_velocity, has_pressure)
+
+    @assertTrue(has_velocity)
+    @assertFalse(has_pressure)
+
+    call json_get(velocity_json, "type", type)
+    @assertEqual("no_slip", type)
+    call json_get(velocity_json, "moving", moving)
+    @assertTrue(moving)
+  end subroutine test_split_joint_velocity_only
+
+  @test
+  subroutine test_split_joint_both()
+    type(json_file) :: entry, velocity_json, pressure_json
+    logical :: has_velocity, has_pressure
+    character(len=:), allocatable :: type
+    real(kind=rp), allocatable :: value(:)
+    real(kind=rp) :: delta
+
+    call load_entry(entry, '{"type": "normal_outflow+dong", ' // &
+         '"zone_indices": [2], "value": [1.0, 0.0, 0.0], "delta": 0.05}')
+    call fluid_pnpn_bc_split(entry, velocity_json, pressure_json, &
+         has_velocity, has_pressure)
+
+    @assertTrue(has_velocity)
+    @assertTrue(has_pressure)
+
+    ! All keywords of the entry are copied to both parts.
+    call json_get(velocity_json, "type", type)
+    @assertEqual("non_normal", type)
+    call json_get(velocity_json, "value", value)
+    @assertEqual([1.0_rp, 0.0_rp, 0.0_rp], value)
+    call json_get(velocity_json, "delta", delta)
+    @assertEqual(0.05_rp, delta)
+
+    call json_get(pressure_json, "type", type)
+    @assertEqual("dong", type)
+    call json_get(pressure_json, "value", value)
+    @assertEqual([1.0_rp, 0.0_rp, 0.0_rp], value)
+    call json_get(pressure_json, "delta", delta)
+    @assertEqual(0.05_rp, delta)
+  end subroutine test_split_joint_both
+
+  @test
+  subroutine test_split_overset_couple_pressure()
+    type(json_file) :: entry, velocity_json, pressure_json
+    logical :: has_velocity, has_pressure
+    character(len=:), allocatable :: type
+
+    call load_entry(entry, &
+         '{"type": "overset_interface", "zone_indices": [5]}')
+    call fluid_pnpn_bc_split(entry, velocity_json, pressure_json, &
+         has_velocity, has_pressure)
+    @assertTrue(has_velocity)
+    @assertFalse(has_pressure)
+    call json_get(velocity_json, "type", type)
+    @assertEqual("overset_interface", type)
+
+    call load_entry(entry, '{"type": "overset_interface", ' // &
+         '"zone_indices": [5], "couple_pressure": true}')
+    call fluid_pnpn_bc_split(entry, velocity_json, pressure_json, &
+         has_velocity, has_pressure)
+    @assertTrue(has_velocity)
+    @assertTrue(has_pressure)
+    call json_get(pressure_json, "type", type)
+    @assertEqual("overset_interface", type)
+  end subroutine test_split_overset_couple_pressure
+
+  @test
+  subroutine test_split_separate_objects()
+    type(json_file) :: entry, velocity_json, pressure_json
+    logical :: has_velocity, has_pressure
+    character(len=:), allocatable :: type, name, expression
+    integer, allocatable :: zone_indices(:)
+    real(kind=rp), allocatable :: value(:)
+
+    call load_entry(entry, '{"zone_indices": [7], "name": "outer", ' // &
+         '"velocity": {"type": "dirichlet", "value": [0.5, 0.0, 0.0], ' // &
+         '"name": "inner"}, ' // &
+         '"pressure": {"type": "expression", "value": "sin(t)"}}')
+    call fluid_pnpn_bc_split(entry, velocity_json, pressure_json, &
+         has_velocity, has_pressure)
+
+    @assertTrue(has_velocity)
+    @assertTrue(has_pressure)
+
+    ! Top-level keywords are copied to both parts, and keywords in the
+    ! sub-objects override them.
+    call json_get(velocity_json, "type", type)
+    @assertEqual("dirichlet", type)
+    call json_get(velocity_json, "zone_indices", zone_indices)
+    @assertEqual([7], zone_indices)
+    call json_get(velocity_json, "name", name)
+    @assertEqual("inner", name)
+    call json_get(velocity_json, "value", value)
+    @assertEqual([0.5_rp, 0.0_rp, 0.0_rp], value)
+    @assertFalse(velocity_json%valid_path("velocity"))
+    @assertFalse(velocity_json%valid_path("pressure"))
+
+    call json_get(pressure_json, "type", type)
+    @assertEqual("expression", type)
+    call json_get(pressure_json, "zone_indices", zone_indices)
+    @assertEqual([7], zone_indices)
+    call json_get(pressure_json, "name", name)
+    @assertEqual("outer", name)
+    call json_get(pressure_json, "value", expression)
+    @assertEqual("sin(t)", expression)
+    @assertFalse(pressure_json%valid_path("velocity"))
+    @assertFalse(pressure_json%valid_path("pressure"))
+  end subroutine test_split_separate_objects
+
+  @test
+  subroutine test_velocity_allocator()
+    class(bc_t), pointer :: object
+    logical :: correct_type
+
+    object => null()
+
+    call fluid_pnpn_velocity_bc_allocator(object, "no_slip", .false.)
+    correct_type = .false.
+    select type (object)
+    type is (no_slip_t)
+       correct_type = .true.
+    end select
+    @assertTrue(correct_type)
+
+    ! An associated object is freed and replaced.
+    call fluid_pnpn_velocity_bc_allocator(object, "dirichlet", .false.)
+    correct_type = .false.
+    select type (object)
+    type is (inflow_t)
+       correct_type = .true.
+    end select
+    @assertTrue(correct_type)
+
+    ! The mixed conditions depend on the stress formulation.
+    call fluid_pnpn_velocity_bc_allocator(object, "symmetry", .false.)
+    correct_type = .false.
+    select type (object)
+    type is (symmetry_aligned_t)
+       correct_type = .true.
+    end select
+    @assertTrue(correct_type)
+
+    call fluid_pnpn_velocity_bc_allocator(object, "symmetry", .true.)
+    correct_type = .false.
+    select type (object)
+    type is (symmetry_t)
+       correct_type = .true.
+    end select
+    @assertTrue(correct_type)
+
+    call fluid_pnpn_velocity_bc_allocator(object, "non_normal", .false.)
+    correct_type = .false.
+    select type (object)
+    type is (non_normal_aligned_t)
+       correct_type = .true.
+    end select
+    @assertTrue(correct_type)
+
+    call fluid_pnpn_velocity_bc_allocator(object, "non_normal", .true.)
+    correct_type = .false.
+    select type (object)
+    type is (non_normal_t)
+       correct_type = .true.
+    end select
+    @assertTrue(correct_type)
+
+    call object%free()
+    deallocate(object)
+  end subroutine test_velocity_allocator
+
+  @test
+  subroutine test_pressure_allocator()
+    class(bc_t), pointer :: object
+    logical :: correct_type
+
+    object => null()
+
+    call fluid_pnpn_pressure_bc_allocator(object, "zero_dirichlet")
+    correct_type = .false.
+    select type (object)
+    type is (zero_dirichlet_t)
+       correct_type = .true.
+    end select
+    @assertTrue(correct_type)
+
+    call fluid_pnpn_pressure_bc_allocator(object, "dirichlet")
+    correct_type = .false.
+    select type (object)
+    type is (dirichlet_t)
+       correct_type = .true.
+    end select
+    @assertTrue(correct_type)
+
+    call fluid_pnpn_pressure_bc_allocator(object, "dong")
+    correct_type = .false.
+    select type (object)
+    type is (dong_outflow_t)
+       correct_type = .true.
+    end select
+    @assertTrue(correct_type)
+
+    call object%free()
+    deallocate(object)
+  end subroutine test_pressure_allocator
+
+  @test
+  subroutine test_user_type_registries()
+    class(bc_t), pointer :: object
+    procedure(fluid_pnpn_bc_allocate), pointer :: allocator
+    logical :: correct_type
+
+    object => null()
+
+    allocator => custom_velocity_allocate
+    call register_fluid_pnpn_velocity_bc("custom_velocity", allocator)
+    call fluid_pnpn_velocity_bc_allocator(object, "custom_velocity", .false.)
+    correct_type = .false.
+    select type (object)
+    type is (blasius_t)
+       correct_type = .true.
+    end select
+    @assertTrue(correct_type)
+
+    ! The registries are separate for velocity and pressure.
+    allocator => custom_pressure_allocate
+    call register_fluid_pnpn_pressure_bc("custom_pressure", allocator)
+    call fluid_pnpn_pressure_bc_allocator(object, "custom_pressure")
+    correct_type = .false.
+    select type (object)
+    type is (dirichlet_t)
+       correct_type = .true.
+    end select
+    @assertTrue(correct_type)
+
+    call object%free()
+    deallocate(object)
+  end subroutine test_user_type_registries
+
+end module test_fluid_pnpn_bc
