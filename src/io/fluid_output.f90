@@ -32,14 +32,14 @@
 !
 !> Defines an output for a fluid
 module fluid_output
-  use num_types, only : rp
+  use num_types, only : dp
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use fluid_scheme_compressible, only : fluid_scheme_compressible_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device
+  use device, only : device_memcpy, DEVICE_TO_HOST
   use output, only : output_t
   use scalars, only : scalars_t
   use registry, only : neko_registry
@@ -81,6 +81,8 @@ contains
     if (present(fmt)) then
        if (fmt .eq. 'adios2') then
           suffix = '.bp'
+       else if (fmt .eq. 'vtkhdf') then
+          suffix = '.vtkhdf'
        end if
     end if
 
@@ -180,25 +182,28 @@ contains
   !> Sample a fluid solution at time @a t
   subroutine fluid_output_sample(this, t)
     class(fluid_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
     integer :: i
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
-
-       associate(fields => this%fluid%items)
-         do i = 1, size(fields)
-            call device_memcpy(fields(i)%ptr%x, fields(i)%ptr%x_d, &
-                 fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
-                 sync = (i .eq. size(fields))) ! Sync on the last field
-         end do
-       end associate
-
+       call this%fluid%copy_from(DEVICE_TO_HOST, .true.)
     end if
 
     select type (ft => this%file_%file_type)
        ! Only fld files have the option to write the mesh at command
     type is (fld_file_t)
+       ft%skip_pressure = .false.
+       ft%skip_velocity = .false.
+       ft%skip_temperature = .false.
        ft%write_mesh = this%always_write_mesh
+       if (ft%write_mesh) then
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             associate(mesh => this%fluid%items(2)%ptr%dof)
+               call mesh%x%copy_from(DEVICE_TO_HOST, sync = .false.)
+               call mesh%y%copy_from(DEVICE_TO_HOST, sync = .false.)
+               call mesh%z%copy_from(DEVICE_TO_HOST, sync = .true.)
+             end associate
+          end if
+       end if
        call ft%write(this%fluid, t)
     class default
        call ft%write(this%fluid, t)

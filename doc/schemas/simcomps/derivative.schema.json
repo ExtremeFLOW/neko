@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:derivative",
+  "$defs": {
+    "simulationComponent": {
+      "allOf": [
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
+        },
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFieldWriterOptions"
+        },
+        {
+          "type": "object",
+          "required": [
+            "field",
+            "direction"
+          ],
+          "properties": {
+            "type": {
+              "const": "derivative"
+            },
+            "field": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "direction": {
+              "type": "string",
+              "enum": [
+                "x",
+                "y",
+                "z"
+              ]
+            },
+            "computed_field": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}

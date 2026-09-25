@@ -37,14 +37,14 @@ module nvtx
   end type nvtxEventAttributes
 
   interface nvtxRangePushA
-     subroutine nvtxRangePushA(name) bind(C, name = 'nvtxRangePushA')
+     subroutine nvtxRangePushA(name) bind(C, name = 'neko_nvtxRangePushA')
        use, intrinsic :: iso_c_binding
        character(kind=c_char) :: name(256)
      end subroutine nvtxRangePushA
   end interface nvtxRangePushA
 
   interface nvtxRangePushEx
-     subroutine nvtxRangePushEx(event) bind(C, name = 'nvtxRangePushEx')
+     subroutine nvtxRangePushEx(event) bind(C, name = 'neko_nvtxRangePushEx')
        use, intrinsic :: iso_c_binding
        import :: nvtxEventAttributes
        type(nvtxEventAttributes) :: event
@@ -52,7 +52,7 @@ module nvtx
   end interface nvtxRangePushEx
 
   interface nvtxRangePop
-     subroutine nvtxRangePop() bind(C, name = 'nvtxRangePop')
+     subroutine nvtxRangePop() bind(C, name = 'neko_nvtxRangePop')
      end subroutine nvtxRangePop
   end interface nvtxRangePop
 

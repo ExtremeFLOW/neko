@@ -35,16 +35,15 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
+#include <device/hip/buffer.h>
 #include "pipecg_kernel.h"
 
 /**
- * @todo Make sure that this gets deleted at some point...
+ * Reduction buffer, owned by the device layer and released on device
+ * teardown (hip_buffer_free_all in hip_finalize); the device side
+ * holds the three partial-reduction arrays back to back
  */
-real *buf = NULL;
-real *buf_d1 = NULL;
-real *buf_d2 = NULL;
-real *buf_d3 = NULL;
-int buf_len = 0;
+hip_buffer_t pipecg_buf = HIP_BUFFER_INIT;
 
 extern "C" {
   
@@ -72,21 +71,11 @@ extern "C" {
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;
 
-    if (buf != NULL && buf_len < nb) {
-      HIP_CHECK(hipHostFree(buf));
-      HIP_CHECK(hipFree(buf_d1));
-      HIP_CHECK(hipFree(buf_d2));
-      HIP_CHECK(hipFree(buf_d3));
-      buf = NULL;
-    }
-
-    if (buf == NULL){
-      HIP_CHECK(hipHostMalloc(&buf, nb*sizeof(real)));
-      HIP_CHECK(hipMalloc(&buf_d1, nb*sizeof(real)));
-      HIP_CHECK(hipMalloc(&buf_d2, nb*sizeof(real)));
-      HIP_CHECK(hipMalloc(&buf_d3, nb*sizeof(real)));
-      buf_len = nb;
-    }
+    hip_buffer_reserve(&pipecg_buf, 3*nb*sizeof(real));
+    real *buf = (real *) pipecg_buf.host;
+    real *buf_d1 = (real *) pipecg_buf.dev;
+    real *buf_d2 = buf_d1 + nb;
+    real *buf_d3 = buf_d1 + 2*nb;
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(pipecg_vecops_kernel<real>),
                        nblcks, nthrds, 0, stream,

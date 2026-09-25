@@ -2,7 +2,7 @@
 module opencl_prgm_lib
   use opencl_intf
   use utils, only : neko_error
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_associated, C_NULL_PTR
   implicit none
   private
 
@@ -25,6 +25,13 @@ module opencl_prgm_lib
 
   !> Device Symmetry kernels
   type(c_ptr), public, bind(c) :: symmetry_program = C_NULL_PTR
+
+  !> Device mixed BC constraint kernels
+  type(c_ptr), public, bind(c) :: constrain_mixed_bc_program = C_NULL_PTR
+
+  !> Device coupled vector BC projector kernels
+  type(c_ptr), public, bind(c) :: coupled_vector_bc_projector_program = &
+       C_NULL_PTR
 
   !> Device Facet normal kernels
   type(c_ptr), public, bind(c) :: facet_normal_program = C_NULL_PTR
@@ -56,6 +63,9 @@ module opencl_prgm_lib
   !> Device Velocity gradient kernels
   type(c_ptr), public, bind(c) :: opgrad_program = C_NULL_PTR
 
+  !> Device cyclic boundary rotation kernels
+  type(c_ptr), public, bind(c) :: rotate_program = C_NULL_PTR
+
   !> Device Gather-Scatter kernels
   type(c_ptr), public, bind(c) :: gs_program = C_NULL_PTR
 
@@ -68,6 +78,9 @@ module opencl_prgm_lib
   !> Device jacobi kernels
   type(c_ptr), public, bind(c) :: jacobi_program = C_NULL_PTR
 
+  !> Device BiCGStab kernels
+  type(c_ptr), public, bind(c) :: bicgstab_program = C_NULL_PTR
+
   !> Device rhs_maker kernels
   type(c_ptr), public, bind(c) :: rhs_maker_program = C_NULL_PTR
 
@@ -77,8 +90,8 @@ module opencl_prgm_lib
   !> Device pnpn residual kernels (stress formulation)
   type(c_ptr), public, bind(c) :: pnpn_stress_res_program = C_NULL_PTR
 
-  !> Device euler residual kernels
-  type(c_ptr), public, bind(c) :: euler_res_program = C_NULL_PTR
+  !> Device compressible residual kernels
+  type(c_ptr), public, bind(c) :: compressible_res_program = C_NULL_PTR
 
   !> Device compressible ops kernels
   type(c_ptr), public, bind(c) :: &
@@ -98,6 +111,9 @@ module opencl_prgm_lib
 
   !> Device dong kernels
   type(c_ptr), public, bind(c) :: dong_program = C_NULL_PTR
+
+  !> Device Cai-Sagaut Model-II kernels
+  type(c_ptr), public, bind(c) :: cai_sagaut_model_ii_program = C_NULL_PTR
 
   !> Device coef kernels
   type(c_ptr), public, bind(c) :: coef_program = C_NULL_PTR
@@ -119,6 +135,51 @@ module opencl_prgm_lib
 
   !> Device entropy viscosity kernels
   type(c_ptr), public, bind(c) :: entropy_viscosity_program = C_NULL_PTR
+
+  !> Device Smagorinsky eddy viscosity kernels
+  type(c_ptr), public, bind(c) :: smagorinsky_nut_program = C_NULL_PTR
+
+  !> Device WALE eddy viscosity kernels
+  type(c_ptr), public, bind(c) :: wale_nut_program = C_NULL_PTR
+
+  !> Device Sigma eddy viscosity kernels
+  type(c_ptr), public, bind(c) :: sigma_nut_program = C_NULL_PTR
+
+  !> Device Vreman eddy viscosity kernels
+  type(c_ptr), public, bind(c) :: vreman_nut_program = C_NULL_PTR
+
+  !> Device Deardorff eddy viscosity kernels
+  type(c_ptr), public, bind(c) :: deardorff_nut_program = C_NULL_PTR
+
+  !> Device dynamic Smagorinsky kernels
+  type(c_ptr), public, bind(c) :: dynamic_smagorinsky_nut_program = C_NULL_PTR
+
+  !> Device wall model kernels
+  type(c_ptr), public, bind(c) :: wall_model_program = C_NULL_PTR
+
+  !> Device rough log-law wall model kernels
+  type(c_ptr), public, bind(c) :: rough_log_law_program = C_NULL_PTR
+
+  !> Device Spalding wall model kernels
+  type(c_ptr), public, bind(c) :: spalding_program = C_NULL_PTR
+
+  !> Device Richardson wall model kernels
+  type(c_ptr), public, bind(c) :: richardson_program = C_NULL_PTR
+
+  !> Device MOST wall model kernels
+  type(c_ptr), public, bind(c) :: most_program = C_NULL_PTR
+
+  !> Device LPT periodic boundary kernels
+  type(c_ptr), public, bind(c) :: lpt_periodic_bc_program = C_NULL_PTR
+
+  !> Device LPT wall collision kernels
+  type(c_ptr), public, bind(c) :: lpt_wall_collision_program = C_NULL_PTR
+
+  !> Device ALE mesh kinematics kernels
+  type(c_ptr), public, bind(c) :: ale_kinematics_program = C_NULL_PTR
+
+  !> Device gradient jump penalty kernels
+  type(c_ptr), public, bind(c) :: gradient_jump_penalty_program = C_NULL_PTR
 
   public :: opencl_prgm_lib_release
 
@@ -166,6 +227,21 @@ contains
           call neko_error('Failed to release program')
        end if
        symmetry_program = C_NULL_PTR
+    end if
+
+    if (c_associated(constrain_mixed_bc_program)) then
+       if (clReleaseProgram(constrain_mixed_bc_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       constrain_mixed_bc_program = C_NULL_PTR
+    end if
+
+    if (c_associated(coupled_vector_bc_projector_program)) then
+       if (clReleaseProgram(coupled_vector_bc_projector_program) .ne. &
+            CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       coupled_vector_bc_projector_program = C_NULL_PTR
     end if
 
     if (c_associated(facet_normal_program)) then
@@ -217,6 +293,13 @@ contains
        opgrad_program = C_NULL_PTR
     end if
 
+    if (c_associated(rotate_program)) then
+       if (clReleaseProgram(rotate_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       rotate_program = C_NULL_PTR
+    end if
+
     if (c_associated(gs_program)) then
        if (clReleaseProgram(gs_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
@@ -245,6 +328,13 @@ contains
        jacobi_program = C_NULL_PTR
     end if
 
+    if (c_associated(bicgstab_program)) then
+       if (clReleaseProgram(bicgstab_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       bicgstab_program = C_NULL_PTR
+    end if
+
     if (c_associated(rhs_maker_program)) then
        if (clReleaseProgram(rhs_maker_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
@@ -266,11 +356,11 @@ contains
        pnpn_stress_res_program = C_NULL_PTR
     end if
 
-    if (c_associated(euler_res_program)) then
-       if (clReleaseProgram(euler_res_program) .ne. CL_SUCCESS) then
+    if (c_associated(compressible_res_program)) then
+       if (clReleaseProgram(compressible_res_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
-       euler_res_program = C_NULL_PTR
+       compressible_res_program = C_NULL_PTR
     end if
 
     if (c_associated(compressible_ops_compute_max_wave_speed_program)) then
@@ -325,6 +415,13 @@ contains
        dong_program = C_NULL_PTR
     end if
 
+    if (c_associated(cai_sagaut_model_ii_program)) then
+       if (clReleaseProgram(cai_sagaut_model_ii_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       cai_sagaut_model_ii_program = C_NULL_PTR
+    end if
+
     if (c_associated(coef_program)) then
        if (clReleaseProgram(coef_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
@@ -347,7 +444,8 @@ contains
     end if
 
     if (c_associated(compute_max_wave_speed_program)) then
-       if (clReleaseProgram(compute_max_wave_speed_program) .ne. CL_SUCCESS) then
+       if (clReleaseProgram(compute_max_wave_speed_program) .ne. &
+            CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
        compute_max_wave_speed_program = C_NULL_PTR
@@ -374,6 +472,112 @@ contains
        entropy_viscosity_program = C_NULL_PTR
     end if
 
+
+    if (c_associated(smagorinsky_nut_program)) then
+       if (clReleaseProgram(smagorinsky_nut_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       smagorinsky_nut_program = C_NULL_PTR
+    end if
+
+    if (c_associated(wale_nut_program)) then
+       if (clReleaseProgram(wale_nut_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       wale_nut_program = C_NULL_PTR
+    end if
+
+    if (c_associated(sigma_nut_program)) then
+       if (clReleaseProgram(sigma_nut_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       sigma_nut_program = C_NULL_PTR
+    end if
+
+    if (c_associated(vreman_nut_program)) then
+       if (clReleaseProgram(vreman_nut_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       vreman_nut_program = C_NULL_PTR
+    end if
+
+    if (c_associated(deardorff_nut_program)) then
+       if (clReleaseProgram(deardorff_nut_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       deardorff_nut_program = C_NULL_PTR
+    end if
+
+    if (c_associated(dynamic_smagorinsky_nut_program)) then
+       if (clReleaseProgram(dynamic_smagorinsky_nut_program) .ne. &
+            CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       dynamic_smagorinsky_nut_program = C_NULL_PTR
+    end if
+
+    if (c_associated(wall_model_program)) then
+       if (clReleaseProgram(wall_model_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       wall_model_program = C_NULL_PTR
+    end if
+
+    if (c_associated(rough_log_law_program)) then
+       if (clReleaseProgram(rough_log_law_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       rough_log_law_program = C_NULL_PTR
+    end if
+
+    if (c_associated(spalding_program)) then
+       if (clReleaseProgram(spalding_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       spalding_program = C_NULL_PTR
+    end if
+
+    if (c_associated(richardson_program)) then
+       if (clReleaseProgram(richardson_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       richardson_program = C_NULL_PTR
+    end if
+
+    if (c_associated(most_program)) then
+       if (clReleaseProgram(most_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       most_program = C_NULL_PTR
+    end if
+
+    if (c_associated(lpt_periodic_bc_program)) then
+       if (clReleaseProgram(lpt_periodic_bc_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       lpt_periodic_bc_program = C_NULL_PTR
+    end if
+
+    if (c_associated(lpt_wall_collision_program)) then
+       if (clReleaseProgram(lpt_wall_collision_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       lpt_wall_collision_program = C_NULL_PTR
+    end if
+
+    if (c_associated(ale_kinematics_program)) then
+       if (clReleaseProgram(ale_kinematics_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       ale_kinematics_program = C_NULL_PTR
+    end if
+
+    if (c_associated(gradient_jump_penalty_program)) then
+       if (clReleaseProgram(gradient_jump_penalty_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       gradient_jump_penalty_program = C_NULL_PTR
+    end if
   end subroutine opencl_prgm_lib_release
 
 #endif

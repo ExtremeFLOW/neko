@@ -44,6 +44,7 @@ jobs:
               INTEL_PATH=$(find /opt/intel/oneapi/compiler/ -name "${FC}" -type f | xargs dirname)
               export PATH=$INTEL_PATH:${PATH}
               printenv >> $GITHUB_ENV
+              echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
     env:
@@ -103,37 +104,46 @@ jobs:
           os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
-      - name: Build
-        id: build
+      - name: Build - Configure Neko
         env:
           PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
         run: |
           mkdir ${{ github.workspace }}/install
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
-          echo "PATH=${{ github.workspace }}/install/bin:${PATH}" >> $GITHUB_ENV
+          echo "${{ github.workspace }}/install/bin" >> $GITHUB_PATH
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC=mpiifx --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --enable-contrib --prefix=${{ github.workspace }}/install
-          make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc) install
+          ./configure FC=${FC} CC=${CC} MPIFC=mpiifx \
+            FCFLAGS="-O2 -stand f08 $(pkg-config --cflags json-fortran)" \
+            --with-pfunit=$PFUNIT_DIR --enable-real=${RP} \
+            --prefix=${{ github.workspace }}/install
+
+      - name: Build - Build and install Neko
+        run: make -j ${{ steps.setup-env.outputs.nproc }} install
+
+      # ---------------------------------------------------------------------- #
+      # Testing
+      # ---------------------------------------------------------------------- #
+
+      - name: Test - Integration tests
+        run: |
+          chmod +x $MAKENEKO_EXEC
+          cd tests/integration
+          pytest --timeout 300 --max_nprocs=2 --real_precision=${RP}
+          cd ../..
 
       - name: Test - Check
-        if: matrix.backend == 'cpu'
         run: |
           make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
 
-      - name: Integration tests
-        run: |
-           chmod +x $MAKENEKO_EXEC
-           cd tests/integration
-           pytest --timeout 120  --max_nprocs=2 --real_precision=${RP}
-           cd ../..
-
-      - name: Archive integration test report
+      - name: Test - Archive test report
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: Intel Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+          name: Test report - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+          retention-days: 2
+          if-no-files-found: ignore
           path: |
-            tests/integration/logs
             tests/unit/test-suite.log
-          retention-days: 1
+            tests/integration/logs
+            tests/integration/**/*.csv

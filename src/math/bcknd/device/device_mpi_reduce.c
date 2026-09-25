@@ -50,6 +50,8 @@ void device_mpi_allreduce(void *buf_d, void *buf, int count, int nbytes, int op)
       MPI_Allreduce(buf_d, buf, count, MPI_FLOAT, MPI_SUM, NEKO_COMM);
     else if (op == DEVICE_MPI_MAX)
       MPI_Allreduce(buf_d, buf, count, MPI_FLOAT, MPI_MAX, NEKO_COMM);
+    else if (op == DEVICE_MPI_MIN)
+      MPI_Allreduce(buf_d, buf, count, MPI_FLOAT, MPI_MIN, NEKO_COMM);
     else {
       fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
       exit(1);
@@ -60,6 +62,8 @@ void device_mpi_allreduce(void *buf_d, void *buf, int count, int nbytes, int op)
       MPI_Allreduce(buf_d, buf, count, MPI_DOUBLE, MPI_SUM, NEKO_COMM);
     else if (op == DEVICE_MPI_MAX)
       MPI_Allreduce(buf_d, buf, count, MPI_DOUBLE, MPI_MAX, NEKO_COMM);
+    else if (op == DEVICE_MPI_MIN)
+      MPI_Allreduce(buf_d, buf, count, MPI_DOUBLE, MPI_MIN, NEKO_COMM);
     else {
       fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
       exit(1);
@@ -80,6 +84,9 @@ void device_mpi_allreduce_inplace(void *buf_d, int count, int nbytes, int op) {
     else if (op == DEVICE_MPI_MAX)
       MPI_Allreduce(MPI_IN_PLACE, buf_d, count,
                     MPI_FLOAT, MPI_MAX, NEKO_COMM);
+    else if (op == DEVICE_MPI_MIN)
+      MPI_Allreduce(MPI_IN_PLACE, buf_d, count,
+                    MPI_FLOAT, MPI_MIN, NEKO_COMM);
     else {
       fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
       exit(1);
@@ -92,10 +99,16 @@ void device_mpi_allreduce_inplace(void *buf_d, int count, int nbytes, int op) {
     else if (op == DEVICE_MPI_MAX)
       MPI_Allreduce(MPI_IN_PLACE, buf_d, count,
                     MPI_DOUBLE, MPI_MAX, NEKO_COMM);
+    else if (op == DEVICE_MPI_MIN)
+      MPI_Allreduce(MPI_IN_PLACE, buf_d, count,
+                    MPI_DOUBLE, MPI_MIN, NEKO_COMM);
+    else {
+      fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
+      exit(1);
+    }
   }
   else {
     fprintf(stderr, __FILE__ ": Invalid data type)\n");
     exit(1);
   }
 }
-

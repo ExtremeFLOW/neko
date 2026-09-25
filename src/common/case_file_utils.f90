@@ -316,6 +316,8 @@ contains
     ! Retrieve the array from the registry
     vec_ptr => neko_const_registry%get_vector(reg_name)
     val = real(vec_ptr%x, kind=sp)
+
+    nullify(vec_ptr)
   end subroutine json_get_or_lookup_real_array
 
   !> Sampe as `json_get_or_lookup_real_array`, but for double precision.
@@ -351,6 +353,8 @@ contains
     ! Retrieve the array from the registry
     vec_ptr => neko_const_registry%get_vector(reg_name)
     val = real(vec_ptr%x, kind=dp)
+
+    nullify(vec_ptr)
   end subroutine json_get_or_lookup_double_array
 
   !> Retrieves an int array either from the json or from the corresponding vector
@@ -401,6 +405,7 @@ contains
                // "' is not an integer array.")
        end if
     end do
+    nullify(vec_ptr)
   end subroutine json_get_or_lookup_integer_array
 
 end submodule case_file_utils

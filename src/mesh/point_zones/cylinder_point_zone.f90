@@ -96,8 +96,8 @@ contains
     call json_get_or_default(json, "invert", invert, .false.)
     call json_get_or_default(json, "full_elements", full_elements, .false.)
 
-    call cylinder_point_zone_init_common(this, size, trim(name), invert, full_elements, &
-         p0, p1, radius)
+    call cylinder_point_zone_init_common(this, size, trim(name), invert, &
+         full_elements, p0, p1, radius)
 
   end subroutine cylinder_point_zone_init_from_json
 
@@ -109,8 +109,8 @@ contains
   !! @param p0 Coordinates of the first endpoint.
   !! @param p1 Coordinates of the second endpoint.
   !! @param radius Sphere radius.
-  subroutine cylinder_point_zone_init_common(this, size, name, invert, full_elements, &
-       p0, p1, radius)
+  subroutine cylinder_point_zone_init_common(this, size, name, invert, &
+       full_elements, p0, p1, radius)
     class(cylinder_point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name

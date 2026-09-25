@@ -32,22 +32,26 @@
 !
 !> Defines various GMRES methods
 module gmres_device
-  use neko_config, only : NEKO_BCKND_OPENCL
+  use neko_config, only : NEKO_BCKND_OPENCL, NEKO_BCKND_METAL
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
-  use num_types, only: rp, c_rp
+  use num_types, only : rp, c_rp
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       vector_bc_projector_components
   use device_identity, only : device_ident_t
   use math, only : rone, rzero, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3, &
        device_add2s2, device_add2s1, device_rone, &
        device_cmult2, device_add2s2_many, device_glsc3_many,&
        device_sub2
-  use device
+  use device, only : device_map, device_alloc, device_memcpy, HOST_TO_DEVICE, &
+       device_event_create, device_unmap, device_free, device_event_destroy, &
+       device_get_ptr, device_event_sync
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_IN_PLACE, MPI_SUM, MPI_Allreduce
@@ -229,76 +233,72 @@ contains
     call this%ksp_free()
 
     if (allocated(this%w)) then
+       if (c_associated(this%w_d)) then
+          call device_unmap(this%w, this%w_d)
+       end if
        deallocate(this%w)
     end if
 
     if (allocated(this%c)) then
+       if (c_associated(this%c_d)) then
+          call device_unmap(this%c, this%c_d)
+       end if
        deallocate(this%c)
     end if
 
     if (allocated(this%r)) then
+       if (c_associated(this%r_d)) then
+          call device_unmap(this%r, this%r_d)
+       end if
        deallocate(this%r)
     end if
 
     if (allocated(this%z)) then
+       if (allocated(this%z_d)) then
+          do i = 1, this%m_restart
+             if (c_associated(this%z_d(i))) then
+                call device_unmap(this%z(:,i), this%z_d(i))
+             end if
+          end do
+       end if
        deallocate(this%z)
     end if
 
     if (allocated(this%h)) then
+       if (allocated(this%h_d)) then
+          do i = 1, this%m_restart
+             if (c_associated(this%h_d(i))) then
+                call device_unmap(this%h(:,i), this%h_d(i))
+             end if
+          end do
+       end if
        deallocate(this%h)
     end if
 
     if (allocated(this%v)) then
+       if (allocated(this%v_d)) then
+          do i = 1, this%m_restart
+             if (c_associated(this%v_d(i))) then
+                call device_unmap(this%v(:,i), this%v_d(i))
+             end if
+          end do
+       end if
        deallocate(this%v)
     end if
 
     if (allocated(this%s)) then
+       if (c_associated(this%s_d)) then
+          call device_unmap(this%s, this%s_d)
+       end if
        deallocate(this%s)
     end if
     if (allocated(this%gam)) then
+       if (c_associated(this%gam_d)) then
+          call device_unmap(this%gam, this%gam_d)
+       end if
        deallocate(this%gam)
     end if
 
-    if (allocated(this%v_d)) then
-       do i = 1, this%m_restart
-          if (c_associated(this%v_d(i))) then
-             call device_free(this%v_d(i))
-          end if
-       end do
-    end if
-
-    if (allocated(this%z_d)) then
-       do i = 1, this%m_restart
-          if (c_associated(this%z_d(i))) then
-             call device_free(this%z_d(i))
-          end if
-       end do
-    end if
-    if (allocated(this%h_d)) then
-       do i = 1, this%m_restart
-          if (c_associated(this%h_d(i))) then
-             call device_free(this%h_d(i))
-          end if
-       end do
-    end if
-
-
-
-    if (c_associated(this%gam_d)) then
-       call device_free(this%gam_d)
-    end if
-    if (c_associated(this%w_d)) then
-       call device_free(this%w_d)
-    end if
-    if (c_associated(this%c_d)) then
-       call device_free(this%c_d)
-    end if
-    if (c_associated(this%r_d)) then
-       call device_free(this%r_d)
-    end if
-    if (c_associated(this%s_d)) then
-       call device_free(this%s_d)
-    end if
     if (c_associated(this%z_d_d)) then
        call device_free(this%z_d_d)
     end if
@@ -318,15 +318,15 @@ contains
   end subroutine gmres_device_free
 
   !> Standard GMRES solve
-  function gmres_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
-       result(ksp_results)
+  function gmres_device_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, &
+       niter) result(ksp_results)
     class(gmres_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -379,7 +379,7 @@ contains
             call Ax%compute(w, x%x, coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
             call device_event_sync(this%gs_event)
-            call blst%apply_scalar(w, n)
+            call bc_projector%apply(w, n)
             call device_sub2(r_d, w_d, n)
          end if
 
@@ -401,9 +401,9 @@ contains
             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
             call device_event_sync(this%gs_event)
-            call blst%apply_scalar(w, n)
+            call bc_projector%apply(w, n)
 
-            if (NEKO_BCKND_OPENCL .eq. 1) then
+            if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
                do i = 1, j
                   h(i,j) = device_glsc3(w_d, v_d(i), coef%mult_d, n)
 
@@ -470,7 +470,7 @@ contains
             c(k) = temp / h(k,k)
          end do
 
-         if (NEKO_BCKND_OPENCL .eq. 1) then
+         if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
             do i = 1, j
                call device_add2s2(x_d, this%z_d(i), c(i), n)
             end do
@@ -490,7 +490,7 @@ contains
 
   !> Standard GMRES coupled solve
   function gmres_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(gmres_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -501,16 +501,16 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(scalar_bc_projector_t), pointer :: bc_x, bc_y, bc_z
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    call vector_bc_projector_components(bc_projector, bc_x, bc_y, bc_z)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_x, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_y, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_z, gs_h, niter)
 
   end function gmres_device_solve_coupled
 

@@ -8,5 +8,6 @@
 
 #define DEVICE_MPI_SUM 0
 #define DEVICE_MPI_MAX 1
+#define DEVICE_MPI_MIN 2
 
 #endif // __MATH_DEVICE_MPI_OP_H__

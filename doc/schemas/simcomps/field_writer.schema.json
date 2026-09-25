@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:field_writer",
+  "$defs": {
+    "simulationComponent": {
+      "allOf": [
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
+        },
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFieldWriterOptions"
+        },
+        {
+          "type": "object",
+          "required": [
+            "fields"
+          ],
+          "properties": {
+            "type": {
+              "const": "field_writer"
+            },
+            "fields": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFields"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}

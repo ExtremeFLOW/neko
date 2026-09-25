@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_inflow
-  use num_types
-  use utils
+  use num_types, only : c_rp
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr
   private
 
@@ -40,7 +40,7 @@ module device_inflow
 
   interface
      subroutine hip_inflow_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='hip_inflow_apply_vector')
+          bind(c, name = 'hip_inflow_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
@@ -52,7 +52,7 @@ module device_inflow
 
   interface
      subroutine cuda_inflow_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='cuda_inflow_apply_vector')
+          bind(c, name = 'cuda_inflow_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
@@ -64,12 +64,24 @@ module device_inflow
 
   interface
      subroutine opencl_inflow_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='opencl_inflow_apply_vector')
+          bind(c, name = 'opencl_inflow_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
        type(c_ptr), value :: msk, x, y, z, g, strm
      end subroutine opencl_inflow_apply_vector
+  end interface
+
+#elif HAVE_METAL
+
+  interface
+     subroutine metal_inflow_apply_vector(msk, x, y, z, g, m, strm) &
+          bind(c, name = 'metal_inflow_apply_vector')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, y, z, g, strm
+     end subroutine metal_inflow_apply_vector
   end interface
 
 #endif
@@ -88,6 +100,8 @@ contains
     call cuda_inflow_apply_vector(msk, x, y, z, g, m, strm)
 #elif HAVE_OPENCL
     call opencl_inflow_apply_vector(msk, x, y, z, g, m, strm)
+#elif HAVE_METAL
+    call metal_inflow_apply_vector(msk, x, y, z, g, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -95,4 +109,3 @@ contains
   end subroutine device_inflow_apply_vector
 
 end module device_inflow
-

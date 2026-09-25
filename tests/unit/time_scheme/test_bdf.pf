@@ -1,3 +1,5 @@
+module test_bdf
+contains
  @test
  subroutine test_constant_dt()
    use pfunit
@@ -303,3 +305,4 @@ subroutine bdsys (a, b, dt, nbd, ldim)
        END DO
     END DO
   END SUBROUTINE SOLVE
+end module test_bdf

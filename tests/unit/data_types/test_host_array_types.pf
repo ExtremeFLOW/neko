@@ -1,0 +1,75 @@
+module test_host_array_types
+  use pfunit
+  use host_array, only : host_array_t
+  use num_types, only : rp
+  implicit none
+
+contains
+
+  @test
+  subroutine test_host_array_init
+    type(host_array_t) :: a
+
+    call a%init(6)
+
+    @assertTrue(a%is_allocated())
+    @assertEqual(a%size(), 6)
+    @assertEqual(a%x(1), 0.0_rp)
+    @assertEqual(a%x(6), 0.0_rp)
+
+    call a%free()
+  end subroutine test_host_array_init
+
+  @test
+  subroutine test_host_array_reinit
+    type(host_array_t) :: a
+
+    call a%init(4)
+    a%x = 2.0_rp
+
+    call a%init(9)
+
+    @assertTrue(a%is_allocated())
+    @assertEqual(a%size(), 9)
+    @assertEqual(a%x(1), 0.0_rp)
+    @assertEqual(a%x(9), 0.0_rp)
+
+    call a%free()
+  end subroutine test_host_array_reinit
+
+  @test
+  subroutine test_host_array_free
+    type(host_array_t) :: a
+
+    call a%init(5)
+    call a%free()
+
+    @assertFalse(a%is_allocated())
+    @assertEqual(a%size(), 0)
+  end subroutine test_host_array_free
+
+  @test
+  subroutine test_host_array_assign_deep_copy
+    type(host_array_t) :: a
+    type(host_array_t) :: b
+
+    call a%init(4)
+    call b%init(2)
+    a%x = [1.0_rp, 2.0_rp, 3.0_rp, 4.0_rp]
+    b%x = [5.0_rp, 6.0_rp]
+
+    b = a
+    call a%free()
+
+    @assertFalse(a%is_allocated())
+    @assertTrue(b%is_allocated())
+    @assertEqual(b%size(), 4)
+    @assertEqual(b%x(1), 1.0_rp)
+    @assertEqual(b%x(2), 2.0_rp)
+    @assertEqual(b%x(3), 3.0_rp)
+    @assertEqual(b%x(4), 4.0_rp)
+
+    call b%free()
+  end subroutine test_host_array_assign_deep_copy
+
+end module test_host_array_types

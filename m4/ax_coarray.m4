@@ -33,3 +33,31 @@ else
 fi
 
 ])
+
+AC_DEFUN([AX_COARRAY_EVENTS], [
+
+AC_REQUIRE([AC_PROG_FC])
+AC_LANG_PUSH([Fortran])
+
+AC_MSG_CHECKING([for coarray events support])
+AC_COMPILE_IFELSE([
+       program conftest
+       use, intrinsic :: iso_fortran_env, only : event_type
+       type(event_type) :: ev[[*]]
+       integer :: cnt
+       event post(ev[[1]])
+       event wait(ev, until_count=1)
+       call event_query(ev, cnt)
+       end program conftest],
+[ax_coarray_events=yes], [ax_coarray_events=no])
+
+AC_LANG_POP([Fortran])
+
+if test "x$ax_coarray_events" = "xyes"; then
+    AC_MSG_RESULT([yes])
+    AC_DEFINE([HAVE_COARRAY_EVENTS], [1], [Coarray Fortran events support])
+else
+    AC_MSG_RESULT([no])
+fi
+
+])

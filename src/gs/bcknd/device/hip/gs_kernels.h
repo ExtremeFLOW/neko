@@ -378,4 +378,93 @@ __global__ void gs_unpack_max_kernel(T * __restrict__ u,
   }
 }
 
+/*
+ * Fused nc-component (vector) pack/unpack kernels. u is the compact shared
+ * buffer, component-outer with per-component stride ns (= nshared):
+ * component c of shared index idx lives at u[c*ns + idx]. buf is interleaved,
+ * nc values per packed position j: buf[nc*j + c].
+ */
+
+template< typename T >
+__global__ void gs_pack_vec_kernel(const T * __restrict__ u,
+                                   T * __restrict__ buf,
+                                   const int32_t * __restrict__ dof,
+                                   const int n, const int nc, const int ns) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int idx = dof[j] - 1;
+  for (int c = 0; c < nc; c++)
+    buf[nc*j + c] = u[c*ns + idx];
+}
+
+template< typename T >
+__global__ void gs_unpack_add_vec_kernel(T * __restrict__ u,
+                                         const T * __restrict__ buf,
+                                         const int32_t * __restrict__ dof,
+                                         const int n, const int nc,
+                                         const int ns) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int32_t idx = dof[j];
+  if (idx < 0) {
+    for (int c = 0; c < nc; c++)
+      atomicAdd(&u[c*ns + (-idx-1)], buf[nc*j + c]);
+  } else {
+    for (int c = 0; c < nc; c++)
+      u[c*ns + (idx-1)] += buf[nc*j + c];
+  }
+}
+
+template< typename T >
+__global__ void gs_unpack_min_vec_kernel(T * __restrict__ u,
+                                         const T * __restrict__ buf,
+                                         const int32_t * __restrict__ dof,
+                                         const int n, const int nc,
+                                         const int ns) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int32_t idx = dof[j];
+  if (idx < 0) {
+    for (int c = 0; c < nc; c++)
+      atomicMinFloat(&u[c*ns + (-idx-1)], buf[nc*j + c]);
+  } else {
+    for (int c = 0; c < nc; c++)
+      u[c*ns + (idx-1)] = min(u[c*ns + (idx-1)], buf[nc*j + c]);
+  }
+}
+
+template< typename T >
+__global__ void gs_unpack_max_vec_kernel(T * __restrict__ u,
+                                         const T * __restrict__ buf,
+                                         const int32_t * __restrict__ dof,
+                                         const int n, const int nc,
+                                         const int ns) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int32_t idx = dof[j];
+  if (idx < 0) {
+    for (int c = 0; c < nc; c++)
+      atomicMaxFloat(&u[c*ns + (-idx-1)], buf[nc*j + c]);
+  } else {
+    for (int c = 0; c < nc; c++)
+      u[c*ns + (idx-1)] = max(u[c*ns + (idx-1)], buf[nc*j + c]);
+  }
+}
+
 #endif // __GS_GS_KERNELS__

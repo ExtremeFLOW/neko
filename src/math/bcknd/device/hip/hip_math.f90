@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2025, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module hip_math
-  use num_types, only : rp, c_rp
+  use num_types, only : rp, c_rp, c_xp
   implicit none
   public
 
@@ -43,12 +43,19 @@ module hip_math
        integer(c_int) :: n
      end subroutine hip_copy
 
-     subroutine hip_masked_copy(a_d, b_d, mask_d, n, n_mask, strm) &
-          bind(c, name = 'hip_masked_copy')
+     subroutine hip_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm) &
+          bind(c, name = 'hip_masked_copy_0')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        type(c_ptr), value :: a_d, b_d, mask_d, strm
        integer(c_int) :: n, n_mask
-     end subroutine hip_masked_copy
+     end subroutine hip_masked_copy_0
+
+     subroutine hip_masked_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm) &
+          bind(c, name = 'hip_masked_copy_aligned')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       type(c_ptr), value :: a_d, b_d, mask_d, strm
+       integer(c_int) :: n, n_mask
+     end subroutine hip_masked_copy_aligned
 
      subroutine hip_masked_gather_copy(a_d, b_d, mask_d, n, n_mask, strm) &
           bind(c, name = 'hip_masked_gather_copy')
@@ -64,12 +71,27 @@ module hip_math
        integer(c_int) :: n, n_mask
      end subroutine hip_masked_gather_copy_aligned
 
+     subroutine hip_face_masked_gather_copy(a_d, b_d, mask_d, facet_d, n1, &
+          n2, lx, ly, lz, n_mask, strm) &
+          bind(c, name = 'hip_face_masked_gather_copy')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       type(c_ptr), value :: a_d, b_d, mask_d, facet_d, strm
+       integer(c_int) :: n1, n2, lx, ly, lz, n_mask
+     end subroutine hip_face_masked_gather_copy
+
      subroutine hip_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask, strm) &
           bind(c, name = 'hip_masked_scatter_copy')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        type(c_ptr), value :: a_d, b_d, mask_d, strm
        integer(c_int) :: n, n_mask
      end subroutine hip_masked_scatter_copy
+
+     subroutine hip_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm) &
+          bind(c, name = 'hip_masked_scatter_copy_aligned')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       type(c_ptr), value :: a_d, b_d, mask_d, strm
+       integer(c_int) :: n, n_mask
+     end subroutine hip_masked_scatter_copy_aligned
 
      subroutine hip_masked_atomic_reduction(a_d, b_d, mask_d, n, m, strm) &
           bind(c, name = 'hip_masked_atomic_reduction')
@@ -145,6 +167,36 @@ module hip_math
        real(c_rp) :: c
        integer(c_int) :: n
      end subroutine hip_cadd2
+
+     subroutine hip_cwrap(a_d, min_val, max_val, n, strm) &
+          bind(c, name = 'hip_cwrap')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       real(c_rp) :: min_val
+       real(c_rp) :: max_val
+       integer(c_int) :: n
+     end subroutine hip_cwrap
+
+     subroutine hip_sqrt_inplace(a_d, n, strm) &
+          bind(c, name = 'hip_sqrt_inplace')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       integer(c_int) :: n
+     end subroutine hip_sqrt_inplace
+
+     subroutine hip_power(ap_d, a_d, p, n, strm) &
+          bind(c, name = 'hip_power')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: ap_d
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       real(c_rp) :: p
+       integer(c_int) :: n
+     end subroutine hip_power
 
      subroutine hip_cfill(a_d, c, n, strm) &
           bind(c, name = 'hip_cfill')
@@ -353,10 +405,10 @@ module hip_math
        integer(c_int) :: j, n
      end subroutine hip_add2s2_many
 
-     real(c_rp) function hip_glsc3(a_d, b_d, c_d, n, strm) &
+     real(c_xp) function hip_glsc3(a_d, b_d, c_d, n, strm) &
           bind(c, name = 'hip_glsc3')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        type(c_ptr), value :: a_d, b_d, c_d, strm
        integer(c_int) :: n
      end function hip_glsc3
@@ -364,35 +416,61 @@ module hip_math
      subroutine hip_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm) &
           bind(c, name = 'hip_glsc3_many')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        type(c_ptr), value :: w_d, v_d_d, mult_d, strm
        integer(c_int) :: j, n
-       real(c_rp) :: h(j)
+       real(c_xp) :: h(j)
      end subroutine hip_glsc3_many
 
-     real(c_rp) function hip_glsc2(a_d, b_d, n, strm) &
+     real(c_xp) function hip_glsc2(a_d, b_d, n, strm) &
           bind(c, name = 'hip_glsc2')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        type(c_ptr), value :: a_d, b_d, strm
        integer(c_int) :: n
      end function hip_glsc2
 
-     real(c_rp) function hip_glsubnorm2(a_d, b_d, n, strm) &
+     real(c_xp) function hip_glsubnorm2(a_d, b_d, n, strm) &
           bind(c, name = 'hip_glsubnorm2')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        type(c_ptr), value :: a_d, b_d, strm
        integer(c_int) :: n
      end function hip_glsubnorm2
 
-     real(c_rp) function hip_glsum(a_d, n, strm) &
+     real(c_xp) function hip_glsum(a_d, n, strm) &
           bind(c, name = 'hip_glsum')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        type(c_ptr), value :: a_d, strm
        integer(c_int) :: n
      end function hip_glsum
+
+     real(c_rp) function hip_glmax(a_d, ninf, n, strm) &
+          bind(c, name = 'hip_glmax')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       real(c_rp) :: ninf
+       integer(c_int) :: n
+     end function hip_glmax
+
+     real(c_rp) function hip_glamax(a_d, n, strm) &
+          bind(c, name = 'hip_glamax')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       integer(c_int) :: n
+     end function hip_glamax
+
+     real(c_rp) function hip_glmin(a_d, pinf, n, strm) &
+          bind(c, name = 'hip_glmin')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       real(c_rp) :: pinf
+       integer(c_int) :: n
+     end function hip_glmin
 
      subroutine hip_absval(a_d, n, strm) &
           bind(c, name = 'hip_absval')

@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2025, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ module derivative_simcomp
   use case, only : case_t
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_VARNAME_LEN
   use time_based_controller, only : time_based_controller_t
   implicit none
   private
@@ -97,7 +97,7 @@ contains
     character(len=:), allocatable :: direction
     character(len=:), allocatable :: computed_field
     character(len=:), allocatable :: name
-    character(len=20) :: fields(1)
+    character(len=NEKO_VARNAME_LEN) :: fields(1)
 
     ! Add fields keyword to the json so that the field_writer_t picks it up.
     ! Will also add fields to the registry.
@@ -133,8 +133,7 @@ contains
     this%name = name
     this%u => neko_registry%get_field_by_name(trim(field_name))
 
-    this%du => neko_registry%get_field_by_name(&
-         "d" // field_name // "_d" // direction)
+    this%du => neko_registry%get_field_by_name(trim(computed_field))
 
     if (direction .eq. "x") then
        this%dr => this%case%fluid%c_Xh%drdx
@@ -182,7 +181,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(1)
+    character(len=NEKO_VARNAME_LEN) :: fields(1)
 
     fields(1) = trim(computed_field)
 
@@ -222,18 +221,18 @@ contains
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: output_value
     character(len=*) :: field_name
     character(len=*) :: computed_field
     character(len=*) :: direction
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(1)
+    character(len=NEKO_VARNAME_LEN) :: fields(1)
 
     fields(1) = trim(computed_field)
 

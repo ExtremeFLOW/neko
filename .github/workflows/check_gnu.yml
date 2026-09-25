@@ -21,6 +21,11 @@ on:
         type: string
         required: false
         default: "v4.15.0"
+      hdf5-version:
+        description: "The version of the HDF5 library to use."
+        type: string
+        required: false
+        default: "hdf5_2_0_0"
 
 jobs:
   GNU:
@@ -30,17 +35,21 @@ jobs:
       matrix:
         os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15]
         compiler: [gfortran-12, gfortran-13, gfortran-14, gfortran-15]
-        backend: [cpu, cuda, hip, opencl]
+        backend: [cpu, cuda, hip, opencl, metal]
         precision: [sp, dp]
         exclude:
           - os: ubuntu-24.04
             backend: opencl
+          - os: ubuntu-24.04
+            backend: metal
           - os: ubuntu-24.04-arm
             backend: cuda
           - os: ubuntu-24.04-arm
             backend: hip
           - os: ubuntu-24.04-arm
             backend: opencl
+          - os: ubuntu-24.04-arm
+            backend: metal
           - os: ubuntu-24.04-arm
             compiler: gfortran-12
           - os: ubuntu-24.04-arm
@@ -59,6 +68,9 @@ jobs:
             backend: cuda
           - os: macos-15
             backend: hip
+          - os: macos-15
+            backend: metal
+            precision: dp
           - compiler: gfortran-12
             backend: cuda
           - compiler: gfortran-12
@@ -85,7 +97,7 @@ jobs:
 
           - os: macos-15
             setup-env: |
-              brew install openmpi automake libtool
+              brew install openmpi automake libtool cmake
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
@@ -110,6 +122,14 @@ jobs:
         with:
           fetch-depth: 1
 
+      # Refresh the apt package lists. The runner images ship with stale lists
+      # and cache-apt-pkgs-action never refreshes them, so a package that has
+      # been superseded in the pool (e.g. the nvidia-graphics-drivers-535
+      # point release pulled in by nvidia-cuda-toolkit) fails with a 404.
+      - name: Setup - Refresh package lists
+        if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
+        run: sudo apt-get update
+
       # Setup compiler and other system dependencies
       - name: Setup - System dependencies (Cache)
         if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
@@ -129,35 +149,33 @@ jobs:
       - name: Setup - Python environment
         uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
-          cache: 'pip'
+          python-version: "3.x"
+          cache: "pip"
           cache-dependency-path: "**/requirements-tests.txt"
 
       - name: Setup - Install Python dependencies
-#        env:
-#          MPICC: mpicc
-#          MPI4PY_BUILD_WITH_MPI: "1"
-#          PIP_NO_BINARY: "mpi4py"
+        #        env:
+        #          MPICC: mpicc
+        #          MPI4PY_BUILD_WITH_MPI: "1"
+        #          PIP_NO_BINARY: "mpi4py"
         run: |
           pip install -r .github/workflows/extra/requirements-tests.txt
-#          pip install --no-binary=mpi4py mpi4py
+      #          pip install --no-binary=mpi4py mpi4py
 
+      #      - name: Check MPI vendor used by mpi4py
+      #        run: |
+      #          python - << 'EOF'
+      #          from mpi4py import MPI
+      #          print("MPI vendor:", MPI.get_vendor())
+      #          print("MPI version:", MPI.Get_version())
+      #          EOF
 
-#      - name: Check MPI vendor used by mpi4py
-#        run: |
-#          python - << 'EOF'
-#          from mpi4py import MPI
-#          print("MPI vendor:", MPI.get_vendor())
-#          print("MPI version:", MPI.Get_version())
-#          EOF
-
-#      - name: Debug MPI in CI
-#        run: |
-#          which mpirun || echo "mpirun not found"
-#          mpirun --version || echo "mpirun --version failed"
-#          echo "Running simple MPI hello..."
-#          mpirun --oversubscribe -np 2 hostname
-
+      #      - name: Debug MPI in CI
+      #        run: |
+      #          which mpirun || echo "mpirun not found"
+      #          mpirun --version || echo "mpirun --version failed"
+      #          echo "Running simple MPI hello..."
+      #          mpirun --oversubscribe -np 2 hostname
 
       # Setup matrix environment
       - name: Setup - Matrix environment
@@ -177,7 +195,7 @@ jobs:
         run: |
           # Following the instructions from https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html
 
-          wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/noble/
+          wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/7.2.1/ubuntu/noble/
           sudo apt install ./amdgpu-install_*.deb
           sudo apt update
           sudo apt install -y rocm-dev
@@ -198,16 +216,19 @@ jobs:
         env:
           PFUNIT_VERSION: ${{ inputs.pfunit-version }}
           JSON_FORTRAN_VERSION: ${{ inputs.json-fortran-version }}
+          HDF5_VERSION: ${{ inputs.hdf5-version }}
         run: |
           if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.15.0"; fi
           if [ -z "$JSON_FORTRAN_VERSION" ]; then JSON_FORTRAN_VERSION="8.3.0"; fi
+          if [ -z "$HDF5_VERSION" ]; then HDF5_VERSION="hdf5_2_0_0"; fi
 
           echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
+          echo "hdf5-version=$HDF5_VERSION" >> $GITHUB_OUTPUT
 
       - name: Dependencies - Get pFunit
         id: get-pfunit
-        if: matrix.backend == 'cpu'
+        if: matrix.backend == 'cpu' || matrix.backend == 'metal'
         uses: ./.github/actions/setup_pfunit
         with:
           version: ${{ steps.setup-deps.outputs.pfunit-version }}
@@ -222,6 +243,16 @@ jobs:
           os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
+      - name: Dependencies - Get HDF5
+        id: get-hdf5
+        if: matrix.backend == 'cpu' || matrix.os != 'macos-15'
+        uses: ./.github/actions/setup_hdf5
+        with:
+          version: ${{ steps.setup-deps.outputs.hdf5-version }}
+          os: ${{ steps.setup-env.outputs.os-version }}
+          compiler: ${{ matrix.compiler }}
+          c-compiler: ${{ matrix.compiler == 'gfortran-12' && 'gcc-12' || matrix.compiler == 'gfortran-13' && 'gcc-13' || matrix.compiler == 'gfortran-14' && 'gcc-14' || 'gcc-15' }}
+
       # ---------------------------------------------------------------------- #
       # Build Neko
       # ---------------------------------------------------------------------- #
@@ -232,7 +263,9 @@ jobs:
       - name: Build - Configure Neko
         env:
           PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
+          HDF5_DIR: ${{ steps.get-hdf5.outputs.install-dir }}
           BACKEND: ${{ matrix.backend }}
+          OS: ${{ matrix.os }}
         run: |
           if [ "$BACKEND" == 'cpu' ]; then
 
@@ -240,7 +273,12 @@ jobs:
             echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
             echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
             echo "${{ github.workspace }}/install/bin" >> $GITHUB_PATH
-            ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --prefix=${{ github.workspace }}/install
+
+            if [ "$OS" != 'macos-15' ]; then
+              export HDF5_CONFIG=--with-hdf5=$HDF5_DIR
+            fi
+
+            ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR $HDF5_CONFIG --enable-real=${RP} --prefix=${{ github.workspace }}/install
 
           elif [ "$BACKEND" == 'cuda' ]; then
 
@@ -255,6 +293,10 @@ jobs:
           elif [ "$BACKEND" == 'opencl' ]; then
 
             ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-opencl
+
+          elif [ "$BACKEND" == 'metal' ]; then
+
+            ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-metal --with-pfunit=$PFUNIT_DIR
 
           else
 
@@ -276,14 +318,18 @@ jobs:
 
       - name: Test - Integration tests
         if: matrix.backend == 'cpu'
+        env:
+          OS: ${{ matrix.os }}
+          HAVE_HDF5: ${{ matrix.backend == 'cpu' && matrix.os != 'macos-15' && '1' || '0' }}
+
         run: |
-           chmod +x $MAKENEKO_EXEC
-           cd tests/integration
-           pytest --max_nprocs=2 --real_precision=${RP}
-           cd ../..
+          chmod +x $MAKENEKO_EXEC
+          cd tests/integration
+          pytest --max_nprocs=2 --real_precision=${RP}
+          cd ../..
 
       - name: Test - Check
-        if: matrix.backend == 'cpu'
+        if: matrix.backend == 'cpu' || matrix.backend == 'metal'
         run: |
           make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
 
@@ -331,6 +377,12 @@ jobs:
 
               cd releng/neko-*
               ./configure FC=${FC} --enable-real=${RP} --with-opencl
+
+          elif [ ${{ matrix.backend }} == 'metal' ]; then
+
+              cd releng/neko-*
+              ./configure FC=${FC} --enable-real=${RP} --with-metal
+
           else
               echo "Unknown backend ${{ matrix.backend }}"
               exit 1

@@ -73,9 +73,9 @@ module schwarz
        device_event_create, HOST_TO_DEVICE, DEVICE_TO_HOST, &
        device_get_ptr, glb_cmd_queue, aux_cmd_queue, &
        device_event_record, device_event_sync, device_stream_wait_event, &
-       device_event_destroy, device_free
+       device_event_destroy, device_free, device_unmap
   use neko_config, only : NEKO_BCKND_DEVICE
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR, &
        c_associated
   !$ use omp_lib
@@ -94,7 +94,7 @@ module schwarz
      type(dofmap_t) :: dm_schwarz !< needed to init gs
      type(fdm_t) :: fdm
      type(space_t), pointer :: Xh => null()
-     type(bc_list_t), pointer :: bclst => null()
+     type(scalar_bc_projector_t), pointer :: bc_projector => null()
      type(dofmap_t), pointer :: dof => null()
      type(gs_t), pointer :: gs_h => null()
      type(mesh_t), pointer :: msh => null()
@@ -109,13 +109,13 @@ module schwarz
 
 contains
 
-  subroutine schwarz_init(this, Xh, dof, gs_h, bclst, msh)
+  subroutine schwarz_init(this, Xh, dof, gs_h, bc_projector, msh)
     class(schwarz_t), target, intent(inout) :: this
     type(space_t), target, intent(inout) :: Xh
     type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs_h
     type(mesh_t), target, intent(inout) :: msh
-    type(bc_list_t), target, intent(inout) :: bclst
+    type(scalar_bc_projector_t), target, intent(inout) :: bc_projector
     integer :: nthrds
 
     call this%free()
@@ -133,7 +133,7 @@ contains
 
     this%msh => msh
     this%Xh => Xh
-    this%bclst => bclst
+    this%bc_projector => bc_projector
     this%dof => dof
 
     nthrds = 1
@@ -173,17 +173,19 @@ contains
   subroutine schwarz_free(this)
     class(schwarz_t), intent(inout) :: this
 
-    if (allocated(this%work1)) deallocate(this%work1)
-    if (allocated(this%work2)) deallocate(this%work2)
+    if (allocated(this%work1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%work1, this%work1_d)
+       end if
+       deallocate(this%work1)
+    end if
+    if (allocated(this%work2)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%work2, this%work2_d)
+       end if
+       deallocate(this%work2)
+    end if
     if (allocated(this%wt)) deallocate(this%wt)
-
-    if (c_associated(this%work1_d)) then
-       call device_free(this%work1_d)
-    end if
-
-    if (c_associated(this%work2_d)) then
-       call device_free(this%work2_d)
-    end if
 
     if (c_associated(this%wt_d)) then
        call device_free(this%wt_d)
@@ -197,7 +199,7 @@ contains
     call this%fdm%free()
 
     nullify(this%Xh)
-    nullify(this%bclst)
+    nullify(this%bc_projector)
     nullify(this%dof)
     if (allocated(this%gs_h_local)) then
        call this%gs_h_local%free()
@@ -215,8 +217,8 @@ contains
   subroutine schwarz_setup_wt(this)
     class(schwarz_t), intent(inout) :: this
     integer :: enx, eny, enz, n, ie, k, ns
-    real(kind=rp), parameter :: zero = 0.0
-    real(kind=rp), parameter :: one = 1.0
+    real(kind=rp), parameter :: zero = 0.0_rp
+    real(kind=rp), parameter :: one = 1.0_rp
     associate(work1 => this%work1, work2 => this%work2, msh => this%msh, &
          Xh => this%Xh, Xh_schwarz => this%Xh_schwarz)
 
@@ -246,7 +248,7 @@ contains
       end if
       call schwarz_extrude(work2, 0, one, work1, 0, -one, enx, eny, enz, &
            msh%nelv)
-      call schwarz_extrude(work2, 2, one, work2, 0, one, enx, eny, enz, &
+      call schwarz_extrude_single(work2, 2, one, 0, one, enx, eny, enz, &
            msh%nelv)
 
       ! if(.not.if3d) then ! Go back to regular size array
@@ -344,6 +346,7 @@ contains
     real(kind=rp), intent(inout) :: a(0:n+1, 0:n+1, 0:n+1, nelv)
     real(kind=rp), intent(inout) :: b(n, n, n, nelv)
     integer :: i, j, k, ie
+    !$omp parallel do private(ie, i, j, k)
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
@@ -353,6 +356,7 @@ contains
           end do
        end do
     end do
+    !$omp end parallel do
   end subroutine schwarz_toreg3d
 
   !> convert array a from original size to size extended array with border
@@ -363,6 +367,7 @@ contains
     integer :: i, j, k, ie
 
     call rzero(a, (n+2)*(n+2)*(n+2)*nelv)
+    !$omp parallel do private(ie, i, j, k)
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
@@ -372,21 +377,25 @@ contains
           end do
        end do
     end do
+    !$omp end parallel do
   end subroutine schwarz_toext3d
 
   !> Sum values along rows l1, l2 with weights f1, f2 and store along row l1.
   !! Helps us avoid complicated communcation to get neighbor values.
   !! Simply copy interesting values to the boundary and then do gs_op on extended array.
+  !! @note arr1 and arr2 must not be the same array. Use schwarz_extrude_single
+  !! when operating on a single array to avoid aliasing violations.
   subroutine schwarz_extrude(arr1, l1, f1, arr2, l2, f2, nx, ny, nz, nelv)
     integer, intent(in) :: l1, l2, nx, ny, nz, nelv
-    real(kind=rp), intent(inout) :: arr1(nx, ny, nz, nelv), &
-         arr2(nx, ny, nz, nelv)
+    real(kind=rp), intent(inout) :: arr1(nx, ny, nz, nelv)
+    real(kind=rp), intent(in) :: arr2(nx, ny, nz, nelv)
     real(kind=rp), intent(in) :: f1, f2
     integer :: i, j, k, ie, i0, i1
     i0 = 2
     i1 = nx - 1
 
     if (nz .eq. 1) then
+       !$omp parallel do private(ie, i, j)
        do ie = 1, nelv
           do j = i0, i1
              arr1(l1 + 1, j, 1, ie) = f1 * arr1(l1 + 1, j, 1, ie) &
@@ -401,7 +410,9 @@ contains
                   + f2 * arr2(i, nx - l2, 1, ie)
           end do
        end do
+       !$omp end parallel do
     else
+       !$omp parallel do private(ie, i, j, k)
        do ie = 1, nelv
           do k = i0, i1
              do j = i0, i1
@@ -428,8 +439,69 @@ contains
              end do
           end do
        end do
+       !$omp end parallel do
     end if
   end subroutine schwarz_extrude
+
+  !> Same as schwarz_extrude but for the case when arr1 and arr2 are the same
+  !! array. Avoids aliasing by using a single dummy argument.
+  !! l1 and l2 must index non-overlapping rows (e.g. 0 vs 2).
+  subroutine schwarz_extrude_single(arr, l1, f1, l2, f2, nx, ny, nz, nelv)
+    integer, intent(in) :: l1, l2, nx, ny, nz, nelv
+    real(kind=rp), intent(inout) :: arr(nx, ny, nz, nelv)
+    real(kind=rp), intent(in) :: f1, f2
+    integer :: i, j, k, ie, i0, i1
+    i0 = 2
+    i1 = nx - 1
+
+    if (nz .eq. 1) then
+       !$omp parallel do private(ie, i, j)
+       do ie = 1, nelv
+          do j = i0, i1
+             arr(l1 + 1, j, 1, ie) = f1 * arr(l1 + 1, j, 1, ie) &
+                  + f2 * arr(l2 + 1, j, 1, ie)
+             arr(nx - l1, j, 1, ie) = f1 * arr(nx - l1, j, 1, ie) &
+                  + f2 * arr(nx - l2, j, 1, ie)
+          end do
+          do i = i0, i1
+             arr(i, l1 + 1, 1, ie) = f1 * arr(i, l1 + 1, 1, ie) &
+                  + f2 * arr(i, l2 + 1, 1, ie)
+             arr(i, ny - l1, 1, ie) = f1 * arr(i, ny - l1, 1, ie) &
+                  + f2 * arr(i, nx - l2, 1, ie)
+          end do
+       end do
+       !$omp end parallel do
+    else
+       !$omp parallel do private(ie, i, j, k)
+       do ie = 1, nelv
+          do k = i0, i1
+             do j = i0, i1
+                arr(l1 + 1, j, k, ie) = f1 * arr(l1 + 1, j, k, ie) &
+                     + f2 * arr(l2 + 1, j, k, ie)
+                arr(nx - l1, j, k, ie) = f1 * arr(nx - l1, j, k, ie) &
+                     + f2 * arr(nx - l2, j, k, ie)
+             end do
+          end do
+          do k = i0, i1
+             do i = i0, i1
+                arr(i, l1 + 1, k, ie) = f1 * arr(i, l1 + 1, k, ie) &
+                     + f2 * arr(i, l2 + 1, k, ie)
+                arr(i, nx - l1, k, ie) = f1 * arr(i, nx - l1, k, ie) &
+                     + f2 * arr(i, nx - l2, k, ie)
+             end do
+          end do
+          do j = i0, i1
+             do i = i0, i1
+                arr(i, j, l1 + 1, ie) = f1 * arr(i, j, l1 + 1, ie) &
+                     + f2 * arr(i, j, l2 + 1, ie)
+                arr(i, j, nx - l1, ie) = f1 * arr(i, j, nx - l1, ie) &
+                     + f2 * arr(i, j, nx - l2, ie)
+             end do
+          end do
+       end do
+       !$omp end parallel do
+    end if
+  end subroutine schwarz_extrude_single
 
   subroutine schwarz_compute(this, e, r)
     class(schwarz_t), intent(inout) :: this
@@ -480,23 +552,25 @@ contains
          this%gs_h%bcknd%gs_stream = aux_cmd_queue
          call this%gs_h%op(e, n, GS_OP_ADD, this%event)
 
-         call this%bclst%apply_scalar(e, n, strm = aux_cmd_queue)
+         call this%bc_projector%apply(e, n, strm = aux_cmd_queue)
          call device_col2(e_d, this%wt_d, n, aux_cmd_queue)
+
+         call device_event_record(this%event, aux_cmd_queue)
+         call device_event_sync(this%event)
 
          ! switch back to the default stream on the shared gs
          if (.not. this%local_gs) then
-            call device_event_sync(this%event)
             this%gs_h%bcknd%gs_stream = glb_cmd_queue
          end if
       else
-         call this%bclst%apply_scalar(r, n)
+         call this%bc_projector%apply(r, n)
          call schwarz_toext3d(work1, r, this%Xh%lx, this%msh%nelv)
 
          !  exchange interior nodes
-         call schwarz_extrude(work1, 0, zero, work1, 2, one, &
+         call schwarz_extrude_single(work1, 0, zero, 2, one, &
               enx, eny, enz, this%msh%nelv)
          call this%gs_schwarz%op(work1, ns, GS_OP_ADD)
-         call schwarz_extrude(work1, 0, one, work1, 2, -one, &
+         call schwarz_extrude_single(work1, 0, one, 2, -one, &
               enx, eny, enz, this%msh%nelv)
 
          call this%fdm%compute(work2, work1) ! do local solves
@@ -507,14 +581,14 @@ contains
          call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
          call schwarz_extrude(work2, 0, one, work1, 0, -one, &
               enx, eny, enz, this%msh%nelv)
-         call schwarz_extrude(work2, 2, one, work2, 0, one, &
+         call schwarz_extrude_single(work2, 2, one, 0, one, &
               enx, eny, enz, this%msh%nelv)
 
          call schwarz_toreg3d(e, work2, this%Xh%lx, this%msh%nelv)
 
          ! sum border nodes
          call this%gs_h%op(e, n, GS_OP_ADD)
-         call this%bclst%apply_scalar(e, n)
+         call this%bc_projector%apply(e, n)
 
          call schwarz_wt3d(e, this%wt, this%Xh%lx, this%msh%nelv)
       end if
@@ -528,6 +602,7 @@ contains
     real(kind=rp), intent(inout) :: wt(n, n, 4, 3, nelv)
     integer :: ie, i, j, k
 
+    !$omp parallel do private(ie, i, j, k)
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
@@ -554,5 +629,6 @@ contains
           end do
        end do
     end do
+    !$omp end parallel do
   end subroutine schwarz_wt3d
 end module schwarz

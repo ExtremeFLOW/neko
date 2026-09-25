@@ -92,6 +92,24 @@ module tensor_device
        integer(c_int) :: nu, nv, nelv
      end subroutine opencl_tnsr3d
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, &
+          elements, n_points) &
+          bind(c, name = 'metal_tnsr3d_el_list')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d, elements
+       integer(c_int) :: nu, nv, n_points
+     end subroutine metal_tnsr3d_el_list
+  end interface
+  interface
+     subroutine metal_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
+          bind(c, name = 'metal_tnsr3d')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d
+       integer(c_int) :: nu, nv, nelv
+     end subroutine metal_tnsr3d
+  end interface
 #endif
 contains
 
@@ -104,6 +122,8 @@ contains
     call cuda_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv)
 #elif HAVE_OPENCL
     call opencl_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv)
+#elif HAVE_METAL
+    call metal_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -121,6 +141,9 @@ contains
          n_points)
 #elif HAVE_OPENCL
     call opencl_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, &
+         n_points)
+#elif HAVE_METAL
+    call metal_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, &
          n_points)
 #else
     call neko_error('No device backend configured')

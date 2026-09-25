@@ -77,7 +77,6 @@ template< typename T >
 __global__ void scalar_makeext_kernel(T * __restrict__ fs_lag,
                                       T * __restrict__ fs_laglag,
                                       T * __restrict__ fs,
-                                      const T rho,
                                       const T ext1,
                                       const T ext2,
                                       const T ext3,
@@ -92,7 +91,7 @@ __global__ void scalar_makeext_kernel(T * __restrict__ fs_lag,
     fs_laglag[i] = fs_lag[i];
     fs_lag[i] = fs[i];
 
-    fs[i] = (ext1 * fs[i] + ta1_val) * rho;
+    fs[i] = ext1 * fs[i] + ta1_val;
   } 
   
 }

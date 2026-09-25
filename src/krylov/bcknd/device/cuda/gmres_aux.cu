@@ -36,6 +36,7 @@
 #include "gmres_kernel.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
+#include <device/cuda/buffer.h>
 
 #ifdef HAVE_NVSHMEM
 #include <nvshmem.h>
@@ -53,11 +54,10 @@ extern "C" {
 #endif
 
   /**
-   * @todo Make sure that this gets deleted at some point...
+   * Reduction buffer, owned by the device layer and released on
+   * device teardown (cuda_buffer_free_all in cuda_finalize)
    */
-  real * gmres_bf1 = NULL;
-  real * gmres_bfd1 = NULL;
-  int gmres_bf_len = 0;
+  cuda_buffer_t gmres_redbuf = CUDA_BUFFER_INIT_SYMM;
 
   real cuda_gmres_part2(void *w, void *v, void *h, void * mult, int *j, int *n) {
 
@@ -66,25 +66,9 @@ extern "C" {
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    if (gmres_bf1 != NULL && gmres_bf_len < nb) {
-      CUDA_CHECK(cudaFreeHost(gmres_bf1));
-#ifdef HAVE_NVSHMEM
-      nvshmem_free(gmres_bfd1);
-#else
-      CUDA_CHECK(cudaFree(gmres_bfd1));
-#endif
-      gmres_bf1 = NULL;
-    }
-
-    if (gmres_bf1 == NULL){
-      CUDA_CHECK(cudaMallocHost(&gmres_bf1, nb*sizeof(real)));
-#ifdef HAVE_NVSHMEM
-      gmres_bfd1 = (real *) nvshmem_malloc(nb*sizeof(real));
-#else
-      CUDA_CHECK(cudaMalloc(&gmres_bfd1, nb*sizeof(real)));
-#endif
-      gmres_bf_len = nb;
-    }
+    cuda_buffer_reserve(&gmres_redbuf, nb*sizeof(real));
+    real *gmres_bf1 = (real *) gmres_redbuf.host;
+    real *gmres_bfd1 = (real *) gmres_redbuf.dev;
 
     gmres_part2_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) w, (real **) v,

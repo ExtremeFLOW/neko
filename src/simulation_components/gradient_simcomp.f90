@@ -44,6 +44,7 @@ module gradient_simcomp
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
   use time_based_controller, only : time_based_controller_t
+  use utils, only : NEKO_VARNAME_LEN
   implicit none
   private
 
@@ -91,7 +92,7 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: field_name
     character(len=:), allocatable :: name
-    character(len=20) :: fields(3)
+    character(len=NEKO_VARNAME_LEN) :: fields(3)
     character(len=:), allocatable :: computed_field
 
     call json_get_or_default(json, "name", name, "gradient")
@@ -100,12 +101,11 @@ contains
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
     call json_get_or_default(json, "computed_field", computed_field, &
-         "gradient" // trim(field_name))
+         "gradient_" // trim(field_name))
 
     fields(1) = computed_field // "_x"
     fields(2) = computed_field // "_y"
     fields(3) = computed_field // "_z"
-    write(*,*) fields(1), fields(2), fields(3)
 
     call json%add("fields", fields)
 
@@ -163,7 +163,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(3)
+    character(len=NEKO_VARNAME_LEN) :: fields(3)
 
     fields(1) = trim(computed_field) // "_x"
     fields(2) = trim(computed_field) // "_y"
@@ -204,17 +204,17 @@ contains
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: output_value
     character(len=*) :: field_name
     character(len=*) :: computed_field
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(3)
+    character(len=NEKO_VARNAME_LEN) :: fields(3)
 
     fields(1) = trim(computed_field) // "_x"
     fields(2) = trim(computed_field) // "_y"

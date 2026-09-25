@@ -1,5 +1,6 @@
 pytest
 pytest-timeout
 json5
+jsonschema
 numpy
 git+https://github.com/ExtremeFLOW/pySEMTools.git

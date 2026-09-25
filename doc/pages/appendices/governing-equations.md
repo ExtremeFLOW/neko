@@ -54,12 +54,8 @@ heat capacity, \f$ \lambda_{tot} \f$ is the total thermal conductivity, and \f$ 
 
 ## Compressible Flows
 
-Neko supports compressible flow simulations via the compressible Navier-Stokes
-equations. The current implementation solves the compressible Euler equations
-(inviscid limit). Physical viscosity terms will be added in upcoming updates.
-
-The compressible Euler equations consist of conservation of mass, momentum, and
-energy:
+Neko also supports compressible flow simulations, where the primary quantities
+are advanced through conservation of mass, momentum, and energy:
 
 $$\frac{\partial \rho}{\partial t} + 
   \frac{\partial (\rho u_i)}{\partial x_i} = 0,$$
@@ -81,6 +77,10 @@ where \f$ \gamma \f$ is the ratio of specific heats. The system is closed by
 the ideal gas equation of state:
 
 $$p = (\gamma - 1) \left( E - \frac{1}{2} \rho u_i u_i \right).$$
+
+Physical dynamic viscosity and thermal conductivity can be specified as
+constants in the case file or via the user file `material_properties` interface;
+if they are not specified, they default to zero.
 
 ## Non-dimensionalisation
 A non-dimensional form of the Navier-Stokes equations may be found by defining the Reynolds number

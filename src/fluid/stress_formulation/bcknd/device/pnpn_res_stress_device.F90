@@ -1,7 +1,6 @@
 !> Residuals in the Pn-Pn formulation (device version)
 module pnpn_res_stress_device
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use utils, only : neko_error
   use operators, only : dudxyz, cdtp, curl, opgrad, strain_rate, rotate_cyc
   use field, only : field_t
   use ax_product, only : ax_t
@@ -199,6 +198,61 @@ module pnpn_res_stress_device
        integer(c_int) :: n
      end subroutine pnpn_vel_res_update_opencl
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine pnpn_prs_stress_res_part1_metal(ta1_d, ta2_d, ta3_d, &
+          wa1_d, wa2_d, wa3_d, s11_d, s22_d, s33_d, &
+          s12_d, s13_d, s23_d, f_u_d, f_v_d, f_w_d, &
+          B_d, h1_d, rho_d, n) &
+          bind(c, name = 'pnpn_prs_stress_res_part1_metal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: ta1_d, ta2_d, ta3_d
+       type(c_ptr), value :: wa1_d, wa2_d, wa3_d
+       type(c_ptr), value :: s11_d, s22_d, s33_d, s12_d, s13_d, s23_d
+       type(c_ptr), value :: f_u_d, f_v_d, f_w_d
+       type(c_ptr), value :: B_d, h1_d, rho_d
+       integer(c_int) :: n
+     end subroutine pnpn_prs_stress_res_part1_metal
+  end interface
+
+  interface
+     subroutine pnpn_prs_res_part2_metal(p_res_d, wa1_d, wa2_d, wa3_d, n) &
+          bind(c, name = 'pnpn_prs_res_part2_metal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
+       integer(c_int) :: n
+     end subroutine pnpn_prs_res_part2_metal
+  end interface
+
+  interface
+     subroutine pnpn_prs_stress_res_part3_metal(p_res_d, ta1_d, ta2_d, ta3_d, &
+          wa1_d, wa2_d, wa3_d, dtbd, n) &
+          bind(c, name = 'pnpn_prs_stress_res_part3_metal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: p_res_d, ta1_d, ta2_d, ta3_d
+       type(c_ptr), value :: wa1_d, wa2_d, wa3_d
+       real(c_rp) :: dtbd
+       integer(c_int) :: n
+     end subroutine pnpn_prs_stress_res_part3_metal
+  end interface
+
+  interface
+     subroutine pnpn_vel_res_update_metal(u_res_d, v_res_d, w_res_d, &
+          ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
+          bind(c, name = 'pnpn_vel_res_update_metal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: u_res_d, v_res_d, w_res_d
+       type(c_ptr), value :: ta1_d, ta2_d, ta3_d
+       type(c_ptr), value :: f_u_d, f_v_d, f_w_d
+       integer(c_int) :: n
+     end subroutine pnpn_vel_res_update_metal
+  end interface
 #endif
 
 contains
@@ -266,15 +320,15 @@ contains
 
 
     ! The strain rate tensor
-    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
-         u_e, v_e, w_e, c_Xh)
+    call strain_rate(s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
+         u_e%x_d, v_e%x_d, w_e%x_d, c_Xh)
 
 
     ! Gradient of viscosity * 2
     !call opgrad(ta1%x, ta2%x, ta3%x, mu%x, c_Xh)
-    call dudxyz(ta1%x, mu%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-    call dudxyz(ta2%x, mu%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-    call dudxyz(ta3%x, mu%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
+    call dudxyz(ta1%x_d, mu%x_d, c_Xh%drdx_d, c_Xh%dsdx_d, c_Xh%dtdx_d, c_Xh)
+    call dudxyz(ta2%x_d, mu%x_d, c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d, c_Xh)
+    call dudxyz(ta3%x_d, mu%x_d, c_Xh%drdz_d, c_Xh%dsdz_d, c_Xh%dtdz_d, c_Xh)
 
 #ifdef HAVE_HIP
     call pnpn_prs_stress_res_part1_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
@@ -294,13 +348,17 @@ contains
          s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
          f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
+#elif HAVE_METAL
+    call pnpn_prs_stress_res_part1_metal(ta1%x_d, ta2%x_d, ta3%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, &
+         s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
+         f_x%x_d, f_y%x_d, f_z%x_d, &
+         c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
 #endif
 
-    call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, c_Xh)
-    call gs_Xh%op(ta1, GS_OP_ADD)
-    call gs_Xh%op(ta2, GS_OP_ADD)
-    call gs_Xh%op(ta3, GS_OP_ADD)
-    call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
+    call rotate_cyc(ta1%x_d, ta2%x_d, ta3%x_d, 1, c_Xh)
+    call gs_Xh%op(ta1%x, ta2%x, ta3%x, n, GS_OP_ADD)
+    call rotate_cyc(ta1%x_d, ta2%x_d, ta3%x_d, 0, c_Xh)
 
     call device_opcolv(ta1%x_d, ta2%x_d, ta3%x_d, c_Xh%Binv_d, gdim, n)
 
@@ -318,6 +376,8 @@ contains
     call pnpn_prs_res_part2_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #elif HAVE_OPENCL
     call pnpn_prs_res_part2_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
+#elif HAVE_METAL
+    call pnpn_prs_res_part2_metal(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #endif
 
     !
@@ -345,7 +405,10 @@ contains
     call pnpn_prs_stress_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_OPENCL
-    call pnpn_prs_stress_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
+    call pnpn_prs_stress_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d,&
+         wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
+#elif HAVE_METAL
+    call pnpn_prs_stress_res_part3_metal(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d,&
          wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #endif
 
@@ -400,6 +463,9 @@ contains
          ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #elif HAVE_OPENCL
     call pnpn_vel_res_update_opencl(u_res%x_d, v_res%x_d, w_res%x_d, &
+         ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
+#elif HAVE_METAL
+    call pnpn_vel_res_update_metal(u_res%x_d, v_res%x_d, w_res%x_d, &
          ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #endif
 

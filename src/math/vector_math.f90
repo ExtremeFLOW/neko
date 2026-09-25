@@ -62,37 +62,43 @@ module vector_math
   use num_types, only : rp
   use vector, only : vector_t
   use mask, only : mask_t
-  use device
+  use device, only : device_get_ptr
   use utils, only : neko_error
   use math, only : rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, &
        add2, add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, &
-       invcol2, col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glsc2, &
-       glsc3, masked_gather_copy_0, masked_gather_copy, &
-       masked_scatter_copy_0, glsubnorm, invcol3
+       invcol2, col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glmax, &
+       glmin, glsc2, glsc3, masked_gather_copy_0, face_masked_gather_copy_0, &
+       masked_gather_copy, cadd2, masked_scatter_copy, &
+       masked_scatter_copy_0, glsubnorm, invcol3, cwrap, &
+       sqrt_inplace, power, absval
   use device_math, only : device_rzero, device_rone, device_copy, &
        device_cmult, device_cadd, device_cfill, device_invcol1, device_vdot3, &
+       device_cadd2, device_absval, &
        device_add2, device_add3, device_add4, device_sub2, device_sub3, &
        device_add2s1, device_add2s2, device_addsqr2s2, device_cmult2, &
        device_invcol2, device_col2, device_col3, device_subcol3, &
        device_add3s2, device_addcol3, device_addcol4, device_glsum, &
-       device_glsc2, device_glsc3, device_masked_gather_copy_0, &
+       device_glmax, device_glmin, device_glsc2, device_glsc3, &
+       device_masked_gather_copy_0, device_face_masked_gather_copy_0, &
        device_masked_gather_copy_aligned, device_masked_scatter_copy_0, &
-       device_glsubnorm, device_invcol3
+       device_masked_scatter_copy_aligned, device_glsubnorm, device_invcol3, &
+       device_cwrap, device_sqrt_inplace, device_power
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
   public :: vector_rzero, vector_rone, vector_copy, vector_cmult, &
        vector_cadd, vector_cfill, vector_invcol1, vector_invcol3, &
-       vector_vdot3, &
+       vector_vdot3, vector_cadd2, vector_absval, &
        vector_add2, vector_sub2, vector_sub3, vector_add2s1, &
        vector_add2s2, vector_addsqr2s2, vector_cmult2, &
        vector_invcol2, vector_col2, vector_col3, vector_subcol3, &
        vector_add3s2, vector_addcol3, vector_addcol4, vector_glsum, &
-       vector_glsc2, vector_glsc3, vector_add3, vector_masked_gather_copy_0, &
-       vector_masked_gather_copy, &
-       vector_masked_scatter_copy_0, vector_glsubnorm
-
+       vector_glmax, vector_glmin, vector_glsc2, vector_glsc3, vector_add3, &
+       vector_masked_gather_copy_0, vector_face_masked_gather_copy_0, &
+       vector_masked_gather_copy, vector_masked_scatter_copy_0, &
+       vector_masked_scatter_copy, vector_glsubnorm, vector_cwrap, &
+       vector_sqrt_inplace, vector_power
 
 contains
 
@@ -194,6 +200,28 @@ contains
     end if
   end subroutine vector_cadd
 
+  !> Add a scalar to vector \f$ a_i =  b_i + s \f$
+  subroutine vector_cadd2(a, b, s, n)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(inout) :: a
+    type(vector_t), intent(in) :: b
+    real(kind=rp), intent(in) :: s
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cadd2(a%x_d, b%x_d, s, size)
+    else
+       call cadd2(a%x, b%x, s, size)
+    end if
+  end subroutine vector_cadd2
+
+
   !> Set all elements to a constant c \f$ a = c \f$
   subroutine vector_cfill(a, c, n)
     integer, intent(in), optional :: n
@@ -262,7 +290,7 @@ contains
     integer, intent(in), optional :: n
     type(vector_t), intent(in) :: u1, u2, u3
     type(vector_t), intent(in) :: v1, v2, v3
-    type(vector_t), intent(out) :: dot
+    type(vector_t), intent(inout) :: dot
     integer :: size
 
     if (present(n)) then
@@ -420,7 +448,7 @@ contains
   subroutine vector_add2s2(a, b, c1, n)
     integer, intent(in), optional :: n
     type(vector_t), intent(inout) :: a
-    type(vector_t), intent(inout) :: b
+    type(vector_t), intent(in) :: b
     real(kind=rp), intent(in) :: c1
     integer :: size
 
@@ -657,6 +685,48 @@ contains
 
   end function vector_glsum
 
+  !> Global maximum of all elements in a vector \f$ max = \max_i a_i \f$
+  function vector_glmax(a, n) result(val)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(in) :: a
+    real(kind=rp) :: val
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       val = device_glmax(a%x_d, size)
+    else
+       val = glmax(a%x, size)
+    end if
+
+  end function vector_glmax
+
+  !> Global minimum of all elements in a vector \f$ min = \min_i a_i \f$
+  function vector_glmin(a, n) result(val)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(in) :: a
+    real(kind=rp) :: val
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       val = device_glmin(a%x_d, size)
+    else
+       val = glmin(a%x, size)
+    end if
+
+  end function vector_glmin
+
   function vector_glsc2(a, b, n) result(norm)
     integer, intent(in), optional :: n
     type(vector_t), intent(in) :: a, b
@@ -697,6 +767,26 @@ contains
 
   end function vector_glsc3
 
+  !> Compute the pointwise absolute value of a vector \f$ a = |a| \f$
+  subroutine vector_absval(a, n)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(inout) :: a
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_absval(a%x_d, size)
+    else
+       call absval(a%x, size)
+    end if
+
+  end subroutine vector_absval
+
   function vector_glsubnorm(a, b, n) result(norm)
     integer, intent(in), optional :: n
     type(vector_t), intent(in) :: a, b
@@ -732,6 +822,8 @@ contains
     integer, dimension(0:n_mask) :: mask
     type(c_ptr) :: mask_d, b_d
 
+    if (n .lt. 1 .or. n_mask .lt. 1) return !Avoid getting null pointers
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        mask_d = device_get_ptr(mask)
        b_d = device_get_ptr(b)
@@ -741,6 +833,36 @@ contains
     end if
 
   end subroutine vector_masked_gather_copy_0
+
+  !> Gather a face-local SEM field to a reduced contiguous vector.
+  !! @param a Destination vector of size `n_mask`.
+  !! @param b Source face-local array indexed as `b(:, :, facet, element)`.
+  !! @param mask Mask array of length `n_mask + 1`, where `mask(0) = n_mask`.
+  !! @param facet Facet ids associated with the masked points.
+  !! @param lx Number of points in the first SEM direction.
+  !! @param ly Number of points in the second SEM direction.
+  !! @param lz Number of points in the third SEM direction.
+  !! @param n_mask Size of the mask array `mask` and vector `a`.
+  subroutine vector_face_masked_gather_copy_0(a, b, mask, facet, lx, ly, lz, &
+       n_mask)
+    integer, intent(in) :: lx, ly, lz, n_mask
+    type(vector_t), intent(inout) :: a
+    real(kind=rp), dimension(:, :, :, :), intent(in) :: b
+    integer, dimension(0:n_mask), intent(in) :: mask
+    integer, dimension(0:n_mask), intent(in) :: facet
+    type(c_ptr) :: mask_d, facet_d, b_d
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       mask_d = device_get_ptr(mask)
+       facet_d = device_get_ptr(facet)
+       b_d = device_get_ptr(b)
+       call device_face_masked_gather_copy_0(a%x_d, b_d, mask_d, facet_d, &
+            size(b, 1), size(b, 2), lx, ly, lz, n_mask)
+    else
+       call face_masked_gather_copy_0(a%x, b, mask, facet, lx, ly, lz, n_mask)
+    end if
+
+  end subroutine vector_face_masked_gather_copy_0
 
   !> Gather a vector to reduced contigous array
   !! \f$ a = b(mask) \f$.
@@ -755,6 +877,8 @@ contains
     integer, intent(in) :: n
     type(c_ptr) :: mask_d, b_d
 
+    if (n .lt. 1 .or. mask%size() .lt. 1) return !Avoid getting null pointers
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        mask_d = mask%get_d()
        b_d = device_get_ptr(b)
@@ -766,31 +890,123 @@ contains
 
   end subroutine vector_masked_gather_copy
 
-  !> Gather a contigous array into a vector
+  !> Scatter a contiguous vector into an array
   !! \f$ a(mask) = b \f$.
-  !! @param a Destination vector.
-  !! @param b Source array of size `n_mask`.
+  !! @param a Destination array.
+  !! @param b Source vector of size `n_mask`.
   !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
   !! the length of the mask array.
-  !! @param n Size of the vector `a`.
-  !! @param n_mask Size of the mask array `mask` and `b`.
+  !! @param n Size of the array `a`.
+  !! @param n_mask Size of the mask array `mask` and vector `b`.
   subroutine vector_masked_scatter_copy_0(a, b, mask, n, n_mask)
     integer, intent(in) :: n, n_mask
-    real(kind=rp), dimension(n_mask), intent(in) :: b
-    type(vector_t), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(inout) :: a
+    type(vector_t), intent(in) :: b
     integer, dimension(0:n_mask) :: mask
-    type(c_ptr) :: mask_d, b_d
+    type(c_ptr) :: mask_d, a_d
+
+    if (n .lt. 1 .or. n_mask .lt. 1) return !Avoid getting null pointers
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       a_d = device_get_ptr(a)
        mask_d = device_get_ptr(mask)
-       b_d = device_get_ptr(b)
-       call device_masked_scatter_copy_0(a%x_d, b_d, mask_d, n, n_mask)
+       call device_masked_scatter_copy_0(a_d, b%x_d, mask_d, n, n_mask)
     else
-       call masked_scatter_copy_0(a%x, b, mask, n, n_mask)
+       call masked_scatter_copy_0(a, b%x, mask, n, n_mask)
     end if
 
   end subroutine vector_masked_scatter_copy_0
 
+  !> Scatter a contiguous vector into an array
+  !! \f$ a(mask) = b \f$.
+  !! @param a Destination array.
+  !! @param b Source vector of size `n_mask`.
+  !! @param mask mask_t containing mask array and device pointer if needed.`
+  !! @param n Size of the array `a`.
+  subroutine vector_masked_scatter_copy(a, b, mask, n)
+    real(kind=rp), dimension(:), intent(inout) :: a
+    type(vector_t), intent(in) :: b
+    type(mask_t), intent(in) :: mask
+    integer, intent(in) :: n
+    type(c_ptr) :: mask_d, a_d
+
+    if (n .lt. 1 .or. mask%size() .lt. 1) return !Avoid getting null pointers
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       a_d = device_get_ptr(a)
+       mask_d = mask%get_d()
+       call device_masked_scatter_copy_aligned(a_d, b%x_d, mask_d, n, &
+            mask%size())
+    else
+       call masked_scatter_copy(a, b%x, mask%get(), n, mask%size())
+    end if
+
+  end subroutine vector_masked_scatter_copy
+
+  !> Wrap vector elements into the range [min_value, max_value)
+  subroutine vector_cwrap(a, min_value, max_value, n)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(inout) :: a
+    real(kind=rp), intent(in) :: min_value, max_value
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (a%size() .lt. 1) return ! Avoid getting null pointers
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cwrap(a%x_d, min_value, max_value, size)
+    else
+       call cwrap(a%x, min_value, max_value, size)
+    end if
+
+  end subroutine vector_cwrap
+
+  !> Sqrt a vector \f$ a = sqrt(a) \f$
+  subroutine vector_sqrt_inplace(a, n)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(inout) :: a
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_sqrt_inplace(a%x_d, size)
+    else
+       call sqrt_inplace(a%x, size)
+    end if
+
+  end subroutine vector_sqrt_inplace
+
+  !> Take the power of a vector \f$ a^p \f$
+  subroutine vector_power(ap, a, p, n)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(inout) :: ap
+    type(vector_t), intent(in) :: a
+    real(kind=rp), intent(in) :: p
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_power(ap%x_d, a%x_d, p, size)
+    else
+       call power(ap%x, a%x, p, size)
+    end if
+
+  end subroutine vector_power
 
 
 end module vector_math

@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,30 +32,34 @@
 !
 module fluid_scheme_compressible
   use field, only : field_t
-  use field_math, only : field_cfill, field_col2, field_col3, &
-       field_cmult2, field_cmult, field_addcol3, field_add2
+  use field_math, only : field_col2, field_col3, &
+       field_cmult2, field_cmult, field_addcol3, field_add2, &
+       field_cfill
 
   use registry, only : neko_registry
+  use bc, only : bc_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use mesh, only : mesh_t
   use scratch_registry, only : neko_scratch_registry
   use space, only : GLL
-  use user_intf, only : user_t
-  use json_utils, only : json_get_or_default
+  use user_intf, only : user_t, user_material_properties_intf, &
+       dummy_user_material_properties
+  use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
   use mpi_f08
   use operators, only : cfl_compressible
+  use device, only : device_memcpy, HOST_TO_DEVICE
   use compressible_ops_cpu, only : &
-       compressible_ops_cpu_compute_max_wave_speed, &
-       compressible_ops_cpu_compute_entropy
+       compressible_ops_cpu_compute_max_wave_speed
   use compressible_ops_device, only : &
-       compressible_ops_device_compute_max_wave_speed, &
-       compressible_ops_device_compute_entropy
+       compressible_ops_device_compute_max_wave_speed
   use neko_config, only : NEKO_BCKND_DEVICE
   use time_state, only : time_state_t
   use logger, only : neko_log, LOG_SIZE
-  use math, only : glsum
+  use math, only : glsum, glamax
+  use device_math, only : device_glamax
+  use compressible_residual, only : compressible_rhs_set_physical_flux
   use num_types, only : i8
   implicit none
   private
@@ -68,11 +72,25 @@ module fluid_scheme_compressible
      type(field_t), pointer :: m_y => null() !< y-component of Momentum
      type(field_t), pointer :: m_z => null() !< z-component of Momentum
      type(field_t), pointer :: E => null() !< Total energy
+     type(field_t), pointer :: temperature => null() !< Temperature field
      type(field_t), pointer :: max_wave_speed => null() !< Maximum wave speed field
-     type(field_t), pointer :: S => null() !< Entropy field
-     type(field_t), pointer :: effective_visc => null() !< Effective artificial viscosity field
+     type(field_t), pointer :: artificial_visc => null() !< Artificial viscosity field (without physical)
+     type(field_t), pointer :: kappa => null() !< Thermal conductivity
 
      real(kind=rp) :: gamma
+
+     !> Largest magnitude of the dynamic viscosity over the domain.
+     real(kind=rp) :: mu_amax = 0.0_rp
+     !> Largest magnitude of the thermal conductivity over the domain.
+     real(kind=rp) :: kappa_amax = 0.0_rp
+
+     !> Whether the physical viscous and heat fluxes are evaluated.
+     logical :: add_physical_flux = .false.
+     !> Whether the physical viscous stress is evaluated.
+     logical :: add_physical_stress = .false.
+     !> Whether a user routine re-evaluates the material properties every
+     !! time-step, in which case the switches above have to be refreshed.
+     logical :: variable_material_properties = .false.
 
      !> Global number of GLL points for the fluid (not unique)
      integer(kind=i8) :: glb_n_points
@@ -91,11 +109,14 @@ module fluid_scheme_compressible
      procedure, pass(this) :: compute_cfl &
           => fluid_scheme_compressible_compute_cfl
      !> Set rho and mu
+     procedure, pass(this) :: set_material_properties => &
+          fluid_scheme_compressible_set_material_properties
+     !> Update variable material properties
      procedure, pass(this) :: update_material_properties => &
           fluid_scheme_compressible_update_material_properties
-     !> Compute entropy field
-     procedure, pass(this) :: compute_entropy => &
-          fluid_scheme_compressible_compute_entropy
+     !> Refresh the physical-flux switches from the material properties
+     procedure, pass(this) :: update_physical_flux => &
+          fluid_scheme_compressible_update_physical_flux
      !> Compute maximum wave speed
      procedure, pass(this) :: compute_max_wave_speed => &
           fluid_scheme_compressible_compute_max_wave_speed
@@ -148,12 +169,9 @@ contains
     ! Assign a name
     call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
 
-    ! Fill mu and rho field with the physical value
-    call neko_registry%add_field(this%dm_Xh, this%name // "_mu")
+    ! Material properties will be set up via set_material_properties
     call neko_registry%add_field(this%dm_Xh, this%name // "_rho")
-    this%mu => neko_registry%get_field(this%name // "_mu")
     this%rho => neko_registry%get_field(this%name // "_rho")
-    call field_cfill(this%mu, 0.0_rp, this%mu%size())
 
     ! Assign momentum fields
     call neko_registry%add_field(this%dm_Xh, "m_x")
@@ -171,20 +189,20 @@ contains
     this%E => neko_registry%get_field("E")
     call this%E%init(this%dm_Xh, "E")
 
+    ! Assign temperature field
+    call neko_registry%add_field(this%dm_Xh, "temperature")
+    this%temperature => neko_registry%get_field("temperature")
+    call this%temperature%init(this%dm_Xh, "temperature")
+
     ! Assign maximum wave speed field
     call neko_registry%add_field(this%dm_Xh, "max_wave_speed")
     this%max_wave_speed => neko_registry%get_field("max_wave_speed")
     call this%max_wave_speed%init(this%dm_Xh, "max_wave_speed")
 
-    ! Assign entropy field
-    call neko_registry%add_field(this%dm_Xh, "S")
-    this%S => neko_registry%get_field("S")
-    call this%S%init(this%dm_Xh, "S")
-
-    ! Assign effective artificial viscosity field
-    call neko_registry%add_field(this%dm_Xh, "effective_visc")
-    this%effective_visc => neko_registry%get_field("effective_visc")
-    call this%effective_visc%init(this%dm_Xh, "effective_visc")
+    ! Assign artificial viscosity field (without physical viscosity)
+    call neko_registry%add_field(this%dm_Xh, "artificial_visc")
+    this%artificial_visc => neko_registry%get_field("artificial_visc")
+    call this%artificial_visc%init(this%dm_Xh, "artificial_visc")
 
     ! ! Assign velocity fields
     call neko_registry%add_field(this%dm_Xh, "u")
@@ -210,6 +228,9 @@ contains
     call this%f_y%init(this%dm_Xh, fld_name = "fluid_rhs_y")
     call this%f_z%init(this%dm_Xh, fld_name = "fluid_rhs_z")
 
+    ! Material properties
+    call this%set_material_properties(params, user)
+
     ! Compressible parameters
     call json_get_or_default(params, 'case.fluid.gamma', this%gamma, 1.4_rp)
 
@@ -227,6 +248,27 @@ contains
   !> @param this The compressible fluid scheme object to destroy
   subroutine fluid_scheme_compressible_free(this)
     class(fluid_scheme_compressible_t), intent(inout) :: this
+    class(bc_t), pointer :: bc
+    integer :: i
+
+    do i = 1, this%bcs_vel%size()
+       bc => this%bcs_vel%get(i)
+       if (associated(bc)) then
+          call bc%free()
+          deallocate(bc)
+       end if
+    end do
+    call this%bcs_vel%free()
+
+    do i = 1, this%bcs_prs%size()
+       bc => this%bcs_prs%get(i)
+       if (associated(bc)) then
+          call bc%free()
+          deallocate(bc)
+       end if
+    end do
+    call this%bcs_prs%free()
+
     call this%dm_Xh%free()
     call this%gs_Xh%free()
     call this%c_Xh%free()
@@ -248,12 +290,12 @@ contains
        call this%E%free()
     end if
 
-    if (associated(this%max_wave_speed)) then
-       call this%max_wave_speed%free()
+    if (associated(this%temperature)) then
+       call this%temperature%free()
     end if
 
-    if (associated(this%S)) then
-       call this%S%free()
+    if (associated(this%max_wave_speed)) then
+       call this%max_wave_speed%free()
     end if
 
     if (associated(this%f_x)) then
@@ -279,8 +321,8 @@ contains
     nullify(this%m_y)
     nullify(this%m_z)
     nullify(this%E)
+    nullify(this%temperature)
     nullify(this%max_wave_speed)
-    nullify(this%S)
 
     nullify(this%u)
     nullify(this%v)
@@ -288,6 +330,9 @@ contains
     nullify(this%p)
     nullify(this%rho)
     nullify(this%mu)
+    nullify(this%kappa)
+
+    call this%material_properties%free()
 
   end subroutine fluid_scheme_compressible_free
 
@@ -295,7 +340,7 @@ contains
   !> @param this The compressible fluid scheme object
   subroutine fluid_scheme_compressible_validate(this)
     class(fluid_scheme_compressible_t), target, intent(inout) :: this
-    integer :: n
+    integer :: n, i
     type(field_t), pointer :: temp
     integer :: temp_indices(1)
 
@@ -317,6 +362,12 @@ contains
     call field_cmult(temp, 0.5_rp, n)
     call field_add2(this%E, temp, n)
 
+    !> Initialize temperature T = p / (rho * (gamma - 1))
+    do i = 1, n
+       this%temperature%x(i,1,1,1) = this%p%x(i,1,1,1) / &
+            (this%rho%x(i,1,1,1) * (this%gamma - 1.0_rp))
+    end do
+
     call neko_scratch_registry%relinquish_field(temp_indices)
 
     !> Compute initial maximum wave speed from initial conditions
@@ -330,8 +381,8 @@ contains
   !> @return Computed CFL number
   function fluid_scheme_compressible_compute_cfl(this, dt) result(c)
     class(fluid_scheme_compressible_t), intent(in) :: this
-    real(kind=rp), intent(in) :: dt
-    real(kind=rp) :: c
+    real(kind=dp), intent(in) :: dt
+    real(kind=dp) :: c
     integer :: n
 
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -347,31 +398,112 @@ contains
 
   end function fluid_scheme_compressible_compute_cfl
 
-  !> Set rho and mu
+  !> Set material properties mu and rho
   !> @param this The compressible fluid scheme object
-  subroutine fluid_scheme_compressible_update_material_properties(this, time)
-    class(fluid_scheme_compressible_t), intent(inout) :: this
-    type(time_state_t), intent(in) :: time
-  end subroutine fluid_scheme_compressible_update_material_properties
+  !> @param params The case parameter file
+  !> @param user The user interface
+  subroutine fluid_scheme_compressible_set_material_properties(this, &
+       params, user)
+    class(fluid_scheme_compressible_t), target, intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    type(user_t), target, intent(in) :: user
+    procedure(user_material_properties_intf), pointer :: dummy_mp_ptr
+    type(time_state_t) :: dummy_time_state
+    real(kind=rp) :: const_mu, const_kappa
 
-  !> Compute entropy field S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
-  !> @param this The compressible fluid scheme object
-  subroutine fluid_scheme_compressible_compute_entropy(this)
-    class(fluid_scheme_compressible_t), intent(inout) :: this
-    integer :: n
+    dummy_mp_ptr => dummy_user_material_properties
 
-    n = this%S%dof%size()
+    call neko_registry%add_field(this%dm_Xh, this%name // "_mu")
+    this%mu => neko_registry%get_field(this%name // "_mu")
 
-    !> TODO: Add support for SX
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call compressible_ops_device_compute_entropy(this%S, this%p, this%rho, &
-            this%gamma, n)
+    call neko_registry%add_field(this%dm_Xh, this%name // "_kappa")
+    this%kappa => neko_registry%get_field(this%name // "_kappa")
+
+    call this%material_properties%init(3)
+    call this%material_properties%assign(1, this%rho)
+    call this%material_properties%assign(2, this%mu)
+    call this%material_properties%assign(3, this%kappa)
+
+    if (.not. associated(user%material_properties, dummy_mp_ptr)) then
+       this%user_material_properties => user%material_properties
+       this%variable_material_properties = .true.
+       call user%material_properties(this%name, this%material_properties, &
+            dummy_time_state)
     else
-       call compressible_ops_cpu_compute_entropy(this%S%x, this%p%x, &
-            this%rho%x, this%gamma, n)
+       this%variable_material_properties = .false.
+       this%user_material_properties => dummy_user_material_properties
+       call json_get_or_lookup_or_default(params, 'case.fluid.mu', const_mu, &
+            0.0_rp)
+       call json_get_or_lookup_or_default(params, 'case.fluid.kappa', &
+            const_kappa, 0.0_rp)
+
+       call field_cfill(this%mu, const_mu)
+       call field_cfill(this%kappa, const_kappa)
     end if
 
-  end subroutine fluid_scheme_compressible_compute_entropy
+    ! Reported by log_solver_info, once the Fluid section is open.
+    call this%update_physical_flux()
+
+  end subroutine fluid_scheme_compressible_set_material_properties
+
+  !> Update variable material properties
+  !> @param this The compressible fluid scheme object
+  !> @param time The time state
+  subroutine fluid_scheme_compressible_update_material_properties(this, time)
+    use device, only : device_memcpy, HOST_TO_DEVICE
+    class(fluid_scheme_compressible_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    if (.not. this%variable_material_properties) return
+
+    call this%user_material_properties(this%name, this%material_properties, &
+         time)
+
+    call this%update_physical_flux()
+
+  end subroutine fluid_scheme_compressible_update_material_properties
+
+  !> Refresh the physical-flux switches from the current material properties.
+  !> @details Decides whether the physical Navier-Stokes viscous and heat
+  !> fluxes have to be evaluated at all, by testing \f$ \max_i |\mu_i| \f$
+  !> and \f$ \max_i |\kappa_i| \f$ against zero.
+  !>
+  !> On a device backend the reduction runs as a kernel over the device
+  !> resident arrays. Inspecting the host mirrors `mu%x` and `kappa%x`
+  !> instead would be wrong as well as slow: `field_cfill`, and the
+  !> `device_math` routines a user file calls, only write `%x_d`, so the
+  !> host copies stay at their initial zero and the solver would silently
+  !> degrade to Euler.
+  !>
+  !> The reduction is global, so all ranks agree on the branch taken even
+  !> when the viscosity is non-zero on only some of them.
+  !> @param this The compressible fluid scheme object
+  subroutine fluid_scheme_compressible_update_physical_flux(this)
+    class(fluid_scheme_compressible_t), intent(inout) :: this
+    real(kind=rp) :: mu_amax, kappa_amax
+    integer :: n
+
+    n = this%dm_Xh%size()
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       mu_amax = device_glamax(this%mu%x_d, n)
+       kappa_amax = device_glamax(this%kappa%x_d, n)
+    else
+       mu_amax = glamax(this%mu%x, n)
+       kappa_amax = glamax(this%kappa%x, n)
+    end if
+
+    this%mu_amax = mu_amax
+    this%kappa_amax = kappa_amax
+
+    this%add_physical_stress = (mu_amax .ne. 0.0_rp)
+    this%add_physical_flux = this%add_physical_stress .or. &
+         (kappa_amax .ne. 0.0_rp)
+
+    call compressible_rhs_set_physical_flux(this%add_physical_flux, &
+         this%add_physical_stress)
+
+  end subroutine fluid_scheme_compressible_update_physical_flux
 
   !> Compute maximum wave speed for compressible flows
   !> @param this The compressible fluid scheme object
@@ -405,7 +537,6 @@ contains
     integer, intent(in) :: lx
     character(len=LOG_SIZE) :: log_buf
     logical :: logical_val
-    real(kind=rp) :: real_val
     integer :: integer_val
 
     call neko_log%section('Fluid')
@@ -434,15 +565,34 @@ contains
     write(log_buf, '(A,ES13.6)') 'gamma      :', this%gamma
     call neko_log%message(log_buf)
 
-    ! Compressible-specific parameters
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', real_val, &
-         0.5_rp)
-    write(log_buf, '(A,ES13.6)') 'c_avisc_low:', real_val
-    call neko_log%message(log_buf)
-
     call json_get_or_default(params, 'case.numerics.time_order', integer_val, 4)
     write(log_buf, '(A, I0)') 'RK order   : ', integer_val
     call neko_log%message(log_buf)
+
+    ! Physical viscosity and conductivity. For user-defined properties the
+    ! fields need not be uniform, so report the largest magnitude found.
+    if (this%variable_material_properties) then
+       write(log_buf, '(A,ES13.6,A)') 'mu         :', this%mu_amax, &
+            ' (user, max)'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6,A)') 'kappa      :', this%kappa_amax, &
+            ' (user, max)'
+       call neko_log%message(log_buf)
+    else
+       write(log_buf, '(A,ES13.6)') 'mu         :', this%mu_amax
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'kappa      :', this%kappa_amax
+       call neko_log%message(log_buf)
+    end if
+
+    if (this%add_physical_flux) then
+       write(log_buf, '(A, A)') 'NS fluxes  : ', 'enabled'
+    else
+       write(log_buf, '(A, A)') 'NS fluxes  : ', &
+            'disabled (mu = kappa = 0, Euler)'
+    end if
+    call neko_log%message(log_buf)
+
     call neko_log%end_section()
 
   end subroutine fluid_scheme_compressible_log_solver_info

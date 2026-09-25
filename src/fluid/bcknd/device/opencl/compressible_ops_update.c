@@ -145,3 +145,148 @@ void opencl_update_e(void *E, void *p, void *ruvw, real gamma, int n) {
                                   0, NULL, NULL));
   CL_CHECK(clReleaseKernel(kernel));  
 }
+
+void opencl_update_temperature(void *T, void *p, void *rho, real gamma,
+                               int n) {
+  cl_int err;
+
+  if (compressible_ops_update_program == NULL)
+    opencl_kernel_jit(compressible_ops_update_kernel,
+                      (cl_program *) &compressible_ops_update_program);
+
+  cl_kernel kernel =
+    clCreateKernel((cl_program) compressible_ops_update_program,
+                   "update_temperature_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &T));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &p));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &rho));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(real), &gamma));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), &n));
+
+  const int nb = (n + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+void opencl_ns_flux_prepare(void *div_flux, void *dissipation, void *h1,
+                            void *dudx, void *dudy, void *dudz,
+                            void *dvdx, void *dvdy, void *dvdz,
+                            void *dwdx, void *dwdy, void *dwdz,
+                            void *mu, int n) {
+  cl_int err;
+
+  if (compressible_ops_update_program == NULL)
+    opencl_kernel_jit(compressible_ops_update_kernel,
+                      (cl_program *) &compressible_ops_update_program);
+
+  cl_kernel kernel =
+    clCreateKernel((cl_program) compressible_ops_update_program,
+                   "ns_flux_prepare_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &div_flux));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &dissipation));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &h1));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &dudx));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dudy));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dudz));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dvdx));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dvdy));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &dvdz));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &dwdx));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &dwdy));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &dwdz));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &mu));
+  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(int), &n));
+
+  const int nb = (n + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+void opencl_ns_flux_finalize(void *visc_m_x, void *visc_m_y,
+                             void *visc_m_z, void *visc_E,
+                             void *f_x, void *f_y, void *f_z,
+                             void *opgrad_x, void *opgrad_y, void *opgrad_z,
+                             void *u, void *v, void *w, void *B,
+                             void *dissipation, int n) {
+  cl_int err;
+
+  if (compressible_ops_update_program == NULL)
+    opencl_kernel_jit(compressible_ops_update_kernel,
+                      (cl_program *) &compressible_ops_update_program);
+
+  cl_kernel kernel =
+    clCreateKernel((cl_program) compressible_ops_update_program,
+                   "ns_flux_finalize_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &visc_m_x));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &visc_m_y));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &visc_m_z));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &visc_E));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &f_x));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &f_y));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &f_z));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &opgrad_x));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &opgrad_y));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &opgrad_z));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &u));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &v));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &w));
+  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &B));
+  CL_CHECK(clSetKernelArg(kernel, 14, sizeof(cl_mem), (void *) &dissipation));
+  CL_CHECK(clSetKernelArg(kernel, 15, sizeof(int), &n));
+
+  const int nb = (n + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+void opencl_ns_flux_temperature(void *div_flux, void *h1, void *p,
+                                void *rho, void *kappa, real gamma, int n) {
+  cl_int err;
+
+  if (compressible_ops_update_program == NULL)
+    opencl_kernel_jit(compressible_ops_update_kernel,
+                      (cl_program *) &compressible_ops_update_program);
+
+  cl_kernel kernel =
+    clCreateKernel((cl_program) compressible_ops_update_program,
+                   "ns_flux_temperature_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &div_flux));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &h1));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &p));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &rho));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &kappa));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(real), &gamma));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(int), &n));
+
+  const int nb = (n + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}

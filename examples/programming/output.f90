@@ -41,7 +41,7 @@ contains
 
     ! A writer for .fld files
     type(fld_file_t) :: fld_writer
-    ! Storage for a list of fields, two in our case
+    ! Container for a list of fields, two in our case
     type(field_list_t) :: field_pair
     ! A writer for CSV files
     type(csv_file_t) :: csv_writer
@@ -65,7 +65,10 @@ contains
 
     ! We can also pack more fields inside a single file. To that end we need to
     ! pass a field_list_t object to the writer. The field_list_t is a list of
-    ! field pointers.
+    ! field pointers. As such, it does not own the fields, it just point to
+    ! them. Therefore, this type is convenient for packing fields for output,
+    ! or other similar situations. For this reason, field_list_t is used as
+    ! as dummy argument type for many user interface routines.
 
     ! Initialize the field_list_t object with the number of fields we want to
     ! pack.

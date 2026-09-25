@@ -65,20 +65,19 @@ module opr_xsmm
   use coefs, only : coef_t
   use math, only : rzero, col2, col3, sub3, add2, addcol3, invcol2, copy
   use mesh, only : mesh_t
-  use field, only : field_t
   use interpolation, only : interpolator_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use mathops, only : opcolv
 #ifdef HAVE_LIBXSMM
   use libxsmm, only: libxsmm_mmcall => libxsmm_dmmcall_abc, &
-                     libxsmm_dmmfunction, libxsmm_dispatch, &
-                     LIBXSMM_PREFETCH_AUTO
+       libxsmm_dmmfunction, libxsmm_dispatch, &
+       LIBXSMM_PREFETCH_AUTO
 #endif
   implicit none
   private
 
   public :: opr_xsmm_dudxyz, opr_xsmm_opgrad, opr_xsmm_cdtp, opr_xsmm_conv1, &
-            opr_xsmm_curl, opr_xsmm_convect_scalar, opr_xsmm_set_convect_rst
+       opr_xsmm_curl, opr_xsmm_convect_scalar, opr_xsmm_set_convect_rst
 
 #ifdef HAVE_LIBXSMM
   type(libxsmm_dmmfunction), private :: lgrad_xmm1
@@ -91,9 +90,9 @@ contains
   subroutine opr_xsmm_dudxyz(du, u, dr, ds, dt, coef)
     type(coef_t), intent(in), target :: coef
     real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
-                             coef%msh%nelv), intent(inout) :: du
+         coef%msh%nelv), intent(inout) :: du
     real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
-                             coef%msh%nelv), intent(in) :: u, dr, ds, dt
+         coef%msh%nelv), intent(in) :: u, dr, ds, dt
 #ifdef HAVE_LIBXSMM
     real(kind=rp) :: drst(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz)
     type(space_t), pointer :: Xh
@@ -298,10 +297,10 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
     real(kind=rp), intent(inout) :: du(Xh%lxyz, nelv)
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vx
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vy
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vz
+    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u
+    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vx
+    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vy
+    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vz
 #ifdef HAVE_LIBXSMM
     !   Store the inverse jacobian to speed this operation up
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz) :: dudr, duds, dudt
@@ -328,7 +327,7 @@ contains
           call libxsmm_mmcall(conv1_xmm1, Xh%dx, u(1,1,1, ie), dudr)
           do iz = 1, Xh%lz
              call libxsmm_mmcall(conv1_xmm2, u(1,1, iz, ie), Xh%dyt,&
-                                 duds(1,1, iz))
+                  duds(1,1, iz))
           end do
           call libxsmm_mmcall(conv1_xmm3, u(1,1,1, ie), Xh%dzt, dudt)
           do i = 1, Xh%lxyz
@@ -367,14 +366,14 @@ contains
   end subroutine opr_xsmm_conv1
 
   subroutine opr_xsmm_convect_scalar(du, u, cr, cs, ct, Xh_GLL, Xh_GL, &
-                                     coef_GLL, coef_GL, GLL_to_GL)
+       coef_GLL, coef_GL, GLL_to_GL)
     type(space_t), intent(in) :: Xh_GL
     type(space_t), intent(in) :: Xh_GLL
     type(coef_t), intent(in) :: coef_GLL
     type(coef_t), intent(in) :: coef_GL
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), intent(inout) :: du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, &
-                                       coef_GL%msh%nelv)
+         coef_GL%msh%nelv)
     real(kind=rp), intent(inout) :: u(Xh_GL%lxyz, coef_GL%msh%nelv)
     real(kind=rp), intent(inout) :: cr(Xh_GL%lxyz, coef_GL%msh%nelv)
     real(kind=rp), intent(inout) :: cs(Xh_GL%lxyz, coef_GL%msh%nelv)
@@ -415,53 +414,59 @@ contains
   end subroutine opr_xsmm_convect_scalar
 
   subroutine opr_xsmm_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
-    type(field_t), intent(inout) :: w1
-    type(field_t), intent(inout) :: w2
-    type(field_t), intent(inout) :: w3
-    type(field_t), intent(in) :: u1
-    type(field_t), intent(in) :: u2
-    type(field_t), intent(in) :: u3
-    type(field_t), intent(inout) :: work1
-    type(field_t), intent(inout) :: work2
     type(coef_t), intent(in) :: c_Xh
+    real(kind=rp), intent(inout), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: w1
+    real(kind=rp), intent(inout), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: w2
+    real(kind=rp), intent(inout), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: w3
+    real(kind=rp), intent(in), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: u1
+    real(kind=rp), intent(in), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: u2
+    real(kind=rp), intent(in), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: u3
+    real(kind=rp), intent(inout), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: work1
+    real(kind=rp), intent(inout), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: work2
     integer :: gdim, n
 
-    n = w1%dof%size()
+    n = c_Xh%dof%size()
     gdim = c_Xh%msh%gdim
 
     !     this%work1=dw/dy ; this%work2=dv/dz
-    call opr_xsmm_dudxyz(work1%x, u3%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
+    call opr_xsmm_dudxyz(work1, u3, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     if (gdim .eq. 3) then
-       call opr_xsmm_dudxyz(work2%x, u2%x, c_Xh%drdz, c_Xh%dsdz, &
-                            c_Xh%dtdz, c_Xh)
-       call sub3(w1%x, work1%x, work2%x, n)
+       call opr_xsmm_dudxyz(work2, u2, c_Xh%drdz, c_Xh%dsdz, &
+            c_Xh%dtdz, c_Xh)
+       call sub3(w1, work1, work2, n)
     else
-       call copy(w1%x, work1%x, n)
+       call copy(w1, work1, n)
     end if
     !     this%work1=du/dz ; this%work2=dw/dx
     if (gdim .eq. 3) then
-       call opr_xsmm_dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, &
-                            c_Xh%dtdz, c_Xh)
-       call opr_xsmm_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, &
-                            c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
+       call opr_xsmm_dudxyz(work1, u1, c_Xh%drdz, c_Xh%dsdz, &
+            c_Xh%dtdz, c_Xh)
+       call opr_xsmm_dudxyz(work2, u3, c_Xh%drdx, c_Xh%dsdx, &
+            c_Xh%dtdx, c_Xh)
+       call sub3(w2, work1, work2, n)
     else
-       call rzero (work1%x, n)
-       call opr_xsmm_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, &
-                            c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
+       call rzero (work1, n)
+       call opr_xsmm_dudxyz(work2, u3, c_Xh%drdx, c_Xh%dsdx, &
+            c_Xh%dtdx, c_Xh)
+       call sub3(w2, work1, work2, n)
     end if
     !     this%work1=dv/dx ; this%work2=du/dy
-    call opr_xsmm_dudxyz(work1%x, u2%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-    call opr_xsmm_dudxyz(work2%x, u1%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-    call sub3(w3%x, work1%x, work2%x, n)
+    call opr_xsmm_dudxyz(work1, u2, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+    call opr_xsmm_dudxyz(work2, u1, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
+    call sub3(w3, work1, work2, n)
     !!    BC dependent, Needs to change if cyclic
 
-    call opcolv(w1%x, w2%x, w3%x, c_Xh%B, gdim, n)
-    call c_Xh%gs_h%op(w1, GS_OP_ADD)
-    call c_Xh%gs_h%op(w2, GS_OP_ADD)
-    call c_Xh%gs_h%op(w3, GS_OP_ADD)
-    call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
+    call opcolv(w1, w2, w3, c_Xh%B, gdim, n)
+    call c_Xh%gs_h%op(w1, w2, w3, n, GS_OP_ADD)
+    call opcolv(w1, w2, w3, c_Xh%Binv, gdim, n)
 
   end subroutine opr_xsmm_curl
 
@@ -469,27 +474,27 @@ contains
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
-                   intent(inout) :: cr, cs, ct
+         intent(inout) :: cr, cs, ct
     real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
-                   intent(in) :: cx, cy, cz
+         intent(in) :: cx, cy, cz
     integer :: e, i, t, nxyz
 
     associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
-      dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
-      dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
-      nelv => coef%msh%nelv, lx => Xh%lx, w3 => Xh%w3)
+         dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
+         dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
+         nelv => coef%msh%nelv, lx => Xh%lx, w3 => Xh%w3)
       nxyz = lx * lx * lx
       do e = 1, nelv
          do i = 1, nxyz
             cr(i,e) = w3(i,1,1) * (cx(i,e) * drdx(i,1,1,e) &
-                        + cy(i,e) * drdy(i,1,1,e) &
-                        + cz(i,e) * drdz(i,1,1,e))
+                 + cy(i,e) * drdy(i,1,1,e) &
+                 + cz(i,e) * drdz(i,1,1,e))
             cs(i,e) = w3(i,1,1) * (cx(i,e) * dsdx(i,1,1,e) &
-                        + cy(i,e) * dsdy(i,1,1,e) &
-                        + cz(i,e) * dsdz(i,1,1,e))
+                 + cy(i,e) * dsdy(i,1,1,e) &
+                 + cz(i,e) * dsdz(i,1,1,e))
             ct(i,e) = w3(i,1,1) * (cx(i,e) * dtdx(i,1,1,e) &
-                        + cy(i,e) * dtdy(i,1,1,e) &
-                        + cz(i,e) * dtdz(i,1,1,e))
+                 + cy(i,e) * dtdy(i,1,1,e) &
+                 + cz(i,e) * dtdz(i,1,1,e))
          end do
       end do
     end associate

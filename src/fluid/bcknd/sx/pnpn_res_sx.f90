@@ -86,9 +86,7 @@ contains
        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho_val - wa3%x(i,1,1,1)
     end do
 
-    call gs_Xh%op(ta1, GS_OP_ADD)
-    call gs_Xh%op(ta2, GS_OP_ADD)
-    call gs_Xh%op(ta3, GS_OP_ADD)
+    call gs_Xh%op(ta1%x, ta2%x, ta3%x, n, GS_OP_ADD)
 
     do i = 1, n
        ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)

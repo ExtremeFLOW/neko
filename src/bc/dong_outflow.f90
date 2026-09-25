@@ -36,7 +36,7 @@ module dong_outflow
   use dirichlet, only : dirichlet_t
   use device, only : device_memcpy, device_alloc, HOST_TO_DEVICE, device_free
   use num_types, only : rp, c_rp
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use field, only : field_t
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
@@ -89,6 +89,7 @@ contains
     type(json_file), intent(inout) :: json
     call this%free()
     call this%init_base(coef)
+    this%bc_type = BC_DIRICHLET
 
     call json_get_or_default(json, 'delta', this%delta, 0.01_rp)
     call json_get_or_default(json, 'velocity_scale', this%uinf, 1.0_rp)
@@ -115,9 +116,10 @@ contains
 
     !Im actually not sure what to do if one has two dong that share a corner.
     if (strong_) then
-       m = this%msk(0)
+       m = this%facet_node_msk(0)
+       !$omp do
        do i = 1, m
-          k = this%msk(i)
+          k = this%facet_node_msk(i)
           facet = this%facet(i)
           ux = this%u%x(k,1,1,1)
           uy = this%v%x(k,1,1,1)
@@ -128,8 +130,9 @@ contains
           vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3)
           S0 = 0.5_rp*(1.0_rp - tanh(vn / (this%uinf * this%delta)))
 
-          x(k) = -0.5*(ux*ux+uy*uy+uz*uz)*S0
+          x(k) = -0.5_rp * (ux*ux+uy*uy+uz*uz) * S0
        end do
+       !$omp end do
     end if
   end subroutine dong_outflow_apply_scalar
 
@@ -216,9 +219,8 @@ contains
   end subroutine dong_outflow_free
 
   !> Finalize
-  subroutine dong_outflow_finalize(this, only_facets)
+  subroutine dong_outflow_finalize(this)
     class(dong_outflow_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
     real(kind=rp), allocatable :: temp_x(:)
     real(kind=rp), allocatable :: temp_y(:)
     real(kind=rp), allocatable :: temp_z(:)
@@ -226,27 +228,28 @@ contains
     integer :: i, m, k, facet, idx(4)
     real(kind=rp) :: normal_xyz(3)
 
-    if (present(only_facets)) then
-       if (.not. only_facets) then
-          call neko_error("For dong_outflow_t, only_facets has to be true.")
-       end if
-    end if
+    ! Here and in apply_scalar(), which runs every step
+    call this%coef%require_facets('dong_outflow')
 
-    call this%finalize_base(.true.)
+    call this%finalize_base()
 
     this%u => neko_registry%get_field("u")
     this%v => neko_registry%get_field("v")
     this%w => neko_registry%get_field("w")
-    if ((NEKO_BCKND_DEVICE .eq. 1) .and. (this%msk(0) .gt. 0)) then
-       call device_alloc(this%normal_x_d, c_sizeof(dummy)*this%msk(0))
-       call device_alloc(this%normal_y_d, c_sizeof(dummy)*this%msk(0))
-       call device_alloc(this%normal_z_d, c_sizeof(dummy)*this%msk(0))
-       m = this%msk(0)
+    if ((NEKO_BCKND_DEVICE .eq. 1) .and. (this%facet_node_msk(0) .gt. 0)) then
+       call device_alloc(this%normal_x_d, &
+            c_sizeof(dummy)*this%facet_node_msk(0))
+       call device_alloc(this%normal_y_d, &
+            c_sizeof(dummy)*this%facet_node_msk(0))
+       call device_alloc(this%normal_z_d, &
+            c_sizeof(dummy)*this%facet_node_msk(0))
+       m = this%facet_node_msk(0)
        allocate(temp_x(m))
        allocate(temp_y(m))
        allocate(temp_z(m))
+       !$omp parallel do private(k, facet, idx, normal_xyz)
        do i = 1, m
-          k = this%msk(i)
+          k = this%facet_node_msk(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%Xh%lx, this%Xh%lx, this%Xh%lx)
           normal_xyz = &
@@ -255,6 +258,7 @@ contains
           temp_y(i) = normal_xyz(2)
           temp_z(i) = normal_xyz(3)
        end do
+       !$omp end parallel do
        call device_memcpy(temp_x, this%normal_x_d, m, HOST_TO_DEVICE, &
             sync = .false.)
        call device_memcpy(temp_y, this%normal_y_d, m, HOST_TO_DEVICE, &

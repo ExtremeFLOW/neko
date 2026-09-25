@@ -33,7 +33,7 @@
 !> Subroutines to add advection terms to the RHS of a transport equation.
 module adv_oifs
   use advection, only : advection_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use space, only : space_t, GL
   use field, only : field_t
   use coefs, only : coef_t
@@ -45,9 +45,9 @@ module adv_oifs
   use field_series, only : field_series_t
   use field_list, only : field_list_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use device, only : device_map, device_free
+  use device, only : device_map, device_unmap
   use device_math, only : device_addcol3s2, device_rzero
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -59,7 +59,7 @@ module adv_oifs
   !! https://dl.acm.org/doi/abs/10.1007/BF01063118
   type, public, extends(advection_t) :: adv_oifs_t
      !> Number of RK4 sub-steps
-     integer :: ntaubd
+     integer :: ntaubd = 0
      !> Coeffs of the higher-order space
      type(coef_t) :: coef_GL
      !> Coeffs of the original space in the simulation
@@ -75,9 +75,9 @@ module adv_oifs
      !> The lagged velocity and scalar fields
      type(field_series_t), pointer :: ulag, vlag, wlag, slag => null()
      !> The times corresponding to the lagged fields
-     real(kind=rp), pointer :: ctlag(:) => null()
+     real(kind=dp), pointer :: ctlag(:) => null()
      !> The time-steps corresponding to the lagged fields
-     real(kind=rp), pointer :: dctlag(:) => null()
+     real(kind=dp), pointer :: dctlag(:) => null()
      !> The time scheme controller for the oifs scheme
      type(time_scheme_controller_t), pointer :: oifs_scheme => null()
      !> The current convecting field in GL space and rst format
@@ -85,9 +85,12 @@ module adv_oifs
      !> The convecting field series in GL space and rst format
      type(field_series_t) :: convr_GL, convs_GL, convt_GL
      !> The time interpolated convecting field used in Runge_Kutta method
-     type(field_t), pointer :: cr_k1, cs_k1, ct_k1
-     type(field_t), pointer :: cr_k23, cs_k23, ct_k23
-     type(field_t), pointer :: cr_k4, cs_k4, ct_k4
+     type(field_t), pointer :: cr_k1 => null(), cs_k1 => null(), &
+          ct_k1 => null()
+     type(field_t), pointer :: cr_k23 => null(), cs_k23 => null(), &
+          ct_k23 => null()
+     type(field_t), pointer :: cr_k4 => null(), cs_k4 => null(), &
+          ct_k4 => null()
      !> The field_list containing the time interpolated convecting field
      type(field_list_t) :: conv_k1, conv_k23, conv_k4
      !> The convecting velocity field in GL space
@@ -108,6 +111,11 @@ module adv_oifs
      procedure, pass(this) :: set_conv_velocity_fst
      !> Destructor
      procedure, pass(this) :: free => adv_oifs_free
+     !> add the advection term for ALE, i.e. \f$(u - w_m) \cdot \nabla s \f$, to
+     !> the RHS
+     procedure, pass(this) :: compute_ale => adv_oifs_compute_ale
+     !> Update any metrics needed for the advection computation in ALE.
+     procedure, pass(this) :: recompute_metrics => recompute_metrics_oifs
   end type adv_oifs_t
 
 contains
@@ -126,17 +134,19 @@ contains
   subroutine adv_oifs_init(this, lxd, coef, ctarget, ulag, vlag, wlag, &
        dtlag, tlag, time_scheme, slag)
     implicit none
-    class(adv_oifs_t) :: this
+    class(adv_oifs_t), intent(inout) :: this
     integer, intent(in) :: lxd
     type(coef_t), target :: coef
     real(kind=rp), intent(in) :: ctarget
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
-    real(kind=rp), target, intent(in) :: dtlag(10)
-    real(kind=rp), target, intent(in) :: tlag(10)
+    real(kind=dp), target, intent(in) :: dtlag(10)
+    real(kind=dp), target, intent(in) :: tlag(10)
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     type(field_series_t), target, optional :: slag
     integer :: nel, n_GL, n, idx, idy, idz
     real(kind=rp) :: max_cfl_rk4
+
+    call this%free()
 
     ! stability limit for RK4 including safety factor
     max_cfl_rk4 = 2.0
@@ -274,65 +284,47 @@ contains
   subroutine adv_oifs_free(this)
     class(adv_oifs_t), intent(inout) :: this
 
-    call this%coef_GL%free()
-
-    nullify(this%coef_GLL)
-
-    call this%GLL_to_GL%free()
-
-    call this%Xh_GL%free()
-
-    nullify(this%Xh_GLL)
-
-    call this%dtime%free()
-
-    call this%cr_GL%free()
-    call this%cs_GL%free()
-    call this%ct_GL%free()
-
-    call this%convr_GL%free()
-    call this%convs_GL%free()
-    call this%convt_GL%free()
-
     call this%conv_k1%free()
     call this%conv_k23%free()
     call this%conv_k4%free()
 
     if (associated(this%cr_k1)) then
+       call this%cr_k1%free()
        deallocate(this%cr_k1)
     end if
     if (associated(this%cs_k1)) then
+       call this%cs_k1%free()
        deallocate(this%cs_k1)
     end if
     if (associated(this%ct_k1)) then
+       call this%ct_k1%free()
        deallocate(this%ct_k1)
     end if
     if (associated(this%cr_k23)) then
+       call this%cr_k23%free()
        deallocate(this%cr_k23)
     end if
     if (associated(this%cs_k23)) then
+       call this%cs_k23%free()
        deallocate(this%cs_k23)
     end if
     if (associated(this%ct_k23)) then
+       call this%ct_k23%free()
        deallocate(this%ct_k23)
     end if
     if (associated(this%cr_k4)) then
+       call this%cr_k4%free()
        deallocate(this%cr_k4)
     end if
     if (associated(this%cs_k4)) then
+       call this%cs_k4%free()
        deallocate(this%cs_k4)
     end if
     if (associated(this%ct_k4)) then
+       call this%ct_k4%free()
        deallocate(this%ct_k4)
     end if
 
-    nullify(this%ulag)
-    nullify(this%vlag)
-    nullify(this%wlag)
-    nullify(this%slag)
-    nullify(this%ctlag)
-    nullify(this%dctlag)
-    nullify(this%oifs_scheme)
     nullify(this%cr_k1)
     nullify(this%cs_k1)
     nullify(this%ct_k1)
@@ -343,24 +335,49 @@ contains
     nullify(this%cs_k4)
     nullify(this%ct_k4)
 
+    call this%convr_GL%free()
+    call this%convs_GL%free()
+    call this%convt_GL%free()
+
+    call this%cr_GL%free()
+    call this%cs_GL%free()
+    call this%ct_GL%free()
+
     if (allocated(this%cx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cx, this%cx_d)
+       end if
        deallocate(this%cx)
     end if
     if (allocated(this%cy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cy, this%cy_d)
+       end if
        deallocate(this%cy)
     end if
     if (allocated(this%cz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cz, this%cz_d)
+       end if
        deallocate(this%cz)
     end if
-    if (c_associated(this%cx_d)) then
-       call device_free(this%cx_d)
-    end if
-    if (c_associated(this%cy_d)) then
-       call device_free(this%cy_d)
-    end if
-    if (c_associated(this%cz_d)) then
-       call device_free(this%cz_d)
-    end if
+
+    call this%dtime%free()
+    call this%GLL_to_GL%free()
+    call this%coef_GL%free()
+    call this%Xh_GL%free()
+
+    nullify(this%coef_GLL)
+    nullify(this%Xh_GLL)
+    nullify(this%ulag)
+    nullify(this%vlag)
+    nullify(this%wlag)
+    nullify(this%slag)
+    nullify(this%ctlag)
+    nullify(this%dctlag)
+    nullify(this%oifs_scheme)
+
+    this%ntaubd = 0
 
   end subroutine adv_oifs_free
 
@@ -417,7 +434,7 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
     real(kind=rp), intent(in), optional :: dt
-    real(kind=rp) :: tau, tau1, th, dtau
+    real(kind=dp) :: tau, tau1, th, dtau
     integer :: i, ilag, itau, nel, n_GL
 
     nel = coef%msh%nelv
@@ -454,44 +471,44 @@ contains
          if (NEKO_BCKND_DEVICE .eq. 1) then
             if (ilag .eq. 1) then
                call device_addcol3s2(fx%x_d, vx%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(2), n)
+                    oifs_scheme%diffusion_coeffs%x(2), n)
                call device_addcol3s2(fy%x_d, vy%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(2), n)
+                    oifs_scheme%diffusion_coeffs%x(2), n)
                call device_addcol3s2(fz%x_d, vz%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(2), n)
+                    oifs_scheme%diffusion_coeffs%x(2), n)
             else
                call device_addcol3s2(fx%x_d, ulag%lf(ilag-1)%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(ilag+1), n)
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
                call device_addcol3s2(fy%x_d, vlag%lf(ilag-1)%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(ilag+1), n)
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
                call device_addcol3s2(fz%x_d, wlag%lf(ilag-1)%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(ilag+1), n)
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
             end if
          else
             if (ilag .eq. 1) then
                do i = 1, n
                   fx%x(i,1,1,1) = fx%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(2) &
+                       oifs_scheme%diffusion_coeffs%x(2) &
                        * vx%x(i,1,1,1) * coef%B(i,1,1,1)
                   fy%x(i,1,1,1) = fy%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(2) &
+                       oifs_scheme%diffusion_coeffs%x(2) &
                        * vy%x(i,1,1,1) * coef%B(i,1,1,1)
                   fz%x(i,1,1,1) = fz%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(2) &
+                       oifs_scheme%diffusion_coeffs%x(2) &
                        * vz%x(i,1,1,1) * coef%B(i,1,1,1)
                end do
             else
                do i = 1, n
                   fx%x(i,1,1,1) = fx%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(ilag+1) &
+                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
                        * ulag%lf(ilag-1)%x(i,1,1,1) &
                        * coef%B(i,1,1,1)
                   fy%x(i,1,1,1) = fy%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(ilag+1) &
+                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
                        * vlag%lf(ilag-1)%x(i,1,1,1) &
                        * coef%B(i,1,1,1)
                   fz%x(i,1,1,1) = fz%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(ilag+1) &
+                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
                        * wlag%lf(ilag-1)%x(i,1,1,1) &
                        * coef%B(i,1,1,1)
                end do
@@ -548,7 +565,8 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
     real(kind=rp), intent(in), optional :: dt
-    real(kind=rp) :: tau, tau1, th, dtau
+
+    real(kind=dp) :: tau, tau1, th, dtau
     integer :: i, ilag, itau, nel, n_GL
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
@@ -580,22 +598,22 @@ contains
          if (NEKO_BCKND_DEVICE .eq. 1) then
             if (ilag .eq. 1) then
                call device_addcol3s2(fs%x_d, s%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(2), n)
+                    oifs_scheme%diffusion_coeffs%x(2), n)
             else
                call device_addcol3s2(fs%x_d, slag%lf(ilag-1)%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(ilag+1), n)
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
             end if
          else
             if (ilag .eq. 1) then
                do i = 1, n
                   fs%x(i,1,1,1) = fs%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(2) &
+                       oifs_scheme%diffusion_coeffs%x(2) &
                        * s%x(i,1,1,1) * coef%B(i,1,1,1)
                end do
             else
                do i = 1, n
                   fs%x(i,1,1,1) = fs%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(ilag+1) &
+                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
                        * slag%lf(ilag-1)%x(i,1,1,1) * coef%B(i,1,1,1)
                end do
             end if
@@ -623,5 +641,24 @@ contains
     end associate
 
   end subroutine adv_oifs_compute_scalar
+  subroutine recompute_metrics_oifs(this, coef, moving_boundary)
+    class(adv_oifs_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    logical, intent(in) :: moving_boundary
+    ! no-op
+  end subroutine recompute_metrics_oifs
 
+
+  subroutine adv_oifs_compute_ale(this, vx, vy, vz, wm_x, wm_y, wm_z, &
+       fx, fy, fz, Xh, coef, n, dt)
+    class(adv_oifs_t), intent(inout) :: this
+    type(field_t), intent(inout) :: vx, vy, vz
+    type(field_t), intent(inout) :: wm_x, wm_y, wm_z
+    type(field_t), intent(inout) :: fx, fy, fz
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: n
+    real(kind=rp), intent(in), optional :: dt
+    ! no-op
+  end subroutine adv_oifs_compute_ale
 end module adv_oifs

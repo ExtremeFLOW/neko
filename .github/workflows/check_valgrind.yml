@@ -1,0 +1,67 @@
+name: Valgrind Regression
+
+on:
+  workflow_call:
+    inputs:
+      json-fortran-version:
+        description: "The version of the JSON-Fortran library to use."
+        type: string
+        required: false
+        default: "8.4.0"
+
+jobs:
+  Valgrind:
+    runs-on: ubuntu-24.04
+    name: Valgrind Regression (gfortran-14)
+    env:
+      FC: gfortran-14
+
+    steps:
+      - name: Setup env.
+        id: setup-env
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openmpi-bin libopenmpi-dev \
+            autoconf automake autotools-dev libopenblas-dev make git m4 \
+            python3 valgrind
+          echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Get JSON-Fortran
+        id: get-json-fortran
+        uses: ./.github/actions/setup_json-fortran
+        with:
+          version: ${{ inputs.json-fortran-version }}
+          os: ${{ steps.setup-env.outputs.os-version }}
+          compiler: ${{ env.FC }}
+
+      - name: Build Neko
+        env:
+          JSON_FORTRAN_DIR: ${{ steps.get-json-fortran.outputs.install-dir }}
+        run: |
+          mkdir ${{ github.workspace }}/install
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$JSON_FORTRAN_DIR/lib/pkgconfig:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$JSON_FORTRAN_DIR/lib:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
+          echo "${{ github.workspace }}/install/bin" >> $GITHUB_PATH
+          ./regen.sh
+          ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --enable-real=dp --prefix=${{ github.workspace }}/install
+          make -j$(nproc) install
+
+      - name: Run valgrind regression test
+        id: run-valgrind
+        run: |
+          bash tests/regression/valgrind/run_valgrind_check.sh
+
+      - name: Save valgrind logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: valgrind-regression-logs
+          path: |
+            tests/regression/valgrind/workdir/*.log
+          overwrite: true
+          if-no-files-found: error

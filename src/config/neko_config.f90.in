@@ -35,12 +35,14 @@ module neko_config
 
   character(len=10), parameter :: NEKO_VERSION = '@PACKAGE_VERSION@'
   character(len=80), parameter :: NEKO_BUILD_INFO = '@NEKO_BUILD_INFO@'
+  character(len=10), parameter :: NEKO_BCKND = '@NEKO_BCKND@'
 
   integer, parameter :: NEKO_BCKND_SX = @is_sx@
   integer, parameter :: NEKO_BCKND_XSMM = @xsmm_bcknd@
   integer, parameter :: NEKO_BCKND_CUDA = @cuda_bcknd@
   integer, parameter :: NEKO_BCKND_HIP = @hip_bcknd@
   integer, parameter :: NEKO_BCKND_OPENCL = @opencl_bcknd@
+  integer, parameter :: NEKO_BCKND_METAL = @metal_bcknd@
   integer, parameter :: NEKO_BCKND_DEVICE = @device_bcknd@
 
   logical, parameter :: NEKO_DEVICE_MPI = @device_mpi@

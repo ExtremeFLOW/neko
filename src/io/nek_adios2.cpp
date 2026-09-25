@@ -21,7 +21,8 @@ extern "C" void adios2_initialize_(
     const int *offset_el,
     const int *glb_nelv,
     const int *gdim,
-    const int *comm_int
+    const int *comm_int,
+    const int timeout_seconds
 ){
     MPI_Comm comm = MPI_Comm_f2c(*comm_int);
     adios = adios2::ADIOS(comm);
@@ -30,6 +31,7 @@ extern "C" void adios2_initialize_(
     // Asynchronous IO.
     io_asynchronous = adios.DeclareIO("streamIO");
     io_asynchronous.SetEngine("SST");
+    io_asynchronous.SetParameters({{"OpenTimeoutSecs", std::to_string(timeout_seconds)}});
 
     // Number of elements in my rank.
     unsigned int nel = static_cast<unsigned int>((*nelv));
@@ -48,8 +50,7 @@ extern "C" void adios2_initialize_(
     // If the process is asynchronous, define the relevant variables for writer_st
     f2py_field = io_asynchronous.DefineVariable<double>("f2py_field", {gn}, {start}, {n});
     
-    // If asyncrhonous execution, open the global array
-    std::cout << "create global array" << std::endl;
+    // If asynchronous execution, open the global array
     writer_st = io_asynchronous.Open("globalArray_f2py", adios2::Mode::Write);
     reader_st = io_asynchronous.Open("globalArray_py2f", adios2::Mode::Read);
 
@@ -68,7 +69,6 @@ extern "C" void adios2_initialize_(
 }
 
 extern "C" void adios2_finalize_(){
-    std::cout << "Close global arrays" << std::endl;
     writer_st.Close();
     reader_st.Close();
 

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:force_torque",
+  "$defs": {
+    "simulationComponent": {
+      "allOf": [
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
+        },
+        {
+          "type": "object",
+          "required": [
+            "zone_id",
+            "center"
+          ],
+          "properties": {
+            "type": {
+              "const": "force_torque"
+            },
+            "fluid_name": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "zone_id": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/integerOrRef"
+            },
+            "zone_name": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "center": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/vector3OrRef"
+            },
+            "center_type": {
+              "type": "string",
+              "enum": [
+                "fixed",
+                "pivot",
+                "body_attached"
+              ]
+            },
+            "scale": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+            },
+            "long_print": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}

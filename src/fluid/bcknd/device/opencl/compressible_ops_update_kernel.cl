@@ -112,4 +112,118 @@ __kernel void update_e_kernel(__global real* __restrict__ E,
   }
 }
 
+/**
+ * Device kernel for update T = p / (rho * (gamma - 1))
+ */
+__kernel void update_temperature_kernel(__global real* __restrict__ T,
+                                        __global const real* __restrict__ p,
+                                        __global const real* __restrict__ rho,
+                                        const real gamma,
+                                        const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    T[i] = p[i] / (rho[i] * (gamma - 1.0));
+  }
+}
+
+/**
+ * Device kernel for preparing physical Navier-Stokes flux terms.
+ */
+__kernel void ns_flux_prepare_kernel(__global real* __restrict__ div_flux,
+                                     __global real* __restrict__ dissipation,
+                                     __global real* __restrict__ h1,
+                                     __global const real* __restrict__ dudx,
+                                     __global const real* __restrict__ dudy,
+                                     __global const real* __restrict__ dudz,
+                                     __global const real* __restrict__ dvdx,
+                                     __global const real* __restrict__ dvdy,
+                                     __global const real* __restrict__ dvdz,
+                                     __global const real* __restrict__ dwdx,
+                                     __global const real* __restrict__ dwdy,
+                                     __global const real* __restrict__ dwdz,
+                                     __global const real* __restrict__ mu,
+                                     const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    const real div_u = dudx[i] + dvdy[i] + dwdz[i];
+    const real two_thirds = 2.0 / 3.0;
+    const real tau_xx = mu[i] * (2.0 * dudx[i] - two_thirds * div_u);
+    const real tau_yy = mu[i] * (2.0 * dvdy[i] - two_thirds * div_u);
+    const real tau_zz = mu[i] * (2.0 * dwdz[i] - two_thirds * div_u);
+    const real tau_xy = mu[i] * (dudy[i] + dvdx[i]);
+    const real tau_xz = mu[i] * (dudz[i] + dwdx[i]);
+    const real tau_yz = mu[i] * (dvdz[i] + dwdy[i]);
+
+    div_flux[i] = mu[i] * div_u;
+    h1[i] = mu[i];
+    dissipation[i] = tau_xx * dudx[i] +
+      tau_xy * (dudy[i] + dvdx[i]) +
+      tau_xz * (dudz[i] + dwdx[i]) +
+      tau_yy * dvdy[i] +
+      tau_yz * (dvdz[i] + dwdy[i]) +
+      tau_zz * dwdz[i];
+  }
+}
+
+/**
+ * Device kernel for finalizing physical Navier-Stokes flux terms.
+ */
+__kernel void ns_flux_finalize_kernel(__global real* __restrict__ visc_m_x,
+                                      __global real* __restrict__ visc_m_y,
+                                      __global real* __restrict__ visc_m_z,
+                                      __global real* __restrict__ visc_E,
+                                      __global real* __restrict__ f_x,
+                                      __global real* __restrict__ f_y,
+                                      __global real* __restrict__ f_z,
+                                      __global const real* __restrict__ opgrad_x,
+                                      __global const real* __restrict__ opgrad_y,
+                                      __global const real* __restrict__ opgrad_z,
+                                      __global const real* __restrict__ u,
+                                      __global const real* __restrict__ v,
+                                      __global const real* __restrict__ w,
+                                      __global const real* __restrict__ B,
+                                      __global const real* __restrict__ dissipation,
+                                      const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    f_x[i] -= (2.0 / 3.0) * opgrad_x[i];
+    f_y[i] -= (2.0 / 3.0) * opgrad_y[i];
+    f_z[i] -= (2.0 / 3.0) * opgrad_z[i];
+    visc_m_x[i] += f_x[i];
+    visc_m_y[i] += f_y[i];
+    visc_m_z[i] += f_z[i];
+    visc_E[i] += u[i] * f_x[i] + v[i] * f_y[i] + w[i] * f_z[i] -
+      B[i] * dissipation[i];
+  }
+}
+
+/**
+ * Device kernel for preparing conductive energy flux terms.
+ */
+__kernel void ns_flux_temperature_kernel(__global real* __restrict__ div_flux,
+                                         __global real* __restrict__ h1,
+                                         __global const real* __restrict__ p,
+                                         __global const real* __restrict__ rho,
+                                         __global const real* __restrict__ kappa,
+                                         const real gamma,
+                                         const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    div_flux[i] = p[i] / (rho[i] * (gamma - 1.0));
+    h1[i] = kappa[i];
+  }
+}
+
 #endif // __OPENCL_COMPRESSIBLE_OPS_UPDATE_KERNEL__ 

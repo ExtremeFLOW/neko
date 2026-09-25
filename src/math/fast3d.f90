@@ -87,7 +87,8 @@ contains
   !! @note - Setting \f$m=0\f$ makes this a polynomial interpolation routine.
   !! It is the fastest such routine possible for a single interpolation point,
   !! according to the above reference.
-  !! @note - The name `_full` refers to the fact that we use the values \f$f(x_j)\f$
+  !! @note - The name `_full` refers to the fact that we use the
+  !! values \f$f(x_j)\f$
   !! at all available nodes \f$x\f$ to construct the expansion. So we always
   !! get the finite difference stencil of maximum order possible.
   !!
@@ -238,7 +239,8 @@ contains
   !! @param z_from Quadrature points.
   !! @param n_to Number of points in `z_to`.
   !! @param n_from Number of points in `z_from`.
-  !! @param derivative Specifies if we want the derivative interpolation instead, e.g.
+  !! @param derivative Specifies if we want the derivative
+  !! interpolation instead, e.g.
   !! `derivative = 1` refers to the first derivative etc.
   subroutine setup_intp(jh, jht, z_to, z_from, n_to, n_from, derivative)
     implicit none

@@ -39,6 +39,7 @@
  */
 
 #include <math/bcknd/device/hip/math_kernel.h>
+#include <math/bcknd/device/hip/wave.h>
 
 template< typename T >
 __global__ void gmres_part2_kernel(T  * __restrict__  w,
@@ -52,8 +53,8 @@ __global__ void gmres_part2_kernel(T  * __restrict__  w,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  const unsigned int lane = threadIdx.x % warpSize;
-  const unsigned int wid = threadIdx.x / warpSize;
+  const unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  const unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
   
   __shared__ T shared[64];
   T tmp1 = 0.0;
@@ -72,7 +73,7 @@ __global__ void gmres_part2_kernel(T  * __restrict__  w,
     shared[wid] = tmp1;
   __syncthreads();
 
-  tmp1 = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  tmp1 = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : 0;
   if (wid == 0)
     tmp1 = reduce_warp<T>(tmp1);
 

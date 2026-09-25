@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2025, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -43,11 +43,9 @@ module case
   use redist, only : redist_mesh
   use output_controller, only : output_controller_t
   use flow_ic, only : set_flow_ic
-  use scalar_ic, only : set_scalar_ic
   use file, only : file_t
-  use utils, only : neko_error
+  use utils, only : neko_error, mkdir, filename_split, NEKO_FNAME_LEN
   use mesh, only : mesh_t
-  use math, only : NEKO_EPS
   use checkpoint, only: chkp_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, NEKO_LOG_QUIET
@@ -63,7 +61,7 @@ module case
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
-  use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
+  use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER, MPI_LOGICAL
   use registry, only : neko_registry, neko_const_registry
   use vector, only : vector_t
 
@@ -148,18 +146,21 @@ contains
     logical :: scalar = .false.
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part, parts
-    logical :: found, logical_val
-    logical :: temperature_found = .false.
+    logical :: found, logical_val, load_balance
+    logical :: write_at_start
     integer :: integer_val, var_type
     real(kind=rp) :: real_val
+    real(kind=dp) :: double_val
     real(kind=rp), allocatable :: real_vals(:)
     type(vector_t), pointer :: vec
-    character(len = :), allocatable :: string_val, name, file_format
+    character(len=:), allocatable :: string_val, name, file_format
+    character(len=NEKO_FNAME_LEN) :: lb_file, lb_name, lb_path, lb_ext
     integer :: output_dir_len
     integer :: precision, layout
     type(json_file) :: scalar_params, numerics_params
     type(json_file) :: json_subdict
     integer :: n_scalars, i
+    logical :: tmp_feature
 
     !
     ! Setup user defined functions
@@ -211,33 +212,65 @@ contains
     end if
 
     !
-    ! Load mesh
+    ! Load mesh and perform load balancing if requested
     !
     call json_get_or_default(this%params, 'case.mesh_file', string_val, &
          'no mesh')
+    call json_get_or_default(this%params, 'case.load_balancing', load_balance, &
+         .false.)
+
     if (trim(string_val) .eq. 'no mesh') then
        call neko_error('The mesh_file keyword could not be found in the .' // &
             'case file. Often caused by incorrectly formatted json.')
     end if
-    call msh_file%init(string_val)
-    call msh_file%read(this%msh)
 
-    !
-    ! Load Balancing
-    !
-    call json_get_or_default(this%params, 'case.load_balancing', logical_val,&
-         .false.)
+    if (pe_rank .eq. 0) then
+       inquire(file = trim(string_val), exist = found)
+    end if
+    call MPI_Bcast(found, 1, MPI_LOGICAL, 0, NEKO_COMM)
 
-    if (pe_size .gt. 1 .and. logical_val) then
-       call neko_log%section('Load Balancing')
-       call parmetis_partmeshkway(this%msh, parts)
-       call redist_mesh(this%msh, parts)
+    if (.not. found) then
+       call neko_error('The mesh file ' // trim(string_val) // &
+            ' does not exist.')
+    end if
 
-       ! store the balanced mesh (for e.g. restarts)
-       string_val = trim(string_val(1:scan(trim(string_val), &
-            '.', back = .true.) - 1)) // '_lb.nmsh'
+    if (.not. load_balance .or. pe_size .eq. 1) then
+       if (load_balance) then
+          call neko_log%message('Load balancing requested but only one ' // &
+               'MPI rank found, ignoring.')
+       end if
+
        call msh_file%init(string_val)
-       call msh_file%write(this%msh)
+       call msh_file%read(this%msh)
+
+    else if (load_balance) then
+       call neko_log%section('Load Balancing')
+
+       call filename_split(trim(string_val), lb_path, lb_name, lb_ext)
+       write(lb_file, '(A,A,A,I0,A)') &
+            trim(lb_path), trim(lb_name), "_lb_", pe_size, trim(lb_ext)
+
+       if (pe_rank .eq. 0) then
+          inquire(file = trim(lb_file), exist = found)
+       end if
+       call MPI_Bcast(found, 1, MPI_LOGICAL, 0, NEKO_COMM)
+
+       if (found) then
+          call neko_log%message('Reading balanced mesh')
+          call msh_file%init(lb_file)
+          call msh_file%read(this%msh)
+       else
+          call msh_file%init(string_val)
+          call msh_file%read(this%msh)
+
+          call neko_log%message('Performing load balancing with ParMETIS')
+          call parmetis_partmeshkway(this%msh, parts)
+          call redist_mesh(this%msh, parts)
+
+          ! store the balanced mesh (for e.g. restarts)
+          call msh_file%init(lb_file)
+          call msh_file%write(this%msh)
+       end if
 
        call neko_log%end_section()
     end if
@@ -266,8 +299,7 @@ contains
     lx = lx + 1 ! add 1 to get number of gll points
     ! Set time lags in chkp
     call this%chkp%init()
-    this%chkp%tlag => this%time%tlag
-    this%chkp%dtlag => this%time%dtlag
+    call this%chkp%add_time_state(this%time)
     call this%fluid%init(this%msh, lx, this%params, this%user, this%chkp)
 
 
@@ -347,82 +379,8 @@ contains
     call neko_log%end_section()
 
     if (scalar) then
-       call neko_log%section("Scalar initial condition ")
-
-       if (this%params%valid_path('case.restart_file')) then
-          call neko_log%message("Restart file specified, " // &
-               "initial conditions ignored")
-       else if (this%params%valid_path('case.scalar')) then
-          ! For backward compatibility with single scalar
-          call json_get(this%params, 'case.scalar.initial_condition.type', &
-               string_val)
-          call json_get(this%params, &
-               'case.scalar.initial_condition', json_subdict)
-
-          if (trim(string_val) .ne. 'user') then
-             if (trim(this%scalars%scalar_fields(1)%scalar%name) .eq. &
-                  'temperature') then
-                call set_scalar_ic(this%scalars%scalar_fields(1)%scalar%s, &
-                     this%scalars%scalar_fields(1)%scalar%c_Xh, &
-                     this%scalars%scalar_fields(1)%scalar%gs_Xh, &
-                     string_val, json_subdict, 0)
-             else
-                call set_scalar_ic(this%scalars%scalar_fields(1)%scalar%s, &
-                     this%scalars%scalar_fields(1)%scalar%c_Xh, &
-                     this%scalars%scalar_fields(1)%scalar%gs_Xh, &
-                     string_val, json_subdict, 1)
-             end if
-          else
-             call set_scalar_ic(this%scalars%scalar_fields(1)%scalar%name, &
-                  this%scalars%scalar_fields(1)%scalar%s, &
-                  this%scalars%scalar_fields(1)%scalar%c_Xh, &
-                  this%scalars%scalar_fields(1)%scalar%gs_Xh, &
-                  this%user%initial_conditions)
-          end if
-
-       else
-          ! Handle multiple scalars
-          do i = 1, n_scalars
-             call json_extract_item(this%params, 'case.scalars', i, &
-                  scalar_params)
-             call json_get(scalar_params, 'initial_condition.type', string_val)
-             call json_get(scalar_params, 'initial_condition', &
-                  json_subdict)
-
-             if (trim(string_val) .ne. 'user') then
-                if (trim(this%scalars%scalar_fields(i)%scalar%name) .eq. &
-                     'temperature') then
-                   call set_scalar_ic(this%scalars%scalar_fields(i)%scalar%s, &
-                        this%scalars%scalar_fields(i)%scalar%c_Xh, &
-                        this%scalars%scalar_fields(i)%scalar%gs_Xh, &
-                        string_val, json_subdict, 0)
-                   temperature_found = .true.
-                else
-                   if (temperature_found) then
-                      ! if temperature is found, other scalars start from index 1
-                      call set_scalar_ic(this%scalars%scalar_fields(i)%scalar%s, &
-                           this%scalars%scalar_fields(i)%scalar%c_Xh, &
-                           this%scalars%scalar_fields(i)%scalar%gs_Xh, &
-                           string_val, json_subdict, i - 1)
-                   else
-                      ! if temperature is not found, other scalars start from index 0
-                      call set_scalar_ic(this%scalars%scalar_fields(i)%scalar%s, &
-                           this%scalars%scalar_fields(i)%scalar%c_Xh, &
-                           this%scalars%scalar_fields(i)%scalar%gs_Xh, &
-                           string_val, json_subdict, i)
-                   end if
-                end if
-             else
-                call set_scalar_ic(this%scalars%scalar_fields(i)%scalar%name,&
-                     this%scalars%scalar_fields(i)%scalar%s, &
-                     this%scalars%scalar_fields(i)%scalar%c_Xh, &
-                     this%scalars%scalar_fields(i)%scalar%gs_Xh, &
-                     this%user%initial_conditions)
-             end if
-          end do
-       end if
-
-       call neko_log%end_section()
+       call this%scalars%set_initial_conditions(this%user, &
+            this%params%valid_path('case.restart_file'))
     end if
 
     ! Add initial conditions to BDF scheme (if present)
@@ -452,9 +410,9 @@ contains
     if (output_dir_len .gt. 0) then
        if (this%output_directory(output_dir_len:output_dir_len) .ne. "/") then
           this%output_directory = trim(this%output_directory)//"/"
-          if (pe_rank .eq. 0) then
-             call execute_command_line('mkdir -p '//this%output_directory)
-          end if
+       end if
+       if (pe_rank .eq. 0) then
+          call mkdir(trim(this%output_directory))
        end if
     end if
 
@@ -499,7 +457,18 @@ contains
     call json_get_or_default(this%params, &
          'case.fluid.output_mesh_in_all_files', &
          logical_val, .false.)
-    call this%output_controller%init(this%time%end_time)
+
+    ! To ensure we don't miss saving the mesh for ALE.
+    call json_get_or_default(this%params, 'case.fluid.ale.enabled', &
+         tmp_feature, .false.)
+    if (tmp_feature) logical_val = .true.
+
+    ! Whether the initial state of the simulation is written.
+    call json_get_or_default(this%params, 'case.output_at_start', &
+         write_at_start, .true.)
+
+    call this%output_controller%init(this%time%end_time, &
+         time_start = this%time%start_time, write_at_start = write_at_start)
     if (scalar) then
        call this%f_out%init(precision, this%fluid, this%scalars, name = name, &
             path = trim(this%output_directory), &
@@ -512,24 +481,29 @@ contains
             always_write_mesh = logical_val)
     end if
 
-    call json_get_or_default(this%params, 'case.fluid.output_control',&
-         string_val, 'org')
+    call json_get_or_default(this%params, 'case.fluid.output_subdivide', &
+         logical_val, .false.)
+    call this%f_out%file_%set_subdivide(logical_val)
+
+    call json_get(this%params, 'case.fluid.output_control', string_val)
 
     if (trim(string_val) .eq. 'org') then
        ! yes, it should be real_val below for type compatibility
-       call json_get(this%params, 'case.nsamples', integer_val)
-       real_val = real(integer_val, kind=rp)
-       call this%output_controller%add(this%f_out, real_val, 'nsamples')
+       call json_get_or_lookup(this%params, 'case.nsamples', integer_val)
+       double_val = real(integer_val, kind=dp)
+       call this%output_controller%add(this%f_out, double_val, 'nsamples')
     else if (trim(string_val) .eq. 'never') then
-       call this%output_controller%add(this%f_out, 0.0_rp, 'never')
+       call this%output_controller%add(this%f_out, 0.0_dp, 'never')
     else if (trim(string_val) .eq. 'tsteps' .or. &
          trim(string_val) .eq. 'nsamples') then
-       call json_get(this%params, 'case.fluid.output_value', integer_val)
-       real_val = real(integer_val, kind=rp)
-       call this%output_controller%add(this%f_out, real_val, string_val)
+       call json_get_or_lookup(this%params, 'case.fluid.output_value', &
+            integer_val)
+       double_val = real(integer_val, kind=dp)
+       call this%output_controller%add(this%f_out, double_val, string_val)
     else if (trim(string_val) .eq. 'simulationtime') then
-       call json_get_or_lookup(this%params, 'case.fluid.output_value', real_val)
-       call this%output_controller%add(this%f_out, real_val, string_val)
+       call json_get_or_lookup(this%params, 'case.fluid.output_value', &
+            double_val)
+       call this%output_controller%add(this%f_out, double_val, string_val)
     else
        call neko_log%error('Unknown output control type for the fluid: ' // &
             trim(string_val))
@@ -538,8 +512,7 @@ contains
     !
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
-    call json_get_or_default(this%params, 'case.output_checkpoints',&
-         logical_val, .true.)
+    call json_get(this%params, 'case.output_checkpoints', logical_val)
     if (logical_val) then
        call json_get_or_default(this%params, 'case.checkpoint_filename', &
             name, "fluid")
@@ -547,12 +520,24 @@ contains
             string_val, "chkp")
        call this%chkp_out%init(this%chkp, name = name,&
             path = this%output_directory, fmt = trim(string_val))
-       call json_get_or_default(this%params, 'case.checkpoint_control', &
-            string_val, "simulationtime")
-       call json_get_or_lookup_or_default(this%params, &
-            'case.checkpoint_value', real_val, 1e10_rp)
-       call this%output_controller%add(this%chkp_out, real_val, string_val, &
-            NEKO_EPS)
+       call json_get(this%params, 'case.checkpoint_control', &
+            string_val)
+       if (trim(string_val) .eq. 'tsteps' .or. &
+            trim(string_val) .eq. 'nsamples') then
+          call json_get_or_lookup(this%params, 'case.checkpoint_value', &
+               integer_val)
+          double_val = real(integer_val, kind=dp)
+       else if (trim(string_val) .eq. 'simulationtime') then
+          call json_get_or_lookup(this%params, 'case.checkpoint_value', &
+               double_val)
+       else if (trim(string_val) .eq. 'never') then
+          double_val = 0.0_rp
+       end if
+
+       ! A checkpoint of the initial condition is of no use, so the first
+       ! point of the schedule is skipped.
+       call this%output_controller%add(this%chkp_out, double_val, string_val, &
+            write_at_start = .false.)
     end if
 
     !
@@ -568,6 +553,8 @@ contains
     call scalar_params%destroy()
     call numerics_params%destroy()
     call json_subdict%destroy()
+
+    nullify(vec)
 
   end subroutine case_init_common
 

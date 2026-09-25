@@ -25,6 +25,7 @@ size = comm.Get_size()
 #========================================
 # general functionality
 import numpy as np
+import matplotlib.pyplot as plt
 
 # external
 import adios2.bindings as adios2
@@ -38,13 +39,15 @@ from pysemtools.datatypes.coef import Coef
 from pysemtools.datatypes.field import FieldRegistry
 from pysemtools.rom.pod import POD
 from pysemtools.rom.io_help import IoHelp
+from pysemtools.monitoring.logger import Logger
+
+log = Logger(comm=comm, module_name="turb_pipe_insitu_task")
 
 #=========================================
 # Define inputs
 #=========================================
 
-if comm.Get_rank() == 0:
-    print("Python - insitu - reading inputs")
+log.write("info", "Reading inputs")
 
 # Read the POD inputs
 number_of_pod_fields = 3
@@ -62,17 +65,26 @@ else:
 start_time = MPI.Wtime()
 
 #=========================================
+# Initialize figures for plotting
+#=========================================
+
+plt.figure("singular_values", figsize = (10,6))
+plt.xlabel("Mode number", fontsize = 14)
+plt.ylabel("Singular values (normalized)", fontsize = 14)
+plt.title("Waiting for data from neko...")
+plt.savefig("singular_values.png", dpi = 300)
+plt.title("")
+
+#=========================================
 # Initialize the streamer and get the mesh
 #=========================================
 
-if comm.Get_rank() == 0:
-    print("Python - insitu - Initializing streamer")
+log.write("info", "Initializing streamer")
 
 # Initialize the streamer
 ds = DataStreamer(comm)
 
-if comm.Get_rank() == 0:
-    print("Python - insitu - Initializing objects")
+log.write("info", "Initializing objects")
     
 # Recieve the mesh
 x = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) # Recieve and reshape x
@@ -89,9 +101,11 @@ bm = coef.B
 #=========================================
 
 # Instance the POD object
+log.write("info", "Initializing POD")
 pod = POD(comm, number_of_modes_to_update = pod_keep_modes, global_updates = True, auto_expand = False, bckend = backend)
 
 # Instance io helper that will serve as buffer for the snapshots
+log.write("info", "Initializing io helper")
 ioh = IoHelp(comm, number_of_fields = number_of_pod_fields, batch_size = pod_batch_size, field_size = bm.size, field_data_type=dtype, mass_matrix_data_type=dtype)
 
 # Put the mass matrix in the appropiate format (long 1d array)
@@ -109,9 +123,13 @@ stream_data = True
 while stream_data:
 
     # Get the data
-    u = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
-    v = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
-    w = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
+    log.write("info", "Waiting for data from neko...")
+    fields = []
+    for i in range(number_of_pod_fields):
+        fields.append(get_fld_from_ndarray(ds.recieve(), 
+                                           ds.lx, ds.ly, ds.lz, ds.nelv
+                                           ).astype(dtype))
+    log.write("info", "Data received.")
 
     # Check if data was recieved or if the stream ended
     if ds.step_status == adios2.StepStatus.OK:
@@ -121,7 +139,7 @@ while stream_data:
         continue
 
     # Put the snapshot data into a column array
-    ioh.copy_fieldlist_to_xi([u, v, w])
+    ioh.copy_fieldlist_to_xi(fields)
 
     # Load the column array into the buffer
     ioh.load_buffer(scale_snapshot = True)
@@ -129,6 +147,14 @@ while stream_data:
     # Update POD modes
     if ioh.update_from_buffer:
         pod.update(comm, buff = ioh.buff[:,:(ioh.buffer_index)])
+    
+        if (comm.Get_rank() == 0):
+            n = min(pod_keep_modes, len(pod.d_1t)-1)
+            plt.loglog(
+                np.arange(1, n+1),
+                pod.d_1t[1:pod_keep_modes] / np.sum(pod.d_1t),
+                marker = "o", markerfacecolor="white")
+            plt.savefig("singular_values.png", dpi = 300)
 
 #=========================================
 # Perform post-stream operations
@@ -146,6 +172,14 @@ else:
     ioh.log.write("warning","Data must be updated now to not lose anything,  Performing an update with data in buffer ")
     pod.update(comm, buff = ioh.buff[:,:(ioh.buffer_index)])
 
+    if (comm.Get_rank() == 0):
+        n = min(pod_keep_modes, len(pod.d_1t)-1)
+        plt.loglog(
+            np.arange(1, n+1),
+            pod.d_1t[1:pod_keep_modes] / np.sum(pod.d_1t),
+            marker = "o", markerfacecolor="white")
+        plt.savefig("singular_values.png", dpi = 300)
+
 # Scale back the modes
 pod.scale_modes(comm, bm1sqrt = ioh.bm1sqrt, op = "div")
 
@@ -156,6 +190,7 @@ pod.rotate_local_modes_to_global(comm)
 # Write out the modes
 #=========================================
 
+field_names = ["u", "v", "w"]
 # Write the data out
 for j in range(0, pod_write_modes):
 
@@ -163,15 +198,15 @@ for j in range(0, pod_write_modes):
 
         ## Split the snapshots into the proper fields
         field_list1d = ioh.split_narray_to_1dfields(pod.u_1t[:,j])
-        u_mode = get_fld_from_ndarray(field_list1d[0], msh.lx, msh.ly, msh.lz, msh.nelv) 
-        v_mode = get_fld_from_ndarray(field_list1d[1], msh.lx, msh.ly, msh.lz, msh.nelv) 
-        w_mode = get_fld_from_ndarray(field_list1d[2], msh.lx, msh.ly, msh.lz, msh.nelv) 
+        fld = FieldRegistry(comm)  
 
-        # write the data
-        fld = FieldRegistry(comm)        
-        fld.add_field(comm, field_name = "u", field = u_mode, dtype = dtype)
-        fld.add_field(comm, field_name = "v", field = v_mode, dtype = dtype)
-        fld.add_field(comm, field_name = "w", field = w_mode, dtype = dtype)
+        for nf in range(number_of_pod_fields):
+            mode = get_fld_from_ndarray(field_list1d[nf], msh.lx, msh.ly, msh.lz, msh.nelv)
+            fld.add_field(comm,
+                          field = mode,
+                          dtype = dtype,
+                          field_name=field_names[nf])
+
         pynekwrite(f"./modes0.f{str(j).zfill(5)}", comm=comm, msh=msh, fld=fld, wdsz=4, istep = j) 
         
 #=========================================

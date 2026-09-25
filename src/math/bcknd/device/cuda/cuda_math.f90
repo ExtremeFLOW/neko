@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module cuda_math
-  use num_types, only : rp, c_rp
+  use num_types, only : rp, c_rp, c_xp
   implicit none
   public
 
@@ -43,12 +43,19 @@ module cuda_math
        integer(c_int) :: n
      end subroutine cuda_copy
 
-     subroutine cuda_masked_copy(a_d, b_d, mask_d, n, n_mask, strm) &
-          bind(c, name = 'cuda_masked_copy')
+     subroutine cuda_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm) &
+          bind(c, name = 'cuda_masked_copy_0')
        use, intrinsic :: iso_c_binding, only : c_int, c_ptr
        type(c_ptr), value :: a_d, b_d, mask_d, strm
        integer(c_int) :: n, n_mask
-     end subroutine cuda_masked_copy
+     end subroutine cuda_masked_copy_0
+
+     subroutine cuda_masked_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm) &
+          bind(c, name = 'cuda_masked_copy_aligned')
+       use, intrinsic :: iso_c_binding, only : c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d, mask_d, strm
+       integer(c_int) :: n, n_mask
+     end subroutine cuda_masked_copy_aligned
 
      subroutine cuda_masked_gather_copy(a_d, b_d, mask_d, n, n_mask, strm) &
           bind(c, name = 'cuda_masked_gather_copy')
@@ -64,12 +71,27 @@ module cuda_math
        integer(c_int) :: n, n_mask
      end subroutine cuda_masked_gather_copy_aligned
 
+     subroutine cuda_face_masked_gather_copy(a_d, b_d, mask_d, facet_d, n1, &
+          n2, lx, ly, lz, n_mask, strm) &
+          bind(c, name = 'cuda_face_masked_gather_copy')
+       use, intrinsic :: iso_c_binding, only : c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d, mask_d, facet_d, strm
+       integer(c_int) :: n1, n2, lx, ly, lz, n_mask
+     end subroutine cuda_face_masked_gather_copy
+
      subroutine cuda_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask, strm) &
           bind(c, name = 'cuda_masked_scatter_copy')
        use, intrinsic :: iso_c_binding, only : c_int, c_ptr
        type(c_ptr), value :: a_d, b_d, mask_d, strm
        integer(c_int) :: n, n_mask
      end subroutine cuda_masked_scatter_copy
+
+     subroutine cuda_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm) &
+          bind(c, name = 'cuda_masked_scatter_copy_aligned')
+       use, intrinsic :: iso_c_binding, only : c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d, mask_d, strm
+       integer(c_int) :: n, n_mask
+     end subroutine cuda_masked_scatter_copy_aligned
 
      subroutine cuda_masked_atomic_reduction(a_d, b_d, mask_d, n, m, strm) &
           bind(c, name = 'cuda_masked_atomic_reduction')
@@ -144,6 +166,36 @@ module cuda_math
        real(c_rp) :: c
        integer(c_int) :: n
      end subroutine cuda_cadd2
+
+     subroutine cuda_cwrap(a_d, min_val, max_val, n, strm) &
+          bind(c, name = 'cuda_cwrap')
+       use, intrinsic :: iso_c_binding, only : c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       real(c_rp) :: min_val
+       real(c_rp) :: max_val
+       integer(c_int) :: n
+     end subroutine cuda_cwrap
+
+     subroutine cuda_sqrt_inplace(a_d, n, strm) &
+          bind(c, name = 'cuda_sqrt_inplace')
+       use, intrinsic :: iso_c_binding, only : c_int, c_ptr
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       integer(c_int) :: n
+     end subroutine cuda_sqrt_inplace
+
+     subroutine cuda_power(ap_d, a_d, p, n, strm) &
+          bind(c, name = 'cuda_power')
+       use, intrinsic :: iso_c_binding, only : c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: ap_d
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       real(c_rp) :: p
+       integer(c_int) :: n
+     end subroutine cuda_power
 
      subroutine cuda_cfill(a_d, c, n, strm) &
           bind(c, name = 'cuda_cfill')
@@ -351,10 +403,10 @@ module cuda_math
        integer(c_int) :: j, n
      end subroutine cuda_add2s2_many
 
-     real(c_rp) function cuda_glsc3(a_d, b_d, c_d, n, strm) &
+     real(c_xp) function cuda_glsc3(a_d, b_d, c_d, n, strm) &
           bind(c, name = 'cuda_glsc3')
        use, intrinsic :: iso_c_binding, only : c_int, c_ptr
-       import c_rp
+       import c_xp
        type(c_ptr), value :: a_d, b_d, c_d, strm
        integer(c_int) :: n
      end function cuda_glsc3
@@ -362,35 +414,61 @@ module cuda_math
      subroutine cuda_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm) &
           bind(c, name = 'cuda_glsc3_many')
        use, intrinsic :: iso_c_binding, only : c_int, c_ptr
-       import c_rp
+       import c_xp
        type(c_ptr), value :: w_d, v_d_d, mult_d, strm
        integer(c_int) :: j, n
-       real(c_rp) :: h(j)
+       real(c_xp) :: h(j)
      end subroutine cuda_glsc3_many
 
-     real(c_rp) function cuda_glsc2(a_d, b_d, n, strm) &
+     real(c_xp) function cuda_glsc2(a_d, b_d, n, strm) &
           bind(c, name = 'cuda_glsc2')
        use, intrinsic :: iso_c_binding, only : c_int, c_ptr
-       import c_rp
+       import c_xp
        type(c_ptr), value :: a_d, b_d, strm
        integer(c_int) :: n
      end function cuda_glsc2
 
-     real(c_rp) function cuda_glsubnorm2(a_d, b_d, n, strm) &
+     real(c_xp) function cuda_glsubnorm2(a_d, b_d, n, strm) &
           bind(c, name = 'cuda_glsubnorm2')
        use, intrinsic :: iso_c_binding, only : c_int, c_ptr
-       import c_rp
+       import c_xp
        type(c_ptr), value :: a_d, b_d, strm
        integer(c_int) :: n
      end function cuda_glsubnorm2
 
-     real(c_rp) function cuda_glsum(a_d, n, strm) &
+     real(c_xp) function cuda_glsum(a_d, n, strm) &
           bind(c, name = 'cuda_glsum')
        use, intrinsic :: iso_c_binding, only : c_int, c_ptr
-       import c_rp
+       import c_xp
        type(c_ptr), value :: a_d, strm
        integer(c_int) :: n
      end function cuda_glsum
+
+     real(c_rp) function cuda_glmax(a_d, ninf, n, strm) &
+          bind(c, name = 'cuda_glmax')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       real(c_rp) :: ninf
+       integer(c_int) :: n
+     end function cuda_glmax
+
+     real(c_rp) function cuda_glamax(a_d, n, strm) &
+          bind(c, name = 'cuda_glamax')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       integer(c_int) :: n
+     end function cuda_glamax
+
+     real(c_rp) function cuda_glmin(a_d, pinf, n, strm) &
+          bind(c, name = 'cuda_glmin')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       real(c_rp) :: pinf
+       integer(c_int) :: n
+     end function cuda_glmin
 
      subroutine cuda_absval(a_d, n, strm) &
           bind(c, name = 'cuda_absval')

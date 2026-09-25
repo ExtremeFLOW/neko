@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ module device
   use opencl_intf
   use cuda_intf
   use hip_intf
+  use metal_intf
   use neko_config, only : NEKO_BCKND_DEVICE
   use htable, only : htable_cptr_t, h_cptr_t
   use utils, only : neko_error
@@ -74,10 +75,21 @@ module device
   end interface device_memcpy
 
   !> Map a Fortran array to a device (allocate and associate)
+  !! @note On unified memory backends the device pointer may alias the
+  !! host array (zero-copy) and host-device copies of the pair become
+  !! no-ops. The host side must then not be written while device work
+  !! touching the array may be in flight; call device_sync before
+  !! host-side writes to a mapped array.
   interface device_map
      module procedure device_map_r1, device_map_r2, &
           device_map_r3, device_map_r4
   end interface device_map
+
+  !> Unmap a Fortran array from a device (deassociate and free)
+  interface device_unmap
+     module procedure device_unmap_r1, device_unmap_r2, &
+          device_unmap_r3, device_unmap_r4
+  end interface device_unmap
 
   !> Associate a Fortran array to a (allocated) device pointer
   interface device_associate
@@ -109,23 +121,22 @@ module device
   end interface device_sync
 
   !> Table of host to device address mappings
-  type(htable_cptr_t), private :: device_addrtbl
+  type(htable_cptr_t) :: device_addrtbl
 
-  public :: device_memcpy, device_map, device_associate, device_associated, &
-       device_deassociate, device_get_ptr, device_sync, device_free, &
-       device_sync_stream, device_stream_create, device_stream_destroy, &
-       device_profiler_start, device_profiler_stop, device_alloc, &
-       device_init, device_name, device_event_create, device_event_destroy, &
-       device_event_record, device_event_sync, device_finalize, &
-       device_stream_wait_event, device_count, device_memset, &
-       device_stream_create_with_priority
-
-  private :: device_memcpy_common
+  public :: device_memcpy, device_map, device_unmap, device_associate, &
+       device_associated, device_deassociate, device_get_ptr, device_sync, &
+       device_free, device_sync_stream, device_stream_create, &
+       device_stream_destroy, device_profiler_start, device_profiler_stop, &
+       device_alloc, device_init, device_name, device_event_create, &
+       device_event_destroy, device_event_record, device_event_sync, &
+       device_finalize, device_stream_wait_event, device_count, &
+       device_memset, device_stream_create_with_priority
 
 contains
 
   subroutine device_init
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
+    defined(HAVE_OPENCL) || defined(HAVE_METAL)
     call device_addrtbl%init(64)
 
 #ifdef HAVE_HIP
@@ -134,6 +145,8 @@ contains
     call cuda_init(glb_cmd_queue, aux_cmd_queue, STRM_HIGH_PRIO, STRM_LOW_PRIO)
 #elif HAVE_OPENCL
     call opencl_init(glb_cmd_queue, aux_cmd_queue, prf_cmd_queue)
+#elif HAVE_METAL
+    call metal_init(glb_cmd_queue, aux_cmd_queue)
 #endif
     call device_event_create(glb_cmd_event, 2)
 #endif
@@ -147,8 +160,10 @@ contains
   end subroutine device_init
 
   subroutine device_finalize
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
+    defined(HAVE_OPENCL) || defined(HAVE_METAL)
     call device_addrtbl%free()
+    call device_event_destroy(glb_cmd_event)
 
 #ifdef HAVE_HIP
     call hip_finalize(glb_cmd_queue, aux_cmd_queue)
@@ -157,8 +172,9 @@ contains
 #elif HAVE_OPENCL
     call opencl_prgm_lib_release
     call opencl_finalize(glb_cmd_queue, aux_cmd_queue, prf_cmd_queue)
+#elif HAVE_METAL
+    call metal_finalize(glb_cmd_queue, aux_cmd_queue)
 #endif
-    call device_event_destroy(glb_cmd_event)
 #endif
   end subroutine device_finalize
 
@@ -171,6 +187,8 @@ contains
     call cuda_device_name(name)
 #elif HAVE_OPENCL
     call opencl_device_name(name)
+#elif HAVE_METAL
+    call metal_device_name(name)
 #endif
   end subroutine device_name
 
@@ -182,6 +200,8 @@ contains
     device_count = cuda_device_count()
 #elif HAVE_OPENCL
     device_count = opencl_device_count()
+#elif HAVE_METAL
+    device_count = metal_device_count()
 #else
     device_count = 0
 #endif
@@ -211,6 +231,10 @@ contains
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Memory allocation on device failed')
     end if
+#elif HAVE_METAL
+    if (metalAlloc(x_d, s) .ne. metalSuccess) then
+       call neko_error('Memory allocation on device failed')
+    end if
 #endif
   end subroutine device_alloc
 
@@ -218,7 +242,9 @@ contains
   subroutine device_free(x_d)
     type(c_ptr), intent(inout) :: x_d
 #ifdef HAVE_HIP
-    if (hipfree(x_d) .ne. hipSuccess) then
+    ! Free via the mapping layer, which leaves zero-copy pointers
+    ! aliasing host memory untouched (unified memory architectures)
+    if (hipMapFree(x_d) .ne. hipSuccess) then
        call neko_error('Memory deallocation on device failed')
     end if
 #elif HAVE_CUDA
@@ -227,6 +253,10 @@ contains
     end if
 #elif HAVE_OPENCL
     if (clReleaseMemObject(x_d) .ne. CL_SUCCESS) then
+       call neko_error('Memory deallocation on device failed')
+    end if
+#elif HAVE_METAL
+    if (metalFree(x_d) .ne. metalSuccess) then
        call neko_error('Memory deallocation on device failed')
     end if
 #endif
@@ -256,7 +286,9 @@ contains
     end if
 
 #ifdef HAVE_HIP
-    if (hipMemsetAsync(x_d, v, s, stream) .ne. hipSuccess) then
+    ! Memset via the mapping layer, which handles zero-copy pointers
+    ! aliasing host memory (unified memory architectures)
+    if (hipMapMemset(x_d, v, s, stream) .ne. hipSuccess) then
        call neko_error('Device memset async failed')
     end if
 #elif HAVE_CUDA
@@ -267,6 +299,10 @@ contains
     if (clEnqueueFillBuffer(stream, x_d, c_loc(v), c_sizeof(v), 0_i8, &
          s, 0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
        call neko_error('Device memset async failed')
+    end if
+#elif HAVE_METAL
+    if (metalMemset(x_d, v, s) .ne. metalSuccess) then
+       call neko_error('Device memset failed')
     end if
 #endif
 
@@ -476,20 +512,31 @@ contains
     end if
 
 #ifdef HAVE_HIP
+    ! Copies where the device pointer aliases the host pointer
+    ! (zero-copy mappings on unified memory) are skipped; a
+    ! requested sync still synchronizes the stream below. Other
+    ! copies go via the mapping layer, which handles zero-copy
+    ! pointers aliasing pageable host memory
     if (dir .eq. HOST_TO_DEVICE) then
-       if (hipMemcpyAsync(x_d, ptr_h, s, &
-            hipMemcpyHostToDevice, stream) .ne. hipSuccess) then
-          call neko_error('Device memcpy async (host-to-device) failed')
+       if (.not. c_associated(x_d, ptr_h)) then
+          if (hipMapMemcpy(x_d, ptr_h, s, &
+               hipMemcpyHostToDevice, stream) .ne. hipSuccess) then
+             call neko_error('Device memcpy async (host-to-device) failed')
+          end if
        end if
     else if (dir .eq. DEVICE_TO_HOST) then
-       if (hipMemcpyAsync(ptr_h, x_d, s, &
-            hipMemcpyDeviceToHost, stream) .ne. hipSuccess) then
-          call neko_error('Device memcpy async (device-to-host) failed')
+       if (.not. c_associated(ptr_h, x_d)) then
+          if (hipMapMemcpy(ptr_h, x_d, s, &
+               hipMemcpyDeviceToHost, stream) .ne. hipSuccess) then
+             call neko_error('Device memcpy async (device-to-host) failed')
+          end if
        end if
     else if (dir .eq. DEVICE_TO_DEVICE) then
-       if (hipMemcpyAsync(ptr_h, x_d, s, hipMemcpyDeviceToDevice, stream) &
-            .ne. hipSuccess) then
-          call neko_error('Device memcpy async (device-to-device) failed')
+       if (.not. c_associated(ptr_h, x_d)) then
+          if (hipMapMemcpy(ptr_h, x_d, s, hipMemcpyDeviceToDevice, stream) &
+               .ne. hipSuccess) then
+             call neko_error('Device memcpy async (device-to-device) failed')
+          end if
        end if
     else
        call neko_error('Device memcpy failed (invalid direction')
@@ -565,14 +612,44 @@ contains
           call neko_error('Device memcpy failed (invalid direction')
        end if
     end if
+#elif HAVE_METAL
+    ! Copies are synchronous on unified memory, the @a sync_device
+    ! and @a stream arguments have no effect
+    if (dir .eq. HOST_TO_DEVICE) then
+       if (metalMemcpyHtoD(x_d, ptr_h, s) .ne. metalSuccess) then
+          call neko_error('Device memcpy (host-to-device) failed')
+       end if
+    else if (dir .eq. DEVICE_TO_HOST) then
+       if (metalMemcpyDtoH(ptr_h, x_d, s) .ne. metalSuccess) then
+          call neko_error('Device memcpy (device-to-host) failed')
+       end if
+    else if (dir .eq. DEVICE_TO_DEVICE) then
+       if (metalMemcpyDtoD(ptr_h, x_d, s) .ne. metalSuccess) then
+          call neko_error('Device memcpy (device-to-device) failed')
+       end if
+    else
+       call neko_error('Device memcpy failed (invalid direction')
+    end if
 #endif
   end subroutine device_memcpy_common
 
   !> Associate a Fortran rank 1 array to a (allocated) device pointer
-  subroutine device_associate_r1(x, x_d)
+  subroutine device_associate_r1(x, x_d, n)
     class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
+    integer, intent(in), optional :: n
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+    integer :: n_
+
+    if (present(n)) then
+       n_ = n
+    else
+       n_ = size(x)
+    end if
+
+    if (n_ .eq. 0) return
+    if (.not. c_associated(x_d)) call neko_error('Attempting to associate' // &
+         ' to a null device pointer for a non-empty array')
 
     select type (x)
     type is (integer)
@@ -594,10 +671,22 @@ contains
   end subroutine device_associate_r1
 
   !> Associate a Fortran rank 2 array to a (allocated) device pointer
-  subroutine device_associate_r2(x, x_d)
+  subroutine device_associate_r2(x, x_d, n)
     class(*), intent(inout), target :: x(:,:)
     type(c_ptr), intent(inout) :: x_d
+    integer, intent(in), optional :: n
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+    integer :: n_
+
+    if (present(n)) then
+       n_ = n
+    else
+       n_ = size(x)
+    end if
+
+    if (n_ .eq. 0) return
+    if (.not. c_associated(x_d)) call neko_error('Attempting to associate' // &
+         ' to a null device pointer for a non-empty array')
 
     select type (x)
     type is (integer)
@@ -619,11 +708,22 @@ contains
   end subroutine device_associate_r2
 
   !> Associate a Fortran rank 3 array to a (allocated) device pointer
-  subroutine device_associate_r3(x, x_d)
+  subroutine device_associate_r3(x, x_d, n)
     class(*), intent(inout), target :: x(:,:,:)
     type(c_ptr), intent(inout) :: x_d
+    integer, intent(in), optional :: n
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+    integer :: n_
 
+    if (present(n)) then
+       n_ = n
+    else
+       n_ = size(x)
+    end if
+
+    if (n_ .eq. 0) return
+    if (.not. c_associated(x_d)) call neko_error('Attempting to associate' // &
+         ' to a null device pointer for a non-empty array')
     select type (x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
@@ -644,10 +744,22 @@ contains
   end subroutine device_associate_r3
 
   !> Associate a Fortran rank 4 array to a (allocated) device pointer
-  subroutine device_associate_r4(x, x_d)
+  subroutine device_associate_r4(x, x_d, n)
     class(*), intent(inout), target :: x(:,:,:,:)
     type(c_ptr), intent(inout) :: x_d
+    integer, intent(in), optional :: n
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+    integer :: n_
+
+    if (present(n)) then
+       n_ = n
+    else
+       n_ = size(x)
+    end if
+
+    if (n_ .eq. 0) return
+    if (.not. c_associated(x_d)) call neko_error('Attempting to associate' // &
+         ' to a null device pointer for a non-empty array')
 
     select type (x)
     type is (integer)
@@ -764,11 +876,47 @@ contains
 
   end subroutine device_deassociate_r4
 
+  !> Allocate device memory backing a mapped host array
+  !! @note On unified memory architectures (Metal) the device pointer
+  !! aliases the host array whenever possible, such that host and
+  !! device share a single allocation instead of replicating data
+  subroutine device_map_common(ptr_h, x_d, s)
+    type(c_ptr), intent(in) :: ptr_h
+    type(c_ptr), intent(inout) :: x_d
+    integer(c_size_t), intent(in) :: s
+
+#ifdef HAVE_METAL
+    if (s .eq. 0) then
+       call device_sync()
+       x_d = C_NULL_PTR
+       return
+    end if
+
+    if (metalMap(x_d, ptr_h, s) .ne. metalSuccess) then
+       call neko_error('Memory map on device failed')
+    end if
+#elif HAVE_HIP
+    if (s .eq. 0) then
+       call device_sync()
+       x_d = C_NULL_PTR
+       return
+    end if
+
+    if (hipMap(x_d, ptr_h, s) .ne. hipSuccess) then
+       call neko_error('Memory map on device failed')
+    end if
+#else
+    call device_alloc(x_d, s)
+#endif
+
+  end subroutine device_map_common
+
   !> Map a Fortran rank 1 array to a device (allocate and associate)
   subroutine device_map_r1(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
     if (c_associated(x_d)) then
@@ -778,18 +926,22 @@ contains
     select type (x)
     type is (integer)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (integer(i8))
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     type is (real)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (double precision)
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
-    call device_associate(x, x_d)
+    call device_map_common(ptr_h, x_d, s)
+    call device_associate(x, x_d, n)
 
   end subroutine device_map_r1
 
@@ -798,6 +950,7 @@ contains
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:)
     type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
     if (c_associated(x_d)) then
@@ -807,18 +960,22 @@ contains
     select type (x)
     type is (integer)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (integer(i8))
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     type is (real)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (double precision)
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
-    call device_associate(x, x_d)
+    call device_map_common(ptr_h, x_d, s)
+    call device_associate(x, x_d, n)
 
   end subroutine device_map_r2
 
@@ -827,6 +984,7 @@ contains
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:)
     type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
     if (c_associated(x_d)) then
@@ -836,18 +994,22 @@ contains
     select type (x)
     type is (integer)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (integer(i8))
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     type is (real)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (double precision)
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
-    call device_associate(x, x_d)
+    call device_map_common(ptr_h, x_d, s)
+    call device_associate(x, x_d, n)
 
   end subroutine device_map_r3
 
@@ -856,6 +1018,7 @@ contains
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:,:)
     type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
     if (c_associated(x_d)) then
@@ -865,20 +1028,172 @@ contains
     select type (x)
     type is (integer)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (integer(i8))
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     type is (real)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (double precision)
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
-    call device_associate(x, x_d)
+    call device_map_common(ptr_h, x_d, s)
+    call device_associate(x, x_d, n)
 
   end subroutine device_map_r4
+
+  !> Unmap a Fortran rank 1 array from a device (deassociate and free)
+  subroutine device_unmap_r1(x, x_d)
+    class(*), intent(inout), target :: x(:)
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: dev
+    logical :: mapped
+
+    ! Whether dev has a non-null address, meaning that x is mapped.
+    mapped = device_associated(x)
+
+    ! Repeated calls to this routine do nothing
+    if ((.not. mapped) .and. (.not. c_associated(x_d))) then
+       return
+    end if
+
+    ! Device pointer associated with x, should be same as x_d if mapped
+    if (mapped) then
+       dev = device_get_ptr(x)
+    else
+       dev = c_null_ptr
+    end if
+
+    ! Error if:
+    ! 1) x is not mapped to a device pointer, but x_d is not null.
+    ! 2) x_d is not a valid pointer, but x is mapped to some pointer.
+    ! 3) x is mapped to a device pointer that is not x_d.
+    if ((.not. mapped) .or. (.not. c_associated(x_d)) .or. &
+         (.not. c_associated(dev, x_d))) then
+       call neko_error('Inconsistent host/device mapping state in ' // &
+            'device_unmap')
+    end if
+
+    call device_deassociate(x)
+    call device_free(x_d)
+
+  end subroutine device_unmap_r1
+
+  !> Unmap a Fortran rank 2 array from a device (deassociate and free)
+  subroutine device_unmap_r2(x, x_d)
+    class(*), intent(inout), target :: x(:,:)
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: dev
+    logical :: mapped
+
+    ! Whether dev has a non-null address, meaning that x is mapped.
+    mapped = device_associated(x)
+
+    ! Repeated calls to this routine do nothing
+    if ((.not. mapped) .and. (.not. c_associated(x_d))) then
+       return
+    end if
+
+    ! Device pointer associated with x, should be same as x_d if mapped
+    if (mapped) then
+       dev = device_get_ptr(x)
+    else
+       dev = c_null_ptr
+    end if
+
+    ! Error if:
+    ! 1) x is not mapped to a device pointer, but x_d is not null.
+    ! 2) x_d is not a valid pointer, but x is mapped to some pointer.
+    ! 3) x is mapped to a device pointer that is not x_d.
+    if ((.not. mapped) .or. (.not. c_associated(x_d)) .or. &
+         (.not. c_associated(dev, x_d))) then
+       call neko_error('Inconsistent host/device mapping state in ' // &
+            'device_unmap')
+    end if
+
+    call device_deassociate(x)
+    call device_free(x_d)
+
+  end subroutine device_unmap_r2
+
+  !> Unmap a Fortran rank 3 array from a device (deassociate and free)
+  subroutine device_unmap_r3(x, x_d)
+    class(*), intent(inout), target :: x(:,:,:)
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: dev
+    logical :: mapped
+
+    ! Whether dev has a non-null address, meaning that x is mapped.
+    mapped = device_associated(x)
+
+    ! Repeated calls to this routine do nothing
+    if ((.not. mapped) .and. (.not. c_associated(x_d))) then
+       return
+    end if
+
+    ! Device pointer associated with x, should be same as x_d if mapped
+    if (mapped) then
+       dev = device_get_ptr(x)
+    else
+       dev = c_null_ptr
+    end if
+
+    ! Error if:
+    ! 1) x is not mapped to a device pointer, but x_d is not null.
+    ! 2) x_d is not a valid pointer, but x is mapped to some pointer.
+    ! 3) x is mapped to a device pointer that is not x_d.
+    if ((.not. mapped) .or. (.not. c_associated(x_d)) .or. &
+         (.not. c_associated(dev, x_d))) then
+       call neko_error('Inconsistent host/device mapping state in ' // &
+            'device_unmap')
+    end if
+
+    call device_deassociate(x)
+    call device_free(x_d)
+
+  end subroutine device_unmap_r3
+
+  !> Unmap a Fortran rank 4 array from a device (deassociate and free)
+  subroutine device_unmap_r4(x, x_d)
+    class(*), intent(inout), target :: x(:,:,:,:)
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: dev
+    logical :: mapped
+
+    ! Whether dev has a non-null address, meaning that x is mapped.
+    mapped = device_associated(x)
+
+    ! Repeated calls to this routine do nothing
+    if ((.not. mapped) .and. (.not. c_associated(x_d))) then
+       return
+    end if
+
+    ! Device pointer associated with x, should be same as x_d if mapped
+    if (mapped) then
+       dev = device_get_ptr(x)
+    else
+       dev = c_null_ptr
+    end if
+
+    ! Error if:
+    ! 1) x is not mapped to a device pointer, but x_d is not null.
+    ! 2) x_d is not a valid pointer, but x is mapped to some pointer.
+    ! 3) x is mapped to a device pointer that is not x_d.
+    if ((.not. mapped) .or. (.not. c_associated(x_d)) .or. &
+         (.not. c_associated(dev, x_d))) then
+       call neko_error('Inconsistent host/device mapping state in ' // &
+            'device_unmap')
+    end if
+
+    call device_deassociate(x)
+    call device_free(x_d)
+
+  end subroutine device_unmap_r4
 
   !> Check if a Fortran rank 1 array is assoicated with a device pointer
   function device_associated_r1(x) result(assoc)
@@ -1114,6 +1429,10 @@ contains
     if (clFinish(glb_cmd_queue) .ne. CL_SUCCESS) then
        call neko_error('Error during device sync')
     end if
+#elif HAVE_METAL
+    if (metalDeviceSynchronize() .ne. metalSuccess) then
+       call neko_error('Error during device sync')
+    end if
 #endif
   end subroutine device_sync_device
 
@@ -1130,6 +1449,10 @@ contains
     end if
 #elif HAVE_OPENCL
     if (clFinish(stream) .ne. CL_SUCCESS) then
+       call neko_error('Error during stream sync')
+    end if
+#elif HAVE_METAL
+    if (metalStreamSynchronize(stream) .ne. metalSuccess) then
        call neko_error('Error during stream sync')
     end if
 #endif
@@ -1165,6 +1488,10 @@ contains
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Error during stream create')
     end if
+#elif HAVE_METAL
+    if (metalStreamCreate(stream) .ne. metalSuccess) then
+       call neko_error('Error during stream create')
+    end if
 #endif
   end subroutine device_stream_create
 
@@ -1182,6 +1509,11 @@ contains
     end if
 #elif HAVE_OPENCL
     call neko_error('Not implemented yet')
+#elif HAVE_METAL
+    ! Metal command queues have no priority, create a plain queue
+    if (metalStreamCreate(stream) .ne. metalSuccess) then
+       call neko_error('Error during stream create (w. priority)')
+    end if
 #endif
   end subroutine device_stream_create_with_priority
 
@@ -1198,6 +1530,10 @@ contains
     end if
 #elif HAVE_OPENCL
     if (clReleaseCommandQueue(stream) .ne. CL_SUCCESS) then
+       call neko_error('Error during stream destroy')
+    end if
+#elif HAVE_METAL
+    if (metalStreamDestroy(stream) .ne. metalSuccess) then
        call neko_error('Error during stream destroy')
     end if
 #endif
@@ -1221,6 +1557,10 @@ contains
        call neko_error('Error during barrier')
     end if
     if (clEnqueueWaitForEvents(stream, 1, c_loc(event)) .ne. CL_SUCCESS) then
+       call neko_error('Error during stream sync')
+    end if
+#elif HAVE_METAL
+    if (metalStreamWaitEvent(stream, event) .ne. metalSuccess) then
        call neko_error('Error during stream sync')
     end if
 #endif
@@ -1271,6 +1611,10 @@ contains
     end if
 #elif HAVE_OPENCL
     event = C_NULL_PTR
+#elif HAVE_METAL
+    if (metalEventCreate(event) .ne. metalSuccess) then
+       call neko_error('Error during event create')
+    end if
 #endif
   end subroutine device_event_create
 
@@ -1286,6 +1630,11 @@ contains
        call neko_error('Error during event destroy')
     end if
 #elif HAVE_OPENCL
+    event = C_NULL_PTR
+#elif HAVE_METAL
+    if (metalEventDestroy(event) .ne. metalSuccess) then
+       call neko_error('Error during event destroy')
+    end if
     event = C_NULL_PTR
 #endif
   end subroutine device_event_destroy
@@ -1306,6 +1655,10 @@ contains
     if (clEnqueueMarker(stream, c_loc(event)) .ne. CL_SUCCESS) then
        call neko_error('Error recording an event')
     end if
+#elif HAVE_METAL
+    if (metalEventRecord(event, stream) .ne. metalSuccess) then
+       call neko_error('Error recording an event')
+    end if
 #endif
   end subroutine device_event_record
 
@@ -1323,6 +1676,12 @@ contains
 #elif HAVE_OPENCL
     if (c_associated(event)) then
        if (clWaitForEvents(1, c_loc(event)) .ne. CL_SUCCESS) then
+          call neko_error('Error during event sync')
+       end if
+    end if
+#elif HAVE_METAL
+    if (c_associated(event)) then
+       if (metalEventSynchronize(event) .ne. metalSuccess) then
           call neko_error('Error during event sync')
        end if
     end if

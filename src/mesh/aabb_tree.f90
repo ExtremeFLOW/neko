@@ -141,7 +141,8 @@ module aabb_tree
      ! Initializers
      procedure, pass(this), public :: init => aabb_tree_init
      procedure, pass(this), public :: build_generic => aabb_tree_build_tree
-     procedure, pass(this), public :: build_from_aabb => aabb_tree_build_tree_aabb
+     procedure, pass(this), public :: build_from_aabb => &
+          aabb_tree_build_tree_aabb
      procedure, pass(this), public :: insert_object => &
           aabb_tree_insert_object
      generic :: build => build_generic

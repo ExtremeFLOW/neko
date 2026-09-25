@@ -61,5 +61,8 @@ void device_nccl_sendrecv(void *sbuf_d, int soffset, int scount, int srank,
     fprintf(stderr, __FILE__ ": Invalid data type)\n");
     exit(1);
   }
+#else
+  fprintf(stderr, __FILE__ ": Neko was not built with NCCL support\n");
+  exit(1);
 #endif
 }

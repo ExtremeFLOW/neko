@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ module ax_helm_device
 
   type, public, extends(ax_helm_t) :: ax_helm_device_t
    contains
-     procedure, nopass :: compute => ax_helm_device_compute
+     procedure, pass(this) :: compute => ax_helm_device_compute
      procedure, pass(this) :: compute_vector => ax_helm_device_compute_vector
   end type ax_helm_device_t
 
@@ -169,11 +169,52 @@ module ax_helm_device
        integer(c_int) :: n
      end subroutine opencl_ax_helm_vector_part2
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_ax_helm(w_d, u_d, &
+          dx_d, dy_d, dz_d, dxt_d, dyt_d, dzt_d, &
+          h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d, nelv, lx) &
+          bind(c, name='metal_ax_helm')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: w_d, u_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d
+       type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
+       integer(c_int) :: nelv, lx
+     end subroutine metal_ax_helm
+  end interface
+
+  interface
+     subroutine metal_ax_helm_vector(au_d, av_d, aw_d, u_d, v_d, w_d, &
+          dx_d, dy_d, dz_d, dxt_d, dyt_d, dzt_d,&
+          h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d, nelv, lx) &
+          bind(c, name='metal_ax_helm_vector')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: au_d, av_d, aw_d
+       type(c_ptr), value :: u_d, v_d, w_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d
+       type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
+       integer(c_int) :: nelv, lx
+     end subroutine metal_ax_helm_vector
+  end interface
+
+  interface
+     subroutine metal_ax_helm_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
+          h2_d, B_d, n) bind(c, name='metal_ax_helm_vector_part2')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: au_d, av_d, aw_d
+       type(c_ptr), value :: u_d, v_d, w_d
+       type(c_ptr), value :: h2_d, B_d
+       integer(c_int) :: n
+     end subroutine metal_ax_helm_vector_part2
+  end interface
 #endif
 
 contains
 
-  subroutine ax_helm_device_compute(w, u, coef, msh, Xh)
+  subroutine ax_helm_device_compute(this, w, u, coef, msh, Xh)
+    class(ax_helm_device_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
@@ -198,6 +239,12 @@ contains
          msh%nelv, Xh%lx)
 #elif HAVE_OPENCL
     call opencl_ax_helm(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+         Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
+         coef%G11_d, coef%G22_d, coef%G33_d, &
+         coef%G12_d, coef%G13_d, coef%G23_d, &
+         msh%nelv, Xh%lx)
+#elif HAVE_METAL
+    call metal_ax_helm(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
          Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
          coef%G11_d, coef%G22_d, coef%G33_d, &
          coef%G12_d, coef%G13_d, coef%G23_d, &
@@ -251,6 +298,12 @@ contains
          coef%G11_d, coef%G22_d, coef%G33_d, &
          coef%G12_d, coef%G13_d, coef%G23_d, &
          msh%nelv, Xh%lx)
+#elif HAVE_METAL
+    call metal_ax_helm_vector(au_d, av_d, aw_d, u_d, v_d, w_d, &
+         Xh%dx_d, Xh%dy_d, Xh%dz_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
+         coef%G11_d, coef%G22_d, coef%G33_d, &
+         coef%G12_d, coef%G13_d, coef%G23_d, &
+         msh%nelv, Xh%lx)
 #endif
 
     if (coef%ifh2) then
@@ -260,10 +313,12 @@ contains
 #elif HAVE_CUDA
        call cuda_ax_helm_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
             coef%h2_d, coef%B_d, coef%dof%size())
-#else
-       call device_addcol4(au_d ,coef%h2_d, coef%B_d, u_d, coef%dof%size())
-       call device_addcol4(av_d ,coef%h2_d, coef%B_d, v_d, coef%dof%size())
-       call device_addcol4(aw_d ,coef%h2_d, coef%B_d, w_d, coef%dof%size())
+#elif HAVE_OPENCL
+       call opencl_ax_helm_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
+            coef%h2_d, coef%B_d, coef%dof%size())
+#elif HAVE_METAL
+       call metal_ax_helm_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
+            coef%h2_d, coef%B_d, coef%dof%size())
 #endif
     end if
 

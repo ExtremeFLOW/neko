@@ -119,10 +119,18 @@ contains
     integer, intent(inout) :: is_aggregated(:)
     integer, allocatable, intent(inout) :: aggregate_size(:)
     integer, allocatable :: as_tmp(:)
-    integer, allocatable :: rand_order(:)
+    integer, allocatable :: rand_order(:), fixed_seed(:), saved_seed(:)
     real(kind=dp) :: random_value, r
-    integer :: i, side, nhbr, j, tmp
+    integer :: i, side, nhbr, j, tmp, rnd_n
     logical :: no_nhbr_agg
+
+    ! Save current random seed and set a fixed seed
+    call random_seed( size=rnd_n )
+    allocate(saved_seed(rnd_n))
+    allocate(fixed_seed(rnd_n))
+    fixed_seed = 3901
+    call random_seed( get=saved_seed )
+    call random_seed( put=fixed_seed )
 
     ! Initialize a random permutation
     allocate( rand_order( n_elements ) )
@@ -138,10 +146,9 @@ contains
        rand_order(j) = tmp
     end do
 
-!-----!    do while (naggs .le. max_aggs)
-!-----!      call random_number(random_value)
-!-----!      i = floor(random_value * n_elements + 1)
-    !do i = 1, n_elements! THE NON-RANDOM VERSION...
+    ! Restore saved random seed
+    call random_seed( put=saved_seed )
+
     do tmp = 1, n_elements
        i = rand_order(tmp)
        if (is_aggregated(i) .eq. -1) then
@@ -602,10 +609,10 @@ contains
     integer, intent(inout), allocatable :: agg_nhbr(:, :)
     integer, allocatable :: is_aggregated(:)
     integer, allocatable :: aggregate_size(:)
-    integer, allocatable :: rand_order(:)
+    integer, allocatable :: rand_order(:), fixed_seed(:), saved_seed(:)
     integer :: n_elements, naggs, n_facet, offset_el
     integer :: i, j, l, ntot, n_agg_facet, gid_ptr, n_agg_nhbr
-    integer :: n_pairs, tmp
+    integer :: n_pairs, tmp, rnd_n
     integer :: side, nhbr, nhbr_id
     real(kind=rp) :: nhbr_msr, nhbr_tst, r
 
@@ -629,6 +636,14 @@ contains
     ! fill with large number
     aggregate_size = huge(i)
 
+    ! Save current random seed and set a fixed seed
+    call random_seed( size=rnd_n )
+    allocate(saved_seed(rnd_n))
+    allocate(fixed_seed(rnd_n))
+    fixed_seed = 3901
+    call random_seed( get=saved_seed )
+    call random_seed( put=fixed_seed )
+
     ! Initialize a random permutation
     allocate( rand_order( n_elements ) )
     do i = 1, n_elements
@@ -642,6 +657,9 @@ contains
        rand_order(i) = rand_order(j)
        rand_order(j) = tmp
     end do
+
+    ! Restore saved random seed
+    call random_seed( put=saved_seed )
 
     naggs = 0
     ! first pass of pair agg

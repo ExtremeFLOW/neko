@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -43,17 +43,18 @@ module scalar_stats_simcomp
   use scalar_stats_output, only : scalar_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
-  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
+  use utils, only : NEKO_FNAME_LEN, filename_suffix, NEKO_VARNAME_LEN
   use logger, only : LOG_SIZE, neko_log
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, &
+       json_get_or_lookup_or_default
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   implicit none
   private
 
   !> A simulation component that computes the scalar statistics for the
-  !! skewness, kurtosis, and the Reynolds-averaged mean scalar transport equation,
-  !! scalar variance budget, and scalar flux budgets.
+  !! skewness, kurtosis, and the Reynolds-averaged mean scalar
+  !! transport equation, scalar variance budget, and scalar flux budgets.
   !!
   !! The statistics are stored assuming that the relevant fluid statistics
   !! have already been computed using the `fluid_stats` simcomp.
@@ -65,9 +66,10 @@ module scalar_stats_simcomp
      !> Output writer.
      type(scalar_stats_output_t) :: stats_output
      !> Time value at which the sampling of statistics is initiated.
-     real(kind=rp) :: start_time
-     real(kind=rp) :: time
-     logical :: default_fname = .true.
+     real(kind=dp) :: start_time
+     real(kind=dp) :: time
+     !> Output filename stem without the run counter.
+     character(len=:), allocatable :: base_filename
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -95,25 +97,27 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
-    character(len=20), allocatable :: fields(:)
+    character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
     character(len=:), allocatable :: stat_set
     character(len=:), allocatable :: sname
     character(len=:), allocatable :: name
-    real(kind=rp) :: start_time
+    real(kind=dp) :: start_time
     type(field_t), pointer :: s, u, v, w, p
     type(coef_t), pointer :: coef
 
-    call json_get_or_default(json, "name", name, "scalar_stats")
+    call json_get_or_default(json, 'field', &
+         sname, 's')
+    call json_get_or_default(json, "name", &
+         name, "scalar_stats_" // trim(sname))
+
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
-    call json_get_or_default(json, 'start_time', &
-         start_time, 0.0_rp)
+    call json_get_or_lookup_or_default(json, 'start_time', &
+         start_time, 0.0_dp)
     call json_get_or_default(json, 'set_of_stats', &
          stat_set, 'full')
-    call json_get_or_default(json, 'field', &
-         sname, 's')
 
     s => neko_registry%get_field_by_name(sname)
     u => neko_registry%get_field("u")
@@ -129,8 +133,11 @@ contains
             p, coef, start_time, hom_dir, stat_set, filename)
     else
        call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
-            p, coef, start_time, hom_dir, stat_set)
+            p, coef, start_time, hom_dir, stat_set, "scalar_stats_" // &
+            trim(sname))
     end if
+
+    nullify(s, u, v, w, p, coef)
 
   end subroutine scalar_stats_simcomp_init_from_json
 
@@ -144,16 +151,17 @@ contains
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param stat_set Set of statistics to compute (basic/full)
+  !! @param fname name of the output file
   subroutine scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
        p, coef, start_time, hom_dir, stat_set, fname)
     class(scalar_stats_simcomp_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in) :: stat_set
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
     type(field_t), intent(in), target :: s, u, v, w, p
     type(coef_t), intent(in), target :: coef
-    character(len=*), intent(in), optional :: fname
+    character(len=*), intent(in) :: fname
     character(len=NEKO_FNAME_LEN) :: stats_fname
     character(len=LOG_SIZE) :: log_buf
     character(len=5) :: prefix
@@ -174,21 +182,21 @@ contains
 
     this%start_time = start_time
     this%time = start_time
-    if (present(fname)) then
-       this%default_fname = .false.
-       stats_fname = fname
-    else
-       stats_fname = "scalar_stats0"
-       this%default_fname = .true.
-    end if
+    this%base_filename = fname
+    stats_fname = trim(fname) // "0"
 
     call this%stats_output%init(this%stats, this%start_time, &
          hom_dir = hom_dir, name = stats_fname, &
          path = this%case%output_directory)
 
+    ! Statistics are averaged over the interval between two writes, so
+    ! writing at the very start of the averaging would only produce an
+    ! empty file. The schedule is anchored to the start of the averaging.
     call this%case%output_controller%add(this%stats_output, &
          this%output_controller%control_value, &
-         this%output_controller%control_mode)
+         this%output_controller%control_mode, &
+         start_time = max(this%start_time, this%case%time%start_time), &
+         write_at_start = .false.)
 
     call neko_log%end_section()
 
@@ -206,36 +214,28 @@ contains
     type(time_state_t), intent(in) :: time
     character(len=NEKO_FNAME_LEN) :: fname
     character(len=5) :: prefix, suffix
-    integer :: last_slash_pos
-    real(kind=rp) :: t
+    real(kind=dp) :: t
+
     t = time%t
     if (t .gt. this%time) this%time = t
-    if (this%default_fname) then
-       fname = this%stats_output%file_%get_base_fname()
-       write (prefix, '(I5)') this%stats_output%file_%get_counter()
-       call filename_suffix(fname, suffix)
-       last_slash_pos = &
-            filename_tslash_pos(fname)
-       if (last_slash_pos .ne. 0) then
-          fname = &
-               trim(fname(1:last_slash_pos))// &
-               "scalar_stats"//trim(adjustl(prefix))//"."//suffix
-       else
-          fname = "scalar_stats"// &
-               trim(adjustl(prefix))//"."//suffix
-       end if
-       call this%stats_output%init_base(fname)
-    end if
+
+    fname = this%stats_output%file_%get_base_fname()
+    write (prefix, '(I0)') &
+         this%stats_output%file_%file_type%get_start_counter()
+    call filename_suffix(fname, suffix)
+    fname = trim(this%case%output_directory) // &
+         trim(this%base_filename) // trim(prefix) // "." // trim(suffix)
+    call this%stats_output%init_base(fname)
+
   end subroutine scalar_stats_simcomp_restart
 
   !> scalar_stats, called depending on compute_control and compute_value
-  !! @param t The time value.
-  !! @param tstep The current time-step
+  !! @param time The current time info
   subroutine scalar_stats_simcomp_compute(this, time)
     class(scalar_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    real(kind=rp) :: delta_t, t
-    real(kind=rp) :: sample_start_time, sample_time
+    real(kind=rp) :: delta_t
+    real(kind=dp) :: sample_start_time, sample_time, t
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr
 
@@ -257,7 +257,7 @@ contains
     t = time%t
 
     if (t .ge. this%start_time) then
-       delta_t = t - this%time !This is only a real number
+       delta_t = real(t - this%time, kind=rp) !This is only a real number
 
        call MPI_Barrier(NEKO_COMM, ierr)
 

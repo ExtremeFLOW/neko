@@ -35,6 +35,7 @@
 module scalar_scheme
   use gather_scatter, only : gs_t
   use checkpoint, only : chkp_t
+  use checkpoint_payload, only : checkpoint_payload_t
   use num_types, only : rp
   use field, only : field_t
   use field_list, only : field_list_t
@@ -47,7 +48,8 @@ module scalar_scheme
   use sx_jacobi, only : sx_jacobi_t
   use hsmg, only : hsmg_t
   use bc_list, only : bc_list_t
-  use precon, only : pc_t, precon_factory, precon_destroy
+  use bc, only : bc_t
+  use precon, only : pc_t, precon_allocator, precon_destroy
   use mesh, only : mesh_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
@@ -67,6 +69,8 @@ module scalar_scheme
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use device, only : device_memcpy, DEVICE_TO_HOST
+  use scalar_ic, only : set_scalar_ic
+  use spectral_vanishing_viscosity, only : svv_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -107,8 +111,8 @@ module scalar_scheme
      class(pc_t), allocatable :: pc
      !> List of boundary conditions, including the user one.
      type(bc_list_t) :: bcs
-     !> Case paramters.
-     type(json_file), pointer :: params
+     !> Case parameters.
+     type(json_file), pointer :: params => null()
      !> Mesh.
      type(mesh_t), pointer :: msh => null()
      !> Checkpoint for restarts.
@@ -133,6 +137,10 @@ module scalar_scheme
           user_material_properties => null()
      !> Freeze the scheme, i.e. do nothing in step()
      logical :: freeze = .false.
+     !> Whether spectral vanishing viscosity is enabled.
+     logical :: svv_enabled = .false.
+     !> Spectral vanishing viscosity data.
+     type(svv_t), allocatable :: svv
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -140,6 +148,12 @@ module scalar_scheme
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
+     !> Set the initial condition.
+     procedure, pass(this) :: set_initial_condition => &
+          scalar_scheme_set_initial_condition
+     !> Register the scheme fields for checkpointing.
+     procedure, pass(this) :: register_checkpoint => &
+          scalar_scheme_register_checkpoint
      !> Set lambda and cp
      procedure, pass(this) :: set_material_properties => &
           scalar_scheme_set_material_properties
@@ -389,7 +403,11 @@ contains
 
     this%Xh => this%u%Xh
     this%dm_Xh => this%u%dof
-    this%params => params
+    if (associated(this%params)) then
+       deallocate(this%params)
+    end if
+    allocate(this%params)
+    this%params = params
     this%msh => msh
 
     call neko_registry%add_field(this%dm_Xh, this%name, &
@@ -407,6 +425,18 @@ contains
     !
     call this%set_material_properties(params, user)
 
+    !
+    ! Spectral vanishing viscosity
+    !
+    if (params%valid_path('svv')) then
+       call json_get_or_default(params, 'svv.enabled', this%svv_enabled, &
+            .false.)
+       if (this%svv_enabled) then
+          allocate(this%svv)
+          call this%svv%init(params, this%c_Xh, this%rho)
+       end if
+    end if
+
 
     !
     ! Turbulence modelling
@@ -417,7 +447,7 @@ contains
        call json_get(this%params, 'alphat', json_subdict)
        call json_get(json_subdict, 'nut_dependency', nut_dependency)
        if (nut_dependency) then
-          call json_get(json_subdict, 'Pr_t', this%pr_turb)
+          call json_get_or_lookup(json_subdict, 'Pr_t', this%pr_turb)
           call json_get(json_subdict, 'nut_field', this%nut_field_name)
        else
           call json_get(json_subdict, 'alphat_field', this%alphat_field_name)
@@ -451,16 +481,68 @@ contains
 
   end subroutine scalar_scheme_init
 
+  !> Set the initial condition.
+  !! @param user Type with user-defined procedures.
+  !! @param scalar_index Index of the scalar in a field file.
+  subroutine scalar_scheme_set_initial_condition(this, user, scalar_index)
+    class(scalar_scheme_t), intent(inout) :: this
+    type(user_t), intent(in) :: user
+    integer, intent(in) :: scalar_index
+    character(len=:), allocatable :: ic_type
+    type(json_file) :: ic_params
+
+    call json_get(this%params, 'initial_condition.type', ic_type)
+    call json_get(this%params, 'initial_condition', ic_params)
+
+    if (trim(ic_type) .ne. 'user') then
+       call set_scalar_ic(this%s, this%c_Xh, this%gs_Xh, ic_type, &
+            ic_params, scalar_index)
+    else
+       call set_scalar_ic(this%name, this%s, this%c_Xh, this%gs_Xh, &
+            user%initial_conditions)
+    end if
+
+    call ic_params%destroy()
+    deallocate(ic_type)
+
+  end subroutine scalar_scheme_set_initial_condition
+
+  !> Register this scalar scheme with the checkpoint.
+  !! @param chkp Checkpoint object to register with.
+  subroutine scalar_scheme_register_checkpoint(this, chkp)
+    class(scalar_scheme_t), target, intent(inout) :: this
+    type(chkp_t), intent(inout) :: chkp
+    type(checkpoint_payload_t), pointer :: payload
+
+    payload => chkp%add_payload("scalars/" // trim(this%name))
+    call payload%add_field(this%s)
+    call payload%add_series(this%slag)
+
+  end subroutine scalar_scheme_register_checkpoint
+
 
   !> Deallocate a scalar formulation
   subroutine scalar_scheme_free(this)
     class(scalar_scheme_t), intent(inout) :: this
+    class(bc_t), pointer :: bc
+    integer :: i
+
+    bc => null()
+
+    if (allocated(this%svv)) then
+       call this%svv%free()
+       deallocate(this%svv)
+    end if
+    this%svv_enabled = .false.
 
     nullify(this%Xh)
     nullify(this%dm_Xh)
     nullify(this%gs_Xh)
     nullify(this%c_Xh)
-    nullify(this%params)
+    if (associated(this%params)) then
+       deallocate(this%params)
+       nullify(this%params)
+    end if
 
     if (allocated(this%ksp)) then
        call this%ksp%free()
@@ -478,12 +560,35 @@ contains
 
     call this%source_term%free()
 
+    if (associated(this%f_Xh)) then
+       call this%f_Xh%free()
+       deallocate(this%f_Xh)
+    end if
+
+    do i = 1, this%bcs%size()
+       bc => this%bcs%get(i)
+       if (associated(bc)) then
+          call bc%free()
+          deallocate(bc)
+       end if
+    end do
+
     call this%bcs%free()
     call this%slag%free()
+    call this%material_properties%free()
+
+    if (allocated(this%nut_field_name)) then
+       deallocate(this%nut_field_name)
+    end if
+
+    if (allocated(this%alphat_field_name)) then
+       deallocate(this%alphat_field_name)
+    end if
 
     nullify(this%cp)
     nullify(this%lambda)
     nullify(this%lambda_tot)
+    nullify(bc)
 
   end subroutine scalar_scheme_free
 
@@ -557,7 +662,7 @@ contains
     character(len=*) :: pctype
     type(json_file), intent(inout) :: pcparams
 
-    call precon_factory(pc, pctype)
+    call precon_allocator(pc, pctype)
 
     select type (pcp => pc)
     type is (jacobi_t)

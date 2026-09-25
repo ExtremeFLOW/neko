@@ -38,7 +38,7 @@ module field_source_term
   use json_utils, only : json_get_or_default, json_get_or_lookup, json_get
   use source_term, only : source_term_t
   use coefs, only : coef_t
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_VARNAME_LEN
   use time_state, only : time_state_t
   use registry, only : neko_registry
   use field_math, only : field_add2
@@ -78,7 +78,7 @@ contains
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in) :: variable_name
     real(kind=rp) :: start_time, end_time
-    character(len=20), allocatable :: field_names(:)
+    character(len=NEKO_VARNAME_LEN), allocatable :: field_names(:)
 
     call json_get(json, "field_names", field_names)
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)

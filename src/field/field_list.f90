@@ -1,3 +1,35 @@
+! Copyright (c) 2023-2026, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 module field_list
   use, intrinsic :: iso_fortran_env, only : error_unit
   use field, only : field_ptr_t, field_t
@@ -27,11 +59,13 @@ module field_list
      !> Get an item pointer by field name
      procedure, pass(this) :: get_by_name => field_list_get_by_name
      !> Point item at given index.
-     generic :: assign => assign_to_ptr, assign_to_field_ptr
+     generic :: assign => assign_to_ptr, assign_to_field_ptr, &
+          assign_to_list
      procedure, pass(this) :: assign_to_ptr => field_list_assign_to_ptr
      procedure, pass(this) :: assign_to_field_ptr => &
           field_list_assign_to_field_ptr
      procedure, pass(this) :: assign_to_field => field_list_assign_to_field
+     procedure, pass(this) :: assign_to_list => field_list_assign_to_field_list
 
      !> Get device pointer for a given index.
      procedure, pass(this) :: x_d => field_list_x_d
@@ -51,6 +85,8 @@ module field_list
      procedure, pass(this) :: internal_dofmap => field_list_internal_dofmap
      !> Get the name for an item in the list.
      procedure, pass(this) :: name => field_list_name
+     !> Copy all fields to or from the design.
+     procedure, pass(this) :: copy_from => field_list_copy_from
   end type field_list_t
 
 contains
@@ -61,15 +97,21 @@ contains
     integer, intent(in) :: size
 
     call this%free()
-
     allocate(this%items(size))
+
   end subroutine field_list_init
 
   !> Get number of items in the list.
   pure function field_list_size(this) result(n)
     class(field_list_t), intent(in) :: this
     integer :: n
-    n = size(this%items)
+
+    if (allocated(this%items)) then
+       n = size(this%items)
+    else
+       n = 0
+    end if
+
   end function field_list_size
 
   !> Get an item pointer by array index
@@ -209,6 +251,21 @@ contains
     call this%items(i)%init(fld)
   end subroutine field_list_assign_to_field
 
+  !> Point item at a given index.
+  !! @param i The index of the item.
+  !! @param field A field to point the item to.
+  subroutine field_list_assign_to_field_list(this, other)
+    class(field_list_t), intent(inout) :: this
+    type(field_list_t), intent(in) :: other
+    integer :: i
+
+    call this%free()
+    call this%init(other%size())
+    do i = 1, other%size()
+       call this%assign(i, other%items(i)%ptr)
+    end do
+  end subroutine field_list_assign_to_field_list
+
   !> Get the the dofmap for item `i`.
   !! @param i The index of the item.
   function field_list_dof(this, i) result(result)
@@ -259,5 +316,25 @@ contains
     result = this%items(i)%ptr%name
   end function field_list_name
 
+  !> Copy all fields to or from device.
+  !! @details Call the memory copy for each field in the list. If `sync` is
+  !! true, synchronize on the last copy.
+  !! @param memdir The direction of the copy.
+  !! @param sync Whether to synchronize after the copy.
+  subroutine field_list_copy_from(this, memdir, sync)
+    class(field_list_t), intent(inout) :: this
+    integer, intent(in) :: memdir
+    logical, intent(in) :: sync
+    integer :: i, n
+
+    n = this%size()
+    if (n .eq. 0) return
+
+    do i = 1, n - 1
+       call this%items(i)%ptr%copy_from(memdir, .false.)
+    end do
+    call this%items(n)%ptr%copy_from(memdir, sync)
+
+  end subroutine field_list_copy_from
 
 end module field_list

@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2023-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,14 +36,14 @@
 module PDE_filter
   use num_types, only : rp
   use json_module, only : json_file
-  use json_utils, only : json_get_or_default, json_get
   use registry, only : neko_registry
   use field, only : field_t
   use coefs, only : coef_t
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
-  use precon, only : pc_t, precon_factory, precon_destroy
+  use precon, only : pc_t, precon_allocator, precon_destroy
   use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
   use neumann, only : neumann_t
   use profiler, only : profiler_start_region, profiler_end_region
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -62,13 +62,14 @@ module PDE_filter
   use sx_jacobi, only : sx_jacobi_t
   use utils, only : neko_error
   use device_math, only : device_cfill, device_subcol3, device_cmult
+  use json_utils, only : json_get, json_get_or_default
   implicit none
   private
 
-  !> A PDE based filter mapping $\rho \mapsto \tilde{\rho}$,
+  !> A PDE based filter mapping \f$\rho \mapsto \tilde{\rho}\f$,
   !! see Lazarov & O. Sigmund 2010,
   !! by solving an equation
-  !! of the form $\f -r^2 \nabla^2 \tilde{\rho} + \tilde{\rho} = \rho \f$
+  !! of the form \f$ -r^2 \nabla^2 \tilde{\rho} + \tilde{\rho} = \rho \f$
   type, public, extends(filter_t) :: PDE_filter_t
 
      !> Ax
@@ -80,7 +81,7 @@ module PDE_filter
      !> Filter Preconditioner
      class(pc_t), allocatable :: pc_filt
      !> Filter boundary conditions (they will all be Neumann, so empty)
-     type(bc_list_t) :: bclst_filt
+     type(scalar_bc_projector_t) :: bc_projector_filt
 
      ! Inputs from the user
      !> filter radius
@@ -115,39 +116,46 @@ contains
   subroutine PDE_filter_init_from_json(this, json, coef)
     class(PDE_filter_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
+    real(kind=rp) :: r, tol
+    integer :: max_iter
+    character(len=:), allocatable :: ksp_solver, precon_type
 
     ! user parameters
-    call json_get(json, "filter.radius", this%r)
+    call json_get(json, "radius", r)
+    call json_get_or_default(json, "tolerance", tol, 1e-10_rp)
+    call json_get_or_default(json, "max_iter", max_iter, 200)
+    call json_get_or_default(json, "solver", ksp_solver, "cg")
+    call json_get_or_default(json, "preconditioner", precon_type, "jacobi")
 
-    call json_get_or_default(json, "filter.tolerance", this%abstol_filt, &
-         1.0e-10_rp)
-
-    call json_get_or_default(json, "filter.max_iter", this%ksp_max_iter, 200)
-
-    call json_get_or_default(json, "filter.solver", this%ksp_solver, 'cg')
-
-    call json_get_or_default(json, "filter.preconditioner", &
-         this%precon_type_filt, 'jacobi')
-
-    call this%init_base(json, coef)
-    call PDE_filter_init_from_components(this, coef)
+    call this%init_from_components(coef, r, tol, max_iter, ksp_solver, &
+         precon_type)
 
   end subroutine PDE_filter_init_from_json
 
   !> Actual constructor.
-  subroutine PDE_filter_init_from_components(this, coef)
+  subroutine PDE_filter_init_from_components(this, coef, r, tol, max_iter, &
+       ksp_solver, precon_type)
     class(PDE_filter_t), intent(inout) :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
+    real(kind=rp), intent(in) :: r, tol
+    integer, intent(in) :: max_iter
+    character(len=*), intent(in) :: ksp_solver, precon_type
     integer :: n
 
+    call this%init_base(coef)
+
+    this%r = r
+    this%abstol_filt = tol
+    this%ksp_max_iter = max_iter
+    this%ksp_solver = ksp_solver
+    this%precon_type_filt = precon_type
+
+    ! set the number of dofs
     n = this%coef%dof%size()
 
-    ! init the bc list (all Neuman BCs, will remain empty)
-    call this%bclst_filt%init()
-
     ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%Ax, full_formulation = .false.)
+    call ax_helm_allocator(this%Ax, type_name = "standard")
 
     ! set up krylov solver
     call krylov_solver_factory(this%ksp_filt, n, this%ksp_solver, &
@@ -157,7 +165,7 @@ contains
     call filter_precon_factory(this%pc_filt, this%ksp_filt, &
          this%coef, this%coef%dof, &
          this%coef%gs_h, &
-         this%bclst_filt, this%precon_type_filt)
+         this%bc_projector_filt, this%precon_type_filt)
 
   end subroutine PDE_filter_init_from_components
 
@@ -166,6 +174,7 @@ contains
     class(PDE_filter_t), intent(inout) :: this
 
     if (allocated(this%Ax)) then
+       call this%Ax%free()
        deallocate(this%Ax)
     end if
 
@@ -187,13 +196,14 @@ contains
        deallocate(this%precon_type_filt)
     end if
 
-    call this%bclst_filt%free()
+    call this%bc_projector_filt%free()
 
     call this%free_base()
 
   end subroutine PDE_filter_free
 
   !> Apply the filter
+  !! @param this the filter
   !! @param F_out filtered field
   !! @param F_in unfiltered field
   subroutine PDE_filter_apply(this, F_out, F_in)
@@ -201,20 +211,13 @@ contains
     type(field_t), intent(in) :: F_in
     type(field_t), intent(inout) :: F_out
     integer :: n, i
-    ! type(field_t), pointer :: RHS
-    type(field_t) :: RHS, d_F_out
+    type(field_t), pointer :: RHS, d_F_out
     character(len=LOG_SIZE) :: log_buf
-    ! integer :: temp_indices(1)
+    integer :: temp_indices(2)
 
     n = this%coef%dof%size()
-    ! TODO
-    ! This is a bit awkward, because the init for the source terms occurs
-    ! before the init of the scratch registry.
-    ! So we can't use the scratch registry here.
-    ! call neko_scratch_registry%request_field(RHS, temp_indices(1))
-    call RHS%init(this%coef%dof)
-    call d_F_out%init(this%coef%dof)
-
+    call neko_scratch_registry%request_field(RHS, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(d_F_out, temp_indices(2), .false.)
     ! in a similar fasion to pressure/velocity, we will solve for d_F_out.
 
     ! to improve convergence, we use F_in as an initial guess for F_out.
@@ -228,17 +231,14 @@ contains
 
     ! set up Helmholtz operators and RHS
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       ! TODO
-       ! I think this is correct but I've never tested it
-       call device_cfill(this%coef%h1_d, this%r**2, n)
+       call device_cfill(this%coef%h1_d, &
+            (this%r / (2.0_rp * sqrt(3.0_rp)))**2, n)
        call device_cfill(this%coef%h2_d, 1.0_rp, n)
     else
-       do i = 1, n
-          ! h1 is already negative in its definition
-          this%coef%h1(i,1,1,1) = this%r**2
-          ! ax_helm includes the mass matrix in h2
-          this%coef%h2(i,1,1,1) = 1.0_rp
-       end do
+       ! h1 is already negative in its definition
+       this%coef%h1 = (this%r / (2.0_rp * sqrt(3.0_rp)))**2
+       ! ax_helm includes the mass matrix in h2
+       this%coef%h2 = 1.0_rp
     end if
     this%coef%ifh2 = .true.
 
@@ -264,13 +264,13 @@ contains
     call this%coef%gs_h%op(RHS, GS_OP_ADD)
 
     ! set BCs
-    call this%bclst_filt%apply_scalar(RHS%x, n)
+    call this%bc_projector_filt%apply(RHS%x, n)
 
     ! Solve Helmholtz equation
-    call profiler_start_region('filter solve')
+    call profiler_start_region("filter solve")
     this%ksp_results(1) = &
          this%ksp_filt%solve(this%Ax, d_F_out, RHS%x, n, this%coef, &
-         this%bclst_filt, this%coef%gs_h)
+         this%bc_projector_filt, this%coef%gs_h)
 
     call profiler_end_region
 
@@ -280,33 +280,32 @@ contains
     call this%pc_filt%update()
 
     ! write it all out
-    call neko_log%message('Filter')
+    call neko_log%section('PDE Filter')
 
-    write(log_buf, '(A,A,A)') 'Iterations:   ',&
-         'Start residual:     ', 'Final residual:'
+    write(log_buf, '(A,A,A)') 'Iterations:   ', 'Start residual:     ', &
+         'Final residual:'
     call neko_log%message(log_buf)
     write(log_buf, '(I11,3x, E15.7,5x, E15.7)') this%ksp_results%iter, &
          this%ksp_results%res_start, this%ksp_results%res_final
     call neko_log%message(log_buf)
+    call neko_log%end_section()
 
-    !call neko_scratch_registry%relinquish_field(temp_indices)
-    call RHS%free()
-    call d_F_out%free()
+    call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine PDE_filter_apply
 
   !> Initialize a Krylov preconditioner
-  subroutine filter_precon_factory(pc, ksp, coef, dof, gs, bclst, &
+  subroutine filter_precon_factory(pc, ksp, coef, dof, gs, bc_projector, &
        pctype)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(in) :: coef
     type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs
-    type(bc_list_t), target, intent(inout) :: bclst
+    type(scalar_bc_projector_t), target, intent(inout) :: bc_projector
     character(len=*) :: pctype
 
-    call precon_factory(pc, pctype)
+    call precon_allocator(pc, pctype)
 
     select type (pcp => pc)
     type is (jacobi_t)

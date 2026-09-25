@@ -1,0 +1,106 @@
+module test_crystal_router_parallel
+  use mpi
+  use pfunit
+  use num_types, only : i8
+  use crystal_router, only : crystal_router_transfer
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  implicit none
+
+contains
+
+  !> Complete all-to-all stress test: every rank sends exactly one record to
+  !! every destination, tagged with its own rank as payload. After routing,
+  !! each rank must hold exactly pe_size records, all addressed to it, with
+  !! origins forming a permutation of [0, pe_size). This exercises every
+  !! routing path, including the odd-sized-range handling for npes 3, 5, 7.
+  @test(npes=[1,2,3,4,5,7,8])
+  subroutine test_cr_all_to_all(this)
+    class(MpiTestMethod), intent(inout) :: this
+    integer(i8), allocatable :: buf(:)
+    integer :: n, i, p, dest, rlen, origin, nrec, ierr
+    logical, allocatable :: seen(:)
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    ! One record per destination: [dest, len=1, payload=origin]
+    n = pe_size * 3
+    allocate(buf(n))
+    do i = 0, pe_size - 1
+       buf(3*i + 1) = int(i, i8)         ! dest
+       buf(3*i + 2) = 1_i8               ! len
+       buf(3*i + 3) = int(pe_rank, i8)   ! payload: origin rank
+    end do
+
+    call crystal_router_transfer(buf, n)
+
+    allocate(seen(0:pe_size - 1))
+    seen = .false.
+    nrec = 0
+    p = 1
+    do while (p .le. n)
+       dest = int(buf(p))
+       rlen = int(buf(p + 1))
+       origin = int(buf(p + 2))
+       @assertEqual(pe_rank, dest)
+       @assertEqual(1, rlen)
+       @assertTrue(origin .ge. 0 .and. origin .lt. pe_size)
+       @assertFalse(seen(origin))
+       seen(origin) = .true.
+       nrec = nrec + 1
+       p = p + 2 + rlen
+    end do
+    @assertEqual(pe_size, nrec)
+    @assertTrue(all(seen))
+
+    deallocate(buf, seen)
+  end subroutine test_cr_all_to_all
+
+  !> Sparse, variable-length test: each rank sends one record only to a single
+  !! destination (rank+1 mod P), with a payload whose length and contents
+  !! depend on the rank. Verifies variable-length records survive routing and
+  !! that records keep their integrity end to end.
+  @test(npes=[1,2,3,4,5,7,8])
+  subroutine test_cr_variable_length(this)
+    class(MpiTestMethod), intent(inout) :: this
+    integer(i8), allocatable :: buf(:)
+    integer :: n, p, dest, rlen, origin, k, expect_origin, ierr
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    ! Send to neighbour (rank+1 mod P). Payload: [origin, then origin+1..origin+L].
+    rlen = 1 + mod(pe_rank, 4) + 1   ! varies per rank, >= 2
+    n = 2 + rlen
+    allocate(buf(n))
+    buf(1) = int(modulo(pe_rank + 1, pe_size), i8)   ! dest
+    buf(2) = int(rlen, i8)                           ! len
+    buf(3) = int(pe_rank, i8)                        ! payload(1): origin
+    do k = 2, rlen
+       buf(2 + k) = int(pe_rank + k - 1, i8)         ! payload(k)
+    end do
+
+    call crystal_router_transfer(buf, n)
+
+    ! We must receive exactly one record, from our left neighbour.
+    expect_origin = modulo(pe_rank - 1, pe_size)
+    @assertTrue(n .ge. 3)
+    p = 1
+    dest = int(buf(p))
+    rlen = int(buf(p + 1))
+    origin = int(buf(p + 2))
+    @assertEqual(pe_rank, dest)
+    @assertEqual(expect_origin, origin)
+    ! Verify the variable-length payload tail is intact.
+    do k = 2, rlen
+       @assertEqual(int(expect_origin + k - 1, i8), buf(p + 1 + k))
+    end do
+    ! Exactly one record, nothing trailing.
+    @assertEqual(2 + rlen, n)
+
+    deallocate(buf)
+  end subroutine test_cr_variable_length
+
+end module test_crystal_router_parallel
