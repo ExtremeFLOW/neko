@@ -86,13 +86,12 @@ contains
   !! @param prs_dirichlet Whether any strong pressure boundary exists.
   !! @param glb_n_points Global number of (non-unique) GLL points.
   !! @param rho The (constant) density.
-  !! @param rel_tol Residual reduction to solve to, relative to the initial
-  !! residual. The solver's own tolerance is absolute and tuned for the
-  !! pressure increment of a time step.
-  !! @param max_iter Iteration cap for the solve.
+  !! @param tol Absolute tolerance of the solve, in the residual norm of the
+  !! solvers.
+  !! @param max_iter Iteration cap of the solve.
   subroutine project_div_free(u, v, w, coef, gs, Ax, ksp, pc, &
        bc_prs_projector, bc_vel_projector, bc_prs_surface, prs_dirichlet, &
-       glb_n_points, rho, rel_tol, max_iter)
+       glb_n_points, rho, tol, max_iter)
     type(field_t), intent(inout) :: u, v, w
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
@@ -105,7 +104,7 @@ contains
     logical, intent(in) :: prs_dirichlet
     integer(kind=i8), intent(in) :: glb_n_points
     real(kind=rp), intent(in) :: rho
-    real(kind=rp), intent(in) :: rel_tol
+    real(kind=rp), intent(in) :: tol
     integer, intent(in) :: max_iter
     type(field_t), pointer :: ta1, ta2, ta3, phi, rhs
     type(ksp_monitor_t) :: ksp_result
@@ -189,7 +188,7 @@ contains
           net_flux = glsum(rhs%x, n)
        end if
 
-       write (log_buf, '(A,ES13.6)') 'Net boundary flux :', -net_flux
+       write (log_buf, '(A,ES13.6)') 'Net boundary flux : ', -net_flux
        call neko_log%message(log_buf)
 
        if (abs(net_flux) .gt. 100.0_rp * NEKO_EPS * rhs_scale) then
@@ -208,9 +207,7 @@ contains
     call gs%op(rhs, GS_OP_ADD)
     call bc_prs_projector%apply(rhs%x, n)
 
-    ! Solve to a residual reduction of rel_tol. The initial residual is
-    ! measured the way the solvers measure theirs, and the solver's absolute
-    ! tolerance and iteration cap are set for the duration of this solve. A
+    ! The initial residual, measured the way the solvers measure theirs. A
     ! right-hand side at the round-off of the terms it is summed from means
     ! the field is already divergence free, and there is nothing to solve for.
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -232,7 +229,8 @@ contains
        return
     end if
 
-    res_target = rel_tol * rhs_norm
+    ! The solver's tolerance and iteration cap are set for this solve only.
+    res_target = tol
     abs_tol = ksp%abs_tol
     ksp_max_iter = ksp%max_iter
     ksp%abs_tol = res_target
@@ -268,13 +266,14 @@ contains
 
     write (log_buf, '(A,I5,A,ES9.2,A,ES9.2,A,ES8.1,A)') &
          'Poisson solve: ', ksp_result%iter, ' iters, res ', &
-         rhs_norm, ' -> ', res_final, ' (target ', res_target, ')'
+         rhs_norm, ' -> ', res_final, ' (tol ', res_target, ')'
     call neko_log%message(log_buf)
 
     if (res_final .gt. res_target) then
        call neko_log%warning('The divergence-free projection did not reach ' &
-            // 'its tolerance, raise divergence_free_max_iterations or use ' &
-            // 'a stronger pressure preconditioner')
+            // 'its tolerance, see divergence_free_tolerance and ' &
+            // 'divergence_free_max_iterations or try another pressure ' &
+            // 'preconditioner and/or solver')
     end if
 
     ! u <- u - grad(phi) / rho. opgrad is the weak gradient: assemble it, mask

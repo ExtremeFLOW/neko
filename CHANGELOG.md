@@ -2,14 +2,12 @@
 
 ## Develop
 
-- Added `case.fluid.initial_condition.make_divergence_free`, which imposes the
-  velocity boundary conditions on the initial velocity and projects it onto
-  the divergence-free subspace with the `pnpn` pressure solver, e.g. for a
-  field interpolated from another mesh. `divergence_free_tolerance` and
-  `divergence_free_max_iterations` control the solve.
-- Fixed the `expression_velocity`, `expression_pressure` and
-  `expression_dirichlet` boundary conditions not being enforced by the linear
-  solves.
+- Added `case.fluid.initial_condition.make_divergence_free` (experimental),
+  which imposes the velocity boundary conditions on the initial velocity and
+  projects it onto the divergence-free subspace with the `pnpn` pressure
+  solver, e.g. for a field interpolated from another mesh.
+- `flow_rate_force` scales the initial velocity to its target before the first
+  step (experimental).
 - Fixed the `point_zone` fluid initial condition aborting while logging its
   `base_value`.
 - Fixed the `cheby` solver returning an undefined iteration count and

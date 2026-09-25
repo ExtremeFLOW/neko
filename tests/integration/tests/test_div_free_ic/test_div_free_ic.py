@@ -47,9 +47,9 @@ ELEMENTS = (4, 4, 3)
 POLYNOMIAL_ORDER = 7
 
 # Tolerance of the comparison against the closed-form projection, and the
-# residual reduction the projection is solved to for it.
+# absolute tolerance the projection's Poisson problem is solved to for it.
 VALUE_TOLERANCE = {"dp": 1.0e-5, "sp": 1.0e-3}
-SOLVE_TOLERANCE = {"dp": 1.0e-9, "sp": 1.0e-6}
+SOLVE_TOLERANCE = {"dp": 1.0e-10, "sp": 1.0e-6}
 
 # Required reduction of the divergence norm. With an inflow the prescribed
 # tangential velocity there disagrees with the divergence-free interior, and
@@ -324,7 +324,8 @@ def test_divergence_free_initial_condition(div_free_assets):
     # The projection has to be visible, i.e. the interior really did change.
     assert abs(projected[CENTRE_LINE[2]][0] - 1.0) > 0.1
 
-    # And the reported divergence has to come down.
+    # And the reported divergence has to come down, with a converged solve.
+    assert "did not reach" not in log
     before, after = _div_norms(log)
     assert after * DIVERGENCE_REDUCTION["analytic"] < before, \
         f"{before} -> {after}"
@@ -343,6 +344,7 @@ def test_divergence_free_periodic_box(div_free_assets):
         assert v == pytest.approx(0.0, abs=tolerance), point
         assert w == pytest.approx(0.0, abs=tolerance), point
 
+    assert "did not reach" not in log
     before, after = _div_norms(log)
     assert after * DIVERGENCE_REDUCTION["periodic"] < before, \
         f"{before} -> {after}"

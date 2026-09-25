@@ -77,7 +77,6 @@ module fluid_pnpn
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use mathops, only : opadd2cm, opcolv
-  use math, only : NEKO_EPS
   use zero_dirichlet, only : zero_dirichlet_t
   use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
@@ -197,9 +196,10 @@ module fluid_pnpn
      !> Whether to project the initial velocity onto the divergence-free
      !! subspace.
      logical :: div_free_ic = .false.
-     !> Relative residual reduction the projection is solved to.
+     !> Absolute tolerance of the projection's solve, the pressure solver's
+     !! if zero.
      real(kind=rp) :: div_free_tol = 0.0_rp
-     !> Iteration cap of the projection's solve.
+     !> Iteration cap of the projection's solve, the pressure solver's if zero.
      integer :: div_free_max_iter = 0
 
    contains
@@ -217,6 +217,7 @@ module fluid_pnpn
      procedure, pass(this) :: write_boundary_conditions => &
           fluid_pnpn_write_boundary_conditions
      !> Project the velocity onto the divergence-free subspace.
+     procedure, pass(this) :: bc_apply_ic => fluid_pnpn_bc_apply_ic
      procedure, pass(this) :: make_div_free => fluid_pnpn_make_div_free
   end type fluid_pnpn_t
 
@@ -304,17 +305,23 @@ contains
     call json_get_or_default(params, &
          "case.fluid.initial_condition.make_divergence_free", &
          this%div_free_ic, .false.)
-    if (this%div_free_ic) then
-       call json_get_or_lookup_or_default(params, &
+    if (params%valid_path( &
+         "case.fluid.initial_condition.divergence_free_tolerance")) then
+       call json_get_or_lookup(params, &
             "case.fluid.initial_condition.divergence_free_tolerance", &
-            this%div_free_tol, max(1.0e-6_rp, 100.0_rp * NEKO_EPS))
-       call json_get_or_lookup_or_default(params, &
+            this%div_free_tol)
+       if (this%div_free_tol .le. 0.0_rp) then
+          call neko_error("divergence_free_tolerance has to be positive")
+       end if
+    end if
+    if (params%valid_path( &
+         "case.fluid.initial_condition.divergence_free_max_iterations")) then
+       call json_get_or_lookup(params, &
             "case.fluid.initial_condition.divergence_free_max_iterations", &
-            this%div_free_max_iter, 500)
-       if (this%div_free_tol .le. 0.0_rp .or. &
-            this%div_free_max_iter .lt. 1) then
-          call neko_error("divergence_free_tolerance has to be positive " // &
-               "and divergence_free_max_iterations at least one")
+            this%div_free_max_iter)
+       if (this%div_free_max_iter .lt. 1) then
+          call neko_error("divergence_free_max_iterations has to be at " // &
+               "least one")
        end if
     end if
 
@@ -642,33 +649,27 @@ contains
 
   end subroutine fluid_pnpn_restart
 
-  !> Impose the velocity boundary conditions and project the velocity onto
-  !! the divergence-free subspace, with the pressure solver of the scheme.
-  !! @details Meant for an initial condition that does not satisfy continuity
-  !! or the boundary conditions, e.g. a field file read onto another mesh. The
-  !! conditions go first so that the projection keeps the prescribed values,
-  !! as in the time loop. Conditions evaluated through user hooks
-  !! (`user_velocity`, `overset_interface`) are left out, since the hooks
-  !! commonly set themselves up at the first time step.
+  !> Impose the velocity boundary conditions on the initial condition.
+  !! @details Conditions evaluated through user hooks (`user_velocity`,
+  !! `overset_interface`) are left out, since the hooks commonly set
+  !! themselves up at the first time step.
   !! @param time The time state, for time dependent boundary conditions.
-  subroutine fluid_pnpn_make_div_free(this, time)
+  subroutine fluid_pnpn_bc_apply_ic(this, time)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(bc_list_t) :: bcs
     class(bc_t), pointer :: bc_i
     integer :: i
 
-    call neko_log%section('Divergence-free projection')
-
     call bcs%init(max(1, this%bcs_vel%size()))
     do i = 1, this%bcs_vel%size()
        bc_i => this%bcs_vel%get(i)
        select type (bc_i)
        class is (field_dirichlet_vector_t)
-          call neko_log%message('Not imposed before the projection: ' // &
+          call neko_log%message('Not imposed on the initial condition: ' // &
                trim(bc_i%name))
        class is (overset_interface_vector_t)
-          call neko_log%message('Not imposed before the projection: ' // &
+          call neko_log%message('Not imposed on the initial condition: ' // &
                trim(bc_i%name))
        class default
           call bcs%append(bc_i)
@@ -677,11 +678,34 @@ contains
     call this%bc_apply_vel(time, strong = .true., bcs = bcs)
     call bcs%free()
 
+  end subroutine fluid_pnpn_bc_apply_ic
+
+  !> Impose the velocity boundary conditions on the initial condition and
+  !! project it onto the divergence-free subspace, with the pressure solver
+  !! of the scheme. The conditions go first so that the projection keeps the
+  !! prescribed values, as in the time loop.
+  !! @param time The time state, for time dependent boundary conditions.
+  subroutine fluid_pnpn_make_div_free(this, time)
+    class(fluid_pnpn_t), target, intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    real(kind=rp) :: tol
+    integer :: max_iter
+
+    call neko_log%warning('make_divergence_free is experimental and not ' // &
+         'tested on all initial conditions, use it at your own risk')
+    call neko_log%section('Divergence-free projection')
+
+    call this%bc_apply_ic(time)
+
+    tol = this%div_free_tol
+    if (tol .le. 0.0_rp) tol = this%ksp_prs%abs_tol
+    max_iter = this%div_free_max_iter
+    if (max_iter .lt. 1) max_iter = this%ksp_prs%max_iter
+
     call project_div_free(this%u, this%v, this%w, this%c_Xh, this%gs_Xh, &
          this%Ax_prs, this%ksp_prs, this%pc_prs, this%bcs_prs_projector, &
          this%bcs_vel_projector, this%bc_prs_surface, this%prs_dirichlet, &
-         this%glb_n_points, this%rho%x(1,1,1,1), this%div_free_tol, &
-         this%div_free_max_iter)
+         this%glb_n_points, this%rho%x(1,1,1,1), tol, max_iter)
 
     call neko_log%end_section()
 

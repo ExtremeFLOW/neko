@@ -1177,15 +1177,12 @@ file documentation.
    Interpolation will always be performed if `"interpolate"` is set
    to `true`, even if the field file matches with the current simulation.
 
-For any `type`, setting `make_divergence_free` to `true` projects the initial
-velocity onto the divergence-free subspace, see
-[divergence-free initial conditions](@ref case-file_fluid-div-free-ic).
-
 #### Divergence-free initial conditions {#case-file_fluid-div-free-ic}
 
-An initial velocity that does not satisfy continuity, e.g. one interpolated
-from another mesh, causes a large pressure transient over the first steps.
-`make_divergence_free` removes its divergent part before the first step:
+An initial velocity that violates continuity, e.g. one interpolated from
+another mesh, causes a pressure transient. For any `type`,
+`make_divergence_free` (experimental) imposes the velocity boundary conditions
+on it and removes its divergent part before the first step:
 
 ~~~~~~~~~~~~~~~{.json}
 "initial_condition": {
@@ -1195,43 +1192,23 @@ from another mesh, causes a large pressure transient over the first steps.
 }
 ~~~~~~~~~~~~~~~
 
-The velocity boundary conditions are imposed first, except `user_velocity` and
-`overset_interface`, which are evaluated through user hooks; there the initial
-condition is kept as it is. Then a potential \f$ \phi \f$ is solved for from
+It solves \f$ \nabla^2 \phi = \nabla \cdot \mathbf{u} \f$ with the
+`pressure_solver` and the boundary conditions of the `pnpn` pressure step
+(\f$ \partial_n \phi = 0 \f$ where the velocity is prescribed, \f$ \phi = 0 \f$
+where the pressure is), and subtracts \f$ \nabla \phi \f$ from the velocity
+except where it is prescribed. The solver's `absolute_tolerance` and
+`max_iterations` apply unless `divergence_free_tolerance` and
+`divergence_free_max_iterations` are given; the pressure residual of a time
+step carries a factor \f$ 1/\Delta t \f$ that this one lacks, so the same
+tolerance is looser here. The residual and
+\f$ \sqrt{\int (\nabla \cdot \mathbf{u})^2 \, dV} \f$ before and after are
+logged.
 
-\f{eqnarray*}{
-   \nabla^2 \phi &=& \nabla \cdot \mathbf{u} \quad \text{in } \Omega, \\
-   \partial_n \phi &=& 0 \quad \text{where the velocity is prescribed}, \\
-   \phi &=& 0 \quad \text{where the pressure is prescribed},
-\f}
-
-and \f$ \mathbf{u} \leftarrow \mathbf{u} - \nabla \phi \f$ except on the
-boundaries where the velocity is prescribed, which keep their values. The
-operators and boundary conditions are those of the `pnpn` pressure step. The
-pressure is left unchanged; the pressure step solves for an increment, so it
-does not affect the solution.
-
-The Poisson problem is solved with the `pressure_solver`, but to a relative
-residual reduction of `divergence_free_tolerance` within
-`divergence_free_max_iterations`, in place of the solver's
-`absolute_tolerance` and `max_iterations` (`cheby` always runs all
-iterations, `bicgstab` never goes below a relative \f$ 10^{-9} \f$). The
-residual and \f$ \sqrt{\int (\nabla \cdot \mathbf{u})^2 \, dV} \f$ before
-and after are logged, with a warning if the tolerance is not reached.
-
-@note Only available for the `pnpn` scheme (other schemes stop with an error),
-and skipped on restart. Without a pressure boundary the problem is pure
-Neumann: the net flux through the velocity boundaries is logged, and a nonzero
-one, which triggers a warning, remains as uniform divergence. Keeping the
-prescribed velocities drops the tangential part of the correction on those
-boundaries, so a one-point layer of divergence remains along them, as in the
-time loop. The same holds for divergence the mesh does not resolve, such as a
-seam between spliced fields or an initial condition that disagrees with the
-prescribed values; blending a seam over about one element avoids this. A
-flow-rate mismatch is corrected uniformly up to the nearest pressure boundary;
-the rest of the correction decays away from its source, with an e-folding
-length of \f$ H/\pi \f$ in a channel of height \f$ H \f$ without spanwise
-variation.
+@note Only for the `pnpn` scheme and skipped on restart. `user_velocity` and
+`overset_interface` are not imposed beforehand. Divergence along boundaries
+where the velocity is kept, or at a seam the mesh cannot resolve (blend
+spliced fields over about an element), is reduced rather than removed.
+Without a pressure boundary the net boundary flux has to vanish.
 
 ### Source terms {#case-file_fluid-source-term}
 The `source_terms` object should be used to specify the source terms in the
@@ -2224,9 +2201,13 @@ The PHMG update (as for now) also assumes that the mesh connectivity does not ch
 The optional `flow_rate_force` object can be used to force a particular flow
 rate through the domain.
 Useful for channel and pipe flows.
+Except on restart or with `freeze`, the initial velocity is scaled to the
+target before the first step (experimental) and the velocity boundary
+conditions are imposed on it again, unless its flow rate is already there,
+zero, of opposite sign, or off by more than a factor of ten.
 The configuration uses the following parameters:
 
-* `direction`, the direction of the flow, defined as 0, 1, or 2, corresponding
+* `direction`, the direction of the flow, defined as 1, 2, or 3, corresponding
   to x, y or z, respectively.
 * `value`, the desired flow rate.
 * `use_averaged_flow`, whether `value` specifies the domain-averaged (bulk)
@@ -2263,9 +2244,9 @@ concisely directly in the table.
 | `initial_condition.mesh_file_name`                 | If `"type"="field"` and interpolation is enabled, the name of the field file that contains the mesh coordinates.       | Strings ending with `f*****`                                | `file_name`   |
 | `initial_condition.interpolation.tolerance`        | If `"type"="field"` and interpolation is enabled, the tolerance for the point search.             | Positive real.                                              | `NEKO_EPS*1e3`|
 | `initial_condition.interpolation.padding`          | If `"type"="field"` and interpolation is enabled, the padding for the point search.               | Positive real.                                              | `1e-2`        |
-| `initial_condition.make_divergence_free`           | Project the initial velocity onto the divergence-free subspace, see [divergence-free initial conditions](@ref case-file_fluid-div-free-ic). | `true` or `false`      | `false`       |
-| `initial_condition.divergence_free_tolerance`      | Relative residual reduction of the projection's Poisson solve.                                    | Positive real.                                              | `1e-6` (`100*NEKO_EPS` in single precision) |
-| `initial_condition.divergence_free_max_iterations` | Iteration cap of the projection's Poisson solve.                                                  | Positive integer.                                           | `500`         |
+| `initial_condition.make_divergence_free`           | Project the initial velocity onto the divergence-free subspace (experimental), see [divergence-free initial conditions](@ref case-file_fluid-div-free-ic). | `true` or `false` | `false` |
+| `initial_condition.divergence_free_tolerance`      | Absolute tolerance of the projection's Poisson solve.                                             | Positive real.                                              | `pressure_solver.absolute_tolerance` |
+| `initial_condition.divergence_free_max_iterations` | Iteration cap of the projection's Poisson solve.                                                  | Positive integer.                                           | `pressure_solver.max_iterations` |
 | `blasius.delta`                                    | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                               | -             |
 | `blasius.freestream_velocity`                      | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                           | -             |
 | `blasius.approximation`                            | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin`, `tanh`    | -             |
@@ -2288,7 +2269,7 @@ concisely directly in the table.
 | `pressure_solver.projection_hold_steps`            | Holding steps of the projection for the pressure equation.                                        | Positive integer                                            | 5             |
 | `pressure_solver.projection_reorthogonalize_basis` | Whether to enable pressure projection basis reorthogonalization.                                  | `true` or `false`                                           | `false`       |
 | `pressure_solver.monitor`                          | Monitor residuals in the linear solver for the pressure equation.                                 | `true` or `false`                                           | `false`       |
-| `flow_rate_force.direction`                        | Direction of the forced flow.                                                                     | 0, 1, 2                                                     | -             |
+| `flow_rate_force.direction`                        | Direction of the forced flow.                                                                     | 1, 2, 3                                                     | -             |
 | `flow_rate_force.value`                            | Bulk velocity or volumetric flow rate.                                                            | Positive real                                               | -             |
 | `flow_rate_force.use_averaged_flow`                | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                           | -             |
 | `flow_rate_force.log`                              | Whether to print the flow-rate forcing log message during the volume-flow adjustment.             | `true` or `false`                                           | `true`        |
