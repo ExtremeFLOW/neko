@@ -2,6 +2,19 @@
 
 ## Develop
 
+- Enabled the unit and integration test suites in the Intel CI workflow, which
+  previously only compiled Neko. The workflow now builds against pFUnit, runs
+  `make check` and the pytest integration tests, and archives the logs.
+
+- Removed the shared scalars that `dofmap_number_edges` and
+  `gh_face_extend_3d` assigned inside their `do concurrent` loops. A variable
+  written in one iteration and read in the same one is left undefined after
+  the loop and lets the compiler reorder the stores freely. That is
+  standard-conforming but fragile, and a suspect for the wrong dof numbering
+  seen with `ifx`. The edge loops now index with the loop variable directly
+  and the interpolation loops declare their temporaries in a `block` inside
+  the loop body.
+
 - Added format-independent checkpoint payloads for registering named fields,
   field histories, nodal mesh arrays, and distributed or replicated real
   arrays. HDF5 checkpoints now preserve the payload hierarchy and support
