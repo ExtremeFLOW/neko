@@ -1249,6 +1249,7 @@ var hierarchy =
     [ "tensor4::tensor4_ptr_t", "da/d0e/structtensor4_1_1tensor4__ptr__t.html", null ],
     [ "tensor4::tensor4_t", "d2/de3/structtensor4_1_1tensor4__t.html", null ],
     [ "tet_mesh::tet_mesh_t", "db/d3a/structtet__mesh_1_1tet__mesh__t.html", null ],
+    [ "utils::throw_intf", "da/dda/interfaceutils_1_1throw__intf.html", null ],
     [ "time_based_controller::time_based_controller_t", "db/de7/structtime__based__controller_1_1time__based__controller__t.html", null ],
     [ "time_interpolator::time_interpolator_t", "d8/d85/structtime__interpolator_1_1time__interpolator__t.html", null ],
     [ "time_scheme_controller::time_scheme_controller_t", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html", null ],

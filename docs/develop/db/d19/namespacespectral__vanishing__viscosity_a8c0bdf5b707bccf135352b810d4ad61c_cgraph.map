@@ -12,14 +12,16 @@
 <area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="126,246,200,286,214,293,212,298,197,291,123,251"/>
 <area shape="rect" id="Node000007" href="$d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b" title="Reports an error allocating a type for a particular base pointer class." alt="" coords="199,365,361,391"/>
 <area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="100,247,142,300,169,327,200,350,213,358,211,362,197,355,166,331,138,303,96,250"/>
-<area shape="rect" id="Node000008" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="231,415,329,440"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="93,247,109,283,133,324,163,366,200,401,220,412,217,417,197,405,159,369,128,327,104,285,88,250"/>
-<area shape="rect" id="Node000009" href="$db/d19/namespacespectral__vanishing__viscosity.html#a75e0477e83c8e78e458e07e7dd5a8f28" title="Copy the configured viscosity field and multiply it by density." alt="" coords="203,157,357,212"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="150,205,189,198,190,203,151,210"/>
-<area shape="poly" id="edge9_Node000009_Node000003" title=" " alt="" coords="314,155,358,125,408,97,448,82,449,87,410,102,361,130,318,160"/>
-<area shape="poly" id="edge11_Node000009_Node000005" title=" " alt="" coords="357,162,444,138,445,143,358,167"/>
-<area shape="rect" id="Node000010" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="459,169,554,195"/>
-<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="358,181,446,180,446,185,358,186"/>
-<area shape="rect" id="Node000011" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="409,219,604,244"/>
-<area shape="poly" id="edge12_Node000009_Node000011" title=" " alt="" coords="358,198,431,213,430,218,357,203"/>
+<area shape="rect" id="Node000009" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="231,415,329,440"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="93,247,109,283,133,324,163,366,200,401,220,412,217,417,197,405,159,369,128,327,104,285,88,250"/>
+<area shape="rect" id="Node000010" href="$db/d19/namespacespectral__vanishing__viscosity.html#a75e0477e83c8e78e458e07e7dd5a8f28" title="Copy the configured viscosity field and multiply it by density." alt="" coords="203,157,357,212"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="150,205,189,198,190,203,151,210"/>
+<area shape="rect" id="Node000008" href="$d6/d84/namespaceutils.html#a3b42fa80f3602b0ab45ac623156295ec" title="Default throw method that stops execution." alt="" coords="433,358,581,398"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="362,375,419,375,419,381,362,381"/>
+<area shape="poly" id="edge10_Node000010_Node000003" title=" " alt="" coords="314,155,358,125,408,97,448,82,449,87,410,102,361,130,318,160"/>
+<area shape="poly" id="edge12_Node000010_Node000005" title=" " alt="" coords="357,162,444,138,445,143,358,167"/>
+<area shape="rect" id="Node000011" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="459,219,554,244"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="358,198,447,216,445,222,357,203"/>
+<area shape="rect" id="Node000012" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="409,169,604,195"/>
+<area shape="poly" id="edge13_Node000010_Node000012" title=" " alt="" coords="358,181,395,181,395,186,358,186"/>
 </map>

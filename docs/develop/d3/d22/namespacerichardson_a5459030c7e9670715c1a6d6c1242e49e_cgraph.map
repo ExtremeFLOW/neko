@@ -1,7 +1,9 @@
 <map id="richardson::richardson_init_from_components" name="richardson::richardson_init_from_components">
-<area shape="rect" id="Node000001" title="Constructor from components." alt="" coords="5,27,180,67"/>
-<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="253,5,401,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,34,238,26,239,32,180,39"/>
-<area shape="rect" id="Node000003" href="$d3/d22/namespacerichardson.html#a425e7d574959a6b90afdf994eafbd612" title=" " alt="" coords="228,55,425,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,55,215,59,214,65,180,60"/>
+<area shape="rect" id="Node000001" title="Constructor from components." alt="" coords="5,35,180,75"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="253,13,401,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,41,238,34,239,39,180,46"/>
+<area shape="rect" id="Node000004" href="$d3/d22/namespacerichardson.html#a425e7d574959a6b90afdf994eafbd612" title=" " alt="" coords="228,63,425,103"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="180,62,215,67,214,72,180,68"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="473,5,621,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="401,23,459,23,459,28,401,28"/>
 </map>

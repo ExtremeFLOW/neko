@@ -2,8 +2,11 @@ var utils_8f90 =
 [
     [ "utils::neko_error", "d7/d83/interfaceutils_1_1neko__error.html", "d7/d83/interfaceutils_1_1neko__error" ],
     [ "utils::read_duration", "dd/d91/interfaceutils_1_1read__duration.html", "dd/d91/interfaceutils_1_1read__duration" ],
+    [ "utils::throw_intf", "da/dda/interfaceutils_1_1throw__intf.html", "da/dda/interfaceutils_1_1throw__intf" ],
     [ "utils::c_mkdir", "d2/daa/interfaceutils_1_1c__mkdir.html", "d2/daa/interfaceutils_1_1c__mkdir" ],
     [ "concat_string_array", "df/d80/utils_8f90.html#a1118aac17fca960a9444986355db28ad", null ],
+    [ "default_throw_error", "df/d80/utils_8f90.html#a3b42fa80f3602b0ab45ac623156295ec", null ],
+    [ "default_throw_warning", "df/d80/utils_8f90.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1", null ],
     [ "extract_fld_file_index", "df/d80/utils_8f90.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0", null ],
     [ "filename_chsuffix", "df/d80/utils_8f90.html#a94a1b10b4fd0d52a2bbd0bdfbac01692", null ],
     [ "filename_name", "df/d80/utils_8f90.html#a202026073c93db9d9d760198c2029980", null ],
@@ -27,5 +30,7 @@ var utils_8f90 =
     [ "set_error_or_throw", "df/d80/utils_8f90.html#a2069613a5a5c8fc7b28e3ff311f82ecf", null ],
     [ "split_string", "df/d80/utils_8f90.html#a2de13cdec1ab133b6f0545f467a5abcc", null ],
     [ "neko_fname_len", "df/d80/utils_8f90.html#a76ff64218112fb6d5a8a02d15b2628e7", null ],
-    [ "neko_varname_len", "df/d80/utils_8f90.html#ac6d1705f20d3a1fce16eb7a745d88eb3", null ]
+    [ "neko_varname_len", "df/d80/utils_8f90.html#ac6d1705f20d3a1fce16eb7a745d88eb3", null ],
+    [ "throw_error", "df/d80/utils_8f90.html#a67268bc78336003fcb1397c4ca5e1827", null ],
+    [ "throw_warning", "df/d80/utils_8f90.html#abb66df0b28e173d2a7af0512a825883f", null ]
 ];

@@ -1,5 +1,7 @@
 <map id="cacg::cacg_init" name="cacg::cacg_init">
-<area shape="rect" id="Node000001" title="Initialise a s&#45;step CA PCG solver." alt="" coords="5,5,124,31"/>
-<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="172,5,320,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="124,15,158,15,158,21,124,21"/>
+<area shape="rect" id="Node000001" title="Initialise a s&#45;step CA PCG solver." alt="" coords="5,13,124,38"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="172,13,320,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="124,23,158,23,158,28,124,28"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="368,5,516,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="320,23,354,23,354,28,320,28"/>
 </map>

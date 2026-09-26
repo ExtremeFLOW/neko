@@ -2,4 +2,6 @@
 <area shape="rect" id="Node000001" title="Destructor wraps the adios2 finalize routine. Closes insitu writer." alt="" coords="5,5,160,45"/>
 <area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="208,13,356,38"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,23,194,23,194,28,160,28"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="404,5,552,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="356,23,390,23,390,28,356,28"/>
 </map>

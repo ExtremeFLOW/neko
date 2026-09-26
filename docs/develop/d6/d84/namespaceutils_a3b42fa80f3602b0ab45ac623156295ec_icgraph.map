@@ -1,0 +1,13 @@
+<map id="utils::default_throw_error" name="utils::default_throw_error">
+<area shape="rect" id="Node000001" title="Default throw method that stops execution." alt="" coords="453,99,601,139"/>
+<area shape="rect" id="Node000002" href="$d7/d83/interfaceutils_1_1neko__error.html#a04c8099131140fded88ffe9083902678" title="Reports an error and calls throw_error, which stops execution by default." alt="" coords="235,5,369,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="477,94,404,60,369,47,371,42,406,55,479,90"/>
+<area shape="rect" id="Node000003" href="$d7/d83/interfaceutils_1_1neko__error.html#a6499c1f7fd73a324dd918fa79a6afca6" title="Reports an error and calls throw_error, which stops execution by default." alt="" coords="235,69,369,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="439,110,369,101,370,95,440,105"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b" title="Reports an error allocating a type for a particular base pointer class." alt="" coords="221,134,383,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="440,132,384,139,383,134,440,127"/>
+<area shape="rect" id="Node000006" href="$d6/d84/namespaceutils.html#a131a6b98b16e65151cc8b92283a40337" title=" " alt="" coords="199,184,405,224"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="470,147,406,173,369,186,367,181,404,168,468,142"/>
+<area shape="rect" id="Node000005" href="$db/d19/namespacespectral__vanishing__viscosity.html#a8c0bdf5b707bccf135352b810d4ad61c" title="Construct an SVV object from case parameters." alt="" coords="5,119,151,174"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="207,149,151,149,151,144,207,144"/>
+</map>

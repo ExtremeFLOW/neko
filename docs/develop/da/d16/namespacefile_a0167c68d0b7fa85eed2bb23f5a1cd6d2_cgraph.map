@@ -1,9 +1,11 @@
 <map id="file::file_set_header" name="file::file_set_header">
-<area shape="rect" id="Node000001" title="Set a file&#39;s header." alt="" coords="5,31,155,56"/>
-<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="203,5,361,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,31,189,27,190,32,155,37"/>
-<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="208,55,356,80"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="155,50,195,54,194,60,155,55"/>
+<area shape="rect" id="Node000001" title="Set a file&#39;s header." alt="" coords="5,35,155,60"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="203,8,361,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,35,189,30,190,36,155,40"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="208,59,356,84"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="155,54,195,58,194,64,155,59"/>
 <area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="409,5,597,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="362,15,396,15,396,21,362,21"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="362,17,396,17,396,22,362,22"/>
+<area shape="rect" id="Node000005" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="429,55,577,95"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="356,70,416,71,416,76,356,75"/>
 </map>

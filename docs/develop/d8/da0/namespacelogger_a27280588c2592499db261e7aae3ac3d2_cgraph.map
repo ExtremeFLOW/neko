@@ -4,5 +4,7 @@
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,55,210,51,210,56,177,60"/>
 <area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="231,79,379,104"/>
 <area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="177,74,218,79,217,84,176,80"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="270,31,263,21,267,11,281,5,305,3,335,6,347,15,344,20,333,11,305,8,283,10,271,15,268,20,275,28"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="272,31,265,21,269,11,282,5,305,3,334,6,345,16,341,20,331,11,305,8,284,10,272,15,270,20,276,28"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="435,71,583,111"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="380,89,421,89,421,94,380,94"/>
 </map>

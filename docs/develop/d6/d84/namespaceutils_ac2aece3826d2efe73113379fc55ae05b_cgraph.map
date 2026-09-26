@@ -1,0 +1,5 @@
+<map id="utils::neko_type_error" name="utils::neko_type_error">
+<area shape="rect" id="Node000001" title="Reports an error allocating a type for a particular base pointer class." alt="" coords="5,13,168,38"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a3b42fa80f3602b0ab45ac623156295ec" title="Default throw method that stops execution." alt="" coords="216,5,364,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,23,202,23,202,28,168,28"/>
+</map>

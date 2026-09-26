@@ -1,0 +1,5 @@
+<map id="utils::neko_warning" name="utils::neko_warning">
+<area shape="rect" id="Node000001" title="Reports a warning to standard output." alt="" coords="5,13,153,38"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="201,5,349,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,23,187,23,187,28,154,28"/>
+</map>
