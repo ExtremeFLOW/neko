@@ -18,6 +18,7 @@ SUBDIRS = tuple\
 	  ax\
 	  krylov\
 	  bc\
+	  fluid_pnpn_bc\
 	  signal\
 	  jobctrl\
 	  device\
@@ -73,6 +74,7 @@ TESTS = device/device_test\
 	ax/ax_test\
 	krylov/krylov_test\
 	bc/bc_test\
+	fluid_pnpn_bc/fluid_pnpn_bc_test\
 	signal/signal_test\
 	jobctrl/jobctrl_test\
 	device_math/device_math_test\
@@ -116,6 +118,7 @@ EXTRA_DIST = \
 	tri/test_tri.pf\
 	bc/test_bc.pf\
 	bc/bc_test\
+	fluid_pnpn_bc/test_fluid_pnpn_bc.pf\
 	tuple/test_tuple.pf\
 	point/test_point.pf\
 	signal/test_signal.pf\
