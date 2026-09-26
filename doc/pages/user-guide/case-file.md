@@ -1177,6 +1177,38 @@ file documentation.
    Interpolation will always be performed if `"interpolate"` is set
    to `true`, even if the field file matches with the current simulation.
 
+#### Divergence-free initial conditions {#case-file_fluid-div-free-ic}
+
+An initial velocity that violates continuity, e.g. one interpolated from
+another mesh, causes a pressure transient. For any `type`,
+`make_divergence_free` (experimental) imposes the velocity boundary conditions
+on it and removes its divergent part before the first step:
+
+~~~~~~~~~~~~~~~{.json}
+"initial_condition": {
+    "type": "field",
+    "file_name": "myfield0.f00034",
+    "make_divergence_free": true
+}
+~~~~~~~~~~~~~~~
+
+It solves \f$ \nabla^2 \phi = \nabla \cdot \mathbf{u} \f$ with the
+`pressure_solver` and the boundary conditions of the `pnpn` pressure step
+(\f$ \partial_n \phi = 0 \f$ where the velocity is prescribed, \f$ \phi = 0 \f$
+where the pressure is), and subtracts \f$ \nabla \phi \f$ from the velocity
+except where it is prescribed. The solver's `absolute_tolerance` and
+`max_iterations` apply unless `divergence_free_tolerance` and
+`divergence_free_max_iterations` are given; the pressure residual of a time
+step carries a factor \f$ 1/\Delta t \f$ that this one lacks, so the same
+tolerance is looser here. The residual and
+\f$ \sqrt{\int (\nabla \cdot \mathbf{u})^2 \, dV} \f$ before and after are
+logged.
+
+@note Only for the `pnpn` scheme and skipped on restart. `user_velocity` and
+`overset_interface` are not imposed beforehand. Divergence along boundaries
+where the velocity is kept, or at a seam the mesh cannot resolve (blend
+spliced fields over about an element), is reduced rather than removed.
+Without a pressure boundary the net boundary flux has to vanish.
 
 ### Source terms {#case-file_fluid-source-term}
 The `source_terms` object should be used to specify the source terms in the
@@ -2169,9 +2201,13 @@ The PHMG update (as for now) also assumes that the mesh connectivity does not ch
 The optional `flow_rate_force` object can be used to force a particular flow
 rate through the domain.
 Useful for channel and pipe flows.
+Except on restart or with `freeze`, the initial velocity is scaled to the
+target before the first step (experimental) and the velocity boundary
+conditions are imposed on it again, unless its flow rate is already there,
+zero, of opposite sign, or off by more than a factor of ten.
 The configuration uses the following parameters:
 
-* `direction`, the direction of the flow, defined as 0, 1, or 2, corresponding
+* `direction`, the direction of the flow, defined as 1, 2, or 3, corresponding
   to x, y or z, respectively.
 * `value`, the desired flow rate.
 * `use_averaged_flow`, whether `value` specifies the domain-averaged (bulk)
@@ -2208,6 +2244,9 @@ concisely directly in the table.
 | `initial_condition.mesh_file_name`                 | If `"type"="field"` and interpolation is enabled, the name of the field file that contains the mesh coordinates.       | Strings ending with `f*****`                                | `file_name`   |
 | `initial_condition.interpolation.tolerance`        | If `"type"="field"` and interpolation is enabled, the tolerance for the point search.             | Positive real.                                              | `NEKO_EPS*1e3`|
 | `initial_condition.interpolation.padding`          | If `"type"="field"` and interpolation is enabled, the padding for the point search.               | Positive real.                                              | `1e-2`        |
+| `initial_condition.make_divergence_free`           | Project the initial velocity onto the divergence-free subspace (experimental), see [divergence-free initial conditions](@ref case-file_fluid-div-free-ic). | `true` or `false` | `false` |
+| `initial_condition.divergence_free_tolerance`      | Absolute tolerance of the projection's Poisson solve.                                             | Positive real.                                              | `pressure_solver.absolute_tolerance` |
+| `initial_condition.divergence_free_max_iterations` | Iteration cap of the projection's Poisson solve.                                                  | Positive integer.                                           | `pressure_solver.max_iterations` |
 | `blasius.delta`                                    | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                               | -             |
 | `blasius.freestream_velocity`                      | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                           | -             |
 | `blasius.approximation`                            | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin`, `tanh`    | -             |
@@ -2230,7 +2269,7 @@ concisely directly in the table.
 | `pressure_solver.projection_hold_steps`            | Holding steps of the projection for the pressure equation.                                        | Positive integer                                            | 5             |
 | `pressure_solver.projection_reorthogonalize_basis` | Whether to enable pressure projection basis reorthogonalization.                                  | `true` or `false`                                           | `false`       |
 | `pressure_solver.monitor`                          | Monitor residuals in the linear solver for the pressure equation.                                 | `true` or `false`                                           | `false`       |
-| `flow_rate_force.direction`                        | Direction of the forced flow.                                                                     | 0, 1, 2                                                     | -             |
+| `flow_rate_force.direction`                        | Direction of the forced flow.                                                                     | 1, 2, 3                                                     | -             |
 | `flow_rate_force.value`                            | Bulk velocity or volumetric flow rate.                                                            | Positive real                                               | -             |
 | `flow_rate_force.use_averaged_flow`                | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                           | -             |
 | `flow_rate_force.log`                              | Whether to print the flow-rate forcing log message during the volume-flow adjustment.             | `true` or `false`                                           | `true`        |

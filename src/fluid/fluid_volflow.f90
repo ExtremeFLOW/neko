@@ -69,10 +69,10 @@ module fluid_volflow
   use coefs, only : coef_t
   use time_state, only : time_state_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use math, only : copy, glsc2, glmin, glmax, add2, abscmp
+  use math, only : copy, glsc2, glmin, glmax, add2, abscmp, cmult
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_rzero, device_copy, &
-       device_add2, device_add2s2, device_glsc2
+       device_add2, device_add2s2, device_glsc2, device_cmult
   use device_mathops, only : device_opchsign
   use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
@@ -101,7 +101,12 @@ module fluid_volflow
      procedure, pass(this) :: init => fluid_vol_flow_init
      procedure, pass(this) :: free => fluid_vol_flow_free
      procedure, pass(this) :: adjust => fluid_vol_flow
+     procedure, pass(this) :: scale => fluid_vol_flow_scale
      procedure, private, pass(this) :: compute => fluid_vol_flow_compute
+     procedure, private, pass(this) :: set_domain_length => &
+          fluid_vol_flow_set_domain_length
+     procedure, private, pass(this) :: current => fluid_vol_flow_current
+     procedure, private, pass(this) :: target_rate => fluid_vol_flow_target
   end type fluid_volflow_t
 
 contains
@@ -173,9 +178,6 @@ contains
     type(field_t) :: mu
     integer, intent(in) :: vel_max_iter, prs_max_iter
     integer :: n, i
-    real(kind=rp) :: xlmin, xlmax
-    real(kind=rp) :: ylmin, ylmax
-    real(kind=rp) :: zlmin, zlmax
     type(ksp_monitor_t) :: ksp_results(4)
     type(field_t), pointer :: ta1, ta2, ta3
     integer :: temp_indices(3)
@@ -189,21 +191,7 @@ contains
          u_vol => this%u_vol, v_vol => this%v_vol, w_vol => this%w_vol)
 
       n = c_Xh%dof%size()
-      xlmin = glmin(c_Xh%dof%x%x, n)
-      xlmax = glmax(c_Xh%dof%x%x, n)
-      ylmin = glmin(c_Xh%dof%y%x, n) !  for Y!
-      ylmax = glmax(c_Xh%dof%y%x, n)
-      zlmin = glmin(c_Xh%dof%z%x, n) !  for Z!
-      zlmax = glmax(c_Xh%dof%z%x, n)
-      if (this%flow_dir .eq. 1) then
-         this%domain_length = xlmax - xlmin
-      end if
-      if (this%flow_dir .eq. 2) then
-         this%domain_length = ylmax - ylmin
-      end if
-      if (this%flow_dir .eq. 3) then
-         this%domain_length = zlmax - zlmin
-      end if
+      call this%set_domain_length(c_Xh)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_cfill(c_Xh%h1_d, 1.0_rp/rho, n)
@@ -366,7 +354,7 @@ contains
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
     integer, intent(in) :: prs_max_iter, vel_max_iter
-    real(kind=rp) :: ifcomp, flow_rate, xsec
+    real(kind=rp) :: ifcomp, flow_rate
     real(kind=rp) :: current_flow, delta_flow, scale
     integer :: n, ierr, i
     character(len=5) :: flow_dir_label
@@ -403,33 +391,8 @@ contains
               vel_max_iter)
       end if
 
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         if (this%flow_dir .eq. 1) then
-            current_flow = &
-                 device_glsc2(u%x_d, c_Xh%B_d, n) / this%domain_length ! for X
-         else if (this%flow_dir .eq. 2) then
-            current_flow = &
-                 device_glsc2(v%x_d, c_Xh%B_d, n) / this%domain_length ! for Y
-         else if (this%flow_dir .eq. 3) then
-            current_flow = &
-                 device_glsc2(w%x_d, c_Xh%B_d, n) / this%domain_length ! for Z
-         end if
-      else
-         if (this%flow_dir .eq. 1) then
-            current_flow = glsc2(u%x, c_Xh%B, n) / this%domain_length ! for X
-         else if (this%flow_dir .eq. 2) then
-            current_flow = glsc2(v%x, c_Xh%B, n) / this%domain_length ! for Y
-         else if (this%flow_dir .eq. 3) then
-            current_flow = glsc2(w%x, c_Xh%B, n) / this%domain_length ! for Z
-         end if
-      end if
-
-      if (this%avflow) then
-         xsec = c_Xh%volume / this%domain_length
-         flow_rate = this%flow_rate*xsec
-      else
-         flow_rate = this%flow_rate
-      end if
+      current_flow = this%current(u, v, w, c_Xh)
+      flow_rate = this%target_rate(c_Xh)
 
       delta_flow = flow_rate - current_flow
       scale = delta_flow / this%base_flow
@@ -476,5 +439,147 @@ contains
     end associate
 
   end subroutine fluid_vol_flow
+
+  !> Set `domain_length`, the extent of the domain in the forced direction.
+  !! @param c_Xh SEM coefficients.
+  subroutine fluid_vol_flow_set_domain_length(this, c_Xh)
+    class(fluid_volflow_t), intent(inout) :: this
+    type(coef_t), intent(in) :: c_Xh
+    integer :: n
+
+    n = c_Xh%dof%size()
+    if (this%flow_dir .eq. 1) then
+       this%domain_length = glmax(c_Xh%dof%x%x, n) - glmin(c_Xh%dof%x%x, n)
+    else if (this%flow_dir .eq. 2) then
+       this%domain_length = glmax(c_Xh%dof%y%x, n) - glmin(c_Xh%dof%y%x, n)
+    else if (this%flow_dir .eq. 3) then
+       this%domain_length = glmax(c_Xh%dof%z%x, n) - glmin(c_Xh%dof%z%x, n)
+    end if
+
+  end subroutine fluid_vol_flow_set_domain_length
+
+  !> Flow rate of a velocity field in the forced direction. Needs
+  !! `domain_length`.
+  !! @param u,v,w The velocity.
+  !! @param c_Xh SEM coefficients.
+  function fluid_vol_flow_current(this, u, v, w, c_Xh) result(current_flow)
+    class(fluid_volflow_t), intent(in) :: this
+    type(field_t), intent(in) :: u, v, w
+    type(coef_t), intent(in) :: c_Xh
+    real(kind=rp) :: current_flow
+    integer :: n
+
+    n = c_Xh%dof%size()
+    current_flow = 0.0_rp
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (this%flow_dir .eq. 1) then
+          current_flow = device_glsc2(u%x_d, c_Xh%B_d, n)
+       else if (this%flow_dir .eq. 2) then
+          current_flow = device_glsc2(v%x_d, c_Xh%B_d, n)
+       else if (this%flow_dir .eq. 3) then
+          current_flow = device_glsc2(w%x_d, c_Xh%B_d, n)
+       end if
+    else
+       if (this%flow_dir .eq. 1) then
+          current_flow = glsc2(u%x, c_Xh%B, n)
+       else if (this%flow_dir .eq. 2) then
+          current_flow = glsc2(v%x, c_Xh%B, n)
+       else if (this%flow_dir .eq. 3) then
+          current_flow = glsc2(w%x, c_Xh%B, n)
+       end if
+    end if
+    current_flow = current_flow / this%domain_length
+
+  end function fluid_vol_flow_current
+
+  !> The target flow rate, from the bulk velocity if that is what is given.
+  !! Needs `domain_length`.
+  !! @param c_Xh SEM coefficients.
+  function fluid_vol_flow_target(this, c_Xh) result(flow_rate)
+    class(fluid_volflow_t), intent(in) :: this
+    type(coef_t), intent(in) :: c_Xh
+    real(kind=rp) :: flow_rate
+
+    if (this%avflow) then
+       flow_rate = this%flow_rate * (c_Xh%volume / this%domain_length)
+    else
+       flow_rate = this%flow_rate
+    end if
+
+  end function fluid_vol_flow_target
+
+  !> Scale a velocity field to the target flow rate.
+  !! @details Meant for the initial condition, so that the forcing does not
+  !! have to correct it impulsively at the first step. A field whose flow rate
+  !! is zero, opposite or more than a factor of ten off is left as it is, and
+  !! so is one at the target to a relative 1e-6. Prescribed boundary values
+  !! are scaled too, so the caller has to impose the boundary conditions again.
+  !! @param u,v,w The velocity, modified in place.
+  !! @param c_Xh SEM coefficients.
+  !! @param scaled Whether the field was changed.
+  subroutine fluid_vol_flow_scale(this, u, v, w, c_Xh, scaled)
+    class(fluid_volflow_t), intent(inout) :: this
+    type(field_t), intent(inout) :: u, v, w
+    type(coef_t), intent(in) :: c_Xh
+    logical, intent(out) :: scaled
+    real(kind=rp) :: current_flow, flow_rate, factor, current, target
+    character(len=LOG_SIZE) :: log_buf
+    character(len=13) :: label
+    integer :: n
+
+    scaled = .false.
+    n = c_Xh%dof%size()
+    call this%set_domain_length(c_Xh)
+    current_flow = this%current(u, v, w, c_Xh)
+    flow_rate = this%target_rate(c_Xh)
+
+    ! Report in the units the target was given in.
+    if (this%avflow) then
+       label = 'Bulk velocity'
+       current = current_flow * (this%domain_length / c_Xh%volume)
+       target = this%flow_rate
+    else
+       label = 'Flow rate'
+       current = current_flow
+       target = flow_rate
+    end if
+
+    factor = 0.0_rp
+    if (current_flow * flow_rate .gt. 0.0_rp) then
+       factor = flow_rate / current_flow
+    end if
+
+    if (factor .lt. 0.1_rp .or. factor .gt. 10.0_rp) then
+       write (log_buf, '(A,ES11.4,A,ES11.4,A)') trim(label) // ' ', current, &
+            ' not scaled to ', target, ', the forcing takes over'
+       call neko_log%message(log_buf)
+       return
+    else if (abs(factor - 1.0_rp) .le. 1.0e-6_rp) then
+       write (log_buf, '(A,ES11.4,A)') trim(label) // ' ', current, &
+            ', at the target'
+       call neko_log%message(log_buf)
+       return
+    end if
+
+    call neko_log%warning('Scaling the initial velocity to the flow rate ' // &
+         'is experimental and not tested on all initial conditions, use ' // &
+         'it at your own risk')
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cmult(u%x_d, factor, n)
+       call device_cmult(v%x_d, factor, n)
+       call device_cmult(w%x_d, factor, n)
+    else
+       call cmult(u%x, factor, n)
+       call cmult(v%x, factor, n)
+       call cmult(w%x, factor, n)
+    end if
+
+    scaled = .true.
+    write (log_buf, '(A,ES11.4,A,ES11.4)') trim(label) // ' ', current, &
+         ' scaled to ', target
+    call neko_log%message(log_buf)
+
+  end subroutine fluid_vol_flow_scale
 
 end module fluid_volflow

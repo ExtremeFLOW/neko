@@ -298,6 +298,7 @@ neko_fortran_SOURCES = \
 	fluid/fluid_scheme_compressible.f90\
 	fluid/fluid_scheme_compressible_ns.f90\
 	fluid/fluid_aux.f90\
+	fluid/div_free_projection.f90\
 	fluid/fluid_pnpn.f90\
 	fluid/fluid_base_fctry.f90\
 	fluid/fluid_pnpn_bc_fctry.f90\

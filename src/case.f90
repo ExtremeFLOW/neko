@@ -146,7 +146,7 @@ contains
     logical :: scalar = .false.
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part, parts
-    logical :: found, logical_val, load_balance
+    logical :: found, logical_val, load_balance, ic_scaled
     logical :: write_at_start
     integer :: integer_val, var_type
     real(kind=rp) :: real_val
@@ -376,20 +376,42 @@ contains
        end if
     end if
 
+    ! Scale the initial condition to a forced flow rate, project it onto the
+    ! divergence-free subspace, and add it to the BDF scheme (if present)
+    logical_val = .false.
+    if (this%params%valid_path( &
+         'case.fluid.initial_condition.make_divergence_free')) then
+       call json_get(this%params, &
+            'case.fluid.initial_condition.make_divergence_free', logical_val)
+    end if
+
+    select type (f => this%fluid)
+    type is (fluid_pnpn_t)
+       if (.not. this%params%valid_path('case.restart_file')) then
+          if (f%forced_flow_rate .and. .not. f%freeze) then
+             call f%vol_flow%scale(f%u, f%v, f%w, f%c_Xh, ic_scaled)
+             if (ic_scaled .and. .not. f%div_free_ic) then
+                call f%bc_apply_ic(this%time)
+             end if
+          end if
+          if (f%div_free_ic) call f%make_div_free(this%time)
+       end if
+       call f%ulag%set(f%u)
+       call f%vlag%set(f%v)
+       call f%wlag%set(f%w)
+    class default
+       if (logical_val) then
+          call neko_error('The divergence-free projection of the initial ' // &
+               'condition is only available for the pnpn scheme.')
+       end if
+    end select
+
     call neko_log%end_section()
 
     if (scalar) then
        call this%scalars%set_initial_conditions(this%user, &
             this%params%valid_path('case.restart_file'))
     end if
-
-    ! Add initial conditions to BDF scheme (if present)
-    select type (f => this%fluid)
-    type is (fluid_pnpn_t)
-       call f%ulag%set(f%u)
-       call f%vlag%set(f%v)
-       call f%wlag%set(f%w)
-    end select
 
     !
     ! Validate that the case is properly setup for time-stepping

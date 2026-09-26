@@ -502,6 +502,12 @@ contains
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
+    ! A fixed number of iterations, without residual norms.
+    ksp_results%iter = max_iter
+    ksp_results%res_start = 0.0_rp
+    ksp_results%res_final = 0.0_rp
+    ksp_results%converged = .false.
+
     associate( w => this%w, r => this%r, d => this%d, &
          w_d => this%w_d, r_d => this%r_d, d_d => this%d_d)
       ! calculate residual
