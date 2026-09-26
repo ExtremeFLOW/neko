@@ -36,6 +36,7 @@ test-suite.log
 **.log
 **.trs
 
+bc/bc_test
 bc/bc_suite
 case_file_utils/case_file_utils_test
 device/device_test
@@ -75,6 +76,7 @@ fast3d/fast3d_test
 time_scheme/time_scheme_test
 time_scheme_controller/time_scheme_controller_test
 time_based_controller/time_based_controller_test
+errors/errors_test
 json_utils/json_utils_test
 expression/expression_test
 point_interpolation/point_interpolation_suite
