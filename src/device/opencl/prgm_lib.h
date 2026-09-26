@@ -127,6 +127,9 @@ extern void *mapping_program;
 /** Device find rst kernel */
 extern void *find_rst_legendre_program;
 
+/** Cartesian element finder kernels */
+extern void *cartesian_el_finder_program;
+
 /** Device entropy viscosity kernels */
 extern void *entropy_viscosity_program;
 

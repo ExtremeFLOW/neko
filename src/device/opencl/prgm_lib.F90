@@ -133,6 +133,9 @@ module opencl_prgm_lib
   !> Device find rest kernels
   type(c_ptr), public, bind(c) :: find_rst_legendre_program = C_NULL_PTR
 
+  !> Cartesian element finder kernels
+  type(c_ptr), public, bind(c) :: cartesian_el_finder_program = C_NULL_PTR
+
   !> Device entropy viscosity kernels
   type(c_ptr), public, bind(c) :: entropy_viscosity_program = C_NULL_PTR
 
@@ -463,6 +466,13 @@ contains
           call neko_error('Failed to release program')
        end if
        find_rst_legendre_program = C_NULL_PTR
+    end if
+
+    if (c_associated(cartesian_el_finder_program)) then
+       if (clReleaseProgram(cartesian_el_finder_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       cartesian_el_finder_program = C_NULL_PTR
     end if
 
     if (c_associated(entropy_viscosity_program)) then
