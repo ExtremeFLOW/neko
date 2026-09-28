@@ -621,7 +621,8 @@ contains
        end if
     class is (hdf5_file_t)
 
-       ! Add coordinates.
+       ! Check to be sure no other field is called coords_*
+       ! Otherwise, this would corrupt the coordinate datasets.
        if (this%moving_mesh%output_coords) then
           do i = 1, this%n_fields
              if (trim(this%which_fields(i)) .eq. 'coords_x' .or. &
