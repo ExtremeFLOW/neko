@@ -48,6 +48,7 @@ SUBDIRS = tuple\
 	  boundary_operation\
 	  checkpoint_payload\
 	  wall_sampling\
+	  map_1d\
 	  restart_consistency\
 	  templates/serial
 
@@ -101,6 +102,7 @@ TESTS = device/device_test\
 	boundary_operation/boundary_operation_test\
 	checkpoint_payload/checkpoint_payload_test\
 	wall_sampling/wall_sampling_test\
+	map_1d/map_1d_test\
 	restart_consistency/restart_consistency_test\
 	templates/serial/serial_test
 
@@ -172,6 +174,7 @@ EXTRA_DIST = \
 	registry/test_matrix_registry.pf\
 	errors/test_errors.pf\
 	fixtures/error_redirection.f90\
+	fixtures/mesh_fixture.f90\
 	scratch_registry/test_scratch_registry.pf\
 	scratch_registry/test_field_scratch_registry.pf\
 	scratch_registry/test_vector_scratch_registry.pf\
@@ -199,6 +202,8 @@ EXTRA_DIST = \
 	wall_sampling/test_gll.pf\
 	wall_sampling/test_distance.pf\
 	wall_sampling/wall_sampling_test\
+	map_1d/test_map_1d.pf\
+	map_1d/map_1d_test\
 	restart_consistency/test_restart_consistency.pf\
 	restart_consistency/restart_consistency_test\
 	templates/parallel/test_parallel.pf\
