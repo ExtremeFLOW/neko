@@ -687,10 +687,10 @@ contains
   end function read_duration_internal
 
   !> Check that a duration field holds nothing but decimal digits.
-  !! A list-directed read stops at the first character it cannot use, so
-  !! reading an integer from '1d' yields 1 with iostat 0 on some compilers
-  !! and an error on others. The fields are screened here so that a bad
-  !! duration is rejected the same way everywhere.
+  !! A list-directed integer read does not reject every malformed field. ifx
+  !! honours an exponent letter, so '1d' reads back as 1 and '1e5' as 100000
+  !! with iostat 0, while gfortran reports an error for both. Screening the
+  !! fields here gets a malformed duration rejected the same way everywhere.
   pure function duration_field_is_digits(field) result(res)
     character(len=*), intent(in) :: field
     logical :: res

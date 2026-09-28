@@ -31,14 +31,17 @@
   temporary there and discards the copy back, so every case file that imported
   a scalar through `initial_condition: field` silently produced a zero field.
 
-- Renamed the `source_term` procedure in the user file template and in the
-  ReFrame Rayleigh case, which `ifx` rejects because it collides with the
-  `source_term` module that `use neko` brings into scope.
+- Renamed the `source_term` procedure to `user_source_terms` in the user file
+  template and in the ReFrame Rayleigh case. `ifx` rejects a user file
+  procedure that is assigned to the `user_t` component of the same name when
+  Neko also has a module of that name, which is true of `source_term` alone;
+  the other hooks keep the names of the components they are assigned to.
 
 - Rejected duration fields containing anything but decimal digits in
-  `read_duration`. A list-directed read stops at the first unusable character,
-  so a string such as `1d-00:00:00` was accepted as one day by compilers whose
-  read returns success for `1d`, and rejected by the rest.
+  `read_duration`. A list-directed integer read honours an exponent letter
+  under `ifx`, where '1d' reads back as 1 and '1e5' as 100000 with no error,
+  so a duration of `1d-00:00:00` was silently accepted as one day. gfortran
+  rejects both, which is why this only showed up once the Intel tests ran.
 
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.

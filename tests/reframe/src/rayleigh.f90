@@ -11,7 +11,7 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
     user%initial_conditions => initial_conditions
-    user%source_term => user_forcing
+    user%source_term => user_source_terms
     user%startup => startup
   end subroutine user_setup
 
@@ -78,7 +78,7 @@ contains
   end subroutine initial_conditions
 
   !> Forcing
-  subroutine user_forcing(scheme_name, rhs, time)
+  subroutine user_source_terms(scheme_name, rhs, time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
@@ -106,5 +106,5 @@ contains
 
        nullify(u, v, w, s, rhs_u, rhs_v, rhs_w)
     end if
-  end subroutine user_forcing
+  end subroutine user_source_terms
 end module user

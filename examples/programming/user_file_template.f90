@@ -16,7 +16,7 @@ contains
     user%mesh_setup => mesh_setup
     user%compute => compute
     user%finalize => finalize
-    user%source_term => user_forcing
+    user%source_term => user_source_terms
     user%dirichlet_conditions => dirichlet_conditions
     user%neumann_conditions => neumann_conditions
     user%material_properties => material_properties
@@ -58,12 +58,16 @@ contains
 
   end subroutine finalize
 
-  subroutine user_forcing(scheme_name, rhs, time)
+  ! Unlike the hooks above, this one cannot simply be called source_term.
+  ! Neko has a module of that name, and ifx rejects a user file procedure
+  ! that shares it. The other hooks match their component names because no
+  ! Neko module is called startup, compute, finalize and so on.
+  subroutine user_source_terms(scheme_name, rhs, time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
 
-  end subroutine user_forcing
+  end subroutine user_source_terms
 
   subroutine dirichlet_conditions(fields, bc, time)
     type(field_list_t), intent(inout) :: fields
