@@ -123,8 +123,14 @@ jobs:
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
           echo "${{ github.workspace }}/install/bin" >> $GITHUB_PATH
           ./regen.sh
+          # -fp-model precise: ifx defaults to fast=1, which permits value
+          # unsafe transformations such as reassociation. gfortran is value
+          # safe by default, so without this the two CI jobs are not
+          # comparable and tolerance based regression tests drift apart. It is
+          # what makes test_scalar_restart agree with its reference in single
+          # precision.
           ./configure FC=${FC} CC=${CC} MPIFC=mpiifx \
-            FCFLAGS="-O2 -stand f08 $(pkg-config --cflags json-fortran)" \
+            FCFLAGS="-O2 -stand f08 -fp-model precise $(pkg-config --cflags json-fortran)" \
             --with-pfunit=$PFUNIT_DIR --enable-real=${RP} \
             --prefix=${{ github.workspace }}/install
 
@@ -143,6 +149,7 @@ jobs:
           cd ../..
 
       - name: Test - Check
+        if: '!cancelled()'
         run: |
           make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
 

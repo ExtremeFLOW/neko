@@ -2,6 +2,11 @@
 
 ## Develop
 
+- Built the Intel CI job with `-fp-model precise`. `ifx` defaults to
+  `fast=1`, which permits value unsafe transformations, while gfortran is
+  value safe by default; without the flag the two jobs are not comparable and
+  `test_scalar_restart` disagrees with its reference in single precision.
+
 - Enabled the unit and integration test suites in the Intel CI workflow, which
   previously only compiled Neko. The workflow now builds against pFUnit, runs
   `make check` and the pytest integration tests, and archives the logs. Intel
