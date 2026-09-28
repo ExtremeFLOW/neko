@@ -37,7 +37,8 @@ module idw_source_term
   use json_module, only : json_file, json_value, json_core
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use source_term, only : source_term_t
-  use field_math, only : field_col2, field_col3, field_copy
+  use field_math, only : field_col2, field_col3, field_copy, field_rzero, &
+       field_add2
   use coefs, only : coef_t
   use field, only : field_t
   use utils, only : neko_error
@@ -51,14 +52,16 @@ module idw_source_term
   use stack, only : stack_i4_t, stack_pt_t
   use global_interpolation, only : global_interpolation_t
   use point, only : point_t
-  use math, only : NEKO_EPS
+  use math, only : NEKO_EPS, glsc2, col2
   use aabb, only : aabb_t, get_aabb
   use time_state, only : time_state_t
+  use time_based_controller, only : time_based_controller_t
+  use vector, only : vector_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use elementwise_filter, only : elementwise_filter_t
   use PDE_filter, only : PDE_filter_t
   use filter, only : filter_t
-  use device_math, only : device_col2
+  use device_math, only : device_col2, device_glsc2
   use device, only : device_free, device_map, device_memcpy, device_sync, &
        HOST_TO_DEVICE, DEVICE_TO_HOST
   use device_idw_source_term, only : device_idw_gather
@@ -115,6 +118,22 @@ module idw_source_term
      type(field_t) :: mmsk
      type(field_t) :: pmsk
      type(field_t) :: tmp
+     !> Immersed boundary forcing, spread, assembled and filtered on its
+     !! own before being added to the right-hand side fields
+     type(field_t) :: ib_fx
+     type(field_t) :: ib_fy
+     type(field_t) :: ib_fz
+     !> Write the force on the immersed objects to a csv file
+     logical :: force_output = .false.
+     !> Force on the immersed objects, -rho times the integral of the
+     !! IB forcing, times force_scale
+     real(kind=rp) :: force(3) = 0.0_rp
+     real(kind=rp) :: force_scale = 1.0_rp
+     !> Registry name of the fluid density
+     character(len=:), allocatable :: rho_name
+     type(file_t) :: force_file
+     type(vector_t) :: force_row
+     type(time_based_controller_t) :: force_controller
      type(gs_t) :: gs
      logical :: one_sided
      !> Use Shepard IDW interpolation onto the markers instead of the
@@ -137,6 +156,10 @@ module idw_source_term
      procedure, pass(this) :: compute_ => idw_source_term_compute
      !> Initialise lagrangian from a boundary mesh
      procedure, pass(this) :: init_boundary_mesh => idw_init_boundary_mesh
+     !> Initialise the csv output of the force on the immersed objects
+     procedure, pass(this) :: init_force_output => idw_init_force_output
+     !> Compute and write the force on the immersed objects
+     procedure, pass(this) :: write_force => idw_write_force
   end type idw_source_term_t
 
   public :: idw_interp_shepard, idw_interp_shepard_partials, &
@@ -231,6 +254,10 @@ contains
        call json_get(json, 'filter', filter_subdict)
         call this%fltr%init(filter_subdict, coef)
      end if
+
+    if (json%valid_path('force_output')) then
+       call this%init_force_output(json, variable_name)
+    end if
 
 
     ! Naive apporach to find the smallest distance between two dofs in the mesh
@@ -507,6 +534,9 @@ contains
     call this%mmsk%init(coef%dof, "ib_mmask")
     call this%pmsk%init(coef%dof, "ib_pmask")
     call this%tmp%init(coef%dof, "ib_tmp")
+    call this%ib_fx%init(coef%dof, "ib_fx")
+    call this%ib_fy%init(coef%dof, "ib_fy")
+    call this%ib_fz%init(coef%dof, "ib_fz")
 
     if (this%one_sided) then
        call idw_compute_mask(this%mmsk, this%pmsk, this%lag_pts, this%lag_el, &
@@ -993,6 +1023,18 @@ contains
 
     call this%gs%free()
 
+    call this%ib_fx%free()
+    call this%ib_fy%free()
+    call this%ib_fz%free()
+
+    call this%force_file%free()
+    call this%force_row%free()
+    call this%force_controller%free()
+    if (allocated(this%rho_name)) deallocate(this%rho_name)
+    this%force_output = .false.
+    this%force = 0.0_rp
+    this%force_scale = 1.0_rp
+
   end subroutine idw_source_term_free
 
   subroutine idw_source_term_compute(this, time)
@@ -1012,12 +1054,19 @@ contains
     fv => this%fields%get(2)
     fw => this%fields%get(3)
 
+    ! The IB forcing is spread into its own fields, so that the assembly
+    ! and the filter below only act on it and its integral can be taken
+    call field_rzero(this%ib_fx)
+    call field_rzero(this%ib_fy)
+    call field_rzero(this%ib_fz)
+
     associate(global_interp => this%global_interp, &
          fu_ib => this%fu_ib, fv_ib => this%fv_ib, fw_ib => this%fw_ib, &
          fum_ib => this%fum_ib, fvm_ib => this%fvm_ib, fwm_ib => this%fwm_ib, &
          lag_pts => this%lag_pts, tmp => this%tmp, &
          ds => this%ds%x, x => this%w%dof%x%x, &
-         y => this%w%dof%y%x, z => this%w%dof%z%x, lx => this%w%Xh%lx)
+         y => this%w%dof%y%x, z => this%w%dof%z%x, lx => this%w%Xh%lx, &
+         ibx => this%ib_fx%x, iby => this%ib_fy%x, ibz => this%ib_fz%x)
 
 
       fu_ib = 0.0_rp
@@ -1025,7 +1074,8 @@ contains
       fw_ib = 0.0_rp
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call idw_compute_device(this, fu, fv, fw, u, v, w, time)
+         call idw_compute_device(this, this%ib_fx, this%ib_fy, this%ib_fz, &
+              u, v, w, time)
       else
          ! Interpolation stage: velocity at the Lagrangian points
          if (this%idw_interp) then
@@ -1062,7 +1112,7 @@ contains
             call global_interp%evaluate(fw_ib, w%x, .true.)
          end if
 
-         ! Spread stage (unchanged)
+         ! Spread stage: accumulate into the IB forcing fields
          if (this%one_sided) then
          do i = 1, size(this%lag_pts)
             select type (el => this%lag_el(i)%data)
@@ -1080,29 +1130,29 @@ contains
 
                            if (this%pmsk%x(j,k,l,e) .gt. 0) then
                               if (abs(this%w%x(j,k,l,e)) .gt. 1e-10_rp) then
-                                 fu%x(j,k,l,e) = fu%x(j,k,l,e) &
+                                 ibx(j,k,l,e) = ibx(j,k,l,e) &
                                       + (-fu_ib(i) * idw) / (this%w%x(j,k,l,e) &
                                       * time%dt)
 
-                                 fv%x(j,k,l,e) = fv%x(j,k,l,e) &
+                                 iby(j,k,l,e) = iby(j,k,l,e) &
                                       + (-fv_ib(i) * idw) / (this%w%x(j,k,l,e) &
                                       * time%dt)
 
-                                 fw%x(j,k,l,e) = fw%x(j,k,l,e) &
+                                 ibz(j,k,l,e) = ibz(j,k,l,e) &
                                       + (-fw_ib(i) * idw) / (this%w%x(j,k,l,e) &
                                       * time%dt)
                               end if
                            else
                               if (abs(this%wm%x(j,k,l,e)) .gt. 1e-10_rp) then
-                                 fu%x(j,k,l,e) = fu%x(j,k,l,e) &
+                                 ibx(j,k,l,e) = ibx(j,k,l,e) &
                                       + (-fum_ib(i) * idw) / (this%wm%x(j,k,l,e) &
                                       * time%dt)
 
-                                 fv%x(j,k,l,e) = fv%x(j,k,l,e) &
+                                 iby(j,k,l,e) = iby(j,k,l,e) &
                                       + (-fvm_ib(i) * idw) / (this%wm%x(j,k,l,e) &
                                       * time%dt)
 
-                                 fw%x(j,k,l,e) = fw%x(j,k,l,e) &
+                                 ibz(j,k,l,e) = ibz(j,k,l,e) &
                                       + (-fwm_ib(i) * idw) / (this%wm%x(j,k,l,e) &
                                       * time%dt)
                               end if
@@ -1129,15 +1179,15 @@ contains
                               r = r / ds(j,k,l,e)
                               idw = inv_dist_weight(r, this%rmax, this%pwr_param)
                               
-                              fu%x(j,k,l,e) = fu%x(j,k,l,e) &
+                              ibx(j,k,l,e) = ibx(j,k,l,e) &
                                    + (-fu_ib(i) * idw) / (this%w%x(j,k,l,e) &
                                    * time%dt)
 
-                              fv%x(j,k,l,e) = fv%x(j,k,l,e) &
+                              iby(j,k,l,e) = iby(j,k,l,e) &
                                    + (-fv_ib(i) * idw) / (this%w%x(j,k,l,e) &
                                    * time%dt)
 
-                              fw%x(j,k,l,e) = fw%x(j,k,l,e) &
+                              ibz(j,k,l,e) = ibz(j,k,l,e) &
                                    + (-fw_ib(i) * idw) / (this%w%x(j,k,l,e) &
                                    * time%dt)
                            end if
@@ -1150,36 +1200,148 @@ contains
          end if
       end if
 
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_col2(fu%x_d, this%coef%mult_d, fu%size())
-         call device_col2(fv%x_d, this%coef%mult_d, fu%size())
-         call device_col2(fw%x_d, this%coef%mult_d, fu%size())         
-      else
-         do i = 1, n
-            fu%x(i,1,1,1) = fu%x(i,1,1,1) * this%coef%mult(i,1,1,1)
-            fv%x(i,1,1,1) = fv%x(i,1,1,1) * this%coef%mult(i,1,1,1)
-            fw%x(i,1,1,1) = fw%x(i,1,1,1) * this%coef%mult(i,1,1,1)
-         end do
-      end if
-      
-      call this%gs%op(fu, GS_OP_ADD)
-      call this%gs%op(fv, GS_OP_ADD)
-      call this%gs%op(fw, GS_OP_ADD)
-
-      if (allocated(this%fltr)) then
-         call field_copy(tmp, fu)
-         call this%fltr%apply(fu, tmp)
-         
-         call field_copy(tmp, fv)
-         call this%fltr%apply(fv, tmp)
-         
-         call field_copy(tmp, fw)
-         call this%fltr%apply(fw, tmp)
-      end if
-
     end associate
 
+    ! Assemble the IB forcing to a continuous representation
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_col2(this%ib_fx%x_d, this%coef%mult_d, n)
+       call device_col2(this%ib_fy%x_d, this%coef%mult_d, n)
+       call device_col2(this%ib_fz%x_d, this%coef%mult_d, n)
+    else
+       call col2(this%ib_fx%x, this%coef%mult, n)
+       call col2(this%ib_fy%x, this%coef%mult, n)
+       call col2(this%ib_fz%x, this%coef%mult, n)
+    end if
+
+    call this%gs%op(this%ib_fx, GS_OP_ADD)
+    call this%gs%op(this%ib_fy, GS_OP_ADD)
+    call this%gs%op(this%ib_fz, GS_OP_ADD)
+
+    if (allocated(this%fltr)) then
+       call field_copy(this%tmp, this%ib_fx)
+       call this%fltr%apply(this%ib_fx, this%tmp)
+
+       call field_copy(this%tmp, this%ib_fy)
+       call this%fltr%apply(this%ib_fy, this%tmp)
+
+       call field_copy(this%tmp, this%ib_fz)
+       call this%fltr%apply(this%ib_fz, this%tmp)
+    end if
+
+    call field_add2(fu, this%ib_fx)
+    call field_add2(fv, this%ib_fy)
+    call field_add2(fw, this%ib_fz)
+
+    if (this%force_output) call this%write_force(time)
+
   end subroutine idw_source_term_compute
+
+  !> Parse the optional `force_output` object and set up the csv file.
+  !! @param json The JSON object of the source term.
+  !! @param variable_name Name of the fluid scheme, used to look up the
+  !! density `<variable_name>_rho` in the registry.
+  subroutine idw_init_force_output(this, json, variable_name)
+    class(idw_source_term_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: variable_name
+    character(len=:), allocatable :: fname, control
+    character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: value
+    integer :: nsteps
+    logical :: overwrite
+
+    call json_get_or_default(json, 'force_output.output_file', fname, &
+         'idw_force.csv')
+    call json_get_or_default(json, 'force_output.output_control', control, &
+         'tsteps')
+    call json_get_or_default(json, 'force_output.scale', this%force_scale, &
+         1.0_rp)
+    ! Append by default, so that a restart keeps the earlier history
+    call json_get_or_default(json, 'force_output.overwrite', overwrite, &
+         .false.)
+
+    ! A source term does not know the end time of the case, so 'nsamples'
+    ! is not supported
+    select case (trim(control))
+    case ('tsteps')
+       call json_get_or_default(json, 'force_output.output_value', nsteps, 1)
+       if (nsteps .lt. 1) then
+          call neko_error('IDW force_output: output_value must be positive')
+       end if
+       value = real(nsteps, rp)
+    case ('simulationtime')
+       call json_get_or_default(json, 'force_output.output_value', value, &
+            1.0_rp)
+       if (value .le. 0.0_rp) then
+          call neko_error('IDW force_output: output_value must be positive')
+       end if
+    case default
+       call neko_error('IDW force_output: output_control must be tsteps &
+            &or simulationtime')
+    end select
+
+    call this%force_controller%init(real(this%start_time, dp), &
+         real(this%end_time, dp), control, real(value, dp))
+
+    this%rho_name = trim(variable_name) // '_rho'
+
+    call this%force_file%init(trim(fname), header = 'tstep,time,Fx,Fy,Fz', &
+         overwrite = overwrite)
+    call this%force_row%init(5)
+    this%force_output = .true.
+
+    call neko_log%message('Force file : ' // trim(fname))
+    if (trim(control) .eq. 'tsteps') then
+       write(log_buf, '(A,I0,A)') 'Force out  : every ', nsteps, ' tsteps'
+    else
+       write(log_buf, '(A,ES13.6)') 'Force out  : every ', value
+    end if
+    call neko_log%message(log_buf)
+
+  end subroutine idw_init_force_output
+
+  !> Compute the force on the immersed objects and write it to the csv
+  !! file, if the output controller says so. The force on the objects is
+  !! minus the momentum the IB forcing adds to the fluid,
+  !! \f$ F = -\rho \int f_{IB} \, dV \f$ (times `scale`), integrated with
+  !! the local mass matrix over the assembled and filtered forcing, i.e.
+  !! the forcing that is added to the right-hand side. The forcing is built
+  !! from the velocity at the start of the step, and the fluid applies an
+  !! extrapolation of it in time, so instantaneous values lag the applied
+  !! force slightly while time averages agree. The rate of change of the
+  !! fluid momentum inside the objects is not included, and forcing on
+  !! nodes with strong velocity boundary conditions is included although
+  !! the velocity solve discards it, which over-reports the force on
+  !! objects touching such boundaries. Collective, all ranks must call it.
+  subroutine idw_write_force(this, time)
+    class(idw_source_term_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    type(field_t), pointer :: rho
+    integer :: n
+
+    if (.not. this%force_controller%check(time)) return
+
+    n = this%ib_fx%size()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       this%force(1) = device_glsc2(this%ib_fx%x_d, this%coef%B_d, n)
+       this%force(2) = device_glsc2(this%ib_fy%x_d, this%coef%B_d, n)
+       this%force(3) = device_glsc2(this%ib_fz%x_d, this%coef%B_d, n)
+    else
+       this%force(1) = glsc2(this%ib_fx%x, this%coef%B, n)
+       this%force(2) = glsc2(this%ib_fy%x, this%coef%B, n)
+       this%force(3) = glsc2(this%ib_fz%x, this%coef%B, n)
+    end if
+
+    rho => neko_registry%get_field(this%rho_name)
+    this%force = -this%force_scale * rho%x(1,1,1,1) * this%force
+
+    this%force_row%x(1) = real(time%tstep, rp)
+    this%force_row%x(2) = real(time%t, rp)
+    this%force_row%x(3:5) = this%force
+    call this%force_file%write(this%force_row)
+    call this%force_controller%register_execution(time)
+
+  end subroutine idw_write_force
 
   !> Shepard (inverse-distance-weighted) interpolation of the velocity onto
   !! the Lagrangian points, mirroring the spread operator: same kernel and
