@@ -47,7 +47,7 @@ module probes_moving_mesh
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM, &
        MPI_INTEGER, MPI_Wtime
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_memcpy, DEVICE_TO_HOST
+  use device, only : DEVICE_TO_HOST
   use math, only : copy
   implicit none
   private
@@ -332,14 +332,12 @@ contains
 
     character(len=256) :: log_buf
     real(kind=rp) :: t_start
-    integer :: n
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        t_start = MPI_Wtime()
-       n = dof%size()
-       call device_memcpy(dof%x, dof%x_d, n, DEVICE_TO_HOST, sync = .false.)
-       call device_memcpy(dof%y, dof%y_d, n, DEVICE_TO_HOST, sync = .false.)
-       call device_memcpy(dof%z, dof%z_d, n, DEVICE_TO_HOST, sync = .true.)
+       call dof%x%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call dof%y%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call dof%z%copy_from(DEVICE_TO_HOST, sync = .true.)
        write(log_buf, '(A,E12.5)') &
             'Probes moving mesh timing (s): dof sync D2H  ', &
             MPI_Wtime() - t_start
@@ -385,9 +383,9 @@ contains
 
     ! Interpolating the current coordinate fields through the stored
     ! mapping gives the point the probe would sample now.
-    call interp%evaluate(this%chk_x%x, dof%x, .false.)
-    call interp%evaluate(this%chk_y%x, dof%y, .false.)
-    call interp%evaluate(this%chk_z%x, dof%z, .false.)
+    call interp%evaluate(this%chk_x%x, dof%x%x, .false.)
+    call interp%evaluate(this%chk_y%x, dof%y%x, .false.)
+    call interp%evaluate(this%chk_z%x, dof%z%x, .false.)
     call this%chk_x%copy_from(DEVICE_TO_HOST, .false.)
     call this%chk_y%copy_from(DEVICE_TO_HOST, .false.)
     call this%chk_z%copy_from(DEVICE_TO_HOST, .true.)
