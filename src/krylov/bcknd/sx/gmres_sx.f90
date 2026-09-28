@@ -236,12 +236,18 @@ contains
           call col2(this%r, this%ml, n)
        end if
        this%gam(1) = sqrt(glsc3(this%r, this%r, coef%mult, n))
+       rnorm = this%gam(1) * norm_fac
        if (iter .eq. 0) then
-          div0 = this%gam(1) * norm_fac
+          div0 = rnorm
           ksp_results%res_start = div0
        end if
 
-       if (abscmp(this%gam(1), 0.0_rp)) exit
+       ! Stop before building a Krylov space when the residual already
+       ! meets the tolerance, which is the case on entry for a problem that
+       ! is already solved and again after a restart. Orthogonalising what
+       ! is then pure rounding noise lets the Givens rotation divide by a
+       ! zero norm and the solve returns NaN instead of the answer it had.
+       if (abscmp(this%gam(1), 0.0_rp) .or. rnorm .lt. this%abs_tol) exit
 
        rnorm = 0.0_rp
        temp = one / this%gam(1)

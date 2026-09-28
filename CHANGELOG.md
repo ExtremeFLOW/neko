@@ -18,6 +18,23 @@
   MPI with an uninitialised `NEKO_COMM`. Open MPI tolerates the null handle and
   Intel MPI aborts on it.
 
+- Stopped the GMRES solvers before they build a Krylov space when the residual
+  already meets the tolerance. That happens on entry for an already-solved
+  problem and again after a restart, and orthogonalising what is then pure
+  rounding noise let the Givens rotation divide by a zero norm: a pressure
+  solve entered with a residual of 4e-16 returned NaN after 800 iterations
+  under `ifx` instead of converging in none.
+
+- Took the scalar import target through a field pointer in
+  `fld_file_data`. The old code passed `s_target_list%x(i)`, a pointer valued
+  function result, to explicit-shape `intent(inout)` dummies; `ifx` passes a
+  temporary there and discards the copy back, so every case file that imported
+  a scalar through `initial_condition: field` silently produced a zero field.
+
+- Renamed the `source_term` procedure in the user file template and in the
+  ReFrame Rayleigh case, which `ifx` rejects because it collides with the
+  `source_term` module that `use neko` brings into scope.
+
 - Rejected duration fields containing anything but decimal digits in
   `read_duration`. A list-directed read stops at the first unusable character,
   so a string such as `1d-00:00:00` was accepted as one day by compilers whose

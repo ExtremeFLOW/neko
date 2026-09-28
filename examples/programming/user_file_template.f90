@@ -16,7 +16,7 @@ contains
     user%mesh_setup => mesh_setup
     user%compute => compute
     user%finalize => finalize
-    user%source_term => source_term
+    user%source_term => user_forcing
     user%dirichlet_conditions => dirichlet_conditions
     user%neumann_conditions => neumann_conditions
     user%material_properties => material_properties
@@ -58,12 +58,12 @@ contains
 
   end subroutine finalize
 
-  subroutine source_term(scheme_name, rhs, time)
+  subroutine user_forcing(scheme_name, rhs, time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
 
-  end subroutine source_term
+  end subroutine user_forcing
 
   subroutine dirichlet_conditions(fields, bc, time)
     type(field_list_t), intent(inout) :: fields
