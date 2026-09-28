@@ -102,6 +102,8 @@ contains
     call this%y_hat%init(nelv*Xh%lxyz)
     call this%z_hat%init(nelv*Xh%lxyz)
 
+    if (nelv .eq. 0) return
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
        y_d = device_get_ptr(y)
