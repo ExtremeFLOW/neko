@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2024, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,11 +33,11 @@
 !> Contains the `scalar_pnpn_t` type.
 
 module scalar_pnpn
-  use num_types, only : rp
-  use, intrinsic :: iso_fortran_env, only : error_unit
+  use num_types, only : rp, dp
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
        rhs_maker_ext_fctry, rhs_maker_bdf_fctry, rhs_maker_oifs_fctry
   use scalar_scheme, only : scalar_scheme_t
+  use checkpoint_payload, only : checkpoint_payload_t
   use checkpoint, only : chkp_t
   use field, only : field_t
   use scalar_bc_projector, only : scalar_bc_projector_t
@@ -48,6 +48,7 @@ module scalar_pnpn
   use gather_scatter, only : gs_t, GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_allocator
+  use ax_helm_svv, only : ax_helm_svv_t
   use field_series, only : field_series_t
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
@@ -66,7 +67,9 @@ module scalar_pnpn
   use neko_config, only : NEKO_BCKND_DEVICE
   use time_step_controller, only : time_step_controller_t
   use time_state, only : time_state_t
+  use utils, only : neko_error
   use bc, only : bc_t, BC_DIRICHLET
+  use utils, only : NEKO_VARNAME_LEN
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
@@ -124,6 +127,9 @@ module scalar_pnpn
      procedure, pass(this) :: init => scalar_pnpn_init
      !> To restart
      procedure, pass(this) :: restart => scalar_pnpn_restart
+     !> Register Pn/Pn-specific fields for checkpointing.
+     procedure, pass(this) :: register_checkpoint => &
+          scalar_pnpn_register_checkpoint
      !> Destructor.
      procedure, pass(this) :: free => scalar_pnpn_free
      !> Solve for the current timestep.
@@ -132,7 +138,6 @@ module scalar_pnpn
      procedure, pass(this) :: apply_strong_bcs => scalar_scheme_apply_strong_bcs
      !> Setup the boundary conditions
      procedure, pass(this) :: setup_bcs_ => scalar_pnpn_setup_bcs_
-     !> Sync lag field data to registry for checkpointing
   end type scalar_pnpn_t
 
   interface
@@ -142,14 +147,65 @@ module scalar_pnpn
      !! @param[in] scheme The `scalar_pnpn` scheme.
      !! @param[inout] json JSON object for initializing the bc.
      !! @param[in] coef SEM coefficients.
-     module subroutine bc_factory(object, scheme, json, coef, user)
+     !! @param[in] user The user interface.
+     module subroutine scalar_pnpn_bc_factory(object, scheme, json, coef, user)
        class(bc_t), pointer, intent(inout) :: object
        type(scalar_pnpn_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), target, intent(in) :: coef
        type(user_t), intent(in) :: user
-     end subroutine bc_factory
+     end subroutine scalar_pnpn_bc_factory
   end interface
+
+  interface
+     !> Scalar Pn/Pn boundary condition allocator.
+     !! @param[inout] object The object to be allocated.
+     !! @param[in] type_name The name of the boundary condition type.
+     module subroutine scalar_pnpn_bc_allocator(object, type_name)
+       class(bc_t), pointer, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+     end subroutine scalar_pnpn_bc_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for a scalar Pn/Pn boundary condition allocator.
+  !! Implemented in user modules, it should allocate `obj` to the custom user
+  !! type.
+  abstract interface
+     subroutine scalar_pnpn_bc_allocate(obj)
+       import bc_t
+       class(bc_t), pointer, intent(inout) :: obj
+     end subroutine scalar_pnpn_bc_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     !! @param[in] type_name The name of the boundary condition type.
+     !! @param[in] allocator The allocator for the custom user type.
+     module subroutine register_scalar_pnpn_bc(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(scalar_pnpn_bc_allocate), pointer, intent(in) :: allocator
+     end subroutine register_scalar_pnpn_bc
+  end interface
+
+  !> A name-allocator pair for user-defined scalar Pn/Pn boundary conditions.
+  type scalar_pnpn_bc_allocator_entry
+     character(len=NEKO_VARNAME_LEN) :: type_name
+     procedure(scalar_pnpn_bc_allocate), pointer, nopass :: allocator => null()
+  end type scalar_pnpn_bc_allocator_entry
+
+  !> Registry of scalar Pn/Pn boundary condition allocators.
+  type(scalar_pnpn_bc_allocator_entry), allocatable, private :: &
+       scalar_pnpn_bc_registry(:)
+
+  !> The size of `scalar_pnpn_bc_registry`.
+  integer, private :: scalar_pnpn_bc_registry_size = 0
+
+  public :: scalar_pnpn_bc_allocator, scalar_pnpn_bc_allocate, &
+       register_scalar_pnpn_bc
 
 contains
 
@@ -182,6 +238,7 @@ contains
     class(bc_t), pointer :: bc_i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     logical :: advection
+    real(kind=dp), pointer :: tlag(:), dtlag(:)
 
     call this%free()
 
@@ -189,7 +246,15 @@ contains
     call this%scheme_init(msh, coef, gs, params, scheme, user, rho)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_allocator(this%ax, type_name = "standard")
+    if (this%svv_enabled) then
+       call ax_helm_allocator(this%ax, type_name = "standard_svv")
+       select type (operator => this%ax)
+       class is (ax_helm_svv_t)
+          operator%svv => this%svv
+       end select
+    else
+       call ax_helm_allocator(this%ax, type_name = "standard")
+    end if
 
     ! Setup backend dependent scalar residual routines
     call scalar_residual_factory(this%res)
@@ -247,29 +312,54 @@ contains
     this%vlag => vlag
     this%wlag => wlag
 
+    call chkp%get_time_history(tlag, dtlag)
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
-         ulag, vlag, wlag, this%chkp%dtlag, &
-         this%chkp%tlag, time_scheme, .not. advection, &
+         ulag, vlag, wlag, dtlag, &
+         tlag, time_scheme, .not. advection, &
          this%slag)
   end subroutine scalar_pnpn_init
+
+  !> Register this scalar scheme with the checkpoint.
+  subroutine scalar_pnpn_register_checkpoint(this, chkp)
+    class(scalar_pnpn_t), target, intent(inout) :: this
+    type(chkp_t), intent(inout) :: chkp
+    type(checkpoint_payload_t), pointer :: payload
+
+    payload => chkp%add_payload("scalars/" // trim(this%name))
+    call payload%add_field(this%s)
+    call payload%add_series(this%slag)
+    call payload%add_field(this%abx1)
+    call payload%add_field(this%abx2)
+
+  end subroutine scalar_pnpn_register_checkpoint
 
   ! Restarts the scalar from a checkpoint
   subroutine scalar_pnpn_restart(this, chkp)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
-    real(kind=rp) :: dtlag(10), tlag(10)
-    integer :: n
-    type(field_t), pointer :: temp_field
-    dtlag = chkp%dtlag
-    tlag = chkp%tlag
+    integer :: i, n
+    class(bc_t), pointer :: bc_i
+    logical :: interpolated
 
     n = this%s%dof%size()
 
     ! Lag fields are restored through the checkpoint's fsp mechanism
 
-    call col2(this%s%x, this%c_Xh%mult, n)
-    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
-    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
+    ! The restored fields are continuous unless the checkpoint was written
+    ! on another mesh or at another polynomial order and was interpolated
+    ! on the way in. Only then do the copies of a node shared between
+    ! elements need averaging: scale by the inverse multiplicity, then sum
+    ! the copies with a gather-scatter. On a plain restart that is the
+    ! identity in exact arithmetic but not in floating point, and would put
+    ! about one ulp of error on every shared node. Same guard as the fluid.
+    interpolated = allocated(chkp%previous_mesh%elements) .or. &
+         chkp%previous_Xh%lx .ne. this%Xh%lx
+
+    if (interpolated) then
+       call col2(this%s%x, this%c_Xh%mult, n)
+       call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
+       call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
+    end if
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
             n, HOST_TO_DEVICE, sync = .false.)
@@ -285,14 +375,30 @@ contains
             n, HOST_TO_DEVICE, sync = .false.)
     end if
 
-    call this%gs_Xh%op(this%s, GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
+    if (interpolated) then
+       call this%gs_Xh%op(this%s, GS_OP_ADD)
+       call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
+       call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
+    end if
+
+    ! Restore scalar bcs that need it. This is a no op in most bcs.
+    do i = 1, this%bcs%size()
+       bc_i => this%bcs%get(i)
+       call bc_i%restart(this%s, this%slag)
+    end do
+
+    nullify(bc_i)
 
   end subroutine scalar_pnpn_restart
 
   subroutine scalar_pnpn_free(this)
     class(scalar_pnpn_t), intent(inout) :: this
+
+    ! Release operator references before scheme_free deallocates their targets.
+    if (allocated(this%Ax)) then
+       call this%Ax%free()
+       deallocate(this%Ax)
+    end if
 
     !Deallocate scalar field
     call this%scheme_free()
@@ -317,10 +423,6 @@ contains
     nullify(this%ulag)
     nullify(this%vlag)
     nullify(this%wlag)
-
-    if (allocated(this%Ax)) then
-       deallocate(this%Ax)
-    end if
 
     if (allocated(this%res)) then
        deallocate(this%res)
@@ -376,6 +478,11 @@ contains
       ! Update material properties and their pointwise product.
       call this%update_material_properties(time)
       call field_col3(rho_cp, rho, cp, n)
+
+      ! Update the SVV coefficient if SVV is enabled.
+      if (this%svv_enabled) then
+         call this%svv%update(rho_cp, tstep)
+      end if
 
       ! Compute the source terms
       call this%source_term%compute(time)
@@ -488,6 +595,7 @@ contains
     ! Monitor which boundary zones have been marked
     logical, allocatable :: marked_zones(:)
     integer, allocatable :: zone_indices(:)
+    character(len=256) :: error_msg
 
     if (this%params%valid_path('boundary_conditions')) then
        call this%params%info('boundary_conditions', &
@@ -515,21 +623,23 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(error_unit, '(A, A, I0, A, A, I0, A)') &
-                     "*** ERROR ***: ", "Zone index ", zone_indices(j), &
+                write(error_msg, '(A, I0, A, A, I0, A)') &
+                     "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
                      "does not exist in the mesh. Check scalar boundary ", &
                      "condition ", i, "."
+                call neko_error(error_msg)
                 error stop
              end if
 
              if (marked_zones(zone_indices(j))) then
-                write(error_unit, '(A, A, I0, A, A, A, A)') "*** ERROR ***: ", &
+                write(error_msg, '(A, I0, A, A, A, A)')&
                      "Zone with index ", zone_indices(j), &
                      " has already been assigned a boundary condition. ", &
                      "Please check your boundary_conditions entry for the ", &
                      "scalar and make sure that each zone index appears only ",&
                      "in a single boundary condition."
+                call neko_error(error_msg)
                 error stop
              else
                 marked_zones(zone_indices(j)) = .true.
@@ -538,7 +648,7 @@ contains
 
           bc_i => null()
 
-          call bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
+          call scalar_pnpn_bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
           call this%bcs%append(bc_i)
        end do
 
@@ -546,8 +656,9 @@ contains
        do i = 1, size(this%msh%labeled_zones)
           if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
                (.not. marked_zones(i))) then
-             write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
+             write(error_msg, '(A, I0)') &
                   "No scalar boundary condition assigned to zone ", i
+             call neko_error(error_msg)
              error stop
           end if
        end do
@@ -555,9 +666,10 @@ contains
        ! Check that there are no labeled zones, i.e. all are periodic.
        do i = 1, size(this%msh%labeled_zones)
           if (this%msh%labeled_zones(i)%size .gt. 0) then
-             write(error_unit, '(A, A, A)') "*** ERROR ***: ", &
+             write(error_msg, '(A, A)') &
                   "No boundary_conditions entry in the case file for scalar ", &
                   this%s%name
+             call neko_error(error_msg)
              error stop
           end if
        end do

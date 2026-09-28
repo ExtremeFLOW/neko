@@ -39,6 +39,8 @@ module registry_entry
   use device_array, only : device_array_t
   use vector, only : vector_t
   use matrix, only : matrix_t
+  use tensor3, only : tensor3_t
+  use tensor4, only : tensor4_t
   use field, only : field_t
 
   use dofmap, only : dofmap_t
@@ -57,10 +59,18 @@ module registry_entry
      ! Storage. Only one of these will be allocated at a time.
      real(kind=rp), private :: real_scalar = 0.0_rp
      integer, private :: integer_scalar = 0
+
+     ! Array objects
      type(host_array_t), private, pointer :: host_array_ptr => null()
      type(device_array_t), private, pointer :: device_array_ptr => null()
+
+     ! Mathematical objects
      type(vector_t), private, pointer :: vector_ptr => null()
      type(matrix_t), private, pointer :: matrix_ptr => null()
+     type(tensor3_t), private, pointer :: tensor3_ptr => null()
+     type(tensor4_t), private, pointer :: tensor4_ptr => null()
+
+     ! Complex objects
      type(field_t), private, pointer :: field_ptr => null()
 
    contains
@@ -72,7 +82,10 @@ module registry_entry
      procedure, pass(this) :: init_device_array => init_register_device_array
      procedure, pass(this) :: init_vector => init_register_vector
      procedure, pass(this) :: init_matrix => init_register_matrix
+     procedure, pass(this) :: init_tensor3 => init_register_tensor3
+     procedure, pass(this) :: init_tensor4 => init_register_tensor4
      procedure, pass(this) :: init_field => init_register_field
+
      !> Destructor
      procedure, pass(this) :: free => free_register
 
@@ -85,9 +98,11 @@ module registry_entry
      procedure, pass(this) :: get_device_array
      procedure, pass(this) :: get_vector
      procedure, pass(this) :: get_matrix
+     procedure, pass(this) :: get_tensor3
+     procedure, pass(this) :: get_tensor4
      procedure, pass(this) :: get_field
-     procedure, pass(this) :: is_allocated
 
+     procedure, pass(this) :: is_allocated
      procedure, pass(this) :: move_from => move_from_registry_entry
   end type registry_entry_t
 
@@ -182,6 +197,50 @@ contains
   end subroutine init_register_matrix
 
   !> Initialize a register entry
+  subroutine init_register_tensor3(this, n, m, l, name)
+    class(registry_entry_t), intent(inout) :: this
+    integer, intent(in) :: n, m, l
+    character(len=*), optional, intent(in) :: name
+
+    if (this%allocated) then
+       call neko_error("init_register_tensor3: " &
+            // "Register entry is already allocated.")
+    end if
+
+    call this%free()
+
+    allocate(this%tensor3_ptr)
+    call this%tensor3_ptr%init(n, m, l)
+
+    if (present(name)) this%name = trim(name)
+    this%type = 'tensor3'
+    this%allocated = .true.
+
+  end subroutine init_register_tensor3
+
+  !> Initialize a register entry
+  subroutine init_register_tensor4(this, n, m, l, k, name)
+    class(registry_entry_t), intent(inout) :: this
+    integer, intent(in) :: n, m, l, k
+    character(len=*), optional, intent(in) :: name
+
+    if (this%allocated) then
+       call neko_error("init_register_tensor4: " &
+            // "Register entry is already allocated.")
+    end if
+
+    call this%free()
+
+    allocate(this%tensor4_ptr)
+    call this%tensor4_ptr%init(n, m, l, k)
+
+    if (present(name)) this%name = trim(name)
+    this%type = 'tensor4'
+    this%allocated = .true.
+
+  end subroutine init_register_tensor4
+
+  !> Initialize a register entry
   subroutine init_register_field(this, dof, name)
     class(registry_entry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
@@ -269,6 +328,16 @@ contains
        deallocate(this%matrix_ptr)
     end if
 
+    if (associated(this%tensor3_ptr)) then
+       call this%tensor3_ptr%free()
+       deallocate(this%tensor3_ptr)
+    end if
+
+    if (associated(this%tensor4_ptr)) then
+       call this%tensor4_ptr%free()
+       deallocate(this%tensor4_ptr)
+    end if
+
     if (associated(this%field_ptr)) then
        call this%field_ptr%free()
        deallocate(this%field_ptr)
@@ -303,7 +372,6 @@ contains
     logical :: allocated
     allocated = this%allocated
   end function is_allocated
-
 
   !> Get the host array pointer of the registry entry
   function get_host_array(this) result(host_array_ptr)
@@ -348,6 +416,28 @@ contains
     end if
     matrix_ptr => this%matrix_ptr
   end function get_matrix
+
+  !> Get the tensor3 pointer of the registry entry
+  function get_tensor3(this) result(tensor3_ptr)
+    class(registry_entry_t), target, intent(in) :: this
+    type(tensor3_t), pointer :: tensor3_ptr
+    if (this%get_type() .ne. 'tensor3') then
+       call neko_error("registry_entry::get_field: " &
+            // "Registry entry is not of type 'tensor3'.")
+    end if
+    tensor3_ptr => this%tensor3_ptr
+  end function get_tensor3
+
+  !> Get the tensor4 pointer of the registry entry
+  function get_tensor4(this) result(tensor4_ptr)
+    class(registry_entry_t), target, intent(in) :: this
+    type(tensor4_t), pointer :: tensor4_ptr
+    if (this%get_type() .ne. 'tensor4') then
+       call neko_error("registry_entry::get_field: " &
+            // "Registry entry is not of type 'tensor4'.")
+    end if
+    tensor4_ptr => this%tensor4_ptr
+  end function get_tensor4
 
   !> Get the field pointer of the registry entry
   function get_field(this) result(field_ptr)
@@ -411,6 +501,12 @@ contains
     case ('matrix')
        this%matrix_ptr => source%matrix_ptr
        nullify(source%matrix_ptr)
+    case ('tensor3')
+       this%tensor3_ptr => source%tensor3_ptr
+       nullify(source%tensor3_ptr)
+    case ('tensor4')
+       this%tensor4_ptr => source%tensor4_ptr
+       nullify(source%tensor4_ptr)
     case ('field')
        this%field_ptr => source%field_ptr
        nullify(source%field_ptr)

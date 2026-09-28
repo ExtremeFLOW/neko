@@ -437,6 +437,11 @@ contains
        gs_caf_buf_size = GS_VEC_NC * max_total
     end if
     this%vec_supported = .true.
+    ! The vector slabs are part of the symmetric/registered allocation
+    ! made above, which every rank has to take part in, so they cannot
+    ! be deferred to the first fused exchange: a rank with no shared
+    ! dofs never reaches it. See gs_comm_t%vec_ready.
+    this%vec_ready = .true.
 
     ! Tell each sender at what offset in our recv_buf to place their slab,
     ! and learn at what offset in each receiver's recv_buf our slab should go.

@@ -240,7 +240,7 @@ contains
 
     call this%ds%init(coef%dof)
 
-    associate (x => coef%dof%x, y => coef%dof%y, z => coef%dof%z, &
+    associate (x => coef%dof%x%x, y => coef%dof%y%x, z => coef%dof%z%x, &
          lx => coef%Xh%lx, ds => this%ds%x)
 
       do e = 1, coef%msh%nelv
@@ -510,7 +510,7 @@ contains
 
     if (this%one_sided) then
        call idw_compute_mask(this%mmsk, this%pmsk, this%lag_pts, this%lag_el, &
-            this%lag_nrm, coef%dof%x, coef%dof%y, coef%dof%z, &
+            this%lag_nrm, coef%dof%x%x, coef%dof%y%x, coef%dof%z%x, &
             coef%Xh%lx, coef%msh%nelv)
     else
        ! Assign the host arrays directly: the field_t defined assignment only
@@ -524,7 +524,7 @@ contains
     call idw_assemble(this%gs, this%mmsk, coef%mult)
 
     call idw_compute_weight(this%w, this%wm, this%pmsk, this%lag_pts, this%lag_el, &
-         coef%dof%x, coef%dof%y, coef%dof%z, this%ds%x, this%rmax, &
+         coef%dof%x%x, coef%dof%y%x, coef%dof%z%x, this%ds%x, this%rmax, &
          this%pwr_param, coef%Xh%lx,coef%msh%nelv)
 
     call idw_assemble(this%gs, this%w, coef%mult)
@@ -536,7 +536,7 @@ contains
        ! reflects the stencil the reduced interpolation actually sees.
        allocate(np_i(n_lags), nm_i(n_lags))
        call idw_interp_stencil_counts(this%lag_pts, this%lag_el, &
-            this%pmsk%x, coef%dof%x, coef%dof%y, coef%dof%z, this%ds%x, &
+            this%pmsk%x, coef%dof%x%x, coef%dof%y%x, coef%dof%z%x, this%ds%x, &
             this%interp_rmax, coef%Xh%lx, coef%msh%nelv, np_i, nm_i)
 
        if (this%n_shared_glb .gt. 0) then
@@ -617,9 +617,9 @@ contains
 
        diam_min = huge(0.0_dp)
        do e = 1, coef%msh%nelv
-          dxe = maxval(coef%dof%x(:,:,:,e)) - minval(coef%dof%x(:,:,:,e))
-          dye = maxval(coef%dof%y(:,:,:,e)) - minval(coef%dof%y(:,:,:,e))
-          dze = maxval(coef%dof%z(:,:,:,e)) - minval(coef%dof%z(:,:,:,e))
+          dxe = maxval(coef%dof%x%x(:,:,:,e)) - minval(coef%dof%x%x(:,:,:,e))
+          dye = maxval(coef%dof%y%x(:,:,:,e)) - minval(coef%dof%y%x(:,:,:,e))
+          dze = maxval(coef%dof%z%x(:,:,:,e)) - minval(coef%dof%z%x(:,:,:,e))
           diam_min = min(diam_min, sqrt(dxe**2 + dye**2 + dze**2))
        end do
        call MPI_Allreduce(MPI_IN_PLACE, diam_min, 1, &
@@ -670,7 +670,7 @@ contains
     integer :: nelv, n_lag, n, i, ee, e, k, n_csr
     integer, allocatable :: cursor(:)
 
-    nelv = size(this%w%dof%x, 4)
+    nelv = size(this%w%dof%x%x, 4)
     n_lag = size(this%lag_pts)
     this%lx3 = this%w%Xh%lx**3
 
@@ -819,9 +819,9 @@ contains
        call idw_interp_shepard(this%fu_ib, this%fv_ib, this%fw_ib, &
             this%fum_ib, this%fvm_ib, this%fwm_ib, this%lag_pts, &
             this%lag_el, u%x, v%x, w%x, this%pmsk%x, this%coef%mult, &
-            this%w%dof%x, this%w%dof%y, this%w%dof%z, this%ds%x, &
+            this%w%dof%x%x, this%w%dof%y%x, this%w%dof%z%x, this%ds%x, &
             this%interp_rmax, this%pwr_param, this%w%Xh%lx, &
-            size(this%w%dof%x, 4), this%shared_slot, this%n_shared_glb)
+            size(this%w%dof%x%x, 4), this%shared_slot, this%n_shared_glb)
     else if (this%one_sided) then
        this%fum_ib = 0.0_rp
        this%fvm_ib = 0.0_rp
@@ -888,7 +888,7 @@ contains
     call device_idw_gather(fu%x_d, fv%x_d, fw%x_d, &
          this%fu_ib_d, this%fv_ib_d, this%fw_ib_d, &
          this%fum_ib_d, this%fvm_ib_d, this%fwm_ib_d, &
-         this%w%dof%x_d, this%w%dof%y_d, this%w%dof%z_d, this%ds%x_d, &
+         this%w%dof%x%x_d, this%w%dof%y%x_d, this%w%dof%z%x_d, this%ds%x_d, &
          this%pmsk%x_d, this%w%x_d, this%wm%x_d, &
          this%lpx_d, this%lpy_d, this%lpz_d, &
          this%active_el_d, this%el_off_d, this%el_lag_d, &
@@ -1016,8 +1016,8 @@ contains
          fu_ib => this%fu_ib, fv_ib => this%fv_ib, fw_ib => this%fw_ib, &
          fum_ib => this%fum_ib, fvm_ib => this%fvm_ib, fwm_ib => this%fwm_ib, &
          lag_pts => this%lag_pts, tmp => this%tmp, &
-         ds => this%ds%x, x => this%w%dof%x, &
-         y => this%w%dof%y, z => this%w%dof%z, lx => this%w%Xh%lx)
+         ds => this%ds%x, x => this%w%dof%x%x, &
+         y => this%w%dof%y%x, z => this%w%dof%z%x, lx => this%w%Xh%lx)
 
 
       fu_ib = 0.0_rp

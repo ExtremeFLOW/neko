@@ -347,11 +347,11 @@ contains
 
     call setup_normals(this%coef, this%bc%facet_node_msk, this%bc%facet, &
          this%n1, this%n2, this%n3, n_pts)
-    call masked_gather_copy_0(this%r1%x, this%coef%dof%x, &
+    call masked_gather_copy_0(this%r1%x, this%coef%dof%x%x, &
          this%bc%facet_node_msk, this%u%size(), n_pts)
-    call masked_gather_copy_0(this%r2%x, this%coef%dof%y, &
+    call masked_gather_copy_0(this%r2%x, this%coef%dof%y%x, &
          this%bc%facet_node_msk, this%u%size(), n_pts)
-    call masked_gather_copy_0(this%r3%x, this%coef%dof%z, &
+    call masked_gather_copy_0(this%r3%x, this%coef%dof%z%x, &
          this%bc%facet_node_msk, this%u%size(), n_pts)
 
     call MPI_Allreduce(n_pts, glb_n_pts, 1, &
@@ -485,22 +485,22 @@ contains
             this%n1, this%n2, this%n3, n_pts)
 
        if ((NEKO_BCKND_DEVICE .eq. 1) .and. (n_pts .gt. 0)) then
-          call device_masked_gather_copy_0(this%r1%x_d, this%coef%dof%x_d, &
+          call device_masked_gather_copy_0(this%r1%x_d, this%coef%dof%x%x_d, &
                this%bc%facet_node_msk_d, this%u%size(), n_pts)
-          call device_masked_gather_copy_0(this%r2%x_d, this%coef%dof%y_d, &
+          call device_masked_gather_copy_0(this%r2%x_d, this%coef%dof%y%x_d, &
                this%bc%facet_node_msk_d, this%u%size(), n_pts)
-          call device_masked_gather_copy_0(this%r3%x_d, this%coef%dof%z_d, &
+          call device_masked_gather_copy_0(this%r3%x_d, this%coef%dof%z%x_d, &
                this%bc%facet_node_msk_d, this%u%size(), n_pts)
 
           call device_cadd(this%r1%x_d, -this%center(1), n_pts)
           call device_cadd(this%r2%x_d, -this%center(2), n_pts)
           call device_cadd(this%r3%x_d, -this%center(3), n_pts)
        else
-          call masked_gather_copy_0(this%r1%x, this%coef%dof%x, &
+          call masked_gather_copy_0(this%r1%x, this%coef%dof%x%x, &
                this%bc%facet_node_msk, this%u%size(), n_pts)
-          call masked_gather_copy_0(this%r2%x, this%coef%dof%y, &
+          call masked_gather_copy_0(this%r2%x, this%coef%dof%y%x, &
                this%bc%facet_node_msk, this%u%size(), n_pts)
-          call masked_gather_copy_0(this%r3%x, this%coef%dof%z, &
+          call masked_gather_copy_0(this%r3%x, this%coef%dof%z%x, &
                this%bc%facet_node_msk, this%u%size(), n_pts)
 
           call cadd(this%r1%x, -this%center(1), n_pts)

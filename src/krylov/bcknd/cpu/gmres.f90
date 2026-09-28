@@ -189,6 +189,7 @@ contains
     integer :: iter, max_iter
     integer :: i, j, k, l, ierr, tid, nthrds
     real(kind=xp) :: w_plus(NEKO_BLK_SIZE), x_plus(NEKO_BLK_SIZE)
+    real(kind=xp) :: hl(this%lgmres)
     real(kind=xp) :: alpha, lr, alpha2, norm_fac, tmp, acc
     real(kind=rp) :: temp, rnorm
     logical :: conv
@@ -248,36 +249,40 @@ contains
             call bc_projector%apply(w, n)
 
             ! Classical Gram-Schmidt orthogonalization: accumulate
-            ! <w, v_l>_mult for l=1..j into per-thread columns of hp,
-            ! merge across threads, then one MPI_Allreduce of length j.
-            !$omp parallel private(i, k, l, tid, acc)
+            ! <w, v_l>_mult for l=1..j in a thread-private array hl,
+            ! publish it once per thread into a column of hp, merge
+            ! across threads, then one MPI_Allreduce of length j.
+            !$omp parallel private(i, k, l, tid, acc, hl)
             tid = 1
             !$ tid = omp_get_thread_num() + 1
             do l = 1, j
-               hp(l,tid) = 0.0_xp
+               hl(l) = 0.0_xp
             end do
             !$omp do
             do i = 0, n-1, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
                   do l = 1, j
-                     acc = hp(l,tid)
+                     acc = hl(l)
                      !$omp simd reduction(+:acc)
                      do k = 1, NEKO_BLK_SIZE
                         acc = acc + &
                              w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
-                     hp(l,tid) = acc
+                     hl(l) = acc
                   end do
                else
                   do l = 1, j
                      do k = 1, n - i
-                        hp(l,tid) = hp(l,tid) + &
+                        hl(l) = hl(l) + &
                              w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
                   end do
                end if
             end do
-            !$omp end do
+            !$omp end do nowait
+            do l = 1, j
+               hp(l,tid) = hl(l)
+            end do
             !$omp end parallel
 
             ! Cross-thread merge into hp(:, 1), then one Allreduce of j.
@@ -311,6 +316,7 @@ contains
                         w_plus(k) = w_plus(k) - h(l,j) * v(i+k,l)
                      end do
                   end do
+                  !$omp simd reduction(+:alpha2)
                   do k = 1, NEKO_BLK_SIZE
                      w(i+k) = w(i+k) + w_plus(k)
                      alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)

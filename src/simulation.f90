@@ -316,10 +316,12 @@ contains
     else
        format_str = '.chkp'
     end if
-    call chkpf%init(C%output_directory // 'joblimit'//trim(format_str))
-    call chkpf%write(C%chkp, t)
+    call chkpf%init(C%output_directory // 'joblimit' // trim(format_str))
     write(log_buf, '(A)') '! saving checkpoint >>>'
     call neko_log%message(log_buf)
+    call neko_log%flush()
+    call chkpf%write(C%chkp, t)
+    call neko_log%flush()
 
   end subroutine simulation_joblimit_chkp
 

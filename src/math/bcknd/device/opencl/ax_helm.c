@@ -334,3 +334,39 @@ void opencl_ax_helm_vector(void *au, void *av, void *aw,
   free(global_kstep);
   free(local_kstep);
 }
+
+/**
+ * Fortran wrapper for device OpenCL Ax (vector version) part2
+ */
+void opencl_ax_helm_vector_part2(void *au, void *av, void *aw,
+                                 void *u, void *v, void *w,
+                                 void *h2, void *B, int *n) {
+
+  cl_int err;
+
+  if (ax_helm_program == NULL)
+    opencl_kernel_jit(ax_helm_kernel, (cl_program *) &ax_helm_program);
+
+  cl_kernel kernel = clCreateKernel(ax_helm_program,
+                                    "ax_helm_kernel_vector_part2", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &au));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &av));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &aw));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &u));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &v));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &w));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &h2));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &B));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(glb_cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}

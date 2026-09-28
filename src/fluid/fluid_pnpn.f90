@@ -32,11 +32,10 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
-  use, intrinsic :: iso_fortran_env, only : error_unit
   use coefs, only : coef_t
   use registry, only : neko_registry
   use logger, only : neko_log, LOG_SIZE
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use krylov, only : ksp_monitor_t
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
        pnpn_prs_res_factory, pnpn_vel_res_factory, &
@@ -59,6 +58,8 @@ module fluid_pnpn
   use json_utils, only : json_get, json_get_or_default, json_extract_item, &
        json_get_or_lookup, json_get_or_lookup_or_default
   use ax_product, only : ax_t, ax_helm_allocator
+  use ax_helm_svv, only : ax_helm_svv_t
+  use ax_helm_svv_full, only : ax_helm_svv_full_t
   use field, only : field_t
   use dirichlet, only : dirichlet_t
   use shear_stress, only : shear_stress_t
@@ -69,6 +70,7 @@ module fluid_pnpn
   use symmetry_aligned, only : symmetry_aligned_t
   use symmetry, only : symmetry_t
   use checkpoint, only : chkp_t
+  use checkpoint_payload, only : checkpoint_payload_t
   use mesh, only : mesh_t
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
@@ -256,6 +258,8 @@ contains
     logical :: monitor, found
     logical :: advection
     type(json_file) :: numerics_params, precon_params
+    type(checkpoint_payload_t), pointer :: payload
+    real(kind=dp), pointer :: tlag(:), dtlag(:)
 
     call this%free()
 
@@ -282,10 +286,10 @@ contains
          .false.)
     call this%c_Xh%generate_cyclic_bc()
 
-    if (this%full_stress_formulation) then
-       ! Setup backend dependent Ax routines
-       call ax_helm_allocator(this%Ax_vel, type_name = "full")
+    ! Setup backend dependent Ax routines for the velocity
+    call fluid_pnpn_ax_vel_factory(this)
 
+    if (this%full_stress_formulation) then
        ! Setup backend dependent prs residual routines
        call pnpn_prs_res_stress_factory(this%prs_res)
 
@@ -295,9 +299,6 @@ contains
        ! Allocate coupled projector for velocity boundary conditions
        allocate(coupled_vector_bc_projector_t :: this%bcs_vel_projector)
     else
-       ! Setup backend dependent Ax routines
-       call ax_helm_allocator(this%Ax_vel, type_name = "standard")
-
        ! Setup backend dependent prs residual routines
        call pnpn_prs_res_factory(this%prs_res)
 
@@ -422,22 +423,28 @@ contains
     ! the standard BDF history assembly.
     this%oifs = this%oifs .and. advection
     call json_get(params, 'case.numerics', numerics_params)
+    call chkp%get_time_history(tlag, dtlag)
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
          this%ulag, this%vlag, this%wlag, &
-         chkp%dtlag, chkp%tlag, this%ext_bdf, &
+         dtlag, tlag, this%ext_bdf, &
          .not. advection)
     ! Should be in init_base maybe?
     this%chkp => chkp
-    ! This is probably scheme specific
-    call this%chkp%add_fluid(this%u, this%v, this%w, this%p)
-
-    this%chkp%abx1 => this%abx1
-    this%chkp%abx2 => this%abx2
-    this%chkp%aby1 => this%aby1
-    this%chkp%aby2 => this%aby2
-    this%chkp%abz1 => this%abz1
-    this%chkp%abz2 => this%abz2
-    call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
+    ! Register the scheme state for checkpointing.
+    payload => this%chkp%add_payload("fluid")
+    call payload%add_field(this%u)
+    call payload%add_field(this%v)
+    call payload%add_field(this%w)
+    call payload%add_field(this%p)
+    call payload%add_field(this%abx1)
+    call payload%add_field(this%abx2)
+    call payload%add_field(this%aby1)
+    call payload%add_field(this%aby2)
+    call payload%add_field(this%abz1)
+    call payload%add_field(this%abz2)
+    call payload%add_series(this%ulag)
+    call payload%add_series(this%vlag)
+    call payload%add_series(this%wlag)
 
     !> Set the number of schwarz iterations to perform each time step.
     call json_get_or_default(params, 'case.fluid.schwarz_iterations', &
@@ -449,14 +456,40 @@ contains
 
   end subroutine fluid_pnpn_init
 
+  !> Allocate and configure the Helmholtz matrix-vector product for the
+  !! velocity, `this%Ax_vel`.
+  subroutine fluid_pnpn_ax_vel_factory(this)
+    class(fluid_pnpn_t), target, intent(inout) :: this
+
+    if (this%full_stress_formulation) then
+       if (this%svv_enabled) then
+          call ax_helm_allocator(this%Ax_vel, type_name = "full_svv")
+          select type (operator => this%Ax_vel)
+          class is (ax_helm_svv_full_t)
+             operator%svv => this%svv
+          end select
+       else
+          call ax_helm_allocator(this%Ax_vel, type_name = "full")
+       end if
+    else
+       if (this%svv_enabled) then
+          call ax_helm_allocator(this%Ax_vel, type_name = "standard_svv")
+          select type (operator => this%Ax_vel)
+          class is (ax_helm_svv_t)
+             operator%svv => this%svv
+          end select
+       else
+          call ax_helm_allocator(this%Ax_vel, type_name = "standard")
+       end if
+    end if
+
+  end subroutine fluid_pnpn_ax_vel_factory
+
   subroutine fluid_pnpn_restart(this, chkp)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
-    real(kind=rp) :: dtlag(10), tlag(10)
     integer :: i, j, n
-
-    dtlag = chkp%dtlag
-    tlag = chkp%tlag
+    class(bc_t), pointer :: bc_i
 
     n = this%u%dof%size()
     if (allocated(chkp%previous_mesh%elements) .or. &
@@ -560,10 +593,35 @@ contains
        call this%bc_sym_surface%recompute_normals()
     end if
 
+    ! Restore velocity bcs that need it (overset mostly)
+    do i = 1, this%bcs_vel%size()
+       bc_i => this%bcs_vel%get(i)
+       call bc_i%restart(this%u, this%v, this%w, &
+            this%ulag, this%vlag, this%wlag)
+    end do
+
+    ! Restore pressure bcs that need it (overset mostly)
+    do i = 1, this%bcs_prs%size()
+       bc_i => this%bcs_prs%get(i)
+       call bc_i%restart(this%p)
+    end do
+
+    nullify(bc_i)
+
   end subroutine fluid_pnpn_restart
 
   subroutine fluid_pnpn_free(this)
     class(fluid_pnpn_t), intent(inout) :: this
+
+    if (allocated(this%Ax_vel)) then
+       call this%Ax_vel%free()
+       deallocate(this%Ax_vel)
+    end if
+
+    if (allocated(this%Ax_prs)) then
+       call this%Ax_prs%free()
+       deallocate(this%Ax_prs)
+    end if
 
     !Deallocate velocity and pressure fields
     call this%scheme_free()
@@ -610,14 +668,6 @@ contains
     if (allocated(this%adv)) then
        call this%adv%free()
        deallocate(this%adv)
-    end if
-
-    if (allocated(this%Ax_vel)) then
-       deallocate(this%Ax_vel)
-    end if
-
-    if (allocated(this%Ax_prs)) then
-       deallocate(this%Ax_prs)
     end if
 
     if (allocated(this%prs_res)) then
@@ -792,6 +842,11 @@ contains
       ! Update material properties if necessary
       call this%update_material_properties(time)
 
+      ! Update the SVV coefficient if necessary
+      if (this%svv_enabled) then
+         call this%svv%update(rho, tstep)
+      end if
+
       do iter = 1, 1 + this%schwarz_iterations
 
          call this%bc_apply_vel(time, strong = .true.)
@@ -960,6 +1015,7 @@ contains
     ! Monitor which boundary zones have been marked
     logical, allocatable :: marked_zones(:)
     integer, allocatable :: zone_indices(:)
+    character(len=256) :: error_msg
 
     ! For ALE, we set a flag while reading the BCs
     character(len=:), allocatable :: bc_type_str
@@ -1012,22 +1068,22 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
+                write(error_msg, '(A, I0, A, A, I0, A)') &
                      "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
                      "is not in the mesh. Check fluid boundary condition ", &
                      i, "."
-                error stop
+                call neko_error(error_msg)
              end if
 
              if (marked_zones(zone_indices(j))) then
-                write(error_unit, '(A, A, I0, A, A, A, A)') "*** ERROR ***: ", &
+                write(error_msg, '(A, I0, A, A, A, A)') &
                      "Zone with index ", zone_indices(j), &
                      " has already been assigned a boundary condition. ", &
                      "Please check your boundary_conditions entry for the ", &
                      "fluid and make sure that each zone index appears only ", &
                      "in a single boundary condition."
-                error stop
+                call neko_error(error_msg)
              else
                 marked_zones(zone_indices(j)) = .true.
              end if
@@ -1114,9 +1170,9 @@ contains
        do i = 1, size(this%msh%labeled_zones)
           if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
                (.not. marked_zones(i))) then
-             write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
+             write(error_msg, '(A, I0)') &
                   "No fluid boundary condition assigned to zone ", i
-             error stop
+             call neko_error(error_msg)
           end if
        end do
 

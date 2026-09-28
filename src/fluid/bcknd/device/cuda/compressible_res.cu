@@ -39,16 +39,23 @@
 
 extern "C" {
 
-  void compressible_res_part_visc_cuda(void *rhs_u, void *Binv, void *lap_sol,
-                                void *effective_visc, int *n) {
+  void compressible_res_part_visc_cuda(void *rhs_rho, void *rhs_m_x,
+                                void *rhs_m_y, void *rhs_m_z, void *rhs_E,
+                                void *visc_rho, void *visc_m_x, void *visc_m_y,
+                                void *visc_m_z, void *visc_E,
+                                void *Binv, void *h1, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     compressible_res_part_visc_kernel<real>
-      <<<nblcks, nthrds, 0, stream>>>((real *) rhs_u, (real *) Binv, 
-                                      (real *) lap_sol, (real *) effective_visc, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) rhs_rho, (real *) rhs_m_x,
+                                      (real *) rhs_m_y, (real *) rhs_m_z,
+                                      (real *) rhs_E, (real *) visc_rho,
+                                      (real *) visc_m_x, (real *) visc_m_y,
+                                      (real *) visc_m_z, (real *) visc_E,
+                                      (real *) Binv, (real *) h1, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 

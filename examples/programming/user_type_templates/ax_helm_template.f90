@@ -14,14 +14,21 @@ module ax_helm_template
   !! component independently.
   type, extends(ax_helm_t) :: ax_helm_template_t
    contains
-     procedure, nopass :: compute => ax_helm_template_compute
+     procedure, pass(this) :: compute => ax_helm_template_compute
   end type ax_helm_template_t
 
   public :: ax_helm_template_register_types
 
 contains
 
-  subroutine ax_helm_template_compute(w, u, coef, msh, Xh)
+  !> Apply the user-defined Helmholtz matrix-vector product.
+  !! @param w Result vector of size @a (lx,ly,lz,nelv).
+  !! @param u Input vector of size @a (lx,ly,lz,nelv).
+  !! @param coef Coefficients.
+  !! @param msh Mesh.
+  !! @param Xh Function space \f$ X_h \f$.
+  subroutine ax_helm_template_compute(this, w, u, coef, msh, Xh)
+    class(ax_helm_template_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
@@ -32,12 +39,15 @@ contains
     w = u
   end subroutine ax_helm_template_compute
 
+  !> Register the user-defined Helmholtz operator.
   subroutine ax_helm_template_register_types()
     procedure(ax_helm_allocate), pointer :: allocator
     allocator => ax_helm_template_allocate
     call register_ax_helm('ax_helm_template', allocator)
   end subroutine ax_helm_template_register_types
 
+  !> Allocate the user-defined Helmholtz operator.
+  !! @param obj Operator to allocate.
   subroutine ax_helm_template_allocate(obj)
     class(ax_t), allocatable, intent(inout) :: obj
     allocate(ax_helm_template_t :: obj)

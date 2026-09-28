@@ -1279,6 +1279,42 @@ __global__ void glmax_kernel(const T * a,
 }
 
 /**
+ * Device kernel for glamax
+ * @note The identity is zero, since the reduced values are non-negative.
+ */
+template< typename T >
+__global__ void glamax_kernel(const T * a,
+                              T * buf_h,
+                              const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  const unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
+
+  __shared__ T shared[64];
+  T max_val = T(0);
+  for (int i = idx; i<n ; i += str)
+  {
+    max_val = max(max_val, fabs(a[i]));
+  }
+
+  max_val = reduce_max_warp<T>(max_val);
+  if (lane == 0)
+    shared[wid] = max_val;
+  __syncthreads();
+
+  max_val = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : T(0);
+  if (wid == 0)
+    max_val = reduce_max_warp<T>(max_val);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = max_val;
+
+}
+
+/**
  * Device kernel for glmin
  */
 template< typename T >

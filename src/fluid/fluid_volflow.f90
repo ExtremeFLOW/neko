@@ -189,12 +189,12 @@ contains
          u_vol => this%u_vol, v_vol => this%v_vol, w_vol => this%w_vol)
 
       n = c_Xh%dof%size()
-      xlmin = glmin(c_Xh%dof%x, n)
-      xlmax = glmax(c_Xh%dof%x, n)
-      ylmin = glmin(c_Xh%dof%y, n) !  for Y!
-      ylmax = glmax(c_Xh%dof%y, n)
-      zlmin = glmin(c_Xh%dof%z, n) !  for Z!
-      zlmax = glmax(c_Xh%dof%z, n)
+      xlmin = glmin(c_Xh%dof%x%x, n)
+      xlmax = glmax(c_Xh%dof%x%x, n)
+      ylmin = glmin(c_Xh%dof%y%x, n) !  for Y!
+      ylmax = glmax(c_Xh%dof%y%x, n)
+      zlmin = glmin(c_Xh%dof%z%x, n) !  for Z!
+      zlmax = glmax(c_Xh%dof%z%x, n)
       if (this%flow_dir .eq. 1) then
          this%domain_length = xlmax - xlmin
       end if

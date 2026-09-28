@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -43,13 +43,14 @@ module ax_poisson
 
   type, public, extends(ax_t) :: ax_poisson_t
    contains
-     procedure, nopass :: compute => ax_poisson_compute
+     procedure, pass(this) :: compute => ax_poisson_compute
      procedure, pass(this) :: compute_vector => ax_poisson_compute_vector
   end type ax_poisson_t
 
 contains
 
-  subroutine ax_poisson_compute(w, u, coef, msh, Xh)
+  subroutine ax_poisson_compute(this, w, u, coef, msh, Xh)
+    class(ax_poisson_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
