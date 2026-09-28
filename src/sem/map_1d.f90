@@ -72,11 +72,13 @@ module map_1d
   !! result is converted into an effective boundary minimum. Elements that have
   !! newly received the global minimum are assigned to the next level. This
   !! repeats until the propagated minimum reaches the global maximum level.
-  !! The comparison with the global minimum uses an absolute tolerance scaled
-  !! by the largest coordinate magnitude, because the propagation is done with
-  !! floating point sums scaled by the inverse multiplicity `coef%mult`, which
-  !! is not exact in general. Elements matched to the global minimum are reset
-  !! to exactly that value so the roundoff does not accumulate over levels.
+  !! The comparison with the global minimum uses an absolute tolerance, the
+  !! user tolerance `tol` times the coordinate extent in the requested
+  !! direction, with a floor of a few roundoff units of the coordinate
+  !! magnitude, because the propagation is done with floating point sums
+  !! scaled by the inverse multiplicity `coef%mult`, which is not exact in
+  !! general. Elements matched to the global minimum are reset to exactly
+  !! that value so the roundoff does not accumulate over levels.
   !!
   !! Once element levels are known, every GLL point receives a global 1D level
   !! (`pt_lvl`) ordered consistently with the local element orientation. The
@@ -118,9 +120,9 @@ module map_1d
      !> Requested physical direction of the 1D mapping.
      !! Values 1, 2, and 3 correspond to `x`, `y`, and `z`, respectively.
      integer :: dir
-     !> Relative tolerance used when identifying propagated levels. It is
-     !! scaled by the largest coordinate magnitude in the requested direction
-     !! and raised to a few roundoff units of the working precision if smaller.
+     !> Tolerance used when identifying propagated levels, relative to the
+     !! coordinate extent in the requested direction. The absolute tolerance
+     !! never falls below a few roundoff units of the coordinate magnitude.
      real(kind=rp) :: tol = 1e-7
      !> Integrated quadrature weight volume associated with each GLL level.
      !! Used as the denominator when computing plane averages.
@@ -223,12 +225,14 @@ contains
     ! coef%mult is 1/3 at some vertices of unstructured meshes. With the
     ! default floating point model of ifx even 1/1 is rounded. A propagated
     ! minimum can therefore differ from glb_min by a few roundoff errors of
-    ! the largest coordinate magnitude. A tolerance relative to glb_min would
-    ! demand exact equality when glb_min is zero, so compare with an absolute
-    ! tolerance scaled by the coordinate magnitude instead, and never let it
-    ! fall below a few roundoff units of the working precision.
-    abs_tol = max(this%tol, 8.0_rp * epsilon(1.0_rp)) * &
-         max(abs(glb_min), abs(glb_max))
+    ! the coordinate magnitude. A tolerance relative to glb_min would demand
+    ! exact equality when glb_min is zero, so compare with an absolute
+    ! tolerance instead. The user tolerance is relative to the extent of the
+    ! coordinates, so that it does not depend on where the origin is, and
+    ! the roundoff floor is relative to their magnitude, which is what the
+    ! propagation error scales with.
+    abs_tol = max(this%tol * (glb_max - glb_min), &
+         8.0_rp * epsilon(1.0_rp) * max(abs(glb_min), abs(glb_max)))
 
     i = 1
     this%el_lvl = -1

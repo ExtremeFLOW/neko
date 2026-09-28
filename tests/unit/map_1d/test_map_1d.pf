@@ -1,7 +1,7 @@
 !> Tests of the element and GLL level assignment in map_1d_t.
 module test_map_1d
   use pfunit
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use device, only : device_init, device_finalize
@@ -59,15 +59,17 @@ contains
     call comm_free_test()
   end subroutine tearDown
 
-  !> Space, dofmap, gather-scatter and coefficients on the stacked column.
-  subroutine init_column_coef(msh, Xh, dof, gs, coef)
+  !> Space, dofmap, gather-scatter and coefficients on the stacked column,
+  !! optionally translated by `z_offset` in z.
+  subroutine init_column_coef(msh, Xh, dof, gs, coef, z_offset)
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
     type(dofmap_t), intent(inout) :: dof
     type(gs_t), intent(inout) :: gs
     type(coef_t), intent(inout) :: coef
+    real(kind=dp), intent(in), optional :: z_offset
 
-    call stacked_unit_hex_column_mesh(msh, n_stacked)
+    call stacked_unit_hex_column_mesh(msh, n_stacked, z_offset)
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
     call gs%init(dof)
@@ -89,10 +91,35 @@ contains
   end subroutine free_coef
 
   !> Check a map in z on the stacked column against the known geometry.
-  subroutine check_column_levels(map, msh, Xh)
+  !! The level volumes are checked unless `check_volume` is false.
+  subroutine check_column_levels(map, msh, Xh, check_volume)
     type(map_1d_t), intent(in) :: map
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
+    logical, intent(in), optional :: check_volume
+    integer :: g, k, lvl
+
+    call check_column_level_indices(map, msh)
+    if (anyExceptions()) return
+    if (present(check_volume)) then
+       if (.not. check_volume) return
+    end if
+
+    ! The volume of a GLL level is the z quadrature weight scaled by the
+    ! Jacobian 1/2 of the unit interval, and the column has volume n_stacked.
+    do g = 1, n_stacked
+       do k = 1, lx
+          lvl = lx * (g - 1) + k
+          @assertEqual(0.5_rp * Xh%wz(k), map%volume_per_gll_lvl(lvl), tolerance=tol)
+       end do
+    end do
+    @assertEqual(real(n_stacked, rp), sum(map%volume_per_gll_lvl), tolerance=tol)
+  end subroutine check_column_levels
+
+  !> Check the element and GLL levels of a map in z on the stacked column.
+  subroutine check_column_level_indices(map, msh)
+    type(map_1d_t), intent(in) :: map
+    type(mesh_t), intent(in) :: msh
     type(linear_dist_t) :: dist
     integer :: e, g, i, j, k, lvl
 
@@ -101,8 +128,9 @@ contains
     @assertEqual(n_stacked, map%n_el_lvls)
     @assertEqual(n_stacked * lx, map%n_gll_lvls)
 
-    ! Element g occupies z in [g - 1, g], with z along the local t direction,
-    ! so its element level is g and its GLL levels are lx * (g - 1) + k.
+    ! Element g occupies z in [g - 1, g] up to the offset of the column, with
+    ! z along the local t direction, so its element level is g and its GLL
+    ! levels are lx * (g - 1) + k.
     do e = 1, msh%nelv
        g = dist%start_idx() + e
        @assertEqual(3, map%dir_el(e))
@@ -116,17 +144,7 @@ contains
           end do
        end do
     end do
-
-    ! The volume of a GLL level is the z quadrature weight scaled by the
-    ! Jacobian 1/2 of the unit interval, and the column has volume n_stacked.
-    do g = 1, n_stacked
-       do k = 1, lx
-          lvl = lx * (g - 1) + k
-          @assertEqual(0.5_rp * Xh%wz(k), map%volume_per_gll_lvl(lvl), tolerance=tol)
-       end do
-    end do
-    @assertEqual(real(n_stacked, rp), sum(map%volume_per_gll_lvl), tolerance=tol)
-  end subroutine check_column_levels
+  end subroutine check_column_level_indices
 
   !> Every element of the stacked column gets its level in z.
   @test(npes=[1,2])
@@ -170,6 +188,32 @@ contains
     call map%free()
     call free_coef(msh, Xh, dof, gs, coef)
   end subroutine test_column_levels_inexact_mult
+
+  !> The tolerance is relative to the extent of the coordinates in the
+  !! averaging direction, not to their magnitude, so a column far from the
+  !! origin keeps its levels apart. Here the planes are 1 apart at z around
+  !! 1e3, and a tolerance of 1e-2 relative to the magnitude would be 10 and
+  !! merge every level into the first, while relative to the extent it is
+  !! 0.12. The roundoff floor stays at 1e-3 even in single precision.
+  @test(npes=[1,2])
+  subroutine test_column_levels_offset_origin(this)
+    class(test_map_1d_case), intent(inout) :: this
+    type(mesh_t) :: msh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(map_1d_t) :: map
+
+    call init_column_coef(msh, Xh, dof, gs, coef, z_offset = 1.0d3)
+    call map%init(coef, 3, 1e-2_rp)
+    ! The Jacobian of a column at z around 1e3 is not accurate to the test
+    ! tolerance in single precision, and the volume accumulation is covered
+    ! by the column tests at the origin, so only check the levels here.
+    call check_column_levels(map, msh, Xh, check_volume = .false.)
+    call map%free()
+    call free_coef(msh, Xh, dof, gs, coef)
+  end subroutine test_column_levels_offset_origin
 
   !> The three hex mesh is layered in y, but its central vertical edge is
   !! shared by three elements, and there the propagation does not reproduce

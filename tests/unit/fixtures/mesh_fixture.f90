@@ -238,23 +238,26 @@ contains
     call msh%generate_conn()
   end subroutine three_hex_right_triangle_tip_mesh
 
-  !> Column of `n` unit hexes stacked in z on [0, 1]^2 x [0, n].
+  !> Column of `n` unit hexes stacked in z on [0, 1]^2 x [z0, z0 + n], where
+  !! `z0` is the optional `z_offset` and defaults to 0.
   !!
-  !! Element `g` in global numbering occupies z in [g - 1, g]. The elements
+  !! Element `g` in global numbering occupies z in [z0 + g - 1, z0 + g]. The
+  !! elements
   !! are distributed linearly over the ranks of NEKO_COMM, so the fixture can
   !! be used by tests that run on several ranks. The point ids are global,
   !! which is what generate_conn() uses to find the faces shared between
   !! elements on different ranks. The points are listed in the NEKTON
   !! symmetric ordering of src/mesh/hex.f90, i.e. x fastest, then y, then z.
   !!
-  !!   z = g:    p7 ----- p8      z = g - 1:  p3 ----- p4
-  !!              |       |                    |       |
-  !!              |  e_g  |                    |  e_g  |
-  !!              |       |                    |       |
-  !!             p5 ----- p6                  p1 ----- p2
-  subroutine stacked_unit_hex_column_mesh(msh, n)
+  !!   z = z0 + g:  p7 ----- p8      z = z0 + g - 1:  p3 ----- p4
+  !!                 |       |                         |       |
+  !!                 |  e_g  |                         |  e_g  |
+  !!                 |       |                         |       |
+  !!                p5 ----- p6                       p1 ----- p2
+  subroutine stacked_unit_hex_column_mesh(msh, n, z_offset)
     type(mesh_t), intent(inout) :: msh
     integer, intent(in) :: n
+    real(kind=dp), intent(in), optional :: z_offset
     type(linear_dist_t) :: dist
     type(point_t) :: p(8)
     integer :: e, g
@@ -266,6 +269,7 @@ contains
     do e = 1, dist%num_local()
        g = dist%start_idx() + e
        z0 = real(g - 1, dp)
+       if (present(z_offset)) z0 = z0 + z_offset
 
        ! The four points of layer g - 1 have ids 4 * (g - 1) + 1 .. 4 * g
        ! and the four points of layer g have ids 4 * g + 1 .. 4 * (g + 1),
