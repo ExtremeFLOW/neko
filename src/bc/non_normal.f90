@@ -157,6 +157,7 @@ contains
     if (.not. strong_) return
 
     m = this%resolved_msk%size()
+    !$omp do
     do i = 1, m
        k = this%resolved_msk%get(i)
        normal = this%n%x(:, i)
@@ -176,6 +177,7 @@ contains
        y(k) = u_n * normal(2) + g_t1 * t1(2) + g_t2 * t2(2)
        z(k) = u_n * normal(3) + g_t1 * t1(3) + g_t2 * t2(3)
     end do
+    !$omp end do
   end subroutine non_normal_apply_vector
 
   !> No-op scalar application on the device.

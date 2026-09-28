@@ -37,7 +37,8 @@ module device_array
   use device, only : device_alloc, device_free
   use device_math, only : device_rzero, device_copy
   use utils, only : neko_error
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_size_t, &
+       c_associated
 
   implicit none
   private

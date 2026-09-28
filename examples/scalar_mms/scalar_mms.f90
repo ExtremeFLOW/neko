@@ -38,7 +38,7 @@ contains
 
     f => rhs%items(1)%ptr
     do i = 1, f%size()
-       x = f%dof%x(i,1,1,1)
+       x = f%dof%x%x(i,1,1,1)
 
        ! 0.01 is the viscosity
        f%x(i,1,1,1) = cos(x) - 0.01 * sin(x) - 1.0_rp
@@ -71,8 +71,8 @@ contains
     else !scalar
        s => fields%get("s")
        do i = 1, s%dof%size()
-          x = s%dof%x(i,1,1,1)
-          y = s%dof%y(i,1,1,1)
+          x = s%dof%x%x(i,1,1,1)
+          y = s%dof%y%x(i,1,1,1)
           s%x(i,1,1,1) = sin(x)
        end do
     end if

@@ -952,6 +952,13 @@ real metal_glmax(void *a_ptr, real *ninf, int *n, void *strm) {
                                          @"reduce_max_kernel");
 }
 
+real metal_glamax(void *a_ptr, int *n, void *strm) {
+    if (*n < 1) return (real) 0.0;
+    return (real)metal_reduce_extremum(a_ptr, *n, strm,
+                                         @"glamax_kernel",
+                                         @"reduce_max_kernel");
+}
+
 real metal_glmin(void *a_ptr, real *pinf, int *n, void *strm) {
     if (*n < 1) return *pinf;
     return (real)metal_reduce_extremum(a_ptr, *n, strm,

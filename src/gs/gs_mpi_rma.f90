@@ -247,6 +247,11 @@ contains
 
     this%iter = 0
     this%vec_supported = .true.
+    ! The vector slabs are part of the symmetric/registered allocation
+    ! made above, which every rank has to take part in, so they cannot
+    ! be deferred to the first fused exchange: a rank with no shared
+    ! dofs never reaches it. See gs_comm_t%vec_ready.
+    this%vec_ready = .true.
 
     ! The zeroing above is a local store into window memory; no rank may
     ! issue RMA until every rank has done it.

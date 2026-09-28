@@ -98,9 +98,9 @@ contains
     ! number of nodes in the mask, and msk(1:msk(0)) holds the indices.
     do i = 1, bc%msk(0)
        msk_ind = bc%msk(i)
-       x = dof%x(msk_ind, 1, 1, 1)
-       y = dof%y(msk_ind, 1, 1, 1)
-       z = dof%z(msk_ind, 1, 1, 1)
+       x = dof%x%x(msk_ind, 1, 1, 1)
+       y = dof%y%x(msk_ind, 1, 1, 1)
+       z = dof%z%x(msk_ind, 1, 1, 1)
 
        !   Two different bcs (inflow & cyl) have are of type 'user_velocity'
        !   Let us compute the distance from the (0,0) in the x-y plane
@@ -168,7 +168,7 @@ contains
     w => fields%get_by_name("w")
 
     do i = 1, u%dof%size()
-       y = u%dof%y(i,1,1,1)
+       y = u%dof%y%x(i,1,1,1)
        u%x(i,1,1,1) = ucl*y**pw
        v%x(i,1,1,1) = 0.0_rp
        w%x(i,1,1,1) = 0.0_rp
@@ -238,8 +238,8 @@ contains
          !
 
          do i = 1, bc%msk(0)
-            y = bc%dof%y(bc%msk(i), 1, 1, 1)
-            z = bc%dof%z(bc%msk(i), 1, 1, 1)
+            y = bc%dof%y%x(bc%msk(i), 1, 1, 1)
+            z = bc%dof%z%x(bc%msk(i), 1, 1, 1)
             s%x(bc%msk(i), 1, 1, 1) = sin(y)*sin(z)
          end do
 

@@ -34,8 +34,8 @@ contains
     p => fields%get_by_name("p")
 
     do i = 1, rho%dof%size()
-       x = rho%dof%x(i,1,1,1)
-       y = rho%dof%y(i,1,1,1)
+       x = rho%dof%x%x(i,1,1,1)
+       y = rho%dof%y%x(i,1,1,1)
 
        u%x(i,1,1,1) = 2.5
        v%x(i,1,1,1) = -0.5

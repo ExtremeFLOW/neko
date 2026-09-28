@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:artificial_viscosity_model",
+  "$defs": {
+    "simulationComponent": {
+      "allOf": [
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
+        },
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFieldWriterOptions"
+        },
+        {
+          "type": "object",
+          "required": [
+            "model"
+          ],
+          "properties": {
+            "type": {
+              "const": "artificial_viscosity_model"
+            },
+            "model": {
+              "const": "entropy_viscosity"
+            },
+            "field_name": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "c_avisc_low": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+            },
+            "c_avisc_entropy": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}

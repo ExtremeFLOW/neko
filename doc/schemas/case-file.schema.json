@@ -124,6 +124,9 @@
         "output_at_end": {
           "type": "boolean"
         },
+        "output_at_start": {
+          "type": "boolean"
+        },
         "nsamples": {
           "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
         },

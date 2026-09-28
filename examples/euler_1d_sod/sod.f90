@@ -48,7 +48,7 @@ contains
     ! end time = 0.2
     mux = 0.5
     do i = 1, rho%dof%size()
-       x = rho%dof%x(i,1,1,1)
+       x = rho%dof%x%x(i,1,1,1)
 
        u%x(i,1,1,1) = 0.0
        v%x(i,1,1,1) = 0.0

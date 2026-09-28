@@ -270,9 +270,14 @@ contains
     call this%output%init(this%mean_fields, this%n_avg_fields, &
          this%start_time, coef, avg_dir, name = stats_fname, &
          path = this%case%output_directory)
+    ! Statistics are averaged over the interval between two writes, so
+    ! writing at the very start of the averaging would only produce an
+    ! empty file. The schedule is anchored to the start of the averaging.
     call this%case%output_controller%add(this%output, &
          this%output_controller%control_value, &
-         this%output_controller%control_mode)
+         this%output_controller%control_mode, &
+         start_time = max(this%start_time, this%case%time%start_time), &
+         write_at_start = .false.)
 
     nullify(field_to_avg)
 

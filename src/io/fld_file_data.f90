@@ -557,20 +557,20 @@ contains
        center_y = 0d0
        center_z = 0d0
        do i = 1, to_Xh%lxyz
-          center_x = center_x + to_dof%x(i, 1, 1, e)
-          center_y = center_y + to_dof%y(i, 1, 1, e)
-          center_z = center_z + to_dof%z(i, 1, 1, e)
+          center_x = center_x + to_dof%x%x(i, 1, 1, e)
+          center_y = center_y + to_dof%y%x(i, 1, 1, e)
+          center_z = center_z + to_dof%z%x(i, 1, 1, e)
        end do
        center_x = center_x / to_Xh%lxyz
        center_y = center_y / to_Xh%lxyz
        center_z = center_z / to_Xh%lxyz
        do i = 1, to_Xh%lxyz
-          x_coords(i, 1, 1, e) = to_dof%x(i, 1, 1, e) - &
-               tol_ * (to_dof%x(i, 1, 1, e) - center_x)
-          y_coords(i, 1, 1, e) = to_dof%y(i, 1, 1, e) - &
-               tol_ * (to_dof%y(i, 1, 1, e) - center_y)
-          z_coords(i, 1, 1, e) = to_dof%z(i, 1, 1, e) - &
-               tol_ * (to_dof%z(i, 1, 1, e) - center_z)
+          x_coords(i, 1, 1, e) = to_dof%x%x(i, 1, 1, e) - &
+               tol_ * (to_dof%x%x(i, 1, 1, e) - center_x)
+          y_coords(i, 1, 1, e) = to_dof%y%x(i, 1, 1, e) - &
+               tol_ * (to_dof%y%x(i, 1, 1, e) - center_y)
+          z_coords(i, 1, 1, e) = to_dof%z%x(i, 1, 1, e) - &
+               tol_ * (to_dof%z%x(i, 1, 1, e) - center_z)
        end do
     end do
 

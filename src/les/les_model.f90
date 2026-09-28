@@ -285,108 +285,110 @@ contains
     ly_half = this%coef%Xh%ly / 2
     lz_half = this%coef%Xh%lz / 2
 
-    if (this%delta_type .eq. "elementwise_max") then
-       ! use a same length scale throughout an entire element
-       ! the length scale is based on maximum GLL spacing
-       do e = 1, this%coef%msh%nelv
-          di = (this%coef%dof%x(lx_half, 1, 1, e) &
-               - this%coef%dof%x(lx_half + 1, 1, 1, e))**2 &
-               + (this%coef%dof%y(lx_half, 1, 1, e) &
-               - this%coef%dof%y(lx_half + 1, 1, 1, e))**2 &
-               + (this%coef%dof%z(lx_half, 1, 1, e) &
-               - this%coef%dof%z(lx_half + 1, 1, 1, e))**2
+    associate(dof => this%coef%dof)
 
-          dj = (this%coef%dof%x(1, ly_half, 1, e) &
-               - this%coef%dof%x(1, ly_half + 1, 1, e))**2 &
-               + (this%coef%dof%y(1, ly_half, 1, e) &
-               - this%coef%dof%y(1, ly_half + 1, 1, e))**2 &
-               + (this%coef%dof%z(1, ly_half, 1, e) &
-               - this%coef%dof%z(1, ly_half + 1, 1, e))**2
+      if (this%delta_type .eq. "elementwise_max") then
+         ! use a same length scale throughout an entire element
+         ! the length scale is based on maximum GLL spacing
+         do e = 1, this%coef%msh%nelv
+            di = (dof%x%x(lx_half, 1, 1, e) &
+                 - dof%x%x(lx_half + 1, 1, 1, e))**2 &
+                 + (dof%y%x(lx_half, 1, 1, e) &
+                 - dof%y%x(lx_half + 1, 1, 1, e))**2 &
+                 + (dof%z%x(lx_half, 1, 1, e) &
+                 - dof%z%x(lx_half + 1, 1, 1, e))**2
 
-          dk = (this%coef%dof%x(1, 1, lz_half, e) &
-               - this%coef%dof%x(1, 1, lz_half + 1, e))**2 &
-               + (this%coef%dof%y(1, 1, lz_half, e) &
-               - this%coef%dof%y(1, 1, lz_half + 1, e))**2 &
-               + (this%coef%dof%z(1, 1, lz_half, e) &
-               - this%coef%dof%z(1, 1, lz_half + 1, e))**2
-          di = sqrt(di)
-          dj = sqrt(dj)
-          dk = sqrt(dk)
-          this%delta%x(:,:,:,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
-       end do
-    else if (this%delta_type .eq. "elementwise_average") then
-       ! use a same length scale throughout an entire element
-       ! the length scale is based on (volume)^(1/3)/(N+1)
-       do e = 1, this%coef%msh%nelv
-          volume_element = 0.0_rp
-          do k = 1, this%coef%Xh%lx * this%coef%Xh%ly * this%coef%Xh%lz
-             volume_element = volume_element + this%coef%B(k, 1, 1, e)
-          end do
-          this%delta%x(:,:,:,e) = (volume_element / &
-               (this%coef%Xh%lx - 1.0_rp) / &
-               (this%coef%Xh%ly - 1.0_rp) / &
-               (this%coef%Xh%lz - 1.0_rp) ) ** (1.0_rp / 3.0_rp)
-       end do
-    else if (this%delta_type .eq. "pointwise") then
-       do e = 1, this%coef%msh%nelv
-          do k = 1, this%coef%Xh%lz
-             km = max(1, k-1)
-             kp = min(this%coef%Xh%lz, k+1)
+            dj = (dof%x%x(1, ly_half, 1, e) &
+                 - dof%x%x(1, ly_half + 1, 1, e))**2 &
+                 + (dof%y%x(1, ly_half, 1, e) &
+                 - dof%y%x(1, ly_half + 1, 1, e))**2 &
+                 + (dof%z%x(1, ly_half, 1, e) &
+                 - dof%z%x(1, ly_half + 1, 1, e))**2
 
-             do j = 1, this%coef%Xh%ly
-                jm = max(1, j-1)
-                jp = min(this%coef%Xh%ly, j+1)
+            dk = (dof%x%x(1, 1, lz_half, e) &
+                 - dof%x%x(1, 1, lz_half + 1, e))**2 &
+                 + (dof%y%x(1, 1, lz_half, e) &
+                 - dof%y%x(1, 1, lz_half + 1, e))**2 &
+                 + (dof%z%x(1, 1, lz_half, e) &
+                 - dof%z%x(1, 1, lz_half + 1, e))**2
+            di = sqrt(di)
+            dj = sqrt(dj)
+            dk = sqrt(dk)
+            this%delta%x(:,:,:,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
+         end do
+      else if (this%delta_type .eq. "elementwise_average") then
+         ! use a same length scale throughout an entire element
+         ! the length scale is based on (volume)^(1/3)/(N+1)
+         do e = 1, this%coef%msh%nelv
+            volume_element = 0.0_rp
+            do k = 1, this%coef%Xh%lx * this%coef%Xh%ly * this%coef%Xh%lz
+               volume_element = volume_element + this%coef%B(k, 1, 1, e)
+            end do
+            this%delta%x(:,:,:,e) = (volume_element / &
+                 (this%coef%Xh%lx - 1.0_rp) / &
+                 (this%coef%Xh%ly - 1.0_rp) / &
+                 (this%coef%Xh%lz - 1.0_rp) ) ** (1.0_rp / 3.0_rp)
+         end do
+      else if (this%delta_type .eq. "pointwise") then
+         do e = 1, this%coef%msh%nelv
+            do k = 1, this%coef%Xh%lz
+               km = max(1, k-1)
+               kp = min(this%coef%Xh%lz, k+1)
 
-                do i = 1, this%coef%Xh%lx
-                   im = max(1, i-1)
-                   ip = min(this%coef%Xh%lx, i+1)
+               do j = 1, this%coef%Xh%ly
+                  jm = max(1, j-1)
+                  jp = min(this%coef%Xh%ly, j+1)
 
-                   di = (this%coef%dof%x(ip, j, k, e) - &
-                        this%coef%dof%x(im, j, k, e))**2 &
-                        + (this%coef%dof%y(ip, j, k, e) - &
-                        this%coef%dof%y(im, j, k, e))**2 &
-                        + (this%coef%dof%z(ip, j, k, e) - &
-                        this%coef%dof%z(im, j, k, e))**2
+                  do i = 1, this%coef%Xh%lx
+                     im = max(1, i-1)
+                     ip = min(this%coef%Xh%lx, i+1)
 
-                   dj = (this%coef%dof%x(i, jp, k, e) - &
-                        this%coef%dof%x(i, jm, k, e))**2 &
-                        + (this%coef%dof%y(i, jp, k, e) - &
-                        this%coef%dof%y(i, jm, k, e))**2 &
-                        + (this%coef%dof%z(i, jp, k, e) - &
-                        this%coef%dof%z(i, jm, k, e))**2
+                     di = (dof%x%x(ip, j, k, e) - &
+                          dof%x%x(im, j, k, e))**2 &
+                          + (dof%y%x(ip, j, k, e) - &
+                          dof%y%x(im, j, k, e))**2 &
+                          + (dof%z%x(ip, j, k, e) - &
+                          dof%z%x(im, j, k, e))**2
 
-                   dk = (this%coef%dof%x(i, j, kp, e) - &
-                        this%coef%dof%x(i, j, km, e))**2 &
-                        + (this%coef%dof%y(i, j, kp, e) - &
-                        this%coef%dof%y(i, j, km, e))**2 &
-                        + (this%coef%dof%z(i, j, kp, e) - &
-                        this%coef%dof%z(i, j, km, e))**2
+                     dj = (dof%x%x(i, jp, k, e) - &
+                          dof%x%x(i, jm, k, e))**2 &
+                          + (dof%y%x(i, jp, k, e) - &
+                          dof%y%x(i, jm, k, e))**2 &
+                          + (dof%z%x(i, jp, k, e) - &
+                          dof%z%x(i, jm, k, e))**2
 
-                   di = sqrt(di) / (ip - im)
-                   dj = sqrt(dj) / (jp - jm)
-                   dk = sqrt(dk) / (kp - km)
-                   this%delta%x(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
+                     dk = (dof%x%x(i, j, kp, e) - &
+                          dof%x%x(i, j, km, e))**2 &
+                          + (dof%y%x(i, j, kp, e) - &
+                          dof%y%x(i, j, km, e))**2 &
+                          + (dof%z%x(i, j, kp, e) - &
+                          dof%z%x(i, j, km, e))**2
 
-                end do
-             end do
-          end do
-       end do
-    else
-       call neko_type_error("delta_type for LES model", &
-            this%delta_type, DELTA_KNOWN_TYPES)
-       stop
-    end if
+                     di = sqrt(di) / (ip - im)
+                     dj = sqrt(dj) / (jp - jm)
+                     dk = sqrt(dk) / (kp - km)
+                     this%delta%x(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&
-            HOST_TO_DEVICE, sync = .false.)
-       call this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), GS_OP_ADD)
-       call device_col2(this%delta%x_d, this%coef%mult_d, this%delta%dof%size())
-    else
-       call this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), GS_OP_ADD)
-       call col2(this%delta%x, this%coef%mult, this%delta%dof%size())
-    end if
+                  end do
+               end do
+            end do
+         end do
+      else
+         call neko_type_error("delta_type for LES model", &
+              this%delta_type, DELTA_KNOWN_TYPES)
+         stop
+      end if
 
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&
+              HOST_TO_DEVICE, sync = .false.)
+         call this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), GS_OP_ADD)
+         call device_col2(this%delta%x_d, this%coef%mult_d, this%delta%dof%size())
+      else
+         call this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), GS_OP_ADD)
+         call col2(this%delta%x, this%coef%mult, this%delta%dof%size())
+      end if
+    end associate
   end subroutine les_model_compute_delta
 
 end module les_model

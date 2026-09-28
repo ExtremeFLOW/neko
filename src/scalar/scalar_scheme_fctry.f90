@@ -54,11 +54,8 @@ contains
   !! @param ulag, vlag, wlag The lagged velocity fields.
   !! @param time_scheme The time scheme controller.
   !! @param rho The density field.
-  !! @param checkpoint_index Position of the scalar in checkpoint storage.
-  !! @param n_scalars Total number of scalar schemes.
   module subroutine scalar_scheme_factory(object, msh, coef, gs, params, &
-       numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho, &
-       checkpoint_index, n_scalars)
+       numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     class(scalar_scheme_t), allocatable, intent(inout) :: object
     type(mesh_t), target, intent(in) :: msh
     type(coef_t), target, intent(in) :: coef
@@ -70,8 +67,6 @@ contains
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     type(field_t), target, intent(in) :: rho
-    integer, intent(in) :: checkpoint_index
-    integer, intent(in) :: n_scalars
     character(len=:), allocatable :: type_name
 
     call json_get_or_default(params, "scheme", type_name, "pnpn")
@@ -80,7 +75,7 @@ contains
 
     call object%init(msh, coef, gs, params, numerics_params, user, chkp, &
          ulag, vlag, wlag, time_scheme, rho)
-    call object%register_checkpoint(chkp, checkpoint_index, n_scalars)
+    call object%register_checkpoint(chkp)
 
   end subroutine scalar_scheme_factory
 

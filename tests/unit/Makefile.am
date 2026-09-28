@@ -32,6 +32,7 @@ SUBDIRS = tuple\
 	  tensor4\
 	  case_file_utils\
 	  registry\
+	  errors\
 	  scratch_registry\
 	  fast3d\
 	  time_scheme\
@@ -45,7 +46,9 @@ SUBDIRS = tuple\
 	  templates/parallel\
 	  bc_projector\
 	  boundary_operation\
+	  checkpoint_payload\
 	  wall_sampling\
+	  restart_consistency\
 	  templates/serial
 
 TESTS = device/device_test\
@@ -82,6 +85,7 @@ TESTS = device/device_test\
 	tensor4/tensor4_test\
 	case_file_utils/case_file_utils_test\
 	registry/registry_test\
+	errors/errors_test\
 	scratch_registry/scratch_registry_test\
 	fast3d/fast3d_test\
 	time_scheme/time_scheme_test\
@@ -95,7 +99,9 @@ TESTS = device/device_test\
 	templates/parallel/parallel_test\
 	bc_projector/bc_projector_test\
 	boundary_operation/boundary_operation_test\
+	checkpoint_payload/checkpoint_payload_test\
 	wall_sampling/wall_sampling_test\
+	restart_consistency/restart_consistency_test\
 	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
@@ -164,6 +170,8 @@ EXTRA_DIST = \
 	registry/test_field_registry.pf\
 	registry/test_vector_registry.pf\
 	registry/test_matrix_registry.pf\
+	errors/test_errors.pf\
+	fixtures/error_redirection.f90\
 	scratch_registry/test_scratch_registry.pf\
 	scratch_registry/test_field_scratch_registry.pf\
 	scratch_registry/test_vector_scratch_registry.pf\
@@ -191,14 +199,20 @@ EXTRA_DIST = \
 	wall_sampling/test_gll.pf\
 	wall_sampling/test_distance.pf\
 	wall_sampling/wall_sampling_test\
+	restart_consistency/test_restart_consistency.pf\
+	restart_consistency/restart_consistency_test\
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\
+	checkpoint_payload/test_checkpoint_payload.pf\
 	templates/serial/test_serial.pf
 
 if ENABLE_HDF5
-SUBDIRS += vtkhdf
-TESTS += vtkhdf/vtkhdf_test
-EXTRA_DIST += vtkhdf/vtkhdf_parallel.pf
+SUBDIRS += vtkhdf restart_consistency_hdf5
+TESTS += vtkhdf/vtkhdf_test \
+	restart_consistency_hdf5/restart_consistency_hdf5_test
+EXTRA_DIST += vtkhdf/vtkhdf_parallel.pf \
+	restart_consistency_hdf5/test_restart_consistency_hdf5.pf \
+	restart_consistency_hdf5/restart_consistency_hdf5_test
 endif
 
 UNIT_TEST_MAKEFILES = Makefile $(SUBDIRS:%=%/Makefile)
