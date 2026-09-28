@@ -203,7 +203,6 @@ contains
     integer :: iter
     logical :: converged
     real(kind=rp) :: conv_sum
-    character(len=128) :: warn_buf
 
     if (n_pts .eq. 0) return
 
@@ -227,14 +226,6 @@ contains
        !print *, conv_sum
        if( iter .ge. this%max_iter) converged = .true.
     end do
-
-    ! A nonzero count here means max_iter cut the iteration off.
-    if (nint(conv_sum) .gt. 0) then
-       write(warn_buf, '(I0,A,I0,A,I0,A)') nint(conv_sum), ' of ', n_pts, &
-            ' points did not converge in ', this%max_iter, &
-            ' Newton iterations (rst finder, device)'
-       call neko_warning(trim(warn_buf))
-    end if
 
     call conv_pts%free()
   end subroutine find_rst_legendre_device
@@ -271,13 +262,12 @@ contains
     integer :: conv_pts
     logical :: converged
     integer :: i, j, e, iter, lx, ih
-    integer :: n_unconv
-    character(len=128) :: warn_buf
+
+
 
     lx = this%Xh%lx
     if (n_pts .lt. 1) return
 
-    n_unconv = 0
     rst = 0.0_rp
     ! If performance critical we should do multiple points at the time
     ! Currently we do one point at the time
@@ -385,15 +375,6 @@ contains
           converged = conv_pts .eq. 1
           if (iter .ge. this%max_iter) converged = .true.
        end do
-       if (conv_pts .ne. 1) n_unconv = n_unconv + 1
     end do
-
-    if (n_unconv .gt. 0) then
-       write(warn_buf, '(I0,A,I0,A,I0,A)') n_unconv, ' of ', n_pts, &
-            ' points did not converge in ', this%max_iter, &
-            ' Newton iterations (rst finder)'
-       call neko_warning(trim(warn_buf))
-    end if
-
   end subroutine find_rst_legendre_cpu
 end module legendre_rst_finder
