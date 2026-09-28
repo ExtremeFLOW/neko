@@ -194,7 +194,7 @@ contains
     end if
 
     ! Check the dofmap
-    is_valid = (this%dof%global_size() .gt. 0 .and. allocated(this%dof%x))
+    is_valid = (this%dof%global_size() .gt. 0 .and. allocated(this%dof%x%x))
     if (.not. is_valid) call neko_error("Dofmap not initialized or empty")
 
     ! Check the internal field list, pointing to the fields in the registry

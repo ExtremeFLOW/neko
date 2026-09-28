@@ -98,8 +98,8 @@ contains
     end do
 
     do i = 1, u%dof%size()
-       if (.not. in_array(u%dof%y(i,1,1,1), y_GLL)) then
-          y_GLL(i_y) = u%dof%y(i,1,1,1)
+       if (.not. in_array(u%dof%y%x(i,1,1,1), y_GLL)) then
+          y_GLL(i_y) = u%dof%y%x(i,1,1,1)
           i_y = i_y +1
        end if
     end do
@@ -112,17 +112,17 @@ contains
     end do
 
     do i = 1, u%dof%size()
-       ur_2D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS2D_GLL(:,1))
-       ui_2D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS2D_GLL(:,2))
-       vr_2D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS2D_GLL(:,3))
-       vi_2D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS2D_GLL(:,4))
-       ur_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,1))
-       ui_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,2))
-       vr_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,3))
-       vi_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,4))
-       wr_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,5))
-       wi_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,6))
-       uvw = channel_ic(u%dof%x(i,1,1,1), u%dof%y(i,1,1,1), u%dof%z(i,1,1,1), &
+       ur_2D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS2D_GLL(:,1))
+       ui_2D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS2D_GLL(:,2))
+       vr_2D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS2D_GLL(:,3))
+       vi_2D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS2D_GLL(:,4))
+       ur_3D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS3D_GLL(:,1))
+       ui_3D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS3D_GLL(:,2))
+       vr_3D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS3D_GLL(:,3))
+       vi_3D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS3D_GLL(:,4))
+       wr_3D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS3D_GLL(:,5))
+       wi_3D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS3D_GLL(:,6))
+       uvw = channel_ic(u%dof%x%x(i,1,1,1), u%dof%y%x(i,1,1,1), u%dof%z%x(i,1,1,1), &
             ur_2D, ui_2D, vr_2D, vi_2D, &
             ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D)
        u%x(i,1,1,1) = uvw(1)

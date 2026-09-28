@@ -66,6 +66,7 @@ module gs_device_nccl
      type(c_ptr) :: dof_d = C_NULL_PTR !< Dof mapping for pack/unpack
    contains
      procedure, pass(this) :: init => gs_device_nccl_buf_init
+     procedure, pass(this) :: init_vec => gs_device_nccl_buf_init_vec
      procedure, pass(this) :: free => gs_device_nccl_buf_free
   end type gs_device_nccl_buf_t
 
@@ -84,6 +85,7 @@ module gs_device_nccl
      procedure, pass(this) :: nbsend => gs_device_nccl_nbsend
      procedure, pass(this) :: nbrecv => gs_device_nccl_nbrecv
      procedure, pass(this) :: nbwait => gs_device_nccl_nbwait
+     procedure, pass(this) :: init_vec => gs_device_nccl_init_vec
      procedure, pass(this) :: nbsend_vec => gs_device_nccl_nbsend_vec
      procedure, pass(this) :: nbrecv_vec => gs_device_nccl_nbrecv_vec
      procedure, pass(this) :: nbwait_vec => gs_device_nccl_nbwait_vec
@@ -214,10 +216,6 @@ contains
     sz = c_sizeof(rp_dummy) * total
     call device_alloc(this%buf_d, sz)
 
-    ! Fused vector buffer, sized for up to GS_VEC_NC components.
-    sz = c_sizeof(rp_dummy) * GS_VEC_NC * total
-    call device_alloc(this%buf_v_d, sz)
-
     sz = c_sizeof(i4_dummy) * total
     call device_alloc(this%dof_d, sz)
 
@@ -257,6 +255,18 @@ contains
     call doftable%free()
 
   end subroutine gs_device_nccl_buf_init
+
+  !> Allocate this buffer's fused vector slab, sized for up to GS_VEC_NC
+  !! components. Deferred to the first fused exchange, see gs_comm_t.
+  subroutine gs_device_nccl_buf_init_vec(this)
+    class(gs_device_nccl_buf_t), intent(inout) :: this
+    integer(c_size_t) :: sz
+    real(c_rp) :: rp_dummy
+
+    sz = c_sizeof(rp_dummy) * GS_VEC_NC * this%total
+    call device_alloc(this%buf_v_d, sz)
+
+  end subroutine gs_device_nccl_buf_init_vec
 
   subroutine gs_device_nccl_buf_free(this)
     class(gs_device_nccl_buf_t), intent(inout) :: this
@@ -303,8 +313,21 @@ contains
 #endif
 
     this%vec_supported = .true.
+    this%vec_ready = .false.
 
   end subroutine gs_device_nccl_init
+
+  !> Allocate the fused vector send and receive slabs in device memory,
+  !! sized for GS_VEC_NC components. Deferred to the first fused exchange,
+  !! see gs_comm_t. The NCCL communicator is built once at startup and the
+  !! peer lists and dof maps come from init, so this stays rank local.
+  subroutine gs_device_nccl_init_vec(this)
+    class(gs_device_nccl_t), intent(inout) :: this
+
+    call this%send_buf%init_vec()
+    call this%recv_buf%init_vec()
+
+  end subroutine gs_device_nccl_init_vec
 
   !> Deallocate MPI based communication method
   subroutine gs_device_nccl_free(this)
@@ -313,6 +336,7 @@ contains
 
     call this%send_buf%free()
     call this%recv_buf%free()
+    this%vec_ready = .false.
 
     call this%free_order()
     call this%free_dofs()
