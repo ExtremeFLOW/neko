@@ -93,6 +93,7 @@ jobs:
     uses: ./.github/workflows/check_intel.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+      pfunit-version: ${{ needs.prepare.outputs.pfunit-version }}
 
   Nvidia:
     if: ${{ github.event_name != 'pull_request' }}

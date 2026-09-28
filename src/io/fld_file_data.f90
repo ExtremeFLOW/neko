@@ -131,6 +131,13 @@ contains
     type(interpolator_t) :: space_interp
     ! ----
 
+    ! The scalar target is taken through a pointer rather than through
+    ! s_target_list%x(i). That accessor returns a pointer, and associating a
+    ! pointer valued function result with an explicit-shape intent(inout)
+    ! dummy leaves the compiler free to pass a temporary; ifx then discards
+    ! the copy back and the target field silently keeps its old values.
+    type(field_t), pointer :: s_tgt
+
     character(len=LOG_SIZE) :: log_buf
 
     ! ---- Default values
@@ -218,13 +225,14 @@ contains
           ! If the index list exists, use it as a "mask"
           if (present(s_index_list)) then
              do i = 1, size(s_index_list)
+                s_tgt => s_target_list%items(i)%ptr
                 ! Take care that if we set i=0 we want temperature
                 if (s_index_list(i) .eq. 0) then
-                   call global_interp%evaluate(s_target_list%x(i), &
+                   call global_interp%evaluate(s_tgt%x(:,1,1,1), &
                         this%t%x, on_host = .false.)
                 else if (s_index_list(i) .ge. 1 .and. &
                      s_index_list(i) .le. this%n_scalars) then
-                   call global_interp%evaluate(s_target_list%x(i), &
+                   call global_interp%evaluate(s_tgt%x(:,1,1,1), &
                         this%s(s_index_list(i))%x, on_host = .false.)
                 else
                    call neko_error("s_index_list entry out of bounds")
@@ -234,7 +242,8 @@ contains
              ! otherwise, just copy element-to-element
           else
              do i = 1, s_target_list%size()
-                call global_interp%evaluate(s_target_list%x(i), this%s(i)%x, &
+                s_tgt => s_target_list%items(i)%ptr
+                call global_interp%evaluate(s_tgt%x(:,1,1,1), this%s(i)%x, &
                      on_host = .false.)
              end do
           end if ! present s_index_list
@@ -262,14 +271,15 @@ contains
           ! If the index list exists, use it as a "mask"
           if (present(s_index_list)) then
              do i = 1, size(s_index_list)
+                s_tgt => s_target_list%items(i)%ptr
 
                 ! 0 means we want temperature
                 if (s_index_list(i) .eq. 0) then
-                   call space_interp%map(s_target_list%x(i), &
+                   call space_interp%map(s_tgt%x, &
                         this%t%x, this%nelv, Xh)
                 else if (s_index_list(i) .ge. 1 .and. &
                      s_index_list(i) .le. this%n_scalars) then
-                   call space_interp%map(s_target_list%x(i), &
+                   call space_interp%map(s_tgt%x, &
                         this%s(s_index_list(i))%x, this%nelv, Xh)
                 else
                    call neko_error("s_index_list entry out of bounds")
@@ -279,7 +289,8 @@ contains
              ! otherwise, just copy element-to-element
           else
              do i = 1, s_target_list%size()
-                call space_interp%map(s_target_list%x(i), this%s(i)%x, &
+                s_tgt => s_target_list%items(i)%ptr
+                call space_interp%map(s_tgt%x, this%s(i)%x, &
                      this%nelv, Xh)
              end do
           end if ! present s_index_list
@@ -293,6 +304,7 @@ contains
     nullify(dof)
     nullify(Xh)
     nullify(msh)
+    nullify(s_tgt)
 
   end subroutine fld_file_data_import_fields
 

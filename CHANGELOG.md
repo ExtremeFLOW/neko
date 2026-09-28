@@ -2,6 +2,52 @@
 
 ## Develop
 
+- Built the Intel CI job with `-fp-model precise`. `ifx` defaults to
+  `fast=1`, which permits value unsafe transformations, while gfortran is
+  value safe by default; without the flag the two jobs are not comparable and
+  `test_scalar_restart` disagrees with its reference in single precision.
+
+- Enabled the unit and integration test suites in the Intel CI workflow, which
+  previously only compiled Neko. The workflow now builds against pFUnit, runs
+  `make check` and the pytest integration tests, and archives the logs. Intel
+  MPI is pinned to 2021.17 there, because 2021.18 segfaults inside
+  `mpi_file_open_f08` for every `MPI_File_open` issued through the `mpi_f08`
+  bindings, which is how Neko reads and writes meshes, fields and checkpoints.
+
+- Renamed the `interpolation` test procedure in
+  `test_point_interpolation_parallel.pf`, which `ifx` rejects because the name
+  collides with the `interpolation` module in the same scope.
+
+- Initialised the Neko communicator in the serial registry and scratch registry
+  unit tests. They build a mesh and a dofmap, whose collectives were reaching
+  MPI with an uninitialised `NEKO_COMM`. Open MPI tolerates the null handle and
+  Intel MPI aborts on it.
+
+- Stopped the GMRES solvers before they build a Krylov space when the residual
+  already meets the tolerance. That happens on entry for an already-solved
+  problem and again after a restart, and orthogonalising what is then pure
+  rounding noise let the Givens rotation divide by a zero norm: a pressure
+  solve entered with a residual of 4e-16 returned NaN after 800 iterations
+  under `ifx` instead of converging in none.
+
+- Took the scalar import target through a field pointer in
+  `fld_file_data`. The old code passed `s_target_list%x(i)`, a pointer valued
+  function result, to explicit-shape `intent(inout)` dummies; `ifx` passes a
+  temporary there and discards the copy back, so every case file that imported
+  a scalar through `initial_condition: field` silently produced a zero field.
+
+- Renamed the `source_term` procedure to `user_source_terms` in the user file
+  template and in the ReFrame Rayleigh case. `ifx` rejects a user file
+  procedure that is assigned to the `user_t` component of the same name when
+  Neko also has a module of that name, which is true of `source_term` alone;
+  the other hooks keep the names of the components they are assigned to.
+
+- Rejected duration fields containing anything but decimal digits in
+  `read_duration`. A list-directed integer read honours an exponent letter
+  under `ifx`, where '1d' reads back as 1 and '1e5' as 100000 with no error,
+  so a duration of `1d-00:00:00` was silently accepted as one day. gfortran
+  rejects both, which is why this only showed up once the Intel tests ran.
+
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,

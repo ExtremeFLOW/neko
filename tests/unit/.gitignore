@@ -13,6 +13,7 @@ test-suite.log
 !device_math/device_math_test
 !gather_scatter/gather_scatter_test
 !jobctrl/jobctrl_test
+!map_1d/map_1d_test
 !bc/bc_test
 !bc_projector/bc_projector_test
 !matrix/matrix_test
