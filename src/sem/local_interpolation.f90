@@ -194,6 +194,7 @@ contains
     lx = this%Xh%lx
     N = size(r)
 
+    !$omp parallel do private(i)
     do i = 1, N
        if ((r(i) <= 1.1_rp .and. r(i) >= -1.1_rp) .and. &
             (s(i) <= 1.1_rp .and. s(i) >= -1.1_rp) .and. &
@@ -211,6 +212,7 @@ contains
        end if
 
     end do
+    !$omp end parallel do
 
   end subroutine local_interpolator_compute_weights
 

@@ -270,6 +270,8 @@ contains
     associate (x => coef%dof%x%x, y => coef%dof%y%x, z => coef%dof%z%x, &
          lx => coef%Xh%lx, ds => this%ds%x)
 
+      !$omp parallel do private(i, j, k, dx_max, dy_max, dz_max) &
+      !$omp reduction(max:ds_max) reduction(min:ds_min)
       do e = 1, coef%msh%nelv
          do k = 2, lx-1
             do j = 2, lx-1
@@ -375,6 +377,7 @@ contains
          ds_min = min(ds_min, minval(ds(:,:,:,e)))
 
       end do
+      !$omp end parallel do
     end associate
 
 
@@ -522,6 +525,8 @@ contains
     end do
     call overlaps%free()
 
+    call idw_build_el_csr(this, coef%msh%nelv)
+
     ! Construct weight field
     call this%w%init(coef%dof, "ib_weight")
     call this%wm%init(coef%dof, "ib_mweight")
@@ -539,8 +544,9 @@ contains
     call this%ib_fz%init(coef%dof, "ib_fz")
 
     if (this%one_sided) then
-       call idw_compute_mask(this%mmsk, this%pmsk, this%lag_pts, this%lag_el, &
-            this%lag_nrm, coef%dof%x%x, coef%dof%y%x, coef%dof%z%x, &
+       call idw_compute_mask(this%mmsk, this%pmsk, this%lag_pts, &
+            this%lag_nrm, this%active_el, this%el_off, this%el_lag, &
+            coef%dof%x%x, coef%dof%y%x, coef%dof%z%x, &
             coef%Xh%lx, coef%msh%nelv)
     else
        ! Assign the host arrays directly: the field_t defined assignment only
@@ -553,7 +559,8 @@ contains
     call idw_assemble(this%gs, this%pmsk, coef%mult)
     call idw_assemble(this%gs, this%mmsk, coef%mult)
 
-    call idw_compute_weight(this%w, this%wm, this%pmsk, this%lag_pts, this%lag_el, &
+    call idw_compute_weight(this%w, this%wm, this%pmsk, this%lag_pts, &
+         this%active_el, this%el_off, this%el_lag, &
          coef%dof%x%x, coef%dof%y%x, coef%dof%z%x, this%ds%x, this%rmax, &
          this%pwr_param, coef%Xh%lx,coef%msh%nelv)
 
@@ -691,18 +698,19 @@ contains
 
   end subroutine idw_assemble
 
-  !> Build the device data structures for the IDW source term: the CSR
-  !! transpose of `lag_el` (per element -> lag points) used by the gather
-  !! kernel, the unpacked Lagrangian coordinates, and upload the mask/weight
-  !! fields that are assembled on the host during init.
-  subroutine idw_build_device_maps(this)
+  !> Build the CSR transpose of `lag_el` (per element -> lag points). The
+  !! lag points of an element are listed in increasing order, so a gather
+  !! over an element's list adds the contributions to each dof in the same
+  !! order as a scatter over the lag points. This lets the host loops run
+  !! element-parallel without races, and gives the device gather kernel
+  !! its connectivity.
+  subroutine idw_build_el_csr(this, nelv)
     class(idw_source_term_t), intent(inout) :: this
-    integer :: nelv, n_lag, n, i, ee, e, k, n_csr
+    integer, intent(in) :: nelv
+    integer :: n_lag, i, ee, e, k, n_csr
     integer, allocatable :: cursor(:)
 
-    nelv = size(this%w%dof%x%x, 4)
     n_lag = size(this%lag_pts)
-    this%lx3 = this%w%Xh%lx**3
 
     ! Histogram of contributions per element (stored shifted by one slot)
     allocate(this%el_off(nelv + 1))
@@ -750,6 +758,20 @@ contains
           this%active_el(k) = e - 1
        end if
     end do
+
+  end subroutine idw_build_el_csr
+
+  !> Build the device data structures for the IDW source term: upload the
+  !! CSR built by idw_build_el_csr, the unpacked Lagrangian coordinates, and
+  !! the mask/weight fields that are assembled on the host during init.
+  subroutine idw_build_device_maps(this)
+    class(idw_source_term_t), intent(inout) :: this
+    integer :: nelv, n_lag, n, i, n_csr
+
+    nelv = size(this%el_off) - 1
+    n_lag = size(this%lag_pts)
+    n_csr = this%el_off(nelv + 1)
+    this%lx3 = this%w%Xh%lx**3
 
     ! Unpack Lagrangian coordinates
     allocate(this%lpx(n_lag), this%lpy(n_lag), this%lpz(n_lag))
@@ -1041,8 +1063,7 @@ contains
     class(idw_source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: u, v, w, fu, fv, fw
-    integer :: i, j, k, l, e, ee, n
-    real(kind=rp) :: r, idw
+    integer :: n
 
     n = this%fields%item_size(1)
 
@@ -1113,91 +1134,11 @@ contains
          end if
 
          ! Spread stage: accumulate into the IB forcing fields
-         if (this%one_sided) then
-         do i = 1, size(this%lag_pts)
-            select type (el => this%lag_el(i)%data)
-              type is (integer)
-               do ee = 1, this%lag_el(i)%size()
-                  e = el(ee)
-                  do l = 1, lx
-                     do k = 1, lx
-                        do j = 1, lx
-                           r = sqrt((x(j,k,l,e) - lag_pts(i)%x(1))**2 &
-                                + (y(j,k,l,e) - lag_pts(i)%x(2))**2 &
-                                + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
-                           r = r / ds(j,k,l,e)
-                           idw = inv_dist_weight(r, this%rmax, this%pwr_param)
-
-                           if (this%pmsk%x(j,k,l,e) .gt. 0) then
-                              if (abs(this%w%x(j,k,l,e)) .gt. 1e-10_rp) then
-                                 ibx(j,k,l,e) = ibx(j,k,l,e) &
-                                      + (-fu_ib(i) * idw) / (this%w%x(j,k,l,e) &
-                                      * time%dt)
-
-                                 iby(j,k,l,e) = iby(j,k,l,e) &
-                                      + (-fv_ib(i) * idw) / (this%w%x(j,k,l,e) &
-                                      * time%dt)
-
-                                 ibz(j,k,l,e) = ibz(j,k,l,e) &
-                                      + (-fw_ib(i) * idw) / (this%w%x(j,k,l,e) &
-                                      * time%dt)
-                              end if
-                           else
-                              if (abs(this%wm%x(j,k,l,e)) .gt. 1e-10_rp) then
-                                 ibx(j,k,l,e) = ibx(j,k,l,e) &
-                                      + (-fum_ib(i) * idw) / (this%wm%x(j,k,l,e) &
-                                      * time%dt)
-
-                                 iby(j,k,l,e) = iby(j,k,l,e) &
-                                      + (-fvm_ib(i) * idw) / (this%wm%x(j,k,l,e) &
-                                      * time%dt)
-
-                                 ibz(j,k,l,e) = ibz(j,k,l,e) &
-                                      + (-fwm_ib(i) * idw) / (this%wm%x(j,k,l,e) &
-                                      * time%dt)
-                              end if
-                           end if
-                        end do
-                     end do
-                  end do
-               end do
-            end select
-         end do
-         else
-         do i = 1, size(this%lag_pts)
-            select type (el => this%lag_el(i)%data)
-              type is (integer)
-               do ee = 1, this%lag_el(i)%size()
-                  e = el(ee)
-                  do l = 1, lx
-                     do k = 1, lx
-                        do j = 1, lx
-                           if (this%w%x(j,k,l,e) .gt. 1e-12_rp) then
-                              r = sqrt((x(j,k,l,e) - lag_pts(i)%x(1))**2 &
-                                   + (y(j,k,l,e) - lag_pts(i)%x(2))**2 &
-                                   + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
-                              r = r / ds(j,k,l,e)
-                              idw = inv_dist_weight(r, this%rmax, this%pwr_param)
-                              
-                              ibx(j,k,l,e) = ibx(j,k,l,e) &
-                                   + (-fu_ib(i) * idw) / (this%w%x(j,k,l,e) &
-                                   * time%dt)
-
-                              iby(j,k,l,e) = iby(j,k,l,e) &
-                                   + (-fv_ib(i) * idw) / (this%w%x(j,k,l,e) &
-                                   * time%dt)
-
-                              ibz(j,k,l,e) = ibz(j,k,l,e) &
-                                   + (-fw_ib(i) * idw) / (this%w%x(j,k,l,e) &
-                                   * time%dt)
-                           end if
-                        end do
-                     end do
-                  end do
-               end do
-            end select
-         end do
-         end if
+         call idw_spread(ibx, iby, ibz, fu_ib, fv_ib, fw_ib, &
+              fum_ib, fvm_ib, fwm_ib, lag_pts, this%active_el, &
+              this%el_off, this%el_lag, x, y, z, ds, this%pmsk%x, &
+              this%w%x, this%wm%x, this%rmax, this%pwr_param, time%dt, &
+              this%one_sided, lx, this%coef%msh%nelv)
       end if
 
     end associate
@@ -1417,10 +1358,19 @@ contains
     real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: pmsk, mult, x, y, z, ds
     real(kind=rp), intent(in) :: rmax_i, p
     integer :: i, j, k, l, e, ee
-    real(kind=rp) :: r, wgt
+    real(kind=rp) :: r, wgt, acc(8)
+    real(kind=dp) :: xp, yp, zp
 
+    ! Every marker owns its column of part, accumulated in registers and
+    ! stored once; the stencil sizes differ between markers, hence the
+    ! dynamic schedule
+    !$omp parallel do private(i, j, k, l, e, ee, r, wgt, acc, xp, yp, zp) &
+    !$omp schedule(dynamic)
     do i = 1, size(lag_pts)
-       part(:, i) = 0.0_rp
+       acc = 0.0_rp
+       xp = lag_pts(i)%x(1)
+       yp = lag_pts(i)%x(2)
+       zp = lag_pts(i)%x(3)
        select type (el => lag_el(i)%data)
          type is (integer)
           do ee = 1, lag_el(i)%size()
@@ -1428,28 +1378,30 @@ contains
              do l = 1, lx
                 do k = 1, lx
                    do j = 1, lx
-                      r = sqrt((x(j,k,l,e) - lag_pts(i)%x(1))**2 &
-                           + (y(j,k,l,e) - lag_pts(i)%x(2))**2 &
-                           + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
+                      r = sqrt((x(j,k,l,e) - xp)**2 &
+                           + (y(j,k,l,e) - yp)**2 &
+                           + (z(j,k,l,e) - zp)**2)
                       r = r / ds(j,k,l,e)
                       wgt = inv_dist_weight(r, rmax_i, p) * mult(j,k,l,e)
                       if (pmsk(j,k,l,e) .gt. 0.0_rp) then
-                         part(1, i) = part(1, i) + wgt * u(j,k,l,e)
-                         part(2, i) = part(2, i) + wgt * v(j,k,l,e)
-                         part(3, i) = part(3, i) + wgt * w(j,k,l,e)
-                         part(4, i) = part(4, i) + wgt
+                         acc(1) = acc(1) + wgt * u(j,k,l,e)
+                         acc(2) = acc(2) + wgt * v(j,k,l,e)
+                         acc(3) = acc(3) + wgt * w(j,k,l,e)
+                         acc(4) = acc(4) + wgt
                       else
-                         part(5, i) = part(5, i) + wgt * u(j,k,l,e)
-                         part(6, i) = part(6, i) + wgt * v(j,k,l,e)
-                         part(7, i) = part(7, i) + wgt * w(j,k,l,e)
-                         part(8, i) = part(8, i) + wgt
+                         acc(5) = acc(5) + wgt * u(j,k,l,e)
+                         acc(6) = acc(6) + wgt * v(j,k,l,e)
+                         acc(7) = acc(7) + wgt * w(j,k,l,e)
+                         acc(8) = acc(8) + wgt
                       end if
                    end do
                 end do
              end do
           end do
        end select
+       part(:, i) = acc
     end do
+    !$omp end parallel do
 
   end subroutine idw_interp_shepard_partials
 
@@ -1463,6 +1415,7 @@ contains
     real(kind=rp), intent(in) :: part(:,:)
     integer :: i
 
+    !$omp parallel do private(i)
     do i = 1, size(part, 2)
        if (part(4, i) .gt. 1e-12_rp) then
           fu_ib(i) = part(1, i) / part(4, i)
@@ -1484,6 +1437,7 @@ contains
           fwm_ib(i) = 0.0_rp
        end if
     end do
+    !$omp end parallel do
 
   end subroutine idw_interp_shepard_normalize
 
@@ -1653,49 +1607,166 @@ contains
 
   end subroutine idw_init_boundary_mesh
 
-  !> Compute IB weight field
-  subroutine idw_compute_weight(w, wm, msk, lag_pts, lag_el, x, y, z, &
-       ds, rmax, p, lx, ne)
+  !> Compute IB weight field. Gathers per element from the CSR transpose
+  !! of `lag_el`, so every dof has one writer and the lag points are added
+  !! in increasing order, independent of the number of threads.
+  subroutine idw_compute_weight(w, wm, msk, lag_pts, active_el, el_off, &
+       el_lag, x, y, z, ds, rmax, p, lx, ne)
     type(field_t), intent(inout) :: w, wm, msk
-    type(point_t), allocatable, intent(inout) :: lag_pts(:)
-    type(stack_i4_t), allocatable, intent(inout) :: lag_el(:)
+    type(point_t), intent(in) :: lag_pts(:)
+    integer, intent(in) :: active_el(:), el_off(:), el_lag(:)
     integer, intent(in) :: lx, ne
     real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: x, y, z, ds
     real(kind=rp), intent(inout) :: p
     real(kind=rp), intent(inout) :: rmax
-    integer :: i, j, k, l, e, ee
+    integer :: a, i, ii, j, k, l, e
     real(kind=rp) :: r
+    real(kind=dp) :: xp, yp, zp
 
     w%x = 0.0_rp
     wm%x = 0.0_rp
 
-    do i = 1, size(lag_pts)
-       select type(el => lag_el(i)%data)
-         type is (integer)
-          do ee = 1, lag_el(i)%size()
-             e = el(ee)
+    !$omp parallel do private(a, i, ii, j, k, l, e, r, xp, yp, zp) &
+    !$omp schedule(dynamic)
+    do a = 1, size(active_el)
+       e = active_el(a) + 1
+       do ii = el_off(e) + 1, el_off(e + 1)
+          i = el_lag(ii) + 1
+          xp = lag_pts(i)%x(1)
+          yp = lag_pts(i)%x(2)
+          zp = lag_pts(i)%x(3)
+          do l = 1, lx
+             do k = 1, lx
+                do j = 1, lx
+                   r = sqrt((x(j,k,l,e) - xp)**2 &
+                        + (y(j,k,l,e) - yp)**2 &
+                        + (z(j,k,l,e) - zp)**2)
+                   r = r / ds(j,k,l,e)
+                   if (msk%x(j,k,l,e) .gt. 0) then
+                      w%x(j, k, l, e) = w%x(j, k, l, e) &
+                           + inv_dist_weight(r, rmax, p)
+                   else
+                      wm%x(j, k, l, e) = wm%x(j, k, l, e) &
+                           + inv_dist_weight(r, rmax, p)
+                   end if
+                end do
+             end do
+          end do
+       end do
+    end do
+    !$omp end parallel do
+
+  end subroutine idw_compute_weight
+
+  !> Spread the per-marker velocities into the IB forcing. Gathers per
+  !! element from the CSR transpose of `lag_el`, so every dof has one
+  !! writer and the lag points are added in increasing order, i.e. the
+  !! result is that of a scatter over the lag points, independent of the
+  !! number of threads.
+  subroutine idw_spread(ibx, iby, ibz, fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, &
+       fwm_ib, lag_pts, active_el, el_off, el_lag, x, y, z, ds, pmsk, w, wm, &
+       rmax, p, dt, one_sided, lx, ne)
+    integer, intent(in) :: lx, ne
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(inout) :: ibx, iby, ibz
+    real(kind=rp), intent(in) :: fu_ib(:), fv_ib(:), fw_ib(:)
+    real(kind=rp), intent(in) :: fum_ib(:), fvm_ib(:), fwm_ib(:)
+    type(point_t), intent(in) :: lag_pts(:)
+    integer, intent(in) :: active_el(:), el_off(:), el_lag(:)
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: x, y, z, ds
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: pmsk, w, wm
+    real(kind=rp), intent(in) :: rmax, p
+    real(kind=dp), intent(in) :: dt
+    logical, intent(in) :: one_sided
+    integer :: a, i, ii, j, k, l, e
+    real(kind=rp) :: r, idw
+    real(kind=dp) :: xp, yp, zp
+
+    if (one_sided) then
+       !$omp parallel do private(a, i, ii, j, k, l, e, r, idw, xp, yp, zp) &
+       !$omp schedule(dynamic)
+       do a = 1, size(active_el)
+          e = active_el(a) + 1
+          do ii = el_off(e) + 1, el_off(e + 1)
+             i = el_lag(ii) + 1
+             xp = lag_pts(i)%x(1)
+             yp = lag_pts(i)%x(2)
+             zp = lag_pts(i)%x(3)
              do l = 1, lx
                 do k = 1, lx
                    do j = 1, lx
-                      r = sqrt((x(j,k,l,e) - lag_pts(i)%x(1))**2 &
-                           + (y(j,k,l,e) - lag_pts(i)%x(2))**2 &
-                           + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
+                      r = sqrt((x(j,k,l,e) - xp)**2 &
+                           + (y(j,k,l,e) - yp)**2 &
+                           + (z(j,k,l,e) - zp)**2)
                       r = r / ds(j,k,l,e)
-                      if (msk%x(j,k,l,e) .gt. 0) then
-                         w%x(j, k, l, e) = w%x(j, k, l, e) &
-                              + inv_dist_weight(r, rmax, p)
+                      idw = inv_dist_weight(r, rmax, p)
+
+                      if (pmsk(j,k,l,e) .gt. 0) then
+                         if (abs(w(j,k,l,e)) .gt. 1e-10_rp) then
+                            ibx(j,k,l,e) = ibx(j,k,l,e) &
+                                 + (-fu_ib(i) * idw) / (w(j,k,l,e) * dt)
+
+                            iby(j,k,l,e) = iby(j,k,l,e) &
+                                 + (-fv_ib(i) * idw) / (w(j,k,l,e) * dt)
+
+                            ibz(j,k,l,e) = ibz(j,k,l,e) &
+                                 + (-fw_ib(i) * idw) / (w(j,k,l,e) * dt)
+                         end if
                       else
-                         wm%x(j, k, l, e) = wm%x(j, k, l, e) &
-                              + inv_dist_weight(r, rmax, p)
+                         if (abs(wm(j,k,l,e)) .gt. 1e-10_rp) then
+                            ibx(j,k,l,e) = ibx(j,k,l,e) &
+                                 + (-fum_ib(i) * idw) / (wm(j,k,l,e) * dt)
+
+                            iby(j,k,l,e) = iby(j,k,l,e) &
+                                 + (-fvm_ib(i) * idw) / (wm(j,k,l,e) * dt)
+
+                            ibz(j,k,l,e) = ibz(j,k,l,e) &
+                                 + (-fwm_ib(i) * idw) / (wm(j,k,l,e) * dt)
+                         end if
                       end if
                    end do
                 end do
              end do
           end do
-       end select
-    end do
+       end do
+       !$omp end parallel do
+    else
+       !$omp parallel do private(a, i, ii, j, k, l, e, r, idw, xp, yp, zp) &
+       !$omp schedule(dynamic)
+       do a = 1, size(active_el)
+          e = active_el(a) + 1
+          do ii = el_off(e) + 1, el_off(e + 1)
+             i = el_lag(ii) + 1
+             xp = lag_pts(i)%x(1)
+             yp = lag_pts(i)%x(2)
+             zp = lag_pts(i)%x(3)
+             do l = 1, lx
+                do k = 1, lx
+                   do j = 1, lx
+                      if (w(j,k,l,e) .gt. 1e-12_rp) then
+                         r = sqrt((x(j,k,l,e) - xp)**2 &
+                              + (y(j,k,l,e) - yp)**2 &
+                              + (z(j,k,l,e) - zp)**2)
+                         r = r / ds(j,k,l,e)
+                         idw = inv_dist_weight(r, rmax, p)
 
-  end subroutine idw_compute_weight
+                         ibx(j,k,l,e) = ibx(j,k,l,e) &
+                              + (-fu_ib(i) * idw) / (w(j,k,l,e) * dt)
+
+                         iby(j,k,l,e) = iby(j,k,l,e) &
+                              + (-fv_ib(i) * idw) / (w(j,k,l,e) * dt)
+
+                         ibz(j,k,l,e) = ibz(j,k,l,e) &
+                              + (-fw_ib(i) * idw) / (w(j,k,l,e) * dt)
+                      end if
+                   end do
+                end do
+             end do
+          end do
+       end do
+       !$omp end parallel do
+    end if
+
+  end subroutine idw_spread
 
   !> Count, for every marker and side, the local stencil nodes inside the
   !! interpolation cutoff. Used for the init-time diagnostic of the
@@ -1713,6 +1784,7 @@ contains
     integer :: i, j, k, l, e, ee, np, nm
     real(kind=rp) :: r
 
+    !$omp parallel do private(i, j, k, l, e, ee, np, nm, r) schedule(dynamic)
     do i = 1, size(lag_pts)
        np = 0
        nm = 0
@@ -1741,79 +1813,84 @@ contains
        np_i(i) = np
        nm_i(i) = nm
     end do
+    !$omp end parallel do
 
   end subroutine idw_interp_stencil_counts
 
-  !> Compute IB mask fields
-  subroutine idw_compute_mask(mmsk, pmsk, lag_pts, lag_el, lag_nrm, x, y, z, lx, ne)
+  !> Compute IB mask fields. Gathers per element from the CSR transpose
+  !! of `lag_el`: the nearest-marker distance of an element's dofs only
+  !! depends on the markers overlapping it, so each thread keeps it in a
+  !! private element-sized buffer.
+  subroutine idw_compute_mask(mmsk, pmsk, lag_pts, lag_nrm, active_el, &
+       el_off, el_lag, x, y, z, lx, ne)
     type(field_t), intent(inout) :: mmsk, pmsk
-    type(point_t), allocatable, intent(inout) :: lag_pts(:)
-    type(stack_i4_t), allocatable, intent(inout) :: lag_el(:)
-    type(point_t), allocatable, intent(inout) :: lag_nrm(:)
+    type(point_t), intent(in) :: lag_pts(:)
+    type(point_t), intent(in) :: lag_nrm(:)
+    integer, intent(in) :: active_el(:), el_off(:), el_lag(:)
     integer, intent(in) :: lx, ne
     real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: x, y, z
-    real(kind=rp), allocatable :: dist(:,:,:,:)
+    real(kind=rp) :: dist(lx,lx,lx)
     real(kind=rp) :: euler_pt(3)
-    integer :: i, j, k, l, e, ee
+    integer :: a, i, ii, j, k, l, e
     real(kind=rp) :: r
+    real(kind=dp) :: xp, yp, zp
 
     mmsk%x = 1.0_rp
     pmsk%x = 1.0_rp
 
-    allocate(dist(lx,lx,lx,ne))
-    dist = huge(0.0_rp)
+    !$omp parallel do private(a, i, ii, j, k, l, e, r, xp, yp, zp, &
+    !$omp dist, euler_pt) schedule(dynamic)
+    do a = 1, size(active_el)
+       e = active_el(a) + 1
+       dist = huge(0.0_rp)
 
-    do i = 1, size(lag_pts)
-       select type(el => lag_el(i)%data)
-         type is (integer)
-          do ee = 1, lag_el(i)%size()
-             e = el(ee)
-             do l = 1, lx
-                do k = 1, lx
-                   do j = 1, lx
-                      r = sqrt((x(j,k,l,e) - lag_pts(i)%x(1))**2 &
-                           + (y(j,k,l,e) - lag_pts(i)%x(2))**2 &
-                           + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
-                      dist(j,k,l,e) = min(dist(j,k,l,e), r)
-                   end do
+       do ii = el_off(e) + 1, el_off(e + 1)
+          i = el_lag(ii) + 1
+          xp = lag_pts(i)%x(1)
+          yp = lag_pts(i)%x(2)
+          zp = lag_pts(i)%x(3)
+          do l = 1, lx
+             do k = 1, lx
+                do j = 1, lx
+                   r = sqrt((x(j,k,l,e) - xp)**2 &
+                        + (y(j,k,l,e) - yp)**2 &
+                        + (z(j,k,l,e) - zp)**2)
+                   dist(j,k,l) = min(dist(j,k,l), r)
                 end do
              end do
           end do
-       end select
-    end do
+       end do
 
-    do i = 1, size(lag_pts)
-       select type(el => lag_el(i)%data)
-         type is (integer)
-          do ee = 1, lag_el(i)%size()
-             e = el(ee)
-             do l = 1, lx
-                do k = 1, lx
-                   do j = 1, lx
-                      r = sqrt((x(j,k,l,e) - lag_pts(i)%x(1))**2 &
-                           + (y(j,k,l,e) - lag_pts(i)%x(2))**2 &
-                           + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
+       do ii = el_off(e) + 1, el_off(e + 1)
+          i = el_lag(ii) + 1
+          xp = lag_pts(i)%x(1)
+          yp = lag_pts(i)%x(2)
+          zp = lag_pts(i)%x(3)
+          do l = 1, lx
+             do k = 1, lx
+                do j = 1, lx
+                   r = sqrt((x(j,k,l,e) - xp)**2 &
+                        + (y(j,k,l,e) - yp)**2 &
+                        + (z(j,k,l,e) - zp)**2)
 
-                      if (r .le. dist(j,k,l,e)) then
+                   if (r .le. dist(j,k,l)) then
 
-                         euler_pt(1) = (x(j,k,l,e) - lag_pts(i)%x(1))
-                         euler_pt(2) = (y(j,k,l,e) - lag_pts(i)%x(2))
-                         euler_pt(3) = (z(j,k,l,e) - lag_pts(i)%x(3))
+                      euler_pt(1) = (x(j,k,l,e) - xp)
+                      euler_pt(2) = (y(j,k,l,e) - yp)
+                      euler_pt(3) = (z(j,k,l,e) - zp)
 
-                         if (sum(euler_pt * lag_nrm(i)%x) .gt. 0) then
-                            mmsk%x(j,k,l,e) = 0.0_rp
-                         else
-                            pmsk%x(j,k,l,e) = 0.0_rp
-                         end if
+                      if (sum(euler_pt * lag_nrm(i)%x) .gt. 0) then
+                         mmsk%x(j,k,l,e) = 0.0_rp
+                      else
+                         pmsk%x(j,k,l,e) = 0.0_rp
                       end if
-                   end do
+                   end if
                 end do
              end do
           end do
-       end select
+       end do
     end do
-
-    deallocate(dist)
+    !$omp end parallel do
 
   end subroutine idw_compute_mask
 

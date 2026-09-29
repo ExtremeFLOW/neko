@@ -219,11 +219,13 @@ contains
        call tnsr3d_el_list_device(v_d, nv, u_d, nu, &
             A_d, Bt_d, Ct_d, el_list_d, n_pt)
     else
+       !$omp parallel do private(i)
        do i = 1, n_pt
           ! Note the use of el_list(i) + 1, because of the gslib C interface
           call tnsr3d_el_cpu(v(1, i), nv, u(1, el_list(i) + 1), &
                nu, A(1, 1, i), Bt(1, 1, i), Ct(1, 1, i))
        end do
+       !$omp end parallel do
     end if
 
   end subroutine tnsr3d_el_list

@@ -259,7 +259,12 @@ contains
 
     rst = 0.0_rp
     ! If performance critical we should do multiple points at the time
-    ! Currently we do one point at the time
+    ! Currently we do one point at the time, the points are independent
+    ! and the Newton iteration count varies, hence the guided schedule
+    !$omp parallel do private(i, j, e, ih, iter, converged, conv_pts, &
+    !$omp r_legendre, s_legendre, t_legendre, &
+    !$omp dr_legendre, ds_legendre, dt_legendre, &
+    !$omp jac, jacinv, rst_d, x_hat, y_hat, z_hat) schedule(guided)
     do i = 1, n_pts
        iter = 0
        converged = .false.
@@ -365,5 +370,6 @@ contains
           if (iter .ge. this%max_iter) converged = .true.
        end do
     end do
+    !$omp end parallel do
   end subroutine find_rst_legendre_cpu
 end module legendre_rst_finder
