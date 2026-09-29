@@ -256,6 +256,28 @@ contains
 
   end function neko_api_case_tstep
 
+  !> Check if a case has reached its end time
+  !! @param case_iptr Opaque pointer for the Neko case
+  !! @param is_done 1 if the case is done, 0 otherwise
+  !! @note Use this rather than comparing the time to the end time, a case is
+  !! done when its time is within a tolerance of the end time
+  function neko_api_case_is_done(case_iptr) result(is_done) &
+       bind(c, name="neko_case_is_done")
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(case_t), pointer :: C
+    type(c_ptr) :: cptr
+    integer(c_int) :: is_done
+
+    cptr = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cptr)) then
+       call c_f_pointer(cptr, C)
+       is_done = merge(1_c_int, 0_c_int, C%time%is_done())
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end function neko_api_case_is_done
+
   !> Solve a neko case
   !! @param case_iptr Opaque pointer for the Neko case
   subroutine neko_api_solve(case_iptr) bind(c, name="neko_solve")
@@ -288,6 +310,9 @@ contains
     cptr = transfer(case_iptr, c_null_ptr)
     if (c_associated(cptr)) then
        call c_f_pointer(cptr, C)
+
+       ! The case has already been finalized, nothing more to do
+       if (C%time%is_done()) return
 
        if (.not. allocated(dt_controller)) then
           allocate(dt_controller)
