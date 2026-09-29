@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Modified `legendre_rst_finder_init` to apply the `tnsr3d` operation
+  on device, when running on device. Exposed `max_iterations` to case file
+  for the Newton iterations in `global_interpolation`.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,
