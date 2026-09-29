@@ -210,6 +210,12 @@ contains
        deallocate(this%el_idx_2d)
     end if
 
+    call this%u%free()
+    call this%old_u%free()
+    call this%avg_u%free()
+    call this%el_heights%free()
+    call this%map_1d%free()
+
     nullify(this%msh)
     nullify(this%dof)
     nullify(this%coef)
