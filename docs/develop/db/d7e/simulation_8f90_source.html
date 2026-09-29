@@ -216,7 +216,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>         output_at_end, .true.)</div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keyword">call </span>c%output_controller%execute(c%time, output_at_end)</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordflow">if</span> (.not. (output_at_end) .and. c%time%t .lt. c%time%end_time) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordflow">if</span> (.not. (output_at_end) .and. .not. c%time%is_done()) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d1/d2d/namespacesimulation.html#ad5774a0a06b35c326984f6ba2ccce3e6">simulation_joblimit_chkp</a>(c, c%time%t)</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
@@ -489,7 +489,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../db/d7e/simulation_8f90.html">simulation.f90</a></li>
-    <li class="footer">Generated on Mon Sep 28 2026 03:49:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 29 2026 03:45:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

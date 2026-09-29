@@ -99,6 +99,7 @@ $(document).ready(function(){initNavTree('d8/d17/hip_2math__kernel_8h.html','../
 
 <div class="header">
   <div class="summary">
+<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">math_kernel.h File Reference</div></div>
 </div><!--header-->
@@ -149,6 +150,11 @@ This graph shows which files directly or indirectly include this file:</div>
 </div>
 <p><a href="../../d8/d17/hip_2math__kernel_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a5cd2618be764ac0932a3e8ddcd68c509" id="r_a5cd2618be764ac0932a3e8ddcd68c509"><td class="memItemLeft" align="right" valign="top">#<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">define</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d17/hip_2math__kernel_8h.html#a5cd2618be764ac0932a3e8ddcd68c509">MASKED_ATOMIC_RED_BLOCK</a>&#160;&#160;&#160;256</td></tr>
+<tr class="separator:a5cd2618be764ac0932a3e8ddcd68c509"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a6d7111b5670b9651b385bf199aec75c6" id="r_a6d7111b5670b9651b385bf199aec75c6"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> &gt; </td></tr>
@@ -360,6 +366,24 @@ Functions</h2></td></tr>
 <tr class="memitem:a72b4afabdb49a5fb2820d92232c4faf7"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d8/d17/hip_2math__kernel_8h.html#a72b4afabdb49a5fb2820d92232c4faf7">pwmin_sca3_kernel</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">a</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict</a> b, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> c, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n)</td></tr>
 <tr class="separator:a72b4afabdb49a5fb2820d92232c4faf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a5cd2618be764ac0932a3e8ddcd68c509" name="a5cd2618be764ac0932a3e8ddcd68c509"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5cd2618be764ac0932a3e8ddcd68c509">&#9670;&#160;</a></span>MASKED_ATOMIC_RED_BLOCK</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">define</a> MASKED_ATOMIC_RED_BLOCK&#160;&#160;&#160;256</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Block size of masked_atomic_reduction_kernel, also the number of shared memory bins. A multiple of both wavefront sizes. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00192">192</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="af3aae76f7760a538ad1966c92f4024c1" name="af3aae76f7760a538ad1966c92f4024c1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af3aae76f7760a538ad1966c92f4024c1">&#9670;&#160;</a></span>absval_kernel()</h2>
@@ -390,7 +414,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for abs_value </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01357">1357</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01427">1427</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -440,7 +464,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for add2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00428">428</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00498">498</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -496,7 +520,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for add2s1 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00479">479</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00549">549</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -552,7 +576,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for add2s2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00519">519</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00589">589</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -614,7 +638,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for add2s2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00496">496</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00566">566</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -670,7 +694,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for add3 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00444">444</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00514">514</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -738,7 +762,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for add3s2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00553">553</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00623">623</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -800,7 +824,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for add4 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00461">461</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00531">531</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -880,7 +904,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for add4s3 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00572">572</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00642">642</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -972,7 +996,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for add5s4 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00593">593</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00663">663</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1028,7 +1052,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for addcol3 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00748">748</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00818">818</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1090,7 +1114,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for addcol3s2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00785">785</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00855">855</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1152,7 +1176,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for addcol4 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00766">766</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00836">836</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1208,7 +1232,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for addsqr2s2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00536">536</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00606">606</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1264,7 +1288,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for cadd2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00329">329</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00399">399</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1314,7 +1338,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for cadd </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00313">313</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00383">383</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1370,7 +1394,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for cdiv2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00296">296</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00366">366</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1420,7 +1444,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for cdiv </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00280">280</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00350">350</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1470,7 +1494,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for cmult </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00396">396</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00466">466</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1532,7 +1556,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for cfill_mask </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00247">247</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00317">317</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1588,7 +1612,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for cmult2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00263">263</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00333">333</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1688,7 +1712,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for col2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00665">665</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00735">735</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1744,7 +1768,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for col3 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00681">681</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00751">751</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1794,7 +1818,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for copy </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00412">412</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00482">482</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1850,7 +1874,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for cwrap </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00346">346</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00416">416</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2128,7 +2152,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for glamax </p><dl class="section note"><dt>Note</dt><dd>The identity is zero, since the reduced values are non-negative. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01286">1286</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01356">1356</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2186,7 +2210,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for glmax </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01249">1249</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01319">1319</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2244,7 +2268,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for glmin </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01321">1321</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01391">1391</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2302,7 +2326,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for glsc2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01144">1144</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01214">1214</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2366,7 +2390,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for glsc3 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01068">1068</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01138">1138</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2436,7 +2460,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for glsc3 many </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01103">1103</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01173">1173</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2488,7 +2512,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Reduction kernel for glsc3 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00999">999</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01069">1069</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2546,7 +2570,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for glsubnorm </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01179">1179</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01249">1249</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2598,7 +2622,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for glsum </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01214">1214</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01284">1284</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2644,7 +2668,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for invcol1 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00616">616</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00686">686</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2694,7 +2718,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for invcol2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00632">632</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00702">702</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2750,7 +2774,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for invcol3 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00648">648</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00718">718</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2812,16 +2836,18 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for masked atomic update </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00192">192</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00198">198</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/d17/hip_2math__kernel_8h_a3c80139c8e31264f7f8a559013cbf896_cgraph.png" border="0" usemap="#ad8/d17/hip_2math__kernel_8h_a3c80139c8e31264f7f8a559013cbf896_cgraph" alt=""/></div>
 <map name="ad8/d17/hip_2math__kernel_8h_a3c80139c8e31264f7f8a559013cbf896_cgraph" id="ad8/d17/hip_2math__kernel_8h_a3c80139c8e31264f7f8a559013cbf896_cgraph">
-<area shape="rect" title=" " alt="" coords="5,29,199,69"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="247,29,399,69"/>
-<area shape="poly" title=" " alt="" coords="199,47,233,47,233,52,199,52"/>
-<area shape="poly" title=" " alt="" coords="282,30,279,20,286,10,300,5,323,3,348,6,362,13,360,18,347,11,323,8,302,10,289,15,284,21,287,28"/>
+<area shape="rect" title=" " alt="" coords="5,39,199,79"/>
+<area shape="rect" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="265,5,380,31"/>
+<area shape="poly" title=" " alt="" coords="198,39,252,29,253,34,199,44"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="247,79,399,119"/>
+<area shape="poly" title=" " alt="" coords="199,74,233,80,232,86,198,80"/>
+<area shape="poly" title=" " alt="" coords="282,80,279,70,286,60,300,55,323,53,348,56,362,63,360,68,347,61,323,58,302,60,289,65,284,71,287,78"/>
 </map>
 </div>
 
@@ -2874,7 +2900,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for masked copy with BC style mask </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00211">211</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00281">281</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2936,7 +2962,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for masked copy with point zone style mask </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00229">229</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00299">299</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3240,7 +3266,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for power </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00379">379</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00449">449</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3290,7 +3316,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for point-wise max of vector and scalar a = <a class="el" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max(a, c)</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01405">1405</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01475">1475</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3346,7 +3372,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for point-wise max of vector and scalar a = <a class="el" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max(b, c)</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01418">1418</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01488">1488</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3396,7 +3422,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for point-wise max of two vectors a = <a class="el" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max(a, b)</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01377">1377</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01447">1447</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3452,7 +3478,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for point-wise max of two vectors a = <a class="el" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max(b, c)</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01390">1390</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01460">1460</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3502,7 +3528,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for point-wise min of vector and scalar a = min(a, c) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01461">1461</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01531">1531</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3558,7 +3584,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for point-wise min of vector and scalar a = min(b, c) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01474">1474</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01544">1544</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3608,7 +3634,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for point-wise min of two vectors a = min(a, b) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01433">1433</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01503">1503</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3664,7 +3690,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for point-wise min of two vectors a = min(b, c) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01446">1446</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01516">1516</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3708,7 +3734,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Vector reduction kernel </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00905">905</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00975">975</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3760,7 +3786,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Vector reduction maximisation kernel </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00936">936</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01006">1006</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3796,7 +3822,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Warp shuffle reduction of maximisation </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00873">873</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00943">943</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3846,7 +3872,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Vector reduction minimisation kernel </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00967">967</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01037">1037</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3882,7 +3908,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Warp shuffle reduction of minimisation </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00889">889</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00959">959</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3917,7 +3943,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 <p>Warp shuffle reduction</p>
 <p>The ladder is stepped down from NEKO_WAVE_SIZE/2, so the leading half wave shuffle is only emitted on a 64 lane wavefront. At wave64 this preprocesses to exactly the sequence it always has; at wave32 the 32 step would have shuffled past the end of the wave, where __shfl_down returns the lane's own value and the reduction silently doubles it. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00857">857</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00927">927</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3961,7 +3987,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for sqrt_inplace </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00364">364</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00434">434</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4011,7 +4037,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for sub2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00715">715</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00785">785</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4067,7 +4093,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for sub3 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00731">731</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00801">801</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4123,7 +4149,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for subcol3 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00698">698</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00768">768</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4215,7 +4241,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for vcross </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00826">826</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00896">896</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4295,7 +4321,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for vdot3 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00804">804</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l00874">874</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4357,7 +4383,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </div><div class="memdoc">
 <p>Device kernel for vlsc3 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01033">1033</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html#l01103">1103</a> of file <a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4380,7 +4406,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_f48359d827d7566deae6b1b647b520e2.html">hip</a></li><li class="navelem"><a class="el" href="../../d8/d17/hip_2math__kernel_8h.html">math_kernel.h</a></li>
-    <li class="footer">Generated on Mon Sep 28 2026 03:49:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 29 2026 03:45:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

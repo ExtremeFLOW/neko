@@ -23,6 +23,7 @@ var intf_8py =
     [ "field_space", "d3/d61/intf_8py.html#a55a2356bbfbc2efff34ebd5d9c01388d", null ],
     [ "finalize", "d3/d61/intf_8py.html#aeb032e9cd816f9a518f8ceb1e35b90d1", null ],
     [ "init", "d3/d61/intf_8py.html#a5d53bb104d9f0982b4405a1477dae08c", null ],
+    [ "is_done", "d3/d61/intf_8py.html#a2d9d0920a9f745356b5125dd38fb57d8", null ],
     [ "job_info", "d3/d61/intf_8py.html#a4cb81ba03fe0d65330b187e343e21560", null ],
     [ "output", "d3/d61/intf_8py.html#af7f8580b714c10891b00a1fd90e26d2e", null ],
     [ "python_dict_to_fortran", "d3/d61/intf_8py.html#a8870e3dc2c5affcffd247e960d84a854", null ],

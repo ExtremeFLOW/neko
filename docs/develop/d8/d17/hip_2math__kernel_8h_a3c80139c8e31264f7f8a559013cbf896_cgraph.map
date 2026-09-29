@@ -1,6 +1,8 @@
 <map id="masked_atomic_reduction_kernel" name="masked_atomic_reduction_kernel">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,199,69"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="247,29,399,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,47,233,47,233,52,199,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="282,30,279,20,286,10,300,5,323,3,348,6,362,13,360,18,347,11,323,8,302,10,289,15,284,21,287,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,199,79"/>
+<area shape="rect" id="Node000002" href="$d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="265,5,380,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,39,252,29,253,34,199,44"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="247,79,399,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="199,74,233,80,232,86,198,80"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="282,80,279,70,286,60,300,55,323,53,348,56,362,63,360,68,347,61,323,58,302,60,289,65,284,71,287,78"/>
 </map>

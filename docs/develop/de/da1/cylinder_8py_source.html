@@ -166,7 +166,7 @@ $(document).ready(function(){initNavTree('de/da1/cylinder_8py_source.html','../.
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="comment">#pyneko.solve(cylinder_case)</span></div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="comment"># To manually step forward in time, call step()</span></div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="keywordflow">while</span> pyneko.time(cylinder_case) &lt; pyneko.end_time(cylinder_case):</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="keywordflow">while</span> <span class="keywordflow">not</span> pyneko.is_done(cylinder_case):</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    pyneko.step(cylinder_case)</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="comment"># Cleanup</span></div>
@@ -180,7 +180,7 @@ $(document).ready(function(){initNavTree('de/da1/cylinder_8py_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_d28a4824dc47e487b107a5db32ef43c4.html">examples</a></li><li class="navelem"><a class="el" href="../../dir_0e9717f52742c4b05484472a8ace924a.html">api</a></li><li class="navelem"><a class="el" href="../../dir_b89286cba04f57fc0cc6537716ed23d5.html">pyneko</a></li><li class="navelem"><a class="el" href="../../de/da1/cylinder_8py.html">cylinder.py</a></li>
-    <li class="footer">Generated on Mon Sep 28 2026 03:49:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Sep 29 2026 03:45:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

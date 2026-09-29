@@ -524,6 +524,7 @@ var namespaces_dup =
       [ "neko_api_case_fluid_space", "d5/dd3/namespaceneko__api.html#a69cb0f448df9d60ecc194ac9dabb128f", null ],
       [ "neko_api_case_free", "d5/dd3/namespaceneko__api.html#a59176b435bbe373d8e3115b61d9d6259", null ],
       [ "neko_api_case_init", "d5/dd3/namespaceneko__api.html#a6436e0b732490378a471ac81629a554f", null ],
+      [ "neko_api_case_is_done", "d5/dd3/namespaceneko__api.html#ac04f29ca80b299c9033fe21db93d3253", null ],
       [ "neko_api_case_time", "d5/dd3/namespaceneko__api.html#adc7f750b580c90665a20aefbde2a0624", null ],
       [ "neko_api_case_tstep", "d5/dd3/namespaceneko__api.html#ae0edb0107949d327be26245f72779970", null ],
       [ "neko_api_device_finalize", "d5/dd3/namespaceneko__api.html#a43803702cb082dc4fa12d15fda6f8a3b", null ],

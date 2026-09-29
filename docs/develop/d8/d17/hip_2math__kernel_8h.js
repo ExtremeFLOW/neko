@@ -1,5 +1,6 @@
 var hip_2math__kernel_8h =
 [
+    [ "MASKED_ATOMIC_RED_BLOCK", "d8/d17/hip_2math__kernel_8h.html#a5cd2618be764ac0932a3e8ddcd68c509", null ],
     [ "absval_kernel", "d8/d17/hip_2math__kernel_8h.html#af3aae76f7760a538ad1966c92f4024c1", null ],
     [ "add2_kernel", "d8/d17/hip_2math__kernel_8h.html#a10790ce84ed7d0ca87900616bbca7a88", null ],
     [ "add2s1_kernel", "d8/d17/hip_2math__kernel_8h.html#a47ed183d09a19dfb3b9739114f39c646", null ],
