@@ -1518,20 +1518,44 @@ The reference velocity field, or `baseflow` can be set from three methods:
    }
    ```
    </details>
+4. `no-op`, where the velocity field is retrieved directly from the registry.
+   Use when multiple sponge objects should use the same baseflow velocity.
+   <details>
+   <summary><b><u>Example code snippet</u></b></summary>
+   ```json
+   {
+      "source_terms": [
+         {
+            "type": "sponge",
+            "amplitudes": [10.0, 10.0, 10.0],
+            "baseflow": {
+                // baseflow registered under "sponge_bf_u/v/w"
+                "method": "field",
+                "file_name": "baseflow0.f00000"
+            }
+         },
+         {
+            "type": "sponge",
+            "amplitudes": [0.5, 0.5, 0.5],
+            "baseflow": {
+                "method": "no-op"
+                // by default, retrieves the baseflow "sponge_bf_u/v/w"
+                // (can be changed via `bf_registry_prefix`)
+            }
+         }
+      ]
+   }
+   ```
+   </details>
 
 Finally, the fringe function field must be filled by the user. This must be
 done through the user file by adding the fringe field to the
-`neko_registry` in either `initialize` or `initial_conditions` (more
-specifically, before the first call to compute the sponge source term). Note that `initial_conditions` is not called when doing a restart from a checkpoint file, so if restarts will be done the sponge should be implemented in `user_init_modules`.
+`neko_registry`, under a name that can be retrieved internally. By default, 
+Neko will search for the field `"sponge_fringe"` in the registry, but this 
+can be changed by setting the parameter `fringe_registry_name`.
 
-The fringe field must be set by adding a field to the `neko_registry`
-under a specific name that can be retrieved internally. By default, Neko will
-search for the field `"sponge_fringe"` in the registry, but this can be changed
-by setting the parameter `fringe_registry_name`, which is important when using
-more than one sponge source term.
-
-The same principle applies for the base flow fields (if `"method": "user"`).
-By default, neko will search for the base flow fields in the registry using
+The same principle applies for the baseflow fields (if `"method": "user"`).
+By default, neko will search for the baseflow fields in the registry using
 the prefix `"sponge_bf_"`, meaning that `u` will be in `sponge_bf_u`, etc.
 This prefix can be changed by setting the parameter `bf_registry_prefix`.
 
@@ -1539,6 +1563,9 @@ This prefix can be changed by setting the parameter `bf_registry_prefix`.
 <summary><b><u>Example using `initialize`</u></b></summary>
 
 ```fortran
+!
+! Sponge source term, example using "baseflow.method": "user"
+!
 module user
   use neko
   implicit none
@@ -1569,7 +1596,7 @@ contains
     call neko_registry%add_field(u%dof,"sponge_fringe")
     fringe => neko_registry%get_field("sponge_fringe")
 
-    ! Initialize the base flows
+    ! Initialize the base flows (only needed if "method": "user")
     call neko_registry%add_field(u%dof,"sponge_bf_u")
     ubf => neko_registry%get_field("sponge_bf_u")
     call neko_registry%add_field(u%dof,"sponge_bf_v")
@@ -1667,7 +1694,7 @@ The parameters for the sponge source term are summarized in the table below:
 | Name                       | Description                                                             | Admissible values                 | Default value     |
 | -------------------------- | ----------------------------------------------------------------------- | --------------------------------- | ----------------- |
 | `amplitudes`               | Sponge forcing strength in each Cartesian direction                     | Array of 3 reals                  | -                 |
-| `baseflow.method`          | Method to define the reference (baseflow) velocity                      | `"constant"`, `"field"`, `"user"` | -                 |
+| `baseflow.method`          | Method to define the reference (baseflow) velocity                      | `"constant"`, `"field"`, `"user"`, `"no-op"` | -                 |
 | `baseflow.value`           | Velocity vector for constant baseflow                                   | Array of 3 reals                  | -                 |
 | `baseflow.file_name`       | File containing baseflow velocity field                                 | String                            | -                 |
 | `baseflow.mesh_file_name`  | Mesh file corresponding to the baseflow field                           | String                            | -                 |

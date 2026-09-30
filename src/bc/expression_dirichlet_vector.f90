@@ -34,7 +34,7 @@
 !! expressions
 module expression_dirichlet_vector
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use coefs, only : coef_t
   use expression, only : expression_t, expression_check_finite, NEKO_EXPR_LEN
   use expression_dirichlet, only : expression_mask_coords
@@ -132,6 +132,7 @@ contains
 
     call this%free()
     call this%init_base(coef)
+    this%bc_type = BC_DIRICHLET
 
     if (len_trim(str_x) .eq. 0 .or. len_trim(str_y) .eq. 0 .or. &
          len_trim(str_z) .eq. 0) then

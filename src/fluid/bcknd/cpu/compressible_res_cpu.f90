@@ -60,9 +60,11 @@ module compressible_res_cpu
   end type compressible_res_cpu_t
 
   !> Whether physical Navier-Stokes fluxes are active for the current step.
-  logical :: compressible_res_cpu_add_physical_flux = .false.
+  !! Set by `compressible_rhs_set_physical_flux`, see `compressible_residual`.
+  logical, public :: compressible_res_cpu_add_physical_flux = .false.
   !> Whether physical viscous stress is active for the current step.
-  logical :: compressible_res_cpu_add_physical_stress = .false.
+  !! Set by `compressible_rhs_set_physical_flux`, see `compressible_residual`.
+  logical, public :: compressible_res_cpu_add_physical_stress = .false.
   !> Module variable to store thermodynamic parameter set by factory.
   real(kind=rp), public :: compressible_res_cpu_gamma = 1.4_rp
 
@@ -176,10 +178,6 @@ contains
     call k_E%assign(2, k_E_2)
     call k_E%assign(3, k_E_3)
     call k_E%assign(4, k_E_4)
-
-    compressible_res_cpu_add_physical_flux = &
-         any(mu%x .ne. 0.0_rp) .or. any(kappa%x .ne. 0.0_rp)
-    compressible_res_cpu_add_physical_stress = any(mu%x .ne. 0.0_rp)
 
     ! Loop over Runge-Kutta stages. One parallel region per stage covers
     ! both the initial copy and all (i-1) accumulation sweeps.
