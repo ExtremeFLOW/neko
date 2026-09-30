@@ -118,7 +118,7 @@ contains
          output_at_end, .true.)
     call C%output_controller%execute(C%time, output_at_end)
 
-    if (.not. (output_at_end) .and. C%time%t .lt. C%time%end_time) then
+    if (.not. (output_at_end) .and. .not. C%time%is_done()) then
        call simulation_joblimit_chkp(C, C%time%t)
     end if
 

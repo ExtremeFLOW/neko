@@ -8,6 +8,9 @@ module test_bc
   use coefs, only : coef_t
   use gather_scatter, only : gs_t
   use dirichlet, only : dirichlet_t
+  use expression_dirichlet, only : expression_dirichlet_t
+  use expression_dirichlet_vector, only : expression_dirichlet_vector_t
+  use bc, only : BC_DIRICHLET
   use facet_zone, only : facet_zone_t
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
@@ -474,6 +477,23 @@ contains
 
     deallocate(x, y, z)
   end subroutine test_bc_apply_vector_weak_noop
+
+  !> Every Dirichlet-family condition must report BC_DIRICHLET, since the
+  !! solvers only mark conditions of that type in their bc projectors.
+  @test(npes=[1])
+  subroutine test_bc_expression_dirichlet_type(this)
+    class(bc_test_case), intent(inout) :: this
+    type(expression_dirichlet_t) :: bc_s
+    type(expression_dirichlet_vector_t) :: bc_v
+
+    call bc_s%init_from_components(this%coef, "x + y")
+    @assertEqual(BC_DIRICHLET, bc_s%bc_type)
+    call bc_s%free()
+
+    call bc_v%init_from_components(this%coef, "1", "0", "z")
+    @assertEqual(BC_DIRICHLET, bc_v%bc_type)
+    call bc_v%free()
+  end subroutine test_bc_expression_dirichlet_type
 
   subroutine build_test_fixture(msh, Xh, dof, gs, coef)
     type(mesh_t), intent(inout) :: msh

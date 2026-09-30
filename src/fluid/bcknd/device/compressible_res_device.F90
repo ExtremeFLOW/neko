@@ -48,8 +48,8 @@ module compressible_res_device
        compressible_ops_device_ns_flux_prepare, &
        compressible_ops_device_ns_flux_finalize, &
        compressible_ops_device_ns_flux_temperature
-  use device_math, only : device_copy, device_rone, device_col2, &
-       device_cmult, device_sub2, device_add2
+  use device_math, only : device_copy, device_add2
+  use device, only : device_event_sync, glb_cmd_event
   use bc_list, only : bc_list_t
   use time_state, only : time_state_t
 
@@ -60,21 +60,25 @@ module compressible_res_device
   end type compressible_res_device_t
 
   !> Whether physical Navier-Stokes fluxes are active for the current step.
-  logical :: compressible_res_device_add_physical_flux = .false.
+  !! Set by `compressible_rhs_set_physical_flux`, see `compressible_residual`.
+  logical, public :: compressible_res_device_add_physical_flux = .false.
   !> Whether physical viscous stress is active for the current step.
-  logical :: compressible_res_device_add_physical_stress = .false.
+  !! Set by `compressible_rhs_set_physical_flux`, see `compressible_residual`.
+  logical, public :: compressible_res_device_add_physical_stress = .false.
   !> Module variable to store thermodynamic parameter set by factory.
   real(kind=rp), public :: compressible_res_device_gamma = 1.4_rp
 
 #ifdef HAVE_HIP
   interface
-     subroutine compressible_res_part_visc_hip(rhs_field_d, Binv_d, field_d, &
-          artificial_visc_d, n) &
+     subroutine compressible_res_part_visc_hip(rhs_rho_d, rhs_m_x_d, &
+          rhs_m_y_d, rhs_m_z_d, rhs_E_d, visc_rho_d, visc_m_x_d, &
+          visc_m_y_d, visc_m_z_d, visc_E_d, Binv_d, h1_d, n) &
           bind(c, name = 'compressible_res_part_visc_hip')
        use, intrinsic :: iso_c_binding
-       import c_rp
        implicit none
-       type(c_ptr), value :: rhs_field_d, Binv_d, field_d, artificial_visc_d
+       type(c_ptr), value :: rhs_rho_d, rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
+            rhs_E_d, visc_rho_d, visc_m_x_d, visc_m_y_d, visc_m_z_d, &
+            visc_E_d, Binv_d, h1_d
        integer(c_int) :: n
      end subroutine compressible_res_part_visc_hip
   end interface
@@ -154,13 +158,15 @@ module compressible_res_device
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine compressible_res_part_visc_cuda(rhs_field_d, Binv_d, field_d, &
-          artificial_visc_d, n) &
+     subroutine compressible_res_part_visc_cuda(rhs_rho_d, rhs_m_x_d, &
+          rhs_m_y_d, rhs_m_z_d, rhs_E_d, visc_rho_d, visc_m_x_d, &
+          visc_m_y_d, visc_m_z_d, visc_E_d, Binv_d, h1_d, n) &
           bind(c, name = 'compressible_res_part_visc_cuda')
        use, intrinsic :: iso_c_binding
-       import c_rp
        implicit none
-       type(c_ptr), value :: rhs_field_d, Binv_d, field_d, artificial_visc_d
+       type(c_ptr), value :: rhs_rho_d, rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
+            rhs_E_d, visc_rho_d, visc_m_x_d, visc_m_y_d, visc_m_z_d, &
+            visc_E_d, Binv_d, h1_d
        integer(c_int) :: n
      end subroutine compressible_res_part_visc_cuda
   end interface
@@ -240,13 +246,15 @@ module compressible_res_device
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine compressible_res_part_visc_opencl(rhs_field_d, Binv_d, &
-          field_d, artificial_visc_d, n) &
+     subroutine compressible_res_part_visc_opencl(rhs_rho_d, rhs_m_x_d, &
+          rhs_m_y_d, rhs_m_z_d, rhs_E_d, visc_rho_d, visc_m_x_d, &
+          visc_m_y_d, visc_m_z_d, visc_E_d, Binv_d, h1_d, n) &
           bind(c, name = 'compressible_res_part_visc_opencl')
        use, intrinsic :: iso_c_binding
-       import c_rp
        implicit none
-       type(c_ptr), value :: rhs_field_d, Binv_d, field_d, artificial_visc_d
+       type(c_ptr), value :: rhs_rho_d, rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
+            rhs_E_d, visc_rho_d, visc_m_x_d, visc_m_y_d, visc_m_z_d, &
+            visc_E_d, Binv_d, h1_d
        integer(c_int) :: n
      end subroutine compressible_res_part_visc_opencl
   end interface
@@ -326,13 +334,15 @@ module compressible_res_device
   end interface
 #elif HAVE_METAL
   interface
-     subroutine compressible_res_part_visc_metal(rhs_field_d, Binv_d, field_d, &
-          effective_visc_d, n) &
+     subroutine compressible_res_part_visc_metal(rhs_rho_d, rhs_m_x_d, &
+          rhs_m_y_d, rhs_m_z_d, rhs_E_d, visc_rho_d, visc_m_x_d, &
+          visc_m_y_d, visc_m_z_d, visc_E_d, Binv_d, h1_d, n) &
           bind(c, name = 'compressible_res_part_visc_metal')
        use, intrinsic :: iso_c_binding
-       import c_rp
        implicit none
-       type(c_ptr), value :: rhs_field_d, Binv_d, field_d, effective_visc_d
+       type(c_ptr), value :: rhs_rho_d, rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
+            rhs_E_d, visc_rho_d, visc_m_x_d, visc_m_y_d, visc_m_z_d, &
+            visc_E_d, Binv_d, h1_d
        integer(c_int) :: n
      end subroutine compressible_res_part_visc_metal
   end interface
@@ -502,10 +512,6 @@ contains
     call k_E%assign(3, k_E_3)
     call k_E%assign(4, k_E_4)
 
-    compressible_res_device_add_physical_flux = &
-         any(mu%x .ne. 0.0_rp) .or. any(kappa%x .ne. 0.0_rp)
-    compressible_res_device_add_physical_stress = any(mu%x .ne. 0.0_rp)
-
     ! Runge-Kutta stages
     do i = 1, s
        call device_copy(temp_rho%x_d, rho_field%x_d, n)
@@ -624,7 +630,7 @@ contains
     call neko_scratch_registry%request_field(f_z, temp_indices(3), .false.)
 
     !> rho = rho - dt * div(m)
-    call div(rhs_rho_field%x, m_x%x, m_y%x, m_z%x, coef)
+    call div(rhs_rho_field%x_d, m_x%x_d, m_y%x_d, m_z%x_d, coef)
 
     !> m = m - dt * div(rho * u * u^T + p*I)
     ! m_x
@@ -641,7 +647,7 @@ contains
     call inviscid_res_part_mx_flux_metal(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
 #endif
-    call div(rhs_m_x%x, f_x%x, f_y%x, f_z%x, coef)
+    call div(rhs_m_x%x_d, f_x%x_d, f_y%x_d, f_z%x_d, coef)
     ! m_y
 #ifdef HAVE_HIP
     call inviscid_res_part_my_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
@@ -660,7 +666,7 @@ contains
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
 #endif
-    call div(rhs_m_y%x, f_x%x, f_y%x, f_z%x, coef)
+    call div(rhs_m_y%x_d, f_x%x_d, f_y%x_d, f_z%x_d, coef)
     ! m_z
 #ifdef HAVE_HIP
     call inviscid_res_part_mz_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
@@ -679,7 +685,7 @@ contains
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
 #endif
-    call div(rhs_m_z%x, f_x%x, f_y%x, f_z%x, coef)
+    call div(rhs_m_z%x_d, f_x%x_d, f_y%x_d, f_z%x_d, coef)
 
     !> E = E - dt * div(u * (E + p))
     ! Inviscid energy flux for both NS and monolithic paths.
@@ -703,11 +709,13 @@ contains
 #endif
     call div(rhs_E%x_d, f_x%x_d, f_y%x_d, f_z%x_d, coef)
 
-    call gs%op(rhs_rho_field, GS_OP_ADD)
+    call gs%op(rhs_rho_field, GS_OP_ADD, glb_cmd_event)
     call rotate_cyc(rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, 1, coef)
-    call gs%op(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, n, GS_OP_ADD)
+    call device_event_sync(glb_cmd_event)
+    call gs%op(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, n, GS_OP_ADD, glb_cmd_event)
     call rotate_cyc(rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, 0, coef)
-    call gs%op(rhs_E, GS_OP_ADD)
+    call device_event_sync(glb_cmd_event)
+    call gs%op(rhs_E, GS_OP_ADD, glb_cmd_event)
 
 #ifdef HAVE_HIP
     call compressible_res_part_coef_mult_hip(rhs_rho_field%x_d, rhs_m_x%x_d, &
@@ -750,37 +758,37 @@ contains
             visc_E, rho_field, p, u, v, w, mu, kappa, Ax, Ax_stress, coef)
     end if
 
-    ! Reset h1 coefficient back to 1.0 for other operations
-    call device_rone(coef%h1_d, n)
+    call device_event_sync(glb_cmd_event)
 
-    call gs%op(visc_rho, GS_OP_ADD)
+    call gs%op(visc_rho, GS_OP_ADD, glb_cmd_event)
     call rotate_cyc(visc_m_x%x_d, visc_m_y%x_d, visc_m_z%x_d, 1, coef)
-    call gs%op(visc_m_x%x, visc_m_y%x, visc_m_z%x, n, GS_OP_ADD)
+    call device_event_sync(glb_cmd_event)
+    call gs%op(visc_m_x%x, visc_m_y%x, visc_m_z%x, n, GS_OP_ADD, glb_cmd_event)
     call rotate_cyc(visc_m_x%x_d, visc_m_y%x_d, visc_m_z%x_d, 0, coef)
-    call gs%op(visc_E, GS_OP_ADD)
+    call device_event_sync(glb_cmd_event)
+    call gs%op(visc_E, GS_OP_ADD, glb_cmd_event)
 
     ! Apply artificial viscosity - the coefficient is already in the Laplacian
-    ! rhs = -rhs - Binv * visc_lap
-    call device_col2(visc_rho%x_d, coef%Binv_d, n)
-    call device_col2(visc_m_x%x_d, coef%Binv_d, n)
-    call device_col2(visc_m_y%x_d, coef%Binv_d, n)
-    call device_col2(visc_m_z%x_d, coef%Binv_d, n)
-    call device_col2(visc_E%x_d, coef%Binv_d, n)
+    ! rhs = -rhs - Binv * visc_lap, and reset h1 to 1
+#ifdef HAVE_HIP
+    call compressible_res_part_visc_hip(rhs_rho_field%x_d, rhs_m_x%x_d, &
+         rhs_m_y%x_d, rhs_m_z%x_d, rhs_E%x_d, visc_rho%x_d, visc_m_x%x_d, &
+         visc_m_y%x_d, visc_m_z%x_d, visc_E%x_d, coef%Binv_d, coef%h1_d, n)
+#elif HAVE_CUDA
+    call compressible_res_part_visc_cuda(rhs_rho_field%x_d, rhs_m_x%x_d, &
+         rhs_m_y%x_d, rhs_m_z%x_d, rhs_E%x_d, visc_rho%x_d, visc_m_x%x_d, &
+         visc_m_y%x_d, visc_m_z%x_d, visc_E%x_d, coef%Binv_d, coef%h1_d, n)
+#elif HAVE_OPENCL
+    call compressible_res_part_visc_opencl(rhs_rho_field%x_d, rhs_m_x%x_d, &
+         rhs_m_y%x_d, rhs_m_z%x_d, rhs_E%x_d, visc_rho%x_d, visc_m_x%x_d, &
+         visc_m_y%x_d, visc_m_z%x_d, visc_E%x_d, coef%Binv_d, coef%h1_d, n)
+#elif HAVE_METAL
+    call compressible_res_part_visc_metal(rhs_rho_field%x_d, rhs_m_x%x_d, &
+         rhs_m_y%x_d, rhs_m_z%x_d, rhs_E%x_d, visc_rho%x_d, visc_m_x%x_d, &
+         visc_m_y%x_d, visc_m_z%x_d, visc_E%x_d, coef%Binv_d, coef%h1_d, n)
+#endif
 
-    call device_cmult(rhs_rho_field%x_d, -1.0_rp, n)
-    call device_sub2(rhs_rho_field%x_d, visc_rho%x_d, n)
-
-    call device_cmult(rhs_m_x%x_d, -1.0_rp, n)
-    call device_sub2(rhs_m_x%x_d, visc_m_x%x_d, n)
-
-    call device_cmult(rhs_m_y%x_d, -1.0_rp, n)
-    call device_sub2(rhs_m_y%x_d, visc_m_y%x_d, n)
-
-    call device_cmult(rhs_m_z%x_d, -1.0_rp, n)
-    call device_sub2(rhs_m_z%x_d, visc_m_z%x_d, n)
-
-    call device_cmult(rhs_E%x_d, -1.0_rp, n)
-    call device_sub2(rhs_E%x_d, visc_E%x_d, n)
+    call device_event_sync(glb_cmd_event)
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 
@@ -832,9 +840,9 @@ contains
     call neko_scratch_registry%request_field(dissipation, temp_indices(14), &
          .false.)
 
-    call grad(dudx%x, dudy%x, dudz%x, u%x, coef)
-    call grad(dvdx%x, dvdy%x, dvdz%x, v%x, coef)
-    call grad(dwdx%x, dwdy%x, dwdz%x, w%x, coef)
+    call grad(dudx%x_d, dudy%x_d, dudz%x_d, u%x_d, coef)
+    call grad(dvdx%x_d, dvdy%x_d, dvdz%x_d, v%x_d, coef)
+    call grad(dwdx%x_d, dwdy%x_d, dwdz%x_d, w%x_d, coef)
 
     call compressible_ops_device_ns_flux_prepare(div_flux%x_d, &
          dissipation%x_d, coef%h1_d, dudx%x_d, dudy%x_d, dudz%x_d, &

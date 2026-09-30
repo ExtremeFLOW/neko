@@ -132,7 +132,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `checkpoint_value`    | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
 | `checkpoint_filename` | The filename of written checkpoint.                                                                   | Strings such as `my_name`                       | `fluid`       |
 | `checkpoint_format`   | The file format of checkpoints                                                                        | `chkp` or `hdf5`                                | `chkp`        |
-| `restart_file`        | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
+| `restart_file`        | Checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`, `.h5`, or `.hdf5`  | -             |
 | `restart_mesh_file`   | If the restart file is on a different mesh, specify the .nmsh file used to generate it here           | Strings ending with `.nmsh`                     | -             |
 | `mesh2mesh_tolerance` | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
 | `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as [[[DD-]HH:]MM:]SS           | No limit      |
@@ -1571,20 +1571,44 @@ The reference velocity field, or `baseflow` can be set from three methods:
    }
    ```
    </details>
+4. `no-op`, where the velocity field is retrieved directly from the registry.
+   Use when multiple sponge objects should use the same baseflow velocity.
+   <details>
+   <summary><b><u>Example code snippet</u></b></summary>
+   ```json
+   {
+      "source_terms": [
+         {
+            "type": "sponge",
+            "amplitudes": [10.0, 10.0, 10.0],
+            "baseflow": {
+                // baseflow registered under "sponge_bf_u/v/w"
+                "method": "field",
+                "file_name": "baseflow0.f00000"
+            }
+         },
+         {
+            "type": "sponge",
+            "amplitudes": [0.5, 0.5, 0.5],
+            "baseflow": {
+                "method": "no-op"
+                // by default, retrieves the baseflow "sponge_bf_u/v/w"
+                // (can be changed via `bf_registry_prefix`)
+            }
+         }
+      ]
+   }
+   ```
+   </details>
 
 Finally, the fringe function field must be filled by the user. This must be
 done through the user file by adding the fringe field to the
-`neko_registry` in either `initialize` or `initial_conditions` (more
-specifically, before the first call to compute the sponge source term). Note that `initial_conditions` is not called when doing a restart from a checkpoint file, so if restarts will be done the sponge should be implemented in `user_init_modules`.
+`neko_registry`, under a name that can be retrieved internally. By default, 
+Neko will search for the field `"sponge_fringe"` in the registry, but this 
+can be changed by setting the parameter `fringe_registry_name`.
 
-The fringe field must be set by adding a field to the `neko_registry`
-under a specific name that can be retrieved internally. By default, Neko will
-search for the field `"sponge_fringe"` in the registry, but this can be changed
-by setting the parameter `fringe_registry_name`, which is important when using
-more than one sponge source term.
-
-The same principle applies for the base flow fields (if `"method": "user"`).
-By default, neko will search for the base flow fields in the registry using
+The same principle applies for the baseflow fields (if `"method": "user"`).
+By default, neko will search for the baseflow fields in the registry using
 the prefix `"sponge_bf_"`, meaning that `u` will be in `sponge_bf_u`, etc.
 This prefix can be changed by setting the parameter `bf_registry_prefix`.
 
@@ -1592,6 +1616,9 @@ This prefix can be changed by setting the parameter `bf_registry_prefix`.
 <summary><b><u>Example using `initialize`</u></b></summary>
 
 ```fortran
+!
+! Sponge source term, example using "baseflow.method": "user"
+!
 module user
   use neko
   implicit none
@@ -1622,7 +1649,7 @@ contains
     call neko_registry%add_field(u%dof,"sponge_fringe")
     fringe => neko_registry%get_field("sponge_fringe")
 
-    ! Initialize the base flows
+    ! Initialize the base flows (only needed if "method": "user")
     call neko_registry%add_field(u%dof,"sponge_bf_u")
     ubf => neko_registry%get_field("sponge_bf_u")
     call neko_registry%add_field(u%dof,"sponge_bf_v")
@@ -1720,7 +1747,7 @@ The parameters for the sponge source term are summarized in the table below:
 | Name                       | Description                                                             | Admissible values                 | Default value     |
 | -------------------------- | ----------------------------------------------------------------------- | --------------------------------- | ----------------- |
 | `amplitudes`               | Sponge forcing strength in each Cartesian direction                     | Array of 3 reals                  | -                 |
-| `baseflow.method`          | Method to define the reference (baseflow) velocity                      | `"constant"`, `"field"`, `"user"` | -                 |
+| `baseflow.method`          | Method to define the reference (baseflow) velocity                      | `"constant"`, `"field"`, `"user"`, `"no-op"` | -                 |
 | `baseflow.value`           | Velocity vector for constant baseflow                                   | Array of 3 reals                  | -                 |
 | `baseflow.file_name`       | File containing baseflow velocity field                                 | String                            | -                 |
 | `baseflow.mesh_file_name`  | Mesh file corresponding to the baseflow field                           | String                            | -                 |
@@ -2067,16 +2094,30 @@ For a given coordinate \f$ \mathbf{x} = (x, y, z) \f$, the raw distance \f$ r \f
 
 @note Setting a very large value for `gain` (e.g., `1.0e6`) is recommended if the mesh immediately surrounding the body is intended to be fully rigid (i.e., \f$ \phi_i \approx 1 \f$). Conversely, if two moving objects are in close proximity, the `gain` should be kept low enough to ensure the mesh in the gap region remains soft and deformable. Visualizing the generated `phi_total0.f00000` file, and checking the mesh quality using `mesh_preview` are highly recommended.
 
-#### Restarting ALE simulations
+#### Restarting ALE simulations {#case-file_ale-restart}
 
-Neko supports checkpointing and restarting for ALE simulations from `.chkp` files. No additional parameters need to be set apart from the usual configuration for saving these files.
+Neko supports checkpointing and restarting ALE simulations with both `.chkp`
+and HDF5 checkpoint files. Select HDF5 by setting `checkpoint_format` to
+`"hdf5"`; this requires a build with HDF5 support. No other parameters are
+needed beyond the usual checkpoint configuration.
 
 **Restart Capabilities:**
-* **Exact Restart:** Restarting from the same mesh and the same polynomial order is an exact restart.
-* **Different Polynomial Order:** Restarting from the same mesh but a different polynomial order is supported for ALE. In this case, the mass matrix at the time of the restart will be used for the lagged mass matrices required in `BDF2` and `BDF3` time integration schemes. It is the user's responsibility to decide whether the resulting initial transient error due to this is acceptable for a given case.
-* **Different Mesh:** Restarting from a different mesh is not yet supported for ALE simulations.
 
-@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used as `"restart_file"` to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
+* **Exact Restart:** Restarting from the same mesh and polynomial order is an
+  exact restart.
+* **Different Polynomial Order:** Both `.chkp` and HDF5 checkpoints support
+  restarting from the same mesh with a different polynomial order. The mass
+  matrix at the restart time is then used for the lagged mass matrices required
+  by the `BDF2` and `BDF3` time-integration schemes. The user must decide
+  whether the resulting initial transient error is acceptable.
+* **Different Mesh:** Restarting ALE simulations from a different mesh is not
+  yet supported.
+
+@attention A checkpoint generated by a static simulation, with
+`"ale.enabled": false`, cannot be used as `restart_file` for an ALE simulation.
+However, its output field can be loaded as an `initial_condition` for a
+subsequent ALE simulation. Saving that field in double precision is
+recommended.
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to

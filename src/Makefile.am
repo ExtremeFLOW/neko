@@ -159,6 +159,7 @@ neko_fortran_SOURCES = \
 	multigrid/tree_amg_smoother.f90\
 	multigrid/bcknd/device/device_tree_amg_smoother.F90\
 	multigrid/phmg.f90\
+	common/checkpoint_payload.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
@@ -434,6 +435,8 @@ neko_fortran_SOURCES = \
 	source_terms/hpfrt_source_term.f90\
 	source_terms/source_term_fctry.f90\
 	source_terms/sponge_source_term.f90\
+	source_terms/bcknd/cpu/sponge_source_term_cpu.f90\
+	source_terms/bcknd/device/sponge_source_term_device.f90\
 	source_terms/brinkman_source_term.f90\
 	filter/mappings.f90\
 	filter/filter.f90\
