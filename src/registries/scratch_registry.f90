@@ -201,6 +201,16 @@ contains
     initial_size = this%expansion_size
     if (present(size)) initial_size = size
 
+    if (expansion_size .le. 0) then
+       call neko_error("scratch_registry::init: " // &
+            "Expansion size must be positive.")
+    end if
+
+    if (initial_size .lt. 0) then
+       call neko_error("scratch_registry::init: " // &
+            "Initial size must be non-negative.")
+    end if
+
     allocate(this%entries(initial_size))
     allocate(this%inuse(initial_size), source = .false.)
 
@@ -1005,7 +1015,7 @@ contains
     class(scratch_registry_t), intent(inout) :: this
     integer, intent(in) :: index
     character(len=*), intent(in) :: type
-    character(len=:), allocatable :: msg
+    character(len=256), allocatable :: msg
 
     !$omp critical
     if (trim(this%entries(index)%get_type()) .ne. type) then
