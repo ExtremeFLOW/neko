@@ -76,7 +76,7 @@ __global__ void ax_helm_kernel_1d(T * __restrict__ w,
                                   const real_xp * __restrict__ g33,
                                   const real_xp * __restrict__ g12,
                                   const real_xp * __restrict__ g13,
-                                  const T * __restrict__ g23) {
+                                  const real_xp * __restrict__ g23) {
 
   __shared__ T shdx[LX*LX];
   __shared__ T shdy[LX*LX];
