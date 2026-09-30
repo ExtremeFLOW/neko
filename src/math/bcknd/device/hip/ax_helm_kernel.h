@@ -673,8 +673,9 @@ __device__ void ax_helm_mfma_elem(T * __restrict__ w,
 template< typename T, const int LX, const int NWF, const int TILE >
 struct ax_helm_mfma_dispatch {
   __device__ static void run(T *, const T *, const T *, const T *, const T *,
-                             const T *, const T *, const T *, const T *,
-                             const T *, const T *, const T *, const int) {}
+                             const T *, const real_xp *, const real_xp *,
+                             const real_xp *, const real_xp *, const real_xp *,
+                             const real_xp *, const int) {}
 };
 
 #if defined(__gfx90a__) || defined(__gfx942__)
@@ -1433,8 +1434,10 @@ struct ax_helm_mfma_vector_dispatch {
   __device__ static void run(T *, T *, T *,
                              const T *, const T *, const T *,
                              const T *, const T *, const T *, const T *,
-                             const T *, const T *, const T *,
-                             const T *, const T *, const T *, const int) {}
+                             const real_xp *, const real_xp *,
+                             const real_xp *,
+                             const real_xp *, const real_xp *,
+                             const real_xp *, const int) {}
 };
 
 #if defined(__gfx90a__) || defined(__gfx942__)
