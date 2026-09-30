@@ -309,10 +309,12 @@ contains
   !! @param time The current time.
   !! @param dt The time step about to be taken, before it is shortened to
   !! land on a scheduled time.
-  function simcomp_executor_time_to_next(this, time, dt) result(t)
+  function simcomp_executor_time_to_next(this, time, dt, min_interval) &
+       result(t)
     class(simcomp_executor_t), intent(in) :: this
     type(time_state_t), intent(in) :: time
     real(kind=dp), intent(in) :: dt
+    real(kind=dp), intent(in), optional :: min_interval
     real(kind=dp) :: t
     integer :: i
 
@@ -320,7 +322,8 @@ contains
     if (allocated(this%simcomps)) then
        do i = 1, size(this%simcomps)
           if (allocated(this%simcomps(i)%simcomp)) then
-             t = min(t, this%simcomps(i)%simcomp%time_to_next(time, dt))
+             t = min(t, this%simcomps(i)%simcomp%time_to_next(time, dt, &
+                  min_interval))
           end if
        end do
     end if

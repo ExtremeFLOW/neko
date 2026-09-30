@@ -7,9 +7,9 @@ units, and runs from 0 to 0.1 with a time step of 0.01, with
 few ulps short of the end time, which used to buy the run an eleventh step
 past `end_time` and, with it, a duplicate of every output.
 
-The last part runs with a time step of 0.007, which does not divide the
-output interval, and `exact_output_time` on, so that the time step is
-shortened to land exactly on the scheduled times and on `end_time`.
+The last part runs with a variable time step capped at 0.007, which does
+not divide the output interval, and `exact_output_time` on, so that the time
+step is fitted to land exactly on the scheduled times and on `end_time`.
 """
 
 import json
@@ -159,13 +159,18 @@ def test_output_schedule(launcher_script, request, tmp_path):
     )
 
     #
-    # Part 4, a time step that does not divide the output interval, shortened
-    # to land exactly on the scheduled times
+    # Part 4, a variable time step whose cap does not divide the output
+    # interval, fitted to land exactly on the scheduled times. The target
+    # CFL number is out of reach, so the cap is what the controller asks
+    # for, and the fit divides each interval into eight steps of 0.00625.
     #
     part4_dir = work_dir / "part4"
     part4_dir.mkdir()
     case_exact = json.loads(json.dumps(case))
+    case_exact["case"]["time"]["variable_timestep"] = True
     case_exact["case"]["time"]["timestep"] = 0.007
+    case_exact["case"]["time"]["max_timestep"] = 0.007
+    case_exact["case"]["time"]["target_cfl"] = 10.0
     case_exact["case"]["time"]["exact_output_time"] = True
     part4_case = _write_case(
         tmp_path / "part4.case", case_exact, part4_dir, mesh
@@ -190,7 +195,8 @@ def test_output_schedule(launcher_script, request, tmp_path):
     ], f"Unexpected checkpoints: {_files(part4_dir, 'chkp*.chkp')}"
 
     # The steps land exactly on t = 0.05, and the run ends exactly at
-    # t = 0.1 rather than at the first step past it
+    # t = 0.1 rather than at the first step past it, with sixteen equal
+    # steps no longer than the cap
     times = _step_times(part4_log)
     assert times, f"No time steps found in {part4_log}"
     assert any(abs(t - 0.05) <= 1e-14 for t in times), (
@@ -201,4 +207,9 @@ def test_output_schedule(launcher_script, request, tmp_path):
     )
     assert all(t <= 0.1 + 1e-14 for t in times), (
         f"A step went past end_time: {times}"
+    )
+    assert len(times) == 16, f"Expected 16 steps, got {len(times)}: {times}"
+    steps = [b - a for a, b in zip([0.0] + times[:-1], times)]
+    assert all(abs(s - 0.00625) <= 1e-12 for s in steps), (
+        f"The steps are not the interval divided into eight: {steps}"
     )

@@ -299,63 +299,68 @@ smallest of `timestep` and the value calculated from the target CFL number.
 | `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                            | Positive real less than `1`       | `0.5`         |
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                   | Positive real less than `1`       | `0.2`         |
 | `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
-| `exact_output_time`        | Whether to shorten `dt` so that the sampling and output times are reached exactly           | `true` or `false`                 | `false`       |
-| `output_landing_steps`     | Steps ahead of a sampling or output time over which `dt` is shortened to land on it         | Positive integer                  | `10`          |
+| `exact_output_time`        | Whether to fit the variable `dt` so that the sampling and output times are reached exactly   | `true` or `false`                 | `false`       |
 
 #### Landing exactly on the output times
 
 By default an output is written, and a statistic is sampled, at the first time
 step that reaches the scheduled time, so the time actually written lies
 somewhere between the scheduled time and one time step after it. Setting
-`exact_output_time` to `true` shortens the time step where needed, so that the
-scheduled times are reached exactly. The same holds for `end_time`, at which
-the simulation then ends exactly rather than at the first step past it.
+`exact_output_time` to `true` fits the time step so that the scheduled times
+are reached exactly. The same holds for `end_time`, at which the simulation
+then ends exactly rather than at the first step past it. The option requires
+`variable_timestep`; with a fixed time step, choose a `timestep` that divides
+the sampling and output intervals instead.
 
-The adjustment applies to every time based schedule in the case: the fluid,
+The fit applies to every time based schedule in the case: the fluid,
 checkpoint and simulation component outputs, and the `preprocess_control`,
 `compute_control` and `output_control` of the simulation components, with the
 `simulationtime` and `nsamples` controls. The `tsteps` control counts steps
-and has no time to land on. An interval shorter than the time step executes
-at every step, as without the option, and does not shorten the step to the
-interval; an interval between one and two time steps is landed on with two
-steps each, so the run then takes up to twice the steps. The schedules are a
-property of the case, so a restart lands on the same times as the
-uninterrupted run.
+and has no time to land on. The schedules are a property of the case, so a
+restart lands on the same times as the uninterrupted run.
 
-Once the next scheduled time is within `output_landing_steps` time steps, the
-remaining time is divided into the smallest whole number of equal steps that
-are no longer than the time step asked for. The step therefore only ever gets
-shorter, never longer (a relative `1e-6` is allowed, to absorb round-off), and
-it is back to the one asked for right after the scheduled time. With a fixed
-time step that is the `timestep` of the case; with a variable time step it is
-the step the CFL controller settles on, and the controller keeps working on it
-as if the step had not been shortened. With the default of ten steps the step
-changes by at most a tenth when a scheduled time is approached from further
-away than that, which is the usual case. With `output_landing_steps` set to
-`1`, only the last step or two before the scheduled time are shortened, down
-to a tenth of the step asked for. Set to more steps than there are in an
-interval, the steps between two scheduled times are all equal, that is, the
-time step is the largest step no longer than the one asked for that divides
-the interval, and it only changes at the scheduled times. Even when the time
-step divides the interval, the last step before a scheduled time absorbs the
-round-off of the accumulated time, so it differs from the step asked for by
-round-off.
+The time up to the next scheduled time, or to `end_time`, is divided into a
+whole number of equal steps, choosing the number of steps whose step is the
+closest, in ratio, to the step that gives the CFL number at the centre of the
+controller's band, `target_cfl * sqrt(1 - cfl_deviation_tolerance**2)`, which
+is the step the controller is the least likely to change again. The step is
+fitted at each scheduled time, where the whole interval up to the next one is
+divided at once, and whenever the CFL controller changes the step; in between
+it is kept. Every step is within `min_dt_decrease_factor` and
+`max_dt_increase_factor` of the step before it, and within `min_timestep` and
+`max_timestep`, exactly as the controller's own steps are, so the landing
+never changes the step more abruptly than the controller would. With the
+default factors, the step changes by at most 20% at a scheduled time when the
+CFL number is steady, and much less when the interval is many steps long.
 
-No step is shorter than a tenth of the step asked for or, with a variable time
-step, than `min_timestep`; a `min_timestep` at the step the CFL controller
-settles on therefore leaves the option without effect. Two schedules with
-unrelated intervals can schedule times closer to each other than that shortest
-step; the first is landed on, and the second is executed within that shortest
-step of its time, before or after it. Likewise, a scheduled time closer than
-that to `end_time` is executed at `end_time`, and a run that comes closer than
-that to `end_time` without landing on it, such as one started there, ends
-within that step past it.
+A schedule with a short interval cannot be landed on within these bounds: from
+`n` steps per interval to `n - 1` is a change of the step by `n / (n - 1)`,
+which exceeds `max_dt_increase_factor` for fewer than six steps with the
+default factor of 1.2. An interval shorter than six times the step the
+controller aims at (more precisely `max_dt_increase_factor /
+(max_dt_increase_factor - 1)` steps) is therefore not landed on and executes
+at the first step past each scheduled time, as without the option. Use
+`tsteps` for sampling every few steps.
+
+Two schedules with unrelated intervals can put scheduled times close to each
+other. One closer than half a step (`min_dt_decrease_factor`) to the one
+before it cannot be reached within the bounds; it is passed and executed at
+the first step past it. A scheduled time within half a step of `end_time` is
+executed at `end_time`, which is landed on instead. Farther ones are landed
+on, with a step cut by up to a half and then grown back at the controller's
+pace. Scheduled times of several schedules that follow each other only a few
+steps apart all the time can hold the step at a whole fraction of their gaps
+below the step the controller aims at, since the controller cannot climb from
+one whole number of steps per gap to the next within its bounds; the
+scheduled times are still reached exactly. If the CFL number stays below the
+target for this reason, spread the schedules out or use `tsteps` for the
+dense one.
 
 A change of the time step invalidates the projection spaces of the velocity
-and pressure solves, as it does with a variable time step, so they are cleared
-at each change and rebuilt over the following steps. Expect somewhat more
-solver iterations around each scheduled time. In an MPMD run the option must
-be set in all the coupled cases, which then take the shortened steps together.
+and pressure solves, as with any variable time step, so expect the usual
+additional solver iterations after each change. In an MPMD run the option
+must be set in all the coupled cases, which then take the fitted steps
+together.
 
 ### Restarts and joblimit
 Restarts will restart the simulation from the exact state at a given time that

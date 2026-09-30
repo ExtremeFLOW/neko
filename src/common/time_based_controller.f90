@@ -531,21 +531,24 @@ contains
   !! scheduled time after it, which would otherwise be passed by. When the
   !! landing takes a single step the two are executed together, exactly at
   !! the later one.
-  pure function time_based_controller_time_to_next(this, time, dt) &
-       result(t_to_next)
+  pure function time_based_controller_time_to_next(this, time, dt, &
+       min_interval) result(t_to_next)
     class(time_based_controller_t), intent(in) :: this
     type(time_state_t), intent(in) :: time
     real(kind=dp), intent(in) :: dt
+    real(kind=dp), intent(in), optional :: min_interval
     real(kind=dp) :: t_to_next
     type(time_state_t) :: time_reached
-    real(kind=dp) :: progress, t_due, t_next, t_end
+    real(kind=dp) :: progress, t_due, t_next, t_end, shortest
     integer(kind=i8) :: k
     logical :: due_now
 
     t_to_next = huge(0.0_dp)
 
     if (this%never .or. this%nsteps .gt. 0) return
-    if (this%time_interval .lt. abs(dt)) return
+    shortest = abs(dt)
+    if (present(min_interval)) shortest = max(min_interval, shortest)
+    if (this%time_interval .lt. shortest) return
 
     ! Whether an execution is due at the current time, using the tolerance of
     ! the check that was, or is about to be, made there: the one of the step

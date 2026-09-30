@@ -49,9 +49,6 @@
         },
         "exact_output_time": {
           "type": "boolean"
-        },
-        "output_landing_steps": {
-          "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
         }
       },
       "allOf": [
@@ -64,6 +61,20 @@
           },
           "else": {
             "required": ["timestep"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "exact_output_time": {"const": true}
+            },
+            "required": ["exact_output_time"]
+          },
+          "then": {
+            "properties": {
+              "variable_timestep": {"const": true}
+            },
+            "required": ["variable_timestep"]
           }
         }
       ],

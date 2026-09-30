@@ -135,7 +135,7 @@ contains
     type(time_step_controller_t), intent(inout) :: dt_controller
     real(kind=dp), optional, intent(in) :: tstep_loop_start_time
     real(kind=dp) :: start_time, end_time, tstep_start_time
-    real(kind=dp) :: cfl, dt_previous
+    real(kind=dp) :: cfl, dt_previous, min_interval
     character(len=LOG_SIZE) :: log_buf
 
     ! Setup the time step, and start time
@@ -150,9 +150,11 @@ contains
 
     ! Shorten the step to land exactly on the next sampling or output time
     if (dt_controller%exact_output_time) then
+       min_interval = dt_controller%landing_min_interval(C%time)
        call dt_controller%land(C%time, &
-            min(C%output_controller%time_to_next(C%time, C%time%dt), &
-            neko_simcomps%time_to_next(C%time, C%time%dt)))
+            min(C%output_controller%time_to_next(C%time, C%time%dt, &
+            min_interval), &
+            neko_simcomps%time_to_next(C%time, C%time%dt, min_interval)))
     end if
 
     ! The CFL number of the step about to be taken, for the log

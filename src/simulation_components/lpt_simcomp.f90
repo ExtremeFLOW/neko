@@ -79,16 +79,17 @@ contains
   !! @param time The current time.
   !! @param dt The time step about to be taken, before it is shortened to
   !! land on a scheduled time.
-  function lpt_simcomp_time_to_next(this, time, dt) result(t)
+  function lpt_simcomp_time_to_next(this, time, dt, min_interval) result(t)
     class(lpt_simcomp_t), intent(in) :: this
     type(time_state_t), intent(in) :: time
     real(kind=dp), intent(in) :: dt
+    real(kind=dp), intent(in), optional :: min_interval
     real(kind=dp) :: t
 
-    t = min(this%preprocess_controller%time_to_next(time, dt), &
-         this%compute_controller%time_to_next(time, dt), &
-         this%output_controller%time_to_next(time, dt), &
-         this%lpt%output_controller%time_to_next(time, dt))
+    t = min(this%preprocess_controller%time_to_next(time, dt, min_interval), &
+         this%compute_controller%time_to_next(time, dt, min_interval), &
+         this%output_controller%time_to_next(time, dt, min_interval), &
+         this%lpt%output_controller%time_to_next(time, dt, min_interval))
 
   end function lpt_simcomp_time_to_next
 

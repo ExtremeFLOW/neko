@@ -2,16 +2,16 @@
 
 ## Develop
 
-- Added `case.time.exact_output_time`, which shortens the time step so that
-  the sampling and output times of every time based schedule in the case, and
-  `end_time`, are reached exactly instead of at the first step past them. The
-  remaining time up to a scheduled time is divided into equal steps over the
-  last `case.time.output_landing_steps` steps (default 10), so the step only
-  ever gets shorter, and never below a tenth of the one asked for. It works
-  with a fixed and with a variable time step, whose CFL controller is not
-  affected by the shortened steps.
-- The projection spaces are cleared whenever the time step changes, and no
-  longer only with a variable time step.
+- Added `case.time.exact_output_time`, which fits the variable time step to
+  the sampling and output times of every time based schedule in the case,
+  and to `end_time`, so that they are reached exactly instead of at the first
+  step past them. The time up to the next scheduled time is divided into
+  equal steps, chosen as close as the bounds of the CFL controller allow to
+  the step giving the centre of its CFL band, and refitted only at the
+  scheduled times and when the controller changes the step, so that every
+  step stays within the controller's own bounds. Schedules with an interval
+  shorter than about six steps are not landed on. It requires
+  `variable_timestep`.
 - A variable time step run sets its first time step before the initial
   output. The scheduled times used to be checked there against the
   placeholder step of one time unit, so an output scheduled within a tenth of

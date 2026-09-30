@@ -91,8 +91,8 @@ The run and per-run counters are appended according to
 In addition, one can specify the usual controls for the output, which then 
 outputs the averages computes from the last time the statistics were written
 to file. A sample or an output controlled by `simulationtime` or `nsamples`
-is taken at the first time step that reaches the scheduled time; to have the
-time step shortened so that the scheduled times are reached exactly, set
+is taken at the first time step that reaches the scheduled time; to have a
+variable time step fitted so that the scheduled times are reached exactly, set
 `exact_output_time` in the `time` object of the case, see the
 [time control](@ref case-file_time-control) section. For example, if one
 wants to compute only the basic statistics and sample the fields every 4 time

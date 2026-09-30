@@ -467,15 +467,17 @@ contains
   !! @param time The current time.
   !! @param dt The time step about to be taken, before it is shortened to
   !! land on a scheduled time.
-  function simulation_component_time_to_next(this, time, dt) result(t)
+  function simulation_component_time_to_next(this, time, dt, min_interval) &
+       result(t)
     class(simulation_component_t), intent(in) :: this
     type(time_state_t), intent(in) :: time
     real(kind=dp), intent(in) :: dt
+    real(kind=dp), intent(in), optional :: min_interval
     real(kind=dp) :: t
 
-    t = min(this%preprocess_controller%time_to_next(time, dt), &
-         this%compute_controller%time_to_next(time, dt), &
-         this%output_controller%time_to_next(time, dt))
+    t = min(this%preprocess_controller%time_to_next(time, dt, min_interval), &
+         this%compute_controller%time_to_next(time, dt, min_interval), &
+         this%output_controller%time_to_next(time, dt, min_interval))
 
   end function simulation_component_time_to_next
 
