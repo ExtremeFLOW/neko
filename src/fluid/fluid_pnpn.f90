@@ -332,7 +332,9 @@ contains
          "case.fluid.initial_condition.scale_to_flow_rate", &
          this%scale_ic_flow_rate, .false.)
     if (this%scale_ic_flow_rate .and. .not. this%forced_flow_rate) then
-       call neko_error("scale_to_flow_rate needs flow_rate_force")
+       call neko_log%warning('scale_to_flow_rate is ignored without ' // &
+            'flow_rate_force')
+       this%scale_ic_flow_rate = .false.
     end if
 
     ! Setup backend dependent Ax routines for the velocity
