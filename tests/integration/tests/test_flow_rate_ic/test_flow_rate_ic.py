@@ -1,11 +1,12 @@
 """Integration coverage for scaling the initial velocity to a forced flow rate.
 
-With ``flow_rate_force`` the initial velocity is scaled to the target flow
-rate before the first step, so that the forcing does not have to correct it
-impulsively. A field without flow in the forced direction is left to the
-forcing, and one already at the target is left alone. The runs take one step
-in a fully periodic box, where a uniform field is a steady solution, so the
-probes see the scaled initial condition, or what the forcing made of it.
+With ``flow_rate_force`` and ``scale_to_flow_rate`` the initial velocity is
+scaled to the target flow rate before the first step, so that the forcing does
+not have to correct it impulsively. A field without flow in the forced
+direction is left to the forcing, one already at the target is left alone, and
+without the key nothing is scaled. The runs take one step in a fully periodic
+box, where a uniform field is a steady solution, so the probes see the scaled
+initial condition, or what the forcing made of it.
 """
 
 import json
@@ -42,7 +43,7 @@ def _solver(solver_type):
     }
 
 
-def _case(mesh, output_directory, initial_velocity):
+def _case(mesh, output_directory, initial_velocity, scale=True):
     """Build a one-step, fully periodic box case with a forced flow rate."""
     return {
         "version": 1.0,
@@ -64,6 +65,7 @@ def _case(mesh, output_directory, initial_velocity):
                 "initial_condition": {
                     "type": "uniform",
                     "value": initial_velocity,
+                    "scale_to_flow_rate": scale,
                 },
                 "flow_rate_force": {
                     "direction": 1,
@@ -107,13 +109,14 @@ def _read_probes(probe_file, npoints):
             for row in samples[-npoints:]]
 
 
-def _run(assets, initial_velocity, name):
+def _run(assets, initial_velocity, name, scale=True):
     """Run one case and return the probed values and the log."""
     run_dir = assets["workdir"] / name
     run_dir.mkdir()
     case_file = run_dir / f"{name}.case"
     case_file.write_text(
-        json.dumps(_case(assets["mesh"], run_dir, initial_velocity), indent=2)
+        json.dumps(_case(assets["mesh"], run_dir, initial_velocity, scale),
+                   indent=2)
         + "\n",
         encoding="utf-8",
     )
@@ -190,4 +193,17 @@ def test_initial_condition_at_the_flow_rate_is_left_alone(flow_rate_assets):
     for u, v, w in values:
         assert u == pytest.approx(BULK_VELOCITY, abs=tolerance)
         assert v == pytest.approx(0.3, abs=tolerance)
+        assert w == pytest.approx(0.0, abs=tolerance)
+
+
+def test_scaling_is_off_by_default(flow_rate_assets):
+    """Without the key the initial condition is left to the forcing."""
+    tolerance = TOLERANCE[conftest.RP]
+    values, log = _run(flow_rate_assets, [0.5, 0.2, 0.0], "default",
+                       scale=False)
+    assert "Bulk velocity" not in log
+    assert "experimental" not in log
+    for u, v, w in values:
+        assert u == pytest.approx(BULK_VELOCITY, abs=tolerance)
+        assert v == pytest.approx(0.2, abs=tolerance)
         assert w == pytest.approx(0.0, abs=tolerance)

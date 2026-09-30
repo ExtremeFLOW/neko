@@ -388,7 +388,7 @@ contains
     select type (f => this%fluid)
     type is (fluid_pnpn_t)
        if (.not. this%params%valid_path('case.restart_file')) then
-          if (f%forced_flow_rate .and. .not. f%freeze) then
+          if (f%scale_ic_flow_rate .and. .not. f%freeze) then
              call f%vol_flow%scale(f%u, f%v, f%w, f%c_Xh, ic_scaled)
              if (ic_scaled .and. .not. f%div_free_ic) then
                 call f%bc_apply_ic(this%time)

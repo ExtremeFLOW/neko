@@ -522,7 +522,8 @@ contains
     type(field_t), intent(inout) :: u, v, w
     type(coef_t), intent(in) :: c_Xh
     logical, intent(out) :: scaled
-    real(kind=rp) :: current_flow, flow_rate, factor, current, target
+    real(kind=rp) :: current_flow, flow_rate, factor
+    real(kind=rp) :: current_value, target_value
     character(len=LOG_SIZE) :: log_buf
     character(len=13) :: label
     integer :: n
@@ -536,12 +537,12 @@ contains
     ! Report in the units the target was given in.
     if (this%avflow) then
        label = 'Bulk velocity'
-       current = current_flow * (this%domain_length / c_Xh%volume)
-       target = this%flow_rate
+       current_value = current_flow * (this%domain_length / c_Xh%volume)
+       target_value = this%flow_rate
     else
        label = 'Flow rate'
-       current = current_flow
-       target = flow_rate
+       current_value = current_flow
+       target_value = flow_rate
     end if
 
     factor = 0.0_rp
@@ -550,13 +551,14 @@ contains
     end if
 
     if (factor .lt. 0.1_rp .or. factor .gt. 10.0_rp) then
-       write (log_buf, '(A,ES11.4,A,ES11.4,A)') trim(label) // ' ', current, &
-            ' not scaled to ', target, ', the forcing takes over'
+       write (log_buf, '(A,ES11.4,A,ES11.4,A)') trim(label) // ' ', &
+            current_value, ' not scaled to ', target_value, &
+            ', the forcing takes over'
        call neko_log%message(log_buf)
        return
     else if (abs(factor - 1.0_rp) .le. 1.0e-6_rp) then
-       write (log_buf, '(A,ES11.4,A)') trim(label) // ' ', current, &
-            ', at the target'
+       write (log_buf, '(A,ES11.4,A)') trim(label) // ' ', &
+            current_value, ', at the target'
        call neko_log%message(log_buf)
        return
     end if
@@ -576,8 +578,8 @@ contains
     end if
 
     scaled = .true.
-    write (log_buf, '(A,ES11.4,A,ES11.4)') trim(label) // ' ', current, &
-         ' scaled to ', target
+    write (log_buf, '(A,ES11.4,A,ES11.4)') trim(label) // ' ', &
+         current_value, ' scaled to ', target_value
     call neko_log%message(log_buf)
 
   end subroutine fluid_vol_flow_scale

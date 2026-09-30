@@ -2197,14 +2197,15 @@ The smoother accelerator is only rebuilt for `smoother_cheby_acc` set to `jacobi
 The PHMG update (as for now) also assumes that the mesh connectivity does not change.
 
 
-### Flow rate forcing
+### Flow rate forcing {#case-file_fluid-flow-rate-force}
 The optional `flow_rate_force` object can be used to force a particular flow
 rate through the domain.
 Useful for channel and pipe flows.
-Except on restart or with `freeze`, the initial velocity is scaled to the
-target before the first step (experimental) and the velocity boundary
-conditions are imposed on it again, unless its flow rate is already there,
-zero, of opposite sign, or off by more than a factor of ten.
+With `initial_condition.scale_to_flow_rate` (experimental), the initial
+velocity is scaled to the target before the first step, except on restart or
+with `freeze`, and the velocity boundary conditions are imposed on it again;
+a flow rate that is already there, zero, of opposite sign, or off by more than
+a factor of ten is left to the forcing.
 The configuration uses the following parameters:
 
 * `direction`, the direction of the flow, defined as 1, 2, or 3, corresponding
@@ -2247,6 +2248,7 @@ concisely directly in the table.
 | `initial_condition.make_divergence_free`           | Project the initial velocity onto the divergence-free subspace (experimental), see [divergence-free initial conditions](@ref case-file_fluid-div-free-ic). | `true` or `false` | `false` |
 | `initial_condition.divergence_free_tolerance`      | Absolute tolerance of the projection's Poisson solve.                                             | Positive real.                                              | `pressure_solver.absolute_tolerance` |
 | `initial_condition.divergence_free_max_iterations` | Iteration cap of the projection's Poisson solve.                                                  | Positive integer.                                           | `pressure_solver.max_iterations` |
+| `initial_condition.scale_to_flow_rate`             | Scale the initial velocity to the target of `flow_rate_force` (experimental), see [flow rate forcing](@ref case-file_fluid-flow-rate-force). | `true` or `false` | `false` |
 | `blasius.delta`                                    | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                               | -             |
 | `blasius.freestream_velocity`                      | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                           | -             |
 | `blasius.approximation`                            | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin`, `tanh`    | -             |

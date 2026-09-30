@@ -45,6 +45,9 @@
             "make_divergence_free": {
               "type": "boolean"
             },
+            "scale_to_flow_rate": {
+              "type": "boolean"
+            },
             "divergence_free_tolerance": {
               "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
             },
@@ -65,6 +68,9 @@
           ],
           "properties": {
             "make_divergence_free": {
+              "type": "boolean"
+            },
+            "scale_to_flow_rate": {
               "type": "boolean"
             },
             "divergence_free_tolerance": {
@@ -90,6 +96,9 @@
           ],
           "properties": {
             "make_divergence_free": {
+              "type": "boolean"
+            },
+            "scale_to_flow_rate": {
               "type": "boolean"
             },
             "divergence_free_tolerance": {
@@ -122,6 +131,9 @@
           ],
           "properties": {
             "make_divergence_free": {
+              "type": "boolean"
+            },
+            "scale_to_flow_rate": {
               "type": "boolean"
             },
             "divergence_free_tolerance": {
@@ -165,6 +177,9 @@
             "make_divergence_free": {
               "type": "boolean"
             },
+            "scale_to_flow_rate": {
+              "type": "boolean"
+            },
             "divergence_free_tolerance": {
               "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
             },
@@ -195,6 +210,9 @@
           ],
           "properties": {
             "make_divergence_free": {
+              "type": "boolean"
+            },
+            "scale_to_flow_rate": {
               "type": "boolean"
             },
             "divergence_free_tolerance": {

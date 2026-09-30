@@ -201,6 +201,9 @@ module fluid_pnpn
      real(kind=rp) :: div_free_tol = 0.0_rp
      !> Iteration cap of the projection's solve, the pressure solver's if zero.
      integer :: div_free_max_iter = 0
+     !> Whether to scale the initial velocity to the target of the flow-rate
+     !! forcing.
+     logical :: scale_ic_flow_rate = .false.
 
    contains
      !> Constructor.
@@ -324,6 +327,12 @@ contains
           call neko_error("divergence_free_max_iterations has to be at " // &
                "least one")
        end if
+    end if
+    call json_get_or_default(params, &
+         "case.fluid.initial_condition.scale_to_flow_rate", &
+         this%scale_ic_flow_rate, .false.)
+    if (this%scale_ic_flow_rate .and. .not. this%forced_flow_rate) then
+       call neko_error("scale_to_flow_rate needs flow_rate_force")
     end if
 
     ! Setup backend dependent Ax routines for the velocity
