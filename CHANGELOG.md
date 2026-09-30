@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Fixed `map_1d` leaving elements without a level when the propagated
+  minimum coordinate differs from the global minimum by roundoff, as with
+  the default floating point model of ifx in single precision.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,
