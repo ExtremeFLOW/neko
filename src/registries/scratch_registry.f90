@@ -357,6 +357,8 @@ contains
     logical, intent(in) :: clear
     type(host_array_t), pointer :: scratch_entry
 
+    scratch_entry => null()
+
     ! Look for a compatible, unused object in the registry.
     !$omp critical
     do index = 1, this%get_size()
@@ -414,6 +416,8 @@ contains
     logical, intent(in) :: clear
     type(device_array_t), pointer :: scratch_entry
 
+    scratch_entry => null()
+
     ! Look for a compatible, unused object in the registry.
     !$omp critical
     do index = 1, this%get_size()
@@ -468,6 +472,8 @@ contains
     integer, intent(in) :: n
     logical, intent(in) :: clear
     type(vector_t), pointer :: scratch_entry
+
+    scratch_entry => null()
 
     ! Look for a compatible, unused object in the registry.
     !$omp critical
@@ -525,6 +531,8 @@ contains
     logical, intent(in) :: clear
     type(matrix_t), pointer :: scratch_entry
 
+    scratch_entry => null()
+
     ! Look for a compatible, unused object in the registry.
     !$omp critical
     do index = 1, this%get_size()
@@ -581,6 +589,8 @@ contains
     integer, intent(in) :: n, m, l
     logical, intent(in) :: clear
     type(tensor3_t), pointer :: scratch_entry
+
+    scratch_entry => null()
 
     ! Look for a compatible, unused object in the registry.
     !$omp critical
@@ -644,6 +654,8 @@ contains
     logical, intent(in) :: clear
     type(tensor4_t), pointer :: scratch_entry
 
+    scratch_entry => null()
+
     ! Look for a compatible, unused object in the registry.
     !$omp critical
     do index = 1, this%get_size()
@@ -702,6 +714,8 @@ contains
     character(len=10) :: name
     type(field_t), pointer :: scratch_entry
 
+    scratch_entry => null()
+
     ! Look for a compatible, unused object in the registry.
     !$omp critical
     do index = 1, this%get_size()
@@ -759,6 +773,8 @@ contains
     logical, intent(in) :: clear
     character(len=10) :: name
     type(field_t), pointer :: scratch_entry
+
+    scratch_entry => null()
 
     ! Look for a compatible, unused object in the registry.
     !$omp critical
