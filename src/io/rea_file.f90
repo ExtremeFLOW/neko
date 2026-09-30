@@ -444,8 +444,8 @@ contains
        call msh%finalize()
 
        call neko_log%message('Done')
-       close(file_unit)
     end if
+    close(file_unit)
 
   end subroutine rea_file_read
 

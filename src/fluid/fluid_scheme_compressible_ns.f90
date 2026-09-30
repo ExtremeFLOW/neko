@@ -270,6 +270,7 @@ contains
     call this%dm_y%free()
     call this%dm_z%free()
     call this%dE%free()
+    call this%rk_scheme%free()
 
     if (allocated(this%viscous_regularization)) then
        call this%viscous_regularization%free()
