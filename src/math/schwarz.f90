@@ -214,7 +214,7 @@ contains
 
     this%alpha = 0.0_rp
     this%beta = 0.0_rp
-    this%thr = 0.05_rp
+    this%thr = 0.0_rp
 
     if (allocated(this%work1)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
