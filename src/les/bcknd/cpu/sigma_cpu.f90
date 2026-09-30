@@ -36,7 +36,7 @@
 !! https://doi.org/10.1063/1.3623274
 
 module sigma_cpu
-  use num_types, only : rp
+  use num_types, only : xp, rp
   use field_list, only : field_list_t
   use scratch_registry, only : neko_scratch_registry
   use registry, only : neko_registry
@@ -72,7 +72,7 @@ contains
     type(field_t), pointer :: g11, g12, g13, g21, g22, g23, g31, g32, g33
     type(field_t), pointer :: u, v, w
 
-    real(kind=rp) :: sigG11, sigG12, sigG13, sigG22, sigG23, sigG33
+    real(kind=xp) :: sigG11, sigG12, sigG13, sigG22, sigG23, sigG33
     real(kind=rp) :: sigma1, sigma2, sigma3
     real(kind=rp) :: Invariant1, Invariant2, Invariant3
     real(kind=rp) :: alpha1, alpha2, alpha3
@@ -163,30 +163,30 @@ contains
           ! eigenvalues with the analytical method of Hasan et al. (2001)
           ! doi:10.1006/jmre.2001.2400
           if (abs(sigG11) .lt. eps) then
-             sigG11 = 0.0_rp
+             sigG11 = 0.0_xp
           end if
           if (abs(sigG12) .lt. eps) then
-             sigG12 = 0.0_rp
+             sigG12 = 0.0_xp
           end if
           if (abs(sigG13) .lt. eps) then
-             sigG13 = 0.0_rp
+             sigG13 = 0.0_xp
           end if
           if (abs(sigG22) .lt. eps) then
-             sigG22 = 0.0_rp
+             sigG22 = 0.0_xp
           end if
           if (abs(sigG23) .lt. eps) then
-             sigG23 = 0.0_rp
+             sigG23 = 0.0_xp
           end if
           if (abs(sigG33) .lt. eps) then
-             sigG33 = 0.0_rp
+             sigG33 = 0.0_xp
           end if
 
           if (abs(sigG12*sigG12 + &
                sigG13*sigG13 + sigG23*sigG23) .lt. eps) then
              !             G is diagonal
              ! estimate the singular values according to:
-             sigma1 = sqrt(max(max(max(sigG11, sigG22), sigG33), 0.0_rp))
-             sigma3 = sqrt(max(min(min(sigG11, sigG22), sigG33), 0.0_rp))
+             sigma1 = sqrt(max(max(max(sigG11, sigG22), sigG33), 0.0_xp))
+             sigma3 = sqrt(max(min(min(sigG11, sigG22), sigG33), 0.0_xp))
              Invariant1 = sigG11 + sigG22 + sigG33
              sigma2 = sqrt(abs(Invariant1 - sigma1*sigma1 - sigma3*sigma3))
           else
@@ -196,7 +196,7 @@ contains
              Invariant2 = sigG11*sigG22 + sigG11*sigG33 + sigG22*sigG33 - &
                   (sigG12*sigG12 + sigG13*sigG13 + sigG23*sigG23)
              Invariant3 = sigG11*sigG22*sigG33 + &
-                  2.0_rp*sigG12*sigG13*sigG23 - &
+                  2.0_xp*sigG12*sigG13*sigG23 - &
                   (sigG11*sigG23*sigG23 + sigG22*sigG13*sigG13 + &
                   sigG33*sigG12*sigG12)
 

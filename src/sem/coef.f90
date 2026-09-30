@@ -35,7 +35,7 @@ module coefs
   use gather_scatter, only : gs_t
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_OPENCL
-  use num_types, only : rp, sp, dp
+  use num_types, only : xp, rp, sp, dp
   use dofmap, only : dofmap_t
   use space, only : space_t
   use math, only : rone, invcol1, addcol3, subcol3, copy, &
@@ -134,17 +134,17 @@ module coefs
   !! Arrays use indices (i,j,k,e): element e, local coordinate (i,j,k).
   type, public :: coef_t
      !> Geometric factors \f$ G_{11} \f$
-     real(kind=rp), allocatable :: G11(:,:,:,:)
+     real(kind=xp), allocatable :: G11(:,:,:,:)
      !> Geometric factors \f$ G_{22} \f$
-     real(kind=rp), allocatable :: G22(:,:,:,:)
+     real(kind=xp), allocatable :: G22(:,:,:,:)
      !> Geometric factors \f$ G_{33} \f$
-     real(kind=rp), allocatable :: G33(:,:,:,:)
+     real(kind=xp), allocatable :: G33(:,:,:,:)
      !> Geometric factors \f$ G_{12} \f$
-     real(kind=rp), allocatable :: G12(:,:,:,:)
+     real(kind=xp), allocatable :: G12(:,:,:,:)
      !> Geometric factors \f$ G_{13} \f$
-     real(kind=rp), allocatable :: G13(:,:,:,:)
+     real(kind=xp), allocatable :: G13(:,:,:,:)
      !> Geometric factors \f$ G_{23} \f$
-     real(kind=rp), allocatable :: G23(:,:,:,:)
+     real(kind=xp), allocatable :: G23(:,:,:,:)
 
      !> Largest condition number of the metric tensor over the mesh, global
      !! across ranks. Zero until coef_metric_condition() has been called.
@@ -178,17 +178,17 @@ module coefs
      !! build trips NEKO_METRIC_COND_SP.
      logical :: metric_sp_safe = .false.
      !> Compressed geometric factors \f$ G_{11} \f$
-     real(kind=rp), allocatable :: G11_compressed(:,:,:,:)
+     real(kind=xp), allocatable :: G11_compressed(:,:,:,:)
      !> Compressed geometric factors \f$ G_{22} \f$
-     real(kind=rp), allocatable :: G22_compressed(:,:,:,:)
+     real(kind=xp), allocatable :: G22_compressed(:,:,:,:)
      !> Compressed geometric factors \f$ G_{33} \f$
-     real(kind=rp), allocatable :: G33_compressed(:,:,:,:)
+     real(kind=xp), allocatable :: G33_compressed(:,:,:,:)
      !> Compressed geometric factors \f$ G_{12} \f$
-     real(kind=rp), allocatable :: G12_compressed(:,:,:,:)
+     real(kind=xp), allocatable :: G12_compressed(:,:,:,:)
      !> Compressed geometric factors \f$ G_{13} \f$
-     real(kind=rp), allocatable :: G13_compressed(:,:,:,:)
+     real(kind=xp), allocatable :: G13_compressed(:,:,:,:)
      !> Compressed geometric factors \f$ G_{23} \f$
-     real(kind=rp), allocatable :: G23_compressed(:,:,:,:)
+     real(kind=xp), allocatable :: G23_compressed(:,:,:,:)
      !> Compressed geometric factors lookup indices
      integer, allocatable :: compression_inds(:)
 
@@ -1238,9 +1238,9 @@ contains
              c%G11(i, 1, 1, 1) = c%G11(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
              c%G22(i, 1, 1, 1) = c%G22(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
              c%G12(i, 1, 1, 1) = c%G12(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
-             c%G33(i, 1, 1, 1) = 0.0_rp
-             c%G13(i, 1, 1, 1) = 0.0_rp
-             c%G23(i, 1, 1, 1) = 0.0_rp
+             c%G33(i, 1, 1, 1) = 0.0_xp
+             c%G13(i, 1, 1, 1) = 0.0_xp
+             c%G23(i, 1, 1, 1) = 0.0_xp
           end do
 
           do concurrent (e = 1:c%msh%nelv)
@@ -1413,7 +1413,7 @@ contains
                 ! condition number is invariant under it and w3*J spans a
                 ! wide range within an element
                 scal = max(abs(real(this%G11(i,j,k,e), dp)), &
-                           abs(real(this%G22(i,j,k,e), dp)))
+                     abs(real(this%G22(i,j,k,e), dp)))
                 scal = max(scal, abs(real(this%G33(i,j,k,e), dp)))
                 scal = max(scal, abs(real(this%G12(i,j,k,e), dp)))
                 scal = max(scal, abs(real(this%G13(i,j,k,e), dp)))
