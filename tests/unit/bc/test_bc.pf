@@ -1,5 +1,4 @@
 module test_bc
-  use mpi
   use pfunit
   use mesh_fixture, only : two_adjacent_unit_hex_mesh
   use mesh, only : mesh_t
@@ -19,7 +18,8 @@ module test_bc
   use device, only : device_init, device_finalize
   use neko_config, only : NEKO_BCKND_DEVICE
   use comm, only : NEKO_COMM, pe_rank, pe_size
-  use neko_mpi_types, only : neko_mpi_types_init
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
   implicit none
 
   integer, parameter :: lx_test = 3
@@ -37,31 +37,14 @@ module test_bc
   end type bc_test_case
 
 contains
-! @test
-! subroutine test_bc_init
-!   use pfunit
-!   use dofmap
-!   use bc
-!   implicit none
-!   type(bc_t) :: b
-!   type(dofmap_t) :: dof
 
   subroutine setUp(this)
     class(bc_test_case), intent(inout) :: this
-    integer :: ierr
 
+    call comm_init_test(this%getMpiCommunicator())
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
-
-!   @assertTrue(associated(b%dof))
-!   @assertTrue(associated(b%msh))
-!   @assertTrue(associated(b%Xh))
-! end subroutine test_bc_init
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
     call neko_mpi_types_init()
 
     call build_test_fixture(this%msh, this%Xh, this%dof, this%gs, this%coef)
@@ -77,8 +60,10 @@ contains
     call this%msh%free()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_finalize
+       call device_finalize
     end if
+    call neko_mpi_types_free()
+    call comm_free_test()
   end subroutine tearDown
 
   @test(npes=[1])
