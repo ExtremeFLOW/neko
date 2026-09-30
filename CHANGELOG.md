@@ -2,21 +2,13 @@
 
 ## Develop
 
-- Fixed memory and resource leaks. Objects that were never released: JSON
-  sub-dictionaries reused in loops (a reused `json_get_subdict_or_empty`
-  target could also keep stale contents), the output mask of `.fld` files,
-  the constants and point-zone registries, the Runge-Kutta coefficients of
-  the compressible solver, the masked helper vector of
-  `global_interpolation_t`, the fields of user source terms, the outputs of
-  `user_stats` and `scalar_stats`, the boundary condition of `force_torque`,
-  the writer of `lambda2`, and temporaries in the elementwise filter setup,
-  the checkpoint reader, the probe CSV reader and `bc_t%debug_mask`. The
-  `.rea` reader now also closes its file when the mesh is read from a
-  `.re2` file. `field_vdot3` now takes `dot` as `intent(inout)`; before, any
-  call deallocated the output field on entry.
-- Fixed the CPU dynamic Smagorinsky model never relinquishing ten scratch
-  fields per evaluation, which grew the memory every time step and made the
-  run end with a scratch registry error at shutdown.
+- Fixed memory leaks in several free routines and temporary objects,
+  including reused JSON objects, `.fld` output masks, the point zone and
+  constant registries, and user source term fields.
+- Fixed `field_vdot3` deallocating its output field on entry.
+- Fixed the CPU dynamic Smagorinsky model not relinquishing its scratch
+  fields, which grew the memory every time step and caused an error at
+  shutdown.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,
