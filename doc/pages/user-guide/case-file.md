@@ -311,7 +311,8 @@ components, with `simulationtime` or `nsamples`) and `end_time` are reached
 exactly. It relies on `variable_timestep`, the switch that adjusts `dt` to the
 flow: with a fixed `dt` it only checks that the scheduled times are whole
 numbers of steps away and stops the run otherwise. Use `tsteps` to sample
-every so many steps instead.
+every so many steps instead. The option is experimental: check the times
+reported in the log, and the CFL number, when using it.
 
 The time up to the next scheduled time is divided into equal steps, as many as
 bring the step closest to the one giving the centre of the CFL band,
