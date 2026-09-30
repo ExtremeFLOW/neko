@@ -401,6 +401,84 @@ contains
     end do
   end subroutine test_end_near_scheduled_time
 
+  !> Irrational intervals, two of them a hair apart, are landed on exactly.
+  !! The second of the two is executed together with the first, at its time.
+  @test
+  subroutine test_irrational_intervals()
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(3)
+    type(steps_t) :: steps
+    real(kind=dp), parameter :: pi = 3.14159265358979323846_dp
+    real(kind=dp), parameter :: sq2 = 1.41421356237309504880_dp
+    real(kind=dp), parameter :: dt = 1.0e-3_dp
+    real(kind=dp) :: err
+    integer :: i
+
+    dtc = fixed_dt_controller(.true., 10)
+    call time%init(0.0_dp, 1.0_dp, dt)
+    call runs(1)%ctrl%init(0.0_dp, 1.0_dp, "simulationtime", pi / 50.0_dp)
+    call runs(2)%ctrl%init(0.0_dp, 1.0_dp, "simulationtime", &
+         pi / 50.0_dp * (1.0_dp + 1.0e-9_dp))
+    call runs(3)%ctrl%init(0.0_dp, 1.0_dp, "simulationtime", sq2 / 70.0_dp)
+
+    ! Without the forced write at the end, which is not one of the
+    ! scheduled times
+    call run_loop(dtc, time, runs, steps, .false.)
+
+    ! 15 intervals of pi/50 and 49 of sqrt(2)/70 fit in [0, 1], plus the
+    ! start
+    @assertEqual(runs(1)%nexec, 16)
+    @assertEqual(runs(3)%nexec, 50)
+    err = max_error(runs(1), 0.0_dp, pi / 50.0_dp)
+    @assertEqual(err, 0.0_dp, tolerance=1e-12_dp)
+    err = max_error(runs(3), 0.0_dp, sq2 / 70.0_dp)
+    @assertEqual(err, 0.0_dp, tolerance=1e-12_dp)
+    ! The near coincident schedule executes with the first, within a
+    ! billionth of an interval of its own times
+    @assertEqual(runs(2)%nexec, 16)
+    do i = 1, 16
+       @assertEqual(runs(2)%t_exec(i), runs(1)%t_exec(i), tolerance=1e-12_dp)
+    end do
+    @assertEqual(steps%t_final, 1.0_dp, tolerance=1e-12_dp)
+  end subroutine test_irrational_intervals
+
+  !> With more landing steps than there are steps in an interval, the steps
+  !! between two scheduled times are all equal, and the step only changes
+  !! at the scheduled times.
+  @test
+  subroutine test_uniform_steps()
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+    real(kind=dp), parameter :: dt = 1.0e-3_dp
+    real(kind=dp) :: err
+    integer :: k, nchanges
+
+    dtc = fixed_dt_controller(.true., 1000)
+    call time%init(0.0_dp, 0.3015_dp, dt)
+    ! 100.5 steps per interval: 101 equal steps of 0.1005 / 101 each
+    call runs(1)%ctrl%init(0.0_dp, 0.3015_dp, "simulationtime", 0.1005_dp)
+
+    call run_loop(dtc, time, runs, steps, .true.)
+
+    @assertEqual(runs(1)%nexec, 4)
+    err = max_error(runs(1), 0.0_dp, 0.1005_dp)
+    @assertEqual(err, 0.0_dp, tolerance=1e-12_dp)
+    @assertEqual(steps%n, 303)
+    nchanges = 0
+    do k = 1, steps%n
+       @assertEqual(steps%dt(k), 0.1005_dp / 101.0_dp, tolerance=1e-12_dp)
+       if (k .gt. 1) then
+          if (abs(steps%dt(k) - steps%dt(k-1)) .gt. 1e-12_dp) then
+             nchanges = nchanges + 1
+          end if
+       end if
+    end do
+    @assertEqual(nchanges, 0)
+  end subroutine test_uniform_steps
+
   !> An interval shorter than the step executes at every step and does not
   !! shorten the step to the interval.
   @test

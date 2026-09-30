@@ -39,7 +39,7 @@ module time_step_controller
   use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
   use time_state, only : time_state_t
   use time_based_controller, only : TIME_TOL
-  use comm, only : pe_size, global_pe_size, NEKO_GLOBAL_COMM
+  use comm, only : NEKO_GLOBAL_COMM, is_mpmd
   use mpi_f08, only : MPI_MIN, MPI_MAX, MPI_IN_PLACE, MPI_Allreduce, &
        MPI_DOUBLE_PRECISION, MPI_INTEGER
   implicit none
@@ -170,15 +170,6 @@ contains
     end if
 
   end subroutine time_step_controller_init
-
-  !> Whether this is one of several simulations coupled in an MPMD run, in
-  !! which case the time step is agreed on across them at every step.
-  pure function is_mpmd() result(mpmd)
-    logical :: mpmd
-
-    mpmd = global_pe_size .gt. 0 .and. pe_size .ne. global_pe_size
-
-  end function is_mpmd
 
   !> The first time step of a variable time step run: the one giving the
   !! target CFL number, limited by `timestep`, `max_timestep` and

@@ -59,7 +59,7 @@ module comm
   integer, public :: pe_rank
 
   !> MPI size of communicator
-  integer, public :: pe_size
+  integer, public :: pe_size = 0
 
   !> I/O node
   logical, public :: nio
@@ -68,14 +68,24 @@ module comm
   integer, public :: global_pe_rank
 
   !> Global MPI size of communicator
-  integer, public :: global_pe_size
+  integer, public :: global_pe_size = 0
 
   !> Thread support provided by the MPI library
   integer, public :: NEKO_MPI_THREAD_PROVIDED
 
-  public :: comm_init, comm_free
+  public :: comm_init, comm_free, is_mpmd
 
 contains
+
+  !> Whether this is one of several simulations coupled in an MPMD run, that
+  !! is, whether Neko's communicator is a subset of the global one.
+  pure function is_mpmd() result(mpmd)
+    logical :: mpmd
+
+    mpmd = global_pe_size .gt. 0 .and. pe_size .ne. global_pe_size
+
+  end function is_mpmd
+
   subroutine comm_init
     integer :: ierr
     logical :: initialized

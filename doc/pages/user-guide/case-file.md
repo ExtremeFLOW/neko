@@ -333,9 +333,13 @@ as if the step had not been shortened. With the default of ten steps the step
 changes by at most a tenth when a scheduled time is approached from further
 away than that, which is the usual case. With `output_landing_steps` set to
 `1`, only the last step or two before the scheduled time are shortened, down
-to a tenth of the step asked for. Even when the time step divides the
-interval, the last step before a scheduled time absorbs the round-off of the
-accumulated time, so it differs from the step asked for by round-off.
+to a tenth of the step asked for. Set to more steps than there are in an
+interval, the steps between two scheduled times are all equal, that is, the
+time step is the largest step no longer than the one asked for that divides
+the interval, and it only changes at the scheduled times. Even when the time
+step divides the interval, the last step before a scheduled time absorbs the
+round-off of the accumulated time, so it differs from the step asked for by
+round-off.
 
 No step is shorter than a tenth of the step asked for or, with a variable time
 step, than `min_timestep`; a `min_timestep` at the step the CFL controller
