@@ -111,7 +111,7 @@ contains
 
   end subroutine test_matrix_assign_matrix
 
-  @test(npes[1])
+  @test(npes=[1])
   subroutine test_matrix_assign_scalar(this)
     class (test_matrix), intent(inout) :: this
     integer, parameter :: n = 4711, m = 42
@@ -180,7 +180,7 @@ contains
 
   ! end subroutine test_matrix_add_matrix
 
-  ! @test(npes[1])
+  ! @test(npes=[1])
   ! subroutine test_matrix_add_scalar(this)
   !   class (test_matrix), intent(inout) :: this
   !   integer, parameter :: n = 4711, m = 42
@@ -273,7 +273,7 @@ contains
 
   ! end subroutine test_matrix_sub_matrix
 
-  ! @test(npes[1])
+  ! @test(npes=[1])
   ! subroutine test_matrix_sub_scalar(this)
   !   class (test_matrix), intent(inout) :: this
   !   integer, parameter :: n = 4711, m = 42
@@ -313,7 +313,7 @@ contains
 
   ! end subroutine test_matrix_sub_scalar
 
-  ! @test(npes[1])
+  ! @test(npes=[1])
   ! subroutine test_matrix_cmult_scalar(this)
   !   class (test_matrix), intent(inout) :: this
   !   integer, parameter :: n = 4711, m = 42

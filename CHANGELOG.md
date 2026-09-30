@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Added an agent skill for writing pFUnit unit tests, rewrote the testing
+  guide, and brought older unit-test suites in line with the templates.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,

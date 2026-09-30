@@ -15,6 +15,7 @@ test-suite.log
 !jobctrl/jobctrl_test
 !bc/bc_test
 !bc_projector/bc_projector_test
+!crystal_router/crystal_router_test
 !matrix/matrix_test
 !math/math_test
 !mean_field/mean_field_test
@@ -55,7 +56,6 @@ point/point_test
 quad/quad_test
 octree/octree_test
 space/space_test
-stack/stack/test
 tri/tri_test
 tet/tet_test
 uset/uset_test
@@ -70,8 +70,6 @@ gather_scatter/gather_scatter_suite
 ax/ax_test
 jobctrl/jobctrl_suite
 scratch_registry/scratch_registry_test
-vector_scratch_registry/vector_scratch_registry_test
-matrix_scratch_registry/matrix_scratch_registry_test
 fast3d/fast3d_test
 time_scheme/time_scheme_test
 time_scheme_controller/time_scheme_controller_test
@@ -92,3 +90,4 @@ bc_projector/bc_projector_suite
 boundary_operation/boundary_operation_suite
 checkpoint_payload/checkpoint_payload_test
 wall_sampling/wall_sampling_suite
+crystal_router/crystal_router_suite
