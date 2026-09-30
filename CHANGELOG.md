@@ -2,6 +2,17 @@
 
 ## Develop
 
+- Added `case.fluid.initial_condition.make_divergence_free` (experimental),
+  which imposes the velocity boundary conditions on the initial velocity and
+  projects it onto the divergence-free subspace with the `pnpn` pressure
+  solver, e.g. for a field interpolated from another mesh.
+- Added `case.fluid.initial_condition.scale_to_flow_rate` (experimental),
+  which scales the initial velocity to the target of `flow_rate_force` before
+  the first step.
+- Fixed the `point_zone` fluid initial condition aborting while logging its
+  `base_value`.
+- Fixed the `cheby` solver returning an undefined iteration count and
+  residual.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,

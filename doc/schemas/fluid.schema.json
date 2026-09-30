@@ -42,6 +42,18 @@
             "type"
           ],
           "properties": {
+            "make_divergence_free": {
+              "type": "boolean"
+            },
+            "scale_to_flow_rate": {
+              "type": "boolean"
+            },
+            "divergence_free_tolerance": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "divergence_free_max_iterations": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+            },
             "type": {
               "const": "user"
             }
@@ -55,6 +67,18 @@
             "value"
           ],
           "properties": {
+            "make_divergence_free": {
+              "type": "boolean"
+            },
+            "scale_to_flow_rate": {
+              "type": "boolean"
+            },
+            "divergence_free_tolerance": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "divergence_free_max_iterations": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+            },
             "type": {
               "const": "uniform"
             },
@@ -71,6 +95,18 @@
             "value"
           ],
           "properties": {
+            "make_divergence_free": {
+              "type": "boolean"
+            },
+            "scale_to_flow_rate": {
+              "type": "boolean"
+            },
+            "divergence_free_tolerance": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "divergence_free_max_iterations": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+            },
             "type": {
               "const": "expression"
             },
@@ -94,6 +130,18 @@
             "approximation"
           ],
           "properties": {
+            "make_divergence_free": {
+              "type": "boolean"
+            },
+            "scale_to_flow_rate": {
+              "type": "boolean"
+            },
+            "divergence_free_tolerance": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "divergence_free_max_iterations": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+            },
             "type": {
               "const": "blasius"
             },
@@ -126,6 +174,18 @@
             "zone_value"
           ],
           "properties": {
+            "make_divergence_free": {
+              "type": "boolean"
+            },
+            "scale_to_flow_rate": {
+              "type": "boolean"
+            },
+            "divergence_free_tolerance": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "divergence_free_max_iterations": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+            },
             "type": {
               "const": "point_zone"
             },
@@ -149,6 +209,18 @@
             "file_name"
           ],
           "properties": {
+            "make_divergence_free": {
+              "type": "boolean"
+            },
+            "scale_to_flow_rate": {
+              "type": "boolean"
+            },
+            "divergence_free_tolerance": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "divergence_free_max_iterations": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+            },
             "type": {
               "const": "field"
             },
