@@ -316,10 +316,13 @@ reported in the log, and the CFL number, when using it.
 
 The time up to the next scheduled time is divided into equal steps, as many as
 bring the step closest to the one giving the centre of the CFL band,
-`target_cfl * sqrt(1 - cfl_deviation_tolerance**2)`. The fit is redone at each
-scheduled time and whenever the CFL controller changes the step; in between
-the step is kept. Every step stays within `min_dt_decrease_factor` and
-`max_dt_increase_factor` of the previous one, and within `min_timestep` and
+`target_cfl * sqrt(1 - cfl_deviation_tolerance**2)`. At every step the fit is
+checked: the step is kept as long as it still divides the time up to the next
+scheduled time, and refitted otherwise, which happens at each scheduled time,
+whenever the CFL controller changes the step, and after a restart or when a
+schedule starts taking part. Every step stays within
+`min_dt_decrease_factor` and `max_dt_increase_factor` of the previous one,
+and within `min_timestep` and
 `max_timestep`, so the fit never changes `dt` more abruptly than the
 controller would; where one change is not enough the first step of an interval
 differs from the rest, so that the step moves in two stages.
