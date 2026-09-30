@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Fixed the CPU dynamic Smagorinsky model never relinquishing ten scratch
+  fields per evaluation, which grew the memory every time step and made the
+  run end with a scratch registry error at shutdown.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,
