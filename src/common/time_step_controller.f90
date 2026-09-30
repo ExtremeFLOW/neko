@@ -34,7 +34,7 @@
 module time_step_controller
   use num_types, only : dp, i8
   use logger, only : neko_log, LOG_SIZE
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
   use json_module, only : json_file
   use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
   use time_state, only : time_state_t
@@ -54,6 +54,11 @@ module time_step_controller
   !> Largest number of steps up to a scheduled time that is still fitted.
   !! Beyond it the quantisation of the step is below round-off anyway.
   real(kind=dp), parameter :: MAX_LANDING_STEPS = 1.0e15_dp
+
+  !> Number of steps over which the CFL controller may ask in vain for a
+  !! change that the landing on the scheduled times denies before the run
+  !! stops: the scheduled times are then too dense to follow the controller.
+  integer, parameter :: HELD_STEPS_MAX = 100
 
   !> Provides a tool to set time step dt
   type, public :: time_step_controller_t
@@ -85,6 +90,15 @@ module time_step_controller
      integer :: dt_last_change_prev = -1
      !> Whether the step about to be taken is fitted to a scheduled time.
      logical :: dt_fitted = .false.
+     !> The step planned after the one about to be taken, when the fit
+     !! changes the step in two stages, and the time it lands on.
+     real(kind=dp) :: dt_plateau = 0.0_dp
+     real(kind=dp) :: plateau_target = huge(0.0_dp)
+     !> Number of steps over which the controller has asked in vain for a
+     !! change that only the bounds on the ratio of the steps deny.
+     integer :: held_steps = 0
+     !> Whether the last change asked for was denied by those bounds.
+     logical :: held_by_ratio = .false.
      !> A scheduled time so close to the end that the end is landed on
      !! instead, see `land`.
      real(kind=dp) :: skipped_for_end = huge(0.0_dp)
@@ -148,14 +162,15 @@ contains
     end if
 
     ! Landing on the scheduled times adjusts the step within the bounds of
-    ! the CFL controller, so it needs the variable time step.
+    ! the CFL controller. With a fixed step it only checks the schedules.
     call json_get_or_default(params, 'exact_output_time', &
          this%exact_output_time, .false.)
     if (this%exact_output_time .and. .not. this%is_variable_dt) then
-       call neko_error('exact_output_time requires variable_timestep: &
-            &either enable the variable time step, or choose a timestep &
-            &that divides the sampling and output intervals and leave &
-            &exact_output_time unset')
+       call neko_warning('exact_output_time with a fixed timestep only &
+            &checks that the sampling and output times are whole numbers &
+            &of steps away, and stops the run otherwise. Use tsteps to &
+            &sample every so many steps, or variable_timestep to have the &
+            &step fitted.')
     end if
 
     ! A variable time step takes a collective at every step in an MPMD run,
@@ -198,24 +213,24 @@ contains
 
   !> The shortest interval of a schedule, in time steps, that the landing
   !! divides into steps: the number of steps `n` from which on the step of
-  !! `n - 1` steps is within `max_dt_increase_factor` of the step of `n`,
-  !! so that the CFL controller can move the step from one whole number of
-  !! steps per interval to the next. A shorter interval could only be
-  !! divided into steps that the controller cannot climb back out of, so
-  !! its schedule is executed at the first step past each scheduled time
-  !! instead, as it is without the landing. Six steps with the default
-  !! factor of 1.2.
+  !! `n` steps is within `max_dt_increase_factor` squared of the step of
+  !! `n + 1` steps, so that the CFL controller can move the step from one
+  !! whole number of steps per interval to the next in the two stages the
+  !! fit allows. A shorter interval could only be divided into steps that
+  !! the controller cannot climb back out of, so its schedule is executed
+  !! at the first step past each scheduled time instead, as it is without
+  !! the landing. Three steps with the default factor of 1.2.
   pure function time_step_controller_min_interval_steps(this) result(steps)
     class(time_step_controller_t), intent(in) :: this
     real(kind=dp) :: steps
 
     steps = huge(0.0_dp)
     if (this%max_dt_increase_factor .gt. 1.0_dp) then
-       steps = this%max_dt_increase_factor / &
-            (this%max_dt_increase_factor - 1.0_dp) - LANDING_TOL
+       steps = 1.0_dp / (this%max_dt_increase_factor**2 - 1.0_dp) - &
+            LANDING_TOL
        steps = real(ceiling(min(steps, MAX_LANDING_STEPS), kind = i8), dp)
     end if
-    steps = max(steps, 1.0_dp)
+    steps = max(steps, 2.0_dp)
 
   end function time_step_controller_min_interval_steps
 
@@ -246,6 +261,10 @@ contains
     real(kind=dp) :: min_interval, dt_estimate
 
     dt_estimate = abs(time%dt)
+    if (.not. this%is_variable_dt) then
+       min_interval = dt_estimate
+       return
+    end if
     if (this%cfl_previous .gt. 0.0_dp .and. &
          abs(this%dt_previous) .gt. 0.0_dp) then
        dt_estimate = abs(this%dt_previous) * this%cfl_centre() / &
@@ -366,14 +385,10 @@ contains
   !! be included.
   !! @details To be called right after `set_dt`. The time remaining up to
   !! the next scheduled time, or to `end_time` if that is closer, is divided
-  !! into a whole number of equal steps. The step is fitted when the CFL
-  !! controller changes it and at each scheduled time, where the whole
-  !! interval up to the next one is divided at once; in between it is kept,
-  !! as it divides the remaining time already. The fit picks the number of
-  !! steps whose step is the closest, in ratio, to the step that would give
-  !! the CFL number at the geometric centre of the controller's band,
-  !! `target_cfl * sqrt(1 - cfl_deviation_tolerance**2)`, which is the step
-  !! the controller is the least likely to change again.
+  !! into a whole number of equal steps, see `fit_step`. The step is fitted
+  !! when the CFL controller changes it and at each scheduled time, where
+  !! the whole interval up to the next one is divided at once; in between
+  !! it is kept, as it divides the remaining time already.
   !!
   !! Every step taken is within `min_dt_decrease_factor` and
   !! `max_dt_increase_factor` of the step before, and within `min_timestep`
@@ -383,14 +398,17 @@ contains
   !! scheduled time closer than half a step to the one before it, is passed
   !! and executed at the first step past it, as it is without the option.
   !!
-  !! Within the last few steps up to a scheduled time (fewer than
-  !! `min_interval_steps`) the quantisation is too coarse for the change
-  !! the controller asks for, which then waits for the scheduled time.
-  !! Scheduled times of several schedules that follow each other that
-  !! closely all the time can hold the step at a whole fraction of their
-  !! gaps below the step the controller aims at, as the controller cannot
-  !! climb from one whole number of steps per gap to the next within its
-  !! bounds; the scheduled times are still landed on exactly.
+  !! Scheduled times of several schedules that follow each other only a few
+  !! steps apart all the time can hold the step at a whole fraction of
+  !! their gaps that leaves the CFL number outside the controller's band,
+  !! with the controller asking in vain for a change that only the bounds
+  !! on the ratio of the steps deny. After `HELD_STEPS_MAX` such steps the
+  !! run stops with an error, as the schedules are too dense to follow the
+  !! controller.
+  !!
+  !! With a fixed time step nothing is adjusted: the next scheduled time is
+  !! checked to be a whole number of steps away, and the run stops with an
+  !! error otherwise.
   !!
   !! In an MPMD run the fitted step is the smallest one over the
   !! simulations, so that they keep advancing in lockstep.
@@ -399,19 +417,41 @@ contains
     type(time_state_t), intent(inout) :: time
     real(kind=dp), intent(in) :: time_to_next
     real(kind=dp) :: dt_prev, dt_new, direction, remaining, global_min_dt
-    real(kind=dp) :: lo, hi, remaining_end, target_time, nearest
+    real(kind=dp) :: lo, hi, remaining_end, target_time, nearest, plateau, x
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr
-    logical :: reachable, fitted, changed, on_end
+    logical :: reachable, fitted, changed, on_end, ratio_bound, step_changed
 
     if (.not. this%exact_output_time) return
+
+    ! A fixed step is only checked against the next scheduled time
+    if (.not. this%is_variable_dt) then
+       if (time_to_next .lt. huge(0.0_dp) .and. abs(time%dt) .gt. 0.0_dp) &
+            then
+          x = time_to_next / abs(time%dt)
+          if (x .lt. MAX_LANDING_STEPS) then
+             if (abs(x - real(nint(x, kind = i8), dp)) .gt. LANDING_TOL) then
+                write(log_buf, '(A,E15.7,A,F0.3,A)') 'The scheduled time ', &
+                     time%t + sign(1.0_dp, time%dt) * time_to_next, ' is ', &
+                     x, ' steps away'
+                call neko_error(trim(log_buf) // ', so the fixed timestep &
+                     &cannot reach it exactly. Use tsteps for that sampling &
+                     &or output, or disable exact_output_time, before &
+                     &restarting.')
+             end if
+          end if
+       end if
+       return
+    end if
 
     direction = sign(1.0_dp, time%dt)
     dt_prev = abs(this%dt_previous)
     if (.not. dt_prev .gt. 0.0_dp) dt_prev = abs(time%dt)
     dt_new = abs(time%dt)
+    plateau = dt_new
     reachable = .true.
     fitted = .false.
+    ratio_bound = .false.
     target_time = huge(0.0_dp)
     ! Whether the controller changed the step (or it is the first step)
     changed = this%dt_last_change .eq. 0
@@ -450,16 +490,26 @@ contains
        target_time = time%t + direction * remaining
 
        ! Keep the step as long as it divides the remaining time and the
-       ! controller did not change it. Dividing the remaining time anew
-       ! absorbs the round-off of the accumulated time, so the last step
-       ! lands exactly.
+       ! controller did not change it, or move on to the step planned after
+       ! a first step of a different length. Dividing the remaining time
+       ! anew absorbs the round-off of the accumulated time, so the last
+       ! step lands exactly.
        if (.not. changed) then
           call keep_step(remaining, dt_prev, dt_new, fitted)
+          if (.not. fitted .and. &
+               this%dt_plateau .ge. lo * (1.0_dp - LANDING_TOL) .and. &
+               this%dt_plateau .le. hi * (1.0_dp + LANDING_TOL) .and. &
+               abs(target_time - this%plateau_target) .le. &
+               LANDING_TOL * dt_prev) then
+             call keep_step(remaining, this%dt_plateau, dt_new, fitted)
+          end if
+          plateau = dt_new
        end if
 
        ! Otherwise fit the step anew, or find the scheduled time out of reach
        if (.not. fitted) then
-          call this%fit_step(remaining, dt_prev, lo, hi, dt_new, fitted)
+          call this%fit_step(remaining, dt_prev, abs(time%dt), lo, hi, &
+               dt_new, plateau, fitted, ratio_bound)
           reachable = fitted
        end if
     end if
@@ -474,11 +524,18 @@ contains
 
     time%dt = direction * dt_new
     this%dt_fitted = fitted
+    this%dt_plateau = 0.0_dp
+    this%plateau_target = huge(0.0_dp)
+    if (fitted .and. abs(plateau - dt_new) .gt. LANDING_TOL * dt_new) then
+       this%dt_plateau = plateau
+       this%plateau_target = target_time
+    end if
 
     ! The projection spaces watch for a change of the step, whatever its
     ! reason. A change by round-off only is none, and a change the
     ! controller asked for that the fit did not make is none either.
-    if (abs(dt_new - dt_prev) .gt. LANDING_TOL * dt_prev) then
+    step_changed = abs(dt_new - dt_prev) .gt. LANDING_TOL * dt_prev
+    if (step_changed) then
        this%dt_last_change = 0
        write(log_buf, '(A,E15.7,1x,A,E15.7)') 'Old dt:', &
             direction * dt_prev, 'New dt:', time%dt
@@ -486,6 +543,31 @@ contains
     else if (this%dt_last_change .eq. 0 .and. &
          this%dt_last_change_prev .ge. 0) then
        this%dt_last_change = this%dt_last_change_prev + 1
+    end if
+
+    ! The controller asking in vain, for too long, for a change that only
+    ! the bounds on the ratio of the steps deny
+    if (step_changed) then
+       this%held_steps = 0
+       this%held_by_ratio = .false.
+    else
+       if (changed) this%held_by_ratio = ratio_bound
+       if (abs(this%cfl_avg - this%cfl_trg) .ge. this%dev_tol * this%cfl_trg &
+            .and. this%held_by_ratio) then
+          this%held_steps = this%held_steps + 1
+       else if (abs(this%cfl_avg - this%cfl_trg) .lt. &
+            this%dev_tol * this%cfl_trg) then
+          this%held_steps = 0
+       end if
+    end if
+    if (this%held_steps .ge. HELD_STEPS_MAX) then
+       this%held_steps = -huge(0) / 2
+       write(log_buf, '(A,E15.7,A,I0,A)') 'exact_output_time has held dt at ', &
+            time%dt, ' for ', HELD_STEPS_MAX, ' steps'
+       call neko_error(trim(log_buf) // ' while the CFL controller asked for &
+            &a change: the scheduled times are too dense to follow it. &
+            &Spread them out, use tsteps for the dense schedule, or disable &
+            &exact_output_time, before restarting.')
     end if
 
     ! Report each scheduled time once
@@ -532,29 +614,44 @@ contains
   !> Divide the remaining time up to the scheduled time into the whole
   !! number of equal steps within the bounds whose step is the closest, in
   !! ratio, to the step giving the CFL number at the centre of the band.
+  !! Should that leave the CFL number outside the band, the first step may
+  !! differ from the rest, each within the bounds of the one before, which
+  !! moves the step in two stages where one is not enough.
   !! @param remaining The time up to the scheduled time.
   !! @param dt_prev The step taken last, whose CFL number is `cfl_previous`.
+  !! @param dt_ask The step the CFL controller asked for.
   !! @param lo The shortest step allowed.
   !! @param hi The longest step allowed.
   !! @param dt_new The step to take, set if the scheduled time is reachable.
+  !! @param plateau The steps after it, `dt_new` unless the step is moved
+  !! in two stages.
   !! @param fitted Whether the scheduled time is reachable within the bounds.
+  !! @param ratio_bound Whether the step is held back from the one asked for
+  !! by the bounds on the ratio of the steps alone: the next number of
+  !! steps in that direction is within the minimum and maximum step, but
+  !! not within the ratio bounds.
   pure subroutine time_step_controller_fit_step(this, remaining, dt_prev, &
-       lo, hi, dt_new, fitted)
+       dt_ask, lo, hi, dt_new, plateau, fitted, ratio_bound)
     class(time_step_controller_t), intent(in) :: this
-    real(kind=dp), intent(in) :: remaining, dt_prev, lo, hi
+    real(kind=dp), intent(in) :: remaining, dt_prev, dt_ask, lo, hi
     real(kind=dp), intent(inout) :: dt_new
-    logical, intent(out) :: fitted
-    real(kind=dp) :: dt_target, x
-    integer(kind=i8) :: n, n_lo, n_hi
+    real(kind=dp), intent(out) :: plateau
+    logical, intent(out) :: fitted, ratio_bound
+    real(kind=dp) :: dt_target, dt_aim, x, dt_next, p, pmin, pmax, dist
+    real(kind=dp) :: best_dist, fmin, fmax, cfl_lo, cfl_hi, cfl_p
+    integer(kind=i8) :: n, n_lo, n_hi, m, m_lo, m_hi
+    logical :: in_band
 
     fitted = .false.
+    ratio_bound = .false.
+    plateau = dt_new
 
-    ! The step aimed for, within the bounds
-    dt_target = dt_prev
+    ! The step aimed for, and its clamp to the bounds
+    dt_aim = dt_prev
     if (this%cfl_previous .gt. 0.0_dp) then
-       dt_target = dt_prev * this%cfl_centre() / this%cfl_previous
+       dt_aim = dt_prev * this%cfl_centre() / this%cfl_previous
     end if
-    dt_target = max(min(dt_target, hi), lo)
+    dt_target = max(min(dt_aim, hi), lo)
 
     ! The numbers of steps whose step is within the bounds
     if (.not. hi .gt. 0.0_dp) return
@@ -572,7 +669,53 @@ contains
     if (x * x .gt. real(n, dp) * real(n + 1_i8, dp)) n = n + 1_i8
     n = max(n_lo, min(n_hi, n))
     dt_new = remaining / real(n, dp)
+    plateau = dt_new
     fitted = .true.
+
+    ! Whether the ratio bounds alone hold the step back from the one asked
+    if (dt_ask .gt. (1.0_dp + LANDING_TOL) * dt_prev .and. n .gt. 1_i8) then
+       dt_next = remaining / real(n - 1_i8, dp)
+       ratio_bound = dt_next .gt. hi .and. dt_next .le. this%max_dt
+    else if (dt_ask .lt. (1.0_dp - LANDING_TOL) * dt_prev) then
+       dt_next = remaining / real(n + 1_i8, dp)
+       ratio_bound = dt_next .lt. lo .and. dt_next .ge. this%min_dt
+    end if
+
+    ! Good enough if the CFL number of that step is within the band
+    cfl_lo = this%cfl_trg * (1.0_dp - this%dev_tol)
+    cfl_hi = this%cfl_trg * (1.0_dp + this%dev_tol)
+    if (.not. this%cfl_previous .gt. 0.0_dp) return
+    cfl_p = this%cfl_previous * dt_new / dt_prev
+    if (cfl_p .ge. cfl_lo .and. cfl_p .le. cfl_hi) return
+
+    ! Otherwise a first step within the bounds, then m equal steps within
+    ! the bounds of the first: the number of steps whose step is the closest
+    ! to the one aimed for among those within the band, or else closer than
+    ! the equal steps by a band's width
+    fmin = min(this%min_dt_decrease_factor, 1.0_dp)
+    fmax = max(this%max_dt_increase_factor, 1.0_dp)
+    best_dist = abs(log(dt_new / dt_aim))
+    x = remaining / dt_aim
+    m_lo = max(1_i8, floor(min(x, MAX_LANDING_STEPS), kind = i8) - 8_i8)
+    m_hi = min(ceiling(min(x, MAX_LANDING_STEPS), kind = i8) + 8_i8, &
+         n_hi + 8_i8)
+    do m = m_lo, m_hi
+       pmin = max((remaining - hi) / real(m, dp), &
+            fmin * remaining / (1.0_dp + real(m, dp) * fmin), this%min_dt)
+       pmax = min((remaining - lo) / real(m, dp), &
+            fmax * remaining / (1.0_dp + real(m, dp) * fmax), this%max_dt)
+       if (pmin .gt. pmax) cycle
+       p = max(min(dt_aim, pmax), pmin)
+       dist = abs(log(p / dt_aim))
+       cfl_p = this%cfl_previous * p / dt_prev
+       in_band = cfl_p .ge. cfl_lo .and. cfl_p .le. cfl_hi
+       if ((in_band .and. dist .lt. best_dist - LANDING_TOL) .or. &
+            dist .lt. best_dist - log(1.0_dp + this%dev_tol)) then
+          best_dist = dist
+          dt_new = remaining - real(m, dp) * p
+          plateau = p
+       end if
+    end do
 
   end subroutine time_step_controller_fit_step
 

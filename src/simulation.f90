@@ -86,7 +86,11 @@ contains
     end if
     call neko_log%message(log_buf)
     if (dt_controller%exact_output_time) then
-       call neko_log%message('dt is shortened to land on the output times')
+       if (dt_controller%is_variable_dt) then
+          call neko_log%message('dt is fitted to the output times')
+       else
+          call neko_log%message('The output times are checked against dt')
+       end if
     end if
 
     ! Execute outputs and user-init before time loop
