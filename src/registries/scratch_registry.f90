@@ -714,6 +714,11 @@ contains
     character(len=10) :: name
     type(field_t), pointer :: scratch_entry
 
+    if (.not. associated(this%dof)) then
+       call neko_error("scratch_registry::request_field_stored_dof: " &
+            // "No dofmap assigned to scratch registry.")
+    end if
+
     scratch_entry => null()
 
     ! Look for a compatible, unused object in the registry.
@@ -973,7 +978,10 @@ contains
     class(scratch_registry_t), intent(inout) :: this
     integer, intent(in) :: index
 
+    !$omp critical
     this%inuse(index) = .false.
+    !$omp end critical
+
   end subroutine relinquish_single
 
   !> Relinquish the use of multiple objects in the registry
@@ -983,9 +991,11 @@ contains
     integer, intent(in) :: indices(:)
     integer :: i
 
+    !$omp critical
     do i = 1, size(indices)
        this%inuse(indices(i)) = .false.
     end do
+    !$omp end critical
   end subroutine relinquish_multiple
 
   !> Relinquish a single index based on a specified type.
@@ -997,6 +1007,7 @@ contains
     character(len=*), intent(in) :: type
     character(len=:), allocatable :: msg
 
+    !$omp critical
     if (trim(this%entries(index)%get_type()) .ne. type) then
        write(msg, "(A,1X,A,1X,A,A)") "scratch_registry::relinquish:", &
             "Entry is not a", trim(type), "."
@@ -1004,6 +1015,7 @@ contains
     end if
 
     this%inuse(index) = .false.
+    !$omp end critical
   end subroutine relinquish_type
 
 end module scratch_registry
