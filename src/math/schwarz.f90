@@ -141,6 +141,19 @@ contains
 
     call this%free()
 
+    ! nonconforming meshes only
+    ! scaling factors
+    this%alpha = 1.0_rp
+    call get_environment_variable('NEKO_HANG_PARENT_WT', buf, l, stat)
+    if (stat .eq. 0 .and. l .gt. 0) read(buf, *) this%alpha
+    this%beta = 1.0_rp
+    call get_environment_variable('NEKO_HANG_XFER_BETA', buf, l, stat)
+    if (stat .eq. 0 .and. l .gt. 0) read(buf, *) this%beta
+    ! threshold for element aspect ratio
+    this%thr = 1.05_rp
+    call get_environment_variable('NEKO_HANG_AR_THR', buf, l, stat)
+    if (stat .eq. 0 .and. l .gt. 0) read(buf, *) this%thr
+
     call this%Xh_schwarz%init(GLL, Xh%lx+2, Xh%lx+2, Xh%lx+2)
     call this%dm_schwarz%init(msh, this%Xh_schwarz)
     call this%gs_schwarz%init(this%dm_schwarz)
@@ -194,23 +207,14 @@ contains
        call device_event_create(this%event, 2)
     end if
 
-    ! nonconforming meshes only
-    ! scaling factors
-    this%alpha = 1.0_rp
-    call get_environment_variable('NEKO_HANG_PARENT_WT', buf, l, stat)
-    if (stat .eq. 0 .and. l .gt. 0) read(buf, *) this%alpha
-    this%beta = 1.0_rp
-    call get_environment_variable('NEKO_HANG_XFER_BETA', buf, l, stat)
-    if (stat .eq. 0 .and. l .gt. 0) read(buf, *) this%beta
-    ! threshold for element aspect ratio
-    this%thr = 1.05_rp
-    call get_environment_variable('NEKO_HANG_AR_THR', buf, l, stat)
-    if (stat .eq. 0 .and. l .gt. 0) read(buf, *) this%thr
-
   end subroutine schwarz_init
 
   subroutine schwarz_free(this)
     class(schwarz_t), intent(inout) :: this
+
+    this%alpha = 0.0_rp
+    this%beta = 0.0_rp
+    this%thr = 0.05_rp
 
     if (allocated(this%work1)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
