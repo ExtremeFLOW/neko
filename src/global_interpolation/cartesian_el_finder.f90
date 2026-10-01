@@ -46,9 +46,10 @@ module cartesian_el_finder
   use fast3d, only : setup_intp
   use device_cartesian_el_finder, only : device_cartesian_el_finder_count, &
        device_cartesian_el_finder_fill
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_associated, C_NULL_PTR
-  use device, only : device_map, device_unmap, device_memcpy, &
-       HOST_TO_DEVICE, DEVICE_TO_HOST
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_associated, c_loc, &
+       c_sizeof, c_size_t, C_NULL_PTR
+  use device, only : device_alloc, device_free, device_map, device_unmap, &
+       device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   implicit none
   private
 
@@ -423,12 +424,12 @@ contains
     real(kind=rp), intent(in), target :: points(3, n_points)
     type(stack_i4_t), intent(inout) :: all_el_candidates
     integer, intent(inout), target :: n_el_cands(n_points)
-    real(kind=rp), allocatable, target :: points_copy(:,:)
-    integer, allocatable, target :: point_box(:)
     integer, allocatable, target :: candidate_offsets(:)
     integer, allocatable, target :: candidate_array(:)
-    type(c_ptr) :: points_d, point_box_d, n_el_cands_d
-    type(c_ptr) :: candidate_offsets_d, candidate_array_d
+    type(c_ptr) :: points_h, points_d, point_box_d
+    type(c_ptr) :: n_el_cands_h, n_el_cands_d
+    type(c_ptr) :: candidate_offsets_h, candidate_offsets_d
+    type(c_ptr) :: candidate_array_h, candidate_array_d
     integer :: i, n_candidates
 
     call all_el_candidates%clear()
@@ -441,19 +442,23 @@ contains
     candidate_offsets_d = C_NULL_PTR
     candidate_array_d = C_NULL_PTR
 
-    ! The input has intent(in), so stage it in a mappable host array.
-    allocate(points_copy(3, n_points), point_box(n_points))
-    points_copy = points
-    call device_map(points_copy, points_d, 3*n_points)
-    call device_memcpy(points_copy, points_d, 3*n_points, &
+    points_h = c_loc(points)
+    call device_alloc(points_d, 3_c_size_t * int(n_points, c_size_t) * &
+         c_sizeof(points(1,1)))
+    call device_memcpy(points_h, points_d, &
+         3_c_size_t * int(n_points, c_size_t) * c_sizeof(points(1,1)), &
          HOST_TO_DEVICE, .true.)
-    call device_map(point_box, point_box_d, n_points)
-    call device_map(n_el_cands, n_el_cands_d, n_points)
+    call device_alloc(point_box_d, int(n_points, c_size_t) * &
+         c_sizeof(n_el_cands(1)))
+    call device_alloc(n_el_cands_d, int(n_points, c_size_t) * &
+         c_sizeof(n_el_cands(1)))
 
     call device_cartesian_el_finder_count(points_d, this%el_map_offset_d, &
          point_box_d, n_el_cands_d, this%min_x, this%min_y, this%min_z, &
          this%x_res, this%y_res, this%z_res, this%n_boxes, n_points)
-    call device_memcpy(n_el_cands, n_el_cands_d, n_points, &
+    n_el_cands_h = c_loc(n_el_cands)
+    call device_memcpy(n_el_cands_h, n_el_cands_d, &
+         int(n_points, c_size_t) * c_sizeof(n_el_cands(1)), &
          DEVICE_TO_HOST, .true.)
 
     allocate(candidate_offsets(n_points + 1))
@@ -464,28 +469,35 @@ contains
     n_candidates = candidate_offsets(n_points + 1)
 
     if (n_candidates > 0) then
-       call device_map(candidate_offsets, candidate_offsets_d, n_points + 1)
-       call device_memcpy(candidate_offsets, candidate_offsets_d, &
-            n_points + 1, HOST_TO_DEVICE, .true.)
+       candidate_offsets_h = c_loc(candidate_offsets)
+       call device_alloc(candidate_offsets_d, &
+            (int(n_points, c_size_t) + 1_c_size_t) * &
+            c_sizeof(candidate_offsets(1)))
+       call device_memcpy(candidate_offsets_h, candidate_offsets_d, &
+            (int(n_points, c_size_t) + 1_c_size_t) * &
+            c_sizeof(candidate_offsets(1)), HOST_TO_DEVICE, .true.)
        allocate(candidate_array(n_candidates))
-       call device_map(candidate_array, candidate_array_d, n_candidates)
+       candidate_array_h = c_loc(candidate_array)
+       call device_alloc(candidate_array_d, int(n_candidates, c_size_t) * &
+            c_sizeof(candidate_array(1)))
 
        call device_cartesian_el_finder_fill(point_box_d, &
             candidate_offsets_d, this%el_map_offset_d, this%el_map_data_d, &
             candidate_array_d, n_points)
-       call device_memcpy(candidate_array, candidate_array_d, n_candidates, &
+       call device_memcpy(candidate_array_h, candidate_array_d, &
+            int(n_candidates, c_size_t) * c_sizeof(candidate_array(1)), &
             DEVICE_TO_HOST, .true.)
        do i = 1, n_candidates
           call all_el_candidates%push(candidate_array(i))
        end do
 
-       call device_unmap(candidate_array, candidate_array_d)
-       call device_unmap(candidate_offsets, candidate_offsets_d)
+       call device_free(candidate_array_d)
+       call device_free(candidate_offsets_d)
     end if
 
-    call device_unmap(n_el_cands, n_el_cands_d)
-    call device_unmap(point_box, point_box_d)
-    call device_unmap(points_copy, points_d)
+    call device_free(n_el_cands_d)
+    call device_free(point_box_d)
+    call device_free(points_d)
 
   end subroutine cartesian_el_finder_find_candidates_batch_device
 
