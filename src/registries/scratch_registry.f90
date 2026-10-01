@@ -58,8 +58,18 @@ module scratch_registry
   implicit none
   private
 
-  !> Scratch registry type. A registry for storing and requesting temporary
-  !! objects.
+  !> Scratch registry type.
+  !! @brief A registry for storing and requesting temporary objects.
+  !! @details
+  !! This type is used to store temporary objects that can be requested and
+  !! relinquished by the user. It is designed to be used in situations where a
+  !! function is called frequently and temporary objects are needed, but
+  !! creating and destroying them on each call would be inefficient. The scratch
+  !! registry allows for the reuse of these objects, improving performance.
+  !!
+  !! The registry is OpenMP thread-safe, allowing for concurrent access in
+  !! parallel regions in the sense that each thread can request and relinquish
+  !! objects independently.
   type, public :: scratch_registry_t
      !> List of scratch objects
      type(registry_entry_t), private, allocatable :: entries(:)
@@ -69,8 +79,8 @@ module scratch_registry
      integer, private :: n_entries = 0
      !> The size the objects array is increased by upon reallocation
      integer, private :: expansion_size = 10
-     !> Dofmap
-     type(dofmap_t), pointer :: dof => null()
+     !> Default dofmap to use for field requests.
+     type(dofmap_t), private, pointer :: dof => null()
    contains
 
      ! ----------------------------------------------------------------------- !
