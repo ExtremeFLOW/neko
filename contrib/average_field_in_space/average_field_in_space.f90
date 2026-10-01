@@ -130,12 +130,14 @@ program average_field_in_space
   end if
 
   !allocate array with pointers to all vectors in the file
+  allocate(fields(field_data%size()))
 
   call output_file%init(trim(output_fname))
   do tstep = 0, field_data%meta_nsamples-1
      if (pe_rank .eq. 0) write(*,*) 'Averaging field:', tstep
      if (tstep .gt. 0) call field_file%read(field_data)
      if (avg_to_1d) then
+        call field_data%get_list(fields, field_data%size())
         call map_1d%average_planes(avg_matrix, fields)
         call output_file%write(avg_matrix,field_data%time)
         ! Compute averages in 1 direction and store in a 3d field (lots of redundant data, sorry)

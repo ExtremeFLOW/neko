@@ -2,6 +2,10 @@
 
 ## Develop
 
+- Fixed `average_field_in_space` crashing when averaging over two
+  directions, since its field list was never set up.
+- Fixed the `recycling` example failing at startup on duplicate simulation
+  component names.
 - Fixed the OpenCL backend leaking an event on every gather-scatter and
   Schwarz preconditioner application. Gather-scatter now also returns the
   recorded event to the caller.
