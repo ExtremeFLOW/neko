@@ -2,6 +2,11 @@
 
 ## Develop
 
+- Fixed device memory leaking on every write of a spatially averaged
+  statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
+  `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the
+  temporary 1D and 2D output data were never freed. `map_2d_t%free` now also
+  releases its work fields and its internal `map_1d_t`.
 - Fixed memory leaks in several free routines and temporary objects,
   including reused JSON objects, `.fld` output masks, the point zone and
   constant registries, and user source term fields.
