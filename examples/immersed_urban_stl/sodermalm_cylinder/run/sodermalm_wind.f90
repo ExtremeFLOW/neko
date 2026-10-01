@@ -110,6 +110,15 @@ contains
        p_res => fluid%p_res
     end select
 
+    call neko_scratch_registry%request_field(divergence, divergence_idx, &
+         .false.)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call div(divergence%x_d, u%x_d, v%x_d, w%x_d, coef)
+       call divergence%copy_from(DEVICE_TO_HOST, sync = .false.)
+    else
+       call div(divergence%x, u%x, v%x, w%x, coef)
+    end if
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call u%copy_from(DEVICE_TO_HOST, sync = .false.)
        call v%copy_from(DEVICE_TO_HOST, sync = .false.)
@@ -125,10 +134,6 @@ contains
           call p%copy_from(DEVICE_TO_HOST, sync = .true.)
        end if
     end if
-
-    call neko_scratch_registry%request_field(divergence, divergence_idx, &
-         .false.)
-    call div(divergence%x, u%x, v%x, w%x, coef)
 
     local_max2 = -huge(0.0_rp)
     local_idx = 1
