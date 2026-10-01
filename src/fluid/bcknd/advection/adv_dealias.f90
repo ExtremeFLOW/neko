@@ -51,7 +51,22 @@ module adv_dealias
 
   !> Data on the higher-order (GL) space used by the dealiased advection
   !! operator. It depends only on the original coefficients and on `lxd`.
+  !! @note One instance is shared by all operators built on the same
+  !! coefficients and `lxd`, typically the fluid and all scalars. This relies
+  !! on two invariants of this module:
+  !! - The GL metrics are only ever rebuilt from those coefficients, see
+  !!   recompute_metrics_dealias.
+  !! - The work arrays are scratch. Every compute routine writes them before
+  !!   reading them, keeps nothing in them between calls and, on devices,
+  !!   enqueues all its work on glb_cmd_queue, so that the work of successive
+  !!   users is ordered.
   type :: adv_dealias_gl_t
+     !> The coefficients the data was built from
+     type(coef_t), pointer :: coef_GLL => null()
+     !> Number of points in each direction of the GL space
+     integer :: lxd = 0
+     !> Number of operators using the data
+     integer :: n_users = 0
      !> The additional higher-order space used in dealiasing
      type(space_t) :: Xh_GL
      !> Interpolator between the original and higher-order spaces
@@ -84,6 +99,14 @@ module adv_dealias
      !> Destructor
      procedure, pass(this) :: free => adv_dealias_gl_free
   end type adv_dealias_gl_t
+
+  !> Pointer to GL data, so that a list of them can be kept
+  type :: adv_dealias_gl_ptr_t
+     type(adv_dealias_gl_t), pointer :: ptr => null()
+  end type adv_dealias_gl_ptr_t
+
+  !> The GL data in use by the operators of this process
+  type(adv_dealias_gl_ptr_t), allocatable :: shared_gl(:)
 
   !> Type encapsulating advection routines with dealiasing
   !! @note The members below `gl` point into it, so that the compute routines
@@ -156,8 +179,7 @@ contains
 
     call this%free()
 
-    allocate(this%gl)
-    call this%gl%init(lxd, coef)
+    this%gl => adv_dealias_gl_acquire(lxd, coef)
 
     this%Xh_GLL => coef%Xh
     this%coef_GLL => coef
@@ -201,8 +223,7 @@ contains
     class(adv_dealias_t), intent(inout) :: this
 
     if (associated(this%gl)) then
-       call this%gl%free()
-       deallocate(this%gl)
+       call adv_dealias_gl_release(this%gl)
     end if
 
     nullify(this%Xh_GL)
@@ -341,6 +362,87 @@ contains
     call this%Xh_GL%free()
 
   end subroutine adv_dealias_gl_free
+
+  !> Get the GL data for a set of coefficients and `lxd`, building it if no
+  !! operator uses it yet.
+  !! @param lxd The polynomial order of the space used in the dealiasing.
+  !! @param coef The coefficients of the (space, mesh) pair.
+  function adv_dealias_gl_acquire(lxd, coef) result(gl)
+    integer, intent(in) :: lxd
+    type(coef_t), intent(inout), target :: coef
+    type(adv_dealias_gl_t), pointer :: gl
+    type(adv_dealias_gl_ptr_t), allocatable :: tmp(:)
+    integer :: i, slot
+
+    slot = 0
+    if (allocated(shared_gl)) then
+       do i = 1, size(shared_gl)
+          if (.not. associated(shared_gl(i)%ptr)) then
+             if (slot .eq. 0) slot = i
+             cycle
+          end if
+
+          gl => shared_gl(i)%ptr
+          if (associated(gl%coef_GLL, coef) .and. gl%lxd .eq. lxd) then
+             ! Same address on another mesh means the coefficients were
+             ! freed and reallocated while the data was still in use
+             if (.not. associated(gl%coef_GL%msh, coef%msh)) then
+                call neko_error('Stale dealiasing data: the coefficients ' // &
+                     'it was built from were freed before its users')
+             end if
+             gl%n_users = gl%n_users + 1
+             return
+          end if
+       end do
+    end if
+
+    allocate(gl)
+    call gl%init(lxd, coef)
+    gl%coef_GLL => coef
+    gl%lxd = lxd
+    gl%n_users = 1
+
+    if (slot .eq. 0) then
+       if (allocated(shared_gl)) then
+          allocate(tmp(size(shared_gl) + 1))
+          tmp(1:size(shared_gl)) = shared_gl
+          call move_alloc(tmp, shared_gl)
+       else
+          allocate(shared_gl(1))
+       end if
+       slot = size(shared_gl)
+    end if
+    shared_gl(slot)%ptr => gl
+
+  end function adv_dealias_gl_acquire
+
+  !> Stop using GL data, freeing it once no operator uses it.
+  !! @param gl The GL data, nullified on return.
+  subroutine adv_dealias_gl_release(gl)
+    type(adv_dealias_gl_t), pointer, intent(inout) :: gl
+    integer :: i
+
+    gl%n_users = gl%n_users - 1
+
+    if (gl%n_users .eq. 0) then
+       do i = 1, size(shared_gl)
+          if (associated(shared_gl(i)%ptr, gl)) then
+             nullify(shared_gl(i)%ptr)
+          end if
+       end do
+
+       call gl%free()
+       deallocate(gl)
+
+       if (.not. any([(associated(shared_gl(i)%ptr), &
+            i = 1, size(shared_gl))])) then
+          deallocate(shared_gl)
+       end if
+    end if
+
+    nullify(gl)
+
+  end subroutine adv_dealias_gl_release
 
 
   !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
