@@ -375,11 +375,10 @@ contains
   end function is_allocated
 
   !> Check if the registry entry is of a specific type
-  pure function is_type(this, type_str) result(is_type)
+  pure logical function is_type(this, type_str)
     class(registry_entry_t), intent(in) :: this
     character(len=*), intent(in) :: type_str
-    logical :: is_type
-    is_type = trim(this%type) == trim(type_str)
+    is_type = trim(this%type) .eq. trim(type_str)
   end function is_type
 
   !> Get the host array pointer of the registry entry
