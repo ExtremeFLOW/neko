@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Fixed the OpenCL backend leaking an event on every gather-scatter and
+  Schwarz preconditioner application. Gather-scatter now also returns the
+  recorded event to the caller.
 - Fixed leaks of OpenCL events in `rzero`, `rone` and the operator
   autotuning, of OpenCL programs at finalize, of the CUDA and HIP autotuning
   events, and of the RCCL communicator.

@@ -1802,6 +1802,9 @@ contains
 
     call profiler_end_region("gather_scatter", 5)
     !$omp end parallel
+
+    ! Recording may replace the event handle (OpenCL), hand it back
+    if (present(event)) event = scatter_event
   end subroutine gs_op_vector
 
   !> Gather-scatter operation on a 3-component vector of rank-4 arrays
@@ -1939,6 +1942,9 @@ contains
             scatter_event)
 
     end if
+
+    ! Recording may replace the event handle (OpenCL), hand it back
+    if (present(event)) event = scatter_event
 
   end subroutine gs_op_vector3
 
@@ -2099,6 +2105,8 @@ contains
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, &
             gs%shared_blk_off, .true., col_event)
     end if
+
+    if (.not. on_host) scatter_event = col_event
 
   end subroutine gs_op_r3_device
 

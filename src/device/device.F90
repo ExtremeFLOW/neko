@@ -1659,7 +1659,7 @@ contains
 
   !> Record a device event
   subroutine device_event_record(event, stream)
-    type(c_ptr), target, intent(in) :: event
+    type(c_ptr), target, intent(inout) :: event
     type(c_ptr), intent(in) :: stream
 #ifdef HAVE_HIP
     if (hipEventRecord(event, stream) .ne. hipSuccess) then
@@ -1670,6 +1670,12 @@ contains
        call neko_error('Error recording an event')
     end if
 #elif HAVE_OPENCL
+    ! Each marker is a new event object, release the previous one
+    if (c_associated(event)) then
+       if (clReleaseEvent(event) .ne. CL_SUCCESS) then
+          call neko_error('Error releasing an event')
+       end if
+    end if
     if (clEnqueueMarker(stream, c_loc(event)) .ne. CL_SUCCESS) then
        call neko_error('Error recording an event')
     end if
