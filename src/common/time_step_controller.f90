@@ -167,10 +167,10 @@ contains
          this%exact_output_time, .false.)
     if (this%exact_output_time .and. .not. this%is_variable_dt) then
        call neko_warning('exact_output_time with a fixed timestep only &
-            &checks that the sampling and output times are whole numbers &
-            &of steps away, and stops the run otherwise. Use tsteps to &
-            &sample every so many steps, or variable_timestep to have the &
-            &step fitted.')
+       &checks that the sampling and output times are whole numbers &
+       &of steps away, and stops the run otherwise. Use tsteps to &
+       &sample every so many steps, or variable_timestep to have the &
+       &step fitted.')
     end if
 
     ! A variable time step takes a collective at every step in an MPMD run,
@@ -186,8 +186,8 @@ contains
             MPI_MIN, NEKO_GLOBAL_COMM, ierr)
        if (any(flags_any .ne. flags_all)) then
           call neko_error('variable_timestep and exact_output_time must &
-               &each be set in all the coupled cases of an MPMD run, or in &
-               &none')
+          &each be set in all the coupled cases of an MPMD run, or in &
+          &none')
        end if
     end if
 
@@ -435,9 +435,9 @@ contains
                      time%t + sign(1.0_dp, time%dt) * time_to_next, ' is ', &
                      x, ' steps away'
                 call neko_error(trim(log_buf) // ', so the fixed timestep &
-                     &cannot reach it exactly. Use tsteps for that sampling &
-                     &or output, or disable exact_output_time, before &
-                     &restarting.')
+                &cannot reach it exactly. Use tsteps for that sampling &
+                &or output, or disable exact_output_time, before &
+                &restarting.')
              end if
           end if
        end if
@@ -565,9 +565,9 @@ contains
        write(log_buf, '(A,E15.7,A,I0,A)') 'exact_output_time has held dt at ', &
             time%dt, ' for ', HELD_STEPS_MAX, ' steps'
        call neko_error(trim(log_buf) // ' while the CFL controller asked for &
-            &a change: the scheduled times are too dense to follow it. &
-            &Spread them out, use tsteps for the dense schedule, or disable &
-            &exact_output_time, before restarting.')
+       &a change: the scheduled times are too dense to follow it. &
+       &Spread them out, use tsteps for the dense schedule, or disable &
+       &exact_output_time, before restarting.')
     end if
 
     ! Report each scheduled time once
