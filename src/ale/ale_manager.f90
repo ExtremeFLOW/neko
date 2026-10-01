@@ -65,7 +65,8 @@ module ale_manager
   use ale_routines_device, only : add_kinematics_to_mesh_velocity_device, &
        update_ale_mesh_device, compute_cheap_dist_device
   use utils, only : neko_error
-  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_HIP, NEKO_BCKND_CUDA
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_HIP, NEKO_BCKND_CUDA, &
+       NEKO_BCKND_SX, NEKO_BCKND_XSMM
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   use comm, only : NEKO_COMM
   use registry, only : neko_registry
@@ -201,7 +202,7 @@ contains
     character(len=:), allocatable :: tmp_str
     character(len=:), allocatable :: ksp_solver
     character(len=:), allocatable :: precon_type
-    logical :: tmp_logical, oifs
+    logical :: tmp_logical, oifs, advection, dealias
     logical :: moving_
     logical :: found_zone
     logical :: has_user_rigid_kin, has_user_mesh_vel
@@ -229,6 +230,19 @@ contains
        end if
        if (oifs) then
           call neko_error("ALE not currently supported with OIFS.")
+       end if
+       if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
+          call json_get_or_default(json, 'case.fluid.advection', advection, &
+               .true.)
+          call json_get_or_default(json, 'case.numerics.dealias', dealias, &
+               .false.)
+          if (advection .and. dealias) then
+             call neko_error("ALE with dealiasing is not currently " // &
+                  "supported on the SX or XSMM backend, since the " // &
+                  "dealiased ALE advection term is not implemented for " // &
+                  "it. Set case.numerics.dealias to false or use another " // &
+                  "backend.")
+          end if
        end if
        neko_ale => this
     end if

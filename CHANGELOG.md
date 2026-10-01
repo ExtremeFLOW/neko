@@ -4,6 +4,8 @@
 
 - Scalars now share the dealiasing GL data of the fluid instead of holding
   their own copy, saving about 57 fields of device memory per scalar.
+- ALE with dealiasing now stops at init on the SX and XSMM backends, which
+  have no dealiased ALE advection term.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,
