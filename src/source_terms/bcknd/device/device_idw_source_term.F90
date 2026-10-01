@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2026, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -60,6 +60,22 @@ module device_idw_source_term
        real(c_rp) :: dt, rmax, pwr, eps, wtol
      end subroutine hip_idw_gather_one_sided
   end interface
+
+  interface
+     subroutine hip_idw_interp_partials(part, u, v, w, x, y, z, ds, pmsk, &
+          mult, B, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
+          rmax_i, pwr, eps, wtol, adjoint) &
+          bind(c, name = 'hip_idw_interp_partials')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: part, u, v, w
+       type(c_ptr), value :: x, y, z, ds, pmsk, mult, B, w_p, w_m
+       type(c_ptr), value :: lpx, lpy, lpz, lag_off, lag_els
+       integer(c_int) :: n_lag, lx3, adjoint
+       real(c_rp) :: rmax_i, pwr, eps, wtol
+     end subroutine hip_idw_interp_partials
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_idw_gather_one_sided(fu, fv, fw, &
@@ -80,6 +96,22 @@ module device_idw_source_term
        integer(c_int) :: n_active, lx3
        real(c_rp) :: dt, rmax, pwr, eps, wtol
      end subroutine cuda_idw_gather_one_sided
+  end interface
+
+  interface
+     subroutine cuda_idw_interp_partials(part, u, v, w, x, y, z, ds, pmsk, &
+          mult, B, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
+          rmax_i, pwr, eps, wtol, adjoint) &
+          bind(c, name = 'cuda_idw_interp_partials')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: part, u, v, w
+       type(c_ptr), value :: x, y, z, ds, pmsk, mult, B, w_p, w_m
+       type(c_ptr), value :: lpx, lpy, lpz, lag_off, lag_els
+       integer(c_int) :: n_lag, lx3, adjoint
+       real(c_rp) :: rmax_i, pwr, eps, wtol
+     end subroutine cuda_idw_interp_partials
   end interface
 #elif HAVE_OPENCL
   interface
@@ -103,6 +135,23 @@ module device_idw_source_term
        type(c_ptr), value :: cmd_queue
      end subroutine opencl_idw_gather_one_sided
   end interface
+
+  interface
+     subroutine opencl_idw_interp_partials(part, u, v, w, x, y, z, ds, &
+          pmsk, mult, B, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, &
+          n_lag, lx3, rmax_i, pwr, eps, wtol, adjoint, cmd_queue) &
+          bind(c, name = 'opencl_idw_interp_partials')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: part, u, v, w
+       type(c_ptr), value :: x, y, z, ds, pmsk, mult, B, w_p, w_m
+       type(c_ptr), value :: lpx, lpy, lpz, lag_off, lag_els
+       integer(c_int) :: n_lag, lx3, adjoint
+       real(c_rp) :: rmax_i, pwr, eps, wtol
+       type(c_ptr), value :: cmd_queue
+     end subroutine opencl_idw_interp_partials
+  end interface
 #elif HAVE_METAL
   interface
      subroutine metal_idw_gather_one_sided(fu, fv, fw, &
@@ -124,9 +173,25 @@ module device_idw_source_term
        real(c_rp) :: dt, rmax, pwr, eps, wtol
      end subroutine metal_idw_gather_one_sided
   end interface
+
+  interface
+     subroutine metal_idw_interp_partials(part, u, v, w, x, y, z, ds, pmsk, &
+          mult, B, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
+          rmax_i, pwr, eps, wtol, adjoint) &
+          bind(c, name = 'metal_idw_interp_partials')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: part, u, v, w
+       type(c_ptr), value :: x, y, z, ds, pmsk, mult, B, w_p, w_m
+       type(c_ptr), value :: lpx, lpy, lpz, lag_off, lag_els
+       integer(c_int) :: n_lag, lx3, adjoint
+       real(c_rp) :: rmax_i, pwr, eps, wtol
+     end subroutine metal_idw_interp_partials
+  end interface
 #endif
 
-  public :: device_idw_gather
+  public :: device_idw_gather, device_idw_interp_partials
 
 contains
 
@@ -174,5 +239,45 @@ contains
 #endif
 
   end subroutine device_idw_gather
+
+  !> Shepard / adjoint interpolation partial sums on the device: one thread
+  !! block per Lagrangian point, 8 sums per point written to `part`
+  !! (plus side u, v, w, weight; minus side u, v, w, weight), the layout of
+  !! idw_interp_shepard_partials. `B` is the assembled mass matrix and
+  !! `w_p`/`w_m` the assembled spread weights, read only with `adjoint`.
+  subroutine device_idw_interp_partials(part, u, v, w, x, y, z, ds, pmsk, &
+       mult, B, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
+       rmax_i, pwr, eps, wtol, adjoint)
+    type(c_ptr) :: part, u, v, w
+    type(c_ptr) :: x, y, z, ds, pmsk, mult, B, w_p, w_m
+    type(c_ptr) :: lpx, lpy, lpz, lag_off, lag_els
+    integer, intent(in) :: n_lag, lx3
+    real(kind=rp), intent(in) :: rmax_i, pwr, eps, wtol
+    logical, intent(in) :: adjoint
+    integer(c_int) :: adj
+
+    adj = merge(1_c_int, 0_c_int, adjoint)
+
+#ifdef HAVE_HIP
+    call hip_idw_interp_partials(part, u, v, w, x, y, z, ds, pmsk, &
+         mult, B, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
+         rmax_i, pwr, eps, wtol, adj)
+#elif HAVE_CUDA
+    call cuda_idw_interp_partials(part, u, v, w, x, y, z, ds, pmsk, &
+         mult, B, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
+         rmax_i, pwr, eps, wtol, adj)
+#elif HAVE_OPENCL
+    call opencl_idw_interp_partials(part, u, v, w, x, y, z, ds, pmsk, &
+         mult, B, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
+         rmax_i, pwr, eps, wtol, adj, glb_cmd_queue)
+#elif HAVE_METAL
+    call metal_idw_interp_partials(part, u, v, w, x, y, z, ds, pmsk, &
+         mult, B, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
+         rmax_i, pwr, eps, wtol, adj)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine device_idw_interp_partials
 
 end module device_idw_source_term

@@ -142,4 +142,105 @@ __global__ void idw_gather_one_sided_kernel(T * __restrict__ fu,
   }
 }
 
+/**
+ * Shepard / adjoint interpolation partial sums. One thread block per
+ * Lagrangian point: the threads stride over the nodes of every element in
+ * the point's list (lag_off/lag_els), accumulate the eight partial sums in
+ * registers (plus side: u, v, w, weight; minus side: u, v, w, weight) and
+ * reduce them in shared memory. Mirrors idw_interp_shepard_partials() in
+ * idw_source_term.f90: with adjoint != 0 the weight of a node is
+ * K * mult * B / w_side, zero where |w_side| <= wtol, B being the assembled
+ * mass matrix and w_p / w_m the assembled spread weights.
+ */
+template< typename T, int NT >
+__global__ void idw_interp_partials_kernel(T * __restrict__ part,
+                                           const T * __restrict__ u,
+                                           const T * __restrict__ v,
+                                           const T * __restrict__ w,
+                                           const T * __restrict__ x,
+                                           const T * __restrict__ y,
+                                           const T * __restrict__ z,
+                                           const T * __restrict__ ds,
+                                           const T * __restrict__ pmsk,
+                                           const T * __restrict__ mult,
+                                           const T * __restrict__ B,
+                                           const T * __restrict__ w_p,
+                                           const T * __restrict__ w_m,
+                                           const T * __restrict__ lpx,
+                                           const T * __restrict__ lpy,
+                                           const T * __restrict__ lpz,
+                                           const int * __restrict__ lag_off,
+                                           const int * __restrict__ lag_els,
+                                           const int n_lag,
+                                           const int lx3,
+                                           const T rmax_i,
+                                           const T pwr,
+                                           const T eps,
+                                           const T wtol,
+                                           const int adjoint) {
+
+  __shared__ T red[8][NT];
+
+  const int i = blockIdx.x;
+  if (i >= n_lag)
+    return;
+
+  const int tid = threadIdx.x;
+  const T xp = lpx[i];
+  const T yp = lpy[i];
+  const T zp = lpz[i];
+
+  T acc[8];
+  for (int k = 0; k < 8; ++k)
+    acc[k] = (T) 0.0;
+
+  for (int ee = lag_off[i]; ee < lag_off[i + 1]; ++ee) {
+    const int e = lag_els[ee];
+    for (int nd = tid; nd < lx3; nd += NT) {
+      const int idx = e * lx3 + nd;
+      const T dx = x[idx] - xp;
+      const T dy = y[idx] - yp;
+      const T dz = z[idx] - zp;
+      const T r = sqrt(dx*dx + dy*dy + dz*dz) / ds[idx];
+      T wgt = inv_dist_weight(r, rmax_i, pwr, eps) * mult[idx];
+      if (pmsk[idx] > (T) 0.0) {
+        if (adjoint) {
+          const T sw = w_p[idx];
+          wgt = (fabs(sw) > wtol) ? wgt * B[idx] / sw : (T) 0.0;
+        }
+        acc[0] += wgt * u[idx];
+        acc[1] += wgt * v[idx];
+        acc[2] += wgt * w[idx];
+        acc[3] += wgt;
+      } else {
+        if (adjoint) {
+          const T sw = w_m[idx];
+          wgt = (fabs(sw) > wtol) ? wgt * B[idx] / sw : (T) 0.0;
+        }
+        acc[4] += wgt * u[idx];
+        acc[5] += wgt * v[idx];
+        acc[6] += wgt * w[idx];
+        acc[7] += wgt;
+      }
+    }
+  }
+
+  for (int k = 0; k < 8; ++k)
+    red[k][tid] = acc[k];
+  __syncthreads();
+
+  for (int s = NT / 2; s > 0; s >>= 1) {
+    if (tid < s) {
+      for (int k = 0; k < 8; ++k)
+        red[k][tid] += red[k][tid + s];
+    }
+    __syncthreads();
+  }
+
+  if (tid == 0) {
+    for (int k = 0; k < 8; ++k)
+      part[8 * i + k] = red[k][0];
+  }
+}
+
 #endif // __SOURCE_TERMS_IDW_KERNEL_H__

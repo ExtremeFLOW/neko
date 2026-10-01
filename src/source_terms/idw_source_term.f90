@@ -64,7 +64,8 @@ module idw_source_term
   use device_math, only : device_col2, device_glsc2
   use device, only : device_free, device_map, device_memcpy, device_sync, &
        HOST_TO_DEVICE, DEVICE_TO_HOST
-  use device_idw_source_term, only : device_idw_gather
+  use device_idw_source_term, only : device_idw_gather, &
+       device_idw_interp_partials
   use gather_scatter, only : gs_t, GS_OP_ADD
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MIN, &
        MPI_MAX, MPI_INTEGER, MPI_SUM, MPI_DOUBLE_PRECISION
@@ -108,6 +109,17 @@ module idw_source_term
      type(c_ptr) :: lpx_d = C_NULL_PTR
      type(c_ptr) :: lpy_d = C_NULL_PTR
      type(c_ptr) :: lpz_d = C_NULL_PTR
+     !> CSR of lag_el (per lag point -> elements, 0-based) walked by the
+     !! device interpolation kernel
+     integer, allocatable :: lag_off(:)
+     integer, allocatable :: lag_els(:)
+     !> Shepard partial sums, 8 per lag point, as the device kernel
+     !! returns them (see idw_interp_shepard_partials for the layout)
+     real(kind=rp), allocatable :: part(:,:)
+     type(c_ptr) :: lag_off_d = C_NULL_PTR
+     type(c_ptr) :: lag_els_d = C_NULL_PTR
+     type(c_ptr) :: part_d = C_NULL_PTR
+     type(c_ptr) :: Bm_d = C_NULL_PTR
      integer :: n_active = 0
      integer :: lx3 = 0
      real(kind=rp) :: pwr_param
@@ -143,6 +155,9 @@ module idw_source_term
      !! mass-weighted adjoint of the spread so that the forcing never adds
      !! kinetic energy (implies `idw_interp`, and `interp_rmax` = `rmax`)
      logical :: adjoint_interp = .false.
+     !> Assembled mass matrix (1/Binv): the weight of the mass inner product
+     !! in which the adjoint interpolation is the transpose of the spread
+     real(kind=rp), allocatable :: Bm(:,:,:,:)
      !> Cutoff radius (in units of ds) for the Shepard interpolation
      real(kind=rp) :: interp_rmax
      !> Reduction slot per marker for the Shepard interpolation: markers
@@ -255,6 +270,12 @@ contains
        write(log_buf, '(A,f5.2)') 'Interp rmax: ', this%interp_rmax
        call neko_log%message(log_buf)
     end if
+
+    ! The mass inner product sums the local B over the copies of a dof;
+    ! Binv inverts exactly that sum, so 1/Binv is the assembled mass on
+    ! every copy
+    allocate(this%Bm(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    this%Bm = 1.0_rp / coef%Binv
 
 
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
@@ -777,6 +798,23 @@ contains
        end if
     end do
 
+    ! The lists themselves as a CSR (per lag point -> elements, 0-based),
+    ! which the device interpolation kernel walks marker by marker
+    allocate(this%lag_off(n_lag + 1))
+    this%lag_off(1) = 0
+    do i = 1, n_lag
+       this%lag_off(i + 1) = this%lag_off(i) + this%lag_el(i)%size()
+    end do
+    allocate(this%lag_els(max(this%lag_off(n_lag + 1), 1)))
+    do i = 1, n_lag
+       select type (el => this%lag_el(i)%data)
+         type is (integer)
+          do ee = 1, this%lag_el(i)%size()
+             this%lag_els(this%lag_off(i) + ee) = el(ee) - 1
+          end do
+       end select
+    end do
+
   end subroutine idw_build_el_csr
 
   !> Build the device data structures for the IDW source term: upload the
@@ -816,6 +854,10 @@ contains
             HOST_TO_DEVICE, sync = .false.)
     end if
 
+    ! Partial sums of the device interpolation kernel; allocated for every
+    ! rank, since the finalisation that reads them is collective
+    allocate(this%part(8, n_lag))
+
     if (n_lag > 0) then
        call device_map(this%lpx, this%lpx_d, n_lag)
        call device_map(this%lpy, this%lpy_d, n_lag)
@@ -834,10 +876,22 @@ contains
        call device_map(this%fum_ib, this%fum_ib_d, n_lag)
        call device_map(this%fvm_ib, this%fvm_ib_d, n_lag)
        call device_map(this%fwm_ib, this%fwm_ib_d, n_lag)
+
+       ! Marker -> element CSR and partial-sum buffer of the interpolation
+       ! kernel
+       call device_map(this%lag_off, this%lag_off_d, n_lag + 1)
+       call device_memcpy(this%lag_off, this%lag_off_d, n_lag + 1, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_map(this%lag_els, this%lag_els_d, size(this%lag_els))
+       call device_memcpy(this%lag_els, this%lag_els_d, size(this%lag_els), &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_map(this%part, this%part_d, 8 * n_lag)
     end if
 
     ! Upload the mask / weight fields assembled on the host during init
     n = this%w%size()
+    call device_map(this%Bm, this%Bm_d, n)
+    call device_memcpy(this%Bm, this%Bm_d, n, HOST_TO_DEVICE, sync = .false.)
     call device_memcpy(this%w%x, this%w%x_d, n, HOST_TO_DEVICE, sync = .false.)
     call device_memcpy(this%wm%x, this%wm%x_d, n, HOST_TO_DEVICE, sync = .false.)
     call device_memcpy(this%ds%x, this%ds%x_d, n, HOST_TO_DEVICE, sync = .false.)
@@ -860,9 +914,13 @@ contains
     call global_interp%evaluate(ib, tmp%x, NEKO_BCKND_DEVICE .ne. 1)
   end subroutine idw_interp_masked
 
-  !> Device path of the source term: interpolate on the host (gslib), upload
-  !! the per-point values, then assemble the contributions with the atomic-free
-  !! gather kernel. Mirrors the host branches of idw_source_term_compute.
+  !> Device path of the source term: interpolate on the device (the Shepard
+  !! and adjoint partial sums with a marker-parallel kernel, the barycentric
+  !! values with the global interpolation's device path), finalise the
+  !! marker values on the host, then assemble the contributions with the
+  !! atomic-free gather kernel. Mirrors the host branches of
+  !! idw_source_term_compute. The only per-step host traffic is marker
+  !! sized: the 8 partial sums per marker down and the 6 values up.
   subroutine idw_compute_device(this, fu, fv, fw, u, v, w, time)
     class(idw_source_term_t), intent(inout) :: this
     type(field_t), intent(inout) :: fu, fv, fw
@@ -879,21 +937,23 @@ contains
     this%fw_ib = 0.0_rp
 
     if (this%idw_interp) then
-       ! Shepard interpolation runs on the host: refresh u,v,w host mirrors
-       call device_memcpy(u%x, u%x_d, u%size(), DEVICE_TO_HOST, &
-            sync = .false.)
-       call device_memcpy(v%x, v%x_d, v%size(), DEVICE_TO_HOST, &
-            sync = .false.)
-       call device_memcpy(w%x, w%x_d, w%size(), DEVICE_TO_HOST, &
-            sync = .true.)
-       call idw_interp_shepard(this%fu_ib, this%fv_ib, this%fw_ib, &
-            this%fum_ib, this%fvm_ib, this%fwm_ib, this%lag_pts, &
-            this%lag_el, u%x, v%x, w%x, this%pmsk%x, this%coef%mult, &
-            this%w%dof%x%x, this%w%dof%y%x, this%w%dof%z%x, this%ds%x, &
-            this%interp_rmax, this%pwr_param, this%w%Xh%lx, &
-            size(this%w%dof%x%x, 4), this%shared_slot, this%n_shared_glb, &
-            adjoint = this%adjoint_interp, B = this%coef%B, &
-            sw_p = this%w%x, sw_m = this%wm%x)
+       ! Shepard / adjoint partial sums on the device, one thread block per
+       ! marker; the 8 sums per marker come back for the shared-marker
+       ! reduction and the normalisation, which stay on the host
+       if (n_lag > 0) then
+          call device_idw_interp_partials(this%part_d, u%x_d, v%x_d, w%x_d, &
+               this%w%dof%x%x_d, this%w%dof%y%x_d, this%w%dof%z%x_d, &
+               this%ds%x_d, this%pmsk%x_d, this%coef%mult_d, this%Bm_d, &
+               this%w%x_d, this%wm%x_d, this%lpx_d, this%lpy_d, this%lpz_d, &
+               this%lag_off_d, this%lag_els_d, n_lag, this%lx3, &
+               this%interp_rmax, this%pwr_param, NEKO_EPS, 1.0e-10_rp, &
+               this%adjoint_interp)
+          call device_memcpy(this%part, this%part_d, 8 * n_lag, &
+               DEVICE_TO_HOST, sync = .true.)
+       end if
+       call idw_interp_shepard_finalize(this%fu_ib, this%fv_ib, this%fw_ib, &
+            this%fum_ib, this%fvm_ib, this%fwm_ib, this%part, &
+            this%shared_slot, this%n_shared_glb)
     else if (this%one_sided) then
        this%fum_ib = 0.0_rp
        this%fvm_ib = 0.0_rp
@@ -912,20 +972,17 @@ contains
        call idw_interp_masked(this%global_interp, this%tmp, w, this%mmsk, &
             this%fwm_ib, nt)
     else
-       ! Unmasked interpolation reads the host velocity directly; refresh it.
-       call device_memcpy(u%x, u%x_d, u%size(), DEVICE_TO_HOST, sync = .false.)
-       call device_memcpy(v%x, v%x_d, v%size(), DEVICE_TO_HOST, sync = .false.)
-       call device_memcpy(w%x, w%x_d, w%size(), DEVICE_TO_HOST, sync = .true.)
-       call this%global_interp%evaluate(this%fu_ib, u%x, .true.)
-       call this%global_interp%evaluate(this%fv_ib, v%x, .true.)
-       call this%global_interp%evaluate(this%fw_ib, w%x, .true.)
+       ! Unmasked barycentric interpolation, evaluated on the device straight
+       ! into the device buffers of the marker arrays
+       call this%global_interp%evaluate(this%fu_ib, u%x, .false.)
+       call this%global_interp%evaluate(this%fv_ib, v%x, .false.)
+       call this%global_interp%evaluate(this%fw_ib, w%x, .false.)
     end if
 
-    ! Stage the per-point values the gather kernel reads. Which side produced
-    ! them depends on the interpolation, not on one_sided: the Shepard
-    ! interpolation always runs on the host, the barycentric one runs on the
-    ! device for one_sided (idw_interp_masked passes on_host = .false.) and on
-    ! the host otherwise.
+    ! Stage the per-point values the gather kernel reads: the Shepard and
+    ! adjoint values are finalised on the host and uploaded, the barycentric
+    ! ones were evaluated into the device buffers (asynchronously for markers
+    ! owned by other ranks, hence the sync)
     if (n_lag > 0) then
        if (this%idw_interp) then
           call device_memcpy(this%fu_ib, this%fu_ib_d, n_lag, &
@@ -940,16 +997,8 @@ contains
                HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(this%fwm_ib, this%fwm_ib_d, n_lag, &
                HOST_TO_DEVICE, sync = .true.)
-       else if (this%one_sided) then
-          ! Interpolated straight into the device buffers
-          call device_sync()
        else
-          call device_memcpy(this%fu_ib, this%fu_ib_d, n_lag, &
-               HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(this%fv_ib, this%fv_ib_d, n_lag, &
-               HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(this%fw_ib, this%fw_ib_d, n_lag, &
-               HOST_TO_DEVICE, sync = .true.)
+          call device_sync()
        end if
     end if
 
@@ -1062,6 +1111,14 @@ contains
 
     if (allocated(this%shared_slot)) deallocate(this%shared_slot)
     this%n_shared_glb = 0
+    if (allocated(this%Bm)) deallocate(this%Bm)
+    if (allocated(this%lag_off)) deallocate(this%lag_off)
+    if (allocated(this%lag_els)) deallocate(this%lag_els)
+    if (allocated(this%part)) deallocate(this%part)
+    if (c_associated(this%lag_off_d)) call device_free(this%lag_off_d)
+    if (c_associated(this%lag_els_d)) call device_free(this%lag_els_d)
+    if (c_associated(this%part_d)) call device_free(this%part_d)
+    if (c_associated(this%Bm_d)) call device_free(this%Bm_d)
 
     call this%gs%free()
 
@@ -1125,7 +1182,7 @@ contains
                  u%x, v%x, w%x, this%pmsk%x, this%coef%mult, x, y, z, ds, &
                  this%interp_rmax, this%pwr_param, lx, this%coef%msh%nelv, &
                  this%shared_slot, this%n_shared_glb, &
-                 adjoint = this%adjoint_interp, B = this%coef%B, &
+                 adjoint = this%adjoint_interp, B = this%Bm, &
                  sw_p = this%w%x, sw_m = this%wm%x)
          else if (this%one_sided) then
             fum_ib = 0.0_rp
@@ -1339,25 +1396,45 @@ contains
     integer, intent(in), optional :: n_shared
     logical, intent(in), optional :: adjoint
     real(kind=rp), dimension(lx,lx,lx,ne), intent(in), optional :: B, sw_p, sw_m
-    real(kind=rp), allocatable :: part(:,:), shr(:,:)
-    integer :: i
+    real(kind=rp), allocatable :: part(:,:)
 
     allocate(part(8, size(lag_pts)))
     call idw_interp_shepard_partials(part, lag_pts, lag_el, u, v, w, pmsk, &
          mult, x, y, z, ds, rmax_i, p, lx, ne, adjoint, B, sw_p, sw_m)
+    call idw_interp_shepard_finalize(fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, &
+         fwm_ib, part, shared_slot, n_shared)
+    deallocate(part)
+
+  end subroutine idw_interp_shepard
+
+  !> Turn the local partial sums into the marker values: sum the partials
+  !! of markers held by several ranks over their holders (collective when
+  !! `shared_slot` and `n_shared` are passed), then normalise. Shared by the
+  !! host and the device interpolation paths.
+  subroutine idw_interp_shepard_finalize(fu_ib, fv_ib, fw_ib, fum_ib, &
+       fvm_ib, fwm_ib, part, shared_slot, n_shared)
+    real(kind=rp), intent(inout) :: fu_ib(:), fv_ib(:), fw_ib(:)
+    real(kind=rp), intent(inout) :: fum_ib(:), fvm_ib(:), fwm_ib(:)
+    real(kind=rp), intent(inout) :: part(:,:)
+    integer, intent(in), optional :: shared_slot(:)
+    integer, intent(in), optional :: n_shared
+    real(kind=rp), allocatable :: shr(:,:)
+    integer :: i, n_lag
+
+    n_lag = size(part, 2)
 
     if (present(shared_slot) .and. present(n_shared)) then
        if (n_shared .gt. 0) then
           allocate(shr(8, n_shared))
           shr = 0.0_rp
-          do i = 1, size(lag_pts)
+          do i = 1, n_lag
              if (shared_slot(i) .gt. 0) then
                 shr(:, shared_slot(i)) = part(:, i)
              end if
           end do
           call MPI_Allreduce(MPI_IN_PLACE, shr, 8 * n_shared, &
                MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM)
-          do i = 1, size(lag_pts)
+          do i = 1, n_lag
              if (shared_slot(i) .gt. 0) then
                 part(:, i) = shr(:, shared_slot(i))
              end if
@@ -1368,9 +1445,8 @@ contains
 
     call idw_interp_shepard_normalize(fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, &
          fwm_ib, part)
-    deallocate(part)
 
-  end subroutine idw_interp_shepard
+  end subroutine idw_interp_shepard_finalize
 
   !> Accumulate the per-marker Shepard partial sums over the local stencil
   !! elements. Row layout of `part`: the +side numerators and weight sum
@@ -1378,11 +1454,13 @@ contains
   !! contribution carries the dof multiplicity weight, the partials of one
   !! marker are exactly summable over the ranks holding a copy of it.
   !!
-  !! With `adjoint` set the weight of a node is K B mult / sw, where sw is
-  !! the assembled spread weight of the node's side (`sw_p` where pmsk > 0,
-  !! `sw_m` elsewhere); nodes the spread leaves untouched (sw below the
-  !! spread's tolerance) get weight zero. Summed over the stencil elements
-  !! this is exactly the transpose of the spread in the mass inner product.
+  !! With `adjoint` set the weight of a node is K B mult / sw, where B is
+  !! the assembled mass matrix (1/Binv, identical on every copy of a dof)
+  !! and sw the assembled spread weight of the node's side (`sw_p` where
+  !! pmsk > 0, `sw_m` elsewhere); nodes the spread leaves untouched (sw
+  !! below the spread's tolerance) get weight zero. Summed over the stencil
+  !! elements this is exactly the transpose of the spread in the mass inner
+  !! product, including the markers listed by only some of a dof's elements.
   subroutine idw_interp_shepard_partials(part, lag_pts, lag_el, u, v, w, &
        pmsk, mult, x, y, z, ds, rmax_i, p, lx, ne, adjoint, B, sw_p, sw_m)
     real(kind=rp), intent(inout) :: part(:,:)

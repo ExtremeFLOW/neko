@@ -111,3 +111,63 @@ void opencl_idw_gather_one_sided(void *fu, void *fv, void *fw,
                                   0, NULL, NULL));
   CL_CHECK(clReleaseKernel(kernel));
 }
+
+/**
+ * Fortran wrapper for the Shepard / adjoint interpolation partial sums.
+ */
+void opencl_idw_interp_partials(void *part, void *u, void *v, void *w,
+                                void *x, void *y, void *z, void *ds,
+                                void *pmsk, void *mult, void *B,
+                                void *w_p, void *w_m,
+                                void *lpx, void *lpy, void *lpz,
+                                void *lag_off, void *lag_els,
+                                int *n_lag, int *lx3, real *rmax_i,
+                                real *pwr, real *eps, real *wtol,
+                                int *adjoint, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if ((*n_lag) < 1)
+    return;
+
+  if (idw_program == NULL)
+    opencl_kernel_jit(idw_kernel, (cl_program *) &idw_program);
+
+  cl_kernel kernel = clCreateKernel(idw_program, "idw_interp_partials", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &part));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &u));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &v));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &w));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &x));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &y));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &z));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &ds));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &pmsk));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &mult));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &B));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &w_p));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &w_m));
+  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &lpx));
+  CL_CHECK(clSetKernelArg(kernel, 14, sizeof(cl_mem), (void *) &lpy));
+  CL_CHECK(clSetKernelArg(kernel, 15, sizeof(cl_mem), (void *) &lpz));
+  CL_CHECK(clSetKernelArg(kernel, 16, sizeof(cl_mem), (void *) &lag_off));
+  CL_CHECK(clSetKernelArg(kernel, 17, sizeof(cl_mem), (void *) &lag_els));
+  CL_CHECK(clSetKernelArg(kernel, 18, sizeof(int), n_lag));
+  CL_CHECK(clSetKernelArg(kernel, 19, sizeof(int), lx3));
+  CL_CHECK(clSetKernelArg(kernel, 20, sizeof(real), rmax_i));
+  CL_CHECK(clSetKernelArg(kernel, 21, sizeof(real), pwr));
+  CL_CHECK(clSetKernelArg(kernel, 22, sizeof(real), eps));
+  CL_CHECK(clSetKernelArg(kernel, 23, sizeof(real), wtol));
+  CL_CHECK(clSetKernelArg(kernel, 24, sizeof(int), adjoint));
+
+  /* One work-group of 256 per Lagrangian point; the kernel's local
+     reduction buffer is sized for exactly that */
+  const size_t global_item_size = 256 * (size_t) (*n_lag);
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}

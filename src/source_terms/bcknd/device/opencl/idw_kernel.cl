@@ -140,3 +140,105 @@ __kernel void idw_gather_one_sided(__global real * __restrict__ fu,
 }
 
 #endif // __SOURCE_TERMS_IDW_KERNEL_CL__
+
+/**
+ * Shepard / adjoint interpolation partial sums. One work-group per
+ * Lagrangian point: the work-items stride over the nodes of every element
+ * in the point's list (lag_off/lag_els), accumulate the eight partial sums
+ * in registers (plus side: u, v, w, weight; minus side: u, v, w, weight)
+ * and reduce them in local memory. Mirrors idw_interp_shepard_partials()
+ * in idw_source_term.f90: with adjoint != 0 the weight of a node is
+ * K * mult * B / w_side, zero where |w_side| <= wtol, B being the assembled
+ * mass matrix and w_p / w_m the assembled spread weights. The work-group
+ * size must be 256.
+ */
+__kernel void idw_interp_partials(__global real * __restrict__ part,
+                                  __global const real * __restrict__ u,
+                                  __global const real * __restrict__ v,
+                                  __global const real * __restrict__ w,
+                                  __global const real * __restrict__ x,
+                                  __global const real * __restrict__ y,
+                                  __global const real * __restrict__ z,
+                                  __global const real * __restrict__ ds,
+                                  __global const real * __restrict__ pmsk,
+                                  __global const real * __restrict__ mult,
+                                  __global const real * __restrict__ B,
+                                  __global const real * __restrict__ w_p,
+                                  __global const real * __restrict__ w_m,
+                                  __global const real * __restrict__ lpx,
+                                  __global const real * __restrict__ lpy,
+                                  __global const real * __restrict__ lpz,
+                                  __global const int  * __restrict__ lag_off,
+                                  __global const int  * __restrict__ lag_els,
+                                  const int  n_lag,
+                                  const int  lx3,
+                                  const real rmax_i,
+                                  const real pwr,
+                                  const real eps,
+                                  const real wtol,
+                                  const int  adjoint) {
+
+  __local real red[8][256];
+
+  const int i = get_group_id(0);
+  if (i >= n_lag)
+    return;
+
+  const int tid = get_local_id(0);
+  const int nt  = get_local_size(0);
+  const real xp = lpx[i];
+  const real yp = lpy[i];
+  const real zp = lpz[i];
+
+  real acc[8];
+  for (int k = 0; k < 8; ++k)
+    acc[k] = (real) 0.0;
+
+  for (int ee = lag_off[i]; ee < lag_off[i + 1]; ++ee) {
+    const int e = lag_els[ee];
+    for (int nd = tid; nd < lx3; nd += nt) {
+      const int idx = e * lx3 + nd;
+      const real dx = x[idx] - xp;
+      const real dy = y[idx] - yp;
+      const real dz = z[idx] - zp;
+      const real r = sqrt(dx*dx + dy*dy + dz*dz) / ds[idx];
+      real wgt = inv_dist_weight(r, rmax_i, pwr, eps) * mult[idx];
+      if (pmsk[idx] > (real) 0.0) {
+        if (adjoint) {
+          const real sw = w_p[idx];
+          wgt = (fabs(sw) > wtol) ? wgt * B[idx] / sw : (real) 0.0;
+        }
+        acc[0] += wgt * u[idx];
+        acc[1] += wgt * v[idx];
+        acc[2] += wgt * w[idx];
+        acc[3] += wgt;
+      } else {
+        if (adjoint) {
+          const real sw = w_m[idx];
+          wgt = (fabs(sw) > wtol) ? wgt * B[idx] / sw : (real) 0.0;
+        }
+        acc[4] += wgt * u[idx];
+        acc[5] += wgt * v[idx];
+        acc[6] += wgt * w[idx];
+        acc[7] += wgt;
+      }
+    }
+  }
+
+  for (int k = 0; k < 8; ++k)
+    red[k][tid] = acc[k];
+  barrier(CLK_LOCAL_MEM_FENCE);
+
+  for (int s = nt / 2; s > 0; s >>= 1) {
+    if (tid < s) {
+      for (int k = 0; k < 8; ++k)
+        red[k][tid] += red[k][tid + s];
+    }
+    barrier(CLK_LOCAL_MEM_FENCE);
+  }
+
+  if (tid == 0) {
+    for (int k = 0; k < 8; ++k)
+      part[8 * i + k] = red[k][0];
+  }
+}

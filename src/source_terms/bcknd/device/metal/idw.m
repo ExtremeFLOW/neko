@@ -51,6 +51,7 @@ extern id<MTLLibrary> neko_metal_library(void);
 
 /* Cached pipeline state */
 static id<MTLComputePipelineState> pso_idw_gather = nil;
+static id<MTLComputePipelineState> pso_idw_interp = nil;
 
 /**
  * Fortran wrapper for the atomic-free IDW gather kernel.
@@ -125,6 +126,81 @@ void metal_idw_gather_one_sided(void *fu, void *fv, void *fw,
   MTLSize groupSize = MTLSizeMake(nthrds, 1, 1);
   MTLSize numGroups =
     MTLSizeMake(((NSUInteger)total + nthrds - 1) / nthrds, 1, 1);
+
+  [enc dispatchThreadgroups:numGroups threadsPerThreadgroup:groupSize];
+  [enc endEncoding];
+  [cmdBuf commit];
+  [cmdBuf waitUntilCompleted];
+}
+
+/**
+ * Fortran wrapper for the Shepard / adjoint interpolation partial sums.
+ */
+void metal_idw_interp_partials(void *part, void *u, void *v, void *w,
+                               void *x, void *y, void *z, void *ds,
+                               void *pmsk, void *mult, void *B,
+                               void *w_p, void *w_m,
+                               void *lpx, void *lpy, void *lpz,
+                               void *lag_off, void *lag_els,
+                               int *n_lag, int *lx3, real *rmax_i,
+                               real *pwr, real *eps, real *wtol,
+                               int *adjoint) {
+
+  if ((*n_lag) < 1)
+    return;
+
+  if (pso_idw_interp == nil) {
+    id<MTLDevice> device = neko_metal_device();
+    id<MTLLibrary> lib = neko_metal_library();
+    id<MTLFunction> func = [lib newFunctionWithName:@"idw_interp_partials"];
+    if (func == nil) {
+      fprintf(stderr, "Metal: kernel 'idw_interp_partials' "
+              "not found in metallib\n");
+      exit(EXIT_FAILURE);
+    }
+    NSError *error = nil;
+    pso_idw_interp =
+      [device newComputePipelineStateWithFunction:func error:&error];
+    METAL_CHECK(error);
+  }
+
+  id<MTLCommandQueue> queue =
+    (__bridge id<MTLCommandQueue>)glb_cmd_queue;
+  id<MTLCommandBuffer> cmdBuf = [queue commandBuffer];
+  id<MTLComputeCommandEncoder> enc = [cmdBuf computeCommandEncoder];
+
+  [enc setComputePipelineState:pso_idw_interp];
+
+  [enc setBuffer:(__bridge id<MTLBuffer>)part    offset:0 atIndex:0];
+  [enc setBuffer:(__bridge id<MTLBuffer>)u       offset:0 atIndex:1];
+  [enc setBuffer:(__bridge id<MTLBuffer>)v       offset:0 atIndex:2];
+  [enc setBuffer:(__bridge id<MTLBuffer>)w       offset:0 atIndex:3];
+  [enc setBuffer:(__bridge id<MTLBuffer>)x       offset:0 atIndex:4];
+  [enc setBuffer:(__bridge id<MTLBuffer>)y       offset:0 atIndex:5];
+  [enc setBuffer:(__bridge id<MTLBuffer>)z       offset:0 atIndex:6];
+  [enc setBuffer:(__bridge id<MTLBuffer>)ds      offset:0 atIndex:7];
+  [enc setBuffer:(__bridge id<MTLBuffer>)pmsk    offset:0 atIndex:8];
+  [enc setBuffer:(__bridge id<MTLBuffer>)mult    offset:0 atIndex:9];
+  [enc setBuffer:(__bridge id<MTLBuffer>)B       offset:0 atIndex:10];
+  [enc setBuffer:(__bridge id<MTLBuffer>)w_p     offset:0 atIndex:11];
+  [enc setBuffer:(__bridge id<MTLBuffer>)w_m     offset:0 atIndex:12];
+  [enc setBuffer:(__bridge id<MTLBuffer>)lpx     offset:0 atIndex:13];
+  [enc setBuffer:(__bridge id<MTLBuffer>)lpy     offset:0 atIndex:14];
+  [enc setBuffer:(__bridge id<MTLBuffer>)lpz     offset:0 atIndex:15];
+  [enc setBuffer:(__bridge id<MTLBuffer>)lag_off offset:0 atIndex:16];
+  [enc setBuffer:(__bridge id<MTLBuffer>)lag_els offset:0 atIndex:17];
+  [enc setBytes:n_lag   length:sizeof(int)  atIndex:18];
+  [enc setBytes:lx3     length:sizeof(int)  atIndex:19];
+  [enc setBytes:rmax_i  length:sizeof(real) atIndex:20];
+  [enc setBytes:pwr     length:sizeof(real) atIndex:21];
+  [enc setBytes:eps     length:sizeof(real) atIndex:22];
+  [enc setBytes:wtol    length:sizeof(real) atIndex:23];
+  [enc setBytes:adjoint length:sizeof(int)  atIndex:24];
+
+  /* One threadgroup of 256 per Lagrangian point; the kernel's reduction
+     buffer is sized for exactly that */
+  MTLSize groupSize = MTLSizeMake(256, 1, 1);
+  MTLSize numGroups = MTLSizeMake((NSUInteger) (*n_lag), 1, 1);
 
   [enc dispatchThreadgroups:numGroups threadsPerThreadgroup:groupSize];
   [enc endEncoding];

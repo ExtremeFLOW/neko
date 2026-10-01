@@ -157,3 +157,107 @@ kernel void idw_gather_one_sided(device float * fu [[ buffer(0) ]],
     }
   }
 }
+
+/**
+ * Shepard / adjoint interpolation partial sums. One threadgroup per
+ * Lagrangian point: the threads stride over the nodes of every element in
+ * the point's list (lag_off/lag_els), accumulate the eight partial sums in
+ * registers (plus side: u, v, w, weight; minus side: u, v, w, weight) and
+ * reduce them in threadgroup memory. Mirrors idw_interp_shepard_partials()
+ * in idw_source_term.f90: with adjoint != 0 the weight of a node is
+ * K * mult * B / w_side, zero where |w_side| <= wtol, B being the assembled
+ * mass matrix and w_p / w_m the assembled spread weights. The threadgroup
+ * size must be 256.
+ */
+kernel void idw_interp_partials(device float * part [[ buffer(0) ]],
+                                device const float * u [[ buffer(1) ]],
+                                device const float * v [[ buffer(2) ]],
+                                device const float * w [[ buffer(3) ]],
+                                device const float * x [[ buffer(4) ]],
+                                device const float * y [[ buffer(5) ]],
+                                device const float * z [[ buffer(6) ]],
+                                device const float * ds [[ buffer(7) ]],
+                                device const float * pmsk [[ buffer(8) ]],
+                                device const float * mult [[ buffer(9) ]],
+                                device const float * B [[ buffer(10) ]],
+                                device const float * w_p [[ buffer(11) ]],
+                                device const float * w_m [[ buffer(12) ]],
+                                device const float * lpx [[ buffer(13) ]],
+                                device const float * lpy [[ buffer(14) ]],
+                                device const float * lpz [[ buffer(15) ]],
+                                device const int * lag_off [[ buffer(16) ]],
+                                device const int * lag_els [[ buffer(17) ]],
+                                constant int & n_lag [[ buffer(18) ]],
+                                constant int & lx3 [[ buffer(19) ]],
+                                constant float & rmax_i [[ buffer(20) ]],
+                                constant float & pwr [[ buffer(21) ]],
+                                constant float & eps [[ buffer(22) ]],
+                                constant float & wtol [[ buffer(23) ]],
+                                constant int & adjoint [[ buffer(24) ]],
+                                uint tgid [[ threadgroup_position_in_grid ]],
+                                uint tid [[ thread_position_in_threadgroup ]],
+                                uint ntg [[ threads_per_threadgroup ]]) {
+
+  threadgroup float red[8][256];
+
+  const int i = (int) tgid;
+  if (i >= n_lag)
+    return;
+
+  const int nt = (int) ntg;
+  const float xp = lpx[i];
+  const float yp = lpy[i];
+  const float zp = lpz[i];
+
+  float acc[8];
+  for (int k = 0; k < 8; ++k)
+    acc[k] = 0.0f;
+
+  for (int ee = lag_off[i]; ee < lag_off[i + 1]; ++ee) {
+    const int e = lag_els[ee];
+    for (int nd = (int) tid; nd < lx3; nd += nt) {
+      const int idx = e * lx3 + nd;
+      const float dx = x[idx] - xp;
+      const float dy = y[idx] - yp;
+      const float dz = z[idx] - zp;
+      const float r = sqrt(dx*dx + dy*dy + dz*dz) / ds[idx];
+      float wgt = inv_dist_weight(r, rmax_i, pwr, eps) * mult[idx];
+      if (pmsk[idx] > 0.0f) {
+        if (adjoint) {
+          const float sw = w_p[idx];
+          wgt = (fabs(sw) > wtol) ? wgt * B[idx] / sw : 0.0f;
+        }
+        acc[0] += wgt * u[idx];
+        acc[1] += wgt * v[idx];
+        acc[2] += wgt * w[idx];
+        acc[3] += wgt;
+      } else {
+        if (adjoint) {
+          const float sw = w_m[idx];
+          wgt = (fabs(sw) > wtol) ? wgt * B[idx] / sw : 0.0f;
+        }
+        acc[4] += wgt * u[idx];
+        acc[5] += wgt * v[idx];
+        acc[6] += wgt * w[idx];
+        acc[7] += wgt;
+      }
+    }
+  }
+
+  for (int k = 0; k < 8; ++k)
+    red[k][tid] = acc[k];
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+
+  for (int s = nt / 2; s > 0; s >>= 1) {
+    if ((int) tid < s) {
+      for (int k = 0; k < 8; ++k)
+        red[k][tid] += red[k][tid + s];
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+  }
+
+  if (tid == 0) {
+    for (int k = 0; k < 8; ++k)
+      part[8 * i + k] = red[k][0];
+  }
+}

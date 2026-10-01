@@ -74,4 +74,35 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
+  /**
+   * Fortran wrapper for the Shepard / adjoint interpolation partial sums.
+   */
+  void hip_idw_interp_partials(void *part, void *u, void *v, void *w,
+                                void *x, void *y, void *z, void *ds,
+                                void *pmsk, void *mult, void *B,
+                                void *w_p, void *w_m,
+                                void *lpx, void *lpy, void *lpz,
+                                void *lag_off, void *lag_els,
+                                int *n_lag, int *lx3, real *rmax_i,
+                                real *pwr, real *eps, real *wtol,
+                                int *adjoint) {
+
+    if ((*n_lag) < 1)
+      return;
+
+    const dim3 nthrds(256, 1, 1);
+    const dim3 nblcks(*n_lag, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(idw_interp_partials_kernel<real, 256>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) part, (real *) u, (real *) v, (real *) w,
+                       (real *) x, (real *) y, (real *) z, (real *) ds,
+                       (real *) pmsk, (real *) mult, (real *) B,
+                       (real *) w_p, (real *) w_m,
+                       (real *) lpx, (real *) lpy, (real *) lpz,
+                       (int *) lag_off, (int *) lag_els, *n_lag, *lx3,
+                       *rmax_i, *pwr, *eps, *wtol, *adjoint);
+    HIP_CHECK(hipGetLastError());
+  }
+
 }
