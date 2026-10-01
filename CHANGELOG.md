@@ -3,6 +3,7 @@
 ## Develop
 
 
+- Fixed several OpenMP races in the scratch registry.
 - Added a setup-time conditioning diagnostic for the geometric factors, on
   `COEF_FULL` coefficient sets only. `coef_metric_condition` logs the worst
   metric condition number over the mesh, the worst for its Jacobi scaled
@@ -117,12 +118,6 @@
   the same place and in the same order as before, so results are unchanged
   bit for bit, and the `ifh2 = .false.` path taken by the pressure solve is
   untouched.
-- Updated interfaces for scratch host and device arrays. Now the canonical types
-  are used when requesting scratch arrays of these types. `c_ptr` and
-  `real(kind=rp), pointer` should be used rather than the wrappers
-  `host_array_t` and `device_array_t`.
-- Fixed several OpenMP races in the boundary conditions, including a Neumann
-  flux accumulated once per thread.
 - Fixed further OpenMP races outside the boundary-condition update blocks:
   the symmetry, shear stress and non-normal vector conditions lacked
   worksharing inside the `bc_list` parallel region, `facet_normal` and the
