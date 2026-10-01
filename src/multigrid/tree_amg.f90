@@ -389,8 +389,12 @@ contains
          end do
 
          !> Average on overlapping dofs
-         call this%gs_h%op(wrk_in, n, GS_OP_ADD)
-         call col2( wrk_in, this%coef%mult, n)
+         if (allocated(this%gs_h%interp)) then
+            call this%gs_h%op_h1(wrk_in, n, GS_OP_ADD)
+         else
+            call this%gs_h%op(wrk_in, n, GS_OP_ADD)
+            call col2( wrk_in, this%coef%mult, n)
+         end if
          call this%blst%apply(wrk_in, n)
 
          !> Finest level matvec (Call local finite element assembly)
@@ -460,9 +464,13 @@ contains
        end associate
     end do
     if (lvl-1 .eq. 0) then
-       call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, &
-            GS_OP_ADD)
-       call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
+       if (allocated(this%gs_h%interp)) then
+          call this%gs_h%op_h1(vec_out, this%lvl(lvl)%fine_lvl_dofs, GS_OP_ADD)
+       else
+          call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, &
+               GS_OP_ADD)
+          call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
+       end if
        call this%blst%apply(vec_out, this%lvl(lvl)%fine_lvl_dofs)
     end if
   end subroutine tamg_prolongation_operator

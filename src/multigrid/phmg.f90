@@ -400,6 +400,8 @@ contains
            call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
            call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
            call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
+           if (allocated(mg(lvl)%gs_h%interp)) &
+                call mg(lvl)%gs_h%op_h1(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
 
            if (NEKO_BCKND_DEVICE .eq. 1) then
               call device_add2s1(w%x_d, r%x_d, -1.0_rp, mg(lvl)%dm_Xh%size())
@@ -425,6 +427,9 @@ contains
            call mg(lvl+1)%bclst%apply_scalar( &
                 mg(lvl+1)%r%x, &
                 mg(lvl+1)%dm_Xh%size())
+           if (allocated(mg(lvl+1)%gs_h%interp)) &
+                call mg(lvl+1)%gs_h%op_h1(mg(lvl+1)%r%x, &
+                mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
 
            if (NEKO_BCKND_DEVICE .eq. 1) then
               call device_rzero(mg(lvl+1)%z%x_d, mg(lvl+1)%dm_Xh%size())
@@ -455,13 +460,19 @@ contains
            !------------!
            call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
 
-           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
-           call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
-
-           if (NEKO_BCKND_DEVICE .eq. 1) then
-              call device_col2(w%x_d, mg(lvl)%coef%mult_d, mg(lvl)%dm_Xh%size())
+           if (allocated(mg(lvl)%gs_h%interp)) then
+              call mg(lvl)%gs_h%op_h1(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
            else
-              call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
+              call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), &
+                   GS_OP_ADD, glb_cmd_event)
+              call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+
+              if (NEKO_BCKND_DEVICE .eq. 1) then
+                 call device_col2(w%x_d, mg(lvl)%coef%mult_d, &
+                      mg(lvl)%dm_Xh%size())
+              else
+                 call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
+              end if
            end if
 
            !------------!
