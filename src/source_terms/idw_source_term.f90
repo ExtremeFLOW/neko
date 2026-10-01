@@ -139,6 +139,10 @@ module idw_source_term
      !> Use Shepard IDW interpolation onto the markers instead of the
      !! global (rst-based) interpolation
      logical :: idw_interp = .false.
+     !> Shepard weights K B mult / w, which make the interpolation the
+     !! mass-weighted adjoint of the spread so that the forcing never adds
+     !! kinetic energy (implies `idw_interp`, and `interp_rmax` = `rmax`)
+     logical :: adjoint_interp = .false.
      !> Cutoff radius (in units of ds) for the Shepard interpolation
      real(kind=rp) :: interp_rmax
      !> Reduction slot per marker for the Shepard interpolation: markers
@@ -163,7 +167,7 @@ module idw_source_term
   end type idw_source_term_t
 
   public :: idw_interp_shepard, idw_interp_shepard_partials, &
-       idw_interp_shepard_normalize, idw_build_shared_slots
+       idw_interp_shepard_normalize, idw_build_shared_slots, inv_dist_weight
 
 contains
 
@@ -230,6 +234,13 @@ contains
        this%idw_interp = .false.
     case ("idw")
        this%idw_interp = .true.
+    case ("adjoint")
+       ! Shepard interpolation with the spread's own stencil and weights
+       ! K B mult / w: the interpolation is then the mass-weighted adjoint
+       ! of the spread, interp o spread is symmetric positive semi-definite
+       ! and the forcing can only remove kinetic energy
+       this%idw_interp = .true.
+       this%adjoint_interp = .true.
     case default
        call neko_error('IDW source term unknown interpolation scheme: ' &
             // trim(interp_scheme))
@@ -238,6 +249,8 @@ contains
 
     call json_get_or_default(json, "interpolation_rmax", this%interp_rmax, &
          2.0_rp)
+    ! The adjoint pairing needs the stencil of the spread
+    if (this%adjoint_interp) this%interp_rmax = this%rmax
     if (this%idw_interp) then
        write(log_buf, '(A,f5.2)') 'Interp rmax: ', this%interp_rmax
        call neko_log%message(log_buf)
@@ -878,7 +891,9 @@ contains
             this%lag_el, u%x, v%x, w%x, this%pmsk%x, this%coef%mult, &
             this%w%dof%x%x, this%w%dof%y%x, this%w%dof%z%x, this%ds%x, &
             this%interp_rmax, this%pwr_param, this%w%Xh%lx, &
-            size(this%w%dof%x%x, 4), this%shared_slot, this%n_shared_glb)
+            size(this%w%dof%x%x, 4), this%shared_slot, this%n_shared_glb, &
+            adjoint = this%adjoint_interp, B = this%coef%B, &
+            sw_p = this%w%x, sw_m = this%wm%x)
     else if (this%one_sided) then
        this%fum_ib = 0.0_rp
        this%fvm_ib = 0.0_rp
@@ -1109,7 +1124,9 @@ contains
                  fum_ib, fvm_ib, fwm_ib, lag_pts, this%lag_el, &
                  u%x, v%x, w%x, this%pmsk%x, this%coef%mult, x, y, z, ds, &
                  this%interp_rmax, this%pwr_param, lx, this%coef%msh%nelv, &
-                 this%shared_slot, this%n_shared_glb)
+                 this%shared_slot, this%n_shared_glb, &
+                 adjoint = this%adjoint_interp, B = this%coef%B, &
+                 sw_p = this%w%x, sw_m = this%wm%x)
          else if (this%one_sided) then
             fum_ib = 0.0_rp
             fvm_ib = 0.0_rp
@@ -1302,9 +1319,14 @@ contains
   !! partial sums of such markers are summed over their holder ranks before
   !! normalization, so every copy computes the full-stencil value. The
   !! reduction is collective: all ranks in NEKO_COMM must call this routine.
+  !!
+  !! With `adjoint` set (and `B`, `sw_p`, `sw_m` passed) every weight is
+  !! multiplied by the mass matrix and divided by the assembled spread
+  !! weight of the node's side, so that with `rmax_i` equal to the spread
+  !! radius the interpolation is the mass-weighted adjoint of the spread.
   subroutine idw_interp_shepard(fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &
        lag_pts, lag_el, u, v, w, pmsk, mult, x, y, z, ds, rmax_i, p, lx, ne, &
-       shared_slot, n_shared)
+       shared_slot, n_shared, adjoint, B, sw_p, sw_m)
     real(kind=rp), intent(inout) :: fu_ib(:), fv_ib(:), fw_ib(:)
     real(kind=rp), intent(inout) :: fum_ib(:), fvm_ib(:), fwm_ib(:)
     type(point_t), intent(in) :: lag_pts(:)
@@ -1315,12 +1337,14 @@ contains
     real(kind=rp), intent(in) :: rmax_i, p
     integer, intent(in), optional :: shared_slot(:)
     integer, intent(in), optional :: n_shared
+    logical, intent(in), optional :: adjoint
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in), optional :: B, sw_p, sw_m
     real(kind=rp), allocatable :: part(:,:), shr(:,:)
     integer :: i
 
     allocate(part(8, size(lag_pts)))
     call idw_interp_shepard_partials(part, lag_pts, lag_el, u, v, w, pmsk, &
-         mult, x, y, z, ds, rmax_i, p, lx, ne)
+         mult, x, y, z, ds, rmax_i, p, lx, ne, adjoint, B, sw_p, sw_m)
 
     if (present(shared_slot) .and. present(n_shared)) then
        if (n_shared .gt. 0) then
@@ -1353,8 +1377,14 @@ contains
   !! (rows 1-4: u, v, w, weight), then the -side (rows 5-8). Because every
   !! contribution carries the dof multiplicity weight, the partials of one
   !! marker are exactly summable over the ranks holding a copy of it.
+  !!
+  !! With `adjoint` set the weight of a node is K B mult / sw, where sw is
+  !! the assembled spread weight of the node's side (`sw_p` where pmsk > 0,
+  !! `sw_m` elsewhere); nodes the spread leaves untouched (sw below the
+  !! spread's tolerance) get weight zero. Summed over the stencil elements
+  !! this is exactly the transpose of the spread in the mass inner product.
   subroutine idw_interp_shepard_partials(part, lag_pts, lag_el, u, v, w, &
-       pmsk, mult, x, y, z, ds, rmax_i, p, lx, ne)
+       pmsk, mult, x, y, z, ds, rmax_i, p, lx, ne, adjoint, B, sw_p, sw_m)
     real(kind=rp), intent(inout) :: part(:,:)
     type(point_t), intent(in) :: lag_pts(:)
     type(stack_i4_t), intent(inout) :: lag_el(:)
@@ -1362,9 +1392,22 @@ contains
     real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: u, v, w
     real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: pmsk, mult, x, y, z, ds
     real(kind=rp), intent(in) :: rmax_i, p
+    logical, intent(in), optional :: adjoint
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in), optional :: B, sw_p, sw_m
+    real(kind=rp), parameter :: wtol = 1e-10_rp
     integer :: i, j, k, l, e, ee
     real(kind=rp) :: r, wgt, acc(8)
     real(kind=dp) :: xp, yp, zp
+    logical :: use_adjoint
+
+    use_adjoint = .false.
+    if (present(adjoint)) use_adjoint = adjoint
+    if (use_adjoint) then
+       if (.not. (present(B) .and. present(sw_p) .and. present(sw_m))) then
+          call neko_error('idw_interp_shepard_partials: adjoint weights &
+               &need B, sw_p and sw_m')
+       end if
+    end if
 
     ! Every marker owns its column of part, accumulated in registers and
     ! stored once; the stencil sizes differ between markers, hence the
@@ -1389,11 +1432,25 @@ contains
                       r = r / ds(j,k,l,e)
                       wgt = inv_dist_weight(r, rmax_i, p) * mult(j,k,l,e)
                       if (pmsk(j,k,l,e) .gt. 0.0_rp) then
+                         if (use_adjoint) then
+                            if (abs(sw_p(j,k,l,e)) .gt. wtol) then
+                               wgt = wgt * B(j,k,l,e) / sw_p(j,k,l,e)
+                            else
+                               wgt = 0.0_rp
+                            end if
+                         end if
                          acc(1) = acc(1) + wgt * u(j,k,l,e)
                          acc(2) = acc(2) + wgt * v(j,k,l,e)
                          acc(3) = acc(3) + wgt * w(j,k,l,e)
                          acc(4) = acc(4) + wgt
                       else
+                         if (use_adjoint) then
+                            if (abs(sw_m(j,k,l,e)) .gt. wtol) then
+                               wgt = wgt * B(j,k,l,e) / sw_m(j,k,l,e)
+                            else
+                               wgt = 0.0_rp
+                            end if
+                         end if
                          acc(5) = acc(5) + wgt * u(j,k,l,e)
                          acc(6) = acc(6) + wgt * v(j,k,l,e)
                          acc(7) = acc(7) + wgt * w(j,k,l,e)
