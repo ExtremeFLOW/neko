@@ -6,9 +6,9 @@
   `dealiased_polynomial_order` now share their GL space, interpolator, GL
   metric terms and work arrays. Each scalar used to hold its own copy, about
   57 fields of memory at the default `dealiased_polynomial_order` on device
-  backends and 30 on the CPU; it now holds none. As a side effect, scalars
-  advected on a moving (ALE) mesh now use the updated GL metrics, instead of
-  the ones of the initial mesh.
+  backends and 30 on the CPU; it now holds none. As a side effect, on a moving
+  (ALE) mesh, scalars sharing the GL data with a dealiased fluid now use the
+  updated GL metrics, instead of the ones of the initial mesh.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,

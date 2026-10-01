@@ -114,7 +114,8 @@ module adv_dealias
 
   !> Type encapsulating advection routines with dealiasing
   !! @note The members below `gl` point into it, so that the compute routines
-  !! do not need to know where the GL data lives.
+  !! do not need to know where the GL data lives. An operator must not be
+  !! copied by assignment, since the copy would not be counted as a user.
   type, public, extends(advection_t) :: adv_dealias_t
      !> The GL data this operator works on
      type(adv_dealias_gl_t), pointer :: gl => null()
