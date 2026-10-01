@@ -49,22 +49,67 @@ module adv_dealias
   implicit none
   private
 
-  !> Type encapsulating advection routines with dealiasing
-  type, public, extends(advection_t) :: adv_dealias_t
-     !> Coeffs of the higher-order space
-     type(coef_t) :: coef_GL
-     !> Coeffs of the original space in the simulation
-     type(coef_t), pointer :: coef_GLL
-     !> Interpolator between the original and higher-order spaces
-     type(interpolator_t) :: GLL_to_GL
+  !> Data on the higher-order (GL) space used by the dealiased advection
+  !! operator. It depends only on the original coefficients and on `lxd`.
+  type :: adv_dealias_gl_t
      !> The additional higher-order space used in dealiasing
      type(space_t) :: Xh_GL
-     !> The original space used in the simulation
-     type(space_t), pointer :: Xh_GLL
+     !> Interpolator between the original and higher-order spaces
+     type(interpolator_t) :: GLL_to_GL
+     !> Coeffs of the higher-order space
+     type(coef_t) :: coef_GL
      real(kind=rp), allocatable :: temp(:), tbf(:)
      !> Temporary arrays
      real(kind=rp), allocatable :: tx(:), ty(:), tz(:)
      real(kind=rp), allocatable :: vr(:), vs(:), vt(:)
+     !> Device pointer for `temp`
+     type(c_ptr) :: temp_d = C_NULL_PTR
+     !> Device pointer for `tbf`
+     type(c_ptr) :: tbf_d = C_NULL_PTR
+     !> Device pointer for `tx`
+     type(c_ptr) :: tx_d = C_NULL_PTR
+     !> Device pointer for `ty`
+     type(c_ptr) :: ty_d = C_NULL_PTR
+     !> Device pointer for `tz`
+     type(c_ptr) :: tz_d = C_NULL_PTR
+     !> Device pointer for `vr`
+     type(c_ptr) :: vr_d = C_NULL_PTR
+     !> Device pointer for `vs`
+     type(c_ptr) :: vs_d = C_NULL_PTR
+     !> Device pointer for `vt`
+     type(c_ptr) :: vt_d = C_NULL_PTR
+   contains
+     !> Constructor
+     procedure, pass(this) :: init => adv_dealias_gl_init
+     !> Destructor
+     procedure, pass(this) :: free => adv_dealias_gl_free
+  end type adv_dealias_gl_t
+
+  !> Type encapsulating advection routines with dealiasing
+  !! @note The members below `gl` point into it, so that the compute routines
+  !! do not need to know where the GL data lives.
+  type, public, extends(advection_t) :: adv_dealias_t
+     !> The GL data this operator works on
+     type(adv_dealias_gl_t), pointer :: gl => null()
+     !> Coeffs of the higher-order space
+     type(coef_t), pointer :: coef_GL => null()
+     !> Coeffs of the original space in the simulation
+     type(coef_t), pointer :: coef_GLL => null()
+     !> Interpolator between the original and higher-order spaces
+     type(interpolator_t), pointer :: GLL_to_GL => null()
+     !> The additional higher-order space used in dealiasing
+     type(space_t), pointer :: Xh_GL => null()
+     !> The original space used in the simulation
+     type(space_t), pointer :: Xh_GLL => null()
+     real(kind=rp), pointer, contiguous :: temp(:) => null()
+     real(kind=rp), pointer, contiguous :: tbf(:) => null()
+     !> Temporary arrays
+     real(kind=rp), pointer, contiguous :: tx(:) => null()
+     real(kind=rp), pointer, contiguous :: ty(:) => null()
+     real(kind=rp), pointer, contiguous :: tz(:) => null()
+     real(kind=rp), pointer, contiguous :: vr(:) => null()
+     real(kind=rp), pointer, contiguous :: vs(:) => null()
+     real(kind=rp), pointer, contiguous :: vt(:) => null()
      !> Device pointer for `temp`
      type(c_ptr) :: temp_d = C_NULL_PTR
      !> Device pointer for `tbf`
@@ -108,18 +153,100 @@ contains
     class(adv_dealias_t), target, intent(inout) :: this
     integer, intent(in) :: lxd
     type(coef_t), intent(inout), target :: coef
-    integer :: nel, n_GL, n
 
-    call this%Xh_GL%init(GL, lxd, lxd, lxd)
+    call this%free()
+
+    allocate(this%gl)
+    call this%gl%init(lxd, coef)
+
     this%Xh_GLL => coef%Xh
     this%coef_GLL => coef
-    call this%GLL_to_GL%init(this%Xh_GL, this%Xh_GLL)
+    call adv_dealias_point_to_gl(this)
+
+  end subroutine init_dealias
+
+  !> Point the members of an advection operator into its GL data.
+  subroutine adv_dealias_point_to_gl(this)
+    class(adv_dealias_t), intent(inout) :: this
+
+    this%Xh_GL => this%gl%Xh_GL
+    this%GLL_to_GL => this%gl%GLL_to_GL
+    this%coef_GL => this%gl%coef_GL
+
+    ! The work arrays only exist on backends operating on whole meshes
+    if (allocated(this%gl%temp)) then
+       this%temp => this%gl%temp
+       this%tbf => this%gl%tbf
+       this%tx => this%gl%tx
+       this%ty => this%gl%ty
+       this%tz => this%gl%tz
+       this%vr => this%gl%vr
+       this%vs => this%gl%vs
+       this%vt => this%gl%vt
+    end if
+
+    this%temp_d = this%gl%temp_d
+    this%tbf_d = this%gl%tbf_d
+    this%tx_d = this%gl%tx_d
+    this%ty_d = this%gl%ty_d
+    this%tz_d = this%gl%tz_d
+    this%vr_d = this%gl%vr_d
+    this%vs_d = this%gl%vs_d
+    this%vt_d = this%gl%vt_d
+
+  end subroutine adv_dealias_point_to_gl
+
+  !> Destructor
+  subroutine free_dealias(this)
+    class(adv_dealias_t), intent(inout) :: this
+
+    if (associated(this%gl)) then
+       call this%gl%free()
+       deallocate(this%gl)
+    end if
+
+    nullify(this%Xh_GL)
+    nullify(this%GLL_to_GL)
+    nullify(this%coef_GL)
+    nullify(this%temp)
+    nullify(this%tbf)
+    nullify(this%tx)
+    nullify(this%ty)
+    nullify(this%tz)
+    nullify(this%vr)
+    nullify(this%vs)
+    nullify(this%vt)
+
+    this%temp_d = C_NULL_PTR
+    this%tbf_d = C_NULL_PTR
+    this%tx_d = C_NULL_PTR
+    this%ty_d = C_NULL_PTR
+    this%tz_d = C_NULL_PTR
+    this%vr_d = C_NULL_PTR
+    this%vs_d = C_NULL_PTR
+    this%vt_d = C_NULL_PTR
+
+    nullify(this%Xh_GLL)
+    nullify(this%coef_GLL)
+
+  end subroutine free_dealias
+
+  !> Constructor for the GL data
+  !! @param lxd The polynomial order of the space used in the dealiasing.
+  !! @param coef The coefficients of the (space, mesh) pair.
+  subroutine adv_dealias_gl_init(this, lxd, coef)
+    class(adv_dealias_gl_t), target, intent(inout) :: this
+    integer, intent(in) :: lxd
+    type(coef_t), intent(inout), target :: coef
+    integer :: nel, n_GL
+
+    call this%Xh_GL%init(GL, lxd, lxd, lxd)
+    call this%GLL_to_GL%init(this%Xh_GL, coef%Xh)
 
     call this%coef_GL%init(this%Xh_GL, coef%msh)
 
     nel = coef%msh%nelv
     n_GL = nel*this%Xh_GL%lxyz
-    n = nel*coef%Xh%lxyz
     call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
@@ -153,11 +280,11 @@ contains
        call device_map(this%vt, this%vt_d, n_GL)
     end if
 
-  end subroutine init_dealias
+  end subroutine adv_dealias_gl_init
 
-  !> Destructor
-  subroutine free_dealias(this)
-    class(adv_dealias_t), intent(inout) :: this
+  !> Destructor for the GL data
+  subroutine adv_dealias_gl_free(this)
+    class(adv_dealias_gl_t), intent(inout) :: this
 
     if (allocated(this%temp)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -213,10 +340,7 @@ contains
     call this%GLL_to_GL%free()
     call this%Xh_GL%free()
 
-    nullify(this%Xh_GLL)
-    nullify(this%coef_GLL)
-
-  end subroutine free_dealias
+  end subroutine adv_dealias_gl_free
 
 
   !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
