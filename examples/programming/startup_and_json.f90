@@ -40,11 +40,12 @@ contains
   ! Neko. Based on the inerface defined in user_intf.f90, we can register our
   ! user-defined implementations of the various routines. You do this by
   ! assigning procedure pointers to subroutines in the user module. Here, we
-  ! register only the startup routine.
+  ! register the startup and finalize routines.
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
 
     user%startup => startup
+    user%finalize => finalize
 
   end subroutine user_setup
 
@@ -112,6 +113,14 @@ contains
     case_params = params
 
   end subroutine startup
+
+  ! The copy of the parameters is ours, so we destroy it at the end of the run.
+  subroutine finalize(time)
+    type(time_state_t), intent(in) :: time
+
+    call case_params%destroy()
+
+  end subroutine finalize
 
 
 end module user

@@ -210,6 +210,8 @@ int tune_set_convect_rst(void *cr, void *cs, void *ct,
           (retval > 1 ? "KSTEP" : "1D"));
   log_message(neko_log_buf);
   log_end_section();
+  cudaEventDestroy(start);
+  cudaEventDestroy(stop);
   return retval;
 }
 

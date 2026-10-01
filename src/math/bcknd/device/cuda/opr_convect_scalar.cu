@@ -310,5 +310,7 @@ int tune_convect_scalar(void *du, void *u,
   }
   log_message(neko_log_buf);
   log_end_section();
+  cudaEventDestroy(start);
+  cudaEventDestroy(stop);
   return retval;
 }

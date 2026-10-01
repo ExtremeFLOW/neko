@@ -462,5 +462,7 @@ int tune_opgrad(void *ux, void *uy, void *uz, void *u,
   }
   log_message(neko_log_buf);
   log_end_section();
+  cudaEventDestroy(start);
+  cudaEventDestroy(stop);
   return retval;
 }

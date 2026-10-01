@@ -146,6 +146,19 @@ program average_field_in_space
      end if
   end do
   if (pe_rank .eq. 0) write(*,*) 'Done'
+  call avg_matrix%free()
+  call output_data%free()
+  call map_1d%free()
+  call map_2d%free()
+  call coef%free()
+  call gs_h%free()
+  call dof%free()
+  call Xh%free()
+  call field_data%free()
+  call msh%free()
+  call output_file%free()
+  call field_file%free()
+  call mesh_file%free()
   call neko_finalize
 
 end program average_field_in_space

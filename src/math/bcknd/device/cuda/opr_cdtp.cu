@@ -457,5 +457,7 @@ int tune_cdtp(void *dtx, void *x,
   }
   log_message(neko_log_buf);
   log_end_section();
+  cudaEventDestroy(start);
+  cudaEventDestroy(stop);
   return retval;
 }

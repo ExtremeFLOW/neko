@@ -320,6 +320,7 @@ void opencl_rzero(void *a, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueFillBuffer(cmd_queue, a, &zero, sizeof(real), 0,
                                (*n) * sizeof(real), 0, NULL, &wait_kern));
   CL_CHECK(clWaitForEvents(1, &wait_kern));
+  CL_CHECK(clReleaseEvent(wait_kern));
 }
 
 /** Fortran wrapper for rone
@@ -332,6 +333,7 @@ void opencl_rone(void *a, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueFillBuffer(cmd_queue, a, &one, sizeof(real), 0,
                                (*n) * sizeof(real), 0, NULL, &wait_kern));
   CL_CHECK(clWaitForEvents(1, &wait_kern));
+  CL_CHECK(clReleaseEvent(wait_kern));
 }
 
 /** Fortran wrapper for cmult

@@ -198,6 +198,27 @@ program calc_lift_from_field
      end if
   end do
 
+  call drag_torq%free()
+  call s23%free()
+  call s13%free()
+  call s12%free()
+  call s33%free()
+  call s22%free()
+  call s11%free()
+  call p%free()
+  call w%free()
+  call v%free()
+  call u%free()
+  call map_1d%free()
+  call coef%free()
+  call gs_h%free()
+  call dof%free()
+  call Xh%free()
+  call field_data%free()
+  call msh%free()
+  call output_file%free()
+  call field_file%free()
+  call mesh_file%free()
   call neko_finalize
 
 end program calc_lift_from_field

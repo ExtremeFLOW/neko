@@ -49,7 +49,7 @@
 
 #include "ax_helm_kernel.cl.h"
 
-int *autotune_ax_helm = NULL;
+static int autotune_ax_helm[13] = {0};
 
 /**
  * Fortran wrapper for device OpenCL Ax
@@ -73,11 +73,6 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
   local_kstep[1] = (*lx);
   global_kstep[0] = (*nelv) * (*lx);
   global_kstep[1] = (*lx);
-
-  if (autotune_ax_helm == NULL) {
-    autotune_ax_helm = malloc(13 * sizeof(int));
-    memset(autotune_ax_helm, 0, 13 * sizeof(int));
-  }
 
 #define STR(X) #X
 #define CASE_1D(LX, QUEUE, EVENT)                                               \
@@ -167,6 +162,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
           CL_CHECK(clEnqueueMarker(glb_cmd_queue, &sync_event));                \
           CL_CHECK(clEnqueueBarrier(prf_cmd_queue));                            \
           CL_CHECK(clEnqueueWaitForEvents(prf_cmd_queue, 1, &sync_event));      \
+          CL_CHECK(clReleaseEvent(sync_event));                                 \
                                                                                 \
           double elapsed1 = 0.0;                                                \
           for(int i = 0; i < 100; i++) {                                        \
@@ -179,6 +175,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
                                              CL_PROFILING_COMMAND_END,          \
                                              sizeof(cl_ulong), &end, NULL));    \
             elapsed1 += (end - start)*1.0e-6;                                   \
+            CL_CHECK(clReleaseEvent(perf_event));                               \
           }                                                                     \
                                                                                 \
           double elapsed2 = 0.0;                                                \
@@ -192,6 +189,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
                                              CL_PROFILING_COMMAND_END,          \
                                              sizeof(cl_ulong), &end, NULL));    \
             elapsed2 += (end - start)*1.0e-6;                                   \
+            CL_CHECK(clReleaseEvent(perf_event));                               \
           }                                                                     \
                                                                                 \
           CL_CHECK(clFinish(prf_cmd_queue));                                    \
@@ -203,6 +201,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
           log_message(neko_log_buf);                                            \
           clEnqueueBarrier(glb_cmd_queue);                                      \
           clEnqueueWaitForEvents(glb_cmd_queue, 1, &sync_event) ;               \
+          CL_CHECK(clReleaseEvent(sync_event));                                 \
         }                                                                       \
         log_end_section();                                                      \
       } else if (autotune_ax_helm[LX] == 1 ) {                                  \

@@ -130,6 +130,10 @@ contains
        w%x(i,1,1,1) = uvw(3)
     end do
 
+    call map_1d%free()
+    call coef%free()
+    call gs_h%free()
+
   end subroutine initial_conditions
 
   function in_array(y, y_list) result(is_in)

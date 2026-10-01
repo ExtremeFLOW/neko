@@ -123,6 +123,9 @@ module device
   !> Table of host to device address mappings
   type(htable_cptr_t) :: device_addrtbl
 
+  !> Whether the device layer has been initialised
+  logical :: device_initialized = .false.
+
   public :: device_memcpy, device_map, device_unmap, device_associate, &
        device_associated, device_deassociate, device_get_ptr, device_sync, &
        device_free, device_sync_stream, device_stream_create, &
@@ -135,6 +138,10 @@ module device
 contains
 
   subroutine device_init
+
+    ! A second call would recreate the queues and wipe the address table
+    if (device_initialized) return
+
 #if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
     defined(HAVE_OPENCL) || defined(HAVE_METAL)
     call device_addrtbl%init(64)
@@ -157,9 +164,15 @@ contains
           call neko_error('Only one device is supported per MPI rank')
        end if
     end if
+
+    device_initialized = .true.
   end subroutine device_init
 
   subroutine device_finalize
+
+    if (.not. device_initialized) return
+    device_initialized = .false.
+
 #if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
     defined(HAVE_OPENCL) || defined(HAVE_METAL)
     call device_addrtbl%free()
@@ -1630,6 +1643,11 @@ contains
        call neko_error('Error during event destroy')
     end if
 #elif HAVE_OPENCL
+    if (c_associated(event)) then
+       if (clReleaseEvent(event) .ne. CL_SUCCESS) then
+          call neko_error('Error during event destroy')
+       end if
+    end if
     event = C_NULL_PTR
 #elif HAVE_METAL
     if (metalEventDestroy(event) .ne. metalSuccess) then

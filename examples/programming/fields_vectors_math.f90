@@ -121,13 +121,14 @@ contains
   end subroutine compute
 
   ! If you declare objects at module scope that need to be destroyed, you can
-  ! do it here. In our case it is the my_field field.
+  ! do it here. In our case these are the my_field field and the vec vector.
   subroutine finalize(time)
     type(time_state_t), intent(in) :: time
 
     ! All types the allocate memory in Neko have a free method, which is a
     ! destructor.
     call my_field%free()
+    call vec%free()
 
   end subroutine finalize
 

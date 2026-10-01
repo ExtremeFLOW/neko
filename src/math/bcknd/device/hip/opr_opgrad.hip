@@ -402,5 +402,7 @@ int tune_opgrad(void *ux, void *uy, void *uz, void *u,
   }
   log_message(neko_log_buf);
   log_end_section();
+  HIP_CHECK(hipEventDestroy(start));
+  HIP_CHECK(hipEventDestroy(stop));
   return retval;
 }

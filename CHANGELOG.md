@@ -2,6 +2,12 @@
 
 ## Develop
 
+- Fixed leaks of OpenCL events in `rzero`, `rone` and the operator
+  autotuning, of OpenCL programs at finalize, of the CUDA and HIP autotuning
+  events, and of the RCCL communicator.
+- Fixed a second call to `device_init` recreating the device queues and
+  wiping the host to device address table.
+- Fixed objects not being freed in several examples and contrib programs.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the

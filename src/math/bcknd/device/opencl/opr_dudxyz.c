@@ -49,7 +49,7 @@
 
 #include "dudxyz_kernel.cl.h"
 
-int *autotune_dudxyz = NULL;
+static int autotune_dudxyz[17] = {0};
 
 /**
  * Fortran wrapper for device OpenCL derivative kernels
@@ -72,11 +72,6 @@ void opencl_dudxyz(void *du, void *u,
   local_kstep[1] = (*lx);
   global_kstep[0] = (*nel) * (*lx);
   global_kstep[1] = (*lx);
-
-  if (autotune_dudxyz == NULL) {
-    autotune_dudxyz = malloc(17 * sizeof(int));
-    memset(autotune_dudxyz, 0, 17 * sizeof(int));
-  }
 
 #define STR(X) #X
 #define CASE_1D(LX, QUEUE, EVENT)                                               \
@@ -155,6 +150,7 @@ void opencl_dudxyz(void *du, void *u,
           CL_CHECK(clEnqueueMarker(glb_cmd_queue, &sync_event));                \
           CL_CHECK(clEnqueueBarrier(prf_cmd_queue));                            \
           CL_CHECK(clEnqueueWaitForEvents(prf_cmd_queue, 1, &sync_event));      \
+          CL_CHECK(clReleaseEvent(sync_event));                                 \
                                                                                 \
           double elapsed1 = 0.0;                                                \
           for(int i = 0; i < 100; i++) {                                        \
@@ -167,6 +163,7 @@ void opencl_dudxyz(void *du, void *u,
                                              CL_PROFILING_COMMAND_END,          \
                                              sizeof(cl_ulong), &end, NULL));    \
             elapsed1 += (end - start)*1.0e-6;                                   \
+            CL_CHECK(clReleaseEvent(perf_event));                               \
           }                                                                     \
                                                                                 \
           double elapsed2 = 0.0;                                                \
@@ -180,6 +177,7 @@ void opencl_dudxyz(void *du, void *u,
                                              CL_PROFILING_COMMAND_END,          \
                                              sizeof(cl_ulong), &end, NULL));    \
             elapsed2 += (end - start)*1.0e-6;                                   \
+            CL_CHECK(clReleaseEvent(perf_event));                               \
           }                                                                     \
                                                                                 \
           CL_CHECK(clFinish(prf_cmd_queue));                                    \
@@ -191,6 +189,7 @@ void opencl_dudxyz(void *du, void *u,
           log_message(neko_log_buf);                                            \
           clEnqueueBarrier(glb_cmd_queue);                                      \
           clEnqueueWaitForEvents(glb_cmd_queue, 1, &sync_event) ;               \
+          CL_CHECK(clReleaseEvent(sync_event));                                 \
         }                                                                       \
         log_end_section();                                                      \
       } else if (autotune_dudxyz[LX] == 1 ) {                                   \

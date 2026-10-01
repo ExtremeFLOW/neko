@@ -121,6 +121,10 @@ program map_to_equidistant_1d
 
   if (pe_rank .eq. 0) write(*,*) 'Done'
 
+  call Xh%free()
+  call field_data%free()
+  call output_file%free()
+  call field_file%free()
   call neko_finalize
 
 end program map_to_equidistant_1d

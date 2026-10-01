@@ -487,5 +487,7 @@ int tune_conv1(void *du, void *u,
   }
   log_message(neko_log_buf);
   log_end_section();
+  cudaEventDestroy(start);
+  cudaEventDestroy(stop);
   return retval;
 }
