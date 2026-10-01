@@ -13,6 +13,7 @@ test-suite.log
 !device_math/device_math_test
 !gather_scatter/gather_scatter_test
 !jobctrl/jobctrl_test
+!adv_dealias/adv_dealias_test
 !bc/bc_test
 !bc_projector/bc_projector_test
 !matrix/matrix_test
@@ -36,6 +37,7 @@ test-suite.log
 **.log
 **.trs
 
+adv_dealias/adv_dealias_suite
 bc/bc_test
 bc/bc_suite
 case_file_utils/case_file_utils_test

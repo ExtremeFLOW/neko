@@ -1,0 +1,279 @@
+module test_adv_dealias
+  use pfunit
+  use mesh_fixture, only : two_adjacent_unit_hex_mesh, single_unit_hex_mesh
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
+  use dofmap, only : dofmap_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t
+  use field, only : field_t
+  use adv_dealias, only : adv_dealias_t
+  use num_types, only : rp
+  use device, only : device_init, device_finalize, device_memcpy, &
+       HOST_TO_DEVICE, DEVICE_TO_HOST
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use neko_mpi_types, only : neko_mpi_types_init
+  use mpi_f08, only : MPI_Comm_dup
+  implicit none
+
+  integer, parameter :: lx_test = 4
+  integer, parameter :: lxd_test = 6
+
+  @TestCase
+  type, extends(MPITestCase) :: adv_dealias_test_case
+     type(mesh_t) :: msh
+     type(space_t) :: Xh
+     type(dofmap_t) :: dof
+     type(gs_t) :: gs
+     type(coef_t) :: coef
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type adv_dealias_test_case
+
+contains
+
+  subroutine setUp(this)
+    class(adv_dealias_test_case), intent(inout) :: this
+    integer :: ierr
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call neko_mpi_types_init()
+
+    call two_adjacent_unit_hex_mesh(this%msh)
+    call this%Xh%init(GLL, lx_test, lx_test, lx_test)
+    call this%dof%init(this%msh, this%Xh)
+    call this%gs%init(this%dof)
+    call this%coef%init(this%gs)
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(adv_dealias_test_case), intent(inout) :: this
+
+    call this%coef%free()
+    call this%gs%free()
+    call this%dof%free()
+    call this%Xh%free()
+    call this%msh%free()
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  !> Fill a field with a smooth function of the coordinates.
+  subroutine fill_field(f, dof, kx, ky, kz)
+    type(field_t), intent(inout) :: f
+    type(dofmap_t), intent(in) :: dof
+    real(kind=rp), intent(in) :: kx, ky, kz
+    integer :: i, n
+
+    n = dof%size()
+    do i = 1, n
+       f%x(i,1,1,1) = sin(kx * dof%x%x(i,1,1,1)) * &
+            cos(ky * dof%y%x(i,1,1,1)) + kz * dof%z%x(i,1,1,1)
+    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(f%x, f%x_d, n, HOST_TO_DEVICE, sync = .true.)
+    end if
+  end subroutine fill_field
+
+  !> Compute the fluid advection term of a smooth velocity field.
+  subroutine fluid_term(adv, u, v, w, fx, fy, fz, this)
+    type(adv_dealias_t), intent(inout) :: adv
+    type(field_t), intent(inout) :: u, v, w, fx, fy, fz
+    class(adv_dealias_test_case), intent(inout) :: this
+    integer :: n
+
+    n = this%dof%size()
+    call fill_field(u, this%dof, 1.0_rp, 2.0_rp, 0.5_rp)
+    call fill_field(v, this%dof, 2.0_rp, 1.0_rp, -0.5_rp)
+    call fill_field(w, this%dof, 3.0_rp, 0.5_rp, 0.25_rp)
+    call fill_field(fx, this%dof, 0.0_rp, 0.0_rp, 0.0_rp)
+    call fill_field(fy, this%dof, 0.0_rp, 0.0_rp, 0.0_rp)
+    call fill_field(fz, this%dof, 0.0_rp, 0.0_rp, 0.0_rp)
+
+    call adv%compute(u, v, w, fx, fy, fz, this%Xh, this%coef, n)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(fx%x, fx%x_d, n, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(fy%x, fy%x_d, n, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(fz%x, fz%x_d, n, DEVICE_TO_HOST, sync = .true.)
+    end if
+  end subroutine fluid_term
+
+  @test(npes=[1])
+  subroutine test_adv_dealias_shares_gl_data(this)
+    class(adv_dealias_test_case), intent(inout) :: this
+    type(adv_dealias_t) :: a, b
+
+    call a%init(lxd_test, this%coef)
+    call b%init(lxd_test, this%coef)
+
+    @assertTrue(associated(a%gl, b%gl))
+    @assertTrue(associated(a%coef_GL, b%coef_GL))
+    @assertTrue(associated(a%Xh_GL, b%Xh_GL))
+    @assertTrue(associated(a%GLL_to_GL, b%GLL_to_GL))
+    @assertEqual(2, a%gl%n_users)
+    @assertTrue(associated(a%tx) .eqv. associated(b%tx))
+    if (associated(a%tx)) then
+       @assertTrue(associated(a%tx, b%tx))
+       @assertTrue(associated(a%temp, b%temp))
+    end if
+
+    call a%free()
+    call b%free()
+  end subroutine test_adv_dealias_shares_gl_data
+
+  @test(npes=[1])
+  subroutine test_adv_dealias_lxd_not_shared(this)
+    class(adv_dealias_test_case), intent(inout) :: this
+    type(adv_dealias_t) :: a, b
+
+    call a%init(lxd_test, this%coef)
+    call b%init(lxd_test + 1, this%coef)
+
+    @assertFalse(associated(a%gl, b%gl))
+    @assertEqual(1, a%gl%n_users)
+    @assertEqual(1, b%gl%n_users)
+    @assertEqual(lxd_test, a%Xh_GL%lx)
+    @assertEqual(lxd_test + 1, b%Xh_GL%lx)
+
+    call a%free()
+    call b%free()
+  end subroutine test_adv_dealias_lxd_not_shared
+
+  @test(npes=[1])
+  subroutine test_adv_dealias_free_keeps_shared(this)
+    class(adv_dealias_test_case), intent(inout) :: this
+    type(adv_dealias_t) :: a, b
+    real(kind=rp), allocatable :: drdx(:,:,:,:)
+
+    call a%init(lxd_test, this%coef)
+    call b%init(lxd_test, this%coef)
+    drdx = b%coef_GL%drdx
+
+    call a%free()
+
+    @assertFalse(associated(a%gl))
+    @assertFalse(associated(a%coef_GL))
+    @assertTrue(associated(b%gl))
+    @assertEqual(1, b%gl%n_users)
+    @assertEqual(drdx, b%coef_GL%drdx)
+
+    call b%free()
+    @assertFalse(associated(b%gl))
+  end subroutine test_adv_dealias_free_keeps_shared
+
+  @test(npes=[1])
+  subroutine test_adv_dealias_new_data_after_free(this)
+    class(adv_dealias_test_case), intent(inout) :: this
+    type(adv_dealias_t) :: a, b
+
+    call a%init(lxd_test, this%coef)
+    call a%free()
+    call b%init(lxd_test, this%coef)
+
+    @assertEqual(1, b%gl%n_users)
+
+    call b%free()
+  end subroutine test_adv_dealias_new_data_after_free
+
+  !> The fluid term must not depend on whether the GL data is shared, nor on
+  !! another operator having used the shared work arrays in between.
+  @test(npes=[1])
+  subroutine test_adv_dealias_shared_compute_same(this)
+    class(adv_dealias_test_case), intent(inout) :: this
+    type(adv_dealias_t) :: a, b
+    type(field_t) :: u, v, w, fx, fy, fz, s, fs
+    real(kind=rp), allocatable :: rx(:,:,:,:), ry(:,:,:,:), rz(:,:,:,:)
+    integer :: n
+
+    n = this%dof%size()
+    call u%init(this%dof, 'u')
+    call v%init(this%dof, 'v')
+    call w%init(this%dof, 'w')
+    call fx%init(this%dof, 'fx')
+    call fy%init(this%dof, 'fy')
+    call fz%init(this%dof, 'fz')
+    call s%init(this%dof, 's')
+    call fs%init(this%dof, 'fs')
+
+    ! Reference with the data not shared
+    call a%init(lxd_test, this%coef)
+    call fluid_term(a, u, v, w, fx, fy, fz, this)
+    rx = fx%x
+    ry = fy%x
+    rz = fz%x
+
+    ! Share it, let the second operator use the work arrays, and redo
+    call b%init(lxd_test, this%coef)
+    call fill_field(s, this%dof, 4.0_rp, 3.0_rp, 1.0_rp)
+    call fill_field(fs, this%dof, 0.0_rp, 0.0_rp, 0.0_rp)
+    call b%compute_scalar(u, v, w, s, fs, this%Xh, this%coef, n)
+    call fluid_term(a, u, v, w, fx, fy, fz, this)
+
+    @assertEqual(rx, fx%x)
+    @assertEqual(ry, fy%x)
+    @assertEqual(rz, fz%x)
+
+    ! And through the other operator, after the first one is gone
+    call a%free()
+    call fluid_term(b, u, v, w, fx, fy, fz, this)
+
+    @assertEqual(rx, fx%x)
+    @assertEqual(ry, fy%x)
+    @assertEqual(rz, fz%x)
+
+    call b%free()
+    call u%free()
+    call v%free()
+    call w%free()
+    call fx%free()
+    call fy%free()
+    call fz%free()
+    call s%free()
+    call fs%free()
+  end subroutine test_adv_dealias_shared_compute_same
+
+  @test(npes=[1])
+  subroutine test_adv_dealias_recompute_foreign(this)
+    class(adv_dealias_test_case), intent(inout) :: this
+    type(adv_dealias_t) :: a
+    type(mesh_t) :: msh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+
+    call single_unit_hex_mesh(msh)
+    call Xh%init(GLL, lx_test, lx_test, lx_test)
+    call dof%init(msh, Xh)
+    call gs%init(dof)
+    call coef%init(gs)
+
+    call a%init(lxd_test, this%coef)
+
+    ! Its own coefficients are accepted
+    call a%recompute_metrics(this%coef, .true.)
+
+    ! Coefficients on another dofmap are not
+    call a%recompute_metrics(coef, .true.)
+    @assertExceptionRaised()
+
+    call a%free()
+    call coef%free()
+    call gs%free()
+    call dof%free()
+    call Xh%free()
+    call msh%free()
+  end subroutine test_adv_dealias_recompute_foreign
+
+end module test_adv_dealias

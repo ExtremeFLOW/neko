@@ -1,0 +1,54 @@
+USEMPI=YES
+ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
+include @PFUNIT_DIR@/include/PFUNIT.mk
+endif
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) @NEKO_PKG_FCFLAGS@ -I@top_builddir@/src
+FC = @FC@
+
+# Depend on the library so the test objects follow any change to Neko.
+NEKO_LIB := $(wildcard @top_builddir@/src/libneko.la)
+
+%.o : %.F90 $(NEKO_LIB)
+	$(FC) -c $(FFLAGS) $<
+
+mesh_fixture.o : ../fixtures/mesh_fixture.f90
+	$(FC) -c $(FFLAGS) -o mesh_fixture.o $<
+mesh_fixture.mod : mesh_fixture.o
+
+error_redirection.o : ../fixtures/error_redirection.f90 $(NEKO_LIB)
+	$(FC) -c $(FFLAGS) -o error_redirection.o $<
+error_redirection.mod : error_redirection.o
+
+# Regenerate this Makefile from Makefile.in via config.status
+# whenever it changes.
+SUBDIR := $(patsubst $(abspath @top_builddir@)/%,%,$(CURDIR))
+
+Makefile: Makefile.in @top_builddir@/config.status
+	cd @top_builddir@ && $(SHELL) ./config.status $(SUBDIR)/Makefile
+
+
+check: adv_dealias_suite
+
+
+adv_dealias_suite_TESTS := test_adv_dealias.pf
+adv_dealias_suite_OTHER_LIBRARIES = mesh_fixture.o error_redirection.o \
+	-L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
+# Redirect errors and warnings to pFUnit exceptions before the tests run.
+adv_dealias_suite_EXTRA_USE := error_redirection
+adv_dealias_suite_EXTRA_INITIALIZE := redirect_errors
+$(eval $(call make_pfunit_test,adv_dealias_suite))
+adv_dealias_suite.inc: Makefile
+adv_dealias_suite_driver.o: error_redirection.o
+test_adv_dealias.o: mesh_fixture.o error_redirection.o
+adv_dealias_suite: mesh_fixture.o error_redirection.o
+
+distclean:
+clean:
+	$(RM) *.o *.mod *.a  *.inc *.F90 adv_dealias_suite
+
+
+
+all:
+html:
+install:
+distdir:

@@ -16,6 +16,7 @@ SUBDIRS = tuple\
 	  mean_field\
 	  gather_scatter\
 	  ax\
+	  adv_dealias\
 	  krylov\
 	  bc\
 	  signal\
@@ -71,6 +72,7 @@ TESTS = device/device_test\
 	mean_field/mean_field_test\
 	gather_scatter/gather_scatter_test\
 	ax/ax_test\
+	adv_dealias/adv_dealias_test\
 	krylov/krylov_test\
 	bc/bc_test\
 	signal/signal_test\
@@ -110,6 +112,8 @@ EXTRA_DIST = \
 	quad/test_quad.pf\
 	gather_scatter/test_gather_scatter_parallel.pf\
 	ax/test_ax_factory.pf\
+	adv_dealias/test_adv_dealias.pf\
+	adv_dealias/adv_dealias_test\
 	krylov/test_krylov.pf\
 	hex/test_hex.pf\
 	tet/test_tet.pf\
