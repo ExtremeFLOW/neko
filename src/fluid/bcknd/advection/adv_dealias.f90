@@ -786,6 +786,16 @@ contains
 
     if (.not. moving_boundary) return
 
+    ! The GL metrics interpolate the coefficients the operator was built on.
+    ! Rebuilding them from coefficients on another dofmap or space would
+    ! make them inconsistent with the GL space and with any other operator
+    ! using the same GL data.
+    if (.not. (associated(this%coef_GLL%dof, coef%dof) .and. &
+         associated(this%coef_GLL%Xh, coef%Xh))) then
+       call neko_error('Dealiased advection metrics can only be ' // &
+            'recomputed from the coefficients the operator was built on')
+    end if
+
     nel = coef%msh%nelv
     call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
