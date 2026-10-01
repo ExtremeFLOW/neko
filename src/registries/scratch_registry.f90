@@ -591,7 +591,7 @@ contains
 
        ! Check compatibility of the object size.
        scratch_entry => this%entries(index)%get_matrix()
-       if (any(scratch_entry%get_dims() .ne. [nrows, ncols])) then
+       if (all(scratch_entry%get_dims() .eq. [nrows, ncols])) then
           this%inuse(index) = .true.
           exit
        end if
@@ -660,7 +660,7 @@ contains
 
        ! Check compatibility of the object size.
        scratch_entry => this%entries(index)%get_tensor3()
-       if (any(scratch_entry%get_dims() .ne. [n, m, l])) then
+       if (all(scratch_entry%get_dims() .eq. [n, m, l])) then
           this%inuse(index) = .true.
           exit
        end if
@@ -736,7 +736,7 @@ contains
 
        ! Check compatibility of the object size.
        scratch_entry => this%entries(index)%get_tensor4()
-       if (any(scratch_entry%get_dims() .ne. [n, m, l, k])) then
+       if (all(scratch_entry%get_dims() .eq. [n, m, l, k])) then
           this%inuse(index) = .true.
           exit
        end if
