@@ -681,7 +681,7 @@ contains
 
     ! Assign the pointer to the entry and clear the values if requested.
     if (clear) then
-       if (NEKO_BCKND_DEVICE) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_rzero(scratch_entry%x_d, scratch_entry%size())
        else
           call rzero(scratch_entry%x, scratch_entry%size())
@@ -757,7 +757,7 @@ contains
 
     ! Assign the pointer to the entry and clear the values if requested.
     if (clear) then
-       if (NEKO_BCKND_DEVICE) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_rzero(scratch_entry%x_d, scratch_entry%size())
        else
           call rzero(scratch_entry%x, scratch_entry%size())
