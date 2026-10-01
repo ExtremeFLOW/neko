@@ -289,6 +289,7 @@ contains
     integer :: i
 
     call this%free_base()
+    call this%output%free()
 
     if (allocated(this%mean_fields)) then
        do i = 1, this%n_avg_fields
