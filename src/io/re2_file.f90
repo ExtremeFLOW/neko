@@ -228,6 +228,7 @@ contains
     character(len=5), parameter :: RE2_HDR_VER = '#v001'
     character(len=54), parameter :: RE2_HDR_STR = 'RE2 exported by NEKO'
     integer :: i, j, ierr, nelgv
+    integer :: file_unit
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
@@ -254,10 +255,11 @@ contains
          this%get_fname())
 
     if (pe_rank .eq. 0) then
-       open(unit=9,file=trim(this%get_fname()), status='new', iostat=ierr)
-       write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
+       open(newunit = file_unit, file = trim(this%get_fname()), &
+            status = 'new', iostat = ierr)
+       write(file_unit, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
             nelgv, RE2_HDR_STR
-       close(9)
+       close(file_unit)
     end if
 
     call MPI_Barrier(NEKO_COMM, ierr)
