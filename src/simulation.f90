@@ -85,10 +85,26 @@ contains
        write(log_buf, '(A, E15.7)') 'CFL :  ', dt_controller%cfl_trg
     end if
     call neko_log%message(log_buf)
+    if (dt_controller%exact_output_time) then
+       if (dt_controller%is_variable_dt) then
+          call neko_log%message('dt is fitted to the output times')
+       else
+          call neko_log%message('The output times are checked against dt')
+       end if
+    end if
 
     ! Execute outputs and user-init before time loop
     call neko_log%section('Preprocessing')
     call C%user%initialize(C%time)
+
+    ! With a variable time step, set the first step before the initial
+    ! output. A scheduled time is counted as reached within a fraction of the
+    ! step, and the placeholder the run starts from is a whole time unit.
+    ! The first step of the loop arrives at the same step from this one.
+    if (dt_controller%is_variable_dt) then
+       C%time%dt = dt_controller%first_dt(C%time, &
+            C%fluid%compute_cfl(C%time%dt))
+    end if
     call C%output_controller%execute(C%time)
 
     call neko_log%end_section()
@@ -123,7 +139,7 @@ contains
     type(time_step_controller_t), intent(inout) :: dt_controller
     real(kind=dp), optional, intent(in) :: tstep_loop_start_time
     real(kind=dp) :: start_time, end_time, tstep_start_time
-    real(kind=dp) :: cfl
+    real(kind=dp) :: cfl, dt_previous, min_interval
     character(len=LOG_SIZE) :: log_buf
 
     ! Setup the time step, and start time
@@ -132,9 +148,21 @@ contains
     tstep_start_time = start_time
 
     ! Compute the next time step size
+    dt_previous = C%time%dt
     cfl = C%fluid%compute_cfl(C%time%dt)
     call dt_controller%set_dt(C%time, cfl)
-    if (dt_controller%is_variable_dt) cfl = C%fluid%compute_cfl(C%time%dt)
+
+    ! Shorten the step to land exactly on the next sampling or output time
+    if (dt_controller%exact_output_time) then
+       min_interval = dt_controller%landing_min_interval(C%time)
+       call dt_controller%land(C%time, &
+            min(C%output_controller%time_to_next(C%time, C%time%dt, &
+            min_interval), &
+            neko_simcomps%time_to_next(C%time, C%time%dt, min_interval)))
+    end if
+
+    ! The CFL number of the step about to be taken, for the log
+    if (C%time%dt .ne. dt_previous) cfl = C%fluid%compute_cfl(C%time%dt)
 
     ! Advance time step from t to t+dt and print the status
     call simulation_settime(C%time, C%fluid%ext_bdf)

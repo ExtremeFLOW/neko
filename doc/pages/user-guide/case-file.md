@@ -277,7 +277,7 @@ everywhere, typically because of a division by zero or the square root of a
 negative number, is also reported as an error, at setup if it does not depend on
 time and otherwise every time it is evaluated.
 
-### Time control
+### Time control {#case-file_time-control}
 The `time` object is used to define the time-stepping of the simulation,
 including the time-step size, the start and end time, and the variables related
 to the variable time-stepping algorithm. For the variable timestep, one can
@@ -299,6 +299,47 @@ smallest of `timestep` and the value calculated from the target CFL number.
 | `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                            | Positive real less than `1`       | `0.5`         |
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                   | Positive real less than `1`       | `0.2`         |
 | `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
+| `exact_output_time`        | Whether to fit the variable `dt` so that the sampling and output times are reached exactly   | `true` or `false`                 | `false`       |
+
+#### Landing exactly on the output times
+
+By default an output is written, and a statistic sampled, at the first time
+step that reaches the scheduled time, up to one step late. With
+`exact_output_time` the time step is fitted so that every time based schedule
+in the case (outputs, checkpoints and the controls of the simulation
+components, with `simulationtime` or `nsamples`) and `end_time` are reached
+exactly. It relies on `variable_timestep`, the switch that adjusts `dt` to the
+flow: with a fixed `dt` it only checks that the scheduled times are whole
+numbers of steps away and stops the run otherwise. Use `tsteps` to sample
+every so many steps instead. The option is experimental: check the times
+reported in the log, and the CFL number, when using it.
+
+The time up to the next scheduled time is divided into equal steps, as many as
+bring the step closest to the one giving the centre of the CFL band,
+`target_cfl * sqrt(1 - cfl_deviation_tolerance**2)`. At every step the fit is
+checked: the step is kept as long as it still divides the time up to the next
+scheduled time, and refitted otherwise, which happens at each scheduled time,
+whenever the CFL controller changes the step, and after a restart or when a
+schedule starts taking part. Every step stays within
+`min_dt_decrease_factor` and `max_dt_increase_factor` of the previous one,
+and within `min_timestep` and
+`max_timestep`, so the fit never changes `dt` more abruptly than the
+controller would; where one change is not enough the first step of an interval
+differs from the rest, so that the step moves in two stages.
+
+Limits:
+
+- An interval shorter than three times the step the controller aims at
+  (`1 / (max_dt_increase_factor**2 - 1)` steps in general) is not landed on
+  and executes at the first step past each scheduled time.
+- A scheduled time closer than half a step to the previous one is passed and
+  executed at the first step past it; one within half a step of `end_time`
+  is executed at `end_time`.
+- Scheduled times of several schedules that are only a few steps apart all
+  the time can hold `dt` below the CFL band. After 100 such steps the run
+  stops with an error: spread the schedules out, or use `tsteps` for the
+  dense one.
+- In an MPMD run the option must be set in all the coupled cases.
 
 ### Restarts and joblimit
 Restarts will restart the simulation from the exact state at a given time that

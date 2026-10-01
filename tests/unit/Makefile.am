@@ -39,6 +39,7 @@ SUBDIRS = tuple\
 	  time_scheme_controller\
 	  runge_kutta_scheme\
 	  time_based_controller\
+	  time_step_controller\
 	  json_utils\
 	  utils\
 	  expression\
@@ -92,6 +93,7 @@ TESTS = device/device_test\
 	time_scheme_controller/time_scheme_controller_test\
 	runge_kutta_scheme/runge_kutta_scheme_test\
 	time_based_controller/time_based_controller_test\
+	time_step_controller/time_step_controller_test\
 	json_utils/json_utils_test\
 	utils/read_duration_test\
 	expression/expression_test\
@@ -189,6 +191,7 @@ EXTRA_DIST = \
 	utils/test_read_duration.pf\
 	expression/test_expression.pf\
 	time_based_controller/test_time_based_controller.pf\
+	time_step_controller/test_time_step_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
 	bc_projector/bc_projector_test\
 	point_interpolation/point_interpolation_test\

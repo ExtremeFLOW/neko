@@ -2,6 +2,19 @@
 
 ## Develop
 
+- Added `case.time.exact_output_time`, which fits the variable time step so
+  that the sampling and output times of every time based schedule, and
+  `end_time`, are reached exactly. The step stays within the bounds of the
+  CFL controller and is refitted only at the scheduled times and when the
+  controller changes it. With a fixed step the option only checks the
+  schedules.
+- A variable time step run sets its first time step before the initial
+  output. The scheduled times used to be checked there against the
+  placeholder step of one time unit, so an output scheduled within a tenth of
+  its interval after the start was written at the start instead. The first
+  step itself is unchanged up to round-off.
+- An MPMD run whose coupled cases do not agree on `variable_timestep` stops
+  with an error at setup instead of hanging at the first time step.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,

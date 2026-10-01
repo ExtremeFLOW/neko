@@ -148,6 +148,10 @@ module time_based_controller
           time_based_controller_set_counter
      !> The time of the next scheduled execution.
      procedure, pass(this) :: next_time => time_based_controller_next_time
+     !> The time until the next scheduled execution the time step should
+     !! land on.
+     procedure, pass(this) :: time_to_next => &
+          time_based_controller_time_to_next
      !> The tolerance used when comparing times.
      procedure, pass(this) :: tolerance => time_based_controller_tolerance
   end type time_based_controller_t
@@ -311,7 +315,8 @@ contains
   !! repeating a scheduled one at the same step. Forcing does override a
   !! `never` control, which is how `output_at_end` writes an output that is
   !! otherwise never written.
-  function time_based_controller_check(this, time, force) result(check)
+  pure function time_based_controller_check(this, time, force) &
+       result(check)
     class(time_based_controller_t), intent(in) :: this
     type(time_state_t), intent(in) :: time
     logical, intent(in), optional :: force
@@ -504,5 +509,97 @@ contains
     end if
 
   end function time_based_controller_next_time
+
+  !> The time until the next scheduled execution that the time step should
+  !! land on, or `huge(0.0_dp)` if there is none.
+  !! @param time The current time state.
+  !! @param dt The time step the simulation is about to take, before it is
+  !! shortened to land on a scheduled time.
+  !! @details Used by the time step controller to shorten the time step, so
+  !! that the scheduled times are reached exactly rather than at the first
+  !! step past them. The result is measured in the direction of the
+  !! simulation, so it is positive also for a run backwards in time. There is
+  !! nothing to land on for
+  !! - the `tsteps` and `never` controls, which have no time based schedule;
+  !! - an interval shorter than the time step, which executes at every step
+  !!   already and must not shorten the step to the interval;
+  !! - a scheduled time after `end_time`, which never executes.
+  !!
+  !! An execution that is due at the current time already, which happens for
+  !! the components that do not execute before the time loop, is performed
+  !! at the coming step wherever it lands, so the time to land on is the
+  !! scheduled time after it, which would otherwise be passed by. When the
+  !! landing takes a single step the two are executed together, exactly at
+  !! the later one.
+  pure function time_based_controller_time_to_next(this, time, dt, &
+       min_interval) result(t_to_next)
+    class(time_based_controller_t), intent(in) :: this
+    type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: dt
+    real(kind=dp), intent(in), optional :: min_interval
+    real(kind=dp) :: t_to_next
+    type(time_state_t) :: time_reached
+    real(kind=dp) :: progress, t_due, t_next, t_end, shortest
+    integer(kind=i8) :: k
+    logical :: due_now
+
+    t_to_next = huge(0.0_dp)
+
+    if (this%never .or. this%nsteps .gt. 0) return
+    shortest = abs(dt)
+    if (present(min_interval)) shortest = max(min_interval, shortest)
+    if (this%time_interval .lt. shortest) return
+
+    ! Whether an execution is due at the current time, using the tolerance of
+    ! the check that was, or is about to be, made there: the one of the step
+    ! that reached the current time, which is the previous step, or of the
+    ! step about to be taken if that is shorter. The latter also excludes the
+    ! placeholder a variable time step run starts from.
+    time_reached = time
+    time_reached%dt = dt
+    if (abs(time%dtlag(1)) .gt. 0.0_dp .and. &
+         abs(time%dtlag(1)) .lt. abs(dt)) then
+       time_reached%dt = time%dtlag(1)
+    end if
+    due_now = this%check(time_reached)
+
+    progress = this%direction * (time%t - this%anchor_time)
+
+    ! The execution the controller is waiting for: the one at start_time,
+    ! or the next scheduled time.
+    k = this%first_index + this%next_index
+    if (this%start_pending) then
+       t_due = this%direction * (this%start_time - this%anchor_time)
+    else
+       t_due = real(k, dp) * this%time_interval
+    end if
+
+    ! It is due now if the check executes it at the coming step and it is not
+    ! ahead of the current time. One that is ahead, within the tolerance of
+    ! the check, is still landed on (as far as the shortest step allowed
+    ! permits) rather than executed a step late.
+    due_now = due_now .and. t_due .le. progress + &
+         SPAN_TOL * max(abs(t_due), this%time_interval)
+
+    if (due_now) then
+       ! Land on the scheduled time after the one due now, unless the one
+       ! due now is the execution at start_time, which is not scheduled.
+       if (.not. this%start_pending) k = k + 1_i8
+       t_next = real(k, dp) * this%time_interval
+    else
+       t_next = t_due
+    end if
+
+    if (.not. (this%start_pending .and. .not. due_now)) then
+       t_end = this%direction * (this%end_time - this%anchor_time)
+       if (t_next .gt. t_end + SPAN_TOL * max(abs(t_end), &
+            this%time_interval)) return
+    end if
+
+    if (t_next .le. progress) return
+
+    t_to_next = t_next - progress
+
+  end function time_based_controller_time_to_next
 
 end module time_based_controller
