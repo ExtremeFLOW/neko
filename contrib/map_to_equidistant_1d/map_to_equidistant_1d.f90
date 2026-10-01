@@ -13,7 +13,7 @@ program map_to_equidistant_1d
   type(file_t) :: field_file, output_file
   real(kind=rp) :: x_equid
   real(kind=rp), allocatable :: wt(:,:), wtt(:,:), ident(:,:)
-  type(fld_file_data_t) :: field_data
+  type(fld_file_data_t), target :: field_data
   type(space_t) :: Xh
   type(vector_ptr_t), allocatable :: fields(:)
   integer :: argc, i, lx, j, file_precision
@@ -121,6 +121,7 @@ program map_to_equidistant_1d
 
   if (pe_rank .eq. 0) write(*,*) 'Done'
 
+  deallocate(wt, wtt, ident, fields)
   call Xh%free()
   call field_data%free()
   call output_file%free()

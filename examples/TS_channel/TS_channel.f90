@@ -133,6 +133,7 @@ contains
     call map_1d%free()
     call coef%free()
     call gs_h%free()
+    deallocate(y_GLL, TS2D_GLL, TS3D_GLL)
 
   end subroutine initial_conditions
 

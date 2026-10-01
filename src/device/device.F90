@@ -1569,8 +1569,10 @@ contains
     if (clEnqueueBarrier(stream) .ne. CL_SUCCESS) then
        call neko_error('Error during barrier')
     end if
-    if (clEnqueueWaitForEvents(stream, 1, c_loc(event)) .ne. CL_SUCCESS) then
-       call neko_error('Error during stream sync')
+    if (c_associated(event)) then
+       if (clEnqueueWaitForEvents(stream, 1, c_loc(event)) .ne. CL_SUCCESS) then
+          call neko_error('Error during stream sync')
+       end if
     end if
 #elif HAVE_METAL
     if (metalStreamWaitEvent(stream, event) .ne. metalSuccess) then

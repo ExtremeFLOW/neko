@@ -88,6 +88,7 @@ program poisson
   call mf%write(x)
   deallocate(f)
   call solver%free()
+  deallocate(solver)
   call bc_projector%free()
   call dir_bc%free()
   call bclst%free()
@@ -97,6 +98,8 @@ program poisson
   call Xh%free()
   call x%free()
   call msh%free()
+  call mf%free()
+  call nmsh_file%free()
   call neko_finalize
 
 end program poisson

@@ -8,7 +8,7 @@ program average_field_in_space
   type(file_t) :: field_file, output_file, mesh_file
   real(kind=rp) :: start_time, el_h, el_dim(3,3), domain_height
   real(kind=rp), allocatable :: temp_el(:,:,:)
-  type(fld_file_data_t) :: field_data
+  type(fld_file_data_t), target :: field_data
   type(fld_file_data_t) :: output_data
   type(coef_t) :: coef
   type(dofmap_t), target :: dof
@@ -129,14 +129,14 @@ program average_field_in_space
      call map_2d%init(coef, dir, 1e-7_rp)
   end if
 
-  !allocate array with pointers to all vectors in the file
-  allocate(fields(field_data%size()))
-
   call output_file%init(trim(output_fname))
   do tstep = 0, field_data%meta_nsamples-1
      if (pe_rank .eq. 0) write(*,*) 'Averaging field:', tstep
      if (tstep .gt. 0) call field_file%read(field_data)
      if (avg_to_1d) then
+        ! Array with pointers to all vectors in the file
+        if (allocated(fields)) deallocate(fields)
+        allocate(fields(field_data%size()))
         call field_data%get_list(fields, field_data%size())
         call map_1d%average_planes(avg_matrix, fields)
         call output_file%write(avg_matrix,field_data%time)
@@ -148,6 +148,7 @@ program average_field_in_space
      end if
   end do
   if (pe_rank .eq. 0) write(*,*) 'Done'
+  if (allocated(fields)) deallocate(fields)
   call avg_matrix%free()
   call output_data%free()
   call map_1d%free()
