@@ -281,4 +281,33 @@ contains
     call msh%free()
   end subroutine test_adv_dealias_recompute_foreign
 
+  !> Coefficients rebuilt on another space at the same address, while the GL
+  !! data built from the old ones is still in use, must not reuse that data.
+  @test(npes=[1])
+  subroutine test_adv_dealias_stale_data(this)
+    class(adv_dealias_test_case), intent(inout) :: this
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+
+    call this%a%init(lxd_test, this%coef)
+
+    call Xh%init(GLL, lx_test + 1, lx_test + 1, lx_test + 1)
+    call dof%init(this%msh, Xh)
+    call gs%init(dof)
+    call this%coef%free()
+    call this%coef%init(gs)
+
+    call this%b%init(lxd_test, this%coef)
+    @assertExceptionRaised()
+    @assertFalse(associated(this%a%gl, this%b%gl))
+
+    call this%a%free()
+    call this%b%free()
+    call this%coef%free()
+    call gs%free()
+    call dof%free()
+    call Xh%free()
+  end subroutine test_adv_dealias_stale_data
+
 end module test_adv_dealias

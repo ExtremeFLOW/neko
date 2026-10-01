@@ -65,6 +65,10 @@ module adv_dealias
      type(coef_t), pointer :: coef_GLL => null()
      !> Number of points in each direction of the GL space
      integer :: lxd = 0
+     !> Number of points in each direction of the original space, and number
+     !! of elements, when the data was built
+     integer :: lx = 0
+     integer :: nelv = 0
      !> Number of operators using the data
      integer :: n_users = 0
      !> The additional higher-order space used in dealiasing
@@ -384,11 +388,13 @@ contains
 
           gl => shared_gl(i)%ptr
           if (associated(gl%coef_GLL, coef) .and. gl%lxd .eq. lxd) then
-             ! Same address on another mesh means the coefficients were
-             ! freed and reallocated while the data was still in use
-             if (.not. associated(gl%coef_GL%msh, coef%msh)) then
+             ! Same address on another mesh or space means the coefficients
+             ! were freed and rebuilt while the data was still in use
+             if (.not. associated(gl%coef_GL%msh, coef%msh) .or. &
+                  gl%lx .ne. coef%Xh%lx .or. gl%nelv .ne. coef%msh%nelv) then
                 call neko_error('Stale dealiasing data: the coefficients ' // &
                      'it was built from were freed before its users')
+                cycle
              end if
              gl%n_users = gl%n_users + 1
              return
@@ -400,6 +406,8 @@ contains
     call gl%init(lxd, coef)
     gl%coef_GLL => coef
     gl%lxd = lxd
+    gl%lx = coef%Xh%lx
+    gl%nelv = coef%msh%nelv
     gl%n_users = 1
 
     if (slot .eq. 0) then
