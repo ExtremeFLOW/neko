@@ -200,7 +200,12 @@ contains
 
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
-    
+
+    ! The forcing feeds the velocity back with gain 1/dt. Extrapolating it
+    ! in time with the other explicit terms is unstable (BDF3/EXT3 allows a
+    ! gain of at most 20/21), so the scheme applies it as computed.
+    this%extrapolate = .false.
+
     call neko_log%section('Inverse distance weighting')
 
     call json_get_or_default(json, "rmax", this%rmax, 1.0_rp)
@@ -1247,9 +1252,9 @@ contains
   !! \f$ F = -\rho \int f_{IB} \, dV \f$ (times `scale`), integrated with
   !! the local mass matrix over the assembled and filtered forcing, i.e.
   !! the forcing that is added to the right-hand side. The forcing is built
-  !! from the velocity at the start of the step, and the fluid applies an
-  !! extrapolation of it in time, so instantaneous values lag the applied
-  !! force slightly while time averages agree. The rate of change of the
+  !! from the velocity at the start of the step and the scheme applies it as
+  !! computed, without time extrapolation, so this is the force applied in
+  !! the step. The rate of change of the
   !! fluid momentum inside the objects is not included, and forcing on
   !! nodes with strong velocity boundary conditions is included although
   !! the velocity solve discards it, which over-reports the force on
