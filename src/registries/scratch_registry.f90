@@ -32,7 +32,7 @@
 !
 !> Defines a registry for storing and requesting temporary objects
 !! This can be used when you have a function that will be called
-!! often and you don'ptr want to create temporary objects (work arrays) inside
+!! often and you do not want to create temporary objects (work arrays) inside
 !! it on each call.
 module scratch_registry
   use num_types, only : rp
@@ -58,6 +58,8 @@ module scratch_registry
   implicit none
   private
 
+  !> Scratch registry type. A registry for storing and requesting temporary
+  !! objects.
   type, public :: scratch_registry_t
      !> List of scratch objects
      type(registry_entry_t), private, allocatable :: entries(:)
@@ -70,12 +72,14 @@ module scratch_registry
      !> Dofmap
      type(dofmap_t), pointer :: dof => null()
    contains
+
+     ! ----------------------------------------------------------------------- !
+     ! Public generic procedures for the scratch registry
+
      !> Constructor
      procedure, pass(this) :: init => scratch_registry_init
      !> Destructor
      procedure, pass(this) :: free => scratch_registry_free
-     !> Expand the registry by expansion_size
-     procedure, private, pass(this) :: expand
 
      !> Assign a dofmap to the scratch registry
      procedure, pass(this) :: set_dofmap => scratch_registry_set_dofmap
@@ -93,6 +97,9 @@ module scratch_registry
      procedure, pass(this) :: get_size
      !> Return the inuse status of a given index
      procedure, pass(this) :: get_inuse
+
+     ! ----------------------------------------------------------------------- !
+     ! Type specific procedures for the scratch registry
 
      !> Get a new scratch host array
      procedure, pass(this) :: request_host_array
@@ -155,6 +162,9 @@ module scratch_registry
      generic :: relinquish_field => relinquish_field_single, &
           relinquish_field_multiple
 
+     ! ----------------------------------------------------------------------- !
+     ! Type generic procedures for the scratch registry
+
      !> Generic request procedure
      generic :: request => request_host_array, request_device_array, &
           request_vector, request_matrix, request_tensor3, request_tensor4, &
@@ -167,14 +177,23 @@ module scratch_registry
      !> Generic relinquish procedure
      generic :: relinquish => relinquish_single, relinquish_multiple
 
+     ! ----------------------------------------------------------------------- !
+     ! Private helper procedures
+
      !> Internal relinquish type procedure for single objects
      procedure, pass(this), private :: relinquish_type
+     !> Expand the registry by expansion_size
+     procedure, private, pass(this) :: expand
+
   end type scratch_registry_t
 
   !> Global scratch registry
   type(scratch_registry_t), public, target :: neko_scratch_registry
 
 contains
+
+  ! -------------------------------------------------------------------------- !
+  ! Public generic procedures for the scratch registry
 
   !> Constructor, optionally taking initial registry and expansion
   !! size as argument
@@ -183,7 +202,8 @@ contains
   !! @param dof Dofmap to associate with the scratch registry
   !!
   !! @note If no DOF map is provided here, it must be set later using
-  !!       scratch_registry_t::set_dofmap before requesting fields.
+  !!       scratch_registry_t::set_dofmap before requesting fields without
+  !!       specifying a DOF map.
   subroutine scratch_registry_init(this, size, expansion_size, dof)
     class(scratch_registry_t), intent(inout) :: this
     integer, optional, intent(in) :: size
@@ -201,14 +221,14 @@ contains
     initial_size = this%expansion_size
     if (present(size)) initial_size = size
 
-    if (expansion_size .le. 0) then
-       call neko_error("scratch_registry::init: " // &
-            "Expansion size must be positive.")
-    end if
-
     if (initial_size .lt. 0) then
        call neko_error("scratch_registry::init: " // &
             "Initial size must be non-negative.")
+    end if
+
+    if (this%expansion_size .le. 0) then
+       call neko_error("scratch_registry::init: " // &
+            "Expansion size must be positive.")
     end if
 
     allocate(this%entries(initial_size))
@@ -322,41 +342,13 @@ contains
     get_inuse = this%inuse(index)
   end function get_inuse
 
-  subroutine expand(this)
-    class(scratch_registry_t), intent(inout) :: this
-    type(registry_entry_t), allocatable :: temp(:)
-    logical, allocatable :: temp2(:)
-    integer :: i, n
-
-    !$omp critical
-    n = this%get_size()
-
-    if (n .gt. 0) then
-       call move_alloc(this%entries, temp)
-       call move_alloc(this%inuse, temp2)
-    end if
-
-    allocate(this%entries(n + this%expansion_size))
-    allocate(this%inuse(n + this%expansion_size), source = .false.)
-
-    if (n .gt. 0) then
-       do i = 1, n
-          call this%entries(i)%move_from(temp(i))
-          this%inuse(i) = temp2(i)
-          call temp(i)%free()
-       end do
-    end if
-
-    if (allocated(temp)) deallocate(temp)
-    if (allocated(temp2)) deallocate(temp2)
-    !$omp end critical
-
-  end subroutine expand
+  ! -------------------------------------------------------------------------- !
+  ! Type specific procedures for the scratch registry
 
   !> Get a host array from the registry by assigning it to a pointer.
   !! @param ptr Pointer to the requested host array.
   !! @param index Index of the host array in the registry (for
-  !! relinquishing later).
+  !!        relinquishing later).
   !! @param n Size of the requested host_array.
   !! @param clear If true, the host_array values are set to zero upon request.
   subroutine request_host_array(this, ptr, index, n, clear)
@@ -370,47 +362,61 @@ contains
     scratch_entry => null()
 
     ! Look for a compatible, unused object in the registry.
-    !$omp critical
-    do index = 1, this%get_size()
+    !$omp critical (SCRATCH_OMP_LOCK)
+    do index = 1, this%n_entries
 
-       ! Check for unused or unallocated objects.
-       if (this%inuse(index)) then
-          cycle
-       else if (.not. this%entries(index)%is_allocated()) then
-          call this%entries(index)%init_host_array(n)
-          this%n_entries = this%n_entries + 1
-       else if (trim(this%entries(index)%get_type()) .ne. 'host_array') then
-          cycle
-       end if
+       ! Find an unused object of the correct type.
+       if (this%inuse(index)) cycle
+       if (.not. this%entries(index)%is_type('host_array')) cycle
 
        ! Check compatibility of the object size.
        scratch_entry => this%entries(index)%get_host_array()
        if (scratch_entry%size() .eq. n) then
+          this%inuse(index) = .true.
           exit
        end if
-       nullify(scratch_entry)
     end do
-    !$omp end critical
 
     ! If no compatible, unused objects are found, expand and create a new one.
     if (.not. associated(scratch_entry)) then
-       index = this%get_size() + 1
-       call this%expand()
-       !$omp critical
-       call this%entries(index)%init_host_array(n)
-       !$omp end critical
        this%n_entries = this%n_entries + 1
-       scratch_entry => this%entries(index)%get_host_array()
+
+       if (this%n_entries .gt. this%get_size()) call this%expand()
+       call this%entries(this%n_entries)%init_host_array(n)
+       scratch_entry => this%entries(this%n_entries)%get_host_array()
+
+       this%inuse(this%n_entries) = .true.
     end if
+    !$omp end critical (SCRATCH_OMP_LOCK)
 
     ! Assign the pointer to the entry and clear the values if requested.
     ptr => scratch_entry%x
     if (clear) call rzero(ptr, n)
-    this%inuse(index) = .true.
 
     nullify(scratch_entry)
 
   end subroutine request_host_array
+
+  !> Relinquish the use of a host_array in the registry
+  !! @param index The index of the host_array to free
+  subroutine relinquish_host_array_single(this, index)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
+
+    call this%relinquish_type(index, 'host_array')
+  end subroutine relinquish_host_array_single
+
+  !> Relinquish the use of multiple host_arrays in the registry
+  !! @param indices The indices of the host_arrays to free
+  subroutine relinquish_host_array_multiple(this, indices)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
+    integer :: i
+
+    do i = 1, size(indices)
+       call this%relinquish_type(indices(i), 'host_array')
+    end do
+  end subroutine relinquish_host_array_multiple
 
   !> Get a device array from the registry by assigning it to a pointer.
   !! @param ptr Pointer to the requested device array.
@@ -429,7 +435,7 @@ contains
     scratch_entry => null()
 
     ! Look for a compatible, unused object in the registry.
-    !$omp critical
+    !$omp critical (SCRATCH_OMP_LOCK)
     do index = 1, this%get_size()
 
        ! Check for unused or unallocated objects.
@@ -449,26 +455,45 @@ contains
        end if
        nullify(scratch_entry)
     end do
-    !$omp end critical
 
     ! If no compatible, unused objects are found, expand and create a new one.
     if (.not. associated(scratch_entry)) then
        index = this%get_size() + 1
        call this%expand()
-       !$omp critical
        call this%entries(index)%init_device_array(n)
-       !$omp end critical
        this%n_entries = this%n_entries + 1
        scratch_entry => this%entries(index)%get_device_array()
     end if
+    this%inuse(index) = .true.
+    !$omp end critical (SCRATCH_OMP_LOCK)
 
     ! Assign the pointer to the entry and clear the values if requested.
     ptr = scratch_entry%x_d
     if (clear) call device_rzero(ptr, n)
-    this%inuse(index) = .true.
 
     nullify(scratch_entry)
   end subroutine request_device_array
+
+  !> Relinquish the use of a device_array in the registry
+  !! @param index The index of the device_array to free
+  subroutine relinquish_device_array_single(this, index)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
+
+    call this%relinquish_type(index, 'device_array')
+  end subroutine relinquish_device_array_single
+
+  !> Relinquish the use of multiple device_arrays in the registry
+  !! @param indices The indices of the device_arrays to free
+  subroutine relinquish_device_array_multiple(this, indices)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
+    integer :: i
+
+    do i = 1, size(indices)
+       call this%relinquish_type(indices(i), 'device_array')
+    end do
+  end subroutine relinquish_device_array_multiple
 
   !> Get a vector from the registry by assigning it to a pointer.
   !! @param ptr Pointer to the requested vector.
@@ -486,7 +511,7 @@ contains
     scratch_entry => null()
 
     ! Look for a compatible, unused object in the registry.
-    !$omp critical
+    !$omp critical (SCRATCH_OMP_LOCK)
     do index = 1, this%get_size()
 
        ! Check for unused or unallocated objects.
@@ -506,15 +531,15 @@ contains
        end if
        nullify(scratch_entry)
     end do
-    !$omp end critical
+    !$omp end critical (SCRATCH_OMP_LOCK)
 
     ! If no compatible, unused objects are found, expand and create a new one.
     if (.not. associated(scratch_entry)) then
        index = this%get_size() + 1
        call this%expand()
-       !$omp critical
+       !$omp critical (SCRATCH_OMP_LOCK)
        call this%entries(index)%init_vector(n)
-       !$omp end critical
+       !$omp end critical (SCRATCH_OMP_LOCK)
        this%n_entries = this%n_entries + 1
        scratch_entry => this%entries(index)%get_vector()
     end if
@@ -526,6 +551,27 @@ contains
 
     nullify(scratch_entry)
   end subroutine request_vector
+
+  !> Relinquish the use of a vector in the registry
+  !! @param index The index of the vector to free
+  subroutine relinquish_vector_single(this, index)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
+
+    call this%relinquish_type(index, 'vector')
+  end subroutine relinquish_vector_single
+
+  !> Relinquish the use of multiple vectors in the registry
+  !! @param indices The indices of the vectors to free
+  subroutine relinquish_vector_multiple(this, indices)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
+    integer :: i
+
+    do i = 1, size(indices)
+       call this%relinquish_type(indices(i), 'vector')
+    end do
+  end subroutine relinquish_vector_multiple
 
   !> Get a matrix from the registry by assigning it to a pointer.
   !! @param ptr Pointer to the requested matrix.
@@ -544,7 +590,7 @@ contains
     scratch_entry => null()
 
     ! Look for a compatible, unused object in the registry.
-    !$omp critical
+    !$omp critical (SCRATCH_OMP_LOCK)
     do index = 1, this%get_size()
 
        ! Check for unused or unallocated objects.
@@ -564,15 +610,15 @@ contains
        end if
        nullify(scratch_entry)
     end do
-    !$omp end critical
+    !$omp end critical (SCRATCH_OMP_LOCK)
 
     ! If no compatible, unused objects are found, expand and create a new one.
     if (.not. associated(scratch_entry)) then
        index = this%get_size() + 1
        call this%expand()
-       !$omp critical
+       !$omp critical (SCRATCH_OMP_LOCK)
        call this%entries(index)%init_matrix(nrows, ncols)
-       !$omp end critical
+       !$omp end critical (SCRATCH_OMP_LOCK)
        this%n_entries = this%n_entries + 1
        scratch_entry => this%entries(index)%get_matrix()
     end if
@@ -584,6 +630,27 @@ contains
 
     nullify(scratch_entry)
   end subroutine request_matrix
+
+  !> Relinquish the use of a matrix in the registry
+  !! @param index The index of the matrix to free
+  subroutine relinquish_matrix_single(this, index)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
+
+    call this%relinquish_type(index, 'matrix')
+  end subroutine relinquish_matrix_single
+
+  !> Relinquish the use of multiple matrices in the registry
+  !! @param indices The indices of the matrices to free
+  subroutine relinquish_matrix_multiple(this, indices)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
+    integer :: i
+
+    do i = 1, size(indices)
+       call this%relinquish_type(indices(i), 'matrix')
+    end do
+  end subroutine relinquish_matrix_multiple
 
   !> Get a tensor3 from the registry by assigning it to a pointer.
   !! @param ptr Pointer to the requested tensor3.
@@ -603,7 +670,7 @@ contains
     scratch_entry => null()
 
     ! Look for a compatible, unused object in the registry.
-    !$omp critical
+    !$omp critical (SCRATCH_OMP_LOCK)
     do index = 1, this%get_size()
 
        ! Check for unused or unallocated objects.
@@ -623,15 +690,15 @@ contains
        end if
        nullify(scratch_entry)
     end do
-    !$omp end critical
+    !$omp end critical (SCRATCH_OMP_LOCK)
 
     ! If no compatible, unused objects are found, expand and create a new one.
     if (.not. associated(scratch_entry)) then
        index = this%get_size() + 1
        call this%expand()
-       !$omp critical
+       !$omp critical (SCRATCH_OMP_LOCK)
        call this%entries(index)%init_tensor3(n, m, l)
-       !$omp end critical
+       !$omp end critical (SCRATCH_OMP_LOCK)
        this%n_entries = this%n_entries + 1
        scratch_entry => this%entries(index)%get_tensor3()
     end if
@@ -647,6 +714,27 @@ contains
 
     nullify(scratch_entry)
   end subroutine request_tensor3
+
+  !> Relinquish the use of a tensor3 in the registry
+  !! @param index The index of the tensor3 to free
+  subroutine relinquish_tensor3_single(this, index)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
+
+    call this%relinquish_type(index, 'tensor3')
+  end subroutine relinquish_tensor3_single
+
+  !> Relinquish the use of multiple tensor3s in the registry
+  !! @param indices The indices of the tensor3s to free
+  subroutine relinquish_tensor3_multiple(this, indices)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
+    integer :: i
+
+    do i = 1, size(indices)
+       call this%relinquish_type(indices(i), 'tensor3')
+    end do
+  end subroutine relinquish_tensor3_multiple
 
   !> Get a tensor4 from the registry by assigning it to a pointer.
   !! @param ptr Pointer to the requested tensor4.
@@ -667,7 +755,7 @@ contains
     scratch_entry => null()
 
     ! Look for a compatible, unused object in the registry.
-    !$omp critical
+    !$omp critical (SCRATCH_OMP_LOCK)
     do index = 1, this%get_size()
 
        ! Check for unused or unallocated objects.
@@ -687,15 +775,15 @@ contains
        end if
        nullify(scratch_entry)
     end do
-    !$omp end critical
+    !$omp end critical (SCRATCH_OMP_LOCK)
 
     ! If no compatible, unused objects are found, expand and create a new one.
     if (.not. associated(scratch_entry)) then
        index = this%get_size() + 1
        call this%expand()
-       !$omp critical
+       !$omp critical (SCRATCH_OMP_LOCK)
        call this%entries(index)%init_tensor4(n, m, l, k)
-       !$omp end critical
+       !$omp end critical (SCRATCH_OMP_LOCK)
        this%n_entries = this%n_entries + 1
        scratch_entry => this%entries(index)%get_tensor4()
     end if
@@ -711,6 +799,27 @@ contains
 
     nullify(scratch_entry)
   end subroutine request_tensor4
+
+  !> Relinquish the use of a tensor4 in the registry
+  !! @param index The index of the tensor4 to free
+  subroutine relinquish_tensor4_single(this, index)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: index
+
+    call this%relinquish_type(index, 'tensor4')
+  end subroutine relinquish_tensor4_single
+
+  !> Relinquish the use of multiple tensor4s in the registry
+  !! @param indices The indices of the tensor4s to free
+  subroutine relinquish_tensor4_multiple(this, indices)
+    class(scratch_registry_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
+    integer :: i
+
+    do i = 1, size(indices)
+       call this%relinquish_type(indices(i), 'tensor4')
+    end do
+  end subroutine relinquish_tensor4_multiple
 
   !> Get a field from the registry by assigning it to a pointer
   !! @param ptr Pointer to the requested field.
@@ -732,7 +841,7 @@ contains
     scratch_entry => null()
 
     ! Look for a compatible, unused object in the registry.
-    !$omp critical
+    !$omp critical (SCRATCH_OMP_LOCK)
     do index = 1, this%get_size()
 
        ! Check for unused or unallocated objects.
@@ -753,16 +862,16 @@ contains
        end if
        nullify(scratch_entry)
     end do
-    !$omp end critical
+    !$omp end critical (SCRATCH_OMP_LOCK)
 
     ! If no compatible, unused objects are found, expand and create a new one.
     if (.not. associated(scratch_entry)) then
        index = this%get_size() + 1
        call this%expand()
        write(name, "(A3,I0.3)") "wrk", index
-       !$omp critical
+       !$omp critical (SCRATCH_OMP_LOCK)
        call this%entries(index)%init_field(this%dof, name)
-       !$omp end critical
+       !$omp end critical (SCRATCH_OMP_LOCK)
        this%n_entries = this%n_entries + 1
        scratch_entry => this%entries(index)%get_field()
     end if
@@ -792,7 +901,7 @@ contains
     scratch_entry => null()
 
     ! Look for a compatible, unused object in the registry.
-    !$omp critical
+    !$omp critical (SCRATCH_OMP_LOCK)
     do index = 1, this%get_size()
 
        ! Check for unused or unallocated objects.
@@ -813,16 +922,16 @@ contains
        end if
        nullify(scratch_entry)
     end do
-    !$omp end critical
+    !$omp end critical (SCRATCH_OMP_LOCK)
 
     ! If no compatible, unused objects are found, expand and create a new one.
     if (.not. associated(scratch_entry)) then
        index = this%get_size() + 1
        call this%expand()
        write(name, "(A3,I0.3)") "wrk", index
-       !$omp critical
+       !$omp critical (SCRATCH_OMP_LOCK)
        call this%entries(index)%init_field(dof, name)
-       !$omp end critical
+       !$omp end critical (SCRATCH_OMP_LOCK)
        this%n_entries = this%n_entries + 1
        scratch_entry => this%entries(index)%get_field()
     end if
@@ -834,132 +943,6 @@ contains
 
     nullify(scratch_entry)
   end subroutine request_field_free_dof
-
-  !> Relinquish the use of a host_array in the registry
-  !! @param index The index of the host_array to free
-  subroutine relinquish_host_array_single(this, index)
-    class(scratch_registry_t), intent(inout) :: this
-    integer, intent(in) :: index
-
-    call this%relinquish_type(index, 'host_array')
-  end subroutine relinquish_host_array_single
-
-  !> Relinquish the use of multiple host_arrays in the registry
-  !! @param indices The indices of the host_arrays to free
-  subroutine relinquish_host_array_multiple(this, indices)
-    class(scratch_registry_t), intent(inout) :: this
-    integer, intent(in) :: indices(:)
-    integer :: i
-
-    do i = 1, size(indices)
-       call this%relinquish_type(indices(i), 'host_array')
-    end do
-  end subroutine relinquish_host_array_multiple
-
-  !> Relinquish the use of a device_array in the registry
-  !! @param index The index of the device_array to free
-  subroutine relinquish_device_array_single(this, index)
-    class(scratch_registry_t), intent(inout) :: this
-    integer, intent(in) :: index
-
-    call this%relinquish_type(index, 'device_array')
-  end subroutine relinquish_device_array_single
-
-  !> Relinquish the use of multiple device_arrays in the registry
-  !! @param indices The indices of the device_arrays to free
-  subroutine relinquish_device_array_multiple(this, indices)
-    class(scratch_registry_t), intent(inout) :: this
-    integer, intent(in) :: indices(:)
-    integer :: i
-
-    do i = 1, size(indices)
-       call this%relinquish_type(indices(i), 'device_array')
-    end do
-  end subroutine relinquish_device_array_multiple
-
-  !> Relinquish the use of a vector in the registry
-  !! @param index The index of the vector to free
-  subroutine relinquish_vector_single(this, index)
-    class(scratch_registry_t), intent(inout) :: this
-    integer, intent(in) :: index
-
-    call this%relinquish_type(index, 'vector')
-  end subroutine relinquish_vector_single
-
-  !> Relinquish the use of multiple vectors in the registry
-  !! @param indices The indices of the vectors to free
-  subroutine relinquish_vector_multiple(this, indices)
-    class(scratch_registry_t), intent(inout) :: this
-    integer, intent(in) :: indices(:)
-    integer :: i
-
-    do i = 1, size(indices)
-       call this%relinquish_type(indices(i), 'vector')
-    end do
-  end subroutine relinquish_vector_multiple
-
-  !> Relinquish the use of a matrix in the registry
-  !! @param index The index of the matrix to free
-  subroutine relinquish_matrix_single(this, index)
-    class(scratch_registry_t), intent(inout) :: this
-    integer, intent(in) :: index
-
-    call this%relinquish_type(index, 'matrix')
-  end subroutine relinquish_matrix_single
-
-  !> Relinquish the use of multiple matrices in the registry
-  !! @param indices The indices of the matrices to free
-  subroutine relinquish_matrix_multiple(this, indices)
-    class(scratch_registry_t), intent(inout) :: this
-    integer, intent(in) :: indices(:)
-    integer :: i
-
-    do i = 1, size(indices)
-       call this%relinquish_type(indices(i), 'matrix')
-    end do
-  end subroutine relinquish_matrix_multiple
-
-  !> Relinquish the use of a tensor3 in the registry
-  !! @param index The index of the tensor3 to free
-  subroutine relinquish_tensor3_single(this, index)
-    class(scratch_registry_t), intent(inout) :: this
-    integer, intent(in) :: index
-
-    call this%relinquish_type(index, 'tensor3')
-  end subroutine relinquish_tensor3_single
-
-  !> Relinquish the use of multiple tensor3s in the registry
-  !! @param indices The indices of the tensor3s to free
-  subroutine relinquish_tensor3_multiple(this, indices)
-    class(scratch_registry_t), intent(inout) :: this
-    integer, intent(in) :: indices(:)
-    integer :: i
-
-    do i = 1, size(indices)
-       call this%relinquish_type(indices(i), 'tensor3')
-    end do
-  end subroutine relinquish_tensor3_multiple
-
-  !> Relinquish the use of a tensor4 in the registry
-  !! @param index The index of the tensor4 to free
-  subroutine relinquish_tensor4_single(this, index)
-    class(scratch_registry_t), intent(inout) :: this
-    integer, intent(in) :: index
-
-    call this%relinquish_type(index, 'tensor4')
-  end subroutine relinquish_tensor4_single
-
-  !> Relinquish the use of multiple tensor4s in the registry
-  !! @param indices The indices of the tensor4s to free
-  subroutine relinquish_tensor4_multiple(this, indices)
-    class(scratch_registry_t), intent(inout) :: this
-    integer, intent(in) :: indices(:)
-    integer :: i
-
-    do i = 1, size(indices)
-       call this%relinquish_type(indices(i), 'tensor4')
-    end do
-  end subroutine relinquish_tensor4_multiple
 
   !> Relinquish the use of a field in the registry
   !! @param index The index of the field to free
@@ -982,15 +965,18 @@ contains
     end do
   end subroutine relinquish_field_multiple
 
+  ! -------------------------------------------------------------------------- !
+  ! Type generic procedures for the scratch registry
+
   !> Relinquish the use of an object in the registry
   !! @param index The index of the object to free
   subroutine relinquish_single(this, index)
     class(scratch_registry_t), intent(inout) :: this
     integer, intent(in) :: index
 
-    !$omp critical
+    !$omp critical (SCRATCH_OMP_LOCK)
     this%inuse(index) = .false.
-    !$omp end critical
+    !$omp end critical (SCRATCH_OMP_LOCK)
 
   end subroutine relinquish_single
 
@@ -1001,12 +987,13 @@ contains
     integer, intent(in) :: indices(:)
     integer :: i
 
-    !$omp critical
     do i = 1, size(indices)
-       this%inuse(indices(i)) = .false.
+       this%relinquish_single(indices(i))
     end do
-    !$omp end critical
   end subroutine relinquish_multiple
+
+  ! -------------------------------------------------------------------------- !
+  ! Private helper procedures
 
   !> Relinquish a single index based on a specified type.
   !! @param index The index of the object to free
@@ -1015,17 +1002,46 @@ contains
     class(scratch_registry_t), intent(inout) :: this
     integer, intent(in) :: index
     character(len=*), intent(in) :: type
-    character(len=256), allocatable :: msg
+    character(len=256) :: msg
 
-    !$omp critical
+    !$omp critical (SCRATCH_OMP_LOCK)
     if (trim(this%entries(index)%get_type()) .ne. type) then
        write(msg, "(A,1X,A,1X,A,A)") "scratch_registry::relinquish:", &
             "Entry is not a", trim(type), "."
-       call neko_error(msg)
+       call neko_error(trim(msg))
     end if
 
     this%inuse(index) = .false.
-    !$omp end critical
+    !$omp end critical (SCRATCH_OMP_LOCK)
   end subroutine relinquish_type
+
+  !> Expand the registry by expansion_size.
+  subroutine expand(this)
+    class(scratch_registry_t), intent(inout) :: this
+    type(registry_entry_t), allocatable :: temp(:)
+    logical, allocatable :: temp2(:)
+    integer :: i, n
+
+    n = this%get_size()
+    if (n .gt. 0) then
+       call move_alloc(this%entries, temp)
+       call move_alloc(this%inuse, temp2)
+    end if
+
+    allocate(this%entries(n + this%expansion_size))
+    allocate(this%inuse(n + this%expansion_size), source = .false.)
+
+    if (n .gt. 0) then
+       do i = 1, n
+          call this%entries(i)%move_from(temp(i))
+          this%inuse(i) = temp2(i)
+          call temp(i)%free()
+       end do
+    end if
+
+    if (allocated(temp)) deallocate(temp)
+    if (allocated(temp2)) deallocate(temp2)
+
+  end subroutine expand
 
 end module scratch_registry
