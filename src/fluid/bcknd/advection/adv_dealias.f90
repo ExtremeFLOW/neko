@@ -885,6 +885,7 @@ contains
     type(coef_t), intent(in) :: coef
     logical, intent(in) :: moving_boundary
     integer :: nel
+    logical :: same_coef
 
     if (.not. moving_boundary) return
 
@@ -892,10 +893,16 @@ contains
     ! Rebuilding them from coefficients on another dofmap or space would
     ! make them inconsistent with the GL space and with any other operator
     ! using the same GL data.
-    if (.not. (associated(this%coef_GLL%dof, coef%dof) .and. &
-         associated(this%coef_GLL%Xh, coef%Xh))) then
+    same_coef = associated(this%coef_GLL%Xh, coef%Xh) .and. &
+         associated(this%coef_GLL%msh, coef%msh)
+    ! Coefficients made with init_empty have no dofmap
+    if (associated(this%coef_GLL%dof) .or. associated(coef%dof)) then
+       same_coef = same_coef .and. associated(this%coef_GLL%dof, coef%dof)
+    end if
+    if (.not. same_coef) then
        call neko_error('Dealiased advection metrics can only be ' // &
             'recomputed from the coefficients the operator was built on')
+       return
     end if
 
     nel = coef%msh%nelv
