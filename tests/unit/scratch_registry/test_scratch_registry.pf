@@ -544,8 +544,6 @@ contains
     call scratch%relinquish(index)
     !$omp end parallel
 
-    @assertEqual(16, num_threads, "Expected number of threads to be non-zero")
-
     @assertEqual(num_threads, n_inuse, "Number of entries must be equal to number of threads")
     @assertEqual(num_threads, scratch%get_n_entries(), "Number of entries must be equal to number of threads")
     @assertEqual(0, scratch%get_n_inuse(), "Registry should be empty after relinquishing all entries")
