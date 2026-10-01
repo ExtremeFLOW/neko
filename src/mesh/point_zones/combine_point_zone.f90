@@ -120,6 +120,7 @@ contains
        ! Create a new json containing just the subdict for this source.
        call core%get_child(source_object, i, source_pointer, found)
        call core%print_to_string(source_pointer, buffer)
+       call source_subdict%destroy()
        call source_subdict%load_from_string(buffer)
 
        if (.not. source_subdict%valid_path("geometry")) then
@@ -143,6 +144,7 @@ contains
        ! Create a new json containing just the subdict for this source.
        call core%get_child(source_object, i, source_pointer, found)
        call core%print_to_string(source_pointer, buffer)
+       call source_subdict%destroy()
        call source_subdict%load_from_string(buffer)
 
        if (source_subdict%valid_path("geometry")) then

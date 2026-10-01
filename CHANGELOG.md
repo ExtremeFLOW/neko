@@ -2,6 +2,13 @@
 
 ## Develop
 
+- Fixed memory leaks in several free routines and temporary objects,
+  including reused JSON objects, `.fld` output masks, the point zone and
+  constant registries, and user source term fields.
+- Fixed `field_vdot3` deallocating its output field on entry.
+- Fixed the CPU dynamic Smagorinsky model not relinquishing its scratch
+  fields, which grew the memory every time step and caused an error at
+  shutdown.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,
