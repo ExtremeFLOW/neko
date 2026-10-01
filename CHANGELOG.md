@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Added probes support for moving mesh (ALE) simulations, with `fixed`
+  and `body_attached` modes.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,
