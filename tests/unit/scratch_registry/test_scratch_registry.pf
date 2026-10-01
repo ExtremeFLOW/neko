@@ -546,9 +546,10 @@ contains
 
     @assertEqual(16, num_threads, "Expected number of threads to be non-zero")
 
-    @assertEqual(num_threads, n_inuse, "Expected number of entries in use in scratch registry to equal number of threads")
-    @assertEqual(num_threads, scratch%get_n_entries(), "Expected number of entries in scratch registry to equal number of threads")
-    @assertEqual(0, scratch%get_n_inuse(), "Expected 0 entries in use in scratch registry after relinquishing")
+    @assertEqual(num_threads, n_inuse, "Number of entries must be equal to number of threads")
+    @assertEqual(num_threads, scratch%get_n_entries(), "Number of entries must be equal to number of threads")
+    @assertEqual(0, scratch%get_n_inuse(), "Registry should be empty after relinquishing all entries")
     call scratch%free()
   end subroutine test_scratch_openmp
+
 end module test_scratch_registry
