@@ -103,6 +103,7 @@ module registry_entry
      procedure, pass(this) :: get_field
 
      procedure, pass(this) :: is_allocated
+     procedure, pass(this) :: is_type
      procedure, pass(this) :: move_from => move_from_registry_entry
   end type registry_entry_t
 
@@ -372,6 +373,14 @@ contains
     logical :: allocated
     allocated = this%allocated
   end function is_allocated
+
+  !> Check if the registry entry is of a specific type
+  pure function is_type(this, type_str) result(is_type)
+    class(registry_entry_t), intent(in) :: this
+    character(len=*), intent(in) :: type_str
+    logical :: is_type
+    is_type = trim(this%type) == trim(type_str)
+  end function is_type
 
   !> Get the host array pointer of the registry entry
   function get_host_array(this) result(host_array_ptr)
