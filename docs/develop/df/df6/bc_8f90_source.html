@@ -748,10 +748,13 @@ $(document).ready(function(){initNavTree('df/df6/bc_8f90_source.html','../../');
 <div class="line"><a id="l00700" name="l00700"></a><span class="lineno">  700</span>    <span class="keyword">call </span>dump_file%init(file_name)</div>
 <div class="line"><a id="l00701" name="l00701"></a><span class="lineno">  701</span>    <span class="keyword">call </span>dump_file%write(bdry_field)</div>
 <div class="line"><a id="l00702" name="l00702"></a><span class="lineno">  702</span> </div>
+<div class="line"><a id="l00703" name="l00703"></a><span class="lineno">  703</span>    <span class="keyword">call </span>dump_file%free()</div>
+<div class="line"><a id="l00704" name="l00704"></a><span class="lineno">  704</span>    <span class="keyword">call </span>bdry_field%free()</div>
+<div class="line"><a id="l00705" name="l00705"></a><span class="lineno">  705</span> </div>
 </div>
-<div class="line"><a id="l00703" name="l00703"></a><span class="lineno">  703</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d0/dc0/namespacebc.html#ac725cd64024298da9e4e2122b006c546">bc_debug_mask</a></div>
-<div class="line"><a id="l00704" name="l00704"></a><span class="lineno">  704</span> </div>
-<div class="line"><a id="l00705" name="l00705"></a><span class="lineno">  705</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a></div>
+<div class="line"><a id="l00706" name="l00706"></a><span class="lineno">  706</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d0/dc0/namespacebc.html#ac725cd64024298da9e4e2122b006c546">bc_debug_mask</a></div>
+<div class="line"><a id="l00707" name="l00707"></a><span class="lineno">  707</span> </div>
+<div class="line"><a id="l00708" name="l00708"></a><span class="lineno">  708</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a></div>
 <div class="ttc" id="ainterfacebc_1_1bc__apply__scalar__dev_html"><div class="ttname"><a href="../../dc/d9b/interfacebc_1_1bc__apply__scalar__dev.html">bc::bc_apply_scalar_dev</a></div><div class="ttdoc">Apply the boundary condition to a scalar field on the device.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00236">bc.f90:236</a></div></div>
 <div class="ttc" id="ainterfacebc_1_1bc__apply__scalar_html"><div class="ttname"><a href="../../d9/df2/interfacebc_1_1bc__apply__scalar.html">bc::bc_apply_scalar</a></div><div class="ttdoc">Apply the boundary condition to a scalar field.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00197">bc.f90:197</a></div></div>
 <div class="ttc" id="ainterfacebc_1_1bc__apply__vector__dev_html"><div class="ttname"><a href="../../de/dde/interfacebc_1_1bc__apply__vector__dev.html">bc::bc_apply_vector_dev</a></div><div class="ttdoc">Apply the boundary condition to a vector field on the device.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00256">bc.f90:256</a></div></div>
@@ -838,7 +841,7 @@ $(document).ready(function(){initNavTree('df/df6/bc_8f90_source.html','../../');
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../df/df6/bc_8f90.html">bc.f90</a></li>
-    <li class="footer">Generated on Thu Oct 1 2026 03:49:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Oct 2 2026 03:45:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

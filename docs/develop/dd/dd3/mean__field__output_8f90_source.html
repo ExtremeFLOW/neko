@@ -278,22 +278,24 @@ $(document).ready(function(){initNavTree('dd/dd3/mean__field__output_8f90_source
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>            <span class="keyword">call </span>this%map_1d%average_planes(avg_output_1d, &amp;</div>
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>                 this%fields)</div>
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>            <span class="keyword">call </span>this%file_%write(avg_output_1d, t)</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%output_dim .eq. 2) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>            <span class="keyword">call </span>this%map_2d%average(output_2d, this%fields)</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>            <span class="keyword">call </span>this%file_%write(output_2d, t)</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>         <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>            <span class="keyword">call </span>this%file_%write(this%fields, t)</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>         <span class="keywordflow">do</span> i = 1, this%n_fields</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>            <span class="keyword">call </span>this%mean_fields(i)%reset()</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span><span class="keywordflow">         end do</span></div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span> </div>
-</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/d47/namespacemean__field__output.html#aed62f83599ad6648573ce7a3286f18bf">mean_field_output_sample</a></div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>            <span class="keyword">call </span>avg_output_1d%free()</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%output_dim .eq. 2) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>            <span class="keyword">call </span>this%map_2d%average(output_2d, this%fields)</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>            <span class="keyword">call </span>this%file_%write(output_2d, t)</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>            <span class="keyword">call </span>output_2d%free()</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>         <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>            <span class="keyword">call </span>this%file_%write(this%fields, t)</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>         <span class="keywordflow">do</span> i = 1, this%n_fields</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>            <span class="keyword">call </span>this%mean_fields(i)%reset()</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keyword">end </span>associate</div>
 <div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/d47/namespacemean__field__output.html">mean_field_output</a></div>
+</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/d47/namespacemean__field__output.html#aed62f83599ad6648573ce7a3286f18bf">mean_field_output_sample</a></div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span> </div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/d47/namespacemean__field__output.html">mean_field_output</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00072">device.F90:72</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacedevice_html"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html">device</a></div><div class="ttdoc">Device abstraction, common interface for various accelerators.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00034">device.F90:34</a></div></div>
@@ -331,7 +333,7 @@ $(document).ready(function(){initNavTree('dd/dd3/mean__field__output_8f90_source
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../dd/dd3/mean__field__output_8f90.html">mean_field_output.f90</a></li>
-    <li class="footer">Generated on Thu Oct 1 2026 03:49:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Oct 2 2026 03:45:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

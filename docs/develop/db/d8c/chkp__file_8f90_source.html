@@ -1072,145 +1072,146 @@ $(document).ready(function(){initNavTree('db/d8c/chkp__file_8f90_source.html','.
 <div class="line"><a id="l00984" name="l00984"></a><span class="lineno">  984</span> </div>
 <div class="line"><a id="l00985" name="l00985"></a><span class="lineno">  985</span>    <span class="keyword">call </span>this%global_interp%free()</div>
 <div class="line"><a id="l00986" name="l00986"></a><span class="lineno">  986</span>    <span class="keyword">call </span>this%space_interp%free()</div>
-<div class="line"><a id="l00987" name="l00987"></a><span class="lineno">  987</span> </div>
+<div class="line"><a id="l00987" name="l00987"></a><span class="lineno">  987</span>    <span class="keyword">call </span>dof%free()</div>
+<div class="line"><a id="l00988" name="l00988"></a><span class="lineno">  988</span> </div>
 </div>
-<div class="line"><a id="l00988" name="l00988"></a><span class="lineno">  988</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a4fee4d082fd1bdc65e9873aa954d7108">chkp_file_read</a></div>
-<div class="line"><a id="l00989" name="l00989"></a><span class="lineno">  989</span> </div>
-<div class="foldopen" id="foldopen00995" data-start="" data-end="">
-<div class="line"><a id="l00995" name="l00995"></a><span class="lineno"><a class="line" href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">  995</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">chkp_read_field</a>(this, fh, byte_offset, x, nel)</div>
-<div class="line"><a id="l00996" name="l00996"></a><span class="lineno">  996</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html">chkp_file_t</a>) :: this</div>
-<div class="line"><a id="l00997" name="l00997"></a><span class="lineno">  997</span>    <span class="keywordtype">type</span>(mpi_file) :: fh</div>
-<div class="line"><a id="l00998" name="l00998"></a><span class="lineno">  998</span>    <span class="keywordtype">integer(kind=MPI_OFFSET_KIND)</span> :: byte_offset</div>
-<div class="line"><a id="l00999" name="l00999"></a><span class="lineno">  999</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nel</div>
-<div class="line"><a id="l01000" name="l01000"></a><span class="lineno"> 1000</span><span class="keywordtype">    real</span>(kind=rp) :: x(this%sim_Xh%lxyz, nel)</div>
-<div class="line"><a id="l01001" name="l01001"></a><span class="lineno"> 1001</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">allocatable</span> :: read_array(:)</div>
-<div class="line"><a id="l01002" name="l01002"></a><span class="lineno"> 1002</span>    <span class="keywordtype">integer</span> :: nel_stride, frac_space</div>
-<div class="line"><a id="l01003" name="l01003"></a><span class="lineno"> 1003</span>    <span class="keywordtype">type</span>(mpi_status) :: status</div>
-<div class="line"><a id="l01004" name="l01004"></a><span class="lineno"> 1004</span>    <span class="keywordtype">integer</span> :: ierr, i, n</div>
-<div class="line"><a id="l01005" name="l01005"></a><span class="lineno"> 1005</span>    <span class="keywordtype">logical</span> :: interp_on_host = .true.</div>
-<div class="line"><a id="l01006" name="l01006"></a><span class="lineno"> 1006</span> </div>
-<div class="line"><a id="l01007" name="l01007"></a><span class="lineno"> 1007</span>    n = this%chkp_xh%lxyz*nel</div>
-<div class="line"><a id="l01008" name="l01008"></a><span class="lineno"> 1008</span>    <span class="keyword">allocate</span>(read_array(n))</div>
-<div class="line"><a id="l01009" name="l01009"></a><span class="lineno"> 1009</span> </div>
-<div class="line"><a id="l01010" name="l01010"></a><span class="lineno"> 1010</span>    <span class="keyword">call </span>rzero(read_array,n)</div>
-<div class="line"><a id="l01011" name="l01011"></a><span class="lineno"> 1011</span>    <span class="keyword">call </span>mpi_file_read_at_all(fh, byte_offset, read_array, &amp;</div>
-<div class="line"><a id="l01012" name="l01012"></a><span class="lineno"> 1012</span>         n, mpi_real_precision, status, ierr)</div>
-<div class="line"><a id="l01013" name="l01013"></a><span class="lineno"> 1013</span>    <span class="keywordflow">if</span> (this%mesh2mesh) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01014" name="l01014"></a><span class="lineno"> 1014</span>       x = 0.0_rp</div>
-<div class="line"><a id="l01015" name="l01015"></a><span class="lineno"> 1015</span>       <span class="keyword">call </span>this%global_interp%evaluate(x, read_array, interp_on_host)</div>
-<div class="line"><a id="l01016" name="l01016"></a><span class="lineno"> 1016</span> </div>
-<div class="line"><a id="l01017" name="l01017"></a><span class="lineno"> 1017</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%sim_Xh%lx .ne. this%chkp_Xh%lx) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01018" name="l01018"></a><span class="lineno"> 1018</span>       <span class="keyword">call </span>this%space_interp%map_host(x, read_array, nel, this%sim_Xh)</div>
-<div class="line"><a id="l01019" name="l01019"></a><span class="lineno"> 1019</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l01020" name="l01020"></a><span class="lineno"> 1020</span>       <span class="keywordflow">do</span> i = 1,n</div>
-<div class="line"><a id="l01021" name="l01021"></a><span class="lineno"> 1021</span>          x(i,1) = read_array(i)</div>
-<div class="line"><a id="l01022" name="l01022"></a><span class="lineno"> 1022</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l01023" name="l01023"></a><span class="lineno"> 1023</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01024" name="l01024"></a><span class="lineno"> 1024</span>    <span class="keyword">deallocate</span>(read_array)</div>
+<div class="line"><a id="l00989" name="l00989"></a><span class="lineno">  989</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a4fee4d082fd1bdc65e9873aa954d7108">chkp_file_read</a></div>
+<div class="line"><a id="l00990" name="l00990"></a><span class="lineno">  990</span> </div>
+<div class="foldopen" id="foldopen00996" data-start="" data-end="">
+<div class="line"><a id="l00996" name="l00996"></a><span class="lineno"><a class="line" href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">  996</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">chkp_read_field</a>(this, fh, byte_offset, x, nel)</div>
+<div class="line"><a id="l00997" name="l00997"></a><span class="lineno">  997</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html">chkp_file_t</a>) :: this</div>
+<div class="line"><a id="l00998" name="l00998"></a><span class="lineno">  998</span>    <span class="keywordtype">type</span>(mpi_file) :: fh</div>
+<div class="line"><a id="l00999" name="l00999"></a><span class="lineno">  999</span>    <span class="keywordtype">integer(kind=MPI_OFFSET_KIND)</span> :: byte_offset</div>
+<div class="line"><a id="l01000" name="l01000"></a><span class="lineno"> 1000</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nel</div>
+<div class="line"><a id="l01001" name="l01001"></a><span class="lineno"> 1001</span><span class="keywordtype">    real</span>(kind=rp) :: x(this%sim_Xh%lxyz, nel)</div>
+<div class="line"><a id="l01002" name="l01002"></a><span class="lineno"> 1002</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">allocatable</span> :: read_array(:)</div>
+<div class="line"><a id="l01003" name="l01003"></a><span class="lineno"> 1003</span>    <span class="keywordtype">integer</span> :: nel_stride, frac_space</div>
+<div class="line"><a id="l01004" name="l01004"></a><span class="lineno"> 1004</span>    <span class="keywordtype">type</span>(mpi_status) :: status</div>
+<div class="line"><a id="l01005" name="l01005"></a><span class="lineno"> 1005</span>    <span class="keywordtype">integer</span> :: ierr, i, n</div>
+<div class="line"><a id="l01006" name="l01006"></a><span class="lineno"> 1006</span>    <span class="keywordtype">logical</span> :: interp_on_host = .true.</div>
+<div class="line"><a id="l01007" name="l01007"></a><span class="lineno"> 1007</span> </div>
+<div class="line"><a id="l01008" name="l01008"></a><span class="lineno"> 1008</span>    n = this%chkp_xh%lxyz*nel</div>
+<div class="line"><a id="l01009" name="l01009"></a><span class="lineno"> 1009</span>    <span class="keyword">allocate</span>(read_array(n))</div>
+<div class="line"><a id="l01010" name="l01010"></a><span class="lineno"> 1010</span> </div>
+<div class="line"><a id="l01011" name="l01011"></a><span class="lineno"> 1011</span>    <span class="keyword">call </span>rzero(read_array,n)</div>
+<div class="line"><a id="l01012" name="l01012"></a><span class="lineno"> 1012</span>    <span class="keyword">call </span>mpi_file_read_at_all(fh, byte_offset, read_array, &amp;</div>
+<div class="line"><a id="l01013" name="l01013"></a><span class="lineno"> 1013</span>         n, mpi_real_precision, status, ierr)</div>
+<div class="line"><a id="l01014" name="l01014"></a><span class="lineno"> 1014</span>    <span class="keywordflow">if</span> (this%mesh2mesh) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01015" name="l01015"></a><span class="lineno"> 1015</span>       x = 0.0_rp</div>
+<div class="line"><a id="l01016" name="l01016"></a><span class="lineno"> 1016</span>       <span class="keyword">call </span>this%global_interp%evaluate(x, read_array, interp_on_host)</div>
+<div class="line"><a id="l01017" name="l01017"></a><span class="lineno"> 1017</span> </div>
+<div class="line"><a id="l01018" name="l01018"></a><span class="lineno"> 1018</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%sim_Xh%lx .ne. this%chkp_Xh%lx) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01019" name="l01019"></a><span class="lineno"> 1019</span>       <span class="keyword">call </span>this%space_interp%map_host(x, read_array, nel, this%sim_Xh)</div>
+<div class="line"><a id="l01020" name="l01020"></a><span class="lineno"> 1020</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l01021" name="l01021"></a><span class="lineno"> 1021</span>       <span class="keywordflow">do</span> i = 1,n</div>
+<div class="line"><a id="l01022" name="l01022"></a><span class="lineno"> 1022</span>          x(i,1) = read_array(i)</div>
+<div class="line"><a id="l01023" name="l01023"></a><span class="lineno"> 1023</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l01024" name="l01024"></a><span class="lineno"> 1024</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01025" name="l01025"></a><span class="lineno"> 1025</span>    <span class="keyword">deallocate</span>(read_array)</div>
 </div>
-<div class="line"><a id="l01025" name="l01025"></a><span class="lineno"> 1025</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">chkp_read_field</a></div>
-<div class="line"><a id="l01026" name="l01026"></a><span class="lineno"> 1026</span> </div>
-<div class="foldopen" id="foldopen01030" data-start="" data-end="">
-<div class="line"><a id="l01030" name="l01030"></a><span class="lineno"><a class="line" href="../../dc/dcb/namespacechkp__file.html#ac8e5c80d28809b5024f9412b19a1338f"> 1030</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#ac8e5c80d28809b5024f9412b19a1338f">chkp_build_legacy_view</a>(chkp, view)</div>
-<div class="line"><a id="l01031" name="l01031"></a><span class="lineno"> 1031</span>    <span class="keywordtype">type</span>(chkp_t), <span class="keywordtype">intent(in)</span> :: chkp</div>
-<div class="line"><a id="l01032" name="l01032"></a><span class="lineno"> 1032</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/dfe/structchkp__file_1_1legacy__checkpoint__view__t.html">legacy_checkpoint_view_t</a>), <span class="keywordtype">intent(out)</span> :: view</div>
-<div class="line"><a id="l01033" name="l01033"></a><span class="lineno"> 1033</span>    <span class="keywordtype">type</span>(checkpoint_payload_t), <span class="keywordtype">pointer</span> :: payload</div>
-<div class="line"><a id="l01034" name="l01034"></a><span class="lineno"> 1034</span>    <span class="keywordtype">type</span>(checkpoint_array_t), <span class="keywordtype">pointer</span> :: array</div>
-<div class="line"><a id="l01035" name="l01035"></a><span class="lineno"> 1035</span>    <span class="keywordtype">type</span>(checkpoint_mesh_array_t), <span class="keywordtype">pointer</span> :: mesh_array</div>
-<div class="line"><a id="l01036" name="l01036"></a><span class="lineno"> 1036</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: scalar_name</div>
-<div class="line"><a id="l01037" name="l01037"></a><span class="lineno"> 1037</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l01038" name="l01038"></a><span class="lineno"> 1038</span> </div>
-<div class="line"><a id="l01039" name="l01039"></a><span class="lineno"> 1039</span>    payload =&gt; <a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a774c47a3488d8c2d6913de5e055bbc05">chkp_find_payload</a>(chkp, <span class="stringliteral">&quot;fluid&quot;</span>)</div>
-<div class="line"><a id="l01040" name="l01040"></a><span class="lineno"> 1040</span>    <span class="keywordflow">if</span> (.not. <span class="keyword">associated</span>(payload)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01041" name="l01041"></a><span class="lineno"> 1041</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;Checkpoint not initialized&quot;</span>)</div>
-<div class="line"><a id="l01042" name="l01042"></a><span class="lineno"> 1042</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01043" name="l01043"></a><span class="lineno"> 1043</span>    view%u =&gt; payload%find_field(<span class="stringliteral">&quot;u&quot;</span>)</div>
-<div class="line"><a id="l01044" name="l01044"></a><span class="lineno"> 1044</span>    view%v =&gt; payload%find_field(<span class="stringliteral">&quot;v&quot;</span>)</div>
-<div class="line"><a id="l01045" name="l01045"></a><span class="lineno"> 1045</span>    view%w =&gt; payload%find_field(<span class="stringliteral">&quot;w&quot;</span>)</div>
-<div class="line"><a id="l01046" name="l01046"></a><span class="lineno"> 1046</span>    view%p =&gt; payload%find_field(<span class="stringliteral">&quot;p&quot;</span>)</div>
-<div class="line"><a id="l01047" name="l01047"></a><span class="lineno"> 1047</span>    view%abx1 =&gt; payload%find_field(<span class="stringliteral">&quot;abx1&quot;</span>)</div>
-<div class="line"><a id="l01048" name="l01048"></a><span class="lineno"> 1048</span>    view%abx2 =&gt; payload%find_field(<span class="stringliteral">&quot;abx2&quot;</span>)</div>
-<div class="line"><a id="l01049" name="l01049"></a><span class="lineno"> 1049</span>    view%aby1 =&gt; payload%find_field(<span class="stringliteral">&quot;aby1&quot;</span>)</div>
-<div class="line"><a id="l01050" name="l01050"></a><span class="lineno"> 1050</span>    view%aby2 =&gt; payload%find_field(<span class="stringliteral">&quot;aby2&quot;</span>)</div>
-<div class="line"><a id="l01051" name="l01051"></a><span class="lineno"> 1051</span>    view%abz1 =&gt; payload%find_field(<span class="stringliteral">&quot;abz1&quot;</span>)</div>
-<div class="line"><a id="l01052" name="l01052"></a><span class="lineno"> 1052</span>    view%abz2 =&gt; payload%find_field(<span class="stringliteral">&quot;abz2&quot;</span>)</div>
-<div class="line"><a id="l01053" name="l01053"></a><span class="lineno"> 1053</span>    view%ulag =&gt; payload%find_series(<span class="stringliteral">&quot;u&quot;</span>)</div>
-<div class="line"><a id="l01054" name="l01054"></a><span class="lineno"> 1054</span>    view%vlag =&gt; payload%find_series(<span class="stringliteral">&quot;v&quot;</span>)</div>
-<div class="line"><a id="l01055" name="l01055"></a><span class="lineno"> 1055</span>    view%wlag =&gt; payload%find_series(<span class="stringliteral">&quot;w&quot;</span>)</div>
-<div class="line"><a id="l01056" name="l01056"></a><span class="lineno"> 1056</span> </div>
-<div class="line"><a id="l01057" name="l01057"></a><span class="lineno"> 1057</span>    <span class="keyword">call </span>chkp%get_time_history(view%tlag, view%dtlag)</div>
-<div class="line"><a id="l01058" name="l01058"></a><span class="lineno"> 1058</span> </div>
-<div class="line"><a id="l01059" name="l01059"></a><span class="lineno"> 1059</span>    <span class="comment">! Only one scalar assumed, we grab the first one we find.</span></div>
-<div class="line"><a id="l01060" name="l01060"></a><span class="lineno"> 1060</span>    <span class="keywordflow">do</span> i = 1, chkp%payload_count()</div>
-<div class="line"><a id="l01061" name="l01061"></a><span class="lineno"> 1061</span>       <span class="keywordflow">if</span> (index(trim(chkp%payloads(i)%ptr%name), <span class="stringliteral">&quot;scalars/&quot;</span>) .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01062" name="l01062"></a><span class="lineno"> 1062</span>          payload =&gt; chkp%payloads(i)%ptr</div>
-<div class="line"><a id="l01063" name="l01063"></a><span class="lineno"> 1063</span>          scalar_name = payload%name(len(<span class="stringliteral">&quot;scalars/&quot;</span>) + 1:)</div>
-<div class="line"><a id="l01064" name="l01064"></a><span class="lineno"> 1064</span>          view%s =&gt; payload%find_field(scalar_name)</div>
-<div class="line"><a id="l01065" name="l01065"></a><span class="lineno"> 1065</span>          view%slag =&gt; payload%find_series(scalar_name)</div>
-<div class="line"><a id="l01066" name="l01066"></a><span class="lineno"> 1066</span>          view%abs1 =&gt; payload%find_field(trim(scalar_name) // <span class="stringliteral">&quot;_abx1&quot;</span>)</div>
-<div class="line"><a id="l01067" name="l01067"></a><span class="lineno"> 1067</span>          view%abs2 =&gt; payload%find_field(trim(scalar_name) // <span class="stringliteral">&quot;_abx2&quot;</span>)</div>
-<div class="line"><a id="l01068" name="l01068"></a><span class="lineno"> 1068</span>          <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l01069" name="l01069"></a><span class="lineno"> 1069</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l01070" name="l01070"></a><span class="lineno"> 1070</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l01071" name="l01071"></a><span class="lineno"> 1071</span> </div>
-<div class="line"><a id="l01072" name="l01072"></a><span class="lineno"> 1072</span>    payload =&gt; <a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a774c47a3488d8c2d6913de5e055bbc05">chkp_find_payload</a>(chkp, <span class="stringliteral">&quot;ale&quot;</span>)</div>
-<div class="line"><a id="l01073" name="l01073"></a><span class="lineno"> 1073</span>    <span class="keywordflow">if</span> (.not. <span class="keyword">associated</span>(payload)) <span class="keywordflow">return</span></div>
-<div class="line"><a id="l01074" name="l01074"></a><span class="lineno"> 1074</span> </div>
-<div class="line"><a id="l01075" name="l01075"></a><span class="lineno"> 1075</span>    view%wm_x =&gt; payload%find_field(<span class="stringliteral">&quot;wm_x&quot;</span>)</div>
-<div class="line"><a id="l01076" name="l01076"></a><span class="lineno"> 1076</span>    view%wm_y =&gt; payload%find_field(<span class="stringliteral">&quot;wm_y&quot;</span>)</div>
-<div class="line"><a id="l01077" name="l01077"></a><span class="lineno"> 1077</span>    view%wm_z =&gt; payload%find_field(<span class="stringliteral">&quot;wm_z&quot;</span>)</div>
-<div class="line"><a id="l01078" name="l01078"></a><span class="lineno"> 1078</span>    view%wm_x_lag =&gt; payload%find_series(<span class="stringliteral">&quot;wm_x&quot;</span>)</div>
-<div class="line"><a id="l01079" name="l01079"></a><span class="lineno"> 1079</span>    view%wm_y_lag =&gt; payload%find_series(<span class="stringliteral">&quot;wm_y&quot;</span>)</div>
-<div class="line"><a id="l01080" name="l01080"></a><span class="lineno"> 1080</span>    view%wm_z_lag =&gt; payload%find_series(<span class="stringliteral">&quot;wm_z&quot;</span>)</div>
-<div class="line"><a id="l01081" name="l01081"></a><span class="lineno"> 1081</span> </div>
-<div class="line"><a id="l01082" name="l01082"></a><span class="lineno"> 1082</span>    mesh_array =&gt; payload%find_mesh_array(<span class="stringliteral">&quot;mesh_x&quot;</span>)</div>
-<div class="line"><a id="l01083" name="l01083"></a><span class="lineno"> 1083</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(mesh_array)) view%msh_x =&gt; mesh_array%x</div>
-<div class="line"><a id="l01084" name="l01084"></a><span class="lineno"> 1084</span>    mesh_array =&gt; payload%find_mesh_array(<span class="stringliteral">&quot;mesh_y&quot;</span>)</div>
-<div class="line"><a id="l01085" name="l01085"></a><span class="lineno"> 1085</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(mesh_array)) view%msh_y =&gt; mesh_array%x</div>
-<div class="line"><a id="l01086" name="l01086"></a><span class="lineno"> 1086</span>    mesh_array =&gt; payload%find_mesh_array(<span class="stringliteral">&quot;mesh_z&quot;</span>)</div>
-<div class="line"><a id="l01087" name="l01087"></a><span class="lineno"> 1087</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(mesh_array)) view%msh_z =&gt; mesh_array%x</div>
-<div class="line"><a id="l01088" name="l01088"></a><span class="lineno"> 1088</span>    mesh_array =&gt; payload%find_mesh_array(<span class="stringliteral">&quot;B_lag&quot;</span>)</div>
-<div class="line"><a id="l01089" name="l01089"></a><span class="lineno"> 1089</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(mesh_array)) view%Blag =&gt; mesh_array%x</div>
-<div class="line"><a id="l01090" name="l01090"></a><span class="lineno"> 1090</span>    mesh_array =&gt; payload%find_mesh_array(<span class="stringliteral">&quot;B_laglag&quot;</span>)</div>
-<div class="line"><a id="l01091" name="l01091"></a><span class="lineno"> 1091</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(mesh_array)) view%Blaglag =&gt; mesh_array%x</div>
-<div class="line"><a id="l01092" name="l01092"></a><span class="lineno"> 1092</span>    array =&gt; payload%find_array(<span class="stringliteral">&quot;pivot_position&quot;</span>)</div>
-<div class="line"><a id="l01093" name="l01093"></a><span class="lineno"> 1093</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(array)) view%pivot_pos =&gt; array%x</div>
-<div class="line"><a id="l01094" name="l01094"></a><span class="lineno"> 1094</span>    array =&gt; payload%find_array(<span class="stringliteral">&quot;pivot_velocity_lag&quot;</span>)</div>
-<div class="line"><a id="l01095" name="l01095"></a><span class="lineno"> 1095</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(array)) view%pivot_vel_lag =&gt; array%x</div>
-<div class="line"><a id="l01096" name="l01096"></a><span class="lineno"> 1096</span>    array =&gt; payload%find_array(<span class="stringliteral">&quot;basis_position&quot;</span>)</div>
-<div class="line"><a id="l01097" name="l01097"></a><span class="lineno"> 1097</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(array)) view%basis_pos =&gt; array%x</div>
-<div class="line"><a id="l01098" name="l01098"></a><span class="lineno"> 1098</span>    array =&gt; payload%find_array(<span class="stringliteral">&quot;basis_velocity_lag&quot;</span>)</div>
-<div class="line"><a id="l01099" name="l01099"></a><span class="lineno"> 1099</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(array)) view%basis_vel_lag =&gt; array%x</div>
-<div class="line"><a id="l01100" name="l01100"></a><span class="lineno"> 1100</span> </div>
+<div class="line"><a id="l01026" name="l01026"></a><span class="lineno"> 1026</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">chkp_read_field</a></div>
+<div class="line"><a id="l01027" name="l01027"></a><span class="lineno"> 1027</span> </div>
+<div class="foldopen" id="foldopen01031" data-start="" data-end="">
+<div class="line"><a id="l01031" name="l01031"></a><span class="lineno"><a class="line" href="../../dc/dcb/namespacechkp__file.html#ac8e5c80d28809b5024f9412b19a1338f"> 1031</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#ac8e5c80d28809b5024f9412b19a1338f">chkp_build_legacy_view</a>(chkp, view)</div>
+<div class="line"><a id="l01032" name="l01032"></a><span class="lineno"> 1032</span>    <span class="keywordtype">type</span>(chkp_t), <span class="keywordtype">intent(in)</span> :: chkp</div>
+<div class="line"><a id="l01033" name="l01033"></a><span class="lineno"> 1033</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/dfe/structchkp__file_1_1legacy__checkpoint__view__t.html">legacy_checkpoint_view_t</a>), <span class="keywordtype">intent(out)</span> :: view</div>
+<div class="line"><a id="l01034" name="l01034"></a><span class="lineno"> 1034</span>    <span class="keywordtype">type</span>(checkpoint_payload_t), <span class="keywordtype">pointer</span> :: payload</div>
+<div class="line"><a id="l01035" name="l01035"></a><span class="lineno"> 1035</span>    <span class="keywordtype">type</span>(checkpoint_array_t), <span class="keywordtype">pointer</span> :: array</div>
+<div class="line"><a id="l01036" name="l01036"></a><span class="lineno"> 1036</span>    <span class="keywordtype">type</span>(checkpoint_mesh_array_t), <span class="keywordtype">pointer</span> :: mesh_array</div>
+<div class="line"><a id="l01037" name="l01037"></a><span class="lineno"> 1037</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: scalar_name</div>
+<div class="line"><a id="l01038" name="l01038"></a><span class="lineno"> 1038</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l01039" name="l01039"></a><span class="lineno"> 1039</span> </div>
+<div class="line"><a id="l01040" name="l01040"></a><span class="lineno"> 1040</span>    payload =&gt; <a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a774c47a3488d8c2d6913de5e055bbc05">chkp_find_payload</a>(chkp, <span class="stringliteral">&quot;fluid&quot;</span>)</div>
+<div class="line"><a id="l01041" name="l01041"></a><span class="lineno"> 1041</span>    <span class="keywordflow">if</span> (.not. <span class="keyword">associated</span>(payload)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01042" name="l01042"></a><span class="lineno"> 1042</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;Checkpoint not initialized&quot;</span>)</div>
+<div class="line"><a id="l01043" name="l01043"></a><span class="lineno"> 1043</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01044" name="l01044"></a><span class="lineno"> 1044</span>    view%u =&gt; payload%find_field(<span class="stringliteral">&quot;u&quot;</span>)</div>
+<div class="line"><a id="l01045" name="l01045"></a><span class="lineno"> 1045</span>    view%v =&gt; payload%find_field(<span class="stringliteral">&quot;v&quot;</span>)</div>
+<div class="line"><a id="l01046" name="l01046"></a><span class="lineno"> 1046</span>    view%w =&gt; payload%find_field(<span class="stringliteral">&quot;w&quot;</span>)</div>
+<div class="line"><a id="l01047" name="l01047"></a><span class="lineno"> 1047</span>    view%p =&gt; payload%find_field(<span class="stringliteral">&quot;p&quot;</span>)</div>
+<div class="line"><a id="l01048" name="l01048"></a><span class="lineno"> 1048</span>    view%abx1 =&gt; payload%find_field(<span class="stringliteral">&quot;abx1&quot;</span>)</div>
+<div class="line"><a id="l01049" name="l01049"></a><span class="lineno"> 1049</span>    view%abx2 =&gt; payload%find_field(<span class="stringliteral">&quot;abx2&quot;</span>)</div>
+<div class="line"><a id="l01050" name="l01050"></a><span class="lineno"> 1050</span>    view%aby1 =&gt; payload%find_field(<span class="stringliteral">&quot;aby1&quot;</span>)</div>
+<div class="line"><a id="l01051" name="l01051"></a><span class="lineno"> 1051</span>    view%aby2 =&gt; payload%find_field(<span class="stringliteral">&quot;aby2&quot;</span>)</div>
+<div class="line"><a id="l01052" name="l01052"></a><span class="lineno"> 1052</span>    view%abz1 =&gt; payload%find_field(<span class="stringliteral">&quot;abz1&quot;</span>)</div>
+<div class="line"><a id="l01053" name="l01053"></a><span class="lineno"> 1053</span>    view%abz2 =&gt; payload%find_field(<span class="stringliteral">&quot;abz2&quot;</span>)</div>
+<div class="line"><a id="l01054" name="l01054"></a><span class="lineno"> 1054</span>    view%ulag =&gt; payload%find_series(<span class="stringliteral">&quot;u&quot;</span>)</div>
+<div class="line"><a id="l01055" name="l01055"></a><span class="lineno"> 1055</span>    view%vlag =&gt; payload%find_series(<span class="stringliteral">&quot;v&quot;</span>)</div>
+<div class="line"><a id="l01056" name="l01056"></a><span class="lineno"> 1056</span>    view%wlag =&gt; payload%find_series(<span class="stringliteral">&quot;w&quot;</span>)</div>
+<div class="line"><a id="l01057" name="l01057"></a><span class="lineno"> 1057</span> </div>
+<div class="line"><a id="l01058" name="l01058"></a><span class="lineno"> 1058</span>    <span class="keyword">call </span>chkp%get_time_history(view%tlag, view%dtlag)</div>
+<div class="line"><a id="l01059" name="l01059"></a><span class="lineno"> 1059</span> </div>
+<div class="line"><a id="l01060" name="l01060"></a><span class="lineno"> 1060</span>    <span class="comment">! Only one scalar assumed, we grab the first one we find.</span></div>
+<div class="line"><a id="l01061" name="l01061"></a><span class="lineno"> 1061</span>    <span class="keywordflow">do</span> i = 1, chkp%payload_count()</div>
+<div class="line"><a id="l01062" name="l01062"></a><span class="lineno"> 1062</span>       <span class="keywordflow">if</span> (index(trim(chkp%payloads(i)%ptr%name), <span class="stringliteral">&quot;scalars/&quot;</span>) .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01063" name="l01063"></a><span class="lineno"> 1063</span>          payload =&gt; chkp%payloads(i)%ptr</div>
+<div class="line"><a id="l01064" name="l01064"></a><span class="lineno"> 1064</span>          scalar_name = payload%name(len(<span class="stringliteral">&quot;scalars/&quot;</span>) + 1:)</div>
+<div class="line"><a id="l01065" name="l01065"></a><span class="lineno"> 1065</span>          view%s =&gt; payload%find_field(scalar_name)</div>
+<div class="line"><a id="l01066" name="l01066"></a><span class="lineno"> 1066</span>          view%slag =&gt; payload%find_series(scalar_name)</div>
+<div class="line"><a id="l01067" name="l01067"></a><span class="lineno"> 1067</span>          view%abs1 =&gt; payload%find_field(trim(scalar_name) // <span class="stringliteral">&quot;_abx1&quot;</span>)</div>
+<div class="line"><a id="l01068" name="l01068"></a><span class="lineno"> 1068</span>          view%abs2 =&gt; payload%find_field(trim(scalar_name) // <span class="stringliteral">&quot;_abx2&quot;</span>)</div>
+<div class="line"><a id="l01069" name="l01069"></a><span class="lineno"> 1069</span>          <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l01070" name="l01070"></a><span class="lineno"> 1070</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l01071" name="l01071"></a><span class="lineno"> 1071</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01072" name="l01072"></a><span class="lineno"> 1072</span> </div>
+<div class="line"><a id="l01073" name="l01073"></a><span class="lineno"> 1073</span>    payload =&gt; <a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a774c47a3488d8c2d6913de5e055bbc05">chkp_find_payload</a>(chkp, <span class="stringliteral">&quot;ale&quot;</span>)</div>
+<div class="line"><a id="l01074" name="l01074"></a><span class="lineno"> 1074</span>    <span class="keywordflow">if</span> (.not. <span class="keyword">associated</span>(payload)) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l01075" name="l01075"></a><span class="lineno"> 1075</span> </div>
+<div class="line"><a id="l01076" name="l01076"></a><span class="lineno"> 1076</span>    view%wm_x =&gt; payload%find_field(<span class="stringliteral">&quot;wm_x&quot;</span>)</div>
+<div class="line"><a id="l01077" name="l01077"></a><span class="lineno"> 1077</span>    view%wm_y =&gt; payload%find_field(<span class="stringliteral">&quot;wm_y&quot;</span>)</div>
+<div class="line"><a id="l01078" name="l01078"></a><span class="lineno"> 1078</span>    view%wm_z =&gt; payload%find_field(<span class="stringliteral">&quot;wm_z&quot;</span>)</div>
+<div class="line"><a id="l01079" name="l01079"></a><span class="lineno"> 1079</span>    view%wm_x_lag =&gt; payload%find_series(<span class="stringliteral">&quot;wm_x&quot;</span>)</div>
+<div class="line"><a id="l01080" name="l01080"></a><span class="lineno"> 1080</span>    view%wm_y_lag =&gt; payload%find_series(<span class="stringliteral">&quot;wm_y&quot;</span>)</div>
+<div class="line"><a id="l01081" name="l01081"></a><span class="lineno"> 1081</span>    view%wm_z_lag =&gt; payload%find_series(<span class="stringliteral">&quot;wm_z&quot;</span>)</div>
+<div class="line"><a id="l01082" name="l01082"></a><span class="lineno"> 1082</span> </div>
+<div class="line"><a id="l01083" name="l01083"></a><span class="lineno"> 1083</span>    mesh_array =&gt; payload%find_mesh_array(<span class="stringliteral">&quot;mesh_x&quot;</span>)</div>
+<div class="line"><a id="l01084" name="l01084"></a><span class="lineno"> 1084</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(mesh_array)) view%msh_x =&gt; mesh_array%x</div>
+<div class="line"><a id="l01085" name="l01085"></a><span class="lineno"> 1085</span>    mesh_array =&gt; payload%find_mesh_array(<span class="stringliteral">&quot;mesh_y&quot;</span>)</div>
+<div class="line"><a id="l01086" name="l01086"></a><span class="lineno"> 1086</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(mesh_array)) view%msh_y =&gt; mesh_array%x</div>
+<div class="line"><a id="l01087" name="l01087"></a><span class="lineno"> 1087</span>    mesh_array =&gt; payload%find_mesh_array(<span class="stringliteral">&quot;mesh_z&quot;</span>)</div>
+<div class="line"><a id="l01088" name="l01088"></a><span class="lineno"> 1088</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(mesh_array)) view%msh_z =&gt; mesh_array%x</div>
+<div class="line"><a id="l01089" name="l01089"></a><span class="lineno"> 1089</span>    mesh_array =&gt; payload%find_mesh_array(<span class="stringliteral">&quot;B_lag&quot;</span>)</div>
+<div class="line"><a id="l01090" name="l01090"></a><span class="lineno"> 1090</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(mesh_array)) view%Blag =&gt; mesh_array%x</div>
+<div class="line"><a id="l01091" name="l01091"></a><span class="lineno"> 1091</span>    mesh_array =&gt; payload%find_mesh_array(<span class="stringliteral">&quot;B_laglag&quot;</span>)</div>
+<div class="line"><a id="l01092" name="l01092"></a><span class="lineno"> 1092</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(mesh_array)) view%Blaglag =&gt; mesh_array%x</div>
+<div class="line"><a id="l01093" name="l01093"></a><span class="lineno"> 1093</span>    array =&gt; payload%find_array(<span class="stringliteral">&quot;pivot_position&quot;</span>)</div>
+<div class="line"><a id="l01094" name="l01094"></a><span class="lineno"> 1094</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(array)) view%pivot_pos =&gt; array%x</div>
+<div class="line"><a id="l01095" name="l01095"></a><span class="lineno"> 1095</span>    array =&gt; payload%find_array(<span class="stringliteral">&quot;pivot_velocity_lag&quot;</span>)</div>
+<div class="line"><a id="l01096" name="l01096"></a><span class="lineno"> 1096</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(array)) view%pivot_vel_lag =&gt; array%x</div>
+<div class="line"><a id="l01097" name="l01097"></a><span class="lineno"> 1097</span>    array =&gt; payload%find_array(<span class="stringliteral">&quot;basis_position&quot;</span>)</div>
+<div class="line"><a id="l01098" name="l01098"></a><span class="lineno"> 1098</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(array)) view%basis_pos =&gt; array%x</div>
+<div class="line"><a id="l01099" name="l01099"></a><span class="lineno"> 1099</span>    array =&gt; payload%find_array(<span class="stringliteral">&quot;basis_velocity_lag&quot;</span>)</div>
+<div class="line"><a id="l01100" name="l01100"></a><span class="lineno"> 1100</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(array)) view%basis_vel_lag =&gt; array%x</div>
+<div class="line"><a id="l01101" name="l01101"></a><span class="lineno"> 1101</span> </div>
 </div>
-<div class="line"><a id="l01101" name="l01101"></a><span class="lineno"> 1101</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#ac8e5c80d28809b5024f9412b19a1338f">chkp_build_legacy_view</a></div>
-<div class="line"><a id="l01102" name="l01102"></a><span class="lineno"> 1102</span> </div>
-<div class="foldopen" id="foldopen01107" data-start="" data-end="">
-<div class="line"><a id="l01107" name="l01107"></a><span class="lineno"><a class="line" href="../../dc/dcb/namespacechkp__file.html#a774c47a3488d8c2d6913de5e055bbc05"> 1107</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a774c47a3488d8c2d6913de5e055bbc05">chkp_find_payload</a>(chkp, name) <span class="keyword">result</span>(payload)</div>
-<div class="line"><a id="l01108" name="l01108"></a><span class="lineno"> 1108</span>    <span class="keywordtype">type</span>(chkp_t), <span class="keywordtype">intent(in)</span> :: chkp</div>
-<div class="line"><a id="l01109" name="l01109"></a><span class="lineno"> 1109</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: name</div>
-<div class="line"><a id="l01110" name="l01110"></a><span class="lineno"> 1110</span>    <span class="keywordtype">type</span>(checkpoint_payload_t), <span class="keywordtype">pointer</span> :: payload</div>
-<div class="line"><a id="l01111" name="l01111"></a><span class="lineno"> 1111</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l01112" name="l01112"></a><span class="lineno"> 1112</span> </div>
-<div class="line"><a id="l01113" name="l01113"></a><span class="lineno"> 1113</span>    <span class="keyword">nullify</span>(payload)</div>
-<div class="line"><a id="l01114" name="l01114"></a><span class="lineno"> 1114</span>    <span class="keywordflow">do</span> i = 1, chkp%payload_count()</div>
-<div class="line"><a id="l01115" name="l01115"></a><span class="lineno"> 1115</span>       <span class="keywordflow">if</span> (trim(chkp%payloads(i)%ptr%name) .eq. trim(name)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01116" name="l01116"></a><span class="lineno"> 1116</span>          payload =&gt; chkp%payloads(i)%ptr</div>
-<div class="line"><a id="l01117" name="l01117"></a><span class="lineno"> 1117</span>          <span class="keywordflow">return</span></div>
-<div class="line"><a id="l01118" name="l01118"></a><span class="lineno"> 1118</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l01119" name="l01119"></a><span class="lineno"> 1119</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l01120" name="l01120"></a><span class="lineno"> 1120</span> </div>
+<div class="line"><a id="l01102" name="l01102"></a><span class="lineno"> 1102</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#ac8e5c80d28809b5024f9412b19a1338f">chkp_build_legacy_view</a></div>
+<div class="line"><a id="l01103" name="l01103"></a><span class="lineno"> 1103</span> </div>
+<div class="foldopen" id="foldopen01108" data-start="" data-end="">
+<div class="line"><a id="l01108" name="l01108"></a><span class="lineno"><a class="line" href="../../dc/dcb/namespacechkp__file.html#a774c47a3488d8c2d6913de5e055bbc05"> 1108</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a774c47a3488d8c2d6913de5e055bbc05">chkp_find_payload</a>(chkp, name) <span class="keyword">result</span>(payload)</div>
+<div class="line"><a id="l01109" name="l01109"></a><span class="lineno"> 1109</span>    <span class="keywordtype">type</span>(chkp_t), <span class="keywordtype">intent(in)</span> :: chkp</div>
+<div class="line"><a id="l01110" name="l01110"></a><span class="lineno"> 1110</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: name</div>
+<div class="line"><a id="l01111" name="l01111"></a><span class="lineno"> 1111</span>    <span class="keywordtype">type</span>(checkpoint_payload_t), <span class="keywordtype">pointer</span> :: payload</div>
+<div class="line"><a id="l01112" name="l01112"></a><span class="lineno"> 1112</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l01113" name="l01113"></a><span class="lineno"> 1113</span> </div>
+<div class="line"><a id="l01114" name="l01114"></a><span class="lineno"> 1114</span>    <span class="keyword">nullify</span>(payload)</div>
+<div class="line"><a id="l01115" name="l01115"></a><span class="lineno"> 1115</span>    <span class="keywordflow">do</span> i = 1, chkp%payload_count()</div>
+<div class="line"><a id="l01116" name="l01116"></a><span class="lineno"> 1116</span>       <span class="keywordflow">if</span> (trim(chkp%payloads(i)%ptr%name) .eq. trim(name)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01117" name="l01117"></a><span class="lineno"> 1117</span>          payload =&gt; chkp%payloads(i)%ptr</div>
+<div class="line"><a id="l01118" name="l01118"></a><span class="lineno"> 1118</span>          <span class="keywordflow">return</span></div>
+<div class="line"><a id="l01119" name="l01119"></a><span class="lineno"> 1119</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l01120" name="l01120"></a><span class="lineno"> 1120</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01121" name="l01121"></a><span class="lineno"> 1121</span> </div>
 </div>
-<div class="line"><a id="l01121" name="l01121"></a><span class="lineno"> 1121</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a774c47a3488d8c2d6913de5e055bbc05">chkp_find_payload</a></div>
-<div class="line"><a id="l01122" name="l01122"></a><span class="lineno"> 1122</span> </div>
-<div class="foldopen" id="foldopen01125" data-start="" data-end="">
-<div class="line"><a id="l01125" name="l01125"></a><span class="lineno"><a class="line" href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1"> 1125</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">chkp_file_set_overwrite</a>(this, overwrite)</div>
-<div class="line"><a id="l01126" name="l01126"></a><span class="lineno"> 1126</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html">chkp_file_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01127" name="l01127"></a><span class="lineno"> 1127</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: overwrite</div>
-<div class="line"><a id="l01128" name="l01128"></a><span class="lineno"> 1128</span>    this%overwrite = overwrite</div>
+<div class="line"><a id="l01122" name="l01122"></a><span class="lineno"> 1122</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a774c47a3488d8c2d6913de5e055bbc05">chkp_find_payload</a></div>
+<div class="line"><a id="l01123" name="l01123"></a><span class="lineno"> 1123</span> </div>
+<div class="foldopen" id="foldopen01126" data-start="" data-end="">
+<div class="line"><a id="l01126" name="l01126"></a><span class="lineno"><a class="line" href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1"> 1126</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">chkp_file_set_overwrite</a>(this, overwrite)</div>
+<div class="line"><a id="l01127" name="l01127"></a><span class="lineno"> 1127</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html">chkp_file_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01128" name="l01128"></a><span class="lineno"> 1128</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: overwrite</div>
+<div class="line"><a id="l01129" name="l01129"></a><span class="lineno"> 1129</span>    this%overwrite = overwrite</div>
 </div>
-<div class="line"><a id="l01129" name="l01129"></a><span class="lineno"> 1129</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">chkp_file_set_overwrite</a></div>
-<div class="line"><a id="l01130" name="l01130"></a><span class="lineno"> 1130</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/dcb/namespacechkp__file.html">chkp_file</a></div>
+<div class="line"><a id="l01130" name="l01130"></a><span class="lineno"> 1130</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">chkp_file_set_overwrite</a></div>
+<div class="line"><a id="l01131" name="l01131"></a><span class="lineno"> 1131</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/dcb/namespacechkp__file.html">chkp_file</a></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00045">utils.f90:45</a></div></div>
 <div class="ttc" id="anamespacecheckpoint__payload_html"><div class="ttname"><a href="../../de/d70/namespacecheckpoint__payload.html">checkpoint_payload</a></div><div class="ttdoc">Format-independent checkpoint payloads.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d8e/checkpoint__payload_8f90_source.html#l00033">checkpoint_payload.f90:33</a></div></div>
 <div class="ttc" id="anamespacecheckpoint_html"><div class="ttname"><a href="../../d3/d51/namespacecheckpoint.html">checkpoint</a></div><div class="ttdoc">Defines format-independent checkpoint registration and restart state.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/checkpoint_8f90_source.html#l00034">checkpoint.f90:34</a></div></div>
@@ -1218,10 +1219,10 @@ $(document).ready(function(){initNavTree('db/d8c/chkp__file_8f90_source.html','.
 <div class="ttc" id="anamespacechkp__file_html_a4c185a9e0ef7d3da7ac1eccae3411f42"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#a4c185a9e0ef7d3da7ac1eccae3411f42">chkp_file::chkp_file_write</a></div><div class="ttdeci">subroutine chkp_file_write(this, data, t)</div><div class="ttdoc">Write a Neko legacy checkpoint.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l00149">chkp_file.f90:150</a></div></div>
 <div class="ttc" id="anamespacechkp__file_html_a4fee4d082fd1bdc65e9873aa954d7108"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#a4fee4d082fd1bdc65e9873aa954d7108">chkp_file::chkp_file_read</a></div><div class="ttdeci">subroutine chkp_file_read(this, data)</div><div class="ttdoc">Load a Neko legacy checkpoint.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l00584">chkp_file.f90:585</a></div></div>
 <div class="ttc" id="anamespacechkp__file_html_a6899407e25ef17d5097beddc6ce9f22f"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#a6899407e25ef17d5097beddc6ce9f22f">chkp_file::chkp_file_get_next_output_fname</a></div><div class="ttdeci">character(len=1024) function chkp_file_get_next_output_fname(this)</div><div class="ttdoc">Get the physical file name generated by the next write.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l00122">chkp_file.f90:123</a></div></div>
-<div class="ttc" id="anamespacechkp__file_html_a774c47a3488d8c2d6913de5e055bbc05"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#a774c47a3488d8c2d6913de5e055bbc05">chkp_file::chkp_find_payload</a></div><div class="ttdeci">type(checkpoint_payload_t) function, pointer chkp_find_payload(chkp, name)</div><div class="ttdoc">Find a payload without making its absence an error.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l01107">chkp_file.f90:1108</a></div></div>
-<div class="ttc" id="anamespacechkp__file_html_a80dd889c6e195bb7c41b3bb18cbb09b1"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">chkp_file::chkp_file_set_overwrite</a></div><div class="ttdeci">subroutine chkp_file_set_overwrite(this, overwrite)</div><div class="ttdoc">Set whether checkpoint files may be overwritten.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l01125">chkp_file.f90:1126</a></div></div>
-<div class="ttc" id="anamespacechkp__file_html_abdd803205d3c07f2564e810040947279"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">chkp_file::chkp_read_field</a></div><div class="ttdeci">subroutine chkp_read_field(this, fh, byte_offset, x, nel)</div><div class="ttdoc">Read and optionally interpolate one legacy checkpoint field.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l00995">chkp_file.f90:996</a></div></div>
-<div class="ttc" id="anamespacechkp__file_html_ac8e5c80d28809b5024f9412b19a1338f"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#ac8e5c80d28809b5024f9412b19a1338f">chkp_file::chkp_build_legacy_view</a></div><div class="ttdeci">subroutine chkp_build_legacy_view(chkp, view)</div><div class="ttdoc">Build the fixed legacy view from format-independent payloads.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l01030">chkp_file.f90:1031</a></div></div>
+<div class="ttc" id="anamespacechkp__file_html_a774c47a3488d8c2d6913de5e055bbc05"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#a774c47a3488d8c2d6913de5e055bbc05">chkp_file::chkp_find_payload</a></div><div class="ttdeci">type(checkpoint_payload_t) function, pointer chkp_find_payload(chkp, name)</div><div class="ttdoc">Find a payload without making its absence an error.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l01108">chkp_file.f90:1109</a></div></div>
+<div class="ttc" id="anamespacechkp__file_html_a80dd889c6e195bb7c41b3bb18cbb09b1"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">chkp_file::chkp_file_set_overwrite</a></div><div class="ttdeci">subroutine chkp_file_set_overwrite(this, overwrite)</div><div class="ttdoc">Set whether checkpoint files may be overwritten.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l01126">chkp_file.f90:1127</a></div></div>
+<div class="ttc" id="anamespacechkp__file_html_abdd803205d3c07f2564e810040947279"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">chkp_file::chkp_read_field</a></div><div class="ttdeci">subroutine chkp_read_field(this, fh, byte_offset, x, nel)</div><div class="ttdoc">Read and optionally interpolate one legacy checkpoint field.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l00996">chkp_file.f90:997</a></div></div>
+<div class="ttc" id="anamespacechkp__file_html_ac8e5c80d28809b5024f9412b19a1338f"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#ac8e5c80d28809b5024f9412b19a1338f">chkp_file::chkp_build_legacy_view</a></div><div class="ttdeci">subroutine chkp_build_legacy_view(chkp, view)</div><div class="ttdoc">Build the fixed legacy view from format-independent payloads.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l01031">chkp_file.f90:1032</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
 <div class="ttc" id="anamespacecomm_html_a3119ac9b00aa5192f43296a1edb405bc"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">comm::mpi_real_precision</a></div><div class="ttdeci">type(mpi_datatype), public mpi_real_precision</div><div class="ttdoc">MPI type for working precision of REAL types.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00054">comm.F90:54</a></div></div>
 <div class="ttc" id="anamespacecomm_html_a5d73a7756860779f8bbc7e2eecf5fdde"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">comm::pe_rank</a></div><div class="ttdeci">integer, public pe_rank</div><div class="ttdoc">MPI rank.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00059">comm.F90:59</a></div></div>
@@ -1270,7 +1271,7 @@ $(document).ready(function(){initNavTree('db/d8c/chkp__file_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../db/d8c/chkp__file_8f90.html">chkp_file.f90</a></li>
-    <li class="footer">Generated on Thu Oct 1 2026 03:49:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Oct 2 2026 03:45:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -376,10 +376,13 @@ $(document).ready(function(){initNavTree('df/d9a/elementwise__filter_8f90_source
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602">copy</a> (fh, pht%x, nx*nx)</div>
 <div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d8c/namespacetensor.html#a8947209d2430fc2471fbf9d2984485da">trsp</a> (fht, nx, fh, nx)</div>
 <div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span> </div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    <span class="keyword">call </span>phi%free()</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <span class="keyword">call </span>pht%free()</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span> </div>
 </div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d52/namespaceelementwise__filter.html#a106ce51f62e266dfa441bde829ddff19">build_1d_cpu</a></div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span> </div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/d52/namespaceelementwise__filter.html">elementwise_filter</a></div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d52/namespaceelementwise__filter.html#a106ce51f62e266dfa441bde829ddff19">build_1d_cpu</a></div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span> </div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/d52/namespaceelementwise__filter.html">elementwise_filter</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00083">device.F90:83</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00072">device.F90:72</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__sync_html"><div class="ttname"><a href="../../d0/dbb/interfacedevice_1_1device__sync.html">device::device_sync</a></div><div class="ttdoc">Synchronize a device or stream.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00119">device.F90:119</a></div></div>
@@ -431,7 +434,7 @@ $(document).ready(function(){initNavTree('df/d9a/elementwise__filter_8f90_source
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_8681a82a265081a91d191144ff606af9.html">filter</a></li><li class="navelem"><a class="el" href="../../df/d9a/elementwise__filter_8f90.html">elementwise_filter.f90</a></li>
-    <li class="footer">Generated on Thu Oct 1 2026 03:49:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Oct 2 2026 03:45:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
