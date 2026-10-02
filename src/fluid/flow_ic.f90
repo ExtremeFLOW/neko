@@ -39,7 +39,7 @@ module flow_ic
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
        blasius_quadratic, blasius_quartic, blasius_sin, blasius_tanh
   use import_field_utils, only : import_fields
-  use device, only : device_memcpy, HOST_TO_DEVICE, device_to_host, device_sync
+  use device, only : HOST_TO_DEVICE, device_to_host, device_sync
   use field, only : field_t
   use utils, only : neko_error, filename_chsuffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
@@ -159,11 +159,24 @@ contains
        call neko_error('Invalid initial condition')
     end if
 
+    ! The builtin initial conditions are set on the host
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call u%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call v%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call w%copy_from(HOST_TO_DEVICE, sync = .false.)
+
+       ! also copy pressure for consistency
+       call p%copy_from(HOST_TO_DEVICE, sync = .true.)
+    end if
+
     call set_flow_ic_common(u, v, w, p, coef, gs)
 
   end subroutine set_flow_ic_int
 
   !> Set intial flow condition (user defined)
+  !! @note No data is copied between the host and the device. The user routine
+  !! must leave the values where the backend operates on them, i.e. on the
+  !! device when running on GPUs.
   subroutine set_flow_ic_usr(u, v, w, p, coef, gs, user_proc, scheme_name)
     type(field_t), target, intent(inout) :: u
     type(field_t), target, intent(inout) :: v
@@ -193,6 +206,9 @@ contains
 
   !> Set intial flow condition (user defined)
   !> for compressible flows
+  !! @note No data is copied between the host and the device. The user routine
+  !! must leave the values where the backend operates on them, i.e. on the
+  !! device when running on GPUs.
   subroutine set_compressible_flow_ic_usr(rho, u, v, w, p, coef, gs, &
        user_proc, scheme_name)
     type(field_t), target, intent(inout) :: rho
@@ -204,7 +220,6 @@ contains
     type(gs_t), intent(inout) :: gs
     procedure(user_initial_conditions_intf) :: user_proc
     character(len=*), intent(in) :: scheme_name
-    integer :: n
     type(field_list_t) :: fields
 
 
@@ -219,13 +234,6 @@ contains
     call user_proc(scheme_name, fields)
 
     call set_flow_ic_common(u, v, w, p, coef, gs)
-
-    n = u%dof%size()
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(p%x, p%x_d, n, HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(rho%x, rho%x_d, n, HOST_TO_DEVICE, sync = .false.)
-    end if
 
     ! Ensure continuity across elements for initial conditions
     ! These variables are not treated in the common constructor
@@ -242,6 +250,9 @@ contains
 
   end subroutine set_compressible_flow_ic_usr
 
+  !> Make the initial velocity continuous across elements.
+  !! @details Operates on the device arrays when running on GPUs, so the
+  !! caller must make sure the values are there.
   subroutine set_flow_ic_common(u, v, w, p, coef, gs)
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
@@ -249,18 +260,6 @@ contains
     type(field_t), intent(inout) :: p
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
-    integer :: n
-
-    n = u%dof%size()
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call u%copy_from(HOST_TO_DEVICE, sync = .false.)
-       call v%copy_from(HOST_TO_DEVICE, sync = .false.)
-       call w%copy_from(HOST_TO_DEVICE, sync = .false.)
-
-       ! also copy pressure for consistency
-       call p%copy_from(HOST_TO_DEVICE, sync = .true.)
-    end if
 
     ! Ensure continuity across elements for initial conditions
     call rotate_cyc(u, v, w, 1, coef)
@@ -506,7 +505,7 @@ contains
     nullify(us, vs, ws, ps)
 
     ! If we are on GPU we need to move (u,v,w) and p back to the host
-    ! since set_flow_ic_common copies it again to the device.
+    ! since set_flow_ic_int copies it again to the device.
     call u%copy_from(device_to_host, sync = .false.)
     call v%copy_from(device_to_host, sync = .false.)
     call w%copy_from(device_to_host, sync = .false.)

@@ -377,6 +377,11 @@ is shown below.
              y = s%dof%y(i,1,1,1)
              s%x(i,1,1,1) = sin(x)
           end do
+
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_memcpy(s%x, s%x_d, s%size(), HOST_TO_DEVICE, &
+                  sync=.true.)
+          end if
        end if
     end if
   end subroutine initial_conditions
@@ -391,9 +396,12 @@ The incompressible fluid solver always generates solution fields, `u`, `v` and
 scalar cases, this defaults to `s`. For multiple scalar cases, the field name is
 set to the scalar name specified in the JSON configuration (e.g., "s1", "s2", etc.).
 
-@note Notice that the code for the scalar runs on the CPU. There is no need to
-add the transfer to GPU memory in this user routine, it will be done under the
-hood afterwards.
+@note Neko does not copy the initial conditions between the host and the device
+after calling this routine. The fluid fields may be set with `field_math`
+routines, which operate on the device arrays when running on GPUs, so no
+transfer is needed. The scalar is set in a loop over the host array `s%%x`, so
+it has to be copied to the device with `device_memcpy`. See [Running on
+GPUs](@ref user-file_tips_running-on-gpus) for more information.
 
 We should also add of the following lines in `user_setup`, as usual.
 

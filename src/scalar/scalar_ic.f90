@@ -150,6 +150,12 @@ contains
        call neko_error('Invalid initial condition')
     end if
 
+    ! The builtin initial conditions are set on the host
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(s%x, s%x_d, s%dof%size(), HOST_TO_DEVICE, &
+            sync = .false.)
+    end if
+
     call set_scalar_ic_common(s, coef, gs)
 
   end subroutine set_scalar_ic_int
@@ -161,6 +167,9 @@ contains
   !! @param coef Coefficient.
   !! @param gs Gather-Scatter object.
   !! @param user_proc User defined initial condition function.
+  !! @note No data is copied between the host and the device. The user routine
+  !! must leave the values where the backend operates on them, i.e. on the
+  !! device when running on GPUs.
   subroutine set_scalar_ic_usr(scheme_name, s, coef, gs, user_proc)
     character(len=*), intent(in) :: scheme_name
     type(field_t), target, intent(inout) :: s
@@ -182,6 +191,8 @@ contains
   !> Set scalar initial condition (common)
   !! @details Finalize scalar initial condition by distributing the initial
   !! condition across elements and multiplying by the coefficient (if any).
+  !! Operates on the device array when running on GPUs, so the caller must
+  !! make sure the values are there.
   !! @param s Scalar field.
   !! @param coef Coefficient.
   !! @param gs Gather-Scatter object.
@@ -192,9 +203,6 @@ contains
     integer :: n
 
     n = s%dof%size()
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x, s%x_d, n, HOST_TO_DEVICE, sync = .false.)
-    end if
 
     ! Ensure continuity across elements for initial conditions
     call gs%op(s%x, n, GS_OP_ADD)
@@ -334,7 +342,7 @@ contains
     nullify(ss)
 
     ! If we are on GPU we need to move s back to the host
-    ! since set_scalar_ic_common copies it again to the device.
+    ! since set_scalar_ic_int copies it again to the device.
     call s%copy_from(device_to_host, .true.)
 
   end subroutine set_scalar_ic_fld
