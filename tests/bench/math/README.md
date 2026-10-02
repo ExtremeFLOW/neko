@@ -2,12 +2,12 @@
 
 Compares four ways of expressing the same work on Neko data:
 
-| path          | call                                | notes                          |
-| ------------- | ----------------------------------- | ------------------------------ |
-| `math`        | `add2(a, b, n)`                     | the raw routine, called direct |
-| `field_math`  | `field_add2(fa, fb, n)`             | `field_t`, per-DOF CFD data    |
-| `vector_math` | `vector_add2(va, vb, n)`            | `vector_t`                     |
-| `matrix_math` | `matrix_add2(ma, mb, n)`            | `matrix_t`, `nrows=n, ncols=1` |
+| path          | call                     | notes                          |
+| ------------- | ------------------------ | ------------------------------ |
+| `math`        | `add2(a, b, n)`          | the raw routine, called direct |
+| `field_math`  | `field_add2(fa, fb, n)`  | `field_t`, per-DOF CFD data    |
+| `vector_math` | `vector_add2(va, vb, n)` | `vector_t`                     |
+| `matrix_math` | `matrix_add2(ma, mb, n)` | `matrix_t`, `nrows=n, ncols=1` |
 
 Ops covered: `add2` (in-place elementwise), `col2` (in-place elementwise
 product), `glsc3` (MPI-reduced triple inner product).
