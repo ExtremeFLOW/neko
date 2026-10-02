@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2023, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ module mean_field
   use registry, only : neko_registry
   use field, only : field_t
   use utils, only : NEKO_VARNAME_LEN
-  use field_math, only : field_cmult, field_add2s2
+  use field_math, only : field_add3s2
   implicit none
   private
 
@@ -118,11 +118,13 @@ contains
   subroutine mean_field_update(this, k)
     class(mean_field_t), intent(inout) :: this
     real(kind=rp), intent(in) :: k
+    real(kind=rp) :: new_time
 
-    call field_cmult(this%mf, this%time, size(this%mf%x))
-    call field_add2s2(this%mf, this%f, k, size(this%mf%x))
-    this%time = this%time + k
-    call field_cmult(this%mf, 1.0_rp / this%time, size(this%mf%x))
+    ! mf = (time * mf + k * f) / (time + k), as a single pass over the fields.
+    new_time = this%time + k
+    call field_add3s2(this%mf, this%mf, this%f, this%time / new_time, &
+         k / new_time, size(this%mf%x))
+    this%time = new_time
 
   end subroutine mean_field_update
 

@@ -2,6 +2,18 @@
 
 ## Develop
 
+- Added the `pressure_gauge` option to the `fluid_stats` simulation
+  component: `solver` (default) samples the pressure as computed by the
+  solver, `volume_mean` shifts it to a zero volume-weighted mean at every
+  sample before any pressure statistic is formed.
+- `fluid_stats` no longer holds its 14 work and gradient fields permanently
+  but borrows them from the scratch registry while sampling, and the mean
+  field update is a single pass over the fields instead of three.
+- `map_1d_t` now stops with an error instead of looping forever or indexing
+  outside its arrays when the element levels cannot be determined (polynomial
+  order 1, or a mesh that is not stacked in the requested direction), and
+  compares coordinates with a tolerance relative to the extent of the domain
+  rather than to its minimum, which may be zero.
 - Rewrote the averaging in one homogeneous direction (`map_2d_t`, used by
   the statistics and `spatial_average` outputs with `avg_direction` `x`, `y`
   or `z`). The column and in-plane node ordering of every element are now

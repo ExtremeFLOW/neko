@@ -84,9 +84,20 @@ Statistics are enabled in the case file as a simcomp with the added argument
 | `set_of_stats`    | What set of stats to compute.                                                                                         | basic, full          | full                                     |
 | `compute_value`   | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int | - (recommended every 50 timesteps or so) |
 | `output_filename` | User-specified base filename for the output.                                                                           | filename             | `fluid_stats`                            |
+| `pressure_gauge`  | Gauge of the pressure entering the statistics, see below.                                                             | solver, volume_mean  | solver                                   |
 
 The run and per-run counters are appended according to
 @ref statistics-output-filenames.
+
+The pressure is only defined up to a constant when no Dirichlet condition is
+imposed on it, for example in a periodic channel. The solver then removes the
+plain mean of the pressure over all GLL points after every step, so that the
+gauge varies in time with the fluctuations of that mean. With
+`"pressure_gauge": "volume_mean"` the pressure is instead shifted at every
+sample to have a zero volume-weighted mean, before any statistic involving the
+pressure (`<p>`, `<pp>`, `<pu>`, `<p du/dx>`, etc.) is formed. The default,
+`solver`, samples the pressure as computed by the solver. The velocity
+statistics are not affected.
 
 In addition, one can specify the usual controls for the output, which then 
 outputs the averages computes from the last time the statistics were written

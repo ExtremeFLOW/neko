@@ -77,6 +77,18 @@
         "output_control": "tsteps",
         "output_value": 1000
 
+      },
+      {
+        "type": "fluid_stats",
+        "name": "1d_gauge",
+        "output_filename": "stats_gauge",
+        "set_of_stats": "basic",
+        "avg_direction": "xy",
+        "pressure_gauge": "volume_mean",
+        "compute_control": "tsteps",
+        "compute_value": 1,
+        "output_control": "tsteps",
+        "output_value": 500
       }
     ]
   }

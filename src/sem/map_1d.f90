@@ -48,7 +48,7 @@ module map_1d
   use matrix, only : matrix_t
   use vector, only : vector_ptr_t
   use utils, only : neko_error, neko_warning
-  use math, only : glmax, glmin, glimax, relcmp, cmult, add2s1, col2
+  use math, only : glmax, glmin, glimax, cmult, add2s1, col2
   use mpi_f08, only : MPI_Allreduce, MPI_SUM, MPI_Barrier, MPI_IN_PLACE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -148,7 +148,7 @@ contains
     real(kind=rp), allocatable :: min_vals(:, :, :, :)
     real(kind=rp), allocatable :: min_temp(:, :, :, :)
     type(c_ptr) :: min_vals_d = c_null_ptr
-    real(kind=rp) :: el_dim(3, 3), glb_min, glb_max, el_min
+    real(kind=rp) :: el_dim(3, 3), glb_min, glb_max, el_min, atol
 
     call this%free()
 
@@ -212,6 +212,9 @@ contains
 
     glb_min = glmin(line, n)
     glb_max = glmax(line, n)
+    ! Tolerance for a coordinate to count as the minimum, relative to the
+    ! extent of the domain rather than to the minimum itself, which may be 0.
+    atol = this%tol * (glb_max - glb_min)
 
     i = 1
     this%el_lvl = -1
@@ -221,7 +224,7 @@ contains
        min_vals(:, :, :, e) = el_min
        ! Check if this element is on the bottom,
        ! in this case assign el_lvl = i = 1
-       if (relcmp(el_min, glb_min, this%tol)) then
+       if (abs(el_min - glb_min) .le. atol) then
           if (this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
        end if
     end do
@@ -230,7 +233,17 @@ contains
     ! propagates down one level.
     ! When the minimum value has propagated to the highest level this stops.
     ! Only works when the bottom plate of the domain is flat.
-    do while (.not. relcmp(glmax(min_vals, n), glb_min, this%tol))
+    do while (abs(glmax(min_vals, n) - glb_min) .gt. atol)
+
+       ! The propagation passes the minimum between layers through the
+       ! face-interior nodes, so it never finishes without them (polynomial
+       ! order 1) or when the mesh is not stacked in the requested direction.
+       ! There cannot be more levels than elements.
+       if (i .gt. this%msh%glb_nelv) then
+          call neko_error('map_1d: the element levels could not be ' // &
+               'determined, the mesh must be stacked in the requested ' // &
+               'direction and the polynomial order at least 2')
+       end if
 
        ! This is the assigned level
        i = i + 1
@@ -288,13 +301,20 @@ contains
        do e = 1, nelv
           el_min = minval(min_vals(:, :, :, e))
           min_vals(:, :, :, e) = el_min
-          if (relcmp(el_min, glb_min, this%tol)) then
+          if (abs(el_min - glb_min) .le. atol) then
              if (this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
           end if
        end do
     end do
     this%n_el_lvls = glimax(this%el_lvl, nelv)
     this%n_gll_lvls = this%n_el_lvls*lx
+
+    ! Every element must have received a level, otherwise the point levels
+    ! would index outside the level arrays.
+    if (glimax(abs(min(this%el_lvl, 0)), nelv) .gt. 0) then
+       call neko_error('map_1d: an element was not assigned a level, the ' // &
+            'mesh must be stacked in the requested direction')
+    end if
 
     !Numbers the points in each element based on the element level
     !and its orientation

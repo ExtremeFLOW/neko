@@ -24,6 +24,12 @@
             },
             "output_filename": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "pressure_gauge": {
+              "type": "string",
+              "enum": ["solver", "volume_mean"],
+              "default": "solver",
+              "description": "Gauge of the pressure entering the statistics: the pressure as computed by the solver, or shifted to a zero volume-weighted mean at every sample."
             }
           },
           "additionalProperties": true

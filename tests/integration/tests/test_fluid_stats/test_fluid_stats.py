@@ -137,6 +137,27 @@ def test_fluid_stats(launcher_script, request, log_file, tmp_path):
             error < 1e-2
         ), f"Error in {q}, {csv[i]} exceeded tolerance: {error}"
 
+    #
+    # 1D statistics with the volume-mean pressure gauge. The pressure is
+    # spatially uniform, so removing its volume-weighted mean leaves zero
+    # for every pressure statistic, while the velocity statistics are
+    # unchanged.
+    #
+
+    csv = np.genfromtxt(join("tests", "test_fluid_stats", "stats_gauge0.csv"),
+                        delimiter=",")[12, 2:]
+
+    for i, q in enumerate(quants):
+        if q in ("<p>", "<p^2>"):
+            assert (
+                abs(csv[i]) < 1e-8
+            ), f"{q} with volume_mean gauge is {csv[i]}, expected 0"
+        else:
+            error = (csv[i] - correct[i]) / correct[i]
+            assert (
+                error < 1e-2
+            ), f"Error in {q} with volume_mean gauge, {csv[i]}: {error}"
+
 
     #
     # 2D statistics output
