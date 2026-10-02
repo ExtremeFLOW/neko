@@ -75,6 +75,11 @@ contains
           y = s%dof%y%x(i,1,1,1)
           s%x(i,1,1,1) = sin(x)
        end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(s%x, s%x_d, s%size(), HOST_TO_DEVICE, &
+               sync=.true.)
+       end if
     end if
   end subroutine initial_conditions
 

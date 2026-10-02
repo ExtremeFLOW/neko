@@ -2,6 +2,9 @@
 
 ## Develop
 
+- *BREAKING* User initial conditions are no longer copied from the host to the
+  device after the user routine, so on GPUs the routine must leave the values in
+  the device arrays itself, e.g. with `device_memcpy`.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the

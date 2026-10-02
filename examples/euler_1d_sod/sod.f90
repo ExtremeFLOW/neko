@@ -62,6 +62,15 @@ contains
           p%x(i,1,1,1) = 0.1
        end if
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(rho%x, rho%x_d, rho%size(), HOST_TO_DEVICE, &
+            sync=.false.)
+       call device_memcpy(u%x, u%x_d, u%size(), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(v%x, v%x_d, v%size(), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(w%x, w%x_d, w%size(), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(p%x, p%x_d, p%size(), HOST_TO_DEVICE, sync=.true.)
+    end if
   end subroutine initial_conditions
 
   subroutine material_properties(scheme_name, properties, time)

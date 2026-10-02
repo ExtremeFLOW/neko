@@ -73,6 +73,15 @@ contains
                   - eps*(gamma * cos(gamma*x)*sin(delta*y))
           endif
        end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(u%x, u%x_d, u%size(), HOST_TO_DEVICE, &
+               sync=.false.)
+          call device_memcpy(v%x, v%x_d, v%size(), HOST_TO_DEVICE, &
+               sync=.false.)
+          call device_memcpy(w%x, w%x_d, w%size(), HOST_TO_DEVICE, &
+               sync=.true.)
+       end if
     else !scalars
        s => fields%get(scheme_name)
        if (scheme_name .eq. 'temperature') then
@@ -96,6 +105,11 @@ contains
              endif
           end do
        endif
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(s%x, s%x_d, s%size(), HOST_TO_DEVICE, &
+               sync=.true.)
+       end if
     endif
   end subroutine user_ic
 

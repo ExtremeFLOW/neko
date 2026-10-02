@@ -59,6 +59,15 @@ contains
        p%x(i,1,1,1) = p0 + rho0 * V0**2.0 / 16.0 * (cos(2.0*x) + cos(2.0*y)) &
             * (2.0 + cos(2.0 * z))
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(rho%x, rho%x_d, rho%size(), HOST_TO_DEVICE, &
+            sync=.false.)
+       call device_memcpy(u%x, u%x_d, u%size(), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(v%x, v%x_d, v%size(), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(w%x, w%x_d, w%size(), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(p%x, p%x_d, p%size(), HOST_TO_DEVICE, sync=.true.)
+    end if
   end subroutine initial_conditions
 
 end module user

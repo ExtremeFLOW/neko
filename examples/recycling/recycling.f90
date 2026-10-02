@@ -165,6 +165,12 @@ contains
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(u%x, u%x_d, u%size(), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(v%x, v%x_d, v%size(), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(w%x, w%x_d, w%size(), HOST_TO_DEVICE, sync=.true.)
+    end if
   end subroutine user_ic
 
   ! Kind of brute force with rather large initial disturbances

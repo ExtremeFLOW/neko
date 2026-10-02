@@ -35,6 +35,15 @@ contains
           v%x(i,1,1,1) = x*pi
           w%x(i,1,1,1) = 0
        end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(u%x, u%x_d, u%size(), HOST_TO_DEVICE, &
+               sync=.false.)
+          call device_memcpy(v%x, v%x_d, v%size(), HOST_TO_DEVICE, &
+               sync=.false.)
+          call device_memcpy(w%x, w%x_d, w%size(), HOST_TO_DEVICE, &
+               sync=.true.)
+       end if
     else
        s => fields%get("s")
        ! Center of the cone
@@ -57,6 +66,11 @@ contains
              s%x(i,1,1,1) = 1.0 - r / cone_radius
           end if
        end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(s%x, s%x_d, s%size(), HOST_TO_DEVICE, &
+               sync=.true.)
+       end if
     end if
 
   end subroutine initial_conditions
