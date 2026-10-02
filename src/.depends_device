@@ -47,6 +47,7 @@ viscous_regularization/avm/bcknd/device/hip/entropy_viscosity.lo : viscous_regul
 scalar/bcknd/device/hip/scalar_residual.lo : scalar/bcknd/device/hip/scalar_residual.hip scalar/bcknd/device/hip/scalar_residual_update_kernel.h
 sem/bcknd/device/hip/coef.lo : sem/bcknd/device/hip/coef.hip sem/bcknd/device/hip/coef_kernel.h
 sem/bcknd/device/hip/local_interpolation.lo : sem/bcknd/device/hip/local_interpolation.hip
+global_interpolation/bcknd/device/hip/cartesian_el_finder.lo : global_interpolation/bcknd/device/hip/cartesian_el_finder.hip global_interpolation/bcknd/device/hip/cartesian_el_finder.h
 lpt/bcknd/device/hip/lpt_periodic_bc.lo : lpt/bcknd/device/hip/lpt_periodic_bc.hip lpt/bcknd/device/hip/lpt_periodic_bc_kernel.h
 lpt/bcknd/device/hip/lpt_wall_collision.lo : lpt/bcknd/device/hip/lpt_wall_collision.hip lpt/bcknd/device/hip/lpt_wall_collision_kernel.h sem/bcknd/device/hip/coef_kernel.h
 les/bcknd/device/hip/dynamic_smagorinsky_nut.lo : les/bcknd/device/hip/dynamic_smagorinsky_nut.hip les/bcknd/device/hip/dynamic_smagorinsky_nut_kernel.h
@@ -111,6 +112,7 @@ source_terms/bcknd/device/cuda/gradient_jump_penalty.lo : source_terms/bcknd/dev
 scalar/bcknd/device/cuda/scalar_residual.lo : scalar/bcknd/device/cuda/scalar_residual.cu scalar/bcknd/device/cuda/scalar_residual_update_kernel.h
 sem/bcknd/device/cuda/coef.lo : sem/bcknd/device/cuda/coef.cu sem/bcknd/device/cuda/coef_kernel.h
 sem/bcknd/device/cuda/local_interpolation.lo : sem/bcknd/device/cuda/local_interpolation.cu
+global_interpolation/bcknd/device/cuda/cartesian_el_finder.lo : global_interpolation/bcknd/device/cuda/cartesian_el_finder.cu global_interpolation/bcknd/device/cuda/cartesian_el_finder.h
 lpt/bcknd/device/cuda/lpt_periodic_bc.lo : lpt/bcknd/device/cuda/lpt_periodic_bc.cu lpt/bcknd/device/cuda/lpt_periodic_bc_kernel.h
 lpt/bcknd/device/cuda/lpt_wall_collision.lo : lpt/bcknd/device/cuda/lpt_wall_collision.cu lpt/bcknd/device/cuda/lpt_wall_collision_kernel.h sem/bcknd/device/cuda/coef_kernel.h
 les/bcknd/device/cuda/dynamic_smagorinsky_nut.lo : les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu les/bcknd/device/cuda/dynamic_smagorinsky_nut_kernel.h
@@ -163,6 +165,7 @@ viscous_regularization/avm/bcknd/device/opencl/entropy_viscosity.lo : viscous_re
 scalar/bcknd/device/opencl/scalar_residual.lo : scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
 sem/bcknd/device/opencl/coef.lo : sem/bcknd/device/opencl/coef.c sem/bcknd/device/opencl/coef_kernel.cl.h
 sem/bcknd/device/opencl/local_interpolation.lo : sem/bcknd/device/opencl/local_interpolation.c sem/bcknd/device/opencl/local_interpolation_kernel.cl.h
+global_interpolation/bcknd/device/opencl/cartesian_el_finder.lo : global_interpolation/bcknd/device/opencl/cartesian_el_finder.c global_interpolation/bcknd/device/opencl/cartesian_el_finder_kernel.cl.h
 filter/bcknd/device/cuda/mappings.lo : filter/bcknd/device/cuda/mappings.cu filter/bcknd/device/cuda/mapping_kernels.h
 filter/bcknd/device/hip/mappings.lo : filter/bcknd/device/hip/mappings.hip filter/bcknd/device/hip/mapping_kernels.h
 filter/bcknd/device/opencl/mappings.lo : filter/bcknd/device/opencl/mappings.c filter/bcknd/device/opencl/mapping_kernels.cl.h
@@ -243,6 +246,7 @@ fluid/regularization/bcknd/device/metal/entropy_viscosity.lo : fluid/regularizat
 filter/bcknd/device/metal/mappings.lo : filter/bcknd/device/metal/mappings.m device/metal/check.h
 bc/bcknd/device/metal/constrain_mixed_bc.lo : bc/bcknd/device/metal/constrain_mixed_bc.m bc/bcknd/device/metal/bc_utils.h
 les/bcknd/device/metal/smagorinsky_nut.lo : les/bcknd/device/metal/smagorinsky_nut.m device/metal/kernel_utils.h
+global_interpolation/bcknd/device/metal/cartesian_el_finder.lo : global_interpolation/bcknd/device/metal/cartesian_el_finder.m device/metal/kernel_utils.h
 les/bcknd/device/metal/wale_nut.lo : les/bcknd/device/metal/wale_nut.m device/metal/kernel_utils.h
 les/bcknd/device/metal/sigma_nut.lo : les/bcknd/device/metal/sigma_nut.m device/metal/kernel_utils.h
 les/bcknd/device/metal/vreman_nut.lo : les/bcknd/device/metal/vreman_nut.m device/metal/kernel_utils.h
