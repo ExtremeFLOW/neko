@@ -178,6 +178,27 @@ program postprocess_fluid_stats
   call output_file%write(mean_vel_grad, stats_data%time)
   if (pe_rank .eq. 0) write(*,*) 'Done'
 
+  call mean_vel_grad%free()
+  call reynolds%free()
+  call fld_stats%free()
+  call tmp2%free()
+  call tmp1%free()
+  call pp%free()
+  call vw%free()
+  call uw%free()
+  call uv%free()
+  call ww%free()
+  call vv%free()
+  call uu%free()
+  call coef%free()
+  call gs_h%free()
+  call dof%free()
+  call Xh%free()
+  call stats_data%free()
+  call msh%free()
+  call output_file%free()
+  call stats_file%free()
+  call mesh_file%free()
   call neko_finalize
 
 end program postprocess_fluid_stats

@@ -123,6 +123,9 @@ module device
   !> Table of host to device address mappings
   type(htable_cptr_t) :: device_addrtbl
 
+  !> Number of device_init calls not yet matched by a device_finalize
+  integer :: device_init_count = 0
+
   public :: device_memcpy, device_map, device_unmap, device_associate, &
        device_associated, device_deassociate, device_get_ptr, device_sync, &
        device_free, device_sync_stream, device_stream_create, &
@@ -135,6 +138,12 @@ module device
 contains
 
   subroutine device_init
+
+    ! Only the first call sets up the device layer, another one would
+    ! recreate the queues and wipe the address table
+    device_init_count = device_init_count + 1
+    if (device_init_count .gt. 1) return
+
 #if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
     defined(HAVE_OPENCL) || defined(HAVE_METAL)
     call device_addrtbl%init(64)
@@ -160,6 +169,12 @@ contains
   end subroutine device_init
 
   subroutine device_finalize
+
+    ! Only the call matching the first device_init tears down the device layer
+    if (device_init_count .eq. 0) return
+    device_init_count = device_init_count - 1
+    if (device_init_count .gt. 0) return
+
 #if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
     defined(HAVE_OPENCL) || defined(HAVE_METAL)
     call device_addrtbl%free()
@@ -1556,8 +1571,10 @@ contains
     if (clEnqueueBarrier(stream) .ne. CL_SUCCESS) then
        call neko_error('Error during barrier')
     end if
-    if (clEnqueueWaitForEvents(stream, 1, c_loc(event)) .ne. CL_SUCCESS) then
-       call neko_error('Error during stream sync')
+    if (c_associated(event)) then
+       if (clEnqueueWaitForEvents(stream, 1, event) .ne. CL_SUCCESS) then
+          call neko_error('Error during stream sync')
+       end if
     end if
 #elif HAVE_METAL
     if (metalStreamWaitEvent(stream, event) .ne. metalSuccess) then
@@ -1610,6 +1627,7 @@ contains
        end if
     end if
 #elif HAVE_OPENCL
+    ! Allocated by the first device_event_record
     event = C_NULL_PTR
 #elif HAVE_METAL
     if (metalEventCreate(event) .ne. metalSuccess) then
@@ -1621,6 +1639,9 @@ contains
   !> Destroy a device event
   subroutine device_event_destroy(event)
     type(c_ptr), intent(inout) :: event
+#ifdef HAVE_OPENCL
+    type(c_ptr), pointer :: marker
+#endif
 #ifdef HAVE_HIP
     if (hipEventDestroy(event) .ne. hipSuccess) then
        call neko_error('Error during event destroy')
@@ -1630,6 +1651,13 @@ contains
        call neko_error('Error during event destroy')
     end if
 #elif HAVE_OPENCL
+    if (c_associated(event)) then
+       call c_f_pointer(event, marker)
+       if (clReleaseEvent(marker) .ne. CL_SUCCESS) then
+          call neko_error('Error during event destroy')
+       end if
+       deallocate(marker)
+    end if
     event = C_NULL_PTR
 #elif HAVE_METAL
     if (metalEventDestroy(event) .ne. metalSuccess) then
@@ -1641,8 +1669,11 @@ contains
 
   !> Record a device event
   subroutine device_event_record(event, stream)
-    type(c_ptr), target, intent(in) :: event
+    type(c_ptr), intent(inout) :: event
     type(c_ptr), intent(in) :: stream
+#ifdef HAVE_OPENCL
+    type(c_ptr), pointer :: marker
+#endif
 #ifdef HAVE_HIP
     if (hipEventRecord(event, stream) .ne. hipSuccess) then
        call neko_error('Error recording an event')
@@ -1652,7 +1683,18 @@ contains
        call neko_error('Error recording an event')
     end if
 #elif HAVE_OPENCL
-    if (clEnqueueMarker(stream, c_loc(event)) .ne. CL_SUCCESS) then
+    ! Each marker is a new OpenCL event. The handle points to the latest one
+    ! and stays the same, so copies of it remain valid, as for CUDA and HIP
+    if (c_associated(event)) then
+       call c_f_pointer(event, marker)
+       if (clReleaseEvent(marker) .ne. CL_SUCCESS) then
+          call neko_error('Error releasing an event')
+       end if
+    else
+       allocate(marker)
+       event = c_loc(marker)
+    end if
+    if (clEnqueueMarker(stream, c_loc(marker)) .ne. CL_SUCCESS) then
        call neko_error('Error recording an event')
     end if
 #elif HAVE_METAL
@@ -1675,7 +1717,7 @@ contains
     end if
 #elif HAVE_OPENCL
     if (c_associated(event)) then
-       if (clWaitForEvents(1, c_loc(event)) .ne. CL_SUCCESS) then
+       if (clWaitForEvents(1, event) .ne. CL_SUCCESS) then
           call neko_error('Error during event sync')
        end if
     end if

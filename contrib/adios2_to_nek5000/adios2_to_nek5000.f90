@@ -58,6 +58,9 @@ program adios2_to_nek5000
 
   if (pe_rank .eq. 0) write(*,*) 'Done'
 
+  call field_data%free()
+  call output_file%free()
+  call field_file%free()
   call neko_finalize
 
 end program adios2_to_nek5000

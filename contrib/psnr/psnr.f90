@@ -183,6 +183,10 @@ program psnr
 
   if (pe_rank .eq. 0) write(*,*) 'Done'
 
+  call compressed_data%free()
+  call original_data%free()
+  call compressed_file%free()
+  call original_file%free()
   call neko_finalize
 
 end program psnr

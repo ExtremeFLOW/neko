@@ -578,6 +578,27 @@ contains
        end if
        gradient_jump_penalty_program = C_NULL_PTR
     end if
+
+    if (c_associated(neumann_program)) then
+       if (clReleaseProgram(neumann_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       neumann_program = C_NULL_PTR
+    end if
+
+    if (c_associated(convect_scalar_program)) then
+       if (clReleaseProgram(convect_scalar_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       convect_scalar_program = C_NULL_PTR
+    end if
+
+    if (c_associated(set_convect_rst_program)) then
+       if (clReleaseProgram(set_convect_rst_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       set_convect_rst_program = C_NULL_PTR
+    end if
   end subroutine opencl_prgm_lib_release
 
 #endif

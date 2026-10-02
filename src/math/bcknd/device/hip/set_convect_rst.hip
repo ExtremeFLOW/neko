@@ -211,5 +211,7 @@ int tune_set_convect_rst(void *cr, void *cs, void *ct,
           (retval > 1 ? "KSTEP" : "1D"));
   log_message(neko_log_buf);
   log_end_section();
+  HIP_CHECK(hipEventDestroy(start));
+  HIP_CHECK(hipEventDestroy(stop));
   return retval;
 }

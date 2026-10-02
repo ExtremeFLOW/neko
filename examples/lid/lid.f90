@@ -170,6 +170,11 @@ contains
 
     ! Deallocate the fields
     call w1%free()
+    call temp1%free()
+    call temp2%free()
+    call vort1%free()
+    call vort2%free()
+    call vort3%free()
 
     ! Deallocate output file and vector
     call file_free(output_file)

@@ -384,8 +384,9 @@ contains
          call neko_error('No device backend configured')
 #endif
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
-         defined(HAVE_OPENCL) || defined(HAVE_METAL)
+         ! Only the device comm. backends wait on the gather event, and
+         ! OpenCL has none of them
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_METAL)
          call device_event_record(this%gather_event, strm)
 #endif
 

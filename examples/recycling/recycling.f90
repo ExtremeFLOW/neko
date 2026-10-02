@@ -19,7 +19,21 @@ contains
     u%initial_conditions => user_ic
     u%mesh_setup => user_mesh_scale
     u%dirichlet_conditions => dirichlet_update
+    u%finalize => user_finalize
   end subroutine user_setup
+
+  subroutine user_finalize(time)
+    type(time_state_t), intent(in) :: time
+
+    if (init) then
+       call interpolate%free()
+       call res%free()
+       call B%free()
+       call xyz%free()
+       init = .false.
+    end if
+
+  end subroutine user_finalize
 
   !Observe this might be called multiple times per time step by
   !different solvers

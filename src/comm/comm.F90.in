@@ -270,7 +270,7 @@ contains
     call MPI_Comm_free(NEKO_COMM, ierr)
     call MPI_Comm_free(NEKO_GLOBAL_COMM, ierr)
 
-#ifdef HAVE_NCCL
+#if defined(HAVE_NCCL) || defined(HAVE_RCCL)
     call neko_comm_nccl_finalize()
 #endif
 

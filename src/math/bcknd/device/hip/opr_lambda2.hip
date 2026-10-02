@@ -308,6 +308,8 @@ int tune_lambda2(void *lambda2, void *u, void *v, void *w,
   }
   log_message(neko_log_buf);
   log_end_section();
+  HIP_CHECK(hipEventDestroy(start));
+  HIP_CHECK(hipEventDestroy(stop));
   return retval;
 }
 
