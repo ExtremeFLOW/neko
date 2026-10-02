@@ -136,6 +136,7 @@ examples = {
                 "krylov_solver_template.f90",
                 "scalar_scheme_template.f90",
                 "scalar_pnpn_bc_template.f90",
+                "fluid_pnpn_bc_template.f90",
             )
         )
     ),
