@@ -2,6 +2,19 @@
 
 ## Develop
 
+- Rewrote the averaging in one homogeneous direction (`map_2d_t`, used by
+  the statistics and `spatial_average` outputs with `avg_direction` `x`, `y`
+  or `z`). The column and in-plane node ordering of every element are now
+  determined once at initialisation from the element geometry, so each
+  output is a single pass over the fields followed by one exchange of the
+  column sums with the ranks owning the 2D elements, instead of one
+  gather-scatter and two host-device transfers per field and element layer.
+  The averaged fields are no longer modified, the four 3D work fields are
+  gone, and the 2D output built from a `fld_file_data_t` now carries element
+  indices as the `.fld` writer expects. The mesh must be stacked in the
+  averaging direction, as before. The plane averages of `map_1d_t` divide by
+  the level volumes once per level after the reduction and reuse the level
+  coordinates computed at initialisation.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the

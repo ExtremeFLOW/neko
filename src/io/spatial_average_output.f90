@@ -33,18 +33,15 @@
 !> Output for spatially averaged fields.
 module spatial_average_output
   use num_types, only : rp, dp
-  use field, only : field_t
   use field_list, only : field_list_t
   use fld_file_data, only : fld_file_data_t
   use map_1d, only : map_1d_t
   use map_2d, only : map_2d_t
   use coefs, only : coef_t
   use device, only : DEVICE_TO_HOST
-  use field_math, only : field_copy
   use matrix, only : matrix_t
   use output, only : output_t
   use registry, only : neko_registry
-  use scratch_registry, only : neko_scratch_registry
   use utils, only : NEKO_FNAME_LEN, neko_error
   implicit none
   private
@@ -130,10 +127,6 @@ contains
     real(kind=dp), intent(in) :: t
     type(fld_file_data_t) :: output_2d
     type(matrix_t) :: output_1d
-    type(field_list_t) :: temp_fields
-    type(field_t), pointer :: temp_field
-    integer, allocatable :: temp_indices(:)
-    integer :: i
 
     select case (this%output_dim)
     case (1)
@@ -142,22 +135,10 @@ contains
        call this%file_%write(output_1d, t)
        call output_1d%free()
     case (2)
-       ! map_2d mutates input, so we need temporaries from the scratch registry
-       allocate(temp_indices(this%fields%size()))
-       call temp_fields%init(this%fields%size())
-       do i = 1, this%fields%size()
-          call neko_scratch_registry%request_field(temp_field, &
-               temp_indices(i), .false.)
-          call field_copy(temp_field, this%fields%items(i)%ptr)
-          call temp_fields%assign(i, temp_field)
-       end do
-       call temp_fields%copy_from(DEVICE_TO_HOST, .true.)
-       call this%map_2d%average(output_2d, temp_fields)
+       call this%fields%copy_from(DEVICE_TO_HOST, .true.)
+       call this%map_2d%average(output_2d, this%fields)
        call this%file_%write(output_2d, t)
        call output_2d%free()
-       call temp_fields%free()
-       call neko_scratch_registry%relinquish_field(temp_indices)
-       deallocate(temp_indices)
     case default
        call neko_error('Invalid spatial_average output dimension')
     end select

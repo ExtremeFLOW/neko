@@ -117,6 +117,9 @@ module map_1d
      !> Integrated quadrature weight volume associated with each GLL level.
      !! Used as the denominator when computing plane averages.
      real(kind=rp), allocatable :: volume_per_gll_lvl(:)
+     !> Volume-averaged coordinate, in the requested direction, of each GLL
+     !! level. Written as the first column of the averaged output.
+     real(kind=rp), allocatable :: coord_per_gll_lvl(:)
    contains
      !> Constructor
      procedure, pass(this) :: init_int => map_1d_init
@@ -341,6 +344,21 @@ contains
     call MPI_Allreduce(MPI_IN_PLACE, this%volume_per_gll_lvl, this%n_gll_lvls, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
+    allocate(this%coord_per_gll_lvl(this%n_gll_lvls))
+
+    this%coord_per_gll_lvl = 0.0_rp
+
+    do i = 1, n
+       this%coord_per_gll_lvl(this%pt_lvl(i, 1, 1, 1)) = &
+            this%coord_per_gll_lvl(this%pt_lvl(i, 1, 1, 1)) + &
+            line(i, 1, 1, 1) * coef%B(i, 1, 1, 1)
+    end do
+
+    call MPI_Allreduce(MPI_IN_PLACE, this%coord_per_gll_lvl, this%n_gll_lvls, &
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+
+    this%coord_per_gll_lvl = this%coord_per_gll_lvl / this%volume_per_gll_lvl
+
   end subroutine map_1d_init
 
   subroutine map_1d_init_char(this, coef, dir, tol)
@@ -375,6 +393,7 @@ contains
     if (associated(this%msh)) nullify(this%msh)
     if (associated(this%coef)) nullify(this%coef)
     if (allocated(this%volume_per_gll_lvl)) deallocate(this%volume_per_gll_lvl)
+    if (allocated(this%coord_per_gll_lvl)) deallocate(this%coord_per_gll_lvl)
     this%dir = 0
     this%n_el_lvls = 0
     this%n_gll_lvls = 0
@@ -388,38 +407,25 @@ contains
   !! @param avg_planes output averages
   !! @param field_list list of fields to be averaged
   subroutine map_1d_average_field_list(this, avg_planes, field_list)
-    class(map_1d_t), intent(inout) :: this
-    type(field_list_t), intent(inout) :: field_list
+    class(map_1d_t), intent(in) :: this
+    type(field_list_t), intent(in) :: field_list
     type(matrix_t), intent(inout) :: avg_planes
-    integer :: n, ierr, j, i
-    real(kind=rp) :: coord
+    integer :: n, j, i
+
     call avg_planes%free()
     call avg_planes%init(this%n_gll_lvls, field_list%size() + 1)
     avg_planes = 0.0_rp
-    !ugly way of getting coordinates, computes average
+
     n = this%dof%size()
-    do i = 1, n
-       if (this%dir .eq. 1) coord = this%dof%x%x(i,1,1,1)
-       if (this%dir .eq. 2) coord = this%dof%y%x(i,1,1,1)
-       if (this%dir .eq. 3) coord = this%dof%z%x(i,1,1,1)
-       avg_planes%x(this%pt_lvl(i,1,1,1), 1) = &
-            avg_planes%x(this%pt_lvl(i,1,1,1), 1) + &
-            coord * this%coef%B(i,1,1,1) / &
-            this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
-    end do
     do j = 2, field_list%size() + 1
        do i = 1, n
           avg_planes%x(this%pt_lvl(i,1,1,1), j) = &
                avg_planes%x(this%pt_lvl(i,1,1,1), j) + &
-               field_list%items(j-1)%ptr%x(i,1,1,1) * this%coef%B(i,1,1,1) &
-               /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
+               field_list%items(j-1)%ptr%x(i,1,1,1) * this%coef%B(i,1,1,1)
        end do
     end do
-    if (pe_size .gt. 1) then
-       call MPI_Allreduce(MPI_IN_PLACE, avg_planes%x, &
-            (field_list%size() + 1) * this%n_gll_lvls, MPI_REAL_PRECISION, &
-            MPI_SUM, NEKO_COMM, ierr)
-    end if
+
+    call map_1d_finalize_average(this, avg_planes, field_list%size())
 
   end subroutine map_1d_average_field_list
 
@@ -429,41 +435,53 @@ contains
   !! @param avg_planes output averages
   !! @param vector_pts to vectors to be averaged
   subroutine map_1d_average_vector_ptr(this, avg_planes, vector_ptr)
-    class(map_1d_t), intent(inout) :: this
+    class(map_1d_t), intent(in) :: this
     !Observe is an array...
-    type(vector_ptr_t), intent(inout) :: vector_ptr(:)
+    type(vector_ptr_t), intent(in) :: vector_ptr(:)
     type(matrix_t), intent(inout) :: avg_planes
-    integer :: n, ierr, j, i
-    real(kind=rp) :: coord
+    integer :: n, j, i
 
     call avg_planes%free()
     call avg_planes%init(this%n_gll_lvls, size(vector_ptr) + 1)
-    !ugly way of getting coordinates, computes average
     avg_planes = 0.0_rp
 
     n = this%dof%size()
-    do i = 1, n
-       if (this%dir .eq. 1) coord = this%dof%x%x(i,1,1,1)
-       if (this%dir .eq. 2) coord = this%dof%y%x(i,1,1,1)
-       if (this%dir .eq. 3) coord = this%dof%z%x(i,1,1,1)
-       avg_planes%x(this%pt_lvl(i,1,1,1), 1) = &
-            avg_planes%x(this%pt_lvl(i,1,1,1), 1) + &
-            coord * this%coef%B(i,1,1,1) / &
-            this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
-    end do
     do j = 2, size(vector_ptr) + 1
        do i = 1, n
           avg_planes%x(this%pt_lvl(i,1,1,1), j) = &
                avg_planes%x(this%pt_lvl(i,1,1,1), j) + &
-               vector_ptr(j-1)%ptr%x(i)*this%coef%B(i,1,1,1) &
-               /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
+               vector_ptr(j-1)%ptr%x(i) * this%coef%B(i,1,1,1)
        end do
     end do
-    call MPI_Allreduce(MPI_IN_PLACE, avg_planes%x, &
-         (size(vector_ptr) + 1) * this%n_gll_lvls, MPI_REAL_PRECISION, &
-         MPI_SUM, NEKO_COMM, ierr)
 
+    call map_1d_finalize_average(this, avg_planes, size(vector_ptr))
 
   end subroutine map_1d_average_vector_ptr
+
+  !> Reduces the volume-weighted level sums of `n_fields` fields, stored in
+  !! columns 2 to `n_fields + 1` of `avg_planes`, over all ranks, divides
+  !! them by the level volumes and stores the level coordinates in the first
+  !! column.
+  subroutine map_1d_finalize_average(this, avg_planes, n_fields)
+    class(map_1d_t), intent(in) :: this
+    type(matrix_t), intent(inout) :: avg_planes
+    integer, intent(in) :: n_fields
+    real(kind=rp), allocatable :: sums(:,:)
+    integer :: ierr, j
+
+    allocate(sums(this%n_gll_lvls, n_fields))
+    sums = avg_planes%x(:, 2:n_fields + 1)
+    if (pe_size .gt. 1 .and. n_fields .gt. 0) then
+       call MPI_Allreduce(MPI_IN_PLACE, sums, n_fields * this%n_gll_lvls, &
+            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    end if
+
+    avg_planes%x(:, 1) = this%coord_per_gll_lvl
+    do j = 1, n_fields
+       avg_planes%x(:, j + 1) = sums(:, j) / this%volume_per_gll_lvl
+    end do
+    deallocate(sums)
+
+  end subroutine map_1d_finalize_average
 
 end module map_1d
