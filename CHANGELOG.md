@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Organaized `fluid_pnpn_t`, so that types extending `fluid_pnpn_t` can
+  reuse them.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the
