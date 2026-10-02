@@ -25,6 +25,7 @@
   extent. The `.chkp` format remains available through a single-scalar
   compatibility view, and existing flat HDF5 checkpoints remain readable.
 
+- Fixed several OpenMP races in the scratch registry.
 - Added a setup-time conditioning diagnostic for the geometric factors, on
   `COEF_FULL` coefficient sets only. `coef_metric_condition` logs the worst
   metric condition number over the mesh, the worst for its Jacobi scaled
