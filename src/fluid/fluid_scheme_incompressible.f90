@@ -271,6 +271,23 @@ contains
     write(log_buf, '(A, L1)') 'Full stress: ', full_stress_formulation
     call neko_log%message(log_buf)
 
+    ! Compressed geometric factors, read by the standard Helmholtz
+    ! operators of the fluid, the scalars and the multigrid levels
+    call json_get_or_default(params, &
+         'case.numerics.compress_geometric_factors', logical_val, .false.)
+    write(log_buf, '(A, L1)') 'Compress G : ', logical_val
+    call neko_log%message(log_buf)
+    if (logical_val) then
+       if (params%valid_path( &
+            'case.numerics.compress_geometric_factors_tolerance')) then
+          call json_get_or_lookup(params, &
+               'case.numerics.compress_geometric_factors_tolerance', real_val)
+          call this%c_Xh%enable_geo_compression(real_val)
+       else
+          call this%c_Xh%enable_geo_compression()
+       end if
+    end if
+
 
     !
     ! Setup right-hand side fields.

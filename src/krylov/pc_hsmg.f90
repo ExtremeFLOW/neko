@@ -284,8 +284,15 @@ contains
     call this%e_mg%init(this%dm_mg, 'work midl')
     call this%c_mg%init(this%gs_mg, COEF_OPERATOR)
 
-    ! Create backend specific Ax operator
-    call ax_helm_allocator(this%ax, type_name = "standard")
+    ! Create backend specific Ax operator. The coarse levels compress their
+    ! geometric factors when the fine level does
+    if (coef%geo_compression) then
+       call this%c_crs%enable_geo_compression(coef%geo_compression_tol)
+       call this%c_mg%enable_geo_compression(coef%geo_compression_tol)
+       call ax_helm_allocator(this%ax, type_name = "standard_compr")
+    else
+       call ax_helm_allocator(this%ax, type_name = "standard")
+    end if
 
     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)

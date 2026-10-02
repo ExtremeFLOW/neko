@@ -332,8 +332,18 @@ contains
 
     call print_phmg_info(this%nlvls, st, this%phmg_hrchy)
 
-    ! Create backend specific Ax operator
-    call ax_helm_allocator(this%ax, type_name = "standard")
+    ! Create backend specific Ax operator. The coarse levels compress their
+    ! geometric factors when the fine level does, and keep them in step
+    ! with a moving mesh through recompute_metrics()
+    if (coef%geo_compression) then
+       do i = 1, this%nlvls - 1
+          call this%phmg_hrchy%lvl(i)%coef%enable_geo_compression( &
+               coef%geo_compression_tol)
+       end do
+       call ax_helm_allocator(this%ax, type_name = "standard_compr")
+    else
+       call ax_helm_allocator(this%ax, type_name = "standard")
+    end if
 
     ! Interpolator Fine + mg levels
     allocate(this%intrp(this%nlvls - 1))
