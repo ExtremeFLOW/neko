@@ -176,8 +176,7 @@ contains
 
     this%shared_on_host = .true.
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
-    defined(HAVE_OPENCL) || defined(HAVE_METAL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_METAL)
     call device_event_create(this%gather_event, 2)
     call device_event_create(this%scatter_event, 2)
 #endif
@@ -233,8 +232,7 @@ contains
     this%nlocal = 0
     this%nshared = 0
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
-    defined(HAVE_OPENCL) || defined(HAVE_METAL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_METAL)
     if (c_associated(this%gather_event)) then
        call device_event_destroy(this%gather_event)
     end if
@@ -386,8 +384,9 @@ contains
          call neko_error('No device backend configured')
 #endif
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
-         defined(HAVE_OPENCL) || defined(HAVE_METAL)
+         ! Only the device comm. backends wait on the gather event, and
+         ! OpenCL has none of them
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_METAL)
          call device_event_record(this%gather_event, strm)
 #endif
 

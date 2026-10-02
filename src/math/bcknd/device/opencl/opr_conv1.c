@@ -49,7 +49,7 @@
 
 #include "conv1_kernel.cl.h"
 
-static int autotune_conv1[17] = {0};
+int *autotune_conv1 = NULL;
 
 /**
  * Fortran wrapper for device OpenCL convective terms
@@ -75,6 +75,11 @@ void opencl_conv1(void *du, void *u,
   local_kstep[1] = (*lx);
   global_kstep[0] = (*nel) * (*lx);
   global_kstep[1] = (*lx);
+
+  if (autotune_conv1 == NULL) {
+    autotune_conv1 = malloc(17 * sizeof(int));
+    memset(autotune_conv1, 0, 17 * sizeof(int));
+  }
 
 #define STR(X) #X
 #define CASE_1D(LX, QUEUE, EVENT)                                               \

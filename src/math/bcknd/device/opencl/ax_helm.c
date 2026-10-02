@@ -49,7 +49,7 @@
 
 #include "ax_helm_kernel.cl.h"
 
-static int autotune_ax_helm[13] = {0};
+int *autotune_ax_helm = NULL;
 
 /**
  * Fortran wrapper for device OpenCL Ax
@@ -73,6 +73,11 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
   local_kstep[1] = (*lx);
   global_kstep[0] = (*nelv) * (*lx);
   global_kstep[1] = (*lx);
+
+  if (autotune_ax_helm == NULL) {
+    autotune_ax_helm = malloc(13 * sizeof(int));
+    memset(autotune_ax_helm, 0, 13 * sizeof(int));
+  }
 
 #define STR(X) #X
 #define CASE_1D(LX, QUEUE, EVENT)                                               \

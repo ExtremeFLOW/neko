@@ -7,13 +7,13 @@
 - Fixed the `recycling` example failing at startup on duplicate simulation
   component names.
 - Fixed the OpenCL backend leaking an event on every gather-scatter and
-  Schwarz preconditioner application, and one per gather-scatter at free.
+  Schwarz preconditioner application.
 - Fixed leaks of OpenCL events in `rzero`, `rone` and the operator
   autotuning, of OpenCL programs at finalize, of the CUDA and HIP autotuning
   events, and of the RCCL communicator.
-- Fixed repeated calls to `device_init` and `device_finalize` redoing their
-  work; a second `device_init` recreated the device queues and wiped the host
-  to device address table.
+- Fixed a second call to `device_init` recreating the device queues and
+  wiping the host to device address table. The device layer is now torn down
+  by the `device_finalize` matching the first `device_init`.
 - Fixed objects not being freed in several examples and contrib programs.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,

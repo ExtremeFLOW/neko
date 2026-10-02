@@ -49,7 +49,7 @@
 
 #include "dudxyz_kernel.cl.h"
 
-static int autotune_dudxyz[17] = {0};
+int *autotune_dudxyz = NULL;
 
 /**
  * Fortran wrapper for device OpenCL derivative kernels
@@ -72,6 +72,11 @@ void opencl_dudxyz(void *du, void *u,
   local_kstep[1] = (*lx);
   global_kstep[0] = (*nel) * (*lx);
   global_kstep[1] = (*lx);
+
+  if (autotune_dudxyz == NULL) {
+    autotune_dudxyz = malloc(17 * sizeof(int));
+    memset(autotune_dudxyz, 0, 17 * sizeof(int));
+  }
 
 #define STR(X) #X
 #define CASE_1D(LX, QUEUE, EVENT)                                               \

@@ -49,7 +49,7 @@
 
 #include "cdtp_kernel.cl.h"
 
-static int autotune_cdtp[17] = {0};
+int *autotune_cdtp = NULL;
 
 /**
  * Fortran wrapper for device OpenCL \f$ D^T X \f$
@@ -72,6 +72,11 @@ void opencl_cdtp(void *dtx, void *x,
   local_kstep[1] = (*lx);
   global_kstep[0] = (*nel) * (*lx);
   global_kstep[1] = (*lx);
+
+  if (autotune_cdtp == NULL) {
+    autotune_cdtp = malloc(17 * sizeof(int));
+    memset(autotune_cdtp, 0, 17 * sizeof(int));
+  }
 
 #define STR(X) #X
 #define CASE_1D(LX, QUEUE, EVENT)                                               \

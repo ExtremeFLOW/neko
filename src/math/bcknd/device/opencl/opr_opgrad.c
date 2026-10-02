@@ -49,7 +49,7 @@
 
 #include "opgrad_kernel.cl.h"
 
-static int autotune_opgrad[17] = {0};
+int *autotune_opgrad = NULL;
 
 /**
  * Fortran wrapper for device OpenCL gradients
@@ -74,6 +74,11 @@ void opencl_opgrad(void *ux, void *uy, void *uz, void *u,
   local_kstep[1] = (*lx);
   global_kstep[0] = (*nel) * (*lx);
   global_kstep[1] = (*lx);
+
+  if (autotune_opgrad == NULL) {
+    autotune_opgrad = malloc(17 * sizeof(int));
+    memset(autotune_opgrad, 0, 17 * sizeof(int));
+  }
 
 #define STR(X) #X
 #define CASE_1D(LX, QUEUE, EVENT)                                               \
