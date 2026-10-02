@@ -30,6 +30,11 @@
               "enum": ["solver", "volume_mean"],
               "default": "solver",
               "description": "Gauge of the pressure entering the statistics: the pressure as computed by the solver, or shifted to a zero volume-weighted mean at every sample."
+            },
+            "keep_3d_fields": {
+              "type": "boolean",
+              "default": false,
+              "description": "With an avg_direction, keep the statistics as 3D mean fields (available in the registry) and average them when writing, instead of accumulating them in the averaged space."
             }
           },
           "additionalProperties": true

@@ -41,7 +41,7 @@ module map_1d
   use gather_scatter, only : GS_OP_ADD
   use mesh, only : mesh_t
   use device, only : device_memcpy, device_map, device_unmap, &
-       HOST_TO_DEVICE, DEVICE_TO_HOST
+       device_sync, HOST_TO_DEVICE, DEVICE_TO_HOST
   use comm, only : pe_size, pe_rank, NEKO_COMM, MPI_REAL_PRECISION
   use coefs, only : coef_t
   use field_list, only : field_list_t
@@ -644,9 +644,6 @@ contains
 
     allocate(this%tmp(max(lxy * nelv, 1)), this%tmp1(max(lx * nelv, 1)))
     allocate(this%acc(this%n_gll_lvls, 0:n_fields))
-    this%tmp = 0.0_rp
-    this%tmp1 = 0.0_rp
-    this%acc = 0.0_rp
 
     if (NEKO_BCKND_DEVICE .eq. 1 .and. nelv .gt. 0) then
        call device_map(this%el_sa, this%el_sa_d, nelv)
@@ -685,13 +682,17 @@ contains
             HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%csr_list, this%csr_list_d, &
             size(this%csr_list), HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%tmp, this%tmp_d, size(this%tmp), &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%tmp1, this%tmp1_d, size(this%tmp1), &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%acc, this%acc_d, size(this%acc), &
-            HOST_TO_DEVICE, sync = .true.)
+       ! Zero the work and accumulator on the device first: on unified
+       ! memory the device then faults the pages (device first touch), and
+       ! the host must not write to them while device work is in flight.
+       call device_rzero(this%tmp_d, size(this%tmp))
+       call device_rzero(this%tmp1_d, size(this%tmp1))
+       call device_rzero(this%acc_d, size(this%acc))
+       call device_sync()
     end if
+    this%tmp = 0.0_rp
+    this%tmp1 = 0.0_rp
+    this%acc = 0.0_rp
 
   end subroutine map_1d_accumulate_init
 
@@ -880,8 +881,12 @@ contains
   subroutine map_1d_accumulate_reset(this)
     class(map_1d_t), intent(inout) :: this
 
+    ! Device first, see accumulate_init.
+    if (c_associated(this%acc_d)) then
+       call device_rzero(this%acc_d, size(this%acc))
+       call device_sync()
+    end if
     if (allocated(this%acc)) this%acc = 0.0_rp
-    if (c_associated(this%acc_d)) call device_rzero(this%acc_d, size(this%acc))
 
   end subroutine map_1d_accumulate_reset
 

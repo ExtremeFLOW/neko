@@ -10,12 +10,14 @@ up to 8 in one direction) is exact as well. The statistics are accumulated
 directly in the averaged space, on the device when one is used, which is
 what this test checks: the basic set averaged in x and y and the full set
 averaged in z (2D output), and the full set averaged in xz and the basic
-set in yz (1D output).
+set in yz (1D output). Two more components keep the statistics as 3D
+fields (`keep_3d_fields`) and average them when writing, which must give
+the same results.
 """
 import glob
 import subprocess
 from os import remove
-from os.path import join
+from os.path import isfile, join
 
 import numpy as np
 
@@ -147,7 +149,7 @@ def check_2d(name, d, n_stats):
 
 
 def check_1d(name, dirs, n_stats):
-    files = sorted(glob.glob(join(TEST_DIR, f"{name}*.csv")))
+    files = sorted(glob.glob(join(TEST_DIR, f"{name}[0-9].csv")))
     assert len(files) == 1, files
     data = np.genfromtxt(files[0], delimiter=",")
     assert data.shape[1] == 2 + n_stats, data.shape
@@ -162,8 +164,8 @@ def check_1d(name, dirs, n_stats):
 def test_fluid_stats_avg(launcher_script, request, log_file, tmp_path):
     del request, tmp_path
 
-    for pattern in ("avg_?0*", "avg_??0*", "avg_?*.csv", "avg_??*.csv"):
-        for path in glob.glob(join(TEST_DIR, pattern)):
+    for path in glob.glob(join(TEST_DIR, "avg_*")):
+        if isfile(path):
             remove(path)
 
     result = subprocess.run(
@@ -192,3 +194,5 @@ def test_fluid_stats_avg(launcher_script, request, log_file, tmp_path):
     check_2d("avg_z", 3, 44)
     check_1d("avg_xz", (1, 3), 44)
     check_1d("avg_yz", (2, 3), 11)
+    check_2d("avg_z3d", 3, 44)
+    check_1d("avg_xz3d", (1, 3), 11)

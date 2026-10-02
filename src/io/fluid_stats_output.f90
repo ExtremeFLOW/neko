@@ -45,7 +45,9 @@ module fluid_stats_output
   private
 
   !> Defines an output for the fluid statistics computed using the
-  !! `fluid_stats_t` object.
+  !! `fluid_stats_t` object. Statistics accumulated in the averaged space
+  !! are written from their accumulators, 3D mean fields are written as
+  !! they are or averaged over the direction(s) of the statistics first.
   type, public, extends(output_t) :: fluid_stats_output_t
      !> Pointer to the object computing the statistics.
      type(fluid_stats_t), pointer :: stats => null()
@@ -82,8 +84,9 @@ contains
     character(len=1024) :: fname
     character(len=4) :: suffix
 
-    this%output_dim = stats%avg_dim
-    if (this%output_dim .eq. 1 .and. len_trim(hom_dir) .ne. 2) then
+    this%output_dim = stats%output_dim
+    if ((this%output_dim .eq. 1 .and. len_trim(hom_dir) .ne. 2) .or. &
+         (this%output_dim .eq. 2 .and. len_trim(hom_dir) .ne. 1)) then
        call neko_error('fluid_stats_output: the averaging direction does' // &
             ' not match the statistics')
     end if
@@ -134,45 +137,68 @@ contains
     integer :: i
     type(matrix_t) :: avg_output_1d
     type(fld_file_data_t) :: output_2d
-    real(kind=rp) :: u, v, w, p
 
-    associate (out_fields => this%stats%stat_fields%items)
-      if (t .ge. this%T_begin) then
-         if (this%output_dim .eq. 1) then
-            call this%stats%map_1d%accumulated_average(avg_output_1d)
+    if (t .lt. this%T_begin) return
+
+    associate (stats => this%stats, out_fields => this%stats%stat_fields)
+      if (stats%avg_dim .eq. 3) then
+         ! 3D mean fields, written as they are or averaged on the host.
+         call stats%make_strong_grad()
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            do i = 1, out_fields%size()
+               call device_memcpy(out_fields%items(i)%ptr%x, &
+                    out_fields%items(i)%ptr%x_d, out_fields%item_size(i), &
+                    DEVICE_TO_HOST, sync = (i .eq. out_fields%size()))
+            end do
+         end if
+         select case (this%output_dim)
+         case (1)
+            call stats%map_1d%average_planes(avg_output_1d, out_fields)
             call this%file_%write(avg_output_1d, t)
             call avg_output_1d%free()
-         else if (this%output_dim .eq. 2) then
-            call this%stats%map_2d%accumulated_average(output_2d)
-            !Switch around fields to get correct orders
-            !Put average direction mean_vel in scalar45
-            do i = 1, this%stats%map_2d%n_2d
-               u = output_2d%v%x(i)
-               v = output_2d%w%x(i)
-               w = output_2d%p%x(i)
-               p = output_2d%u%x(i)
-               output_2d%p%x(i) = p
-               output_2d%u%x(i) = u
-               output_2d%v%x(i) = v
-               output_2d%w%x(i) = w
-            end do
-
+         case (2)
+            call stats%map_2d%average(output_2d, out_fields)
+            call reorder_2d(output_2d, stats%map_2d%n_2d)
             call this%file_%write(output_2d, t)
             call output_2d%free()
-         else
-            call this%stats%make_strong_grad()
-            if ( NEKO_BCKND_DEVICE .eq. 1) then
-               do i = 1, size(out_fields)
-                  call device_memcpy(out_fields(i)%ptr%x, &
-                       out_fields(i)%ptr%x_d, out_fields(i)%ptr%dof%size(), &
-                       DEVICE_TO_HOST, sync = (i .eq. size(out_fields)))
-               end do
-            end if
-            call this%file_%write(this%stats%stat_fields, t)
-         end if
-         call this%stats%reset()
+         case default
+            call this%file_%write(out_fields, t)
+         end select
+      else if (this%output_dim .eq. 1) then
+         call stats%map_1d%accumulated_average(avg_output_1d)
+         call this%file_%write(avg_output_1d, t)
+         call avg_output_1d%free()
+      else
+         call stats%map_2d%accumulated_average(output_2d)
+         call reorder_2d(output_2d, stats%map_2d%n_2d)
+         call this%file_%write(output_2d, t)
+         call output_2d%free()
       end if
+      call stats%reset()
     end associate
+
   end subroutine fluid_stats_output_sample
+
+  !> Moves the 2D statistics into the slots of the fld file: the pressure
+  !! and velocity averages into their own slots, with the mean velocity in
+  !! the averaging direction in the last scalar.
+  subroutine reorder_2d(output_2d, n)
+    type(fld_file_data_t), intent(inout) :: output_2d
+    integer, intent(in) :: n
+    real(kind=rp) :: u, v, w, p
+    integer :: i
+
+    do i = 1, n
+       u = output_2d%v%x(i)
+       v = output_2d%w%x(i)
+       w = output_2d%p%x(i)
+       p = output_2d%u%x(i)
+       output_2d%p%x(i) = p
+       output_2d%u%x(i) = u
+       output_2d%v%x(i) = v
+       output_2d%w%x(i) = w
+    end do
+
+  end subroutine reorder_2d
 
 end module fluid_stats_output

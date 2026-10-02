@@ -10,7 +10,13 @@
   CUDA, HIP, OpenCL and Metal backends. The memory of the statistics
   shrinks from up to 44 3D fields to the averaged data, and writing an
   output no longer passes over the 3D fields. The registry fields
-  `<name>/mean_*` are only created without an averaging direction.
+  `<name>/mean_*` are only created without an averaging direction, or
+  with the new `keep_3d_fields` option, which keeps the previous
+  behaviour of averaging the 3D mean fields when they are written.
+- `fluid_stats` borrows at most 8 scratch fields while sampling (2 work
+  and 6 gradient fields, computing the gradient of `v` twice) instead of
+  14, so that the scratch registry, which grows by 10 fields at a time,
+  typically does not grow because of the statistics.
 - Added the `pressure_gauge` option to the `fluid_stats` simulation
   component: `solver` (default) samples the pressure as computed by the
   solver, `volume_mean` shifts it to a zero volume-weighted mean at every

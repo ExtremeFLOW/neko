@@ -22,7 +22,11 @@
       "freeze": true,
       "initial_condition": {
         "type": "uniform",
-        "value": [0.0, 0.0, 0.0]
+        "value": [
+          0.0,
+          0.0,
+          0.0
+        ]
       },
       "velocity_solver": {
         "type": "cg",
@@ -45,7 +49,14 @@
       "boundary_conditions": [
         {
           "type": "no_slip",
-          "zone_indices": [1, 2, 3, 4, 5, 6]
+          "zone_indices": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
         }
       ],
       "output_control": "never"
@@ -101,6 +112,30 @@
         "output_filename": "avg_yz",
         "set_of_stats": "basic",
         "avg_direction": "yz",
+        "compute_control": "tsteps",
+        "compute_value": 1,
+        "output_control": "tsteps",
+        "output_value": 2
+      },
+      {
+        "type": "fluid_stats",
+        "name": "avg_z3d",
+        "output_filename": "avg_z3d",
+        "set_of_stats": "full",
+        "avg_direction": "z",
+        "keep_3d_fields": true,
+        "compute_control": "tsteps",
+        "compute_value": 1,
+        "output_control": "tsteps",
+        "output_value": 2
+      },
+      {
+        "type": "fluid_stats",
+        "name": "avg_xz3d",
+        "output_filename": "avg_xz3d",
+        "set_of_stats": "basic",
+        "avg_direction": "xz",
+        "keep_3d_fields": true,
         "compute_control": "tsteps",
         "compute_value": 1,
         "output_control": "tsteps",

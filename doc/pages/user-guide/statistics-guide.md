@@ -85,6 +85,7 @@ Statistics are enabled in the case file as a simcomp with the added argument
 | `compute_value`   | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int | - (recommended every 50 timesteps or so) |
 | `output_filename` | User-specified base filename for the output.                                                                           | filename             | `fluid_stats`                            |
 | `pressure_gauge`  | Gauge of the pressure entering the statistics, see below.                                                             | solver, volume_mean  | solver                                   |
+| `keep_3d_fields`  | With an `avg_direction`, keep the statistics as 3D fields and average them when writing, see below.                   | true, false          | false                                    |
 
 The run and per-run counters are appended according to
 @ref statistics-output-filenames.
@@ -139,7 +140,12 @@ that of the averaged data rather than of up to 44 3D fields, and writing an
 output does not pass over the 3D fields again. The products entering the
 nonlinear statistics are formed before any averaging, so the results are
 the same as those of the 3D statistics averaged at output time. The mesh
-must be stacked (extruded) in the averaging direction(s).
+must be stacked (extruded) in the averaging direction(s). With
+`"keep_3d_fields": true` the statistics are instead kept as 3D mean
+fields, as without an averaging direction, and averaged when they are
+written. This costs the memory of the 3D fields but keeps the registry
+fields `<name>/mean_*` described below available, for other components or
+user code.
 The statistics are saved in a fld file according to the following in 2D and
 3D. Observe that in 2D the mean Z-velocity is stored in a last scalar field.
 All other fields are kept the same. This is due to a limitation of the fld file
@@ -159,8 +165,8 @@ specified, the name of the simcomp will default to `fluid_stats`.
 For example, if `"fields": ["s", "my_field"]` and `"name": "my_stats"` then 
 the fields `"my_stats/mean_s"` and `"my_stats/mean_my_field"` will be added 
 to the registry. These 3D mean fields only exist when no `avg_direction` is
-given; with an averaging direction the statistics are only available
-through the output files.
+given or when `keep_3d_fields` is set; otherwise the statistics of an
+averaging direction are only available through the output files.
 
 ## List of fields in output files
 
