@@ -259,6 +259,8 @@ contains
                call gs_h%gs_op_vector(z(:, j), n, GS_OP_ADD)
                call blst%apply(z(:, j), n, ifgs = .true.)
                call gs_h%interp%apply_j(z(:, j), n)
+!!$               call gs_h%op_h1(z(:, j), n, GS_OP_ADD)
+!!$               call blst%apply(z(:, j), n)
             end if
 
             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)

@@ -202,6 +202,8 @@ contains
             call gs_h%gs_op_vector(z, n, GS_OP_ADD)
             call blst%apply(z, n, ifgs = .true.)
             call gs_h%interp%apply_j(z, n)
+!!$            call gs_h%op_h1(z, n, GS_OP_ADD)
+!!$            call blst%apply(z, n)
          end if
 
          rtz2 = rtz1
