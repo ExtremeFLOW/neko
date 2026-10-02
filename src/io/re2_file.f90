@@ -155,7 +155,7 @@ contains
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
 
     if (ierr .ne. 0) then
-       call neko_log%error("Can't open binary NEKTON file ")
+       call neko_error("Can't open binary NEKTON file ")
     end if
     dist = linear_dist_t(nelv, pe_rank, pe_size, NEKO_COMM)
 
@@ -257,6 +257,9 @@ contains
     if (pe_rank .eq. 0) then
        open(newunit = file_unit, file = trim(this%get_fname()), &
             status = 'new', iostat = ierr)
+       if (ierr .ne. 0) then
+          call neko_error("Cannot create new file " // trim(this%get_fname()))
+       end if
        write(file_unit, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
             nelgv, RE2_HDR_STR
        close(file_unit)
