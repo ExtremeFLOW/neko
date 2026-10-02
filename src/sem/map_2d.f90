@@ -62,6 +62,11 @@ module map_2d
   use mpi_f08, only : MPI_Allreduce, MPI_Allgather, MPI_Allgatherv, &
        MPI_Alltoall, MPI_Alltoallv, MPI_Exscan, MPI_INTEGER, MPI_SUM
   use fld_file_data, only : fld_file_data_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : device_map, device_unmap, device_memcpy, &
+       HOST_TO_DEVICE, DEVICE_TO_HOST
+  use device_math, only : device_slab_sum, device_gather_add, device_rzero
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_associated, C_NULL_PTR
   implicit none
   private
 
@@ -109,6 +114,33 @@ module map_2d
      integer :: n_recv = 0
      !> Local 2D element of each received column contribution.
      integer, allocatable :: recv_el(:)
+     !> Number of fields accumulated per sample, see `accumulate`.
+     integer :: n_acc = 0
+     !> 0-based strides of the in-plane indices and of the homogeneous
+     !! index of each element, see `element_strides`.
+     integer, allocatable :: el_sa(:), el_sb(:), el_sh(:)
+     !> 0-based permutation code of each element.
+     integer, allocatable :: el_code0(:)
+     !> 0-based in-plane node permutation tables, `(lxy * N_PERM)`.
+     integer, allocatable :: tbl0(:)
+     !> Rows of the column sums: `csr_ptr` holds `(lxy * n_cols + 1)` 0-based
+     !! offsets into `csr_list`, the 0-based entries of `tmp` summed by each
+     !! row.
+     integer, allocatable :: csr_ptr(:), csr_list(:)
+     !> Slab sums of the elements, `(lxy * nelv)`.
+     real(kind=rp), allocatable :: tmp(:)
+     !> Accumulated column sums, `(lxy, n_cols, 0:n_acc)`. Slot 0 holds the
+     !! accumulated column volumes.
+     real(kind=rp), allocatable :: acc(:,:,:)
+     type(c_ptr) :: el_sa_d = C_NULL_PTR
+     type(c_ptr) :: el_sb_d = C_NULL_PTR
+     type(c_ptr) :: el_sh_d = C_NULL_PTR
+     type(c_ptr) :: el_code0_d = C_NULL_PTR
+     type(c_ptr) :: tbl0_d = C_NULL_PTR
+     type(c_ptr) :: csr_ptr_d = C_NULL_PTR
+     type(c_ptr) :: csr_list_d = C_NULL_PTR
+     type(c_ptr) :: tmp_d = C_NULL_PTR
+     type(c_ptr) :: acc_d = C_NULL_PTR
    contains
      procedure, pass(this) :: init_int => map_2d_init
      procedure, pass(this) :: init_char => map_2d_init_char
@@ -117,6 +149,20 @@ module map_2d
      procedure, pass(this) :: average_file => map_2d_average
      procedure, pass(this) :: average_list => map_2d_average_field_list
      generic :: average => average_list, average_file
+     !> Prepare the accumulation of fields averaged in the homogeneous
+     !! direction.
+     procedure, pass(this) :: accumulate_init => map_2d_accumulate_init
+     !> Add the column sums of a field, scaled, to the accumulated sums.
+     procedure, pass(this) :: accumulate => map_2d_accumulate
+     !> Add the column volumes, scaled, to the accumulated sums.
+     procedure, pass(this) :: accumulate_volume => map_2d_accumulate_volume
+     !> Reset the accumulated sums to zero.
+     procedure, pass(this) :: accumulate_reset => map_2d_accumulate_reset
+     !> Output the accumulated averages as a 2D field.
+     procedure, pass(this) :: accumulated_average => &
+          map_2d_accumulated_average
+     !> Free the accumulation data.
+     procedure, pass(this) :: accumulate_free => map_2d_accumulate_free
   end type map_2d_t
 
 contains
@@ -347,6 +393,7 @@ contains
     if (allocated(this%recv_displ)) deallocate(this%recv_displ)
     if (allocated(this%recv_el)) deallocate(this%recv_el)
 
+    call this%accumulate_free()
     call this%map_1d%free()
 
     nullify(this%msh)
@@ -425,8 +472,26 @@ contains
     type(fld_file_data_t), intent(inout) :: fld_data2D
     integer, intent(in) :: nf
     type(field_ptr_1d_t), intent(in) :: flds(nf)
-    type(vector_ptr_t), allocatable :: fields2d(:)
     real(kind=rp), allocatable :: avg(:,:,:)
+
+    allocate(avg(this%lxy, nf, this%nelv_2d))
+    call map_2d_column_average(this, flds, nf, avg)
+    call map_2d_fill_output(this, fld_data2D, avg, nf)
+    deallocate(avg)
+
+  end subroutine map_2d_average_fields
+
+  !> Sets up a 2D field and fills it with the averages on the 2D elements
+  !! of this rank.
+  !! @param fld_data2D Output 2D field.
+  !! @param avg Averages on the 2D elements of this rank.
+  !! @param nf Number of fields.
+  subroutine map_2d_fill_output(this, fld_data2D, avg, nf)
+    class(map_2d_t), intent(in) :: this
+    type(fld_file_data_t), intent(inout) :: fld_data2D
+    integer, intent(in) :: nf
+    real(kind=rp), intent(in) :: avg(this%lxy, nf, this%nelv_2d)
+    type(vector_ptr_t), allocatable :: fields2d(:)
     integer :: i, e, m, lxy
 
     lxy = this%lxy
@@ -440,9 +505,6 @@ contains
     call map_2d_output_coords(this, fld_data2D)
     call fld_data2D%init_n_fields(nf, this%n_2d)
 
-    allocate(avg(lxy, nf, this%nelv_2d))
-    call map_2d_column_average(this, flds, nf, avg)
-
     allocate(fields2d(nf))
     call fld_data2D%get_list(fields2d, nf)
     do i = 1, nf
@@ -453,9 +515,9 @@ contains
        end do
     end do
 
-    deallocate(avg, fields2d)
+    deallocate(fields2d)
 
-  end subroutine map_2d_average_fields
+  end subroutine map_2d_fill_output
 
   !> Sets the element indices and the in-plane coordinates of a 2D field.
   subroutine map_2d_output_coords(this, fld_data2D)
@@ -490,12 +552,11 @@ contains
     integer, intent(in) :: nf
     type(field_ptr_1d_t), intent(in) :: flds(nf)
     real(kind=rp), intent(out) :: avg(this%lxy, nf, this%nelv_2d)
-    real(kind=rp), allocatable :: acc(:,:,:), recv(:,:,:), vol(:,:)
+    real(kind=rp), allocatable :: acc(:,:,:)
     real(kind=rp), contiguous, pointer :: wt(:)
-    integer, allocatable :: send_cnt(:), send_dsp(:), recv_cnt(:), recv_dsp(:)
     real(kind=rp) :: s
-    integer :: e, c, code, j, k, a, b, h, m, p, p0, lx, lxy, n, nelv, slab
-    integer :: base, sa, sb, sh, ierr
+    integer :: e, c, code, j, a, b, h, m, p, p0, lx, lxy, n, nelv
+    integer :: base, sa, sb, sh
 
     lx = this%dof%Xh%lx
     lxy = this%lxy
@@ -537,7 +598,28 @@ contains
        end do
     end do
 
-    ! Send the column sums to the ranks owning the 2D elements.
+    call map_2d_reduce_columns(this, acc, nf, avg)
+
+    deallocate(acc)
+
+  end subroutine map_2d_column_average
+
+  !> Sends the column sums to the ranks owning the 2D elements, where they
+  !! are summed and divided by the column volumes.
+  !! @param sums Column sums of the local columns, slot 0 holding the
+  !! column volumes.
+  !! @param nf Number of fields.
+  !! @param avg Averages on the 2D elements owned by this rank.
+  subroutine map_2d_reduce_columns(this, sums, nf, avg)
+    class(map_2d_t), intent(in) :: this
+    integer, intent(in) :: nf
+    real(kind=rp), intent(in) :: sums(this%lxy, 0:nf, this%n_cols)
+    real(kind=rp), intent(out) :: avg(this%lxy, nf, this%nelv_2d)
+    real(kind=rp), allocatable :: recv(:,:,:), vol(:,:)
+    integer, allocatable :: send_cnt(:), send_dsp(:), recv_cnt(:), recv_dsp(:)
+    integer :: e, j, k, lxy, slab, ierr
+
+    lxy = this%lxy
     slab = lxy * (nf + 1)
     allocate(send_cnt(0:pe_size - 1), send_dsp(0:pe_size - 1))
     allocate(recv_cnt(0:pe_size - 1), recv_dsp(0:pe_size - 1))
@@ -546,7 +628,7 @@ contains
     recv_cnt = this%recv_cols * slab
     recv_dsp = this%recv_displ * slab
     allocate(recv(lxy, 0:nf, max(this%n_recv, 1)))
-    call MPI_Alltoallv(acc, send_cnt, send_dsp, MPI_REAL_PRECISION, &
+    call MPI_Alltoallv(sums, send_cnt, send_dsp, MPI_REAL_PRECISION, &
          recv, recv_cnt, recv_dsp, MPI_REAL_PRECISION, NEKO_COMM, ierr)
 
     allocate(vol(lxy, this%nelv_2d))
@@ -568,9 +650,293 @@ contains
        end do
     end do
 
-    deallocate(acc, recv, vol, send_cnt, send_dsp, recv_cnt, recv_dsp)
+    deallocate(recv, vol, send_cnt, send_dsp, recv_cnt, recv_dsp)
 
-  end subroutine map_2d_column_average
+  end subroutine map_2d_reduce_columns
+
+  !> Prepares the accumulation of `n_fields` fields averaged in the
+  !! homogeneous direction, see `accumulate`.
+  !! @param n_fields Number of fields accumulated per sample.
+  subroutine map_2d_accumulate_init(this, n_fields)
+    class(map_2d_t), intent(inout) :: this
+    integer, intent(in) :: n_fields
+    integer, allocatable :: cnt(:)
+    integer :: e, c, k, m, lxy, nelv, nrows, base, sa, sb, sh
+
+    call this%accumulate_free()
+    this%n_acc = n_fields
+    lxy = this%lxy
+    nelv = this%msh%nelv
+
+    allocate(this%el_sa(nelv), this%el_sb(nelv), this%el_sh(nelv))
+    allocate(this%el_code0(nelv))
+    do e = 1, nelv
+       call element_strides(this, e, base, sa, sb, sh)
+       this%el_sa(e) = sa
+       this%el_sb(e) = sb
+       this%el_sh(e) = sh
+       this%el_code0(e) = this%el_perm(e) - 1
+    end do
+    allocate(this%tbl0(lxy * N_PERM))
+    do k = 1, N_PERM
+       do m = 1, lxy
+          this%tbl0(m + lxy * (k - 1)) = this%perm_tbl(m, k) - 1
+       end do
+    end do
+
+    ! Row (m, c) of the column sums gathers node m of the slab sums of the
+    ! elements in column c, in element order.
+    nrows = lxy * this%n_cols
+    allocate(this%csr_ptr(nrows + 1), this%csr_list(max(lxy * nelv, 1)))
+    allocate(cnt(max(this%n_cols, 1)))
+    cnt = 0
+    do e = 1, nelv
+       cnt(this%el_col(e)) = cnt(this%el_col(e)) + 1
+    end do
+    this%csr_ptr(1) = 0
+    do c = 1, this%n_cols
+       do m = 1, lxy
+          k = m + lxy * (c - 1)
+          this%csr_ptr(k + 1) = this%csr_ptr(k) + cnt(c)
+       end do
+    end do
+    cnt = 0
+    do e = 1, nelv
+       c = this%el_col(e)
+       do m = 1, lxy
+          k = m + lxy * (c - 1)
+          this%csr_list(this%csr_ptr(k) + cnt(c) + 1) = &
+               (m - 1) + lxy * (e - 1)
+       end do
+       cnt(c) = cnt(c) + 1
+    end do
+    deallocate(cnt)
+
+    allocate(this%tmp(max(lxy * nelv, 1)))
+    allocate(this%acc(lxy, max(this%n_cols, 1), 0:n_fields))
+    this%tmp = 0.0_rp
+    this%acc = 0.0_rp
+
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. nelv .gt. 0) then
+       call device_map(this%el_sa, this%el_sa_d, nelv)
+       call device_map(this%el_sb, this%el_sb_d, nelv)
+       call device_map(this%el_sh, this%el_sh_d, nelv)
+       call device_map(this%el_code0, this%el_code0_d, nelv)
+       call device_map(this%tbl0, this%tbl0_d, size(this%tbl0))
+       call device_map(this%csr_ptr, this%csr_ptr_d, size(this%csr_ptr))
+       call device_map(this%csr_list, this%csr_list_d, size(this%csr_list))
+       call device_map(this%tmp, this%tmp_d, size(this%tmp))
+       call device_map(this%acc, this%acc_d, size(this%acc))
+       call device_memcpy(this%el_sa, this%el_sa_d, nelv, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%el_sb, this%el_sb_d, nelv, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%el_sh, this%el_sh_d, nelv, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%el_code0, this%el_code0_d, nelv, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%tbl0, this%tbl0_d, size(this%tbl0), &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%csr_ptr, this%csr_ptr_d, size(this%csr_ptr), &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%csr_list, this%csr_list_d, &
+            size(this%csr_list), HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%tmp, this%tmp_d, size(this%tmp), &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%acc, this%acc_d, size(this%acc), &
+            HOST_TO_DEVICE, sync = .true.)
+    end if
+
+  end subroutine map_2d_accumulate_init
+
+  !> Frees the accumulation data.
+  subroutine map_2d_accumulate_free(this)
+    class(map_2d_t), intent(inout) :: this
+
+    if (c_associated(this%el_sa_d)) call device_unmap(this%el_sa, this%el_sa_d)
+    if (c_associated(this%el_sb_d)) call device_unmap(this%el_sb, this%el_sb_d)
+    if (c_associated(this%el_sh_d)) call device_unmap(this%el_sh, this%el_sh_d)
+    if (c_associated(this%el_code0_d)) then
+       call device_unmap(this%el_code0, this%el_code0_d)
+    end if
+    if (c_associated(this%tbl0_d)) call device_unmap(this%tbl0, this%tbl0_d)
+    if (c_associated(this%csr_ptr_d)) then
+       call device_unmap(this%csr_ptr, this%csr_ptr_d)
+    end if
+    if (c_associated(this%csr_list_d)) then
+       call device_unmap(this%csr_list, this%csr_list_d)
+    end if
+    if (c_associated(this%tmp_d)) call device_unmap(this%tmp, this%tmp_d)
+    if (c_associated(this%acc_d)) call device_unmap(this%acc, this%acc_d)
+    this%el_sa_d = C_NULL_PTR
+    this%el_sb_d = C_NULL_PTR
+    this%el_sh_d = C_NULL_PTR
+    this%el_code0_d = C_NULL_PTR
+    this%tbl0_d = C_NULL_PTR
+    this%csr_ptr_d = C_NULL_PTR
+    this%csr_list_d = C_NULL_PTR
+    this%tmp_d = C_NULL_PTR
+    this%acc_d = C_NULL_PTR
+
+    if (allocated(this%el_sa)) deallocate(this%el_sa)
+    if (allocated(this%el_sb)) deallocate(this%el_sb)
+    if (allocated(this%el_sh)) deallocate(this%el_sh)
+    if (allocated(this%el_code0)) deallocate(this%el_code0)
+    if (allocated(this%tbl0)) deallocate(this%tbl0)
+    if (allocated(this%csr_ptr)) deallocate(this%csr_ptr)
+    if (allocated(this%csr_list)) deallocate(this%csr_list)
+    if (allocated(this%tmp)) deallocate(this%tmp)
+    if (allocated(this%acc)) deallocate(this%acc)
+    this%n_acc = 0
+
+  end subroutine map_2d_accumulate_free
+
+  !> Adds the column sums of `k * f * B` to slot `slot` of the accumulated
+  !! column sums, where `B` is the mass matrix. The field is expected to be
+  !! up to date on the device, or on the host for the CPU backend.
+  !! @param f Field to accumulate.
+  !! @param slot Slot of the field, 1 to `n_acc`.
+  !! @param k Scaling of the sample, typically the time since the last one.
+  subroutine map_2d_accumulate(this, f, slot, k)
+    class(map_2d_t), intent(inout) :: this
+    type(field_t), intent(in) :: f
+    integer, intent(in) :: slot
+    real(kind=rp), intent(in) :: k
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call map_2d_accumulate_device(this, f%x_d, slot, k)
+    else
+       call map_2d_accumulate_host(this, slot, k, f%x)
+    end if
+
+  end subroutine map_2d_accumulate
+
+  !> Adds the column volumes, `k * B` summed over the columns, to slot 0 of
+  !! the accumulated column sums.
+  !! @param k Scaling of the sample, typically the time since the last one.
+  subroutine map_2d_accumulate_volume(this, k)
+    class(map_2d_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: k
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call map_2d_accumulate_device(this, C_NULL_PTR, 0, k)
+    else
+       call map_2d_accumulate_host(this, 0, k)
+    end if
+
+  end subroutine map_2d_accumulate_volume
+
+  !> Device implementation of the accumulation, a null `f_d` counts as one.
+  subroutine map_2d_accumulate_device(this, f_d, slot, k)
+    class(map_2d_t), intent(inout) :: this
+    type(c_ptr), intent(in) :: f_d
+    integer, intent(in) :: slot
+    real(kind=rp), intent(in) :: k
+    integer :: lx, lxy, nelv, nrows
+
+    lx = this%dof%Xh%lx
+    lxy = this%lxy
+    nelv = this%msh%nelv
+    nrows = lxy * this%n_cols
+
+    call device_slab_sum(this%tmp_d, f_d, this%coef%B_d, this%el_sa_d, &
+         this%el_sb_d, this%el_sh_d, this%el_code0_d, this%tbl0_d, lxy, lx, &
+         nelv, this%dof%Xh%lxyz, lxy)
+    call device_gather_add(this%acc_d, slot * nrows, this%tmp_d, &
+         this%csr_ptr_d, this%csr_list_d, nrows, k)
+
+  end subroutine map_2d_accumulate_device
+
+  !> Host implementation of the accumulation, a missing `f` counts as one.
+  subroutine map_2d_accumulate_host(this, slot, k, f)
+    class(map_2d_t), intent(inout) :: this
+    integer, intent(in) :: slot
+    real(kind=rp), intent(in) :: k
+    real(kind=rp), intent(in), optional :: f(*)
+    real(kind=rp), contiguous, pointer :: wt(:)
+    real(kind=rp) :: s
+    integer :: e, c, m, a, b, h, p, p0, r, j, lx, lxy, lxyz, n, nelv, code
+
+    lx = this%dof%Xh%lx
+    lxy = this%lxy
+    lxyz = this%dof%Xh%lxyz
+    n = this%dof%size()
+    nelv = this%msh%nelv
+    wt(1:n) => this%coef%B
+
+    do e = 1, nelv
+       code = this%el_code0(e)
+       do m = 0, lxy - 1
+          a = mod(m, lx)
+          b = m / lx
+          p0 = (e - 1) * lxyz + a * this%el_sa(e) + b * this%el_sb(e)
+          s = 0.0_rp
+          if (present(f)) then
+             do h = 0, lx - 1
+                p = p0 + h * this%el_sh(e) + 1
+                s = s + f(p) * wt(p)
+             end do
+          else
+             do h = 0, lx - 1
+                p = p0 + h * this%el_sh(e) + 1
+                s = s + wt(p)
+             end do
+          end if
+          this%tmp((e - 1) * lxy + this%tbl0(m + 1 + lxy * code) + 1) = s
+       end do
+    end do
+
+    do c = 1, this%n_cols
+       do m = 1, lxy
+          r = m + lxy * (c - 1)
+          s = 0.0_rp
+          do j = this%csr_ptr(r) + 1, this%csr_ptr(r + 1)
+             s = s + this%tmp(this%csr_list(j) + 1)
+          end do
+          this%acc(m, c, slot) = this%acc(m, c, slot) + k * s
+       end do
+    end do
+
+  end subroutine map_2d_accumulate_host
+
+  !> Resets the accumulated column sums to zero.
+  subroutine map_2d_accumulate_reset(this)
+    class(map_2d_t), intent(inout) :: this
+
+    if (allocated(this%acc)) this%acc = 0.0_rp
+    if (c_associated(this%acc_d)) call device_rzero(this%acc_d, size(this%acc))
+
+  end subroutine map_2d_accumulate_reset
+
+  !> Divides the accumulated column sums by the accumulated column volumes
+  !! and outputs the averages as a 2D field, in the order of the slots.
+  !! @param fld_data2D Output 2D averages.
+  subroutine map_2d_accumulated_average(this, fld_data2D)
+    class(map_2d_t), intent(inout) :: this
+    type(fld_file_data_t), intent(inout) :: fld_data2D
+    real(kind=rp), allocatable :: sums(:,:,:), avg(:,:,:)
+    integer :: c, j, nf
+
+    nf = this%n_acc
+    if (c_associated(this%acc_d)) then
+       call device_memcpy(this%acc, this%acc_d, size(this%acc), &
+            DEVICE_TO_HOST, sync = .true.)
+    end if
+
+    allocate(sums(this%lxy, 0:nf, this%n_cols))
+    do c = 1, this%n_cols
+       do j = 0, nf
+          sums(:, j, c) = this%acc(:, c, j)
+       end do
+    end do
+
+    allocate(avg(this%lxy, nf, this%nelv_2d))
+    call map_2d_reduce_columns(this, sums, nf, avg)
+    call map_2d_fill_output(this, fld_data2D, avg, nf)
+
+    deallocate(sums, avg)
+
+  end subroutine map_2d_accumulated_average
 
   !> Pointers to the two in-plane coordinates of the dofmap, in the order
   !! they are written to the 2D output.

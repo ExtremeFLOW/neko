@@ -2,6 +2,15 @@
 
 ## Develop
 
+- With an `avg_direction`, `fluid_stats` no longer keeps its statistics
+  as 3D mean fields that are averaged when written. Every sample is
+  reduced to the 2D or 1D averaged space right away, on the device when
+  one is used, through the new `accumulate` interface of `map_2d_t` and
+  `map_1d_t` and two new device kernels (`slab_sum`, `gather_add`) in the
+  CUDA, HIP, OpenCL and Metal backends. The memory of the statistics
+  shrinks from up to 44 3D fields to the averaged data, and writing an
+  output no longer passes over the 3D fields. The registry fields
+  `<name>/mean_*` are only created without an averaging direction.
 - Added the `pressure_gauge` option to the `fluid_stats` simulation
   component: `solver` (default) samples the pressure as computed by the
   solver, `volume_mean` shifts it to a zero volume-weighted mean at every

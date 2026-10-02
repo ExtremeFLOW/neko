@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_math
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int, c_associated
   use num_types, only : rp, xp, c_rp, c_xp
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
@@ -65,6 +65,7 @@ module device_math
        device_masked_scatter_copy_aligned, device_masked_copy_aligned, &
        device_vcross, device_absval, device_masked_atomic_reduction_0, &
        device_masked_gather_copy_0, device_masked_scatter_copy_0, &
+       device_slab_sum, device_gather_add, &
        device_invcol3, device_cdiv, device_cdiv2, device_glsubnorm, &
        device_pwmax2, device_pwmax3, device_cpwmax2, device_cpwmax3, &
        device_pwmin2, device_pwmin3, device_cpwmin2, device_cpwmin3, &
@@ -184,6 +185,95 @@ contains
     call neko_error('no device backend configured')
 #endif
   end subroutine device_masked_gather_copy_0
+
+  !> Partial sums along one local direction of every element.
+  !! For element `e` and output index `m = a + lx * b` (0-based), sums
+  !! `f(p) * w(p)` over `p = e * in_stride + a * sa(e) + b * sb(e) + h * sh(e)`,
+  !! `h = 0..lx-1`, and stores the sum at
+  !! `e * out_stride + tbl(m + n_out * code(e))`. All indices and strides are
+  !! 0-based. A null `f_d` or `w_d` counts as one.
+  subroutine device_slab_sum(tmp_d, f_d, w_d, sa_d, sb_d, sh_d, code_d, &
+       tbl_d, n_out, lx, nelv, in_stride, out_stride, strm)
+    type(c_ptr) :: tmp_d, f_d, w_d, sa_d, sb_d, sh_d, code_d, tbl_d
+    integer :: n_out, lx, nelv, in_stride, out_stride
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_, f_, w_
+    integer :: use_f, use_w
+
+    if (nelv .lt. 1 .or. n_out .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+    ! A missing field is replaced by a valid buffer that is never read.
+    use_f = 1
+    f_ = f_d
+    if (.not. c_associated(f_d)) then
+       use_f = 0
+       f_ = tmp_d
+    end if
+    use_w = 1
+    w_ = w_d
+    if (.not. c_associated(w_d)) then
+       use_w = 0
+       w_ = tmp_d
+    end if
+
+#if HAVE_HIP
+    call hip_slab_sum(tmp_d, f_, w_, sa_d, sb_d, sh_d, code_d, tbl_d, &
+         use_f, use_w, n_out, lx, nelv, in_stride, out_stride, strm_)
+#elif HAVE_CUDA
+    call cuda_slab_sum(tmp_d, f_, w_, sa_d, sb_d, sh_d, code_d, tbl_d, &
+         use_f, use_w, n_out, lx, nelv, in_stride, out_stride, strm_)
+#elif HAVE_OPENCL
+    call opencl_slab_sum(tmp_d, f_, w_, sa_d, sb_d, sh_d, code_d, tbl_d, &
+         use_f, use_w, n_out, lx, nelv, in_stride, out_stride, strm_)
+#elif HAVE_METAL
+    call metal_slab_sum(tmp_d, f_, w_, sa_d, sb_d, sh_d, code_d, tbl_d, &
+         use_f, use_w, n_out, lx, nelv, in_stride, out_stride, strm_)
+#else
+    call neko_error('no device backend configured')
+#endif
+  end subroutine device_slab_sum
+
+  !> Scaled sums of gathered entries,
+  !! `acc(offset + r) = acc(offset + r) + scale * sum(tmp(list(ptr(r):ptr(r+1)-1)))`
+  !! for `r = 0..nrows-1`, with 0-based indices.
+  subroutine device_gather_add(acc_d, offset, tmp_d, ptr_d, list_d, nrows, &
+       scale, strm)
+    type(c_ptr) :: acc_d, tmp_d, ptr_d, list_d
+    integer :: offset, nrows
+    real(kind=rp), intent(in) :: scale
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (nrows .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_gather_add(acc_d, offset, tmp_d, ptr_d, list_d, nrows, scale, &
+         strm_)
+#elif HAVE_CUDA
+    call cuda_gather_add(acc_d, offset, tmp_d, ptr_d, list_d, nrows, scale, &
+         strm_)
+#elif HAVE_OPENCL
+    call opencl_gather_add(acc_d, offset, tmp_d, ptr_d, list_d, nrows, &
+         scale, strm_)
+#elif HAVE_METAL
+    call metal_gather_add(acc_d, offset, tmp_d, ptr_d, list_d, nrows, scale, &
+         strm_)
+#else
+    call neko_error('no device backend configured')
+#endif
+  end subroutine device_gather_add
 
   !> Gather a face-local SEM field \f$ a(i) = b(face(mask(i), facet(i))) \f$.
   subroutine device_face_masked_gather_copy_0(a_d, b_d, mask_d, facet_d, n1, &

@@ -131,6 +131,15 @@ otherwise the first output will be slightly shorter than the rest. The code
 related to fluid statistics are located in fluid_stats and fluid_stats_simcomp.
 
 The argument "avg_direction" is optional and if ignored we output 3d fields.
+With an `avg_direction` the statistics are not kept as 3D fields: every
+sample is averaged over the given direction(s) right away, on the device
+when one is used, and accumulated in the 2D (one direction) or 1D (two
+directions) averaged space. The memory used by the statistics is then
+that of the averaged data rather than of up to 44 3D fields, and writing an
+output does not pass over the 3D fields again. The products entering the
+nonlinear statistics are formed before any averaging, so the results are
+the same as those of the 3D statistics averaged at output time. The mesh
+must be stacked (extruded) in the averaging direction(s).
 The statistics are saved in a fld file according to the following in 2D and
 3D. Observe that in 2D the mean Z-velocity is stored in a last scalar field.
 All other fields are kept the same. This is due to a limitation of the fld file
@@ -149,7 +158,9 @@ neko registry and retrievable under the following naming convention:
 specified, the name of the simcomp will default to `fluid_stats`.
 For example, if `"fields": ["s", "my_field"]` and `"name": "my_stats"` then 
 the fields `"my_stats/mean_s"` and `"my_stats/mean_my_field"` will be added 
-to the registry. 
+to the registry. These 3D mean fields only exist when no `avg_direction` is
+given; with an averaging direction the statistics are only available
+through the output files.
 
 ## List of fields in output files
 

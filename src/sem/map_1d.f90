@@ -45,6 +45,8 @@ module map_1d
   use comm, only : pe_size, pe_rank, NEKO_COMM, MPI_REAL_PRECISION
   use coefs, only : coef_t
   use field_list, only : field_list_t
+  use field, only : field_t
+  use device_math, only : device_slab_sum, device_gather_add, device_rzero
   use matrix, only : matrix_t
   use vector, only : vector_ptr_t
   use utils, only : neko_error, neko_warning
@@ -120,6 +122,41 @@ module map_1d
      !> Volume-averaged coordinate, in the requested direction, of each GLL
      !! level. Written as the first column of the averaged output.
      real(kind=rp), allocatable :: coord_per_gll_lvl(:)
+     !> Number of fields accumulated per sample, see `accumulate`.
+     integer :: n_acc = 0
+     !> 0-based strides of the first reduction of each element, over the
+     !! first homogeneous direction: the two kept indices and the summed one.
+     integer, allocatable :: el_sa(:), el_sb(:), el_sh(:)
+     !> 0-based strides of the second reduction, over the second homogeneous
+     !! direction of the `(lx, lx)` slab sums, keeping the level index.
+     integer, allocatable :: el_sa2(:), el_sb2(:), el_sh2(:)
+     !> 0-based permutation codes, all zero, and identity tables of the two
+     !! reductions.
+     integer, allocatable :: el_code0(:), tbl0_lxy(:), tbl0_lx(:)
+     !> Rows (levels) of the level sums: `csr_ptr` holds `(n_gll_lvls + 1)`
+     !! 0-based offsets into `csr_list`, the 0-based entries of `tmp1`
+     !! summed by each level.
+     integer, allocatable :: csr_ptr(:), csr_list(:)
+     !> Slab sums of the elements after the first, `(lxy * nelv)`, and the
+     !! second, `(lx * nelv)`, reduction.
+     real(kind=rp), allocatable :: tmp(:), tmp1(:)
+     !> Accumulated level sums, `(n_gll_lvls, 0:n_acc)`. Slot 0 holds the
+     !! accumulated level volumes.
+     real(kind=rp), allocatable :: acc(:,:)
+     type(c_ptr) :: el_sa_d = C_NULL_PTR
+     type(c_ptr) :: el_sb_d = C_NULL_PTR
+     type(c_ptr) :: el_sh_d = C_NULL_PTR
+     type(c_ptr) :: el_sa2_d = C_NULL_PTR
+     type(c_ptr) :: el_sb2_d = C_NULL_PTR
+     type(c_ptr) :: el_sh2_d = C_NULL_PTR
+     type(c_ptr) :: el_code0_d = C_NULL_PTR
+     type(c_ptr) :: tbl0_lxy_d = C_NULL_PTR
+     type(c_ptr) :: tbl0_lx_d = C_NULL_PTR
+     type(c_ptr) :: csr_ptr_d = C_NULL_PTR
+     type(c_ptr) :: csr_list_d = C_NULL_PTR
+     type(c_ptr) :: tmp_d = C_NULL_PTR
+     type(c_ptr) :: tmp1_d = C_NULL_PTR
+     type(c_ptr) :: acc_d = C_NULL_PTR
    contains
      !> Constructor
      procedure, pass(this) :: init_int => map_1d_init
@@ -133,6 +170,19 @@ module map_1d
      procedure, pass(this) :: average_planes_vec_ptr => &
           map_1d_average_vector_ptr
      generic :: average_planes => average_planes_fld_lst, average_planes_vec_ptr
+     !> Prepare the accumulation of fields averaged over the planes.
+     procedure, pass(this) :: accumulate_init => map_1d_accumulate_init
+     !> Add the plane sums of a field, scaled, to the accumulated sums.
+     procedure, pass(this) :: accumulate => map_1d_accumulate
+     !> Add the plane volumes, scaled, to the accumulated sums.
+     procedure, pass(this) :: accumulate_volume => map_1d_accumulate_volume
+     !> Reset the accumulated sums to zero.
+     procedure, pass(this) :: accumulate_reset => map_1d_accumulate_reset
+     !> Output the accumulated averages as a matrix.
+     procedure, pass(this) :: accumulated_average => &
+          map_1d_accumulated_average
+     !> Free the accumulation data.
+     procedure, pass(this) :: accumulate_free => map_1d_accumulate_free
   end type map_1d_t
 
 
@@ -406,6 +456,7 @@ contains
   subroutine map_1d_free(this)
     class(map_1d_t) :: this
 
+    call this%accumulate_free()
     if (allocated(this%dir_el)) deallocate(this%dir_el)
     if (allocated(this%el_lvl)) deallocate(this%el_lvl)
     if (allocated(this%pt_lvl)) deallocate(this%pt_lvl)
@@ -503,5 +554,372 @@ contains
     deallocate(sums)
 
   end subroutine map_1d_finalize_average
+
+  !> Prepares the accumulation of `n_fields` fields averaged over the
+  !! planes, see `accumulate`.
+  !! @param n_fields Number of fields accumulated per sample.
+  subroutine map_1d_accumulate_init(this, n_fields)
+    class(map_1d_t), intent(inout) :: this
+    integer, intent(in) :: n_fields
+    integer, allocatable :: cnt(:)
+    integer :: str(3), e, h, d, dl, d1, d2, lvl, lx, lxy, lxyz, nelv, p, m
+
+    call this%accumulate_free()
+    this%n_acc = n_fields
+    lx = this%dof%Xh%lx
+    lxy = this%dof%Xh%lxy
+    lxyz = this%dof%Xh%lxyz
+    nelv = this%msh%nelv
+    str = [1, lx, lxy]
+
+    ! The first reduction sums over the lower of the two homogeneous local
+    ! directions and keeps the other two in increasing order, the second
+    ! sums over the remaining homogeneous direction and keeps the level.
+    allocate(this%el_sa(nelv), this%el_sb(nelv), this%el_sh(nelv))
+    allocate(this%el_sa2(nelv), this%el_sb2(nelv), this%el_sh2(nelv))
+    allocate(this%el_code0(nelv))
+    do e = 1, nelv
+       dl = this%dir_el(e)
+       d1 = 0
+       d2 = 0
+       do d = 1, 3
+          if (d .ne. dl) then
+             if (d1 .eq. 0) then
+                d1 = d
+             else
+                d2 = d
+             end if
+          end if
+       end do
+       this%el_sh(e) = str(d1)
+       if (dl .lt. d2) then
+          this%el_sa(e) = str(dl)
+          this%el_sb(e) = str(d2)
+          this%el_sa2(e) = 1
+          this%el_sh2(e) = lx
+       else
+          this%el_sa(e) = str(d2)
+          this%el_sb(e) = str(dl)
+          this%el_sa2(e) = lx
+          this%el_sh2(e) = 1
+       end if
+       this%el_sb2(e) = 0
+       this%el_code0(e) = 0
+    end do
+    allocate(this%tbl0_lxy(lxy), this%tbl0_lx(lx))
+    do m = 1, lxy
+       this%tbl0_lxy(m) = m - 1
+    end do
+    do m = 1, lx
+       this%tbl0_lx(m) = m - 1
+    end do
+
+    ! Row lvl of the level sums gathers the level sums of the elements at
+    ! that level, in element order.
+    allocate(this%csr_ptr(this%n_gll_lvls + 1))
+    allocate(this%csr_list(max(lx * nelv, 1)))
+    allocate(cnt(this%n_gll_lvls))
+    cnt = 0
+    do e = 1, nelv
+       do h = 0, lx - 1
+          p = (e - 1) * lxyz + h * str(this%dir_el(e)) + 1
+          lvl = this%pt_lvl(p, 1, 1, 1)
+          cnt(lvl) = cnt(lvl) + 1
+       end do
+    end do
+    this%csr_ptr(1) = 0
+    do lvl = 1, this%n_gll_lvls
+       this%csr_ptr(lvl + 1) = this%csr_ptr(lvl) + cnt(lvl)
+    end do
+    cnt = 0
+    do e = 1, nelv
+       do h = 0, lx - 1
+          p = (e - 1) * lxyz + h * str(this%dir_el(e)) + 1
+          lvl = this%pt_lvl(p, 1, 1, 1)
+          this%csr_list(this%csr_ptr(lvl) + cnt(lvl) + 1) = h + lx * (e - 1)
+          cnt(lvl) = cnt(lvl) + 1
+       end do
+    end do
+    deallocate(cnt)
+
+    allocate(this%tmp(max(lxy * nelv, 1)), this%tmp1(max(lx * nelv, 1)))
+    allocate(this%acc(this%n_gll_lvls, 0:n_fields))
+    this%tmp = 0.0_rp
+    this%tmp1 = 0.0_rp
+    this%acc = 0.0_rp
+
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. nelv .gt. 0) then
+       call device_map(this%el_sa, this%el_sa_d, nelv)
+       call device_map(this%el_sb, this%el_sb_d, nelv)
+       call device_map(this%el_sh, this%el_sh_d, nelv)
+       call device_map(this%el_sa2, this%el_sa2_d, nelv)
+       call device_map(this%el_sb2, this%el_sb2_d, nelv)
+       call device_map(this%el_sh2, this%el_sh2_d, nelv)
+       call device_map(this%el_code0, this%el_code0_d, nelv)
+       call device_map(this%tbl0_lxy, this%tbl0_lxy_d, lxy)
+       call device_map(this%tbl0_lx, this%tbl0_lx_d, lx)
+       call device_map(this%csr_ptr, this%csr_ptr_d, size(this%csr_ptr))
+       call device_map(this%csr_list, this%csr_list_d, size(this%csr_list))
+       call device_map(this%tmp, this%tmp_d, size(this%tmp))
+       call device_map(this%tmp1, this%tmp1_d, size(this%tmp1))
+       call device_map(this%acc, this%acc_d, size(this%acc))
+       call device_memcpy(this%el_sa, this%el_sa_d, nelv, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%el_sb, this%el_sb_d, nelv, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%el_sh, this%el_sh_d, nelv, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%el_sa2, this%el_sa2_d, nelv, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%el_sb2, this%el_sb2_d, nelv, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%el_sh2, this%el_sh2_d, nelv, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%el_code0, this%el_code0_d, nelv, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%tbl0_lxy, this%tbl0_lxy_d, lxy, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%tbl0_lx, this%tbl0_lx_d, lx, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%csr_ptr, this%csr_ptr_d, size(this%csr_ptr), &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%csr_list, this%csr_list_d, &
+            size(this%csr_list), HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%tmp, this%tmp_d, size(this%tmp), &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%tmp1, this%tmp1_d, size(this%tmp1), &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%acc, this%acc_d, size(this%acc), &
+            HOST_TO_DEVICE, sync = .true.)
+    end if
+
+  end subroutine map_1d_accumulate_init
+
+  !> Frees the accumulation data.
+  subroutine map_1d_accumulate_free(this)
+    class(map_1d_t), intent(inout) :: this
+
+    if (c_associated(this%el_sa_d)) call device_unmap(this%el_sa, this%el_sa_d)
+    if (c_associated(this%el_sb_d)) call device_unmap(this%el_sb, this%el_sb_d)
+    if (c_associated(this%el_sh_d)) call device_unmap(this%el_sh, this%el_sh_d)
+    if (c_associated(this%el_sa2_d)) then
+       call device_unmap(this%el_sa2, this%el_sa2_d)
+    end if
+    if (c_associated(this%el_sb2_d)) then
+       call device_unmap(this%el_sb2, this%el_sb2_d)
+    end if
+    if (c_associated(this%el_sh2_d)) then
+       call device_unmap(this%el_sh2, this%el_sh2_d)
+    end if
+    if (c_associated(this%el_code0_d)) then
+       call device_unmap(this%el_code0, this%el_code0_d)
+    end if
+    if (c_associated(this%tbl0_lxy_d)) then
+       call device_unmap(this%tbl0_lxy, this%tbl0_lxy_d)
+    end if
+    if (c_associated(this%tbl0_lx_d)) then
+       call device_unmap(this%tbl0_lx, this%tbl0_lx_d)
+    end if
+    if (c_associated(this%csr_ptr_d)) then
+       call device_unmap(this%csr_ptr, this%csr_ptr_d)
+    end if
+    if (c_associated(this%csr_list_d)) then
+       call device_unmap(this%csr_list, this%csr_list_d)
+    end if
+    if (c_associated(this%tmp_d)) call device_unmap(this%tmp, this%tmp_d)
+    if (c_associated(this%tmp1_d)) call device_unmap(this%tmp1, this%tmp1_d)
+    if (c_associated(this%acc_d)) call device_unmap(this%acc, this%acc_d)
+    this%el_sa_d = C_NULL_PTR
+    this%el_sb_d = C_NULL_PTR
+    this%el_sh_d = C_NULL_PTR
+    this%el_sa2_d = C_NULL_PTR
+    this%el_sb2_d = C_NULL_PTR
+    this%el_sh2_d = C_NULL_PTR
+    this%el_code0_d = C_NULL_PTR
+    this%tbl0_lxy_d = C_NULL_PTR
+    this%tbl0_lx_d = C_NULL_PTR
+    this%csr_ptr_d = C_NULL_PTR
+    this%csr_list_d = C_NULL_PTR
+    this%tmp_d = C_NULL_PTR
+    this%tmp1_d = C_NULL_PTR
+    this%acc_d = C_NULL_PTR
+
+    if (allocated(this%el_sa)) deallocate(this%el_sa)
+    if (allocated(this%el_sb)) deallocate(this%el_sb)
+    if (allocated(this%el_sh)) deallocate(this%el_sh)
+    if (allocated(this%el_sa2)) deallocate(this%el_sa2)
+    if (allocated(this%el_sb2)) deallocate(this%el_sb2)
+    if (allocated(this%el_sh2)) deallocate(this%el_sh2)
+    if (allocated(this%el_code0)) deallocate(this%el_code0)
+    if (allocated(this%tbl0_lxy)) deallocate(this%tbl0_lxy)
+    if (allocated(this%tbl0_lx)) deallocate(this%tbl0_lx)
+    if (allocated(this%csr_ptr)) deallocate(this%csr_ptr)
+    if (allocated(this%csr_list)) deallocate(this%csr_list)
+    if (allocated(this%tmp)) deallocate(this%tmp)
+    if (allocated(this%tmp1)) deallocate(this%tmp1)
+    if (allocated(this%acc)) deallocate(this%acc)
+    this%n_acc = 0
+
+  end subroutine map_1d_accumulate_free
+
+  !> Adds the plane sums of `k * f * B` to slot `slot` of the accumulated
+  !! level sums, where `B` is the mass matrix. The field is expected to be
+  !! up to date on the device, or on the host for the CPU backend.
+  !! @param f Field to accumulate.
+  !! @param slot Slot of the field, 1 to `n_acc`.
+  !! @param k Scaling of the sample, typically the time since the last one.
+  subroutine map_1d_accumulate(this, f, slot, k)
+    class(map_1d_t), intent(inout) :: this
+    type(field_t), intent(in) :: f
+    integer, intent(in) :: slot
+    real(kind=rp), intent(in) :: k
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call map_1d_accumulate_device(this, f%x_d, slot, k)
+    else
+       call map_1d_accumulate_host(this, slot, k, f%x)
+    end if
+
+  end subroutine map_1d_accumulate
+
+  !> Adds the plane volumes, `k * B` summed over the planes, to slot 0 of
+  !! the accumulated level sums.
+  !! @param k Scaling of the sample, typically the time since the last one.
+  subroutine map_1d_accumulate_volume(this, k)
+    class(map_1d_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: k
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call map_1d_accumulate_device(this, C_NULL_PTR, 0, k)
+    else
+       call map_1d_accumulate_host(this, 0, k)
+    end if
+
+  end subroutine map_1d_accumulate_volume
+
+  !> Device implementation of the accumulation, a null `f_d` counts as one.
+  subroutine map_1d_accumulate_device(this, f_d, slot, k)
+    class(map_1d_t), intent(inout) :: this
+    type(c_ptr), intent(in) :: f_d
+    integer, intent(in) :: slot
+    real(kind=rp), intent(in) :: k
+    integer :: lx, lxy, nelv
+
+    lx = this%dof%Xh%lx
+    lxy = this%dof%Xh%lxy
+    nelv = this%msh%nelv
+
+    call device_slab_sum(this%tmp_d, f_d, this%coef%B_d, this%el_sa_d, &
+         this%el_sb_d, this%el_sh_d, this%el_code0_d, this%tbl0_lxy_d, lxy, &
+         lx, nelv, this%dof%Xh%lxyz, lxy)
+    call device_slab_sum(this%tmp1_d, this%tmp_d, C_NULL_PTR, this%el_sa2_d, &
+         this%el_sb2_d, this%el_sh2_d, this%el_code0_d, this%tbl0_lx_d, lx, &
+         lx, nelv, lxy, lx)
+    call device_gather_add(this%acc_d, slot * this%n_gll_lvls, this%tmp1_d, &
+         this%csr_ptr_d, this%csr_list_d, this%n_gll_lvls, k)
+
+  end subroutine map_1d_accumulate_device
+
+  !> Host implementation of the accumulation, a missing `f` counts as one.
+  subroutine map_1d_accumulate_host(this, slot, k, f)
+    class(map_1d_t), intent(inout) :: this
+    integer, intent(in) :: slot
+    real(kind=rp), intent(in) :: k
+    real(kind=rp), intent(in), optional :: f(*)
+    real(kind=rp), contiguous, pointer :: wt(:)
+    real(kind=rp) :: s
+    integer :: e, m, a, b, h, p, p0, lvl, j, lx, lxy, lxyz, n, nelv
+
+    lx = this%dof%Xh%lx
+    lxy = this%dof%Xh%lxy
+    lxyz = this%dof%Xh%lxyz
+    n = this%dof%size()
+    nelv = this%msh%nelv
+    wt(1:n) => this%coef%B
+
+    do e = 1, nelv
+       do m = 0, lxy - 1
+          a = mod(m, lx)
+          b = m / lx
+          p0 = (e - 1) * lxyz + a * this%el_sa(e) + b * this%el_sb(e)
+          s = 0.0_rp
+          if (present(f)) then
+             do h = 0, lx - 1
+                p = p0 + h * this%el_sh(e) + 1
+                s = s + f(p) * wt(p)
+             end do
+          else
+             do h = 0, lx - 1
+                p = p0 + h * this%el_sh(e) + 1
+                s = s + wt(p)
+             end do
+          end if
+          this%tmp((e - 1) * lxy + m + 1) = s
+       end do
+       do m = 0, lx - 1
+          p0 = (e - 1) * lxy + m * this%el_sa2(e)
+          s = 0.0_rp
+          do h = 0, lx - 1
+             s = s + this%tmp(p0 + h * this%el_sh2(e) + 1)
+          end do
+          this%tmp1((e - 1) * lx + m + 1) = s
+       end do
+    end do
+
+    do lvl = 1, this%n_gll_lvls
+       s = 0.0_rp
+       do j = this%csr_ptr(lvl) + 1, this%csr_ptr(lvl + 1)
+          s = s + this%tmp1(this%csr_list(j) + 1)
+       end do
+       this%acc(lvl, slot) = this%acc(lvl, slot) + k * s
+    end do
+
+  end subroutine map_1d_accumulate_host
+
+  !> Resets the accumulated level sums to zero.
+  subroutine map_1d_accumulate_reset(this)
+    class(map_1d_t), intent(inout) :: this
+
+    if (allocated(this%acc)) this%acc = 0.0_rp
+    if (c_associated(this%acc_d)) call device_rzero(this%acc_d, size(this%acc))
+
+  end subroutine map_1d_accumulate_reset
+
+  !> Sums the accumulated level sums over all ranks, divides them by the
+  !! accumulated level volumes and outputs the averages as a matrix with
+  !! the level coordinates in the first column and the slots in the
+  !! following ones.
+  !! @param avg_planes Output averages.
+  subroutine map_1d_accumulated_average(this, avg_planes)
+    class(map_1d_t), intent(inout) :: this
+    type(matrix_t), intent(inout) :: avg_planes
+    real(kind=rp), allocatable :: sums(:,:)
+    integer :: j, nf, ierr
+
+    nf = this%n_acc
+    if (c_associated(this%acc_d)) then
+       call device_memcpy(this%acc, this%acc_d, size(this%acc), &
+            DEVICE_TO_HOST, sync = .true.)
+    end if
+
+    allocate(sums(this%n_gll_lvls, 0:nf))
+    sums = this%acc
+    if (pe_size .gt. 1) then
+       call MPI_Allreduce(MPI_IN_PLACE, sums, this%n_gll_lvls * (nf + 1), &
+            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    end if
+    if (any(sums(:, 0) .le. 0.0_rp)) then
+       call neko_error('map_1d: level with a non-positive accumulated volume')
+    end if
+
+    call avg_planes%free()
+    call avg_planes%init(this%n_gll_lvls, nf + 1)
+    avg_planes%x(:, 1) = this%coord_per_gll_lvl
+    do j = 1, nf
+       avg_planes%x(:, j + 1) = sums(:, j) / sums(:, 0)
+    end do
+    deallocate(sums)
+
+  end subroutine map_1d_accumulated_average
 
 end module map_1d

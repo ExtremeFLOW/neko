@@ -33,23 +33,47 @@
 !> Computes various statistics for the fluid fields.
 !! We use the Reynolds decomposition for a field u = <u> + u' = U + u'
 !! Spatial derivatives i.e. du/dx we denote dudx
+!!
+!! Without an averaging direction, every statistic is a `mean_field_t`,
+!! a 3D field in the registry. With an averaging direction, the products
+!! sampled at every step are summed over the homogeneous direction(s) on
+!! the device and accumulated in a 2D (`map_2d_t`) or 1D (`map_1d_t`)
+!! accumulator instead, so that no 3D statistics fields are kept.
 module fluid_stats
   use mean_field, only : mean_field_t
   use device_math, only : device_col3, device_col2, device_cfill, &
        device_invcol2, device_addcol3, device_glsc2, device_cadd, device_copy
   use num_types, only : rp
-  use math, only : col2, addcol3, col3, copy, subcol3, glsc2, cadd
+  use math, only : col2, addcol3, col3, copy, subcol3, glsc2, cadd, invcol2
   use operators, only : opgrad
   use coefs, only : coef_t
   use field, only : field_t
   use field_list, only : field_list_t
   use stats_quant, only : stats_quant_t
   use scratch_registry, only : neko_scratch_registry
+  use map_1d, only : map_1d_t
+  use map_2d, only : map_2d_t
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_warning, neko_error
   implicit none
   private
+
+  !> Slots of the statistics, which is also their order in the output.
+  integer, parameter :: S_P = 1, S_U = 2, S_V = 3, S_W = 4, S_PP = 5, &
+       S_UU = 6, S_VV = 7, S_WW = 8, S_UV = 9, S_UW = 10, S_VW = 11, &
+       S_UUU = 12, S_VVV = 13, S_WWW = 14, S_UUV = 15, S_UUW = 16, &
+       S_UVV = 17, S_UVW = 18, S_VVW = 19, S_UWW = 20, S_VWW = 21, &
+       S_UUUU = 22, S_VVVV = 23, S_WWWW = 24, S_PPP = 25, S_PPPP = 26, &
+       S_PU = 27, S_PV = 28, S_PW = 29, S_PDUDX = 30, S_PDUDY = 31, &
+       S_PDUDZ = 32, S_PDVDX = 33, S_PDVDY = 34, S_PDVDZ = 35, S_PDWDX = 36, &
+       S_PDWDY = 37, S_PDWDZ = 38, S_E11 = 39, S_E22 = 40, S_E33 = 41, &
+       S_E12 = 42, S_E13 = 43, S_E23 = 44
+
+  !> Pointer to a mean field.
+  type :: mean_field_ptr_t
+     type(mean_field_t), pointer :: ptr => null()
+  end type mean_field_ptr_t
 
   type, public, extends(stats_quant_t) :: fluid_stats_t
      !> Work fields, borrowed from the scratch registry while sampling.
@@ -120,6 +144,8 @@ module fluid_stats
      type(mean_field_t) :: e12
      type(mean_field_t) :: e13
      type(mean_field_t) :: e23
+     !> The mean fields in the order of the output, used without averaging.
+     type(mean_field_ptr_t), allocatable :: means(:)
      !> Gradients, borrowed from the scratch registry while sampling.
      type(field_t), pointer :: dudx => null()
      type(field_t), pointer :: dudy => null()
@@ -139,12 +165,20 @@ module fluid_stats
      !! default.
      character(5) :: stat_set
      !> A list of size n_stats, with entries pointing to the fields that will
-     !! be output (the field components above.) Used to write the output.
+     !! be output (the field components above.) Used to write the output
+     !! without averaging.
      type(field_list_t) :: stat_fields
      !> Subtract the volume-weighted mean of the pressure before sampling.
      logical :: volume_mean_gauge = .false.
      !> Scratch registry indices of the fields borrowed while sampling.
      integer, allocatable :: work_idx(:)
+     !> Dimension of the statistics: 3 without averaging, 2 when averaged
+     !! in one direction and 1 when averaged in two directions.
+     integer :: avg_dim = 3
+     !> Accumulates the statistics averaged in one direction.
+     type(map_2d_t) :: map_2d
+     !> Accumulates the statistics averaged in two directions.
+     type(map_1d_t) :: map_1d
    contains
      !> Constructor.
      procedure, pass(this) :: init => fluid_stats_init
@@ -163,6 +197,8 @@ module fluid_stats
      procedure, private, pass(this) :: acquire_work => fluid_stats_acquire_work
      !> Return the work fields to the scratch registry.
      procedure, private, pass(this) :: release_work => fluid_stats_release_work
+     !> Add a sample of one statistic.
+     procedure, private, pass(this) :: sample => fluid_stats_sample
   end type fluid_stats_t
 
 contains
@@ -181,14 +217,19 @@ contains
   !! Optional. Either `solver`, the pressure as computed by the solver, or
   !! `volume_mean`, the pressure shifted to have a zero volume-weighted mean
   !! at every sample. Defaults to `solver`.
+  !! @param avg_direction Direction(s) to average the statistics in,
+  !! `x`, `y`, `z`, `xy`, `xz`, `yz` or `none`. Optional, defaults to `none`.
+  !! With an averaging direction the statistics are accumulated directly in
+  !! the averaged space and no 3D mean fields are created.
   subroutine fluid_stats_init(this, coef, u, v, w, p, set, name, &
-       pressure_gauge)
+       pressure_gauge, avg_direction)
     class(fluid_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
     type(field_t), target, intent(in) :: u, v, w, p
     character(*), intent(in), optional :: set
     character(*), intent(in), optional :: name
     character(*), intent(in), optional :: pressure_gauge
+    character(*), intent(in), optional :: avg_direction
 
     character(len=1024) :: unique_name
     unique_name = ""
@@ -228,6 +269,27 @@ contains
                trim(pressure_gauge) // "', use 'solver' or 'volume_mean'")
        end select
     end if
+
+    this%avg_dim = 3
+    if (present(avg_direction)) then
+       select case (trim(avg_direction))
+       case ('x', 'y', 'z')
+          this%avg_dim = 2
+          call this%map_2d%init_char(coef, avg_direction, 1e-7_rp)
+          call this%map_2d%accumulate_init(this%n_stats)
+       case ('xy', 'yx', 'xz', 'zx', 'yz', 'zy')
+          this%avg_dim = 1
+          call this%map_1d%init_char(coef, avg_direction, 1e-7_rp)
+          call this%map_1d%accumulate_init(this%n_stats)
+       case ('none', '')
+          this%avg_dim = 3
+       case default
+          call neko_error("fluid_stats: unknown avg_direction '" // &
+               trim(avg_direction) // "'")
+       end select
+    end if
+
+    if (this%avg_dim .ne. 3) return
 
     ! The field sampled by each product statistic is a work field that is
     ! borrowed from the scratch registry while sampling, see acquire_work.
@@ -284,61 +346,66 @@ contains
        call this%e23%init(this%u, trim(unique_name) // 'mean_e23')
     end if
 
-    call this%stat_fields%init(this%n_stats)
-
-    call this%stat_fields%assign_to_field(1, this%p_mean%mf)
-    call this%stat_fields%assign_to_field(2, this%u_mean%mf)
-    call this%stat_fields%assign_to_field(3, this%v_mean%mf)
-    call this%stat_fields%assign_to_field(4, this%w_mean%mf)
-    call this%stat_fields%assign_to_field(5, this%pp%mf)
-    call this%stat_fields%assign_to_field(6, this%uu%mf)
-    call this%stat_fields%assign_to_field(7, this%vv%mf)
-    call this%stat_fields%assign_to_field(8, this%ww%mf)
-    call this%stat_fields%assign_to_field(9, this%uv%mf)
-    call this%stat_fields%assign_to_field(10, this%uw%mf)
-    call this%stat_fields%assign_to_field(11, this%vw%mf)
+    allocate(this%means(this%n_stats))
+    this%means(S_P)%ptr => this%p_mean
+    this%means(S_U)%ptr => this%u_mean
+    this%means(S_V)%ptr => this%v_mean
+    this%means(S_W)%ptr => this%w_mean
+    this%means(S_PP)%ptr => this%pp
+    this%means(S_UU)%ptr => this%uu
+    this%means(S_VV)%ptr => this%vv
+    this%means(S_WW)%ptr => this%ww
+    this%means(S_UV)%ptr => this%uv
+    this%means(S_UW)%ptr => this%uw
+    this%means(S_VW)%ptr => this%vw
 
     if (this%n_stats .eq. 44) then
-       call this%stat_fields%assign_to_field(12, this%uuu%mf)
-       call this%stat_fields%assign_to_field(13, this%vvv%mf)
-       call this%stat_fields%assign_to_field(14, this%www%mf)
-       call this%stat_fields%assign_to_field(15, this%uuv%mf)
-       call this%stat_fields%assign_to_field(16, this%uuw%mf)
-       call this%stat_fields%assign_to_field(17, this%uvv%mf)
-       call this%stat_fields%assign_to_field(18, this%uvw%mf)
-       call this%stat_fields%assign_to_field(19, this%vvw%mf)
-       call this%stat_fields%assign_to_field(20, this%uww%mf)
-       call this%stat_fields%assign_to_field(21, this%vww%mf)
-       call this%stat_fields%assign_to_field(22, this%uuuu%mf)
-       call this%stat_fields%assign_to_field(23, this%vvvv%mf)
-       call this%stat_fields%assign_to_field(24, this%wwww%mf)
-       call this%stat_fields%assign_to_field(25, this%ppp%mf)
-       call this%stat_fields%assign_to_field(26, this%pppp%mf)
-       call this%stat_fields%assign_to_field(27, this%pu%mf)
-       call this%stat_fields%assign_to_field(28, this%pv%mf)
-       call this%stat_fields%assign_to_field(29, this%pw%mf)
-
-       call this%stat_fields%assign_to_field(30, this%pdudx%mf)
-       call this%stat_fields%assign_to_field(31, this%pdudy%mf)
-       call this%stat_fields%assign_to_field(32, this%pdudz%mf)
-       call this%stat_fields%assign_to_field(33, this%pdvdx%mf)
-       call this%stat_fields%assign_to_field(34, this%pdvdy%mf)
-       call this%stat_fields%assign_to_field(35, this%pdvdz%mf)
-       call this%stat_fields%assign_to_field(36, this%pdwdx%mf)
-       call this%stat_fields%assign_to_field(37, this%pdwdy%mf)
-       call this%stat_fields%assign_to_field(38, this%pdwdz%mf)
-       call this%stat_fields%assign_to_field(39, this%e11%mf)
-       call this%stat_fields%assign_to_field(40, this%e22%mf)
-       call this%stat_fields%assign_to_field(41, this%e33%mf)
-       call this%stat_fields%assign_to_field(42, this%e12%mf)
-       call this%stat_fields%assign_to_field(43, this%e13%mf)
-       call this%stat_fields%assign_to_field(44, this%e23%mf)
+       this%means(S_UUU)%ptr => this%uuu
+       this%means(S_VVV)%ptr => this%vvv
+       this%means(S_WWW)%ptr => this%www
+       this%means(S_UUV)%ptr => this%uuv
+       this%means(S_UUW)%ptr => this%uuw
+       this%means(S_UVV)%ptr => this%uvv
+       this%means(S_UVW)%ptr => this%uvw
+       this%means(S_VVW)%ptr => this%vvw
+       this%means(S_UWW)%ptr => this%uww
+       this%means(S_VWW)%ptr => this%vww
+       this%means(S_UUUU)%ptr => this%uuuu
+       this%means(S_VVVV)%ptr => this%vvvv
+       this%means(S_WWWW)%ptr => this%wwww
+       this%means(S_PPP)%ptr => this%ppp
+       this%means(S_PPPP)%ptr => this%pppp
+       this%means(S_PU)%ptr => this%pu
+       this%means(S_PV)%ptr => this%pv
+       this%means(S_PW)%ptr => this%pw
+       this%means(S_PDUDX)%ptr => this%pdudx
+       this%means(S_PDUDY)%ptr => this%pdudy
+       this%means(S_PDUDZ)%ptr => this%pdudz
+       this%means(S_PDVDX)%ptr => this%pdvdx
+       this%means(S_PDVDY)%ptr => this%pdvdy
+       this%means(S_PDVDZ)%ptr => this%pdvdz
+       this%means(S_PDWDX)%ptr => this%pdwdx
+       this%means(S_PDWDY)%ptr => this%pdwdy
+       this%means(S_PDWDZ)%ptr => this%pdwdz
+       this%means(S_E11)%ptr => this%e11
+       this%means(S_E22)%ptr => this%e22
+       this%means(S_E33)%ptr => this%e33
+       this%means(S_E12)%ptr => this%e12
+       this%means(S_E13)%ptr => this%e13
+       this%means(S_E23)%ptr => this%e23
     end if
+
+    call this%stat_fields%init(this%n_stats)
+    block
+      integer :: i
+      do i = 1, this%n_stats
+         call this%stat_fields%assign_to_field(i, this%means(i)%ptr%mf)
+      end do
+    end block
 
   end subroutine fluid_stats_init
 
-  !> Borrows the work fields from the scratch registry and binds the product
-  !! statistics to them.
+  !> Borrows the work fields from the scratch registry.
   subroutine fluid_stats_acquire_work(this)
     class(fluid_stats_t), intent(inout) :: this
     integer :: n_work, i
@@ -398,53 +465,6 @@ contains
        i = i + 1
        call neko_scratch_registry%request_field(this%p_gauged, &
             this%work_idx(i), .false.)
-       this%p_mean%f => this%p_gauged
-    else
-       this%p_mean%f => this%p
-    end if
-
-    this%uu%f => this%stats_u
-    this%vv%f => this%stats_v
-    this%ww%f => this%stats_w
-    this%pp%f => this%stats_p
-    this%uv%f => this%stats_work
-    this%uw%f => this%stats_work
-    this%vw%f => this%stats_work
-
-    if (this%n_stats .eq. 44) then
-       this%uuu%f => this%stats_work
-       this%vvv%f => this%stats_work
-       this%www%f => this%stats_work
-       this%uuv%f => this%stats_work
-       this%uuw%f => this%stats_work
-       this%uvv%f => this%stats_work
-       this%uvw%f => this%stats_work
-       this%vvw%f => this%stats_work
-       this%uww%f => this%stats_work
-       this%vww%f => this%stats_work
-       this%uuuu%f => this%stats_work
-       this%vvvv%f => this%stats_work
-       this%wwww%f => this%stats_work
-       this%ppp%f => this%stats_work
-       this%pppp%f => this%stats_work
-       this%pu%f => this%stats_work
-       this%pv%f => this%stats_work
-       this%pw%f => this%stats_work
-       this%pdudx%f => this%stats_work
-       this%pdudy%f => this%stats_work
-       this%pdudz%f => this%stats_work
-       this%pdvdx%f => this%stats_work
-       this%pdvdy%f => this%stats_work
-       this%pdvdz%f => this%stats_work
-       this%pdwdx%f => this%stats_work
-       this%pdwdy%f => this%stats_work
-       this%pdwdz%f => this%stats_work
-       this%e11%f => this%stats_work
-       this%e22%f => this%stats_work
-       this%e33%f => this%stats_work
-       this%e12%f => this%stats_work
-       this%e13%f => this%stats_work
-       this%e23%f => this%stats_work
     end if
 
   end subroutine fluid_stats_acquire_work
@@ -466,6 +486,29 @@ contains
 
   end subroutine fluid_stats_release_work
 
+  !> Adds a sample of the statistic in slot `slot`, either to its mean
+  !! field or, with an averaging direction, to the accumulated averages.
+  !! @param slot Slot of the statistic.
+  !! @param f Sampled field.
+  !! @param k Time elapsed since the last sample.
+  subroutine fluid_stats_sample(this, slot, f, k)
+    class(fluid_stats_t), intent(inout) :: this
+    integer, intent(in) :: slot
+    type(field_t), intent(in), target :: f
+    real(kind=rp), intent(in) :: k
+
+    select case (this%avg_dim)
+    case (3)
+       this%means(slot)%ptr%f => f
+       call this%means(slot)%ptr%update(k)
+    case (2)
+       call this%map_2d%accumulate(f, slot, k)
+    case (1)
+       call this%map_1d%accumulate(f, slot, k)
+    end select
+
+  end subroutine fluid_stats_sample
+
   !> Updates all fields with a new sample.
   !! @param k Time elapsed since the last update.
   subroutine fluid_stats_update(this, k)
@@ -481,6 +524,10 @@ contains
          stats_v => this%stats_v, stats_w => this%stats_w, &
          stats_p => this%stats_p)
       n = stats_work%dof%size()
+
+      ! The averages are normalised by the accumulated volumes.
+      if (this%avg_dim .eq. 2) call this%map_2d%accumulate_volume(k)
+      if (this%avg_dim .eq. 1) call this%map_1d%accumulate_volume(k)
 
       ! Shift the pressure to the requested gauge.
       if (this%volume_mean_gauge) then
@@ -499,140 +546,135 @@ contains
          p => this%p
       end if
 
-      !> U%f is u and U%mf is <u>
-      if (NEKO_BCKND_DEVICE .eq. 1) then
+      call this%sample(S_U, this%u, k)
+      call this%sample(S_V, this%v, k)
+      call this%sample(S_W, this%w, k)
+      call this%sample(S_P, p, k)
 
-         call this%u_mean%update(k)
-         call this%v_mean%update(k)
-         call this%w_mean%update(k)
-         call this%p_mean%update(k)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
 
          call device_col3(stats_u%x_d, this%u%x_d, this%u%x_d, n)
          call device_col3(stats_v%x_d, this%v%x_d, this%v%x_d, n)
          call device_col3(stats_w%x_d, this%w%x_d, this%w%x_d, n)
          call device_col3(stats_p%x_d, p%x_d, p%x_d, n)
 
-         call this%uu%update(k)
-         call this%vv%update(k)
-         call this%ww%update(k)
-         call this%pp%update(k)
+         call this%sample(S_UU, stats_u, k)
+         call this%sample(S_VV, stats_v, k)
+         call this%sample(S_WW, stats_w, k)
+         call this%sample(S_PP, stats_p, k)
 
          call device_col3(stats_work%x_d, this%u%x_d, this%v%x_d, n)
-         call this%uv%update(k)
+         call this%sample(S_UV, stats_work, k)
          call device_col3(stats_work%x_d, this%u%x_d, this%w%x_d, n)
-         call this%uw%update(k)
+         call this%sample(S_UW, stats_work, k)
          call device_col3(stats_work%x_d, this%v%x_d, this%w%x_d, n)
-         call this%vw%update(k)
+         call this%sample(S_VW, stats_work, k)
 
          if (this%n_stats .eq. 44) then
             call device_col2(stats_work%x_d, this%u%x_d, n)
-            call this%uvw%update(k)
+            call this%sample(S_UVW, stats_work, k)
             call device_col3(stats_work%x_d, this%stats_u%x_d, this%u%x_d, n)
-            call this%uuu%update(k)
+            call this%sample(S_UUU, stats_work, k)
             call device_col3(stats_work%x_d, this%stats_v%x_d, this%v%x_d, n)
-            call this%vvv%update(k)
+            call this%sample(S_VVV, stats_work, k)
             call device_col3(stats_work%x_d, this%stats_w%x_d, this%w%x_d, n)
-            call this%www%update(k)
+            call this%sample(S_WWW, stats_work, k)
             call device_col3(stats_work%x_d, this%stats_u%x_d, this%v%x_d, n)
-            call this%uuv%update(k)
+            call this%sample(S_UUV, stats_work, k)
             call device_col3(stats_work%x_d, this%stats_u%x_d, this%w%x_d, n)
-            call this%uuw%update(k)
+            call this%sample(S_UUW, stats_work, k)
             call device_col3(stats_work%x_d, this%stats_v%x_d, this%u%x_d, n)
-            call this%uvv%update(k)
+            call this%sample(S_UVV, stats_work, k)
             call device_col3(stats_work%x_d, this%stats_v%x_d, this%w%x_d, n)
-            call this%vvw%update(k)
+            call this%sample(S_VVW, stats_work, k)
             call device_col3(stats_work%x_d, this%stats_w%x_d, this%u%x_d, n)
-            call this%uww%update(k)
+            call this%sample(S_UWW, stats_work, k)
             call device_col3(stats_work%x_d, this%stats_w%x_d, this%v%x_d, n)
-            call this%vww%update(k)
+            call this%sample(S_VWW, stats_work, k)
 
             call device_col3(stats_work%x_d, this%stats_u%x_d, &
                  this%stats_u%x_d, n)
-            call this%uuuu%update(k)
+            call this%sample(S_UUUU, stats_work, k)
             call device_col3(stats_work%x_d, this%stats_v%x_d, &
                  this%stats_v%x_d, n)
-            call this%vvvv%update(k)
+            call this%sample(S_VVVV, stats_work, k)
             call device_col3(stats_work%x_d, this%stats_w%x_d, &
                  this%stats_w%x_d, n)
-            call this%wwww%update(k)
+            call this%sample(S_WWWW, stats_work, k)
 
             call device_col3(stats_work%x_d, this%stats_p%x_d, p%x_d, n)
-            call this%ppp%update(k)
+            call this%sample(S_PPP, stats_work, k)
             call device_col3(stats_work%x_d, this%stats_p%x_d, &
                  this%stats_p%x_d, n)
-            call this%pppp%update(k)
+            call this%sample(S_PPPP, stats_work, k)
 
             call device_col3(stats_work%x_d, p%x_d, this%u%x_d, n)
-            call this%pu%update(k)
+            call this%sample(S_PU, stats_work, k)
             call device_col3(stats_work%x_d, p%x_d, this%v%x_d, n)
-            call this%pv%update(k)
+            call this%sample(S_PV, stats_work, k)
             call device_col3(stats_work%x_d, p%x_d, this%w%x_d, n)
-            call this%pw%update(k)
+            call this%sample(S_PW, stats_work, k)
          end if
 
       else
 
-         call this%u_mean%update(k)
-         call this%v_mean%update(k)
-         call this%w_mean%update(k)
-         call this%p_mean%update(k)
          call col3(stats_u%x, this%u%x, this%u%x, n)
          call col3(stats_v%x, this%v%x, this%v%x, n)
          call col3(stats_w%x, this%w%x, this%w%x, n)
          call col3(stats_p%x, p%x, p%x, n)
 
-         call this%uu%update(k)
-         call this%vv%update(k)
-         call this%ww%update(k)
-         call this%pp%update(k)
+         call this%sample(S_UU, stats_u, k)
+         call this%sample(S_VV, stats_v, k)
+         call this%sample(S_WW, stats_w, k)
+         call this%sample(S_PP, stats_p, k)
 
          call col3(stats_work%x, this%u%x, this%v%x, n)
-         call this%uv%update(k)
+         call this%sample(S_UV, stats_work, k)
          call col3(stats_work%x, this%u%x, this%w%x, n)
-         call this%uw%update(k)
+         call this%sample(S_UW, stats_work, k)
          call col3(stats_work%x, this%v%x, this%w%x, n)
-         call this%vw%update(k)
+         call this%sample(S_VW, stats_work, k)
 
          if (this%n_stats .eq. 44) then
             call col2(stats_work%x, this%u%x, n)
-            call this%uvw%update(k)
+            call this%sample(S_UVW, stats_work, k)
             call col3(stats_work%x, this%stats_u%x, this%u%x, n)
-            call this%uuu%update(k)
+            call this%sample(S_UUU, stats_work, k)
             call col3(stats_work%x, this%stats_v%x, this%v%x, n)
-            call this%vvv%update(k)
+            call this%sample(S_VVV, stats_work, k)
             call col3(stats_work%x, this%stats_w%x, this%w%x, n)
-            call this%www%update(k)
+            call this%sample(S_WWW, stats_work, k)
             call col3(stats_work%x, this%stats_u%x, this%v%x, n)
-            call this%uuv%update(k)
+            call this%sample(S_UUV, stats_work, k)
             call col3(stats_work%x, this%stats_u%x, this%w%x, n)
-            call this%uuw%update(k)
+            call this%sample(S_UUW, stats_work, k)
             call col3(stats_work%x, this%stats_v%x, this%u%x, n)
-            call this%uvv%update(k)
+            call this%sample(S_UVV, stats_work, k)
             call col3(stats_work%x, this%stats_v%x, this%w%x, n)
-            call this%vvw%update(k)
+            call this%sample(S_VVW, stats_work, k)
             call col3(stats_work%x, this%stats_w%x, this%u%x, n)
-            call this%uww%update(k)
+            call this%sample(S_UWW, stats_work, k)
             call col3(stats_work%x, this%stats_w%x, this%v%x, n)
-            call this%vww%update(k)
+            call this%sample(S_VWW, stats_work, k)
 
             call col3(stats_work%x, this%stats_u%x, this%stats_u%x, n)
-            call this%uuuu%update(k)
+            call this%sample(S_UUUU, stats_work, k)
             call col3(stats_work%x, this%stats_v%x, this%stats_v%x, n)
-            call this%vvvv%update(k)
+            call this%sample(S_VVVV, stats_work, k)
             call col3(stats_work%x, this%stats_w%x, this%stats_w%x, n)
-            call this%wwww%update(k)
+            call this%sample(S_WWWW, stats_work, k)
 
             call col3(stats_work%x, this%stats_p%x, p%x, n)
-            call this%ppp%update(k)
+            call this%sample(S_PPP, stats_work, k)
             call col3(stats_work%x, this%stats_p%x, this%stats_p%x, n)
-            call this%pppp%update(k)
+            call this%sample(S_PPPP, stats_work, k)
 
             call col3(stats_work%x, p%x, this%u%x, n)
-            call this%pu%update(k)
+            call this%sample(S_PU, stats_work, k)
             call col3(stats_work%x, p%x, this%v%x, n)
-            call this%pv%update(k)
+            call this%sample(S_PV, stats_work, k)
             call col3(stats_work%x, p%x, this%w%x, n)
-            call this%pw%update(k)
+            call this%sample(S_PW, stats_work, k)
          end if
 
       end if
@@ -645,111 +687,137 @@ contains
          call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, this%w%x, &
               this%coef)
 
+         ! The weak gradients are converted to strong ones at the output
+         ! without averaging, see make_strong_grad, and here otherwise.
+         if (this%avg_dim .ne. 3) then
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call device_invcol2(this%dudx%x_d, this%coef%B_d, n)
+               call device_invcol2(this%dudy%x_d, this%coef%B_d, n)
+               call device_invcol2(this%dudz%x_d, this%coef%B_d, n)
+               call device_invcol2(this%dvdx%x_d, this%coef%B_d, n)
+               call device_invcol2(this%dvdy%x_d, this%coef%B_d, n)
+               call device_invcol2(this%dvdz%x_d, this%coef%B_d, n)
+               call device_invcol2(this%dwdx%x_d, this%coef%B_d, n)
+               call device_invcol2(this%dwdy%x_d, this%coef%B_d, n)
+               call device_invcol2(this%dwdz%x_d, this%coef%B_d, n)
+            else
+               call invcol2(this%dudx%x, this%coef%B, n)
+               call invcol2(this%dudy%x, this%coef%B, n)
+               call invcol2(this%dudz%x, this%coef%B, n)
+               call invcol2(this%dvdx%x, this%coef%B, n)
+               call invcol2(this%dvdy%x, this%coef%B, n)
+               call invcol2(this%dvdz%x, this%coef%B, n)
+               call invcol2(this%dwdx%x, this%coef%B, n)
+               call invcol2(this%dwdy%x, this%coef%B, n)
+               call invcol2(this%dwdz%x, this%coef%B, n)
+            end if
+         end if
+
          if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_col3(stats_work%x_d, this%dudx%x_d, p%x_d, n)
-            call this%pdudx%update(k)
+            call this%sample(S_PDUDX, stats_work, k)
             call device_col3(stats_work%x_d, this%dudy%x_d, p%x_d, n)
-            call this%pdudy%update(k)
+            call this%sample(S_PDUDY, stats_work, k)
             call device_col3(stats_work%x_d, this%dudz%x_d, p%x_d, n)
-            call this%pdudz%update(k)
+            call this%sample(S_PDUDZ, stats_work, k)
 
             call device_col3(stats_work%x_d, this%dvdx%x_d, p%x_d, n)
-            call this%pdvdx%update(k)
+            call this%sample(S_PDVDX, stats_work, k)
             call device_col3(stats_work%x_d, this%dvdy%x_d, p%x_d, n)
-            call this%pdvdy%update(k)
+            call this%sample(S_PDVDY, stats_work, k)
             call device_col3(stats_work%x_d, this%dvdz%x_d, p%x_d, n)
-            call this%pdvdz%update(k)
+            call this%sample(S_PDVDZ, stats_work, k)
 
             call device_col3(stats_work%x_d, this%dwdx%x_d, p%x_d, n)
-            call this%pdwdx%update(k)
+            call this%sample(S_PDWDX, stats_work, k)
             call device_col3(stats_work%x_d, this%dwdy%x_d, p%x_d, n)
-            call this%pdwdy%update(k)
+            call this%sample(S_PDWDY, stats_work, k)
             call device_col3(stats_work%x_d, this%dwdz%x_d, p%x_d, n)
-            call this%pdwdz%update(k)
+            call this%sample(S_PDWDZ, stats_work, k)
 
             call device_col3(stats_work%x_d, this%dudx%x_d, this%dudx%x_d, n)
             call device_addcol3(stats_work%x_d, this%dudy%x_d, &
                  this%dudy%x_d, n)
             call device_addcol3(stats_work%x_d, this%dudz%x_d, &
                  this%dudz%x_d, n)
-            call this%e11%update(k)
+            call this%sample(S_E11, stats_work, k)
             call device_col3(stats_work%x_d, this%dvdx%x_d, this%dvdx%x_d, n)
             call device_addcol3(stats_work%x_d, this%dvdy%x_d, &
                  this%dvdy%x_d, n)
             call device_addcol3(stats_work%x_d, this%dvdz%x_d, &
                  this%dvdz%x_d, n)
-            call this%e22%update(k)
+            call this%sample(S_E22, stats_work, k)
             call device_col3(stats_work%x_d, this%dwdx%x_d, this%dwdx%x_d, n)
             call device_addcol3(stats_work%x_d, this%dwdy%x_d, &
                  this%dwdy%x_d, n)
             call device_addcol3(stats_work%x_d, this%dwdz%x_d, &
                  this%dwdz%x_d, n)
-            call this%e33%update(k)
+            call this%sample(S_E33, stats_work, k)
             call device_col3(stats_work%x_d, this%dudx%x_d, &
                  this%dvdx%x_d, n)
             call device_addcol3(stats_work%x_d, this%dudy%x_d, &
                  this%dvdy%x_d, n)
             call device_addcol3(stats_work%x_d, this%dudz%x_d, &
                  this%dvdz%x_d, n)
-            call this%e12%update(k)
+            call this%sample(S_E12, stats_work, k)
             call device_col3(stats_work%x_d, this%dudx%x_d, this%dwdx%x_d, n)
             call device_addcol3(stats_work%x_d, this%dudy%x_d, &
                  this%dwdy%x_d, n)
             call device_addcol3(stats_work%x_d, this%dudz%x_d, &
                  this%dwdz%x_d, n)
-            call this%e13%update(k)
+            call this%sample(S_E13, stats_work, k)
             call device_col3(stats_work%x_d, this%dvdx%x_d, this%dwdx%x_d, n)
             call device_addcol3(stats_work%x_d, this%dvdy%x_d, &
                  this%dwdy%x_d, n)
             call device_addcol3(stats_work%x_d, this%dvdz%x_d, &
                  this%dwdz%x_d, n)
-            call this%e23%update(k)
+            call this%sample(S_E23, stats_work, k)
          else
             call col3(stats_work%x, this%dudx%x, p%x, n)
-            call this%pdudx%update(k)
+            call this%sample(S_PDUDX, stats_work, k)
             call col3(stats_work%x, this%dudy%x, p%x, n)
-            call this%pdudy%update(k)
+            call this%sample(S_PDUDY, stats_work, k)
             call col3(stats_work%x, this%dudz%x, p%x, n)
-            call this%pdudz%update(k)
+            call this%sample(S_PDUDZ, stats_work, k)
 
             call col3(stats_work%x, this%dvdx%x, p%x, n)
-            call this%pdvdx%update(k)
+            call this%sample(S_PDVDX, stats_work, k)
             call col3(stats_work%x, this%dvdy%x, p%x, n)
-            call this%pdvdy%update(k)
+            call this%sample(S_PDVDY, stats_work, k)
             call col3(stats_work%x, this%dvdz%x, p%x, n)
-            call this%pdvdz%update(k)
+            call this%sample(S_PDVDZ, stats_work, k)
 
             call col3(stats_work%x, this%dwdx%x, p%x, n)
-            call this%pdwdx%update(k)
+            call this%sample(S_PDWDX, stats_work, k)
             call col3(stats_work%x, this%dwdy%x, p%x, n)
-            call this%pdwdy%update(k)
+            call this%sample(S_PDWDY, stats_work, k)
             call col3(stats_work%x, this%dwdz%x, p%x, n)
-            call this%pdwdz%update(k)
+            call this%sample(S_PDWDZ, stats_work, k)
 
             call col3(stats_work%x, this%dudx%x, this%dudx%x, n)
             call addcol3(stats_work%x, this%dudy%x, this%dudy%x, n)
             call addcol3(stats_work%x, this%dudz%x, this%dudz%x, n)
-            call this%e11%update(k)
+            call this%sample(S_E11, stats_work, k)
             call col3(stats_work%x, this%dvdx%x, this%dvdx%x, n)
             call addcol3(stats_work%x, this%dvdy%x, this%dvdy%x, n)
             call addcol3(stats_work%x, this%dvdz%x, this%dvdz%x, n)
-            call this%e22%update(k)
+            call this%sample(S_E22, stats_work, k)
             call col3(stats_work%x, this%dwdx%x, this%dwdx%x, n)
             call addcol3(stats_work%x, this%dwdy%x, this%dwdy%x, n)
             call addcol3(stats_work%x, this%dwdz%x, this%dwdz%x, n)
-            call this%e33%update(k)
+            call this%sample(S_E33, stats_work, k)
             call col3(stats_work%x, this%dudx%x, this%dvdx%x, n)
             call addcol3(stats_work%x, this%dudy%x, this%dvdy%x, n)
             call addcol3(stats_work%x, this%dudz%x, this%dvdz%x, n)
-            call this%e12%update(k)
+            call this%sample(S_E12, stats_work, k)
             call col3(stats_work%x, this%dudx%x, this%dwdx%x, n)
             call addcol3(stats_work%x, this%dudy%x, this%dwdy%x, n)
             call addcol3(stats_work%x, this%dudz%x, this%dwdz%x, n)
-            call this%e13%update(k)
+            call this%sample(S_E13, stats_work, k)
             call col3(stats_work%x, this%dvdx%x, this%dwdx%x, n)
             call addcol3(stats_work%x, this%dvdy%x, this%dwdy%x, n)
             call addcol3(stats_work%x, this%dvdz%x, this%dwdz%x, n)
-            call this%e23%update(k)
+            call this%sample(S_E23, stats_work, k)
 
          end if
       end if
@@ -818,6 +886,12 @@ contains
     call this%e13%free()
     call this%e23%free()
 
+    if (allocated(this%means)) deallocate(this%means)
+
+    call this%map_2d%free()
+    call this%map_1d%free()
+    this%avg_dim = 3
+
     nullify(this%u)
     nullify(this%v)
     nullify(this%w)
@@ -831,67 +905,30 @@ contains
   !> Resets all the computed means values and sampling times to zero.
   subroutine fluid_stats_reset(this)
     class(fluid_stats_t), intent(inout), target:: this
+    integer :: i
 
-    call this%p_mean%reset()
-    call this%u_mean%reset()
-    call this%v_mean%reset()
-    call this%w_mean%reset()
-
-    call this%uu%reset()
-    call this%vv%reset()
-    call this%ww%reset()
-    call this%uv%reset()
-    call this%uw%reset()
-    call this%vw%reset()
-    call this%pp%reset()
-    if (this%n_stats .eq. 44) then
-       call this%uuu%reset()
-       call this%vvv%reset()
-       call this%www%reset()
-       call this%uuv%reset()
-       call this%uuw%reset()
-       call this%uvv%reset()
-       call this%uvw%reset()
-       call this%vvw%reset()
-       call this%uww%reset()
-       call this%vww%reset()
-       call this%uuuu%reset()
-       call this%vvvv%reset()
-       call this%wwww%reset()
-       call this%ppp%reset()
-       call this%pppp%reset()
-       call this%pu%reset()
-       call this%pv%reset()
-       call this%pw%reset()
-
-       call this%pdudx%reset()
-       call this%pdudy%reset()
-       call this%pdudz%reset()
-       call this%pdvdx%reset()
-       call this%pdvdy%reset()
-       call this%pdvdz%reset()
-       call this%pdwdx%reset()
-       call this%pdwdy%reset()
-       call this%pdwdz%reset()
-
-       call this%e11%reset()
-       call this%e22%reset()
-       call this%e33%reset()
-       call this%e12%reset()
-       call this%e13%reset()
-       call this%e23%reset()
-    end if
+    select case (this%avg_dim)
+    case (3)
+       do i = 1, this%n_stats
+          call this%means(i)%ptr%reset()
+       end do
+    case (2)
+       call this%map_2d%accumulate_reset()
+    case (1)
+       call this%map_1d%accumulate_reset()
+    end select
 
   end subroutine fluid_stats_reset
 
-  ! Convert computed weak gradients to strong.
+  ! Convert computed weak gradients to strong. Only without averaging,
+  ! otherwise the gradients are made strong when sampling.
   subroutine fluid_stats_make_strong_grad(this)
     class(fluid_stats_t) :: this
     type(field_t), pointer :: work
     integer :: n, i, idx
     real(kind=rp) :: wrk, wrk_sqr
 
-    if (this%n_stats .eq. 11) return
+    if (this%n_stats .eq. 11 .or. this%avg_dim .ne. 3) return
 
     n = size(this%coef%B)
 
@@ -949,7 +986,7 @@ contains
   end subroutine fluid_stats_make_strong_grad
 
   !> Compute certain physical statistical quantities based on existing mean
-  !! fields.
+  !! fields. Only available without an averaging direction.
   subroutine fluid_stats_post_process(this, mean, reynolds, pressure_flatness,&
        pressure_skewness, skewness_tensor, mean_vel_grad, dissipation_tensor)
     class(fluid_stats_t) :: this
@@ -965,6 +1002,11 @@ contains
     integer :: grad_idx(9)
     integer :: n, i
     real(kind=rp) :: wrk
+
+    if (this%avg_dim .ne. 3) then
+       call neko_error('fluid_stats: post_process requires statistics ' // &
+            'without an averaging direction')
+    end if
 
     if (present(mean)) then
        n = mean%item_size(1)

@@ -53,6 +53,78 @@ __global__ void cmult_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for slab_sum: partial sums along one local direction of
+ * every element. For element e and output index m = a + lx * b it sums
+ * f(p) * w(p) over p = e * in_stride + a * sa[e] + b * sb[e] + h * sh[e],
+ * h = 0..lx-1, and stores the sum at e * out_stride + tbl[m + n_out * code[e]].
+ * A missing f or w counts as one.
+ */
+template< typename T >
+__global__ void slab_sum_kernel(T * __restrict__ tmp,
+                                const T * __restrict__ f,
+                                const T * __restrict__ w,
+                                const int * __restrict__ sa,
+                                const int * __restrict__ sb,
+                                const int * __restrict__ sh,
+                                const int * __restrict__ code,
+                                const int * __restrict__ tbl,
+                                const int use_f,
+                                const int use_w,
+                                const int n_out,
+                                const int lx,
+                                const int nelv,
+                                const int in_stride,
+                                const int out_stride) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  const int n = nelv * n_out;
+
+  for (int i = idx; i < n; i += str) {
+    const int e = i / n_out;
+    const int m = i - e * n_out;
+    const int a = m % lx;
+    const int b = m / lx;
+    const int p0 = e * in_stride + a * sa[e] + b * sb[e];
+    const int s_h = sh[e];
+    T s = 0;
+    for (int h = 0; h < lx; h++) {
+      const int p = p0 + h * s_h;
+      T v = 1;
+      if (use_f) v = f[p];
+      if (use_w) v *= w[p];
+      s += v;
+    }
+    tmp[e * out_stride + tbl[m + n_out * code[e]]] = s;
+  }
+}
+
+/**
+ * Device kernel for gather_add: acc[offset + r] += scale * sum of
+ * tmp[list[j]] for j = ptr[r]..ptr[r+1]-1, for r = 0..nrows-1.
+ */
+template< typename T >
+__global__ void gather_add_kernel(T * __restrict__ acc,
+                                  const T * __restrict__ tmp,
+                                  const int * __restrict__ ptr,
+                                  const int * __restrict__ list,
+                                  const int offset,
+                                  const int nrows,
+                                  const T scale) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int r = idx; r < nrows; r += str) {
+    T s = 0;
+    for (int j = ptr[r]; j < ptr[r + 1]; j++) {
+      s += tmp[list[j]];
+    }
+    acc[offset + r] += scale * s;
+  }
+}
+
+/**
  * Device kernel for masked gather copy
  */
 template< typename T >

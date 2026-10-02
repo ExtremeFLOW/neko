@@ -187,7 +187,7 @@ contains
     write(log_buf, '(A,A)') 'Pressure gauge: ', trim(gauge)
     call neko_log%message(log_buf)
 
-    call this%stats%init(coef, u, v, w, p, stat_set, name, gauge)
+    call this%stats%init(coef, u, v, w, p, stat_set, name, gauge, hom_dir)
 
     this%name = name
     this%start_time = start_time

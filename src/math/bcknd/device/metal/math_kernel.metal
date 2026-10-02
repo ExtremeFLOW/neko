@@ -116,6 +116,69 @@ kernel void masked_copy_kernel(device float *a[[ buffer(0) ]],
     a[mask[idx + 1] - 1] = b[mask[idx + 1] - 1];
 }
 
+/**
+ * Device kernel for slab_sum: partial sums along one local direction of
+ * every element. For element e and output index m = a + lx * b it sums
+ * f(p) * w(p) over p = e * in_stride + a * sa[e] + b * sb[e] + h * sh[e],
+ * h = 0..lx-1, and stores the sum at e * out_stride + tbl[m + n_out * code[e]].
+ * A missing f or w counts as one.
+ */
+kernel void slab_sum_kernel(device float *tmp[[ buffer(0) ]],
+                            device const float *f[[ buffer(1) ]],
+                            device const float *w[[ buffer(2) ]],
+                            device const int *sa[[ buffer(3) ]],
+                            device const int *sb[[ buffer(4) ]],
+                            device const int *sh[[ buffer(5) ]],
+                            device const int *code[[ buffer(6) ]],
+                            device const int *tbl[[ buffer(7) ]],
+                            constant int &use_f[[ buffer(8) ]],
+                            constant int &use_w[[ buffer(9) ]],
+                            constant int &n_out[[ buffer(10) ]],
+                            constant int &lx[[ buffer(11) ]],
+                            constant int &nelv[[ buffer(12) ]],
+                            constant int &in_stride[[ buffer(13) ]],
+                            constant int &out_stride[[ buffer(14) ]],
+                            uint idx [[ thread_position_in_grid ]]) {
+    if (idx >= (uint)(nelv * n_out)) return;
+    const int i = (int)idx;
+    const int e = i / n_out;
+    const int m = i - e * n_out;
+    const int a = m % lx;
+    const int b = m / lx;
+    const int p0 = e * in_stride + a * sa[e] + b * sb[e];
+    const int s_h = sh[e];
+    float s = 0.0f;
+    for (int h = 0; h < lx; h++) {
+        const int p = p0 + h * s_h;
+        float v = 1.0f;
+        if (use_f) v = f[p];
+        if (use_w) v *= w[p];
+        s += v;
+    }
+    tmp[e * out_stride + tbl[m + n_out * code[e]]] = s;
+}
+
+/**
+ * Device kernel for gather_add: acc[offset + r] += scale * sum of
+ * tmp[list[j]] for j = ptr[r]..ptr[r+1]-1, for r = 0..nrows-1.
+ */
+kernel void gather_add_kernel(device float *acc[[ buffer(0) ]],
+                              device const float *tmp[[ buffer(1) ]],
+                              device const int *ptr[[ buffer(2) ]],
+                              device const int *list[[ buffer(3) ]],
+                              constant int &offset[[ buffer(4) ]],
+                              constant int &nrows[[ buffer(5) ]],
+                              constant float &scale[[ buffer(6) ]],
+                              uint idx [[ thread_position_in_grid ]]) {
+    if (idx >= (uint)nrows) return;
+    const int r = (int)idx;
+    float s = 0.0f;
+    for (int j = ptr[r]; j < ptr[r + 1]; j++) {
+        s += tmp[list[j]];
+    }
+    acc[offset + r] += scale * s;
+}
+
 kernel void masked_gather_copy_kernel(device float *a[[ buffer(0) ]],
                                       device const float *b[[ buffer(1) ]],
                                       device const int *mask[[ buffer(2) ]],
