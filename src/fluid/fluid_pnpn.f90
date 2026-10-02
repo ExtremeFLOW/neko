@@ -196,6 +196,13 @@ module fluid_pnpn
      procedure, pass(this) :: free => fluid_pnpn_free
      !> Perform a single time-step of the scheme.
      procedure, pass(this) :: step => fluid_pnpn_step
+     !> Assemble the explicit part of the right-hand side.
+     procedure, pass(this) :: assemble_rhs => fluid_pnpn_assemble_rhs
+     !> Recompute geometry-dependent quantities after the mesh has moved.
+     procedure, pass(this) :: recompute_metrics => &
+          fluid_pnpn_recompute_metrics
+     !> Solve for the pressure and velocity.
+     procedure, pass(this) :: solve => fluid_pnpn_solve
      !> Restart from a previous solution.
      procedure, pass(this) :: restart => fluid_pnpn_restart
      !> Set up boundary conditions.
@@ -712,39 +719,56 @@ contains
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
-    ! number of degrees of freedom
-    integer :: n
-    ! Solver results monitors (pressure + 3 velocity)
-    type(ksp_monitor_t) :: ksp_results(4)
-    integer :: iter
-
-    type(file_t) :: dump_file
-    class(bc_t), pointer :: bc_i
 
     if (this%freeze) return
 
+    call profiler_start_region('Fluid', 1)
+
+    call this%assemble_rhs(time)
+
+    if (this%ale%active) then
+       ! Advance Mesh (Moves points, updates B history, updates wm_lags)
+       call this%ale%advance_mesh(this%c_Xh, time, this%ext_bdf%nadv)
+       call this%recompute_metrics()
+    end if
+
+    call this%ulag%update()
+    call this%vlag%update()
+    call this%wlag%update()
+
+    call this%solve(time, dt_controller, this%proj_prs, this%proj_vel)
+
+    ! Update mesh velocities for ALE
+    ! We update them here (end of step) for the next step.
+    ! Returns if .not. ale.
+    call this%ale%update_mesh_velocity(this%c_Xh, time)
+
+    call profiler_end_region('Fluid', 1)
+  end subroutine fluid_pnpn_step
+
+  !> Assemble the explicit part of the right-hand side and extrapolate the
+  !! velocity.
+  !! @param time The time state.
+  subroutine fluid_pnpn_assemble_rhs(this, time)
+    class(fluid_pnpn_t), target, intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    ! number of degrees of freedom
+    integer :: n
+
     n = this%dm_Xh%size()
 
-    call profiler_start_region('Fluid', 1)
-    associate(u => this%u, v => this%v, w => this%w, p => this%p, &
+    associate(u => this%u, v => this%v, w => this%w, &
          u_e => this%u_e, v_e => this%v_e, w_e => this%w_e, &
-         du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
-         u_res => this%u_res, v_res => this%v_res, w_res => this%w_res, &
-         p_res => this%p_res, Ax_vel => this%Ax_vel, Ax_prs => this%Ax_prs, &
          Xh => this%Xh, &
-         c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
+         c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, &
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
-         msh => this%msh, prs_res => this%prs_res, &
-         source_term => this%source_term, vel_res => this%vel_res, &
          sumab => this%sumab, makeoifs => this%makeoifs, &
          makeabf => this%makeabf, makebdf => this%makebdf, &
-         vel_projection_dim => this%vel_projection_dim, &
-         pr_projection_dim => this%pr_projection_dim, &
          oifs => this%oifs, &
-         rho => this%rho, mu_tot => this%mu_tot, &
+         rho => this%rho, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
-         t => time%t, tstep => time%tstep, dt => time%dt, &
-         ext_bdf => this%ext_bdf, event => glb_cmd_event, &
+         dt => time%dt, &
+         ext_bdf => this%ext_bdf, &
          ale => this%ale)
 
       ! Extrapolate the velocity if it's not done in nut_field estimation
@@ -819,25 +843,59 @@ contains
 
       end if
 
-      if (this%ale%active) then
-         ! Advance Mesh (Moves points, updates B history, updates wm_lags)
-         call this%ale%advance_mesh(c_Xh, time, ext_bdf%nadv)
+    end associate
+  end subroutine fluid_pnpn_assemble_rhs
 
-         call profiler_start_region('ALE recompute metrics')
-         ! Update Metrics
-         call c_Xh%recompute_metrics()
-         ! Update the metrics used by the adv operator for delaiasing (coef_GL)
-         ! Maps the updated coef_GLL to coef_GL.
-         call this%adv%recompute_metrics(c_Xh, .true.)
+  !> Recompute geometry-dependent quantities after the mesh has moved.
+  subroutine fluid_pnpn_recompute_metrics(this)
+    class(fluid_pnpn_t), target, intent(inout) :: this
 
-         call this%bc_prs_surface%recompute_normals()
-         call this%bc_sym_surface%recompute_normals()
-         call profiler_end_region('ALE recompute metrics')
-      end if
+    call profiler_start_region('ALE recompute metrics')
+    ! Update Metrics
+    call this%c_Xh%recompute_metrics()
+    ! Update the metrics used by the adv operator for delaiasing (coef_GL)
+    ! Maps the updated coef_GLL to coef_GL.
+    call this%adv%recompute_metrics(this%c_Xh, .true.)
 
-      call ulag%update()
-      call vlag%update()
-      call wlag%update()
+    call this%bc_prs_surface%recompute_normals()
+    call this%bc_sym_surface%recompute_normals()
+    call profiler_end_region('ALE recompute metrics')
+  end subroutine fluid_pnpn_recompute_metrics
+
+  !> Solve for the pressure and velocity, given an assembled right-hand side.
+  !! @param time The time state.
+  !! @param dt_controller timestep controller
+  !! @param proj_prs Projection space for the pressure solve.
+  !! @param proj_vel Projection space for the velocity solve.
+  !! @note A solve is done without projection when its projection space is
+  !! not passed.
+  subroutine fluid_pnpn_solve(this, time, dt_controller, proj_prs, proj_vel)
+    class(fluid_pnpn_t), target, intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    type(time_step_controller_t), intent(in) :: dt_controller
+    type(projection_t), intent(inout), optional :: proj_prs
+    type(projection_vel_t), intent(inout), optional :: proj_vel
+    ! number of degrees of freedom
+    integer :: n
+    ! Solver results monitors (pressure + 3 velocity)
+    type(ksp_monitor_t) :: ksp_results(4)
+    integer :: iter
+
+    n = this%dm_Xh%size()
+
+    associate(u => this%u, v => this%v, w => this%w, p => this%p, &
+         u_e => this%u_e, v_e => this%v_e, w_e => this%w_e, &
+         du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
+         u_res => this%u_res, v_res => this%v_res, w_res => this%w_res, &
+         p_res => this%p_res, Ax_vel => this%Ax_vel, Ax_prs => this%Ax_prs, &
+         Xh => this%Xh, &
+         c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
+         msh => this%msh, prs_res => this%prs_res, &
+         vel_res => this%vel_res, &
+         rho => this%rho, mu_tot => this%mu_tot, &
+         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
+         tstep => time%tstep, dt => time%dt, &
+         ext_bdf => this%ext_bdf, event => glb_cmd_event)
 
       ! Update material properties if necessary
       call this%update_material_properties(time)
@@ -882,8 +940,8 @@ contains
 
          ! Do projections only on the actual solutions of the tstep
          ! not intermediate solutions from the subiterations.
-         if (iter .eq. 1) then
-            call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, &
+         if (iter .eq. 1 .and. present(proj_prs)) then
+            call proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, &
                  dt_controller, Ax = Ax_prs, gs_h = gs_Xh, &
                  bclst = this%bcs_prs_projector, string = 'Pressure')
          end if
@@ -901,8 +959,8 @@ contains
 
          call profiler_end_region('Pressure_solve', 3)
 
-         if (iter .eq. 1) then
-            call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
+         if (iter .eq. 1 .and. present(proj_prs)) then
+            call proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
                  this%bcs_prs_projector, gs_Xh, n, tstep, dt_controller)
          end if
 
@@ -937,8 +995,8 @@ contains
 
          call profiler_end_region('Velocity_residual', 19)
 
-         if (iter .eq. 1) then
-            call this%proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
+         if (iter .eq. 1 .and. present(proj_vel)) then
+            call proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
                  tstep, c_Xh, n, dt_controller, 'Velocity')
          end if
 
@@ -958,8 +1016,8 @@ contains
             ksp_results(4)%name = 'Z-Velocity'
          end if
 
-         if (iter .eq. 1) then
-            call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
+         if (iter .eq. 1 .and. present(proj_vel)) then
+            call proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
                  this%bcs_vel_projector, gs_Xh, n, tstep, &
                  dt_controller)
          end if
@@ -987,17 +1045,8 @@ contains
               this%ksp_vel%max_iter)
       end if
 
-      ! Update mesh velocities for ALE
-      ! We update them here (end of step) for the next step.
-      ! Returns if .not. ale.
-      call this%ale%update_mesh_velocity(c_Xh, time)
-
     end associate
-
-    nullify(bc_i)
-
-    call profiler_end_region('Fluid', 1)
-  end subroutine fluid_pnpn_step
+  end subroutine fluid_pnpn_solve
 
   !> Sets up the boundary condition for the scheme.
   !! @param user The user interface.
