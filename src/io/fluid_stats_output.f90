@@ -83,10 +83,15 @@ contains
     character(len=*), intent(in), optional :: path
     character(len=1024) :: fname
     character(len=4) :: suffix
+    integer :: expected_dim
 
     this%output_dim = stats%output_dim
-    if ((this%output_dim .eq. 1 .and. len_trim(hom_dir) .ne. 2) .or. &
-         (this%output_dim .eq. 2 .and. len_trim(hom_dir) .ne. 1)) then
+    if (trim(hom_dir) .eq. 'none' .or. len_trim(hom_dir) .eq. 0) then
+       expected_dim = 3
+    else
+       expected_dim = 3 - len_trim(hom_dir)
+    end if
+    if (expected_dim .ne. this%output_dim) then
        call neko_error('fluid_stats_output: the averaging direction does' // &
             ' not match the statistics')
     end if

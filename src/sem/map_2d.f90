@@ -58,6 +58,7 @@ module map_2d
   use vector, only : vector_ptr_t
   use utils, only : neko_error
   use math, only : sort, glmax, glmin
+  use math, only : slab_sum, gather_add
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_Allgather, MPI_Allgatherv, &
        MPI_Alltoall, MPI_Alltoallv, MPI_Exscan, MPI_INTEGER, MPI_SUM
@@ -80,6 +81,8 @@ module map_2d
      real(kind=rp), pointer, contiguous :: x(:) => null()
   end type field_ptr_1d_t
 
+  !! The map is built once at initialisation from the mesh coordinates
+  !! and assumes that the mesh does not move.
   type, public :: map_2d_t
      integer :: nelv_2d = 0 !< Number of elements in 2D mesh on this rank
      integer :: glb_nelv_2d = 0 !< global number of elements in 2d
@@ -170,8 +173,11 @@ contains
   !> Constructor.
   !! @param coef SEM coefficients of the 3D mesh.
   !! @param dir Direction normal to the 2D plane, 1, 2 or 3 for x, y or z.
-  !! @param tol Tolerance, relative to the in-plane extent of the domain,
-  !! for comparing coordinates.
+  !! @param tol Tolerance for matching the in-plane geometry of the
+  !! elements, relative to the in-plane extent of the domain or to the
+  !! magnitude of the coordinates, whichever is larger. Also passed to
+  !! `map_1d_t` for its level detection, relative to the extent in the
+  !! homogeneous direction.
   subroutine map_2d_init(this, coef, dir, tol)
     class(map_2d_t), intent(inout) :: this
     type(coef_t), intent(inout), target :: coef
@@ -179,7 +185,7 @@ contains
     real(kind=rp), intent(in) :: tol
     real(kind=rp), contiguous, pointer :: x_ptr(:), y_ptr(:)
     real(kind=rp), allocatable :: loc_geo(:,:), glb_geo(:,:), key(:)
-    real(kind=rp) :: geo(N_GEO), atol
+    real(kind=rp) :: geo(N_GEO), atol, xmin, xmax, ymin, ymax
     integer, allocatable :: geo_cnt(:), geo_displ(:), glb_offset(:)
     integer, allocatable :: sorted(:), el_glb(:), el_order(:), col_glb(:)
     integer, allocatable :: recv_glb(:)
@@ -246,8 +252,14 @@ contains
     ! g describes the 2D element with global index g, since the ranks
     ! contribute their elements in rank order.
     call inplane_coords(this, x_ptr, y_ptr)
-    atol = tol * max(glmax(x_ptr, n) - glmin(x_ptr, n), &
-         glmax(y_ptr, n) - glmin(y_ptr, n))
+    ! The tolerance follows the in-plane extent of the domain, or the
+    ! magnitude of the coordinates when the domain is far from the origin.
+    xmin = glmin(x_ptr, n)
+    xmax = glmax(x_ptr, n)
+    ymin = glmin(y_ptr, n)
+    ymax = glmax(y_ptr, n)
+    atol = tol * max(xmax - xmin, ymax - ymin, abs(xmin), abs(xmax), &
+         abs(ymin), abs(ymax))
 
     allocate(loc_geo(N_GEO, max(this%nelv_2d, 1)))
     j = 0
@@ -355,8 +367,11 @@ contains
   !> Constructor from a character direction.
   !! @param coef SEM coefficients of the 3D mesh.
   !! @param dir Direction normal to the 2D plane, 'x', 'y' or 'z'.
-  !! @param tol Tolerance, relative to the in-plane extent of the domain,
-  !! for comparing coordinates.
+  !! @param tol Tolerance for matching the in-plane geometry of the
+  !! elements, relative to the in-plane extent of the domain or to the
+  !! magnitude of the coordinates, whichever is larger. Also passed to
+  !! `map_1d_t` for its level detection, relative to the extent in the
+  !! homogeneous direction.
   subroutine map_2d_init_char(this, coef, dir, tol)
     class(map_2d_t) :: this
     type(coef_t), intent(inout), target :: coef
@@ -467,6 +482,9 @@ contains
 
   !> Averages `nf` fields in the homogeneous direction and stores the result
   !! in a 2D field.
+  !! @param fld_data2D Output 2D field.
+  !! @param flds Fields to average.
+  !! @param nf Number of fields.
   subroutine map_2d_average_fields(this, fld_data2D, flds, nf)
     class(map_2d_t), intent(in) :: this
     type(fld_file_data_t), intent(inout) :: fld_data2D
@@ -520,6 +538,7 @@ contains
   end subroutine map_2d_fill_output
 
   !> Sets the element indices and the in-plane coordinates of a 2D field.
+  !! @param fld_data2D 2D field whose element indices and coordinates are set.
   subroutine map_2d_output_coords(this, fld_data2D)
     class(map_2d_t), intent(in) :: this
     type(fld_file_data_t), intent(inout) :: fld_data2D
@@ -641,12 +660,14 @@ contains
           avg(:, j, e) = avg(:, j, e) + recv(:, j, k)
        end do
     end do
+    ! A column without volume has received no sample and averages to zero.
     do e = 1, this%nelv_2d
-       if (any(vol(:, e) .le. 0.0_rp)) then
-          call neko_error('map_2d: 2D element with a non-positive volume')
-       end if
        do j = 1, nf
-          avg(:, j, e) = avg(:, j, e) / vol(:, e)
+          where (vol(:, e) .gt. 0.0_rp)
+             avg(:, j, e) = avg(:, j, e) / vol(:, e)
+          elsewhere
+             avg(:, j, e) = 0.0_rp
+          end where
        end do
     end do
 
@@ -715,24 +736,28 @@ contains
     allocate(this%tmp(max(lxy * nelv, 1)))
     allocate(this%acc(lxy, max(this%n_cols, 1), 0:n_fields))
 
-    if (NEKO_BCKND_DEVICE .eq. 1 .and. nelv .gt. 0) then
-       call device_map(this%el_sa, this%el_sa_d, nelv)
-       call device_map(this%el_sb, this%el_sb_d, nelv)
-       call device_map(this%el_sh, this%el_sh_d, nelv)
-       call device_map(this%el_code0, this%el_code0_d, nelv)
+    ! The per-element tables are only mapped on ranks with elements; the
+    ! other arrays always, since the column sums may still be gathered.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (nelv .gt. 0) then
+          call device_map(this%el_sa, this%el_sa_d, nelv)
+          call device_map(this%el_sb, this%el_sb_d, nelv)
+          call device_map(this%el_sh, this%el_sh_d, nelv)
+          call device_map(this%el_code0, this%el_code0_d, nelv)
+          call device_memcpy(this%el_sa, this%el_sa_d, nelv, HOST_TO_DEVICE, &
+               sync = .false.)
+          call device_memcpy(this%el_sb, this%el_sb_d, nelv, HOST_TO_DEVICE, &
+               sync = .false.)
+          call device_memcpy(this%el_sh, this%el_sh_d, nelv, HOST_TO_DEVICE, &
+               sync = .false.)
+          call device_memcpy(this%el_code0, this%el_code0_d, nelv, &
+               HOST_TO_DEVICE, sync = .false.)
+       end if
        call device_map(this%tbl0, this%tbl0_d, size(this%tbl0))
        call device_map(this%csr_ptr, this%csr_ptr_d, size(this%csr_ptr))
        call device_map(this%csr_list, this%csr_list_d, size(this%csr_list))
        call device_map(this%tmp, this%tmp_d, size(this%tmp))
        call device_map(this%acc, this%acc_d, size(this%acc))
-       call device_memcpy(this%el_sa, this%el_sa_d, nelv, HOST_TO_DEVICE, &
-            sync = .false.)
-       call device_memcpy(this%el_sb, this%el_sb_d, nelv, HOST_TO_DEVICE, &
-            sync = .false.)
-       call device_memcpy(this%el_sh, this%el_sh_d, nelv, HOST_TO_DEVICE, &
-            sync = .false.)
-       call device_memcpy(this%el_code0, this%el_code0_d, nelv, &
-            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%tbl0, this%tbl0_d, size(this%tbl0), &
             HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%csr_ptr, this%csr_ptr_d, size(this%csr_ptr), &
@@ -829,6 +854,9 @@ contains
   end subroutine map_2d_accumulate_volume
 
   !> Device implementation of the accumulation, a null `f_d` counts as one.
+  !! @param f_d Device pointer of the field, or null.
+  !! @param slot Slot of the field, 0 to `n_acc`.
+  !! @param k Scaling of the sample.
   subroutine map_2d_accumulate_device(this, f_d, slot, k)
     class(map_2d_t), intent(inout) :: this
     type(c_ptr), intent(in) :: f_d
@@ -850,54 +878,25 @@ contains
   end subroutine map_2d_accumulate_device
 
   !> Host implementation of the accumulation, a missing `f` counts as one.
+  !! @param slot Slot of the field, 0 to `n_acc`.
+  !! @param k Scaling of the sample.
+  !! @param f Field to accumulate, optional.
   subroutine map_2d_accumulate_host(this, slot, k, f)
     class(map_2d_t), intent(inout) :: this
     integer, intent(in) :: slot
     real(kind=rp), intent(in) :: k
     real(kind=rp), intent(in), optional :: f(*)
-    real(kind=rp), contiguous, pointer :: wt(:)
-    real(kind=rp) :: s
-    integer :: e, c, m, a, b, h, p, p0, r, j, lx, lxy, lxyz, n, nelv, code
+    integer :: lx, lxy, nrows
 
     lx = this%dof%Xh%lx
     lxy = this%lxy
-    lxyz = this%dof%Xh%lxyz
-    n = this%dof%size()
-    nelv = this%msh%nelv
-    wt(1:n) => this%coef%B
+    nrows = lxy * this%n_cols
 
-    do e = 1, nelv
-       code = this%el_code0(e)
-       do m = 0, lxy - 1
-          a = mod(m, lx)
-          b = m / lx
-          p0 = (e - 1) * lxyz + a * this%el_sa(e) + b * this%el_sb(e)
-          s = 0.0_rp
-          if (present(f)) then
-             do h = 0, lx - 1
-                p = p0 + h * this%el_sh(e) + 1
-                s = s + f(p) * wt(p)
-             end do
-          else
-             do h = 0, lx - 1
-                p = p0 + h * this%el_sh(e) + 1
-                s = s + wt(p)
-             end do
-          end if
-          this%tmp((e - 1) * lxy + this%tbl0(m + 1 + lxy * code) + 1) = s
-       end do
-    end do
-
-    do c = 1, this%n_cols
-       do m = 1, lxy
-          r = m + lxy * (c - 1)
-          s = 0.0_rp
-          do j = this%csr_ptr(r) + 1, this%csr_ptr(r + 1)
-             s = s + this%tmp(this%csr_list(j) + 1)
-          end do
-          this%acc(m, c, slot) = this%acc(m, c, slot) + k * s
-       end do
-    end do
+    call slab_sum(this%tmp, this%el_sa, this%el_sb, this%el_sh, &
+         this%el_code0, this%tbl0, lxy, lx, this%msh%nelv, this%dof%Xh%lxyz, &
+         lxy, f, this%coef%B)
+    call gather_add(this%acc, slot * nrows, this%tmp, this%csr_ptr, &
+         this%csr_list, nrows, k)
 
   end subroutine map_2d_accumulate_host
 
@@ -946,6 +945,8 @@ contains
 
   !> Pointers to the two in-plane coordinates of the dofmap, in the order
   !! they are written to the 2D output.
+  !! @param x_ptr Pointer to the first in-plane coordinate.
+  !! @param y_ptr Pointer to the second in-plane coordinate.
   subroutine inplane_coords(this, x_ptr, y_ptr)
     class(map_2d_t), intent(in) :: this
     real(kind=rp), contiguous, pointer, intent(out) :: x_ptr(:), y_ptr(:)
@@ -970,6 +971,11 @@ contains
   !! `base + (a - 1) * sa + (b - 1) * sb + (h - 1) * sh`. The in-plane
   !! indices are the two local directions that are not homogeneous, in
   !! increasing order.
+  !! @param e Element index.
+  !! @param base Index of the node with all indices one.
+  !! @param sa Stride of the first in-plane index.
+  !! @param sb Stride of the second in-plane index.
+  !! @param sh Stride of the homogeneous index.
   subroutine element_strides(this, e, base, sa, sb, sh)
     class(map_2d_t), intent(in) :: this
     integer, intent(in) :: e
@@ -1001,6 +1007,10 @@ contains
   !! in-plane corner nodes and `geo(2c+1:2c+2)` the coordinates of corner
   !! `c`, where the corners are numbered (1,1), (lx,1), (1,lx) and (lx,lx)
   !! in the in-plane node indices.
+  !! @param e Element index.
+  !! @param x_ptr First in-plane coordinate.
+  !! @param y_ptr Second in-plane coordinate.
+  !! @param geo In-plane geometry of the element.
   subroutine element_geometry(this, e, x_ptr, y_ptr, geo)
     class(map_2d_t), intent(in) :: this
     integer, intent(in) :: e
@@ -1027,6 +1037,13 @@ contains
   !> Finds the 2D element whose centroid is within `atol` of `(cx, cy)`,
   !! using the elements sorted by their first centroid coordinate.
   !! Returns 0 if there is none.
+  !! @param key First centroid coordinates of the 2D elements, sorted.
+  !! @param sorted 2D elements in the order of `key`.
+  !! @param glb_geo In-plane geometry of all 2D elements.
+  !! @param n Number of 2D elements.
+  !! @param cx First coordinate of the centroid to find.
+  !! @param cy Second coordinate of the centroid to find.
+  !! @param atol Tolerance of the comparison.
   function find_column(key, sorted, glb_geo, n, cx, cy, atol) result(g)
     integer, intent(in) :: n
     real(kind=rp), intent(in) :: key(n), glb_geo(N_GEO, n), cx, cy, atol
@@ -1059,6 +1076,10 @@ contains
   !> Finds the permutation of the in-plane node indices that maps the
   !! corners of an element onto the corners of its 2D element.
   !! Returns 0 if none matches.
+  !! @param geo In-plane geometry of the element.
+  !! @param ref In-plane geometry of its 2D element.
+  !! @param lx Number of nodes per direction.
+  !! @param atol Tolerance of the comparison.
   function find_permutation(geo, ref, lx, atol) result(code)
     real(kind=rp), intent(in) :: geo(N_GEO), ref(N_GEO), atol
     integer, intent(in) :: lx
@@ -1087,6 +1108,12 @@ contains
   end function find_permutation
 
   !> The eight symmetries of a square applied to in-plane node indices.
+  !! @param code Symmetry, 1 to 8.
+  !! @param a First node index.
+  !! @param b Second node index.
+  !! @param lx Number of nodes per direction.
+  !! @param ap Mapped first node index.
+  !! @param bp Mapped second node index.
   pure subroutine dihedral_map(code, a, b, lx, ap, bp)
     integer, intent(in) :: code, a, b, lx
     integer, intent(out) :: ap, bp
@@ -1122,6 +1149,9 @@ contains
 
   !> Rank owning the 2D element with global index `g`, given the number of
   !! 2D elements on the ranks before each rank.
+  !! @param g Global index of the 2D element.
+  !! @param glb_offset Number of 2D elements on the ranks before each rank.
+  !! @param nranks Number of ranks.
   pure function owner_rank(g, glb_offset, nranks) result(r)
     integer, intent(in) :: g, nranks
     integer, intent(in) :: glb_offset(0:nranks - 1)

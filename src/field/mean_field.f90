@@ -39,7 +39,7 @@ module mean_field
   use registry, only : neko_registry
   use field, only : field_t
   use utils, only : NEKO_VARNAME_LEN
-  use field_math, only : field_add3s2
+  use field_math, only : field_cmult, field_add2s2
   implicit none
   private
 
@@ -120,10 +120,10 @@ contains
     real(kind=rp), intent(in) :: k
     real(kind=rp) :: new_time
 
-    ! mf = (time * mf + k * f) / (time + k), as a single pass over the fields.
+    ! mf = (time * mf + k * f) / (time + k), in place.
     new_time = this%time + k
-    call field_add3s2(this%mf, this%mf, this%f, this%time / new_time, &
-         k / new_time, size(this%mf%x))
+    call field_cmult(this%mf, this%time / new_time, size(this%mf%x))
+    call field_add2s2(this%mf, this%f, k / new_time, size(this%mf%x))
     this%time = new_time
 
   end subroutine mean_field_update

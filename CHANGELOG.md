@@ -13,10 +13,12 @@
   `<name>/mean_*` are only created without an averaging direction, or
   with the new `keep_3d_fields` option, which keeps the previous
   behaviour of averaging the 3D mean fields when they are written.
-- `fluid_stats` borrows at most 8 scratch fields while sampling (2 work
-  and 6 gradient fields, computing the gradient of `v` twice) instead of
-  14, so that the scratch registry, which grows by 10 fields at a time,
-  typically does not grow because of the statistics.
+- `fluid_stats` borrows at most 9 scratch fields while sampling (2 work
+  fields, 6 gradient fields, computing the gradient of `v` twice, and 1
+  for the gauged pressure) instead of 15, so that the scratch registry,
+  which grows by 10 fields at a time, typically does not grow because of
+  the statistics. An output written before any sample was taken contains
+  zeros, as without an averaging direction.
 - Added the `pressure_gauge` option to the `fluid_stats` simulation
   component: `solver` (default) samples the pressure as computed by the
   solver, `volume_mean` shifts it to a zero volume-weighted mean at every
@@ -39,9 +41,12 @@
   The averaged fields are no longer modified, the four 3D work fields are
   gone, and the 2D output built from a `fld_file_data_t` now carries element
   indices as the `.fld` writer expects. The mesh must be stacked in the
-  averaging direction, as before. The plane averages of `map_1d_t` divide by
-  the level volumes once per level after the reduction and reuse the level
-  coordinates computed at initialisation.
+  averaging direction, with the columns of elements aligned in the plane
+  within a tolerance of the in-plane extent, which the previous propagation
+  through the connectivity did not require. Both maps are built once at
+  initialisation and assume a mesh that does not move. The plane averages
+  of `map_1d_t` divide by the level volumes once per level after the
+  reduction and reuse the level coordinates computed at initialisation.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the

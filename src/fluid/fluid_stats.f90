@@ -253,6 +253,9 @@ contains
 
     call this%free()
     this%coef => coef
+    this%n_stats = 44
+    this%stat_set = 'full'
+    this%volume_mean_gauge = .false.
 
     this%u => u
     this%v => v
@@ -475,13 +478,22 @@ contains
 
   end subroutine fluid_stats_acquire_work
 
-  !> Returns the work fields to the scratch registry.
+  !> Returns the work fields to the scratch registry. The product means
+  !! are sampled from these fields, so their field pointers are cleared
+  !! until the next sample.
   subroutine fluid_stats_release_work(this)
     class(fluid_stats_t), intent(inout) :: this
+    integer :: i
 
     if (allocated(this%work_idx)) then
        call neko_scratch_registry%relinquish_field(this%work_idx)
        deallocate(this%work_idx)
+    end if
+
+    if (this%avg_dim .eq. 3 .and. allocated(this%means)) then
+       do i = S_PP, this%n_stats
+          nullify(this%means(i)%ptr%f)
+       end do
     end if
 
     nullify(this%prod, this%sqr, this%p_gauged)
@@ -531,9 +543,7 @@ contains
     call this%acquire_work()
 
     associate(prod => this%prod, sqr => this%sqr, u => this%u, v => this%v, &
-         w => this%w, dadx => this%dadx, dady => this%dady, &
-         dadz => this%dadz, dbdx => this%dbdx, dbdy => this%dbdy, &
-         dbdz => this%dbdz)
+         w => this%w)
       n = prod%dof%size()
 
       ! The averages are normalised by the accumulated volumes.
@@ -630,26 +640,32 @@ contains
          call this%sample(S_PW, prod, k)
 
          ! The gradients of u (a) and v (b).
-         call this%gradient(u, dadx, dady, dadz)
-         call this%gradient(v, dbdx, dbdy, dbdz)
-         call this%sample_products(p, dadx, dady, dadz, &
+         call this%gradient(u, this%dadx, this%dady, this%dadz)
+         call this%gradient(v, this%dbdx, this%dbdy, this%dbdz)
+         call this%sample_products(p, this%dadx, this%dady, this%dadz, &
               S_PDUDX, S_PDUDY, S_PDUDZ, k)
-         call this%sample_products(p, dbdx, dbdy, dbdz, &
+         call this%sample_products(p, this%dbdx, this%dbdy, this%dbdz, &
               S_PDVDX, S_PDVDY, S_PDVDZ, k)
-         call this%sample_dot(dadx, dady, dadz, dadx, dady, dadz, S_E11, k)
-         call this%sample_dot(dbdx, dbdy, dbdz, dbdx, dbdy, dbdz, S_E22, k)
-         call this%sample_dot(dadx, dady, dadz, dbdx, dbdy, dbdz, S_E12, k)
+         call this%sample_dot(this%dadx, this%dady, this%dadz, &
+              this%dadx, this%dady, this%dadz, S_E11, k)
+         call this%sample_dot(this%dbdx, this%dbdy, this%dbdz, &
+              this%dbdx, this%dbdy, this%dbdz, S_E22, k)
+         call this%sample_dot(this%dadx, this%dady, this%dadz, &
+              this%dbdx, this%dbdy, this%dbdz, S_E12, k)
 
          ! The gradient of w (b) replaces that of v.
-         call this%gradient(w, dbdx, dbdy, dbdz)
-         call this%sample_products(p, dbdx, dbdy, dbdz, &
+         call this%gradient(w, this%dbdx, this%dbdy, this%dbdz)
+         call this%sample_products(p, this%dbdx, this%dbdy, this%dbdz, &
               S_PDWDX, S_PDWDY, S_PDWDZ, k)
-         call this%sample_dot(dbdx, dbdy, dbdz, dbdx, dbdy, dbdz, S_E33, k)
-         call this%sample_dot(dadx, dady, dadz, dbdx, dbdy, dbdz, S_E13, k)
+         call this%sample_dot(this%dbdx, this%dbdy, this%dbdz, &
+              this%dbdx, this%dbdy, this%dbdz, S_E33, k)
+         call this%sample_dot(this%dadx, this%dady, this%dadz, &
+              this%dbdx, this%dbdy, this%dbdz, S_E13, k)
 
          ! The gradient of v (a) replaces that of u.
-         call this%gradient(v, dadx, dady, dadz)
-         call this%sample_dot(dadx, dady, dadz, dbdx, dbdy, dbdz, S_E23, k)
+         call this%gradient(v, this%dadx, this%dady, this%dadz)
+         call this%sample_dot(this%dadx, this%dady, this%dadz, &
+              this%dbdx, this%dbdy, this%dbdz, S_E23, k)
       end if
     end associate
 

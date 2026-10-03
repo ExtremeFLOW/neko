@@ -140,7 +140,8 @@ that of the averaged data rather than of up to 44 3D fields, and writing an
 output does not pass over the 3D fields again. The products entering the
 nonlinear statistics are formed before any averaging, so the results are
 the same as those of the 3D statistics averaged at output time. The mesh
-must be stacked (extruded) in the averaging direction(s). With
+must be stacked (extruded) in the averaging direction(s) and must not move,
+as the averaging maps are built once at initialisation. With
 `"keep_3d_fields": true` the statistics are instead kept as 3D mean
 fields, as without an averaging direction, and averaged when they are
 written. This costs the memory of the 3D fields but keeps the registry

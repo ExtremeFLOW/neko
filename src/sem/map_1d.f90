@@ -51,6 +51,7 @@ module map_1d
   use vector, only : vector_ptr_t
   use utils, only : neko_error, neko_warning
   use math, only : glmax, glmin, glimax, cmult, add2s1, col2
+  use math, only : slab_sum, gather_add
   use mpi_f08, only : MPI_Allreduce, MPI_SUM, MPI_Barrier, MPI_IN_PLACE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -85,6 +86,8 @@ module map_1d
   !! layout allow a unique stack of element levels in the requested direction.
   !! If an element level remains unassigned, the resulting point levels are not
   !! valid for the volume accumulation or averaging steps.
+  !! The map is built once at initialisation from the mesh coordinates
+  !! and assumes that the mesh does not move.
   !! @remark Could also be rather easily extended to say polar coordinates
   !! as well (I think). Martin Karp
   type, public :: map_1d_t
@@ -533,6 +536,8 @@ contains
   !! columns 2 to `n_fields + 1` of `avg_planes`, over all ranks, divides
   !! them by the level volumes and stores the level coordinates in the first
   !! column.
+  !! @param avg_planes Level sums on input, averages on output.
+  !! @param n_fields Number of fields.
   subroutine map_1d_finalize_average(this, avg_planes, n_fields)
     class(map_1d_t), intent(in) :: this
     type(matrix_t), intent(inout) :: avg_planes
@@ -645,14 +650,32 @@ contains
     allocate(this%tmp(max(lxy * nelv, 1)), this%tmp1(max(lx * nelv, 1)))
     allocate(this%acc(this%n_gll_lvls, 0:n_fields))
 
-    if (NEKO_BCKND_DEVICE .eq. 1 .and. nelv .gt. 0) then
-       call device_map(this%el_sa, this%el_sa_d, nelv)
-       call device_map(this%el_sb, this%el_sb_d, nelv)
-       call device_map(this%el_sh, this%el_sh_d, nelv)
-       call device_map(this%el_sa2, this%el_sa2_d, nelv)
-       call device_map(this%el_sb2, this%el_sb2_d, nelv)
-       call device_map(this%el_sh2, this%el_sh2_d, nelv)
-       call device_map(this%el_code0, this%el_code0_d, nelv)
+    ! The per-element tables are only mapped on ranks with elements; the
+    ! other arrays always, since the level sums are gathered on every rank.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (nelv .gt. 0) then
+          call device_map(this%el_sa, this%el_sa_d, nelv)
+          call device_map(this%el_sb, this%el_sb_d, nelv)
+          call device_map(this%el_sh, this%el_sh_d, nelv)
+          call device_map(this%el_sa2, this%el_sa2_d, nelv)
+          call device_map(this%el_sb2, this%el_sb2_d, nelv)
+          call device_map(this%el_sh2, this%el_sh2_d, nelv)
+          call device_map(this%el_code0, this%el_code0_d, nelv)
+          call device_memcpy(this%el_sa, this%el_sa_d, nelv, HOST_TO_DEVICE, &
+               sync = .false.)
+          call device_memcpy(this%el_sb, this%el_sb_d, nelv, HOST_TO_DEVICE, &
+               sync = .false.)
+          call device_memcpy(this%el_sh, this%el_sh_d, nelv, HOST_TO_DEVICE, &
+               sync = .false.)
+          call device_memcpy(this%el_sa2, this%el_sa2_d, nelv, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(this%el_sb2, this%el_sb2_d, nelv, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(this%el_sh2, this%el_sh2_d, nelv, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(this%el_code0, this%el_code0_d, nelv, &
+               HOST_TO_DEVICE, sync = .false.)
+       end if
        call device_map(this%tbl0_lxy, this%tbl0_lxy_d, lxy)
        call device_map(this%tbl0_lx, this%tbl0_lx_d, lx)
        call device_map(this%csr_ptr, this%csr_ptr_d, size(this%csr_ptr))
@@ -660,20 +683,6 @@ contains
        call device_map(this%tmp, this%tmp_d, size(this%tmp))
        call device_map(this%tmp1, this%tmp1_d, size(this%tmp1))
        call device_map(this%acc, this%acc_d, size(this%acc))
-       call device_memcpy(this%el_sa, this%el_sa_d, nelv, HOST_TO_DEVICE, &
-            sync = .false.)
-       call device_memcpy(this%el_sb, this%el_sb_d, nelv, HOST_TO_DEVICE, &
-            sync = .false.)
-       call device_memcpy(this%el_sh, this%el_sh_d, nelv, HOST_TO_DEVICE, &
-            sync = .false.)
-       call device_memcpy(this%el_sa2, this%el_sa2_d, nelv, HOST_TO_DEVICE, &
-            sync = .false.)
-       call device_memcpy(this%el_sb2, this%el_sb2_d, nelv, HOST_TO_DEVICE, &
-            sync = .false.)
-       call device_memcpy(this%el_sh2, this%el_sh2_d, nelv, HOST_TO_DEVICE, &
-            sync = .false.)
-       call device_memcpy(this%el_code0, this%el_code0_d, nelv, &
-            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%tbl0_lxy, this%tbl0_lxy_d, lxy, &
             HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%tbl0_lx, this%tbl0_lx_d, lx, &
@@ -799,6 +808,9 @@ contains
   end subroutine map_1d_accumulate_volume
 
   !> Device implementation of the accumulation, a null `f_d` counts as one.
+  !! @param f_d Device pointer of the field, or null.
+  !! @param slot Slot of the field, 0 to `n_acc`.
+  !! @param k Scaling of the sample.
   subroutine map_1d_accumulate_device(this, f_d, slot, k)
     class(map_1d_t), intent(inout) :: this
     type(c_ptr), intent(in) :: f_d
@@ -822,58 +834,27 @@ contains
   end subroutine map_1d_accumulate_device
 
   !> Host implementation of the accumulation, a missing `f` counts as one.
+  !! @param slot Slot of the field, 0 to `n_acc`.
+  !! @param k Scaling of the sample.
+  !! @param f Field to accumulate, optional.
   subroutine map_1d_accumulate_host(this, slot, k, f)
     class(map_1d_t), intent(inout) :: this
     integer, intent(in) :: slot
     real(kind=rp), intent(in) :: k
     real(kind=rp), intent(in), optional :: f(*)
-    real(kind=rp), contiguous, pointer :: wt(:)
-    real(kind=rp) :: s
-    integer :: e, m, a, b, h, p, p0, lvl, j, lx, lxy, lxyz, n, nelv
+    integer :: lx, lxy, nelv
 
     lx = this%dof%Xh%lx
     lxy = this%dof%Xh%lxy
-    lxyz = this%dof%Xh%lxyz
-    n = this%dof%size()
     nelv = this%msh%nelv
-    wt(1:n) => this%coef%B
 
-    do e = 1, nelv
-       do m = 0, lxy - 1
-          a = mod(m, lx)
-          b = m / lx
-          p0 = (e - 1) * lxyz + a * this%el_sa(e) + b * this%el_sb(e)
-          s = 0.0_rp
-          if (present(f)) then
-             do h = 0, lx - 1
-                p = p0 + h * this%el_sh(e) + 1
-                s = s + f(p) * wt(p)
-             end do
-          else
-             do h = 0, lx - 1
-                p = p0 + h * this%el_sh(e) + 1
-                s = s + wt(p)
-             end do
-          end if
-          this%tmp((e - 1) * lxy + m + 1) = s
-       end do
-       do m = 0, lx - 1
-          p0 = (e - 1) * lxy + m * this%el_sa2(e)
-          s = 0.0_rp
-          do h = 0, lx - 1
-             s = s + this%tmp(p0 + h * this%el_sh2(e) + 1)
-          end do
-          this%tmp1((e - 1) * lx + m + 1) = s
-       end do
-    end do
-
-    do lvl = 1, this%n_gll_lvls
-       s = 0.0_rp
-       do j = this%csr_ptr(lvl) + 1, this%csr_ptr(lvl + 1)
-          s = s + this%tmp1(this%csr_list(j) + 1)
-       end do
-       this%acc(lvl, slot) = this%acc(lvl, slot) + k * s
-    end do
+    call slab_sum(this%tmp, this%el_sa, this%el_sb, this%el_sh, &
+         this%el_code0, this%tbl0_lxy, lxy, lx, nelv, this%dof%Xh%lxyz, lxy, &
+         f, this%coef%B)
+    call slab_sum(this%tmp1, this%el_sa2, this%el_sb2, this%el_sh2, &
+         this%el_code0, this%tbl0_lx, lx, lx, nelv, lxy, lx, f = this%tmp)
+    call gather_add(this%acc, slot * this%n_gll_lvls, this%tmp1, &
+         this%csr_ptr, this%csr_list, this%n_gll_lvls, k)
 
   end subroutine map_1d_accumulate_host
 
@@ -913,15 +894,16 @@ contains
        call MPI_Allreduce(MPI_IN_PLACE, sums, this%n_gll_lvls * (nf + 1), &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
-    if (any(sums(:, 0) .le. 0.0_rp)) then
-       call neko_error('map_1d: level with a non-positive accumulated volume')
-    end if
-
+    ! A level without volume has received no sample and averages to zero.
     call avg_planes%free()
     call avg_planes%init(this%n_gll_lvls, nf + 1)
     avg_planes%x(:, 1) = this%coord_per_gll_lvl
     do j = 1, nf
-       avg_planes%x(:, j + 1) = sums(:, j) / sums(:, 0)
+       where (sums(:, 0) .gt. 0.0_rp)
+          avg_planes%x(:, j + 1) = sums(:, j) / sums(:, 0)
+       elsewhere
+          avg_planes%x(:, j + 1) = 0.0_rp
+       end where
     end do
     deallocate(sums)
 
