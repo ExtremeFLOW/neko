@@ -38,7 +38,8 @@ module probes_moving_mesh
   use global_interpolation, only : global_interpolation_t
   use dofmap, only : dofmap_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_lookup, &
+       json_get_or_lookup_or_default
   use logger, only : neko_log
   use utils, only : neko_error
   use time_state, only : time_state_t
@@ -141,8 +142,9 @@ contains
     call json_get(json, 'moving_mesh.mode', mode)
 
     ! The default scales with the working precision.
-    call json_get_or_default(json, 'moving_mesh.max_position_drift', &
-         this%max_position_drift, max(1e-8_rp, 100.0_rp * epsilon(1.0_rp)))
+    call json_get_or_lookup_or_default(json, &
+         'moving_mesh.max_position_drift', this%max_position_drift, &
+         max(1e-8_rp, 100.0_rp * epsilon(1.0_rp)))
     if (this%max_position_drift .le. 0.0_rp) then
        call neko_error('probes moving_mesh: max_position_drift must be > 0.')
     end if
@@ -164,7 +166,7 @@ contains
        end if
 
        ! Link to the body through one of its zone ids.
-       call json_get(json, 'moving_mesh.zone_id', this%zone_id)
+       call json_get_or_lookup(json, 'moving_mesh.zone_id', this%zone_id)
        body_found = .false.
        do i = 1, neko_ale%config%nbodies
           if (allocated(neko_ale%config%bodies(i)%zone_indices)) then
