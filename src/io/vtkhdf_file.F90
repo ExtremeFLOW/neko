@@ -1053,9 +1053,9 @@ contains
        call h5acreate_f(dset_id, "Attribute", H5T_NEKO_STRING, filespace, &
             attr_id, ierr)
        if (is_vector) then
-          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Vector"], pd_dims1, ierr)
+          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Vectors"], pd_dims1, ierr)
        else
-          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Scalar"], pd_dims1, ierr)
+          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Scalars"], pd_dims1, ierr)
        end if
 
        call h5aclose_f(attr_id, ierr)

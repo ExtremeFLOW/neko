@@ -273,7 +273,7 @@ contains
        call this%ews%init(this%stats_work, trim(unique_name) // 'ews')
     end if
 
-    allocate(this%stat_fields%items(this%n_stats))
+    call this%stat_fields%init(this%n_stats)
 
     call this%stat_fields%assign_to_field(1, this%s_mean%mf)
 
@@ -697,6 +697,8 @@ contains
        call this%dwdy%free()
        call this%dwdz%free()
     end if
+
+    call this%stat_fields%free()
 
     nullify(this%coef)
     nullify(this%s)
