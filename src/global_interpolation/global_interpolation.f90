@@ -300,8 +300,6 @@ contains
             tol = tol, pad = pad)
     else
 
-       ! Initialize a helper field with the size of the mask
-       call this%masked_field%init(mask%size())
        ! Verify that the mask size is compatible with the dofmap
        temp_nelv = mask%size() / (dof%Xh%lx*dof%Xh%ly*dof%Xh%lz)
        if (mod(mask%size(), dof%Xh%lx*dof%Xh%ly*dof%Xh%lz) /= 0) then
@@ -312,6 +310,9 @@ contains
        call this%init_xyz(dof%x%x(mask%get(),1,1,1), dof%y%x(mask%get(),1,1,1), &
             dof%z%x(mask%get(),1,1,1), dof%msh%gdim, temp_nelv, dof%Xh, &
             comm = comm, tol = tol, pad = pad)
+       ! Initialize a helper field with the size of the mask, after
+       ! init_xyz since that frees the object
+       call this%masked_field%init(mask%size())
     end if
 
   end subroutine global_interpolation_init_dof
@@ -509,6 +510,7 @@ contains
 
     call this%temp_local%free()
     call this%temp%free()
+    call this%masked_field%free()
     if (allocated(this%points_at_pe)) then
        do i = 0, this%pe_size-1
           call this%points_at_pe(i)%free()

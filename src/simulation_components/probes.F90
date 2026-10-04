@@ -1040,6 +1040,8 @@ contains
        call mat_in2%init(3, n_global_probes)
        call f%read(mat_in)
        call trsp(xyz, 3, mat_in%x, n_global_probes)
+       call mat_in%free()
+       call mat_in2%free()
     else
        n_local_probes = 0
        allocate(xyz(3, n_local_probes))

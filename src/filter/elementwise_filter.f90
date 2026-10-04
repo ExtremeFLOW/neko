@@ -283,6 +283,9 @@ contains
     call copy (fh, pht%x, nx*nx)
     call trsp (fht, nx, fh, nx)
 
+    call phi%free()
+    call pht%free()
+
   end subroutine build_1d_cpu
 
 end module elementwise_filter

@@ -148,8 +148,9 @@ extern "C" {
   void cuda_masked_atomic_reduction(void *a, void *b, void *mask,
                                     int *n, int *m, cudaStream_t strm) {
 
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+    const dim3 nthrds(MASKED_ATOMIC_RED_BLOCK, 1, 1);
+    const dim3 nblcks(((*m) + MASKED_ATOMIC_RED_BLOCK - 1) /
+                      MASKED_ATOMIC_RED_BLOCK, 1, 1);
 
     masked_atomic_reduction_kernel<real><<<nblcks, nthrds, 0, strm>>>
       ((real *) a, (real *) b, (int *) mask, *n, *m);
