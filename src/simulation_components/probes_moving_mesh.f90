@@ -46,7 +46,7 @@ module probes_moving_mesh
   use ale_manager, only : neko_ale
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM, &
-       MPI_INTEGER, MPI_Wtime
+       MPI_INTEGER
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : DEVICE_TO_HOST
   use math, only : copy
@@ -287,7 +287,6 @@ contains
 
     character(len=256) :: log_buf
     real(kind=rp) :: err
-    real(kind=rp) :: t_start
 
     if (.not. this%enabled) return
 
@@ -302,11 +301,7 @@ contains
     call this%compute_targets()
     call copy(xyz, this%xyz_target, 3 * this%n_points)
 
-    t_start = MPI_Wtime()
     err = this%mapping_error(interp, dof)
-    write(log_buf, '(A,E12.5)') &
-         'Probes moving mesh timing (s): check    ', MPI_Wtime() - t_start
-    call neko_log%message(log_buf)
 
     ! Re-find when the mapping no longer samples within tolerance of
     ! the targets, or while any point is lost.
@@ -316,11 +311,7 @@ contains
             ', mapping error: ', err
        call neko_log%message(log_buf)
 
-       t_start = MPI_Wtime()
        call this%refind(interp, dof)
-       write(log_buf, '(A,E12.5)') &
-            'Probes moving mesh timing (s): re-find  ', MPI_Wtime() - t_start
-       call neko_log%message(log_buf)
 
        if (this%n_lost .gt. 0) then
           write(log_buf, '(A,I0,A)') 'Probes moving mesh: ', this%n_lost, &
@@ -337,18 +328,10 @@ contains
     type(global_interpolation_t), intent(inout) :: interp
     type(dofmap_t), intent(inout) :: dof
 
-    character(len=256) :: log_buf
-    real(kind=rp) :: t_start
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       t_start = MPI_Wtime()
        call dof%x%copy_from(DEVICE_TO_HOST, sync = .false.)
        call dof%y%copy_from(DEVICE_TO_HOST, sync = .false.)
        call dof%z%copy_from(DEVICE_TO_HOST, sync = .true.)
-       write(log_buf, '(A,E12.5)') &
-            'Probes moving mesh timing (s): dof sync D2H  ', &
-            MPI_Wtime() - t_start
-       call neko_log%message(log_buf)
     end if
 
     call interp%init(dof, tol = this%tolerance, pad = this%padding)
