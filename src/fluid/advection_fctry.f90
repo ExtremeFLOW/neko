@@ -71,7 +71,7 @@ contains
 
     logical :: dealias, oifs
     real(kind=rp) :: ctarget
-    integer :: lxd, order
+    integer :: lxd, order, chunk
 
     ! Free allocatables if necessary
     if (allocated(object)) then
@@ -96,6 +96,11 @@ contains
 
     call json_get_or_lookup_or_default(json, 'oifs_target_cfl', ctarget, 1.9_rp)
 
+    ! Elements per chunk in the dealiased advection on device backends,
+    ! 0 for an automatic, device dependent choice
+    call json_get_or_lookup_or_default(json, 'dealias_chunk_elements', &
+         chunk, 0)
+
 
     if (oifs) then
        allocate(adv_oifs_t::object)
@@ -109,7 +114,7 @@ contains
 
     select type (adv => object)
     type is (adv_dealias_t)
-       call adv%init(lxd, coef)
+       call adv%init(lxd, coef, chunk)
     type is (adv_no_dealias_t)
        call adv%init(coef)
     type is (adv_oifs_t)

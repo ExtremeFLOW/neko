@@ -127,7 +127,8 @@ module device
        device_associated, device_deassociate, device_get_ptr, device_sync, &
        device_free, device_sync_stream, device_stream_create, &
        device_stream_destroy, device_profiler_start, device_profiler_stop, &
-       device_alloc, device_init, device_name, device_event_create, &
+       device_alloc, device_init, device_name, device_mp_count, &
+       device_total_mem, device_event_create, &
        device_event_destroy, device_event_record, device_event_sync, &
        device_finalize, device_stream_wait_event, device_count, &
        device_memset, device_stream_create_with_priority
@@ -206,6 +207,32 @@ contains
     device_count = 0
 #endif
   end function device_count
+
+  !> Return the number of multiprocessors (SMs on NVIDIA, CUs on AMD) of
+  !! the current device, or 0 if the backend cannot tell.
+  !! @note Used to size work decompositions so that every launch fills
+  !! the device with complete waves of blocks.
+  integer function device_mp_count()
+#ifdef HAVE_HIP
+    device_mp_count = hip_device_mp_count()
+#elif HAVE_CUDA
+    device_mp_count = cuda_device_mp_count()
+#else
+    device_mp_count = 0
+#endif
+  end function device_mp_count
+
+  !> Return the total memory of the current device in bytes, or 0 if the
+  !! backend cannot tell.
+  integer(kind=i8) function device_total_mem()
+#ifdef HAVE_HIP
+    device_total_mem = int(hip_device_total_mem(), i8)
+#elif HAVE_CUDA
+    device_total_mem = int(cuda_device_total_mem(), i8)
+#else
+    device_total_mem = 0_i8
+#endif
+  end function device_total_mem
 
   !> Allocate memory on the device
   subroutine device_alloc(x_d, s)

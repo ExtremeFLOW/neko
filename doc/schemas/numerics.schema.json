@@ -38,6 +38,9 @@
         "dealiased_polynomial_order": {
           "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
         },
+        "dealias_chunk_elements": {
+          "$ref": "urn:neko:schema:common#/$defs/nonNegativeIntegerOrRef"
+        },
         "oifs": {
           "type": "boolean"
         },

@@ -52,7 +52,8 @@ module opr_device
   public :: opr_device_dudxyz, opr_device_opgrad, opr_device_cdtp, &
        opr_device_conv1, opr_device_convect_scalar, opr_device_curl, &
        opr_device_cfl, opr_device_lambda2, opr_device_set_convect_rst, &
-       opr_device_rotate_cyc, device_ortho
+       opr_device_rotate_cyc, device_ortho, opr_device_opgrad_ptr, &
+       opr_device_set_convect_rst_ptr, opr_device_convect_scalar_gl
 
 #ifdef HAVE_HIP
   interface
@@ -1126,5 +1127,128 @@ contains
 #endif
 
   end subroutine opr_device_set_convect_rst
+
+  !> Pointer-level variant of opr_device_opgrad.
+  !!
+  !! Applies the weighted gradient on `nel` elements of order `lx` whose
+  !! metrics are given as raw device pointers rather than through a coef_t,
+  !! so that it can run on a sub-range of elements or on metrics that are not
+  !! owned by a coefficient object (e.g. the chunked dealiased advection).
+  !! Every array holds `nel * lx**3` points except the derivative matrices
+  !! (`lx**2`) and the weights (`lx**3`).
+  subroutine opr_device_opgrad_ptr(ux_d, uy_d, uz_d, u_d, dx_d, dy_d, dz_d, &
+       drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+       drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx)
+    type(c_ptr), intent(inout) :: ux_d, uy_d, uz_d
+    type(c_ptr), intent(in) :: u_d, dx_d, dy_d, dz_d
+    type(c_ptr), intent(in) :: drdx_d, dsdx_d, dtdx_d
+    type(c_ptr), intent(in) :: drdy_d, dsdy_d, dtdy_d
+    type(c_ptr), intent(in) :: drdz_d, dsdz_d, dtdz_d
+    type(c_ptr), intent(in) :: w3_d
+    integer, intent(in) :: nel, lx
+
+    if (nel .le. 0) return
+
+#ifdef HAVE_HIP
+    call hip_opgrad(ux_d, uy_d, uz_d, u_d, dx_d, dy_d, dz_d, &
+         drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+         drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx)
+#elif HAVE_CUDA
+    call cuda_opgrad(ux_d, uy_d, uz_d, u_d, dx_d, dy_d, dz_d, &
+         drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+         drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx)
+#elif HAVE_OPENCL
+    call opencl_opgrad(ux_d, uy_d, uz_d, u_d, dx_d, dy_d, dz_d, &
+         drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+         drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx)
+#elif HAVE_METAL
+    call metal_opgrad(ux_d, uy_d, uz_d, u_d, dx_d, dy_d, dz_d, &
+         drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+         drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine opr_device_opgrad_ptr
+
+  !> Pointer-level variant of opr_device_set_convect_rst.
+  !!
+  !! Forms the weighted contravariant convecting velocity
+  !! \f$ c_r = w_3 (r_x c_x + r_y c_y + r_z c_z) \f$ (and likewise for
+  !! \f$ s, t \f$) on `nel` elements of order `lx`, with the metrics given
+  !! as raw device pointers. The inputs may alias the outputs point for point
+  !! only if the backend kernel permits it; the callers in Neko pass distinct
+  !! arrays.
+  subroutine opr_device_set_convect_rst_ptr(cr_d, cs_d, ct_d, &
+       cx_d, cy_d, cz_d, drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+       drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx)
+    type(c_ptr), intent(inout) :: cr_d, cs_d, ct_d
+    type(c_ptr), intent(in) :: cx_d, cy_d, cz_d
+    type(c_ptr), intent(in) :: drdx_d, dsdx_d, dtdx_d
+    type(c_ptr), intent(in) :: drdy_d, dsdy_d, dtdy_d
+    type(c_ptr), intent(in) :: drdz_d, dsdz_d, dtdz_d
+    type(c_ptr), intent(in) :: w3_d
+    integer, intent(in) :: nel, lx
+
+    if (nel .le. 0) return
+
+#ifdef HAVE_HIP
+    call hip_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+         drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+         drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx)
+#elif HAVE_CUDA
+    call cuda_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+         drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+         drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx)
+#elif HAVE_OPENCL
+    call opencl_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+         drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+         drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx)
+#elif HAVE_METAL
+    call metal_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+         drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+         drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine opr_device_set_convect_rst_ptr
+
+  !> Convect a field on the dealiasing (GL) space only.
+  !!
+  !! Computes \f$ du = c_r \partial_r u + c_s \partial_s u
+  !! + c_t \partial_t u \f$ pointwise on `nel` elements of order `lx`,
+  !! given the field `u` and the weighted contravariant velocity
+  !! \f$ (c_r, c_s, c_t) \f$ on that space, see
+  !! opr_device_set_convect_rst_ptr. Unlike opr_device_convect_scalar this
+  !! neither maps the result back to the simulation space nor applies the
+  !! gather-scatter and inverse mass matrix; the caller owns those steps.
+  !! `du_d` must not alias `u_d`.
+  subroutine opr_device_convect_scalar_gl(du_d, u_d, cr_d, cs_d, ct_d, &
+       dx_d, dy_d, dz_d, nel, lx)
+    type(c_ptr), intent(inout) :: du_d
+    type(c_ptr), intent(in) :: u_d, cr_d, cs_d, ct_d
+    type(c_ptr), intent(in) :: dx_d, dy_d, dz_d
+    integer, intent(in) :: nel, lx
+
+    if (nel .le. 0) return
+
+#ifdef HAVE_HIP
+    call hip_convect_scalar(du_d, u_d, cr_d, cs_d, ct_d, &
+         dx_d, dy_d, dz_d, nel, lx)
+#elif HAVE_CUDA
+    call cuda_convect_scalar(du_d, u_d, cr_d, cs_d, ct_d, &
+         dx_d, dy_d, dz_d, nel, lx)
+#elif HAVE_OPENCL
+    call opencl_convect_scalar(du_d, u_d, cr_d, cs_d, ct_d, &
+         dx_d, dy_d, dz_d, nel, lx)
+#elif HAVE_METAL
+    call metal_convect_scalar(du_d, u_d, cr_d, cs_d, ct_d, &
+         dx_d, dy_d, dz_d, nel, lx)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine opr_device_convect_scalar_gl
 
 end module opr_device

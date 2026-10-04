@@ -1,6 +1,7 @@
 device/hip/check.lo : device/hip/check.hip device/hip/check.h
 device/hip/buffer.lo : device/hip/buffer.hip device/hip/buffer.h
 device/hip/unified.lo : device/hip/unified.hip device/hip/unified.h
+device/hip/props.lo : device/hip/props.hip device/hip/props.h
 math/bcknd/device/hip/math.lo : math/bcknd/device/hip/math.hip math/bcknd/device/hip/math_kernel.h device/hip/unified.h device/hip/buffer.lo
 math/bcknd/device/hip/mathops.lo : math/bcknd/device/hip/mathops.hip math/bcknd/device/hip/mathops_kernel.h
 math/bcknd/device/hip/opr_dudxyz.lo : math/bcknd/device/hip/opr_dudxyz.hip math/bcknd/device/hip/dudxyz_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h math/bcknd/device/hip/mfma_kernel.h
@@ -60,6 +61,7 @@ krylov/bcknd/device/hip/bicgstab_aux.lo : krylov/bcknd/device/hip/bicgstab_aux.h
 krylov/bcknd/device/hip/cheby_aux.lo : krylov/bcknd/device/hip/cheby_aux.hip
 comm/bcknd/device/cuda/comm_nvshmem.lo : comm/bcknd/device/cuda/comm_nvshmem.cu comm/comm.h
 device/cuda/check.lo : device/cuda/check.cu device/cuda/check.h
+device/cuda/props.lo : device/cuda/props.cu device/cuda/props.h
 device/cuda/buffer.lo : device/cuda/buffer.cu device/cuda/buffer.h
 device/cuda/nvtx_wrapper.lo : device/cuda/nvtx_wrapper.cu
 math/bcknd/device/cuda/math.lo : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h device/cuda/buffer.lo
