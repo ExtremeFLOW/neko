@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Fixed `device_glmax`, `device_glmin` and `device_glamax` hanging when some
+  ranks have zero points.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,
