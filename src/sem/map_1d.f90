@@ -106,7 +106,7 @@ module map_1d
      integer :: n_el_lvls
      !> Number of total GLL levels in the requested physical direction.
      !! For a polynomial space with `lx` points per element direction, this is
-     !! `n_el_lvls * lx`.
+     !! `(lx - 1) * n_el_lvls + 1`, as interface planes are shared.
      integer :: n_gll_lvls
      !> Dofmap that owns the physical coordinates used to build the map.
      type(dofmap_t), pointer :: dof => null()
@@ -360,7 +360,8 @@ contains
        end do
     end do
     this%n_el_lvls = glimax(this%el_lvl, nelv)
-    this%n_gll_lvls = this%n_el_lvls*lx
+    ! Interface planes are shared by the elements on both sides.
+    this%n_gll_lvls = (lx - 1) * this%n_el_lvls + 1
 
     ! Every element must have received a level, otherwise the point levels
     ! would index outside the level arrays.
@@ -373,7 +374,7 @@ contains
     !and its orientation
     do e = 1, nelv
        do i = 1, lx
-          lvl = lx * (this%el_lvl(e) - 1) + i
+          lvl = (lx - 1) * (this%el_lvl(e) - 1) + i
           if (this%dir_el(e) .eq. 1) then
              if (line(1, 1, 1, e) .gt. line(lx, 1, 1, e)) then
                 this%pt_lvl(lx-i+1, :, :, e) = lvl

@@ -27,9 +27,10 @@ from testlib import configure_nprocs, get_genmeshbox, get_makeneko, run_neko
 TEST_DIR = join("tests", "test_fluid_stats_avg")
 EXTENT = {1: (0.0, 2.0), 2: (0.0, 1.0), 3: (0.0, 4.0)}
 # The 2D output is written in single precision, the 1D one in the
-# precision of the run.
-TOL_2D = 1e-5
-TOL_1D = {"dp": 1e-9, "sp": 1e-5}
+# precision of the run. In a single precision run the gradients of the
+# fields carry errors of up to 1e-4 relative to the largest values.
+TOL_2D = {"dp": 1e-5, "sp": 5e-4}
+TOL_1D = {"dp": 1e-9, "sp": 5e-4}
 
 
 def fields(x, y, z):
@@ -145,7 +146,8 @@ def check_2d(name, d, n_stats):
     ref = expected_2d(d, c1, c2, n_stats)
     for i in range(n_stats):
         error = np.abs(stats[i] - ref[i]).max() / (np.abs(ref[i]).max() + 1.0)
-        assert error < TOL_2D, f"{name}: statistic {i + 1} relative error {error}"
+        assert error < TOL_2D[conftest.RP], \
+            f"{name}: statistic {i + 1} relative error {error}"
 
 
 def check_1d(name, dirs, n_stats):

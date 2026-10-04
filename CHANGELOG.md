@@ -10,6 +10,8 @@
   pressure as computed, `volume_mean` removes its volume-weighted mean first.
 - `fluid_stats` borrows its work fields from the scratch registry while
   sampling, at most 9 at a time, instead of holding 14 permanently.
+- 1D statistics and spatial averages have one row per GLL plane; planes on
+  element interfaces were written twice, once from each side.
 - `map_1d_t` stops with an error instead of looping forever when the element
   levels cannot be determined (order 1, or a mesh not stacked in the requested
   direction), using a tolerance relative to the extent of the domain.
