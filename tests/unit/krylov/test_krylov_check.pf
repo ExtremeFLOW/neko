@@ -60,6 +60,7 @@ contains
     implicit none
     logical :: compatible
     character(len=256) :: reason
+    character(len=64) :: expected
 
     ! Everything in place: every solver is compatible
     call krylov_check_compatible('cg', .true., .true., .true., .true., &
@@ -75,14 +76,14 @@ contains
     call krylov_check_compatible('cg', .true., .true., .false., .true., &
          .true., .false., compatible, reason)
     @assertFalse(compatible)
-    @assertEqual('cg requires a symmetric positive preconditioner', &
-         trim(reason))
+    expected = 'cg requires a symmetric positive preconditioner'
+    @assertEqual(trim(expected), trim(reason))
 
     call krylov_check_compatible('bicgstab', .true., .true., .false., .true., &
          .true., .false., compatible, reason)
     @assertFalse(compatible)
-    @assertEqual('bicgstab requires a fixed, linear preconditioner', &
-         trim(reason))
+    expected = 'bicgstab requires a fixed, linear preconditioner'
+    @assertEqual(trim(expected), trim(reason))
 
     ! Flexible GMRES accepts anything
     call krylov_check_compatible('gmres', .false., .false., .false., .false., &
@@ -93,8 +94,8 @@ contains
     call krylov_check_compatible('fused_cg', .true., .true., .false., .true., &
          .true., .true., compatible, reason)
     @assertFalse(compatible)
-    @assertEqual('fused_cg requires a symmetric positive preconditioner', &
-         trim(reason))
+    expected = 'fused_cg requires a symmetric positive preconditioner'
+    @assertEqual(trim(expected), trim(reason))
 
     call krylov_check_compatible('bicgstab', .true., .true., .false., .true., &
          .true., .true., compatible, reason)
@@ -104,8 +105,8 @@ contains
     call krylov_check_compatible('pipecg', .true., .false., .true., .true., &
          .true., .true., compatible, reason)
     @assertFalse(compatible)
-    @assertEqual('pipecg requires a symmetric positive definite operator', &
-         trim(reason))
+    expected = 'pipecg requires a symmetric positive definite operator'
+    @assertEqual(trim(expected), trim(reason))
 
     ! An unknown solver is given the benefit of the doubt
     call krylov_check_compatible('no_such_solver', .false., .false., .false., &
