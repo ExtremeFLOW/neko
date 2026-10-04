@@ -31,6 +31,13 @@ Expected outcome (measured on CPU, one rank):
 * the reference binary agrees with the `interpolated` runs to rounding
   (about 4e-15 on the TGV box, 3e-12 and 1e-8 on the cylinder).
 
+For binaries built in single precision pass `--sp`: it relaxes the solver
+tolerances, which are otherwise unreachable, so that iteration counts,
+timings and differences become meaningful. In single precision only the
+bitwise identity within a metrics mode is a sharp test; differences between
+modes or against the reference sit at the 1e-6 (velocity) to 1e-4
+(pressure) level.
+
 With several MPI ranks the cylinder case shows run-to-run noise of the same
 size in develop itself (summation order in the gather-scatter), so use one
 rank, which is also all a GPU test needs: every operation in the dealiased

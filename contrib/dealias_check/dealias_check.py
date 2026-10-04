@@ -24,7 +24,11 @@ Expected outcome (measured on CPU, one rank)
     (~4e-15 on the TGV box, ~3e-12 / 1e-8 on the cylinder);
   * with several ranks the cylinder case carries run-to-run noise of the
     same ~1e-12 / 1e-7 size in develop as well (summation order in the
-    gather-scatter), so use one rank for bitwise comparisons.
+    gather-scatter), so use one rank for bitwise comparisons;
+  * in single precision (--sp) only the bitwise identity within a metrics
+    mode is a sharp test; differences between modes or against the
+    reference sit at the ~1e-6 (velocity) to ~1e-4 (pressure) level the
+    solvers amplify single-precision rounding to.
 
 Only the standard library is needed. Typical use:
 
@@ -53,7 +57,14 @@ CHUNKS = [-1, 100, 0]
 BASELINE = ("interpolated", True, -1)
 
 
-def tgv_case(steps, dt, order):
+# Solver tolerances: tight enough for rounding-level comparisons in double
+# precision; in single precision an absolute 1e-10 is unreachable, the
+# solvers would run to their iteration limit, and both timings and
+# field differences would be meaningless, so --sp relaxes them.
+TOL = {"dp": (1e-11, 1e-10), "sp": (1e-6, 1e-5)}
+
+
+def tgv_case(steps, dt, order, tol=TOL["dp"]):
     return {
         "version": 1.0,
         "case": {
@@ -75,18 +86,18 @@ def tgv_case(steps, dt, order):
                 "velocity_solver": {
                     "type": "cg", "preconditioner": {"type": "jacobi"},
                     "projection_space_size": 0,
-                    "absolute_tolerance": 1e-11, "max_iterations": 800},
+                    "absolute_tolerance": tol[0], "max_iterations": 800},
                 "pressure_solver": {
                     "type": "gmres", "preconditioner": {"type": "hsmg"},
                     "projection_space_size": 0,
-                    "absolute_tolerance": 1e-10, "max_iterations": 800},
+                    "absolute_tolerance": tol[1], "max_iterations": 800},
                 "output_control": "never",
             },
         },
     }
 
 
-def cyl_case(steps, dt, order):
+def cyl_case(steps, dt, order, tol=TOL["dp"]):
     return {
         "version": 1.0,
         "case": {
@@ -106,11 +117,11 @@ def cyl_case(steps, dt, order):
                 "velocity_solver": {
                     "type": "cg", "preconditioner": {"type": "jacobi"},
                     "projection_space_size": 0,
-                    "absolute_tolerance": 1e-11, "max_iterations": 800},
+                    "absolute_tolerance": tol[0], "max_iterations": 800},
                 "pressure_solver": {
                     "type": "gmres", "preconditioner": {"type": "hsmg"},
                     "projection_space_size": 0,
-                    "absolute_tolerance": 1e-10, "max_iterations": 800},
+                    "absolute_tolerance": tol[1], "max_iterations": 800},
                 "boundary_conditions": [
                     {"type": "no_slip", "zone_indices": [2]},
                     {"type": "velocity_value", "zone_indices": [3],
@@ -187,10 +198,11 @@ def parse_log(log):
     per_step = sum(steps[1:]) / len(steps[1:]) if len(steps) > 1 else float("nan")
     tot = re.findall(r"Total elapsed time \(s\):\s+([0-9.E+-]+)", txt)
     total = float(tot[-1]) if tot else float("nan")
-    deal = re.findall(r"Dealiasing\s*:.*", txt)
-    deal = deal[0].strip() if deal else "(no dealiasing line)"
+    deal = re.findall(r"Dealiasing\s*:\s*(.*)", txt)
+    deal = "; ".join(d.strip() for d in deal) if deal else "(no dealiasing line)"
     err = "ERROR" in txt or "Error" in txt
-    return per_step, total, deal, err
+    single = "single precision" in txt
+    return per_step, total, deal, err, single
 
 
 def run_one(neko, launcher, np_, workdir, name, case, mesh, env):
@@ -210,12 +222,12 @@ def run_one(neko, launcher, np_, workdir, name, case, mesh, env):
         rc = subprocess.call(cmd, cwd=d, stdout=log, stderr=subprocess.STDOUT,
                              env=env)
     wall = time.time() - t0
-    per_step, total, deal, err = parse_log(d / "log.txt")
+    per_step, total, deal, err, single = parse_log(d / "log.txt")
     fld = d / "field0.f00000"
     ok = (rc == 0) and fld.exists() and not err
     return {"name": name, "dir": d, "rc": rc, "ok": ok, "wall": wall,
             "per_step": per_step, "total": total, "deal": deal,
-            "fld": fld if ok else None}
+            "single": single, "fld": fld if ok else None}
 
 
 def main():
@@ -233,6 +245,9 @@ def main():
     ap.add_argument("--workdir", default="dealias_check_out")
     ap.add_argument("--quick", action="store_true",
                     help="only exact/interpolated x stored/rebuilt, chunk -1 and 0")
+    ap.add_argument("--sp", action="store_true",
+                    help="binaries built in single precision: relax the solver "
+                         "tolerances accordingly")
     args = ap.parse_args()
 
     env = dict(os.environ)
@@ -246,7 +261,9 @@ def main():
     workdir = Path(args.workdir).resolve()
     workdir.mkdir(parents=True, exist_ok=True)
     chunks = [-1, 0] if args.quick else CHUNKS
+    tol = TOL["sp" if args.sp else "dp"]
     summary = []
+    warned_sp = False
 
     for cname in args.cases.split(","):
         make_case, mesh, steps, dt = CASES[cname]
@@ -260,7 +277,7 @@ def main():
         for metrics in METRICS:
             for store in STORE:
                 for chunk in chunks:
-                    case = make_case(steps, dt, args.order)
+                    case = make_case(steps, dt, args.order, tol)
                     num = case["case"]["numerics"]
                     num["dealias_metrics"] = metrics
                     num["dealias_store_metrics"] = store
@@ -271,9 +288,15 @@ def main():
                     runs[(metrics, store, chunk)] = r
                     print(f"  {name:48s} rc={r['rc']} step={r['per_step']:.4f}s"
                           f"  {r['deal']}")
+                    if not args.sp and not warned_sp and r["single"]:
+                        warned_sp = True
+                        print("  WARNING: this neko is built in single precision;"
+                              " rerun with --sp, otherwise the tolerances are"
+                              " unreachable and timings and differences are"
+                              " meaningless")
         ref = None
         if args.ref:
-            case = make_case(steps, dt, args.order)
+            case = make_case(steps, dt, args.order, tol)
             ref = run_one(args.ref, args.launcher, args.np, workdir,
                           f"{cname}_reference", case, mesh, env)
             print(f"  {ref['name']:48s} rc={ref['rc']} step={ref['per_step']:.4f}s")

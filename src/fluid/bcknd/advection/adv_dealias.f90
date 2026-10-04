@@ -224,25 +224,26 @@ contains
     end if
 
     if (this%metrics .eq. DEALIAS_METRICS_EXACT) then
-       log_buf = 'Dealiasing : exact GL metrics'
+       log_buf = 'Dealiasing : exact metrics'
     else
-       log_buf = 'Dealiasing : interpolated GL metrics'
+       log_buf = 'Dealiasing : interpolated metrics'
     end if
     if (this%store_metrics) then
        log_buf = trim(log_buf) // ', stored'
     else
        log_buf = trim(log_buf) // ', rebuilt per call'
     end if
+    call neko_log%message(log_buf)
     if (whole_field_backend() .and. nelv .gt. 0) then
        nchunks = (nelv + this%chunk - 1) / this%chunk
        if (nchunks .gt. 1) then
-          write(log_buf, '(A,A,I0,A,I0,A)') trim(log_buf), ', ', nchunks, &
+          write(log_buf, '(A,I0,A,I0,A)') 'Dealiasing : ', nchunks, &
                ' chunks of ', this%chunk, ' elements'
        else
-          log_buf = trim(log_buf) // ', all elements at once'
+          log_buf = 'Dealiasing : all elements at once'
        end if
+       call neko_log%message(log_buf)
     end if
-    call neko_log%message(log_buf)
 
   end subroutine init_dealias
 
