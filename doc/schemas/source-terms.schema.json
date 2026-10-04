@@ -457,6 +457,9 @@
             "max_iter": {
               "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
             },
+            "gmres_space_size": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+            },
             "solver": {
               "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             },

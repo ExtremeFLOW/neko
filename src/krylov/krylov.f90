@@ -50,6 +50,8 @@ module krylov
   private
 
   integer, public, parameter :: KSP_MAX_ITER = 1e3 !< Maximum number of iters.
+  !> Default Krylov space size (restart length) of GMRES
+  integer, public, parameter :: KSP_GMRES_SPACE_SIZE = 30
   real(kind=rp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
   real(kind=rp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 
@@ -73,6 +75,7 @@ module krylov
   !> Base abstract type for a canonical Krylov method, solving \f$ Ax = f \f$.
   type, public, abstract :: ksp_t
      class(pc_t), pointer :: M => null() !< Preconditioner
+     character(len=20) :: type_name = '' !< Type name given to the factory
      real(kind=rp) :: rel_tol !< Relative tolerance
      real(kind=rp) :: abs_tol !< Absolute tolerance
      integer :: max_iter !< Maximum number of iterations
@@ -217,8 +220,10 @@ module krylov
      !! @param abstol The absolute tolerance, optional.
      !! @param M The preconditioner, optional.
      !! @param monitor Enable/disable monitoring, optional.
+     !! @param gmres_space_size Krylov space size of GMRES, optional
+     !! (default `KSP_GMRES_SPACE_SIZE`); ignored by other solvers.
      module subroutine krylov_solver_factory(object, n, type_name, &
-          max_iter, abstol, M, monitor)
+          max_iter, abstol, M, monitor, gmres_space_size)
        class(ksp_t), allocatable, intent(inout) :: object
        integer, intent(in), value :: n
        character(len=*), intent(in) :: type_name
@@ -226,6 +231,7 @@ module krylov
        real(kind=rp), optional :: abstol
        class(pc_t), optional, intent(in), target :: M
        logical, optional, intent(in) :: monitor
+       integer, optional, intent(in) :: gmres_space_size
      end subroutine krylov_solver_factory
 
   end interface

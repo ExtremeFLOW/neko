@@ -499,6 +499,12 @@
         "max_iterations": {
           "$ref": "#/$defs/positiveIntegerOrRef"
         },
+        "gmres_space_size": {
+          "$ref": "#/$defs/positiveIntegerOrRef"
+        },
+        "residual_check_interval": {
+          "$ref": "#/$defs/nonNegativeIntegerOrRef"
+        },
         "monitor": {
           "type": "boolean"
         },

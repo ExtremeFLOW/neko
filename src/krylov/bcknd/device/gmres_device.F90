@@ -62,7 +62,8 @@ module gmres_device
 
   !> Standard preconditioned generalized minimal residual method
   type, public, extends(ksp_t) :: gmres_device_t
-     integer :: m_restart = 30
+     !> Krylov space size (restart length). Set before init.
+     integer :: lgmres = 30
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: c(:)
      real(kind=rp), allocatable :: r(:)
@@ -153,6 +154,10 @@ contains
 
     call this%free()
 
+    if (this%lgmres .lt. 1) then
+       call neko_error('GMRES space size must be at least 1')
+    end if
+
     if (present(M)) then
        this%M => M
     else
@@ -164,20 +169,20 @@ contains
     call device_map(this%w, this%w_d, n)
     call device_map(this%r, this%r_d, n)
 
-    allocate(this%c(this%m_restart))
-    allocate(this%s(this%m_restart))
-    allocate(this%gam(this%m_restart + 1))
-    call device_map(this%c, this%c_d, this%m_restart)
-    call device_map(this%s, this%s_d, this%m_restart)
-    call device_map(this%gam, this%gam_d, this%m_restart+1)
+    allocate(this%c(this%lgmres))
+    allocate(this%s(this%lgmres))
+    allocate(this%gam(this%lgmres + 1))
+    call device_map(this%c, this%c_d, this%lgmres)
+    call device_map(this%s, this%s_d, this%lgmres)
+    call device_map(this%gam, this%gam_d, this%lgmres+1)
 
-    allocate(this%z(n, this%m_restart))
-    allocate(this%v(n, this%m_restart))
-    allocate(this%h(this%m_restart, this%m_restart))
-    allocate(this%z_d(this%m_restart))
-    allocate(this%v_d(this%m_restart))
-    allocate(this%h_d(this%m_restart))
-    do i = 1, this%m_restart
+    allocate(this%z(n, this%lgmres))
+    allocate(this%v(n, this%lgmres))
+    allocate(this%h(this%lgmres, this%lgmres))
+    allocate(this%z_d(this%lgmres))
+    allocate(this%v_d(this%lgmres))
+    allocate(this%h_d(this%lgmres))
+    do i = 1, this%lgmres
        this%z_d(i) = c_null_ptr
        call device_map(this%z(:,i), this%z_d(i), n)
 
@@ -185,10 +190,10 @@ contains
        call device_map(this%v(:,i), this%v_d(i), n)
 
        this%h_d(i) = c_null_ptr
-       call device_map(this%h(:,i), this%h_d(i), this%m_restart)
+       call device_map(this%h(:,i), this%h_d(i), this%lgmres)
     end do
 
-    z_size = c_sizeof(C_NULL_PTR) * (this%m_restart)
+    z_size = c_sizeof(C_NULL_PTR) * (this%lgmres)
     call device_alloc(this%z_d_d, z_size)
     call device_alloc(this%v_d_d, z_size)
     call device_alloc(this%h_d_d, z_size)
@@ -255,7 +260,7 @@ contains
 
     if (allocated(this%z)) then
        if (allocated(this%z_d)) then
-          do i = 1, this%m_restart
+          do i = 1, this%lgmres
              if (c_associated(this%z_d(i))) then
                 call device_unmap(this%z(:,i), this%z_d(i))
              end if
@@ -266,7 +271,7 @@ contains
 
     if (allocated(this%h)) then
        if (allocated(this%h_d)) then
-          do i = 1, this%m_restart
+          do i = 1, this%lgmres
              if (c_associated(this%h_d(i))) then
                 call device_unmap(this%h(:,i), this%h_d(i))
              end if
@@ -277,7 +282,7 @@ contains
 
     if (allocated(this%v)) then
        if (allocated(this%v_d)) then
-          do i = 1, this%m_restart
+          do i = 1, this%lgmres
              if (c_associated(this%v_d(i))) then
                 call device_unmap(this%v(:,i), this%v_d(i))
              end if
@@ -355,18 +360,18 @@ contains
          c_d => this%c_d)
 
       norm_fac = 1.0_rp / sqrt(coef%volume)
-      call rzero(gam, this%m_restart + 1)
-      call rone(s, this%m_restart)
-      call rone(c, this%m_restart)
-      call rzero(h, this%m_restart * this%m_restart)
+      call rzero(gam, this%lgmres + 1)
+      call rone(s, this%lgmres)
+      call rone(c, this%lgmres)
+      call rzero(h, this%lgmres * this%lgmres)
       call device_rzero(x%x_d, n)
-      call device_rzero(this%gam_d, this%m_restart + 1)
-      call device_rone(this%s_d, this%m_restart)
-      call device_rone(this%c_d, this%m_restart)
+      call device_rzero(this%gam_d, this%lgmres + 1)
+      call device_rone(this%s_d, this%lgmres)
+      call device_rone(this%c_d, this%lgmres)
 
-      call rzero(this%h, this%m_restart**2)
-      !       do j = 1, this%m_restart
-      !          call device_rzero(h_d(j), this%m_restart)
+      call rzero(this%h, this%lgmres**2)
+      !       do j = 1, this%lgmres
+      !          call device_rzero(h_d(j), this%lgmres)
       !       end do
 
       call this%monitor_start('GMRES')
@@ -393,7 +398,7 @@ contains
          rnorm = 0.0_rp
          temp = 1.0_rp / gam(1)
          call device_cmult2(v_d(1), r_d, temp, n)
-         do j = 1, this%m_restart
+         do j = 1, this%lgmres
             iter = iter+1
 
             call this%M%solve(z(1,j), v(1,j), n)
@@ -454,14 +459,14 @@ contains
 
             if (iter + 1 .gt. max_iter) exit
 
-            if (j .lt. this%m_restart) then
+            if (j .lt. this%lgmres) then
                temp = 1.0_rp / alpha
                call device_cmult2(v_d(j+1), w_d, temp, n)
             end if
 
          end do
 
-         j = min(j, this%m_restart)
+         j = min(j, this%lgmres)
          do k = j, 1, -1
             temp = gam(k)
             do i = j, k+1, -1

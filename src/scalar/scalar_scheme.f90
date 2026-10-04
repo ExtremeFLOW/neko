@@ -41,7 +41,8 @@ module scalar_scheme
   use field_list, only : field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, &
+       ksp_monitor_t, KSP_GMRES_SPACE_SIZE
   use coefs, only : coef_t
   use jacobi, only : jacobi_t
   use device_jacobi, only : device_jacobi_t
@@ -109,6 +110,8 @@ module scalar_scheme
      integer :: projection_activ_step
      !> Preconditioner.
      class(pc_t), allocatable :: pc
+     !> Interval, in time steps, of the true-residual check (0: first step only)
+     integer :: residual_check_interval = 0
      !> List of boundary conditions, including the user one.
      type(bc_list_t) :: bcs
      !> Case parameters.
@@ -358,6 +361,7 @@ contains
     logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
+    integer :: gmres_space_size
     character(len=:), allocatable :: solver_type, solver_precon
     type(json_file) :: precon_params
     type(json_file) :: json_subdict
@@ -471,8 +475,16 @@ contains
     call json_get_or_default(params, &
          'solver.monitor', &
          logical_val, .false.)
+    call json_get_or_default(params, 'solver.gmres_space_size', &
+         gmres_space_size, KSP_GMRES_SPACE_SIZE)
+    call json_get_or_default(params, 'solver.residual_check_interval', &
+         this%residual_check_interval, 0)
+    if (trim(solver_type) .eq. 'gmres') then
+       write(log_buf, '(A,I0)') 'GMRES space: ', gmres_space_size
+       call neko_log%message(log_buf)
+    end if
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
-         solver_type, integer_val, solver_abstol, logical_val)
+         solver_type, integer_val, solver_abstol, logical_val, gmres_space_size)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, &
          solver_precon, precon_params)
@@ -637,16 +649,17 @@ contains
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
   subroutine scalar_scheme_solver_factory(ksp, n, solver, max_iter, &
-       abstol, monitor)
+       abstol, monitor, gmres_space_size)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     integer, intent(in) :: max_iter
     character(len=*), intent(in) :: solver
     real(kind=rp) :: abstol
     logical, intent(in) :: monitor
+    integer, intent(in) :: gmres_space_size
 
     call krylov_solver_factory(ksp, n, solver, max_iter, &
-         abstol, monitor = monitor)
+         abstol, monitor = monitor, gmres_space_size = gmres_space_size)
 
   end subroutine scalar_scheme_solver_factory
 

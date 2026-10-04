@@ -80,7 +80,7 @@ contains
   !! @param M The preconditioner, optional.
   !! @param monitor Enable/disable residual history, optional.
   module subroutine krylov_solver_factory(object, n, type_name, &
-       max_iter, abstol, M, monitor)
+       max_iter, abstol, M, monitor, gmres_space_size)
     class(ksp_t), allocatable, intent(inout) :: object
     integer, intent(in), value :: n
     character(len=*), intent(in) :: type_name
@@ -88,8 +88,22 @@ contains
     real(kind=rp), optional :: abstol
     class(pc_t), optional, intent(in), target :: M
     logical, optional, intent(in) :: monitor
+    integer, optional, intent(in) :: gmres_space_size
 
     call krylov_solver_allocator(object, type_name)
+    object%type_name = trim(type_name)
+
+    ! The GMRES space size is read by init, so it is set before
+    if (present(gmres_space_size)) then
+       select type (object)
+       type is (gmres_t)
+          object%lgmres = gmres_space_size
+       type is (sx_gmres_t)
+          object%lgmres = gmres_space_size
+       type is (gmres_device_t)
+          object%lgmres = gmres_space_size
+       end select
+    end if
 
     call object%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
 

@@ -233,6 +233,7 @@ neko_fortran_SOURCES = \
 	krylov/pc_identity.f90\
 	krylov/precon_fctry.f90\
 	krylov/krylov_fctry.f90\
+	krylov/krylov_check.f90\
 	krylov/bcknd/cpu/cg.f90\
 	krylov/bcknd/cpu/cacg.f90\
 	krylov/bcknd/cpu/cheby.f90\

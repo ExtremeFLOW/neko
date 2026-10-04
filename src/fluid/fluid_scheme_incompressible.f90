@@ -41,7 +41,8 @@ module fluid_scheme_incompressible
   use field, only : field_t
   use space, only : GLL, operator(.ne.)
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, &
+       KSP_GMRES_SPACE_SIZE
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use jacobi, only : jacobi_t
@@ -164,6 +165,7 @@ contains
     real(kind=rp) :: real_val, kappa, B, z0
     logical :: logical_val, full_stress_formulation
     integer :: integer_val, ierr
+    integer :: gmres_space_size
     type(json_file) :: wm_json
     character(len=:), allocatable :: string_val1, string_val2
     type(json_file) :: json_subdict
@@ -299,14 +301,21 @@ contains
        call json_get_or_default(params, &
             'case.fluid.velocity_solver.monitor', &
             logical_val, .false.)
+       call json_get_or_default(params, &
+            'case.fluid.velocity_solver.gmres_space_size', &
+            gmres_space_size, KSP_GMRES_SPACE_SIZE)
 
        call neko_log%message('Type       : ('// trim(string_val1) // &
             ', ' // trim(string_val2) // ')')
 
        write(log_buf, '(A,ES13.6)') 'Abs tol    :', real_val
        call neko_log%message(log_buf)
+       if (trim(string_val1) .eq. 'gmres') then
+          write(log_buf, '(A,I0)') 'GMRES space: ', gmres_space_size
+          call neko_log%message(log_buf)
+       end if
        call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-            string_val1, integer_val, real_val, logical_val)
+            string_val1, integer_val, real_val, logical_val, gmres_space_size)
        call this%precon_factory_(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_vel, &
             string_val2, json_subdict)
@@ -582,16 +591,17 @@ contains
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
   subroutine fluid_scheme_solver_factory(ksp, n, solver, &
-       max_iter, abstol, monitor)
+       max_iter, abstol, monitor, gmres_space_size)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=*), intent(in) :: solver
     integer, intent(in) :: max_iter
     real(kind=rp), intent(in) :: abstol
     logical, intent(in) :: monitor
+    integer, intent(in) :: gmres_space_size
 
     call krylov_solver_factory(ksp, n, solver, max_iter, abstol, &
-         monitor = monitor)
+         monitor = monitor, gmres_space_size = gmres_space_size)
 
   end subroutine fluid_scheme_solver_factory
 
