@@ -27,7 +27,8 @@ following input parameters:
 | `r` | \f$r\f$ is the above equation. | Real | - |
 | `tol`| The desired tolerance used when solving the system. | Real | `0.0000000001` |
 | `max_iter` | Maximum number of iterations when solving the system. | Integer | `200` |
-| `solver` | Numerical solver used to solve the system. | `cg`,`gmres`, `gmres` | `cg` |
+| `solver` | Numerical solver used to solve the system. | `cg`, `gmres` | `cg` |
+| `gmres_space_size` | Krylov space size of `gmres` before it restarts. | Positive integer | `30` |
 | `preconditioner` | Pre-conditioner used to solve the system. | `ident`, `hsmg`, `jacobi` | `jacobi`  |
 
 
