@@ -90,15 +90,12 @@ Statistics are enabled in the case file as a simcomp with the added argument
 The run and per-run counters are appended according to
 @ref statistics-output-filenames.
 
-The pressure is only defined up to a constant when no Dirichlet condition is
-imposed on it, for example in a periodic channel. The solver then removes the
-plain mean of the pressure over all GLL points after every step, so that the
-gauge varies in time with the fluctuations of that mean. With
-`"pressure_gauge": "volume_mean"` the pressure is instead shifted at every
-sample to have a zero volume-weighted mean, before any statistic involving the
-pressure (`<p>`, `<pp>`, `<pu>`, `<p du/dx>`, etc.) is formed. The default,
-`solver`, samples the pressure as computed by the solver. The velocity
-statistics are not affected.
+Without a Dirichlet condition on the pressure, for example in a periodic
+channel, the pressure is defined up to a constant and the solver removes its
+plain mean over the GLL points after every step. With
+`"pressure_gauge": "volume_mean"` the pressure is instead shifted to a zero
+volume-weighted mean at every sample, before the pressure statistics are
+formed; `solver` (default) uses the pressure as computed.
 
 In addition, one can specify the usual controls for the output, which then 
 outputs the averages computes from the last time the statistics were written
@@ -132,21 +129,13 @@ otherwise the first output will be slightly shorter than the rest. The code
 related to fluid statistics are located in fluid_stats and fluid_stats_simcomp.
 
 The argument "avg_direction" is optional and if ignored we output 3d fields.
-With an `avg_direction` the statistics are not kept as 3D fields: every
-sample is averaged over the given direction(s) right away, on the device
-when one is used, and accumulated in the 2D (one direction) or 1D (two
-directions) averaged space. The memory used by the statistics is then
-that of the averaged data rather than of up to 44 3D fields, and writing an
-output does not pass over the 3D fields again. The products entering the
-nonlinear statistics are formed before any averaging, so the results are
-the same as those of the 3D statistics averaged at output time. The mesh
-must be stacked (extruded) in the averaging direction(s) and must not move,
-as the averaging maps are built once at initialisation. With
-`"keep_3d_fields": true` the statistics are instead kept as 3D mean
-fields, as without an averaging direction, and averaged when they are
-written. This costs the memory of the 3D fields but keeps the registry
-fields `<name>/mean_*` described below available, for other components or
-user code.
+With an `avg_direction` every sample is averaged over the given direction(s)
+at once, on the device when one is used, and accumulated in the 2D or 1D
+averaged space, so no 3D statistics fields are kept; the results equal those
+of the 3D statistics averaged when written. The mesh must be stacked
+(extruded) in the averaging direction(s) and must not move. With
+`"keep_3d_fields": true` the 3D mean fields are kept and averaged when
+written, which keeps the registry fields described below available.
 The statistics are saved in a fld file according to the following in 2D and
 3D. Observe that in 2D the mean Z-velocity is stored in a last scalar field.
 All other fields are kept the same. This is due to a limitation of the fld file
@@ -165,9 +154,8 @@ neko registry and retrievable under the following naming convention:
 specified, the name of the simcomp will default to `fluid_stats`.
 For example, if `"fields": ["s", "my_field"]` and `"name": "my_stats"` then 
 the fields `"my_stats/mean_s"` and `"my_stats/mean_my_field"` will be added 
-to the registry. These 3D mean fields only exist when no `avg_direction` is
-given or when `keep_3d_fields` is set; otherwise the statistics of an
-averaging direction are only available through the output files.
+to the registry. These fields only exist without an `avg_direction` or with
+`keep_3d_fields`.
 
 ## List of fields in output files
 

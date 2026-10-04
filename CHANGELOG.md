@@ -2,51 +2,21 @@
 
 ## Develop
 
-- With an `avg_direction`, `fluid_stats` no longer keeps its statistics
-  as 3D mean fields that are averaged when written. Every sample is
-  reduced to the 2D or 1D averaged space right away, on the device when
-  one is used, through the new `accumulate` interface of `map_2d_t` and
-  `map_1d_t` and two new device kernels (`slab_sum`, `gather_add`) in the
-  CUDA, HIP, OpenCL and Metal backends. The memory of the statistics
-  shrinks from up to 44 3D fields to the averaged data, and writing an
-  output no longer passes over the 3D fields. The registry fields
-  `<name>/mean_*` are only created without an averaging direction, or
-  with the new `keep_3d_fields` option, which keeps the previous
-  behaviour of averaging the 3D mean fields when they are written.
-- `fluid_stats` borrows at most 9 scratch fields while sampling (2 work
-  fields, 6 gradient fields, computing the gradient of `v` twice, and 1
-  for the gauged pressure) instead of 15, so that the scratch registry,
-  which grows by 10 fields at a time, typically does not grow because of
-  the statistics. An output written before any sample was taken contains
-  zeros, as without an averaging direction.
-- Added the `pressure_gauge` option to the `fluid_stats` simulation
-  component: `solver` (default) samples the pressure as computed by the
-  solver, `volume_mean` shifts it to a zero volume-weighted mean at every
-  sample before any pressure statistic is formed.
-- `fluid_stats` no longer holds its 14 work and gradient fields permanently
-  but borrows them from the scratch registry while sampling, and the mean
-  field update is a single pass over the fields instead of three.
-- `map_1d_t` now stops with an error instead of looping forever or indexing
-  outside its arrays when the element levels cannot be determined (polynomial
-  order 1, or a mesh that is not stacked in the requested direction), and
-  compares coordinates with a tolerance relative to the extent of the domain
-  rather than to its minimum, which may be zero.
-- Rewrote the averaging in one homogeneous direction (`map_2d_t`, used by
-  the statistics and `spatial_average` outputs with `avg_direction` `x`, `y`
-  or `z`). The column and in-plane node ordering of every element are now
-  determined once at initialisation from the element geometry, so each
-  output is a single pass over the fields followed by one exchange of the
-  column sums with the ranks owning the 2D elements, instead of one
-  gather-scatter and two host-device transfers per field and element layer.
-  The averaged fields are no longer modified, the four 3D work fields are
-  gone, and the 2D output built from a `fld_file_data_t` now carries element
-  indices as the `.fld` writer expects. The mesh must be stacked in the
-  averaging direction, with the columns of elements aligned in the plane
-  within a tolerance of the in-plane extent, which the previous propagation
-  through the connectivity did not require. Both maps are built once at
-  initialisation and assume a mesh that does not move. The plane averages
-  of `map_1d_t` divide by the level volumes once per level after the
-  reduction and reuse the level coordinates computed at initialisation.
+- `fluid_stats` with an `avg_direction` now accumulates every sample directly
+  in the averaged 2D or 1D space, on the device when one is used, instead of
+  keeping up to 44 3D mean fields and averaging them when written. The new
+  `keep_3d_fields` option restores the 3D fields and their registry entries.
+- Added `pressure_gauge` to `fluid_stats`: `solver` (default) samples the
+  pressure as computed, `volume_mean` removes its volume-weighted mean first.
+- `fluid_stats` borrows its work fields from the scratch registry while
+  sampling, at most 9 at a time, instead of holding 14 permanently.
+- `map_1d_t` stops with an error instead of looping forever when the element
+  levels cannot be determined (order 1, or a mesh not stacked in the requested
+  direction), using a tolerance relative to the extent of the domain.
+- Rewrote the averaging in one direction (`map_2d_t`): the element columns and
+  node orderings are found once at initialisation from the geometry, and each
+  output is one pass over the fields and one exchange of the column sums. The
+  mesh must be stacked in the averaging direction, with aligned columns.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the
