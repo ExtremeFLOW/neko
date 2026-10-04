@@ -118,13 +118,13 @@ contains
   subroutine mean_field_update(this, k)
     class(mean_field_t), intent(inout) :: this
     real(kind=rp), intent(in) :: k
-    real(kind=rp) :: new_time
 
-    ! mf = (time * mf + k * f) / (time + k), in place.
-    new_time = this%time + k
-    call field_cmult(this%mf, this%time / new_time, size(this%mf%x))
-    call field_add2s2(this%mf, this%f, k / new_time, size(this%mf%x))
-    this%time = new_time
+    ! mf = (time * mf + k * f) / (time + k), keeping a constant field
+    ! exactly constant.
+    call field_cmult(this%mf, this%time, size(this%mf%x))
+    call field_add2s2(this%mf, this%f, k, size(this%mf%x))
+    this%time = this%time + k
+    call field_cmult(this%mf, 1.0_rp / this%time, size(this%mf%x))
 
   end subroutine mean_field_update
 
