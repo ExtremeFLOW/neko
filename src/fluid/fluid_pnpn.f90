@@ -740,8 +740,9 @@ contains
 
     ! Update mesh velocities for ALE
     ! We update them here (end of step) for the next step.
-    ! Returns if .not. ale.
-    call this%ale%update_mesh_velocity(this%c_Xh, time)
+    if (this%ale%active) then
+       call this%ale%update_mesh_velocity(this%c_Xh, time)
+    end if
 
     call profiler_end_region('Fluid', 1)
   end subroutine fluid_pnpn_step
