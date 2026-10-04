@@ -2,21 +2,11 @@
 
 ## Develop
 
-- Rewrote the dealiased advection (`adv_dealias`) to cut its memory
-  footprint. The fine-space (GL) metrics are no longer stored: the GL
-  cofactors are rebuilt from the coordinates on every call, which also makes
-  them exact on curved elements where the interpolated GLL cofactors used
-  before were not. The convective term is formed in Nek5000's rst form from
-  the weighted contravariant velocity, and on device backends the elements
-  are processed in chunks sized from the device (`dealias_chunk_elements`,
-  automatic by default, `-1` for all at once) with all GL work arrays taken
-  from the scratch registry, so they are shared between the fluid and every
-  scalar and scale with the chunk rather than with the mesh. Per advection
-  object this replaces 17 mesh-sized GL arrays with none on GPUs; on CPUs
-  the 9 GL metrics are kept by default for speed (`dealias_store_metrics`).
-  The earlier interpolated metrics remain available as
-  `dealias_metrics = "interpolated"`. Results change at rounding level on
-  affine meshes and at geometry-interpolation level on curved ones.
+- Reduced the memory footprint of dealiased advection: the fine-space
+  metrics and work arrays are no longer stored per advection object; on
+  GPUs the elements are processed in chunks with shared scratch arrays.
+  The metrics are now exact on curved elements. New `numerics` options
+  `dealias_chunk_elements`, `dealias_store_metrics` and `dealias_metrics`.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the
