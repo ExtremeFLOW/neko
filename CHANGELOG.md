@@ -9,11 +9,14 @@
   before were not. The convective term is formed in Nek5000's rst form from
   the weighted contravariant velocity, and on device backends the elements
   are processed in chunks sized from the device (`dealias_chunk_elements`,
-  automatic by default) with all GL work arrays taken from the scratch
-  registry, so they are shared between the fluid and every scalar and scale
-  with the chunk rather than with the mesh. Per advection object this
-  replaces 17 mesh-sized GL arrays with none; results change at rounding
-  level on affine meshes and at geometry-interpolation level on curved ones.
+  automatic by default, `-1` for all at once) with all GL work arrays taken
+  from the scratch registry, so they are shared between the fluid and every
+  scalar and scale with the chunk rather than with the mesh. Per advection
+  object this replaces 17 mesh-sized GL arrays with none on GPUs; on CPUs
+  the 9 GL metrics are kept by default for speed (`dealias_store_metrics`).
+  The earlier interpolated metrics remain available as
+  `dealias_metrics = "interpolated"`. Results change at rounding level on
+  affine meshes and at geometry-interpolation level on curved ones.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the

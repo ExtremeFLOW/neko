@@ -42,12 +42,17 @@
 !! once per call and each convected field \f$ u \f$ then only needs
 !! \f$ c_r \partial_r u + c_s \partial_s u + c_t \partial_t u \f$.
 !!
-!! The GL metrics are never stored. The GLL coordinates are interpolated onto
-!! the GL space (exact, since they are polynomials of the simulation order) and
-!! differentiated there, which gives the exact geometric cofactors at the GL
-!! points, rather than the interpolated GLL cofactors used earlier. On affine
-!! elements the two coincide to rounding; on curved elements this is the more
-!! accurate choice.
+!! The GL metrics (the cofactors \f$ J \partial r_i / \partial x_j \f$ at the
+!! GL points) can be formed in two ways, see adv_dealias_t::metrics. With
+!! the default `exact` choice the GLL coordinates are interpolated onto the GL
+!! space (exact, since they are polynomials of the simulation order) and
+!! differentiated there, which gives the exact cofactors at the GL points. The
+!! `interpolated` choice interpolates the GLL cofactors instead, as earlier
+!! versions did; the two coincide to rounding on affine elements and differ at
+!! geometry-interpolation level on curved ones, where `exact` is the more
+!! accurate. Either way the metrics are rebuilt on every call by default on
+!! device backends, and built once and stored on the CPU, SX and XSMM backends
+!! where the rebuild is costly, see adv_dealias_t::store_metrics.
 !!
 !! On the device backends the elements are processed in chunks of
 !! adv_dealias_t::chunk elements, every operation being element local, so the
@@ -58,7 +63,7 @@
 module adv_dealias
   use advection, only : advection_t
   use num_types, only : rp, i8
-  use math, only : sub2
+  use math, only : sub2, add2, copy
   use mxm_wrapper, only : mxm
   use space, only : space_t, GL
   use field, only : field_t
@@ -66,22 +71,35 @@ module adv_dealias
   use vector, only : vector_t
   use device_math, only : device_sub2, device_add2, device_col3
   use neko_config, only : NEKO_BCKND_DEVICE
+  use utils, only : neko_error
   use logger, only : neko_log, LOG_SIZE
+  use profiler, only : profiler_start_region, profiler_end_region
   use interpolation, only : interpolator_t
-  use device, only : device_mp_count, device_total_mem
+  use device, only : device_mp_count, device_total_mem, device_map, &
+       device_unmap
   use device_coef, only : device_coef_generate_dxydrst
   use tensor_device, only : tnsr3d_device
   use opr_device, only : opr_device_opgrad_ptr, &
        opr_device_set_convect_rst_ptr, opr_device_convect_scalar_gl
   use scratch_registry, only : neko_scratch_registry
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_intptr_t, c_sizeof
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_intptr_t, &
+       c_sizeof
   implicit none
   private
 
+  !> Exact GL cofactors, from the coordinates differentiated on the GL space.
+  integer, public, parameter :: DEALIAS_METRICS_EXACT = 1
+  !> GL cofactors interpolated from the GLL cofactors.
+  integer, public, parameter :: DEALIAS_METRICS_INTERPOLATED = 2
+
   !> Peak number of GL-sized work arrays live at once on the device for one
-  !! chunk: 3 coordinates, 9 forward derivatives, 9 cofactors and the two
-  !! Jacobian arrays while the metrics are built. Used to size the chunk.
-  integer, parameter :: DEALIAS_DEVICE_PEAK_ARRAYS = 23
+  !! chunk when the metrics are rebuilt per call: 3 coordinates, 9 forward
+  !! derivatives, 9 cofactors and the two Jacobian arrays. Used to size the
+  !! chunk.
+  integer, parameter :: DEALIAS_PEAK_ARRAYS_REBUILD = 23
+  !> The same with stored metrics (the ALE path, 3 mesh velocities, 1 field,
+  !! 1 flux, 3 gradients and 1 accumulator).
+  integer, parameter :: DEALIAS_PEAK_ARRAYS_STORED = 9
   !> Waves of blocks per launch below which chunking stops paying off: the
   !! partial last wave of a launch then costs at most 1/8 of it.
   integer, parameter :: DEALIAS_MIN_WAVES = 8
@@ -114,8 +132,21 @@ module adv_dealias
      type(space_t), pointer :: Xh_GLL => null()
      !> Elements processed per chunk on whole-field backends.
      integer :: chunk = 0
-     !> Chunk size asked for by the case file (0 = automatic).
+     !> Chunk size asked for by the case file: 0 automatic, -1 all elements
+     !! at once, otherwise the number of elements.
      integer :: chunk_request = 0
+     !> How the GL metrics are formed, DEALIAS_METRICS_EXACT or
+     !! DEALIAS_METRICS_INTERPOLATED.
+     integer :: metrics = DEALIAS_METRICS_EXACT
+     !> Whether the GL cofactors are built once and kept in `gl_cof` (9 GL
+     !! arrays of mesh size) rather than rebuilt on every call.
+     logical :: store_metrics = .false.
+     !> Stored GL cofactors, (lxyz_GL, nelv, 9) in the order drdx, drdy,
+     !! drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz. Allocated iff
+     !! `store_metrics`.
+     real(kind=rp), allocatable :: gl_cof(:,:,:)
+     !> Device pointer for `gl_cof`
+     type(c_ptr) :: gl_cof_d = C_NULL_PTR
    contains
      !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
      !! the RHS.
@@ -138,15 +169,22 @@ contains
   !> Constructor
   !! @param lxd The polynomial order of the space used in the dealiasing.
   !! @param coef The coefficients of the (space, mesh) pair.
-  !! @param chunk Elements per chunk on whole-field backends, 0 or absent
-  !! for an automatic choice based on the device.
-  subroutine init_dealias(this, lxd, coef, chunk)
+  !! @param chunk Elements per chunk on device backends: 0 or absent for an
+  !! automatic choice based on the device, -1 for all elements at once.
+  !! @param store_metrics Build the GL cofactors once and keep them (9 GL
+  !! arrays of mesh size) rather than rebuilding them on every call. Defaults
+  !! to true on the CPU, SX and XSMM backends and false on device backends.
+  !! @param metrics `exact` (default) or `interpolated`, see the module
+  !! description.
+  subroutine init_dealias(this, lxd, coef, chunk, store_metrics, metrics)
     class(adv_dealias_t), target, intent(inout) :: this
     integer, intent(in) :: lxd
     type(coef_t), intent(inout), target :: coef
     integer, intent(in), optional :: chunk
+    logical, intent(in), optional :: store_metrics
+    character(len=*), intent(in), optional :: metrics
     character(len=LOG_SIZE) :: log_buf
-    integer :: nchunks
+    integer :: nchunks, nelv
 
     call this%free()
 
@@ -154,26 +192,71 @@ contains
     this%Xh_GLL => coef%Xh
     this%coef_GLL => coef
     call this%GLL_to_GL%init(this%Xh_GL, this%Xh_GLL)
+    nelv = coef%msh%nelv
+
+    this%metrics = DEALIAS_METRICS_EXACT
+    if (present(metrics)) then
+       select case (trim(metrics))
+       case ('exact')
+          this%metrics = DEALIAS_METRICS_EXACT
+       case ('interpolated')
+          this%metrics = DEALIAS_METRICS_INTERPOLATED
+       case default
+          call neko_error("Unknown dealias_metrics '" // trim(metrics) // &
+               "', expected 'exact' or 'interpolated'")
+       end select
+    end if
+
+    this%store_metrics = (NEKO_BCKND_DEVICE .ne. 1)
+    if (present(store_metrics)) this%store_metrics = store_metrics
 
     this%chunk_request = 0
-    if (present(chunk)) this%chunk_request = max(chunk, 0)
+    if (present(chunk)) this%chunk_request = max(chunk, -1)
+    this%chunk = dealias_chunk_size(this, nelv)
 
-    this%chunk = dealias_chunk_size(this, coef%msh%nelv)
+    if (this%store_metrics) then
+       allocate(this%gl_cof(this%Xh_GL%lxyz, max(nelv, 1), 9))
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(this%gl_cof, this%gl_cof_d, &
+               this%Xh_GL%lxyz * max(nelv, 1) * 9)
+       end if
+       call dealias_build_stored_metrics(this, coef)
+    end if
 
-    if (whole_field_backend() .and. coef%msh%nelv .gt. 0) then
-       nchunks = (coef%msh%nelv + this%chunk - 1) / this%chunk
+    if (this%metrics .eq. DEALIAS_METRICS_EXACT) then
+       log_buf = 'Dealiasing : exact GL metrics'
+    else
+       log_buf = 'Dealiasing : interpolated GL metrics'
+    end if
+    if (this%store_metrics) then
+       log_buf = trim(log_buf) // ', stored'
+    else
+       log_buf = trim(log_buf) // ', rebuilt per call'
+    end if
+    if (whole_field_backend() .and. nelv .gt. 0) then
+       nchunks = (nelv + this%chunk - 1) / this%chunk
        if (nchunks .gt. 1) then
-          write(log_buf, '(A,I0,A,I0,A)') 'Dealiasing : ', nchunks, &
+          write(log_buf, '(A,A,I0,A,I0,A)') trim(log_buf), ', ', nchunks, &
                ' chunks of ', this%chunk, ' elements'
-          call neko_log%message(log_buf)
+       else
+          log_buf = trim(log_buf) // ', all elements at once'
        end if
     end if
+    call neko_log%message(log_buf)
 
   end subroutine init_dealias
 
   !> Destructor
   subroutine free_dealias(this)
     class(adv_dealias_t), intent(inout) :: this
+
+    if (allocated(this%gl_cof)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%gl_cof, this%gl_cof_d)
+       end if
+       deallocate(this%gl_cof)
+    end if
+    this%gl_cof_d = C_NULL_PTR
 
     call this%GLL_to_GL%free()
     call this%Xh_GL%free()
@@ -194,37 +277,44 @@ contains
 
   !> Choose the number of elements per chunk.
   !!
-  !! An explicit request is honoured as is. Otherwise the chunk is sized so
-  !! that the peak GL work set stays within a small share of the device
-  !! memory, while every launch still covers at least DEALIAS_MIN_WAVES
-  !! complete waves of blocks, where a wave is DEALIAS_BLOCKS_PER_MP blocks
-  !! on each multiprocessor. Chunks are made equal in size and a multiple of
-  !! a wave, so only the last wave of the last chunk can be partial. Small
-  !! meshes are left unchunked.
+  !! An explicit request is honoured as is (-1 meaning all elements at
+  !! once). Otherwise the chunk is sized so that the peak GL work set stays
+  !! within a small share of the device memory, while every launch still
+  !! covers at least DEALIAS_MIN_WAVES complete waves of blocks, where a wave
+  !! is DEALIAS_BLOCKS_PER_MP blocks on each multiprocessor. Chunks are made
+  !! equal in size and a multiple of a wave, so only the last wave of the last
+  !! chunk can be partial. Small meshes are left unchunked.
   !! @param nelv Number of local elements.
   function dealias_chunk_size(this, nelv) result(chunk)
     class(adv_dealias_t), intent(in) :: this
     integer, intent(in) :: nelv
     integer :: chunk
     integer(kind=i8) :: budget, per_elem, total_mem, chunk_max
-    integer :: nmp, wave, nchunks, min_chunk
+    integer :: nmp, wave, nchunks, min_chunk, peak_arrays
 
     if (.not. whole_field_backend() .or. nelv .le. 0) then
        chunk = max(nelv, 1)
        return
     end if
 
-    if (this%chunk_request .gt. 0) then
+    if (this%chunk_request .lt. 0) then
+       chunk = nelv
+       return
+    else if (this%chunk_request .gt. 0) then
        chunk = min(this%chunk_request, nelv)
        return
     end if
 
     ! Bytes of GL work arrays per element at the peak of a chunk
-    per_elem = int(DEALIAS_DEVICE_PEAK_ARRAYS, i8) * &
-         int(this%Xh_GL%lxyz, i8) * int(c_sizeof(1.0_rp), i8)
+    if (this%store_metrics) then
+       peak_arrays = DEALIAS_PEAK_ARRAYS_STORED
+    else
+       peak_arrays = DEALIAS_PEAK_ARRAYS_REBUILD
+    end if
+    per_elem = int(peak_arrays, i8) * int(this%Xh_GL%lxyz, i8) * &
+         int(c_sizeof(1.0_rp), i8)
 
-    total_mem = 0_i8
-    if (NEKO_BCKND_DEVICE .eq. 1) total_mem = device_total_mem()
+    total_mem = device_total_mem()
     if (total_mem .gt. 0_i8) then
        budget = max(total_mem / DEALIAS_MEM_DIVISOR, DEALIAS_MEM_FLOOR)
     else
@@ -234,8 +324,7 @@ contains
 
     ! A wave fills every multiprocessor with resident blocks (one element
     ! per block in the kernels used here)
-    nmp = 0
-    if (NEKO_BCKND_DEVICE .eq. 1) nmp = device_mp_count()
+    nmp = device_mp_count()
     if (nmp .gt. 0) then
        wave = nmp * DEALIAS_BLOCKS_PER_MP
     else
@@ -270,6 +359,19 @@ contains
 
   end function dev_ptr_offset
 
+  !> Device pointer to stored cofactor `k` of elements `e0` onwards.
+  function stored_cof_ptr(this, k, e0) result(p)
+    class(adv_dealias_t), intent(in) :: this
+    integer, intent(in) :: k, e0
+    type(c_ptr) :: p
+    integer(kind=i8) :: off
+
+    off = (int(k - 1, i8) * int(size(this%gl_cof, 2), i8) + int(e0 - 1, i8)) &
+         * int(this%Xh_GL%lxyz, i8)
+    p = dev_ptr_offset(this%gl_cof_d, off)
+
+  end function stored_cof_ptr
+
   !> Request `size(vecs)` scratch vectors of `n` entries each.
   subroutine dealias_request(vecs, n)
     type(dealias_vec_t), intent(inout) :: vecs(:)
@@ -298,30 +400,64 @@ contains
 
   end subroutine dealias_relinquish
 
+  !> Build the stored GL cofactors for the whole mesh.
+  subroutine dealias_build_stored_metrics(this, coef)
+    class(adv_dealias_t), target, intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: work
+    type(c_ptr) :: cof_d(9)
+    integer :: e, e0, ne, k, nel
+
+    nel = coef%msh%nelv
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       do e0 = 1, nel, this%chunk
+          ne = min(this%chunk, nel - e0 + 1)
+          do k = 1, 9
+             cof_d(k) = stored_cof_ptr(this, k, e0)
+          end do
+          call dealias_device_build_metrics(this, coef, e0, ne, cof_d)
+       end do
+    else
+       !$omp parallel do private(e, work)
+       do e = 1, nel
+          call dealias_local_build_metrics(this, coef, e, &
+               this%gl_cof(:, e, 1), this%gl_cof(:, e, 2), &
+               this%gl_cof(:, e, 3), this%gl_cof(:, e, 4), &
+               this%gl_cof(:, e, 5), this%gl_cof(:, e, 6), &
+               this%gl_cof(:, e, 7), this%gl_cof(:, e, 8), &
+               this%gl_cof(:, e, 9), work)
+       end do
+       !$omp end parallel do
+    end if
+
+  end subroutine dealias_build_stored_metrics
+
   !
   ! ---------------------------------------------------------------------
   ! Device backend: chunked, whole-field kernels
   ! ---------------------------------------------------------------------
   !
 
-  !> Interpolate GLL fields of elements `e0 .. e0+ne-1` onto the GL
-  !! space of a chunk.
+  !> Interpolate GLL fields of elements `e0 .. e0+ne-1` onto the GL space
+  !! of a chunk.
   !! @param this The object.
   !! @param src_d Device pointers to the full GLL fields.
-  !! @param dst Chunk-sized GL work vectors receiving the interpolants.
+  !! @param dst_d Device pointers to chunk-sized GL arrays receiving the
+  !! interpolants.
   !! @param e0 First element of the chunk.
   !! @param ne Elements in the chunk.
-  subroutine dealias_device_to_gl(this, src_d, dst, e0, ne)
+  subroutine dealias_device_to_gl(this, src_d, dst_d, e0, ne)
     class(adv_dealias_t), intent(in) :: this
     type(c_ptr), intent(in) :: src_d(:)
-    type(dealias_vec_t), intent(inout) :: dst(:)
+    type(c_ptr), intent(in) :: dst_d(:)
     integer, intent(in) :: e0, ne
     integer(kind=i8) :: off
     integer :: i
 
     off = int(e0 - 1, i8) * int(this%Xh_GLL%lxyz, i8)
     do i = 1, size(src_d)
-       call tnsr3d_device(dst(i)%v%x_d, this%Xh_GL%lx, &
+       call tnsr3d_device(dst_d(i), this%Xh_GL%lx, &
             dev_ptr_offset(src_d(i), off), this%Xh_GLL%lx, &
             this%GLL_to_GL%Yh_Xh_d, this%GLL_to_GL%Yh_XhT_d, &
             this%GLL_to_GL%Yh_XhT_d, ne)
@@ -329,33 +465,47 @@ contains
 
   end subroutine dealias_device_to_gl
 
-  !> Build the exact GL cofactors \f$ J \partial r_i / \partial x_j \f$ of
-  !! elements `e0 .. e0+ne-1`.
+  !> Build the GL cofactors \f$ J \partial r_i / \partial x_j \f$ of
+  !! elements `e0 .. e0+ne-1` into the arrays `cof_d`.
   !!
-  !! The GLL coordinates are interpolated onto the GL space, which is exact
-  !! for the polynomial geometry, and differentiated there with the GL
-  !! derivative matrices; the cofactors follow pointwise. The 14 arrays used
-  !! along the way are released on return, only the 9 cofactors stay live.
+  !! With exact metrics the GLL coordinates are interpolated onto the GL
+  !! space, which is exact for the polynomial geometry, and differentiated
+  !! there with the GL derivative matrices; the cofactors follow pointwise
+  !! and the 14 arrays used along the way are released on return. With
+  !! interpolated metrics the GLL cofactors are interpolated directly.
   !! @param this The object.
-  !! @param coef The GLL coefficients (for the coordinates).
+  !! @param coef The GLL coefficients.
   !! @param e0 First element of the chunk.
   !! @param ne Elements in the chunk.
-  !! @param cof The cofactors, ordered drdx, drdy, drdz, dsdx, dsdy, dsdz,
-  !! dtdx, dtdy, dtdz; requested here, released by the caller.
-  subroutine dealias_device_metrics(this, coef, e0, ne, cof)
+  !! @param cof_d Device pointers to the cofactors, ordered drdx, drdy, drdz,
+  !! dsdx, dsdy, dsdz, dtdx, dtdy, dtdz.
+  subroutine dealias_device_build_metrics(this, coef, e0, ne, cof_d)
     class(adv_dealias_t), intent(in) :: this
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: e0, ne
-    type(dealias_vec_t), intent(inout) :: cof(9)
+    type(c_ptr), intent(in) :: cof_d(9)
     type(dealias_vec_t) :: xyz(3), fwd(9), jac(2)
-    type(c_ptr) :: src_d(3)
-    integer :: n_gl
+    type(c_ptr) :: src_d(9), dst_d(3)
+    integer :: n_gl, i
+
+    if (this%metrics .eq. DEALIAS_METRICS_INTERPOLATED) then
+       src_d(1) = coef%drdx_d
+       src_d(2) = coef%drdy_d
+       src_d(3) = coef%drdz_d
+       src_d(4) = coef%dsdx_d
+       src_d(5) = coef%dsdy_d
+       src_d(6) = coef%dsdz_d
+       src_d(7) = coef%dtdx_d
+       src_d(8) = coef%dtdy_d
+       src_d(9) = coef%dtdz_d
+       call dealias_device_to_gl(this, src_d, cof_d, e0, ne)
+       return
+    end if
 
     ! Work vectors are always sized for a full chunk, so that a shorter last
     ! chunk reuses them rather than adding a second set to the registry
     n_gl = this%chunk * this%Xh_GL%lxyz
 
-    call dealias_request(cof, n_gl)
     call dealias_request(xyz, n_gl)
     call dealias_request(fwd, n_gl)
     call dealias_request(jac, n_gl)
@@ -363,13 +513,15 @@ contains
     src_d(1) = coef%dof%x%x_d
     src_d(2) = coef%dof%y%x_d
     src_d(3) = coef%dof%z%x_d
-    call dealias_device_to_gl(this, src_d, xyz, e0, ne)
+    do i = 1, 3
+       dst_d(i) = xyz(i)%v%x_d
+    end do
+    call dealias_device_to_gl(this, src_d(1:3), dst_d, e0, ne)
 
     ! fwd holds dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, dydt, dzdt,
     ! jac(1) the inverse Jacobian and jac(2) the Jacobian
-    call device_coef_generate_dxydrst(cof(1)%v%x_d, cof(2)%v%x_d, &
-         cof(3)%v%x_d, cof(4)%v%x_d, cof(5)%v%x_d, cof(6)%v%x_d, &
-         cof(7)%v%x_d, cof(8)%v%x_d, cof(9)%v%x_d, &
+    call device_coef_generate_dxydrst(cof_d(1), cof_d(2), cof_d(3), &
+         cof_d(4), cof_d(5), cof_d(6), cof_d(7), cof_d(8), cof_d(9), &
          fwd(1)%v%x_d, fwd(2)%v%x_d, fwd(3)%v%x_d, &
          fwd(4)%v%x_d, fwd(5)%v%x_d, fwd(6)%v%x_d, &
          fwd(7)%v%x_d, fwd(8)%v%x_d, fwd(9)%v%x_d, &
@@ -380,6 +532,38 @@ contains
     call dealias_relinquish(jac)
     call dealias_relinquish(fwd)
     call dealias_relinquish(xyz)
+
+  end subroutine dealias_device_build_metrics
+
+  !> Provide the GL cofactors of a chunk: pointers into the stored metrics,
+  !! or freshly built ones in scratch vectors.
+  !! @param this The object.
+  !! @param coef The GLL coefficients.
+  !! @param e0 First element of the chunk.
+  !! @param ne Elements in the chunk.
+  !! @param cof Scratch vectors holding the cofactors when they are rebuilt;
+  !! untouched otherwise. Released by the caller (a no-op if untouched).
+  !! @param cof_d Device pointers to the cofactors, ordered drdx, drdy, drdz,
+  !! dsdx, dsdy, dsdz, dtdx, dtdy, dtdz.
+  subroutine dealias_device_metrics(this, coef, e0, ne, cof, cof_d)
+    class(adv_dealias_t), intent(in) :: this
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: e0, ne
+    type(dealias_vec_t), intent(inout) :: cof(9)
+    type(c_ptr), intent(inout) :: cof_d(9)
+    integer :: k
+
+    if (this%store_metrics) then
+       do k = 1, 9
+          cof_d(k) = stored_cof_ptr(this, k, e0)
+       end do
+    else
+       call dealias_request(cof, this%chunk * this%Xh_GL%lxyz)
+       do k = 1, 9
+          cof_d(k) = cof(k)%v%x_d
+       end do
+       call dealias_device_build_metrics(this, coef, e0, ne, cof_d)
+    end if
 
   end subroutine dealias_device_metrics
 
@@ -399,25 +583,28 @@ contains
     integer, intent(in) :: e0, ne
     type(dealias_vec_t), intent(inout) :: c(3)
     type(dealias_vec_t) :: cof(9), u(3)
-    type(c_ptr) :: src_d(3)
-    integer :: n_gl
+    type(c_ptr) :: cof_d(9), src_d(3), dst_d(3)
+    integer :: n_gl, i
 
     n_gl = this%chunk * this%Xh_GL%lxyz
 
-    call dealias_device_metrics(this, coef, e0, ne, cof)
+    call dealias_device_metrics(this, coef, e0, ne, cof, cof_d)
 
     call dealias_request(u, n_gl)
     src_d(1) = vx_d
     src_d(2) = vy_d
     src_d(3) = vz_d
-    call dealias_device_to_gl(this, src_d, u, e0, ne)
+    do i = 1, 3
+       dst_d(i) = u(i)%v%x_d
+    end do
+    call dealias_device_to_gl(this, src_d, dst_d, e0, ne)
 
     call dealias_request(c, n_gl)
     call opr_device_set_convect_rst_ptr(c(1)%v%x_d, c(2)%v%x_d, c(3)%v%x_d, &
          u(1)%v%x_d, u(2)%v%x_d, u(3)%v%x_d, &
-         cof(1)%v%x_d, cof(4)%v%x_d, cof(7)%v%x_d, &
-         cof(2)%v%x_d, cof(5)%v%x_d, cof(8)%v%x_d, &
-         cof(3)%v%x_d, cof(6)%v%x_d, cof(9)%v%x_d, &
+         cof_d(1), cof_d(4), cof_d(7), &
+         cof_d(2), cof_d(5), cof_d(8), &
+         cof_d(3), cof_d(6), cof_d(9), &
          this%Xh_GL%w3_d, ne, this%Xh_GL%lx)
 
     call dealias_relinquish(u)
@@ -439,7 +626,7 @@ contains
     type(dealias_vec_t), intent(in) :: c(3)
     integer, intent(in) :: e0, ne
     type(dealias_vec_t) :: ug(1), du(1), tg(1)
-    type(c_ptr) :: src_d(1)
+    type(c_ptr) :: src_d(1), dst_d(1)
     integer(kind=i8) :: off
     integer :: n_gl, n_gll
 
@@ -452,7 +639,8 @@ contains
     call dealias_request(tg, this%chunk * this%Xh_GLL%lxyz)
 
     src_d(1) = u_d
-    call dealias_device_to_gl(this, src_d, ug, e0, ne)
+    dst_d(1) = ug(1)%v%x_d
+    call dealias_device_to_gl(this, src_d, dst_d, e0, ne)
 
     call opr_device_convect_scalar_gl(du(1)%v%x_d, ug(1)%v%x_d, &
          c(1)%v%x_d, c(2)%v%x_d, c(3)%v%x_d, &
@@ -470,6 +658,24 @@ contains
     call dealias_relinquish(ug)
 
   end subroutine dealias_device_convect
+
+  !> Weighted gradient on a chunk of the GL space with the chunk's cofactors,
+  !! see opgrad.
+  subroutine dealias_device_opgrad(this, ux_d, uy_d, uz_d, u_d, cof_d, ne)
+    class(adv_dealias_t), intent(in) :: this
+    type(c_ptr), intent(inout) :: ux_d, uy_d, uz_d
+    type(c_ptr), intent(in) :: u_d
+    type(c_ptr), intent(in) :: cof_d(9)
+    integer, intent(in) :: ne
+
+    call opr_device_opgrad_ptr(ux_d, uy_d, uz_d, u_d, &
+         this%Xh_GL%dx_d, this%Xh_GL%dy_d, this%Xh_GL%dz_d, &
+         cof_d(1), cof_d(4), cof_d(7), &
+         cof_d(2), cof_d(5), cof_d(8), &
+         cof_d(3), cof_d(6), cof_d(9), &
+         this%Xh_GL%w3_d, ne, this%Xh_GL%lx)
+
+  end subroutine dealias_device_opgrad
 
   !
   ! ---------------------------------------------------------------------
@@ -500,14 +706,14 @@ contains
 
   end subroutine dealias_local_grad
 
-  !> Exact GL cofactors of one element from its GLL coordinates.
+  !> Build the GL cofactors of one element, see adv_dealias_t::metrics.
   !! @param this The object.
-  !! @param coef The GLL coefficients (for the coordinates).
+  !! @param coef The GLL coefficients.
   !! @param e The element.
   !! @param drdx, ..., dtdz The cofactors \f$ J \partial r_i / \partial x_j
   !! \f$ at the GL points.
   !! @param work Work array of GL size.
-  subroutine dealias_local_metrics(this, coef, e, drdx, drdy, drdz, &
+  subroutine dealias_local_build_metrics(this, coef, e, drdx, drdy, drdz, &
        dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, work)
     class(adv_dealias_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
@@ -517,6 +723,19 @@ contains
     real(kind=rp), dimension(this%Xh_GL%lxyz), intent(inout) :: work
     real(kind=rp) :: xr, xs, xt, yr, ys, yt, zr, zs, zt
     integer :: i
+
+    if (this%metrics .eq. DEALIAS_METRICS_INTERPOLATED) then
+       call this%GLL_to_GL%map(drdx, coef%drdx(1,1,1,e), 1, this%Xh_GL)
+       call this%GLL_to_GL%map(drdy, coef%drdy(1,1,1,e), 1, this%Xh_GL)
+       call this%GLL_to_GL%map(drdz, coef%drdz(1,1,1,e), 1, this%Xh_GL)
+       call this%GLL_to_GL%map(dsdx, coef%dsdx(1,1,1,e), 1, this%Xh_GL)
+       call this%GLL_to_GL%map(dsdy, coef%dsdy(1,1,1,e), 1, this%Xh_GL)
+       call this%GLL_to_GL%map(dsdz, coef%dsdz(1,1,1,e), 1, this%Xh_GL)
+       call this%GLL_to_GL%map(dtdx, coef%dtdx(1,1,1,e), 1, this%Xh_GL)
+       call this%GLL_to_GL%map(dtdy, coef%dtdy(1,1,1,e), 1, this%Xh_GL)
+       call this%GLL_to_GL%map(dtdz, coef%dtdz(1,1,1,e), 1, this%Xh_GL)
+       return
+    end if
 
     ! Interpolate the coordinates onto the GL space (exact for the
     ! polynomial geometry) and differentiate there: the x derivatives land
@@ -552,7 +771,80 @@ contains
        dtdz(i) = xr*ys - xs*yr
     end do
 
+  end subroutine dealias_local_build_metrics
+
+  !> Provide the GL cofactors of one element, from the stored metrics or
+  !! freshly built, see dealias_local_build_metrics.
+  subroutine dealias_local_metrics(this, coef, e, drdx, drdy, drdz, &
+       dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, work)
+    class(adv_dealias_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: e
+    real(kind=rp), dimension(this%Xh_GL%lxyz), intent(inout) :: &
+         drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz
+    real(kind=rp), dimension(this%Xh_GL%lxyz), intent(inout) :: work
+
+    if (this%store_metrics) then
+       associate(n => this%Xh_GL%lxyz)
+         call copy(drdx, this%gl_cof(:, e, 1), n)
+         call copy(drdy, this%gl_cof(:, e, 2), n)
+         call copy(drdz, this%gl_cof(:, e, 3), n)
+         call copy(dsdx, this%gl_cof(:, e, 4), n)
+         call copy(dsdy, this%gl_cof(:, e, 5), n)
+         call copy(dsdz, this%gl_cof(:, e, 6), n)
+         call copy(dtdx, this%gl_cof(:, e, 7), n)
+         call copy(dtdy, this%gl_cof(:, e, 8), n)
+         call copy(dtdz, this%gl_cof(:, e, 9), n)
+       end associate
+    else
+       call dealias_local_build_metrics(this, coef, e, drdx, drdy, drdz, &
+            dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, work)
+    end if
+
   end subroutine dealias_local_metrics
+
+  !> Weighted gradient \f$ w_3 J \nabla u \f$ of one element on the GL
+  !! space, given its cofactors, see opgrad.
+  subroutine dealias_local_opgrad(this, ux, uy, uz, u, drdx, drdy, drdz, &
+       dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, w3)
+    class(adv_dealias_t), intent(in) :: this
+    real(kind=rp), dimension(this%Xh_GL%lxyz), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(this%Xh_GL%lxyz), intent(in) :: u
+    real(kind=rp), dimension(this%Xh_GL%lxyz), intent(in) :: &
+         drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz
+    real(kind=rp), dimension(this%Xh_GL%lxyz), intent(in) :: w3
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: ur, us, ut
+    integer :: i
+
+    call dealias_local_grad(ur, us, ut, u, this%Xh_GL)
+    do i = 1, this%Xh_GL%lxyz
+       ux(i) = w3(i) * (drdx(i)*ur(i) + dsdx(i)*us(i) + dtdx(i)*ut(i))
+       uy(i) = w3(i) * (drdy(i)*ur(i) + dsdy(i)*us(i) + dtdy(i)*ut(i))
+       uz(i) = w3(i) * (drdz(i)*ur(i) + dsdz(i)*us(i) + dtdz(i)*ut(i))
+    end do
+
+  end subroutine dealias_local_opgrad
+
+  !> Weighted contravariant convecting velocity of one element on the GL
+  !! space, \f$ c_r = w_3 (r_x u + r_y v + r_z w) \f$ and likewise for
+  !! \f$ s, t \f$, given the cofactors.
+  subroutine dealias_local_convecting(cr, cs, ct, u, v, w, drdx, drdy, drdz, &
+       dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, w3, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: cr, cs, ct
+    real(kind=rp), dimension(n), intent(in) :: u, v, w
+    real(kind=rp), dimension(n), intent(in) :: &
+         drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz
+    real(kind=rp), dimension(n), intent(in) :: w3
+    integer :: i
+
+    do i = 1, n
+       cr(i) = w3(i) * (drdx(i)*u(i) + drdy(i)*v(i) + drdz(i)*w(i))
+       cs(i) = w3(i) * (dsdx(i)*u(i) + dsdy(i)*v(i) + dsdz(i)*w(i))
+       ct(i) = w3(i) * (dtdx(i)*u(i) + dtdy(i)*v(i) + dtdz(i)*w(i))
+    end do
+
+  end subroutine dealias_local_convecting
 
   !
   ! ---------------------------------------------------------------------
@@ -590,9 +882,10 @@ contains
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: dtdx, dtdy, dtdz
     real(kind=rp), dimension(this%Xh_GLL%lxyz) :: tempx, tempy, tempz
     type(dealias_vec_t) :: c(3)
-    integer :: e, i, idx, nel, e0, ne
+    integer :: e, i, nel, e0, ne
 
     nel = coef%msh%nelv
+    call profiler_start_region('Dealias advection')
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do e0 = 1, nel, this%chunk
@@ -606,7 +899,7 @@ contains
        end do
     else
        associate(w3 => this%Xh_GL%w3, lxyz_GL => this%Xh_GL%lxyz)
-         !$omp parallel do private(e, i, idx, tempx, tempy, tempz), &
+         !$omp parallel do private(e, i, tempx, tempy, tempz), &
          !$omp& private(tx, ty, tz, ur, us, ut, fg, cr, cs, ct), &
          !$omp& private(drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz)
          do e = 1, nel
@@ -618,14 +911,9 @@ contains
             call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
 
             ! Weighted contravariant convecting velocity
-            do i = 1, lxyz_GL
-               cr(i) = w3(i,1,1) * (drdx(i)*tx(i) + drdy(i)*ty(i) &
-                    + drdz(i)*tz(i))
-               cs(i) = w3(i,1,1) * (dsdx(i)*tx(i) + dsdy(i)*ty(i) &
-                    + dsdz(i)*tz(i))
-               ct(i) = w3(i,1,1) * (dtdx(i)*tx(i) + dtdy(i)*ty(i) &
-                    + dtdz(i)*tz(i))
-            end do
+            call dealias_local_convecting(cr, cs, ct, tx, ty, tz, &
+                 drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+                 w3, lxyz_GL)
 
             call dealias_local_grad(ur, us, ut, tx, this%Xh_GL)
             do i = 1, lxyz_GL
@@ -645,16 +933,15 @@ contains
             end do
             call this%GLL_to_GL%map(tempz, fg, 1, this%Xh_GLL)
 
-            idx = (e-1)*this%Xh_GLL%lxyz+1
-            do concurrent (i = 0:this%Xh_GLL%lxyz-1)
-               fx%x(i+idx,1,1,1) = fx%x(i+idx,1,1,1) - tempx(i+1)
-               fy%x(i+idx,1,1,1) = fy%x(i+idx,1,1,1) - tempy(i+1)
-               fz%x(i+idx,1,1,1) = fz%x(i+idx,1,1,1) - tempz(i+1)
-            end do
+            call sub2(fx%x(1,1,1,e), tempx, this%Xh_GLL%lxyz)
+            call sub2(fy%x(1,1,1,e), tempy, this%Xh_GLL%lxyz)
+            call sub2(fz%x(1,1,1,e), tempz, this%Xh_GLL%lxyz)
          end do
          !$omp end parallel do
        end associate
     end if
+
+    call profiler_end_region('Dealias advection')
 
   end subroutine compute_advection_dealias
 
@@ -689,9 +976,10 @@ contains
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: dtdx, dtdy, dtdz
     real(kind=rp), dimension(this%Xh_GLL%lxyz) :: temp
     type(dealias_vec_t) :: c(3)
-    integer :: e, i, idx, nel, e0, ne
+    integer :: e, i, nel, e0, ne
 
     nel = coef%msh%nelv
+    call profiler_start_region('Dealias scalar advection')
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do e0 = 1, nel, this%chunk
@@ -703,7 +991,7 @@ contains
        end do
     else
        associate(w3 => this%Xh_GL%w3, lxyz_GL => this%Xh_GL%lxyz)
-         !$omp parallel do private(e, i, idx, vx_GL, vy_GL, vz_GL, s_GL), &
+         !$omp parallel do private(e, i, vx_GL, vy_GL, vz_GL, s_GL), &
          !$omp& private(f_GL, temp, dsdr, dsds, dsdt, cr, cs, ct), &
          !$omp& private(drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz)
          do e = 1, nel
@@ -717,14 +1005,9 @@ contains
             call this%GLL_to_GL%map(vz_GL, vz%x(1,1,1,e), 1, this%Xh_GL)
             call this%GLL_to_GL%map(s_GL, s%x(1,1,1,e), 1, this%Xh_GL)
 
-            do i = 1, lxyz_GL
-               cr(i) = w3(i,1,1) * (drdx(i)*vx_GL(i) + drdy(i)*vy_GL(i) &
-                    + drdz(i)*vz_GL(i))
-               cs(i) = w3(i,1,1) * (dsdx(i)*vx_GL(i) + dsdy(i)*vy_GL(i) &
-                    + dsdz(i)*vz_GL(i))
-               ct(i) = w3(i,1,1) * (dtdx(i)*vx_GL(i) + dtdy(i)*vy_GL(i) &
-                    + dtdz(i)*vz_GL(i))
-            end do
+            call dealias_local_convecting(cr, cs, ct, vx_GL, vy_GL, vz_GL, &
+                 drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+                 w3, lxyz_GL)
 
             ! Reference-space gradient of s and the convective term
             call dealias_local_grad(dsdr, dsds, dsdt, s_GL, this%Xh_GL)
@@ -735,13 +1018,13 @@ contains
             ! Map back the contructed operator to the original space
             call this%GLL_to_GL%map(temp, f_GL, 1, this%Xh_GLL)
 
-            idx = (e-1)*this%Xh_GLL%lxyz + 1
-
-            call sub2(fs%x(idx, 1, 1, 1), temp, this%Xh_GLL%lxyz)
+            call sub2(fs%x(1,1,1,e), temp, this%Xh_GLL%lxyz)
          end do
          !$omp end parallel do
        end associate
     end if
+
+    call profiler_end_region('Dealias scalar advection')
 
   end subroutine compute_scalar_advection_dealias
 
@@ -787,11 +1070,12 @@ contains
     real(kind=rp), dimension(this%Xh_GLL%lxyz) :: temp_x, temp_y, temp_z
     type(dealias_vec_t) :: cof(9), wm(3), ug(1), tmp(1), grad(3), acc(1), &
          tg(1)
-    type(c_ptr) :: src_d(3), u_d(3), f_d(3)
+    type(c_ptr) :: cof_d(9), src_d(3), dst_d(3), u_d(3), f_d(3)
     integer(kind=i8) :: off
-    integer :: e, i, idx, nel, e0, ne, n_gl, n_gll, comp
+    integer :: e, i, nel, e0, ne, n_gl, n_gll, comp
 
     nel = coef%msh%nelv
+    call profiler_start_region('Dealias ALE advection')
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        u_d(1) = vx%x_d
@@ -806,15 +1090,18 @@ contains
           n_gll = ne * this%Xh_GLL%lxyz
           off = int(e0 - 1, i8) * int(this%Xh_GLL%lxyz, i8)
 
-          call dealias_device_metrics(this, coef, e0, ne, cof)
+          call dealias_device_metrics(this, coef, e0, ne, cof, cof_d)
 
           ! Mesh velocity on the GL space (work vectors sized for a full
-          ! chunk, see dealias_device_metrics)
+          ! chunk, see dealias_device_build_metrics)
           call dealias_request(wm, this%chunk * this%Xh_GL%lxyz)
           src_d(1) = wm_x%x_d
           src_d(2) = wm_y%x_d
           src_d(3) = wm_z%x_d
-          call dealias_device_to_gl(this, src_d, wm, e0, ne)
+          do i = 1, 3
+             dst_d(i) = wm(i)%v%x_d
+          end do
+          call dealias_device_to_gl(this, src_d, dst_d, e0, ne)
 
           call dealias_request(ug, this%chunk * this%Xh_GL%lxyz)
           call dealias_request(tmp, this%chunk * this%Xh_GL%lxyz)
@@ -824,23 +1111,24 @@ contains
 
           do comp = 1, 3
              src_d(1) = u_d(comp)
-             call dealias_device_to_gl(this, src_d(1:1), ug, e0, ne)
+             dst_d(1) = ug(1)%v%x_d
+             call dealias_device_to_gl(this, src_d(1:1), dst_d(1:1), e0, ne)
 
              ! div(u_i wm) = d/dx (u_i wm_x) + d/dy (u_i wm_y)
              ! + d/dz (u_i wm_z), each term as the matching component of the
              ! weighted gradient of the flux
              call device_col3(tmp(1)%v%x_d, ug(1)%v%x_d, wm(1)%v%x_d, n_gl)
              call dealias_device_opgrad(this, acc(1)%v%x_d, grad(2)%v%x_d, &
-                  grad(3)%v%x_d, tmp(1)%v%x_d, cof, ne)
+                  grad(3)%v%x_d, tmp(1)%v%x_d, cof_d, ne)
 
              call device_col3(tmp(1)%v%x_d, ug(1)%v%x_d, wm(2)%v%x_d, n_gl)
              call dealias_device_opgrad(this, grad(1)%v%x_d, grad(2)%v%x_d, &
-                  grad(3)%v%x_d, tmp(1)%v%x_d, cof, ne)
+                  grad(3)%v%x_d, tmp(1)%v%x_d, cof_d, ne)
              call device_add2(acc(1)%v%x_d, grad(2)%v%x_d, n_gl)
 
              call device_col3(tmp(1)%v%x_d, ug(1)%v%x_d, wm(3)%v%x_d, n_gl)
              call dealias_device_opgrad(this, grad(1)%v%x_d, grad(2)%v%x_d, &
-                  grad(3)%v%x_d, tmp(1)%v%x_d, cof, ne)
+                  grad(3)%v%x_d, tmp(1)%v%x_d, cof_d, ne)
              call device_add2(acc(1)%v%x_d, grad(3)%v%x_d, n_gl)
 
              ! Map the divergence back to the GLL space and add to the RHS
@@ -860,7 +1148,7 @@ contains
           call dealias_relinquish(cof)
        end do
     else
-       !$omp parallel do private (e, i, idx, vx_GL, vy_GL, vz_GL), &
+       !$omp parallel do private (e, i, vx_GL, vy_GL, vz_GL), &
        !$omp& private (wm_x_GL, wm_y_GL, wm_z_GL, flux_GL, total_div_GL), &
        !$omp& private (grad_x, grad_y, grad_z, temp_x, temp_y, temp_z), &
        !$omp& private (drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz)
@@ -882,15 +1170,18 @@ contains
           ! d/dz (u * wm_z)
           flux_GL = vx_GL * wm_x_GL
           call dealias_local_opgrad(this, grad_x, grad_y, grad_z, flux_GL, &
-               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz)
+               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+               this%Xh_GL%w3)
           total_div_GL = grad_x
           flux_GL = vx_GL * wm_y_GL
           call dealias_local_opgrad(this, grad_x, grad_y, grad_z, flux_GL, &
-               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz)
+               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+               this%Xh_GL%w3)
           total_div_GL = total_div_GL + grad_y
           flux_GL = vx_GL * wm_z_GL
           call dealias_local_opgrad(this, grad_x, grad_y, grad_z, flux_GL, &
-               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz)
+               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+               this%Xh_GL%w3)
           total_div_GL = total_div_GL + grad_z
 
           ! Map back the constructed operator to the original space
@@ -899,15 +1190,18 @@ contains
           ! --------------------- Y-Momentum
           flux_GL = vy_GL * wm_x_GL
           call dealias_local_opgrad(this, grad_x, grad_y, grad_z, flux_GL, &
-               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz)
+               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+               this%Xh_GL%w3)
           total_div_GL = grad_x
           flux_GL = vy_GL * wm_y_GL
           call dealias_local_opgrad(this, grad_x, grad_y, grad_z, flux_GL, &
-               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz)
+               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+               this%Xh_GL%w3)
           total_div_GL = total_div_GL + grad_y
           flux_GL = vy_GL * wm_z_GL
           call dealias_local_opgrad(this, grad_x, grad_y, grad_z, flux_GL, &
-               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz)
+               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+               this%Xh_GL%w3)
           total_div_GL = total_div_GL + grad_z
 
           call this%GLL_to_GL%map(temp_y, total_div_GL, 1, this%Xh_GLL)
@@ -915,80 +1209,49 @@ contains
           ! --------------------- Z-Momentum
           flux_GL = vz_GL * wm_x_GL
           call dealias_local_opgrad(this, grad_x, grad_y, grad_z, flux_GL, &
-               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz)
+               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+               this%Xh_GL%w3)
           total_div_GL = grad_x
           flux_GL = vz_GL * wm_y_GL
           call dealias_local_opgrad(this, grad_x, grad_y, grad_z, flux_GL, &
-               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz)
+               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+               this%Xh_GL%w3)
           total_div_GL = total_div_GL + grad_y
           flux_GL = vz_GL * wm_z_GL
           call dealias_local_opgrad(this, grad_x, grad_y, grad_z, flux_GL, &
-               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz)
+               drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+               this%Xh_GL%w3)
           total_div_GL = total_div_GL + grad_z
 
           call this%GLL_to_GL%map(temp_z, total_div_GL, 1, this%Xh_GLL)
 
           ! Note we add (+) here since the ALE advection term is
           ! - div(u * wm) on the LHS. So on the RHS it will be + div(u * wm)
-          idx = (e-1)*this%Xh_GLL%lxyz+1
-          do concurrent (i = 0:this%Xh_GLL%lxyz-1)
-             fx%x(i+idx,1,1,1) = fx%x(i+idx,1,1,1) + temp_x(i+1)
-             fy%x(i+idx,1,1,1) = fy%x(i+idx,1,1,1) + temp_y(i+1)
-             fz%x(i+idx,1,1,1) = fz%x(i+idx,1,1,1) + temp_z(i+1)
-          end do
+          call add2(fx%x(1,1,1,e), temp_x, this%Xh_GLL%lxyz)
+          call add2(fy%x(1,1,1,e), temp_y, this%Xh_GLL%lxyz)
+          call add2(fz%x(1,1,1,e), temp_z, this%Xh_GLL%lxyz)
        end do
        !$omp end parallel do
     end if
 
+    call profiler_end_region('Dealias ALE advection')
+
   end subroutine compute_ale_advection_dealias
 
-  !> Weighted gradient on a chunk of the GL space with the chunk's cofactors,
-  !! see opgrad.
-  subroutine dealias_device_opgrad(this, ux_d, uy_d, uz_d, u_d, cof, ne)
-    class(adv_dealias_t), intent(in) :: this
-    type(c_ptr), intent(inout) :: ux_d, uy_d, uz_d
-    type(c_ptr), intent(in) :: u_d
-    type(dealias_vec_t), intent(in) :: cof(9)
-    integer, intent(in) :: ne
-
-    call opr_device_opgrad_ptr(ux_d, uy_d, uz_d, u_d, &
-         this%Xh_GL%dx_d, this%Xh_GL%dy_d, this%Xh_GL%dz_d, &
-         cof(1)%v%x_d, cof(4)%v%x_d, cof(7)%v%x_d, &
-         cof(2)%v%x_d, cof(5)%v%x_d, cof(8)%v%x_d, &
-         cof(3)%v%x_d, cof(6)%v%x_d, cof(9)%v%x_d, &
-         this%Xh_GL%w3_d, ne, this%Xh_GL%lx)
-
-  end subroutine dealias_device_opgrad
-
-  !> Weighted gradient \f$ w_3 J \nabla u \f$ of one element on the GL
-  !! space, given its cofactors, see opgrad.
-  subroutine dealias_local_opgrad(this, ux, uy, uz, u, drdx, drdy, drdz, &
-       dsdx, dsdy, dsdz, dtdx, dtdy, dtdz)
-    class(adv_dealias_t), intent(in) :: this
-    real(kind=rp), dimension(this%Xh_GL%lxyz), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(this%Xh_GL%lxyz), intent(in) :: u
-    real(kind=rp), dimension(this%Xh_GL%lxyz), intent(in) :: &
-         drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz
-    real(kind=rp), dimension(this%Xh_GL%lxyz) :: ur, us, ut
-    integer :: i
-
-    call dealias_local_grad(ur, us, ut, u, this%Xh_GL)
-    associate(w3 => this%Xh_GL%w3)
-      do i = 1, this%Xh_GL%lxyz
-         ux(i) = w3(i,1,1) * (drdx(i)*ur(i) + dsdx(i)*us(i) + dtdx(i)*ut(i))
-         uy(i) = w3(i,1,1) * (drdy(i)*ur(i) + dsdy(i)*us(i) + dtdy(i)*ut(i))
-         uz(i) = w3(i,1,1) * (drdz(i)*ur(i) + dsdz(i)*us(i) + dtdz(i)*ut(i))
-      end do
-    end associate
-
-  end subroutine dealias_local_opgrad
-
-  !> Nothing to do: the GL metrics are rebuilt from the current coordinates
-  !! on every call, so a moving mesh is followed automatically.
+  !> Refresh the stored GL metrics after the mesh has moved. With metrics
+  !! rebuilt per call there is nothing to do, as they derive from the current
+  !! coordinates (or GLL cofactors) every time.
+  !! @param coef The updated GLL coefficients.
+  !! @param moving_boundary Whether the mesh actually moved.
   subroutine recompute_metrics_dealias(this, coef, moving_boundary)
     class(adv_dealias_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     logical, intent(in) :: moving_boundary
+
+    if (.not. moving_boundary) return
+    if (.not. this%store_metrics) return
+
+    call dealias_build_stored_metrics(this, coef)
 
   end subroutine recompute_metrics_dealias
 

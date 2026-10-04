@@ -72,6 +72,8 @@ contains
     logical :: dealias, oifs
     real(kind=rp) :: ctarget
     integer :: lxd, order, chunk
+    logical :: store_metrics
+    character(len=:), allocatable :: metrics
 
     ! Free allocatables if necessary
     if (allocated(object)) then
@@ -97,9 +99,11 @@ contains
     call json_get_or_lookup_or_default(json, 'oifs_target_cfl', ctarget, 1.9_rp)
 
     ! Elements per chunk in the dealiased advection on device backends,
-    ! 0 for an automatic, device dependent choice
+    ! 0 for an automatic, device dependent choice, -1 for all at once
     call json_get_or_lookup_or_default(json, 'dealias_chunk_elements', &
          chunk, 0)
+    ! How the dealiasing metrics are formed, 'exact' or 'interpolated'
+    call json_get_or_default(json, 'dealias_metrics', metrics, 'exact')
 
 
     if (oifs) then
@@ -114,7 +118,15 @@ contains
 
     select type (adv => object)
     type is (adv_dealias_t)
-       call adv%init(lxd, coef, chunk)
+       ! Whether to store the GL metrics defaults per backend inside init,
+       ! so only pass it on when the case file sets it
+       if (json%valid_path('dealias_store_metrics')) then
+          call json_get(json, 'dealias_store_metrics', store_metrics)
+          call adv%init(lxd, coef, chunk = chunk, &
+               store_metrics = store_metrics, metrics = metrics)
+       else
+          call adv%init(lxd, coef, chunk = chunk, metrics = metrics)
+       end if
     type is (adv_no_dealias_t)
        call adv%init(coef)
     type is (adv_oifs_t)
