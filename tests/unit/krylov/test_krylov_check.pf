@@ -1,0 +1,138 @@
+!> Tests of the pure parts of the krylov_check module: the requirement table,
+!! the compatibility verdict and the schedule of the true-residual check.
+module test_krylov_check
+contains
+
+  @test
+  subroutine test_requirements_cg_family
+    use pfunit
+    use krylov_check, only : krylov_requirements
+    implicit none
+    character(len=20), parameter :: types(6) = [character(len=20) :: &
+         'cg', 'pipecg', 'fused_cg', 'cacg', 'coupled_cg', 'fused_coupled_cg']
+    logical :: need_spd, need_sym, need_fixed, known
+    integer :: i
+
+    do i = 1, size(types)
+       call krylov_requirements(trim(types(i)), need_spd, need_sym, &
+            need_fixed, known)
+       @assertTrue(known, message = trim(types(i)) // ' known')
+       @assertTrue(need_spd, message = trim(types(i)) // ' needs SPD')
+       @assertTrue(need_sym, message = trim(types(i)) // ' needs symmetry')
+       @assertTrue(need_fixed, message = trim(types(i)) // ' needs fixedness')
+    end do
+  end subroutine test_requirements_cg_family
+
+  @test
+  subroutine test_requirements_bicgstab_gmres_unknown
+    use pfunit
+    use krylov_check, only : krylov_requirements
+    implicit none
+    logical :: need_spd, need_sym, need_fixed, known
+
+    call krylov_requirements('bicgstab', need_spd, need_sym, need_fixed, known)
+    @assertTrue(known)
+    @assertFalse(need_spd)
+    @assertFalse(need_sym)
+    @assertTrue(need_fixed)
+
+    call krylov_requirements('coupled_bicgstab', need_spd, need_sym, &
+         need_fixed, known)
+    @assertTrue(known)
+    @assertTrue(need_fixed)
+
+    call krylov_requirements('gmres', need_spd, need_sym, need_fixed, known)
+    @assertTrue(known)
+    @assertFalse(need_spd)
+    @assertFalse(need_sym)
+    @assertFalse(need_fixed)
+
+    call krylov_requirements('no_such_solver', need_spd, need_sym, &
+         need_fixed, known)
+    @assertFalse(known)
+    @assertFalse(need_spd .or. need_sym .or. need_fixed)
+  end subroutine test_requirements_bicgstab_gmres_unknown
+
+  @test
+  subroutine test_compatible_verdicts
+    use pfunit
+    use krylov_check, only : krylov_check_compatible
+    implicit none
+    logical :: compatible
+    character(len=256) :: reason
+
+    ! Everything in place: every solver is compatible
+    call krylov_check_compatible('cg', .true., .true., .true., .true., &
+         .true., .true., compatible, reason)
+    @assertTrue(compatible)
+    @assertEqual(0, len_trim(reason))
+
+    call krylov_check_compatible('bicgstab', .true., .true., .true., .true., &
+         .true., .true., compatible, reason)
+    @assertTrue(compatible)
+
+    ! A nonlinear preconditioner (hsmg with a Krylov coarse solve)
+    call krylov_check_compatible('cg', .true., .true., .false., .true., &
+         .true., .false., compatible, reason)
+    @assertFalse(compatible)
+    @assertEqual('cg requires a symmetric positive preconditioner', &
+         trim(reason))
+
+    call krylov_check_compatible('bicgstab', .true., .true., .false., .true., &
+         .true., .false., compatible, reason)
+    @assertFalse(compatible)
+    @assertEqual('bicgstab requires a fixed, linear preconditioner', &
+         trim(reason))
+
+    ! Flexible GMRES accepts anything
+    call krylov_check_compatible('gmres', .false., .false., .false., .false., &
+         .false., .false., compatible, reason)
+    @assertTrue(compatible)
+
+    ! An asymmetric preconditioner (phmg with the Schwarz smoother)
+    call krylov_check_compatible('fused_cg', .true., .true., .false., .true., &
+         .true., .true., compatible, reason)
+    @assertFalse(compatible)
+    @assertEqual('fused_cg requires a symmetric positive preconditioner', &
+         trim(reason))
+
+    call krylov_check_compatible('bicgstab', .true., .true., .false., .true., &
+         .true., .true., compatible, reason)
+    @assertTrue(compatible)
+
+    ! An indefinite operator fails the CG family on the operator first
+    call krylov_check_compatible('pipecg', .true., .false., .true., .true., &
+         .true., .true., compatible, reason)
+    @assertFalse(compatible)
+    @assertEqual('pipecg requires a symmetric positive definite operator', &
+         trim(reason))
+
+    ! An unknown solver is given the benefit of the doubt
+    call krylov_check_compatible('no_such_solver', .false., .false., .false., &
+         .false., .false., .false., compatible, reason)
+    @assertTrue(compatible)
+  end subroutine test_compatible_verdicts
+
+  @test
+  subroutine test_check_due
+    use pfunit
+    use krylov_check, only : krylov_check_due
+    implicit none
+
+    ! Always at the first step
+    @assertTrue(krylov_check_due(1, 0))
+    @assertTrue(krylov_check_due(1, 7))
+
+    ! Never again when the interval is zero
+    @assertFalse(krylov_check_due(2, 0))
+    @assertFalse(krylov_check_due(100, 0))
+
+    ! Every interval steps otherwise
+    @assertFalse(krylov_check_due(2, 5))
+    @assertTrue(krylov_check_due(5, 5))
+    @assertFalse(krylov_check_due(6, 5))
+    @assertTrue(krylov_check_due(10, 5))
+    @assertTrue(krylov_check_due(2, 1))
+  end subroutine test_check_due
+
+end module test_krylov_check
