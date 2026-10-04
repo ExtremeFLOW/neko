@@ -112,7 +112,7 @@ module probes_moving_mesh
 contains
 
   !> Parse the configuration and link the ALE body.
-  !! @param json The `moving_mesh` JSON subdict.
+  !! @param json The probes JSON dict.
   subroutine probes_moving_mesh_init(this, json)
     class(probes_moving_mesh_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
@@ -133,10 +133,15 @@ contains
     ! Return if the mesh is fixed.
     if (.not. mesh_has_moved) return
 
-    call json_get(json, 'mode', mode)
+    if (.not. json%valid_path('moving_mesh')) then
+       call neko_error("probes: ALE is active, but the 'moving_mesh' " // &
+            "sub-dictionary is missing.")
+    end if
+
+    call json_get(json, 'moving_mesh.mode', mode)
 
     ! The default scales with the working precision.
-    call json_get_or_default(json, 'max_position_drift', &
+    call json_get_or_default(json, 'moving_mesh.max_position_drift', &
          this%max_position_drift, max(1e-8_rp, 100.0_rp * epsilon(1.0_rp)))
     if (this%max_position_drift .le. 0.0_rp) then
        call neko_error('probes moving_mesh: max_position_drift must be > 0.')
@@ -159,7 +164,7 @@ contains
        end if
 
        ! Link to the body through one of its zone ids.
-       call json_get(json, 'zone_id', this%zone_id)
+       call json_get(json, 'moving_mesh.zone_id', this%zone_id)
        body_found = .false.
        do i = 1, neko_ale%config%nbodies
           if (allocated(neko_ale%config%bodies(i)%zone_indices)) then

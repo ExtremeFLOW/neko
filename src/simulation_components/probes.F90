@@ -239,13 +239,7 @@ contains
 
     ! Parse the moving-mesh configuration first; init_common needs to
     ! know whether coordinates are written.
-    if (json%valid_path('moving_mesh')) then
-       block
-         type(json_file) :: mm_subdict
-         call json_get_subdict_or_empty(json, 'moving_mesh', mm_subdict)
-         call this%moving_mesh%init(mm_subdict)
-       end block
-    end if
+    call this%moving_mesh%init(json)
 
     ! Get interpolation parameters from json
     block
