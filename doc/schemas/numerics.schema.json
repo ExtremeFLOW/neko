@@ -38,6 +38,27 @@
         "dealiased_polynomial_order": {
           "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
         },
+        "dealias_chunk_elements": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": -1
+            },
+            {
+              "$ref": "urn:neko:schema:common#/$defs/constRef"
+            }
+          ]
+        },
+        "dealias_store_metrics": {
+          "type": "boolean"
+        },
+        "dealias_metrics": {
+          "type": "string",
+          "enum": [
+            "exact",
+            "interpolated"
+          ]
+        },
         "oifs": {
           "type": "boolean"
         },

@@ -2,6 +2,11 @@
 
 ## Develop
 
+- Reduced the memory footprint of dealiased advection: the fine-space
+  metrics and work arrays are no longer stored per advection object; on
+  GPUs the elements are processed in chunks with shared scratch arrays.
+  The metrics are now exact on curved elements. New `numerics` options
+  `dealias_chunk_elements`, `dealias_store_metrics` and `dealias_metrics`.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the

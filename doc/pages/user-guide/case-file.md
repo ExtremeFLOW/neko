@@ -349,6 +349,9 @@ Used to define the properties of the numerical discretization.
 | `time_order`                 | The order of the time integration scheme. Refer to the `time_scheme_controller` type documentation for details. | 1, 2, 3                    | -                               |
 | `dealias`                    | Whether to apply dealiasing to advection terms.                                                                 | `true` or `false`          | `false`                         |
 | `dealiased_polynomial order` | The polynomial order in the higher-order space used in the dealising.                                           | Integer                    | `3/2(polynomial_order + 1) - 1` |
+| `dealias_chunk_elements`     | GPUs only: elements per chunk in the dealiased advection, bounding its work memory. `0` auto-sizes from the device, `-1` processes all elements at once. | Integer >= -1              | `0`                             |
+| `dealias_store_metrics`      | Store the dealiasing-space metrics (9 arrays of that size) instead of rebuilding them each step. Faster on CPUs, costs memory on GPUs. | `true` or `false`          | `true` on CPU, `false` on GPUs  |
+| `dealias_metrics`            | `exact`: metrics computed on the dealiasing space (exact on curved elements). `interpolated`: interpolated from the simulation space, as in earlier versions. | `exact`, `interpolated`    | `exact`                         |
 | `oifs`                       | Whether to apply the Operator-Integration-Factor-Splitting (OIFS).                                              | `true` or `false`          | `false`                         |
 | `oifs_target_cfl`            | The desired OIFS-CFL number. Requires variable_timestep = true in the time control object.                      | Positive real              | `1.9`                           |
 
