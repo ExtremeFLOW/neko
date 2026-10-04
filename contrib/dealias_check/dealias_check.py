@@ -30,6 +30,13 @@ Expected outcome (measured on CPU, one rank)
     reference sit at the ~1e-6 (velocity) to ~1e-4 (pressure) level the
     solvers amplify single-precision rounding to.
 
+Every output is checked before it is compared: well-formed and complete
+fld file, element count, finite fields, velocity magnitude in a plausible
+range, the requested number of steps logged, a normal end and no NaN in
+the log. A difference of 0 is only reported for two finite fields; a
+run that fails any check is flagged and never used as a baseline, and the
+script exits non-zero.
+
 Only the standard library is needed. Typical use:
 
   python3 contrib/dealias_check/dealias_check.py --neko $PWD/src/neko \
@@ -39,6 +46,7 @@ See `--help` for the options.
 """
 import argparse
 import array
+import math
 import json
 import os
 import re
@@ -133,29 +141,44 @@ def cyl_case(steps, dt, order, tol=TOL["dp"]):
     }
 
 
+# case: (builder, mesh, default steps, dt, element count)
 CASES = {
-    "tgv": (tgv_case, REPO / "examples/tgv/512.nmsh", 5, 1e-2),
+    "tgv": (tgv_case, REPO / "examples/tgv/512.nmsh", 5, 1e-2, 512),
     "cyl": (cyl_case, REPO / "examples/2d_cylinder/2d_cylinder.nmsh", 20,
-            1e-3),
+            1e-3, 722),
 }
 
 
 def read_fld(fn):
     """Read a Neko fld file written by a single-file output (any rank
-    count) and return (header, idx, {'uvw':..., 'p':...}) as flat arrays
-    ordered by global element index."""
+    count) and return (header, {'uvw':..., 'p':..., 'nelv':..., 'lx':...})
+    with the fields as flat arrays ordered by global element index.
+    Raises ValueError on a malformed or truncated file."""
+    size = os.path.getsize(fn)
     with open(fn, "rb") as f:
-        hdr = f.read(132).decode()
+        hdr = f.read(132).decode(errors="replace")
         parts = hdr.split()
+        if len(parts) < 12 or parts[0] != "#std":
+            raise ValueError(f"{fn}: not an fld header: {hdr.strip()!r}")
         wdsz, lx, ly, lz, nelv = (int(parts[1]), int(parts[2]),
                                   int(parts[3]), int(parts[4]), int(parts[5]))
         rdcode = parts[11]
-        f.read(4)  # endian test pattern
+        if wdsz not in (4, 8) or nelv <= 0 or lx <= 0:
+            raise ValueError(f"{fn}: implausible header: {hdr.strip()!r}")
+        pattern = array.array("f")
+        pattern.frombytes(f.read(4))
+        if abs(pattern[0] - 6.54321) > 1e-4:
+            raise ValueError(f"{fn}: endian test pattern is {pattern[0]}")
+        lxyz = lx * ly * lz
+        nfields = 3 * ("X" in rdcode) + 3 * ("U" in rdcode) + ("P" in rdcode)
+        expected = 132 + 4 + 4 * nelv + wdsz * nfields * lxyz * nelv
+        if size < expected:
+            raise ValueError(f"{fn}: truncated, {size} bytes but at least "
+                             f"{expected} expected")
         idx = array.array("i")
         idx.frombytes(f.read(4 * nelv))
         code = "d" if wdsz == 8 else "f"
-        lxyz = lx * ly * lz
-        out = {}
+        out = {"nelv": nelv, "lx": lx, "wdsz": wdsz}
 
         def take(n):
             a = array.array(code)
@@ -181,13 +204,70 @@ def read_fld(fn):
     return hdr, out
 
 
+def field_stats(a):
+    """Max magnitude and number of non-finite entries of a flat array."""
+    mx = 0.0
+    bad = 0
+    for x in a:
+        if math.isfinite(x):
+            if abs(x) > mx:
+                mx = abs(x)
+        else:
+            bad += 1
+    return mx, bad
+
+
 def compare(a, b):
+    """Max relative difference per field, NaN if either side holds a
+    non-finite value or the lengths differ (never silently 0)."""
     res = {}
     for k in ("uvw", "p"):
-        d = max(abs(x - y) for x, y in zip(a[k], b[k]))
-        ref = max(abs(x) for x in a[k]) or 1.0
-        res[k] = d / ref
+        if len(a[k]) != len(b[k]):
+            res[k] = float("nan")
+            continue
+        d = 0.0
+        bad = False
+        for x, y in zip(a[k], b[k]):
+            if not (math.isfinite(x) and math.isfinite(y)):
+                bad = True
+                break
+            dd = abs(x - y)
+            if dd > d:
+                d = dd
+        ref = field_stats(a[k])[0]
+        res[k] = float("nan") if bad or ref == 0.0 else d / ref
     return res
+
+
+# Plausible velocity magnitude per case: both cases have unit-scale
+# velocity, so anything outside this range means a blown-up or empty field.
+UMAX_RANGE = (0.5, 5.0)
+
+
+def sanity(fields, log_text, steps, nelv_expected):
+    """Return a list of problems with a run's output, empty when it is
+    trustworthy: finite fields of the right size and plausible size, the
+    requested number of steps actually taken, a normal end, no NaN in the
+    log."""
+    problems = []
+    if fields["nelv"] != nelv_expected:
+        problems.append(f"nelv {fields['nelv']} != {nelv_expected}")
+    for k in ("uvw", "p"):
+        mx, bad = field_stats(fields[k])
+        if bad:
+            problems.append(f"{bad} non-finite in {k}")
+        if k == "uvw" and not (UMAX_RANGE[0] <= mx <= UMAX_RANGE[1]):
+            problems.append(f"max|u| = {mx:.3g} outside {UMAX_RANGE}")
+        if k == "p" and mx == 0.0:
+            problems.append("pressure identically zero")
+    nsteps = len(re.findall(r"^\s*Step\s*=", log_text, flags=re.M))
+    if nsteps != steps:
+        problems.append(f"{nsteps} steps logged, {steps} requested")
+    if "Normal end" not in log_text:
+        problems.append("no 'Normal end' in log")
+    if re.search(r"\bnan\b", log_text, flags=re.I):
+        problems.append("NaN in log")
+    return problems
 
 
 def parse_log(log):
@@ -227,7 +307,8 @@ def run_one(neko, launcher, np_, workdir, name, case, mesh, env):
     ok = (rc == 0) and fld.exists() and not err
     return {"name": name, "dir": d, "rc": rc, "ok": ok, "wall": wall,
             "per_step": per_step, "total": total, "deal": deal,
-            "single": single, "fld": fld if ok else None}
+            "single": single, "fld": fld if ok else None,
+            "log": (d / "log.txt").read_text(errors="replace")}
 
 
 def main():
@@ -263,10 +344,11 @@ def main():
     chunks = [-1, 0] if args.quick else CHUNKS
     tol = TOL["sp" if args.sp else "dp"]
     summary = []
+    failures = []
     warned_sp = False
 
     for cname in args.cases.split(","):
-        make_case, mesh, steps, dt = CASES[cname]
+        make_case, mesh, steps, dt, nelv_expected = CASES[cname]
         if args.steps > 0:
             steps = args.steps
         if not mesh.exists():
@@ -301,29 +383,66 @@ def main():
                           f"{cname}_reference", case, mesh, env)
             print(f"  {ref['name']:48s} rc={ref['rc']} step={ref['per_step']:.4f}s")
 
-        base = runs.get(BASELINE)
-        if base is None or not base["ok"]:
-            # fall back to any successful run with interpolated metrics
-            base = next((r for k, r in runs.items() if r["ok"] and k[0] == "interpolated"), None)
+        # Load every output once, with the sanity checks; a run whose
+        # output is not trustworthy is reported as such and never used as
+        # a comparison basis
+        def load(r):
+            if not r or not r["ok"]:
+                return None, ["run failed"] if r else ["no run"]
+            try:
+                f = read_fld(r["fld"])[1]
+            except (ValueError, OSError) as e:
+                return None, [str(e)]
+            return f, sanity(f, r["log"], steps, nelv_expected)
+
+        loaded = {k: load(r) for k, r in runs.items()}
+        ref_f, ref_problems = load(ref) if ref else (None, [])
+
+        base_key = BASELINE
+        if loaded.get(base_key, (None, ["x"]))[1]:
+            # fall back to any trustworthy run with interpolated metrics
+            base_key = next((k for k, (f, pr) in loaded.items()
+                             if f is not None and not pr
+                             and k[0] == "interpolated"), None)
+        base_f = loaded[base_key][0] if base_key else None
+
         print(f"\n  {'run':48s} {'uvw vs base':>12s} {'p vs base':>12s}"
-              f" {'uvw vs ref':>12s} {'p vs ref':>12s} {'s/step':>8s}")
-        base_f = read_fld(base["fld"])[1] if base and base["ok"] else None
-        ref_f = read_fld(ref["fld"])[1] if ref and ref["ok"] else None
+              f" {'uvw vs ref':>12s} {'p vs ref':>12s} {'max|u|':>8s}"
+              f" {'s/step':>8s}  checks")
+        nan2 = {"uvw": float("nan"), "p": float("nan")}
         for key, r in runs.items():
-            if not r["ok"]:
-                line = f"  {r['name']:48s} FAILED (rc={r['rc']}), see {r['dir']/'log.txt'}"
+            f, problems = loaded[key]
+            if f is None:
+                line = (f"  {r['name']:48s} FAILED: {'; '.join(problems)}"
+                        f" (see {r['dir']/'log.txt'})")
                 print(line)
                 summary.append(line)
+                failures.append(r["name"])
                 continue
-            f = read_fld(r["fld"])[1]
-            cb = compare(base_f, f) if base_f else {"uvw": float("nan"), "p": float("nan")}
-            cr = compare(ref_f, f) if ref_f else {"uvw": float("nan"), "p": float("nan")}
+            cb = compare(base_f, f) if base_f is not None else nan2
+            cr = compare(ref_f, f) if ref_f is not None else nan2
+            umax = field_stats(f["uvw"])[0]
+            status = "ok" if not problems else "PROBLEM: " + "; ".join(problems)
+            if problems:
+                failures.append(r["name"])
             line = (f"  {r['name']:48s} {cb['uvw']:12.3e} {cb['p']:12.3e}"
-                    f" {cr['uvw']:12.3e} {cr['p']:12.3e} {r['per_step']:8.4f}")
+                    f" {cr['uvw']:12.3e} {cr['p']:12.3e} {umax:8.3f}"
+                    f" {r['per_step']:8.4f}  {status}")
             print(line)
             summary.append(line)
-        if ref and ref["ok"]:
-            line = f"  {ref['name']:48s} {'-':>12s} {'-':>12s} {'-':>12s} {'-':>12s} {ref['per_step']:8.4f}"
+        if ref:
+            if ref_f is None or ref_problems:
+                status = "PROBLEM: " + "; ".join(ref_problems)
+                failures.append(ref["name"])
+            else:
+                status = "ok"
+            umax = field_stats(ref_f["uvw"])[0] if ref_f is not None else float("nan")
+            line = (f"  {ref['name']:48s} {'-':>12s} {'-':>12s} {'-':>12s}"
+                    f" {'-':>12s} {umax:8.3f} {ref['per_step']:8.4f}  {status}")
+            print(line)
+            summary.append(line)
+        if base_key is None:
+            line = "  no trustworthy baseline run: 'vs base' columns are nan"
             print(line)
             summary.append(line)
 
@@ -331,6 +450,12 @@ def main():
     print(f"\nsummary written to {workdir/'summary.txt'}")
     print("baseline for 'vs base' is interpolated metrics, stored, all elements"
           " at once (closest to the previous implementation)")
+    if failures:
+        print(f"\n{len(failures)} run(s) failed or produced untrustworthy output:")
+        for n in failures:
+            print(f"  {n}")
+        sys.exit(1)
+    print("\nall runs finished with finite, plausible fields")
 
 
 if __name__ == "__main__":
