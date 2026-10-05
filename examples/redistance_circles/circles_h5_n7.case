@@ -1,0 +1,113 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "box20.nmsh",
+        "output_directory": "output_circles_h5_n7",
+        "output_boundary": false,
+        "output_checkpoints": false,
+        "output_at_end": false,
+        "output_precision": "double",
+        "time": {
+            "end_time": 0.0,
+            "variable_timestep": false,
+            "timestep": 1e-06
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 7,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "freeze": true,
+            "initial_condition": {
+                "type": "uniform",
+                "value": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-06,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 0.001,
+                "max_iterations": 800
+            },
+            "output_control": "simulationtime",
+            "output_value": 1.0,
+            "boundary_conditions": [
+                {
+                    "type": "velocity_value",
+                    "zone_indices": [
+                        1,
+                        2,
+                        3,
+                        4
+                    ],
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                }
+            ]
+        },
+        "cdi": {
+            "epsilon": 0.25,
+            "report_every": 500,
+            "redistance": {
+                "dtau": 0.0005,
+                "tau_end": 6.0,
+                "svv": {
+                    "c0": 2.0,
+                    "nsvv_ratio": 6.0
+                }
+            }
+        },
+        "scalars": [
+            {
+                "name": "psi",
+                "enabled": true,
+                "cp": 1.0,
+                "lambda": 1e-16,
+                "initial_condition": {
+                    "type": "user"
+                },
+                "solver": {
+                    "type": "cg",
+                    "preconditioner": {
+                        "type": "jacobi"
+                    },
+                    "projection_space_size": 0,
+                    "absolute_tolerance": 1e-06,
+                    "max_iterations": 800
+                },
+                "boundary_conditions": [
+                    {
+                        "type": "neumann",
+                        "zone_indices": [
+                            1,
+                            2,
+                            3,
+                            4
+                        ],
+                        "flux": 0.0
+                    }
+                ]
+            }
+        ]
+    }
+}
