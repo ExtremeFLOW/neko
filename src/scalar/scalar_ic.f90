@@ -42,6 +42,7 @@ module scalar_ic
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
+  use field_math, only : field_cfill
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, &
@@ -97,18 +98,19 @@ contains
     character(len=:), allocatable :: read_str
     real(kind=rp) :: zone_value
 
-    if (trim(type) .eq. 'uniform') then
+    select case (trim(type))
+    case('uniform')
 
        call json_get_or_lookup(params, 'value', ic_value)
        call set_scalar_ic_uniform(s, ic_value)
 
-    else if (trim(type) .eq. 'expression') then
+    case('expression')
 
        call json_get(params, 'value', read_str)
        call set_scalar_ic_expression(s, read_str)
        if (allocated(read_str)) deallocate(read_str)
 
-    else if (trim(type) .eq. 'point_zone') then
+    case('point_zone')
 
        call json_get_or_lookup(params, 'base_value', ic_value)
        call json_get(params, 'zone_name', read_str)
@@ -116,7 +118,7 @@ contains
 
        call set_scalar_ic_point_zone(s, ic_value, read_str, zone_value)
 
-    else if (trim(type) .eq. 'field') then
+    case('field')
 
        block
          character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
@@ -127,34 +129,24 @@ contains
          call json_get(params, 'file_name', read_str)
          fname = trim(read_str)
 
-         call json_get_or_default(params, 'interpolate', interpolate, &
-              .false.)
-
-         call json_get_or_default(params, 'mesh_file_name', read_str, &
-              "none")
+         call json_get_or_default(params, 'mesh_file_name', read_str, "none")
          mesh_fname = trim(read_str)
 
          ! Give the user the option to select which scalar they want to import
          ! the values from, in the fld file. 0 corresponds to temperature.
          call json_get_or_default(params, 'target_index', tgt_scal_idx, i)
 
-         call json_get_subdict_or_empty(params, "interpolation", &
-              interp_subdict)
+         call json_get_or_default(params, 'interpolate', interpolate, .false.)
+         call json_get_subdict_or_empty(params, "interpolation", interp_subdict)
 
          call set_scalar_ic_fld(s, fname, interpolate, mesh_fname, i, &
               tgt_scal_idx, interp_subdict)
 
        end block
 
-    else
+    case default
        call neko_error('Invalid initial condition')
-    end if
-
-    ! The builtin initial conditions are set on the host
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x, s%x_d, s%dof%size(), HOST_TO_DEVICE, &
-            sync = .false.)
-    end if
+    end select
 
     call set_scalar_ic_common(s, coef, gs)
 
@@ -229,11 +221,7 @@ contains
     write (log_buf, '(A,ES12.6)') "Value: ", ic_value
     call neko_log%message(log_buf)
 
-    s = ic_value
-    n = s%dof%size()
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call cfill(s%x, ic_value, n)
-    end if
+    call field_cfill(s, ic_value)
 
   end subroutine set_scalar_ic_uniform
 
@@ -254,6 +242,7 @@ contains
 
     call expression_eval_static(expr, s%x, s%dof%size(), &
          s%dof%x%x, s%dof%y%x, s%dof%z%x, 'scalar initial condition')
+    call s%copy_from(HOST_TO_DEVICE, .true.)
 
   end subroutine set_scalar_ic_expression
 
@@ -285,8 +274,9 @@ contains
     size = s%dof%size()
     zone => neko_point_zone_registry%get_point_zone(trim(zone_name))
 
-    call set_scalar_ic_uniform(s, base_value)
+    call cfill(s%x, base_value, size)
     call cfill_mask(s%x, zone_value, size, zone%mask%get(), zone%size)
+    call s%copy_from(HOST_TO_DEVICE, .true.)
 
   end subroutine set_scalar_ic_point_zone
 
@@ -340,11 +330,6 @@ contains
     call s_tgt_list%free()
 
     nullify(ss)
-
-    ! If we are on GPU we need to move s back to the host
-    ! since set_scalar_ic_int copies it again to the device.
-    call s%copy_from(device_to_host, .true.)
-
   end subroutine set_scalar_ic_fld
 
 end module scalar_ic

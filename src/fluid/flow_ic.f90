@@ -46,6 +46,7 @@ module flow_ic
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask, abscmp
   use device_math, only : device_col2
+  use field_math, only : field_cfill
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, &
@@ -90,28 +91,19 @@ contains
     character(len=:), allocatable :: read_str
     character(len=NEKO_EXPR_LEN), allocatable :: expr_str(:)
 
-
-    !
-    ! Uniform (Uinf, Vinf, Winf)
-    !
-    if (trim(type) .eq. 'uniform') then
+    select case (trim(type))
+    case ('uniform') ! Uniform (Uinf, Vinf, Winf)
 
        call json_get_or_lookup(params, 'value', uinf)
        call set_flow_ic_uniform(u, v, w, uinf)
 
-       !
-       ! One mathematical expression per velocity component
-       !
-    else if (trim(type) .eq. 'expression') then
+    case ('expression') ! One mathematical expression per velocity component
 
        call json_get(params, 'value', expr_str, filler = '')
        call set_flow_ic_expression(u, v, w, expr_str)
        if (allocated(expr_str)) deallocate(expr_str)
 
-       !
-       ! Blasius boundary layer
-       !
-    else if (trim(type) .eq. 'blasius') then
+    case ('blasius') ! Blasius boundary layer
 
        call json_get_or_lookup(params, 'delta', delta)
        call json_get(params, 'approximation', read_str)
@@ -119,10 +111,7 @@ contains
 
        call set_flow_ic_blasius(u, v, w, delta, uinf, read_str)
 
-       !
-       ! Point zone initial condition
-       !
-    else if (trim(type) .eq. 'point_zone') then
+    case ('point_zone') ! Point zone initial condition
 
        call json_get_or_lookup(params, 'base_value', uinf)
        call json_get(params, 'zone_name', read_str)
@@ -130,10 +119,7 @@ contains
 
        call set_flow_ic_point_zone(u, v, w, uinf, read_str, zone_value)
 
-       !
-       ! Field initial condition (from fld file)
-       !
-    else if (trim(type) .eq. 'field') then
+    case ('field') ! Field initial condition (from fld file)
 
        block
          character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
@@ -143,31 +129,18 @@ contains
          call json_get(params, 'file_name', read_str)
          fname = trim(read_str)
 
-         call json_get_or_default(params, 'interpolate', interpolate, &
-              .false.)
-
          call json_get_or_default(params, 'mesh_file_name', read_str, "none")
          mesh_fname = trim(read_str)
 
-         call json_get_subdict_or_empty(params, "interpolation", &
-              interp_subdict)
+         call json_get_or_default(params, 'interpolate', interpolate, .false.)
+         call json_get_subdict_or_empty(params, "interpolation", interp_subdict)
          call set_flow_ic_fld(u, v, w, p, fname, interpolate, &
               mesh_fname, interp_subdict)
        end block
 
-    else
+    case default
        call neko_error('Invalid initial condition')
-    end if
-
-    ! The builtin initial conditions are set on the host
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call u%copy_from(HOST_TO_DEVICE, sync = .false.)
-       call v%copy_from(HOST_TO_DEVICE, sync = .false.)
-       call w%copy_from(HOST_TO_DEVICE, sync = .false.)
-
-       ! also copy pressure for consistency
-       call p%copy_from(HOST_TO_DEVICE, sync = .true.)
-    end if
+    end select
 
     call set_flow_ic_common(u, v, w, p, coef, gs)
 
@@ -188,7 +161,6 @@ contains
     character(len=*), intent(in) :: scheme_name
 
     type(field_list_t) :: fields
-
 
     call neko_log%message("Type: user")
 
@@ -221,7 +193,6 @@ contains
     procedure(user_initial_conditions_intf) :: user_proc
     character(len=*), intent(in) :: scheme_name
     type(field_list_t) :: fields
-
 
     call neko_log%message("Type: user (compressible flows)")
 
@@ -294,15 +265,9 @@ contains
          (uinf(i), ", ", i = 1, 2), uinf(3), "]"
     call neko_log%message(log_buf)
 
-    u = uinf(1)
-    v = uinf(2)
-    w = uinf(3)
-    n = u%dof%size()
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call cfill(u%x, uinf(1), n)
-       call cfill(v%x, uinf(2), n)
-       call cfill(w%x, uinf(3), n)
-    end if
+    call field_cfill(u, uinf(1))
+    call field_cfill(v, uinf(2))
+    call field_cfill(w, uinf(3))
 
   end subroutine set_flow_ic_uniform
 
@@ -348,11 +313,12 @@ contains
        end select
 
        call expression_eval_static(expr(i), f%x, n, &
-            u%dof%x%x, u%dof%y%x, u%dof%z%x, 'fluid initial condition')
+            f%dof%x%x, f%dof%y%x, f%dof%z%x, 'fluid initial condition')
     end do
 
-    nullify(f)
-
+    call u%copy_from(HOST_TO_DEVICE, sync = .false.)
+    call v%copy_from(HOST_TO_DEVICE, sync = .false.)
+    call w%copy_from(HOST_TO_DEVICE, sync = .true.)
   end subroutine set_flow_ic_expression
 
   !> Set a Blasius profile as initial condition
@@ -416,6 +382,10 @@ contains
        end do
     end if
 
+    call u%copy_from(HOST_TO_DEVICE, sync = .false.)
+    call v%copy_from(HOST_TO_DEVICE, sync = .false.)
+    call w%copy_from(HOST_TO_DEVICE, sync = .true.)
+
   end subroutine set_flow_ic_blasius
 
   !> Set the initial condition of the flow based on a point zone.
@@ -448,14 +418,19 @@ contains
          zone_value(1), zone_value(2), zone_value(3)
     call neko_log%message(log_buf)
 
-    call set_flow_ic_uniform(u, v, w, base_value)
     size = u%dof%size()
-
     zone => neko_point_zone_registry%get_point_zone(trim(zone_name))
 
+    call cfill(u%x, base_value(1), size)
+    call cfill(v%x, base_value(2), size)
+    call cfill(w%x, base_value(3), size)
     call cfill_mask(u%x, zone_value(1), size, zone%mask%get(), zone%size)
     call cfill_mask(v%x, zone_value(2), size, zone%mask%get(), zone%size)
     call cfill_mask(w%x, zone_value(3), size, zone%mask%get(), zone%size)
+
+    call u%copy_from(HOST_TO_DEVICE, sync = .false.)
+    call v%copy_from(HOST_TO_DEVICE, sync = .false.)
+    call w%copy_from(HOST_TO_DEVICE, sync = .true.)
 
   end subroutine set_flow_ic_point_zone
 
@@ -503,14 +478,6 @@ contains
     end if
 
     nullify(us, vs, ws, ps)
-
-    ! If we are on GPU we need to move (u,v,w) and p back to the host
-    ! since set_flow_ic_int copies it again to the device.
-    call u%copy_from(device_to_host, sync = .false.)
-    call v%copy_from(device_to_host, sync = .false.)
-    call w%copy_from(device_to_host, sync = .false.)
-    call p%copy_from(device_to_host, sync = .true.)
-
   end subroutine set_flow_ic_fld
 
 end module flow_ic
