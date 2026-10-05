@@ -40,7 +40,8 @@ module legendre_rst_finder
   use vector, only: vector_t
   use matrix, only: matrix_t
   use math, only: NEKO_EPS, matinv39
-  use tensor_cpu, only: tnsr3d_cpu, tnsr3d_el_cpu
+  use tensor_cpu, only: tnsr3d_el_cpu, tnsr3d_cpu
+  use tensor_device, only: tnsr3d_device
   use device_local_interpolation, only: device_find_rst_legendre
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
   use device, only: device_alloc, device_free, device_memcpy, &
@@ -72,6 +73,7 @@ contains
     real(kind=rp), intent(in), dimension(nelv*Xh%lxyz) :: x, y, z
     real(kind=dp), intent(in), optional :: tol
     integer, intent(in), optional :: max_iter
+    type(c_ptr) :: x_d, y_d, z_d
 
     call this%free()
 
@@ -100,20 +102,29 @@ contains
     call this%y_hat%init(nelv*Xh%lxyz)
     call this%z_hat%init(nelv*Xh%lxyz)
 
-    call tnsr3d_cpu(this%x_hat%x, Xh%lx, x, &
-         Xh%lx, Xh%vinv, &
-         Xh%vinvt, Xh%vinvt, nelv)
-    call tnsr3d_cpu(this%y_hat%x, Xh%lx, y, &
-         Xh%lx, Xh%vinv, &
-         Xh%vinvt, Xh%vinvt, nelv)
-    call tnsr3d_cpu(this%z_hat%x, Xh%lx, z, &
-         Xh%lx, Xh%vinv, &
-         Xh%vinvt, Xh%vinvt, nelv)
+    if (nelv .eq. 0) return
 
-    !> Copy the data to the device (if device exists)
-    call this%x_hat%copy_from(HOST_TO_DEVICE, .false.)
-    call this%y_hat%copy_from(HOST_TO_DEVICE, .false.)
-    call this%z_hat%copy_from(HOST_TO_DEVICE, .false.)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       x_d = device_get_ptr(x)
+       y_d = device_get_ptr(y)
+       z_d = device_get_ptr(z)
+       call tnsr3d_device(this%x_hat%x_d, Xh%lx, x_d, Xh%lx, &
+            Xh%vinv_d, Xh%vinvt_d, Xh%vinvt_d, nelv)
+       call tnsr3d_device(this%y_hat%x_d, Xh%lx, y_d, Xh%lx, &
+            Xh%vinv_d, Xh%vinvt_d, Xh%vinvt_d, nelv)
+       call tnsr3d_device(this%z_hat%x_d, Xh%lx, z_d, Xh%lx, &
+            Xh%vinv_d, Xh%vinvt_d, Xh%vinvt_d, nelv)
+    else
+       call tnsr3d_cpu(this%x_hat%x, Xh%lx, x, &
+            Xh%lx, Xh%vinv, &
+            Xh%vinvt, Xh%vinvt, nelv)
+       call tnsr3d_cpu(this%y_hat%x, Xh%lx, y, &
+            Xh%lx, Xh%vinv, &
+            Xh%vinvt, Xh%vinvt, nelv)
+       call tnsr3d_cpu(this%z_hat%x, Xh%lx, z, &
+            Xh%lx, Xh%vinv, &
+            Xh%vinvt, Xh%vinvt, nelv)
+    end if
 
   end subroutine legendre_rst_finder_init
 

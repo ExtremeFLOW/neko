@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Modified `legendre_rst_finder_init` to apply the `tnsr3d` operation
+  on device, when running on device. Exposed `max_iterations` to case file
+  for the Newton iterations in `global_interpolation`.
 - Fixed `device_glmax`, `device_glmin` and `device_glamax` hanging when some
   ranks have zero points.
 - Fixed device memory leaking on every write of a spatially averaged
