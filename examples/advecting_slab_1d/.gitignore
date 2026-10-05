@@ -14,4 +14,3 @@ run_*.log
 chain*.log
 logs/
 neko.*
-logs/

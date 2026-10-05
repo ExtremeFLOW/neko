@@ -1,5 +1,7 @@
 """slab_table.py: E_r(20), E_v, worst violation over EVERY frame (README definition), svv off vs on;
-plus psi statistics for psi_xi10 (the 'Measured, not just argued' table). 2026-10-05."""
+plus psi statistics for psi_xi10 (the 'Measured, not just argued' table). 2026-10-05.
+Needs the SVV-off runs in logs/svv_off_2026-10-02/, which is gitignored and local to the
+workstation that ran them; run from examples/advecting_slab_1d/."""
 import glob, os, sys, json, logging
 import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
