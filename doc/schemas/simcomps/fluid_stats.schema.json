@@ -24,6 +24,17 @@
             },
             "output_filename": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "pressure_gauge": {
+              "type": "string",
+              "enum": ["solver", "volume_mean"],
+              "default": "solver",
+              "description": "Gauge of the pressure entering the statistics: as computed by the solver, or with its volume-weighted mean removed at every sample."
+            },
+            "keep_3d_fields": {
+              "type": "boolean",
+              "default": false,
+              "description": "With an avg_direction, keep the statistics as 3D mean fields and average them when writing."
             }
           },
           "additionalProperties": true

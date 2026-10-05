@@ -1,0 +1,146 @@
+{
+  "version": 1.0,
+  "case": {
+    "mesh_file": "box.nmsh",
+    "output_at_end": false,
+    "output_boundary": false,
+    "output_directory": "tests/test_fluid_stats_avg",
+    "output_checkpoints": false,
+    "time": {
+      "end_time": 2.0,
+      "timestep": 1.0
+    },
+    "numerics": {
+      "time_order": 2,
+      "polynomial_order": 5,
+      "dealias": false
+    },
+    "fluid": {
+      "scheme": "pnpn",
+      "mu": 1.0,
+      "rho": 1.0,
+      "freeze": true,
+      "initial_condition": {
+        "type": "uniform",
+        "value": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "velocity_solver": {
+        "type": "cg",
+        "preconditioner": {
+          "type": "jacobi"
+        },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-07,
+        "max_iterations": 800
+      },
+      "pressure_solver": {
+        "type": "gmres",
+        "preconditioner": {
+          "type": "jacobi"
+        },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-07,
+        "max_iterations": 800
+      },
+      "boundary_conditions": [
+        {
+          "type": "no_slip",
+          "zone_indices": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        }
+      ],
+      "output_control": "never"
+    },
+    "simulation_components": [
+      {
+        "type": "fluid_stats",
+        "name": "avg_x",
+        "output_filename": "avg_x",
+        "set_of_stats": "basic",
+        "avg_direction": "x",
+        "compute_control": "tsteps",
+        "compute_value": 1,
+        "output_control": "tsteps",
+        "output_value": 2
+      },
+      {
+        "type": "fluid_stats",
+        "name": "avg_y",
+        "output_filename": "avg_y",
+        "set_of_stats": "basic",
+        "avg_direction": "y",
+        "compute_control": "tsteps",
+        "compute_value": 1,
+        "output_control": "tsteps",
+        "output_value": 2
+      },
+      {
+        "type": "fluid_stats",
+        "name": "avg_z",
+        "output_filename": "avg_z",
+        "set_of_stats": "full",
+        "avg_direction": "z",
+        "compute_control": "tsteps",
+        "compute_value": 1,
+        "output_control": "tsteps",
+        "output_value": 2
+      },
+      {
+        "type": "fluid_stats",
+        "name": "avg_xz",
+        "output_filename": "avg_xz",
+        "set_of_stats": "full",
+        "avg_direction": "xz",
+        "compute_control": "tsteps",
+        "compute_value": 1,
+        "output_control": "tsteps",
+        "output_value": 2
+      },
+      {
+        "type": "fluid_stats",
+        "name": "avg_yz",
+        "output_filename": "avg_yz",
+        "set_of_stats": "basic",
+        "avg_direction": "yz",
+        "compute_control": "tsteps",
+        "compute_value": 1,
+        "output_control": "tsteps",
+        "output_value": 2
+      },
+      {
+        "type": "fluid_stats",
+        "name": "avg_z3d",
+        "output_filename": "avg_z3d",
+        "set_of_stats": "full",
+        "avg_direction": "z",
+        "keep_3d_fields": true,
+        "compute_control": "tsteps",
+        "compute_value": 1,
+        "output_control": "tsteps",
+        "output_value": 2
+      },
+      {
+        "type": "fluid_stats",
+        "name": "avg_xz3d",
+        "output_filename": "avg_xz3d",
+        "set_of_stats": "basic",
+        "avg_direction": "xz",
+        "keep_3d_fields": true,
+        "compute_control": "tsteps",
+        "compute_value": 1,
+        "output_control": "tsteps",
+        "output_value": 2
+      }
+    ]
+  }
+}

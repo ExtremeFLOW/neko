@@ -2,6 +2,23 @@
 
 ## Develop
 
+- `fluid_stats` with an `avg_direction` now accumulates every sample directly
+  in the averaged 2D or 1D space, on the device when one is used, instead of
+  keeping up to 44 3D mean fields and averaging them when written. The new
+  `keep_3d_fields` option restores the 3D fields and their registry entries.
+- Added `pressure_gauge` to `fluid_stats`: `solver` (default) samples the
+  pressure as computed, `volume_mean` removes its volume-weighted mean first.
+- `fluid_stats` borrows its work fields from the scratch registry while
+  sampling, at most 9 at a time, instead of holding 14 permanently.
+- 1D statistics and spatial averages have one row per GLL plane; planes on
+  element interfaces were written twice, once from each side.
+- `map_1d_t` stops with an error instead of looping forever when the element
+  levels cannot be determined (order 1, or a mesh not stacked in the requested
+  direction), using a tolerance relative to the extent of the domain.
+- Rewrote the averaging in one direction (`map_2d_t`): the element columns and
+  node orderings are found once at initialisation from the geometry, and each
+  output is one pass over the fields and one exchange of the column sums. The
+  mesh must be stacked in the averaging direction, with aligned columns.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the

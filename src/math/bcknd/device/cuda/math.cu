@@ -94,6 +94,43 @@ extern "C" {
 
   }
 
+  /** Fortran wrapper for slab_sum
+   * Partial sums along one local direction of every element
+   */
+  void cuda_slab_sum(void *tmp, void *f, void *w, void *sa, void *sb,
+                     void *sh, void *code, void *tbl, int *use_f, int *use_w,
+                     int *n_out, int *lx, int *nelv, int *in_stride,
+                     int *out_stride, cudaStream_t strm) {
+
+    const int n = (*nelv) * (*n_out);
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks((n + 1024 - 1) / 1024, 1, 1);
+
+    slab_sum_kernel<real><<<nblcks, nthrds, 0, strm>>>
+      ((real *) tmp, (real *) f, (real *) w, (int *) sa, (int *) sb,
+       (int *) sh, (int *) code, (int *) tbl, *use_f, *use_w, *n_out, *lx,
+       *nelv, *in_stride, *out_stride);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+  /** Fortran wrapper for gather_add
+   * Scaled sums of gathered entries \f$ acc(r) = acc(r) + s \sum tmp(list) \f$
+   */
+  void cuda_gather_add(void *acc, int *offset, void *tmp, void *ptr,
+                       void *list, int *nrows, real *scale,
+                       cudaStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*nrows) + 1024 - 1) / 1024, 1, 1);
+
+    gather_add_kernel<real><<<nblcks, nthrds, 0, strm>>>
+      ((real *) acc, (real *) tmp, (int *) ptr, (int *) list, *offset,
+       *nrows, *scale);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
   /** Fortran wrapper for masked gather copy
    * Copy a vector \f$ a(i) = b(mask(i)) \f$
    */

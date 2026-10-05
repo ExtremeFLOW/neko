@@ -35,25 +35,22 @@ module fluid_stats_output
   use fluid_stats, only : fluid_stats_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp, dp
-  use map_1d, only : map_1d_t
-  use map_2d, only : map_2d_t
   use fld_file_data, only : fld_file_data_t
   use device, only : device_memcpy, DEVICE_TO_HOST
   use output, only : output_t
   use matrix, only : matrix_t
   use fld_file, only : fld_file_t
+  use utils, only : neko_error
   implicit none
   private
 
   !> Defines an output for the fluid statistics computed using the
-  !! `fluid_stats_t` object.
+  !! `fluid_stats_t` object. Statistics accumulated in the averaged space
+  !! are written from their accumulators, 3D mean fields are written as
+  !! they are or averaged over the direction(s) of the statistics first.
   type, public, extends(output_t) :: fluid_stats_output_t
      !> Pointer to the object computing the statistics.
      type(fluid_stats_t), pointer :: stats => null()
-     !> Space averaging object for 2 homogeneous directions.
-     type(map_1d_t) :: map_1d
-     !> Space averaging object for 1 homogeneous direction.
-     type(map_2d_t) :: map_2d
      real(kind=dp) :: T_begin
      !> The dimension of the output fields. Either 1, 2, or 3.
      integer :: output_dim
@@ -70,6 +67,13 @@ module fluid_stats_output
 contains
 
   !> Constructor.
+  !! @param stats The statistics to write. Their averaging direction, set
+  !! at their initialisation, decides the dimension and format of the output.
+  !! @param T_begin Time from which the statistics are written.
+  !! @param hom_dir Averaging direction of the statistics, must agree with
+  !! `stats`.
+  !! @param name Name of the output file. Optional.
+  !! @param path Path of the output file. Optional.
   subroutine fluid_stats_output_init(this, stats, T_begin, hom_dir, name, path)
     class(fluid_stats_output_t), intent(inout) :: this
     type(fluid_stats_t), intent(inout), target :: stats
@@ -78,42 +82,34 @@ contains
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     character(len=1024) :: fname
+    character(len=4) :: suffix
+    integer :: expected_dim
 
-    if (trim(hom_dir) .eq. 'none' .or. &
-         trim(hom_dir) .eq. 'x' .or.&
-         trim(hom_dir) .eq. 'y' .or.&
-         trim(hom_dir) .eq. 'z'&
-         ) then
-       if (present(name) .and. present(path)) then
-          fname = trim(path) // trim(name) // '.fld'
-       else if (present(name)) then
-          fname = trim(name) // '.fld'
-       else if (present(path)) then
-          fname = trim(path) // 'fluid_stats.fld'
-       else
-          fname = 'fluid_stats.fld'
-       end if
-
-       this%output_dim = 3
-
-       if (trim(hom_dir) .eq. 'x' .or.&
-            trim(hom_dir) .eq. 'y' .or.&
-            trim(hom_dir) .eq. 'z' ) then
-          call this%map_2d%init_char(stats%coef, hom_dir, 1e-7_rp)
-          this%output_dim = 2
-       end if
+    this%output_dim = stats%output_dim
+    if (trim(hom_dir) .eq. 'none' .or. len_trim(hom_dir) .eq. 0) then
+       expected_dim = 3
     else
-       if (present(name) .and. present(path)) then
-          fname = trim(path) // trim(name) // '.csv'
-       else if (present(name)) then
-          fname = trim(name) // '.csv'
-       else if (present(path)) then
-          fname = trim(path) // 'fluid_stats.csv'
-       else
-          fname = 'fluid_stats.csv'
-       end if
-       call this%map_1d%init_char(stats%coef, hom_dir, 1e-7_rp)
-       this%output_dim = 1
+       expected_dim = 3 - len_trim(hom_dir)
+    end if
+    if (expected_dim .ne. this%output_dim) then
+       call neko_error('fluid_stats_output: the averaging direction does' // &
+            ' not match the statistics')
+    end if
+
+    if (this%output_dim .eq. 1) then
+       suffix = '.csv'
+    else
+       suffix = '.fld'
+    end if
+
+    if (present(name) .and. present(path)) then
+       fname = trim(path) // trim(name) // suffix
+    else if (present(name)) then
+       fname = trim(name) // suffix
+    else if (present(path)) then
+       fname = trim(path) // 'fluid_stats' // suffix
+    else
+       fname = 'fluid_stats' // suffix
     end if
 
     call this%init_base(fname)
@@ -136,8 +132,6 @@ contains
     call this%free_base()
 
     nullify(this%stats)
-    call this%map_1d%free()
-    call this%map_2d%free()
 
   end subroutine fluid_stats_output_free
 
@@ -148,46 +142,68 @@ contains
     integer :: i
     type(matrix_t) :: avg_output_1d
     type(fld_file_data_t) :: output_2d
-    real(kind=rp) :: u, v, w, p
 
-    associate (out_fields => this%stats%stat_fields%items)
-      if (t .ge. this%T_begin) then
-         call this%stats%make_strong_grad()
-         if ( NEKO_BCKND_DEVICE .eq. 1) then
-            do i = 1, size(out_fields)
-               call device_memcpy(out_fields(i)%ptr%x, out_fields(i)%ptr%x_d,&
-                    out_fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
-                    sync = (i .eq. size(out_fields))) ! Sync on last field
+    if (t .lt. this%T_begin) return
+
+    associate (stats => this%stats, out_fields => this%stats%stat_fields)
+      if (stats%avg_dim .eq. 3) then
+         ! 3D mean fields, written as they are or averaged on the host.
+         call stats%make_strong_grad()
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            do i = 1, out_fields%size()
+               call device_memcpy(out_fields%items(i)%ptr%x, &
+                    out_fields%items(i)%ptr%x_d, out_fields%item_size(i), &
+                    DEVICE_TO_HOST, sync = (i .eq. out_fields%size()))
             end do
          end if
-         if (this%output_dim .eq. 1) then
-            call this%map_1d%average_planes(avg_output_1d, &
-                 this%stats%stat_fields)
+         select case (this%output_dim)
+         case (1)
+            call stats%map_1d%average_planes(avg_output_1d, out_fields)
             call this%file_%write(avg_output_1d, t)
             call avg_output_1d%free()
-         else if (this%output_dim .eq. 2) then
-            call this%map_2d%average(output_2d, this%stats%stat_fields)
-            !Switch around fields to get correct orders
-            !Put average direction mean_vel in scalar45
-            do i = 1, this%map_2d%n_2d
-               u = output_2d%v%x(i)
-               v = output_2d%w%x(i)
-               w = output_2d%p%x(i)
-               p = output_2d%u%x(i)
-               output_2d%p%x(i) = p
-               output_2d%u%x(i) = u
-               output_2d%v%x(i) = v
-               output_2d%w%x(i) = w
-            end do
-
+         case (2)
+            call stats%map_2d%average(output_2d, out_fields)
+            call reorder_2d(output_2d, stats%map_2d%n_2d)
             call this%file_%write(output_2d, t)
             call output_2d%free()
-         else
-            call this%file_%write(this%stats%stat_fields, t)
-         end if
-         call this%stats%reset()
+         case default
+            call this%file_%write(out_fields, t)
+         end select
+      else if (this%output_dim .eq. 1) then
+         call stats%map_1d%accumulated_average(avg_output_1d)
+         call this%file_%write(avg_output_1d, t)
+         call avg_output_1d%free()
+      else
+         call stats%map_2d%accumulated_average(output_2d)
+         call reorder_2d(output_2d, stats%map_2d%n_2d)
+         call this%file_%write(output_2d, t)
+         call output_2d%free()
       end if
+      call stats%reset()
     end associate
+
   end subroutine fluid_stats_output_sample
+
+  !> Moves the 2D statistics into the slots of the fld file: the pressure
+  !! and velocity averages into their own slots, with the mean velocity in
+  !! the averaging direction in the last scalar.
+  subroutine reorder_2d(output_2d, n)
+    type(fld_file_data_t), intent(inout) :: output_2d
+    integer, intent(in) :: n
+    real(kind=rp) :: u, v, w, p
+    integer :: i
+
+    do i = 1, n
+       u = output_2d%v%x(i)
+       v = output_2d%w%x(i)
+       w = output_2d%p%x(i)
+       p = output_2d%u%x(i)
+       output_2d%p%x(i) = p
+       output_2d%u%x(i) = u
+       output_2d%v%x(i) = v
+       output_2d%w%x(i) = w
+    end do
+
+  end subroutine reorder_2d
 
 end module fluid_stats_output

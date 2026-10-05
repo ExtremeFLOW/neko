@@ -1,0 +1,86 @@
+{
+  "version": 1.0,
+  "case": {
+    "mesh_file": "box.nmsh",
+    "output_at_end": false,
+    "output_boundary": false,
+    "output_directory": "tests/test_spatial_average_2d",
+    "output_checkpoints": false,
+    "time": {
+      "end_time": 1.0,
+      "timestep": 1.0
+    },
+    "numerics": {
+      "time_order": 2,
+      "polynomial_order": 3,
+      "dealias": false
+    },
+    "fluid": {
+      "scheme": "pnpn",
+      "mu": 1.0,
+      "rho": 1.0,
+      "freeze": true,
+      "initial_condition": {
+        "type": "uniform",
+        "value": [0.0, 0.0, 0.0]
+      },
+      "velocity_solver": {
+        "type": "cg",
+        "preconditioner": {
+          "type": "jacobi"
+        },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-07,
+        "max_iterations": 800
+      },
+      "pressure_solver": {
+        "type": "gmres",
+        "preconditioner": {
+          "type": "jacobi"
+        },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-07,
+        "max_iterations": 800
+      },
+      "boundary_conditions": [
+        {
+          "type": "no_slip",
+          "zone_indices": [1, 2, 3, 4, 5, 6]
+        }
+      ],
+      "output_control": "never"
+    },
+    "simulation_components": [
+      {
+        "type": "spatial_average",
+        "name": "sa_x",
+        "fields": ["u", "v", "w", "p"],
+        "avg_direction": "x",
+        "compute_control": "never",
+        "output_control": "tsteps",
+        "output_value": 1,
+        "output_filename": "sa_x"
+      },
+      {
+        "type": "spatial_average",
+        "name": "sa_y",
+        "fields": ["u", "v", "w", "p"],
+        "avg_direction": "y",
+        "compute_control": "never",
+        "output_control": "tsteps",
+        "output_value": 1,
+        "output_filename": "sa_y"
+      },
+      {
+        "type": "spatial_average",
+        "name": "sa_z",
+        "fields": ["u", "v", "w", "p"],
+        "avg_direction": "z",
+        "compute_control": "never",
+        "output_control": "tsteps",
+        "output_value": 1,
+        "output_filename": "sa_z"
+      }
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2023, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -119,6 +119,8 @@ contains
     class(mean_field_t), intent(inout) :: this
     real(kind=rp), intent(in) :: k
 
+    ! mf = (time * mf + k * f) / (time + k), keeping a constant field
+    ! exactly constant.
     call field_cmult(this%mf, this%time, size(this%mf%x))
     call field_add2s2(this%mf, this%f, k, size(this%mf%x))
     this%time = this%time + k

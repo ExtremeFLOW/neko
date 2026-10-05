@@ -188,6 +188,50 @@ void metal_masked_copy_0(void *a_ptr, void *b_ptr, void *mask_ptr,
         }, (NSUInteger)*n_mask);
 }
 
+void metal_slab_sum(void *tmp_ptr, void *f_ptr, void *w_ptr, void *sa_ptr,
+                    void *sb_ptr, void *sh_ptr, void *code_ptr, void *tbl_ptr,
+                    int *use_f, int *use_w, int *n_out, int *lx, int *nelv,
+                    int *in_stride, int *out_stride, void *strm) {
+    const int n = (*nelv) * (*n_out);
+    if (n < 1) return;
+    id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)(strm);
+    dispatch_simple(q, get_pipeline(@"slab_sum_kernel"),
+        ^(id<MTLComputeCommandEncoder> enc) {
+            [enc setBuffer:(__bridge id<MTLBuffer>)(tmp_ptr) offset:0 atIndex:0];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(f_ptr) offset:0 atIndex:1];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(w_ptr) offset:0 atIndex:2];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(sa_ptr) offset:0 atIndex:3];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(sb_ptr) offset:0 atIndex:4];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(sh_ptr) offset:0 atIndex:5];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(code_ptr) offset:0 atIndex:6];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(tbl_ptr) offset:0 atIndex:7];
+            [enc setBytes:use_f length:sizeof(int) atIndex:8];
+            [enc setBytes:use_w length:sizeof(int) atIndex:9];
+            [enc setBytes:n_out length:sizeof(int) atIndex:10];
+            [enc setBytes:lx length:sizeof(int) atIndex:11];
+            [enc setBytes:nelv length:sizeof(int) atIndex:12];
+            [enc setBytes:in_stride length:sizeof(int) atIndex:13];
+            [enc setBytes:out_stride length:sizeof(int) atIndex:14];
+        }, (NSUInteger)n);
+}
+
+void metal_gather_add(void *acc_ptr, int *offset, void *tmp_ptr, void *ptr_ptr,
+                      void *list_ptr, int *nrows, real *scale, void *strm) {
+    if (*nrows < 1) return;
+    id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)(strm);
+    float fscale = (float)*scale;
+    dispatch_simple(q, get_pipeline(@"gather_add_kernel"),
+        ^(id<MTLComputeCommandEncoder> enc) {
+            [enc setBuffer:(__bridge id<MTLBuffer>)(acc_ptr) offset:0 atIndex:0];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(tmp_ptr) offset:0 atIndex:1];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(ptr_ptr) offset:0 atIndex:2];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(list_ptr) offset:0 atIndex:3];
+            [enc setBytes:offset length:sizeof(int) atIndex:4];
+            [enc setBytes:nrows length:sizeof(int) atIndex:5];
+            [enc setBytes:&fscale length:sizeof(float) atIndex:6];
+        }, (NSUInteger)*nrows);
+}
+
 void metal_masked_gather_copy(void *a_ptr, void *b_ptr, void *mask_ptr,
                               int *n, int *n_mask, void *strm) {
     if (*n_mask < 1) return;

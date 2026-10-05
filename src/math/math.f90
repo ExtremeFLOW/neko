@@ -101,6 +101,7 @@ module math
      module procedure srelcmp, drelcmp, qrelcmp
   end interface relcmp
 
+  public :: slab_sum, gather_add
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
        glsum, glmax, glmin, glamax, chsign, vlmax, vlmin, vlamax, &
        invcol1, invcol3, invers2, &
@@ -2049,5 +2050,99 @@ contains
   end subroutine eig_sym3
 
 
+
+  !> Partial sums along one local direction of every element, the host
+  !! counterpart of the device kernel `slab_sum`. For element `e` (0-based)
+  !! and output index `m = a + lx * b` it sums `f(p) * w(p)` over
+  !! `p = e * in_stride + a * sa(e) + b * sb(e) + h * sh(e)`, `h = 0..lx-1`
+  !! (0-based), and stores the sum at `e * out_stride + tbl(m + n_out *
+  !! code(e))`, with the tables 0-based. A missing `f` or `w` counts as one.
+  !! @param tmp Output partial sums, `nelv * out_stride` entries.
+  !! @param sa Stride of the first in-plane index of every element.
+  !! @param sb Stride of the second in-plane index of every element.
+  !! @param sh Stride of the summed index of every element.
+  !! @param code Table code of every element, 0-based.
+  !! @param tbl Output index of every in-plane index and code, 0-based.
+  !! @param n_out Number of partial sums per element.
+  !! @param lx Number of nodes summed per partial sum.
+  !! @param nelv Number of elements.
+  !! @param in_stride Entries per element of the input.
+  !! @param out_stride Entries per element of the output.
+  !! @param f Field to sum, optional.
+  !! @param w Weight of the field, optional.
+  subroutine slab_sum(tmp, sa, sb, sh, code, tbl, n_out, lx, nelv, &
+       in_stride, out_stride, f, w)
+    integer, intent(in) :: n_out, lx, nelv, in_stride, out_stride
+    real(kind=rp), intent(inout) :: tmp(*)
+    integer, intent(in) :: sa(nelv), sb(nelv), sh(nelv), code(nelv), tbl(*)
+    real(kind=rp), intent(in), optional :: f(*), w(*)
+    logical :: use_f, use_w
+    real(kind=rp) :: s
+    integer :: e, m, a, b, h, p, p0
+
+    use_f = present(f)
+    use_w = present(w)
+
+    !$omp parallel do private(e, m, a, b, h, p, p0, s)
+    do e = 0, nelv - 1
+       do m = 0, n_out - 1
+          a = mod(m, lx)
+          b = m / lx
+          p0 = e * in_stride + a * sa(e + 1) + b * sb(e + 1) + 1
+          s = 0.0_rp
+          if (use_f .and. use_w) then
+             do h = 0, lx - 1
+                p = p0 + h * sh(e + 1)
+                s = s + f(p) * w(p)
+             end do
+          else if (use_f) then
+             do h = 0, lx - 1
+                s = s + f(p0 + h * sh(e + 1))
+             end do
+          else if (use_w) then
+             do h = 0, lx - 1
+                s = s + w(p0 + h * sh(e + 1))
+             end do
+          else
+             s = real(lx, rp)
+          end if
+          tmp(e * out_stride + tbl(m + n_out * code(e + 1) + 1) + 1) = s
+       end do
+    end do
+    !$omp end parallel do
+
+  end subroutine slab_sum
+
+  !> Scaled sums of gathered entries, the host counterpart of the device
+  !! kernel `gather_add`: adds `scale` times the sum of `tmp(list(j))` for
+  !! `j = ptr(r)..ptr(r+1)-1` to `acc(offset + r)`, for `r = 0..nrows-1`,
+  !! with 0-based indices.
+  !! @param acc Accumulator.
+  !! @param offset Offset of the first row in the accumulator.
+  !! @param tmp Entries to gather.
+  !! @param ptr Row pointers into `list`, `nrows + 1` entries.
+  !! @param list Entries of `tmp` gathered by each row.
+  !! @param nrows Number of rows.
+  !! @param scale Scaling of the sums.
+  subroutine gather_add(acc, offset, tmp, ptr, list, nrows, scale)
+    integer, intent(in) :: offset, nrows
+    real(kind=rp), intent(inout) :: acc(*)
+    real(kind=rp), intent(in) :: tmp(*)
+    integer, intent(in) :: ptr(nrows + 1), list(*)
+    real(kind=rp), intent(in) :: scale
+    real(kind=rp) :: s
+    integer :: r, j
+
+    !$omp parallel do private(r, j, s)
+    do r = 0, nrows - 1
+       s = 0.0_rp
+       do j = ptr(r + 1) + 1, ptr(r + 2)
+          s = s + tmp(list(j) + 1)
+       end do
+       acc(offset + r + 1) = acc(offset + r + 1) + scale * s
+    end do
+    !$omp end parallel do
+
+  end subroutine gather_add
 
 end module math

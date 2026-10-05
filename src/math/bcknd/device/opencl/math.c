@@ -119,6 +119,80 @@ void opencl_masked_copy_aligned(void *a, void *b, void *mask, int *n, int *m,
 
 }
 
+/** Fortran wrapper for slab_sum
+ * Partial sums along one local direction of every element
+ */
+void opencl_slab_sum(void *tmp, void *f, void *w, void *sa, void *sb,
+                     void *sh, void *code, void *tbl, int *use_f, int *use_w,
+                     int *n_out, int *lx, int *nelv, int *in_stride,
+                     int *out_stride, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "slab_sum_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &tmp));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &f));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &w));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &sa));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &sb));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &sh));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &code));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &tbl));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(int), use_f));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(int), use_w));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(int), n_out));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(int), lx));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(int), nelv));
+  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(int), in_stride));
+  CL_CHECK(clSetKernelArg(kernel, 14, sizeof(int), out_stride));
+
+  const int n = (*nelv) * (*n_out);
+  const int nb = (n + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+/** Fortran wrapper for gather_add
+ * Scaled sums of gathered entries \f$ acc(r) = acc(r) + s \sum tmp(list) \f$
+ */
+void opencl_gather_add(void *acc, int *offset, void *tmp, void *ptr,
+                       void *list, int *nrows, real *scale,
+                       cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "gather_add_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &acc));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &tmp));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &ptr));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &list));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), offset));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(int), nrows));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(real), scale));
+
+  const int nb = ((*nrows) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
 /** Fortran wrapper for masked reduced copy
  * Copy a vector \f$ a = b(mask) \f$
  */

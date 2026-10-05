@@ -2,6 +2,8 @@ from os.path import join
 from testlib import get_neko, run_neko, configure_nprocs, get_makeneko, get_genmeshbox
 import subprocess
 import numpy as np
+
+import conftest
 #from pysemtools.datatypes.field import FieldRegistry
 #from pysemtools.datatypes.msh import Mesh
 #from pysemtools.io.ppymech.neksuite import pynekread
@@ -132,10 +134,32 @@ def test_fluid_stats(launcher_script, request, log_file, tmp_path):
               "<uv>", "<uw>", "<vw>"]
 
     for i, q in enumerate(quants):
-        error = (csv[i] - correct[i]) / correct[i]
+        error = abs(csv[i] - correct[i]) / abs(correct[i])
         assert (
             error < 1e-2
         ), f"Error in {q}, {csv[i]} exceeded tolerance: {error}"
+
+    #
+    # 1D statistics with the volume-mean pressure gauge. The pressure is
+    # spatially uniform, so removing its volume-weighted mean leaves zero
+    # for every pressure statistic, while the velocity statistics are
+    # unchanged.
+    #
+
+    csv = np.genfromtxt(join("tests", "test_fluid_stats", "stats_gauge0.csv"),
+                        delimiter=",")[12, 2:]
+
+    gauge_tol = {"dp": 1e-8, "sp": 1e-5}[conftest.RP]
+    for i, q in enumerate(quants):
+        if q in ("<p>", "<p^2>"):
+            assert (
+                abs(csv[i]) < gauge_tol
+            ), f"{q} with volume_mean gauge is {csv[i]}, expected 0"
+        else:
+            error = abs(csv[i] - correct[i]) / abs(correct[i])
+            assert (
+                error < 1e-2
+            ), f"Error in {q} with volume_mean gauge, {csv[i]}: {error}"
 
 
     #

@@ -106,6 +106,43 @@ extern "C" {
 
   }
 
+  /** Fortran wrapper for slab_sum
+   * Partial sums along one local direction of every element
+   */
+  void hip_slab_sum(void *tmp, void *f, void *w, void *sa, void *sb,
+                    void *sh, void *code, void *tbl, int *use_f, int *use_w,
+                    int *n_out, int *lx, int *nelv, int *in_stride,
+                    int *out_stride, hipStream_t strm) {
+
+    const int n = (*nelv) * (*n_out);
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks((n + 1024 - 1) / 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(slab_sum_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) tmp, (real *) f,
+                       (real *) w, (int *) sa, (int *) sb, (int *) sh,
+                       (int *) code, (int *) tbl, *use_f, *use_w, *n_out,
+                       *lx, *nelv, *in_stride, *out_stride);
+    HIP_CHECK(hipGetLastError());
+
+  }
+
+  /** Fortran wrapper for gather_add
+   * Scaled sums of gathered entries \f$ acc(r) = acc(r) + s \sum tmp(list) \f$
+   */
+  void hip_gather_add(void *acc, int *offset, void *tmp, void *ptr,
+                      void *list, int *nrows, real *scale, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*nrows) + 1024 - 1) / 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_add_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) acc, (real *) tmp,
+                       (int *) ptr, (int *) list, *offset, *nrows, *scale);
+    HIP_CHECK(hipGetLastError());
+
+  }
+
   /** Fortran wrapper for masked gather copy
    * Copy a vector \f$ a = b(mask) \f$
    */

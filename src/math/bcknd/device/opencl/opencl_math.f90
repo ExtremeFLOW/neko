@@ -64,6 +64,24 @@ module opencl_math
        integer(c_int) :: n, n_mask
      end subroutine opencl_masked_gather_copy
 
+     subroutine opencl_slab_sum(tmp_d, f_d, w_d, sa_d, sb_d, sh_d, code_d, &
+          tbl_d, use_f, use_w, n_out, lx, nelv, in_stride, out_stride, &
+          strm) bind(c, name = 'opencl_slab_sum')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       type(c_ptr), value :: tmp_d, f_d, w_d, sa_d, sb_d, sh_d, code_d, &
+            tbl_d, strm
+       integer(c_int) :: use_f, use_w, n_out, lx, nelv, in_stride, out_stride
+     end subroutine opencl_slab_sum
+
+     subroutine opencl_gather_add(acc_d, offset, tmp_d, ptr_d, list_d, nrows, &
+          scale, strm) bind(c, name = 'opencl_gather_add')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: acc_d, tmp_d, ptr_d, list_d, strm
+       integer(c_int) :: offset, nrows
+       real(c_rp) :: scale
+     end subroutine opencl_gather_add
+
      subroutine opencl_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, &
           strm) bind(c, name = 'opencl_masked_gather_copy_aligned')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int

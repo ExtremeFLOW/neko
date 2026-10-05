@@ -48,6 +48,8 @@ module fluid_stats_simcomp
   use json_utils, only : json_get, json_get_or_default, &
        json_get_or_lookup_or_default
   use comm, only : NEKO_COMM
+  use device, only : device_sync
+  use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   implicit none
   private
@@ -103,6 +105,8 @@ contains
     character(len=:), allocatable :: hom_dir
     character(len=:), allocatable :: stat_set
     character(len=:), allocatable :: name
+    character(len=:), allocatable :: pressure_gauge
+    logical :: keep_3d_fields
     real(kind=dp) :: start_time
     type(field_t), pointer :: u, v, w, p
     type(coef_t), pointer :: coef
@@ -115,7 +119,9 @@ contains
          start_time, 0.0_dp)
     call json_get_or_default(json, 'set_of_stats', &
          stat_set, 'full')
-
+    call json_get_or_default(json, 'pressure_gauge', &
+         pressure_gauge, 'solver')
+    call json_get_or_default(json, 'keep_3d_fields', keep_3d_fields, .false.)
 
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")
@@ -127,10 +133,12 @@ contains
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
        call fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
-            coef, start_time, hom_dir, stat_set, filename)
+            coef, start_time, hom_dir, stat_set, filename, pressure_gauge, &
+            keep_3d_fields)
     else
        call fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
-            coef, start_time, hom_dir, stat_set)
+            coef, start_time, hom_dir, stat_set, &
+            pressure_gauge = pressure_gauge, keep_3d_fields = keep_3d_fields)
     end if
 
     nullify(u, v, w, p, coef)
@@ -147,8 +155,13 @@ contains
   !! @param hom_dir directions to average in
   !! @param stat_set Set of statistics to compute (basic/full)
   !! @param fname name of the output file
+  !! @param pressure_gauge Gauge of the pressure entering the statistics,
+  !! `solver` (default) or `volume_mean`.
+  !! @param keep_3d_fields Keep the statistics as 3D fields with an
+  !! averaging direction and average them when writing, false by default.
   subroutine fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
-       coef, start_time, hom_dir, stat_set, fname)
+       coef, start_time, hom_dir, stat_set, fname, pressure_gauge, &
+       keep_3d_fields)
     class(fluid_stats_simcomp_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=*), intent(in) :: hom_dir
@@ -157,9 +170,21 @@ contains
     type(field_t), intent(in), target :: u, v, w, p
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in), optional :: fname
+    character(len=*), intent(in), optional :: pressure_gauge
+    logical, intent(in), optional :: keep_3d_fields
     character(len=NEKO_FNAME_LEN) :: stats_fname
     character(len=LOG_SIZE) :: log_buf
     character(len=5) :: prefix
+    character(len=:), allocatable :: gauge
+    logical :: keep_3d
+
+    if (present(pressure_gauge)) then
+       gauge = pressure_gauge
+    else
+       gauge = 'solver'
+    end if
+    keep_3d = .false.
+    if (present(keep_3d_fields)) keep_3d = keep_3d_fields
 
     call neko_log%section('Fluid stats')
     write(log_buf, '(A,E15.7)') 'Start time: ', start_time
@@ -168,8 +193,16 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A,A)') 'Averaging in direction: ', trim(hom_dir)
     call neko_log%message(log_buf)
+    write(log_buf, '(A,A)') 'Pressure gauge: ', trim(gauge)
+    call neko_log%message(log_buf)
+    if (keep_3d .and. trim(hom_dir) .ne. 'none' .and. &
+         len_trim(hom_dir) .gt. 0) then
+       call neko_log%message('Statistics kept as 3D fields, averaged ' // &
+            'when written')
+    end if
 
-    call this%stats%init(coef, u, v, w, p, stat_set, name)
+    call this%stats%init(coef, u, v, w, p, stat_set, name, gauge, hom_dir, &
+         keep_3d)
 
     this%name = name
     this%start_time = start_time
@@ -261,6 +294,9 @@ contains
        sample_start_time = MPI_WTIME()
 
        call this%stats%update(delta_t)
+       ! The sampling kernels are asynchronous, wait for them to finish so
+       ! that the reported sampling time is meaningful.
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_sync()
        call MPI_Barrier(NEKO_COMM, ierr)
        this%time = t
 
