@@ -1,0 +1,58 @@
+# Part A: standalone, psi_e=|x|-1, skewed IC, dtau=5e-4
+verify: sem1d.run E_r(6)=1.147268e-03  this=1.147268e-03
+H=1/10 N=3 eps=H/N  (0.0333)  Er(1)=1.401e-02  Er(2)=4.409e-04  Er(3)=4.403e-04  Er(6)=4.403e-04  Er(12)=4.403e-04  Er(24)=4.403e-04
+H=1/10 N=3 eps=0.25 (0.2500)  Er(1)=2.797e-01  Er(2)=8.764e-02  Er(3)=1.590e-02  Er(6)=4.655e-04  Er(12)=4.405e-04  Er(24)=4.405e-04
+H=1/10 N=5 eps=H/N  (0.0200)  Er(1)=5.111e-03  Er(2)=6.779e-05  Er(3)=6.779e-05  Er(6)=6.779e-05  Er(12)=6.779e-05  Er(24)=6.779e-05
+H=1/10 N=5 eps=0.25 (0.2500)  Er(1)=2.788e-01  Er(2)=8.735e-02  Er(3)=1.595e-02  Er(6)=1.037e-04  Er(12)=6.786e-05  Er(24)=6.786e-05
+H=1/10 N=8 eps=H/N  (0.0125)  Er(1)=1.875e-03  Er(2)=1.494e-05  Er(3)=1.494e-05  Er(6)=1.494e-05  Er(12)=1.494e-05  Er(24)=1.494e-05
+H=1/10 N=8 eps=0.25 (0.2500)  Er(1)=2.787e-01  Er(2)=8.734e-02  Er(3)=1.597e-02  Er(6)=5.192e-05  Er(12)=1.498e-05  Er(24)=1.498e-05
+H=1/20 N=3 eps=H/N  (0.0167)  Er(1)=3.916e-03  Er(2)=1.089e-04  Er(3)=1.089e-04  Er(6)=1.089e-04  Er(12)=1.089e-04  Er(24)=1.089e-04
+H=1/20 N=3 eps=0.25 (0.2500)  Er(1)=2.786e-01  Er(2)=8.735e-02  Er(3)=1.596e-02  Er(6)=1.427e-04  Er(12)=1.090e-04  Er(24)=1.090e-04
+H=1/20 N=5 eps=H/N  (0.0100)  Er(1)=1.428e-03  Er(2)=1.646e-05  Er(3)=1.646e-05  Er(6)=1.646e-05  Er(12)=1.646e-05  Er(24)=1.646e-05
+H=1/20 N=5 eps=0.25 (0.2500)  Er(1)=2.786e-01  Er(2)=8.736e-02  Er(3)=1.597e-02  Er(6)=5.515e-05  Er(12)=1.649e-05  Er(24)=1.649e-05
+H=1/20 N=8 eps=H/N  (0.0063)  Er(1)=5.079e-04  Er(2)=3.432e-06  Er(3)=3.432e-06  Er(6)=3.432e-06  Er(12)=3.432e-06  Er(24)=3.432e-06
+H=1/20 N=8 eps=0.25 (0.2500)  Er(1)=2.786e-01  Er(2)=8.736e-02  Er(3)=1.599e-02  Er(6)=4.352e-05  Er(12)=3.453e-06  Er(24)=3.453e-06
+# arrival tau(d) (|psi-psi_e|<1e-3 on (1,1+d]) vs 2eps ln[sinh(d/2eps)/sinh(d0/2eps)], d0=H/N
+H=1/10 N=5 eps=H/N  d=0.10  tau_arrive=0.35  formula=0.10
+H=1/10 N=5 eps=H/N  d=0.25  tau_arrive=0.45  formula=0.25
+H=1/10 N=5 eps=H/N  d=0.50  tau_arrive=0.70  formula=0.50
+H=1/10 N=5 eps=H/N  d=0.75  tau_arrive=0.95  formula=0.75
+H=1/10 N=5 eps=0.25 d=0.10  tau_arrive=3.45  formula=0.81
+H=1/10 N=5 eps=0.25 d=0.25  tau_arrive=3.85  formula=1.28
+H=1/10 N=5 eps=0.25 d=0.50  tau_arrive=4.30  formula=1.69
+H=1/10 N=5 eps=0.25 d=0.75  tau_arrive=4.60  formula=1.99
+H=1/20 N=5 eps=H/N  d=0.10  tau_arrive=0.20  formula=0.10
+H=1/20 N=5 eps=H/N  d=0.25  tau_arrive=0.35  formula=0.25
+H=1/20 N=5 eps=H/N  d=0.50  tau_arrive=0.60  formula=0.50
+H=1/20 N=5 eps=H/N  d=0.75  tau_arrive=0.85  formula=0.75
+H=1/20 N=5 eps=0.25 d=0.10  tau_arrive=3.45  formula=1.15
+H=1/20 N=5 eps=0.25 d=0.25  tau_arrive=3.90  formula=1.63
+H=1/20 N=5 eps=0.25 d=0.50  tau_arrive=4.30  formula=2.04
+H=1/20 N=5 eps=0.25 d=0.75  tau_arrive=4.60  formula=2.33
+
+# Part B: Eq. (47) seed, rf=0.1, eps_H=H/N, budget T=2.5H
+# s = (x-1)/H. reach = distance (in H) a characteristic dx/dtau=|sgn phi| starting at s=1/N travels in T
+N=3 H=1/10 eps=H/N  sgn(phi0) max=0.635  |w|(s=1)=0.901  reach=1.997 H  |grad|@iface 0.811->0.979  |grad|(s=1) 0.116->0.981  max|dphi|/H=2.337  Saini dtau: max|phi-phi_fine|=7.69e-04
+N=3 H=1/10 eps=0.25 sgn(phi0) max=0.100  |w|(s=1)=0.140  reach=0.138 H  |grad|@iface 0.811->0.854  |grad|(s=1) 0.116->0.476  max|dphi|/H=0.322  Saini dtau: max|phi-phi_fine|=1.61e-04
+N=3 H=1/20 eps=H/N  sgn(phi0) max=0.905  |w|(s=1)=0.905  reach=2.279 H  |grad|@iface 1.622->1.009  |grad|(s=1) 0.233->0.998  max|dphi|/H=2.468  Saini dtau: max|phi-phi_fine|=4.52e-04
+N=3 H=1/20 eps=0.25 sgn(phi0) max=0.100  |w|(s=1)=0.111  reach=0.121 H  |grad|@iface 1.622->1.397  |grad|(s=1) 0.233->0.714  max|dphi|/H=0.283  Saini dtau: max|phi-phi_fine|=1.13e-04
+N=3 H=1/40 eps=H/N  sgn(phi0) max=0.995  |w|(s=1)=0.905  reach=2.445 H  |grad|@iface 3.244->1.040  |grad|(s=1) 0.465->0.990  max|dphi|/H=2.498  Saini dtau: max|phi-phi_fine|=3.64e-04
+N=3 H=1/40 eps=0.25 sgn(phi0) max=0.100  |w|(s=1)=0.099  reach=0.113 H  |grad|@iface 3.244->2.522  |grad|(s=1) 0.465->1.235  max|dphi|/H=0.265  Saini dtau: max|phi-phi_fine|=9.35e-05
+N=3 H=1/80 eps=H/N  sgn(phi0) max=1.000  |w|(s=1)=0.900  reach=2.496 H  |grad|@iface 6.489->1.086  |grad|(s=1) 0.930->0.941  max|dphi|/H=2.639  Saini dtau: max|phi-phi_fine|=4.21e-04
+N=3 H=1/80 eps=0.25 sgn(phi0) max=0.100  |w|(s=1)=0.093  reach=0.110 H  |grad|@iface 6.489->4.789  |grad|(s=1) 0.930->2.296  max|dphi|/H=0.403  Saini dtau: max|phi-phi_fine|=8.47e-05
+N=5 H=1/10 eps=H/N  sgn(phi0) max=0.848  |w|(s=1)=0.987  reach=2.330 H  |grad|@iface 1.264->1.000  |grad|(s=1) 0.021->1.002  max|dphi|/H=2.466  Saini dtau: max|phi-phi_fine|=4.93e-04
+N=5 H=1/10 eps=0.25 sgn(phi0) max=0.100  |w|(s=1)=0.158  reach=0.141 H  |grad|@iface 1.264->1.185  |grad|(s=1) 0.021->0.317  max|dphi|/H=0.322  Saini dtau: max|phi-phi_fine|=9.56e-05
+N=5 H=1/20 eps=H/N  sgn(phi0) max=0.987  |w|(s=1)=0.987  reach=2.449 H  |grad|@iface 2.528->0.999  |grad|(s=1) 0.043->1.001  max|dphi|/H=2.497  Saini dtau: max|phi-phi_fine|=3.92e-04
+N=5 H=1/20 eps=0.25 sgn(phi0) max=0.100  |w|(s=1)=0.125  reach=0.123 H  |grad|@iface 2.528->1.957  |grad|(s=1) 0.043->0.407  max|dphi|/H=0.283  Saini dtau: max|phi-phi_fine|=5.71e-05
+N=5 H=1/40 eps=H/N  sgn(phi0) max=1.000  |w|(s=1)=0.987  reach=2.494 H  |grad|@iface 5.057->0.995  |grad|(s=1) 0.085->0.997  max|dphi|/H=2.500  Saini dtau: max|phi-phi_fine|=4.60e-04
+N=5 H=1/40 eps=0.25 sgn(phi0) max=0.100  |w|(s=1)=0.111  reach=0.115 H  |grad|@iface 5.057->3.547  |grad|(s=1) 0.085->0.649  max|dphi|/H=0.306  Saini dtau: max|phi-phi_fine|=4.26e-05
+N=5 H=1/80 eps=H/N  sgn(phi0) max=1.000  |w|(s=1)=0.987  reach=2.500 H  |grad|@iface 10.113->0.988  |grad|(s=1) 0.171->0.989  max|dphi|/H=3.053  Saini dtau: max|phi-phi_fine|=6.03e-04
+N=5 H=1/80 eps=0.25 sgn(phi0) max=0.100  |w|(s=1)=0.104  reach=0.112 H  |grad|@iface 10.113->6.749  |grad|(s=1) 0.171->1.158  max|dphi|/H=0.725  Saini dtau: max|phi-phi_fine|=3.64e-05
+N=8 H=1/10 eps=H/N  sgn(phi0) max=0.964  |w|(s=1)=0.999  reach=2.447 H  |grad|@iface 1.976->1.000  |grad|(s=1) 0.003->1.000  max|dphi|/H=2.495  Saini dtau: max|phi-phi_fine|=5.66e-03
+N=8 H=1/10 eps=0.25 sgn(phi0) max=0.100  |w|(s=1)=0.161  reach=0.146 H  |grad|@iface 1.976->1.472  |grad|(s=1) 0.003->0.043  max|dphi|/H=0.322  Saini dtau: max|phi-phi_fine|=9.01e-04
+N=8 H=1/20 eps=H/N  sgn(phi0) max=0.999  |w|(s=1)=0.999  reach=2.487 H  |grad|@iface 3.952->1.000  |grad|(s=1) 0.005->1.000  max|dphi|/H=2.500  Saini dtau: max|phi-phi_fine|=2.95e-03
+N=8 H=1/20 eps=0.25 sgn(phi0) max=0.100  |w|(s=1)=0.126  reach=0.128 H  |grad|@iface 3.952->2.468  |grad|(s=1) 0.005->0.037  max|dphi|/H=0.283  Saini dtau: max|phi-phi_fine|=3.54e-04
+N=8 H=1/40 eps=H/N  sgn(phi0) max=1.000  |w|(s=1)=0.999  reach=2.495 H  |grad|@iface 7.903->1.000  |grad|(s=1) 0.011->1.001  max|dphi|/H=2.500  Saini dtau: max|phi-phi_fine|=3.04e-03
+N=8 H=1/40 eps=0.25 sgn(phi0) max=0.100  |w|(s=1)=0.112  reach=0.120 H  |grad|@iface 7.903->4.509  |grad|(s=1) 0.011->0.045  max|dphi|/H=0.435  Saini dtau: max|phi-phi_fine|=2.30e-04
+N=8 H=1/80 eps=H/N  sgn(phi0) max=1.000  |w|(s=1)=0.999  reach=2.495 H  |grad|@iface 15.806->1.000  |grad|(s=1) 0.022->1.001  max|dphi|/H=3.357  Saini dtau: max|phi-phi_fine|=3.59e-03
+N=8 H=1/80 eps=0.25 sgn(phi0) max=0.100  |w|(s=1)=0.105  reach=0.116 H  |grad|@iface 15.806->8.612  |grad|(s=1) 0.022->0.068  max|dphi|/H=0.944  Saini dtau: max|phi-phi_fine|=2.45e-04
