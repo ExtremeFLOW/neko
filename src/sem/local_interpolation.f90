@@ -179,7 +179,7 @@ contains
 
     call this%free()
     if ((Xh%t .ne. GL) .and. (Xh%t .ne. GLL)) then
-         call neko_error('Unsupported interpolation')
+       call neko_error('Unsupported interpolation')
     end if
     this%Xh => Xh
     this%n_points = n_points
