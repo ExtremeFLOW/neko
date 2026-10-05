@@ -1011,7 +1011,7 @@ contains
          n, MPI_REAL_PRECISION, status, ierr)
     if (this%mesh2mesh) then
        x = 0.0_rp
-       call this%global_interp%evaluate_array(x, read_array)
+       call this%global_interp%evaluate_host(x, read_array)
 
     else if (this%sim_Xh%lx .ne. this%chkp_Xh%lx) then
        call this%space_interp%map_host(x, read_array, nel, this%sim_Xh)

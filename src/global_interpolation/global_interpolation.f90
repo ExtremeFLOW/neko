@@ -205,6 +205,8 @@ module global_interpolation
           global_interpolation_evaluate_vector_vector
      generic :: evaluate => evaluate_array, evaluate_vector_field, &
           evaluate_vector_vector
+     procedure, pass(this) :: evaluate_host => &
+          global_interpolation_evaluate_host
      procedure, pass(this) :: evaluate_masked => &
           global_interpolation_evaluate_masked
      procedure, pass(this) :: init_redist_comm => &
@@ -1342,6 +1344,25 @@ contains
     end if
 
   end subroutine global_interpolation_evaluate
+
+  !> Evaluate the field on the host, regardless of the configured backend.
+  subroutine global_interpolation_evaluate_host(this, interp_values, field)
+    class(global_interpolation_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: interp_values(this%n_points)
+    real(kind=rp), intent(inout) :: field(this%nelv*this%Xh%lxyz)
+
+    if (.not. this%all_points_local) then
+       call this%local_interp%evaluate_host(this%temp_local%x, &
+            this%el_owner0_local, field, this%nelv)
+       interp_values = 0.0_rp
+       call this%glb_intrp_comm%sendrecv(this%temp_local%x, interp_values, &
+            this%n_points_local, this%n_points)
+    else
+       call this%local_interp%evaluate_host(interp_values, &
+            this%el_owner0_local, field, this%nelv)
+    end if
+
+  end subroutine global_interpolation_evaluate_host
 
   subroutine global_interpolation_evaluate_vector_field(this, interp_values, &
        field)
