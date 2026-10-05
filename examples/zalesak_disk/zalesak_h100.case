@@ -53,10 +53,6 @@
             "gamma": 1.0,
             "epsilon": 0.0056,
             "normal": "psi",
-            "svv_phi": {
-                "c0": 0.0,
-                "nsvv_ratio": 2.0
-            },
             "svv_psi": {
                 "c0": 1.0,
                 "nsvv_ratio": 2.0
@@ -67,7 +63,6 @@
                 "r_f": 0.1,
                 "band": 2.5,
                 "cfl": 0.1,
-                "trigger": "grad",
                 "svv": {
                     "c0": 2.0,
                     "nsvv_ratio": 4.0,
