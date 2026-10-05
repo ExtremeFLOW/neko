@@ -1379,7 +1379,7 @@ contains
     tmp = 0.0_xp
     !$omp parallel do reduction(+:tmp)
     do i = 1, n
-       tmp = tmp + (a(i) - b(i))**2
+       tmp = tmp + (real(a(i), xp) - real(b(i), xp))**2
     end do
     !$omp end parallel do
 
