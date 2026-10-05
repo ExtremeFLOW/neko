@@ -14,11 +14,13 @@ redistance_circles). svv="const" sets D_mu = 1, which is sem1d.run().
 The 1D SEM pieces come from the forensic replica (sem1d.py), not a copy.
 """
 import sys, os, numpy as np, scipy.sparse as sp, scipy.sparse.linalg as spla
-sys.path.insert(0, "/lscratch/sieburgh/code/neko-multiphase/examples/"
-                   "saini_benchmarks/redistance_eq44")
-from sem1d import SEM1D, svv_matrix, run as sem1d_run
-
 HERE = os.path.dirname(os.path.abspath(__file__))
+# sem1d.py lives in the sibling repo neko-multiphase, next to this checkout
+# (repo root is three levels up); NEKO_MULTIPHASE overrides its location.
+_NM = os.environ.get("NEKO_MULTIPHASE",
+                     os.path.join(HERE, "..", "..", "..", "..", "neko-multiphase"))
+sys.path.insert(0, os.path.join(_NM, "examples", "saini_benchmarks", "redistance_eq44"))
+from sem1d import SEM1D, svv_matrix, run as sem1d_run
 
 
 def solve(sem, psi0, eps, dtau, tau_end, svv="dmu", c0=2.0, ratio=6.0,

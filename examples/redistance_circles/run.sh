@@ -1,5 +1,5 @@
 #!/bin/bash
-# Usage: ./run.sh [case ...]   (no argument runs the six committed cells)
+# Usage: ./run.sh [case ...]   (no argument runs the four committed cells)
 #
 # Saini et al. (2026) section 4.4 -- standalone re-distancing around two
 # intersecting circles. Each cell is one Eq. (44) relaxation to tau = 6; there

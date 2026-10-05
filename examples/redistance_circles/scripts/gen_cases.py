@@ -2,11 +2,12 @@
 
 Usage: gen_cases.py <outdir> <eps-rule> <Hden>:<N>[:<ratio>] ...
 
-<eps-rule> is mandatory and has no default. Saini's own value is Eq. (36),
-eps = xi*H with xi = 1/N, i.e. `HN:1` -- what the committed cells carry and the
-configuration under test (CDI_METHOD.md section 4.4). Forms:
+<eps-rule> is mandatory and has no default. It is the width of the sign function,
+Eq. (46). `0.25` (absolute) is what the committed cells carry: the authors' value,
+from their code (`signls`; README.md section 2). `HN:1` is the reading of the
+paper's Eq. (36), eps = xi*H with their xi = 1/N. Forms:
 
-    HN:1         C * H/N        (Saini's Eq. 36 at C = 1)
+    HN:1         C * H/N        (the paper's Eq. 36 at C = 1)
     H:4.0        C * H
     hmax:8.9     C * h_GLL,max  = C * HMAX[N] * H
     0.4          absolute length
