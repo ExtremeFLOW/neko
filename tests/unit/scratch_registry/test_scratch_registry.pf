@@ -521,6 +521,7 @@ contains
     integer :: ierr, index
     integer :: i, thread_id, num_threads, n_inuse
 
+    n_inuse = 0
     thread_id = 0
     num_threads = 1
     call scratch%init(1, 1)
@@ -558,6 +559,7 @@ contains
     integer :: ierr, index
     integer :: i, thread_id, num_threads, n_inuse
 
+    n_inuse = 0
     thread_id = 0
     num_threads = 1
     call scratch%init(1, 1)
