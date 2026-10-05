@@ -166,6 +166,8 @@ module idw_source_term
      !> Lumped marker weights D of the adjoint spread, + and - side
      real(kind=rp), allocatable :: dp_mark(:)
      real(kind=rp), allocatable :: dm_mark(:)
+     !> Gain factor on the lumped weights of the adjoint spread
+     real(kind=rp) :: spread_gain = 1.0_rp
      !> Scaled marker values -D u_m / dt handed to the transpose
      real(kind=rp), allocatable :: vals_adj(:)
      type(c_ptr) :: dp_mark_d = C_NULL_PTR
@@ -298,6 +300,11 @@ contains
             // trim(spread_scheme))
     end select
     call neko_log%message('Spread     : '// trim(spread_scheme))
+    if (this%adjoint_spread) then
+       call json_get_or_default(json, "spread_gain", this%spread_gain, 1.0_rp)
+       write(log_buf, '(A,f5.2)') 'Spread gain: ', this%spread_gain
+       call neko_log%message(log_buf)
+    end if
 
     call json_get_or_default(json, "interpolation_rmax", this%interp_rmax, &
          2.0_rp)
@@ -835,18 +842,28 @@ contains
 
   !> Lumped marker weights of the adjoint spectral spread. With
   !! G = I Binv I^T the marker Gram matrix of one side (I the masked
-  !! interpolation), D = 1 / (G 1) makes the gain interp o spread exactly
-  !! one on a constant marker velocity: the discrete counterpart of the
-  !! marker volume of the classical direct forcing. Markers held by more
-  !! than one rank are deposited once per holder; the row sum sees the
-  !! duplicates too, so the lumping absorbs them exactly. Markers whose row
-  !! sum is not positive (no unmasked node reaches them, or the negative
-  !! lobes of the neighbours cancel them) get zero weight.
+  !! interpolation), the weights are D = gain / (|G| 1): by Gershgorin
+  !! every eigenvalue of the gain operator interp o spread = G D then lies
+  !! in [0, gain], whatever the marker density. Lumping by the signed row
+  !! sums (D = 1/(G 1)) would give gain exactly one on a constant marker
+  !! velocity, but G is the Christoffel-Darboux kernel of the polynomial
+  !! space and oscillates: markers one node spacing apart couple with
+  !! near-zero or negative weight, the signed row sum under-counts the
+  !! diagonal and the oscillatory marker modes get gains of 2-4 and more
+  !! (measured 1.4-4.2 on a flat sheet in one degree-7 element), past the
+  !! stability limit of the time integration. The price of the absolute
+  !! lumping is a constant-mode gain below one, reported in the log; the
+  !! `spread_gain` factor scales it back up as long as it stays under the
+  !! limit of the scheme.
+  !! Markers held by more than one rank are deposited once per holder; the
+  !! row sum sees the duplicates too, so the lumping absorbs them exactly.
+  !! Markers whose absolute row sum is zero (no unmasked node reaches them)
+  !! get zero weight.
   subroutine idw_adjoint_spread_weights(this)
     class(idw_source_term_t), intent(inout) :: this
     real(kind=rp), allocatable :: ones(:), rowsum(:)
     character(len=LOG_SIZE) :: log_buf
-    integer :: n_lag, n_zero
+    integer :: n_lag
 
     n_lag = size(this%lag_pts)
     allocate(this%dp_mark(n_lag), this%dm_mark(n_lag))
@@ -856,20 +873,13 @@ contains
     this%dm_mark = 0.0_rp
 
     if (this%one_sided) then
-       call idw_adjoint_lump(this, ones, rowsum, this%dp_mark, n_zero, &
-            this%pmsk)
-       write(log_buf, '(A,I6)') 'Adj. spread + side: zero-weight markers ', &
-            n_zero
-       call neko_log%message(log_buf)
-       call idw_adjoint_lump(this, ones, rowsum, this%dm_mark, n_zero, &
-            this%mmsk)
-       write(log_buf, '(A,I6)') 'Adj. spread - side: zero-weight markers ', &
-            n_zero
-       call neko_log%message(log_buf)
+       call idw_adjoint_lump(this, ones, rowsum, this%dp_mark, &
+            'Adj. spread + side', this%pmsk)
+       call idw_adjoint_lump(this, ones, rowsum, this%dm_mark, &
+            'Adj. spread - side', this%mmsk)
     else
-       call idw_adjoint_lump(this, ones, rowsum, this%dp_mark, n_zero)
-       write(log_buf, '(A,I6)') 'Adj. spread: zero-weight markers ', n_zero
-       call neko_log%message(log_buf)
+       call idw_adjoint_lump(this, ones, rowsum, this%dp_mark, &
+            'Adj. spread')
     end if
 
     deallocate(ones, rowsum)
@@ -894,22 +904,93 @@ contains
 
   end subroutine idw_adjoint_spread_weights
 
-  !> Row sums of the marker Gram matrix of one side,
-  !! `rowsum = I(msk S(ones))`, and the lumped weights `d = 1 / rowsum`
-  !! where the row sum is positive (relative to the largest one over all
-  !! ranks), zero elsewhere. `n_zero` counts the zero weights over all
-  !! ranks.
-  subroutine idw_adjoint_lump(this, ones, rowsum, d, n_zero, msk)
+  !> Lumped weights of one side, `d = gain / (|G| 1)`. The absolute row
+  !! sums are bounded from above by applying the interpolation and its
+  !! transpose with the absolute values of the Lagrange weights,
+  !! `|I| msk Binv gs_add(|I|^T 1)`, which needs no assembled G; the signed
+  !! row sums `I msk Binv gs_add(I^T 1)` give the resulting gain on a
+  !! constant marker velocity, `gain * (G 1) / (|G| 1)`, logged as min and
+  !! mean over all markers together with the zero-weight count.
+  subroutine idw_adjoint_lump(this, ones, rowsum, d, label, msk)
     class(idw_source_term_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: ones(:), rowsum(:), d(:)
-    integer, intent(out) :: n_zero
+    character(len=*), intent(in) :: label
     type(field_t), intent(in), optional :: msk
-    real(kind=rp) :: rmax
-    integer :: i, n_lag
+    real(kind=rp), allocatable :: wr(:,:), ws(:,:), wt(:,:), rowabs(:)
+    character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: rmax, gmin, gsum
+    integer :: i, n_lag, n_zero, n_glb
 
     n_lag = size(d)
+    allocate(rowabs(n_lag))
 
-    ! S 1 into the scratch forcing field, then the masked interpolation
+    ! |G| 1: the same operators with the Lagrange weights replaced by
+    ! their absolute values. The lumping runs on the host at start-up, so
+    ! only the host weight arrays are swapped and the device copies stay
+    associate (li => this%global_interp%local_interp)
+      wr = li%weights_r
+      ws = li%weights_s
+      wt = li%weights_t
+      li%weights_r = abs(wr)
+      li%weights_s = abs(ws)
+      li%weights_t = abs(wt)
+      call idw_adjoint_rowsum(this, ones, rowabs, msk)
+      li%weights_r = wr
+      li%weights_s = ws
+      li%weights_t = wt
+    end associate
+    deallocate(wr, ws, wt)
+
+    ! G 1: the signed row sums, for the constant-mode gain
+    call idw_adjoint_rowsum(this, ones, rowsum, msk)
+
+    rmax = 0.0_rp
+    do i = 1, n_lag
+       rmax = max(rmax, rowabs(i))
+    end do
+    call MPI_Allreduce(MPI_IN_PLACE, rmax, 1, MPI_REAL_PRECISION, MPI_MAX, &
+         NEKO_COMM)
+
+    n_zero = 0
+    gmin = huge(0.0_rp)
+    gsum = 0.0_rp
+    do i = 1, n_lag
+       if (rowabs(i) .gt. 1.0e-6_rp * rmax) then
+          d(i) = this%spread_gain / rowabs(i)
+          gmin = min(gmin, rowsum(i) * d(i))
+          gsum = gsum + rowsum(i) * d(i)
+       else
+          d(i) = 0.0_rp
+          n_zero = n_zero + 1
+       end if
+    end do
+    n_glb = n_lag - n_zero
+    call MPI_Allreduce(MPI_IN_PLACE, n_zero, 1, MPI_INTEGER, MPI_SUM, &
+         NEKO_COMM)
+    call MPI_Allreduce(MPI_IN_PLACE, n_glb, 1, MPI_INTEGER, MPI_SUM, &
+         NEKO_COMM)
+    call MPI_Allreduce(MPI_IN_PLACE, gmin, 1, MPI_REAL_PRECISION, MPI_MIN, &
+         NEKO_COMM)
+    call MPI_Allreduce(MPI_IN_PLACE, gsum, 1, MPI_REAL_PRECISION, MPI_SUM, &
+         NEKO_COMM)
+
+    write(log_buf, '(A,A,F6.3,A,F6.3)') trim(label), &
+         ': const. gain min ', gmin, ', mean ', gsum / max(n_glb, 1)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,A,I6)') trim(label), ': zero-weight markers ', n_zero
+    call neko_log%message(log_buf)
+
+    deallocate(rowabs)
+
+  end subroutine idw_adjoint_lump
+
+  !> Row sums of one side's marker Gram matrix with the current weights:
+  !! `rowsum = I(msk S(ones))`, S applied through the scratch forcing field.
+  subroutine idw_adjoint_rowsum(this, ones, rowsum, msk)
+    class(idw_source_term_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: ones(:), rowsum(:)
+    type(field_t), intent(in), optional :: msk
+
     this%ib_fx%x = 0.0_rp
     call idw_adjoint_apply(this, ones, this%ib_fx, .true., msk)
     rowsum = 0.0_rp
@@ -921,26 +1002,7 @@ contains
     end if
     this%ib_fx%x = 0.0_rp
 
-    rmax = 0.0_rp
-    do i = 1, n_lag
-       rmax = max(rmax, rowsum(i))
-    end do
-    call MPI_Allreduce(MPI_IN_PLACE, rmax, 1, MPI_REAL_PRECISION, MPI_MAX, &
-         NEKO_COMM)
-
-    n_zero = 0
-    do i = 1, n_lag
-       if (rowsum(i) .gt. 1.0e-6_rp * rmax) then
-          d(i) = 1.0_rp / rowsum(i)
-       else
-          d(i) = 0.0_rp
-          n_zero = n_zero + 1
-       end if
-    end do
-    call MPI_Allreduce(MPI_IN_PLACE, n_zero, 1, MPI_INTEGER, MPI_SUM, &
-         NEKO_COMM)
-
-  end subroutine idw_adjoint_lump
+  end subroutine idw_adjoint_rowsum
 
   !> Adjoint spectral spread of the direct forcing: per side and
   !! component, `ib += -(1/dt) msk Binv gs_add(I^T (D u_m))` with the
