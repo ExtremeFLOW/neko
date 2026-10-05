@@ -34,6 +34,7 @@
 !! rst coordinates in elements local to this process.
 module local_interpolation
   use tensor, only : triple_tensor_product, tnsr3d_el_list, tnsr3d
+  use tensor_device, only : tnsr3d_el_list_device
   use space, only : space_t, GL, GLL
   use num_types, only : rp, xp
   use point, only : point_t
@@ -42,8 +43,8 @@ module local_interpolation
   use utils, only : neko_error
   use field, only : field_t
   use field_list, only : field_list_t
-  use device, only : device_alloc, device_free, device_map, device_memcpy, &
-       HOST_TO_DEVICE, DEVICE_TO_HOST, device_unmap
+  use device, only : device_alloc, device_free, device_get_ptr, &
+       device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use device_local_interpolation, only : device_compute_weights, &
        device_compute_weights_3arrays
   use math, only : matinv3, matinv39
@@ -178,16 +179,31 @@ contains
     end if
     this%Xh => Xh
     this%n_points = n_points
-    allocate(this%weights_r(Xh%lx, n_points))
-    allocate(this%weights_s(Xh%ly, n_points))
-    allocate(this%weights_t(Xh%lz, n_points))
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       size_weights = Xh%lx*n_points
-       call device_map(this%weights_r, this%weights_r_d, size_weights)
-       call device_map(this%weights_s, this%weights_s_d, size_weights)
-       call device_map(this%weights_t, this%weights_t_d, size_weights)
+       if (n_points .gt. 0) then
+          size_weights = Xh%lx*n_points
+          call device_alloc(this%weights_r_d, &
+               int(size_weights, c_size_t)*c_sizeof(0.0_rp))
+          call device_alloc(this%weights_s_d, &
+               int(size_weights, c_size_t)*c_sizeof(0.0_rp))
+          call device_alloc(this%weights_t_d, &
+               int(size_weights, c_size_t)*c_sizeof(0.0_rp))
+       end if
+    else
+       call local_interpolator_allocate_host_weights(this)
     end if
   end subroutine local_interpolator_allocate_weights
+
+  subroutine local_interpolator_allocate_host_weights(this)
+    class(local_interpolator_t), intent(inout) :: this
+
+    if (.not. allocated(this%weights_r)) &
+         allocate(this%weights_r(this%Xh%lx, this%n_points))
+    if (.not. allocated(this%weights_s)) &
+         allocate(this%weights_s(this%Xh%ly, this%n_points))
+    if (.not. allocated(this%weights_t)) &
+         allocate(this%weights_t(this%Xh%lz, this%n_points))
+  end subroutine local_interpolator_allocate_host_weights
 
 
   !> Free pointers
@@ -196,24 +212,12 @@ contains
 
     if (associated(this%Xh)) this%Xh => null()
 
-    if (allocated(this%weights_r)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%weights_r, this%weights_r_d)
-       end if
-       deallocate(this%weights_r)
-    end if
-    if (allocated(this%weights_s)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%weights_s, this%weights_s_d)
-       end if
-       deallocate(this%weights_s)
-    end if
-    if (allocated(this%weights_t)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%weights_t, this%weights_t_d)
-       end if
-       deallocate(this%weights_t)
-    end if
+    if (c_associated(this%weights_r_d)) call device_free(this%weights_r_d)
+    if (c_associated(this%weights_s_d)) call device_free(this%weights_s_d)
+    if (c_associated(this%weights_t_d)) call device_free(this%weights_t_d)
+    if (allocated(this%weights_r)) deallocate(this%weights_r)
+    if (allocated(this%weights_s)) deallocate(this%weights_s)
+    if (allocated(this%weights_t)) deallocate(this%weights_t)
   end subroutine local_interpolator_free
 
   !> Computes interpolation weights \f$ w_r, w_s, w_t \f$ for a
@@ -233,6 +237,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1 .and. this%Xh%lx .le. 16) then
        call local_interpolator_compute_weights_3arrays_device(this, r, s, t)
     else
+       call local_interpolator_allocate_host_weights(this)
        call local_interpolator_compute_weights_cpu(this, r, s, t)
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(this%weights_r, this%weights_r_d, &
@@ -272,7 +277,6 @@ contains
     call device_compute_weights_3arrays(r_d, s_d, t_d, this%Xh%zg_d, &
          this%weights_r_d, this%weights_s_d, this%weights_t_d, &
          this%Xh%lx, n)
-    call local_interpolator_copy_weights_to_host(this, n)
     call device_free(r_d)
     call device_free(s_d)
     call device_free(t_d)
@@ -291,7 +295,6 @@ contains
     call device_compute_weights(rst_d, this%Xh%zg_d, &
          this%weights_r_d, this%weights_s_d, this%weights_t_d, &
          this%Xh%lx, n)
-    call local_interpolator_copy_weights_to_host(this, n)
   end subroutine local_interpolator_compute_weights_device
 
   subroutine local_interpolator_copy_weights_to_host(this, n)
@@ -299,6 +302,8 @@ contains
     integer, intent(in) :: n
     integer :: size_weights
 
+    if (n .eq. 0) return
+    call local_interpolator_allocate_host_weights(this)
     size_weights = this%Xh%lx*n
     call device_memcpy(this%weights_r, this%weights_r_d, &
          size_weights, DEVICE_TO_HOST, sync = .false.)
@@ -351,15 +356,28 @@ contains
   subroutine local_interpolator_evaluate(this, interp_values, el_list, field, &
        nel, on_host)
     class(local_interpolator_t), intent(inout) :: this
-    integer, intent(in) :: el_list(this%n_points)
+    integer, intent(in), target :: el_list(this%n_points)
     integer, intent(in) :: nel
-    real(kind=rp), intent(inout) :: interp_values(this%n_points)
-    real(kind=rp), intent(inout) :: field(this%Xh%lxyz, nel)
+    real(kind=rp), intent(inout), target :: interp_values(this%n_points)
+    real(kind=rp), intent(inout), target :: field(this%Xh%lxyz, nel)
     logical, intent(in) :: on_host
+    type(c_ptr) :: interp_d, field_d, el_list_d
 
-    call tnsr3d_el_list(interp_values, 1, field, this%Xh%lx, &
-         this%weights_r, this%weights_s, this%weights_t, el_list, &
-         this%n_points, on_host)
+    if (this%n_points .eq. 0) return
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
+       interp_d = device_get_ptr(interp_values)
+       field_d = device_get_ptr(field)
+       el_list_d = device_get_ptr(el_list)
+       call tnsr3d_el_list_device(interp_d, 1, field_d, this%Xh%lx, &
+            this%weights_r_d, this%weights_s_d, this%weights_t_d, &
+            el_list_d, this%n_points)
+    else
+       if (NEKO_BCKND_DEVICE .eq. 1) &
+            call local_interpolator_copy_weights_to_host(this, this%n_points)
+       call tnsr3d_el_list(interp_values, 1, field, this%Xh%lx, &
+            this%weights_r, this%weights_s, this%weights_t, el_list, &
+            this%n_points, on_host)
+    end if
 
   end subroutine local_interpolator_evaluate
 
