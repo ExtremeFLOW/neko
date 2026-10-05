@@ -62,8 +62,11 @@ module idw_source_term
   use PDE_filter, only : PDE_filter_t
   use filter, only : filter_t
   use device_math, only : device_col2, device_glsc2
-  use device, only : device_free, device_map, device_memcpy, device_sync, &
-       HOST_TO_DEVICE, DEVICE_TO_HOST
+  use device_mathops, only : device_opcolv
+  use mathops, only : opcolv
+  use profiler, only : profiler_start_region, profiler_end_region
+  use device, only : device_free, device_map, device_memcpy, &
+       device_event_sync, glb_cmd_event, HOST_TO_DEVICE, DEVICE_TO_HOST
   use device_idw_source_term, only : device_idw_gather, &
        device_idw_interp_partials
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -979,27 +982,26 @@ contains
        call this%global_interp%evaluate(this%fw_ib, w%x, .false.)
     end if
 
-    ! Stage the per-point values the gather kernel reads: the Shepard and
-    ! adjoint values are finalised on the host and uploaded, the barycentric
-    ! ones were evaluated into the device buffers (asynchronously for markers
-    ! owned by other ranks, hence the sync)
-    if (n_lag > 0) then
-       if (this%idw_interp) then
-          call device_memcpy(this%fu_ib, this%fu_ib_d, n_lag, &
-               HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(this%fv_ib, this%fv_ib_d, n_lag, &
-               HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(this%fw_ib, this%fw_ib_d, n_lag, &
-               HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(this%fum_ib, this%fum_ib_d, n_lag, &
-               HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(this%fvm_ib, this%fvm_ib_d, n_lag, &
-               HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(this%fwm_ib, this%fwm_ib_d, n_lag, &
-               HOST_TO_DEVICE, sync = .true.)
-       else
-          call device_sync()
-       end if
+    ! Stage the per-point values the gather kernel reads. The Shepard and
+    ! adjoint values are finalised on the host and uploaded; the barycentric
+    ! ones were evaluated straight into the device buffers. Both the uploads
+    ! and the evaluation sit on the command queue the gather kernel runs on,
+    ! so stream order is enough and no host synchronisation is needed here;
+    ! the host arrays are not touched again before the next step's
+    ! synchronous download of the partial sums.
+    if (n_lag > 0 .and. this%idw_interp) then
+       call device_memcpy(this%fu_ib, this%fu_ib_d, n_lag, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%fv_ib, this%fv_ib_d, n_lag, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%fw_ib, this%fw_ib_d, n_lag, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%fum_ib, this%fum_ib_d, n_lag, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%fvm_ib, this%fvm_ib_d, n_lag, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%fwm_ib, this%fwm_ib_d, n_lag, &
+            HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! one_sided uses the pmsk split with tol 1e-10; the unmasked path has
@@ -1171,6 +1173,7 @@ contains
       fv_ib = 0.0_rp
       fw_ib = 0.0_rp
 
+      call profiler_start_region('IDW interpolation and spread')
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call idw_compute_device(this, this%ib_fx, this%ib_fy, this%ib_fz, &
               u, v, w, time)
@@ -1221,23 +1224,26 @@ contains
       end if
 
     end associate
+    call profiler_end_region('IDW interpolation and spread')
 
-    ! Assemble the IB forcing to a continuous representation
+    ! Assemble the IB forcing to a continuous representation: the three
+    ! components scaled in one kernel and exchanged in one halo round
+    call profiler_start_region('IDW assembly')
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col2(this%ib_fx%x_d, this%coef%mult_d, n)
-       call device_col2(this%ib_fy%x_d, this%coef%mult_d, n)
-       call device_col2(this%ib_fz%x_d, this%coef%mult_d, n)
+       call device_opcolv(this%ib_fx%x_d, this%ib_fy%x_d, this%ib_fz%x_d, &
+            this%coef%mult_d, 3, n)
     else
-       call col2(this%ib_fx%x, this%coef%mult, n)
-       call col2(this%ib_fy%x, this%coef%mult, n)
-       call col2(this%ib_fz%x, this%coef%mult, n)
+       call opcolv(this%ib_fx%x, this%ib_fy%x, this%ib_fz%x, &
+            this%coef%mult, 3, n)
     end if
 
-    call this%gs%op(this%ib_fx, GS_OP_ADD)
-    call this%gs%op(this%ib_fy, GS_OP_ADD)
-    call this%gs%op(this%ib_fz, GS_OP_ADD)
+    call this%gs%op(this%ib_fx%x, this%ib_fy%x, this%ib_fz%x, n, &
+         GS_OP_ADD, glb_cmd_event)
+    call device_event_sync(glb_cmd_event)
+    call profiler_end_region('IDW assembly')
 
     if (allocated(this%fltr)) then
+       call profiler_start_region('IDW filter')
        call field_copy(this%tmp, this%ib_fx)
        call this%fltr%apply(this%ib_fx, this%tmp)
 
@@ -1246,13 +1252,18 @@ contains
 
        call field_copy(this%tmp, this%ib_fz)
        call this%fltr%apply(this%ib_fz, this%tmp)
+       call profiler_end_region('IDW filter')
     end if
 
     call field_add2(fu, this%ib_fx)
     call field_add2(fv, this%ib_fy)
     call field_add2(fw, this%ib_fz)
 
-    if (this%force_output) call this%write_force(time)
+    if (this%force_output) then
+       call profiler_start_region('IDW force')
+       call this%write_force(time)
+       call profiler_end_region('IDW force')
+    end if
 
   end subroutine idw_source_term_compute
 
