@@ -39,7 +39,7 @@ module mean_field
   use registry, only : neko_registry
   use field, only : field_t
   use utils, only : NEKO_VARNAME_LEN
-  use field_math, only : field_cmult, field_add2s2
+  use field_math, only : field_cmult, field_add2s2, field_addcol3s2
   implicit none
   private
 
@@ -58,6 +58,12 @@ module mean_field
      procedure, pass(this) :: free => mean_field_free
      !> Updates the mean value with a new sample.
      procedure, pass(this) :: update => mean_field_update
+     !> Updates the mean value with a given field as the sample.
+     procedure, pass(this) :: update_field => mean_field_update_field
+     !> Updates the mean value with the product of two fields as the sample.
+     procedure, pass(this) :: update_col3 => mean_field_update_col3
+     !> Updates the mean value with the sum of three products as the sample.
+     procedure, pass(this) :: update_dot3 => mean_field_update_dot3
      !> Resets the mean field.
      procedure, pass(this) :: reset => mean_field_reset
   end type mean_field_t
@@ -119,12 +125,62 @@ contains
     class(mean_field_t), intent(inout) :: this
     real(kind=rp), intent(in) :: k
 
+    call this%update_field(k, this%f)
+
+  end subroutine mean_field_update
+
+  !> Update the mean field using @a f as the sample instead of the field
+  !! passed at initialization. Useful when the sample only exists temporarily,
+  !! e.g. in a scratch field.
+  !! @param k Time since last sample.
+  !! @param f The sample.
+  subroutine mean_field_update_field(this, k, f)
+    class(mean_field_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: k
+    type(field_t), intent(in) :: f
+
     call field_cmult(this%mf, this%time, size(this%mf%x))
-    call field_add2s2(this%mf, this%f, k, size(this%mf%x))
+    call field_add2s2(this%mf, f, k, size(this%mf%x))
     this%time = this%time + k
     call field_cmult(this%mf, 1.0_rp / this%time, size(this%mf%x))
 
-  end subroutine mean_field_update
+  end subroutine mean_field_update_field
+
+  !> Update the mean field using the pointwise product \f$ a b \f$ as the
+  !! sample, without the need for a work field holding the product.
+  !! @param k Time since last sample.
+  !! @param a First factor of the sample.
+  !! @param b Second factor of the sample.
+  subroutine mean_field_update_col3(this, k, a, b)
+    class(mean_field_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: k
+    type(field_t), intent(in) :: a, b
+
+    call field_cmult(this%mf, this%time, size(this%mf%x))
+    call field_addcol3s2(this%mf, a, b, k, size(this%mf%x))
+    this%time = this%time + k
+    call field_cmult(this%mf, 1.0_rp / this%time, size(this%mf%x))
+
+  end subroutine mean_field_update_col3
+
+  !> Update the mean field using \f$ a_1 b_1 + a_2 b_2 + a_3 b_3 \f$ as the
+  !! sample, without the need for a work field holding the sum.
+  !! @param k Time since last sample.
+  !! @param a1, a2, a3 First factors of the products.
+  !! @param b1, b2, b3 Second factors of the products.
+  subroutine mean_field_update_dot3(this, k, a1, a2, a3, b1, b2, b3)
+    class(mean_field_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: k
+    type(field_t), intent(in) :: a1, a2, a3, b1, b2, b3
+
+    call field_cmult(this%mf, this%time, size(this%mf%x))
+    call field_addcol3s2(this%mf, a1, b1, k, size(this%mf%x))
+    call field_addcol3s2(this%mf, a2, b2, k, size(this%mf%x))
+    call field_addcol3s2(this%mf, a3, b3, k, size(this%mf%x))
+    this%time = this%time + k
+    call field_cmult(this%mf, 1.0_rp / this%time, size(this%mf%x))
+
+  end subroutine mean_field_update_dot3
 
 end module mean_field
 

@@ -14,6 +14,7 @@ module test_mean_field_parallel
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use neko_config
+  use math, only : NEKO_EPS
   implicit none
 
   @TestCase
@@ -150,5 +151,78 @@ contains
 
   end subroutine test_mean_field_update
 
+  @test(npes=[1])
+  subroutine test_mean_field_update_col3(this)
+    class (test_mean_field), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    integer, parameter :: LX = 4
+    type(field_t) :: a, b
+    type(mean_field_t) :: mf
+    integer :: i
+
+    call test_mean_field_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call a%init(msh, Xh, 'test_col3_a')
+    call b%init(msh, Xh, 'test_col3_b')
+
+    call mf%init(a, "ab_mean")
+
+    ! Mean of i * 2 over i = 1..10 is 11.
+    b = 2.0_rp
+    do i = 1, 10
+       a = real(i, rp)
+       call mf%update_col3(1.0_rp, a, b)
+    end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(mf%mf%x, mf%mf%x_d, size(mf%mf%x), &
+            DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    @assertEqual(11.0_rp, maxval(mf%mf%x), tolerance=100*NEKO_EPS)
+    @assertEqual(11.0_rp, minval(mf%mf%x), tolerance=100*NEKO_EPS)
+    @assertEqual(10.0_rp, mf%time)
+
+  end subroutine test_mean_field_update_col3
+
+  @test(npes=[1])
+  subroutine test_mean_field_update_dot3(this)
+    class (test_mean_field), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    integer, parameter :: LX = 4
+    type(field_t) :: a1, a2, a3, b
+    type(mean_field_t) :: mf
+    integer :: i
+
+    call test_mean_field_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call a1%init(msh, Xh, 'test_dot3_a1')
+    call a2%init(msh, Xh, 'test_dot3_a2')
+    call a3%init(msh, Xh, 'test_dot3_a3')
+    call b%init(msh, Xh, 'test_dot3_b')
+
+    call mf%init(a1, "dot3_mean")
+
+    ! Sample is i*1 + 2*1 + 3*1 = i + 5, mean over i = 1..10 is 10.5.
+    a2 = 2.0_rp
+    a3 = 3.0_rp
+    b = 1.0_rp
+    do i = 1, 10
+       a1 = real(i, rp)
+       call mf%update_dot3(1.0_rp, a1, a2, a3, b, b, b)
+    end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(mf%mf%x, mf%mf%x_d, size(mf%mf%x), &
+            DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    @assertEqual(10.5_rp, maxval(mf%mf%x), tolerance=100*NEKO_EPS)
+    @assertEqual(10.5_rp, minval(mf%mf%x), tolerance=100*NEKO_EPS)
+    @assertEqual(10.0_rp, mf%time)
+
+  end subroutine test_mean_field_update_dot3
 
 end module test_mean_field_parallel

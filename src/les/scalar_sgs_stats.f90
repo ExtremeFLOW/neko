@@ -35,7 +35,7 @@
 module scalar_sgs_stats
   use mean_field, only : mean_field_t
   use num_types, only : rp
-  use field_math, only : field_cmult, field_col3, field_cmult2
+  use field_math, only : field_cmult2
   use operators, only : grad
   use coefs, only : coef_t
   use field, only : field_t
@@ -47,11 +47,10 @@ module scalar_sgs_stats
   private
 
   type, public, extends(stats_quant_t) :: scalar_sgs_stats_t
-     !> Work fields
-     type(field_t) :: stats_work
-
      !> Pointers to the instantenious quantities.
-     type(field_t), pointer :: alphat => null() !< scalar diffusivity
+     !> Scalar diffusivity. Not associated when it is computed from nut, in
+     !! which case it is only formed in a scratch field during update.
+     type(field_t), pointer :: alphat => null()
      type(field_t), pointer :: nut => null() !< scalar diffusivity
      logical :: nut_dependency = .false.
      real(kind=rp) :: pr_turb !< turbulent Prandtl number
@@ -62,11 +61,6 @@ module scalar_sgs_stats
      type(mean_field_t) :: alphatdsdx !< <alphat*dsdx>
      type(mean_field_t) :: alphatdsdy !< <alphat*dsdy>
      type(mean_field_t) :: alphatdsdz !< <alphat*dsdz>
-
-     !> gradients
-     type(field_t), pointer :: dsdx_work
-     type(field_t), pointer :: dsdy_work
-     type(field_t), pointer :: dsdz_work
 
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
@@ -108,15 +102,13 @@ contains
     this%alphat => neko_registry%get_field(alphat_field)
     this%nut_dependency = .false.
 
-    ! Initialize work fields
-    call this%stats_work%init(this%s%dof, 'stats')
-
-    ! Initialize mean fields
+    ! Initialize mean fields. The fluxes are means of products, updated with
+    ! update_col3. The field passed to init only provides the dofmap.
     call this%alphat_mean%init(this%alphat)
 
-    call this%alphatdsdx%init(this%stats_work, trim(s_name) // 'alphatdsdx')
-    call this%alphatdsdy%init(this%stats_work, trim(s_name) // 'alphatdsdy')
-    call this%alphatdsdz%init(this%stats_work, trim(s_name) // 'alphatdsdz')
+    call this%alphatdsdx%init(this%s, trim(s_name) // 'alphatdsdx')
+    call this%alphatdsdy%init(this%s, trim(s_name) // 'alphatdsdy')
+    call this%alphatdsdz%init(this%s, trim(s_name) // 'alphatdsdz')
 
     allocate(this%stat_fields%items(this%n_stats))
 
@@ -148,18 +140,15 @@ contains
     this%pr_turb = pr_turb
     this%nut_dependency = .true.
 
-    allocate(this%alphat)
-    call this%alphat%init(this%nut%dof, trim(s_name) // 'alphat_temp')
+    ! Initialize mean fields. alphat = nut / pr_turb only exists in a scratch
+    ! field during update, so all means are updated with explicitly passed
+    ! samples. The field passed to init only provides the dofmap.
+    call this%alphat_mean%init(this%nut, &
+         'mean_' // trim(s_name) // 'alphat_temp')
 
-    ! Initialize work fields
-    call this%stats_work%init(this%s%dof, 'stats')
-
-    ! Initialize mean fields
-    call this%alphat_mean%init(this%alphat)
-
-    call this%alphatdsdx%init(this%stats_work, trim(s_name) // 'alphatdsdx')
-    call this%alphatdsdy%init(this%stats_work, trim(s_name) // 'alphatdsdy')
-    call this%alphatdsdz%init(this%stats_work, trim(s_name) // 'alphatdsdz')
+    call this%alphatdsdx%init(this%s, trim(s_name) // 'alphatdsdx')
+    call this%alphatdsdy%init(this%s, trim(s_name) // 'alphatdsdy')
+    call this%alphatdsdz%init(this%s, trim(s_name) // 'alphatdsdz')
 
     allocate(this%stat_fields%items(this%n_stats))
 
@@ -175,39 +164,33 @@ contains
   subroutine scalar_sgs_stats_update(this, k)
     class(scalar_sgs_stats_t), intent(inout) :: this
     real(kind=rp), intent(in) :: k
-    integer :: n
-    integer :: temp_indices(3)
+    type(field_t), pointer :: alphat, dsdx, dsdy, dsdz
+    integer :: temp_indices(4)
 
-    associate(stats_work => this%stats_work)
-      n = stats_work%dof%size()
+    call neko_scratch_registry%request_field(dsdx, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(dsdy, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(dsdz, temp_indices(3), .false.)
 
-      call neko_scratch_registry%request_field(this%dsdx_work, &
-           temp_indices(1), .false.)
-      call neko_scratch_registry%request_field(this%dsdy_work, &
-           temp_indices(2), .false.)
-      call neko_scratch_registry%request_field(this%dsdz_work, &
-           temp_indices(3), .false.)
+    if (this%nut_dependency) then
+       call neko_scratch_registry%request_field(alphat, temp_indices(4), &
+            .false.)
+       call field_cmult2(alphat, this%nut, 1.0_rp / this%pr_turb)
+    else
+       alphat => this%alphat
+    end if
+    call this%alphat_mean%update_field(k, alphat)
 
-      if (this%nut_dependency) then
-         call field_cmult2(this%alphat, this%nut, 1.0_rp / this%pr_turb)
-      end if
-      call this%alphat_mean%update(k)
+    call grad(dsdx%x, dsdy%x, dsdz%x, this%s%x, this%coef)
 
-      call grad(this%dsdx_work%x, &
-           this%dsdy_work%x, &
-           this%dsdz_work%x, &
-           this%s%x, this%coef)
+    call this%alphatdsdx%update_col3(k, alphat, dsdx)
+    call this%alphatdsdy%update_col3(k, alphat, dsdy)
+    call this%alphatdsdz%update_col3(k, alphat, dsdz)
 
-      call field_col3(stats_work, this%alphat, this%dsdx_work)
-      call this%alphatdsdx%update(k)
-      call field_col3(stats_work, this%alphat, this%dsdy_work)
-      call this%alphatdsdy%update(k)
-      call field_col3(stats_work, this%alphat, this%dsdz_work)
-      call this%alphatdsdz%update(k)
-
-    end associate
-
-    call neko_scratch_registry%relinquish_field(temp_indices)
+    if (this%nut_dependency) then
+       call neko_scratch_registry%relinquish_field(temp_indices)
+    else
+       call neko_scratch_registry%relinquish_field(temp_indices(1:3))
+    end if
   end subroutine scalar_sgs_stats_update
 
 
@@ -215,22 +198,16 @@ contains
   subroutine scalar_sgs_stats_free(this)
     class(scalar_sgs_stats_t), intent(inout) :: this
 
-    call this%stats_work%free()
-
     call this%alphat_mean%free()
 
     call this%alphatdsdx%free()
     call this%alphatdsdy%free()
     call this%alphatdsdz%free()
 
-    if (this%nut_dependency .and. associated(this%alphat)) then
-       call this%alphat%free()
-       deallocate(this%alphat)
-    end if
-
     nullify(this%coef)
     nullify(this%s)
     nullify(this%alphat)
+    nullify(this%nut)
 
     call this%stat_fields%free()
 

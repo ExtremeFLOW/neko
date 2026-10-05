@@ -35,7 +35,7 @@
 module fluid_sgs_stats
   use mean_field, only : mean_field_t
   use num_types, only : rp
-  use field_math, only : field_cmult, field_col3
+  use field_math, only : field_cmult
   use operators, only : strain_rate
   use coefs, only : coef_t
   use field, only : field_t
@@ -47,9 +47,6 @@ module fluid_sgs_stats
   private
 
   type, public, extends(stats_quant_t) :: fluid_sgs_stats_t
-     !> Work fields
-     type(field_t) :: stats_work
-
      !> Pointers to the instantaneous quantities.
      type(field_t), pointer :: nut !< nut
      type(field_t), pointer :: u !< u
@@ -114,18 +111,16 @@ contains
     end if
 
 
-    ! Initialize work fields
-    call this%stats_work%init(this%u%dof, 'stats')
-
-    ! Initialize mean fields
+    ! Initialize mean fields. The SGS stresses are means of products, updated
+    ! with update_col3. The field passed to init only provides the dofmap.
     call this%nut_mean%init(this%nut)
 
-    call this%uu_sgs%init(this%stats_work, 'uu_sgs')
-    call this%vv_sgs%init(this%stats_work, 'vv_sgs')
-    call this%ww_sgs%init(this%stats_work, 'ww_sgs')
-    call this%uv_sgs%init(this%stats_work, 'uv_sgs')
-    call this%uw_sgs%init(this%stats_work, 'uw_sgs')
-    call this%vw_sgs%init(this%stats_work, 'vw_sgs')
+    call this%uu_sgs%init(this%nut, 'uu_sgs')
+    call this%vv_sgs%init(this%nut, 'vv_sgs')
+    call this%ww_sgs%init(this%nut, 'ww_sgs')
+    call this%uv_sgs%init(this%nut, 'uv_sgs')
+    call this%uw_sgs%init(this%nut, 'uw_sgs')
+    call this%vw_sgs%init(this%nut, 'vw_sgs')
 
     allocate(this%stat_fields%items(this%n_stats))
 
@@ -169,21 +164,12 @@ contains
     call field_cmult(s13, 2.0_rp)
     call field_cmult(s23, 2.0_rp)
 
-    associate(stats_work => this%stats_work)
-      call field_col3(stats_work, this%nut, s11)
-      call this%uu_sgs%update(k)
-      call field_col3(stats_work, this%nut, s22)
-      call this%vv_sgs%update(k)
-      call field_col3(stats_work, this%nut, s33)
-      call this%ww_sgs%update(k)
-      call field_col3(stats_work, this%nut, s12)
-      call this%uv_sgs%update(k)
-      call field_col3(stats_work, this%nut, s13)
-      call this%uw_sgs%update(k)
-      call field_col3(stats_work, this%nut, s23)
-      call this%vw_sgs%update(k)
-
-    end associate
+    call this%uu_sgs%update_col3(k, this%nut, s11)
+    call this%vv_sgs%update_col3(k, this%nut, s22)
+    call this%ww_sgs%update_col3(k, this%nut, s33)
+    call this%uv_sgs%update_col3(k, this%nut, s12)
+    call this%uw_sgs%update_col3(k, this%nut, s13)
+    call this%vw_sgs%update_col3(k, this%nut, s23)
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine fluid_sgs_stats_update
@@ -192,8 +178,6 @@ contains
   !> Destructor.
   subroutine fluid_sgs_stats_free(this)
     class(fluid_sgs_stats_t), intent(inout) :: this
-
-    call this%stats_work%free()
 
     call this%nut_mean%free()
 
