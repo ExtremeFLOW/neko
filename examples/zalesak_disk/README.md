@@ -4,13 +4,13 @@ The classic slotted-disk solid-body-rotation benchmark — ten full rotations �
 run with Neko's CDI compression term and the $\psi$-normal. It is this repo's
 most developed 2D case and the one carrying a deliberate ablation.
 
-**Status: validated.** Every upstream number reproduces.
+**Status: validated (primary, SVV, resolution and $(\xi,\gamma)$ studies).**
 
 **On $\xi=2.8$, $\text{svv}_\psi=1.0$ — "the reference configuration".** That
 pairing appears throughout this README as a fixed point to measure against,
 because it is *the configuration this case reproduces* — the first run anywhere
-to complete ten rotations. It is **not** a recommendation, and this repo does not
-have a settled recommended configuration: the investigation is still open.
+to complete ten rotations. It is **not** a recommendation; for that see the root
+README's [Recommended settings](../../README.md#recommended-settings).
 Nothing measured makes $\xi=2.8$ preferable. Over ten rotations $\xi=1.5$
 matches it on $E_r$ (0.02205 vs 0.02204) and on exact boundedness, costs the
 same, and gives a visibly sharper interface ($\phi$ reaching 1.000 rather than
@@ -38,9 +38,8 @@ Every number below is measured in this repo; the section named has the detail.
 | interface thickness | $\xi=2.8$ spans **2.36 elements** — too thick, 2.1× worse $E_r$ for nothing | [too thick](#the-interface-here-has-been-too-thick-and-the-map-says-so) |
 | adding redistancing | hurts badly. Done *coherently* (Saini Alg. 1, arm C, $\xi=1$) with the event's history restart: $N=3$ and 7 diverge, and $N=5$ completes 17× worse than without events, because $\phi$'s contour fragments and every reseed sustains the fragments (`CDI_METHOD.md` §4.1c) | [ablation](#the-redistancing-ablation) |
 
-**There is no recommended configuration yet.** $\xi=2.8,\ \gamma=1$ is the
-reproduction target and the common comparison point, nothing more; the
-investigation is open.
+The $\phi$-normal runs predate the `grad_floor` fix (`CDI_METHOD.md` §4.1) and
+were not re-run; read them for direction only.
 
 ## Configuration
 
@@ -54,10 +53,11 @@ the mass drift to stdout. It is how boundedness is measured over a *whole* run
 rather than at the frames — see the $(\xi,\gamma)$ map above for what that
 distinction turned out to be worth.
 
-`zalesak.case` and `zalesak_phi_normal.case` write every $t=0.05$ (401 frames)
-because they feed the animation; the ablation variants write every $t=0.2$,
-since their deliverable is a number. Frames are ~25 MB, so that is a deliberate
-storage trade rather than an oversight.
+`zalesak.case` and `zalesak_phi_normal.case` write every $t=0.05$ because they
+feed the animation; the committed `output_zalesak/` was run at $t=0.2$ (101
+frames). The ablation variants write every $t=0.2$, since their deliverable is a
+number. Frames are ~25 MB, so that is a deliberate storage trade rather than an
+oversight.
 
 Runs on either backend. CPU and GPU were checked against each other here and
 agree to 1.1e-9 in $\phi$ and 1.3e-13 in $\psi$ after 4000 steps, with $E_r$
@@ -76,10 +76,10 @@ keeping straight (`CDI_METHOD.md` §4):
 |---|---|
 | `zalesak` (primary) | none — transport + SVV only |
 | `zalesak_phi_normal` | none (and $\psi$ is not read at all — the normal comes from $\phi$) |
-| `zalesak_redistance_phi` | redistancing on, `seed="phi"`: **reinitializes** from $\phi$ ($\psi_0 = r_f(\phi-0.5)$), then relaxes in pseudo-time — Saini Eq. 47 |
-| `zalesak_redistance_psi` | redistancing on, `seed="psi"`: relaxes **in place**, no reinitialization |
+| `zalesak_redistance_phi` | built by Eq. (44) at $t=0$ (`psi_init = "redistance"`); events every $t=0.5$ with `seed="phi"`: **reinitializes** from $\phi$ ($\psi_0 = r_f(\phi-0.5)$, Saini Eq. (47)), then relaxes in pseudo-time |
+| `zalesak_redistance_psi` | built by Eq. (44) at $t=0$ (`psi_init = "redistance"`); events every $t=0.5$ with `seed="psi"`: relaxes **in place**, no reinitialization |
 
-Redistancing, when it fires, is SSP-RK3 in pseudo-time with
+Redistancing, when it runs, is SSP-RK3 in pseudo-time with
 $\Delta\tau = \text{cfl}\cdot h_{\text{GLL,min}} = 2.35\times10^{-4}$ over 213
 pseudo-steps, covering a band of $2.5H$ from the interface.
 
@@ -122,10 +122,10 @@ emphasising: the interface stays inside $[0,1]$ exactly, for ten rotations.
 | $t=20$ | $E_r$ | $E_s$ | worst violation | nodes outside $[0,1]$ |
 |---|---|---|---|---|
 | $\psi$-normal | **0.0220** | **0.0046** | **0** | **0** |
-| $\phi$-normal | 1.0738 | 0.2962 | $5.5\times10^{-3}$ | 54 980 |
+| $\phi$-normal | 1.0738 | 0.2962 | $6.25\times10^{-3}$ | 54 980 |
 
-**49× in $E_r$, and exact boundedness against ~55 000 violating nodes**, from
-changing one key.
+The $\psi$-normal is exactly bounded and far better in $E_r$; the $\phi$-normal
+is far worse on both, from changing one key.
 
 The number usually quoted for this benchmark, "$E_r$ 3.13 → 0.022", is a larger
 factor but a **three-variable** one: it compares upstream's `sdf_phi` against
@@ -137,9 +137,7 @@ normal. The table above is.
 ## SVV on the ψ equation is load-bearing
 
 The reference configuration sets $\xi=2.8$ **and** $\text{svv}_\psi = 1.0$
-together, and
-upstream flagged the cell that separates them as never tested. Run here, over ten
-rotations:
+together. The cell that separates them, over ten rotations:
 
 | $\text{svv}_\psi$ | $E_r$ | $E_s$ | worst violation |
 |---|---|---|---|
@@ -200,7 +198,7 @@ One rotation ($t=2$), $\xi=2.8$, matched settings — each ψ/φ pair differs on
 | φ | **7** | 1/50 | 1.28 M | **0.38371** | $1.1\times10^{-2}$ |
 
 **Refining the polynomial order makes ψ better and φ worse.** ψ improves 1.7×
-and stays *exactly* bounded; φ degrades and its boundedness violation grows 290×.
+and stays *exactly* bounded; φ degrades and its boundedness violation grows.
 $h$-refinement improves ψ similarly (1.9×), also exactly bounded.
 
 `../advecting_slab_1d` shows the same under p-refinement with **no geometry to
@@ -353,7 +351,7 @@ hundreds of GB and would still only sample it. Doing so shows a
 $7.4\times10^{-10}$ undershoot **at step 1**, decaying to $2\times10^{-22}$ by
 step 200 and never recurring. Frames are written every ~770 steps and never see
 it. It is numerically negligible — seven orders below the $\phi$-normal's
-$5.5\times10^{-3}$ — but at $\xi \ge 2$ it is the *entire* content of the "worst
+$6.25\times10^{-3}$ — but at $\xi \ge 2$ it is the *entire* content of the "worst
 violation" column, so the honest statement is that those cells are bounded to
 round-off with a startup transient, not that no node ever left $[0,1]$.
 
@@ -442,83 +440,48 @@ be quoted as one.
 ## The redistancing ablation
 
 Per `CLAUDE.md` this case carries the repo's one sanctioned variant set. The
-validated result has redistancing **off**, so the question was whether *adding*
-it to an already-working configuration helps, hurts, or does nothing. It had
-never been tried at $\xi=2.8$ — at $\xi=0.5$ upstream both seed modes crashed,
-but that is a thinner-interface regime.
+validated result has redistancing **off**; the two variants *add* it:
 
-**Both seed modes hurt badly, and neither crashed — which is worse than
-crashing, because a run that finishes invites being believed.**
+- `zalesak_redistance_phi.case`, `seed="phi"`: Saini's re-initialization, the
+  Eq. (47) reseed followed by the Eq. (44) solve;
+- `zalesak_redistance_psi.case`, `seed="psi"`: relaxation in place, no reseed.
 
-**But be careful what this is evidence for.** All three runs start from the
-*exact global* periodic distance, while redistancing produces a field that is
-distance-like only within $2.5H$ of the interface. Those two choices are
-incompatible, and each event replaces one with the other discontinuously. Saini
-et al. never hit this: their Algorithm 1 line 2 *builds* $\psi$ by solving the
-redistancing equation from a $\phi$ seed, even where an analytic distance
-exists, so their field is band-consistent from $t=0$. Upstream showed that same
-solve works exactly as advertised when used that way. So this measures the
-incoherent pairing we ran, not redistancing as such — see
-[`../../REDISTANCING.md`](../../REDISTANCING.md) §4.
+Both build $\psi$ by the Eq. (44) solve (`psi_init = "redistance"`, Saini's
+Algorithm 1 line 2) and redistance on the fixed timer, every $t=0.5$. That is the
+coherent pairing (`CDI_METHOD.md` §4). Neither has been run in this
+configuration; re-running them is open (`NEXT_SESSION.md`). At $\xi=2.8$, $N=5$
+they do not satisfy the band-coverage bound $N \ge 3.68\xi$
+(`CDI_METHOD.md` §4.1b), so the rebuilt $\psi$ does not cover all of the band the
+compression term reads.
 
-**That gap has since been closed, and the ablation is doubly confounded.**
-`case.cdi.psi_init = "redistance"` now implements Algorithm 1 line 2, and the
-coherent version runs. Getting it to run exposed a defect that also affected
-these very numbers: `unit_normal` floored $|\nabla\psi|$ at $10^{-30}$, below the
-round-off gradient of a flat field, so wherever $\psi$ was flat the compression
-term received a *random* unit normal. With `grad_floor = 1e-6` — now the default,
-and bit-identical on analytic-$\psi$ runs — the built-$\psi$ configuration is
-bounded to $10^{-11}$. **So the table below should not be cited for anything:**
-it pairs an analytic initial condition with banded redistancing *and* runs with
-the broken floor. See `../../CDI_METHOD.md` §4.1. The two redistancing variants also ran with the
-events' broken time history (§4.1d), and have not been re-run since it was fixed. The coherent arm C,
-re-run with the fix, is in §4.1c.
+**The numbers below are not citable.** They come from an earlier configuration
+of these two files: $\psi$ seeded from the analytic periodic distance, events fired
+by a $|\nabla\psi|$-tolerance trigger the code no longer has, the `grad_floor`
+before its fix (`CDI_METHOD.md` §4.1), and the events' broken time history
+(§4.1d). They are kept as history only.
 
-| | $E_r$ | $E_s$ | worst violation | events | wall time |
+| earlier configuration | $E_r$ | $E_s$ | worst violation | events | wall time |
 |---|---|---|---|---|---|
 | primary (off) | **0.0220** | **0.0046** | **0** | — | 74 min |
-| `seed="phi"` (reinit + relax) | 0.7087 | 0.1969 | $9.1\times10^{-2}$ | 122 | 87 min |
-| `seed="psi"` (in place) | 1.667 *at $t=3$* | — | — | 452 *by $t=3$* | ~5× projected |
+| `seed="phi"` (reinit + relax) | 0.7087 | 0.1969 | $1.06\times10^{-1}$ | 122 | 87 min |
+| `seed="psi"` (in place) | 1.667 *at $t=3$* | — | — | 452 *by $t=3$* | stopped at $t=3$ |
 
-- **`seed="phi"`** ran to $t=20$ and landed **32× worse in $E_r$** than the
-  primary — nearly as bad as abandoning the $\psi$-normal altogether (0.71 vs
-  1.07). It destroyed boundedness outright: from *exact* to a worst violation of
-  $9.1\times10^{-2}$, an order of magnitude worse than even the $\phi$-normal
-  failure mode. The mechanism is visible in the event log: the interface band
-  grows from 113 000 nodes at the first event to 496 000 at the last — 92% of
-  the domain — and $|\nabla\psi|$ *after* each relaxation sits at mean 0.92 with
-  max ~10, so the pseudo-time solve is not achieving its own goal. Cost: 18%
-  more wall time.
-- **`seed="psi"`** was stopped at $t=3$ (16.6%, 62 min) after **452 events** —
-  one every ~146 steps, i.e. firing at nearly every check because the relaxation
-  never restores $|\nabla\psi|$ to tolerance before the next trigger. At $t=3$
-  it was already at $E_r = 1.667$ against the primary's 0.0147 — **113× worse**,
-  and 21× worse than `seed="phi"` at the same instant. Projected wall time was
-  ~5× the primary. It was stopped deliberately rather than run out; the thrashing
-  rate and the $t=3$ error are the finding, and five more hours would only have
-  refined a number that was already conclusive.
+`seed="phi"` ran to $t=20$ with a worst violation an order of magnitude worse
+than the $\phi$-normal run's. `seed="psi"` was stopped at $t=3$, its trigger firing
+at nearly every check; the primary's $E_r$ at $t=3$ is 0.0147.
 
-So the in-place variant, which exists specifically to break the
-re-seed → normal → $\phi$ → re-seed feedback loop, is the *worse* of the two
-here. Whether that is redistancing itself or a defect in the pseudo-time solve
-at these settings remains unestablished — upstream said the same at $\xi=0.5$,
-and this repo cannot separate them either.
-
-**The practical conclusion for this repo:** the reference run's redistancing-off
-configuration is the right choice *for this case*, and nothing measured here
-argues for adding a periodic phase back. This case still cannot settle whether
-redistancing is ever *needed* — rigid rotation preserves $|\nabla\psi|$ exactly,
-so the drift it exists to counter is absent by construction, and
-`../rider_kothe` remains the only case that can decide that. What it now does
-settle is narrower and firmer: **Saini's redistancing, as written, cannot be
-used with this scheme at all**, needed or not, because the banded $\psi$ it
-produces has no gradient to give over most of the domain (§4.1).
+The coherent arm C (Saini Alg. 1 at $\xi=1$, with the history restart) is in
+`CDI_METHOD.md` §4.1c: $N=3$ and 7 diverge, and $N=5$ completes 17× worse than
+without events, because $\phi$'s contour fragments and every reseed sustains the
+fragments. This case cannot decide whether redistancing is ever *needed*: rigid
+rotation preserves $|\nabla\psi|$ exactly, so the drift it exists to counter is
+absent by construction. `../rider_kothe` is the case that can.
 
 ## Evidence
 
 `evidence/zalesak_methods.mp4` — the disk over ten rotations, **four panels,
 each differing from the reference configuration in exactly one setting**:
-$\phi$-normal; the reference run; SVV off; $\xi=1.5$. Annotated per frame with $E_r$ (legitimate
+$\phi$-normal (the pre-fix run, see the note under "Results at a glance"); the reference run; SVV off; $\xi=1.5$. Annotated per frame with $E_r$ (legitimate
 here — rigid rotation has a known exact solution at every instant) and the range
 of $\phi$. The colour scale runs past $[0,1]$, so cyan marks $\phi<0$ and green
 $\phi>1$.
@@ -540,9 +503,7 @@ reads better linear, boundedness spans nine decades and needs a log scale.
 $N\in\{3,5,7\}$, with Fig. 7 carrying the SVV-off curve family their paper does
 not show (`../../CDI_METHOD.md` §5).
 
-All five are generated by `visualize.ipynb`, which ships executed. Material
-carried over from the upstream investigation has been removed now that this repo
-produces its own.
+All five are generated by `visualize.ipynb`, which ships executed.
 
 ## Reference implementation (read, don't copy)
 

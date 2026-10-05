@@ -11,8 +11,9 @@ everything else held fixed.
   redistancing variants (`psi_svvon`, `psi_rd_*`) use $c_0=1$.
 - **The events cases** (`psi_rd_on*`) were re-run on 2026-10-05 with the event's history restart.
 
-
 $\xi = \varepsilon N/H$ throughout — see [`CDI_METHOD.md`](../../CDI_METHOD.md) §1.
+
+Paths under `logs/` are gitignored and local to this workstation.
 
 ## How $\psi$ is maintained here: it does not need to be, and provably so
 
@@ -55,10 +56,9 @@ $-\phi(1-\phi)\mathbf{n}$ vanishes and cannot reach $\phi$. Without SVV (the arc
 2026-09) $|\nabla\psi|$ ranged over 0.001–3.6, nearly four decades, at the same $E_r$: the
 invariance in (1) is not theoretical.
 
-It also disposes of the solver's `trigger="grad"` criterion, which fires when the
-band *mean* leaves $[0.80, 1.25]$: here the mean never leaves it, while the
-*minimum* would have fired at nearly every check and redistanced a correct
-solution. Neither statistic tracks anything that matters — see
+It also shows why the $|\nabla\psi|$-tolerance criterion that the code used to offer
+would have measured nothing: here the band *mean* never leaves $[0.80, 1.25]$, while the
+*minimum* would have fired at nearly every check and redistanced a correct solution. See
 [`../../REDISTANCING.md`](../../REDISTANCING.md).
 
 The same check, run on `psi_xi10` (then without SVV) on 2026-10-01 with the normal-error tool of the
@@ -86,10 +86,6 @@ $|\nabla\psi|$ within 2.5% of 1.
 - **At large $\xi$ it costs shape** (see the sweep below): $E_r$ 0.00001 → 0.00005 at
   $\xi=2$, 0.00003 → 0.00042 at $\xi=2.8$. The mechanism is not measured.
 
-Earlier versions of these tables sampled every 10th frame (0.5 time units, five element widths).
-That always caught the slab at the same position relative to the elements, missed the
-transient violations, and reported SVV-off as bounded to $1.9\times10^{-7}$.
-
 ### What a built $\psi$ costs here: nothing, if the build is resolved
 
 This is the cheap testbed for the machinery the other cases depend on. All runs
@@ -98,8 +94,7 @@ $\psi$ is produced. **None of the "built" rows evaluates an analytic distance
 anywhere** — that is the point, since real geometries have none.
 
 Every frame, `svv_psi` $c_0=1$ in these cases. The events rows are from the shipped outputs
-re-run on 2026-10-05 with the event's history restart (`logs/svv_off_2026-10-02/slab_rows.txt`;
-the pre-restart outputs are in `logs/pre_restart_2026-10-02/`):
+re-run on 2026-10-05 with the event's history restart (`logs/svv_off_2026-10-02/slab_rows.txt`):
 
 | $\psi$ at $t=0$ | build $\Delta\tau$ | periodic redist. | $E_r(t{=}20)$ | worst violation |
 |---|---|---|---|---|
@@ -132,29 +127,8 @@ way, everything else fixed:
 | `seed="psi"`: relax in place | **0.00006** | $-8.1\times10^{-10}$ | $1.2\times10^{-10}$ |
 | `seed="phi"`: Eq. (47) reseed, then relax (Saini Alg. 1) | **0.00006** | $-3.1\times10^{-7}$ | $1.4\times10^{-10}$ |
 
-Until 2026-10-02 the reseed row read 0.00023, a "4× in $E_r$, 3600× in boundedness" cost.
-**That was the event bug, not the reseed.**
-- The event replaced $\psi$ after Neko's `slag%update()`, so BDF3 mixed the old and the new
-  $\psi$ (`../../CDI_METHOD.md` §4.1d).
-- $\lVert dn\rVert$ per event doubled every two events. The committed 4-rank run had not yet
-  exploded by $t=20$; rerun on one rank it did ($E_r$ 1.02).
-- With the order restart, $\lVert dn\rVert$ stays at $10^{-7}$–$10^{-5}$.
-
 On an isometry neither half costs anything. Under strain and with corners they do (Zalesak arm
 C and Rider–Kothe, `../../CDI_METHOD.md` §4.1c–d).
-
-### The superseded upstream measurement
-
-Upstream measured redistancing on this case: $E_r$ went from 0.0001 to **0.9812** — clean
-at $t=18$, destroyed by $t=19$. **That measurement is superseded**: it used the
-incoherent pairing (analytic $\psi$ + banded redistancing) *and* predates the
-`grad_floor` fix (`../../CDI_METHOD.md` §4.1). The machinery is now present here
-so the coherent configuration can be checked cheaply.
-
-One number this case contributes directly: Saini's $\Delta\tau_{tls}=H/(N{+}1)$
-is a pseudo-CFL of **2.75** on *this* mesh ($H=1/10$, $N=10$) — the figure quoted
-in `../../CDI_METHOD.md` §3, which is a 1D number and not the Zalesak one
-(0.905 / 1.419 / 1.949 at $N=3/5/7$).
 
 ## Results
 
@@ -177,8 +151,11 @@ the same way on 2026-10-05.
 | `phi_xi10` | 1.0 | 1 | $\phi$ | **≈1.2** | $3.1\times10^{-2}$ |
 | `phi_xi05` | 0.5 | 1 | $\phi$ | **diverged** at $t=6.80$ | — |
 
-The two headline numbers, $\xi=1.0$: $E_r$ **≈1.2 → 0.00006**, and $\xi=0.5$:
-**diverges → 0.0004**.
+The $\phi$-normal runs predate the `grad_floor` fix (`CDI_METHOD.md` §4.1) and
+were not re-run; read them for direction only.
+
+At both $\xi$ the $\psi$-normal is far better: at $\xi=1.0$ the $\phi$-normal is
+destroyed, and at $\xi=0.5$ it diverges.
 - Swapping $\nabla\phi$ for $\nabla\psi$ in the normal was the only difference between each
   pair.
 - Since 2026-10-02 the $\psi$ cases also carry `svv_psi` and the ψ scalar's user source term.
@@ -270,8 +247,8 @@ $$
 $$
 
 Exactly bounded, best measured $E_r$, and 3.3–6.6× the timestep headroom. This is
-the repo's recommended starting point — `CDI_METHOD.md`, "Recommended
-settings", carries it and states what it does and does not establish beyond this
+the repo's recommended starting point — the root README's
+[Recommended settings](../../README.md#recommended-settings) carries it and states what it does and does not establish beyond this
 case (it is measured with no strain, and on a normal that carries only a sign).
 `../rider_kothe` runs at it.
 
@@ -300,8 +277,7 @@ this isolates the operator:
 `slab_rows_phi.txt` for $\phi$.)
 
 **ψ converges cleanly — 27× from $N=6$ to 12.** φ degrades from $N=6$ and then
-**saturates at $E_r \approx 1.2$**, i.e. destroyed, with boundedness violations
-3–4× worse than at $N=6$. (Read the φ column to one significant figure: that endpoint is an
+**saturates**, destroyed, with boundedness violations growing. (Read the φ column to one significant figure: that endpoint is an
 instability, as established above.)
 
 With no geometry in play, the only thing p-refinement changes is the discrete

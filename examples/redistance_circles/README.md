@@ -12,6 +12,8 @@ more within 2.2%. Two cells fail on our mesh through round-off; §5 explains why
 How we got here, with every intermediate result, is archived in
 [`archive/README_process_2026-09.md`](archive/README_process_2026-09.md).
 
+Paths under `logs/` are gitignored and local to this workstation.
+
 Naming: Saini's distance field is called $\phi$; this repo calls it $\psi$ (and the phase field
 $\phi$). Their $E_r(\phi)$ is our $E_r(\psi)$ (`../../CDI_METHOD.md` §1).
 
@@ -23,7 +25,7 @@ $$\frac{\partial\psi}{\partial\tau} + \mathbf{w}\cdot\nabla\psi = \operatorname{
 
 | | |
 |---|---|
-| domain | $\Omega=[-2,2]^2$, one element thick in $z$, walls on all four sides |
+| domain | $\Omega=[-2,2]^2$ (paper); our mesh is one element thick in $z$, with walls on all four sides (BC in §2) |
 | exact solution, Eq. (83) | signed distance to two circles, $r=1$, centres $(\pm0.7,0)$, negative inside (`circle_distance`) |
 | initial condition, Eq. (83) | $\psi_0=((x-1)^2+(y-1)^2+0.1)\,\psi_e$ (`skewed_ic`) |
 | meshes | $H\in\{1/5,1/10,1/20\}$ (`box20/40/80.nmsh`), $N=3$…8 |
@@ -43,11 +45,13 @@ Everything below is either printed in the paper or taken from the authors' code 
 | sign guard | **a node whose $\psi^n$ disagrees in sign with $\psi_0$ keeps $\psi^n$** (not in the paper) | their `constrainTLSR`; email |
 | $\mathbf n$ | $\nabla\psi$ averaged at shared nodes, then normalised | Eq. (42); email |
 | SVV, Eqs. (24), (29)–(33) | $\hat Q=(k/N)^{N_{svv}}$, $N_{svv}=N/6$, $c_0=2$; $\mathbf D_\mu=\lvert\operatorname{sgn}\psi\,\mathbf n\rvert\,c_0H/N$ left-multiplying the assembled operator | paper; their `usrdat3`, `svv.f`; email |
-| time scheme, Eqs. (34)–(35) | BDF2/EXT2, BDF1 on step 1, $\mathbf D_\mu$ from $\psi^n$ | paper (their code extrapolates with Nek's EXT3, `settime_cls`: `NAB = 3`; equal to EXT2 within $5\times10^{-5}$ here) |
+| time scheme, Eqs. (34)–(35) | BDF2/EXT2, BDF1 on step 1, $\mathbf D_\mu$ from $\psi^n$ | paper prints BDF2/EXT2 only; BDF1 on step 1 and $\mathbf D_\mu$ at $\psi^n$ are not printed (their code extrapolates with Nek's EXT3, `settime_cls`: `NAB = 3`; equal to EXT2 within $5\times10^{-5}$ here) |
 | boundary condition | zero Neumann (natural) | email |
 
-The phase-field width of the method ($\varepsilon=\xi H/N$, Eq. (36)) is a different quantity:
-it sets the CDI interface, not the sign function of Eq. (46).
+The phase-field width of the method ($\varepsilon=\xi H/N$ in our $\xi$; Eq. (36) prints
+$\varepsilon=\xi H$ with their $\xi=\{1,1.5\}/N$, so our $\xi$ is $N$ times theirs,
+`../../CDI_METHOD.md` §1) is a different quantity: it sets the CDI interface, not the sign
+function of Eq. (46).
 
 ## 3. How it works
 
@@ -88,7 +92,7 @@ The paper's equations against the code:
 | Eq. (44)–(46), p. 9 | as §1 | `rd_sgn`, `redistance_standalone` |
 | Eq. (83), p. 18 | exact solution and skewed IC | `circle_distance`, `skewed_ic` |
 | Eq. (84), p. 19 | the global relative error | `ensure_psie`, `error_report` |
-| §4.4, p. 18–19 | $\Omega$, $r$, $a$, $H$, $N$, $\Delta\tau$, $\tau$, $N_{svv}$, $c_0$; "the entire domain" | the four committed `.case` files; no band |
+| §4.4, p. 16–19 | $\Omega$, $r$, $a$, $H$, $N$, $\Delta\tau$, $\tau$, $N_{svv}$, $c_0$; "the entire domain" | the four committed `.case` files; no band |
 
 Routine by routine: `../../REDISTANCING.md` §9. The seventeen routines shared with the coupled
 cases are unchanged.
@@ -202,10 +206,7 @@ Animations (scripts `logs/saini_case/anim_new/`, gitignored, local):
 - `anim4b_blowup_h10_n7.mp4`: $H{=}1/10$, $N{=}7$ after $\tau=6$: our mesh blows up, the seeded runs
   follow their code.
 - `anim4c_guard_n3.mp4`, `anim4c_guard_n8_apex.mp4`: the guard against none.
-- `talk/`: the same stories for a presentation, one message per clip, with stills of the key
-  frames in `talk/snapshots/`.
-
-`archive_2026-09-28_epsHN/` holds the earlier figures and animations, made with $\varepsilon=H/N$
-before the authors' configuration was known.
+- `talk/` (gitignored, local): the same stories for a presentation, one message per clip, with
+  stills of the key frames in `talk/snapshots/`.
 
 Their raster figures are not reproduced here (CC BY-NC-ND).

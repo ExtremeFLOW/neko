@@ -6,12 +6,15 @@ the flow reverses and it unwinds back to a disk at $t=8$.
 **Status: complete with redistancing off.**
 - **The tables** are from the re-runs of 2026-10-02.
 - **The redistancing comparison** (`rk_Af`, `rk_eLf`) ran on 2026-10-01 on the scratch user
-  file, with the diffusion fixed.
-- **The measurements of the reseeded $\psi$** are from 2026-10-05. It is the only case with genuine strain, which makes it the only one that can
+  file `logs/d5/rider_kothe_d5.f90`, which already filled `s_lambda_tot`; the committed
+  `rider_kothe.f90` got that fix on 2026-10-02.
+- **The measurements of the reseeded $\psi$** are from 2026-10-05.
+
+It is the only case with genuine strain, which makes it the only one that can
 settle whether redistancing is needed and what $(\xi, \gamma)$ to use.
 
 Two bugs affected the earlier Rider–Kothe numbers:
-- **Every number before 2026-10-02 ran with the CDI diffusion frozen at its $t=0$ value**,
+- **Every number before 2026-10-02, apart from the 2026-10-01 scratch-file runs, ran with the CDI diffusion frozen at its $t=0$ value**,
   while the compression followed $u_{\max}(t)=|\cos(\pi t/8)|$. That dissolved the filament
   (see "Configuration").
 - **Every redistancing run before then also broke $\psi$'s time history** at each event
@@ -20,6 +23,8 @@ Two bugs affected the earlier Rider–Kothe numbers:
 Both are fixed. The old results are not quoted here.
 
 $\xi = \varepsilon N/H$ throughout — see [`CDI_METHOD.md`](../../CDI_METHOD.md) §1.
+
+Paths under `logs/` are gitignored and local to this workstation.
 
 ## How $\psi$ is maintained here: transport and SVV only — and here that is a *result*
 
@@ -109,9 +114,9 @@ At $\xi=1.0$, $\gamma=1.0$, $N=5$:
 
 ### SVV on $\psi$
 
-Three single-variable pairs, the fixed diffusion and $H=1/64$ in all. The SVV-off runs are kept
-in `logs/lambda_fix_nosvv_2026-10-02/`; they are not a configuration of this method
-(`../../CLAUDE.md`):
+Three single-variable pairs, the fixed diffusion and $H=1/64$ in all. The SVV-off $E_r$ are
+recomputed from `logs/lambda_fix_nosvv_2026-10-02/` with `norms.E_r`; SVV off is not a
+configuration of this method (`../../CLAUDE.md`):
 
 | $\xi$, $\gamma$ | $E_r$ SVV off | $E_r$ `svv_psi` $c_0=0.1$ | worst violation (off / on) |
 |---|---|---|---|
@@ -148,14 +153,14 @@ $c_0=0.1$, $N/2$, the fixed diffusion, and run to $t=8$.
   `../../NEXT_SESSION.md`).
 - The committed events path (SSP-RK3, sign-function $\varepsilon$ equal to the phase field's,
   $2.5H$) has not been run here since the fixes.
-- Before the fixes, every events arm diverged between $t=5.8$ and 7.8.
 
 **How good is the reseeded $\psi$?** All of the following was measured on frames written right
 after an event (`logs/d5/rd_quality.py`, `logs/d5/filament_core.py`; tables in `logs/d5/ev/`; gitignored, local):
 - **How often.** Every 0.5, so 16 events, as Saini re-distances his TLS. He also re-sharpens his
   phase field every 0.05; this repo has no such step.
 - **The solve does not reach a distance where it matters.** In the compression band, right after
-  each event:
+  each event at $t=2$–5 (at $t=6$ and 8 the mean $|\nabla\psi|$ is 1.409 and 1.484,
+  `logs/d5/ev/rd_quality_eLf_Af.txt`):
   - $|\nabla\psi|$ has mean 1.60–1.67, with 5th and 95th percentiles of 1.1 and 2.2;
   - $|\psi-d_\phi|$, where $d_\phi$ is the distance to $\phi$'s 0.5 contour (the solve's own
     target), has mean $2.6\varepsilon$ and 95th percentile $5.6\varepsilon$.
@@ -187,7 +192,7 @@ with our `norms.E_r` on his $t=8$ dumps, he gets **0.0258** ($H=1/128$, $N=3$) a
 ($H=1/64$, $N=5$).
 
 At $H=1/64$, $N=5$ we get 0.0446 by transport alone and 0.0407 with his events, so the methods
-are level. Before the diffusion fix, our 0.226 made it look like a 5.5× gap.
+are level.
 - **Filament retention matches.** His CLS keeps 0.978 of its $\phi>0.5$ area at $t=4$, as ours
   now does. Its core follows the same equilibrium curve $1-e^{-d/2\varepsilon}$.
 - **His low $E_r$ comes from his phase-field re-sharpening.** Without it (`userParam02 = 0`), his
@@ -222,11 +227,9 @@ $\gamma u_{\max}(t)$, $u_{\max}(t)=|\cos(\pi t/T)|$:
 - the compression, an explicit source term;
 - the diffusion $\varepsilon\gamma u_{\max}$, implicit, in the scalar's Helmholtz solve.
 
-**Neko's solve reads `s_lambda_tot`.** Neko copies it from `s_lambda` only at
-initialisation unless a turbulence model is set. So `material_properties` fills both every step.
-Until 2026-10-02 it filled only `s_lambda`. The diffusion then stayed at $\varepsilon\gamma$
-while the compression decayed, so the equilibrium width grew as $\varepsilon/|\cos(\pi t/8)|$
-and the filament dissolved.
+**Neko's solve reads `s_lambda_tot`**, which it copies from `s_lambda` only at initialisation
+unless a turbulence model is set, so `material_properties` fills both every step
+(`../../CDI_METHOD.md` §4.1d).
 
 $\Delta t$ is set by the explicit compression term's guard,
 $\gamma u_{\max}\Delta t/h_{\text{GLL,min}} \le 0.05$ (`../../CDI_METHOD.md` §2).
@@ -237,16 +240,11 @@ $\gamma=2.0$; `rider_h128` is the $H=1/128$ refinement.
 ## Evidence
 
 **All files in `evidence/` predate the 2026-10-02 fixes.** They were made on 2026-09-10 with the
-frozen diffusion, and show the dissolving filament it produced:
-- the three `rider_svv_*` files are the $H=1/128$, $N=6$ runs with SVV on $\psi$;
-- the other three are without SVV. They are to be regenerated from `visualize.ipynb`, in the kthviz style
-(`../../NEXT_SESSION.md`):
-- `rider_kothe_methods.mp4`
-- `rider_grad_psi.png`
-- `rider_xi_and_h.png`
-- `rider_svv_snapshots.png`
-- `rider_svv_methods.mp4`
-- `rider_svv_c01_filmstrip.png`
+frozen diffusion, and show the dissolving filament it produced. They are to be regenerated from
+`visualize.ipynb`, in the kthviz style (`../../NEXT_SESSION.md`).
+- Without SVV: `rider_kothe_methods.mp4`, `rider_grad_psi.png`, `rider_xi_and_h.png`.
+- With SVV on $\psi$ ($H=1/128$, $N=6$): `rider_svv_snapshots.png`, `rider_svv_methods.mp4`,
+  `rider_svv_c01_filmstrip.png`.
 
 Animations of the fixed runs are in the gitignored `logs/anim/`, each as MP4 and GIF:
 - `rk_frozen_vs_fixed_diffusion`

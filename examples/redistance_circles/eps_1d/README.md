@@ -2,7 +2,7 @@
 
 Saini et al.'s Eq. (46) is $\operatorname{sgn}(\psi)=\tanh(\psi/2\varepsilon)$. Their code uses a
 **fixed ε = 0.25 (times L, the smallest domain extent)**, not the phase-field width ε = ξH/N.
-The author confirmed this is intentional (reply to our 2026-09-29 question, `../../../references/saini_email_2026-09.md`),
+The author confirmed this is intentional (reply to our 2026-09-29 question, `../../../references/saini_email_2026-09.md`, gitignored, local),
 for two reasons:
 
 1. In the coupled solve, re-distancing starts from the CLS field (Eq. 47), which **already carries
@@ -22,8 +22,9 @@ with what was found.
 | `anim_eps_1d.py` | the two animations of §6; `python anim_eps_1d.py [A|B]` (≈30 s) |
 | `results.txt`, `results_b25.txt`, `results_fig16.txt` | every number below (`... fig16` for the last) |
 
-The 1D SEM pieces (`SEM1D`, `svv_matrix`) are imported from the forensic replica
-`../neko-multiphase/examples/saini_benchmarks/redistance_eq44/sem1d.py`. The scheme is SSP-RK3 on
+The 1D SEM pieces (`SEM1D`, `svv_matrix`) are imported from the forensic replica in the sibling
+repo, `neko-multiphase/examples/saini_benchmarks/redistance_eq44/sem1d.py` (found next to this
+checkout, or at `$NEKO_MULTIPHASE`). The scheme is SSP-RK3 on
 $\operatorname{sgn}(\psi)(1-|\nabla\psi|)$ (averaged gradient, no dealiasing) and an implicit SVV step
 with $\mathbf D_\mu=|\operatorname{sgn}\psi^n|$, Eq. (31) as printed. With $\mathbf D_\mu=1$ it reproduces
 `sem1d.run()` to 1e-15 ($E_r(6)=1.147268\times10^{-3}$ at H = 1/10, N = 3).
@@ -83,7 +84,7 @@ at 0.25. The archive's §8.5 measured this exactly in 2D: ε×3 at τ is ε at �
 ## 3. Part A: standalone, the §4.4 analogue
 
 $\psi_e=|x|-1$ on $[-2,2]$, Saini's skewed IC $((x-1)^2+0.1)\psi_e$, Δτ = 5e-4, to τ = 24.
-$E_r=\int|\psi-\psi_e|/\int|\psi_e|$.
+$E_r=\int|\psi-\psi_e|/\int|\psi_e|$ ($\int\psi_e=0$ here, so Eq. (84)'s denominator is undefined).
 
 **In 1D both ε reach the same end state. 0.25 only gets there later, and at τ = 6 it is worse, not
 better.**
