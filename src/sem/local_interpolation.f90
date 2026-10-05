@@ -33,7 +33,8 @@
 !> Routines to obtain interpolated values on a set of points with known
 !! rst coordinates in elements local to this process.
 module local_interpolation
-  use tensor, only : triple_tensor_product, tnsr3d_el_list, tnsr3d
+  use tensor, only : triple_tensor_product, tnsr3d_el_list, tnsr3d, &
+       tnsr3d_el_list_tr
   use space, only : space_t, GL, GLL
   use num_types, only : rp, xp
   use point, only : point_t
@@ -75,6 +76,8 @@ module local_interpolation
      procedure, pass(this) :: free => local_interpolator_free
      !> Interpolates the scalar field \f$ X \f$ on the specified coordinates
      procedure, pass(this) :: evaluate => local_interpolator_evaluate
+     procedure, pass(this) :: evaluate_transpose => &
+          local_interpolator_evaluate_transpose
      !> COmputes weights based on rst coordinates
      procedure, pass(this) :: compute_weights => &
           local_interpolator_compute_weights
@@ -242,6 +245,38 @@ contains
          this%n_points, on_host)
 
   end subroutine local_interpolator_evaluate
+
+  !> Transpose of `evaluate`: deposits `values(m)` times the Lagrange basis
+  !! of point m, phi(r_m) x phi(s_m) x phi(t_m), into the element owning
+  !! the point, so that for every field u (with `field` zero on entry)
+  !! sum_m values(m) * evaluate(u)(m) = sum_i u(i) * field(i).
+  !! The points are visited element by element through the CSR
+  !! (`el_off`, `el_pts`), so every dof has a single writer and the
+  !! points of an element are added in increasing order independent of the
+  !! number of threads. On a device build with `on_host` false, `values`,
+  !! `el_off`, `el_pts` and `field` must be device-mapped arrays.
+  !! @param values Value per point.
+  !! @param el_off CSR offsets, points of element e are
+  !! `el_pts(el_off(e) + 1 : el_off(e + 1))`.
+  !! @param el_pts Point indices (1-based) grouped per element.
+  !! @param field Field to accumulate into, (lx, ly, lz, nel).
+  !! @param nel Number of elements.
+  !! @param on_host Run on the host arrays even on a device build.
+  subroutine local_interpolator_evaluate_transpose(this, values, el_off, &
+       el_pts, field, nel, on_host)
+    class(local_interpolator_t), intent(inout) :: this
+    integer, intent(in) :: nel
+    real(kind=rp), intent(inout) :: values(this%n_points)
+    integer, intent(inout) :: el_off(nel + 1)
+    integer, intent(inout) :: el_pts(*)
+    real(kind=rp), intent(inout) :: field(this%Xh%lxyz, nel)
+    logical, intent(in) :: on_host
+
+    call tnsr3d_el_list_tr(field, this%Xh%lx, values, this%weights_r, &
+         this%weights_s, this%weights_t, el_off, el_pts, nel, &
+         this%n_points, on_host)
+
+  end subroutine local_interpolator_evaluate_transpose
 
   !> Constructs the Jacobian, returns a 3-by-3 times number of points where
   !! \f$ [J(\mathbf{r}]_{ij} = \frac{d\mathbf{x}_i}{d\mathbf{r}_j}\f$.

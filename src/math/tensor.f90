@@ -65,7 +65,8 @@ module tensor
        tnsr2d_el_cpu, tnsr3d_el_cpu
   use tensor_sx, only : tnsr3d_sx, tnsr1_3d_sx, &
        tnsr2d_el_sx, tnsr3d_el_sx
-  use tensor_device, only : tnsr3d_device, tnsr3d_el_list_device
+  use tensor_device, only : tnsr3d_device, tnsr3d_el_list_device, &
+       tnsr3d_el_list_tr_device
   use num_types, only : rp
   use mxm_wrapper, only : mxm
   use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_XSMM, NEKO_BCKND_DEVICE
@@ -77,6 +78,8 @@ module tensor
   interface transpose
      module procedure trsp, trsp1
   end interface transpose
+
+  public :: tnsr3d_el_list_tr
 
   interface triple_tensor_product
      module procedure triple_tensor_product_scalar, triple_tensor_product_vector
@@ -362,5 +365,58 @@ contains
     call triple_tensor_product_scalar(v(3), u3, nu, Hr, Hs, Ht)
 
   end subroutine triple_tensor_product_vector
+
+  !> Transpose of `tnsr3d_el_list` for point operators (nv = 1): deposits
+  !! `vals(pt)` times the per-point operators into the owning element,
+  !! \f$ v(i,j,k,e) \mathrel{+}= \sum_{pt \in e} vals(pt) A(i,pt) Bt(j,pt)
+  !! Ct(k,pt) \f$. The points of an element are listed by the CSR
+  !! (`el_off`, `el_pts`, 1-based point ids), so every dof has a single
+  !! writer, the loop threads without atomics and the sum does not depend
+  !! on the number of threads. `v` is accumulated into, not zeroed.
+  subroutine tnsr3d_el_list_tr(v, nu, vals, A, Bt, Ct, el_off, el_pts, &
+       nel, n_pt, on_host)
+    integer, intent(in) :: nu, nel, n_pt
+    real(kind=rp), intent(inout) :: v(nu, nu, nu, nel)
+    real(kind=rp), intent(inout) :: vals(n_pt)
+    real(kind=rp), intent(inout) :: A(nu, n_pt), Bt(nu, n_pt), Ct(nu, n_pt)
+    integer, intent(inout) :: el_off(nel + 1)
+    integer, intent(inout) :: el_pts(n_pt)
+    logical, intent(in) :: on_host
+    type(c_ptr) :: v_d, vals_d, A_d, Bt_d, Ct_d, el_off_d, el_pts_d
+    integer :: e, ii, m, i, j, k
+    real(kind=rp) :: vk, vjk
+
+    if (nel .eq. 0 .or. n_pt .eq. 0) return
+
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
+       v_d = device_get_ptr(v)
+       vals_d = device_get_ptr(vals)
+       A_d = device_get_ptr(A)
+       Bt_d = device_get_ptr(Bt)
+       Ct_d = device_get_ptr(Ct)
+       el_off_d = device_get_ptr(el_off)
+       el_pts_d = device_get_ptr(el_pts)
+       call tnsr3d_el_list_tr_device(v_d, nu, vals_d, A_d, Bt_d, Ct_d, &
+            el_off_d, el_pts_d, nel)
+    else
+       !$omp parallel do private(e, ii, m, i, j, k, vk, vjk) schedule(dynamic)
+       do e = 1, nel
+          do ii = el_off(e) + 1, el_off(e + 1)
+             m = el_pts(ii)
+             do k = 1, nu
+                vk = vals(m) * Ct(k, m)
+                do j = 1, nu
+                   vjk = vk * Bt(j, m)
+                   do i = 1, nu
+                      v(i, j, k, e) = v(i, j, k, e) + vjk * A(i, m)
+                   end do
+                end do
+             end do
+          end do
+       end do
+       !$omp end parallel do
+    end if
+
+  end subroutine tnsr3d_el_list_tr
 
 end module tensor

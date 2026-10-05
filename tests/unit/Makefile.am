@@ -195,6 +195,7 @@ EXTRA_DIST = \
 	bc_projector/bc_projector_test\
 	point_interpolation/point_interpolation_test\
 	idw_source_term/test_idw_interp.pf\
+	idw_source_term/test_idw_adjoint_spread.pf\
 	bc_projector/test_bc_projector.pf\
 	bc_projector/test_coupled_bc_projector.pf\
 	boundary_operation/test_boundary_operation.pf\

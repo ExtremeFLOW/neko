@@ -156,6 +156,16 @@ module global_interpolation
      !> Things for communication operation (sending interpolated values back
      !! and forth)
      type(glb_intrp_comm_t) :: glb_intrp_comm
+     !> Reverse of `glb_intrp_comm`: sends point values from the ranks
+     !! that requested the points to the ranks owning them, for the
+     !! transpose of the interpolation
+     type(glb_intrp_comm_t) :: glb_intrp_comm_rev
+     !> CSR of the local points grouped per owning element (1-based point
+     !! indices), for the transpose of the interpolation
+     integer, allocatable :: el_pts_off(:)
+     integer, allocatable :: el_pts(:)
+     type(c_ptr) :: el_pts_off_d = C_NULL_PTR
+     type(c_ptr) :: el_pts_d = C_NULL_PTR
      !> Working vectors for global interpolation
      type(vector_t) :: temp_local, temp
      integer :: n_dof = -1
@@ -198,6 +208,8 @@ module global_interpolation
           find_points_coords1d
      !> Evaluate the value of the field in each point.
      procedure, pass(this) :: evaluate => global_interpolation_evaluate
+     procedure, pass(this) :: evaluate_transpose => &
+          global_interpolation_evaluate_transpose
      procedure, pass(this) :: evaluate_masked => &
           global_interpolation_evaluate_masked
      procedure, pass(this) :: init_redist_comm => &
@@ -543,7 +555,7 @@ contains
     end if
 
     call this%glb_intrp_comm%free()
-
+    call this%glb_intrp_comm_rev%free()
 
   end subroutine global_interpolation_free_points
 
@@ -561,6 +573,18 @@ contains
           call device_unmap(this%el_owner0_local, this%el_owner0_local_d)
        end if
        deallocate(this%el_owner0_local)
+    end if
+    if (allocated(this%el_pts_off)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%el_pts_off, this%el_pts_off_d)
+       end if
+       deallocate(this%el_pts_off)
+    end if
+    if (allocated(this%el_pts)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%el_pts, this%el_pts_d)
+       end if
+       deallocate(this%el_pts)
     end if
 
   end subroutine global_interpolation_free_points_local
@@ -976,6 +1000,8 @@ contains
        end if
     end do
     call this%glb_intrp_comm%init(send_pe, recv_pe, this%comm)
+    ! Requester -> owner plan for the transpose of the interpolation
+    call this%init_redist_comm(this%glb_intrp_comm_rev)
 
     !Initialize working arrays for evaluation
     call this%temp_local%init(this%n_points_local)
@@ -984,6 +1010,7 @@ contains
     !Initialize interpolator for local interpolation
     call this%local_interp%init(this%Xh, this%rst_local, &
          this%n_points_local)
+    call global_interpolation_init_el_csr(this)
 
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -1330,6 +1357,105 @@ contains
     end if
 
   end subroutine global_interpolation_evaluate
+
+  !> Transpose of `evaluate`: for every point, `values` scaled by the
+  !! Lagrange basis of the owning element is accumulated into `field`, so
+  !! that for every field u (with `field` zero on entry)
+  !! sum_m values(m) * evaluate(u)(m) = sum_i u(i) * field(i)
+  !! over all ranks. The result is discontinuous: the adjoint of the
+  !! interpolation in the mass inner product is Binv * gs_add(field).
+  !! The point values travel to the owning ranks through the host (a
+  !! point-sized transfer); the deposit runs where `on_host` says.
+  !! @param values Value per point, as `interp_values` in `evaluate`;
+  !! device-mapped when `on_host` is false on a device build.
+  !! @param field Field to accumulate into, device-mapped likewise.
+  !! @param on_host Run the deposit on the host arrays.
+  subroutine global_interpolation_evaluate_transpose(this, values, field, &
+       on_host)
+    class(global_interpolation_t), target, intent(inout) :: this
+    real(kind=rp), intent(inout), target :: values(this%n_points)
+    real(kind=rp), intent(inout) :: field(this%nelv*this%Xh%lxyz)
+    logical, intent(in) :: on_host
+    type(c_ptr) :: values_d
+
+    if (.not. this%all_points_local) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host .and. &
+            this%n_points .gt. 0) then
+          values_d = device_get_ptr(values)
+          call device_memcpy(values, values_d, this%n_points, &
+               DEVICE_TO_HOST, sync = .true.)
+       end if
+       call this%glb_intrp_comm_rev%sendrecv(values, this%temp_local%x, &
+            this%n_points, this%n_points_local)
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host .and. &
+            this%n_points_local .gt. 0) then
+          call device_memcpy(this%temp_local%x, this%temp_local%x_d, &
+               this%n_points_local, HOST_TO_DEVICE, sync = .true.)
+       end if
+       call this%local_interp%evaluate_transpose(this%temp_local%x, &
+            this%el_pts_off, this%el_pts, field, this%nelv, on_host)
+    else
+       call this%local_interp%evaluate_transpose(values, &
+            this%el_pts_off, this%el_pts, field, this%nelv, on_host)
+    end if
+
+  end subroutine global_interpolation_evaluate_transpose
+
+  !> Group the local points per owning element (CSR), in increasing point
+  !! order within an element. Points without an owner are left out.
+  subroutine global_interpolation_init_el_csr(this)
+    class(global_interpolation_t), intent(inout) :: this
+    integer, allocatable :: cursor(:)
+    integer :: i, e
+
+    if (allocated(this%el_pts_off)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%el_pts_off, this%el_pts_off_d)
+       end if
+       deallocate(this%el_pts_off)
+    end if
+    if (allocated(this%el_pts)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%el_pts, this%el_pts_d)
+       end if
+       deallocate(this%el_pts)
+    end if
+    allocate(this%el_pts_off(this%nelv + 1))
+    allocate(this%el_pts(max(this%n_points_local, 1)))
+    allocate(cursor(this%nelv))
+
+    this%el_pts_off = 0
+    do i = 1, this%n_points_local
+       e = this%el_owner0_local(i) + 1
+       if (e .ge. 1 .and. e .le. this%nelv) then
+          this%el_pts_off(e + 1) = this%el_pts_off(e + 1) + 1
+       end if
+    end do
+    do e = 1, this%nelv
+       this%el_pts_off(e + 1) = this%el_pts_off(e + 1) + this%el_pts_off(e)
+    end do
+
+    this%el_pts = 0
+    cursor = this%el_pts_off(1:this%nelv)
+    do i = 1, this%n_points_local
+       e = this%el_owner0_local(i) + 1
+       if (e .ge. 1 .and. e .le. this%nelv) then
+          cursor(e) = cursor(e) + 1
+          this%el_pts(cursor(e)) = i
+       end if
+    end do
+    deallocate(cursor)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%el_pts_off, this%el_pts_off_d, this%nelv + 1)
+       call device_memcpy(this%el_pts_off, this%el_pts_off_d, &
+            this%nelv + 1, HOST_TO_DEVICE, sync = .false.)
+       call device_map(this%el_pts, this%el_pts_d, size(this%el_pts))
+       call device_memcpy(this%el_pts, this%el_pts_d, size(this%el_pts), &
+            HOST_TO_DEVICE, sync = .true.)
+    end if
+
+  end subroutine global_interpolation_init_el_csr
 
 
   !> Compares two sets of rst coordinates and checks whether rst2 is

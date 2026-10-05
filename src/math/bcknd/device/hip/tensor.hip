@@ -160,5 +160,21 @@ extern "C" {
     }
   }
 
+  /** Fortran wrapper for the transpose of tnsr3d_el_list (CSR per element) **/
+  void hip_tnsr3d_el_list_tr(void *v, int *nu, void *vals,
+                             void *A, void *Bt, void *Ct,
+                             int *el_off, int *el_pts, int *nel) {
+    if (*nel == 0) return;
+    const dim3 nthrds(256, 1, 1);
+    const dim3 nblcks(*nel, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(tnsr3d_el_tr_kernel<real>),
+                       nblcks, nthrds, 0,
+                       (hipStream_t) glb_cmd_queue,
+                       (real *) v, *nu, (real *) vals,
+                       (real *) A, (real *) Bt, (real *) Ct,
+                       (int *) el_off, (int *) el_pts);
+    HIP_CHECK(hipGetLastError());
+  }
 
 }

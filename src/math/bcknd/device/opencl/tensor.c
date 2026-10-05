@@ -163,3 +163,36 @@ void opencl_tnsr3d_el_list(void *v, int *nv, void *u, int *nu,
     }
   }
 }
+
+void opencl_tnsr3d_el_list_tr(void *v, int *nu, void *vals,
+                              void *A, void *Bt, void *Ct,
+                              int *el_off, int *el_pts, int *nel) {
+  cl_int err;
+
+  if (*nel == 0)
+    return;
+
+  if (tensor_program == NULL)
+    opencl_kernel_jit(tensor_kernel, (cl_program *) &tensor_program);
+
+  const size_t global_item_size = 256 * (*nel);
+  const size_t local_item_size = 256;
+
+  cl_kernel kernel = clCreateKernel(tensor_program, "tnsr3d_el_tr_kernel",
+                                    &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &v));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(int), nu));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &vals));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &A));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &Bt));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &Ct));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &el_off));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &el_pts));
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,
+                                  1, NULL, &global_item_size,
+                                  &local_item_size, 0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}

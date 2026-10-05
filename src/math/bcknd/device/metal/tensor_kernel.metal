@@ -222,6 +222,44 @@ INSTANTIATE_TNSR3D_EL(5)
 INSTANTIATE_TNSR3D_EL(6)
 INSTANTIATE_TNSR3D_EL(7)
 INSTANTIATE_TNSR3D_EL(8)
+
+/*
+ * tnsr3d_el_tr — transpose of tnsr3d_el: v(i,j,k,e) += sum_pt vals[pt] *
+ * A[i,pt] * Bt[j,pt] * Ct[k,pt] over the points of element e, one group
+ * per element, points in CSR order (el_off, el_pts with 1-based point
+ * ids): one writer per dof, deterministic sum.
+ */
+kernel void tnsr3d_el_tr_kernel(
+    device float *v[[ buffer(0) ]],
+    constant int &nu[[ buffer(1) ]],
+    device const float *vals[[ buffer(2) ]],
+    device const float *A[[ buffer(3) ]],
+    device const float *Bt[[ buffer(4) ]],
+    device const float *Ct[[ buffer(5) ]],
+    device const int *el_off[[ buffer(6) ]],
+    device const int *el_pts[[ buffer(7) ]],
+    uint pid [[ threadgroup_position_in_grid ]],
+    uint tid [[ thread_index_in_threadgroup ]],
+    uint tpg [[ threads_per_threadgroup ]]) {
+  const int e = int(pid);
+  const int p0 = el_off[e];
+  const int p1 = el_off[e + 1];
+  if (p0 == p1) return;
+
+  const int nu3 = nu * nu * nu;
+  for (int ijk = int(tid); ijk < nu3; ijk += int(tpg)) {
+    const int jk = ijk / nu;
+    const int i = ijk - jk * nu;
+    const int k = jk / nu;
+    const int j = jk - k * nu;
+    float acc = 0.0f;
+    for (int ii = p0; ii < p1; ii++) {
+      const int pt = el_pts[ii] - 1;
+      acc += vals[pt] * A[i + pt * nu] * Bt[j + pt * nu] * Ct[k + pt * nu];
+    }
+    v[ijk + e * nu3] += acc;
+  }
+}
 INSTANTIATE_TNSR3D_EL(9)
 INSTANTIATE_TNSR3D_EL(10)
 INSTANTIATE_TNSR3D_EL(11)

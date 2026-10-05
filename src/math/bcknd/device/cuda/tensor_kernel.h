@@ -247,6 +247,40 @@ __global__ void tnsr3d_kernel_large(T  * __restrict__  v,
   }
 }
 
+/**
+ * Transpose of tnsr3d_el: deposits vals[pt] * (Ct_pt x Bt_pt x A_pt) into
+ * the element owning each point, i.e. v(i,j,k,e) += sum_pt vals[pt] *
+ * A[i,pt] * Bt[j,pt] * Ct[k,pt]. One block per element; the points of an
+ * element are visited in CSR order (el_off, el_pts with 1-based point ids),
+ * so every dof has a single writer and the sum is deterministic.
+ */
+template< typename T >
+__global__ void tnsr3d_el_tr_kernel(T * __restrict__ v,
+                                    const int nu,
+                                    const T * __restrict__ vals,
+                                    const T * __restrict__ A,
+                                    const T * __restrict__ Bt,
+                                    const T * __restrict__ Ct,
+                                    const int * __restrict__ el_off,
+                                    const int * __restrict__ el_pts) {
+  const int e = blockIdx.x;
+  const int p0 = el_off[e];
+  const int p1 = el_off[e + 1];
+  if (p0 == p1) return;
 
+  const int nu3 = nu * nu * nu;
+  for (int ijk = threadIdx.x; ijk < nu3; ijk += blockDim.x) {
+    const int jk = ijk / nu;
+    const int i = ijk - jk * nu;
+    const int k = jk / nu;
+    const int j = jk - k * nu;
+    T acc = 0.0;
+    for (int ii = p0; ii < p1; ii++) {
+      const int pt = el_pts[ii] - 1;
+      acc += vals[pt] * A[i + pt * nu] * Bt[j + pt * nu] * Ct[k + pt * nu];
+    }
+    v[ijk + e * nu3] += acc;
+  }
+}
 
 #endif // __MATH_TENSOR_KERNEL_H__

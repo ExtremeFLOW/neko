@@ -179,4 +179,38 @@ DEFINE_TNSR3D_EL_KERNEL(12)
 DEFINE_TNSR3D_EL_KERNEL(13)
 DEFINE_TNSR3D_EL_KERNEL(14)
 
+/**
+ * Transpose of tnsr3d_el: v(i,j,k,e) += sum_pt vals[pt] * A[i,pt] * Bt[j,pt]
+ * * Ct[k,pt] over the points of element e, one work-group per element,
+ * points in CSR order (el_off, el_pts with 1-based point ids): one writer
+ * per dof, deterministic sum.
+ */
+__kernel void tnsr3d_el_tr_kernel(__global real * __restrict__ v,
+                                  const int nu,
+                                  __global const real * __restrict__ vals,
+                                  __global const real * __restrict__ A,
+                                  __global const real * __restrict__ Bt,
+                                  __global const real * __restrict__ Ct,
+                                  __global const int * __restrict__ el_off,
+                                  __global const int * __restrict__ el_pts) {
+  const int e = get_group_id(0);
+  const int p0 = el_off[e];
+  const int p1 = el_off[e + 1];
+  if (p0 == p1) return;
+
+  const int nu3 = nu * nu * nu;
+  for (int ijk = get_local_id(0); ijk < nu3; ijk += get_local_size(0)) {
+    const int jk = ijk / nu;
+    const int i = ijk - jk * nu;
+    const int k = jk / nu;
+    const int j = jk - k * nu;
+    real acc = 0.0;
+    for (int ii = p0; ii < p1; ii++) {
+      const int pt = el_pts[ii] - 1;
+      acc += vals[pt] * A[i + pt * nu] * Bt[j + pt * nu] * Ct[k + pt * nu];
+    }
+    v[ijk + e * nu3] += acc;
+  }
+}
+
 #endif // __MATH_TENSOR_KERNEL_CL__

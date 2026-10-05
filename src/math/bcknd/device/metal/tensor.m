@@ -52,6 +52,7 @@ extern id<MTLLibrary> neko_metal_library(void);
 /* Cached pipeline states, indexed by max(nu, nv) */
 static id<MTLComputePipelineState> pso_tnsr3d[17]    = { nil };
 static id<MTLComputePipelineState> pso_tnsr3d_el[17] = { nil };
+static id<MTLComputePipelineState> pso_tnsr3d_el_tr  = nil;
 
 /**
  * Create a compute pipeline state for the named kernel.
@@ -157,6 +158,42 @@ void metal_tnsr3d_el_list(void *v, int *nv, void *u, int *nu,
   NSUInteger nthrds = 256;
   MTLSize groupSize = MTLSizeMake(nthrds, 1, 1);
   MTLSize numGroups = MTLSizeMake((NSUInteger)(*n_points), 1, 1);
+
+  [enc dispatchThreadgroups:numGroups threadsPerThreadgroup:groupSize];
+  [enc endEncoding];
+  [cmdBuf commit];
+  [cmdBuf waitUntilCompleted];
+}
+
+void metal_tnsr3d_el_list_tr(void *v, int *nu, void *vals,
+                             void *A, void *Bt, void *Ct,
+                             void *el_off, void *el_pts, int *nel) {
+
+  if (*nel == 0)
+    return;
+
+  if (pso_tnsr3d_el_tr == nil)
+    pso_tnsr3d_el_tr = get_tensor_pipeline("tnsr3d_el_tr_kernel");
+
+  id<MTLCommandQueue> queue =
+    (__bridge id<MTLCommandQueue>)glb_cmd_queue;
+  id<MTLCommandBuffer> cmdBuf = [queue commandBuffer];
+  id<MTLComputeCommandEncoder> enc = [cmdBuf computeCommandEncoder];
+
+  [enc setComputePipelineState:pso_tnsr3d_el_tr];
+
+  [enc setBuffer:(__bridge id<MTLBuffer>)v      offset:0 atIndex:0];
+  [enc setBytes:nu length:sizeof(int) atIndex:1];
+  [enc setBuffer:(__bridge id<MTLBuffer>)vals   offset:0 atIndex:2];
+  [enc setBuffer:(__bridge id<MTLBuffer>)A      offset:0 atIndex:3];
+  [enc setBuffer:(__bridge id<MTLBuffer>)Bt     offset:0 atIndex:4];
+  [enc setBuffer:(__bridge id<MTLBuffer>)Ct     offset:0 atIndex:5];
+  [enc setBuffer:(__bridge id<MTLBuffer>)el_off offset:0 atIndex:6];
+  [enc setBuffer:(__bridge id<MTLBuffer>)el_pts offset:0 atIndex:7];
+
+  NSUInteger nthrds = 256;
+  MTLSize groupSize = MTLSizeMake(nthrds, 1, 1);
+  MTLSize numGroups = MTLSizeMake((NSUInteger)(*nel), 1, 1);
 
   [enc dispatchThreadgroups:numGroups threadsPerThreadgroup:groupSize];
   [enc endEncoding];

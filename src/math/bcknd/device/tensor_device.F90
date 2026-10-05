@@ -36,7 +36,7 @@ module tensor_device
   implicit none
   private
 
-  public :: tnsr3d_device, tnsr3d_el_list_device
+  public :: tnsr3d_device, tnsr3d_el_list_device, tnsr3d_el_list_tr_device
 
 #ifdef HAVE_HIP
   interface
@@ -47,6 +47,15 @@ module tensor_device
        type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d, elements
        integer(c_int) :: nu, nv, n_points
      end subroutine hip_tnsr3d_el_list
+  end interface
+  interface
+     subroutine hip_tnsr3d_el_list_tr(v_d, nu, vals_d, A_d, Bt_d, Ct_d, &
+          el_off_d, el_pts_d, nel) &
+          bind(c, name = 'hip_tnsr3d_el_list_tr')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: v_d, vals_d, A_d, Bt_d, Ct_d, el_off_d, el_pts_d
+       integer(c_int) :: nu, nel
+     end subroutine hip_tnsr3d_el_list_tr
   end interface
   interface
      subroutine hip_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
@@ -67,6 +76,15 @@ module tensor_device
      end subroutine cuda_tnsr3d_el_list
   end interface
   interface
+     subroutine cuda_tnsr3d_el_list_tr(v_d, nu, vals_d, A_d, Bt_d, Ct_d, &
+          el_off_d, el_pts_d, nel) &
+          bind(c, name = 'cuda_tnsr3d_el_list_tr')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: v_d, vals_d, A_d, Bt_d, Ct_d, el_off_d, el_pts_d
+       integer(c_int) :: nu, nel
+     end subroutine cuda_tnsr3d_el_list_tr
+  end interface
+  interface
      subroutine cuda_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
           bind(c, name = 'cuda_tnsr3d')
        use, intrinsic :: iso_c_binding
@@ -85,6 +103,15 @@ module tensor_device
      end subroutine opencl_tnsr3d_el_list
   end interface
   interface
+     subroutine opencl_tnsr3d_el_list_tr(v_d, nu, vals_d, A_d, Bt_d, Ct_d, &
+          el_off_d, el_pts_d, nel) &
+          bind(c, name = 'opencl_tnsr3d_el_list_tr')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: v_d, vals_d, A_d, Bt_d, Ct_d, el_off_d, el_pts_d
+       integer(c_int) :: nu, nel
+     end subroutine opencl_tnsr3d_el_list_tr
+  end interface
+  interface
      subroutine opencl_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
           bind(c, name = 'opencl_tnsr3d')
        use, intrinsic :: iso_c_binding
@@ -101,6 +128,15 @@ module tensor_device
        type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d, elements
        integer(c_int) :: nu, nv, n_points
      end subroutine metal_tnsr3d_el_list
+  end interface
+  interface
+     subroutine metal_tnsr3d_el_list_tr(v_d, nu, vals_d, A_d, Bt_d, Ct_d, &
+          el_off_d, el_pts_d, nel) &
+          bind(c, name = 'metal_tnsr3d_el_list_tr')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: v_d, vals_d, A_d, Bt_d, Ct_d, el_off_d, el_pts_d
+       integer(c_int) :: nu, nel
+     end subroutine metal_tnsr3d_el_list_tr
   end interface
   interface
      subroutine metal_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
@@ -149,6 +185,30 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine tnsr3d_el_list_device
+
+  !> Transpose of `tnsr3d_el_list_device`: deposit `vals` times the
+  !! per-point operators into the owning elements, points grouped per
+  !! element by the CSR (`el_off_d`, `el_pts_d`, 1-based point ids).
+  subroutine tnsr3d_el_list_tr_device(v_d, nu, vals_d, A_d, Bt_d, Ct_d, &
+       el_off_d, el_pts_d, nel)
+    type(c_ptr) :: v_d, vals_d, A_d, Bt_d, Ct_d, el_off_d, el_pts_d
+    integer(c_int) :: nu, nel
+#ifdef HAVE_HIP
+    call hip_tnsr3d_el_list_tr(v_d, nu, vals_d, A_d, Bt_d, Ct_d, &
+         el_off_d, el_pts_d, nel)
+#elif HAVE_CUDA
+    call cuda_tnsr3d_el_list_tr(v_d, nu, vals_d, A_d, Bt_d, Ct_d, &
+         el_off_d, el_pts_d, nel)
+#elif HAVE_OPENCL
+    call opencl_tnsr3d_el_list_tr(v_d, nu, vals_d, A_d, Bt_d, Ct_d, &
+         el_off_d, el_pts_d, nel)
+#elif HAVE_METAL
+    call metal_tnsr3d_el_list_tr(v_d, nu, vals_d, A_d, Bt_d, Ct_d, &
+         el_off_d, el_pts_d, nel)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine tnsr3d_el_list_tr_device
 
 
 end module tensor_device
