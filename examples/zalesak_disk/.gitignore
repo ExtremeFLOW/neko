@@ -1,0 +1,17 @@
+box.nmsh
+genmeshbox.log
+genmeshbox_*.log
+neko
+neko.*
+*.mod
+*.smod
+bdry0.*
+output/
+run.log
+visitlog.py
+.ipynb_checkpoints/
+output_*/
+run_*.log
+chain*.log
+box*.nmsh
+logs/
