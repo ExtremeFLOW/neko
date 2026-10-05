@@ -518,7 +518,7 @@ contains
     ! solution field, so cross-domain interpolation is unnecessary once.
     if (.not. this%restart_pending) then
        call this%interface_interpolator%evaluate_masked(this%s_interface%x, &
-            s%x, this%domain_element_mask, .false.)
+            s%x, this%domain_element_mask)
     end if
 
     call profiler_end_region('Overset scalar interp')

@@ -420,17 +420,12 @@ contains
   subroutine evaluate_velocity(this, u_fluid, v_fluid, w_fluid)
     class(lpt_t), intent(inout) :: this
     type(vector_t), intent(inout) :: u_fluid, v_fluid, w_fluid
-    logical :: do_interp_on_host
 
     if (this%particles%n .eq. 0) return
 
-    do_interp_on_host = .false.
-    call this%global_interp%evaluate(u_fluid%x, this%u_field%x, &
-         do_interp_on_host)
-    call this%global_interp%evaluate(v_fluid%x, this%v_field%x, &
-         do_interp_on_host)
-    call this%global_interp%evaluate(w_fluid%x, this%w_field%x, &
-         do_interp_on_host)
+    call this%global_interp%evaluate(u_fluid, this%u_field)
+    call this%global_interp%evaluate(v_fluid, this%v_field)
+    call this%global_interp%evaluate(w_fluid, this%w_field)
 
   end subroutine evaluate_velocity
 
@@ -451,7 +446,6 @@ contains
     integer :: ind(5)
 
     integer :: n
-    logical :: do_interp_on_host
 
     if (this%particles%n .eq. 0) return
     n = this%particles%n
@@ -469,11 +463,8 @@ contains
          ind(5), n, .false.)
 
     ! Compute the local fluid properties and particle time scale.
-    do_interp_on_host = .false.
-    call this%global_interp%evaluate(mu_fluid_local%x, this%mu_fluid%x, &
-         do_interp_on_host)
-    call this%global_interp%evaluate(rho_fluid_local%x, this%rho_fluid%x, &
-         do_interp_on_host)
+    call this%global_interp%evaluate(mu_fluid_local, this%mu_fluid)
+    call this%global_interp%evaluate(rho_fluid_local, this%rho_fluid)
 
     ! compute the time scale
     call vector_cfill(tau_p, 1.0_rp/18.0_rp)

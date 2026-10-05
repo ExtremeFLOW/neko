@@ -60,6 +60,7 @@ module global_interpolation
        MPI_ISend, MPI_IRecv
   use glb_intrp_comm, only : glb_intrp_comm_t
   use vector, only : vector_t
+  use field, only : field_t
   use vector_math, only : vector_masked_gather_copy
   use matrix, only : matrix_t
   use math, only : copy, NEKO_EPS
@@ -197,7 +198,13 @@ module global_interpolation
      generic :: find_points => find_points_xyz, find_points_coords, &
           find_points_coords1d
      !> Evaluate the value of the field in each point.
-     procedure, pass(this) :: evaluate => global_interpolation_evaluate
+     procedure, pass(this) :: evaluate_array => global_interpolation_evaluate
+     procedure, pass(this) :: evaluate_vector_field => &
+          global_interpolation_evaluate_vector_field
+     procedure, pass(this) :: evaluate_vector_vector => &
+          global_interpolation_evaluate_vector_vector
+     generic :: evaluate => evaluate_array, evaluate_vector_field, &
+          evaluate_vector_vector
      procedure, pass(this) :: evaluate_masked => &
           global_interpolation_evaluate_masked
      procedure, pass(this) :: init_redist_comm => &
@@ -1045,9 +1052,9 @@ contains
     call x_check%init(this%n_points)
     call y_check%init(this%n_points)
     call z_check%init(this%n_points)
-    call this%evaluate(x_check%x, x, on_host = .true.)
-    call this%evaluate(y_check%x, y, on_host = .true.)
-    call this%evaluate(z_check%x, z, on_host = .true.)
+    call this%evaluate_array(x_check%x, x)
+    call this%evaluate_array(y_check%x, y)
+    call this%evaluate_array(z_check%x, z)
     write(log_buf, '(A)') 'Checking validity of points.'
     call neko_log%message(log_buf)
     j = 0
@@ -1283,55 +1290,110 @@ contains
   !> Evaluate the interpolated value in a masked field
   !! @param interp_values Array of values in the given points.
   !! @param field Array of values used for interpolation.
-  !! @param on_host If interpolation should be carried out on the host
   !! @param mask Mask for the field. Should coincide to that given at
   !! initialization of the global_interpolation object.
   subroutine global_interpolation_evaluate_masked(this, interp_values, &
-       field, mask, on_host)
+       field, mask)
     class(global_interpolation_t), target, intent(inout) :: this
     real(kind=rp), intent(inout), target :: interp_values(this%n_points)
     real(kind=rp), intent(inout), target :: field(this%n_dof)
     type(mask_t), intent(in) :: mask
-    logical, intent(in) :: on_host
 
     call vector_masked_gather_copy(this%masked_field, field, mask, this%n_dof)
-    call this%evaluate(interp_values, this%masked_field%x, on_host)
+    call this%evaluate_array(interp_values, this%masked_field%x)
 
   end subroutine global_interpolation_evaluate_masked
 
   !> Evalute the interpolated value in the points given a field
   !! @param interp_values Array of values in the given points.
   !! @param field Array of values used for interpolation.
-  !! @param on_host If interpolation should be carried out on the host
-  subroutine global_interpolation_evaluate(this, interp_values, field, on_host)
+  subroutine global_interpolation_evaluate(this, interp_values, field)
     class(global_interpolation_t), target, intent(inout) :: this
     real(kind=rp), intent(inout), target :: interp_values(this%n_points)
     real(kind=rp), intent(inout), target :: field(this%nelv*this%Xh%lxyz)
-    logical, intent(in) :: on_host
     type(c_ptr) :: interp_d
 
     if (.not. this%all_points_local) then
-       call this%local_interp%evaluate(this%temp_local%x, &
-            this%el_owner0_local, field, this%nelv, on_host)
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call this%local_interp%evaluate_device(this%temp_local%x_d, &
+               this%el_owner0_local_d, device_get_ptr(field))
           call device_memcpy(this%temp_local%x, this%temp_local%x_d, &
                this%n_points_local, DEVICE_TO_HOST, .true.)
+       else
+          call this%local_interp%evaluate(this%temp_local%x, &
+               this%el_owner0_local, field, this%nelv)
        end if
        interp_values = 0.0_rp
        call this%glb_intrp_comm%sendrecv(this%temp_local%x, interp_values, &
             this%n_points_local, this%n_points)
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host .and. &
-            this%n_points .gt. 0) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. this%n_points .gt. 0) then
           interp_d = device_get_ptr(interp_values)
           call device_memcpy(interp_values, interp_d, &
                this%n_points, HOST_TO_DEVICE, .false.)
        end if
     else
-       call this%local_interp%evaluate(interp_values, this%el_owner0_local, &
-            field, this%nelv, on_host)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call this%local_interp%evaluate_device(device_get_ptr(interp_values), &
+               this%el_owner0_local_d, device_get_ptr(field))
+       else
+          call this%local_interp%evaluate(interp_values, &
+               this%el_owner0_local, field, this%nelv)
+       end if
     end if
 
   end subroutine global_interpolation_evaluate
+
+  subroutine global_interpolation_evaluate_vector_field(this, interp_values, &
+       field)
+    class(global_interpolation_t), target, intent(inout) :: this
+    type(vector_t), intent(inout) :: interp_values
+    type(field_t), intent(inout) :: field
+    call global_interpolation_evaluate_vector(this, interp_values, &
+         field%x(1,1,1,1), field%x_d)
+  end subroutine global_interpolation_evaluate_vector_field
+
+  subroutine global_interpolation_evaluate_vector_vector(this, interp_values, &
+       field)
+    class(global_interpolation_t), target, intent(inout) :: this
+    type(vector_t), intent(inout) :: interp_values
+    type(vector_t), intent(inout) :: field
+    call global_interpolation_evaluate_vector(this, interp_values, &
+         field%x(1), field%x_d)
+  end subroutine global_interpolation_evaluate_vector_vector
+
+  subroutine global_interpolation_evaluate_vector(this, interp_values, &
+       field, field_d)
+    class(global_interpolation_t), target, intent(inout) :: this
+    type(vector_t), intent(inout) :: interp_values
+    real(kind=rp), intent(inout) :: field(this%nelv*this%Xh%lxyz)
+    type(c_ptr), intent(in) :: field_d
+    if (.not. this%all_points_local) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call this%local_interp%evaluate_device(this%temp_local%x_d, &
+               this%el_owner0_local_d, field_d)
+          call device_memcpy(this%temp_local%x, this%temp_local%x_d, &
+               this%n_points_local, DEVICE_TO_HOST, .true.)
+       else
+          call this%local_interp%evaluate(this%temp_local%x, &
+               this%el_owner0_local, field, this%nelv)
+       end if
+       interp_values%x = 0.0_rp
+       call this%glb_intrp_comm%sendrecv(this%temp_local%x, &
+            interp_values%x, this%n_points_local, this%n_points)
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. this%n_points .gt. 0) then
+          call device_memcpy(interp_values%x, interp_values%x_d, &
+               this%n_points, HOST_TO_DEVICE, .false.)
+       end if
+    else
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call this%local_interp%evaluate_device(interp_values%x_d, &
+               this%el_owner0_local_d, field_d)
+       else
+          call this%local_interp%evaluate(interp_values%x, &
+               this%el_owner0_local, field, this%nelv)
+       end if
+    end if
+  end subroutine global_interpolation_evaluate_vector
 
 
   !> Compares two sets of rst coordinates and checks whether rst2 is
