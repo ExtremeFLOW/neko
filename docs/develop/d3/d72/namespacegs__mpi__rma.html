@@ -139,7 +139,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:accaf5e8ad7985b51daac56f676a5d0b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait per neighbour for the signal that its data has landed, reduce the slab into u, and ack the sender so it may overwrite the slab next round.  <br /></td></tr>
 <tr class="separator:accaf5e8ad7985b51daac56f676a5d0b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3d59b4744fae6d1a1bf274290c7296da" id="r_a3d59b4744fae6d1a1bf274290c7296da"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d72/namespacegs__mpi__rma.html#a3d59b4744fae6d1a1bf274290c7296da">gs_mpi_rma_nbsend_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>, tag, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deps</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
-<tr class="memdesc:a3d59b4744fae6d1a1bf274290c7296da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fused nc-component send: pack nc contiguous component blocks per peer slab and put nc*ndofs reals. Buffer indexing and put sizes scale by nc; the signalling is unchanged.  <br /></td></tr>
+<tr class="memdesc:a3d59b4744fae6d1a1bf274290c7296da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fused nc-component send: pack nc contiguous component blocks per peer slab and put nc*ndofs reals into the peer's region, which starts at the GS_VEC_NC stride like the scalar one (see win_data). Origin-side buffer indexing and put sizes scale by nc; the signalling is unchanged.  <br /></td></tr>
 <tr class="separator:a3d59b4744fae6d1a1bf274290c7296da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a57819c032e8bc826b6015a805d4edd9c" id="r_a57819c032e8bc826b6015a805d4edd9c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d72/namespacegs__mpi__rma.html#a57819c032e8bc826b6015a805d4edd9c">gs_mpi_rma_nbrecv_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, tag, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>)</td></tr>
 <tr class="memdesc:a57819c032e8bc826b6015a805d4edd9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op: receives are completed by the remote put and its signal.  <br /></td></tr>
@@ -188,7 +188,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00263">263</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00276">276</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
 
 </div>
 </div>
@@ -224,7 +224,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00127">127</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00140">140</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
 
 </div>
 </div>
@@ -270,7 +270,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>its current value </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00301">301</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00314">314</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -281,7 +281,7 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="402,124,368,124,368,119,402,119"/>
 <area shape="rect" href="../../d3/d72/namespacegs__mpi__rma.html#ad7b5bac301447bc36e582f991af6cf9c" title="Pack the gathered shared dofs and put them into each neighbour&#39;s receive window, then announce the pu..." alt="" coords="5,5,163,45"/>
 <area shape="poly" title=" " alt="" coords="237,97,162,60,134,48,137,43,164,55,240,92"/>
-<area shape="rect" href="../../d3/d72/namespacegs__mpi__rma.html#a3d59b4744fae6d1a1bf274290c7296da" title="Fused nc&#45;component send: pack nc contiguous component blocks per peer slab and put nc*ndofs reals...." alt="" coords="5,69,163,109"/>
+<area shape="rect" href="../../d3/d72/namespacegs__mpi__rma.html#a3d59b4744fae6d1a1bf274290c7296da" title="Fused nc&#45;component send: pack nc contiguous component blocks per peer slab and put nc*ndofs reals int..." alt="" coords="5,69,163,109"/>
 <area shape="poly" title=" " alt="" coords="197,110,162,104,163,99,197,104"/>
 <area shape="rect" href="../../d3/d72/namespacegs__mpi__rma.html#accaf5e8ad7985b51daac56f676a5d0b9" title="Wait per neighbour for the signal that its data has landed, reduce the slab into u,..." alt="" coords="5,133,163,173"/>
 <area shape="poly" title=" " alt="" coords="197,138,163,144,162,138,197,133"/>
@@ -326,7 +326,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00423">423</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00436">436</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
 
 </div>
 </div>
@@ -370,7 +370,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00586">586</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00601">601</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
 
 </div>
 </div>
@@ -432,7 +432,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00355">355</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00368">368</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -518,13 +518,13 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00529">529</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00544">544</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d3/d72/namespacegs__mpi__rma_a3d59b4744fae6d1a1bf274290c7296da_cgraph.png" border="0" usemap="#ad3/d72/namespacegs__mpi__rma_a3d59b4744fae6d1a1bf274290c7296da_cgraph" alt=""/></div>
 <map name="ad3/d72/namespacegs__mpi__rma_a3d59b4744fae6d1a1bf274290c7296da_cgraph" id="ad3/d72/namespacegs__mpi__rma_a3d59b4744fae6d1a1bf274290c7296da_cgraph">
-<area shape="rect" title="Fused nc&#45;component send: pack nc contiguous component blocks per peer slab and put nc*ndofs reals...." alt="" coords="5,5,163,45"/>
+<area shape="rect" title="Fused nc&#45;component send: pack nc contiguous component blocks per peer slab and put nc*ndofs reals int..." alt="" coords="5,5,163,45"/>
 <area shape="rect" href="../../d3/d72/namespacegs__mpi__rma.html#ae3b0cd65852da12d518e23b2193dc798" title="Spin until the local signal counter in slot slot has reached val. Called by the master thread only." alt="" coords="211,5,368,45"/>
 <area shape="poly" title=" " alt="" coords="163,23,197,23,197,28,163,28"/>
 <area shape="rect" href="../../d3/d72/namespacegs__mpi__rma.html#ac9af6a4af7bba8e9f78343acc0430a63" title="Reload a signal counter through a VOLATILE dummy, so the spin in gs_mpi_rma_wait_ge reads memory on e..." alt="" coords="416,5,573,45"/>
@@ -586,7 +586,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00431">431</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00444">444</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -660,7 +660,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00594">594</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00609">609</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -724,7 +724,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00320">320</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html#l00333">333</a> of file <a class="el" href="../../d7/d7c/gs__mpi__rma_8f90_source.html">gs_mpi_rma.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -743,7 +743,7 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title="Spin until the local signal counter in slot slot has reached val. Called by the master thread only." alt="" coords="211,101,368,141"/>
 <area shape="rect" href="../../d3/d72/namespacegs__mpi__rma.html#ad7b5bac301447bc36e582f991af6cf9c" title="Pack the gathered shared dofs and put them into each neighbour&#39;s receive window, then announce the pu..." alt="" coords="5,5,163,45"/>
 <area shape="poly" title=" " alt="" coords="237,97,162,60,134,48,137,43,164,55,240,92"/>
-<area shape="rect" href="../../d3/d72/namespacegs__mpi__rma.html#a3d59b4744fae6d1a1bf274290c7296da" title="Fused nc&#45;component send: pack nc contiguous component blocks per peer slab and put nc*ndofs reals...." alt="" coords="5,69,163,109"/>
+<area shape="rect" href="../../d3/d72/namespacegs__mpi__rma.html#a3d59b4744fae6d1a1bf274290c7296da" title="Fused nc&#45;component send: pack nc contiguous component blocks per peer slab and put nc*ndofs reals int..." alt="" coords="5,69,163,109"/>
 <area shape="poly" title=" " alt="" coords="197,110,162,104,163,99,197,104"/>
 <area shape="rect" href="../../d3/d72/namespacegs__mpi__rma.html#accaf5e8ad7985b51daac56f676a5d0b9" title="Wait per neighbour for the signal that its data has landed, reduce the slab into u,..." alt="" coords="5,133,163,173"/>
 <area shape="poly" title=" " alt="" coords="197,138,163,144,162,138,197,133"/>
@@ -849,7 +849,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/d72/namespacegs__mpi__rma.html">gs_mpi_rma</a></li>
-    <li class="footer">Generated on Sun Oct 4 2026 05:10:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Oct 5 2026 03:52:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
