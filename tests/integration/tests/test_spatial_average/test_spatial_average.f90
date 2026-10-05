@@ -36,9 +36,9 @@ contains
        end do
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(u%x, u%x_d, n, HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(v%x, v%x_d, n, HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(w%x, w%x_d, n, HOST_TO_DEVICE, sync=.true.)
+          call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call w%copy_from(HOST_TO_DEVICE, sync=.true.)
        end if
     else
        s => fields%get("s")
@@ -53,7 +53,7 @@ contains
        end do
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(s%x, s%x_d, n, HOST_TO_DEVICE, sync=.true.)
+          call s%copy_from(HOST_TO_DEVICE, sync=.true.)
        end if
     end if
   end subroutine initial_conditions

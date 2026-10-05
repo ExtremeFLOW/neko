@@ -74,7 +74,7 @@ contains
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x, s%x_d, s%size(), HOST_TO_DEVICE, sync=.true.)
+       call s%copy_from(HOST_TO_DEVICE, sync=.true.)
     end if
 
   end subroutine initial_conditions

@@ -75,12 +75,9 @@ contains
        end do
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(u%x, u%x_d, u%size(), HOST_TO_DEVICE, &
-               sync=.false.)
-          call device_memcpy(v%x, v%x_d, v%size(), HOST_TO_DEVICE, &
-               sync=.false.)
-          call device_memcpy(w%x, w%x_d, w%size(), HOST_TO_DEVICE, &
-               sync=.true.)
+          call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call w%copy_from(HOST_TO_DEVICE, sync=.true.)
        end if
     else !scalars
        s => fields%get(scheme_name)
@@ -107,8 +104,7 @@ contains
        endif
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(s%x, s%x_d, s%size(), HOST_TO_DEVICE, &
-               sync=.true.)
+          call s%copy_from(HOST_TO_DEVICE, sync=.true.)
        end if
     endif
   end subroutine user_ic

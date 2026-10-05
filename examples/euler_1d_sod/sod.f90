@@ -64,12 +64,11 @@ contains
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(rho%x, rho%x_d, rho%size(), HOST_TO_DEVICE, &
-            sync=.false.)
-       call device_memcpy(u%x, u%x_d, u%size(), HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(v%x, v%x_d, v%size(), HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(w%x, w%x_d, w%size(), HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(p%x, p%x_d, p%size(), HOST_TO_DEVICE, sync=.true.)
+       call rho%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call w%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call p%copy_from(HOST_TO_DEVICE, sync=.true.)
     end if
   end subroutine initial_conditions
 
@@ -94,8 +93,7 @@ contains
        mu = 1.0_rp / (nx * 30)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(fluid%artificial_visc%x, &
-               fluid%artificial_visc%x_d, n, DEVICE_TO_HOST, sync = .true.)
+          call fluid%artificial_visc%copy_from(DEVICE_TO_HOST, sync = .true.)
        end if
 
        do i = 1, n
@@ -104,8 +102,7 @@ contains
        end do
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(fluid%artificial_visc%x, &
-               fluid%artificial_visc%x_d, n, HOST_TO_DEVICE, sync = .false.)
+          call fluid%artificial_visc%copy_from(HOST_TO_DEVICE, sync = .true.)
        end if
     end select
   end subroutine material_properties

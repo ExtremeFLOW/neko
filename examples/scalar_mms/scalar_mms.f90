@@ -45,8 +45,7 @@ contains
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(f%x, f%x_d, f%size(), &
-            HOST_TO_DEVICE, sync=.false.)
+       call f%copy_from(HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine mms_source_term
@@ -77,8 +76,7 @@ contains
        end do
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(s%x, s%x_d, s%size(), HOST_TO_DEVICE, &
-               sync=.true.)
+          call s%copy_from(HOST_TO_DEVICE, sync=.true.)
        end if
     end if
   end subroutine initial_conditions
