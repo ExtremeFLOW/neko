@@ -915,7 +915,82 @@ contains
        end if
     end if
 
+    if (this%one_sided) then
+       call idw_adjoint_check_response(this, this%dp_mark, &
+            'Adj. spread + side', this%pmsk)
+       call idw_adjoint_check_response(this, this%dm_mark, &
+            'Adj. spread - side', this%mmsk)
+    else
+       call idw_adjoint_check_response(this, this%dp_mark, 'Adj. spread')
+    end if
+
   end subroutine idw_adjoint_spread_weights
+
+  !> One forcing step applied to a unit velocity field, du = S D I(msk 1),
+  !! on the host and, on a device build, through the per-step device path
+  !! as well. The gain bound holds in the mass norm only, so on a graded
+  !! mesh low-mass nodes can still overshoot: max|du| of order one is
+  !! healthy, orders of magnitude above one blows a run up in its first
+  !! step. The device result must match the host one to round-off; a
+  !! difference points at the device data flow (deposit kernel, CSR
+  !! mirrors, marker exchange), not at the method.
+  subroutine idw_adjoint_check_response(this, d, label, msk)
+    class(idw_source_term_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: d(:)
+    character(len=*), intent(in) :: label
+    type(field_t), intent(in), optional :: msk
+    real(kind=rp), allocatable :: vals(:), du_host(:,:,:,:)
+    character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: m(3)
+    integer :: n_lag, n, nv
+
+    n_lag = size(d)
+    nv = max(n_lag, 1)
+    n = this%tmp%size()
+    allocate(vals(nv))
+
+    ! Marker velocities of the (masked) unit field, host side
+    if (present(msk)) then
+       this%tmp%x = msk%x
+    else
+       this%tmp%x = 1.0_rp
+    end if
+    vals = 0.0_rp
+    call this%global_interp%evaluate(vals, this%tmp%x, .true.)
+    vals(1:n_lag) = d * vals(1:n_lag)
+
+    this%ib_fx%x = 0.0_rp
+    call idw_adjoint_apply(this, vals, this%ib_fx, .true., msk)
+    m(1) = maxval(abs(this%ib_fx%x))
+    m(2) = m(1)
+    m(3) = 0.0_rp
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       du_host = this%ib_fx%x
+       this%vals_adj(1:nv) = vals
+       call device_memcpy(this%vals_adj, this%vals_adj_d, nv, &
+            HOST_TO_DEVICE, sync = .true.)
+       call device_rzero(this%ib_fx%x_d, n)
+       call idw_adjoint_apply(this, this%vals_adj, this%ib_fx, .false., msk)
+       call device_memcpy(this%ib_fx%x, this%ib_fx%x_d, n, &
+            DEVICE_TO_HOST, sync = .true.)
+       m(2) = maxval(abs(this%ib_fx%x))
+       m(3) = maxval(abs(this%ib_fx%x - du_host))
+       call device_rzero(this%ib_fx%x_d, n)
+       deallocate(du_host)
+    end if
+    this%ib_fx%x = 0.0_rp
+
+    call MPI_Allreduce(MPI_IN_PLACE, m, 3, MPI_REAL_PRECISION, MPI_MAX, &
+         NEKO_COMM)
+    write(log_buf, '(A,A,ES10.3,A,ES10.3,A,ES10.3)') trim(label), &
+         ': unit response max|du| host ', m(1), ', device ', m(2), &
+         ', max diff ', m(3)
+    call neko_log%message(log_buf)
+
+    deallocate(vals)
+
+  end subroutine idw_adjoint_check_response
 
   !> Lumped weights of one side, `d = gain / (|G| 1)`. The absolute row
   !! sums are bounded from above by applying the interpolation and its
@@ -946,13 +1021,13 @@ contains
       wr = li%weights_r
       ws = li%weights_s
       wt = li%weights_t
-      li%weights_r = abs(wr)
-      li%weights_s = abs(ws)
-      li%weights_t = abs(wt)
+      li%weights_r(:,:) = abs(wr)
+      li%weights_s(:,:) = abs(ws)
+      li%weights_t(:,:) = abs(wt)
       call idw_adjoint_rowsum(this, ones, rowabs, msk)
-      li%weights_r = wr
-      li%weights_s = ws
-      li%weights_t = wt
+      li%weights_r(:,:) = wr
+      li%weights_s(:,:) = ws
+      li%weights_t(:,:) = wt
     end associate
     deallocate(wr, ws, wt)
 
@@ -1023,32 +1098,6 @@ contains
          ': largest gain ', lam, ' (', n_power, ' power iterations)'
     call neko_log%message(log_buf)
 
-    ! One-step nodal response to a unit velocity field, du = S D I(msk 1):
-    ! the gain above bounds it in the mass norm only, so on a graded mesh
-    ! low-mass nodes can still overshoot. max|du| of order one is healthy;
-    ! orders of magnitude above one is the pointwise amplification that
-    ! blows a run up in its first step.
-    this%tmp%x = 1.0_rp
-    gv = 0.0_rp
-    if (present(msk)) then
-       call field_col3(this%ib_fx, this%tmp, msk, this%tmp%size())
-       call this%global_interp%evaluate(gv, this%ib_fx%x, .true.)
-    else
-       call this%global_interp%evaluate(gv, this%tmp%x, .true.)
-    end if
-    gv = d * gv
-    this%ib_fx%x = 0.0_rp
-    call idw_adjoint_apply(this, gv, this%ib_fx, .true., msk)
-    nrm(1) = maxval(abs(this%ib_fx%x))
-    nrm(2) = sum(this%ib_fx%x * this%Bm * this%coef%mult)
-    call MPI_Allreduce(MPI_IN_PLACE, nrm(1), 1, MPI_REAL_PRECISION, MPI_MAX, &
-         NEKO_COMM)
-    call MPI_Allreduce(MPI_IN_PLACE, nrm(2), 1, MPI_REAL_PRECISION, MPI_SUM, &
-         NEKO_COMM)
-    write(log_buf, '(A,A,ES10.3,A,ES10.3)') trim(label), &
-         ': unit response max|du| ', nrm(1), ', int du dV ', nrm(2)
-    call neko_log%message(log_buf)
-    this%ib_fx%x = 0.0_rp
     deallocate(v, gv)
 
     deallocate(rowabs)
@@ -1065,8 +1114,10 @@ contains
     this%ib_fx%x = 0.0_rp
     call idw_adjoint_apply(this, ones, this%ib_fx, .true., msk)
     rowsum = 0.0_rp
+    ! Host arrays throughout: field_col3 would act on the device mirrors on
+    ! a device build and leave the host side untouched
     if (present(msk)) then
-       call field_col3(this%tmp, this%ib_fx, msk, this%tmp%size())
+       this%tmp%x = this%ib_fx%x * msk%x
        call this%global_interp%evaluate(rowsum, this%tmp%x, .true.)
     else
        call this%global_interp%evaluate(rowsum, this%ib_fx%x, .true.)
