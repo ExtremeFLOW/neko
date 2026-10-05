@@ -1,0 +1,6 @@
+# Publisher PDFs live here for local reading but are not tracked (size +
+redistribution). The markdown notes alongside them are tracked.
+*.pdf
+
+# Private correspondence with the authors: local only.
+saini_email_*.md
