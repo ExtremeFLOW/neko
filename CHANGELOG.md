@@ -2,6 +2,12 @@
 
 ## Develop
 
+- Added `source_term_t%extrapolate` and an `extrapolate`/`scale` selector to
+  `source_term_handler_t%compute`, letting a source term be added after the
+  EXT extrapolation of the Pn-Pn fluid and scalar schemes instead of through
+  it. Feedback terms with a gain of order `1/dt` (eg. direct immersed-boundary
+  forcing) are unstable when extrapolated with EXT3 and stable when applied
+  as computed. Calls without the selector are unchanged.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the
@@ -24,7 +30,6 @@
   their mesh and function space, while generic arrays retain a fixed logical
   extent. The `.chkp` format remains available through a single-scalar
   compatibility view, and existing flat HDF5 checkpoints remain readable.
-
 - Added a setup-time conditioning diagnostic for the geometric factors, on
   `COEF_FULL` coefficient sets only. `coef_metric_condition` logs the worst
   metric condition number over the mesh, the worst for its Jacobi scaled
