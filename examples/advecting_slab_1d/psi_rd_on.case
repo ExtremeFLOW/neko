@@ -1,0 +1,134 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "box.nmsh",
+        "output_directory": "output_psi_rd_on",
+        "output_boundary": false,
+        "output_checkpoints": false,
+        "output_precision": "double",
+        "time": {
+            "end_time": 20.0,
+            "variable_timestep": false,
+            "timestep": 0.0001
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 10,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "freeze": true,
+            "initial_condition": {
+                "type": "uniform",
+                "value": [
+                    1.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-08,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-06,
+                "max_iterations": 800
+            },
+            "output_control": "simulationtime",
+            "output_value": 0.05,
+            "boundary_conditions": []
+        },
+        "cdi": {
+            "gamma": 1.0,
+            "epsilon": 0.01,
+            "lambda": 1e-16,
+            "slab_halfwidth": 0.2,
+            "normal": "psi",
+            "svv_phi": {
+                "c0": 0.0,
+                "nsvv_ratio": 2.0
+            },
+            "svv_psi": {
+                "c0": 1.0,
+                "nsvv_ratio": 2.0
+            },
+            "psi_init": "redistance",
+            "redistance": {
+                "enabled": true,
+                "dt_tls": 0.5,
+                "r_f": 0.1,
+                "band": 2.5,
+                "cfl": 0.1,
+                "dtau": 0.009090909090909092,
+                "trigger": "time",
+                "seed": "phi",
+                "svv": {
+                    "c0": 2.0,
+                    "nsvv_ratio": 4.0,
+                    "implicit": true
+                }
+            }
+        },
+        "scalars": [
+            {
+                "name": "s",
+                "enabled": true,
+                "cp": 1.0,
+                "lambda": 1e-16,
+                "initial_condition": {
+                    "type": "user"
+                },
+                "solver": {
+                    "type": "cg",
+                    "preconditioner": {
+                        "type": "jacobi"
+                    },
+                    "projection_space_size": 0,
+                    "absolute_tolerance": 1e-10,
+                    "max_iterations": 800
+                },
+                "boundary_conditions": [],
+                "source_terms": [
+                    {
+                        "type": "user"
+                    }
+                ]
+            },
+            {
+                "name": "psi",
+                "enabled": true,
+                "cp": 1.0,
+                "lambda": 1e-16,
+                "initial_condition": {
+                    "type": "user"
+                },
+                "solver": {
+                    "type": "cg",
+                    "preconditioner": {
+                        "type": "jacobi"
+                    },
+                    "projection_space_size": 0,
+                    "absolute_tolerance": 1e-10,
+                    "max_iterations": 800
+                },
+                "boundary_conditions": [],
+                "source_terms": [
+                    {
+                        "type": "user"
+                    }
+                ]
+            }
+        ]
+    }
+}
