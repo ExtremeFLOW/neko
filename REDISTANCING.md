@@ -6,20 +6,13 @@ run them. **§9 is different in kind:** it walks through what the Fortran
 actually computes for Eq. (44), routine by routine, with the code, what was
 checked, and where the discretisation is weak.
 
-> **Read this first, because it reverses the document's original conclusion.**
-> This file used to be called "why this repo does not use it" and argued that
-> redistancing was unnecessary at best and harmful at worst. That argument was
-> built on measurements taken with a **defect in `unit_normal`** (a
-> $|\nabla\psi|$ floor of $10^{-30}$, which never engages, so a flat $\psi$
-> yielded a random unit normal — `CDI_METHOD.md` §4.1). With that fixed,
-> Saini's Algorithm 1 runs.
->
-> **Redistancing is now the intended way to build and maintain $\psi$**, for a
-> reason that has nothing to do with accuracy: **the analytic signed distance is
-> a crutch that does not exist for the problems this method is for.** Every
-> result in this repo that seeds $\psi$ analytically is a result about a
-> geometry we happened to know in closed form. `psi_init = "redistance"` is what
-> carries over; `"exact"` is the validation baseline, not the destination.
+> **Building $\psi$ by Eq. (44) (`psi_init = "redistance"`) is the intended
+> path**, for a reason that has nothing to do with accuracy: **the analytic signed
+> distance is a crutch that does not exist for the problems this method is for.**
+> Every result in this repo that seeds $\psi$ analytically is a result about a
+> geometry we happened to know in closed form. `"exact"` is the validation
+> baseline, not the destination. Whether periodic re-distancing ever beats
+> transport is open (§8).
 
 ## 0. A word on the words
 
@@ -144,11 +137,12 @@ the difference is not in the PDE. It is in four things around it.
 $r_f(\phi-0.5)$ seed — **even where an analytic distance is available**. They are
 explicit that an accurate global distance field is "unnecessary and not
 attempted"; their Fig. 16b shows the recovered $\psi$ matching the exact distance
-only inside the band. We instead seed from the exact global periodic distance,
-and then redistance periodically on top of it.
+only inside the band. The validated runs seed from the exact global periodic
+distance; `psi_init = "redistance"` does it Saini's way. Redistancing periodically
+on top of an analytic $\psi$ is a different matter.
 
 **Those two choices are incompatible, and that — not the PDE — is what our
-ablation actually measured.** Each event replaces a smooth global field with a
+recorded ablation actually measured.** Each event replaces a smooth global field with a
 band-plus-remainder field, discontinuously. Upstream isolated this directly: a
 single Algorithm-1-line-2 event on a $\phi$-seeded field works exactly as
 advertised,
@@ -173,31 +167,28 @@ relaxation tolerates is injected straight into $\phi$ for us. This is the same
 asymmetry that made the $\phi$-gradient normal fail here in the first place.
 
 **(c) They stabilise $\phi$'s transport too.** Their Zalesak row is
-$N_{svv} = N/2$, $c_0 = 1.0$ on the transport of *both* fields. Our reference runs
-$\text{svv}_\phi = 0$ deliberately (`CDI_METHOD.md` §5). So they have a
+$N_{svv} = N/2$, $c_0 = 1.0$ on the transport of *both* fields. Our $\phi$
+equation carries no SVV, deliberately (`CDI_METHOD.md` §5). So they have a
 smoothing mechanism on the field receiving the normal, and we do not.
 
-**(d) Their cadence is a fixed timer; ours was adaptive.** They use
-$\Delta t_{tls} \in [0.01, 0.5]$, roughly $10\times$ the CLS interval. We used
-`trigger="grad"`, firing when the band *mean* of $|\nabla\psi|$ leaves
-$[0.8, 1.25]$. The in-place variant then re-triggered every ~146 steps because
-the relaxation never cleared the tolerance it was being judged against.
+**(d) Their cadence is a fixed timer, and so is ours; there is no $|\nabla\psi|$
+trigger.** They use $\Delta t_{tls} \in [0.01, 0.5]$, roughly $10\times$ the CLS
+interval; ours is `redistance.dt_tls`.
 
-**The 1D case settles what that criterion is worth.** There $|\nabla\psi|$ is
-*provably* conserved (§3), so any drift is pure discretisation error — and over
+**The 1D case settles what such a criterion is worth.** There $|\nabla\psi|$ is
+*provably* conserved (§3), so any drift is pure discretisation error — and in the
+archived SVV-off run (not a configuration of this method) over
 twenty flow-throughs it spans $\min = 0.0006$, $\max = 3.60$, a **5686×
 spread**, while the mean never leaves $[0.93, 1.09]$. That run finishes at
-$E_r = 0.00006$ with a worst boundedness violation of $1.9\times10^{-7}$:
-essentially exact
-(`examples/advecting_slab_1d/evidence/slab_1d_grad_psi.png`).
+$E_r = 0.00006$, the same as with SVV
+(`examples/advecting_slab_1d/README.md`, `examples/advecting_slab_1d/evidence/slab_1d_grad_psi.png`).
 
 So excursions of three orders of magnitude in $|\nabla\psi|$ are harmless,
 exactly as §1 predicts, and a tolerance band around 1 measures nothing useful:
 the *mean* is insensitive (it stayed inside $[0.8, 1.25]$ through a run in which
 the field swung over four decades), and the *minimum* is over-sensitive (it
 would have fired at almost every check, redistancing a solution that was already
-correct). **An earlier draft of this document recommended switching to the
-minimum; that measurement withdraws it.**
+correct). That is why the only cadence is the timer.
 
 The only quantity with a claim to matter is **conditioning** — whether
 $|\nabla\psi|$ has fallen far enough that $\nabla\psi/|\nabla\psi|$ normalises
@@ -211,31 +202,18 @@ setting, because the fixed point has kinks at medial axes. Only their standalone
 feasible without" it (p. 19). We used $N/4$, $c_0=2$. And we avoided their
 $\Delta\tau_{tls} = H/(N+1)$ formula, which is a pseudo-CFL of 2.75 on
 `advecting_slab_1d`'s mesh ($H=1/10$, $N=10$; on Zalesak it is 0.905/1.419/1.949
-at $N=3/5/7$). §7 shows that avoiding it was right, for a reason that only shows
-up under *repeated* events.
+at $N=3/5/7$). `CDI_METHOD.md` §4.2 shows that avoiding it was right, for a
+reason that only shows up under *repeated* events.
 
-## 5. What we measured — and what it is evidence *for*
+## 5. What the Zalesak ablation measured
 
-Zalesak, $\xi=2.8$, ten rotations, everything else identical. All three start
-from the **exact global** periodic distance:
-
-| | $E_r$ | worst $\phi$ violation | events | wall time |
-|---|---|---|---|---|
-| redistancing **off** | **0.0220** | **0** | — | 74 min |
-| `seed="phi"` | 0.7087 | $9.1\times10^{-2}$ | 122 | 87 min |
-| `seed="psi"` | 1.667 at $t=3$ | — | 452 by $t=3$ | ~5× projected |
-
-`seed="phi"` finished and still landed 32× worse than doing nothing, with
-boundedness destroyed — from *exact* to a violation an order of magnitude worse
-than the $\phi$-normal failure mode it was meant to help. Its band grew from
-113 000 to 496 000 nodes (92% of the domain), $|\nabla\psi|$ after each
-relaxation sitting at mean 0.92, max $\sim$10.
-
-**Read this as evidence about the combination, not about redistancing.** By §4(a)
-these runs are the incoherent pairing — global initial condition, banded periodic
-redistancing — that upstream already identified as the failure. They are a strong
-result about *that*, and say little about Saini's Algorithm 1 as written.
-`seed="psi"` is additionally our own invention: Saini have no in-place mode.
+The recorded Zalesak redistancing runs ($\xi=2.8$, both seeds) were far worse than
+transport alone, but they paired an analytic $\psi$ with banded periodic
+redistancing (§4a), the $|\nabla\psi|$ trigger, the old `grad_floor` and the
+event's history bug, so they say nothing about Algorithm 1 and are not citable.
+The numbers, and the status of the shipped variants (now `psi_init = "redistance"`
+on the timer, not yet re-run), are in
+[`examples/zalesak_disk/README.md`](examples/zalesak_disk/README.md).
 
 ## 6. What we know, and what we do not
 
@@ -250,13 +228,14 @@ result about *that*, and say little about Saini's Algorithm 1 as written.
 - Transport plus SVV on $\psi$, from an exact global initial condition, carries
   Zalesak through ten rotations at $E_r = 0.022$ with zero boundedness
   violations. For that case, nothing further is needed.
-- Periodic redistancing **on a globally-initialised $\psi$** is strongly harmful.
+- Periodic redistancing **on a globally-initialised $\psi$** was strongly harmful
+  in the recorded runs, which are confounded (§5).
 - The pseudo-time solve itself is sound when used as Saini use it — once, at
   construction, on a $\phi$-seeded field.
 
-**Now known — Algorithm 1 works here, once `unit_normal` is fixed.** The
+**The build works, once `unit_normal` is fixed.** The
 coherent configuration (`psi_init = "redistance"` on Saini's own cadence and
-pseudo-timestep) was run and initially diverged at $N=5,7$ by $t\approx1.2$. The
+pseudo-timestep) initially diverged at $N=5,7$ by $t\approx1.2$. The
 cause was **a defect in this repo, not in the method**: `unit_normal` floored
 $|\nabla\psi|$ at $10^{-30}$, below the $\sim10^{-19}$ round-off gradient of a
 flat field, so where the banded $\psi$ is flat — 67.6% of the domain — the
@@ -264,18 +243,16 @@ normal was round-off normalised to a random unit vector. With
 `grad_floor = 1e-6` the same runs are bounded to $10^{-11}$.
 `CDI_METHOD.md` §4.1 has the mechanism and the evidence table.
 
-Two things that follow, and which cost real time to learn:
+Two things that follow:
 
 - **§4(b) is a genuine asymmetry but not a barrier.** Saini's Eq. (38) transport
   carries no normal at all; $\mathbf{n}$ appears only in the Eq. (39)
   re-initialization, so a band-limited $\psi$ is exactly sufficient for them. A
   fused scheme reads $\mathbf{n}$ where a split scheme never does, and therefore
   has to handle $\nabla\psi = 0$ explicitly. That is one line of code, not a
-  structural incompatibility — an earlier draft of this section said otherwise
-  and was wrong.
-- **The §5 ablation is still confounded**, and now doubly so: it paired an
-  analytic initial condition with banded redistancing *and* ran with the broken
-  floor. It should not be cited for anything.
+  structural incompatibility.
+- **The §5 ablation is confounded** on several counts at once (§5). It should
+  not be cited for anything.
 
 **Since measured (2026-09-08 to 2026-10-05).**
 
@@ -298,8 +275,10 @@ Two things that follow, and which cost real time to learn:
 
 ## 7. How to use it
 
-**Settings that work**, measured on Zalesak at $\xi=1$, $N\in\{3,5,7\}$
-(`CDI_METHOD.md` §4.1–§4.2):
+**Settings that make a correct build**, measured on Zalesak at $\xi=1$,
+$N\in\{3,5,7\}$ (`CDI_METHOD.md` §4.1–§4.2). They make the *build* right; periodic
+events with them still fail on Zalesak (`CDI_METHOD.md` §4.1c) and do not beat
+transport on Rider–Kothe (`CDI_METHOD.md` §4.1d).
 
 | knob | value | why |
 |---|---|---|
@@ -307,38 +286,21 @@ Two things that follow, and which cost real time to learn:
 | `cdi.grad_floor` | `1e-6` (default) | **required.** Below the round-off gradient of a flat field the normal is random noise; this was the bug |
 | `redistance.band` | `2.5` | Saini's, and better than a global band on both $\phi_{\max}$ and mass drift |
 | `redistance.cfl` | `0.1` (default) | **do not use `redistance.dtau = H/(N+1)`.** Saini's coarse pseudo-timestep is fine for a *one-shot* build but unstable under repeated events — see below |
-| `redistance.trigger` | `"time"` | a fixed cadence; the $\lvert\nabla\psi\rvert$ trigger measures nothing (§4d) |
+| `redistance.dt_tls` | e.g. `0.5` | the only cadence is this timer; there is no $\lvert\nabla\psi\rvert$ trigger (§4d) |
 | `redistance.seed` | `"phi"` | Eq. (47), reinit + relax — Algorithm 1 as written |
 
-**On the pseudo-timestep, measured on `advecting_slab_1d` (four minutes a run).**
-Saini's $\Delta\tau_{tls}=H/(N{+}1)$ is a pseudo-CFL of 2.755 on that mesh
-($H=1/10$, $N=10$) — the "2.75" quoted in `CDI_METHOD.md` §3, which is this
-case's number and not Zalesak's. A single build with it looks *better* than ours
-— band $|\nabla\psi|$ closer to 1, smaller maximum, 3–5× less work — and that is
-the trap. Holding the build $\Delta\tau$ and the event $\Delta\tau$ as separate
-controlled variables:
-
-| build $\Delta\tau$ | pseudo-CFL | build $\lvert\nabla\psi\rvert$ | no events | 40 events |
-|---|---|---|---|---|
-| $H/(N{+}1)$ | 2.755 | 0.067 – **3.165** | $E_r = 0.06458$ | $E_r =$ **1.28**, destroyed |
-| $0.1\,h_{\text{GLL,min}}$ | 0.100 | 0.999 – 1.001 | $E_r =$ **0.00006** | $E_r =$ **0.00006** (0.00023 before the history restart, `CDI_METHOD.md` §4.1d) |
-
-The coarse step produces a *wrong build*, not merely a cheaper one; each
-subsequent event then overshoots the fixed point and the error compounds, to
-$\lvert\nabla\psi\rvert$ beyond $10^{30}$ by event 40. With the fine step the build
-is exact — **identical to the analytic distance, $E_r = 0.00006$ either way, so
-the closed form buys nothing** — and each event is very nearly a no-op
-($\lVert dn\rVert = 9\times10^{-8}$). The same signature appears on
-Zalesak at $N=3$ (pseudo-CFL 0.905, so this is not simply a CFL $>1$ effect): the
-band mean walks 1.180 → 1.247 → 1.282 → 1.177 over eleven events and the run dies
-at $t=5.8$. **A one-shot test cannot detect this** — that is the trap, and it is
+**On the pseudo-timestep:** the measurement on `advecting_slab_1d` is in
+`CDI_METHOD.md` §4.2. Saini's $H/(N{+}1)$ looks *better* on a single build but
+gives a wrong one ($|\nabla\psi|$ 0.067–3.165) that compounds under repeated
+events; the fine step builds a field identical to the analytic distance, so the
+closed form buys nothing there. **A one-shot test cannot detect this**, which is
 why the cheap 1D case is worth keeping wired for redistancing.
 
 **Do not** pair `psi_init = "exact"` with periodic redistancing. That is the
 incoherent combination of §4(a): a global analytic field replaced discontinuously
-by a banded one at every event. It is also the configuration the two shipped
-ablation variants use, which is why their result (§5) is about the pairing and
-not about redistancing.
+by a banded one at every event. It is the configuration the recorded Zalesak
+ablation ran, which is why its result (§5) is about the pairing and not about
+redistancing.
 
 ## 8. What is still open
 
@@ -351,7 +313,7 @@ so no case in this repo needs redistancing after the build. What is not known:
     does not reach a distance in the compression band, and the thin tail has no $\phi$ contour to
     rebuild from.
   - The committed events path has not been run on Rider–Kothe since the fixes (`NEXT_SESSION.md`,
-    items 1–2).
+    Rider–Kothe plan).
 - **Whether a monotone conditioning transform would serve better.** The normal is
   invariant under any monotone rescaling (§1), so
   $\psi \leftarrow L\tanh(\psi/L)$ flattens the far-field kinks without a pseudo-time
@@ -474,7 +436,7 @@ $\phi$ is our $\psi$. Side by side, from their §2.5, §3.4, §4.4 and Algorithm
 | convective term | $\mathbf C(\mathbf w)u$ in Eq. (7), with $\mathbf n$ from Eq. (42), Galerkin with GLL quadrature (p. 4). The paper states neither how $\nabla\phi$ is formed nor any dealiasing; their code averages the gradient and dealiases (`convect_new`) | `redistance_circles`: the same, dealiased (`adv_dealias_t`) with the averaged gradient. Coupled cases: the non-dealiased §9.1 identity, which equals the GLL Galerkin form to 1e-14 |
 | sign guard | not in the paper; their code (`constrainTLSR`) keeps $\phi^n$ where it disagrees in sign with the phase field | `redistance_circles`: the same, against the sign of $\psi_0$. Coupled cases: none |
 | $\Delta\tau$, §4.4 | $5\times10^{-4}$, fixed, to $\tau=6$ ("CFL = 0.28" at the finest mesh) | the same (`case.cdi.redistance.dtau`) |
-| $\Delta\tau$ in the coupled algorithm | automated (§3.4): $\Delta\tau_{tls}=H/(N{+}1)$, taking $\lvert\mathbf w\rvert\le1$, and $N_{tls}=2.5H/\Delta\tau_{tls}=2.5(N{+}1)$ steps | pseudo-CFL 0.1 on $h_{\text{GLL,min}}$ by default, same band $2.5H$. $H/(N{+}1)$ is a pseudo-CFL of 0.9 at $N=3$ and 2.75 at $N=10$, and was measured unstable under repeated events (§7) |
+| $\Delta\tau$ in the coupled algorithm | automated (§3.4): $\Delta\tau_{tls}=H/(N{+}1)$, taking $\lvert\mathbf w\rvert\le1$, and $N_{tls}=2.5H/\Delta\tau_{tls}=2.5(N{+}1)$ steps | pseudo-CFL 0.1 on $h_{\text{GLL,min}}$ by default, same band $2.5H$. $H/(N{+}1)$ is a pseudo-CFL of 0.9 at $N=3$ and 2.75 at $N=10$, and was measured unstable under repeated events (`CDI_METHOD.md` §4.2) |
 | where the $\tau$ loop runs | line 2: initial build from Eq. (47); lines 19–21: every $\Delta t_{tls}$, **after** the Navier–Stokes solve, always reseeded by Eq. (47) | `initialize` hook: the build (`psi_init="redistance"`); `compute` hook: events after Neko's fluid and scalar steps; `seed="phi"` is Eq. (47), `seed="psi"` is our own in-place variant (§0) |
 | convergence test on the $\tau$ loop | none; a fixed $N_{tls}$ | none; a fixed `rd_niter` (`CDI_METHOD.md` §4.3) |
 

@@ -6,13 +6,12 @@ normal it can actually use: computed from a **separately transported
 signed-distance field**, $\psi$, instead of straight from the sharp phase
 field's own gradient. The method also supports *periodic redistancing* of
 $\psi$ (§3–§4). Note up front that **the validated results predate it**: in
-both, $\psi$ is seeded once from the exact analytic signed distance and
+all three, $\psi$ is seeded once from the exact analytic signed distance and
 thereafter only advected. That is a validation baseline, not a
 recommendation — **real geometries have no analytic distance**, so
 `psi_init = "redistance"` (§4.1), which builds $\psi$ from $\phi$ by Saini's
 Eq. (44) and never evaluates an analytic distance, is the path that carries
-over. It works; getting it to work required fixing a defect in this repo's
-normal computation, documented in full in §4.1.
+over.
 
 The normal fix — and every upstream number quoted below — was found and
 measured in the sibling investigation repo, `neko-multiphase` (see
@@ -40,15 +39,8 @@ cite Saini et al. (2026) only for the specific equation forms and parameters
 this repo's implementation was validated against — not as the technique's
 origin.
 
-**A verification note, also deliberate:** an earlier pass through this repo
-marked `advecting_slab_1d` and `zalesak_disk` flatly "Done." A closer look at
-the actual upstream evidence (case files, notebook cell *outputs*, not just
-source, and what output directories actually exist on disk) turned up real
-gaps and one outright wrong assumption — see §7 and each case's own
-`README.md` for exactly what's solid, what's narrower than first stated, and
-what's still open. Treat any status claim in this repo as provisional: check it
-against the actual case files, logs and notebook outputs, not this document's
-word for it.
+**Treat status claims as provisional:** check them against the case files, logs
+and notebook outputs (§7 and each case's `README.md`).
 
 ## 1. Symbol convention
 
@@ -74,10 +66,9 @@ node spacing, element edge divided by polynomial order. It is the one
 resolution-independent way to state an interface width, which is why every
 sweep here varies $\xi$ rather than $\varepsilon$.
 
-**$H/N$ was previously written `dx_GLL` in the logs and docs, and that was
-dropped.** GLL nodes are not uniformly spaced — they cluster at element ends —
-so there are **three** spacings with three distinct roles, and calling any one of
-them "the GLL spacing" is what caused the confusion:
+GLL nodes are not uniformly spaced — they cluster at element ends — so there are
+**three** spacings with three distinct roles, and none of them is "the GLL
+spacing":
 
 | quantity | at $N=7$ | in units of $H/N$ | role |
 |---|---|---|---|
@@ -145,11 +136,8 @@ The mapping is confirmed independently by their constant-thickness control
 $\epsilon_c = 1/150$, which is $\xi_S = 1/N$ at $H=1/50$, $N=3$ — our $\xi = 1.0$
 at $N=3$, i.e. $6.667\times10^{-3}$ exactly.
 
-Three points worth carrying:
+Two points worth carrying:
 
-- **The `references/` snapshot's "Saini runs 2–6× sharper than our sharpest
-  case" is now out of date.** That was true when Zalesak ran only at
-  $\xi = 2.8$. The $(\xi,\gamma)$ sweep covers their full studied range.
 - **Our sharpest exactly-bounded setting, $\xi = 1.5$, is exactly the top of
   their robust range.** Independent agreement, not a tuned result.
 - **Where we differ, their own text explains it.** They do not claim
@@ -408,42 +396,42 @@ Stated plainly, because the distinction only matters if it is applied:
 | `advecting_slab_1d` (all but `psi_rd_*`) | exact analytic slab distance, once | **none** — advection plus SVV on the $\psi$ equation, 20 flow-throughs |
 | `advecting_slab_1d` `psi_rd_*` | built by Eq. (44) | off, or 40 events (`seed="phi"`/`"psi"`); the redistancing testbed (§4.2) |
 | `zalesak_disk` primary | exact *periodic* (nine-image) distance, once | **none** — advection, plus SVV on the $\psi$ equation |
-| `zalesak_disk` `_redistance_phi` | same | redistancing on, `seed="phi"` — **reinitializes** from $\phi$ ($\psi_0 = r_f(\phi-0.5)$), then relaxes |
-| `zalesak_disk` `_redistance_psi` | same | redistancing on, `seed="psi"` — relaxes **in place**, no reinitialization |
+| `zalesak_disk` `_redistance_phi` | built by Eq. (44) | redistancing on, timer $\Delta t_{tls}=0.5$, `seed="phi"` — **reinitializes** from $\phi$ ($\psi_0 = r_f(\phi-0.5)$), then relaxes |
+| `zalesak_disk` `_redistance_psi` | built by Eq. (44) | redistancing on, timer $\Delta t_{tls}=0.5$, `seed="psi"` — relaxes **in place**, no reinitialization |
 | `rider_kothe` | exact periodic distance, once | **none** — advection plus SVV on the $\psi$ equation |
 
-So the two validated results — the 1D slab and the Zalesak reference
-configuration — use
-neither redistancing nor reinitialization. Only the two ablation variants do,
-and they exist to test whether adding it helps, not because it was needed.
+So the three validated results — the 1D slab, the Zalesak reference
+configuration and Rider–Kothe — use neither redistancing nor reinitialization.
+Only the ablation variants do, and they exist to test whether adding it helps,
+not because it was needed.
 
 ### How ours differs from Saini et al.'s, and why the ablation is confounded
 
 Our implementation follows their Eqs. (44)–(47) — the pseudo-time TLS equation,
 the $\psi_0 = r_f(\phi-0.5)$ seed with $r_f=0.1$, the smoothed
 $\text{sgn} = \tanh(\psi/2\varepsilon)$, a $2.5H$ band, SVV on the relaxation.
-Two things differ, and the first one matters:
+The first difference matters:
 
 | | Saini et al. | this repo |
 |---|---|---|
-| $\psi$ at $t=0$ | **built** by solving Eq. (44) from the $\phi$ seed (their Algorithm 1, line 2) | the **exact analytic** periodic distance ← **mismatch** |
+| $\psi$ at $t=0$ | **built** by solving Eq. (44) from the $\phi$ seed (their Algorithm 1, line 2) | `psi_init`: `"exact"`, the analytic periodic distance (the validated runs), or `"redistance"`, Algorithm 1 line 2 |
 | re-init seed | Eq. (47), $r_f = 0.1$ | same |
 | band | $2.5H$ | $2.5H$ |
 | $\Delta\tau_{tls}$ | $H/(N{+}1)$ | $0.1\,h_{\text{GLL,min}}$ |
 | $N_{tls}$ | $2.5(N{+}1)$ — 10/15/20 at $N=3/5/7$ | ~213 |
-| trigger | timer, $\Delta t_{tls}$ | timer or $\lvert\nabla\psi\rvert$ |
+| trigger | timer, $\Delta t_{tls}$ | timer, $\Delta t_{tls}$ (`redistance.dt_tls`) |
 
 They never use an analytic distance: Algorithm 1 line 2 *constructs* $\psi$ with
 the same solve that later maintains it, so their field is **band-consistent from
-$t=0$**. Ours is a global exact distance, and each redistancing event then
-replaces it discontinuously with a field that is distance-like only within
-$2.5H$.
+$t=0$**. An analytic $\psi$ is a global exact distance, and each redistancing
+event would replace it discontinuously with a field that is distance-like only
+within $2.5H$.
 
-**So `zalesak_disk`'s redistancing ablation was confounded** — its strongly
-negative result condemned *the pairing we ran*, an analytic-distance initial
-condition with band-limited redistancing, not redistancing as such. That gap is
-now closed: `case.cdi.psi_init = "redistance"` implements Algorithm 1 line 2, and
-the coherent version has been run. See §4.1.
+**So `zalesak_disk`'s recorded redistancing ablation is confounded** — its
+strongly negative result condemned *the pairing it ran*, an analytic-distance
+initial condition with band-limited redistancing, not redistancing as such. The
+shipped variants now build $\psi$ by Eq. (44) (`psi_init = "redistance"`); the
+coherent configuration is examined in §4.1.
 
 ### 4.1 Algorithm 1 done coherently — and the bug it exposed
 
@@ -457,9 +445,8 @@ $E_r(0)$ agrees to $10^{-10}$):
 | **B** | built by Eq. (44) from the $\phi$ seed | off |
 | **C** | built by Eq. (44) | on, $\Delta t_{tls}=0.5$ |
 
-**The first attempt diverged for $N=5$ and $7$ — because of a defect in this
-repo's own code, not a property of the method.** It is worth recording in full,
-because the defect was invisible for as long as $\psi$ was always analytic.
+**The built-$\psi$ runs diverged at $N=5$ and $7$ until a defect in this repo's
+code was fixed.** The defect is invisible while $\psi$ is analytic.
 
 **The bug.** `unit_normal` floors $|\nabla\psi|$ before dividing it out:
 
@@ -529,12 +516,9 @@ from $10^{-30}$ to $10^{-6}$ leaves the run **bit-identical** — `bnd` at
 $N=5$, $t=1.4944$ reads `-0.2594E-09  0.1000E+01  0.1332E-07` either way. It
 cannot perturb what already worked, because that field is never flat.
 
-**Retracted.** An earlier pass through this section concluded that a banded
-$\psi$ and a fused pointwise-normal scheme are "structurally incompatible" and
-that no cadence or pseudo-timestep could fix it. That was wrong: one constant
-fixed it. The narrower true statement is the one above — a fused scheme reads
-$\mathbf{n}$ where a split scheme never does, so it must handle $\nabla\psi=0$
-explicitly, and this repo did not.
+A banded $\psi$ and a fused pointwise-normal scheme are therefore compatible: a
+fused scheme reads $\mathbf{n}$ where a split scheme never does, so it must handle
+$\nabla\psi=0$ explicitly, and the floor does that.
 
 ### 4.1b The redistancing band must cover the interface band: $N \ge 3.68\,\xi$
 
@@ -552,24 +536,17 @@ $$9.21\,\xi H/N \;\le\; 2.5H \quad\Longrightarrow\quad N \;\ge\; 3.68\,\xi$$
 |---|---|---|---|---|---|
 | smallest usable $N$ at band $2.5H$ | 2 | **4** | 6 | 8 | 11 |
 
-**It is a real coverage statement, and it is *not* what kills arm C.** An
-earlier draft of this section claimed it was; two runs refute that:
-
-| run | band | criterion | outcome |
-|---|---|---|---|
-| `rd_c_n3` | 2.5 | violated | diverges $t=8.92$ |
-| `rd_c_n3_b40` | **4.0** | **satisfied** | diverges $t=6.36$ — *sooner* |
-| `rd_c_n5` | 2.5 | **satisfied** ($N=5$) | diverges $t=5.78$ |
+**It is a real coverage statement, and it is *not* what kills arm C.** With the
+event's history restart (§4.1d), arm C at band $2.5H$ diverges at $N=3$ ($t=11.2$,
+criterion violated), completes at $N=5$ (satisfied) but 17× worse than without
+events, and diverges at $N=7$ (satisfied; §4.1c).
 
 Raising the band at $N=3$ does improve the *build* — the band mean moves
-1.259 → 1.027, converging by $\approx10H$ — so the coverage effect is real. But
-it does not prevent the divergence, and $N=5$ fails while comfortably satisfying
-the bound. So treat $N \ge 3.68\,\xi$ as a **quality** consideration for the
-built field, not a stability requirement, and see §4.1c for what actually
+1.259 → 1.027, converging by $\approx10H$ — so the coverage effect is real. A
+band-$4.0H$ arm C run at $N=3$ also diverged, but it had the history bug and has
+not been repeated. So treat $N \ge 3.68\,\xi$ as a **quality** consideration for
+the built field, not a stability requirement, and see §4.1c for what actually
 fails.
-
-These three runs had the event's history bug (§4.1d). With the restart, $N=3$ still diverges
-($t=11.2$) and $N=5$ completes, though 17× worse than without events (§4.1c).
 
 Saini's §4.5 runs $N \in \{4,5,6\}$ at $\xi = 1/N$, all of which satisfy it, so
 the question does not arise for them either way.
@@ -578,19 +555,18 @@ the question does not arise for them either way.
 
 Arm C re-run on 2026-10-02 with the event's order restart (§4.1d). The cases are the
 originals with only paths changed; predictions and verdicts are in
-`examples/zalesak_disk/logs/armC_2026-10-02/PREREGISTERED.txt`. Arm B runs no events and so
+`examples/zalesak_disk/logs/armC_2026-10-02/PREREGISTERED.txt` (gitignored, local). Arm B runs no events and so
 never had the bug.
 
 | | $N=3$ | $N=5$ | $N=7$ |
 |---|---|---|---|
 | **B** — built $\psi$, no events | $t=20$ ✓, $E_r$ 0.090 | $t=20$ ✓, $E_r$ 0.0336 | stopped at $t=9.4$, clean |
-| **C**, history bug (2026-09) | diverged $t=8.9$ | diverged $t=5.8$ | — |
 | **C**, order restart | **diverged $t=11.2$** | completes, **$E_r$ 0.574**, violation $7.9\times10^{-2}$ | **diverged $t=4.5$** |
 | $\lVert dn\rVert$ per event, C restarted | 32 → 77 | 57 → ~95, flat from event ~20 | 166 → 575 |
 
 **The restart was not the whole story here**, unlike in 1D, where it made the reseed free (§4).
 Measured on frames written right after an event, at $N=5$ in the compression band
-(`zalesak_disk/logs/armC_2026-10-02/rd_quality_C_B_n5.txt`):
+(`examples/zalesak_disk/logs/armC_2026-10-02/rd_quality_C_B_n5.txt`, gitignored, local):
 - **The relaxation converges.** $|\nabla\psi|$ has mean 1.01–1.17, and $\psi$ is within
   0.25–0.5$\varepsilon$ of the signed distance to $\phi$'s 0.5 contour, its target.
 - **The target fragments.** $\phi$'s 0.5 contour is in 2 pieces at $t=1$ and 8 at $t=20$; arm B
@@ -615,7 +591,7 @@ within $2.5H$ of it. A future walled case would need that check.
 On Rider–Kothe, the settings of Saini's circVortex case diverged in every events arm, including
 his complete configuration. Two bugs were found and fixed. Tables are in
 [`examples/rider_kothe/README.md`](examples/rider_kothe/README.md); the record is in
-`examples/rider_kothe/logs/d5/PREREGISTERED.txt`.
+`examples/rider_kothe/logs/d5/PREREGISTERED.txt` (gitignored, local).
 
 **1. A redistancing event that replaces $\psi$ must restart the time history.**
 - **The bug.** The coupled files run the event in the `compute()` hook, after Neko's
@@ -693,9 +669,8 @@ The coarse $\Delta\tau$ does not merely cost accuracy — it produces a *wrong
 build*: $\lvert\nabla\psi\rvert$ spans 0.067–3.165 where the fine build gives
 0.999–1.001. Each subsequent event then overshoots the fixed point and the
 overshoot compounds, beyond $\lvert\nabla\psi\rvert\sim10^{30}$ by event 40.
-The same signature appears on Zalesak at $N=3$, where the pseudo-CFL is only
-0.905 — so this is not simply a CFL $>1$ effect — with the band mean walking
-1.180 → 1.247 → 1.282 → 1.177 over eleven events before the run dies at $t=5.8$.
+$H/(N{+}1)$ is a pseudo-CFL of 2.75 on the slab's mesh ($H=1/10$, $N=10$); on
+Zalesak it is 0.905/1.419/1.949 at $N=3/5/7$.
 
 **With a fine build, giving up the analytic distance costs nothing at all** in
 1D: $E_r$ and the worst violation are identical to the analytic reference. That
@@ -708,13 +683,6 @@ elsewhere.** His sign-function width of 0.25 keeps the pseudo-velocity
 $|\operatorname{sgn}\psi|$ below about 0.1 near the interface, so $H/(N{+}1)$ is a small
 pseudo-CFL there. On Rider–Kothe his full configuration ran 16 events cleanly. The same width is
 why his solve does not reach a distance in the compression band (§4.3).
-
-Two corrections to earlier drafts of this section, both worth keeping visible:
-the "$\sim2.75$ pseudo-CFL" figure is **correct** but is the
-`advecting_slab_1d` number ($H=1/10$, $N=10$), not Zalesak's, which is
-0.905/1.419/1.949 at $N=3/5/7$; and a draft written after the one-shot test above
-recommended adopting Saini's $\Delta\tau$, which the repeated-event measurement
-withdraws.
 
 ### 4.3 There is no convergence criterion on the pseudo-time solve
 
@@ -739,7 +707,7 @@ A caution on the band **minimum**, after `REDISTANCING.md` §4(d): it is
 $7.5\times10^{-14}$ at $t=0$ for the *exact analytic* $\psi$ at $N=3$ — lower
 than any built field — in the configuration that runs ten rotations cleanly.
 Gather-scatter averaging cancels the gradient across kinks. **The band minimum
-diagnoses nothing**, and an early reading of these runs that blamed it was wrong.
+diagnoses nothing.**
 
 ### 4.4 Saini §4.4: reproduced — and *where the SVV acts* is what matters
 
@@ -808,16 +776,17 @@ The open items (D2, D5) are in `NEXT_SESSION.md`.
 
 ## 5. SVV is a $\psi$-only knob
 
-**`svv_phi` is 0 in every run and is never a variable in any study.** The split is
+**There is no SVV on $\phi$, and it is never a variable in any study.** The split is
 fixed: **$\phi$ carries the CDI equation** — transport, compression, and the
 physical diffusion $\varepsilon\gamma u_{\max}$ — and **$\psi$ carries transport
-plus SVV**. **SVV on $\psi$ is always on** (user rule, 2026-10-02): the three coupled files stop
+plus SVV**. `svv_phi` no longer exists in the code; the coupled files stop at startup if a
+case sets `case.cdi.svv_phi`. **SVV on $\psi$ is always on** (user rule, 2026-10-02): the three coupled files stop
 at startup if `normal = "psi"` has `svv_psi` off. Saini does the same: his TLS transport,
 Eq. (43), carries $S_{vv}$, as do all his scalar equations (JCP p.3, p.9). The only SVV knob that
 ever varies is `case.cdi.svv_psi.c0`.
 
 Note that Saini et al.'s naming is transposed (§1), so their §4.3 SVV sits on the
-*phase* field, i.e. where `svv_phi` would be. **We do not adopt or test that
+*phase* field, i.e. on our $\phi$. **We do not adopt or test that
 placement.** Their scheme is structurally different anyway (§2): one equation with
 SVV holding the interface together, against our two with a compression term doing
 that job.
@@ -847,14 +816,13 @@ if transported $\psi$ develops grid-scale ringing (e.g. near medial-axis
 kinks), SVV is the textbook tool for exactly that equation. This is the one
 place in the whole method SVV earns its place, and it is always on there.
 
-### Three instances, three settings — all Saini's own
+### Two instances, two settings — both Saini's own
 
 The SVV parameters are **not** the same on every equation, and the differences
-are taken from the paper rather than tuned here:
+are taken from the paper rather than tuned here. $\phi$ has no instance (§5 above):
 
 | instance | $N_{svv}$ | $c_0$ | source | applied |
 |---|---|---|---|---|
-| `svv_phi` (CDI/$\phi$ transport) | — | **0 always** | this repo's choice, §5 above | never |
 | `svv_psi` ($\psi$ transport, Eq. 43) | $N/2$ | **0.1**; Zalesak still 1.0 | 0.1 is his TLS-transport value: §4.5, *"The stabilization parameters for the advection equation, of both CLS and TLS fields, ... are $N_{svv}=N/2$; $c_0=0.1$"* (p.21), and his §5 default (p.24). Zalesak's 1.0 is his §4.3 value, which sits on the **CLS** transport (our $\phi$), so it was borrowed from the wrong equation; whether to move Zalesak is open | explicit, via the source term |
 | `svv_rd` ($\psi$ redistancing, Eq. 44) | $N/4$ | $2.0$ | their §4.5 TLS setting, because the Eq. (44) fixed point has kinks at medial axes; only their standalone §4.4 test goes stronger, to $N/6$ | implicit, inside each pseudo-step |
 
@@ -989,9 +957,8 @@ equilibrium. $\varepsilon$ alone fixes the equilibrium tanh width. The trap: on 
 test with no strain, lowering $\gamma$ does not improve the method, it *removes*
 it. At $\gamma=0$ there is no compression at all.
 
-**But "a rate" does not mean "free".** An earlier version of this section claimed
-accuracy is flat in $\gamma$ above 0.25 and that $\gamma$ buys boundedness only.
-That is true of the 1D slab, and **false on Zalesak**: over the $(\xi,\gamma)$
+**But "a rate" does not mean "free".** Accuracy is flat in $\gamma$ above 0.25
+on the 1D slab, but **not on Zalesak**: over the $(\xi,\gamma)$
 map, $E_r$ rises monotonically with $\gamma$ — about $2\times$ from 0.25 to 2 at
 every $\xi \ge 1.5$. The reason is exactly the "rate" framing taken seriously: a
 rigid rotation's exact solution contains **no relaxation at all**, so once the
@@ -1013,43 +980,33 @@ Full tables and the two heatmaps: `examples/zalesak_disk/README.md`.
 
 **Recommended settings live in the root [`README.md`](README.md)**, which is the
 single source for them. They are regime-dependent — strain inverts the $\xi$
-recommendation — and were previously duplicated here and drifted stale; don't
-restate them in this file.
+recommendation — so don't restate them in this file.
 
 
 ## 7. What's actually validated, and what's narrower than it first looked
 
-This table replaces an earlier, looser version. Each row states exactly what
-was tested — not what the headline number might imply.
+Each row states exactly what was tested — not what the headline number might
+imply.
 
 | Case | Configuration tested | Result | Evidence |
 |---|---|---|---|
-| 1D slab | $\psi$-normal, $\xi=\varepsilon N/H=1.0$ | $E_r$: **≈1.2** → **0.00006** | `examples/advecting_slab_1d/evidence/` (animation now local); numeric table in upstream notebook |
+| 1D slab | $\psi$-normal, $\xi=\varepsilon N/H=1.0$ | $E_r$: **≈1.2** ($\phi$-normal) → **0.00006** | `examples/advecting_slab_1d/README.md`, `evidence/` |
 | 1D slab | $\psi$-normal, $\xi=0.5$ (Saini's sharpest setting) | $\phi$-normal **diverges** ($t\approx6.8$) → **0.0004** | same |
-| 2D Zalesak | $\psi$-normal, $\xi=2.8$, $\text{svv}_\psi.c_0=1.0$, **redistancing OFF** | $E_r=0.022$, zero boundedness violations, 10 full rotations | `examples/zalesak_disk/evidence/` (animation now local) |
+| 2D Zalesak | $\psi$-normal, $\xi=2.8$, $\text{svv}_\psi.c_0=1.0$, **redistancing OFF** | $E_r=0.022$, zero boundedness violations, 10 full rotations | `examples/zalesak_disk/README.md`, `evidence/` |
 | 2D Zalesak | same, matched-SVV control at $\xi=0.5$ | **diverges** at $t=1.74$ (step 34869) | isolates $\xi$ as the cause, holding SVV fixed |
 | 2D Zalesak | full $(\xi,\gamma)$ grid, $\xi\in\{0.5,1,1.5,2,2.8\}\times\gamma\in\{0.25,0.5,1,2\}$, one rotation, $N=7$ | **gap closed.** $\xi\ge1.5$ bounded to round-off at every $\gamma$; boundary between $\xi=1$ and $\xi=0.5$; $\gamma$ **not** neutral ($E_r$ ~2× over the row) | `examples/zalesak_disk/evidence/zalesak_xi_gamma_svv_on.png`; 20 runs, one rotation only |
-| 2D Zalesak | $\psi$-normal, $\xi=0.5$, redistancing ON (both `seed="phi"` and in-place `seed="psi"`) | **both crash** | ran with the event's history bug (§4.1d) and not re-run; different regime from the $\xi=2.8$ reference (thinner interface); redistancing has never been tested at $\xi=2.8$ |
+| 2D Zalesak | the two redistancing variants, $\xi=2.8$, $N=5$: `seed="phi"` and in-place `seed="psi"` | recorded: `seed="phi"` completes at $E_r$ 0.7087, worst violation $1.06\times10^{-1}$; `seed="psi"` $E_r$ 1.667 at $t=3$, stopped. **Not citable**: from the earlier configuration (analytic $\psi$, $\lvert\nabla\psi\rvert$ trigger, before the `grad_floor` fix, with the history bug). The shipped `.case` files now use `psi_init = "redistance"` and the 0.5 timer, and have not been re-run (`NEXT_SESSION.md`); $\xi=2.8$ at $N=5$ violates $N\ge3.68\xi$ (§4.1b) | `examples/zalesak_disk/README.md` |
 | 2D Zalesak | arm C: built $\psi$ + periodic reseed, $\xi=1$, $N\in\{3,5,7\}$, with the history restart (2026-10-02) | $N=3$ diverges $t=11.2$; $N=5$ completes at $E_r$ 0.574 (arm B 0.034); $N=7$ diverges $t=4.5$ | §4.1c: the relaxation converges, $\phi$'s contour fragments and the reseed sustains the fragments |
 | 2D Zalesak | SVV on vs off, $\xi=1$ (Saini's $\xi=1/N$), $N\in\{3,5,7\}$, ten rotations, identical $\Delta t$ per pair | SVV-on $E_r$ **0.101 → 0.021 → 0.0040**; SVV-off **0.932 → 0.975 → 1.027** | single-variable; the gap grows 9× → 47× → 256× with $N$ (§5) |
 | Rider–Kothe | re-run 2026-10-02 with the diffusion fix (§4.1d): $\psi$-normal, `svv_psi` $c_0=0.1$, redistancing **OFF**; $\xi\in\{1,1.5,2\}$ × $\gamma$ at $H=1/64$; $h$-series to $H=1/128$ at $\xi=1$ | $E_r(t{=}8)$ 0.0446 → 0.0101 under $h$-refinement (rate ≈2.1); $\xi$ trades shape (0.0446 at $\xi=1$, 0.0705 at $\xi=2$) against boundedness ($2.5\times10^{-3}$ → 0); band $\lvert\nabla\psi\rvert$ to 15 at $t=4$, back to 1.008 at $t=8$, normal within 0.6–1.3° of exact; SVV on $\psi$ worth 10–11% in $E_r$. Saini's full periodic-reseed configuration (scratch user file) completes, $E_r$ 0.0407, but its $\psi$ normal is 4–8° off | `examples/rider_kothe/README.md`; `evidence/` predates the fix |
 | Saini §4.4 circles | Eq. (44) standalone with the authors' configuration from their public case: sign-function $\varepsilon=0.25$ in Eq. (46), dealiased $\mathbf C(\mathbf w)$, their sign guard; their BDF2/EXT2, $c_0{=}2$, $N_{svv}{=}N/6$, $\tau{=}6$, over the 18-cell Fig. 12 grid | **reproduced** (2026-09-29). 12 of 18 cells within 0.1% of their values, four more within 2.2%; the four Table 2 cells are all within 2.2%. Two cells ($H{=}1/5$, $N{=}4$ and 8) fail on our mesh through zero-set round-off, and match exactly when started from their zero-set $\psi_0$ | `examples/redistance_circles/README.md` §4–§5, `evidence/` |
 
-Two corrections from an earlier pass through this repo, worth stating
-plainly: the Zalesak reference result has **redistancing off**, not on — an
-earlier draft of this repo's docs assumed otherwise. And "xi was
-investigated for Zalesak" is true only in the narrow sense of one matched
-2-point comparison at the full-machinery configuration; the broader
-`xi∈{0.5,1,2.8}` sweeps that exist for Zalesak are at simpler configurations
-(bare $\phi$-normal or bare $\psi$-normal, no SVV, 1 rotation only) and don't
-carry over as a validated statement about the 10-rotation reference run.
+The $\phi$-normal runs predate the `grad_floor` fix (§4.1) and were not re-run;
+read them for direction only.
 
-That second caveat is now partly discharged: a full $(\xi,\gamma)$ grid **at
-the reference configuration** (SVV on, $\psi$-normal, redistancing off) was run
-at $N=7$ — but for **one** rotation, not ten. It settles where the stability
-boundary is and that $\gamma$ is not neutral; it does not settle accumulated
-degradation, which is what ten rotations measure. Read it as an operating-envelope
-map, not as a replacement for the 10-rotation numbers.
+The $(\xi,\gamma)$ grid ran **one** rotation, not ten: it maps the operating
+envelope (the stability boundary, $\gamma$ not neutral) but does not measure
+accumulated degradation.
 
 Error norms ($E_r$, $E_v$, $E_s$, boundedness) are Saini et al.'s Eqs.
 79–81 — see `references/saini_2026_test_cases.md` §2 for definitions.
@@ -1081,9 +1038,8 @@ does not show (§5).
 `fig13_error_maps.png`, `fig13_vs_saini.png` (Saini Figs. 11–13 recreated with the
 authors' configuration, §4.4; Fig. 12 with their values dashed, Fig. 13 on their
 colour scale and against their own field); `er_vs_tau.png` ($E_r(\tau)$ to 24 in
-the Table 2 cells, against their code); and the `anim*.mp4` clips and `talk/`.
-The list and captions are in that case's README §7. The earlier figures, made at
-the sign-function $\varepsilon=H/N$, are in `evidence/archive_2026-09-28_epsHN/`.
+the Table 2 cells, against their code); and the `anim*.mp4` clips.
+The list and captions are in that case's README §7.
 
 Material carried over from the upstream investigation has been **removed** where
 it showed a method this repo does not implement — Jain's algebraic normal, the
