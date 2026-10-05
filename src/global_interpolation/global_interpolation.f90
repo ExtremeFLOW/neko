@@ -39,7 +39,7 @@ module global_interpolation
   use stack, only : stack_i4_t
   use dofmap, only : dofmap_t
   use logger, only : neko_log, LOG_SIZE
-  use json_utils, only : json_get_or_lookup_or_default
+  use json_utils, only : json_get_or_lookup_or_default, json_get_or_default
   use json_module, only : json_file
   use utils, only : neko_error
   use local_interpolation, only : local_interpolator_t
@@ -133,6 +133,8 @@ module global_interpolation
      !> If all points are local on this PE.
      !> Turns true if points are redistributed to their respective owners
      logical :: all_points_local = .false.
+     !> Check point validity after finding rst coordinates.
+     logical :: check_after_rst
      !> Tolerance for Newton solve to find the correct rst coordinates.
      real(kind=dp) :: tolerance = GLOB_INTERP_TOL
      !> Padding
@@ -250,6 +252,8 @@ contains
          tol, GLOB_INTERP_TOL)
     call json_get_or_lookup_or_default(params_subdict, 'padding', &
          pad, GLOB_INTERP_PAD)
+    call json_get_or_default(params_subdict, 'check_after_rst', &
+         this%check_after_rst, .true.)
 
     call this%init_xyz(x, y, z, gdim, nelv, Xh, comm = comm, tol = tol, &
          pad = pad)
@@ -1006,7 +1010,9 @@ contains
             this%n_points_local, HOST_TO_DEVICE, sync = .true.)
     end if
 
-    call this%check_points(this%x%x, this%y%x, this%z%x)
+    if (this%check_after_rst) then
+         call this%check_points(this%x%x, this%y%x, this%z%x)
+    end if
 
     !Free stuff
     call send_pe%free()
