@@ -331,7 +331,7 @@ jobs:
       - name: Test - Check
         if: matrix.backend == 'cpu' || matrix.backend == 'metal'
         run: |
-          make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
+          make -j ${{ steps.setup-env.outputs.nproc }} check | tee tests/test-suite.log
 
       - name: Test - Archive test report
         if: failure()
