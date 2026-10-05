@@ -562,7 +562,7 @@ contains
     num_threads = 1
     call scratch%init(1, 1)
 
-    !$omp parallel shared(scratch, n_inuse) private(v, index, thread_id)
+    !$omp parallel shared(scratch) private(v, index, thread_id) reduction(max:n_inuse)
     !$ thread_id = omp_get_thread_num()
     !$ num_threads = omp_get_num_threads()
 
@@ -571,10 +571,7 @@ contains
        call scratch%request(v, index, 42, .true.)
 
        call vector_cfill(v, real(i, kind=rp), 42)
-
-       !$omp critical (test_scratch)
        n_inuse = max(n_inuse, scratch%get_n_inuse())
-       !$omp end critical (test_scratch)
 
        call scratch%relinquish(index)
     end do
