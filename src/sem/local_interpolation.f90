@@ -44,7 +44,7 @@ module local_interpolation
   use field, only : field_t
   use field_list, only : field_list_t
   use device, only : device_alloc, device_free, device_get_ptr, &
-       device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
+       device_memcpy, HOST_TO_DEVICE
   use device_local_interpolation, only : device_compute_weights, &
        device_compute_weights_3arrays
   use math, only : matinv3, matinv39
@@ -80,6 +80,8 @@ module local_interpolation
      procedure, pass(this) :: free => local_interpolator_free
      !> Interpolates the scalar field \f$ X \f$ on the specified coordinates
      procedure, pass(this) :: evaluate => local_interpolator_evaluate
+     procedure, pass(this) :: evaluate_device => &
+          local_interpolator_evaluate_device
      !> COmputes weights based on rst coordinates
      procedure, pass(this) :: compute_weights => &
           local_interpolator_compute_weights
@@ -297,22 +299,6 @@ contains
          this%Xh%lx, n)
   end subroutine local_interpolator_compute_weights_device
 
-  subroutine local_interpolator_copy_weights_to_host(this, n)
-    class(local_interpolator_t), intent(inout) :: this
-    integer, intent(in) :: n
-    integer :: size_weights
-
-    if (n .eq. 0) return
-    call local_interpolator_allocate_host_weights(this)
-    size_weights = this%Xh%lx*n
-    call device_memcpy(this%weights_r, this%weights_r_d, &
-         size_weights, DEVICE_TO_HOST, sync = .false.)
-    call device_memcpy(this%weights_s, this%weights_s_d, &
-         size_weights, DEVICE_TO_HOST, sync = .false.)
-    call device_memcpy(this%weights_t, this%weights_t_d, &
-         size_weights, DEVICE_TO_HOST, sync = .true.)
-  end subroutine local_interpolator_copy_weights_to_host
-
   subroutine local_interpolator_compute_weights_cpu(this, r, s, t)
     class(local_interpolator_t), intent(inout) :: this
     real(kind=rp), intent(in) :: r(:), s(:), t(:)
@@ -354,17 +340,16 @@ contains
   !! @note The weights can be generated with the subroutine `compute_weights`.
   !! Assumes weights have been computed for these points.
   subroutine local_interpolator_evaluate(this, interp_values, el_list, field, &
-       nel, on_host)
+       nel)
     class(local_interpolator_t), intent(inout) :: this
     integer, intent(in), target :: el_list(this%n_points)
     integer, intent(in) :: nel
     real(kind=rp), intent(inout), target :: interp_values(this%n_points)
     real(kind=rp), intent(inout), target :: field(this%Xh%lxyz, nel)
-    logical, intent(in) :: on_host
     type(c_ptr) :: interp_d, field_d, el_list_d
 
     if (this%n_points .eq. 0) return
-    if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        interp_d = device_get_ptr(interp_values)
        field_d = device_get_ptr(field)
        el_list_d = device_get_ptr(el_list)
@@ -372,14 +357,23 @@ contains
             this%weights_r_d, this%weights_s_d, this%weights_t_d, &
             el_list_d, this%n_points)
     else
-       if (NEKO_BCKND_DEVICE .eq. 1) &
-            call local_interpolator_copy_weights_to_host(this, this%n_points)
        call tnsr3d_el_list(interp_values, 1, field, this%Xh%lx, &
             this%weights_r, this%weights_s, this%weights_t, el_list, &
-            this%n_points, on_host)
+            this%n_points, .true.)
     end if
 
   end subroutine local_interpolator_evaluate
+
+  subroutine local_interpolator_evaluate_device(this, interp_d, el_list_d, &
+       field_d)
+    class(local_interpolator_t), intent(inout) :: this
+    type(c_ptr), intent(in) :: interp_d, el_list_d, field_d
+
+    if (this%n_points .eq. 0) return
+    call tnsr3d_el_list_device(interp_d, 1, field_d, this%Xh%lx, &
+         this%weights_r_d, this%weights_s_d, this%weights_t_d, &
+         el_list_d, this%n_points)
+  end subroutine local_interpolator_evaluate_device
 
   !> Constructs the Jacobian, returns a 3-by-3 times number of points where
   !! \f$ [J(\mathbf{r}]_{ij} = \frac{d\mathbf{x}_i}{d\mathbf{r}_j}\f$.

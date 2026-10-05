@@ -752,7 +752,6 @@ contains
     class(probes_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     integer :: i, ierr
-    logical :: do_interp_on_host = .false.
     character(len=1000) :: group_name
     real(kind=rp) :: time_
     type(vector_t) :: vec_time
@@ -763,9 +762,8 @@ contains
 
     !> Check controller to determine if we must write
     do i = 1, this%n_fields
-       call this%global_interp%evaluate(this%out_values(:,i), &
-            this%sampled_fields%items(i)%ptr%x, &
-            do_interp_on_host)
+       call this%global_interp%evaluate_array(this%out_values(:,i), &
+            this%sampled_fields%items(i)%ptr%x)
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

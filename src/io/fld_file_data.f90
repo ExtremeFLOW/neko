@@ -203,16 +203,11 @@ contains
             global_interp_subdict = global_interp_subdict)
 
        ! Evaluate all the fields
-       if (present(u)) call global_interp%evaluate(u%x(:,1,1,1), this%u%x, &
-            on_host = .false.)
-       if (present(v)) call global_interp%evaluate(v%x(:,1,1,1), this%v%x, &
-            on_host = .false.)
-       if (present(w)) call global_interp%evaluate(w%x(:,1,1,1), this%w%x, &
-            on_host = .false.)
-       if (present(p)) call global_interp%evaluate(p%x(:,1,1,1), this%p%x, &
-            on_host = .false.)
-       if (present(t)) call global_interp%evaluate(t%x(:,1,1,1), this%t%x, &
-            on_host = .false.)
+       if (present(u)) call global_interp%evaluate_array(u%x(:,1,1,1), this%u%x)
+       if (present(v)) call global_interp%evaluate_array(v%x(:,1,1,1), this%v%x)
+       if (present(w)) call global_interp%evaluate_array(w%x(:,1,1,1), this%w%x)
+       if (present(p)) call global_interp%evaluate_array(p%x(:,1,1,1), this%p%x)
+       if (present(t)) call global_interp%evaluate_array(t%x(:,1,1,1), this%t%x)
        if (present(s_target_list)) then
 
           ! If the index list exists, use it as a "mask"
@@ -220,12 +215,12 @@ contains
              do i = 1, size(s_index_list)
                 ! Take care that if we set i=0 we want temperature
                 if (s_index_list(i) .eq. 0) then
-                   call global_interp%evaluate(s_target_list%x(i), &
-                        this%t%x, on_host = .false.)
+                   call global_interp%evaluate_array(s_target_list%x(i), &
+                        this%t%x)
                 else if (s_index_list(i) .ge. 1 .and. &
                      s_index_list(i) .le. this%n_scalars) then
-                   call global_interp%evaluate(s_target_list%x(i), &
-                        this%s(s_index_list(i))%x, on_host = .false.)
+                   call global_interp%evaluate_array(s_target_list%x(i), &
+                        this%s(s_index_list(i))%x)
                 else
                    call neko_error("s_index_list entry out of bounds")
                 end if
@@ -234,8 +229,8 @@ contains
              ! otherwise, just copy element-to-element
           else
              do i = 1, s_target_list%size()
-                call global_interp%evaluate(s_target_list%x(i), this%s(i)%x, &
-                     on_host = .false.)
+                call global_interp%evaluate_array(s_target_list%x(i), &
+                     this%s(i)%x)
              end do
           end if ! present s_index_list
        end if ! present s_tgt
