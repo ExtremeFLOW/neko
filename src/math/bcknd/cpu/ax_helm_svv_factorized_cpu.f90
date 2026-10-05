@@ -41,7 +41,7 @@ module ax_helm_svv_factorized_cpu
   implicit none
   private
 
-  !> CPU matrix-vector product for a Helmholtz problem.
+  !> CPU matrix-vector product for a factorized SVV Helmholtz problem.
   type, public, extends(ax_helm_svv_t) :: ax_helm_svv_factorized_cpu_t
    contains
      !> Compute the product.
