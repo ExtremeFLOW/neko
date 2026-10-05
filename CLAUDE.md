@@ -16,7 +16,7 @@ it here. Read `README.md` and `CDI_METHOD.md` before touching a case's `.f90`.
 | `examples/redistance_circles/archive/README_process_2026-09.md` | the archived process record: the audit, the ε = H/N work (drift, capture, apex, N/4 arms), eliminated hypotheses, the study of the authors' code, dated history | when a question is about how or why, or needs an old number |
 | `CDI_METHOD.md` | the method: equations, naming, every design decision. §1 $\xi$ and the notation clash with Saini, §4 redistancing, §4.4 the method lessons of the circles case, §5 SVV, §7 what is actually validated | before touching any `.f90` or making a method claim |
 | `REDISTANCING.md` | when to redistance, and **§9: what the Fortran computes for Eq. (44), routine by routine** | before touching `rd_*`, `unit_normal`, the SVV steps |
-| `NEXT_SESSION.md`, `NEXT_SESSION_RIDER_KOTHE.md` | `NEXT_SESSION.md`: what is open for the coupled cases (D2/D5, $\phi$-normal re-measurement, queued runs). `NEXT_SESSION_RIDER_KOTHE.md`: the Rider–Kothe plan, **partly history** (dated status banner) | working on those cases |
+| `NEXT_SESSION.md` | the Rider–Kothe redistancing plan (velocity lag, the events path, D5/D2, the thin tail), Saini §4.5's reference values, and the parked items for the other cases | working on the coupled cases |
 | `examples/<case>/README.md` | exact parameters and results of that case | before quoting any number |
 | `references/` | the JCP PDF (gitignored) and a frozen snapshot of the test-case notes | see "Writing docs" |
 | `../neko-multiphase/references/` | the older ANL report (PDF) and its reading notes, the source of truth for the notes | only for implementation detail |
@@ -30,8 +30,8 @@ than letting the plan grow.
 
 ## Method invariants — settled, don't relitigate
 
-- **SVV is a `psi`-only knob. `svv_phi` is 0 in every run and is never a
-  variable in any study.** The architecture is fixed: **`phi` carries the CDI
+- **SVV is a `psi`-only knob. There is no `svv_phi`: the code has none, and the
+  three coupled files stop at startup if `case.cdi.svv_phi` is present.** The architecture is fixed: **`phi` carries the CDI
   equation** (transport + compression + the physical diffusion
   `eps*gamma*u_max`); **`psi` carries transport plus SVV**. **Every run that
   transports `psi` for the normal (`normal = "psi"`) has `svv_psi` on, `c0 > 0`**
@@ -156,7 +156,9 @@ than letting the plan grow.
   case": a small, labelled ablation set whose **primary is redistancing off**
   (the validated configuration — don't invert this, an earlier draft of these
   docs did), plus two variants that *add* redistancing (`seed="psi"` in place,
-  `seed="phi"` reinit+redistance). Understanding that distinction
+  `seed="phi"` reinit+redistance). The two variants build $\psi$ by Eq. (44)
+  (`psi_init = "redistance"`) and fire on the timer; their recorded numbers predate
+  that configuration and are not citable until re-run. Understanding that distinction
   (`CDI_METHOD.md` §4) is part of what this repo is for. Don't let the pattern
   spread, and don't grow the set beyond those three without a specific reason.
   (`advecting_slab_1d` ships a $\xi$/$\gamma$/$N$ sweep because its operating
@@ -184,7 +186,7 @@ than letting the plan grow.
   `norms.E_r` before comparing (`examples/rider_kothe/README.md`).
 - Each case's `evidence/` holds the figures and animations produced by this
   repo's own runs: by its `visualize.ipynb`, or for `redistance_circles` by its
-  gitignored `logs/mkfigs.py`. They are meant to be committed, since they are
+  gitignored `logs/saini_case/figs44.py evidence` and `logs/saini_case/anim_new/`. They are meant to be committed, since they are
   the demonstration this repo exists to show. Don't add a placeholder
   `evidence/` to a case that has produced no figures (`CDI_METHOD.md` §8).
 - `references/saini_2026_test_cases.md` is a carried-over snapshot of reading
