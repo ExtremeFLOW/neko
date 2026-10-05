@@ -216,6 +216,7 @@ contains
     type(json_file) :: object_settings
     character(len=:), allocatable :: object_type
     integer :: n_regions, i, j, k, e, n_lags
+    integer :: msk_zeros(2)
     integer :: np_min, nm_min, np_sum, nm_sum, np_empty, nm_empty, n_lag_glb
     integer :: gid_offset
     integer, allocatable :: np_i(:), nm_i(:), cnt_shr(:,:)
@@ -643,6 +644,18 @@ contains
     call idw_assemble(this%gs, this%pmsk, coef%mult)
     call idw_assemble(this%gs, this%mmsk, coef%mult)
 
+    ! Masked dofs per side (reduced over ranks, copies counted once per
+    ! rank): both counts zero means the side split is not in effect
+    if (this%one_sided) then
+       msk_zeros(1) = count(this%pmsk%x .lt. 0.5_rp)
+       msk_zeros(2) = count(this%mmsk%x .lt. 0.5_rp)
+       call MPI_Allreduce(MPI_IN_PLACE, msk_zeros, 2, MPI_INTEGER, MPI_SUM, &
+            NEKO_COMM)
+       write(log_buf, '(A,I0,A,I0)') 'Mask zeros : + side ', msk_zeros(1), &
+            ', - side ', msk_zeros(2)
+       call neko_log%message(log_buf)
+    end if
+
     call idw_compute_weight(this%w, this%wm, this%pmsk, this%lag_pts, &
          this%active_el, this%el_off, this%el_lag, &
          coef%dof%x%x, coef%dof%y%x, coef%dof%z%x, this%ds%x, this%rmax, &
@@ -917,9 +930,11 @@ contains
     character(len=*), intent(in) :: label
     type(field_t), intent(in), optional :: msk
     real(kind=rp), allocatable :: wr(:,:), ws(:,:), wt(:,:), rowabs(:)
+    real(kind=rp), allocatable :: v(:), gv(:)
     character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: rmax, gmin, gsum
-    integer :: i, n_lag, n_zero, n_glb
+    real(kind=rp) :: rmax, gmin, gsum, nrm(2), lam
+    integer :: i, n_lag, n_zero, n_glb, it
+    integer, parameter :: n_power = 20
 
     n_lag = size(d)
     allocate(rowabs(n_lag))
@@ -979,6 +994,62 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A,A,I6)') trim(label), ': zero-weight markers ', n_zero
     call neko_log%message(log_buf)
+
+    ! Largest gain of interp o spread, G D, by power iteration: the
+    ! Gershgorin bound above is pessimistic where the rows of G alternate
+    ! in sign, and this is the number to hold under the stability limit
+    ! of the time integration (4.5 for the un-extrapolated BDF3 forcing)
+    ! when raising `spread_gain`. Markers held by several ranks enter the
+    ! norms once per holder, which does not change the estimate's limit.
+    allocate(v(n_lag), gv(n_lag))
+    v = 1.0_rp
+    lam = 0.0_rp
+    do it = 1, n_power
+       gv = d * v
+       call idw_adjoint_rowsum(this, gv, rowsum, msk)
+       nrm(1) = 0.0_rp
+       nrm(2) = 0.0_rp
+       do i = 1, n_lag
+          nrm(1) = nrm(1) + rowsum(i)**2
+          nrm(2) = nrm(2) + v(i)**2
+       end do
+       call MPI_Allreduce(MPI_IN_PLACE, nrm, 2, MPI_REAL_PRECISION, MPI_SUM, &
+            NEKO_COMM)
+       if (nrm(1) .le. 0.0_rp .or. nrm(2) .le. 0.0_rp) exit
+       lam = sqrt(nrm(1) / nrm(2))
+       v = rowsum / sqrt(nrm(1))
+    end do
+    write(log_buf, '(A,A,F6.3,A,I0,A)') trim(label), &
+         ': largest gain ', lam, ' (', n_power, ' power iterations)'
+    call neko_log%message(log_buf)
+
+    ! One-step nodal response to a unit velocity field, du = S D I(msk 1):
+    ! the gain above bounds it in the mass norm only, so on a graded mesh
+    ! low-mass nodes can still overshoot. max|du| of order one is healthy;
+    ! orders of magnitude above one is the pointwise amplification that
+    ! blows a run up in its first step.
+    this%tmp%x = 1.0_rp
+    gv = 0.0_rp
+    if (present(msk)) then
+       call field_col3(this%ib_fx, this%tmp, msk, this%tmp%size())
+       call this%global_interp%evaluate(gv, this%ib_fx%x, .true.)
+    else
+       call this%global_interp%evaluate(gv, this%tmp%x, .true.)
+    end if
+    gv = d * gv
+    this%ib_fx%x = 0.0_rp
+    call idw_adjoint_apply(this, gv, this%ib_fx, .true., msk)
+    nrm(1) = maxval(abs(this%ib_fx%x))
+    nrm(2) = sum(this%ib_fx%x * this%Bm * this%coef%mult)
+    call MPI_Allreduce(MPI_IN_PLACE, nrm(1), 1, MPI_REAL_PRECISION, MPI_MAX, &
+         NEKO_COMM)
+    call MPI_Allreduce(MPI_IN_PLACE, nrm(2), 1, MPI_REAL_PRECISION, MPI_SUM, &
+         NEKO_COMM)
+    write(log_buf, '(A,A,ES10.3,A,ES10.3)') trim(label), &
+         ': unit response max|du| ', nrm(1), ', int du dV ', nrm(2)
+    call neko_log%message(log_buf)
+    this%ib_fx%x = 0.0_rp
+    deallocate(v, gv)
 
     deallocate(rowabs)
 
