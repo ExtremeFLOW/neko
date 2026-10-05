@@ -1,7 +1,8 @@
-# The coupled cases: what is open
+# What is open
 
-The plan for `advecting_slab_1d`, `zalesak_disk` and `rider_kothe`; the
-Rider–Kothe details are in `NEXT_SESSION_RIDER_KOTHE.md`. Settled results live in
+The plan for `advecting_slab_1d`, `zalesak_disk` and `rider_kothe`, plus the doc and
+code fixes left from the 2026-10-05 review (last section). The Rider–Kothe details are in
+`NEXT_SESSION_RIDER_KOTHE.md`. Settled results live in
 the case READMEs and `CDI_METHOD.md`, standing rules in `CLAUDE.md`. When an item
 is finished, its result goes there and the item leaves this file.
 
@@ -88,6 +89,11 @@ cases: `examples/advecting_slab_1d/phi_{xi05,xi10,p6,p8,p12}.case`,
 re-run, update those READMEs and `evidence/` (`slab_1d_methods.mp4`,
 `slab_1d_psi_field.mp4`, `slab_1d_grad_psi.png`, `zalesak_methods.mp4`), `CDI_METHOD.md` §7 and the root README row.
 
+Until the re-run, the READMEs need a "pre-`grad_floor`-fix" label:
+- `examples/zalesak_disk/README.md:26,121-130,190-203`: the "49×", the ~55 000 nodes and the $\phi$-normal
+  resolution rows;
+- the $\phi$-normal rows of `examples/advecting_slab_1d/README.md`.
+
 Saini's Figs. 9–10 cells (the $\phi$ profile along $y=0.75$, $\xi\in\{0.5,1,1.5\}$,
 $N\in\{5,7\}$): never run here; no `f910_*` output or log exists.
 
@@ -125,3 +131,56 @@ $N\in\{5,7\}$): never run here; no `f910_*` output or log exists.
   arm C each event moved the band mean away from 1 (1.184 → 1.265, 1.250 → 1.328,
   1.207 → 1.327). Untested cause: `svv_rd` at $N_{svv}=N/4=0.75$ gives mode 1 a kernel
   weight of 0.44.
+
+## Doc and code fixes (review of 2026-10-05)
+
+Small content changes, found while committing the branch. Each needs only an edit.
+
+**Numbers that disagree with their source**
+- `examples/zalesak_disk/README.md`:
+  - `:124,356`: the $\phi$-normal worst violation is 5.5e-3; the notebook gives 6.25e-3.
+  - `:455`: the `seed="phi"` worst violation is 9.1e-2; the notebook gives 1.06e-1.
+  - `:71`: "401 frames" for `zalesak.case`; `output_zalesak/` has 101.
+  - `:463`: $E_r$ 1.667 "at $t=3$"; the notebook's last frame is $t=3.20$, at 1.688.
+- `examples/rider_kothe/README.md`:
+  - `:~165`: "band mean 1.60–1.67 after each event" holds for $t=2$–5 only. At $t=6$ and 8 it is
+    1.409 and 1.484 (`logs/d5/ev/rd_quality_eLf_Af.txt`).
+  - `:28,160`: "ran 2026-10-01 with the diffusion fixed" needs a clause saying that the scratch file
+    had the fix. Otherwise it reads as contradicting "every number before 2026-10-02".
+  - The SVV-off $E_r$ 0.0498 ($\xi=1$) has no traceable source.
+- No source found, though not shown wrong: circles README `:~137` (9 of 18 zero-set signs) and
+  `:~145` (h5n8 0.6% without the guard); slab README `:~137` (4-rank 0.00023).
+
+**`examples/redistance_circles/README.md` against the paper**
+- `:46`: "BDF1 on step 1, $\mathbf D_\mu$ from $\psi^n$" is labelled "paper". Neither is printed.
+- `:91`: §4.4 starts on p. 16, not p. 18.
+- `:49`: $\varepsilon=\xi H/N$ is our $\xi$. The paper prints $\varepsilon=\xi H$ with $\xi=\{1,1.5\}/N$, so
+  add the `CDI_METHOD.md` §1 pointer.
+- `:26`: "one element thick in $z$, walls" is our setup, but it sits in the row for the paper's $\Omega$.
+- `eps_1d/README.md:86` divides by $\int|\psi_e|$ without saying why: $\int\psi_e=0$ there.
+
+**References to files that are deleted or local**
+- `CDI_METHOD.md:1084` and circles `README.md:209-210` cite the deleted
+  `evidence/archive_2026-09-28_epsHN/`.
+- `CDI_METHOD.md:1082` and circles `README.md:206-207` cite `evidence/talk/`, which is gitignored.
+- `CLAUDE.md:186` says the circles evidence comes from `logs/mkfigs.py`. It comes from
+  `logs/saini_case/figs44.py evidence` and `logs/saini_case/anim_new/`.
+- `eps_1d/README.md:5,26` and slab `README.md:298-299` cite local files without a "(gitignored,
+  local)" mark.
+
+**Code and scripts**
+- `rider_kothe.f90:385` and `zalesak_disk.f90:389` set the prescribed velocity in `compute`, which runs
+  after the scalar step. Rider–Kothe advects with $u(t_{n-1})$, and step 1 of both runs with $u=0$.
+  This is $O(\Delta t)$ and negligible at the shipped $\Delta t$. Fix: the `preprocess` hook. It is a
+  Fortran change, so ask first.
+- Stale header comments: `advecting_slab_1d.f90:11-12` ("`svv_psi` defaults to off") and
+  `redistance_circles.f90:8-11` ("Rider–Kothe diverges at $t=5.76$").
+- The docstring of `examples/redistance_circles/scripts/gen_cases.py:5-7` says `HN:1`. The committed
+  cells carry 0.25.
+- `eps_1d/eps_mechanism_1d.py:17` hard-codes a workstation path for `sem1d`.
+- The "off" column of `advecting_slab_1d/scripts/slab_table.py` needs the local
+  `logs/svv_off_2026-10-02/` outputs.
+- Small fixes:
+  - `examples/rider_kothe/README.md:9` is missing a blank line.
+  - The slab `.gitignore` lists `logs/` twice.
+  - `contrib/lint_format/lint.sh` was never run, because `flint` is not installed.
