@@ -77,17 +77,30 @@ module gs_mpi_rma
      integer, allocatable :: send_ndofs(:)
      !> Offset of each peer's slab in send_buf (scalar path units)
      integer, allocatable :: send_offset(:)
-     !> Offset of our slab in each peer's receive window (scalar path
-     !! units), exchanged at init
+     !> Offset of our slab in each peer's receive window in dofs,
+     !! exchanged at init. Every put, scalar or fused, lands at
+     !! GS_VEC_NC times this: see win_data.
      integer, allocatable :: send_rdisp(:)
 
-     !> Receive window, holding GS_VEC_NC*recv_total reals
+     !> Receive window, holding GS_VEC_NC*recv_total reals. Peer i owns
+     !! the region [GS_VEC_NC*recv_offset(i), +GS_VEC_NC*recv_ndofs(i)) for
+     !! EVERY round: a scalar round fills its first recv_ndofs(i) entries,
+     !! a fused nc-component round its first nc*recv_ndofs(i). The regions
+     !! must be disjoint across peers whatever the round type, because the
+     !! per-peer ack only protects the acking peer's own slab: a peer that
+     !! has been acked may already be putting its next round while slabs
+     !! from slower peers are still being reduced. Packing scalar rounds
+     !! at 1*offset and fused rounds at nc*offset, as this backend first
+     !! did, let peer i's fused slab overlap peer j's scalar slab and
+     !! corrupted the halo whenever the two round types alternated on one
+     !! instance (fluid_pnpn does so every step).
      type(MPI_Win) :: win_data
      !> Base of the receive window
      type(c_ptr) :: recv_ptr = C_NULL_PTR
      !> Number of dofs received from each peer, in recv_pe order
      integer, allocatable :: recv_ndofs(:)
-     !> Offset of each peer's slab in the receive window (scalar path units)
+     !> Offset of each peer's slab in the receive window in dofs; the slab
+     !! itself starts at GS_VEC_NC times this, see win_data
      integer, allocatable :: recv_offset(:)
      !> Total number of received dofs on this rank
      integer :: recv_total = 0
@@ -393,7 +406,7 @@ contains
        !$omp master
        call gs_mpi_rma_wait_ge(this, pe_size + dst + 1, this%iter - 1_i8)
 
-       rdisp = int(this%send_rdisp(i), MPI_ADDRESS_KIND)
+       rdisp = int(GS_VEC_NC*this%send_rdisp(i), MPI_ADDRESS_KIND)
        call MPI_Put(this%send_buf(base + 1), ndst, MPI_REAL_PRECISION, &
             dst, rdisp, ndst, MPI_REAL_PRECISION, this%win_data, ierr)
        !$omp end master
@@ -439,14 +452,15 @@ contains
     real(kind=rp), pointer :: recv_data(:)
     integer :: i, j, src, base, nsrc, ierr
 
-    call c_f_pointer(this%recv_ptr, recv_data, [max(this%recv_total, 1)])
+    call c_f_pointer(this%recv_ptr, recv_data, &
+         [max(GS_VEC_NC*this%recv_total, 1)])
 
     ! Serial over peers: a dof shared by three or more ranks appears in
     ! several recv_dof lists, so reducing two slabs concurrently would race
     ! on it. The parallelism is taken within each slab instead.
     do i = 1, size(this%recv_pe)
        src = this%recv_pe(i)
-       base = this%recv_offset(i)
+       base = GS_VEC_NC*this%recv_offset(i)
        nsrc = this%recv_ndofs(i)
 
        !$omp master
@@ -523,8 +537,9 @@ contains
   end subroutine gs_mpi_rma_nbwait
 
   !> Fused nc-component send: pack nc contiguous component blocks per peer
-  !! slab and put nc*ndofs reals. Buffer indexing and put sizes scale by nc;
-  !! the signalling is unchanged.
+  !! slab and put nc*ndofs reals into the peer's region, which starts at
+  !! the GS_VEC_NC stride like the scalar one (see win_data). Origin-side
+  !! buffer indexing and put sizes scale by nc; the signalling is unchanged.
   !! @param u compact shared buffer, component-outer: u((c-1)*n + idx).
   subroutine gs_mpi_rma_nbsend_vec(this, u, n, nc, tag, deps, strm)
     class(gs_mpi_rma_t), intent(inout) :: this
@@ -558,7 +573,7 @@ contains
        !$omp master
        call gs_mpi_rma_wait_ge(this, pe_size + dst + 1, this%iter - 1_i8)
 
-       rdisp = int(nc*this%send_rdisp(i), MPI_ADDRESS_KIND)
+       rdisp = int(GS_VEC_NC*this%send_rdisp(i), MPI_ADDRESS_KIND)
        call MPI_Put(this%send_buf(nc*base + 1), nc*ndst, &
             MPI_REAL_PRECISION, dst, rdisp, nc*ndst, MPI_REAL_PRECISION, &
             this%win_data, ierr)
@@ -602,11 +617,13 @@ contains
     real(kind=rp), pointer :: recv_data(:)
     integer :: i, j, c, src, base, nsrc, ierr
 
-    call c_f_pointer(this%recv_ptr, recv_data, [max(nc*this%recv_total, 1)])
+    call c_f_pointer(this%recv_ptr, recv_data, &
+         [max(GS_VEC_NC*this%recv_total, 1)])
 
     do i = 1, size(this%recv_pe)
        src = this%recv_pe(i)
-       base = this%recv_offset(i)
+       ! The slab sits at the GS_VEC_NC stride whatever nc is, see win_data
+       base = GS_VEC_NC*this%recv_offset(i)
        nsrc = this%recv_ndofs(i)
 
        !$omp master
@@ -621,7 +638,7 @@ contains
           do j = 1, nsrc
              do c = 1, nc
                 u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) + &
-                     recv_data(nc*base + (c-1)*nsrc + j)
+                     recv_data(base + (c-1)*nsrc + j)
              end do
           end do
           !$omp end do
@@ -630,7 +647,7 @@ contains
           do j = 1, nsrc
              do c = 1, nc
                 u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) * &
-                     recv_data(nc*base + (c-1)*nsrc + j)
+                     recv_data(base + (c-1)*nsrc + j)
              end do
           end do
           !$omp end do
@@ -639,7 +656,7 @@ contains
           do j = 1, nsrc
              do c = 1, nc
                 u((c-1)*n + sp(j)) = min(u((c-1)*n + sp(j)), &
-                     recv_data(nc*base + (c-1)*nsrc + j))
+                     recv_data(base + (c-1)*nsrc + j))
              end do
           end do
           !$omp end do
@@ -648,7 +665,7 @@ contains
           do j = 1, nsrc
              do c = 1, nc
                 u((c-1)*n + sp(j)) = max(u((c-1)*n + sp(j)), &
-                     recv_data(nc*base + (c-1)*nsrc + j))
+                     recv_data(base + (c-1)*nsrc + j))
              end do
           end do
           !$omp end do
