@@ -4,6 +4,8 @@
 
 - Added probes support for moving mesh (ALE) simulations, with `fixed`
   and `body_attached` modes.
+- Fixed `device_glmax`, `device_glmin` and `device_glamax` hanging when some
+  ranks have zero points.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the
