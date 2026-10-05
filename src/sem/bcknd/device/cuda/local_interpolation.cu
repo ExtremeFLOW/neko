@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <device/device_config.h>
 #include <device/cuda/check.h>
+#include <sem/bcknd/device/cuda/local_interpolation_weights.h>
 
 /**
  * Device kernel for coef drst
@@ -391,6 +392,57 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
 
 
 extern "C" {
+
+  void cuda_local_interpolation_compute_weights(
+      const void *rst, const void *zg, void *wr, void *ws, void *wt,
+      const int *lx, const int *n) {
+    if (*n <= 0) return;
+    const int threads = 256;
+    const int blocks = (*n + threads - 1) / threads;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+#define WEIGHT_CASE(LX) case LX: \
+    local_interpolation_compute_weights_kernel<LX> \
+      <<<blocks, threads, 0, stream>>>((const real *)rst, (const real *)zg, \
+                                       (real *)wr, (real *)ws, (real *)wt, *n); \
+    break
+    switch (*lx) {
+      WEIGHT_CASE(1); WEIGHT_CASE(2); WEIGHT_CASE(3); WEIGHT_CASE(4);
+      WEIGHT_CASE(5); WEIGHT_CASE(6); WEIGHT_CASE(7); WEIGHT_CASE(8);
+      WEIGHT_CASE(9); WEIGHT_CASE(10); WEIGHT_CASE(11); WEIGHT_CASE(12);
+      WEIGHT_CASE(13); WEIGHT_CASE(14); WEIGHT_CASE(15); WEIGHT_CASE(16);
+      default:
+        fprintf(stderr, "Unsupported interpolation order: %d\n", *lx);
+        exit(1);
+    }
+#undef WEIGHT_CASE
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  void cuda_local_interpolation_compute_weights_3arrays(
+      const void *r, const void *s, const void *t, const void *zg,
+      void *wr, void *ws, void *wt, const int *lx, const int *n) {
+    if (*n <= 0) return;
+    const int threads = 256;
+    const int blocks = (*n + threads - 1) / threads;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+#define WEIGHT_CASE(LX) case LX: \
+    local_interpolation_compute_weights_3arrays_kernel<LX> \
+      <<<blocks, threads, 0, stream>>>((const real *)r, (const real *)s, \
+          (const real *)t, (const real *)zg, (real *)wr, (real *)ws, \
+          (real *)wt, *n); \
+    break
+    switch (*lx) {
+      WEIGHT_CASE(1); WEIGHT_CASE(2); WEIGHT_CASE(3); WEIGHT_CASE(4);
+      WEIGHT_CASE(5); WEIGHT_CASE(6); WEIGHT_CASE(7); WEIGHT_CASE(8);
+      WEIGHT_CASE(9); WEIGHT_CASE(10); WEIGHT_CASE(11); WEIGHT_CASE(12);
+      WEIGHT_CASE(13); WEIGHT_CASE(14); WEIGHT_CASE(15); WEIGHT_CASE(16);
+      default:
+        fprintf(stderr, "Unsupported interpolation order: %d\n", *lx);
+        exit(1);
+    }
+#undef WEIGHT_CASE
+    CUDA_CHECK(cudaGetLastError());
+  }
 
   /**
    * Fortran wrapper for generating geometric factors

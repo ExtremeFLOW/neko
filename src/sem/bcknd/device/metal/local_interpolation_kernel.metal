@@ -415,3 +415,75 @@ DEFINE_FIND_RST_LEGENDRE_KERNEL(13)
 DEFINE_FIND_RST_LEGENDRE_KERNEL(14)
 DEFINE_FIND_RST_LEGENDRE_KERNEL(15)
 DEFINE_FIND_RST_LEGENDRE_KERNEL(16)
+
+static void local_interpolation_weights_1d(
+    float xi, const device float *nodes, device float *weights,
+    int p, int lx) {
+  float c[16];
+  for (int j = 0; j < lx; ++j) c[j] = 0.0f;
+  c[0] = 1.0f;
+  float c1 = 1.0f;
+  float c4 = nodes[0] - xi;
+  for (int i = 1; i < lx; ++i) {
+    float c2 = 1.0f;
+    const float c5 = c4;
+    c4 = nodes[i] - xi;
+    for (int j = 0; j < i; ++j) {
+      const float c3 = nodes[i] - nodes[j];
+      c2 *= c3;
+      c[i] = -c1*c5*c[i-1]/c2;
+      c[j] = c4*c[j]/c3;
+    }
+    c1 = c2;
+  }
+  for (int j = 0; j < lx; ++j) weights[p*lx+j] = c[j];
+}
+
+static void local_interpolation_compute_weights_point(
+    float r, float s, float t, const device float *zg,
+    device float *wr, device float *ws, device float *wt,
+    int lx, int p) {
+  if (r <= 1.1f && r >= -1.1f &&
+      s <= 1.1f && s >= -1.1f &&
+      t <= 1.1f && t >= -1.1f) {
+    local_interpolation_weights_1d(r, zg, wr, p, lx);
+    local_interpolation_weights_1d(s, zg+lx, ws, p, lx);
+    local_interpolation_weights_1d(t, zg+2*lx, wt, p, lx);
+  } else {
+    for (int j = 0; j < lx; ++j) {
+      wr[p*lx+j] = 0.0f;
+      ws[p*lx+j] = 0.0f;
+      wt[p*lx+j] = 0.0f;
+    }
+  }
+}
+
+kernel void local_interpolation_compute_weights_kernel(
+    const device float *rst [[buffer(0)]],
+    const device float *zg [[buffer(1)]],
+    device float *wr [[buffer(2)]],
+    device float *ws [[buffer(3)]],
+    device float *wt [[buffer(4)]],
+    constant int &lx [[buffer(5)]],
+    constant int &n [[buffer(6)]],
+    uint p [[thread_position_in_grid]]) {
+  if (p >= (uint)n) return;
+  local_interpolation_compute_weights_point(
+      rst[3*p], rst[3*p+1], rst[3*p+2], zg, wr, ws, wt, lx, p);
+}
+
+kernel void local_interpolation_compute_weights_3arrays_kernel(
+    const device float *r [[buffer(0)]],
+    const device float *s [[buffer(1)]],
+    const device float *t [[buffer(2)]],
+    const device float *zg [[buffer(3)]],
+    device float *wr [[buffer(4)]],
+    device float *ws [[buffer(5)]],
+    device float *wt [[buffer(6)]],
+    constant int &lx [[buffer(7)]],
+    constant int &n [[buffer(8)]],
+    uint p [[thread_position_in_grid]]) {
+  if (p >= (uint)n) return;
+  local_interpolation_compute_weights_point(
+      r[p], s[p], t[p], zg, wr, ws, wt, lx, p);
+}
