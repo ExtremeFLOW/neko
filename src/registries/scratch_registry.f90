@@ -309,7 +309,9 @@ contains
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
+    !$omp critical (SCRATCH_OMP_LOCK)
     n = this%n_entries
+    !$omp end critical (SCRATCH_OMP_LOCK)
   end function get_n_entries
 
   !> Get the number of objects currently in use
@@ -317,11 +319,13 @@ contains
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
+    !$omp critical (SCRATCH_OMP_LOCK)
     if (allocated(this%inuse)) then
        n = count(this%inuse)
     else
        n = 0
     end if
+    !$omp end critical (SCRATCH_OMP_LOCK)
   end function get_n_inuse
 
   !> Get the size of the objects array
@@ -329,11 +333,13 @@ contains
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
+    !$omp critical (SCRATCH_OMP_LOCK)
     if (allocated(this%entries)) then
        n = size(this%entries)
     else
        n = 0
     end if
+    !$omp end critical (SCRATCH_OMP_LOCK)
   end function get_size
 
   !> Get the expansion size
@@ -349,7 +355,9 @@ contains
     class(scratch_registry_t), target, intent(in) :: this
     integer, intent(in) :: index
 
+    !$omp critical (SCRATCH_OMP_LOCK)
     get_inuse = this%inuse(index)
+    !$omp end critical (SCRATCH_OMP_LOCK)
   end function get_inuse
 
   ! -------------------------------------------------------------------------- !
