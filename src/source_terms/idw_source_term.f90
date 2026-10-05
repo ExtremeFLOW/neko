@@ -163,6 +163,14 @@ module idw_source_term
      !! spectral interpolation, f = -(1/dt) mask Binv gs_add(I^T D u_m),
      !! instead of the IDW kernel
      logical :: adjoint_spread = .false.
+     !> Take the adjoint in the pointwise GLL mass inner product (L2
+     !! projection of the point forces, response ~ 1/B at every node)
+     !! instead of the element-lumped one (bounded node response)
+     logical :: adjoint_mass = .false.
+     !> Inverse of the element-lumped mass (element volume over node
+     !! count, averaged over the copies of a shared node), the weight of
+     !! the inner product the adjoint spread is taken in
+     type(field_t) :: winv
      !> Lumped marker weights D of the adjoint spread, + and - side
      real(kind=rp), allocatable :: dp_mark(:)
      real(kind=rp), allocatable :: dm_mark(:)
@@ -217,6 +225,7 @@ contains
     character(len=:), allocatable :: object_type
     integer :: n_regions, i, j, k, e, n_lags
     integer :: msk_zeros(2)
+    logical :: marker_output
     integer :: np_min, nm_min, np_sum, nm_sum, np_empty, nm_empty, n_lag_glb
     integer :: gid_offset
     integer, allocatable :: np_i(:), nm_i(:), cnt_shr(:,:)
@@ -286,16 +295,24 @@ contains
     select case (trim(spread_scheme))
     case ("idw")
        this%adjoint_spread = .false.
-    case ("adjoint")
-       ! The spread is the mass-weighted adjoint of the spectral
-       ! interpolation, i.e. the L2 projection of the marker point forces
-       ! onto the SEM space, with lumped marker weights so that a constant
-       ! marker velocity is removed exactly in one step
+    case ("adjoint", "adjoint_mass")
+       ! The spread is the adjoint of the spectral interpolation, so that
+       ! interp o spread is symmetric positive semi-definite and the
+       ! forcing dissipates the energy of the inner product it is taken
+       ! in. "adjoint" uses the element-lumped mass (element volume over
+       ! node count): constant within an element, so the node response
+       ! has no 1/B amplification at the low-mass GLL corner nodes, and
+       ! it follows the physical mass across elements, so the dissipated
+       ! quantity is the kinetic energy up to the GLL weight ratios.
+       ! "adjoint_mass" uses the pointwise GLL mass, the L2 projection of
+       ! the point forces: variationally exact, but a corner node of a
+       ! cut element, far out in the fluid, is kicked by 1/B.
        if (this%idw_interp) then
           call neko_error('IDW source term: the adjoint spread pairs with &
                &the barycentric interpolation')
        end if
        this%adjoint_spread = .true.
+       this%adjoint_mass = trim(spread_scheme) .eq. 'adjoint_mass'
     case default
        call neko_error('IDW source term unknown spread scheme: ' &
             // trim(spread_scheme))
@@ -321,6 +338,16 @@ contains
     ! every copy
     allocate(this%Bm(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
     this%Bm = 1.0_rp / coef%Binv
+
+    ! Element-lumped mass for the adjoint spread: the local mass of an
+    ! element spread evenly over its nodes, then averaged over the copies
+    ! of a shared node so that the weight is the same on every copy
+    if (this%adjoint_spread) then
+       call this%winv%init(coef%dof, "ib_winv")
+       do e = 1, coef%msh%nelv
+          this%winv%x(:,:,:,e) = sum(coef%B(:,:,:,e)) / real(coef%Xh%lxyz, rp)
+       end do
+    end if
 
 
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
@@ -644,6 +671,15 @@ contains
     call idw_assemble(this%gs, this%pmsk, coef%mult)
     call idw_assemble(this%gs, this%mmsk, coef%mult)
 
+    if (this%adjoint_spread) then
+       call idw_assemble(this%gs, this%winv, coef%mult)
+       this%winv%x = 1.0_rp / this%winv%x
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(this%winv%x, this%winv%x_d, this%winv%size(), &
+               HOST_TO_DEVICE, sync = .true.)
+       end if
+    end if
+
     ! Masked dofs per side (reduced over ranks, copies counted once per
     ! rank): both counts zero means the side split is not in effect
     if (this%one_sided) then
@@ -665,6 +701,12 @@ contains
     call idw_assemble(this%gs, this%wm, coef%mult)
 
     if (this%adjoint_spread) call idw_adjoint_spread_weights(this)
+
+    ! Optional dump of the markers this rank holds, for inspection next to
+    ! the solution: position, normal and the lumped weights of the adjoint
+    ! spread (zero for the kernel spread). One csv per rank.
+    call json_get_or_default(json, 'marker_output', marker_output, .false.)
+    if (marker_output) call idw_write_markers(this)
 
     if (this%idw_interp) then
        ! Per-marker local stencil counts; the counts of markers held by
@@ -797,6 +839,35 @@ contains
 
   end subroutine idw_assemble
 
+  !> Write the markers held by this rank to `idw_markers_<rank>.csv`:
+  !! x, y, z, nx, ny, nz, d_plus, d_minus (the lumped weights of the
+  !! adjoint spread, zero for the kernel spread). Markers held by several
+  !! ranks appear in every holder's file.
+  subroutine idw_write_markers(this)
+    class(idw_source_term_t), intent(inout) :: this
+    character(len=64) :: fname
+    real(kind=rp) :: dp_m, dm_m
+    integer :: i, unit, n_lag
+
+    n_lag = size(this%lag_pts)
+    write(fname, '(A,I0,A)') 'idw_markers_', pe_rank, '.csv'
+    open(newunit = unit, file = trim(fname), status = 'replace', &
+         action = 'write')
+    write(unit, '(A)') 'x,y,z,nx,ny,nz,d_plus,d_minus'
+    do i = 1, n_lag
+       dp_m = 0.0_rp
+       dm_m = 0.0_rp
+       if (allocated(this%dp_mark)) dp_m = this%dp_mark(i)
+       if (allocated(this%dm_mark)) dm_m = this%dm_mark(i)
+       write(unit, '(7(ES16.8,","),ES16.8)') this%lag_pts(i)%x(1), &
+            this%lag_pts(i)%x(2), this%lag_pts(i)%x(3), &
+            this%lag_nrm(i)%x(1), this%lag_nrm(i)%x(2), &
+            this%lag_nrm(i)%x(3), dp_m, dm_m
+    end do
+    close(unit)
+
+  end subroutine idw_write_markers
+
   !> Gather-scatter sum of a field without the multiplicity scaling, on
   !! the host array (the device mirror is used for the exchange on device
   !! builds)
@@ -816,11 +887,13 @@ contains
 
   end subroutine idw_assemble_sum
 
-  !> One side of the adjoint spectral spread: `out += msk * Binv *
-  !! gs_add(I^T vals)`, the mass-weighted adjoint of the masked
-  !! interpolation `I (msk * u)`, so that for every field u
-  !! sum_m vals(m) * I(msk u)(m) = sum_i Bbar(i) u(i) out(i) (out zero on
-  !! entry, dofs counted once). Without `msk` the unmasked operator.
+  !> One side of the adjoint spectral spread: `out += msk * W^-1 *
+  !! gs_add(I^T vals)`, the adjoint of the masked interpolation
+  !! `I (msk * u)` in the inner product with weight W, so that for every
+  !! field u: sum_m vals(m) * I(msk u)(m) = sum_i W(i) u(i) out(i) (out
+  !! zero on entry, dofs counted once). W is the element-lumped mass
+  !! (`winv`), or the assembled GLL mass (`Binv`) with `adjoint_mass`.
+  !! Without `msk` the unmasked operator.
   !! With `on_host` false on a device build everything runs on the device
   !! (`vals` device-mapped); the point values still travel through the
   !! host inside the transpose.
@@ -837,17 +910,26 @@ contains
        call device_rzero(this%tmp%x_d, n)
        call this%global_interp%evaluate_transpose(vals, this%tmp%x, .false.)
        call this%gs%op(this%tmp, GS_OP_ADD)
-       call device_col2(this%tmp%x_d, this%coef%Binv_d, n)
+       if (this%adjoint_mass) then
+          call device_col2(this%tmp%x_d, this%coef%Binv_d, n)
+       else
+          call device_col2(this%tmp%x_d, this%winv%x_d, n)
+       end if
        if (present(msk)) call device_col2(this%tmp%x_d, msk%x_d, n)
        call device_add2(out%x_d, this%tmp%x_d, n)
     else
        this%tmp%x = 0.0_rp
        call this%global_interp%evaluate_transpose(vals, this%tmp%x, .true.)
        call idw_assemble_sum(this%gs, this%tmp)
-       if (present(msk)) then
-          out%x = out%x + msk%x * this%coef%Binv * this%tmp%x
+       if (this%adjoint_mass) then
+          this%tmp%x = this%coef%Binv * this%tmp%x
        else
-          out%x = out%x + this%coef%Binv * this%tmp%x
+          this%tmp%x = this%winv%x * this%tmp%x
+       end if
+       if (present(msk)) then
+          out%x = out%x + msk%x * this%tmp%x
+       else
+          out%x = out%x + this%tmp%x
        end if
     end if
 
@@ -983,10 +1065,27 @@ contains
 
     call MPI_Allreduce(MPI_IN_PLACE, m, 3, MPI_REAL_PRECISION, MPI_MAX, &
          NEKO_COMM)
-    write(log_buf, '(A,A,ES10.3,A,ES10.3,A,ES10.3)') trim(label), &
-         ': unit response max|du| host ', m(1), ', device ', m(2), &
-         ', max diff ', m(3)
+    ! Two lines: the log buffer is LOG_SIZE characters
+    write(log_buf, '(A,A,ES10.3)') trim(label), &
+         ': unit response max|du| host ', m(1)
     call neko_log%message(log_buf)
+    write(log_buf, '(A,A,ES10.3,A,ES10.3)') trim(label), &
+         ': unit response device ', m(2), ', max diff ', m(3)
+    call neko_log%message(log_buf)
+
+    ! Pointwise stability: a node whose velocity changes by more than
+    ! twice its value in one step flips sign and grows, whatever the
+    ! mass-norm spectrum says. The unit response scales with the gain, so
+    ! the gain must stay below 2 * spread_gain / max|du|.
+    if (m(1) .gt. 0.0_rp) then
+       write(log_buf, '(A,A,F6.2)') trim(label), &
+            ': node-stable gain bound ', 2.0_rp * this%spread_gain / m(1)
+       call neko_log%message(log_buf)
+       if (m(1) .gt. 2.0_rp) then
+          call neko_log%warning('spread_gain exceeds the pointwise &
+               &stability bound of the adjoint spread')
+       end if
+    end if
 
     deallocate(vals)
 
@@ -1543,6 +1642,7 @@ contains
     if (allocated(this%dp_mark)) deallocate(this%dp_mark)
     if (allocated(this%dm_mark)) deallocate(this%dm_mark)
     if (allocated(this%vals_adj)) deallocate(this%vals_adj)
+    call this%winv%free()
     if (c_associated(this%dp_mark_d)) call device_free(this%dp_mark_d)
     if (c_associated(this%dm_mark_d)) call device_free(this%dm_mark_d)
     if (c_associated(this%vals_adj_d)) call device_free(this%vals_adj_d)
@@ -2175,9 +2275,12 @@ contains
     type(stack_i4_t) :: overlaps
     type(point_t) :: tri_nrm, tri_cntr, tri_pt
     type(point_t), pointer :: p1, p2, p3
-    real(kind=dp) :: spacing_fac, sb, tb
+    real(kind=dp) :: spacing_fac, sb, tb, h_glb
+    real(kind=dp) :: box_lo(3), box_hi(3)
     real(kind=dp), allocatable :: h_tri(:)
     integer, allocatable :: n_sub(:)
+    logical :: uniform
+    character(len=:), allocatable :: refine_mode
 
     real(kind=dp), dimension(:), allocatable :: box_min, box_max
     real(kind=rp), dimension(3) :: scaling, translation
@@ -2264,6 +2367,21 @@ contains
     if (spacing_fac .le. 0.0_dp) then
        call neko_error('IDW source term: marker_spacing must be positive')
     end if
+    ! 'uniform' (default): one target spacing for the whole surface, the
+    ! smallest grid spacing under any of its triangles, so the marker
+    ! density is the same everywhere. A patch of denser markers acts as a
+    ! stiffer piece of wall under the adjoint spread (clustered markers
+    ! lump with less cancellation), and the step in wall stiffness sheds
+    ! spurious vorticity. 'local': per-triangle spacing, fewer markers.
+    call json_get_or_default(json, 'refinement', refine_mode, 'uniform')
+    select case (trim(refine_mode))
+    case ('uniform')
+       uniform = .true.
+    case ('local')
+       uniform = .false.
+    case default
+       call neko_error('IDW source term: refinement must be uniform or local')
+    end select
 
     call overlaps%init()
 
@@ -2294,8 +2412,15 @@ contains
     call MPI_Allreduce(MPI_IN_PLACE, h_tri, boundary_mesh%nelv, &
          MPI_DOUBLE_PRECISION, MPI_MIN, NEKO_COMM)
 
+    if (uniform) then
+       h_glb = minval(h_tri)
+       where (h_tri .lt. huge(0.0_dp)) h_tri = h_glb
+    end if
+
     n_sub_max = 1
     n_markers = 0
+    box_lo = huge(0.0_dp)
+    box_hi = -huge(0.0_dp)
     do i = 1, boundary_mesh%nelv
        if (h_tri(i) .lt. huge(0.0_dp)) then
           n_sub(i) = max(1, ceiling(boundary_mesh%el(i)%diameter() &
@@ -2304,14 +2429,25 @@ contains
           ! Not overlapping the fluid mesh on any rank, dropped below
           n_sub(i) = 1
        end if
+       if (n_sub(i) .gt. 1) then
+          tri_cntr = boundary_mesh%el(i)%centroid()
+          box_lo = min(box_lo, tri_cntr%x)
+          box_hi = max(box_hi, tri_cntr%x)
+       end if
        n_sub_max = max(n_sub_max, n_sub(i))
        n_markers = n_markers + int(n_sub(i), 8)**2
     end do
     deallocate(h_tri)
 
-    write(log_buf, '(A,I0,A,I0,A)') ' `-Markers : ', n_markers, &
-         ' (max ', n_sub_max, ' per edge)'
+    write(log_buf, '(A,I0,A,I0,A,A,A)') ' `-Markers : ', n_markers, &
+         ' (max ', n_sub_max, ' per edge, ', trim(refine_mode), ')'
     call neko_log%message(log_buf)
+    if (n_sub_max .gt. 1) then
+       write(log_buf, '(A,3ES11.3)') ' `-Refined : from ', box_lo
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,3ES11.3)') ' `-          to   ', box_hi
+       call neko_log%message(log_buf)
+    end if
 
     ! Seed one marker per sub-triangle on a barycentric lattice with n
     ! subdivisions per edge: n(n+1)/2 upward and n(n-1)/2 downward
