@@ -109,3 +109,8 @@ install
 
 # Directory to stash temporary files during development
 .temp
+
+# psi-transport showcase (eriksie/psi-transport/clean-setup)
+build-cuda/
+__pycache__/
+*.pyc
