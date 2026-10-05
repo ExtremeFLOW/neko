@@ -115,6 +115,7 @@ contains
     type(user_t), intent(inout) :: user
     user%startup => startup
     user%initialize => initialize
+    user%preprocess => preprocess
     user%compute => compute
     user%source_term => source_term
     user%material_properties => material_properties
@@ -128,7 +129,8 @@ contains
 
     call json_get(params, "case.cdi.gamma", gamma)
     call json_get(params, "case.cdi.epsilon", eps)
-    u_max = 1.0_rp   ! until compute() measures it
+    u_max = 1.0_rp   ! until preprocess() measures it
+    u_max0 = 1.0_rp
 
     call json_get_or_default(params, "case.cdi.normal", str, "psi")
     select case (trim(str))
@@ -309,13 +311,17 @@ contains
   !> u = sin^2(pi x) sin(2 pi y) cos(pi t/T), v = -sin(2 pi x) sin^2(pi y)
   !> cos(pi t/T). Prescribed every step; case.fluid.freeze = true is what stops
   !> the flow solver overwriting it.
-  subroutine compute(time)
+  !>
+  !> Evaluated at t_n = time%tlag(1), not at time%t = t_{n+1}: the scalar step
+  !> applies advection and compression to s^n and extrapolates them to t_{n+1},
+  !> so each term must be F(u(t_n), s^n). Here rather than in compute() so that
+  !> step 1 sees u(0) instead of the case file's zero.
+  subroutine preprocess(time)
     type(time_state_t), intent(in) :: time
-    type(field_t), pointer :: u, v, psifld
+    type(field_t), pointer :: u, v
     type(coef_t), pointer :: coef
-    integer :: i, n, nband, cg_iters
-    real(kind=rp) :: x, y, tfac, tmp(1), gmin, gmean, gmax
-    character(len=LOG_SIZE) :: mess
+    integer :: i, n
+    real(kind=rp) :: x, y, tfac, tmp(1)
 
     coef => neko_user_access%case%fluid%c_Xh
     u => neko_registry%get_field("u")
@@ -341,7 +347,7 @@ contains
 
     ! |cos(pi t/T)| <= 1, so the peak speed is at t = 0 and a resolution report
     ! taken on the first step is not an underestimate for the rest of the run.
-    tfac = cos(pi*time%t/RK_T)
+    tfac = cos(pi*time%tlag(1)/RK_T)
     call field_cmult2(u, u0, tfac, n)
     call field_cmult2(v, v0, tfac, n)
     u_max = abs(tfac)*u_max0
@@ -350,6 +356,19 @@ contains
       call report_resolution(coef%dof, time%dt)
       reported = .true.
     end if
+  end subroutine preprocess
+
+  !> After the scalar step: the split SVV step, the re-distancing events and
+  !> the band report.
+  subroutine compute(time)
+    type(time_state_t), intent(in) :: time
+    type(field_t), pointer :: psifld
+    type(coef_t), pointer :: coef
+    integer :: nband, cg_iters
+    real(kind=rp) :: gmin, gmean, gmax
+    character(len=LOG_SIZE) :: mess
+
+    coef => neko_user_access%case%fluid%c_Xh
 
     ! An explicit SVV instance is initialised lazily by its own source-term
     ! hook, so if the case file omits `source_terms` on that scalar the term is
@@ -925,6 +944,7 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: properties
     type(time_state_t), intent(in) :: time
+    real(kind=rp) :: lam
 
     if (scheme_name .eq. "fluid") then
       call field_cfill(properties%get("fluid_rho"), 1.0_rp)
@@ -936,12 +956,14 @@ contains
         ! balances compression to hold a tanh profile of half-width eps
         ! (CDI_METHOD.md 5). u_max varies as |cos(pi t/T)| here, so both halves
         ! of that balance shrink together and the equilibrium width is unchanged.
+        ! The diffusion is implicit, at time%t = t_{n+1}; the compression is
+        ! explicit, at t_n and extrapolated to t_{n+1}, so it reads u_max(t_n).
         ! The solve reads s_lambda_tot, which Neko copies from s_lambda only at
         ! init unless a turbulence model is set; without the second fill the
         ! diffusion stays at eps*gamma*u_max(0) and the filament dissolves.
-        call field_cfill(properties%get('s_lambda'), eps*gamma*u_max)
-        call field_cfill(neko_registry%get_field('s_lambda_tot'), &
-             eps*gamma*u_max)
+        lam = eps*gamma*u_max0*abs(cos(pi*time%t/RK_T))
+        call field_cfill(properties%get('s_lambda'), lam)
+        call field_cfill(neko_registry%get_field('s_lambda_tot'), lam)
       else
         call field_cfill(properties%get('s_lambda'), lambda_bg)
       end if

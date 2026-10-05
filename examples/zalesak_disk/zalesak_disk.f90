@@ -113,6 +113,7 @@ contains
     type(user_t), intent(inout) :: user
     user%startup => startup
     user%initialize => initialize
+    user%preprocess => preprocess
     user%compute => compute
     user%source_term => source_term
     user%material_properties => material_properties
@@ -126,7 +127,7 @@ contains
 
     call json_get(params, "case.cdi.gamma", gamma)
     call json_get(params, "case.cdi.epsilon", eps)
-    u_max = pi/sqrt(2.0_rp)   ! until compute() measures it
+    u_max = pi/sqrt(2.0_rp)   ! until preprocess() measures it
 
     call json_get_or_default(params, "case.cdi.normal", str, "phi")
     select case (trim(str))
@@ -343,14 +344,14 @@ contains
 
   !> Solid-body rotation, Saini Eq. (78), prescribed once -- it is steady, and
   !> case.fluid.freeze = true is what stops the flow solver overwriting it.
-  !> Also carries the split implicit SVV steps and the periodic re-distancing.
-  subroutine compute(time)
+  !> Here rather than in compute() so that step 1 sees it instead of the case
+  !> file's zero.
+  subroutine preprocess(time)
     type(time_state_t), intent(in) :: time
-    type(field_t), pointer :: u, v, s, psifld
+    type(field_t), pointer :: u, v
     type(coef_t), pointer :: coef
-    integer :: i, n, cg_iters, nband
-    real(kind=rp) :: x, y, u_tmp(1), gmin, gmean, gmax
-    character(len=LOG_SIZE) :: mess
+    integer :: i
+    real(kind=rp) :: x, y, u_tmp(1)
 
     coef => neko_user_access%case%fluid%c_Xh
 
@@ -375,6 +376,19 @@ contains
       call report_resolution(coef%dof, time%dt)
       reported = .true.
     end if
+  end subroutine preprocess
+
+  !> After the scalar step: the split implicit SVV steps, the periodic
+  !> re-distancing and the band report.
+  subroutine compute(time)
+    type(time_state_t), intent(in) :: time
+    type(field_t), pointer :: s, psifld
+    type(coef_t), pointer :: coef
+    integer :: i, n, cg_iters, nband
+    real(kind=rp) :: gmin, gmean, gmax
+    character(len=LOG_SIZE) :: mess
+
+    coef => neko_user_access%case%fluid%c_Xh
 
     ! An explicit SVV instance is initialised lazily by its own source-term
     ! hook, so if the case file omits `source_terms` on that scalar the term is
