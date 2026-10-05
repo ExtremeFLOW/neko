@@ -2,6 +2,11 @@
 
 ## Develop
 
+- Added `gmres_space_size` to the linear solver blocks, the Krylov space
+  size of `gmres` (default 30).
+- Added a start-up check of each linear solver's operator and preconditioner
+  that warns on incompatible pairings, and `residual_check_interval` to
+  compare the true with the reported residual.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the

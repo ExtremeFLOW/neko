@@ -21,7 +21,7 @@ Makefile: Makefile.in @top_builddir@/config.status
 	cd @top_builddir@ && $(SHELL) ./config.status $(SUBDIR)/Makefile
 
 
-krylov_test_TESTS := test_krylov.pf
+krylov_test_TESTS := test_krylov.pf test_krylov_check.pf
 krylov_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,krylov_test))
 krylov_test.inc: Makefile

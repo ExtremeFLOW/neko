@@ -1791,6 +1791,7 @@ Within the `"solver"` block, the parameters of the linear solver used to solve t
 | `preconditioner.type` | Type of preconditioner to use                                             | `"jacobi"`, `"hsmg"`, `"phmg"` | `"jacobi"`    |
 | `absolute_tolerance`  | Absolute tolerance for solver convergence                                 | Positive real                  | `1.0e-10`     |
 | `max_iterations`      | Maximum number of linear solver iterations                                | Positive integer               | `10000`       |
+| `gmres_space_size`    | Krylov space size of `gmres` before it restarts                           | Positive integer               | `30`          |
 | `monitor`             | Monitor residuals in the linear solver                                    | `true` or `false`              | `false`       |
 | `output_base_shape`   | Enables output of the base shape field \f$ \phi \f$                       | `true` or `false`              | `true`        |
 | `output_stiffness`    | Enables output of the computed mesh stiffness field \f$ h(\mathbf{x}) \f$ | `true` or `false`              | `false`       |
@@ -2066,10 +2067,13 @@ However, its output field can be loaded as an `initial_condition` for a
 subsequent ALE simulation. Saving that field in double precision is
 recommended.
 
-## Linear solver configuration
+## Linear solver configuration {#case-file_linear-solver}
 The mandatory `velocity_solver` and `pressure_solver` objects are used to
 configure the solvers for the momentum and pressure-Poisson equation.
-The following keywords are used, with the corresponding options.
+The following keywords are used, with the corresponding options. The
+[linear solvers](@ref linear-solvers) page describes what each solver
+requires of its preconditioner, how much memory the solvers need, and how to
+choose the tolerance and the multigrid settings.
 
 * `type`, solver type.
   - `cg`, a conjugate gradient solver.
@@ -2082,10 +2086,10 @@ The following keywords are used, with the corresponding options.
     when viscosity varies in space.
   - `gmres`, a GMRES solver. Typically used for pressure.
   - `fused_cg`, a conjugate gradient solver optimised for accelerators using
-  - `fused_coupled_cg`, a coupled conjugate gradient solver optimised for accelerators using
-    kernel fusion. Must be used for velocity when viscosity varies in space and
-    device backened is used.
-    using kernel fusion.
+    kernel fusion.
+  - `fused_coupled_cg`, a coupled conjugate gradient solver optimised for
+    accelerators using kernel fusion. Must be used for velocity when viscosity
+    varies in space and a device backend is used.
 * `preconditioner.type`, preconditioner type.
   - `jacobi`, a Jacobi preconditioner. Typically used for velocity.
   - `hsmg`, a hybrid-Schwarz multigrid preconditioner. Typically used for
@@ -2094,6 +2098,13 @@ The following keywords are used, with the corresponding options.
   - `ident`, an identity matrix (no preconditioner).
 * `absolute_tolerance`, tolerance criterion for convergence.
 * `max_iterations`, maximum number of iterations before giving up.
+* `gmres_space_size`, Krylov space size of `gmres` before it restarts
+   (default 30). GMRES stores `2 * gmres_space_size + 2` fields; see the
+   [linear solvers](@ref linear-solvers) page for choosing it.
+* `residual_check_interval`, if larger than 0, recompute the true residual
+   after the solve every this many steps (and at the first step), print it
+   next to the reported one, and warn when they differ by more than 20 %.
+   Default 0.
 * `projection_space_size`, size of the vector space used for accelerating the
    solution procedure. If 0, then the projection space is not used.
    More important for the pressure equation.
@@ -2105,6 +2116,12 @@ The following keywords are used, with the corresponding options.
    the projection basis at each time. This option works only for pressure projection.
 * `monitor`, monitoring of residuals. If set to true, the residuals will be
   printed for each iteration.
+
+At start-up Neko checks that the operator and preconditioner of each solver
+have the properties the solver requires, prints the result in a
+`Solver check` block of the log and warns on an incompatible pairing, for
+example `cg` with `hsmg`; the simulation continues. See the
+[linear solvers](@ref linear-solvers) page.
 
 In addition to the above settings, the solvers can be configured with strict
 convergence criteria. This is done by setting the
@@ -2215,17 +2232,21 @@ concisely directly in the table.
 | `wall_modelling.type`                              | The wall model type for `wm` boundaries. See documentation for additional config parameters.      | `rough_log_law`, `spalding`                                 | -             |
 | `source_terms`                                     | Array of JSON objects, defining additional source terms.                                          | See list of source terms above                              | -             |
 | `boundary_types`                                   | Boundary types/conditions labels.                                                                 | Array of strings                                            | -             |
-| `velocity_solver.type`                             | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `coupled_bicgstab`, `coupled_cg`, `cacg`, `gmres` | -             |
-| `velocity_solver.preconditioner.type`              | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
+| `velocity_solver.type`                             | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `fused_cg`, `bicgstab`, `coupled_bicgstab`, `coupled_cg`, `fused_coupled_cg`, `cacg`, `gmres` | -             |
+| `velocity_solver.preconditioner.type`              | Linear solver preconditioner for the momentum equation.                                           | `ident`, `jacobi`, `hsmg`, `phmg`                           | -             |
 | `velocity_solver.absolute_tolerance`               | Linear solver convergence criterion for the momentum equation.                                    | Positive real                                               | -             |
-| `velocity_solver.maxiter`                          | Linear solver max iteration count for the momentum equation.                                      | Positive real                                               | 800           |
+| `velocity_solver.max_iterations`                   | Linear solver max iteration count for the momentum equation.                                      | Positive integer                                            | 800           |
+| `velocity_solver.gmres_space_size`                 | Krylov space size of `gmres` for the momentum equation.                                           | Positive integer                                            | 30            |
+| `velocity_solver.residual_check_interval`          | Steps between checks of the true residual of the momentum equation (0 disables).                  | Non-negative integer                                        | 0             |
 | `velocity_solver.projection_space_size`            | Projection space size for the momentum equation.                                                  | Positive integer                                            | 0             |
 | `velocity_solver.projection_hold_steps`            | Holding steps of the projection for the momentum equation.                                        | Positive integer                                            | 5             |
 | `velocity_solver.monitor`                          | Monitor residuals in the linear solver for the momentum equation.                                 | `true` or `false`                                           | `false`       |
-| `pressure_solver.type`                             | Linear solver for the pressure equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`                 | -             |
-| `pressure_solver.preconditioner.type`              | Linear solver preconditioner for the pressure equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
+| `pressure_solver.type`                             | Linear solver for the pressure equation.                                                          | `cg`, `pipecg`, `fused_cg`, `bicgstab`, `cacg`, `gmres`     | -             |
+| `pressure_solver.preconditioner.type`              | Linear solver preconditioner for the pressure equation.                                           | `ident`, `jacobi`, `hsmg`, `phmg`                           | -             |
 | `pressure_solver.absolute_tolerance`               | Linear solver convergence criterion for the pressure equation.                                    | Positive real                                               | -             |
-| `pressure_solver.maxiter`                          | Linear solver max iteration count for the pressure equation.                                      | Positive real                                               | 800           |
+| `pressure_solver.max_iterations`                   | Linear solver max iteration count for the pressure equation.                                      | Positive integer                                            | 800           |
+| `pressure_solver.gmres_space_size`                 | Krylov space size of `gmres` for the pressure equation.                                           | Positive integer                                            | 30            |
+| `pressure_solver.residual_check_interval`          | Steps between checks of the true residual of the pressure equation (0 disables).                  | Non-negative integer                                        | 0             |
 | `pressure_solver.projection_space_size`            | Projection space size for the pressure equation.                                                  | Positive integer                                            | 0             |
 | `pressure_solver.projection_hold_steps`            | Holding steps of the projection for the pressure equation.                                        | Positive integer                                            | 5             |
 | `pressure_solver.projection_reorthogonalize_basis` | Whether to enable pressure projection basis reorthogonalization.                                  | `true` or `false`                                           | `false`       |
@@ -2402,8 +2423,9 @@ of using source terms for the scalar can be found in the `scalar_mms` example.
 ### Linear solver configuration
 
 Should be provided as an object under the `solver` keyword. For available
-configuration options, see the corresponding documentation for the fliud. A
-standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
+configuration options, see the corresponding documentation for the
+[fluid](@ref case-file_linear-solver). A standard choice would be
+`"type": "cg"` and `"preconditioner": {"type": "jacobi"}`.
 
 ### Full parameter table
 
@@ -2425,10 +2447,12 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `source_terms`                 | Array of JSON objects, defining additional source terms.              | See list of source terms above              | -             |
 | `gradient_jump_penalty`        | Array of JSON objects, defining additional gradient jump penalty.     | See list of gradient jump penalty above     | -             |
 | `advection`                    | Whether to compute the advetion term.                                 | `true` or `false`                           | `true`        |
-| `solver.type`                  | Linear solver for scalar equation.                                    | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres` | -             |
-| `solver.preconditioner.type`   | Linear solver preconditioner for the momentum equation.               | `ident`, `hsmg`, `jacobi`                   | -             |
-| `solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.        | Positive real                               | -             |
-| `solver.maxiter`               | Linear solver max iteration count for the momentum equation.          | Positive real                               | 800           |
+| `solver.type`                  | Linear solver for the scalar equation.                                | `cg`, `pipecg`, `fused_cg`, `bicgstab`, `cacg`, `gmres` | -             |
+| `solver.preconditioner.type`   | Linear solver preconditioner for the scalar equation.                 | `ident`, `jacobi`, `hsmg`, `phmg`           | -             |
+| `solver.absolute_tolerance`    | Linear solver convergence criterion for the scalar equation.          | Positive real                               | -             |
+| `solver.max_iterations`        | Linear solver max iteration count for the scalar equation.            | Positive integer                            | 800           |
+| `solver.gmres_space_size`      | Krylov space size of `gmres` for the scalar equation.                 | Positive integer                            | 30            |
+| `solver.residual_check_interval` | Steps between checks of the true residual (0 disables).               | Non-negative integer                        | 0             |
 | `solver.projection_space_size` | Projection space size for the scalar equation.                        | Positive integer                            | 0             |
 | `solver.projection_hold_steps` | Holding steps of the projection for the scalar equation.              | Positive integer                            | 5             |
 

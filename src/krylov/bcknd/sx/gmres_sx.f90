@@ -45,11 +45,13 @@ module gmres_sx
   use math, only : glsc3, rzero, rone, copy, cmult2, col2, col3, add2s2, abscmp
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08
+  use utils, only : neko_error
   implicit none
   private
 
   !> Standard preconditioned generalized minimal residual method (SX version)
   type, public, extends(ksp_t) :: sx_gmres_t
+     !> Krylov space size (restart length). Set before init.
      integer :: lgmres = 30
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: c(:)
@@ -83,6 +85,10 @@ contains
     logical, optional, intent(in) :: monitor
 
     call this%free()
+
+    if (this%lgmres .lt. 1) then
+       call neko_error('GMRES space size must be at least 1')
+    end if
 
     if (present(M)) then
        this%M => M

@@ -47,11 +47,13 @@ module gmres
   use neko_config, only : NEKO_BLK_SIZE
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use utils, only : neko_error
   implicit none
   private
 
   !> Standard preconditioned generalized minimal residual method
   type, public, extends(ksp_t) :: gmres_t
+     !> Krylov space size (restart length). Set before init.
      integer :: lgmres = 30
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: r(:)
@@ -85,6 +87,10 @@ contains
     integer :: nthrds
 
     call this%free()
+
+    if (this%lgmres .lt. 1) then
+       call neko_error('GMRES space size must be at least 1')
+    end if
 
     if (present(M)) then
        this%M => M

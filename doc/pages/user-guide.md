@@ -7,6 +7,7 @@ advanced topics such as statistics and user defined extensions.
 - \subpage installation
 - \subpage meshing
 - \subpage case-file
+- \subpage linear-solvers
 - \subpage user-file
 - \subpage simcomps
 - \subpage point-zones

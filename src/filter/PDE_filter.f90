@@ -40,7 +40,9 @@ module PDE_filter
   use field, only : field_t
   use coefs, only : coef_t
   use ax_product, only : ax_t, ax_helm_allocator
-  use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
+  use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory, &
+       KSP_GMRES_SPACE_SIZE
+  use krylov_check, only : krylov_check_setup
   use precon, only : pc_t, precon_allocator, precon_destroy
   use bc_list, only : bc_list_t
   use scalar_bc_projector, only : scalar_bc_projector_t
@@ -90,6 +92,8 @@ module PDE_filter
      real(kind=rp) :: abstol_filt
      !> max iterations for PDE filter
      integer :: ksp_max_iter
+     !> Krylov space size of GMRES
+     integer :: gmres_space_size = KSP_GMRES_SPACE_SIZE
      !> method for solving PDE
      character(len=:), allocatable :: ksp_solver
      ! > preconditioner type
@@ -127,6 +131,8 @@ contains
     call json_get_or_default(json, "max_iter", max_iter, 200)
     call json_get_or_default(json, "solver", ksp_solver, "cg")
     call json_get_or_default(json, "preconditioner", precon_type, "jacobi")
+    call json_get_or_default(json, "gmres_space_size", this%gmres_space_size, &
+         KSP_GMRES_SPACE_SIZE)
 
     call this%init_from_components(coef, r, tol, max_iter, ksp_solver, &
          precon_type)
@@ -159,13 +165,20 @@ contains
 
     ! set up krylov solver
     call krylov_solver_factory(this%ksp_filt, n, this%ksp_solver, &
-         this%ksp_max_iter, this%abstol_filt)
+         this%ksp_max_iter, this%abstol_filt, &
+         gmres_space_size = this%gmres_space_size)
 
     ! set up preconditioner
     call filter_precon_factory(this%pc_filt, this%ksp_filt, &
          this%coef, this%coef%dof, &
          this%coef%gs_h, &
          this%bc_projector_filt, this%precon_type_filt)
+
+    ! Check that the operator and preconditioner have the properties the
+    ! chosen Krylov method requires
+    call krylov_check_setup('PDE filter', this%ksp_filt, this%Ax, this%coef, &
+         this%coef%gs_h, this%bc_projector_filt, .false., &
+         pc_type = this%precon_type_filt)
 
   end subroutine PDE_filter_init_from_components
 

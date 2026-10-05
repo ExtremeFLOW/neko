@@ -39,7 +39,8 @@ module ale_manager
   use coefs, only : coef_t
   use space, only : space_t
   use ax_product, only : ax_t, ax_helm_allocator
-  use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
+  use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory, &
+       KSP_GMRES_SPACE_SIZE
   use precon, only : pc_t, precon_allocator, precon_destroy
   use bc_list, only : bc_list_t
   use checkpoint, only : chkp_t
@@ -191,6 +192,7 @@ contains
     integer :: time_order
     integer :: n_moving_zones
     integer :: z, tmp_int, ksp_max_iter
+    integer :: gmres_space_size
     integer, allocatable :: moving_zone_ids(:)
     integer :: i, j, k, n_bcs, n, n_bodies
     real(kind=rp), allocatable :: tmp_vec(:)
@@ -294,7 +296,8 @@ contains
     this%wm_z => neko_registry%get_field('wm_z')
 
     call get_ale_solver_params_json(this, json, ksp_solver, precon_type, &
-         precon_params, abstol, ksp_max_iter, res_monitor, import_base_shapes)
+         precon_params, abstol, ksp_max_iter, res_monitor, import_base_shapes, &
+         gmres_space_size)
 
     ! Mark BCs
     call this%bc_moving%init_from_components(coef)
@@ -804,7 +807,7 @@ contains
     ! Find the smooth blending function for mesh displacement.
     call this%solve_base_mesh_displacement(coef, json, import_base_shapes, &
          abstol, ksp_solver, ksp_max_iter, &
-         precon_type, precon_params, res_monitor)
+         precon_type, precon_params, res_monitor, gmres_space_size)
 
     ! If we are restarting, we skip this. It will be handled
     ! properly by chkp file.
@@ -842,7 +845,7 @@ contains
   !> For body i: phi_i = 1 on body i zones, phi_i = 0 on all other boundaries.
   subroutine solve_base_mesh_displacement(this, coef, json, &
        import_base_shapes, abstol, ksp_solver, ksp_max_iter, precon_type, &
-       precon_params, res_monitor)
+       precon_params, res_monitor, gmres_space_size)
     class(ale_manager_t), intent(inout), target :: this
     class(ax_t), allocatable :: Ax
     class(ksp_t), allocatable :: ksp
@@ -854,6 +857,7 @@ contains
     logical, intent(in) :: res_monitor
     character(len=*), intent(in) :: ksp_solver, precon_type
     integer, intent(in) :: ksp_max_iter
+    integer, intent(in) :: gmres_space_size
     type(json_file), intent(inout) :: precon_params
     type(file_t) :: phi_file
     type(field_t), pointer :: phi_ptr => null()
@@ -913,7 +917,8 @@ contains
 
     call ax_helm_allocator(Ax, type_name = "standard")
     call krylov_solver_factory(ksp, n, ksp_solver, &
-         ksp_max_iter, abstol, monitor = res_monitor)
+         ksp_max_iter, abstol, monitor = res_monitor, &
+         gmres_space_size = gmres_space_size)
     call ale_precon_factory(pc, ksp, coef, coef%dof, &
          coef%gs_h, this%bc_list, precon_type, precon_params)
 
@@ -2197,7 +2202,8 @@ contains
   end subroutine ghost_tracker_coord_step
 
   subroutine get_ale_solver_params_json(this, json, ksp_solver, precon_type, &
-       precon_params, abstol, ksp_max_iter, res_monitor, import_base_shapes)
+       precon_params, abstol, ksp_max_iter, res_monitor, import_base_shapes, &
+       gmres_space_size)
     class(ale_manager_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     character(len=:), allocatable, intent(inout) :: ksp_solver
@@ -2207,6 +2213,7 @@ contains
     integer, intent(out) :: ksp_max_iter
     logical, intent(out) :: res_monitor
     logical, intent(out) :: import_base_shapes
+    integer, intent(out) :: gmres_space_size
     logical :: tmp_logical
     character(len=:), allocatable :: tmp_str
 
@@ -2234,6 +2241,8 @@ contains
          res_monitor, .false.)
     call json_get_or_default(json, 'case.fluid.ale.solver.max_iterations', &
          ksp_max_iter, 10000)
+    call json_get_or_default(json, 'case.fluid.ale.solver.gmres_space_size', &
+         gmres_space_size, KSP_GMRES_SPACE_SIZE)
 
     if (json%valid_path('case.fluid.ale.solver.output_base_shape')) then
        call json%get('case.fluid.ale.solver.output_base_shape', tmp_logical)

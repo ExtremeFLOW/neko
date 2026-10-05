@@ -36,7 +36,9 @@ module fluid_pnpn
   use registry, only : neko_registry
   use logger, only : neko_log, LOG_SIZE
   use num_types, only : rp, dp
-  use krylov, only : ksp_monitor_t
+  use krylov, only : ksp_monitor_t, KSP_GMRES_SPACE_SIZE
+  use krylov_check, only : krylov_check_setup, krylov_check_residual, &
+       krylov_check_due
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
        pnpn_prs_res_factory, pnpn_vel_res_factory, &
        pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
@@ -129,6 +131,10 @@ module fluid_pnpn
 
      !> Pressure projection
      type(projection_t) :: proj_prs
+     !> Interval, in time steps, of the true-residual check of the pressure
+     !! and velocity solves (0: only at the first step)
+     integer :: prs_residual_check_interval = 0
+     integer :: vel_residual_check_interval = 0
      type(projection_vel_t) :: proj_vel
 
      !
@@ -253,7 +259,7 @@ contains
     class(bc_t), pointer :: bc_i, vel_bc
     real(kind=rp) :: abs_tol
     character(len=LOG_SIZE) :: log_buf
-    integer :: ierr, integer_val, solver_maxiter
+    integer :: ierr, integer_val, solver_maxiter, gmres_space_size
     character(len=:), allocatable :: solver_type, precon_type
     logical :: monitor, found
     logical :: advection
@@ -405,17 +411,44 @@ contains
          abs_tol)
     call json_get_or_default(params, 'case.fluid.pressure_solver.monitor', &
          monitor, .false.)
+    call json_get_or_default(params, &
+         'case.fluid.pressure_solver.gmres_space_size', &
+         gmres_space_size, KSP_GMRES_SPACE_SIZE)
     call neko_log%message('Type       : ('// trim(solver_type) // &
          ', ' // trim(precon_type) // ')')
     write(log_buf, '(A,ES13.6)') 'Abs tol    :', abs_tol
     call neko_log%message(log_buf)
+    if (trim(solver_type) .eq. 'gmres') then
+       write(log_buf, '(A,I0)') 'GMRES space: ', gmres_space_size
+       call neko_log%message(log_buf)
+    end if
 
     call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-         solver_type, solver_maxiter, abs_tol, monitor)
+         solver_type, solver_maxiter, abs_tol, monitor, gmres_space_size)
     call this%precon_factory_(this%pc_prs, this%ksp_prs, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, &
          precon_type, precon_params)
     call neko_log%end_section()
+
+    call json_get_or_default(params, &
+         'case.fluid.pressure_solver.residual_check_interval', &
+         this%prs_residual_check_interval, 0)
+    call json_get_or_default(params, &
+         'case.fluid.velocity_solver.residual_check_interval', &
+         this%vel_residual_check_interval, 0)
+
+    ! Check that the operators and preconditioners have the properties the
+    ! chosen Krylov methods require
+    call krylov_check_setup('Pressure', this%ksp_prs, this%Ax_prs, this%c_Xh, &
+         this%gs_Xh, this%bcs_prs_projector, .not. this%prs_dirichlet, &
+         pc_type = precon_type)
+    if (.not. this%full_stress_formulation) then
+       call json_get(params, 'case.fluid.velocity_solver.preconditioner.type', &
+            precon_type)
+       call krylov_check_setup('Velocity', this%ksp_vel, this%Ax_vel, &
+            this%c_Xh, this%gs_Xh, this%bcs_vel_projector, &
+            pc_type = precon_type)
+    end if
 
     ! Initialize the advection factory
     call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
@@ -898,6 +931,12 @@ contains
               this%bcs_prs_projector, gs_Xh)
          ksp_results(1)%name = 'Pressure'
 
+         if (iter .eq. 1 .and. &
+              krylov_check_due(tstep, this%prs_residual_check_interval)) then
+            call krylov_check_residual('Pressure', Ax_prs, dp, p_res, c_Xh, &
+                 gs_Xh, this%bcs_prs_projector, ksp_results(1), &
+                 this%ksp_prs%abs_tol)
+         end if
 
          call profiler_end_region('Pressure_solve', 3)
 
@@ -956,6 +995,13 @@ contains
             ksp_results(2)%name = 'X-Velocity'
             ksp_results(3)%name = 'Y-Velocity'
             ksp_results(4)%name = 'Z-Velocity'
+            if (iter .eq. 1 .and. &
+                 krylov_check_due(tstep, this%vel_residual_check_interval)) then
+               call krylov_check_residual(ksp_results(2:4)%name, Ax_vel, &
+                    du, dv, dw, u_res, v_res, w_res, c_Xh, gs_Xh, &
+                    this%bcs_vel_projector, ksp_results(2:4), &
+                    this%ksp_vel%abs_tol)
+            end if
          end if
 
          if (iter .eq. 1) then
