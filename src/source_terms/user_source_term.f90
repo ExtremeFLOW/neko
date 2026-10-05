@@ -128,7 +128,15 @@ contains
   !> Destructor.
   subroutine user_source_term_free(this)
     class(user_source_term_t), intent(inout) :: this
+    integer :: i
 
+    ! The fields are allocated through the list pointers in init
+    do i = 1, this%user_fields%size()
+       if (associated(this%user_fields%items(i)%ptr)) then
+          call this%user_fields%items(i)%ptr%free()
+          deallocate(this%user_fields%items(i)%ptr)
+       end if
+    end do
     call this%user_fields%free()
 
     if (allocated(this%scheme_name)) deallocate(this%scheme_name)

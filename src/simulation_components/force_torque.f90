@@ -439,6 +439,8 @@ contains
     call this%s13msk%free()
     call this%s23msk%free()
 
+    call this%bc%free()
+
     nullify(this%u)
     nullify(this%v)
     nullify(this%w)
