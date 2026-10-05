@@ -7,8 +7,8 @@
 ! et al. (2026) use the two symbols the other way round -- see CDI_METHOD.md
 ! section 1 before reading their equation numbers against this file.
 !
-! SVV on the psi transport equation and periodic re-distancing are both
-! supported here and both default to off. In 1D only the *sign* of grad(psi)
+! SVV on the psi transport is required whenever `normal = "psi"` (startup
+! check); periodic re-distancing is off by default. In 1D only the *sign* of grad(psi)
 ! enters the normal and plain advection preserves it, so this case cannot
 ! motivate re-distancing; it is the cheap place to test the machinery.
 !
@@ -34,7 +34,6 @@ module user
 
   integer, parameter :: NORMAL_PHI = 1, NORMAL_PSI = 2
   integer, parameter :: RD_SEED_PHI = 1, RD_SEED_PSI = 2
-  integer, parameter :: RD_TRIG_TIME = 1, RD_TRIG_GRAD = 2
   integer, parameter :: RD_NITER_MAX = 50000
   integer, parameter :: PSI_INIT_EXACT = 1, PSI_INIT_REDIST = 2
 
@@ -52,19 +51,11 @@ module user
 
   !> Floor on |grad psi| before it is divided out to make the unit normal.
   !>
-  !> This must sit ABOVE the round-off gradient of a numerically flat field,
-  !> which is ~1e-19, not below it. The old value of 1e-30 never engaged, so
-  !> wherever psi is flat the code divided round-off by round-off and handed the
-  !> compression term a UNIT vector in a random direction. That is harmless for a
-  !> global analytic psi, which is never flat, and fatal for a psi built by the
-  !> re-distancing solve, which is deliberately clamped outside its band: the
-  !> div(n) of a random unit field is ~1/h, so the -gamma*phi(1-phi)*div(n) part
-  !> of the compression term becomes an exponential source on phi and blows the
-  !> run up. Measured: Zalesak N=5,7 diverge at t~1.2 with 1e-30 and are bounded
-  !> to 1e-11 with 1e-6.
-  !>
-  !> 1e-6 is verified to leave the analytic-psi runs bit-identical, so it is
-  !> the default rather than an opt-in. Override with case.cdi.grad_floor.
+  !> It must sit ABOVE the ~1e-19 round-off gradient of a numerically flat
+  !> field. Below it, a flat psi (a re-distanced psi is flat outside its band)
+  !> gives a unit normal in a random direction, whose div(n) ~ 1/h turns the
+  !> -gamma*phi(1-phi)*div(n) part of the compression term into an exponential
+  !> source on phi (CDI_METHOD.md section 4.1). Override with case.cdi.grad_floor.
   real(kind=rp), parameter :: GRAD_FLOOR_DEFAULT = 1.0e-6_rp
   real(kind=rp) :: grad_floor = GRAD_FLOOR_DEFAULT
 
@@ -75,14 +66,12 @@ module user
   logical :: rd_on = .false., rd_ready = .false.
   real(kind=rp) :: rd_dt_tls, rd_rf, rd_band, rd_cfl, rd_dtau, rd_next
   real(kind=rp) :: rd_dtau_set
-  real(kind=rp) :: rd_tol_lo, rd_tol_hi
-  integer :: rd_niter, rd_seed = RD_SEED_PHI, rd_trigger = RD_TRIG_TIME
-  integer :: rd_check, rd_events = 0
+  integer :: rd_niter, rd_seed = RD_SEED_PHI, rd_events = 0
 
   real(kind=rp) :: mesh_hgll, mesh_helem, mesh_hn
 
   !> Spectral vanishing viscosity, Saini Eqs. (24)-(29), as a derived type
-  !> because Saini set c0 and N_svv per equation and there are three here.
+  !> because Saini set c0 and N_svv per equation and there are two here.
   type :: svv_t
      character(len=24) :: tag = ""
      logical :: on = .false., ready = .false., imp = .false.
@@ -101,8 +90,6 @@ module user
      procedure, pass(this) :: step_imp => svv_step_imp
   end type svv_t
 
-
-  type(svv_t) :: svv_phi    ! the CDI/phi transport equation
   type(svv_t) :: svv_psi    ! the psi transport equation, Saini Eq. (43)
   type(svv_t) :: svv_rd     ! the psi re-distancing equation, Saini Eq. (44)
 
@@ -158,15 +145,15 @@ contains
       call neko_error("case.cdi.psi_init must be 'exact' or 'redistance'")
     end select
 
-    call svv_phi%read_params(params, "case.cdi.svv_phi", "phi transport", 2.0_rp)
     call svv_psi%read_params(params, "case.cdi.svv_psi", "psi transport", 2.0_rp)
     ! psi is pure advection; its transport always carries SVV, as Saini's
-    ! Eq. (43) does. svv_phi stays 0: that equation has its own diffusion.
+    ! Eq. (43) does. phi's equation has its own, physical, diffusion.
     if (normal_kind .eq. NORMAL_PSI .and. .not. svv_psi%on) &
          call neko_error("case.cdi.normal = 'psi' needs case.cdi.svv_psi " // &
          "with c0 > 0")
-    if (svv_phi%on) call neko_error("case.cdi.svv_phi must stay 0 -- SVV is a " &
-         // "psi-only knob in this repo, see CLAUDE.md and CDI_METHOD.md 5")
+    if (params%valid_path("case.cdi.svv_phi")) call neko_error( &
+         "case.cdi.svv_phi is not supported: SVV is a psi-only knob " // &
+         "(CDI_METHOD.md section 5)")
 
     call svv_rd%read_params(params, "case.cdi.redistance.svv", &
          "psi re-distancing", 4.0_rp)
@@ -199,26 +186,6 @@ contains
       call neko_error("case.cdi.redistance.seed must be 'phi' or 'psi'")
     end select
 
-    call json_get_or_default(params, "case.cdi.redistance.trigger", normal_str, "time")
-    select case (trim(normal_str))
-    case ("time")
-      rd_trigger = RD_TRIG_TIME
-    case ("grad")
-      rd_trigger = RD_TRIG_GRAD
-    case default
-      call neko_error("case.cdi.redistance.trigger must be 'time' or 'grad'")
-    end select
-
-    call json_get_or_default(params, "case.cdi.redistance.tol_lo", rd_tol_lo, &
-         0.8_rp)
-    call json_get_or_default(params, "case.cdi.redistance.tol_hi", rd_tol_hi, &
-         1.25_rp)
-    call json_get_or_default(params, "case.cdi.redistance.check_every", &
-         rd_check, 100)
-    if (rd_tol_lo .le. 0.0_rp .or. rd_tol_hi .le. rd_tol_lo) call neko_error( &
-         "case.cdi.redistance tolerances must satisfy 0 < tol_lo < tol_hi")
-    if (rd_check .lt. 1) &
-         call neko_error("case.cdi.redistance.check_every must be >= 1")
     if (rd_on .and. normal_kind .ne. NORMAL_PSI) call neko_error( &
          "re-distancing only does something when case.cdi.normal = 'psi'")
     if (psi_init_kind .eq. PSI_INIT_REDIST .and. normal_kind .ne. NORMAL_PSI) &
@@ -260,10 +227,6 @@ contains
   ! ------------------------------------------------------------------------
   ! Re-distancing: Saini et al. (2026) Eqs. (44)-(47)
   !
-  ! Ported verbatim from ../zalesak_disk/zalesak_disk.f90. This case cannot
-  ! *motivate* re-distancing -- uniform advection preserves |grad psi| exactly
-  ! -- but it is by far the cheapest place to check that the machinery still
-  ! works: a full run is four minutes here against hours on Zalesak.
   ! ------------------------------------------------------------------------
 
   !> n = grad(src)/|grad(src)|, made continuous the way the solver makes any
@@ -356,8 +319,7 @@ contains
 
   !> min / mean / max of |grad psi| over the interface band, and the band size.
   !> The band is the project's convention, phi(1-phi) > 1e-4. Reduced across
-  !> ranks: the 'grad' trigger branches on the result, and ranks disagreeing
-  !> about whether to re-distance would deadlock in the gather-scatter below.
+  !> ranks.
   subroutine band_grad_stats(coef, gmin, gmean, gmax, nband)
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(out) :: gmin, gmean, gmax
@@ -494,12 +456,11 @@ contains
     end if
 
     ! Saini Eq. (47): discard the transported field and restart from the phase
-    ! field, scaled by r_f. phi's noise re-enters here, and that closes a
-    ! feedback loop -- psi sets n, n perturbs phi, phi re-seeds psi -- measured
-    ! upstream at gain 1.34 per event. seed = 'psi' breaks the loop instead of
-    ! damping it: iterate in place from the transported field, which takes phi
-    ! out of psi's equation entirely. sgn is evaluated on the current psi either
-    ! way, so the zero contour is pinned in both.
+    ! field, scaled by r_f. phi's errors re-enter psi here, which closes a loop:
+    ! psi sets n, n moves phi, phi re-seeds psi. seed = 'psi' iterates in place
+    ! from the transported field instead, which keeps phi out of psi's equation.
+    ! sgn is evaluated on the current psi either way, so the zero contour is
+    ! pinned in both.
     if (use_seed .eq. RD_SEED_PHI) then
       call field_copy(psifld, s, n)
       call field_cadd(psifld, -0.5_rp, n)
@@ -530,10 +491,8 @@ contains
       if (svv_rd%on) call svv_rd%step_imp(coef, psifld, rd_dtau, cg_iters)
     end do
 
-    ! What the event bought and what it cost. |grad psi| before and after says
-    ! whether psi was worth re-distancing; ||dn|| is the kick the new normal
-    ! hands back to the compression term, which is the quantity the phi re-seed
-    ! was measured to amplify by 1.34 per event.
+    ! |grad psi| before and after says whether psi was worth re-distancing;
+    ! ||dn|| is how far the event moves the normal the compression term reads.
     call band_grad_stats(coef, gmin, gmean, gmax, nband)
     if (present(label)) then
       write(mess, '(A,A,A,F9.4,A,I0)') "  ", label, " t=", time%t, &
@@ -580,9 +539,9 @@ contains
   end subroutine redistance
 
   !> Saini's Algorithm 1 line 2: build psi with the same pseudo-time solve that
-  !> later maintains it, rather than seeding an analytic distance. See
-  !> ../zalesak_disk/zalesak_disk.f90 for why it cannot live in the
-  !> initial_conditions hook.
+  !> later maintains it, rather than seeding an analytic distance. It cannot
+  !> live in the initial_conditions hook: makeneko binds neko_user_access only
+  !> after neko_init returns, so coef is unreachable there.
   subroutine initialize(time)
     type(time_state_t), intent(in) :: time
     type(coef_t), pointer :: coef
@@ -604,9 +563,8 @@ contains
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: s, psifld
     type(coef_t), pointer :: coef
-    integer :: cg_iters, nband
-    real(kind=rp) :: cc, gmin, gmean, gmax
-    logical :: rd_fire
+    integer :: cg_iters
+    real(kind=rp) :: cc
     character(len=LOG_SIZE) :: mess
 
     coef => neko_user_access%case%fluid%c_Xh
@@ -635,7 +593,6 @@ contains
       else
         call neko_log%message("  psi at t=0        : exact analytic distance")
       end if
-      call svv_report(svv_phi)
       call svv_report(svv_psi)
       if (rd_on) then
         call svv_report(svv_rd)
@@ -663,15 +620,7 @@ contains
          // "psi scalar needs a user source_terms entry in the case file")
 
     if (rd_on) then
-      rd_fire = .false.
-      if (rd_trigger .eq. RD_TRIG_TIME) then
-        rd_fire = time%t .ge. rd_next
-      else if (mod(time%tstep, rd_check) .eq. 0) then
-        call band_grad_stats(coef, gmin, gmean, gmax, nband)
-        rd_fire = nband .gt. 0 .and. &
-             (gmean .lt. rd_tol_lo .or. gmean .gt. rd_tol_hi)
-      end if
-      if (rd_fire) then
+      if (time%t .ge. rd_next) then
         call redistance(coef, time)
         ! This runs after slag%update(), so psi's BDF lags still hold the
         ! pre-event field and BDF3 would settle at psi_old + 11/6 (psi_new -

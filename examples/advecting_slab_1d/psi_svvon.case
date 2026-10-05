@@ -55,10 +55,6 @@
             "lambda": 1e-16,
             "slab_halfwidth": 0.2,
             "normal": "psi",
-            "svv_phi": {
-                "c0": 0.0,
-                "nsvv_ratio": 2.0
-            },
             "svv_psi": {
                 "c0": 1.0,
                 "nsvv_ratio": 2.0
