@@ -4,12 +4,8 @@
 ! deliberately skewed initial condition toward a known exact distance function,
 ! against their published Table 2 and Fig. 12.
 !
-! This case exists to answer one question the coupled cases cannot: when a
-! re-distancing run goes wrong, is it the method or is it our Eq. (44) solver?
-! Every coupled arm that re-distances periodically diverges -- zalesak_disk at
-! every N and band, and rider_kothe at t = 5.76 of 8 -- and the two failures do
-! not even share a signature. Section 4.4 isolates the solver completely and
-! comes with numbers to hit. See CDI_METHOD.md section 4.4.
+! It isolates our Eq. (44) solver from the coupled cases and checks it against
+! published numbers (their Table 2 and Fig. 12). See CDI_METHOD.md section 4.4.
 !
 ! Naming: Saini call the *distance* field phi here. This repo calls the distance
 ! field psi and the phase field phi, always -- so the Neko scalar below is `psi`
@@ -23,15 +19,14 @@
 ! The shared block below -- the svv_t type, its seven routines, the backend
 ! helpers, logval, ensure_mult_field, unit_normal, rd_sgn and rd_rhs, seventeen
 ! routines in all -- is byte-identical to the copies in zalesak_disk.f90,
-! rider_kothe.f90 and advecting_slab_1d.f90. There are four copies now, not
-! three. A fix to one must be made to all four; check with
-! logs/extract.py before and after. svv_step_eq31 is this case's own and is
-! built on top of them without editing any.
+! rider_kothe.f90 and advecting_slab_1d.f90. A fix to one must be made to all
+! four; check with examples/tools/check_shared_routines.py. svv_step_eq31 is
+! this case's own and is built on top of them without editing any.
 !
 ! Eq. (44) is integrated with Saini's own scheme, BDF2/EXT2 with the SVV
 ! unsplit in the Helmholtz operator (Eqs. 34-35), in redistance_standalone, and
 ! with the three choices of his public code that the paper does not print
-! (nandu90/nekLS_Examples, jcp, intersectingCircles; README section 3.1):
+! (nandu90/nekLS_Examples, jcp, intersectingCircles; README section 2):
 ! epsilon = 0.25 in Eq. (46) (the .case files), C(w) psi dealiased, and his
 ! sign guard. The shared rd_rhs is kept for byte-identity but unused here. The
 ! record of this reproduction, equation by equation, is this case's README.md.
@@ -62,7 +57,7 @@ module user
   real(kind=rp) :: mesh_hgll, mesh_helem, mesh_hn
 
   !> Spectral vanishing viscosity, Saini Eqs. (24)-(29), as a derived type
-  !> because Saini set c0 and N_svv per equation and there are three here.
+  !> because Saini set c0 and N_svv per equation.
   type :: svv_t
      character(len=24) :: tag = ""
      logical :: on = .false., ready = .false., imp = .false.
@@ -134,8 +129,8 @@ contains
     u_max = 1.0_rp
 
     ! N_svv = N/6, c0 = 2 -- Saini's section 4.4 row, the strongest setting
-    ! anywhere in the paper. Their section 4.5 uses N/4, which is the default
-    ! the coupled cases inherit and which this case exists partly to test.
+    ! anywhere in the paper. Their section 4.5 uses N/4, the default
+    ! the coupled cases inherit.
     call svv_rd%read_params(params, "case.cdi.redistance.svv", &
          "psi re-distancing", 6.0_rp)
     ! svv_step_eq31 is implicit and uses the CG work fields, which svv_init
@@ -302,14 +297,9 @@ contains
   ! Mesh, reporting
   ! ------------------------------------------------------------------------
 
-  !> Print the resolution and CFL bookkeeping once, and refuse to run past the
-  !> CDI compression limit. Neko checks the advective CFL but not this one, and
-  !> it is the tighter of the two here by more than an order of magnitude.
   !> Shortest distance between adjacent GLL nodes, the element edge, and the
   !> nominal node spacing H/N -- measured rather than assumed, once. In-plane
-  !> only: w = 0 and the field is z-invariant, so the z spacing cannot limit
-  !> anything. Split out of report_resolution because psi_init needs these
-  !> before the first step, and that report only happens on it.
+  !> only: the field is z-invariant, so the z spacing cannot limit anything.
   subroutine measure_mesh(dof)
     type(dofmap_t), intent(in) :: dof
     integer :: i, j, k, e
@@ -502,8 +492,7 @@ contains
   !> This is band_grad_stats with the phi(1-phi) mask removed -- there is no
   !> phase field here, so there is no band and no reason to look at one. It is
   !> also Eq. (44)'s own residual, sgn(psi)*(1 - |grad psi|), which the coupled
-  !> solver never checks (CDI_METHOD.md 4.3), and it is the quantity that
-  !> collapsed on rider_kothe: 1.277 -> 0.058 over eight events.
+  !> solver never checks (CDI_METHOD.md 4.3).
   subroutine grad_stats(coef, gmin, gmean, gmax)
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(out) :: gmin, gmean, gmax
@@ -675,7 +664,7 @@ contains
   !> w's sgn cancels the source's sgn'(psi) on the zero set, and a w decoupled
   !> from the psi it multiplies leaves growth at up to 1/(2 eps) there.
   !>
-  !> As in Saini's code (README section 3.1): C is dealiased, so nodes on the
+  !> As in Saini's code (README section 2): C is dealiased, so nodes on the
   !> zero set can move and change sign; his sign guard (constrainTLSR) then keeps
   !> psi^n at any node whose psi^n disagrees in sign with psi_0. With the guard,
   !> low-N results depend on the round-off of psi_0 on the zero set.
@@ -810,7 +799,7 @@ contains
   !>
   !> D_mu vanishes on the zero set, so this SVV cannot move a node sitting on
   !> it; the shared svv_step_imp, with |c| = 1 inside the bilinear form, does
-  !> move it and drags the interface (README.md, section 9). It does not
+  !> move it and drags the interface (CDI_METHOD.md section 4.4). It does not
   !> conserve mass (1^T D_mu S_vv /= 0); a distance does not need to.
   !>
   !> The operator is not symmetric. s_new = s_old + D_mu z makes it so,
