@@ -44,6 +44,53 @@
 #include <stdlib.h>
 #include <device/device_config.h>
 #include <device/metal/check.h>
+#include <device/metal/kernel_utils.h>
+
+void metal_local_interpolation_compute_weights(
+    void *rst, void *zg, void *wr, void *ws, void *wt,
+    const int *lx, const int *n) {
+  if (*n <= 0) return;
+  if (*lx < 1 || *lx > 16) {
+    fprintf(stderr, "Unsupported interpolation order: %d\n", *lx);
+    exit(1);
+  }
+  const int lx_r = *lx, n_r = *n;
+  neko_metal_dispatch_1d(
+    neko_metal_pipeline(@"local_interpolation_compute_weights_kernel"),
+    ^(id<MTLComputeCommandEncoder> enc) {
+      [enc setBuffer:(__bridge id<MTLBuffer>)rst offset:0 atIndex:0];
+      [enc setBuffer:(__bridge id<MTLBuffer>)zg offset:0 atIndex:1];
+      [enc setBuffer:(__bridge id<MTLBuffer>)wr offset:0 atIndex:2];
+      [enc setBuffer:(__bridge id<MTLBuffer>)ws offset:0 atIndex:3];
+      [enc setBuffer:(__bridge id<MTLBuffer>)wt offset:0 atIndex:4];
+      [enc setBytes:&lx_r length:sizeof(int) atIndex:5];
+      [enc setBytes:&n_r length:sizeof(int) atIndex:6];
+    }, (NSUInteger)n_r);
+}
+
+void metal_local_interpolation_compute_weights_3arrays(
+    void *r, void *s, void *t, void *zg, void *wr, void *ws, void *wt,
+    const int *lx, const int *n) {
+  if (*n <= 0) return;
+  if (*lx < 1 || *lx > 16) {
+    fprintf(stderr, "Unsupported interpolation order: %d\n", *lx);
+    exit(1);
+  }
+  const int lx_r = *lx, n_r = *n;
+  neko_metal_dispatch_1d(
+    neko_metal_pipeline(@"local_interpolation_compute_weights_3arrays_kernel"),
+    ^(id<MTLComputeCommandEncoder> enc) {
+      [enc setBuffer:(__bridge id<MTLBuffer>)r offset:0 atIndex:0];
+      [enc setBuffer:(__bridge id<MTLBuffer>)s offset:0 atIndex:1];
+      [enc setBuffer:(__bridge id<MTLBuffer>)t offset:0 atIndex:2];
+      [enc setBuffer:(__bridge id<MTLBuffer>)zg offset:0 atIndex:3];
+      [enc setBuffer:(__bridge id<MTLBuffer>)wr offset:0 atIndex:4];
+      [enc setBuffer:(__bridge id<MTLBuffer>)ws offset:0 atIndex:5];
+      [enc setBuffer:(__bridge id<MTLBuffer>)wt offset:0 atIndex:6];
+      [enc setBytes:&lx_r length:sizeof(int) atIndex:7];
+      [enc setBytes:&n_r length:sizeof(int) atIndex:8];
+    }, (NSUInteger)n_r);
+}
 
 /* Defined in device/metal/metal.m */
 extern id<MTLDevice> neko_metal_device(void);
