@@ -1,0 +1,113 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "box.nmsh",
+        "output_directory": "output_rider_x20_g10",
+        "output_boundary": false,
+        "output_checkpoints": false,
+        "output_precision": "double",
+        "time": {
+            "end_time": 8.0,
+            "variable_timestep": false,
+            "timestep": 8.3e-05
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 5,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "freeze": true,
+            "initial_condition": {
+                "type": "uniform",
+                "value": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-06,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 0.001,
+                "max_iterations": 800
+            },
+            "output_control": "simulationtime",
+            "output_value": 0.08,
+            "boundary_conditions": []
+        },
+        "cdi": {
+            "gamma": 1.0,
+            "epsilon": 0.00625,
+            "normal": "psi",
+            "band_report_every": 964,
+            "svv_psi": {
+                "c0": 0.1,
+                "nsvv_ratio": 2.0
+            }
+        },
+        "scalars": [
+            {
+                "name": "s",
+                "enabled": true,
+                "cp": 1.0,
+                "lambda": 1e-16,
+                "initial_condition": {
+                    "type": "user"
+                },
+                "solver": {
+                    "type": "cg",
+                    "preconditioner": {
+                        "type": "jacobi"
+                    },
+                    "projection_space_size": 0,
+                    "absolute_tolerance": 1e-06,
+                    "max_iterations": 800
+                },
+                "boundary_conditions": [],
+                "source_terms": [
+                    {
+                        "type": "user"
+                    }
+                ]
+            },
+            {
+                "name": "psi",
+                "enabled": true,
+                "cp": 1.0,
+                "lambda": 1e-16,
+                "initial_condition": {
+                    "type": "user"
+                },
+                "solver": {
+                    "type": "cg",
+                    "preconditioner": {
+                        "type": "jacobi"
+                    },
+                    "projection_space_size": 0,
+                    "absolute_tolerance": 1e-06,
+                    "max_iterations": 800
+                },
+                "boundary_conditions": [],
+                "source_terms": [
+                    {
+                        "type": "user"
+                    }
+                ]
+            }
+        ]
+    }
+}
