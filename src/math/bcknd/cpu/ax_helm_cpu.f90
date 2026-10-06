@@ -196,22 +196,23 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
-    real(kind=rp) :: tmp
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
+    real(kind=xp) :: tmp
     integer :: e, i, j, k, l
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             tmp = 0.0_rp
+             tmp = 0.0_xp
              do k = 1, lx
-                tmp = tmp + Dx(i,k) * u(k,j,1,e)
+                tmp = tmp + real(Dx(i,k), xp) * u(k,j,1,e)
              end do
              wur(i,j,1) = tmp
           end do
@@ -220,9 +221,9 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                tmp = 0.0_rp
+                tmp = 0.0_xp
                 do l = 1, lx
-                   tmp = tmp + Dy(j,l) * u(i,l,k,e)
+                   tmp = tmp + real(Dy(j,l), xp) * u(i,l,k,e)
                 end do
                 wus(i,j,k) = tmp
              end do
@@ -231,9 +232,9 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             tmp = 0.0_rp
+             tmp = 0.0_xp
              do l = 1, lx
-                tmp = tmp + Dz(k,l) * u(i,1,l,e)
+                tmp = tmp + real(Dz(k,l), xp) * u(i,1,l,e)
              end do
              wut(i,1,k) = tmp
           end do
@@ -256,34 +257,40 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             tmp = 0.0_rp
+             tmp = 0.0_xp
              do k = 1, lx
                 tmp = tmp + Dxt(i,k) * ur(k,j,1)
              end do
-             w(i,j,1,e) = tmp
+             wa(i,j,1) = tmp
           end do
        end do
 
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                tmp = 0.0_rp
+                tmp = 0.0_xp
                 do l = 1, lx
                    tmp = tmp + Dyt(j,l) * us(i,l,k)
                 end do
-                w(i,j,k,e) = w(i,j,k,e) + tmp
+                wa(i,j,k) = wa(i,j,k) + tmp
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             tmp = 0.0_rp
+             tmp = 0.0_xp
              do l = 1, lx
                 tmp = tmp + Dzt(k,l) * ut(i,1,l)
              end do
-             w(i,1,k,e) = w(i,1,k,e) + tmp
+             wa(i,1,k) = wa(i,1,k) + tmp
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
@@ -309,72 +316,73 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
     integer :: e, i, j, k
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                  + Dx(i,2) * u(2,j,1,e) &
-                  + Dx(i,3) * u(3,j,1,e) &
-                  + Dx(i,4) * u(4,j,1,e) &
-                  + Dx(i,5) * u(5,j,1,e) &
-                  + Dx(i,6) * u(6,j,1,e) &
-                  + Dx(i,7) * u(7,j,1,e) &
-                  + Dx(i,8) * u(8,j,1,e) &
-                  + Dx(i,9) * u(9,j,1,e) &
-                  + Dx(i,10) * u(10,j,1,e) &
-                  + Dx(i,11) * u(11,j,1,e) &
-                  + Dx(i,12) * u(12,j,1,e) &
-                  + Dx(i,13) * u(13,j,1,e) &
-                  + Dx(i,14) * u(14,j,1,e)
+             wur(i,j,1) = real(Dx(i,1), xp) * u(1,j,1,e) &
+                  + real(Dx(i,2), xp) * u(2,j,1,e) &
+                  + real(Dx(i,3), xp) * u(3,j,1,e) &
+                  + real(Dx(i,4), xp) * u(4,j,1,e) &
+                  + real(Dx(i,5), xp) * u(5,j,1,e) &
+                  + real(Dx(i,6), xp) * u(6,j,1,e) &
+                  + real(Dx(i,7), xp) * u(7,j,1,e) &
+                  + real(Dx(i,8), xp) * u(8,j,1,e) &
+                  + real(Dx(i,9), xp) * u(9,j,1,e) &
+                  + real(Dx(i,10), xp) * u(10,j,1,e) &
+                  + real(Dx(i,11), xp) * u(11,j,1,e) &
+                  + real(Dx(i,12), xp) * u(12,j,1,e) &
+                  + real(Dx(i,13), xp) * u(13,j,1,e) &
+                  + real(Dx(i,14), xp) * u(14,j,1,e)
           end do
        end do
 
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                     + Dy(j,2) * u(i,2,k,e) &
-                     + Dy(j,3) * u(i,3,k,e) &
-                     + Dy(j,4) * u(i,4,k,e) &
-                     + Dy(j,5) * u(i,5,k,e) &
-                     + Dy(j,6) * u(i,6,k,e) &
-                     + Dy(j,7) * u(i,7,k,e) &
-                     + Dy(j,8) * u(i,8,k,e) &
-                     + Dy(j,9) * u(i,9,k,e) &
-                     + Dy(j,10) * u(i,10,k,e) &
-                     + Dy(j,11) * u(i,11,k,e) &
-                     + Dy(j,12) * u(i,12,k,e) &
-                     + Dy(j,13) * u(i,13,k,e) &
-                     + Dy(j,14) * u(i,14,k,e)
+                wus(i,j,k) = real(Dy(j,1), xp) * u(i,1,k,e) &
+                     + real(Dy(j,2), xp) * u(i,2,k,e) &
+                     + real(Dy(j,3), xp) * u(i,3,k,e) &
+                     + real(Dy(j,4), xp) * u(i,4,k,e) &
+                     + real(Dy(j,5), xp) * u(i,5,k,e) &
+                     + real(Dy(j,6), xp) * u(i,6,k,e) &
+                     + real(Dy(j,7), xp) * u(i,7,k,e) &
+                     + real(Dy(j,8), xp) * u(i,8,k,e) &
+                     + real(Dy(j,9), xp) * u(i,9,k,e) &
+                     + real(Dy(j,10), xp) * u(i,10,k,e) &
+                     + real(Dy(j,11), xp) * u(i,11,k,e) &
+                     + real(Dy(j,12), xp) * u(i,12,k,e) &
+                     + real(Dy(j,13), xp) * u(i,13,k,e) &
+                     + real(Dy(j,14), xp) * u(i,14,k,e)
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                  + Dz(k,2) * u(i,1,2,e) &
-                  + Dz(k,3) * u(i,1,3,e) &
-                  + Dz(k,4) * u(i,1,4,e) &
-                  + Dz(k,5) * u(i,1,5,e) &
-                  + Dz(k,6) * u(i,1,6,e) &
-                  + Dz(k,7) * u(i,1,7,e) &
-                  + Dz(k,8) * u(i,1,8,e) &
-                  + Dz(k,9) * u(i,1,9,e) &
-                  + Dz(k,10) * u(i,1,10,e) &
-                  + Dz(k,11) * u(i,1,11,e) &
-                  + Dz(k,12) * u(i,1,12,e) &
-                  + Dz(k,13) * u(i,1,13,e) &
-                  + Dz(k,14) * u(i,1,14,e)
+             wut(i,1,k) = real(Dz(k,1), xp) * u(i,1,1,e) &
+                  + real(Dz(k,2), xp) * u(i,1,2,e) &
+                  + real(Dz(k,3), xp) * u(i,1,3,e) &
+                  + real(Dz(k,4), xp) * u(i,1,4,e) &
+                  + real(Dz(k,5), xp) * u(i,1,5,e) &
+                  + real(Dz(k,6), xp) * u(i,1,6,e) &
+                  + real(Dz(k,7), xp) * u(i,1,7,e) &
+                  + real(Dz(k,8), xp) * u(i,1,8,e) &
+                  + real(Dz(k,9), xp) * u(i,1,9,e) &
+                  + real(Dz(k,10), xp) * u(i,1,10,e) &
+                  + real(Dz(k,11), xp) * u(i,1,11,e) &
+                  + real(Dz(k,12), xp) * u(i,1,12,e) &
+                  + real(Dz(k,13), xp) * u(i,1,13,e) &
+                  + real(Dz(k,14), xp) * u(i,1,14,e)
           end do
        end do
 
@@ -395,7 +403,7 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             w(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
+             wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
                   + Dxt(i,2) * ur(2,j,1) &
                   + Dxt(i,3) * ur(3,j,1) &
                   + Dxt(i,4) * ur(4,j,1) &
@@ -415,7 +423,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                w(i,j,k,e) = w(i,j,k,e) &
+                wa(i,j,k) = wa(i,j,k) &
                      + Dyt(j,1) * us(i,1,k) &
                      + Dyt(j,2) * us(i,2,k) &
                      + Dyt(j,3) * us(i,3,k) &
@@ -436,7 +444,7 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             w(i,1,k,e) = w(i,1,k,e) &
+             wa(i,1,k) = wa(i,1,k) &
                   + Dzt(k,1) * ut(i,1,1) &
                   + Dzt(k,2) * ut(i,1,2) &
                   + Dzt(k,3) * ut(i,1,3) &
@@ -452,6 +460,12 @@ contains
                   + Dzt(k,13) * ut(i,1,13) &
                   + Dzt(k,14) * ut(i,1,14)
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
@@ -477,31 +491,32 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
     integer :: e, i, j, k
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                  + Dx(i,2) * u(2,j,1,e) &
-                  + Dx(i,3) * u(3,j,1,e) &
-                  + Dx(i,4) * u(4,j,1,e) &
-                  + Dx(i,5) * u(5,j,1,e) &
-                  + Dx(i,6) * u(6,j,1,e) &
-                  + Dx(i,7) * u(7,j,1,e) &
-                  + Dx(i,8) * u(8,j,1,e) &
-                  + Dx(i,9) * u(9,j,1,e) &
-                  + Dx(i,10) * u(10,j,1,e) &
-                  + Dx(i,11) * u(11,j,1,e) &
-                  + Dx(i,12) * u(12,j,1,e) &
-                  + Dx(i,13) * u(13,j,1,e)
+             wur(i,j,1) = real(Dx(i,1), xp) * u(1,j,1,e) &
+                  + real(Dx(i,2), xp) * u(2,j,1,e) &
+                  + real(Dx(i,3), xp) * u(3,j,1,e) &
+                  + real(Dx(i,4), xp) * u(4,j,1,e) &
+                  + real(Dx(i,5), xp) * u(5,j,1,e) &
+                  + real(Dx(i,6), xp) * u(6,j,1,e) &
+                  + real(Dx(i,7), xp) * u(7,j,1,e) &
+                  + real(Dx(i,8), xp) * u(8,j,1,e) &
+                  + real(Dx(i,9), xp) * u(9,j,1,e) &
+                  + real(Dx(i,10), xp) * u(10,j,1,e) &
+                  + real(Dx(i,11), xp) * u(11,j,1,e) &
+                  + real(Dx(i,12), xp) * u(12,j,1,e) &
+                  + real(Dx(i,13), xp) * u(13,j,1,e)
 
           end do
        end do
@@ -509,38 +524,38 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                     + Dy(j,2) * u(i,2,k,e) &
-                     + Dy(j,3) * u(i,3,k,e) &
-                     + Dy(j,4) * u(i,4,k,e) &
-                     + Dy(j,5) * u(i,5,k,e) &
-                     + Dy(j,6) * u(i,6,k,e) &
-                     + Dy(j,7) * u(i,7,k,e) &
-                     + Dy(j,8) * u(i,8,k,e) &
-                     + Dy(j,9) * u(i,9,k,e) &
-                     + Dy(j,10) * u(i,10,k,e) &
-                     + Dy(j,11) * u(i,11,k,e) &
-                     + Dy(j,12) * u(i,12,k,e) &
-                     + Dy(j,13) * u(i,13,k,e)
+                wus(i,j,k) = real(Dy(j,1), xp) * u(i,1,k,e) &
+                     + real(Dy(j,2), xp) * u(i,2,k,e) &
+                     + real(Dy(j,3), xp) * u(i,3,k,e) &
+                     + real(Dy(j,4), xp) * u(i,4,k,e) &
+                     + real(Dy(j,5), xp) * u(i,5,k,e) &
+                     + real(Dy(j,6), xp) * u(i,6,k,e) &
+                     + real(Dy(j,7), xp) * u(i,7,k,e) &
+                     + real(Dy(j,8), xp) * u(i,8,k,e) &
+                     + real(Dy(j,9), xp) * u(i,9,k,e) &
+                     + real(Dy(j,10), xp) * u(i,10,k,e) &
+                     + real(Dy(j,11), xp) * u(i,11,k,e) &
+                     + real(Dy(j,12), xp) * u(i,12,k,e) &
+                     + real(Dy(j,13), xp) * u(i,13,k,e)
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                  + Dz(k,2) * u(i,1,2,e) &
-                  + Dz(k,3) * u(i,1,3,e) &
-                  + Dz(k,4) * u(i,1,4,e) &
-                  + Dz(k,5) * u(i,1,5,e) &
-                  + Dz(k,6) * u(i,1,6,e) &
-                  + Dz(k,7) * u(i,1,7,e) &
-                  + Dz(k,8) * u(i,1,8,e) &
-                  + Dz(k,9) * u(i,1,9,e) &
-                  + Dz(k,10) * u(i,1,10,e) &
-                  + Dz(k,11) * u(i,1,11,e) &
-                  + Dz(k,12) * u(i,1,12,e) &
-                  + Dz(k,13) * u(i,1,13,e)
+             wut(i,1,k) = real(Dz(k,1), xp) * u(i,1,1,e) &
+                  + real(Dz(k,2), xp) * u(i,1,2,e) &
+                  + real(Dz(k,3), xp) * u(i,1,3,e) &
+                  + real(Dz(k,4), xp) * u(i,1,4,e) &
+                  + real(Dz(k,5), xp) * u(i,1,5,e) &
+                  + real(Dz(k,6), xp) * u(i,1,6,e) &
+                  + real(Dz(k,7), xp) * u(i,1,7,e) &
+                  + real(Dz(k,8), xp) * u(i,1,8,e) &
+                  + real(Dz(k,9), xp) * u(i,1,9,e) &
+                  + real(Dz(k,10), xp) * u(i,1,10,e) &
+                  + real(Dz(k,11), xp) * u(i,1,11,e) &
+                  + real(Dz(k,12), xp) * u(i,1,12,e) &
+                  + real(Dz(k,13), xp) * u(i,1,13,e)
           end do
        end do
 
@@ -561,7 +576,7 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             w(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
+             wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
                   + Dxt(i,2) * ur(2,j,1) &
                   + Dxt(i,3) * ur(3,j,1) &
                   + Dxt(i,4) * ur(4,j,1) &
@@ -580,7 +595,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                w(i,j,k,e) = w(i,j,k,e) &
+                wa(i,j,k) = wa(i,j,k) &
                      + Dyt(j,1) * us(i,1,k) &
                      + Dyt(j,2) * us(i,2,k) &
                      + Dyt(j,3) * us(i,3,k) &
@@ -600,7 +615,7 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             w(i,1,k,e) = w(i,1,k,e) &
+             wa(i,1,k) = wa(i,1,k) &
                   + Dzt(k,1) * ut(i,1,1) &
                   + Dzt(k,2) * ut(i,1,2) &
                   + Dzt(k,3) * ut(i,1,3) &
@@ -615,6 +630,12 @@ contains
                   + Dzt(k,12) * ut(i,1,12) &
                   + Dzt(k,13) * ut(i,1,13)
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
@@ -640,66 +661,67 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
     integer :: e, i, j, k
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                  + Dx(i,2) * u(2,j,1,e) &
-                  + Dx(i,3) * u(3,j,1,e) &
-                  + Dx(i,4) * u(4,j,1,e) &
-                  + Dx(i,5) * u(5,j,1,e) &
-                  + Dx(i,6) * u(6,j,1,e) &
-                  + Dx(i,7) * u(7,j,1,e) &
-                  + Dx(i,8) * u(8,j,1,e) &
-                  + Dx(i,9) * u(9,j,1,e) &
-                  + Dx(i,10) * u(10,j,1,e) &
-                  + Dx(i,11) * u(11,j,1,e) &
-                  + Dx(i,12) * u(12,j,1,e)
+             wur(i,j,1) = real(Dx(i,1), xp) * u(1,j,1,e) &
+                  + real(Dx(i,2), xp) * u(2,j,1,e) &
+                  + real(Dx(i,3), xp) * u(3,j,1,e) &
+                  + real(Dx(i,4), xp) * u(4,j,1,e) &
+                  + real(Dx(i,5), xp) * u(5,j,1,e) &
+                  + real(Dx(i,6), xp) * u(6,j,1,e) &
+                  + real(Dx(i,7), xp) * u(7,j,1,e) &
+                  + real(Dx(i,8), xp) * u(8,j,1,e) &
+                  + real(Dx(i,9), xp) * u(9,j,1,e) &
+                  + real(Dx(i,10), xp) * u(10,j,1,e) &
+                  + real(Dx(i,11), xp) * u(11,j,1,e) &
+                  + real(Dx(i,12), xp) * u(12,j,1,e)
           end do
        end do
 
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                     + Dy(j,2) * u(i,2,k,e) &
-                     + Dy(j,3) * u(i,3,k,e) &
-                     + Dy(j,4) * u(i,4,k,e) &
-                     + Dy(j,5) * u(i,5,k,e) &
-                     + Dy(j,6) * u(i,6,k,e) &
-                     + Dy(j,7) * u(i,7,k,e) &
-                     + Dy(j,8) * u(i,8,k,e) &
-                     + Dy(j,9) * u(i,9,k,e) &
-                     + Dy(j,10) * u(i,10,k,e) &
-                     + Dy(j,11) * u(i,11,k,e) &
-                     + Dy(j,12) * u(i,12,k,e)
+                wus(i,j,k) = real(Dy(j,1), xp) * u(i,1,k,e) &
+                     + real(Dy(j,2), xp) * u(i,2,k,e) &
+                     + real(Dy(j,3), xp) * u(i,3,k,e) &
+                     + real(Dy(j,4), xp) * u(i,4,k,e) &
+                     + real(Dy(j,5), xp) * u(i,5,k,e) &
+                     + real(Dy(j,6), xp) * u(i,6,k,e) &
+                     + real(Dy(j,7), xp) * u(i,7,k,e) &
+                     + real(Dy(j,8), xp) * u(i,8,k,e) &
+                     + real(Dy(j,9), xp) * u(i,9,k,e) &
+                     + real(Dy(j,10), xp) * u(i,10,k,e) &
+                     + real(Dy(j,11), xp) * u(i,11,k,e) &
+                     + real(Dy(j,12), xp) * u(i,12,k,e)
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                  + Dz(k,2) * u(i,1,2,e) &
-                  + Dz(k,3) * u(i,1,3,e) &
-                  + Dz(k,4) * u(i,1,4,e) &
-                  + Dz(k,5) * u(i,1,5,e) &
-                  + Dz(k,6) * u(i,1,6,e) &
-                  + Dz(k,7) * u(i,1,7,e) &
-                  + Dz(k,8) * u(i,1,8,e) &
-                  + Dz(k,9) * u(i,1,9,e) &
-                  + Dz(k,10) * u(i,1,10,e) &
-                  + Dz(k,11) * u(i,1,11,e) &
-                  + Dz(k,12) * u(i,1,12,e)
+             wut(i,1,k) = real(Dz(k,1), xp) * u(i,1,1,e) &
+                  + real(Dz(k,2), xp) * u(i,1,2,e) &
+                  + real(Dz(k,3), xp) * u(i,1,3,e) &
+                  + real(Dz(k,4), xp) * u(i,1,4,e) &
+                  + real(Dz(k,5), xp) * u(i,1,5,e) &
+                  + real(Dz(k,6), xp) * u(i,1,6,e) &
+                  + real(Dz(k,7), xp) * u(i,1,7,e) &
+                  + real(Dz(k,8), xp) * u(i,1,8,e) &
+                  + real(Dz(k,9), xp) * u(i,1,9,e) &
+                  + real(Dz(k,10), xp) * u(i,1,10,e) &
+                  + real(Dz(k,11), xp) * u(i,1,11,e) &
+                  + real(Dz(k,12), xp) * u(i,1,12,e)
           end do
        end do
 
@@ -720,7 +742,7 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             w(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
+             wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
                   + Dxt(i,2) * ur(2,j,1) &
                   + Dxt(i,3) * ur(3,j,1) &
                   + Dxt(i,4) * ur(4,j,1) &
@@ -738,7 +760,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                w(i,j,k,e) = w(i,j,k,e) &
+                wa(i,j,k) = wa(i,j,k) &
                      + Dyt(j,1) * us(i,1,k) &
                      + Dyt(j,2) * us(i,2,k) &
                      + Dyt(j,3) * us(i,3,k) &
@@ -757,7 +779,7 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             w(i,1,k,e) = w(i,1,k,e) &
+             wa(i,1,k) = wa(i,1,k) &
                   + Dzt(k,1) * ut(i,1,1) &
                   + Dzt(k,2) * ut(i,1,2) &
                   + Dzt(k,3) * ut(i,1,3) &
@@ -771,6 +793,12 @@ contains
                   + Dzt(k,11) * ut(i,1,11) &
                   + Dzt(k,12) * ut(i,1,12)
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
@@ -796,63 +824,64 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
     integer :: e, i, j, k
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                  + Dx(i,2) * u(2,j,1,e) &
-                  + Dx(i,3) * u(3,j,1,e) &
-                  + Dx(i,4) * u(4,j,1,e) &
-                  + Dx(i,5) * u(5,j,1,e) &
-                  + Dx(i,6) * u(6,j,1,e) &
-                  + Dx(i,7) * u(7,j,1,e) &
-                  + Dx(i,8) * u(8,j,1,e) &
-                  + Dx(i,9) * u(9,j,1,e) &
-                  + Dx(i,10) * u(10,j,1,e) &
-                  + Dx(i,11) * u(11,j,1,e)
+             wur(i,j,1) = real(Dx(i,1), xp) * u(1,j,1,e) &
+                  + real(Dx(i,2), xp) * u(2,j,1,e) &
+                  + real(Dx(i,3), xp) * u(3,j,1,e) &
+                  + real(Dx(i,4), xp) * u(4,j,1,e) &
+                  + real(Dx(i,5), xp) * u(5,j,1,e) &
+                  + real(Dx(i,6), xp) * u(6,j,1,e) &
+                  + real(Dx(i,7), xp) * u(7,j,1,e) &
+                  + real(Dx(i,8), xp) * u(8,j,1,e) &
+                  + real(Dx(i,9), xp) * u(9,j,1,e) &
+                  + real(Dx(i,10), xp) * u(10,j,1,e) &
+                  + real(Dx(i,11), xp) * u(11,j,1,e)
           end do
        end do
 
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                     + Dy(j,2) * u(i,2,k,e) &
-                     + Dy(j,3) * u(i,3,k,e) &
-                     + Dy(j,4) * u(i,4,k,e) &
-                     + Dy(j,5) * u(i,5,k,e) &
-                     + Dy(j,6) * u(i,6,k,e) &
-                     + Dy(j,7) * u(i,7,k,e) &
-                     + Dy(j,8) * u(i,8,k,e) &
-                     + Dy(j,9) * u(i,9,k,e) &
-                     + Dy(j,10) * u(i,10,k,e) &
-                     + Dy(j,11) * u(i,11,k,e)
+                wus(i,j,k) = real(Dy(j,1), xp) * u(i,1,k,e) &
+                     + real(Dy(j,2), xp) * u(i,2,k,e) &
+                     + real(Dy(j,3), xp) * u(i,3,k,e) &
+                     + real(Dy(j,4), xp) * u(i,4,k,e) &
+                     + real(Dy(j,5), xp) * u(i,5,k,e) &
+                     + real(Dy(j,6), xp) * u(i,6,k,e) &
+                     + real(Dy(j,7), xp) * u(i,7,k,e) &
+                     + real(Dy(j,8), xp) * u(i,8,k,e) &
+                     + real(Dy(j,9), xp) * u(i,9,k,e) &
+                     + real(Dy(j,10), xp) * u(i,10,k,e) &
+                     + real(Dy(j,11), xp) * u(i,11,k,e)
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                  + Dz(k,2) * u(i,1,2,e) &
-                  + Dz(k,3) * u(i,1,3,e) &
-                  + Dz(k,4) * u(i,1,4,e) &
-                  + Dz(k,5) * u(i,1,5,e) &
-                  + Dz(k,6) * u(i,1,6,e) &
-                  + Dz(k,7) * u(i,1,7,e) &
-                  + Dz(k,8) * u(i,1,8,e) &
-                  + Dz(k,9) * u(i,1,9,e) &
-                  + Dz(k,10) * u(i,1,10,e) &
-                  + Dz(k,11) * u(i,1,11,e)
+             wut(i,1,k) = real(Dz(k,1), xp) * u(i,1,1,e) &
+                  + real(Dz(k,2), xp) * u(i,1,2,e) &
+                  + real(Dz(k,3), xp) * u(i,1,3,e) &
+                  + real(Dz(k,4), xp) * u(i,1,4,e) &
+                  + real(Dz(k,5), xp) * u(i,1,5,e) &
+                  + real(Dz(k,6), xp) * u(i,1,6,e) &
+                  + real(Dz(k,7), xp) * u(i,1,7,e) &
+                  + real(Dz(k,8), xp) * u(i,1,8,e) &
+                  + real(Dz(k,9), xp) * u(i,1,9,e) &
+                  + real(Dz(k,10), xp) * u(i,1,10,e) &
+                  + real(Dz(k,11), xp) * u(i,1,11,e)
           end do
        end do
 
@@ -873,7 +902,7 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             w(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
+             wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
                   + Dxt(i,2) * ur(2,j,1) &
                   + Dxt(i,3) * ur(3,j,1) &
                   + Dxt(i,4) * ur(4,j,1) &
@@ -890,7 +919,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                w(i,j,k,e) = w(i,j,k,e) &
+                wa(i,j,k) = wa(i,j,k) &
                      + Dyt(j,1) * us(i,1,k) &
                      + Dyt(j,2) * us(i,2,k) &
                      + Dyt(j,3) * us(i,3,k) &
@@ -908,7 +937,7 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             w(i,1,k,e) = w(i,1,k,e) &
+             wa(i,1,k) = wa(i,1,k) &
                   + Dzt(k,1) * ut(i,1,1) &
                   + Dzt(k,2) * ut(i,1,2) &
                   + Dzt(k,3) * ut(i,1,3) &
@@ -921,6 +950,12 @@ contains
                   + Dzt(k,10) * ut(i,1,10) &
                   + Dzt(k,11) * ut(i,1,11)
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
@@ -946,60 +981,61 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
     integer :: e, i, j, k
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                  + Dx(i,2) * u(2,j,1,e) &
-                  + Dx(i,3) * u(3,j,1,e) &
-                  + Dx(i,4) * u(4,j,1,e) &
-                  + Dx(i,5) * u(5,j,1,e) &
-                  + Dx(i,6) * u(6,j,1,e) &
-                  + Dx(i,7) * u(7,j,1,e) &
-                  + Dx(i,8) * u(8,j,1,e) &
-                  + Dx(i,9) * u(9,j,1,e) &
-                  + Dx(i,10) * u(10,j,1,e)
+             wur(i,j,1) = real(Dx(i,1), xp) * u(1,j,1,e) &
+                  + real(Dx(i,2), xp) * u(2,j,1,e) &
+                  + real(Dx(i,3), xp) * u(3,j,1,e) &
+                  + real(Dx(i,4), xp) * u(4,j,1,e) &
+                  + real(Dx(i,5), xp) * u(5,j,1,e) &
+                  + real(Dx(i,6), xp) * u(6,j,1,e) &
+                  + real(Dx(i,7), xp) * u(7,j,1,e) &
+                  + real(Dx(i,8), xp) * u(8,j,1,e) &
+                  + real(Dx(i,9), xp) * u(9,j,1,e) &
+                  + real(Dx(i,10), xp) * u(10,j,1,e)
           end do
        end do
 
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                     + Dy(j,2) * u(i,2,k,e) &
-                     + Dy(j,3) * u(i,3,k,e) &
-                     + Dy(j,4) * u(i,4,k,e) &
-                     + Dy(j,5) * u(i,5,k,e) &
-                     + Dy(j,6) * u(i,6,k,e) &
-                     + Dy(j,7) * u(i,7,k,e) &
-                     + Dy(j,8) * u(i,8,k,e) &
-                     + Dy(j,9) * u(i,9,k,e) &
-                     + Dy(j,10) * u(i,10,k,e)
+                wus(i,j,k) = real(Dy(j,1), xp) * u(i,1,k,e) &
+                     + real(Dy(j,2), xp) * u(i,2,k,e) &
+                     + real(Dy(j,3), xp) * u(i,3,k,e) &
+                     + real(Dy(j,4), xp) * u(i,4,k,e) &
+                     + real(Dy(j,5), xp) * u(i,5,k,e) &
+                     + real(Dy(j,6), xp) * u(i,6,k,e) &
+                     + real(Dy(j,7), xp) * u(i,7,k,e) &
+                     + real(Dy(j,8), xp) * u(i,8,k,e) &
+                     + real(Dy(j,9), xp) * u(i,9,k,e) &
+                     + real(Dy(j,10), xp) * u(i,10,k,e)
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                  + Dz(k,2) * u(i,1,2,e) &
-                  + Dz(k,3) * u(i,1,3,e) &
-                  + Dz(k,4) * u(i,1,4,e) &
-                  + Dz(k,5) * u(i,1,5,e) &
-                  + Dz(k,6) * u(i,1,6,e) &
-                  + Dz(k,7) * u(i,1,7,e) &
-                  + Dz(k,8) * u(i,1,8,e) &
-                  + Dz(k,9) * u(i,1,9,e) &
-                  + Dz(k,10) * u(i,1,10,e)
+             wut(i,1,k) = real(Dz(k,1), xp) * u(i,1,1,e) &
+                  + real(Dz(k,2), xp) * u(i,1,2,e) &
+                  + real(Dz(k,3), xp) * u(i,1,3,e) &
+                  + real(Dz(k,4), xp) * u(i,1,4,e) &
+                  + real(Dz(k,5), xp) * u(i,1,5,e) &
+                  + real(Dz(k,6), xp) * u(i,1,6,e) &
+                  + real(Dz(k,7), xp) * u(i,1,7,e) &
+                  + real(Dz(k,8), xp) * u(i,1,8,e) &
+                  + real(Dz(k,9), xp) * u(i,1,9,e) &
+                  + real(Dz(k,10), xp) * u(i,1,10,e)
           end do
        end do
 
@@ -1020,7 +1056,7 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             w(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
+             wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
                   + Dxt(i,2) * ur(2,j,1) &
                   + Dxt(i,3) * ur(3,j,1) &
                   + Dxt(i,4) * ur(4,j,1) &
@@ -1036,7 +1072,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                w(i,j,k,e) = w(i,j,k,e) &
+                wa(i,j,k) = wa(i,j,k) &
                      + Dyt(j,1) * us(i,1,k) &
                      + Dyt(j,2) * us(i,2,k) &
                      + Dyt(j,3) * us(i,3,k) &
@@ -1053,7 +1089,7 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             w(i,1,k,e) = w(i,1,k,e) &
+             wa(i,1,k) = wa(i,1,k) &
                   + Dzt(k,1) * ut(i,1,1) &
                   + Dzt(k,2) * ut(i,1,2) &
                   + Dzt(k,3) * ut(i,1,3) &
@@ -1065,6 +1101,12 @@ contains
                   + Dzt(k,9) * ut(i,1,9) &
                   + Dzt(k,10) * ut(i,1,10)
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
@@ -1090,57 +1132,58 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
     integer :: e, i, j, k
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                  + Dx(i,2) * u(2,j,1,e) &
-                  + Dx(i,3) * u(3,j,1,e) &
-                  + Dx(i,4) * u(4,j,1,e) &
-                  + Dx(i,5) * u(5,j,1,e) &
-                  + Dx(i,6) * u(6,j,1,e) &
-                  + Dx(i,7) * u(7,j,1,e) &
-                  + Dx(i,8) * u(8,j,1,e) &
-                  + Dx(i,9) * u(9,j,1,e)
+             wur(i,j,1) = real(Dx(i,1), xp) * u(1,j,1,e) &
+                  + real(Dx(i,2), xp) * u(2,j,1,e) &
+                  + real(Dx(i,3), xp) * u(3,j,1,e) &
+                  + real(Dx(i,4), xp) * u(4,j,1,e) &
+                  + real(Dx(i,5), xp) * u(5,j,1,e) &
+                  + real(Dx(i,6), xp) * u(6,j,1,e) &
+                  + real(Dx(i,7), xp) * u(7,j,1,e) &
+                  + real(Dx(i,8), xp) * u(8,j,1,e) &
+                  + real(Dx(i,9), xp) * u(9,j,1,e)
           end do
        end do
 
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                     + Dy(j,2) * u(i,2,k,e) &
-                     + Dy(j,3) * u(i,3,k,e) &
-                     + Dy(j,4) * u(i,4,k,e) &
-                     + Dy(j,5) * u(i,5,k,e) &
-                     + Dy(j,6) * u(i,6,k,e) &
-                     + Dy(j,7) * u(i,7,k,e) &
-                     + Dy(j,8) * u(i,8,k,e) &
-                     + Dy(j,9) * u(i,9,k,e)
+                wus(i,j,k) = real(Dy(j,1), xp) * u(i,1,k,e) &
+                     + real(Dy(j,2), xp) * u(i,2,k,e) &
+                     + real(Dy(j,3), xp) * u(i,3,k,e) &
+                     + real(Dy(j,4), xp) * u(i,4,k,e) &
+                     + real(Dy(j,5), xp) * u(i,5,k,e) &
+                     + real(Dy(j,6), xp) * u(i,6,k,e) &
+                     + real(Dy(j,7), xp) * u(i,7,k,e) &
+                     + real(Dy(j,8), xp) * u(i,8,k,e) &
+                     + real(Dy(j,9), xp) * u(i,9,k,e)
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                  + Dz(k,2) * u(i,1,2,e) &
-                  + Dz(k,3) * u(i,1,3,e) &
-                  + Dz(k,4) * u(i,1,4,e) &
-                  + Dz(k,5) * u(i,1,5,e) &
-                  + Dz(k,6) * u(i,1,6,e) &
-                  + Dz(k,7) * u(i,1,7,e) &
-                  + Dz(k,8) * u(i,1,8,e) &
-                  + Dz(k,9) * u(i,1,9,e)
+             wut(i,1,k) = real(Dz(k,1), xp) * u(i,1,1,e) &
+                  + real(Dz(k,2), xp) * u(i,1,2,e) &
+                  + real(Dz(k,3), xp) * u(i,1,3,e) &
+                  + real(Dz(k,4), xp) * u(i,1,4,e) &
+                  + real(Dz(k,5), xp) * u(i,1,5,e) &
+                  + real(Dz(k,6), xp) * u(i,1,6,e) &
+                  + real(Dz(k,7), xp) * u(i,1,7,e) &
+                  + real(Dz(k,8), xp) * u(i,1,8,e) &
+                  + real(Dz(k,9), xp) * u(i,1,9,e)
           end do
        end do
 
@@ -1161,7 +1204,7 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             w(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
+             wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
                   + Dxt(i,2) * ur(2,j,1) &
                   + Dxt(i,3) * ur(3,j,1) &
                   + Dxt(i,4) * ur(4,j,1) &
@@ -1176,7 +1219,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                w(i,j,k,e) = w(i,j,k,e) &
+                wa(i,j,k) = wa(i,j,k) &
                      + Dyt(j,1) * us(i,1,k) &
                      + Dyt(j,2) * us(i,2,k) &
                      + Dyt(j,3) * us(i,3,k) &
@@ -1192,7 +1235,7 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             w(i,1,k,e) = w(i,1,k,e) &
+             wa(i,1,k) = wa(i,1,k) &
                   + Dzt(k,1) * ut(i,1,1) &
                   + Dzt(k,2) * ut(i,1,2) &
                   + Dzt(k,3) * ut(i,1,3) &
@@ -1203,6 +1246,12 @@ contains
                   + Dzt(k,8) * ut(i,1,8) &
                   + Dzt(k,9) * ut(i,1,9)
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
@@ -1228,54 +1277,55 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
     integer :: e, i, j, k
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                  + Dx(i,2) * u(2,j,1,e) &
-                  + Dx(i,3) * u(3,j,1,e) &
-                  + Dx(i,4) * u(4,j,1,e) &
-                  + Dx(i,5) * u(5,j,1,e) &
-                  + Dx(i,6) * u(6,j,1,e) &
-                  + Dx(i,7) * u(7,j,1,e) &
-                  + Dx(i,8) * u(8,j,1,e)
+             wur(i,j,1) = real(Dx(i,1), xp) * u(1,j,1,e) &
+                  + real(Dx(i,2), xp) * u(2,j,1,e) &
+                  + real(Dx(i,3), xp) * u(3,j,1,e) &
+                  + real(Dx(i,4), xp) * u(4,j,1,e) &
+                  + real(Dx(i,5), xp) * u(5,j,1,e) &
+                  + real(Dx(i,6), xp) * u(6,j,1,e) &
+                  + real(Dx(i,7), xp) * u(7,j,1,e) &
+                  + real(Dx(i,8), xp) * u(8,j,1,e)
           end do
        end do
 
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                     + Dy(j,2) * u(i,2,k,e) &
-                     + Dy(j,3) * u(i,3,k,e) &
-                     + Dy(j,4) * u(i,4,k,e) &
-                     + Dy(j,5) * u(i,5,k,e) &
-                     + Dy(j,6) * u(i,6,k,e) &
-                     + Dy(j,7) * u(i,7,k,e) &
-                     + Dy(j,8) * u(i,8,k,e)
+                wus(i,j,k) = real(Dy(j,1), xp) * u(i,1,k,e) &
+                     + real(Dy(j,2), xp) * u(i,2,k,e) &
+                     + real(Dy(j,3), xp) * u(i,3,k,e) &
+                     + real(Dy(j,4), xp) * u(i,4,k,e) &
+                     + real(Dy(j,5), xp) * u(i,5,k,e) &
+                     + real(Dy(j,6), xp) * u(i,6,k,e) &
+                     + real(Dy(j,7), xp) * u(i,7,k,e) &
+                     + real(Dy(j,8), xp) * u(i,8,k,e)
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                  + Dz(k,2) * u(i,1,2,e) &
-                  + Dz(k,3) * u(i,1,3,e) &
-                  + Dz(k,4) * u(i,1,4,e) &
-                  + Dz(k,5) * u(i,1,5,e) &
-                  + Dz(k,6) * u(i,1,6,e) &
-                  + Dz(k,7) * u(i,1,7,e) &
-                  + Dz(k,8) * u(i,1,8,e)
+             wut(i,1,k) = real(Dz(k,1), xp) * u(i,1,1,e) &
+                  + real(Dz(k,2), xp) * u(i,1,2,e) &
+                  + real(Dz(k,3), xp) * u(i,1,3,e) &
+                  + real(Dz(k,4), xp) * u(i,1,4,e) &
+                  + real(Dz(k,5), xp) * u(i,1,5,e) &
+                  + real(Dz(k,6), xp) * u(i,1,6,e) &
+                  + real(Dz(k,7), xp) * u(i,1,7,e) &
+                  + real(Dz(k,8), xp) * u(i,1,8,e)
           end do
        end do
 
@@ -1296,7 +1346,7 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             w(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
+             wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
                   + Dxt(i,2) * ur(2,j,1) &
                   + Dxt(i,3) * ur(3,j,1) &
                   + Dxt(i,4) * ur(4,j,1) &
@@ -1310,7 +1360,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                w(i,j,k,e) = w(i,j,k,e) &
+                wa(i,j,k) = wa(i,j,k) &
                      + Dyt(j,1) * us(i,1,k) &
                      + Dyt(j,2) * us(i,2,k) &
                      + Dyt(j,3) * us(i,3,k) &
@@ -1325,7 +1375,7 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             w(i,1,k,e) = w(i,1,k,e) &
+             wa(i,1,k) = wa(i,1,k) &
                   + Dzt(k,1) * ut(i,1,1) &
                   + Dzt(k,2) * ut(i,1,2) &
                   + Dzt(k,3) * ut(i,1,3) &
@@ -1335,6 +1385,12 @@ contains
                   + Dzt(k,7) * ut(i,1,7) &
                   + Dzt(k,8) * ut(i,1,8)
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
@@ -1360,51 +1416,52 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
     integer :: e, i, j, k
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                  + Dx(i,2) * u(2,j,1,e) &
-                  + Dx(i,3) * u(3,j,1,e) &
-                  + Dx(i,4) * u(4,j,1,e) &
-                  + Dx(i,5) * u(5,j,1,e) &
-                  + Dx(i,6) * u(6,j,1,e) &
-                  + Dx(i,7) * u(7,j,1,e)
+             wur(i,j,1) = real(Dx(i,1), xp) * u(1,j,1,e) &
+                  + real(Dx(i,2), xp) * u(2,j,1,e) &
+                  + real(Dx(i,3), xp) * u(3,j,1,e) &
+                  + real(Dx(i,4), xp) * u(4,j,1,e) &
+                  + real(Dx(i,5), xp) * u(5,j,1,e) &
+                  + real(Dx(i,6), xp) * u(6,j,1,e) &
+                  + real(Dx(i,7), xp) * u(7,j,1,e)
           end do
        end do
 
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                     + Dy(j,2) * u(i,2,k,e) &
-                     + Dy(j,3) * u(i,3,k,e) &
-                     + Dy(j,4) * u(i,4,k,e) &
-                     + Dy(j,5) * u(i,5,k,e) &
-                     + Dy(j,6) * u(i,6,k,e) &
-                     + Dy(j,7) * u(i,7,k,e)
+                wus(i,j,k) = real(Dy(j,1), xp) * u(i,1,k,e) &
+                     + real(Dy(j,2), xp) * u(i,2,k,e) &
+                     + real(Dy(j,3), xp) * u(i,3,k,e) &
+                     + real(Dy(j,4), xp) * u(i,4,k,e) &
+                     + real(Dy(j,5), xp) * u(i,5,k,e) &
+                     + real(Dy(j,6), xp) * u(i,6,k,e) &
+                     + real(Dy(j,7), xp) * u(i,7,k,e)
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                  + Dz(k,2) * u(i,1,2,e) &
-                  + Dz(k,3) * u(i,1,3,e) &
-                  + Dz(k,4) * u(i,1,4,e) &
-                  + Dz(k,5) * u(i,1,5,e) &
-                  + Dz(k,6) * u(i,1,6,e) &
-                  + Dz(k,7) * u(i,1,7,e)
+             wut(i,1,k) = real(Dz(k,1), xp) * u(i,1,1,e) &
+                  + real(Dz(k,2), xp) * u(i,1,2,e) &
+                  + real(Dz(k,3), xp) * u(i,1,3,e) &
+                  + real(Dz(k,4), xp) * u(i,1,4,e) &
+                  + real(Dz(k,5), xp) * u(i,1,5,e) &
+                  + real(Dz(k,6), xp) * u(i,1,6,e) &
+                  + real(Dz(k,7), xp) * u(i,1,7,e)
           end do
        end do
 
@@ -1425,7 +1482,7 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             w(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
+             wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
                   + Dxt(i,2) * ur(2,j,1) &
                   + Dxt(i,3) * ur(3,j,1) &
                   + Dxt(i,4) * ur(4,j,1) &
@@ -1438,7 +1495,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                w(i,j,k,e) = w(i,j,k,e) &
+                wa(i,j,k) = wa(i,j,k) &
                      + Dyt(j,1) * us(i,1,k) &
                      + Dyt(j,2) * us(i,2,k) &
                      + Dyt(j,3) * us(i,3,k) &
@@ -1452,7 +1509,7 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             w(i,1,k,e) = w(i,1,k,e) &
+             wa(i,1,k) = wa(i,1,k) &
                   + Dzt(k,1) * ut(i,1,1) &
                   + Dzt(k,2) * ut(i,1,2) &
                   + Dzt(k,3) * ut(i,1,3) &
@@ -1461,6 +1518,12 @@ contains
                   + Dzt(k,6) * ut(i,1,6) &
                   + Dzt(k,7) * ut(i,1,7)
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
@@ -1486,48 +1549,49 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
     integer :: e, i, j, k
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                  + Dx(i,2) * u(2,j,1,e) &
-                  + Dx(i,3) * u(3,j,1,e) &
-                  + Dx(i,4) * u(4,j,1,e) &
-                  + Dx(i,5) * u(5,j,1,e) &
-                  + Dx(i,6) * u(6,j,1,e)
+             wur(i,j,1) = real(Dx(i,1), xp) * u(1,j,1,e) &
+                  + real(Dx(i,2), xp) * u(2,j,1,e) &
+                  + real(Dx(i,3), xp) * u(3,j,1,e) &
+                  + real(Dx(i,4), xp) * u(4,j,1,e) &
+                  + real(Dx(i,5), xp) * u(5,j,1,e) &
+                  + real(Dx(i,6), xp) * u(6,j,1,e)
           end do
        end do
 
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                     + Dy(j,2) * u(i,2,k,e) &
-                     + Dy(j,3) * u(i,3,k,e) &
-                     + Dy(j,4) * u(i,4,k,e) &
-                     + Dy(j,5) * u(i,5,k,e) &
-                     + Dy(j,6) * u(i,6,k,e)
+                wus(i,j,k) = real(Dy(j,1), xp) * u(i,1,k,e) &
+                     + real(Dy(j,2), xp) * u(i,2,k,e) &
+                     + real(Dy(j,3), xp) * u(i,3,k,e) &
+                     + real(Dy(j,4), xp) * u(i,4,k,e) &
+                     + real(Dy(j,5), xp) * u(i,5,k,e) &
+                     + real(Dy(j,6), xp) * u(i,6,k,e)
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                  + Dz(k,2) * u(i,1,2,e) &
-                  + Dz(k,3) * u(i,1,3,e) &
-                  + Dz(k,4) * u(i,1,4,e) &
-                  + Dz(k,5) * u(i,1,5,e) &
-                  + Dz(k,6) * u(i,1,6,e)
+             wut(i,1,k) = real(Dz(k,1), xp) * u(i,1,1,e) &
+                  + real(Dz(k,2), xp) * u(i,1,2,e) &
+                  + real(Dz(k,3), xp) * u(i,1,3,e) &
+                  + real(Dz(k,4), xp) * u(i,1,4,e) &
+                  + real(Dz(k,5), xp) * u(i,1,5,e) &
+                  + real(Dz(k,6), xp) * u(i,1,6,e)
           end do
        end do
 
@@ -1548,7 +1612,7 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             w(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
+             wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
                   + Dxt(i,2) * ur(2,j,1) &
                   + Dxt(i,3) * ur(3,j,1) &
                   + Dxt(i,4) * ur(4,j,1) &
@@ -1560,7 +1624,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                w(i,j,k,e) = w(i,j,k,e) &
+                wa(i,j,k) = wa(i,j,k) &
                      + Dyt(j,1) * us(i,1,k) &
                      + Dyt(j,2) * us(i,2,k) &
                      + Dyt(j,3) * us(i,3,k) &
@@ -1573,7 +1637,7 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             w(i,1,k,e) = w(i,1,k,e) &
+             wa(i,1,k) = wa(i,1,k) &
                   + Dzt(k,1) * ut(i,1,1) &
                   + Dzt(k,2) * ut(i,1,2) &
                   + Dzt(k,3) * ut(i,1,3) &
@@ -1581,6 +1645,12 @@ contains
                   + Dzt(k,5) * ut(i,1,5) &
                   + Dzt(k,6) * ut(i,1,6)
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
@@ -1606,45 +1676,46 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
     integer :: e, i, j, k
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                  + Dx(i,2) * u(2,j,1,e) &
-                  + Dx(i,3) * u(3,j,1,e) &
-                  + Dx(i,4) * u(4,j,1,e) &
-                  + Dx(i,5) * u(5,j,1,e)
+             wur(i,j,1) = real(Dx(i,1), xp) * u(1,j,1,e) &
+                  + real(Dx(i,2), xp) * u(2,j,1,e) &
+                  + real(Dx(i,3), xp) * u(3,j,1,e) &
+                  + real(Dx(i,4), xp) * u(4,j,1,e) &
+                  + real(Dx(i,5), xp) * u(5,j,1,e)
           end do
        end do
 
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                     + Dy(j,2) * u(i,2,k,e) &
-                     + Dy(j,3) * u(i,3,k,e) &
-                     + Dy(j,4) * u(i,4,k,e) &
-                     + Dy(j,5) * u(i,5,k,e)
+                wus(i,j,k) = real(Dy(j,1), xp) * u(i,1,k,e) &
+                     + real(Dy(j,2), xp) * u(i,2,k,e) &
+                     + real(Dy(j,3), xp) * u(i,3,k,e) &
+                     + real(Dy(j,4), xp) * u(i,4,k,e) &
+                     + real(Dy(j,5), xp) * u(i,5,k,e)
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                  + Dz(k,2) * u(i,1,2,e) &
-                  + Dz(k,3) * u(i,1,3,e) &
-                  + Dz(k,4) * u(i,1,4,e) &
-                  + Dz(k,5) * u(i,1,5,e)
+             wut(i,1,k) = real(Dz(k,1), xp) * u(i,1,1,e) &
+                  + real(Dz(k,2), xp) * u(i,1,2,e) &
+                  + real(Dz(k,3), xp) * u(i,1,3,e) &
+                  + real(Dz(k,4), xp) * u(i,1,4,e) &
+                  + real(Dz(k,5), xp) * u(i,1,5,e)
           end do
        end do
 
@@ -1665,7 +1736,7 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             w(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
+             wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
                   + Dxt(i,2) * ur(2,j,1) &
                   + Dxt(i,3) * ur(3,j,1) &
                   + Dxt(i,4) * ur(4,j,1) &
@@ -1676,7 +1747,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                w(i,j,k,e) = w(i,j,k,e) &
+                wa(i,j,k) = wa(i,j,k) &
                      + Dyt(j,1) * us(i,1,k) &
                      + Dyt(j,2) * us(i,2,k) &
                      + Dyt(j,3) * us(i,3,k) &
@@ -1688,13 +1759,19 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             w(i,1,k,e) = w(i,1,k,e) &
+             wa(i,1,k) = wa(i,1,k) &
                   + Dzt(k,1) * ut(i,1,1) &
                   + Dzt(k,2) * ut(i,1,2) &
                   + Dzt(k,3) * ut(i,1,3) &
                   + Dzt(k,4) * ut(i,1,4) &
                   + Dzt(k,5) * ut(i,1,5)
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
@@ -1720,42 +1797,43 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
     integer :: e, i, j, k
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                  + Dx(i,2) * u(2,j,1,e) &
-                  + Dx(i,3) * u(3,j,1,e) &
-                  + Dx(i,4) * u(4,j,1,e)
+             wur(i,j,1) = real(Dx(i,1), xp) * u(1,j,1,e) &
+                  + real(Dx(i,2), xp) * u(2,j,1,e) &
+                  + real(Dx(i,3), xp) * u(3,j,1,e) &
+                  + real(Dx(i,4), xp) * u(4,j,1,e)
           end do
        end do
 
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                     + Dy(j,2) * u(i,2,k,e) &
-                     + Dy(j,3) * u(i,3,k,e) &
-                     + Dy(j,4) * u(i,4,k,e)
+                wus(i,j,k) = real(Dy(j,1), xp) * u(i,1,k,e) &
+                     + real(Dy(j,2), xp) * u(i,2,k,e) &
+                     + real(Dy(j,3), xp) * u(i,3,k,e) &
+                     + real(Dy(j,4), xp) * u(i,4,k,e)
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                  + Dz(k,2) * u(i,1,2,e) &
-                  + Dz(k,3) * u(i,1,3,e) &
-                  + Dz(k,4) * u(i,1,4,e)
+             wut(i,1,k) = real(Dz(k,1), xp) * u(i,1,1,e) &
+                  + real(Dz(k,2), xp) * u(i,1,2,e) &
+                  + real(Dz(k,3), xp) * u(i,1,3,e) &
+                  + real(Dz(k,4), xp) * u(i,1,4,e)
           end do
        end do
 
@@ -1776,7 +1854,7 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             w(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
+             wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
                   + Dxt(i,2) * ur(2,j,1) &
                   + Dxt(i,3) * ur(3,j,1) &
                   + Dxt(i,4) * ur(4,j,1)
@@ -1786,7 +1864,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                w(i,j,k,e) = w(i,j,k,e) &
+                wa(i,j,k) = wa(i,j,k) &
                      + Dyt(j,1) * us(i,1,k) &
                      + Dyt(j,2) * us(i,2,k) &
                      + Dyt(j,3) * us(i,3,k) &
@@ -1797,12 +1875,18 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             w(i,1,k,e) = w(i,1,k,e) &
+             wa(i,1,k) = wa(i,1,k) &
                   + Dzt(k,1) * ut(i,1,1) &
                   + Dzt(k,2) * ut(i,1,2) &
                   + Dzt(k,3) * ut(i,1,3) &
                   + Dzt(k,4) * ut(i,1,4)
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
@@ -1828,39 +1912,40 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
     integer :: e, i, j, k
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                  + Dx(i,2) * u(2,j,1,e) &
-                  + Dx(i,3) * u(3,j,1,e)
+             wur(i,j,1) = real(Dx(i,1), xp) * u(1,j,1,e) &
+                  + real(Dx(i,2), xp) * u(2,j,1,e) &
+                  + real(Dx(i,3), xp) * u(3,j,1,e)
           end do
        end do
 
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                     + Dy(j,2) * u(i,2,k,e) &
-                     + Dy(j,3) * u(i,3,k,e)
+                wus(i,j,k) = real(Dy(j,1), xp) * u(i,1,k,e) &
+                     + real(Dy(j,2), xp) * u(i,2,k,e) &
+                     + real(Dy(j,3), xp) * u(i,3,k,e)
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                  + Dz(k,2) * u(i,1,2,e) &
-                  + Dz(k,3) * u(i,1,3,e)
+             wut(i,1,k) = real(Dz(k,1), xp) * u(i,1,1,e) &
+                  + real(Dz(k,2), xp) * u(i,1,2,e) &
+                  + real(Dz(k,3), xp) * u(i,1,3,e)
           end do
        end do
 
@@ -1881,7 +1966,7 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             w(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
+             wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
                   + Dxt(i,2) * ur(2,j,1) &
                   + Dxt(i,3) * ur(3,j,1)
           end do
@@ -1890,7 +1975,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                w(i,j,k,e) = w(i,j,k,e) &
+                wa(i,j,k) = wa(i,j,k) &
                      + Dyt(j,1) * us(i,1,k) &
                      + Dyt(j,2) * us(i,2,k) &
                      + Dyt(j,3) * us(i,3,k)
@@ -1900,11 +1985,17 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             w(i,1,k,e) = w(i,1,k,e) &
+             wa(i,1,k) = wa(i,1,k) &
                   + Dzt(k,1) * ut(i,1,1) &
                   + Dzt(k,2) * ut(i,1,2) &
                   + Dzt(k,3) * ut(i,1,3)
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
@@ -1930,36 +2021,37 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: wur(lx, lx, lx)
-    real(kind=rp) :: wus(lx, lx, lx)
-    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=xp) :: ur(lx, lx, lx)
+    real(kind=xp) :: us(lx, lx, lx)
+    real(kind=xp) :: ut(lx, lx, lx)
+    real(kind=xp) :: wur(lx, lx, lx)
+    real(kind=xp) :: wus(lx, lx, lx)
+    real(kind=xp) :: wut(lx, lx, lx)
+    real(kind=xp) :: wa(lx, lx, lx)
     integer :: e, i, j, k
 
     !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
-             wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                  + Dx(i,2) * u(2,j,1,e)
+             wur(i,j,1) = real(Dx(i,1), xp) * u(1,j,1,e) &
+                  + real(Dx(i,2), xp) * u(2,j,1,e)
           end do
        end do
 
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                     + Dy(j,2) * u(i,2,k,e)
+                wus(i,j,k) = real(Dy(j,1), xp) * u(i,1,k,e) &
+                     + real(Dy(j,2), xp) * u(i,2,k,e)
              end do
           end do
        end do
 
        do k = 1, lx
           do i = 1, lx*lx
-             wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                  + Dz(k,2) * u(i,1,2,e)
+             wut(i,1,k) = real(Dz(k,1), xp) * u(i,1,1,e) &
+                  + real(Dz(k,2), xp) * u(i,1,2,e)
           end do
        end do
 
@@ -1980,7 +2072,7 @@ contains
 
        do j = 1, lx*lx
           do i = 1, lx
-             w(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
+             wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
                   + Dxt(i,2) * ur(2,j,1)
           end do
        end do
@@ -1988,7 +2080,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                w(i,j,k,e) = w(i,j,k,e) &
+                wa(i,j,k) = wa(i,j,k) &
                      + Dyt(j,1) * us(i,1,k) &
                      + Dyt(j,2) * us(i,2,k)
              end do
@@ -1997,10 +2089,16 @@ contains
 
        do k = 1, lx
           do i = 1, lx*lx
-             w(i,1,k,e) = w(i,1,k,e) &
+             wa(i,1,k) = wa(i,1,k) &
                   + Dzt(k,1) * ut(i,1,1) &
                   + Dzt(k,2) * ut(i,1,2)
           end do
+       end do
+
+
+       ! Single truncation of the dp-accumulated operator into w
+       do i = 1, lx*lx*lx
+          w(i,1,1,e) = wa(i,1,1)
        end do
 
     end do
