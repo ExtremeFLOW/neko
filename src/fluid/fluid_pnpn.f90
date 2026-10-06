@@ -819,10 +819,9 @@ contains
 
       end if
 
-      ! Source terms that must not be extrapolated in time (direct
-      ! immersed-boundary forcing has a gain of order 1/dt and is unstable
-      ! under EXT3) are added as computed, weighted by the mass matrix and
-      ! the density like the extrapolated terms above.
+      ! Source terms that must not be extrapolated in time are added as
+      ! computed, weighted by the mass matrix and the density like the
+      ! extrapolated terms above.
       call this%source_term%compute(time, extrapolate = .false., scale = rho)
 
       if (this%ale%active) then
