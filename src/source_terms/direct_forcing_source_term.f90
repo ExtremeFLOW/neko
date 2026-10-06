@@ -206,6 +206,8 @@ module direct_forcing_source_term
      !> Distance to an element face, in reference coordinates, below which
      !! a marker counts as on the face and is nudged outward (0 disables)
      real(kind=rp) :: face_tol = 0.02_rp
+     !> Outward step of a marker on a face, in local grid spacings per pass
+     real(kind=rp) :: face_nudge = 0.02_rp
      !> Write the marker csv and register the diagnostic fields
      !! ib_response_plus/minus and ib_mask_plus for the field output
      logical :: marker_output = .false.
@@ -377,6 +379,7 @@ contains
        call json_get_or_default(json, 'face_tolerance', this%face_tol, &
             0.0_rp)
     end if
+    call json_get_or_default(json, 'face_nudge', this%face_nudge, 0.02_rp)
 
     ! ---- Report: operators first, then only the parameters they use ----
     call neko_log%message('Interp     : '// trim(interp_scheme))
@@ -931,11 +934,11 @@ contains
   !!   so a surface running along a face is forced as a wall one node
   !!   layer thick, which the flow passes between the nodes (an oblique
   !!   crossing has no such hole, the markers beyond the face cover the
-  !!   neighbour). These move outward along the normal by the one step
-  !!   that puts them twice the tolerance inside the fluid element, sized
-  !!   from the local grid spacing and the first GLL node gap, so the wall
-  !!   thickens locally by about a third of a grid spacing. Adjoint spread
-  !!   only (`face_tol` defaults to 0 for the kernel spread).
+  !!   neighbour). These move outward along the normal by `face_nudge`
+  !!   local grid spacings per pass, a few per cent by default: what is
+  !!   needed is to leave the face plane, not to thicken the footprint.
+  !!   Adjoint spread only (`face_tol` defaults to 0 for the kernel
+  !!   spread).
   !! The counts and the bounding box of the affected markers are logged.
   subroutine df_nudge_bad_markers(this, n_lag)
     class(direct_forcing_source_term_t), intent(inout) :: this
@@ -945,15 +948,12 @@ contains
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: dsm(:)
     real(kind=dp) :: delta, nrm(3), tng(3), ax(3), step(3), lo(3), hi(3), nn
-    real(kind=dp) :: gap, dz1, shift
+    real(kind=dp) :: shift
     real(kind=rp) :: rmax
     integer :: i, pass, cnt(3), kmin(1), kmax(1)
     integer, allocatable :: bad(:)
 
     delta = real(this%nudge, dp) * this%ds_min
-    ! First GLL node gap in reference coordinates, to convert a reference
-    ! distance from a face into grid spacings
-    dz1 = real(this%coef%Xh%zg(2, 1) - this%coef%Xh%zg(1, 1), dp)
     allocate(bad(n_lag), dsm(max(n_lag, 1)))
 
     do pass = 1, n_pass + 1
@@ -1023,15 +1023,16 @@ contains
           if (nn .le. tiny(nn)) cycle
           nrm = nrm / nn
           if (bad(i) .eq. 3) then
-             ! Off the face into the fluid: the reference distance still
-             ! to cover, converted to physical units with the local grid
-             ! spacing over the first GLL node gap
-             gap = 1.0_dp - real(maxval(abs(this%global_interp%rst(:, i))), dp)
-             shift = (2.0_dp * real(this%face_tol, dp) - gap) / dz1
+             ! Off the face plane into the fluid by a small fraction of
+             ! the local grid spacing. The sphere runs showed that a
+             ! displacement of a few per cent of a spacing suffices: the
+             ! fault is the marker lying on the face itself (ambiguous
+             ! owner, exact delta basis), not the thickness of its
+             ! footprint, and a larger step only thickens the wall.
              if (dsm(i) .gt. 0.0_rp) then
-                shift = shift * real(dsm(i), dp)
+                shift = real(this%face_nudge * dsm(i), dp)
              else
-                shift = shift * this%ds_min
+                shift = real(this%face_nudge, dp) * this%ds_min
              end if
              step = shift * nrm
           else if (pass .eq. 1) then
